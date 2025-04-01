@@ -50,7 +50,7 @@
             class="sw-extension-my-extensions-listing__empty-state"
         >
             <img
-                :src="assetFilter('administration/static/img/empty-states/extensions-empty-state.svg')"
+                :src="assetFilter('administration/administration/static/img/empty-states/extensions-empty-state.svg')"
                 alt=""
             >
 
@@ -68,9 +68,9 @@
                 {{ $tc('sw-extension-store.component.sw-extension-my-extensions-listing.apps.textEmptyState') }}
             </p>
 
-            <!-- TODO Codemod: Converted from sw-button - please check if everything works correctly -->
             <mt-button
                 ghost
+                variant="secondary"
                 @click="isThemeRoute ? openThemesStore() : openStore()"
             >
                 {{ $tc('sw-extension-store.component.sw-extension-my-extensions-listing.btnOpenStore') }}
@@ -96,7 +96,7 @@
                     class="sw-extension-my-extensions-listing__empty-state"
                 >
                     <img
-                        :src="assetFilter('administration/static/img/empty-states/extensions-empty-state.svg')"
+                        :src="assetFilter('administration/administration/static/img/empty-states/extensions-empty-state.svg')"
                         alt=""
                     >
 

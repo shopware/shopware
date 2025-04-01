@@ -452,6 +452,7 @@ class CartFacadeTest extends TestCase
 /**
  * @internal
  */
+#[Package('checkout')]
 class ExpectedPrice extends CalculatedPrice
 {
     public function __construct(

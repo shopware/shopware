@@ -120,13 +120,13 @@ class PaymentPayloadServiceTest extends TestCase
         $context = Context::createDefaultContext();
 
         $this->helper
-            ->expects(static::once())
+            ->expects($this->once())
             ->method('createRequestOptions')
             ->with($payload, $app)
             ->willReturn($this->buildTestPayload($context));
 
         $this->client
-            ->expects(static::once())
+            ->expects($this->once())
             ->method('request')
             ->with('POST', 'http://example.com', [
                 AuthMiddleware::APP_REQUEST_CONTEXT => $context,

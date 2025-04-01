@@ -20,7 +20,6 @@
     </template>
 
     <template #smart-bar-actions>
-        <!-- TODO Codemod: Converted from sw-button - please check if everything works correctly -->
         <mt-button
             v-tooltip="{
                 message: $tc('sw-privileges.tooltip.warning'),
@@ -29,6 +28,7 @@
             }"
             variant="primary"
             :disabled="!acl.can('cms.creator') || undefined"
+            size="default"
             @click="onCreateNewLayout"
         >
             {{ $tc('sw-cms.general.createNewLayout') }}
@@ -96,12 +96,12 @@
                             @click="onListModeChange"
                             @keydown.enter="onListModeChange"
                         >
-                            <sw-icon
+                            <mt-icon
                                 v-if="listMode === 'grid'"
                                 name="regular-view-normal"
                                 size="16"
                             />
-                            <sw-icon
+                            <mt-icon
                                 v-if="listMode === 'list'"
                                 name="regular-view-grid"
                                 size="16"
@@ -227,7 +227,7 @@
                         {% endblock %}
 
                         {% block sw_cms_list_listing_list_card %}
-                        <sw-card
+                        <mt-card
                             v-else-if="listMode === 'list'"
                             position-identifier="sw-cms-list-list-mode"
                             class="sw-cms-list__list-card"
@@ -251,7 +251,7 @@
 
                                     {% block sw_cms_list_listing_list_data_grid_column_name %}
                                     <template #column-name="{ item }">
-                                        <sw-icon
+                                        <mt-icon
                                             v-if="item.locked"
                                             name="regular-lock"
                                             class="sw-cms-list__icon-lock"
@@ -271,8 +271,8 @@
 
                                     {% block sw_cms_list_listing_list_data_grid_column_assignments %}
                                     <template #column-assignments="{ item }">
-                                        <sw-icon
-                                            small
+                                        <mt-icon
+
                                             size="10px"
                                             :name="layoutIsLinked(item.id) ? 'regular-checkmark-xs' : 'regular-times-xs'"
                                             :class="layoutIsLinked(item.id) ? 'is--active' : 'is--inactive'"
@@ -378,7 +378,7 @@
                                 </sw-data-grid>
                                 {% endblock %}
                             </template>
-                        </sw-card>
+                        </mt-card>
                         {% endblock %}
                     </div>
                     {% endblock %}
@@ -439,19 +439,20 @@
                 <div class="sw_tree__confirm-rename-text">
                     {{ $tc('sw-cms.components.cmsListItem.modal.textRenameConfirm', { pageName: currentPage.translated.name || currentPage.name }, 0) }}
                 </div>
-                <sw-text-field
-                    v-model:value="newName"
+
+                <mt-text-field
+                    v-model="newName"
                     class="sw_tree__confirm-rename-text-field"
-                    size="medium"
+                    size="default"
                 />
                 {% endblock %}
 
                 {% block sw_cms_list_rename_modal_footer %}
                 <template #modal-footer>
                     {% block sw_cms_list_rename_modal_cancel %}
-                    <!-- TODO Codemod: Converted from sw-button - please check if everything works correctly -->
                     <mt-button
                         size="small"
+                        variant="secondary"
                         @click="onCloseRenameModal"
                     >
                         {{ $tc('global.default.cancel') }}
@@ -459,7 +460,6 @@
                     {% endblock %}
 
                     {% block sw_cms_list_rename_modal_confirm %}
-                    <!-- TODO Codemod: Converted from sw-button - please check if everything works correctly -->
                     <mt-button
                         size="small"
                         variant="primary"
@@ -490,9 +490,9 @@
                 {% block sw_cms_list_delete_modal_footer %}
                 <template #modal-footer>
                     {% block sw_cms_list_delete_modal_cancel %}
-                    <!-- TODO Codemod: Converted from sw-button - please check if everything works correctly -->
                     <mt-button
                         size="small"
+                        variant="secondary"
                         @click="onCloseDeleteModal"
                     >
                         {{ $tc('global.default.cancel') }}
@@ -500,7 +500,6 @@
                     {% endblock %}
 
                     {% block sw_cms_list_delete_modal_confirm %}
-                    <!-- TODO Codemod: Converted from sw-button - please check if everything works correctly -->
                     <mt-button
                         variant="critical"
                         size="small"

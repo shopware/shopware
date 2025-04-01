@@ -2,7 +2,6 @@
 
 namespace Shopware\Tests\Integration\Core\Framework\Api;
 
-use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
@@ -15,7 +14,6 @@ use Shopware\Core\Kernel;
 /**
  * @internal
  */
-#[Group('skip-paratest')]
 class ApiAliasTest extends TestCase
 {
     use KernelTestBehaviour;
@@ -44,7 +42,7 @@ class ApiAliasTest extends TestCase
                 continue;
             }
 
-            /** @phpstan-ignore-next-line class-string could not be resolved at this point */
+            /** @phpstan-ignore argument.unresolvableType (class-string could not be resolved at this point) */
             $reflector = new \ReflectionClass($class);
 
             if (!$reflector->isSubclassOf(Struct::class)) {
@@ -55,11 +53,11 @@ class ApiAliasTest extends TestCase
                 continue;
             }
 
+            /** @phpstan-ignore method.alreadyNarrowedType (PHPStan could not detect the condition correctly, due to the ignored error above) */
             if ($reflector->isSubclassOf(AggregationResult::class)) {
                 continue;
             }
 
-            /** @phpstan-ignore-next-line PHPStan could not resolve the return type, due to the ignored error above */
             $instance = $reflector->newInstanceWithoutConstructor();
 
             if ($instance instanceof Entity) {

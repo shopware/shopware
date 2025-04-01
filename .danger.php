@@ -35,6 +35,11 @@ const BaseTestClasses = [
 return (new Config())
     ->useThreadOn(Config::REPORT_LEVEL_WARNING)
     ->useRule(function (Context $context): void {
+         if ($context->platform->pullRequest->getFiles()->has('.danger.php')) {
+             $context->notice('Any changes to .danger.php will not be reflected in your pull request. Commit your changes separately.');
+         }
+    })
+    ->useRule(function (Context $context): void {
         $files = $context->platform->pullRequest->getFiles();
 
         if ($files->matches('changelog/_unreleased/*.md')->count() === 0) {
@@ -238,7 +243,7 @@ return (new Config())
     })
     ->useRule(function (Context $context): void {
         $addedUnitTests = $context->platform->pullRequest->getFiles()
-            ->filter(fn (File $file) => in_array($file->status, [File::STATUS_ADDED, File::STATUS_MODIFIED], true))
+            ->filter(fn (File $file) => in_array($file->status, [File::STATUS_ADDED, File::STATUS_MODIFIED, File::STATUS_RENAMED], true))
             ->matches('tests/unit/**/*Test.php');
 
         $addedSrcFiles = $context->platform->pullRequest->getFiles()->filterStatus(File::STATUS_ADDED)->matches('src/**/*.php');

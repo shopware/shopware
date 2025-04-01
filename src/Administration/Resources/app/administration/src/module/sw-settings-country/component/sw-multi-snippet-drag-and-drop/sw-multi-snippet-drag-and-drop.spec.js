@@ -30,7 +30,6 @@ async function createWrapper(customPropsData = {}) {
                         <slot></slot>
                     </div>`,
                     },
-                    'sw-icon': true,
                     'sw-inheritance-switch': true,
                     'sw-color-badge': true,
                     'sw-loader': true,

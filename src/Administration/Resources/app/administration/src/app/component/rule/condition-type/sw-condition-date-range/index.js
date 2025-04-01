@@ -34,7 +34,6 @@ Component.extend('sw-condition-date-range', 'sw-condition-base', {
             get() {
                 this.ensureValueExist();
                 if (typeof this.condition.value.useTime === 'undefined') {
-                    // eslint-disable-next-line vue/no-side-effects-in-computed-properties
                     this.condition.value = {
                         ...this.condition.value,
                         useTime: false,
@@ -46,6 +45,8 @@ Component.extend('sw-condition-date-range', 'sw-condition-base', {
             set(useTime) {
                 this.ensureValueExist();
                 this.condition.value = { ...this.condition.value, useTime };
+                this.fromDate = this.condition.value.fromDate;
+                this.toDate = this.condition.value.toDate;
             },
         },
 
@@ -57,12 +58,9 @@ Component.extend('sw-condition-date-range', 'sw-condition-base', {
             set(fromDate) {
                 this.ensureValueExist();
 
-                // eslint-disable-next-line max-len
-                const date =
-                    this.isDateTime === 'datetime' ? fromDate.replace('.000Z', '+00:00') : fromDate.concat('+00:00');
                 this.condition.value = {
                     ...this.condition.value,
-                    fromDate: date,
+                    fromDate: this.formatDate(fromDate, '00:00:00+00:00'),
                 };
             },
         },
@@ -75,10 +73,9 @@ Component.extend('sw-condition-date-range', 'sw-condition-base', {
             set(toDate) {
                 this.ensureValueExist();
 
-                const date = this.isDateTime === 'datetime' ? toDate.replace('.000Z', '+00:00') : toDate.concat('+00:00');
                 this.condition.value = {
                     ...this.condition.value,
-                    toDate: date,
+                    toDate: this.formatDate(toDate, '23:59:59+00:00'),
                 };
             },
         },
@@ -95,6 +92,20 @@ Component.extend('sw-condition-date-range', 'sw-condition-base', {
 
         currentError() {
             return this.conditionValueUseTimeError || this.conditionValueFromDateError || this.conditionValueToDateError;
+        },
+    },
+
+    methods: {
+        formatDate(date, dateModifier) {
+            if (!date) {
+                return null;
+            }
+
+            if (this.isDateTime === 'datetime') {
+                return date.replace('.000Z', '+00:00');
+            }
+
+            return date.split('T')[0].concat('T'.concat(dateModifier));
         },
     },
 });

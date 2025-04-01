@@ -73,7 +73,7 @@ class SlotConfigFieldSerializerTest extends TestCase
     {
         $validator = $this->createMock(ValidatorInterface::class);
         $validator
-            ->expects(static::once())
+            ->expects($this->once())
             ->method('validate')
             ->with($value, $expected)
             ->willReturn(new ConstraintViolationList());

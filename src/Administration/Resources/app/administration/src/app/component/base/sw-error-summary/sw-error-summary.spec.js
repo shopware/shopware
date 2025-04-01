@@ -10,9 +10,6 @@ async function createWrapper(errors = {}, options = {}) {
     return mount(await wrapTestComponent('sw-error-summary', { sync: true }), {
         attachTo: document.body,
         global: {
-            stubs: {
-                'sw-icon': true,
-            },
             ...options,
         },
     });

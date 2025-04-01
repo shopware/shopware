@@ -33,15 +33,15 @@
         {% endblock %}
 
         {% block sw_media_field_toggle_button %}
-        <!-- TODO Codemod: Converted from sw-button - please check if everything works correctly -->
         <mt-button
             class="sw-media-field__toggle-button"
             square
             :disabled="disabled"
+            variant="secondary"
             @click="onTogglePicker"
         >
             {% block sw_media_field_media_icon %}
-            <sw-icon name="regular-image" />
+            <mt-icon name="regular-image" />
             {% endblock %}
 
             {% block sw_media_field_media_popover %}
@@ -55,31 +55,31 @@
                     {% block sw_media_field_action_bar %}
                     <div class="sw-media-field__actions_bar">
                         {% block sw_media_field_action_bar_button_toggle %}
-                        <!-- TODO Codemod: Converted from sw-button - please check if everything works correctly -->
                         <mt-button
                             class="sw-media-field__action-button"
+                            variant="secondary"
                             @click="toggleUploadField"
                         >
-                            <sw-icon
+                            <mt-icon
                                 class="sw-media-field__icon-add"
                                 name="regular-plus"
-                                small
+                                size="16px"
                             />
                             {{ toggleButtonLabel }}
                         </mt-button>
                         {% endblock %}
 
                         {% block sw_media_field_action_bar_button_unlink %}
-                        <!-- TODO Codemod: Converted from sw-button - please check if everything works correctly -->
                         <mt-button
                             v-if="mediaId"
                             class="sw-media-field__action-button is--remove"
+                            variant="secondary"
                             @click="removeLink"
                         >
-                            <sw-icon
+                            <mt-icon
                                 class="sw-media-field__icon-remove"
                                 name="regular-times-circle-s"
-                                small
+                                size="16px"
                             />
                             {{ $tc('global.sw-media-field.labelUnlink') }}
                         </mt-button>

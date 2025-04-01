@@ -45,7 +45,6 @@
 
         {% block sw_order_detail_actions_slot_smart_bar_actions %}
         {% block sw_order_detail_actions_abort %}
-        <!-- TODO Codemod: Converted from sw-button - please check if everything works correctly -->
         <mt-button
             v-tooltip="{
                 message: $tc('sw-privileges.tooltip.warning'),
@@ -54,6 +53,8 @@
             }"
             class="sw-order-detail__smart-bar-cancel-button"
             :disabled="isLoading || !acl.can('order.editor')"
+            variant="secondary"
+            size="default"
             @click="onCancelEditing"
         >
             {{ $tc('global.default.cancel') }}
@@ -186,7 +187,7 @@
                 >
                     {{ $tc('sw-order.detail.tabDocuments') }}
 
-                    <sw-icon
+                    <mt-icon
                         v-if="isOrderEditing"
                         v-tooltip="{ message: $tc('sw-order.documentTab.tooltipSaveBeforeCreateDocument') }"
                         class="sw-order-detail__tab-warning-badge"

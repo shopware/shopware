@@ -26,15 +26,12 @@ async function createWrapper() {
                 },
                 stubs: {
                     'sw-page': await wrapTestComponent('sw-page'),
-                    'sw-icon': true,
                     'sw-card-view': await wrapTestComponent('sw-card-view'),
                     'sw-button-process': await wrapTestComponent('sw-button-process'),
                     'sw-skeleton': true,
                     'sw-system-config': await wrapTestComponent('sw-system-config'),
                     'sw-search-bar': true,
                     'sw-loader': true,
-                    'sw-card': await wrapTestComponent('sw-card'),
-                    'sw-card-deprecated': await wrapTestComponent('sw-card-deprecated', { sync: true }),
                     'sw-ignore-class': true,
                     'sw-extension-component-section': true,
                     'sw-error-summary': true,
@@ -171,16 +168,6 @@ describe('module/sw-settings-media/page/sw-settings-media', () => {
         await flushPromises();
 
         await wrapper.vm.$nextTick();
-        expect(wrapper.find('.sw-card-view').find('.sw-system-config').find('.sw-card').exists()).toBeTruthy();
-    });
-
-    it('should change the slider value', async () => {
-        const wrapper = await createWrapper();
-        await flushPromises();
-
-        await wrapper.vm.$nextTick();
-        wrapper.vm.onSliderChange(50);
-
-        expect(wrapper.vm.sliderValue).toBe(50);
+        expect(wrapper.find('.sw-card-view').find('.sw-system-config').find('.mt-card').exists()).toBeTruthy();
     });
 });

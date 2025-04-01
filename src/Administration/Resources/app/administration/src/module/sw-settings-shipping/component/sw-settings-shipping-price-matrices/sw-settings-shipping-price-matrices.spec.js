@@ -18,12 +18,10 @@ describe('module/sw-settings-shipping/component/sw-settings-shipping-price-matri
                         'sw-settings-shipping-price-matrix': await wrapTestComponent('sw-settings-shipping-price-matrix', {
                             sync: true,
                         }),
-                        'sw-card': true,
-
+                        'mt-card': true,
                         'sw-container': true,
                         'sw-select-rule-create': true,
                         'sw-single-select': true,
-                        'sw-icon': true,
                         'sw-popover': true,
                         'sw-text-field': await wrapTestComponent('sw-text-field'),
                         'sw-text-field-deprecated': await wrapTestComponent('sw-text-field-deprecated', { sync: true }),
@@ -31,10 +29,10 @@ describe('module/sw-settings-shipping/component/sw-settings-shipping-price-matri
                             sync: true,
                         }),
                         'sw-data-grid': await wrapTestComponent('sw-data-grid'),
-                        'sw-number-field': {
-                            template: '<input type="number" v-model="value" />',
+                        'mt-number-field': {
+                            template: '<input type="number" v-model="modelValue" v-bind="$attrs" />',
                             props: [
-                                'value',
+                                'modelValue',
                                 'size',
                             ],
                         },
@@ -175,7 +173,7 @@ describe('module/sw-settings-shipping/component/sw-settings-shipping-price-matri
 
         await flushPromises();
 
-        const matrices = wrapper.findAllComponents('.sw-settings-shipping-price-matrix');
+        const matrices = wrapper.findAll('.sw-settings-shipping-price-matrix');
 
         expect(matrices).toHaveLength(1);
     });
@@ -193,7 +191,7 @@ describe('module/sw-settings-shipping/component/sw-settings-shipping-price-matri
 
         await nextTick();
 
-        const matrices = wrapper.findAllComponents('.sw-settings-shipping-price-matrix');
+        const matrices = wrapper.findAll('.sw-settings-shipping-price-matrix');
 
         expect(matrices).toHaveLength(2);
     });
@@ -214,7 +212,7 @@ describe('module/sw-settings-shipping/component/sw-settings-shipping-price-matri
 
         await nextTick();
 
-        const matrices = wrapper.findAllComponents('.sw-settings-shipping-price-matrix');
+        const matrices = wrapper.findAll('.sw-settings-shipping-price-matrix');
 
         expect(matrices).toHaveLength(5);
     });

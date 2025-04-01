@@ -21,7 +21,7 @@ class UserProvisionerTest extends TestCase
         $localeId = Uuid::randomBytes();
         $connection = $this->createMock(Connection::class);
 
-        $connection->expects(static::once())
+        $connection->expects($this->once())
             ->method('insert')
             ->with(
                 'user',
@@ -37,8 +37,8 @@ class UserProvisionerTest extends TestCase
                     return password_verify('shopware', (string) $data['password']);
                 })
             );
-        $connection->expects(static::once())->method('fetchOne')->willReturn(json_encode(['_value' => 8], \JSON_THROW_ON_ERROR));
-        $connection->expects(static::exactly(2))->method('createQueryBuilder')->willReturnOnConsecutiveCalls(
+        $connection->expects($this->once())->method('fetchOne')->willReturn(json_encode(['_value' => 8], \JSON_THROW_ON_ERROR));
+        $connection->expects($this->exactly(2))->method('createQueryBuilder')->willReturnOnConsecutiveCalls(
             new FakeQueryBuilder($connection, []),
             new FakeQueryBuilder($connection, [[$localeId]])
         );
@@ -57,10 +57,10 @@ class UserProvisionerTest extends TestCase
     public function testProvisionThrowsIfUserAlreadyExists(): void
     {
         $connection = $this->createMock(Connection::class);
-        $connection->expects(static::never())
+        $connection->expects($this->never())
             ->method('insert');
 
-        $connection->expects(static::once())->method('createQueryBuilder')->willReturnOnConsecutiveCalls(
+        $connection->expects($this->once())->method('createQueryBuilder')->willReturnOnConsecutiveCalls(
             new FakeQueryBuilder($connection, [[Uuid::randomBytes()]]),
         );
 
@@ -80,14 +80,14 @@ class UserProvisionerTest extends TestCase
     public function testProvisionThrowsIfPasswordTooShort(): void
     {
         $connection = $this->createMock(Connection::class);
-        $connection->expects(static::never())
+        $connection->expects($this->never())
             ->method('insert');
 
-        $connection->expects(static::once())->method('createQueryBuilder')->willReturnOnConsecutiveCalls(
+        $connection->expects($this->once())->method('createQueryBuilder')->willReturnOnConsecutiveCalls(
             new FakeQueryBuilder($connection, []),
         );
 
-        $connection->expects(static::once())->method('fetchOne')->willReturn(json_encode(['_value' => 8], \JSON_THROW_ON_ERROR));
+        $connection->expects($this->once())->method('fetchOne')->willReturn(json_encode(['_value' => 8], \JSON_THROW_ON_ERROR));
 
         $user = [
             'firstName' => 'first',

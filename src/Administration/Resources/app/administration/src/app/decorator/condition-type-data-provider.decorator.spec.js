@@ -11,6 +11,26 @@ describe('entity-collection.data.ts', () => {
         });
     });
 
+    it('should configure rule awareness configurations', async () => {
+        const expectedConfigs = [
+            'shippingMethodPrices',
+            'shippingMethodPriceCalculations',
+            'promotionDiscounts',
+            'promotionSetGroups',
+            'cartPromotions',
+            'orderPromotions',
+            'personaPromotions',
+        ];
+
+        const ruleAwareness = Shopware.Service('ruleConditionDataProviderService').awarenessConfiguration;
+
+        expect(Object.keys(ruleAwareness)).toHaveLength(expectedConfigs.length);
+
+        expectedConfigs.forEach((config) => {
+            expect(ruleAwareness).toHaveProperty(config);
+        });
+    });
+
     it('should register conditions with correct scope', async () => {
         const condition = Shopware.Service('ruleConditionDataProviderService').getByType('language');
 

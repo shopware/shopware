@@ -64,7 +64,7 @@
         <template #icon>
             {% block sw_product_add_properties_modal_empty_state_image %}
             <img
-                :src="assetFilter('/administration/static/img/empty-states/products-empty-state.svg')"
+                :src="assetFilter('/administration/administration/static/img/empty-states/products-empty-state.svg')"
                 :alt="$tc('sw-product.properties.addPropertiesModal.titleEmptyState')"
             >
             {% endblock %}
@@ -72,9 +72,9 @@
 
         <template #actions>
             {% block sw_product_properties_empty_state_button_property %}
-            <!-- TODO Codemod: Converted from sw-button - please check if everything works correctly -->
             <mt-button
                 ghost
+                variant="secondary"
                 @click="onOpenProperties"
             >
                 {{ $tc('sw-product.properties.buttonAddProperties') }}
@@ -86,9 +86,9 @@
 
     <template #modal-footer>
         {% block sw_product_add_properties_modal_button_cancel %}
-        <!-- TODO Codemod: Converted from sw-button - please check if everything works correctly -->
         <mt-button
             size="small"
+            variant="secondary"
             @click="onCancel"
         >
             {{ $tc('global.default.cancel') }}
@@ -96,7 +96,6 @@
         {% endblock %}
 
         {% block sw_product_add_properties_modal_button_save %}
-        <!-- TODO Codemod: Converted from sw-button - please check if everything works correctly -->
         <mt-button
             v-if="showSaveButton"
             class="sw-product-add-properties-modal__button-save"

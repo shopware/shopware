@@ -24,8 +24,8 @@
     <div v-if="loginConfigLoaded">
         <template v-if="loginConfig.useDefault">
             {% block sw_login_login_user_field %}
-            <sw-text-field
-                v-model:value="username"
+            <mt-text-field
+                v-model="username"
                 v-autofocus
                 name="sw-field--username"
                 :label="$tc('sw-login.index.labelUsername')"
@@ -36,8 +36,8 @@
             {% endblock %}
 
             {% block sw_login_login_password_field %}
-            <sw-password-field
-                v-model:value="password"
+            <mt-password-field
+                v-model="password"
                 name="sw-field--password"
                 :label="$tc('sw-login.index.labelPassword')"
                 :placeholder="$tc('sw-login.index.placeholderPassword')"
@@ -46,8 +46,8 @@
             />
             {% endblock %}
 
-            <sw-checkbox-field
-                v-model:value="rememberMe"
+            <mt-checkbox-field
+                v-model:checked="rememberMe"
                 :label="$tc('sw-login.index.labelKeepLoggedIn')"
             />
 
@@ -68,6 +68,7 @@
                     :disabled="password.length <= 0 || username.length <= 0 || showLoginAlert"
                     class="sw-login__login-action"
                     variant="primary"
+                    type="submit"
                 >
                     {{ $tc('sw-login.index.buttonLogin') }}
                 </mt-button>
@@ -83,7 +84,7 @@
                 :href="loginConfig.url"
             >
                 {{ $tc('sw-login.index.buttonSsoLogin') }}
-                <sw-icon name="regular-shopware"/>
+                <mt-icon name="regular-shopware"/>
             </a>
         </div>
     </div>

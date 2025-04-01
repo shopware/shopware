@@ -40,10 +40,11 @@
     <template #smart-bar-actions>
         <template v-if="category || landingPage">
             {% block sw_category_smart_bar_abort %}
-            <!-- TODO Codemod: Converted from sw-button - please check if everything works correctly -->
             <mt-button
                 v-tooltip.bottom="tooltipCancel"
                 :disabled="isLoading"
+                variant="secondary"
+                size="default"
                 @click="cancelEdit"
             >
                 {{ $tc('global.default.cancel') }}
@@ -102,7 +103,7 @@
                     v-if="categoryCheckedItem > 0"
                     class="sw-category-detail__collapse-selected-count"
                 >
-                    {{ $tc(`sw-category.general.treeHeadSelected`, 0, { count: categoryCheckedItem }) }}:
+                    {{ $tc(`sw-category.general.treeHeadSelected`, { count: categoryCheckedItem }) }}:
                 </div>
                 <div
                     v-else
@@ -118,7 +119,6 @@
 
                 {% block sw_category_collapse_actions %}
                 <div v-if="categoryCheckedItem > 0">
-                    <!-- TODO Codemod: Converted from sw-button - please check if everything works correctly -->
                     <mt-button
                         class="sw-tree-actions__delete_categories"
                         variant="critical"
@@ -163,7 +163,7 @@
                     v-if="landingPageCheckedItem > 0"
                     class="sw-category-detail__collapse-selected-count"
                 >
-                    {{ $tc(`sw-landing-page.general.treeHeadSelected`, 0, { count: landingPageCheckedItem }) }}:
+                    {{ $tc(`sw-landing-page.general.treeHeadSelected`, { count: landingPageCheckedItem }) }}:
                 </div>
                 <div
                     v-else
@@ -179,7 +179,6 @@
 
                 {% block sw_landing_page_collapse_actions %}
                 <div v-if="landingPageCheckedItem > 0">
-                    <!-- TODO Codemod: Converted from sw-button - please check if everything works correctly -->
                     <mt-button
                         class="sw-tree-actions__delete_categories"
                         variant="critical"
@@ -264,7 +263,7 @@
             >
                 <template #icon>
                     <img
-                        :src="assetFilter('/administration/static/img/empty-states/products-empty-state.svg')"
+                        :src="assetFilter('/administration/administration/static/img/empty-states/products-empty-state.svg')"
                         :alt="$tc('sw-category.general.emptyStateHeadline')"
                     >
                 </template>

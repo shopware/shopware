@@ -10,6 +10,7 @@ describe('NavbarPlugin', () => {
         mockElement = document.createElement('div');
         mockLink = document.createElement('a');
         mockLink.classList.add('main-navigation-link');
+        mockLink.href = '#';
         mockElement.appendChild(mockLink);
 
         // Spy on addEventListener method and window open method
@@ -38,6 +39,34 @@ describe('NavbarPlugin', () => {
 
         expect(navbarPlugin._topLevelLinks).not.toBeNull();
         expect(mockLink.addEventListener).toHaveBeenCalledTimes(3);
+    });
+
+    test('init should omit click event for elements without a reference', () => {
+        // Create a new instance of NavbarPlugin inside the test
+        navbarPlugin = new NavbarPlugin(mockElement, {}, false);
+        mockLink.removeAttribute('href');
+        navbarPlugin._topLevelLinks = [mockLink];
+
+        // Clear the mock history of addEventListener
+        mockLink.addEventListener.mockClear();
+
+        navbarPlugin.init();
+
+        const addedEvents = {};
+        mockLink.addEventListener.mock.calls.forEach(call => {
+            addedEvents[call[0]] = call[1];
+        });
+
+        expect(navbarPlugin._topLevelLinks).not.toBeNull();
+        expect(mockLink.addEventListener).toHaveBeenCalledTimes(2);
+
+        expect(addedEvents['mouseenter']).toBeDefined();
+        expect(typeof addedEvents['mouseenter']).toBe('function');
+
+        expect(addedEvents['mouseleave']).toBeDefined();
+        expect(typeof addedEvents['mouseleave']).toBe('function');
+
+        expect(addedEvents).not.toContain('click');
     });
 
     test('_toggleNavbar should handle mouseenter and mouseleave events', () => {
@@ -157,5 +186,30 @@ describe('NavbarPlugin', () => {
         navbarPlugin._topLevelLinks = [mockLink];
         navbarPlugin._closeAllDropdowns();
         expect(mockDropdown.hide).toHaveBeenCalled();
+    });
+
+    test('_setAriaCurrentPage should be called on load event', () => {
+        const mockEvent = new Event('load');
+        jest.spyOn(navbarPlugin, '_setAriaCurrentPage'); // Spy on the method
+
+        window.addEventListener('load', () => {
+            navbarPlugin._setAriaCurrentPage();
+        });
+        window.dispatchEvent(mockEvent);
+
+        expect(navbarPlugin._setAriaCurrentPage).toHaveBeenCalled();
+    });
+
+    test('if aria-current is set for one nav-item', () => {
+        const mockLink = document.createElement('a');
+        mockLink.classList.add('nav-item-1-link');
+        mockLink.setAttribute('href', 'https://example.com');
+        mockElement.appendChild(mockLink);
+
+        window.activeNavigationId = 1; // Set the activeNavigationId
+
+        navbarPlugin._setAriaCurrentPage();
+
+        expect(mockLink.getAttribute('aria-current')).toBe('page');
     });
 });

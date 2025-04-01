@@ -28,7 +28,6 @@ async function createWrapper() {
                 'sw-tabs': true,
                 'sw-tabs-item': true,
                 'sw-product-variants-delivery-order': true,
-                'sw-icon': true,
                 'sw-product-variants-delivery-media': true,
                 'sw-product-variants-delivery-listing': true,
                 'sw-loader': true,

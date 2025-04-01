@@ -43,8 +43,6 @@ async function createWrapper(profiles = null) {
         {
             global: {
                 stubs: {
-                    'sw-card': await wrapTestComponent('sw-card'),
-                    'sw-card-deprecated': await wrapTestComponent('sw-card-deprecated', { sync: true }),
                     'sw-simple-search-field': true,
                     'sw-entity-listing': await wrapTestComponent('sw-entity-listing'),
                     'sw-import-export-edit-profile-modal': {
@@ -68,7 +66,6 @@ async function createWrapper(profiles = null) {
                     'router-link': true,
                     'sw-bulk-edit-modal': true,
                     'sw-checkbox-field': true,
-                    'sw-icon': true,
                     'sw-data-grid-settings': true,
                     'sw-data-grid-column-boolean': true,
                     'sw-data-grid-inline-edit': true,

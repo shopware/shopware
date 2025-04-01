@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Framework\Webhook;
 
+use Shopware\Core\Content\Media\Event\MediaUploadedEvent;
 use Shopware\Core\Framework\App\AppEntity;
 use Shopware\Core\Framework\App\Event\AppActivatedEvent;
 use Shopware\Core\Framework\App\Event\AppDeactivatedEvent;
@@ -16,6 +17,7 @@ use Shopware\Core\System\SystemConfig\Event\SystemConfigChangedHook;
 interface Hookable
 {
     public const HOOKABLE_EVENTS = [
+        MediaUploadedEvent::class => MediaUploadedEvent::EVENT_NAME,
         AppActivatedEvent::class => AppActivatedEvent::NAME,
         AppDeactivatedEvent::class => AppDeactivatedEvent::NAME,
         AppDeletedEvent::class => AppDeletedEvent::NAME,
@@ -26,6 +28,7 @@ interface Hookable
     ];
 
     public const HOOKABLE_EVENTS_DESCRIPTION = [
+        MediaUploadedEvent::class => 'Fires when a media file is uploaded',
         AppActivatedEvent::class => 'Fires when an app is activated',
         AppDeactivatedEvent::class => 'Fires when an app is deactivated',
         AppDeletedEvent::class => 'Fires when an app is deleted',
@@ -33,6 +36,17 @@ interface Hookable
         AppUpdatedEvent::class => 'Fires when an app is updated',
         UpdatePostFinishEvent::class => 'Fires after an shopware update has been finished',
         SystemConfigChangedHook::class => 'Fires when a system config value is changed',
+    ];
+
+    public const HOOKABLE_EVENTS_PRIVILEGES = [
+        MediaUploadedEvent::class => ['media:read'],
+        AppActivatedEvent::class => [],
+        AppDeactivatedEvent::class => [],
+        AppDeletedEvent::class => [],
+        AppInstalledEvent::class => [],
+        AppUpdatedEvent::class => [],
+        UpdatePostFinishEvent::class => [],
+        SystemConfigChangedHook::class => ['system_config:read'],
     ];
 
     public function getName(): string;

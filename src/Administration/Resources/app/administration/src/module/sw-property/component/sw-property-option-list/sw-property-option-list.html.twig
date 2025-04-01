@@ -1,5 +1,5 @@
 {% block sw_property_option_list %}
-<sw-card
+<mt-card
     :is-loading="isLoading"
     class="sw-property-option-list"
     position-identifier="sw-property-option-list"
@@ -25,7 +25,6 @@
             {% endblock %}
 
             {% block sw_property_option_list_toolbar_delete %}
-            <!-- TODO Codemod: Converted from sw-button - please check if everything works correctly -->
             <mt-button
                 v-tooltip="{
                     message: $tc('sw-privileges.tooltip.warning'),
@@ -36,18 +35,18 @@
                 square
                 size="small"
                 class="sw-property-option-list__delete-button"
+                variant="secondary"
                 @click="onDeleteOptions"
             >
-                <sw-icon
+                <mt-icon
                     name="regular-trash"
-                    small
+                    size="16px"
                 />
             </mt-button>
             {% endblock %}
 
             {% block sw_property_option_list_toolbar_add %}
             <sw-container v-tooltip="tooltipAdd">
-                <!-- TODO Codemod: Converted from sw-button - please check if everything works correctly -->
                 <mt-button
                     v-tooltip="{
                         message: $tc('sw-privileges.tooltip.warning'),
@@ -57,6 +56,7 @@
                     :disabled="disableAddButton"
                     size="small"
                     class="sw-property-option-list__add-button"
+                    variant="secondary"
                     @click="onAddOption(propertyGroup)"
                 >
                     {{ $tc('sw-property.detail.addOption') }}
@@ -86,8 +86,9 @@
 
             <template #column-name="{ item, isInlineEdit }">
                 <template v-if="isInlineEdit">
-                    <sw-text-field
-                        v-model:value="item.name"
+
+                    <mt-text-field
+                        v-model="item.name"
                         size="small"
                     />
                 </template>
@@ -145,5 +146,5 @@
     {% block sw_property_option_list_loader %}
     <sw-loader v-if="isLoading" />
     {% endblock %}
-</sw-card>
+</mt-card>
 {% endblock %}

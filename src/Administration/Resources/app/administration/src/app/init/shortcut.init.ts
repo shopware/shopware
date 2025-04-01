@@ -64,7 +64,7 @@ function defaultShortcutMap() {
         { combination: 'GN', path: '/sw/newsletter/recipient/index' },
         { combination: 'GS', path: '/sw/settings/index' },
         { combination: 'GSN', path: '/sw/settings/snippet/index' },
-        { combination: 'GSP', path: '/sw/settings/payment/index' },
+        { combination: 'GSP', path: '/sw/settings/payment/overview' },
         { combination: 'GSS', path: '/sw/settings/shipping/index' },
         { combination: 'GSR', path: '/sw/settings/rule/index' },
         { combination: 'GA', path: '/sw/extension/my-extensions/listing/app' },

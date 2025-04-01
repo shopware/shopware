@@ -185,7 +185,7 @@ issue: NEXT-39235
   * Deprecated block `page_account_guest_auth_postcode_label` in `guest-auth.html.twig`.
   * Deprecated block `page_account_guest_auth_postcode_input` in `guest-auth.html.twig`.
 * Deprecated `form-validation.plugin.js` for v.6.8.0 - Use `form-handler.plugin.js` instead.
-* Deprecated `form-scroll-to-invalid-field.plugin.js` for v.6.8.0 - Use `form-handler.plugin.js` instead.
+* Deprecated `form-scroll-to-invalid-field.plugin.js` for v.6.7.0 - Use `form-handler.plugin.js` instead.
 * Deprecated `form-submit-loader.plugin.js` for v.6.8.0 - Use `form-handler.plugin.js` instead.
 
 ___

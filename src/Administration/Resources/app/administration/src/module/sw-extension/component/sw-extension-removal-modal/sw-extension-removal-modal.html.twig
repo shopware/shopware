@@ -17,8 +17,9 @@
         </p>
 
         <p>
-            <sw-switch-field
-                v-model:value="removePluginData"
+
+            <mt-switch
+                v-model="removePluginData"
                 :label="$tc('sw-extension-store.component.sw-extension-uninstall-modal.labelRemovePluginData')"
                 :help-text="$tc('sw-extension-store.component.sw-extension-uninstall-modal.helpTextRemovePluginData')"
             />
@@ -29,10 +30,10 @@
     <template #modal-footer>
         {% block sw_extension_removal_modal_footer %}
         {% block sw_extension_removal_modal_footer_cancel %}
-        <!-- TODO Codemod: Converted from sw-button - please check if everything works correctly -->
         <mt-button
             size="small"
             :disabled="isLoading"
+            variant="secondary"
             @click="emitClose"
         >
             {{ $tc('global.default.cancel') }}
@@ -40,7 +41,6 @@
         {% endblock %}
 
         {% block sw_extension_removal_modal_footer_deactivate %}
-        <!-- TODO Codemod: Converted from sw-button - please check if everything works correctly -->
         <mt-button
             variant="critical"
             size="small"

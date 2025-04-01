@@ -36,10 +36,6 @@ async function createWrapper() {
                 'sw-address': await wrapTestComponent('sw-address', {
                     sync: true,
                 }),
-                'sw-card': await wrapTestComponent('sw-card', {
-                    sync: true,
-                }),
-                'sw-card-deprecated': await wrapTestComponent('sw-card-deprecated', { sync: true }),
                 'sw-description-list': await wrapTestComponent('sw-description-list', { sync: true }),
                 'sw-extension-component-section': true,
                 'sw-ai-copilot-badge': true,

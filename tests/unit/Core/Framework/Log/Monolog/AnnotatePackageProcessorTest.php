@@ -22,7 +22,6 @@ use Symfony\Component\Messenger\Exception\HandlerFailedException;
 /**
  * @internal
  */
-// @phpstan-ignore-next-line
 #[Package('cause')]
 #[CoversClass(AnnotatePackageProcessor::class)]
 class AnnotatePackageProcessorTest extends TestCase
@@ -67,7 +66,7 @@ class AnnotatePackageProcessorTest extends TestCase
         $request = new Request();
         $request->attributes->set('_controller', 'test.controller::load');
         $requestStack->push($request);
-        $container->expects(static::once())
+        $container->expects($this->once())
             ->method('get')
             ->with('test.controller', ContainerInterface::NULL_ON_INVALID_REFERENCE)
             ->willReturn(new TestController());
@@ -102,7 +101,7 @@ class AnnotatePackageProcessorTest extends TestCase
         $request = new Request();
         $request->attributes->set('_controller', 'test.controller::load');
         $requestStack->push($request);
-        $container->expects(static::once())
+        $container->expects($this->once())
             ->method('get')
             ->with('test.controller', ContainerInterface::NULL_ON_INVALID_REFERENCE)
             ->willReturn(null);
@@ -279,11 +278,10 @@ class AnnotatePackageProcessorTest extends TestCase
 /**
  * @internal
  */
-// @phpstan-ignore-next-line
 #[Package('controller')]
 class TestController
 {
-    public function load(Request $request): Response
+    public function load(): Response
     {
         return new Response();
     }
@@ -294,7 +292,7 @@ class TestController
  */
 class TestControllerNoPackage
 {
-    public function load(Request $request): Response
+    public function load(): Response
     {
         return new Response();
     }
@@ -303,7 +301,6 @@ class TestControllerNoPackage
 /**
  * @internal
  */
-// @phpstan-ignore-next-line
 #[Package('exception')]
 class TestException extends ShopwareHttpException
 {
@@ -327,7 +324,6 @@ class TestExceptionNoPackage extends ShopwareHttpException
 /**
  * @internal
  */
-// @phpstan-ignore-next-line
 #[Package('command')]
 class TestCommand extends Command
 {
@@ -335,15 +331,12 @@ class TestCommand extends Command
     {
         $testCause = new TestCause();
         $testCause->throw(new TestException('test'));
-
-        return Command::SUCCESS;
     }
 }
 
 /**
  * @internal
  */
-// @phpstan-ignore-next-line
 #[Package('command')]
 class TestNestedCommand extends Command
 {
@@ -351,19 +344,16 @@ class TestNestedCommand extends Command
     {
         $testCause = new TestCause();
         $testCause->throw(new HandlerFailedException(new Envelope(new \stdClass()), [new TestException('test')]));
-
-        return Command::SUCCESS;
     }
 }
 
 /**
  * @internal
  */
-// @phpstan-ignore-next-line
 #[Package('cause')]
 class TestCause extends Command
 {
-    public function throw(\Throwable $exception): int
+    public function throw(\Throwable $exception): never
     {
         throw $exception;
     }

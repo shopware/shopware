@@ -4,6 +4,10 @@
 
 .order-detail-content-header {
     display: none;
+    padding-left: 0;
+    padding-right: 0;
+    margin-right: $order-grid-gutter-width;
+    margin-left: $order-grid-gutter-width;
 }
 
 .document-detail-content-header {
@@ -18,12 +22,6 @@
     padding-bottom: $spacer-sm;
 }
 
-.order-detail-content-header,
-.order-item-detail-footer {
-    padding-left: $order-grid-gutter-width / 2;
-    padding-right: $order-grid-gutter-width / 2;
-}
-
 .order-detail-content-body {
     &.has-element-loader {
         min-height: 70px;
@@ -35,16 +33,12 @@
     }
 }
 
-.order-detail-content-header,
-.order-detail-content-row {
-    margin-right: $order-grid-gutter-width;
-    margin-left: $order-grid-gutter-width;
-}
-
 .order-detail-content-row {
     font-weight: $font-weight-normal;
     padding-top: $spacer;
     padding-bottom: $spacer;
+    margin-right: $order-grid-gutter-width;
+    margin-left: $order-grid-gutter-width;
 
     .document-item {
         padding-left: $spacer-sm;
@@ -133,13 +127,15 @@
 
 .order-item-detail-footer {
     padding: $spacer;
-}
+    padding-left: $order-grid-gutter-width / 2;
+    padding-right: $order-grid-gutter-width / 2;
 
-.order-item-detail-footer dl {
-    dt.col,
-    dt[class*='col-'] {
-        margin-bottom: $spacer-sm;
-        padding-right: $spacer-sm;
+    dl {
+        dt.col,
+        dt[class*='col-'] {
+            margin-bottom: $spacer-sm;
+            padding-right: $spacer-sm;
+        }
     }
 }
 
@@ -149,11 +145,6 @@
 
 .order-item-detail-labels-value {
     font-weight: $font-weight-normal;
-}
-
-.order-detail-content-header {
-    padding-left: 0;
-    padding-right: 0;
 }
 
 .order-item-detail-summary {
@@ -218,14 +209,11 @@
         display: block;
         padding-top: $spacer-sm;
         padding-bottom: $spacer-sm;
+        border-bottom: 1px solid $border-color;
     }
 
     .order-item-label {
         display: none;
-    }
-
-    .order-detail-content-header {
-        border-bottom: 1px solid $border-color;
     }
 
     .order-detail-content {

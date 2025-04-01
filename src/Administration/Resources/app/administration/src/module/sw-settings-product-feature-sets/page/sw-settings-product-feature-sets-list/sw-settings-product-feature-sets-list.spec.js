@@ -32,7 +32,6 @@ async function createWrapper(additionalOptions = {}, privileges = []) {
                     'sw-help-center': true,
                     'sw-language-switch': true,
                     'sw-search-bar': true,
-                    'sw-icon': true,
                     'sw-entity-listing': await wrapTestComponent('sw-entity-listing', {
                         sync: true,
                     }),

@@ -56,8 +56,8 @@ class BatchImportStrategyTest extends ImportStrategyTestCase
 
         $writeResult = new EntityWrittenContainerEvent(Context::createDefaultContext(), new NestedEventCollection(), []);
 
-        $this->repository->expects(static::once())->method($method)->willReturn($writeResult);
-        $this->eventDispatcher->expects(static::exactly(2))->method('dispatch');
+        $this->repository->expects($this->once())->method($method)->willReturn($writeResult);
+        $this->eventDispatcher->expects($this->exactly(2))->method('dispatch');
 
         $progress = new Progress('logId', Progress::STATE_PROGRESS);
 
@@ -87,7 +87,7 @@ class BatchImportStrategyTest extends ImportStrategyTestCase
 
         $writeResult = new EntityWrittenContainerEvent(Context::createDefaultContext(), new NestedEventCollection(), []);
 
-        $this->repository->expects(static::exactly(3))->method('create')->willReturnCallback(
+        $this->repository->expects($this->exactly(3))->method('create')->willReturnCallback(
             function () use ($writeResult) {
                 static $counter = 0;
                 if ($counter++ < 2) {
@@ -98,7 +98,7 @@ class BatchImportStrategyTest extends ImportStrategyTestCase
             }
         );
 
-        $this->eventDispatcher->expects(static::exactly(2))
+        $this->eventDispatcher->expects($this->exactly(2))
             ->method('dispatch')
             ->with(static::logicalOr(
                 static::isInstanceOf(ImportExportAfterImportRecordEvent::class),

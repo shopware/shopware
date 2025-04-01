@@ -37,7 +37,7 @@ class CachedEntitySchemaGeneratorTest extends TestCase
 
     public function testSupportsCallsInnerServiceSupports(): void
     {
-        $this->entitySchemaGenerator->expects(static::once())
+        $this->entitySchemaGenerator->expects($this->once())
             ->method('supports')
             ->with('foo')
             ->willReturn(false);
@@ -47,7 +47,7 @@ class CachedEntitySchemaGeneratorTest extends TestCase
 
     public function testGenerateCallsInnerServiceGenerate(): void
     {
-        $this->entitySchemaGenerator->expects(static::once())
+        $this->entitySchemaGenerator->expects($this->once())
             ->method('generate')
             ->willThrowException(new \RuntimeException());
 
@@ -63,7 +63,7 @@ class CachedEntitySchemaGeneratorTest extends TestCase
             ],
         ];
 
-        $this->cache->expects(static::once())
+        $this->cache->expects($this->once())
             ->method('get')
             ->willReturn($result);
 
@@ -77,10 +77,10 @@ class CachedEntitySchemaGeneratorTest extends TestCase
                 'buz' => null,
             ],
         ];
-        $this->entitySchemaGenerator->expects(static::once())
+        $this->entitySchemaGenerator->expects($this->once())
             ->method('getSchema')
             ->willReturn($result);
-        $this->cache->expects(static::once())
+        $this->cache->expects($this->once())
             ->method('get')
             ->willReturn($this->entitySchemaGenerator->getSchema([]));
 

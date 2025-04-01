@@ -2,7 +2,7 @@ const { Component } = Shopware;
 
 /**
  * @sw-package framework
- * @deprecated tag:v6.7.0 - Will be removed, use mt-select instead.
+ * @deprecated tag:v6.8.0 - Will be removed, use mt-select instead.
  *
  * @private
  * @description select input field. Values will be transformed to numbers.

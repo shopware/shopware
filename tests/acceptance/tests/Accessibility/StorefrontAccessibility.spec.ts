@@ -17,11 +17,7 @@ test('The Storefront should implement accessibility best practices.', { tag: '@A
     StorefrontCheckoutCart,
     StorefrontAccountProfile,
     StorefrontAccountAddresses,
-    StorefrontAccountPayment,
-    InstanceMeta,
 }) => {
-
-    test.skip(InstanceMeta.features['V6_7_0_0'], 'This test is incompatible with V6_7_0_0, ticket: https://shopware.atlassian.net/browse/NEXT-40163');
 
     test.slow();
 
@@ -81,10 +77,5 @@ test('The Storefront should implement accessibility best practices.', { tag: '@A
     await test.step('Account Addresses Accessibility', async () => {
         await ShopCustomer.goesTo(StorefrontAccountAddresses.url());
         await ShopCustomer.attemptsTo(ValidateAccessibility('Account Addresses', true));
-    });
-
-    await test.step('Account Payment Accessibility', async () => {
-        await ShopCustomer.goesTo(StorefrontAccountPayment.url());
-        await ShopCustomer.attemptsTo(ValidateAccessibility('Account Payment', true));
     });
 });

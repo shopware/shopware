@@ -26,7 +26,7 @@ class KeywordLoaderTest extends TestCase
 
         $connection = static::createMock(Connection::class);
         $connection->method('getDatabasePlatform')->willReturn(new MySQLPlatform());
-        $connection->expects(static::once())
+        $connection->expects($this->once())
             ->method('executeQuery')
             ->with(static::anything(), static::callback(function (array $params) use ($slops) {
                 foreach ($slops as $slop) {

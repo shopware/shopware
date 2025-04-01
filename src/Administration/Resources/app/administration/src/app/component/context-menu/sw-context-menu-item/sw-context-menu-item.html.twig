@@ -13,10 +13,10 @@
     {% block sw_context_menu_item_icon %}
     <slot name="icon">
         {% block sw_context_menu_item_slot_icon %}
-        <sw-icon
+        <mt-icon
             v-if="icon"
             :name="icon"
-            small
+            size="16px"
         />
         {% endblock %}
     </slot>
@@ -36,19 +36,20 @@
 {% endblock %}
 
 {% block sw_context_menu_item_entry %}
-<div
+<button
     v-else
     class="sw-context-menu-item"
     :class="contextMenuItemStyles"
     v-bind="$attrs"
+    @click.capture="handleClick"
 >
     {% block sw_context_menu_item_entry_icon %}
     <slot name="icon">
         {% block sw_context_menu_item_entry_slot_icon %}
-        <sw-icon
+        <mt-icon
             v-if="icon"
             :name="icon"
-            small
+            size="16px"
         />
         {% endblock %}
     </slot>
@@ -64,6 +65,6 @@
         </slot>
     </span>
     {% endblock %}
-</div>
+</button>
 {% endblock %}
 {% endblock %}

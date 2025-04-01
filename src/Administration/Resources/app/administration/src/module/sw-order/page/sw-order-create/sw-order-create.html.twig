@@ -17,8 +17,11 @@
         {% block sw_order_create_smart_bar_actions_slot %}
         <template v-if="!showInitialModal">
             {% block sw_order_create_smart_bar_actions_cancel %}
-            <!-- TODO Codemod: Converted from sw-button - please check if everything works correctly -->
-            <mt-button @click="onCancelOrder">
+            <mt-button
+                variant="secondary"
+                size="default"
+                @click="onCancelOrder"
+            >
                 {{ $tc('global.default.cancel') }}
             </mt-button>
             {% endblock %}
@@ -114,16 +117,15 @@
 
             <template #modal-footer>
                 {% block sw_order_create_remind_payment_modal_footer %}
-                <!-- TODO Codemod: Converted from sw-button - please check if everything works correctly -->
                 <mt-button
                     class="sw-order-create__remind-payment-modal-decline"
                     size="small"
+                    variant="secondary"
                     @click="onRemindPaymentModalClose"
                 >
                     {{ $tc('global.default.no') }}
                 </mt-button>
 
-                <!-- TODO Codemod: Converted from sw-button - please check if everything works correctly -->
                 <mt-button
                     class="sw-order-create__remind-payment-modal-remind"
                     variant="primary"

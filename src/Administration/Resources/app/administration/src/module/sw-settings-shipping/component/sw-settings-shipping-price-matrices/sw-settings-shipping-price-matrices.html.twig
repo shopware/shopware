@@ -14,7 +14,6 @@
     {% block sw_settings_shipping_detail_advanced_prices_actions %}
     <div class="sw-settings-shipping-price-matrices__actions">
         {% block sw_settings_shipping_detail_advanced_prices_actions_add_button %}
-        <!-- TODO Codemod: Converted from sw-button - please check if everything works correctly -->
         <mt-button
             v-tooltip="{
                 showDelay: 300,
@@ -24,6 +23,7 @@
             }"
             :disabled="newPriceMatrixExists || disabled || undefined"
             class="sw-settings-shipping-price-matrices__actions-add-matrix"
+            variant="secondary"
             @click="onAddNewPriceGroup"
         >
             {{ $tc('sw-settings-shipping.priceMatrix.buttonAddAdditionalPriceMatrix') }}

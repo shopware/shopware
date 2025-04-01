@@ -11,7 +11,7 @@ async function createWrapper() {
                 'sw-card-view': await wrapTestComponent('sw-card-view', {
                     sync: true,
                 }),
-                'sw-card': {
+                'mt-card': {
                     template: `
                         <div class="sw-card__content">
                             <slot name="grid"></slot>
@@ -23,11 +23,10 @@ async function createWrapper() {
                     sync: true,
                 }),
                 'sw-order-state-select': true,
+                'sw-number-field': await wrapTestComponent('sw-number-field', { sync: true }),
                 'sw-card-section': await wrapTestComponent('sw-card-section', { sync: true }),
                 'sw-description-list': await wrapTestComponent('sw-description-list', { sync: true }),
                 'sw-order-saveable-field': await wrapTestComponent('sw-order-saveable-field', { sync: true }),
-                'sw-number-field': await wrapTestComponent('sw-number-field'),
-                'sw-number-field-deprecated': await wrapTestComponent('sw-number-field-deprecated'),
                 'sw-contextual-field': await wrapTestComponent('sw-contextual-field'),
                 'sw-block-field': await wrapTestComponent('sw-block-field'),
                 'sw-base-field': await wrapTestComponent('sw-base-field'),
@@ -44,11 +43,10 @@ async function createWrapper() {
                 'sw-order-create-details-footer': true,
                 'sw-order-promotion-tag-field': true,
                 'sw-order-line-items-grid-sales-channel': true,
-                'sw-switch-field': true,
+
                 'sw-order-create-address-modal': true,
                 'sw-order-create-promotion-modal': true,
                 'sw-error-summary': true,
-                'sw-icon': true,
                 'sw-loader': true,
                 'router-link': true,
             },

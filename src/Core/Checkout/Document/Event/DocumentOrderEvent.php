@@ -22,7 +22,7 @@ abstract class DocumentOrderEvent extends Event
     }
 
     /**
-     * @return DocumentGenerateOperation[]
+     * @return array<string, DocumentGenerateOperation> $operations
      */
     public function getOperations(): array
     {

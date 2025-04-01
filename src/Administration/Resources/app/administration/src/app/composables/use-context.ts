@@ -48,7 +48,7 @@ export interface ContextState {
         firstRunWizard: null | boolean;
         systemCurrencyISOCode: null | string;
         systemCurrencyId: null | string;
-        disableExtensions: boolean;
+        windowId: null | string;
     };
     api: {
         apiPath: null | string;
@@ -88,8 +88,7 @@ const state: ContextState = reactive({
         firstRunWizard: null,
         systemCurrencyId: null,
         systemCurrencyISOCode: null,
-        // @deprecated tag:v6.7.0 - remove as read-only extension manager is a better solution
-        disableExtensions: false,
+        windowId: null,
     },
     api: {
         apiPath: null,

@@ -1,5 +1,4 @@
 # 6.7.0.0 Upgrade Guide
-**NOTE:** All the breaking changes described here can be already opted in by activating the `v6.7.0.0` [feature flag](https://developer.shopware.com/docs/resources/references/adr/2022-01-20-feature-flags-for-major-versions.html#activating-the-flag) on previous versions.
 
 # Notable Changes
 
@@ -11,16 +10,12 @@ This means that when your plugins depends on a custom `webpack.config.js` file, 
 Additionally, this means that you will need to distribute a separate plugin version starting for 6.7, when you extend the administration to distribute the correct build files.
 For more information please take a look at the [docs](https://developer.shopware.com/docs/guides/plugins/plugins/administration/system-updates/vite.html).
 
-**Note:** This change can be activated separately with the `ADMIN_VITE` feature flag.
-
 # Vue.js Enhancements (full native vue 3 support)
 ## Removal of Vue 2 compatibility layer
 The Vue 2 compatibility layer has been removed from the administration. This means that all components that still rely on Vue 2 features need to be updated.
 This ensures that our administration stays future-proof and we can make use of the most recent Vue 3 features.
 
 For detailed explanation of what was covered by the compatibility layer and what needs to be updated, please refer to the [Vue docs](https://v3-migration.vuejs.org/migration-build.html).
-
-**Note:** This change can be activated separately with the `DISABLE_VUE_COMPAT` feature flag.
 
 ## Migration from Vuex to Pinia
 For Vue 3 the default state management library has become Pinia, therefore we are migrating from Vuex to Pinia. to stay as close to the default as possible.
@@ -79,10 +74,32 @@ Shopware.Store.register({
 });
 ```
 
+### Vuex Breaking change
+Due to the migration from Vuex to Pinia, the Vuex helper utils have been renamed to avoid conflicts with Pinia helpers.
+If you are still using Vuex, please update your code accordingly:
+
+```
+    mapState -> mapVuexState
+    mapMutations -> mapVuexMutations
+    mapGetters -> mapVuexGetters
+    mapActions -> mapVuexActions
+```
+
 For more information refer to the [docs](https://developer.shopware.com/docs/resources/references/adr/2024-06-17-replace-vuex-with-pinia.html#replace-vuex-with-pinia).
 
+## vue-i18n v10 Update
+We have updated `vue-i18n` to version 10, which introduces a significant change by removing the `tc` function. In Shopware, `$tc` remains available on Vue components, but it now internally references the `t` function from `vue-i18n`. 
+
+### Key Considerations
+- While this change works for most use cases, some specific function overloads are no longer supported.
+- For a comprehensive list of deprecated features and migration strategies, refer to the official [vue-i18n migration guide](https://vue-i18n.intlify.dev/guide/migration/breaking10#deprecate-tc-and-tc-for-legacy-api-mode).
+
+### Recommended Actions
+- Review your existing translation calls
+- Test components that heavily rely on translation methods
+- Consider updating to the recommended `t` function where possible
+
 # Cache Rework
-**Note:** Those changes can be activated separately with the `cache_rework` feature flag.
 
 ## Delayed Cache Invalidation
 The cache invalidation will be delayed by default. This means that the cache will be invalidated in regular intervals and not immediately.
@@ -124,6 +141,8 @@ The rendered header and footer are included into the page with the Twig function
 Two new templates `src/Storefront/Resources/views/storefront/layout/header.html.twig` and `src/Storefront/Resources/views/storefront/layout/footer.html.twig` were introduced as new entry points for the header and footer.
 Make sure to adjust your template extensions to be compatible with the new structure.
 The block names are still the same, so it just should be necessary to extend from the new templates.
+New blocks (`base_esi_header` and `base_esi_footer`) were added to the `base.html.twig` template to overwrite header and footer completely.
+This is e.g. used to show minimal header and footer during the checkout process.
 
 # Major Library Updates
 We upgraded the following libraries to their latest versions:
@@ -134,7 +153,6 @@ We upgraded the following libraries to their latest versions:
 
 # Accessibility Compliance
 In alignment with the European Accessibility Act (EAA) we made significant accessibility improvements.
-**Note:** Those changes can be activated separately with the `ACCESSIBILITY_TWEAKS` feature flag.
 
 <details>
   <summary>Detailed Changes</summary>
@@ -358,6 +376,124 @@ The hidden radio input will no longer be in the HTML. The current page value wil
     </a>
 {% endblock %}
 ```
+
+## Use `<button>` elements instead of `<a>` to open modal windows
+
+Modal triggers that were previously using anchor `<a>` elements are now using `<button>` elements.
+Anchor `<a>` elements are recognized as native links by the screen-reader and should not open a dialog/modal window instead of redirecting to a new page.
+A modal window should be opened via `<button>` and is mainly driven by JavaScript. `<a href="#">` elements should only be native hyperlinks and not trigger additional modals. This can confuse screen-reader users.
+
+To maintain the link appearance, the classes `btn btn-link-inline` are used. The "link" looks like a regular link but is semantically a `<button>` when it triggers a modal.
+
+### Ajax modal trigger before:
+```html
+<a data-ajax-modal="true" data-url="/some-route" href="/some-route">Open ajax modal</a>
+```
+
+### Ajax modal trigger after:
+```html
+<button data-ajax-modal="true" data-url="/some-route" class="btn btn-link-inline">Open ajax modal</button>
+```
+
+### New translation keys with button modal triggers
+
+Some modal triggers are inside translation texts. With 6.7 new translation keys are used that have buttons instead of links.
+There are also new translation parameters to avoid too much HTML and modal logic inside the translation strings.
+
+| Old key                             | Old params                   | New key                                  | New params                                                                                   |
+|-------------------------------------|------------------------------|------------------------------------------|----------------------------------------------------------------------------------------------|
+| `general.privacyNoticeText`         | `%privacyUrl%`, `%tosUrl%`   | `general.privacyNoticeTextModal`         | `%privacyModalTagOpen%`, `%privacyModalTagClose%`, `%tosModalTagOpen%`, `%tosModalTagClose%` |
+| `contact.privacyNoticeText`         | `%privacyUrl%`, `%prevUrl%`  | `contact.privacyNoticeTextModal`         | `%privacyModalTagOpen%`, `%privacyModalTagClose%`                                            |
+| `checkout.confirmRevocationNotice`  | `%url%`                      | `checkout.confirmRevocationNoticeModal`  | `%revocationModalTagOpen%`, `%revocationModalTagClose%`                                      |
+| `checkout.confirmTermsText`         | `%url%`                      | `checkout.confirmTermsTextModal`         | `%tosModalTagOpen%`, `%tosModalTagClose%`                                                    |
+| `checkout.confirmTermsReminderText` | `%url%`                      | `checkout.confirmTermsReminderTextModal` | `%tosModalTagOpen%`, `'%tosModalTagClose%`                                                   |
+
+### Old translation string structure
+The HTML of the modal trigger was part of the translation.
+
+```twig
+{{ 'checkout.confirmTermsReminderText')|trans({
+    '%url%': path('frontend.cms.page', { id: config('core.basicInformation.tosPage') }),
+})|raw }}
+```
+```json
+{
+  "confirmTermsReminderText": "You have already accepted the <a data-ajax-modal=\"true\" data-url=\"%url%\" href=\"%url%\" title=\"general terms and conditions\">general terms and conditions</a>."
+}
+```
+
+### New translation string structure
+The HTML of the modal trigger is now inside the twig template instead.
+
+```twig
+{{ 'checkout.confirmTermsReminderTextModal')|trans({
+    '%tosModalTagOpen%': '<button type="button" class="btn btn-link-inline" data-ajax-modal="true" data-url="' ~ path(cmsPath, { id: config('core.basicInformation.tosPage') }) ~ '">',
+    '%tosModalTagClose%': '</button>'
+})|raw }}
+```
+```json
+{
+  "confirmTermsReminderTextModal": "You have already accepted the %tosModalTagOpen%general terms and conditions%tosModalTagClose%."
+}
+```
+
+## Storefront `{% sw_icon %}` are `aria-hidden="true"` by default
+Storefront icons that are rendered via `{% sw_icon 'icon-name' %}` will apply `aria-hidden="true"` by default so they are hidden for screen readers.
+In most scenarios icons are of decorative nature and should therefore not be read as "graphic" by the screen reader. **This change does not affect the actual rendering or appearance of the icons.**
+In many areas the icons were already set to `ariaHidden: true` manually. For things like "icon only" buttons there should always be an alternative text available that describes the action.
+
+It is still possible to disable `aria-hidden` by applying `ariaHidden: false` on the icon: 
+```twig
+{% sw_icon 'plus' style { ariaHidden: false } %}
+```
+
+```twig
+{# 
+    Icon only button 
+    ======================================================
+#}
+<button class="btn btn-primary my-action" aria-label="Label for icon only button">
+    {% sw_icon 'plus' %} {# Icon is hidden for screen reader. #}
+</button>
+
+{# Will render: #}
+<button class="btn btn-primary my-action" aria-label="Label for icon only button">
+    <span class="icon icon-plus" aria-hidden="true">
+        <svg ...></svg>
+    </div>
+</button>
+
+{# 
+    Additional icon button 
+    ======================================================
+#}
+<button class="btn btn-primary my-action">
+    {% sw_icon 'plus' %} {# Icon is hidden for screen reader. #}
+    Label for the button {# Button is labelled by the actual text. #}
+</button>
+
+{# Will render: #}
+<button class="btn btn-primary my-action">
+    <span class="icon icon-plus" aria-hidden="true">
+        <svg ...></svg>
+    </div>
+    Label for the button {# Button is labelled by the actual text. #}
+</button>
+
+{# 
+    Label for icon SVG
+    ======================================================
+#}
+
+{# In rare occasions, you can optionally disable aria-hidden. It is also possible to apply an aria-label to the SVG. #}
+{% sw_icon 'plus' style { ariaHidden: false, ariaLabel: 'My label' } %}
+
+{# Will render: #}
+<span class="icon icon-plus">
+    <svg aria-label="My label"...></svg>
+</div>
+```
+
 </details>
 
 # Further Changes
@@ -430,7 +566,6 @@ All PHP class properties now have a native type.
 If you have extended classes with properties, which didn't have a native type before, make sure you now add them as well.
 
 ## Reduced data loaded in Store-API Register Route and Register related events
-
 The customer entity does not have all associations loaded by default anymore.
 This change reduces the amount of data loaded in the Store-API Register Route and Register related events to improve the performance.
 
@@ -452,7 +587,10 @@ In the following event, the CustomerEntity has no association loaded anymore:
   * `RefundPaymentHandlerInterface`
   * `RecurringPaymentHandlerInterface`
 * Synchronous and asynchronous payments have been unified to return an optional redirect response. This response defines whether the customer is redirected to a payment provider or immediately returned to the order completion page.
-* Payment handlers from plugins now receive only the `orderTransactionId`, request information (if applicable, e.g., not for recurring payments), and a `Context`. Any additional data required to process the payment must be retrieved by the payment handler itself to reduce database load. This also minimises dependency on the `SalesChannelContext`, which may contain information that does not accurately reflect the order (e.g., customer addresses may differ from the order’s addresses). For apps, the same information as before is still sent to the app server.
+* Payment handlers from plugins now receive only the `orderTransactionId`, request information (if applicable, e.g., not for recurring payments), and a `Context`.
+  Any additional data required to process the payment must be retrieved by the payment handler itself to reduce database load.
+  This also minimises dependency on the `SalesChannelContext`, which may contain information that does not accurately reflect the order (e.g., customer addresses may differ from the order’s addresses).
+  For apps, the same information as before is still sent to the app server.
 
 ## Payment: Capture step of prepared payments removed
 * The method `capture` has been removed from the `PreparedPaymentHandler` interface. This method is no longer being called for apps.
@@ -470,11 +608,27 @@ Merchants must review their custom created payment and shipping methods for the 
 * Removed default payment method from customer entity, since it was mostly overriden by old saved contexts
 * Logic is now more consistent to always be the last used payment method
 
+## Bulletproofing Plugin Migrations
+### Creation timestamp is now validated
+The returned timestamp `MigrationStep::getCreationTimestamp()` method is now validated, it needs to be between `1` and `2147483647` (the `max_int` value on 32-bit systems). This ensures that the migration order is always deterministic and prevents common errors when the method returns a higher number,
+that will silently be treated as max_int, leading to multiple migrations having the same creation timestamp, thus the execution order becomes random, which might lead to hard to debug errors while executing migrations.
+### Plugin migrations are now removed before calling `uninstall()`
+When `keepUserData` is set to false during plugin uninstall, the plugin is expected to clean up all DB tables the plugin created in the `unistall` method.
+Now we are cleaning up the plugin migrations from the migration table before calling the `uninstall` method, so in case of an error, the plugin can be reinstalled and the migrations can be rerun.
+
 ## Required foreign key in mapping definition for many-to-many associations
 If the mapping definition of a many-to-many association does not contain foreign key fields, an exception will be thrown.
 
-## Elasticsearch: Return type of AbstractElasticsearchDefinition::buildTermQuery changed to BuilderInterface
+## Change in entity extensions
+If you have extended entities via an implementation of `\Shopware\Core\Framework\DataAbstractionLayer\EntityExtension`, you need to adjust those classes.
+The method `EntityExtension::getEntityName()` is now abstract and required to be implemented.
+Return the entity name of the entity you are extending, e.g. `product_media`.
 
+## Logger is required for ScheduledTaskHandler
+The abstract class `\Shopware\Core\Framework\MessageQueue\ScheduledTask\ScheduledTaskHandler` now requires an implementation of `Psr\Log\LoggerInterface` as second argument.
+If you have implemented a custom `ScheduledTaskHandler`, you need to adjust the constructor accordingly.
+
+## Elasticsearch: Return type of AbstractElasticsearchDefinition::buildTermQuery changed to BuilderInterface
 The return type of `\Shopware\Elasticsearch\Framework\AbstractElasticsearchDefinition::buildTermQuery()` and `\Shopware\Elasticsearch\Product\AbstractProductSearchQueryBuilder::build()` changed from BoolQuery to BuilderInterface.
 It is not necessary to wrap the return value in a BoolQuery anymore.
 Before:
@@ -508,14 +662,12 @@ public function buildTermQuery(Context $context, Criteria $criteria): BuilderInt
 Changed the return type of the `Shopware\Core\Checkout\Promotion\Gateway\PromotionGatewayInterface` from `EntityCollection<PromotionEntity>` to `PromotionCollection`
 
 ## ImportExport signature changes
-
 * Added a new optional parameter `bool $useBatchImport` to `ImportExportFactory::create`. If you extend the `ImportExportFactory` class, you should properly handle the new parameter in your custom implementation.
 * Removed method `ImportExportProfileEntity::getName()` and `ImportExportProfileEntity::setName()`. Use `getTechnicalName()` and `setTechnicalName()` instead.
 * Removed `profile` attribute from `ImportEntityCommand`. Use `--profile-technical-name` instead.
 * Removed `name` field from `ImportExportProfileEntity`.
 
 ## SitemapHandleFactoryInterface::create method signature change
-
 We added a new optional parameter `string $domainId` to `SitemapHandleFactoryInterface::create` and `SitemapHandleFactory::create`.
 If you implement the `SitemapHandleFactoryInterface` or extend the `SitemapHandleFactory` class, you should properly handle the new parameter in your custom implementation.
 
@@ -523,7 +675,6 @@ If you implement the `SitemapHandleFactoryInterface` or extend the `SitemapHandl
 Removed `\Core\Framework\Api\Controller\AuthController::authorize` method (API route `/api/oauth/authorize`) without replacement.
 
 ## TreeUpdater::batchUpdate signature change
-
 We added a new optional parameter `bool $recursive` to `TreeUpdater::batchUpdate`.
 If you extend the `TreeUpdater` class, you should properly handle the new parameter in your custom implementation.
 ```php
@@ -537,17 +688,16 @@ class CustomTreeUpdater extends TreeUpdater
     }
 }
 ```
-## removal of \Shopware\Core\Framework\DataAbstractionLayer\Command\CreateSchemaCommand:
-`\Shopware\Core\Framework\DataAbstractionLayer\Command\CreateSchemaCommand` will be removed. You can use `\Shopware\Core\Framework\DataAbstractionLayer\Command\CreateMigrationCommand` instead.
+## Removal of CreateSchemaCommand:
+`\Shopware\Core\Framework\DataAbstractionLayer\Command\CreateSchemaCommand` was removed. Use `\Shopware\Core\Framework\DataAbstractionLayer\Command\CreateMigrationCommand` instead.
 
-## Removal of \Shopware\Core\Framework\DataAbstractionLayer\SchemaGenerator:
-`\Shopware\Core\Framework\DataAbstractionLayer\SchemaGenerator` will be removed. You can use `\Shopware\Core\Framework\DataAbstractionLayer\MigrationQueryGenerator` instead.
+## Removal of SchemaGenerator:
+`\Shopware\Core\Framework\DataAbstractionLayer\SchemaGenerator` was removed. Use `\Shopware\Core\Framework\DataAbstractionLayer\MigrationQueryGenerator` instead.
 
 ## AccountService refactoring
-
 The `Shopware\Core\Checkout\Customer\SalesChannel\AccountService::login` method is removed. Use `AccountService::loginByCredentials` or `AccountService::loginById` instead.
 
-Unused constant `Shopware\Core\Checkout\Customer\CustomerException::CUSTOMER_IS_INACTIVE` and unused method `Shopware\Core\Checkout\Customer\CustomerException::inactiveCustomer` are removed.
+Unused constant `Shopware\Core\Checkout\Customer\CustomerException::CUSTOMER_IS_INACTIVE` and unused method `Shopware\Core\Checkout\Customer\CustomerException::inactiveCustomer` were removed.
 
 ## Removed `CustomFieldRule` comparison methods:
 `floatMatch` and `arrayMatch` methods in `src/Core/Framework/Rule/CustomFieldRule.php` will be removed for Shopware 6.7.0.0
@@ -601,7 +751,46 @@ The following methods of the `\Shopware\Core\Framework\DataAbstractionLayer\Enti
 * `\Shopware\Core\Framework\DataAbstractionLayer\Entity::checkIfPropertyAccessIsAllowed` now throws a `\Shopware\Core\Framework\DataAbstractionLayer\DataAbstractionLayerException` instead of a `\Shopware\Core\Framework\DataAbstractionLayer\Exception\InternalFieldAccessNotAllowedException`.
 * `\Shopware\Core\Framework\DataAbstractionLayer\Entity::get` now throws a `\Shopware\Core\Framework\DataAbstractionLayer\Exception\PropertyNotFoundException` instead of a `\InvalidArgumentException`.
 </details>
+
+## Attributes classes made final
+We have made attribute classes final. 
+<details>
+  <summary>See the detailed list</summary>
+
+* `\Shopware\Core\Framework\DataAbstractionLayer\Attribute\AllowEmptyString`
+* `\Shopware\Core\Framework\DataAbstractionLayer\Attribute\AllowHtml`
+* `\Shopware\Core\Framework\DataAbstractionLayer\Attribute\AutoIncrement`
+* `\Shopware\Core\Framework\DataAbstractionLayer\Attribute\CustomFields`
+* `\Shopware\Core\Framework\DataAbstractionLayer\Attribute\ForeignKey`
+* `\Shopware\Core\Framework\DataAbstractionLayer\Attribute\Inherited`
+* `\Shopware\Core\Framework\DataAbstractionLayer\Attribute\ManyToMany`
+* `\Shopware\Core\Framework\DataAbstractionLayer\Attribute\ManyToOne`
+* `\Shopware\Core\Framework\DataAbstractionLayer\Attribute\OneToMany`
+* `\Shopware\Core\Framework\DataAbstractionLayer\Attribute\OneToOne`
+* `\Shopware\Core\Framework\DataAbstractionLayer\Attribute\PrimaryKey`
+* `\Shopware\Core\Framework\DataAbstractionLayer\Attribute\Protection`
+* `\Shopware\Core\Framework\DataAbstractionLayer\Attribute\ReferenceVersion`
+* `\Shopware\Core\Framework\DataAbstractionLayer\Attribute\Required`
+* `\Shopware\Core\Framework\DataAbstractionLayer\Attribute\Serialized`
+* `\Shopware\Core\Framework\DataAbstractionLayer\Attribute\State`
+* `\Shopware\Core\Framework\DataAbstractionLayer\Attribute\Translations`
+* `\Shopware\Core\Framework\DataAbstractionLayer\Attribute\Version`
+* `\Shopware\Core\Framework\Event\IsFlowEventAware`
 </details>
+
+## Move notifications from admin to core
+
+The following classes have been moved from the admin bundle to the core:
+
+* `Shopware\Core\Framework\Notification\NotificationCollection`
+* `Shopware\Core\Framework\Notification\NotificationDefinition` 
+* `Shopware\Core\Framework\Notification\NotificationEntity`
+
+The controller `Shopware\Core\Framework\Notification\Api\NotificationController` has been moved from the admin bundle to the core and made internal.
+
+</details>
+
+
 
 # Administration
 We made some changes in the administration, which might affect your plugins.
@@ -670,6 +859,8 @@ In short this means we replaced the following components:
 * `sw-number-field` with `mt-number-field`
 * `sw-loader` with `mt-loader`
 * `sw-checkbox-field` with `mt-checkbox`
+
+Note that these new components follow the standard Vue conventions for passing the value to the component. In short, when a two-way binding is needed the `v-model="myValue"` attribute should be used. If only the value should be passed to the component `:model-value=myValue` should be used, but then the `@update:model-value` needs to be implemented. For more information refer to the [Vue documentation](https://vuejs.org/guide/components/v-model.html).
 
 <details>
     <summary>See the detailed list</summary>
@@ -855,8 +1046,8 @@ After:
 <mt-select />
 ```
 
-### "sw-select-field" prop "value" was renamed to "modelValue"
-Replace all occurrences of the prop "value" with "modelValue"
+### "sw-select-field" prop "value" was renamed to "model-value"
+Replace all occurrences of the prop "value" with "model-value"
 
 Before:
 ```html
@@ -865,7 +1056,7 @@ Before:
 
 After:
 ```html
-<mt-select :modelValue="selectedValue" />
+<mt-select :model-value="selectedValue" />
 ```
 
 ### "sw-select-field" the "v-model:value" was renamed to "v-model"
@@ -940,8 +1131,8 @@ After:
 <mt-select label="My Label" />
 ```
 
-### "sw-select-field" the event "update:value" was renamed to "update:modelValue"
-The event "update:value" was renamed to "update:modelValue"
+### "sw-select-field" the event "update:value" was renamed to "update:model-value"
+The event "update:value" was renamed to "update:model-value"
 
 Before:
 ```html
@@ -950,7 +1141,7 @@ Before:
 
 After:
 ```html
-<mt-select @update:modelValue="onUpdateValue" />
+<mt-select @update:model-value="onUpdateValue" />
 ```
 ## Removal of "sw-textarea-field":
 The old "sw-textarea-field" component will be removed in the next major version. Please use the new "mt-textarea" component instead.
@@ -973,8 +1164,8 @@ After:
 <mt-textarea />
 ```
 
-### "sw-textarea-field" property "value" is replaced by "modelValue"
-Replace all occurrences of the property "value" with "modelValue"
+### "sw-textarea-field" property "value" is replaced by "model-value"
+Replace all occurrences of the property "value" with "model-value"
 
 Before:
 ```html
@@ -982,7 +1173,7 @@ Before:
 ```
 After:
 ```html
-<mt-textarea :modelValue="myValue" />
+<mt-textarea :model-value="myValue" />
 ```
 
 ### "sw-textarea-field" binding "v-model:value" is replaced by "v-model"
@@ -1015,8 +1206,8 @@ After:
 <mt-textarea label="My Label" />
 ```
 
-### "sw-textarea-field" event "update:value" is replaced by "update:modelValue"
-Replace all occurrences of the event "update:value" with "update:modelValue"
+### "sw-textarea-field" event "update:value" is replaced by "update:model-value"
+Replace all occurrences of the event "update:value" with "update:model-value"
 
 Before:
 ```html
@@ -1025,7 +1216,7 @@ Before:
 
 After:
 ```html
-<mt-textarea @update:modelValue="onUpdateValue" />
+<mt-textarea @update:model-value="onUpdateValue" />
 ```
 ## Removal of "sw-datepicker":
 The old "sw-datepicker" component will be removed in the next major version. Please use the new "mt-datepicker" component instead.
@@ -1048,8 +1239,8 @@ After:
 <mt-datepicker />
 ```
 
-### "sw-datepicker" property "value" is replaced by "modelValue"
-Replace all occurrences of the property "value" with "modelValue"
+### "sw-datepicker" property "value" is replaced by "model-value"
+Replace all occurrences of the property "value" with "model-value"
 
 Before:
 ```html
@@ -1057,7 +1248,7 @@ Before:
 ```
 After:
 ```html
-<mt-datepicker :modelValue="myValue" />
+<mt-datepicker :model-value="myValue" />
 ```
 
 ### "sw-datepicker" binding "v-model:value" is replaced by "v-model"
@@ -1090,8 +1281,8 @@ After:
 <mt-datepicker label="My Label" />
 ```
 
-### "sw-datepicker" event "update:value" is replaced by "update:modelValue"
-Replace all occurrences of the event "update:value" with "update:modelValue"
+### "sw-datepicker" event "update:value" is replaced by "update:model-value"
+Replace all occurrences of the event "update:value" with "update:model-value"
 
 Before:
 ```html
@@ -1100,7 +1291,7 @@ Before:
 
 After:
 ```html
-<mt-datepicker @update:modelValue="onUpdateValue" />
+<mt-datepicker @update:model-value="onUpdateValue" />
 ```
 ## Removal of "sw-password-field":
 The old "sw-password-field" component will be removed in the next major version. Please use the new "mt-password-field" component instead.
@@ -1124,7 +1315,7 @@ After:
 ```
 
 ### "mt-password-field" has no property "value" anymore
-Replace all occurrences of the "value" prop with "modelValue"
+Replace all occurrences of the "value" prop with "model-value"
 
 Before:
 ```html
@@ -1132,7 +1323,7 @@ Before:
 ```
 After:
 ```html
-<mt-password-field modelValue="Hello World" />
+<mt-password-field model-value="Hello World" />
 ```
 
 ### "mt-password-field" v-model:value is deprecated
@@ -1172,7 +1363,7 @@ After:
 ```
 
 ### "mt-password-field" has no event "update:value" anymore
-Replace all occurrences of the "update:value" event with "update:modelValue"
+Replace all occurrences of the "update:value" event with "update:model-value"
 
 Before:
 ```html
@@ -1181,7 +1372,7 @@ Before:
 
 After:
 ```html
-<mt-password-field @update:modelValue="updateValue" />
+<mt-password-field @update:model-value="updateValue" />
 ```
 
 ### "mt-password-field" has no event "base-field-mounted" anymore
@@ -1251,8 +1442,8 @@ After:
 <mt-colorpicker />
 ```
 
-### "sw-colorpicker" property "value" is replaced by "modelValue"
-Replace all occurrences of the property "value" with "modelValue"
+### "sw-colorpicker" property "value" is replaced by "model-value"
+Replace all occurrences of the property "value" with "model-value"
 
 Before:
 ```html
@@ -1260,7 +1451,7 @@ Before:
 ```
 After:
 ```html
-<mt-colorpicker :modelValue="myValue" />
+<mt-colorpicker :model-value="myValue" />
 ```
 
 ### "sw-colorpicker" binding "v-model:value" is replaced by "v-model"
@@ -1293,8 +1484,8 @@ After:
 <mt-colorpicker label="My Label" />
 ```
 
-### "sw-colorpicker" event "update:value" is replaced by "update:modelValue"
-Replace all occurrences of the event "update:value" with "update:modelValue"
+### "sw-colorpicker" event "update:value" is replaced by "update:model-value"
+Replace all occurrences of the event "update:value" with "update:model-value"
 
 Before:
 ```html
@@ -1303,7 +1494,7 @@ Before:
 
 After:
 ```html
-<mt-colorpicker @update:modelValue="onUpdateValue" />
+<mt-colorpicker @update:model-value="onUpdateValue" />
 ```
 ## Removal of "sw-external-link":
 The old "sw-external-link" component will be removed in the next major version. Please use the new "mt-external-link" component instead.
@@ -1379,7 +1570,7 @@ After:
 ```
 
 ### "mt-email-field" has no property "value" anymore
-Replace all occurrences of the "value" prop with "modelValue"
+Replace all occurrences of the "value" prop with "model-value"
 
 Before:
 ```html
@@ -1387,7 +1578,7 @@ Before:
 ```
 After:
 ```html
-<mt-email-field modelValue="Hello World" />
+<mt-email-field model-value="Hello World" />
 ```
 
 ### "mt-email-field" v-model:value is deprecated
@@ -1439,7 +1630,7 @@ After:
 ```
 
 ### "mt-email-field" has no event "update:value" anymore
-Replace all occurrences of the "update:value" event with "update:modelValue"
+Replace all occurrences of the "update:value" event with "update:model-value"
 
 Before:
 ```html
@@ -1448,7 +1639,7 @@ Before:
 
 After:
 ```html
-<mt-email-field @update:modelValue="updateValue" />
+<mt-email-field @update:model-value="updateValue" />
 ```
 
 ### "mt-email-field" has no event "base-field-mounted" anymore
@@ -1502,7 +1693,7 @@ After:
 ```
 
 ### "mt-url-field" has no property "value" anymore
-Replace all occurrences of the "value" prop with "modelValue"
+Replace all occurrences of the "value" prop with "model-value"
 
 Before:
 ```html
@@ -1510,7 +1701,7 @@ Before:
 ```
 After:
 ```html
-<mt-url-field modelValue="Hello World" />
+<mt-url-field model-value="Hello World" />
 ```
 
 ### "mt-url-field" v-model:value is deprecated
@@ -1526,7 +1717,7 @@ After:
 ```
 
 ### "mt-url-field" has no event "update:value" anymore
-Replace all occurrences of the "update:value" event with "update:modelValue"
+Replace all occurrences of the "update:value" event with "update:model-value"
 
 Before:
 ```html
@@ -1535,7 +1726,7 @@ Before:
 
 After:
 ```html
-<mt-url-field @update:modelValue="updateValue" />
+<mt-url-field @update:model-value="updateValue" />
 ```
 
 ### "mt-url-field" has no slot "label" anymore
@@ -1594,7 +1785,7 @@ After:
 ```
 
 ### "mt-progress-bar" has no property "value" anymore
-Replace all occurrences of the "value" prop with "modelValue"
+Replace all occurrences of the "value" prop with "model-value"
 
 Before:
 ```html
@@ -1602,7 +1793,7 @@ Before:
 ```
 After:
 ```html
-<mt-progress-bar modelValue="5" />
+<mt-progress-bar model-value="5" />
 ```
 
 ### "mt-progress-bar" v-model:value is deprecated
@@ -1618,7 +1809,7 @@ After:
 ```
 
 ### "mt-progress-bar" has no event "update:value" anymore
-Replace all occurrences of the "update:value" event with "update:modelValue"
+Replace all occurrences of the "update:value" event with "update:model-value"
 
 Before:
 ```html
@@ -1627,7 +1818,7 @@ Before:
 
 After:
 ```html
-<mt-progress-bar @update:modelValue="updateValue" />
+<mt-progress-bar @update:model-value="updateValue" />
 ```
 
 ## Removal of "sw-button":
@@ -1660,7 +1851,7 @@ Before:
 ```
 After:
 ```html
-<mt-button ghost>Save</mt-button>
+<mt-button variant="primary" ghost>Save</mt-button>
 ```
 
 ### "mt-button" has no value "danger" in property "variant" anymore
@@ -1834,7 +2025,7 @@ After:
 ```
 
 ### "mt-text-field" has no property "value" anymore
-Replace all occurrences of the "value" prop with "modelValue"
+Replace all occurrences of the "value" prop with "model-value"
 
 Before:
 ```html
@@ -1842,7 +2033,7 @@ Before:
 ```
 After:
 ```html
-<mt-text-field modelValue="Hello World" />
+<mt-text-field model-value="Hello World" />
 ```
 
 ### "mt-text-field" v-model:value is deprecated
@@ -1894,7 +2085,7 @@ After:
 ```
 
 ### "mt-text-field" has no event "update:value" anymore
-Replace all occurrences of the "update:value" event with "update:modelValue"
+Replace all occurrences of the "update:value" event with "update:model-value"
 
 Before:
 ```html
@@ -1903,7 +2094,7 @@ Before:
 
 After:
 ```html
-<mt-text-field @update:modelValue="updateValue" />
+<mt-text-field @update:model-value="updateValue" />
 ```
 
 ### "mt-text-field" has no event "base-field-mounted" anymore
@@ -2103,28 +2294,30 @@ After:
 <mt-number-field />
 ```
 
-### "mt-number-field" has no property "value" anymore
-Replace all occurrences of the "value" prop with "modelValue"
+### "sw-number-field" prop "value" was renamed to "model-value"
+Replace all occurrences of the prop "value" with "model-value"
 
 Before:
 ```html
-<mt-number-field :value="5" />
-```
-After:
-```html
-<mt-number-field :modelValue="5" />
+<sw-number-field value="5" />
 ```
 
-### "mt-number-field" v-model:value is deprecated
-Replace all occurrences of the "v-model:value" directive with the combination of `:modelValue` and `@change`
+After:
+```html
+<mt-number-field model-value="5" />
+```
+
+### "sw-number-field" the "v-model:value" was renamed to "v-model"
+Replace all occurrences of the "v-model:value" directive with "v-model"
 
 Before:
 ```html
-<mt-number-field v-model:value="myValue" />
+<sw-number-field v-model:value="myValue" />
 ```
+
 After:
 ```html
-<mt-number-field :modelValue="myValue" @change="myValue = $event" />
+<mt-number-field v-model="myValue" />
 ```
 
 ### "mt-number-field" label slot is deprecated
@@ -2145,7 +2338,7 @@ After:
 ```
 
 ### "mt-number-field" update:value event is deprecated
-Replace all occurrences of the "update:value" event with the "change" event
+Replace all occurrences of the "update:value" event with the "update:model-value" event
 
 Before:
 ```html
@@ -2153,8 +2346,9 @@ Before:
 ```
 After:
 ```html
-<mt-number-field @change="updateValue" />
+<mt-number-field @update:model-value="updateValue" />
 ```
+
 ## Removal of "sw-loader":
 The old "sw-loader" component will be removed in the next major version. Please use the new "mt-loader" component instead.
 
@@ -2298,6 +2492,19 @@ After:
 <mt-checkbox @update:checked="updateValue" />
 ```
 </details>
+
+### Deprecated admin notification entity + related classes
+
+We have moved the notification entity, collection and definition to core. You should update your code to reference the new classes. The old classes are deprecated.
+
+* `Shopware\Administration\Notification\NotificationCollection` -> `Shopware\Core\Framework\Notification\NotificationCollection`
+* `Shopware\Administration\Notification\NotificationDefinition` -> `Shopware\Core\Framework\Notification\NotificationDefinition`
+* `Shopware\Administration\Notification\NotificationEntity` -> `Shopware\Core\Framework\Notification\NotificationEntity`
+
+### Deprecated notification controller
+
+`\Shopware\Administration\Controller\NotificationController` is now moved to core `\Shopware\Core\Framework\Notification\Api\NotificationController` - if you type hint on this class, please update it. The HTTP route is still the same. The old class is deprecated.
+
 </details>
 
 # Storefront
@@ -2326,7 +2533,8 @@ We made some changes in the Storefront, which might affect your plugins and them
 * The following blocks were moved from `src/Storefront/Resources/views/storefront/base.html.twig` to `src/Storefront/Resources/views/storefront/layout/footer.html.twig`.
   * `base_footer`
   * `base_footer_inner`
-* The template variable `page` in following templates was removed. Provide `header` or `footer` directly.
+* The template variable `page` in following templates was removed. The data is now available in the `header` or `footer` variables.
+  If you need to access custom data in the footer or header, use the `HeaderPageletLoadedEvent` or `FooterPageletLoadedEvent` to extend those variables.
   * `src/Storefront/Resources/views/storefront/layout/footer/footer.html.twig`
   * `src/Storefront/Resources/views/storefront/layout/header/actions/currency-widget.html.twig`
   * `src/Storefront/Resources/views/storefront/layout/header/actions/language-widget.html.twig`
@@ -2348,6 +2556,11 @@ foreach($storefrontPluginConfig->getAssetPaths() as $relativePath) {
     $absolutePath = $fs->path('Resources', $relativePath);
 }
 ```
+
+## Removal of `setTwig` method in `StorefrontController`
+The method `Shopware\Storefront\Controller\StorefrontController::setTwig` has been removed.
+Remove the `setTwig` call from the services config files.
+There is no further change required.
 
 ## Removal of deprecated product review loading logic in Storefront
 * The service `\Shopware\Storefront\Page\Product\Review\ProductReviewLoader` was removed. Use `\Shopware\Core\Content\Product\SalesChannel\Review\AbstractProductReviewLoader` instead.
@@ -2497,6 +2710,12 @@ We made some changes in the app-system, which might affect your apps.
 <details>
   <summary>Detailed Changes</summary>
 
+## Manifest version increased
+The version of the manifest XSD file increased.
+Consider validating your `manifest.xml` against `src/Core/Framework/App/Manifest/Schema/manifest-3.0.xsd` now.
+With this change we removed the `capture-url` element from the `payment-method` type.
+Implement the `pay-url` instead.
+
 ## Payment: payment states
 For asynchronous payments, the default payment state `unconfirmed` was used for the `pay` call and `paid` for `finalized`. This is no longer the case. Payment states are no longer set by default.
 
@@ -2505,6 +2724,7 @@ The `finalize` step now transmits the `queryParameters` under the object key `re
 
 ## Payment: onlyAvailable flag removed from CheckoutGatewayRoute
 The `onlyAvailable` flag in the `Shopware\Core\Checkout\Gateway\SalesChannel\CheckoutGatewayRoute` in the request is removed. The route always filters the payment and shipping methods before calling the checkout gateway based on availability.
+
 </details>
 
 # Hosting & Configuration

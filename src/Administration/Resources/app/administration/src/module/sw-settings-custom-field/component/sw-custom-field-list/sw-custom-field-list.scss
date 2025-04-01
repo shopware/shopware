@@ -27,7 +27,7 @@ $sw-custom-field-list-color-label-link: $color-shopware-brand-500;
         .sw-custom-field-list__delete-button.mt-button--square {
             border-color: $sw-custom-field-list-color-border;
 
-            .sw-icon {
+            .mt-icon {
                 color: $sw-custom-field-list-color-border;
             }
 
@@ -39,15 +39,6 @@ $sw-custom-field-list-color-label-link: $color-shopware-brand-500;
         .sw-tooltip--wrapper {
             .mt-button {
                 width: 100%;
-            }
-        }
-
-        .sw-simple-search-field .sw-simple-search-field__input {
-            margin-bottom: 0;
-
-            input {
-                height: 32px;
-                padding-right: 50px;
             }
         }
     }

@@ -1,3 +1,5 @@
+/* eslint-disable jest/no-conditional-expect */
+
 /**
  * @sw-package framework
  */
@@ -27,8 +29,7 @@ async function createWrapper(defaultValues = {}) {
             renderStubDefaultSlot: true,
             stubs: {
                 'sw-form-field-renderer': await wrapTestComponent('sw-form-field-renderer'),
-                'sw-card': await wrapTestComponent('sw-card'),
-                'sw-card-deprecated': await wrapTestComponent('sw-card-deprecated'),
+                'sw-password-field-deprecated': await wrapTestComponent('sw-password-field-deprecated'),
                 'sw-ignore-class': true,
                 'sw-sales-channel-switch': await wrapTestComponent('sw-sales-channel-switch'),
                 'sw-entity-single-select': await wrapTestComponent('sw-entity-single-select'),
@@ -37,23 +38,13 @@ async function createWrapper(defaultValues = {}) {
                 'sw-inheritance-switch': await wrapTestComponent('sw-inheritance-switch'),
                 'sw-text-field': await wrapTestComponent('sw-text-field'),
                 'sw-text-field-deprecated': await wrapTestComponent('sw-text-field-deprecated', { sync: true }),
-                'sw-password-field': await wrapTestComponent('sw-password-field'),
-                'sw-password-field-deprecated': await wrapTestComponent('sw-password-field-deprecated'),
-                'sw-textarea-field': await wrapTestComponent('sw-textarea-field'),
-                'sw-textarea-field-deprecated': await wrapTestComponent('sw-textarea-field-deprecated', { sync: true }),
                 'sw-contextual-field': await wrapTestComponent('sw-contextual-field'),
-                'sw-switch-field': await wrapTestComponent('sw-switch-field'),
-                'sw-switch-field-deprecated': await wrapTestComponent('sw-switch-field-deprecated', { sync: true }),
-                'sw-number-field': await wrapTestComponent('sw-number-field'),
                 'sw-number-field-deprecated': await wrapTestComponent('sw-number-field-deprecated', { sync: true }),
                 'sw-checkbox-field': await wrapTestComponent('sw-checkbox-field'),
                 'sw-checkbox-field-deprecated': await wrapTestComponent('sw-checkbox-field-deprecated', { sync: true }),
                 'sw-block-field': await wrapTestComponent('sw-block-field'),
                 'sw-base-field': await wrapTestComponent('sw-base-field'),
                 'sw-field-error': await wrapTestComponent('sw-field-error'),
-                'sw-icon': {
-                    template: '<div class="sw-icon" @click="$emit(\'click\')"></div>',
-                },
                 'sw-single-select': await wrapTestComponent('sw-single-select'),
                 'sw-multi-select': await wrapTestComponent('sw-multi-select'),
                 'sw-entity-multi-select': await wrapTestComponent('sw-entity-multi-select'),
@@ -71,15 +62,16 @@ async function createWrapper(defaultValues = {}) {
                 'sw-media-media-item': await wrapTestComponent('sw-media-media-item'),
                 'sw-media-base-item': await wrapTestComponent('sw-media-base-item'),
                 'sw-media-preview-v2': await wrapTestComponent('sw-media-preview-v2'),
-                'sw-colorpicker': await wrapTestComponent('sw-text-field'),
+                'sw-colorpicker-deprecated': await wrapTestComponent('sw-text-field-deprecated'),
                 'sw-upload-listener': true,
                 'sw-simple-search-field': true,
                 'sw-loader': true,
-                'sw-datepicker': await wrapTestComponent('sw-text-field'),
+                'sw-datepicker-deprecated': await wrapTestComponent('sw-text-field-deprecated'),
                 'sw-text-editor': await wrapTestComponent('sw-text-field'),
+                'sw-textarea-field-deprecated': await wrapTestComponent('sw-textarea-field-deprecated', { sync: true }),
+                'sw-switch-field-deprecated': await wrapTestComponent('sw-switch-field-deprecated', { sync: true }),
                 'sw-extension-component-section': true,
                 'sw-ai-copilot-badge': true,
-
                 'sw-context-button': true,
                 'sw-product-variant-info': true,
                 'sw-help-text': true,
@@ -373,9 +365,9 @@ function createConfig() {
                 childValue: false,
                 fallbackValue: false,
                 changeValueFunction: async (field) => {
+                    const currentValue = field.find('input').element.checked;
                     // change input value
-                    await field.find('input[type="checkbox"]').trigger('click');
-                    await field.find('input[type="checkbox"]').trigger('change');
+                    await field.find('input[type="checkbox"]').setChecked(!currentValue);
                 },
             },
         },
@@ -842,14 +834,13 @@ describe('src/module/sw-settings/component/sw-system-config/sw-system-config', (
             expect(inheritanceSwitch.classes()).toContain('sw-inheritance-switch--is-inherited');
 
             // check if inheritance switch is visible
-            inheritanceSwitch = field.find('.sw-inheritance-switch');
             expect(inheritanceSwitch.isVisible()).toBe(true);
 
             // check if value in actualConfigData is right (null or undefined)
             expect(wrapper.vm.actualConfigData[uuid.get('headless')][name]).toBeUndefined();
 
             // remove inheritance
-            await inheritanceSwitch.find('.sw-icon').trigger('click');
+            await inheritanceSwitch.find('.mt-icon').trigger('click');
 
             // check if inheritance switch is not inherit anymore
             field = wrapper.find(`.sw-system-config--field-${kebabCase(name)}`);
@@ -916,12 +907,13 @@ describe('src/module/sw-settings/component/sw-system-config/sw-system-config', (
             expect(inheritanceSwitch.classes()).toContain('sw-inheritance-switch--is-not-inherited');
 
             // restore inheritance
-            await inheritanceSwitch.find('.sw-icon').trigger('click');
+            await inheritanceSwitch.find('.mt-icon').trigger('click');
             await flushPromises();
 
             // check if inheritance switch is not inherit anymore
             field = wrapper.find(`.sw-system-config--field-${kebabCase(name)}`);
             inheritanceSwitch = field.find('.sw-inheritance-switch');
+
             expect(inheritanceSwitch.classes()).toContain('sw-inheritance-switch--is-inherited');
 
             // check if child gets parent value
@@ -982,11 +974,12 @@ describe('src/module/sw-settings/component/sw-system-config/sw-system-config', (
             expect(inheritanceSwitch.classes()).toContain('sw-inheritance-switch--is-not-inherited');
 
             // restore inheritance
-            await inheritanceSwitch.find('.sw-icon').trigger('click');
+            await inheritanceSwitch.find('.mt-icon').trigger('click');
 
             // check if inheritance switch is not inherit anymore
             field = wrapper.find(`.sw-system-config--field-${kebabCase(name)}`);
             inheritanceSwitch = field.find('.sw-inheritance-switch');
+
             expect(inheritanceSwitch.classes()).toContain('sw-inheritance-switch--is-inherited');
 
             // check if child gets fallback parent value

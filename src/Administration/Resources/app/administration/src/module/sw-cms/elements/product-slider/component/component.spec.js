@@ -15,7 +15,6 @@ async function createWrapper() {
             },
             stubs: {
                 'sw-cms-el-product-box': await wrapTestComponent('sw-cms-el-product-box'),
-                'sw-icon': true,
             },
         },
     });

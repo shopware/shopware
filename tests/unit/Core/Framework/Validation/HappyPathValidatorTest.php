@@ -25,9 +25,9 @@ class HappyPathValidatorTest extends TestCase
         $inner = $this->createMock(ValidatorInterface::class);
 
         if ($isValid) {
-            $inner->expects(static::never())->method('validate');
+            $inner->expects($this->never())->method('validate');
         } else {
-            $inner->expects(static::atLeastOnce())->method('validate')->willReturn(new ConstraintViolationList([
+            $inner->expects($this->atLeastOnce())->method('validate')->willReturn(new ConstraintViolationList([
                 $this->createMock(ConstraintViolationInterface::class),
             ]));
         }

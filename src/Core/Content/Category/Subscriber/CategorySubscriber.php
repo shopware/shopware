@@ -32,11 +32,13 @@ class CategorySubscriber implements EventSubscriberInterface
         ];
     }
 
+    /**
+     * @param EntityLoadedEvent<CategoryEntity> $event
+     */
     public function entityLoaded(EntityLoadedEvent $event): void
     {
         $salesChannelId = $event instanceof SalesChannelEntityLoadedEvent ? $event->getSalesChannelContext()->getSalesChannelId() : null;
 
-        /** @var CategoryEntity $category */
         foreach ($event->getEntities() as $category) {
             $categoryCmsPageId = $category->getCmsPageId();
 

@@ -8,4 +8,4 @@ issue: NEXT-40112
   * `\Shopware\Core\System\SystemConfig\CachedSystemConfigLoader`
   * `\Shopware\Core\Checkout\Cart\CachedRuleLoader`
   * `\Shopware\Core\System\SalesChannel\Context\CachedSalesChannelContextFactory`
-  * `\Shopware\Core\System\SalesChannel\Context\CachedBaseContextFactory`
+  * `\Shopware\Core\System\SalesChannel\Context\CachedBaseSalesChannelContextFactory`

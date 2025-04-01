@@ -826,6 +826,8 @@ class CustomEntityTest extends TestCase
         $response = $client->getResponse();
         $body = json_decode((string) $response->getContent(), true, \JSON_THROW_ON_ERROR, \JSON_THROW_ON_ERROR);
         static::assertSame(Response::HTTP_OK, $response->getStatusCode(), print_r($body, true));
+
+        static::assertIsArray($body);
         static::assertArrayHasKey('total', $body);
         static::assertArrayHasKey('data', $body);
         static::assertArrayHasKey('aggregations', $body);
@@ -848,6 +850,8 @@ class CustomEntityTest extends TestCase
         $response = $client->getResponse();
         $body = json_decode((string) $response->getContent(), true, \JSON_THROW_ON_ERROR, \JSON_THROW_ON_ERROR);
         static::assertSame(Response::HTTP_OK, $response->getStatusCode(), print_r($body, true));
+
+        static::assertIsArray($body);
         static::assertArrayHasKey('data', $body);
         static::assertSame('update', $body['data']['title']);
         static::assertSame($ids->get('blog-1'), $body['data']['id']);
@@ -866,6 +870,8 @@ class CustomEntityTest extends TestCase
         $response = $client->getResponse();
         $body = json_decode((string) $response->getContent(), true, \JSON_THROW_ON_ERROR, \JSON_THROW_ON_ERROR);
         static::assertSame(Response::HTTP_OK, $response->getStatusCode(), print_r($body, true));
+
+        static::assertIsArray($body);
         static::assertArrayHasKey('total', $body);
         static::assertArrayHasKey('data', $body);
         static::assertArrayHasKey('aggregations', $body);
@@ -888,6 +894,8 @@ class CustomEntityTest extends TestCase
         $response = $client->getResponse();
         $body = json_decode((string) $response->getContent(), true, \JSON_THROW_ON_ERROR, \JSON_THROW_ON_ERROR);
         static::assertSame(Response::HTTP_OK, $response->getStatusCode(), print_r($body, true));
+
+        static::assertIsArray($body);
         static::assertArrayHasKey('total', $body);
         static::assertArrayHasKey('data', $body);
         static::assertCount(1, $body['data']);

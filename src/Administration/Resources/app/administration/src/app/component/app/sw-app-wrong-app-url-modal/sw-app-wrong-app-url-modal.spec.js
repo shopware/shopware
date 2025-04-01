@@ -27,10 +27,6 @@ describe('sw-app-wrong-app-url-modal', () => {
                     </div>
                 `,
             },
-            'sw-icon': await wrapTestComponent('sw-icon'),
-            'icons-small-default-x-line-medium': {
-                template: '<span class="sw-icon sw-icon--small-default-x-line-medium"></span>',
-            },
             'router-link': true,
             'sw-loader': true,
         };
@@ -42,7 +38,6 @@ describe('sw-app-wrong-app-url-modal', () => {
             {
                 global: {
                     stubs: {
-                        'sw-icon': await wrapTestComponent('sw-icon'),
                         ...stubs,
                     },
                     provide: {

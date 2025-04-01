@@ -457,7 +457,12 @@ class EntityReader implements EntityReaderInterface
             $association->getReferenceField()
         );
 
-        \assert($ref instanceof Field);
+        if (!$ref instanceof Field) {
+            throw DataAbstractionLayerException::referenceFieldByStorageNameNotFound(
+                $association->getReferenceDefinition()->getEntityName(),
+                $association->getReferenceField()
+            );
+        }
 
         $propertyName = $ref->getPropertyName();
         if ($association instanceof ChildrenAssociationField) {

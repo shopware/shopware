@@ -41,7 +41,7 @@ PHP blue green 6.6->6.7->6.6:
       if [[ $CI_PIPELINE_SOURCE == "schedule" ]]; then
         composer init:testdb
         DATABASE_URL="$TEST_DB_URL" bin/console database:migrate --all core.V6_7
-        php vendor/bin/phpunit --testsuite integration --exclude-group=needsWebserver,skip-paratest,not-deterministic --stop-on-error --stop-on-failure
+        php vendor/bin/phpunit --testsuite integration --exclude-group=needsWebserver,not-deterministic --stop-on-error --stop-on-failure
       else
         bin/console system:install --basic-setup --create-database --skip-assets-install
         bin/console database:migrate --all core.V6_7

@@ -234,11 +234,17 @@ class SalesChannelEntityCompilerPass implements CompilerPassInterface
             }
 
             $definition = $container->getDefinition($entityNameMap[$classObject->getEntityName()]);
-
             $definition->addMethodCall('addExtension', [new Reference($id)]);
 
             if (isset($salesChannelNameMap[$classObject->getEntityName()])) {
                 $definition = $container->getDefinition($salesChannelNameMap[$classObject->getEntityName()]);
+                $definition->addMethodCall('addExtension', [new Reference($id)]);
+            }
+
+            $extendedDefinition = self::PREFIX . $entityNameMap[$classObject->getEntityName()];
+
+            if ($container->hasDefinition($extendedDefinition)) {
+                $definition = $container->getDefinition($extendedDefinition);
                 $definition->addMethodCall('addExtension', [new Reference($id)]);
             }
         }
@@ -273,6 +279,13 @@ class SalesChannelEntityCompilerPass implements CompilerPassInterface
 
                 if (isset($salesChannelNameMap[$entity])) {
                     $definition = $container->getDefinition($salesChannelNameMap[$entity]);
+                    $definition->addMethodCall('addExtension', [$filteredExtension]);
+                }
+
+                $extendedDefinition = self::PREFIX . $entityNameMap[$entity];
+
+                if ($container->hasDefinition($extendedDefinition)) {
+                    $definition = $container->getDefinition($extendedDefinition);
                     $definition->addMethodCall('addExtension', [$filteredExtension]);
                 }
             }

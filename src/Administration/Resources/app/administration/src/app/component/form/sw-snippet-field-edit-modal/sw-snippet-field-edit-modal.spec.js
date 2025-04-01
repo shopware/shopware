@@ -49,7 +49,6 @@ async function createWrapper() {
                 'sw-text-field': await wrapTestComponent('sw-text-field'),
                 'sw-text-field-deprecated': await wrapTestComponent('sw-text-field-deprecated', { sync: true }),
                 'sw-loader': true,
-                'sw-icon': true,
                 'sw-modal': await wrapTestComponent('sw-modal'),
                 'sw-contextual-field': true,
                 'mt-text-field': true,

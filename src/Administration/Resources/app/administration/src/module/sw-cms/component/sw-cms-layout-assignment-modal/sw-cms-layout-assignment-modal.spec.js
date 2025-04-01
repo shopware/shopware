@@ -140,7 +140,6 @@ async function createWrapper(layoutType = 'product_list', systemConfigApiService
                     'sw-multi-select': true,
                     'sw-entity-multi-select': true,
                     'sw-loader': true,
-                    'sw-icon': true,
                     'sw-cms-product-assignment': {
                         template: `
                         <div class="sw-cms-product-assignment">
@@ -148,7 +147,7 @@ async function createWrapper(layoutType = 'product_list', systemConfigApiService
                             <slot
                                 name="empty-state">
                                 <img
-                                    :src="assetFilter('/administration/static/img/empty-states/products-empty-state.svg')"
+                                    :src="assetFilter('/administration/administration/static/img/empty-states/products-empty-state.svg')"
                                     alt=""
                                 >
                                 <p>{{ $tc('sw-cms.components.cmsLayoutAssignmentModal.products.productAssignmentEmptyStateDescription') }}</p>

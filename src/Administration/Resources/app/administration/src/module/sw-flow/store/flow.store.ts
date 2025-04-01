@@ -291,7 +291,7 @@ const swFlowStore = Shopware.Store.register('swFlow', {
         },
 
         fetchTriggerActions() {
-            void Service('businessEventService')
+            return Service('businessEventService')
                 .getBusinessEvents()
                 .then((result: Events) => {
                     this.triggerEvents = result;

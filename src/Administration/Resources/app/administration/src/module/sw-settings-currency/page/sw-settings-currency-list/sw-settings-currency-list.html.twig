@@ -24,9 +24,10 @@
         {% block sw_settings_currency_list_smart_bar_header_title %}
         <h2>
             {% block sw_settings_currency_list_smart_bar_header_title_text %}
-            {{ $tc('sw-settings.index.title') }} <sw-icon
+            {{ $tc('sw-settings.index.title') }}
+            <mt-icon
                 name="regular-chevron-right-xs"
-                small
+                size="16px"
             /> {{ $tc('sw-settings-currency.list.textHeadline') }}
             {% endblock %}
 
@@ -46,11 +47,11 @@
     {% block sw_settings_currency_list_smart_bar_actions %}
     <template #smart-bar-actions>
         {% block sw_settings_currency_list_smart_bar_actions_add %}
-        <!-- TODO Codemod: Converted from sw-button - please check if everything works correctly -->
         <mt-button
             class="sw-settings-currency-list__button-create"
             :disabled="!acl.can('currencies.creator') || undefined"
             variant="primary"
+            size="default"
             @click="$router.push({ name: 'sw.settings.currency.create' })"
         >
             {{ $tc('sw-settings-currency.list.buttonAddCurrency') }}
@@ -128,9 +129,9 @@
                         {% block sw_settings_currency_list_delete_modal_footer %}
                         <template #modal-footer>
                             {% block sw_settings_currency_list_delete_modal_cancel %}
-                            <!-- TODO Codemod: Converted from sw-button - please check if everything works correctly -->
                             <mt-button
                                 size="small"
+                                variant="secondary"
                                 @click="onCloseDeleteModal"
                             >
                                 {{ $tc('global.default.cancel') }}
@@ -138,7 +139,6 @@
                             {% endblock %}
 
                             {% block sw_settings_currency_list_delete_modal_confirm %}
-                            <!-- TODO Codemod: Converted from sw-button - please check if everything works correctly -->
                             <mt-button
                                 variant="critical"
                                 size="small"

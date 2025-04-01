@@ -14,12 +14,12 @@
     >
         <img
             v-if="!small"
-            :src="assetFilter('/administration/static/img/media/multicolor-folder-breadcrumbs-back-to-root.svg')"
+            :src="assetFilter('/administration/administration/static/img/media/multicolor-folder-breadcrumbs-back-to-root.svg')"
             alt="Folder breadcrumbs back-to-root"
         >
         <img
             v-else
-            :src="assetFilter('/administration/static/img/media/multicolor-folder-breadcrumbs.svg')"
+            :src="assetFilter('/administration/administration/static/img/media/multicolor-folder-breadcrumbs.svg')"
             alt="Folder breadcrumbs"
         >
     </a>
@@ -34,7 +34,7 @@
         @click="onBreadcrumbsItemClicked(parentFolder.id)"
         @keydown.enter="onBreadcrumbsItemClicked(parentFolder.id)"
     >
-        <sw-icon
+        <mt-icon
             class="sw-media-breadcrumbs__arrow-separator"
             name="regular-chevron-right-xxs"
         />
@@ -47,7 +47,7 @@
         v-if="currentFolder"
         class="sw-media-breadcrumbs__entry sw-media-breadcrumbs__current-folder"
     >
-        <sw-icon
+        <mt-icon
             class="sw-media-breadcrumbs__arrow-separator"
             name="regular-chevron-right-xxs"
         />

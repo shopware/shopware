@@ -56,10 +56,44 @@ export default Shopware.Component.wrapComponentConfig({
             return !this.isSystemDefaultLanguage || this.blockConfig?.removable === false;
         },
 
+        duplicateDisabled() {
+            return !this.block.id || this.block._isNew;
+        },
+
+        combinedDuplicateDisabled() {
+            return this.quickactionsDisabled || this.duplicateDisabled;
+        },
+
+        combinedDuplicateClasses() {
+            return {
+                'is--disabled': this.combinedDuplicateDisabled,
+            };
+        },
+
         quickactionClasses() {
             return {
                 'is--disabled': this.quickactionsDisabled,
             };
+        },
+
+        backgroundModeOptions() {
+            return [
+                {
+                    id: 1,
+                    value: 'auto',
+                    label: this.$tc('sw-cms.detail.label.backgroundMediaModeAuto'),
+                },
+                {
+                    id: 2,
+                    value: 'contain',
+                    label: this.$tc('sw-cms.detail.label.backgroundMediaModeContain'),
+                },
+                {
+                    id: 3,
+                    value: 'cover',
+                    label: this.$tc('sw-cms.detail.label.backgroundMediaModeCover'),
+                },
+            ];
         },
     },
 
@@ -89,7 +123,7 @@ export default Shopware.Component.wrapComponentConfig({
         },
 
         onBlockDuplicate() {
-            if (this.quickactionsDisabled) {
+            if (this.combinedDuplicateDisabled) {
                 return;
             }
 

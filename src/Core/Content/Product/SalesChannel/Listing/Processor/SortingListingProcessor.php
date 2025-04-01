@@ -95,7 +95,6 @@ class SortingListingProcessor extends AbstractListingProcessor
         $criteria->setTitle('product-listing::load-sortings');
         /** @var string[] $availableSortings */
         $availableSortings = $request->get('availableSortings');
-        var_dump($availableSortings);
 
         if ($availableSortings) {
             $sortings = new ProductSortingCollection();

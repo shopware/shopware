@@ -262,7 +262,7 @@ class ProductPriceCalculatorTest extends TestCase
 
         static::assertInstanceOf(CalculatedPriceCollection::class, $prices);
 
-        static::assertSame(\count($expected), $prices->count());
+        static::assertCount(\count($expected), $prices);
 
         foreach ($expected as $index => $value) {
             static::assertTrue($prices->has($index));

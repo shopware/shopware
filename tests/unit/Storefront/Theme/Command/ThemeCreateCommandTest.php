@@ -78,7 +78,7 @@ class ThemeCreateCommandTest extends TestCase
 
         $commandTester->execute(['theme-name' => self::THEME_NAME]);
 
-        $result = preg_replace('/\s+/', ' ', trim($commandTester->getDisplay(true)));
+        $result = $commandTester->getDisplay(true);
 
         static::assertIsString($result);
         static::assertStringContainsString('already exists', $result);

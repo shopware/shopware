@@ -215,4 +215,3 @@ class ProductListingCmsElementResolver extends AbstractCmsElementResolver
         }
     }
 }
-

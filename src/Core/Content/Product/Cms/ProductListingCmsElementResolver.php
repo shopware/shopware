@@ -115,11 +115,7 @@ class ProductListingCmsElementResolver extends AbstractCmsElementResolver
     {
         $config = $slot->getTranslation('config');
 
-        if ($config && isset($config['useCustomSorting']) && isset($config['useCustomSorting']['value'])) {
-            return $config['useCustomSorting']['value'];
-        }
-
-        return false;
+        return $config['useCustomSorting']['value'] ?? false;
     }
 
     /**
@@ -133,39 +129,33 @@ class ProductListingCmsElementResolver extends AbstractCmsElementResolver
 
         $config = $slot->getTranslation('config');
 
-        if (isset($config['defaultSorting']['value']) && $config && $config['defaultSorting']['value']) {
+        if (isset($config['defaultSorting']['value'])) {
+            $defaultSortingKey = null;
             $defaultSortingValue = $config['defaultSorting']['value'];
             foreach ($sortCollection as $sorting) {
-                if ($sorting->get('key') === $defaultSortingValue) {
-                    $defaultSortingKey = $sorting->get('key');
+                if ($sorting->getKey() === $defaultSortingValue) {
+                    $defaultSortingKey = $sorting->getKey();
                     break;
                 }
             }
 
-            if (isset($defaultSortingKey)) {
+            if ($defaultSortingKey !== null) {
                 $request->request->set('order', $defaultSortingKey);
             }
 
             return;
         }
 
-        // if we have no specific order given at this point, set the order to the highest priority available sorting
-        if ($request->get('availableSortings')) {
-            $availableSortings = $request->get('availableSortings');
-            arsort($availableSortings, \SORT_DESC | \SORT_NUMERIC);
-            $sortingId = array_key_first($availableSortings);
-            if (!\is_string($sortingId)) {
-                return;
+        $availableSortings = $request->get('availableSortings');
+        if ($availableSortings && \is_array($availableSortings)) {
+            $customSortingKey = null;
+
+            $firstSorting = reset($availableSortings);
+            if (\is_object($firstSorting) && method_exists($firstSorting, 'getKey')) {
+                $customSortingKey = $firstSorting->getKey();
             }
 
-            foreach ($sortCollection as $sorting) {
-                if ($sorting->getId() === $sortingId) {
-                    $customSortingKey = $sorting->getKey();
-                    break;
-                }
-            }
-
-            if (isset($customSortingKey)) {
+            if ($customSortingKey !== null) {
                 $request->request->set('order', $customSortingKey);
             }
         }
@@ -182,14 +172,27 @@ class ProductListingCmsElementResolver extends AbstractCmsElementResolver
             return;
         }
 
-        $customSorting = new ProductSortingCollection();
+        $customSortingIds = $config['availableSortings']['value'];
+        $customSortings = [];
+
         foreach ($sortCollection as $sorting) {
-            $customSortingIds = $config['availableSortings']['value'];
             foreach ($customSortingIds as $customSortingId => $customSortingPriority) {
                 if ($sorting->getId() === $customSortingId) {
-                    $customSorting->add($sorting);
+                    $customSortings[$customSortingId] = [
+                        'entity' => $sorting,
+                        'priority' => $customSortingPriority,
+                    ];
                 }
             }
+        }
+
+        uasort($customSortings, function ($a, $b) {
+            return $b['priority'] <=> $a['priority'];
+        });
+
+        $customSorting = new ProductSortingCollection();
+        foreach ($customSortings as $data) {
+            $customSorting->add($data['entity']);
         }
 
         $request->request->set('availableSortings', $customSorting->getElements());
@@ -206,8 +209,8 @@ class ProductListingCmsElementResolver extends AbstractCmsElementResolver
         $propertyWhitelist = $config['propertyWhitelist']['value'] ?? null ?: null;
 
         // When the property filters are restricted, they are not in the enabledFilters array
-        if (\in_array(PropertyListingFilterHandler::FILTER_ENABLED_REQUEST_PARAM, $enabledFilters, true)
-            || !\is_array($propertyWhitelist)) {
+        if (!\is_array($propertyWhitelist)
+            || \in_array(PropertyListingFilterHandler::FILTER_ENABLED_REQUEST_PARAM, $enabledFilters, true)) {
             $propertyWhitelist = null;
         }
 

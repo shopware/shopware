@@ -145,6 +145,24 @@
     <sw-extension-component-section
         position-identifier="sw-order-detail-base-line-items__after"
     />
+
+    <mt-card
+        class="sw-order-detail-general__promotions-card"
+        position-identifier="sw-order-detail-general-promotions"
+        :title="$tc('sw-order.detailBase.cardTitlePromotions')"
+    >
+        <sw-order-promotion-field
+            class="sw-order-detail-general__promotions"
+            @loading-change="updateLoading"
+            @reload-entity-data="reloadEntityData"
+            @save-and-reload="saveAndReload"
+            @error="showError"
+        />
+    </mt-card>
+
+    <sw-extension-component-section
+        position-identifier="sw-order-detail-base-promotions__after"
+    />
     {% endblock %}
 </div>
 {% endblock %}

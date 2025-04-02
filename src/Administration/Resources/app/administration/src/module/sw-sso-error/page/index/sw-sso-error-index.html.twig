@@ -4,7 +4,7 @@
         <div class="sw-sso-error__image-container">
             <img
                 width="200"
-                :src="assetFilter('/administration/static/img/shopware_logo_blue.svg')"
+                :src="assetFilter('administration/administration/static/img/shopware_logo_blue.svg')"
                 :alt="$tc('sw-sso-error.error-card.logoAltText')"
             >
         </div>
@@ -29,7 +29,8 @@
 
                 <a v-else
                    :href="url"
-                   class="mt-button mt-button--primary"
+                   class="sw-button sw-button--primary"
+                   role="link"
                 >
                     {{ $tc('sw-sso-error.error-card.button') }}
                 </a>

@@ -24,6 +24,7 @@ use Shopware\Core\System\SalesChannel\SalesChannelEntity;
 use Shopware\Core\Test\Generator;
 use Shopware\Storefront\Page\GenericPageLoader;
 use Shopware\Storefront\Page\LandingPage\LandingPageLoader;
+use Shopware\Storefront\Page\MetaInformation;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\HttpFoundation\Request;
 
@@ -88,7 +89,7 @@ class LandingPageLoaderTest extends TestCase
         /** @phpstan-ignore-next-line */
         $cmsPageLoaded = $page->getLandingPage()->getCmsPage();
 
-        static::assertEquals($cmsPage, $cmsPageLoaded);
+        static::assertSame($cmsPage, $cmsPageLoaded);
     }
 
     public function testItLoadsProperPageMetaInformation(): void
@@ -115,10 +116,10 @@ class LandingPageLoaderTest extends TestCase
         $page = $landingPageLoader->load($request, $salesChannelContext);
         $metaInformation = $page->getMetaInformation();
 
-        static::assertNotNull($metaInformation);
-        static::assertEquals($metaInformation->getMetaTitle(), $expected['metaTitle']);
-        static::assertEquals($metaInformation->getMetaDescription(), $expected['metaDescription']);
-        static::assertEquals($metaInformation->getMetaKeywords(), $expected['metaKeywords']);
+        static::assertInstanceOf(MetaInformation::class, $metaInformation);
+        static::assertSame($metaInformation->getMetaTitle(), $expected['metaTitle']);
+        static::assertSame($metaInformation->getMetaDescription(), $expected['metaDescription']);
+        static::assertSame($metaInformation->getMetaKeywords(), $expected['metaKeywords']);
     }
 
     public function testItLoadsProperPageMetaInformationWithNameOnly(): void
@@ -142,10 +143,10 @@ class LandingPageLoaderTest extends TestCase
         $page = $landingPageLoader->load($request, $salesChannelContext);
         $metaInformation = $page->getMetaInformation();
 
-        static::assertNotNull($metaInformation);
-        static::assertEquals($metaInformation->getMetaTitle(), $expected['metaTitle']);
-        static::assertEquals($metaInformation->getMetaDescription(), $expected['metaDescription']);
-        static::assertEquals($metaInformation->getMetaKeywords(), $expected['metaKeywords']);
+        static::assertInstanceOf(MetaInformation::class, $metaInformation);
+        static::assertSame($metaInformation->getMetaTitle(), $expected['metaTitle']);
+        static::assertSame($metaInformation->getMetaDescription(), $expected['metaDescription']);
+        static::assertSame($metaInformation->getMetaKeywords(), $expected['metaKeywords']);
     }
 
     private function getLandingPageLoaderWithProduct(string $landingPageId, CmsPageEntity $cmsPage, Request $request, SalesChannelContext $salesChannelContext): LandingPageLoader

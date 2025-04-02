@@ -4,7 +4,6 @@ import Debouncer from 'src/helper/debouncer.helper';
 import HttpClient from 'src/service/http-client.service';
 import ButtonLoadingIndicator from 'src/utility/loading-indicator/button-loading-indicator.util';
 import DeviceDetection from 'src/helper/device-detection.helper';
-import ArrowNavigationHelper from 'src/helper/arrow-navigation.helper';
 
 export default class SearchWidgetPlugin extends Plugin {
 
@@ -36,14 +35,6 @@ export default class SearchWidgetPlugin extends Plugin {
         /** @deprecated tag:v6.8.0 - HttpClient is deprecated. Use native fetch API instead. */
         this._client = new HttpClient();
 
-        // initialize the arrow navigation
-        this._navigationHelper = new ArrowNavigationHelper(
-            this._inputField,
-            this.options.searchWidgetResultSelector,
-            this.options.searchWidgetResultItemSelector,
-            true,
-        );
-
         this._registerEvents();
     }
 
@@ -62,6 +53,8 @@ export default class SearchWidgetPlugin extends Plugin {
             },
         );
 
+        this._inputField.addEventListener('keydown', this._handleKeyEvent.bind(this));
+
         this.el.addEventListener('submit', this._handleSearchEvent.bind(this));
 
         // add click event listener to body
@@ -73,11 +66,6 @@ export default class SearchWidgetPlugin extends Plugin {
 
         // add click event listener to close button
         this._closeButton.addEventListener('click', this._onCloseButtonClick.bind(this));
-
-        // add focus event listener to close button
-        this._closeButton.addEventListener('focus', () => {
-            document.querySelector(this.options.searchWidgetResultSelector).classList.add('d-none');
-        });
     }
 
     _handleSearchEvent(event) {
@@ -110,6 +98,108 @@ export default class SearchWidgetPlugin extends Plugin {
     }
 
     /**
+     * Handles the keydown event on the input field,
+     * to focus into the search suggestions list.
+     * 
+     * @param {Event} event
+     * @private
+     */
+    _handleKeyEvent(event) {
+        if (event.key !== 'ArrowDown' || 
+            this._inputField.value.trim() === '') {
+            return;
+        }
+
+        event.preventDefault();
+
+        const searchSuggest = document.querySelector(this.options.searchWidgetResultSelector);
+        if (!searchSuggest) {
+            return;
+        }
+
+        const searchSuggestItems = searchSuggest.querySelectorAll(this.options.searchWidgetResultItemSelector);
+        const firstItem = searchSuggestItems[0];
+
+        if (!firstItem) {
+            return;
+        }
+
+        const firstAnchor = firstItem.querySelector('a');
+        window.focusHandler.setFocus(firstAnchor, { focusVisible: true, preventScroll: true });
+    }
+
+    /**
+     * Handles the keydown event on the search suggestions list,
+     * to move the focus up or down the list.
+     * 
+     * @param {Event} event
+     * @private
+     */
+    _handleSearchItemKeyEvent(event) {
+        if (event.key !== 'ArrowDown' && 
+            event.key !== 'ArrowUp') {
+            return;
+        }
+ 
+        event.preventDefault();
+        event.stopPropagation();
+        event.stopImmediatePropagation();
+
+        if (event.key === 'ArrowDown') {
+            this._moveFocusDown(event.target);
+        }
+
+        if (event.key === 'ArrowUp') {
+            this._moveFocusUp(event.target);
+        }
+    }
+
+    /**
+     * Moves the focus up the search results list.
+     * 
+     * @param {EventTarget} eventTarget
+     * @private
+     */
+    _moveFocusUp(eventTarget) {
+        const listItem = eventTarget.closest(this.options.searchWidgetResultItemSelector);
+        if (!listItem) {
+            return;
+        }
+
+        const previousItem = listItem.previousElementSibling;
+
+        if (!previousItem) {
+            // Focus back on the input field.
+            window.focusHandler.setFocus(this._inputField, { focusVisible: true, preventScroll: true });
+        } else {
+            const previousAnchor = previousItem.querySelector('a');
+
+            window.focusHandler.setFocus(previousAnchor, { focusVisible: true, preventScroll: true });
+        }
+    }
+
+    /**
+     * Moves the focus down the search results list.
+     * 
+     * @param {EventTarget} eventTarget
+     * @private
+     */
+    _moveFocusDown(eventTarget) {
+        const listItem = eventTarget.closest(this.options.searchWidgetResultItemSelector);
+        if (!listItem) {
+            return;
+        }
+
+        const nextItem = listItem.nextElementSibling;
+
+        if (nextItem) {
+            const nextAnchor = nextItem.querySelector('a');
+
+            window.focusHandler.setFocus(nextAnchor, { focusVisible: true, preventScroll: true });
+        }
+    }
+
+    /**
      * Process the AJAX suggest and show results
      * @param {string} value
      * @private
@@ -135,7 +225,18 @@ export default class SearchWidgetPlugin extends Plugin {
                 indicator.remove();
 
                 // attach search results to the DOM
-                this.el.insertAdjacentHTML('beforeend', content);
+                const searchWidgetButtonField = this.el.querySelector(this.options.searchWidgetButtonFieldSelector);
+                searchWidgetButtonField.insertAdjacentHTML('afterend', content);
+
+                this._inputField.setAttribute('aria-expanded', 'true');
+
+                const searchSuggest = document.querySelector(this.options.searchWidgetResultSelector);
+                const searchSuggestItems = searchSuggest.querySelectorAll(this.options.searchWidgetResultItemSelector);
+
+                searchSuggestItems.forEach(item => {
+                    const anchor = item.querySelector('a');
+                    anchor.addEventListener('keydown', this._handleSearchItemKeyEvent.bind(this));
+                });
 
                 this.$emitter.publish('afterSuggest');
             });
@@ -146,12 +247,11 @@ export default class SearchWidgetPlugin extends Plugin {
      * @private
      */
     _clearSuggestResults() {
-        // reset arrow navigation helper to enable form submit on enter
-        this._navigationHelper.resetIterator();
-
         // remove all result popovers
         const results = document.querySelectorAll(this.options.searchWidgetResultSelector);
         results.forEach(result => result.remove());
+
+        this._inputField.setAttribute('aria-expanded', 'false');
 
         this.$emitter.publish('clearSuggestResults');
     }
@@ -185,6 +285,7 @@ export default class SearchWidgetPlugin extends Plugin {
     _onCloseButtonClick() {
         this._inputField.value = '';
         this._inputField.focus();
+        this._clearSuggestResults();
     }
 
     /**

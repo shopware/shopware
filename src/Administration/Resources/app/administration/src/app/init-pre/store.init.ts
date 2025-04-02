@@ -19,6 +19,7 @@ import 'src/app/store/menu-item.store';
 import 'src/app/store/tabs.store';
 import 'src/app/store/usage-data.store';
 import 'src/app/store/session.store';
+import 'src/app/store/sw-bulk-edit.store';
 
 /**
  * @sw-package framework

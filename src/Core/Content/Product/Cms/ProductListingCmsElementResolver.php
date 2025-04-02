@@ -134,6 +134,7 @@ class ProductListingCmsElementResolver extends AbstractCmsElementResolver
             foreach ($sortCollection as $sorting) {
                 if ($sorting->getId() === $defaultSortingValue) {
                     $request->request->set('order', $sorting->getKey());
+
                     return;
                 }
             }

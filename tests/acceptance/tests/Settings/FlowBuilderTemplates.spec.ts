@@ -13,7 +13,7 @@ test('As an admin, I want to create new flows from templates, so that I can easi
 
     const flowTemplateName = 'Order placed';
     const flowTemplateSingleTerms = flowTemplateName.split(' ');
-    const flowTemplateSearchTerm = flowTemplateSingleTerms[flowTemplateSingleTerms.length - 1];
+    const flowTemplateSearchTerm = flowTemplateSingleTerms[flowTemplateSingleTerms.length - 2];
     const uniqueId = IdProvider.getIdPair().uuid;
     const flowName = 'Test flow - ' + uniqueId;
 

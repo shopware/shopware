@@ -8,7 +8,6 @@
                 id="search-suggest-listbox"
                 aria-label="{{ 'header.searchDropdownTitle'|trans|striptags }}"
                 role="listbox">
-
                 {% block layout_search_suggest_results %}
                     {% for product in page.searchResult %}
                         {% block layout_search_suggest_result_product %}

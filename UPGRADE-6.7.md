@@ -81,6 +81,18 @@ Shopware.Store.register({
 
 For more information refer to the [docs](https://developer.shopware.com/docs/resources/references/adr/2024-06-17-replace-vuex-with-pinia.html#replace-vuex-with-pinia).
 
+## vue-i18n v10 Update
+We have updated `vue-i18n` to version 10, which introduces a significant change by removing the `tc` function. In Shopware, `$tc` remains available on Vue components, but it now internally references the `t` function from `vue-i18n`. 
+
+### Key Considerations
+- While this change works for most use cases, some specific function overloads are no longer supported.
+- For a comprehensive list of deprecated features and migration strategies, refer to the official [vue-i18n migration guide](https://vue-i18n.intlify.dev/guide/migration/breaking10#deprecate-tc-and-tc-for-legacy-api-mode).
+
+### Recommended Actions
+- Review your existing translation calls
+- Test components that heavily rely on translation methods
+- Consider updating to the recommended `t` function where possible
+
 # Cache Rework
 **Note:** Those changes can be activated separately with the `cache_rework` feature flag.
 
@@ -124,6 +136,8 @@ The rendered header and footer are included into the page with the Twig function
 Two new templates `src/Storefront/Resources/views/storefront/layout/header.html.twig` and `src/Storefront/Resources/views/storefront/layout/footer.html.twig` were introduced as new entry points for the header and footer.
 Make sure to adjust your template extensions to be compatible with the new structure.
 The block names are still the same, so it just should be necessary to extend from the new templates.
+New blocks (`base_esi_header` and `base_esi_footer`) were added to the `base.html.twig` template to overwrite header and footer completely.
+This is e.g. used to show minimal header and footer during the checkout process.
 
 # Major Library Updates
 We upgraded the following libraries to their latest versions:
@@ -2629,6 +2643,11 @@ foreach($storefrontPluginConfig->getAssetPaths() as $relativePath) {
 ## Removal of `showStagingBanner` Twig variable
 The global `showStagingBanner` Twig variable was removed. Use `shopware.showStagingBanner` instead.
 
+## Removal of `setTwig` method in `StorefrontController`
+The method `Shopware\Storefront\Controller\StorefrontController::setTwig` has been removed.
+Remove the `setTwig` call from the services config files.
+There is no further change required.
+
 ## Removal of deprecated product review loading logic in Storefront
 * The service `\Shopware\Storefront\Page\Product\Review\ProductReviewLoader` was removed. Use `\Shopware\Core\Content\Product\SalesChannel\Review\AbstractProductReviewLoader` instead.
 * The event `\Shopware\Storefront\Page\Product\Review\ProductReviewsLoadedEvent` was removed. Use `\Shopware\Core\Content\Product\SalesChannel\Review\Event\ProductReviewsLoadedEvent` instead.
@@ -2776,6 +2795,15 @@ Alternatively you can use the `cache:clear:all` command to clear all caches (inc
 
 ## Cache ID loaded by Database is removed
 
-Prior Shopware 6.7, the cache ID was loaded by the database from the `app_config` table and created complete different caches using that. This was used in earlier Shopware versions to clear the cache rapidly without having to clear the whole cache.
+Prior Shopware 6.7, the cache ID was loaded by the database from the `app_config` table and created complete different caches using that. 
+This was used in earlier Shopware versions to clear the cache rapidly without having to clear the whole cache.
 You can still set `SHOPWARE_CACHE_ID` as an environment variable to set the cache ID.
+
+## Removal of RSA JWT secrets
+
+The custom JWT secrets where removed, instead the JWTs will now be signed with the `APP_SECRET`. Therefore, please make sure that the `APP_SECRET` environment variable is at least 32 characters long. You can use the `bin/console system:generate-app-secret` command to generate a valid secret.
+
+This means the `shopware.api.jwt_key.use_app_secret` configuration is no longer available, as that is the only behavior now.
+Additionally, the `system:generate-jwt-secret` command was removed, as it is not needed anymore.
+
 </details>

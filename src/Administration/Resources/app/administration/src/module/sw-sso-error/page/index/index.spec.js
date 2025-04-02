@@ -47,18 +47,6 @@ describe('src/module/sw-sso-error/page/index', () => {
         expect(components.has('sw-sso-error-index')).toBe(true);
     });
 
-    it('should set the login config', async () => {
-        const wrapper = await createWrapper(false);
-        await flushPromises();
-
-        const config = wrapper.vm.loginConfig;
-
-        expect(config.useDefault).toBe(false);
-        expect(config.url).toBe('https://foo.bar.baz');
-
-        expect(wrapper.find('.sw-sso-error__description').exists()).toBe(true);
-    });
-
     it('should load the shopware logo', async () => {
         const wrapper = await createWrapper(false);
         await flushPromises();

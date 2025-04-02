@@ -80,7 +80,7 @@ class ProductListingCmsElementResolverTest extends TestCase
 
         $sorting = new ProductSortingCollection([
             (new ProductSortingEntity())->assign([
-                'id' => 'sorting-1',
+                'id' => 'sorting-id-1',
                 'key' => 'expected-sorting',
             ]),
         ]);
@@ -115,7 +115,10 @@ class ProductListingCmsElementResolverTest extends TestCase
         ]);
         $request = new Request([
             'availableSortings' => [
-                'sorting-id' => 'sorting-id-1',
+                (new ProductSortingEntity())->assign([
+                    'id' => 'sorting-id-1',
+                    'key' => 'expected-sorting',
+                ]),
             ],
         ]);
         $context = new ResolverContext(Generator::generateSalesChannelContext(), $request);
@@ -129,7 +132,7 @@ class ProductListingCmsElementResolverTest extends TestCase
 
         $sorting = new ProductSortingCollection([
             (new ProductSortingEntity())->assign([
-                'id' => 'sorting-1',
+                'id' => 'sorting-id-1',
                 'key' => 'expected-sorting',
             ]),
         ]);

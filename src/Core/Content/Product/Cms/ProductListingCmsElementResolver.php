@@ -130,20 +130,13 @@ class ProductListingCmsElementResolver extends AbstractCmsElementResolver
         $config = $slot->getTranslation('config');
 
         if (isset($config['defaultSorting']['value'])) {
-            $defaultSortingKey = null;
             $defaultSortingValue = $config['defaultSorting']['value'];
             foreach ($sortCollection as $sorting) {
-                if ($sorting->getKey() === $defaultSortingValue) {
-                    $defaultSortingKey = $sorting->getKey();
-                    break;
+                if ($sorting->getId() === $defaultSortingValue) {
+                    $request->request->set('order', $sorting->getKey());
+                    return;
                 }
             }
-
-            if ($defaultSortingKey !== null) {
-                $request->request->set('order', $defaultSortingKey);
-            }
-
-            return;
         }
 
         $availableSortings = $request->get('availableSortings');
@@ -221,3 +214,4 @@ class ProductListingCmsElementResolver extends AbstractCmsElementResolver
         }
     }
 }
+

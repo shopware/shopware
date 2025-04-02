@@ -53,7 +53,7 @@ describe('src/module/sw-sso-error/page/index', () => {
 
         const shopwareLogo = wrapper.get('.sw-sso-error__image-container > img');
 
-        expect(shopwareLogo.attributes('src')).toBe('administration/static/img/shopware_logo_blue.svg');
+        expect(shopwareLogo.attributes('src')).toBe('administration/administration/static/img/shopware_logo_blue.svg');
     });
 
     it('should have the right text modules', async () => {

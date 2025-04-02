@@ -2,7 +2,7 @@
 
 namespace Shopware\Storefront\Page\LandingPage;
 
-use Shopware\Core\Content\Cms\Exception\PageNotFoundException;
+use Shopware\Core\Content\LandingPage\LandingPageException;
 use Shopware\Core\Content\LandingPage\SalesChannel\AbstractLandingPageRoute;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Routing\RoutingException;
@@ -28,9 +28,6 @@ class LandingPageLoader
     ) {
     }
 
-    /**
-     * @throws PageNotFoundException
-     */
     public function load(Request $request, SalesChannelContext $context): LandingPage
     {
         $landingPageId = $request->attributes->get('landingPageId');
@@ -41,7 +38,7 @@ class LandingPageLoader
         $landingPage = $this->landingPageRoute->load($landingPageId, $request, $context)->getLandingPage();
 
         if ($landingPage->getCmsPage() === null) {
-            throw new PageNotFoundException($landingPageId);
+            throw LandingPageException::notFound($landingPageId);
         }
 
         $page = $this->genericPageLoader->load($request, $context);

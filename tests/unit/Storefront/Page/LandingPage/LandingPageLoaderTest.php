@@ -11,8 +11,8 @@ use Shopware\Core\Content\Cms\Aggregate\CmsSection\CmsSectionEntity;
 use Shopware\Core\Content\Cms\Aggregate\CmsSlot\CmsSlotCollection;
 use Shopware\Core\Content\Cms\Aggregate\CmsSlot\CmsSlotEntity;
 use Shopware\Core\Content\Cms\CmsPageEntity;
-use Shopware\Core\Content\Cms\Exception\PageNotFoundException;
 use Shopware\Core\Content\LandingPage\LandingPageEntity;
+use Shopware\Core\Content\LandingPage\LandingPageException;
 use Shopware\Core\Content\LandingPage\SalesChannel\LandingPageRoute;
 use Shopware\Core\Content\LandingPage\SalesChannel\LandingPageRouteResponse;
 use Shopware\Core\Content\Product\SalesChannel\SalesChannelProductEntity;
@@ -68,7 +68,7 @@ class LandingPageLoaderTest extends TestCase
         $request = new Request([], [], ['landingPageId' => $landingPageId]);
         $salesChannelContext = $this->getSalesChannelContext();
 
-        static::expectExceptionObject(new PageNotFoundException($landingPageId));
+        static::expectExceptionObject(LandingPageException::notFound($landingPageId));
         $landingPageLoader->load($request, $salesChannelContext);
     }
 

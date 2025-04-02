@@ -4,7 +4,6 @@ namespace Shopware\Tests\Integration\Storefront\Page\LandingPage;
 
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Cms\CmsPageEntity;
-use Shopware\Core\Content\Cms\Exception\PageNotFoundException;
 use Shopware\Core\Content\LandingPage\LandingPageEntity;
 use Shopware\Core\Content\LandingPage\LandingPageException;
 use Shopware\Core\Framework\Context;
@@ -86,7 +85,7 @@ class LandingPageLoaderTest extends TestCase
         $request = new Request([], [], [
             'landingPageId' => $this->ids->create('landing-page'),
         ]);
-        $this->expectExceptionObject(new PageNotFoundException($this->ids->get('landing-page')));
+        $this->expectExceptionObject(LandingPageException::notFound($this->ids->get('landing-page')));
 
         $context = $this->createSalesChannelContextWithNavigation();
         $this->ids->set('sales-channel', $context->getSalesChannelId());

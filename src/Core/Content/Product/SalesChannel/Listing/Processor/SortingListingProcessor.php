@@ -7,6 +7,7 @@ use Shopware\Core\Content\Product\SalesChannel\Listing\ProductListingResult;
 use Shopware\Core\Content\Product\SalesChannel\Sorting\ProductSortingCollection;
 use Shopware\Core\Content\Product\SalesChannel\Sorting\ProductSortingEntity;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
@@ -92,12 +93,11 @@ class SortingListingProcessor extends AbstractListingProcessor
     {
         $criteria = new Criteria();
         $criteria->setTitle('product-listing::load-sortings');
-        /** @var string[] $availableSortings */
+        /** @var EntityCollection<ProductSortingEntity> $availableSortings */
         $availableSortings = $request->get('availableSortings');
 
         if ($availableSortings) {
             $sortings = new ProductSortingCollection();
-            /** @var ProductSortingEntity $availableSorting */
             foreach ($availableSortings as $availableSorting) {
                 $sortings->add($availableSorting);
             }

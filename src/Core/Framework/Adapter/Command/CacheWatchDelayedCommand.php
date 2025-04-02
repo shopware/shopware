@@ -14,6 +14,9 @@ use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
+/**
+ * @phpstan-import-type RedisTypeHint from \Shopware\Core\Framework\Adapter\Cache\RedisConnectionFactory
+ */
 #[Package('framework')]
 #[AsCommand(name: 'cache:watch:delayed', description: 'Watches the delayed cache keys/tags')]
 class CacheWatchDelayedCommand extends Command
@@ -51,9 +54,15 @@ class CacheWatchDelayedCommand extends Command
             }
         });
 
-        /** @var \Redis $adapter */
+        /** @var RedisTypeHint $adapter */
         /** @phpstan-ignore symfonyContainer.serviceNotFound */
         $adapter = $this->container->get('shopware.cache.invalidator.storage.redis_adapter');
+
+        if (method_exists($adapter, 'sMembers') === false) {
+            $output->writeln('Redis adapter does not support sMembers method.');
+
+            return self::FAILURE;
+        }
 
         $before = $adapter
             ->sMembers('invalidation');

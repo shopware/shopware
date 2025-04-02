@@ -15,8 +15,6 @@ use Shopware\Core\Content\Product\SalesChannel\Listing\Filter\PropertyListingFil
 use Shopware\Core\Content\Product\SalesChannel\Listing\Filter\RatingListingFilterHandler;
 use Shopware\Core\Content\Product\SalesChannel\Listing\Filter\ShippingFreeListingFilterHandler;
 use Shopware\Core\Content\Product\SalesChannel\Sorting\ProductSortingCollection;
-use Shopware\Core\Content\Product\SalesChannel\Sorting\ProductSortingEntity;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
@@ -98,17 +96,17 @@ class ProductListingCmsElementResolver extends AbstractCmsElementResolver
         return $salesChannelContext->getSalesChannel()->getNavigationCategoryId();
     }
 
-    /**
-     * @return EntityCollection<ProductSortingEntity>
-     */
-    private function getAllActiveSortingOptions(SalesChannelContext $context): EntityCollection
+    private function getAllActiveSortingOptions(SalesChannelContext $context): ProductSortingCollection
     {
         $criteria = new Criteria();
         $criteria
             ->addFilter(new EqualsFilter('active', true))
             ->addSorting(new FieldSorting('priority', 'DESC'));
 
-        return $this->sortingRepository->search($criteria, $context->getContext())->getEntities();
+        /** @var ProductSortingCollection $collection */
+        $collection = $this->sortingRepository->search($criteria, $context->getContext())->getEntities();
+
+        return $collection;
     }
 
     private function isCustomSorting(CmsSlotEntity $slot): bool
@@ -118,10 +116,7 @@ class ProductListingCmsElementResolver extends AbstractCmsElementResolver
         return $config['useCustomSorting']['value'] ?? false;
     }
 
-    /**
-     * @param EntityCollection<ProductSortingEntity> $sortCollection
-     */
-    private function addDefaultSorting(Request $request, CmsSlotEntity $slot, EntityCollection $sortCollection): void
+    private function addDefaultSorting(Request $request, CmsSlotEntity $slot, ProductSortingCollection $sortCollection): void
     {
         if ($request->get('order')) {
             return;
@@ -155,10 +150,7 @@ class ProductListingCmsElementResolver extends AbstractCmsElementResolver
         }
     }
 
-    /**
-     * @param EntityCollection<ProductSortingEntity> $sortCollection
-     */
-    private function restrictSortings(Request $request, CmsSlotEntity $slot, EntityCollection $sortCollection): void
+    private function restrictSortings(Request $request, CmsSlotEntity $slot, ProductSortingCollection $sortCollection): void
     {
         $config = $slot->getTranslation('config');
 

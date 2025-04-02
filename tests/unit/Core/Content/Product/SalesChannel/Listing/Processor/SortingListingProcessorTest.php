@@ -252,7 +252,7 @@ class SortingListingProcessorTest extends TestCase
     }
 
     /**
-     * @return array<ProductSortingEntity>
+     * @return list<ProductSortingEntity>
      */
     private function buildAvailableSortings(): array
     {

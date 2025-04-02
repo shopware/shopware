@@ -64,22 +64,32 @@ Shopware.Component.register('mt-datepicker', {
         is24: {
             type: Boolean as PropType<boolean>,
             required: false,
-            default: true,
         },
     },
 
     computed: {
         userLocale(): string {
-            return Shopware.Store.get('session').adminLocaleLanguage || 'en';
+            return Shopware.Store.get('session').currentLocale || 'en-US';
         },
 
         userTimeZone() {
             return Shopware?.Store?.get('session')?.currentUser?.timeZone ?? 'UTC';
         },
 
+        is24HourFormat(): boolean {
+            if (this.is24) {
+                return this.is24 as boolean;
+            }
+
+            const locale = Shopware.Store.get('session').currentLocale!;
+            const formatter = new Intl.DateTimeFormat(locale, { hour: 'numeric' });
+            const intlOptions = formatter.resolvedOptions();
+            return !intlOptions.hour12;
+        },
+
         formatterOptions(): DateTimeOptions {
             const defaultFormat = {
-                hour12: !this.is24,
+                hour12: !this.is24HourFormat,
                 locale: this.userLocale,
             };
 
@@ -121,7 +131,7 @@ Shopware.Component.register('mt-datepicker', {
 
     methods: {
         customFormat(date: Date): string {
-            const currentLocale = Shopware.Store.get('session').currentLocale || 'en';
+            const currentLocale = Shopware.Store.get('session').currentLocale || 'en-US';
             const formatter = new Intl.DateTimeFormat(currentLocale, this.formatterOptions);
 
             return formatter.format(new Date(date));

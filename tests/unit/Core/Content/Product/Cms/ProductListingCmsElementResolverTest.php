@@ -114,7 +114,7 @@ class ProductListingCmsElementResolverTest extends TestCase
             ],
         ]);
         $request = new Request([
-            'availableSortings' => [
+            'availableSortingCollection' => [
                 (new ProductSortingEntity())->assign([
                     'id' => 'sorting-id-1',
                     'key' => 'expected-sorting',

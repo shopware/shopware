@@ -91,7 +91,7 @@ class SortingListingProcessor extends AbstractListingProcessor
     private function getAvailableSortings(Request $request, Context $context): ProductSortingCollection
     {
         /** @var ProductSortingCollection $availableSortings */
-        $availableSortings = $request->get('availableSortings');
+        $availableSortings = $request->get('availableSortingCollection');
 
         if ($availableSortings) {
             $sortings = new ProductSortingCollection();

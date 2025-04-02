@@ -33,8 +33,6 @@ class SortingListingProcessorTest extends TestCase
 
     private string $fooId;
 
-    private string $testId;
-
     /**
      * @param FieldSorting[] $expected
      */
@@ -179,7 +177,10 @@ class SortingListingProcessorTest extends TestCase
         yield 'Requested bar sorting with available sortings will be accepted' => [
             'sorting' => 'bar',
             'testWithAvailableSortings' => true,
-            'expected' => [],
+            'expected' => [
+                new FieldSorting('id', FieldSorting::ASCENDING),
+                new FieldSorting('bar', FieldSorting::DESCENDING),
+            ],
         ];
 
         yield 'Requested unknown sorting will be accepted' => [
@@ -224,7 +225,6 @@ class SortingListingProcessorTest extends TestCase
     {
         $this->fooId = Uuid::randomHex();
         $this->barId = Uuid::randomHex();
-        $this->testId = Uuid::randomHex();
 
         $sortings = [
             (new ProductSortingEntity())->assign([
@@ -244,35 +244,40 @@ class SortingListingProcessorTest extends TestCase
         ];
 
         $sortings[0]->setId($this->fooId);
+        $sortings[0]->setUniqueIdentifier($this->fooId);
         $sortings[1]->setId($this->barId);
+        $sortings[1]->setUniqueIdentifier($this->barId);
 
         return new ProductSortingCollection($sortings);
     }
 
     /**
-     * @return ProductSortingEntity[]
+     * @return array<ProductSortingEntity>
      */
     private function buildAvailableSortings(): array
     {
-        $availableSortings = [
-            $this->fooId => (new ProductSortingEntity())->assign([
+        $sortings = [
+            (new ProductSortingEntity())->assign([
                 'key' => 'foo',
                 'fields' => [
                     ['field' => 'foo', 'priority' => 1, 'order' => 'DESC'],
                     ['field' => 'id', 'priority' => 2, 'order' => 'ASC'],
                 ],
             ]),
-            $this->testId => (new ProductSortingEntity())->assign([
-                'key' => 'test',
+            (new ProductSortingEntity())->assign([
+                'key' => 'bar',
                 'fields' => [
+                    ['field' => 'bar', 'priority' => 1, 'order' => 'DESC'],
                     ['field' => 'id', 'priority' => 2, 'order' => 'ASC'],
-                    ['field' => 'test', 'priority' => 3, 'order' => 'DESC'],
                 ],
             ]),
         ];
 
-        $availableSortings[$this->fooId]->setId($this->fooId);
+        $sortings[0]->setId($this->fooId);
+        $sortings[0]->setUniqueIdentifier($this->fooId);
+        $sortings[1]->setId($this->barId);
+        $sortings[1]->setUniqueIdentifier($this->barId);
 
-        return $availableSortings;
+        return $sortings;
     }
 }

@@ -1,10 +1,10 @@
 ---
-title: AR Test
+title: Spatial AR viewer checks
 issue: NEXT-00000
 author: ffrank913
 author_email: f.frank@shopware.com
 author_github: @ffrank913
 ---
 # Storefront
-* Changed AR viewer.
+* Added smarter capability checks to Spatial AR viewer.
 ___

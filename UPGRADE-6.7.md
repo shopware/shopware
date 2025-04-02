@@ -141,6 +141,8 @@ The rendered header and footer are included into the page with the Twig function
 Two new templates `src/Storefront/Resources/views/storefront/layout/header.html.twig` and `src/Storefront/Resources/views/storefront/layout/footer.html.twig` were introduced as new entry points for the header and footer.
 Make sure to adjust your template extensions to be compatible with the new structure.
 The block names are still the same, so it just should be necessary to extend from the new templates.
+New blocks (`base_esi_header` and `base_esi_footer`) were added to the `base.html.twig` template to overwrite header and footer completely.
+This is e.g. used to show minimal header and footer during the checkout process.
 
 # Major Library Updates
 We upgraded the following libraries to their latest versions:
@@ -2813,5 +2815,12 @@ The fine-grained caching mechanism for system-config, snippets and theme config 
 
 Removed `SQL_SET_DEFAULT_SESSION_VARIABLES` env variable. It has no effect anymore. 
 The previously optional performance tweaks to MySQL are now enforced on connection buildup inside the `\Shopware\Core\Framework\Adapter\Database\MySQLFactory`.
+
+## Removal of RSA JWT secrets
+
+The custom JWT secrets where removed, instead the JWTs will now be signed with the `APP_SECRET`. Therefore, please make sure that the `APP_SECRET` environment variable is at least 32 characters long. You can use the `bin/console system:generate-app-secret` command to generate a valid secret.
+
+This means the `shopware.api.jwt_key.use_app_secret` configuration is no longer available, as that is the only behavior now.
+Additionally, the `system:generate-jwt-secret` command was removed, as it is not needed anymore.
 
 </details>

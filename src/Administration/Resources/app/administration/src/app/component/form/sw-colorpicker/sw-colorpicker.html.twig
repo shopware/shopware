@@ -2,7 +2,7 @@
 <mt-colorpicker
     v-bind="$attrs"
     :model-value="currentValue"
-    @change="currentValue = $event"
+    @update:modelValue="currentValue = $event"
 >
     <template
         v-for="(index, name) in getSlots()"

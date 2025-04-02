@@ -285,7 +285,8 @@ class AdapterException extends HttpException
         return new self(
             Response::HTTP_INTERNAL_SERVER_ERROR,
             self::MISSING_REQUIRED_PARAMETER,
-            \sprintf('Parameter "%s" is required but not found in the container.', $parameter)
+            'Parameter "{{ parameter }}" is required but not found in the container.',
+            ['parameter' => $parameter],
         );
     }
 }

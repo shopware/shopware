@@ -105,9 +105,11 @@ class AdapterExceptionTest extends TestCase
 
     public function testMissingRequiredParameter(): void
     {
-        static::expectException(AdapterException::class);
-        static::expectExceptionMessage('Parameter "shopware.cache.invalidation.delay_options.connection" is required but not found in the container.');
+        $exception = AdapterException::missingRequiredParameter('test');
 
-        throw AdapterException::missingRequiredParameter('shopware.cache.invalidation.delay_options.connection');
+        static::assertSame(Response::HTTP_INTERNAL_SERVER_ERROR, $exception->getStatusCode());
+        static::assertSame(AdapterException::MISSING_REQUIRED_PARAMETER, $exception->getErrorCode());
+        static::assertSame('Parameter "test" is required but not found in the container.', $exception->getMessage());
+        static::assertSame(['parameter' => 'test'], $exception->getParameters());
     }
 }

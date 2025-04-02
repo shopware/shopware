@@ -63,7 +63,7 @@ class CacheCompilerPassTest extends TestCase
         $container->setParameter('shopware.cache.invalidation.delay_options.storage', 'redis');
         $container->setParameter('shopware.cache.invalidation.delay_options.connection', null); // default value
 
-        self::expectException(AdapterException::class);
+        self::expectExceptionObject(AdapterException::missingRequiredParameter('shopware.cache.invalidation.delay_options.connection'));
         $compilerPass = new CacheCompilerPass();
         $compilerPass->process($container);
     }

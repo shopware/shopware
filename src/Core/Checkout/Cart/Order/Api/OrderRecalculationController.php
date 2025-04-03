@@ -129,11 +129,6 @@ class OrderRecalculationController extends AbstractController
     #[Route(path: '/api/_action/order/{orderId}/toggleAutomaticPromotions', name: 'api.action.order.toggle-automatic-promotions', methods: ['POST'])]
     public function toggleAutomaticPromotions(string $orderId, Request $request, Context $context): Response
     {
-        Feature::triggerDeprecationOrThrow(
-            'v6.8.0.0',
-            'Route "api.action.order.toggle-automatic-promotions" is deprecated and will be removed in v6.8.0.0. Use "api.action.order.apply-automatic-promotions" instead.',
-        );
-
         $skipAutomaticPromotions = (bool) $request->request->get('skipAutomaticPromotions', true);
 
         $cart = $this->recalculationService->toggleAutomaticPromotion($orderId, $context, $skipAutomaticPromotions);

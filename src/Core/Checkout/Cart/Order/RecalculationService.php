@@ -102,11 +102,6 @@ class RecalculationService
      */
     public function recalculateOrder(string $orderId, Context $context, array $salesChannelContextOptions = []): void
     {
-        Feature::triggerDeprecationOrThrow(
-            'v6.8.0.0',
-            Feature::deprecatedMethodMessage(__CLASS__, __METHOD__, 'v6.8.0.0', __CLASS__ . '::recalculate')
-        );
-
         $this->recalculate($orderId, $context, $salesChannelContextOptions);
     }
 
@@ -198,11 +193,6 @@ class RecalculationService
      */
     public function toggleAutomaticPromotion(string $orderId, Context $context, bool $skipAutomaticPromotions = true): Cart
     {
-        Feature::triggerDeprecationOrThrow(
-            'v6.8.0.0',
-            Feature::deprecatedMethodMessage(__CLASS__, __METHOD__, 'v6.8.0.0', __CLASS__ . '::applyAutomaticPromotions')
-        );
-
         $order = $this->fetchOrder($orderId, $context);
 
         $options[SalesChannelContextService::PERMISSIONS] = [

@@ -367,7 +367,6 @@ class RecalculationServiceTest extends TestCase
     /**
      * @deprecated tag:v6.8.0 - Will be removed without replacement
      */
-    #[DisabledFeatures(['v6.8.0.0'])]
     public function testToggleAutomaticPromotion(): void
     {
         $order = $this->orderEntity();

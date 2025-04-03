@@ -628,11 +628,8 @@ class RecalculationServiceTest extends TestCase
     /**
      * @deprecated tag:v6.8.0 - Will be removed
      */
-    #[DisabledFeatures(['v6.8.0.0'])]
     public function testToggleAutomaticPromotions(): void
     {
-        Feature::skipTestIfActive('v6.8.0.0', $this);
-
         // create order
         $cart = $this->generateDemoCart();
         ['orderId' => $orderId, 'orderDateTime' => $orderDateTime, 'stateId' => $stateId] = $this->persistCart($cart);
@@ -650,11 +647,8 @@ class RecalculationServiceTest extends TestCase
     /**
      * @deprecated tag:v6.8.0 - Will be removed
      */
-    #[DisabledFeatures(['v6.8.0.0'])]
     public function testToggleAutomaticPromotionsForDelivery(): void
     {
-        Feature::skipTestIfActive('v6.8.0.0', $this);
-
         // create order
         $cart = $this->generateDemoCart();
 

@@ -33,6 +33,8 @@ class SortingListingProcessorTest extends TestCase
 
     private string $fooId;
 
+    private string $testId;
+
     /**
      * @param FieldSorting[] $expected
      */
@@ -96,6 +98,32 @@ class SortingListingProcessorTest extends TestCase
             new FieldSorting('_score', FieldSorting::DESCENDING),
             new FieldSorting('id', FieldSorting::ASCENDING),
         ], $criteria->getSorting());
+    }
+
+    public function testPrepareWithRestrictedSortings(): void
+    {
+        /** @var StaticEntityRepository<ProductSortingCollection> $sortingRepository */
+        $sortingRepository = new StaticEntityRepository([
+            $this->buildRestrictedProductSortingCollection(),
+        ]);
+
+        $processor = new SortingListingProcessor(
+            new StaticSystemConfigService([]),
+            $sortingRepository
+        );
+
+        $processor->prepare(
+            new Request(['order' => 'foo']),
+            $criteria = new Criteria(),
+            $this->createMock(SalesChannelContext::class)
+        );
+
+        $expected = [
+            new FieldSorting('id', FieldSorting::ASCENDING),
+            new FieldSorting('foo', FieldSorting::DESCENDING),
+        ];
+
+        static::assertEquals($expected, $criteria->getSorting());
     }
 
     #[DataProvider('processProvider')]
@@ -225,6 +253,7 @@ class SortingListingProcessorTest extends TestCase
     {
         $this->fooId = Uuid::randomHex();
         $this->barId = Uuid::randomHex();
+        $this->testId = Uuid::randomHex();
 
         $sortings = [
             (new ProductSortingEntity())->assign([
@@ -251,11 +280,9 @@ class SortingListingProcessorTest extends TestCase
         return new ProductSortingCollection($sortings);
     }
 
-    /**
-     * @return list<ProductSortingEntity>
-     */
-    private function buildAvailableSortings(): array
+    private function buildRestrictedProductSortingCollection(): ProductSortingCollection
     {
+        $collection = new ProductSortingCollection();
         $sortings = [
             (new ProductSortingEntity())->assign([
                 'key' => 'foo',
@@ -273,11 +300,53 @@ class SortingListingProcessorTest extends TestCase
             ]),
         ];
 
-        $sortings[0]->setId($this->fooId);
-        $sortings[0]->setUniqueIdentifier($this->fooId);
-        $sortings[1]->setId($this->barId);
-        $sortings[1]->setUniqueIdentifier($this->barId);
+        $fooId = Uuid::randomHex();
+        $barId = Uuid::randomHex();
 
-        return $sortings;
+        $sortings[0]->setId($fooId);
+        $sortings[0]->setUniqueIdentifier($fooId);
+        $sortings[1]->setId($barId);
+        $sortings[1]->setUniqueIdentifier($barId);
+
+        $collection->add($sortings[0]);
+        $collection->add($sortings[1]);
+
+        return $collection;
+    }
+
+    /**
+     * @return ProductSortingEntity[]
+     */
+    private function buildAvailableSortings(): array
+    {
+        $availableSortings = [
+            $this->fooId => (new ProductSortingEntity())->assign([
+                'key' => 'foo',
+                'fields' => [
+                    ['field' => 'foo', 'priority' => 1, 'order' => 'DESC'],
+                    ['field' => 'id', 'priority' => 2, 'order' => 'ASC'],
+                ],
+            ]),
+            $this->barId => (new ProductSortingEntity())->assign([
+                'key' => 'bar',
+                'fields' => [
+                    ['field' => 'bar', 'priority' => 1, 'order' => 'DESC'],
+                    ['field' => 'id', 'priority' => 2, 'order' => 'ASC'],
+                ],
+            ]),
+            $this->testId => (new ProductSortingEntity())->assign([
+                'key' => 'test',
+                'fields' => [
+                    ['field' => 'id', 'priority' => 2, 'order' => 'ASC'],
+                    ['field' => 'test', 'priority' => 3, 'order' => 'DESC'],
+                ],
+            ]),
+        ];
+
+        $availableSortings[$this->fooId]->setId($this->fooId);
+        $availableSortings[$this->barId]->setId($this->barId);
+        $availableSortings[$this->testId]->setId($this->testId);
+
+        return $availableSortings;
     }
 }

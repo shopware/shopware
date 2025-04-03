@@ -790,7 +790,7 @@ The controller `Shopware\Core\Framework\Notification\Api\NotificationController`
 
 ## Changed internal request input availableSortings
 
-Instead of `$request->request->set('availableSortings', $config['availableSortings']['value']);` we now use `$request->attributes->set('restrictedProductSortingCollection', $customSorting);`. The associated changes reduce the DB calls and the naming is clearer as it was only used for custom sorting. `availableSortings` still exists, but is obsolete and no longer used (internal change).
+Instead of `$request->request->set('availableSortings', $config['availableSortings']['value']);` we now use `$request->attributes->set('restrictedProductSortingCollection', $customSorting);`. The associated changes reduce the DB calls when customSorting is used via listing layout (cmsPage).
 
 </details>
 

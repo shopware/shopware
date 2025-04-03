@@ -9,6 +9,7 @@ use Shopware\Core\Content\Product\SalesChannel\Sorting\ProductSortingEntity;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsAnyFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
 use Shopware\Core\Framework\Log\Package;
@@ -97,11 +98,32 @@ class SortingListingProcessor extends AbstractListingProcessor
 
         $criteria = new Criteria();
         $criteria->setTitle('product-listing::load-sortings');
+
+        /** @var string[] $availableSortings */
+        $availableSortings = $request->get('availableSortings');
+        $availableSortingsById = [];
+
+        if ($availableSortings) {
+            arsort($availableSortings, \SORT_DESC | \SORT_NUMERIC);
+            $availableSortingsFilter = array_keys($availableSortings);
+
+            $availableSortingsById = array_filter($availableSortingsFilter, fn ($filter) => Uuid::isValid($filter));
+            $filter = new EqualsAnyFilter('id', $availableSortingsById);
+
+            $criteria->addFilter($filter);
+        }
+
         $criteria
             ->addFilter(new EqualsFilter('active', true))
             ->addSorting(new FieldSorting('priority', 'DESC'));
 
-        return $this->sortingRepository->search($criteria, $context)->getEntities();
+        $sortings = $this->sortingRepository->search($criteria, $context)->getEntities();
+
+        if ($availableSortingsById) {
+            $sortings->sortByIdArray($availableSortingsById);
+        }
+
+        return $sortings;
     }
 
     private function getDefaultSortingKey(string $key, SalesChannelContext $context): ?string

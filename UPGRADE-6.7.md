@@ -788,6 +788,10 @@ The following classes have been moved from the admin bundle to the core:
 
 The controller `Shopware\Core\Framework\Notification\Api\NotificationController` has been moved from the admin bundle to the core and made internal.
 
+## Changed internal request input availableSortings
+
+Instead of `$request->request->set('availableSortings', $config['availableSortings']['value']);` we now use `$request->attributes->set('restrictedProductSortingCollection', $customSorting);`. The associated changes reduce the DB calls and the naming is clearer as it was only used for custom sorting. `availableSortings` still exists, but is obsolete and no longer used (internal change).
+
 </details>
 
 

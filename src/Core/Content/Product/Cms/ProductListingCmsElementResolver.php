@@ -15,6 +15,7 @@ use Shopware\Core\Content\Product\SalesChannel\Listing\Filter\PropertyListingFil
 use Shopware\Core\Content\Product\SalesChannel\Listing\Filter\RatingListingFilterHandler;
 use Shopware\Core\Content\Product\SalesChannel\Listing\Filter\ShippingFreeListingFilterHandler;
 use Shopware\Core\Content\Product\SalesChannel\Sorting\ProductSortingCollection;
+use Shopware\Core\Content\Product\SalesChannel\Sorting\ProductSortingEntity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
@@ -103,8 +104,13 @@ class ProductListingCmsElementResolver extends AbstractCmsElementResolver
             ->addFilter(new EqualsFilter('active', true))
             ->addSorting(new FieldSorting('priority', 'DESC'));
 
-        /** @var ProductSortingCollection $collection */
-        $collection = $this->sortingRepository->search($criteria, $context->getContext())->getEntities();
+        $elements = $this->sortingRepository->search($criteria, $context->getContext())->getEntities();
+        $collection = new ProductSortingCollection();
+        foreach ($elements as $element) {
+            if ($element instanceof ProductSortingEntity) {
+                $collection->add($element);
+            }
+        }
 
         return $collection;
     }
@@ -135,10 +141,10 @@ class ProductListingCmsElementResolver extends AbstractCmsElementResolver
             }
         }
 
-        $restrictedProductSortingCollection = $request->get('restrictedProductSortingCollection');
-        if ($restrictedProductSortingCollection && \is_array($restrictedProductSortingCollection)) {
-            $firstSorting = reset($restrictedProductSortingCollection);
-            if (\is_object($firstSorting) && method_exists($firstSorting, 'getKey')) {
+        $restrictedSortingCollection = $request->attributes->get('restrictedProductSortingCollection');
+        if ($restrictedSortingCollection instanceof ProductSortingCollection && $restrictedSortingCollection->count() > 0) {
+            $firstSorting = $restrictedSortingCollection->first();
+            if ($firstSorting !== null) {
                 $request->request->set('order', $firstSorting->getKey());
             }
         }

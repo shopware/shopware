@@ -113,14 +113,13 @@ class ProductListingCmsElementResolverTest extends TestCase
                 ],
             ],
         ]);
-        $request = new Request([
-            'restrictedProductSortingCollection' => [
-                (new ProductSortingEntity())->assign([
-                    'id' => 'sorting-id-1',
-                    'key' => 'expected-sorting',
-                ]),
-            ],
-        ]);
+        $request = new Request();
+        $request->attributes->set('restrictedProductSortingCollection', new ProductSortingCollection([
+            (new ProductSortingEntity())->assign([
+                'id' => 'sorting-id-1',
+                'key' => 'expected-sorting',
+            ]),
+        ]));
         $context = new ResolverContext(Generator::generateSalesChannelContext(), $request);
         $data = new ElementDataCollection();
 

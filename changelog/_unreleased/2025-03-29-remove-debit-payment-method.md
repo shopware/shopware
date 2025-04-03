@@ -9,7 +9,7 @@ author_github: mstegmeyer
 ___
 # Next Major Version Changes
 
-## Payment: Removal of Payment Method DebitPayment
+## Payment: Removal of Payment Method "Debit Payment"
 The payment method `DebitPayment` has been removed as it did not fulfill its purpose.
-All existing payment methods referencing the payment handler `DebitPayment` will be disabled.
-New installations will not have the payment method `DebitPayment` installed.
+If the payment method is and was not used, it will be removed.
+Otherwise, the payment method will be disabled.

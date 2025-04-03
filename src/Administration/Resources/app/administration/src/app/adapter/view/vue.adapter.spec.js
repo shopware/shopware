@@ -699,7 +699,6 @@ describe('ASYNC app/adapter/view/vue.adapter.js', () => {
                 'mt-button',
                 'mt-checkbox',
                 'mt-colorpicker',
-                'mt-datepicker',
                 'mt-email-field',
                 'mt-number-field',
                 'mt-password-field',

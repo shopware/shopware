@@ -1,5 +1,5 @@
 ---
-title: Added missing class 'js-search-form' header search input element
+title: fix: Added missing class 'js-search-form' header search input element
 issue: 
 author: Marvin Rewer
 author_email: marvin.rewer@t-online.de

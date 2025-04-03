@@ -108,6 +108,15 @@ Following these guidelines will help us to integrate your changes in our daily w
 
 Read more in [our contribution guideline](https://docs.shopware.com/en/shopware-platform-dev-en/contribution/contribution-guideline) or in our short [HowTo contribute code](https://docs.shopware.com/en/shopware-platform-dev-en/contribution/contributing-code).
 
+#### Proposing Large Changes? Use the RFC Process
+
+For **substantial changes** (e.g. new APIs, architectural proposals, or deprecations), please use our [RFC (Request for Comments) process](https://github.com/shopware/rfcs) to gather early feedback and discuss design decisions with the community and core maintainers.
+
+The process is simple:
+- Fork the [`shopware/rfcs`](https://github.com/shopware/rfcs) repository
+- Use the [RFC template](https://github.com/shopware/rfcs/blob/master/0000-template.md)
+- Submit a pull request with your proposal
+
 #### Contribution setup
 
 There are multiple ways to get an installation running, the way with the fewest steps involved is using the docker image from [dockware](https://dockware.io/),

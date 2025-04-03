@@ -48,12 +48,6 @@ Example implementation:
 ```php
 <?php declare(strict_types=1);
 
-namespace Shopware\Core\System\Context\Gateway;
-
-use Shopware\Core\Framework\Log\Package;
-use Shopware\Core\System\Context\Gateway\Command\Struct\ContextGatewayPayloadStruct;
-
-#[Package('checkout')]
 class AppCheckoutGateway
 {
     public function process(ContextGatewayPayloadStruct $payload): ContextTokenResponse;
@@ -70,21 +64,7 @@ Example implementation:
 ```php
 <?php declare(strict_types=1);
 
-namespace Shopware\Core\Framework\Gateway\Context\SalesChannel;
-
-use Shopware\Core\Checkout\Cart\Cart;
-use Shopware\Core\Framework\App\Context\Gateway\AppContextGateway;
-use Shopware\Core\Framework\Gateway\Context\Command\Struct\ContextGatewayPayloadStruct;
-use Shopware\Core\Framework\Log\Package;
-use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
-use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
-use Shopware\Core\System\SalesChannel\ContextTokenResponse;
-use Shopware\Core\System\SalesChannel\SalesChannelContext;
-use Symfony\Component\HttpFoundation\Request;
-use Symfony\Component\Routing\Attribute\Route;
-
 #[Route(defaults: ['_routeScope' => ['store-api']])]
-#[Package('framework')]
 class ContextGatewayRoute extends AbstractContextGatewayRoute
 {
     public function __construct(
@@ -117,23 +97,7 @@ Example implementation:
 ```php
 <?php declare(strict_types=1);
 
-namespace Shopware\Storefront\Controller;
-
-use Shopware\Core\Checkout\Cart\SalesChannel\CartService;
-use Shopware\Core\Framework\Gateway\Context\SalesChannel\AbstractContextGatewayRoute;
-use Shopware\Core\Framework\Log\Package;
-use Shopware\Core\System\SalesChannel\SalesChannelContext;
-use Symfony\Component\HttpFoundation\JsonResponse;
-use Symfony\Component\HttpFoundation\Request;
-use Symfony\Component\HttpFoundation\Response;
-use Symfony\Component\Routing\Attribute\Route;
-
-/**
- * @internal
- * Do not use direct or indirect repository calls in a controller. Always use a store-api route to get or put datas
- */
 #[Route(defaults: ['_routeScope' => ['storefront']])]
-#[Package('framework')]
 class ContextGatewayController extends StorefrontController
 {
     public function __construct(
@@ -325,11 +289,6 @@ Example command class:
 ```php
 <?php declare(strict_types=1);
 
-namespace Shopware\Core\Framework\Gateway\Context\Command;
-
-use Shopware\Core\Framework\Log\Package;
-
-#[Package('framework')]
 class ChangeCurrencyCommand extends AbstractContextGatewayCommand
 {
     public const COMMAND_KEY = 'context_change-currency';
@@ -351,17 +310,6 @@ Example command handler class:
 ```php
 <?php declare(strict_types=1);
 
-namespace Shopware\Core\Framework\Gateway\Context\Command\Handler;
-
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
-use Shopware\Core\Framework\Gateway\Context\Command\AbstractContextGatewayCommand;
-use Shopware\Core\Framework\Gateway\Context\Command\ChangeCurrencyCommand;
-use Shopware\Core\Framework\Log\Package;
-use Shopware\Core\System\SalesChannel\SalesChannelContext;
-
-#[Package('framework')]
 class ChangeCurrencyCommandHandler extends AbstractContextGatewayCommandHandler
 {
     public function __construct(

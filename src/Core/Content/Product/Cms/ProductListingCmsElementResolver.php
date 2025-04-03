@@ -135,17 +135,11 @@ class ProductListingCmsElementResolver extends AbstractCmsElementResolver
             }
         }
 
-        $availableSortings = $request->get('availableSortingCollection');
-        if ($availableSortings && \is_array($availableSortings)) {
-            $customSortingKey = null;
-
-            $firstSorting = reset($availableSortings);
+        $restrictedProductSortingCollection = $request->get('restrictedProductSortingCollection');
+        if ($restrictedProductSortingCollection && \is_array($restrictedProductSortingCollection)) {
+            $firstSorting = reset($restrictedProductSortingCollection);
             if (\is_object($firstSorting) && method_exists($firstSorting, 'getKey')) {
-                $customSortingKey = $firstSorting->getKey();
-            }
-
-            if ($customSortingKey !== null) {
-                $request->request->set('order', $customSortingKey);
+                $request->request->set('order', $firstSorting->getKey());
             }
         }
     }
@@ -181,9 +175,9 @@ class ProductListingCmsElementResolver extends AbstractCmsElementResolver
             $customSorting->add($data['entity']);
         }
 
-        /** @deprecated tag:v6.8.0 - The availableSortings request parameter will be removed. Use availableSortingCollection instead. */
+        /** @deprecated tag:v6.8.0 - The availableSortings request parameter will be removed. Use restrictedProductSortingCollection instead. */
         $request->request->set('availableSortings', $config['availableSortings']['value']);
-        $request->request->set('availableSortingCollection', $customSorting->getElements());
+        $request->attributes->set('restrictedProductSortingCollection', $customSorting);
     }
 
     private function restrictFilters(CmsSlotEntity $slot, Request $request): void

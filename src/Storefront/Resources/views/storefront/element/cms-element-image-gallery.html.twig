@@ -180,38 +180,41 @@
                                                                         } %}
 
                                                                         {# @experimental stableVersion:v6.8.0 feature:SPATIAL_BASES #}
-                                                                        {% block element_image_gallery_inner_item_spatial %}
-                                                                            {% if image.isSpatialObject() %}
-                                                                                <span class="badge bg-secondary m-3 position-absolute top-0 end-0 d-md-none">3D</span>
-                                                                                <div class="spatial-canvas-spinner position-absolute top-50 start-50 bg-white flex justify-content-center align-items-center" style="--bs-bg-opacity: .8;">
-                                                                                    <div class="spinner-border" role="status">
-                                                                                        <span class="visually-hidden">Loading...</span>
-                                                                                    </div>
-                                                                                </div>
-                                                                                <div class="gallery-slider-spatial-canvas-wrapper position-absolute start-0 end-0 top-0 bottom-0">
-                                                                                    {% set spatialGalleryViewerOptions = {
-                                                                                        modelUrl: image.url,
-                                                                                        lightIntensity: config('core.media.defaultLightIntensity'),
-                                                                                        sliderPosition: loop.index0,
-                                                                                        dracoDecodersPath: asset('bundles/storefront/assets/draco/', 'asset'),
-                                                                                    } %}
-                                                                                    <canvas
-                                                                                        data-spatial-gallery-slider-viewer
-                                                                                        data-spatial-gallery-slider-viewer-options='{{spatialGalleryViewerOptions|json_encode}}'
-                                                                                    ></canvas>
-                                                                                    <span
-                                                                                        class="spatial-canvas-note spatial-slider-movement-note position-absolute start-50 text-center badge mx-0 py-1 px-3 translate-middle-x"
-                                                                                        data-spatial-movement-note
-                                                                                        data-spatial-movement-note-touch-text="{{ 'component.cms.imageGallery.touchMove'|trans|striptags }}"
-                                                                                    >
-                                                                                        {{ 'component.cms.imageGallery.clickMove'|trans|striptags }}
-                                                                                    </span>
-                                                                                    {% if image.config.spatial.arReady ?? defaultEnableAugmentedReality %}
-                                                                                        <button class="ar-button button position-absolute d-inline-flex justify-content-center align-items-center text-center py-0 px-2 w-auto"
-                                                                                             aria-label="{{ 'spatial.openArViewDescription'|trans|striptags }}"
-                                                                                             data-spatial-ar-viewer
-                                                                                             data-spatial-ar-viewer-options='{ "spatialArId": "{{ image.id }}", "modelUrl": "{{ image.url }}" }'
-                                                                                             tabIndex="0">
+                                                                        {% if image.isSpatialObject() %}
+                                                                            {% block element_image_gallery_inner_item_spatial %}
+                                                                                 {% block element_image_gallery_inner_item_spatial_loader %}
+                                                                                     <span class="badge bg-secondary m-3 position-absolute top-0 end-0 d-md-none">3D</span>
+                                                                                     <div class="spatial-canvas-spinner position-absolute top-50 start-50 bg-white flex justify-content-center align-items-center" style="--bs-bg-opacity: .8;">
+                                                                                         <div class="spinner-border" role="status">
+                                                                                             <span class="visually-hidden">Loading...</span>
+                                                                                         </div>
+                                                                                     </div>
+                                                                                 {% endblock %}
+                                                                                 {% block element_image_gallery_inner_item_spatial_canvas %}
+                                                                                    <div class="gallery-slider-spatial-canvas-wrapper position-absolute start-0 end-0 top-0 bottom-0">
+                                                                                        {% set spatialGalleryViewerOptions = {
+                                                                                            modelUrl: image.url,
+                                                                                            lightIntensity: config('core.media.defaultLightIntensity'),
+                                                                                            sliderPosition: loop.index0,
+                                                                                            dracoDecodersPath: asset('bundles/storefront/assets/draco/', 'asset'),
+                                                                                        } %}
+                                                                                        <canvas
+                                                                                            data-spatial-gallery-slider-viewer
+                                                                                            data-spatial-gallery-slider-viewer-options='{{spatialGalleryViewerOptions|json_encode}}'
+                                                                                        ></canvas>
+                                                                                        <span
+                                                                                            class="spatial-canvas-note spatial-slider-movement-note position-absolute start-50 text-center badge mx-0 py-1 px-3 translate-middle-x"
+                                                                                            data-spatial-movement-note
+                                                                                            data-spatial-movement-note-touch-text="{{ 'component.cms.imageGallery.touchMove'|trans|striptags }}"
+                                                                                        >
+                                                                                            {{ 'component.cms.imageGallery.clickMove'|trans|striptags }}
+                                                                                        </span>
+                                                                                        {% if image.config.spatial.arReady ?? defaultEnableAugmentedReality %}
+                                                                                            <button class="ar-button button position-absolute d-inline-flex justify-content-center align-items-center text-center py-0 px-2 w-auto"
+                                                                                                    aria-label="{{ 'spatial.openArViewDescription'|trans|striptags }}"
+                                                                                                    data-spatial-ar-viewer
+                                                                                                    data-spatial-ar-viewer-options='{ "spatialArId": "{{ image.id }}", "modelUrl": "{{ image.url }}", "dracoDecodersPath": "{{ asset('bundles/storefront/assets/draco/', 'asset') }}" }'
+                                                                                                    tabIndex="0">
 
                                                                                                 {% sw_icon 'augmented' style {
                                                                                                     'size': 'fluid'
@@ -325,31 +328,32 @@
                                                                     <div class="spinner-border" role="status">
                                                                         <span class="visually-hidden">Loading...</span>
                                                                     </div>
-                                                                </div>
-                                                                <div class="gallery-slider-spatial-canvas-wrapper position-absolute start-0 end-0 top-0 bottom-0">
-                                                                    {% set spatialGalleryViewerOptions = {
-                                                                        modelUrl: image.url,
-                                                                        lightIntensity: config('core.media.defaultLightIntensity'),
-                                                                        sliderPosition: loop.index0,
-                                                                        dracoDecodersPath: asset('bundles/storefront/assets/draco/', 'asset'),
-                                                                    } %}
-                                                                    <canvas
-                                                                            data-spatial-gallery-slider-viewer
-                                                                            data-spatial-gallery-slider-viewer-options='{{spatialGalleryViewerOptions|json_encode}}'
-                                                                    ></canvas>
-                                                                    <span
-                                                                            class="spatial-canvas-note spatial-slider-movement-note position-absolute start-50 text-center badge mx-0 py-1 px-3 translate-middle-x"
-                                                                            data-spatial-movement-note
-                                                                            data-spatial-movement-note-touch-text="{{ 'component.cms.imageGallery.touchMove'|trans|striptags }}"
-                                                                    >
-                                                                    {{ 'component.cms.imageGallery.clickMove'|trans|striptags }}
-                                                                    </span>
-                                                                    {% if image.config.spatial.arReady ?? defaultEnableAugmentedReality %}
-                                                                        <button class="ar-button button position-absolute d-inline-flex justify-content-center align-items-center text-center py-0 px-2 w-auto"
-                                                                             aria-label="{{ 'spatial.openArViewDescription'|trans|striptags }}"
-                                                                             data-spatial-ar-viewer
-                                                                             data-spatial-ar-viewer-options='{ "spatialArId": "{{ image.id }}", "modelUrl": "{{ image.url }}" }'
-                                                                             tabIndex="0">
+                                                                {% endblock %}
+                                                                {% block element_image_gallery_inner_single_spatial_canvas %}
+                                                                    <div class="gallery-slider-spatial-canvas-wrapper position-absolute start-0 end-0 top-0 bottom-0">
+                                                                        {% set spatialGalleryViewerOptions = {
+                                                                            modelUrl: image.url,
+                                                                            lightIntensity: config('core.media.defaultLightIntensity'),
+                                                                            sliderPosition: loop.index0,
+                                                                            dracoDecodersPath: asset('bundles/storefront/assets/draco/', 'asset'),
+                                                                        } %}
+                                                                        <canvas
+                                                                                data-spatial-gallery-slider-viewer
+                                                                                data-spatial-gallery-slider-viewer-options='{{spatialGalleryViewerOptions|json_encode}}'
+                                                                        ></canvas>
+                                                                        <span
+                                                                                class="spatial-canvas-note spatial-slider-movement-note position-absolute start-50 text-center badge mx-0 py-1 px-3 translate-middle-x"
+                                                                                data-spatial-movement-note
+                                                                                data-spatial-movement-note-touch-text="{{ 'component.cms.imageGallery.touchMove'|trans|striptags }}"
+                                                                        >
+                                                                        {{ 'component.cms.imageGallery.clickMove'|trans|striptags }}
+                                                                        </span>
+                                                                        {% if image.config.spatial.arReady ?? defaultEnableAugmentedReality %}
+                                                                            <button class="ar-button button position-absolute d-inline-flex justify-content-center align-items-center text-center py-0 px-2 w-auto"
+                                                                                    aria-label="{{ 'spatial.openArViewDescription'|trans|striptags }}"
+                                                                                    data-spatial-ar-viewer
+                                                                                    data-spatial-ar-viewer-options='{ "spatialArId": "{{ image.id }}", "modelUrl": "{{ image.url }}", "dracoDecodersPath": "{{ asset('bundles/storefront/assets/draco/', 'asset') }}" }'
+                                                                                    tabIndex="0">
 
                                                                                 {% sw_icon 'augmented' style {
                                                                                     'size': 'fluid'
@@ -665,31 +669,32 @@
                                                                                                         <div class="spinner-border" role="status">
                                                                                                             <span class="visually-hidden">Loading...</span>
                                                                                                         </div>
-                                                                                                    </div>
-                                                                                                    <div class="gallery-slider-spatial-canvas-wrapper position-absolute start-0 end-0 top-0 bottom-0">
-                                                                                                        {% set spatialGalleryViewerOptions = {
-                                                                                                            modelUrl: image.url,
-                                                                                                            lightIntensity: config('core.media.defaultLightIntensity'),
-                                                                                                            sliderPosition: loop.index0,
-                                                                                                            dracoDecodersPath: asset('bundles/storefront/assets/draco/', 'asset'),
-                                                                                                        } %}
-                                                                                                        <canvas
-                                                                                                                data-spatial-zoom-gallery-slider-viewer
-                                                                                                                data-spatial-zoom-gallery-slider-viewer-options='{{spatialGalleryViewerOptions|json_encode}}'
-                                                                                                        ></canvas>
-                                                                                                        <span
-                                                                                                                class="spatial-canvas-note spatial-slider-movement-note position-absolute start-50 text-center badge mx-0 py-1 px-3 translate-middle-x"
-                                                                                                                data-spatial-movement-note
-                                                                                                                data-spatial-movement-note-touch-text="{{ 'component.cms.imageGallery.touchMove'|trans|striptags }}"
-                                                                                                        >
-                                                                                                        {{ 'component.cms.imageGallery.clickMove'|trans|striptags }}
-                                                                                                        </span>
-                                                                                                        {% if image.config.spatial.arReady ?? defaultEnableAugmentedReality %}
-                                                                                                            <button class="ar-button button mb-2 position-absolute d-inline-flex justify-content-center align-items-center text-center py-0 px-2 w-auto"
-                                                                                                                 aria-label="{{ 'spatial.openArViewDescription'|trans|striptags }}"
-                                                                                                                 data-spatial-ar-viewer
-                                                                                                                 data-spatial-ar-viewer-options='{ "spatialArId": "{{ image.id }}", "modelUrl": "{{ image.url }}" }'
-                                                                                                                 tabIndex="0">
+                                                                                                    {% endblock %}
+                                                                                                    {% block element_image_gallery_inner_zoom_modal_slider_item_zoom_container_spatial_canvas %}
+                                                                                                        <div class="gallery-slider-spatial-canvas-wrapper position-absolute start-0 end-0 top-0 bottom-0">
+                                                                                                            {% set spatialGalleryViewerOptions = {
+                                                                                                                modelUrl: image.url,
+                                                                                                                lightIntensity: config('core.media.defaultLightIntensity'),
+                                                                                                                sliderPosition: loop.index0,
+                                                                                                                dracoDecodersPath: asset('bundles/storefront/assets/draco/', 'asset'),
+                                                                                                            } %}
+                                                                                                            <canvas
+                                                                                                                    data-spatial-zoom-gallery-slider-viewer
+                                                                                                                    data-spatial-zoom-gallery-slider-viewer-options='{{spatialGalleryViewerOptions|json_encode}}'
+                                                                                                            ></canvas>
+                                                                                                            <span
+                                                                                                                    class="spatial-canvas-note spatial-slider-movement-note position-absolute start-50 text-center badge mx-0 py-1 px-3 translate-middle-x"
+                                                                                                                    data-spatial-movement-note
+                                                                                                                    data-spatial-movement-note-touch-text="{{ 'component.cms.imageGallery.touchMove'|trans|striptags }}"
+                                                                                                            >
+                                                                                                            {{ 'component.cms.imageGallery.clickMove'|trans|striptags }}
+                                                                                                            </span>
+                                                                                                            {% if image.config.spatial.arReady ?? defaultEnableAugmentedReality %}
+                                                                                                                <button class="ar-button button mb-2 position-absolute d-inline-flex justify-content-center align-items-center text-center py-0 px-2 w-auto"
+                                                                                                                        aria-label="{{ 'spatial.openArViewDescription'|trans|striptags }}"
+                                                                                                                        data-spatial-ar-viewer
+                                                                                                                        data-spatial-ar-viewer-options='{ "spatialArId": "{{ image.id }}", "modelUrl": "{{ image.url }}", "dracoDecodersPath": "{{ asset('bundles/storefront/assets/draco/', 'asset') }}" }'
+                                                                                                                        tabIndex="0">
 
                                                                                                                     {% sw_icon 'augmented' style {
                                                                                                                         'size': 'fluid'

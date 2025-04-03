@@ -136,7 +136,7 @@ describe('src/module/sw-newsletter-recipient/page/sw-newsletter-recipient-detail
 
         /* eslint-disable jest/prefer-to-have-length */
         // check that they are all enabled minus the saleschannel select which is always disabled
-        expect(mtFields.filter((field) => !field.props('disabled')).length).toBe(7);
+        expect(mtFields.filter((field) => !field.props('disabled')).length).toBe(8);
         expect(swFields.filter((field) => !field.props('disabled')).length).toBe(3);
         /* eslint-enable jest/prefer-to-have-length */
 

@@ -133,7 +133,7 @@ describe('src/module/sw-order/component/sw-order-customer-address-select', () =>
 
         expect(wrapper.find('li[selected="true"]').text()).toBe('Summerfield, 27, 10332, San Francisco, California, USA');
         expect(wrapper.find('sw-highlight-text-stub').attributes().text).toBe(
-            'Ebbinghoff 10, 48624, London, Nottingham, United Kingdom',
+            'Ebbinghoff, 10, 48624, London, Nottingham, United Kingdom',
         );
     });
 

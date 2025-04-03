@@ -47,7 +47,9 @@
                                     {% if feature('ADDRESS_SELECTION_REWORK') %}
                                         {% set addressManagerOptions = {
                                             initialTab: 'shipping',
-                                            activeShippingAddressId: shippingAddress.id
+                                            activeShippingAddressId: shippingAddress.id,
+                                            addressManagerUrl: path('frontend.account.addressmanager.get'),
+                                            addressSwitchUrl: path('frontend.account.address.switch-default'),
                                         } %}
                                     {% else %}
                                         {% set addressEditorOptions = {
@@ -114,6 +116,8 @@
                                         {% set addressManagerOptions = {
                                             initialTab: 'billing',
                                             addressId: billingAddress.id,
+                                            addressManagerUrl: path('frontend.account.addressmanager.get'),
+                                            addressSwitchUrl: path('frontend.account.address.switch-default'),
                                         } %}
                                     {% else %}
                                         {% set addressEditorOptions = {

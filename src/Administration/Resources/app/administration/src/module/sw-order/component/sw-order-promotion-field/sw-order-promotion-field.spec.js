@@ -95,6 +95,8 @@ async function createWrapper(privileges = []) {
         global: {
             stubs: {
                 'sw-order-promotion-tag-field': true,
+                'sw-switch-field': true,
+                'sw-button': true,
                 'sw-modal': {
                     emits: ['modal-close'],
                     template: `<div class="sw-modal__content"><slot /></div>`,
@@ -292,7 +294,7 @@ describe('src/module/sw-order/component/sw-order-promotion-field', () => {
         const wrapper = await createWrapper();
 
         expect(wrapper.find('sw-order-promotion-tag-field-stub').attributes('disabled')).toBe(String(true));
-        expect(wrapper.findComponent('.mt-button').props('disabled')).toBe(true);
+        expect(wrapper.find('sw-button-stub').attributes('disabled')).toBe('true');
     });
 
     it('should enable the fields with roles', async () => {
@@ -301,7 +303,7 @@ describe('src/module/sw-order/component/sw-order-promotion-field', () => {
         const wrapper = await createWrapper(['order.editor']);
 
         expect(wrapper.find('sw-order-promotion-tag-field-stub').attributes('disabled')).toBeUndefined();
-        expect(wrapper.findComponent('.mt-button').props('disabled')).toBeUndefined();
+        expect(wrapper.find('sw-button-stub').attributes('disabled')).toBeUndefined();
     });
 
     it('should open modal on errors', async () => {

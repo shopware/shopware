@@ -291,8 +291,8 @@
                                     <mt-switch
                                         :label="$tc('sw-settings-tax.list.taxProvider.labelActive')"
                                         :disabled="!acl.can('tax.editor') || undefined"
-                                        :checked="taxProvider.active"
-                                        @change="onChangeTaxProviderActive(taxProvider)"
+                                        :model-value="taxProvider.active"
+                                        @update:model-value="onChangeTaxProviderActive(taxProvider)"
                                     />
                                 </div>
                             </template>

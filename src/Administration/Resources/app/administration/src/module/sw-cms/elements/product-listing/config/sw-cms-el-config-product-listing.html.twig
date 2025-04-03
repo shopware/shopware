@@ -253,8 +253,8 @@
 
                                 <mt-switch
                                     :disabled="column.disabled"
-                                    :checked="item.active"
-                                    @change="propertyStatusChanged($event, item.id)"
+                                    :model-value="item.active"
+                                    @update:model-value="propertyStatusChanged($event, item.id)"
                                 />
                             {% endblock %}
                             </template>

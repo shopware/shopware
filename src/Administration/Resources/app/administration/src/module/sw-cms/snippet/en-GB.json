@@ -369,7 +369,7 @@
             "selection": "Products",
             "navigation": "Navigation",
             "border": "Border",
-            "minWidth": "Minimal width",
+            "minWidth": "Minimum width",
             "navigationArrows": "Arrow navigation",
             "navigationPositionNone": "None",
             "navigationPositionInside": "Inside",
@@ -382,7 +382,7 @@
           "placeholder": {
             "title": "Slider title",
             "selection": "Select products",
-            "minWidth": "Minimal width",
+            "minWidth": "Minimum width",
             "productStreamChoice": "Select a dynamic product group",
             "productStreamSorting": "Select a sorting..."
           },

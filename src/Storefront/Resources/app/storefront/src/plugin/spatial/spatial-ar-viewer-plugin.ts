@@ -5,6 +5,7 @@ import Plugin from 'src/plugin-system/plugin.class';
 import { supportQuickLook, supportsAr, supportWebXR } from './utils/ar/arSupportChecker';
 import WebXrView from './utils/ar/WebXrView';
 import { loadThreeJs } from './utils/spatial-threejs-load-util';
+import type NativeEventEmitter from 'src/helper/emitter.helper';
 
 /**
  * @package innovation
@@ -24,6 +25,8 @@ export default class SpatialArViewerPlugin extends Plugin {
 
     public static options: object;
 
+    $emitter: NativeEventEmitter;
+
     async init() {
         await loadThreeJs();
 
@@ -35,7 +38,7 @@ export default class SpatialArViewerPlugin extends Plugin {
             return;
         }
 
-        this.objectLoader = new SpatialObjectLoaderUtil();
+        this.objectLoader = new SpatialObjectLoaderUtil(this);
 
         // eslint-disable-next-line @typescript-eslint/no-floating-promises
         this.objectLoader.loadSingleObjectByUrl(this.modelUrl, {

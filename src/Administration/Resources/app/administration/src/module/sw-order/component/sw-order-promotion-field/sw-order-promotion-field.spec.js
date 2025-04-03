@@ -124,7 +124,7 @@ async function createWrapper(privileges = []) {
                         });
 
                         return Promise.resolve(successResponseForNotification);
-                    }
+                    },
                 },
                 acl: {
                     can: (identifier) => {
@@ -243,7 +243,10 @@ describe('src/module/sw-order/component/sw-order-promotion-field', () => {
             .map((item) => item.id);
 
         expect(wrapper.vm.swOrderDetailOnSaveAndReload).toHaveBeenCalledTimes(1);
-        expect(autoPromotions).toEqual(['05b5decd-072f-437e-84a3-8be5fb5e5fa7', 'auto-applied-promotion']);
+        expect(autoPromotions).toEqual([
+            '05b5decd-072f-437e-84a3-8be5fb5e5fa7',
+            'auto-applied-promotion',
+        ]);
         expect(wrapper.emitted('error')).toBeUndefined();
         expect(wrapper.emitted('reload-entity-data')).toBeTruthy();
     });
@@ -288,13 +291,16 @@ describe('src/module/sw-order/component/sw-order-promotion-field', () => {
 
         expect(wrapper.find('.sw-modal__content').exists()).toBe(false);
 
-        wrapper.vm.promotionUpdates = [{
-            messageKey: 'promotion-discount-deleted',
-            parameters: { name: 'Disabled Auto promo' },
-        }, {
-            messageKey: 'promotion-discount-added',
-            parameters: { name: 'New Auto promo' },
-        }];
+        wrapper.vm.promotionUpdates = [
+            {
+                messageKey: 'promotion-discount-deleted',
+                parameters: { name: 'Disabled Auto promo' },
+            },
+            {
+                messageKey: 'promotion-discount-added',
+                parameters: { name: 'New Auto promo' },
+            },
+        ];
 
         await wrapper.vm.$nextTick();
 

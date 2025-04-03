@@ -297,7 +297,8 @@ export default {
             await this.saveAndReload();
             await this.deleteAutomaticPromotions();
 
-            return this.orderService.toggleAutomaticPromotions(this.order.id, this.order.versionId, state)
+            return this.orderService
+                .toggleAutomaticPromotions(this.order.id, this.order.versionId, state)
                 .then(this.handlePromotionResponse.bind(this))
                 .catch(this.handleError.bind(this));
         },
@@ -305,7 +306,8 @@ export default {
         async applyAutomaticPromotions() {
             await this.saveAndReload();
 
-            return this.orderService.applyAutomaticPromotions(this.order.id, this.order.versionId)
+            return this.orderService
+                .applyAutomaticPromotions(this.order.id, this.order.versionId)
                 .then(this.handlePromotionResponse.bind(this))
                 .catch(this.handleError.bind(this));
         },
@@ -315,7 +317,8 @@ export default {
 
             await this.saveAndReload();
 
-            return this.orderService.addPromotionToOrder(this.order.id, this.order.versionId, code)
+            return this.orderService
+                .addPromotionToOrder(this.order.id, this.order.versionId, code)
                 .then(this.handlePromotionResponse.bind(this))
                 .catch(this.handleError.bind(this));
         },
@@ -327,11 +330,41 @@ export default {
                 return;
             }
 
-            const [errors, promotionErrors] = response.data.errors.reduce(([general, promotion], e) => {
-                return ['promotion-discount-deleted', 'promotion-discount-added'].includes(e.messageKey)
-                    ? [general, [...promotion, e]]
-                    : [[...general, e], promotion];
-            }, [[], []]);
+            const [
+                errors,
+                promotionErrors,
+            ] = response.data.errors.reduce(
+                (
+                    [
+                        general,
+                        promotion,
+                    ],
+                    e,
+                ) => {
+                    return [
+                        'promotion-discount-deleted',
+                        'promotion-discount-added',
+                    ].includes(e.messageKey)
+                        ? [
+                              general,
+                              [
+                                  ...promotion,
+                                  e,
+                              ],
+                          ]
+                        : [
+                              [
+                                  ...general,
+                                  e,
+                              ],
+                              promotion,
+                          ];
+                },
+                [
+                    [],
+                    [],
+                ],
+            );
 
             this.promotionUpdates = promotionErrors;
             response.data.errors = errors;
@@ -376,7 +409,8 @@ export default {
 
             await this.saveAndReload();
 
-            return this.orderLineItemRepository.delete(lineItem.id, this.versionContext)
+            return this.orderLineItemRepository
+                .delete(lineItem.id, this.versionContext)
                 .then(this.emitEntityData.bind(this))
                 .catch(this.handleError.bind(this));
         },

@@ -3,8 +3,8 @@
 namespace Shopware\Core\Framework\Gateway\Context\SalesChannel;
 
 use Shopware\Core\Checkout\Cart\Cart;
+use Shopware\Core\Framework\App\Context\Gateway\AppContextGateway;
 use Shopware\Core\Framework\Gateway\Context\Command\Struct\ContextGatewayPayloadStruct;
-use Shopware\Core\Framework\Gateway\Context\ContextGatewayInterface;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
@@ -18,7 +18,7 @@ use Symfony\Component\Routing\Attribute\Route;
 class ContextGatewayRoute extends AbstractContextGatewayRoute
 {
     public function __construct(
-        private readonly ContextGatewayInterface $contextGateway,
+        private readonly AppContextGateway $contextGateway,
     ) {
     }
 

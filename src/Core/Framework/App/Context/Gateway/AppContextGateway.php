@@ -2,7 +2,6 @@
 
 namespace Shopware\Core\Framework\App\Context\Gateway;
 
-use Shopware\Core\Framework\App\ActiveAppsLoader;
 use Shopware\Core\Framework\App\AppEntity;
 use Shopware\Core\Framework\App\Context\Payload\AppContextGatewayPayload;
 use Shopware\Core\Framework\App\Context\Payload\AppContextGatewayPayloadService;
@@ -16,7 +15,6 @@ use Shopware\Core\Framework\Gateway\Context\Command\Executor\ContextGatewayComma
 use Shopware\Core\Framework\Gateway\Context\Command\Registry\ContextGatewayCommandRegistry;
 use Shopware\Core\Framework\Gateway\Context\Command\Struct\ContextGatewayPayloadStruct;
 use Shopware\Core\Framework\Gateway\Context\ContextGatewayException;
-use Shopware\Core\Framework\Gateway\Context\ContextGatewayInterface;
 use Shopware\Core\Framework\Log\ExceptionLogger;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\ContextTokenResponse;
@@ -25,7 +23,7 @@ use Shopware\Core\System\SalesChannel\ContextTokenResponse;
  * @internal only for use by the app-system
  */
 #[Package('framework')]
-class AppContextGateway implements ContextGatewayInterface
+class AppContextGateway
 {
     public function __construct(
         private readonly AppContextGatewayPayloadService $payloadService,

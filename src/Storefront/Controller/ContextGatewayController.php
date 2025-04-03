@@ -33,7 +33,6 @@ class ContextGatewayController extends StorefrontController
         try {
             $response = $this->contextGatewayRoute->load($request, $cart, $context);
         } catch (\Throwable $e) {
-            dd($e);
             $this->addFlash(self::DANGER, $e->getMessage());
             return new JsonResponse(status: Response::HTTP_BAD_REQUEST);
         }

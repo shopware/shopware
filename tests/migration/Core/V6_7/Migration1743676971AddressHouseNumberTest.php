@@ -18,6 +18,12 @@ class Migration1743676971AddressHouseNumberTest extends TestCase
 {
     use KernelTestBehaviour;
 
+    public function testGetCreationTimestamp(): void
+    {
+        $migration = new Migration1743676971AddressHouseNumber();
+        static::assertSame(1743676971, $migration->getCreationTimestamp());
+    }
+
     public function testMigration(): void
     {
         $connection = self::getContainer()->get(Connection::class);

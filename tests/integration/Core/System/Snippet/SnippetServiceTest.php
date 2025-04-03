@@ -20,6 +20,7 @@ use Shopware\Core\System\Snippet\Filter\SnippetFilterFactory;
 use Shopware\Core\System\Snippet\SnippetException;
 use Shopware\Core\System\Snippet\SnippetService;
 use Shopware\Storefront\Theme\DatabaseSalesChannelThemeLoader;
+use Shopware\Storefront\Theme\ThemeRuntimeConfigService;
 use Shopware\Tests\Integration\Core\System\Snippet\Mock\MockSnippetFile;
 use Symfony\Component\Translation\MessageCatalogue;
 use Symfony\Component\Translation\MessageCatalogueInterface;
@@ -1122,6 +1123,9 @@ json
             static::getContainer()->get(ExtensionDispatcher::class),
             static::getContainer()->has(DatabaseSalesChannelThemeLoader::class) ? static::getContainer()->get(
                 DatabaseSalesChannelThemeLoader::class
+            ) : null,
+            static::getContainer()->has(ThemeRuntimeConfigService::class) ? static::getContainer()->get(
+                ThemeRuntimeConfigService::class
             ) : null
         );
     }

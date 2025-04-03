@@ -50,8 +50,8 @@ class SnippetService
          */
         private readonly ContainerInterface $container,
         private readonly ExtensionDispatcher $extensionDispatcher,
-        private readonly ThemeRuntimeConfigService $themeRuntimeConfigService,
-        private readonly ?DatabaseSalesChannelThemeLoader $salesChannelThemeLoader = null
+        private readonly ?DatabaseSalesChannelThemeLoader $salesChannelThemeLoader = null,
+        private readonly ?ThemeRuntimeConfigService $themeRuntimeConfigService = null,
     ) {
     }
 
@@ -257,6 +257,10 @@ class SnippetService
     protected function getUnusedThemes(array $usingThemes = []): array
     {
         if (!$this->container->has(StorefrontPluginRegistry::class)) {
+            return [];
+        }
+
+        if ($this->themeRuntimeConfigService === null) {
             return [];
         }
 

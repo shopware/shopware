@@ -16,9 +16,8 @@ use Shopware\Core\System\Snippet\Filter\SnippetFilterFactory;
 use Shopware\Core\System\Snippet\SnippetException;
 use Shopware\Core\System\Snippet\SnippetService;
 use Shopware\Storefront\Theme\DatabaseSalesChannelThemeLoader;
-use Shopware\Storefront\Theme\StorefrontPluginConfiguration\StorefrontPluginConfiguration;
-use Shopware\Storefront\Theme\StorefrontPluginConfiguration\StorefrontPluginConfigurationCollection;
 use Shopware\Storefront\Theme\StorefrontPluginRegistry;
+use Shopware\Storefront\Theme\ThemeRuntimeConfigService;
 use Shopware\Tests\Unit\Core\System\Snippet\Mock\MockSnippetFile;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\EventDispatcher\EventDispatcher;
@@ -74,19 +73,8 @@ class SnippetServiceTest extends TestCase
         $container->method('has')->with(StorefrontPluginRegistry::class)->willReturn($withThemeRegistry);
         $this->connection->expects($this->once())->method('fetchOne')->willReturn($fetchLocaleResult);
 
-        if ($withThemeRegistry) {
-            $plugins = new StorefrontPluginConfigurationCollection();
-
-            foreach (['Storefront', 'SwagTheme'] as $technicalName) {
-                $theme = new StorefrontPluginConfiguration($technicalName);
-                $theme->setIsTheme(true);
-                $plugins->add($theme);
-            }
-
-            $themeRegistry = $this->createMock(StorefrontPluginRegistry::class);
-            $themeRegistry->expects($this->once())->method('getConfigurations')->willReturn($plugins);
-            $container->expects($this->once())->method('get')->with(StorefrontPluginRegistry::class)->willReturn($themeRegistry);
-        }
+        $runtimeConfigService = $this->createMock(ThemeRuntimeConfigService::class);
+        $runtimeConfigService->method('getActiveThemeNames')->willReturn(['Storefront', 'SwagTheme']);
 
         $cachedThemeLoader = null;
         if ($salesChannelId !== null) {
@@ -113,6 +101,7 @@ class SnippetServiceTest extends TestCase
             $container,
             new ExtensionDispatcher(new EventDispatcher()),
             $cachedThemeLoader,
+            $runtimeConfigService,
         );
 
         $catalog = new MessageCatalogue((string) $fetchLocaleResult, ['messages' => $catalogMessages]);

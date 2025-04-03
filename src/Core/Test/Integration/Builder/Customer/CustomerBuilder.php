@@ -147,7 +147,8 @@ class CustomerBuilder
             'lastName' => $this->lastName,
             'city' => 'Bielefeld',
             'salutation' => self::salutation($this->ids),
-            'street' => 'Buchenweg 5',
+            'street' => 'Buchenweg',
+            'houseNumber' => '5',
             'zipcode' => '33062',
             'countryId' => $this->getCountry(),
         ], $customParams);

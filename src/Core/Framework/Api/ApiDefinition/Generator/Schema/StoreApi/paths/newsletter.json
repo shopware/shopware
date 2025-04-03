@@ -94,6 +94,10 @@
                                         "description": "Street",
                                         "type": "string"
                                     },
+                                    "houseNumber": {
+                                        "description": "House number",
+                                        "type": "string"
+                                    },
                                     "city": {
                                         "description": "City",
                                         "type": "string"

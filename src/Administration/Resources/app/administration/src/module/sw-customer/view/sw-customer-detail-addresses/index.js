@@ -178,6 +178,10 @@ export default {
                     label: this.$tc('sw-customer.detailAddresses.columnStreet'),
                 },
                 {
+                    property: 'houseNumber',
+                    label: this.$tc('sw-customer.detailAddresses.columnHouseNumber'),
+                },
+                {
                     property: 'zipcode',
                     label: this.$tc('sw-customer.detailAddresses.columnZipCode'),
                     align: 'right',

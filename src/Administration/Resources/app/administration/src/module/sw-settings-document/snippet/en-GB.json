@@ -42,6 +42,7 @@
       "labelCompanyEmail": "Email address",
       "labelCompanyPhone": "Phone number",
       "labelCompanyStreet": "Street",
+      "labelCompanyHouseNumber": "House number",
       "labelCompanyUrl": "Website",
       "labelCompanyZipcode": "Postal code",
       "labelPaymentDueDate": "Payment due date",

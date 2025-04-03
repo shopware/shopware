@@ -196,6 +196,14 @@ export default {
                     },
                 },
                 {
+                    name: 'companyHouseNumber',
+                    type: 'text',
+                    config: {
+                        type: 'text',
+                        label: this.$tc('sw-settings-document.detail.labelCompanyHouseNumber'),
+                    },
+                },
+                {
                     name: 'companyZipcode',
                     type: 'text',
                     config: {

@@ -29,6 +29,7 @@ function mockApiCall(type) {
                     zipCode: '48624',
                     city: 'Schöppingen',
                     street: null,
+                    houseNumber: null,
                     status: 'direct',
                     hash: 'c225f2cc023946679c4e0d9189375402',
                     confirmedAt: null,

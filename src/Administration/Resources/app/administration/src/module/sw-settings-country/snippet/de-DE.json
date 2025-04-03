@@ -112,6 +112,7 @@
       "lastName": "Nachname",
       "firstName": "Vorname",
       "street": "Straße",
+      "houseNumber": "Hausnummer",
       "city": "Stadt",
       "company": "Firma",
       "phoneNumber": "Telefonnummer",

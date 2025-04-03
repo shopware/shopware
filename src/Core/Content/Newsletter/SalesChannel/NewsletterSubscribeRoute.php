@@ -38,7 +38,7 @@ use Symfony\Component\Validator\Constraints\Regex;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
 /**
- * @phpstan-type SubscribeRequest array{email: string, storefrontUrl: string, option: string, firstName?: string, lastName?: string, zipCode?: string, city?: string, street?: string, salutationId?: string}
+ * @phpstan-type SubscribeRequest array{email: string, storefrontUrl: string, option: string, firstName?: string, lastName?: string, zipCode?: string, city?: string, street?: string, houseNumber?: string, salutationId?: string}
  */
 #[Route(defaults: ['_routeScope' => ['store-api']])]
 #[Package('after-sales')]
@@ -128,6 +128,7 @@ class NewsletterSubscribeRoute extends AbstractNewsletterSubscribeRoute
             'zipCode',
             'city',
             'street',
+            'houseNumber',
             'salutationId',
             'option',
             'storefrontUrl',
@@ -218,7 +219,7 @@ class NewsletterSubscribeRoute extends AbstractNewsletterSubscribeRoute
     /**
      * @param SubscribeRequest $data
      *
-     * @return array{id: string, languageId: string, salesChannelId: string, status: string, hash: string, email: string, storefrontUrl: string, firstName?: string, lastName?: string, zipCode?: string, city?: string, street?: string, salutationId?: string}
+     * @return array{id: string, languageId: string, salesChannelId: string, status: string, hash: string, email: string, storefrontUrl: string, firstName?: string, lastName?: string, zipCode?: string, city?: string, street?: string, houseNumber?: string, salutationId?: string}
      */
     private function completeData(array $data, SalesChannelContext $context): array
     {

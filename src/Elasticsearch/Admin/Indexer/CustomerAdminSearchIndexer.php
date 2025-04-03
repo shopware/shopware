@@ -73,6 +73,7 @@ final class CustomerAdminSearchIndexer extends AbstractAdminIndexer
                    GROUP_CONCAT(DISTINCT customer_address.company SEPARATOR " ") as address_company,
                    GROUP_CONCAT(DISTINCT customer_address.city SEPARATOR " ") as city,
                    GROUP_CONCAT(DISTINCT customer_address.street SEPARATOR " ") as street,
+                   GROUP_CONCAT(DISTINCT customer_address.house_number SEPARATOR " ") as house_number,
                    GROUP_CONCAT(DISTINCT customer_address.zipcode SEPARATOR " ") as zipcode,
                    GROUP_CONCAT(DISTINCT customer_address.phone_number SEPARATOR " ") as phone_number,
                    GROUP_CONCAT(DISTINCT customer_address.additional_address_line1 SEPARATOR " ") as additional_address_line1,

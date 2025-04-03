@@ -57,6 +57,7 @@ export default {
                     'firstName',
                     'lastName',
                     'street',
+                    'houseNumber',
                     'city',
                     'countryId',
                 ],

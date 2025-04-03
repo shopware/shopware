@@ -65,6 +65,7 @@ export default {
             'firstName',
             'lastName',
             'street',
+            'houseNumber',
             'additionalAddressLine1',
             'additionalAddressLine2',
             'zipcode',
@@ -74,11 +75,6 @@ export default {
             'vatId',
             'countryStateId',
             'salutationId',
-            'city',
-            'street',
-            'zipcode',
-            'lastName',
-            'firstName',
         ]),
 
         countryId: {

@@ -134,6 +134,7 @@ export default Component.wrapComponentConfig({
 
             const properties = [
                 'street',
+                'houseNumber',
                 'zipcode',
                 'city',
                 'countryState',

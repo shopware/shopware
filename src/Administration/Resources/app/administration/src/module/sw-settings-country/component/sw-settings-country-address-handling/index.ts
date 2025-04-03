@@ -31,7 +31,10 @@ const DefaultAddressFormat = [
         'address/first_name',
         'address/last_name',
     ],
-    ['address/street'],
+    [
+        'address/street',
+        'address/house_number',
+    ],
     [
         'address/zipcode',
         'address/city',

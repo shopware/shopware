@@ -304,7 +304,7 @@ export default {
         deliveryTooltip(deliveries) {
             return deliveries
                 .map((delivery) => {
-                    return `${delivery.shippingOrderAddress.street},
+                    return `${delivery.shippingOrderAddress.street} ${delivery.shippingOrderAddress.houseNumber},
                         ${delivery.shippingOrderAddress.zipcode}
                         ${delivery.shippingOrderAddress.city}`;
                 })

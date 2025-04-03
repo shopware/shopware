@@ -47,6 +47,7 @@ class AddressTransformer
             'firstName' => $address->getFirstName(),
             'lastName' => $address->getLastName(),
             'street' => $address->getStreet(),
+            'houseNumber' => $address->getHouseNumber(),
             'zipcode' => $address->getZipcode(),
             'city' => $address->getCity(),
             'phoneNumber' => $address->getPhoneNumber(),

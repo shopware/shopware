@@ -106,6 +106,7 @@
     "VIOLATION::FIRST_NAME_IS_BLANK_ERROR": "Bitte tragen Sie Ihren Vornamen ein.",
     "VIOLATION::LAST_NAME_IS_BLANK_ERROR": "Bitte tragen Sie Ihren Nachnamen ein.",
     "VIOLATION::STREET_IS_BLANK_ERROR": "Bitte tragen Sie die Straße Ihrer Adresse ein.",
+    "VIOLATION::HOUSE_NUMBER_IS_BLANK_ERROR": "Bitte tragen Sie die Hausnummer Ihrer Adresse ein.",
     "VIOLATION::CITY_IS_BLANK_ERROR": "Bitte tragen Sie die Stadt Ihrer Adresse ein.",
     "VIOLATION::COUNTRY_IS_BLANK_ERROR": "Bitte tragen Sie Ihr Wohnland ein.",
     "VIOLATION::ADDITIONAL_ADDR1_IS_BLANK_ERROR": "Bitte tragen Sie zusätzliche Adressinformationen ein.",
@@ -116,6 +117,7 @@
     "VIOLATION::LAST_NAME_IS_TOO_LONG": "Eingabe zu lang. Bitte geben Sie Ihren Namen in abgekürzter Form ein.",
     "VIOLATION::TITLE_IS_TOO_LONG": "Eingabe zu lang. Bitte geben Sie nur Ihren Haupttitel ein oder verwenden Sie Abkürzungen.",
     "VIOLATION::ZIPCODE_IS_TOO_LONG": "Eingabe zu lang. Bitte geben Sie eine gültige Postleitzahl ein.",
+    "VIOLATION::HOUSENUMBER_IS_TOO_LONG": "Eingabe zu lang. Bitte geben Sie eine gültige Hausnummer ein.",
     "message-default": "Leider ist etwas schiefgelaufen",
     "message-404": "Die angeforderte Seite kann nicht gefunden werden.",
     "addToCartError": "Beim Hinzufügen zum Warenkorb ist ein Fehler aufgetreten.",
@@ -394,8 +396,10 @@
     "addressSearchPlaceholder": "Suche Adressen ..."
   },
   "address": {
-    "streetLabel": "Straße und Hausnummer",
-    "streetPlaceholder": "Straße und Hausnummer eingeben ...",
+    "streetLabel": "Straße",
+    "streetPlaceholder": "Straße eingeben ...",
+    "houseNumberLabel": "Hausnummer",
+    "houseNumberPlaceholder": "Hausnummer eingeben ...",
     "additionalField1Label": "Adresszusatz 1",
     "additionalField1Placeholder": "Adresszusatz eingeben ...",
     "additionalField2Label": "Adresszusatz 2",

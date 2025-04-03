@@ -155,6 +155,7 @@ trait StorefrontSalesChannelTestHelper
                 'zipcode' => '48599',
                 'city' => 'gronau',
                 'street' => 'Schillerstr.',
+                'houseNumber' => '1',
             ],
             'defaultShippingAddressId' => $defaultBillingAddress,
             'customerNumber' => 'asdf',

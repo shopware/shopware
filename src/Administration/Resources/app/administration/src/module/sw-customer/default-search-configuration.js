@@ -57,6 +57,10 @@ const defaultSearchConfiguration = {
             _searchable: false,
             _score: searchRankingPoint.HIGH_SEARCH_RANKING,
         },
+        houseNumber: {
+            _searchable: false,
+            _score: searchRankingPoint.LOW_SEARCH_RANKING,
+        },
         phoneNumber: {
             _searchable: false,
             _score: searchRankingPoint.HIGH_SEARCH_RANKING,
@@ -100,6 +104,10 @@ const defaultSearchConfiguration = {
         street: {
             _searchable: false,
             _score: searchRankingPoint.HIGH_SEARCH_RANKING,
+        },
+        houseNumber: {
+            _searchable: false,
+            _score: searchRankingPoint.LOW_SEARCH_RANKING,
         },
         phoneNumber: {
             _searchable: false,

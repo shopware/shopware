@@ -14,6 +14,7 @@ class MockRepositoryFactory {
                 zipCode: '48624',
                 city: 'Schöppingen',
                 street: null,
+                houseNumber: null,
                 status: 'direct',
                 hash: 'c225f2cc023946679c4e0d9189375402',
                 confirmedAt: null,
@@ -112,7 +113,7 @@ describe('src/module/sw-newsletter-recipient/page/sw-newsletter-recipient-detail
 
         const mtFields = wrapper.findAllComponents('.mt-field');
         const swFields = wrapper.findAllComponents('.sw-field');
-        expect(mtFields.length + swFields.length).toBe(11);
+        expect(mtFields.length + swFields.length).toBe(12);
 
         // check that they are all disabled
         expect(mtFields.every((field) => field.props('disabled'))).toBe(true);
@@ -131,7 +132,7 @@ describe('src/module/sw-newsletter-recipient/page/sw-newsletter-recipient-detail
 
         const mtFields = wrapper.findAllComponents('.mt-field');
         const swFields = wrapper.findAllComponents('.sw-field');
-        expect(mtFields.length + swFields.length).toBe(11);
+        expect(mtFields.length + swFields.length).toBe(12);
 
         /* eslint-disable jest/prefer-to-have-length */
         // check that they are all enabled minus the saleschannel select which is always disabled

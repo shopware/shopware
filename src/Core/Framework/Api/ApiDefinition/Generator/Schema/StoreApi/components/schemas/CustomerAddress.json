@@ -33,6 +33,9 @@
                     "street": {
                         "type": "string"
                     },
+                    "houseNumber": {
+                        "type": "string"
+                    },
                     "department": {
                         "type": "string"
                     },

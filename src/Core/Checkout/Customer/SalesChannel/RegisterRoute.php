@@ -121,6 +121,10 @@ class RegisterRoute extends AbstractRegisterRoute
                 $data->set('lastName', $billing->get('lastName'));
             }
 
+            if ($billing->has('houseNumber') && !$data->has('houseNumber')) {
+                $data->set('houseNumber', $billing->get('houseNumber'));
+            }
+
             if ($data->has('title')) {
                 $billing->set('title', $data->get('title'));
             }
@@ -499,6 +503,7 @@ class RegisterRoute extends AbstractRegisterRoute
             'lastName',
             'salutationId',
             'street',
+            'houseNumber',
             'zipcode',
             'city',
             'company',

@@ -41,6 +41,8 @@ class CustomerAddressEntity extends Entity
 
     protected string $street;
 
+    protected ?string $houseNumber = null;
+
     protected ?string $phoneNumber = null;
 
     protected ?string $additionalAddressLine1 = null;
@@ -175,6 +177,16 @@ class CustomerAddressEntity extends Entity
     public function setStreet(string $street): void
     {
         $this->street = $street;
+    }
+
+    public function getHouseNumber(): ?string
+    {
+        return $this->houseNumber;
+    }
+
+    public function setHouseNumber(?string $houseNumber): void
+    {
+        $this->houseNumber = $houseNumber;
     }
 
     public function getPhoneNumber(): ?string

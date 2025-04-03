@@ -14,7 +14,10 @@ const addressFormat = [
         'address/first_name',
         'address/last_name',
     ],
-    ['address/street'],
+    [
+        'address/street',
+        'address/house_number',
+    ],
     [
         'address/zipcode',
         'address/city',
@@ -135,7 +138,8 @@ async function createWrapper(privileges = [], customPropsData = {}) {
                                             lastName: 'Tran',
                                             company: '',
                                             department: '',
-                                            street: 'Ebbinghoff 10',
+                                            street: 'Ebbinghoff',
+                                            houseNumber: '10',
                                             zipcode: '48624',
                                             city: 'Schöppingen',
                                             country: {
@@ -522,7 +526,10 @@ describe('module/sw-settings-country/component/sw-settings-country-address-handl
                 'address/first_name',
                 'address/last_name',
             ],
-            ['address/street'],
+            [
+                'address/street',
+                'address/house_number',
+            ],
             [
                 'address/zipcode',
                 'address/city',
@@ -557,7 +564,10 @@ describe('module/sw-settings-country/component/sw-settings-country-address-handl
                 'address/first_name',
                 'address/last_name',
             ],
-            ['address/street'],
+            [
+                'address/street',
+                'address/house_number',
+            ],
             [
                 'address/zipcode',
                 'address/city',
@@ -592,7 +602,10 @@ describe('module/sw-settings-country/component/sw-settings-country-address-handl
                 'address/first_name',
                 'address/last_name',
             ],
-            ['address/street'],
+            [
+                'address/street',
+                'address/house_number',
+            ],
             [
                 'address/zipcode',
                 'address/city',
@@ -621,7 +634,10 @@ describe('module/sw-settings-country/component/sw-settings-country-address-handl
                 'symbol/dash',
                 'address/department',
             ],
-            ['address/street'],
+            [
+                'address/street',
+                'address/house_number',
+            ],
             [
                 'address/zipcode',
                 'address/city',
@@ -632,7 +648,7 @@ describe('module/sw-settings-country/component/sw-settings-country-address-handl
                 'address/last_name',
             ],
         ]);
-        expect(swMultiSnippet[1].findAll('.sw-select-selection-list > li')).toHaveLength(2);
+        expect(swMultiSnippet[1].findAll('.sw-select-selection-list > li')).toHaveLength(3);
         expect(swMultiSnippet[3].findAll('.sw-select-selection-list > li')).toHaveLength(2);
         expect(swMultiSnippet[4].findAll('.sw-select-selection-list > li')).toHaveLength(3);
     });

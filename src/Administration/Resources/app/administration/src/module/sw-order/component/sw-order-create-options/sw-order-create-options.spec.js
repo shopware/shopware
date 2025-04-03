@@ -11,7 +11,8 @@ const addresses = [
         id: '1',
         city: 'San Francisco',
         zipcode: '10332',
-        street: 'Summerfield 27',
+        street: 'Summerfield',
+        houseNumber: '27',
         country: {
             translated: {
                 name: 'USA',
@@ -27,7 +28,8 @@ const addresses = [
         id: '2',
         city: 'London',
         zipcode: '48624',
-        street: 'Ebbinghoff 10',
+        street: 'Ebbinghoff',
+        houseNumber: '10',
         country: {
             translated: {
                 name: 'United Kingdom',
@@ -232,7 +234,7 @@ describe('src/module/sw-order/view/sw-order-create-options', () => {
         // Click to open result list
         await billingAddressSelect.trigger('click');
 
-        expect(wrapper.find('li[selected="true"]').text()).toBe('Summerfield 27, 10332, San Francisco, California, USA');
+        expect(wrapper.find('li[selected="true"]').text()).toBe('Summerfield, 27, 10332, San Francisco, California, USA');
         expect(wrapper.find('sw-highlight-text-stub').attributes().text).toBe(
             'Ebbinghoff 10, 48624, London, Nottingham, United Kingdom',
         );
@@ -245,7 +247,7 @@ describe('src/module/sw-order/view/sw-order-create-options', () => {
         let shippingSelectionText = wrapper.find(
             '.sw-order-create-options__shipping-address .sw-single-select__selection-text',
         );
-        expect(shippingSelectionText.text()).toBe('Ebbinghoff 10, 48624, London, Nottingham, United Kingdom');
+        expect(shippingSelectionText.text()).toBe('Ebbinghoff, 10, 48624, London, Nottingham, United Kingdom');
 
         const switchSameAddress = wrapper.find('.mt-switch input[name="sw-field--isSameAsBillingAddress"]');
         await switchSameAddress.setChecked(true);
@@ -297,7 +299,7 @@ describe('src/module/sw-order/view/sw-order-create-options', () => {
         let shippingSelectionText = wrapper.find(
             '.sw-order-create-options__shipping-address .sw-single-select__selection-text',
         );
-        expect(shippingSelectionText.text()).toBe('Ebbinghoff 10, 48624, London, Nottingham, United Kingdom');
+        expect(shippingSelectionText.text()).toBe('Ebbinghoff, 10, 48624, London, Nottingham, United Kingdom');
 
         const billingAddressSelect = wrapper.find('.sw-order-create-options__billing-address .sw-select__selection');
         // Click to open result list

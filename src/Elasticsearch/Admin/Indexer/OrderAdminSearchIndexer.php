@@ -71,6 +71,7 @@ final class OrderAdminSearchIndexer extends AbstractAdminIndexer
                    GROUP_CONCAT(DISTINCT country_translation.name SEPARATOR " ") as country,
                    GROUP_CONCAT(DISTINCT order_address.city SEPARATOR " ") as city,
                    GROUP_CONCAT(DISTINCT order_address.street SEPARATOR " ") as street,
+                   GROUP_CONCAT(DISTINCT order_address.house_number SEPARATOR " ") as house_number,
                    GROUP_CONCAT(DISTINCT order_address.zipcode SEPARATOR " ") as zipcode,
                    GROUP_CONCAT(DISTINCT order_address.phone_number SEPARATOR " ") as phone_number,
                    GROUP_CONCAT(DISTINCT order_address.additional_address_line1 SEPARATOR " ") as additional_address_line1,

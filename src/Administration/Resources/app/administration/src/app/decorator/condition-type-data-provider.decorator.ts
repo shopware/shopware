@@ -72,6 +72,12 @@ Application.addServiceProviderDecorator('ruleConditionDataProviderService', (rul
         scopes: ['checkout'],
         group: 'customer',
     });
+    ruleConditionService.addCondition('customerBillingHouseNumber', {
+        component: 'sw-condition-generic',
+        label: 'global.sw-condition.condition.billingHouseNumberRule',
+        scopes: ['checkout'],
+        group: 'customer',
+    });
     ruleConditionService.addCondition('customerBillingZipCode', {
         component: 'sw-condition-billing-zip-code',
         label: 'global.sw-condition.condition.billingZipCodeRule',
@@ -147,6 +153,12 @@ Application.addServiceProviderDecorator('ruleConditionDataProviderService', (rul
     ruleConditionService.addCondition('customerShippingStreet', {
         component: 'sw-condition-generic',
         label: 'global.sw-condition.condition.shippingStreetRule',
+        scopes: ['checkout'],
+        group: 'customer',
+    });
+    ruleConditionService.addCondition('customerShippingHouseNumber', {
+        component: 'sw-condition-generic',
+        label: 'global.sw-condition.condition.shippingHouseNumberRule',
         scopes: ['checkout'],
         group: 'customer',
     });

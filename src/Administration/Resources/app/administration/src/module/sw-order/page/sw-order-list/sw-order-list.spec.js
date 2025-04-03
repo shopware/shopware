@@ -14,7 +14,8 @@ const mockItem = {
     },
     addresses: [
         {
-            street: '123 Random street',
+            street: 'Random street',
+            houseNumber: '123',
         },
     ],
     currency: {
@@ -46,7 +47,8 @@ const mockItem = {
         },
     ],
     billingAddress: {
-        street: '123 Random street',
+        street: 'Random street',
+        houseNumber: '123',
     },
 };
 

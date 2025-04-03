@@ -29,6 +29,7 @@
       "zipCode": "Postleitzahl",
       "city": "Stadt",
       "street": "Straße",
+      "houseNumber": "Hausnummer",
       "createdAt": "Hinzugefügt am",
       "updatedAt": "Aktualisiert am",
       "notSet": "Warten auf Aktivierung",

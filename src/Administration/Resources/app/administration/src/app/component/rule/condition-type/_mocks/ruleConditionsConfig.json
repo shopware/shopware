@@ -350,6 +350,23 @@
       }
     ]
   },
+  "customerBillingHouseNumber": {
+    "operatorSet": {
+      "operators": [
+        "=",
+        "!=",
+        "empty"
+      ],
+      "isMatchAny": false
+    },
+    "fields": [
+      {
+        "name": "houseNumber",
+        "type": "string",
+        "config": {}
+      }
+    ]
+  },
   "customerCustomerGroup": {
     "operatorSet": {
       "operators": [
@@ -532,6 +549,23 @@
     "fields": [
       {
         "name": "streetName",
+        "type": "string",
+        "config": {}
+      }
+    ]
+  },
+  "customerShippingHouseNumber": {
+    "operatorSet": {
+      "operators": [
+        "=",
+        "!=",
+        "empty"
+      ],
+      "isMatchAny": false
+    },
+    "fields": [
+      {
+        "name": "houseNumber",
         "type": "string",
         "config": {}
       }

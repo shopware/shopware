@@ -31,6 +31,8 @@ class NewsletterRecipientEntity extends Entity
 
     protected ?string $street = null;
 
+    protected ?string $houseNumber = null;
+
     protected ?string $status = null;
 
     protected string $hash;
@@ -119,6 +121,16 @@ class NewsletterRecipientEntity extends Entity
     public function setStreet(string $street): void
     {
         $this->street = $street;
+    }
+
+    public function getHouseNumber(): ?string
+    {
+        return $this->houseNumber;
+    }
+
+    public function setHouseNumber(string $houseNumber): void
+    {
+        $this->houseNumber = $houseNumber;
     }
 
     public function getStatus(): ?string

@@ -1675,6 +1675,12 @@
           "search_ranking": 250
         }
       },
+      "houseNumber": {
+        "type": "string",
+        "flags": {
+          "search_ranking": 80
+        }
+      },
       "zipcode": {
         "type": "string",
         "flags": {

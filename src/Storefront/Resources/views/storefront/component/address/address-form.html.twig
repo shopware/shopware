@@ -109,6 +109,26 @@
                 } %}
             {% endblock %}
 
+            {% block component_address_form_house_number %}
+                {% if formViolations.getViolations('/houseNumber') is not empty %}
+                    {% set violationPath = '/houseNumber' %}
+                {% elseif formViolations.getViolations("/#{prefix}/houseNumber") is not empty %}
+                    {% set violationPath = "/#{prefix}/houseNumber" %}
+                {% else %}
+                    {% set requiredMessage = 'error.VIOLATION::IS_BLANK_ERROR'|trans({ '%field%': 'address.houseNumberLabel'|trans|sw_sanitize }) %}
+                {% endif %}
+
+                {% sw_include '@Storefront/storefront/component/form/form-input.html.twig' with {
+                    label: 'address.houseNumberLabel'|trans|sw_sanitize,
+                    id: idPrefix ~ prefix ~ '-AddressHouseNumber',
+                    name: prefix ~ '[houseNumber]',
+                    value: data.get('houseNumber'),
+                    violationPath: violationPath,
+                    validationRules: 'required',
+                    additionalClass: 'col-md-6',
+                } %}
+            {% endblock %}
+
             {% block component_address_form_zipcode_city %}
                 {% set zipcodeField %}
                     {% set zipcodeValue = formViolations.getInputData()['zipcode'] ?? data.get('zipcode') %}

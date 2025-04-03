@@ -42,6 +42,7 @@
       "labelCompanyEmail": "Geschäfts-E-Mail-Adresse",
       "labelCompanyPhone": "Geschäfts-Telefon",
       "labelCompanyStreet": "Straße",
+      "labelCompanyHouseNumber": "Hausnummer",
       "labelCompanyUrl": "Geschäfts-Webseite",
       "labelCompanyZipcode": "Postleitzahl",
       "labelPaymentDueDate": "Fälligkeit der Zahlung",

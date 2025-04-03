@@ -49,6 +49,10 @@ const defaultSearchConfiguration = {
             _searchable: true,
             _score: searchRankingPoint.MIDDLE_SEARCH_RANKING,
         },
+        houseNumber: {
+            _searchable: false,
+            _score: searchRankingPoint.LOW_SEARCH_RANKING,
+        },
         zipcode: {
             _searchable: false,
             _score: searchRankingPoint.HIGH_SEARCH_RANKING,

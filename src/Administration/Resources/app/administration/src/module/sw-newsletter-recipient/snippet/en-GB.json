@@ -29,6 +29,7 @@
       "zipCode": "Postal code",
       "city": "City",
       "street": "Street",
+      "houseNumber": "House number",
       "notSet": "Awaiting activation",
       "createdAt": "Created at",
       "updatedAt": "Updated at",

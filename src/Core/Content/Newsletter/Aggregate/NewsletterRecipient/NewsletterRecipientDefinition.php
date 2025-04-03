@@ -56,6 +56,7 @@ class NewsletterRecipientDefinition extends EntityDefinition
             new StringField('zip_code', 'zipCode'),
             new StringField('city', 'city'),
             new StringField('street', 'street'),
+            new StringField('house_number', 'houseNumber'),
             (new StringField('status', 'status'))->addFlags(new Required()),
             (new StringField('hash', 'hash'))->addFlags(new Required()),
             new CustomFields(),

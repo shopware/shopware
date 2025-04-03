@@ -156,7 +156,8 @@ class OrderBuilder
             'firstName' => 'Max',
             'lastName' => 'Mustermann',
             'city' => 'Bielefeld',
-            'street' => 'Buchenweg 5',
+            'street' => 'Buchenweg',
+            'houseNumber' => '5',
             'zipcode' => '33062',
             'country' => [
                 'id' => $this->ids->get($key),

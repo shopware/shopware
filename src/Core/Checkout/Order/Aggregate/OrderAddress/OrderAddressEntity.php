@@ -30,6 +30,8 @@ class OrderAddressEntity extends Entity
 
     protected string $street;
 
+    protected ?string $houseNumber = null;
+
     protected ?string $zipcode = null;
 
     protected string $city;
@@ -122,6 +124,16 @@ class OrderAddressEntity extends Entity
     public function setStreet(string $street): void
     {
         $this->street = $street;
+    }
+
+    public function getHouseNumber(): ?string
+    {
+        return $this->houseNumber;
+    }
+
+    public function setHouseNumber(?string $houseNumber): void
+    {
+        $this->houseNumber = $houseNumber;
     }
 
     public function getZipcode(): ?string

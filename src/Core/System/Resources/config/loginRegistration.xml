@@ -110,6 +110,12 @@
         </input-field>
 
         <input-field type="bool">
+            <name>houseNumberFieldRequired</name>
+            <label>House number field required</label>
+            <label lang="de-DE">Hausnummer ist Pflichtfeld</label>
+        </input-field>
+
+        <input-field type="bool">
             <name>showAdditionalAddressField1</name>
             <label>Show additional address field 1</label>
             <label lang="de-DE">Adresszusatzzeile 1 anzeigen</label>

@@ -40,6 +40,7 @@ class AddressHashSubscriber implements EventSubscriberInterface
                 'department' => $address->getDepartment(),
                 'title' => $address->getTitle(),
                 'street' => $address->getStreet(),
+                'houseNumber' => $address->getHouseNumber(),
                 'additionalAddressLine1' => $address->getAdditionalAddressLine1(),
                 'additionalAddressLine2' => $address->getAdditionalAddressLine2(),
                 'countryId' => $address->getCountryId(),

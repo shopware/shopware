@@ -90,6 +90,7 @@ trait OrderFixture
                             'zipcode' => '59438-0403',
                             'city' => 'Stellaberg',
                             'street' => 'street',
+                            'houseNumber' => '1',
                             'country' => [
                                 'name' => 'kasachstan',
                                 'id' => $countryId,
@@ -153,6 +154,7 @@ trait OrderFixture
                                 'zipcode' => '59438-0403',
                                 'city' => 'Stellaberg',
                                 'street' => 'street',
+                                'houseNumber' => '1',
                                 'countryStateId' => $countryStateId,
                                 'country' => [
                                     'name' => 'kasachstan',
@@ -178,6 +180,7 @@ trait OrderFixture
                         'zipcode' => '59438-0403',
                         'city' => 'Stellaberg',
                         'street' => 'street',
+                        'houseNumber' => '1',
                         'countryId' => $countryId,
                         'id' => $addressId,
                     ],

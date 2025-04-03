@@ -280,7 +280,7 @@ export default {
                 ]
                     .filter((v) => v)
                     .join(' - '),
-                address.street,
+                `${address.street} ${address.houseNumber ?? ''}`.trim(),
                 `${address.zipcode ?? ''} ${address.city}`.trim(),
                 address?.countryState?.translated?.name,
                 address?.country?.translated?.name,

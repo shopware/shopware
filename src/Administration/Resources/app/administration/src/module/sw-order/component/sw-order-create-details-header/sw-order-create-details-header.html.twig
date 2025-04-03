@@ -112,7 +112,7 @@
 
                             <div class="sw-order-create-details-header__customer-result-item text-gray-500">
                                 {% block sw_order_create_search_customer_slot_result_item_address %}
-                                {{ item.defaultBillingAddress.street }} <br>
+                                {{ item.defaultBillingAddress.street }} {{ item.defaultBillingAddress.houseNumber }} <br>
                                 {{ item.defaultBillingAddress.zipcode }} {{ item.defaultBillingAddress.city }} <br>
                                 {{ item.defaultBillingAddress.country.name }}
                                 {% endblock %}

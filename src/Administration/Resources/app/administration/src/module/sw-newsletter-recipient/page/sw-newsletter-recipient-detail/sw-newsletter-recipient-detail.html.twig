@@ -105,6 +105,15 @@
                 />
                 {% endblock %}
 
+                {% block sw_newsletter_recipient_detail_form_house_number %}
+
+                <mt-text-field
+                    v-model="newsletterRecipient.houseNumber"
+                    :label="$tc('sw-newsletter-recipient.list.houseNumber')"
+                    :disabled="!acl.can('newsletter_recipient.editor')"
+                />
+                {% endblock %}
+
                 <sw-container
                     columns="1fr 1fr"
                     gap="10px"

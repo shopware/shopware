@@ -59,6 +59,8 @@ class DocumentConfiguration extends Struct
 
     protected string $companyStreet = '';
 
+    protected ?string $companyHouseNumber = null;
+
     protected string $companyZipcode = '';
 
     protected string $companyCity = '';
@@ -221,6 +223,16 @@ class DocumentConfiguration extends Struct
     public function setCompanyStreet(string $companyStreet): void
     {
         $this->companyStreet = $companyStreet;
+    }
+
+    public function getCompanyHouseNumber(): ?string
+    {
+        return $this->companyHouseNumber;
+    }
+
+    public function setCompanyHouseNumber(?string $companyHouseNumber): void
+    {
+        $this->companyHouseNumber = $companyHouseNumber;
     }
 
     public function getCompanyZipcode(): string

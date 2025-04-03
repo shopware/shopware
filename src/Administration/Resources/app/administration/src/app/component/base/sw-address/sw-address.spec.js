@@ -15,6 +15,7 @@ async function createWrapper() {
                 lastName: 'Doe',
                 company: 'Shopware AG',
                 street: 'Main Street',
+                houseNumber: '123',
                 additionalAddressLine1: 'Floor 23',
                 additionalAddressLine2: 'Secret room 1337',
                 zipcode: '555 Nase',

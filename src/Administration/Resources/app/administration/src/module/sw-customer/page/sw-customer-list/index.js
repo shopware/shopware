@@ -324,6 +324,12 @@ export default {
                     useCustomSort: true,
                 },
                 {
+                    property: 'defaultBillingAddress.houseNumber',
+                    label: 'sw-customer.list.columnHouseNumber',
+                    allowResize: true,
+                    useCustomSort: true,
+                },
+                {
                     property: 'defaultBillingAddress.zipcode',
                     label: 'sw-customer.list.columnZip',
                     align: 'right',

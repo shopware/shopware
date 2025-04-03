@@ -4,10 +4,10 @@ namespace Shopware\Tests\Integration\Core\Checkout\Customer\Rule;
 
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
-use Shopware\Core\Checkout\Cart\Delivery\Struct\ShippingLocation;
 use Shopware\Core\Checkout\CheckoutRuleScope;
 use Shopware\Core\Checkout\Customer\Aggregate\CustomerAddress\CustomerAddressEntity;
-use Shopware\Core\Checkout\Customer\Rule\ShippingStreetRule;
+use Shopware\Core\Checkout\Customer\CustomerEntity;
+use Shopware\Core\Checkout\Customer\Rule\BillingHouseNumberRule;
 use Shopware\Core\Content\Rule\Aggregate\RuleCondition\RuleConditionCollection;
 use Shopware\Core\Content\Rule\RuleCollection;
 use Shopware\Core\Framework\Context;
@@ -20,7 +20,6 @@ use Shopware\Core\Framework\Rule\Rule;
 use Shopware\Core\Framework\Test\TestCaseBase\DatabaseTransactionBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
-use Shopware\Core\System\Country\CountryEntity;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Component\Validator\Constraints\Choice;
 use Symfony\Component\Validator\Constraints\NotBlank;
@@ -30,7 +29,7 @@ use Symfony\Component\Validator\Constraints\Type;
  * @internal
  */
 #[Package('fundamentals@after-sales')]
-class ShippingStreetRuleTest extends TestCase
+class BillingHouseNumberRuleTest extends TestCase
 {
     use DatabaseTransactionBehaviour;
     use KernelTestBehaviour;
@@ -47,22 +46,22 @@ class ShippingStreetRuleTest extends TestCase
 
     private Context $context;
 
-    private ShippingStreetRule $rule;
+    private BillingHouseNumberRule $rule;
 
     protected function setUp(): void
     {
         $this->ruleRepository = static::getContainer()->get('rule.repository');
         $this->conditionRepository = static::getContainer()->get('rule_condition.repository');
         $this->context = Context::createDefaultContext();
-        $this->rule = new ShippingStreetRule();
+        $this->rule = new BillingHouseNumberRule();
     }
 
-    public function testValidateWithoutValue(): void
+    public function testValidationWithMissingHouseNumber(): void
     {
         try {
             $this->conditionRepository->create([
                 [
-                    'type' => (new ShippingStreetRule())->getName(),
+                    'type' => (new BillingHouseNumberRule())->getName(),
                     'ruleId' => Uuid::randomHex(),
                 ],
             ], $this->context);
@@ -70,7 +69,7 @@ class ShippingStreetRuleTest extends TestCase
         } catch (WriteException $stackException) {
             $exceptions = iterator_to_array($stackException->getErrors());
             static::assertCount(2, $exceptions);
-            static::assertSame('/0/value/streetName', $exceptions[1]['source']['pointer']);
+            static::assertSame('/0/value/houseNumber', $exceptions[1]['source']['pointer']);
             static::assertSame(NotBlank::IS_BLANK_ERROR, $exceptions[1]['code']);
 
             static::assertSame('/0/value/operator', $exceptions[0]['source']['pointer']);
@@ -78,16 +77,16 @@ class ShippingStreetRuleTest extends TestCase
         }
     }
 
-    public function testValidateWithEmptyStreetName(): void
+    public function testValidationWithEmptyHouseNumber(): void
     {
         try {
             $this->conditionRepository->create([
                 [
-                    'type' => (new ShippingStreetRule())->getName(),
+                    'type' => (new BillingHouseNumberRule())->getName(),
                     'ruleId' => Uuid::randomHex(),
                     'value' => [
-                        'streetName' => '',
-                        'operator' => ShippingStreetRule::OPERATOR_EQ,
+                        'houseNumber' => '',
+                        'operator' => BillingHouseNumberRule::OPERATOR_EQ,
                     ],
                 ],
             ], $this->context);
@@ -95,21 +94,21 @@ class ShippingStreetRuleTest extends TestCase
         } catch (WriteException $stackException) {
             $exceptions = iterator_to_array($stackException->getErrors());
             static::assertCount(1, $exceptions);
-            static::assertSame('/0/value/streetName', $exceptions[0]['source']['pointer']);
+            static::assertSame('/0/value/houseNumber', $exceptions[0]['source']['pointer']);
             static::assertSame(NotBlank::IS_BLANK_ERROR, $exceptions[0]['code']);
         }
     }
 
-    public function testValidateWithInvalidStreetNameType(): void
+    public function testValidateWithInvalidHouseNumberType(): void
     {
         try {
             $this->conditionRepository->create([
                 [
-                    'type' => (new ShippingStreetRule())->getName(),
+                    'type' => (new BillingHouseNumberRule())->getName(),
                     'ruleId' => Uuid::randomHex(),
                     'value' => [
-                        'streetName' => true,
-                        'operator' => ShippingStreetRule::OPERATOR_EQ,
+                        'houseNumber' => true,
+                        'operator' => BillingHouseNumberRule::OPERATOR_EQ,
                     ],
                 ],
             ], $this->context);
@@ -117,7 +116,7 @@ class ShippingStreetRuleTest extends TestCase
         } catch (WriteException $stackException) {
             $exceptions = iterator_to_array($stackException->getErrors());
             static::assertCount(1, $exceptions);
-            static::assertSame('/0/value/streetName', $exceptions[0]['source']['pointer']);
+            static::assertSame('/0/value/houseNumber', $exceptions[0]['source']['pointer']);
             static::assertSame(Type::INVALID_TYPE_ERROR, $exceptions[0]['code']);
         }
     }
@@ -134,11 +133,11 @@ class ShippingStreetRuleTest extends TestCase
         $this->conditionRepository->create([
             [
                 'id' => $id,
-                'type' => (new ShippingStreetRule())->getName(),
+                'type' => (new BillingHouseNumberRule())->getName(),
                 'ruleId' => $ruleId,
                 'value' => [
-                    'streetName' => 'Street',
-                    'operator' => ShippingStreetRule::OPERATOR_EQ,
+                    'houseNumber' => '1',
+                    'operator' => BillingHouseNumberRule::OPERATOR_EQ,
                 ],
             ],
         ], $this->context);
@@ -164,29 +163,61 @@ class ShippingStreetRuleTest extends TestCase
         static::assertEquals(new Choice($expectedOperators), $operators[1]);
 
         $this->rule->assign(['operator' => Rule::OPERATOR_EQ]);
-        static::assertArrayHasKey('streetName', $ruleConstraints, 'Constraint streetName not found in Rule');
-        $streetName = $ruleConstraints['streetName'];
-        static::assertEquals(new NotBlank(), $streetName[0]);
-        static::assertEquals(new Type('string'), $streetName[1]);
+        static::assertArrayHasKey('houseNumber', $ruleConstraints, 'Constraint houseNumber not found in Rule');
+        $houseNumber = $ruleConstraints['houseNumber'];
+        static::assertEquals(new NotBlank(), $houseNumber[0]);
+        static::assertEquals(new Type('string'), $houseNumber[1]);
+    }
+
+    public function testUnsupportedValue(): void
+    {
+        try {
+            $rule = new BillingHouseNumberRule();
+            $salesChannelContext = $this->createMock(SalesChannelContext::class);
+            $customer = new CustomerEntity();
+            $customer->setActiveBillingAddress(new CustomerAddressEntity());
+            $salesChannelContext->method('getCustomer')->willReturn($customer);
+            $rule->match(new CheckoutRuleScope($salesChannelContext));
+            static::fail('Exception was not thrown');
+        } catch (\Throwable $exception) {
+            static::assertInstanceOf(UnsupportedValueException::class, $exception);
+        }
+    }
+
+    public function testRuleNotMatchingWithoutAddress(): void
+    {
+        $this->rule->assign(['houseNumber' => 'foo', 'operator' => Rule::OPERATOR_EQ]);
+        $salesChannelContext = $this->createMock(SalesChannelContext::class);
+
+        static::assertFalse($this->rule->match(new CheckoutRuleScope($salesChannelContext)));
+
+        $customer = new CustomerEntity();
+        $salesChannelContext->method('getCustomer')->willReturn($customer);
+
+        static::assertFalse($this->rule->match(new CheckoutRuleScope($salesChannelContext)));
     }
 
     #[DataProvider('getMatchValues')]
-    public function testRuleMatching(string $operator, bool $isMatching, string $shippingStreet, bool $noAddress = false): void
+    public function testRuleMatching(string $operator, bool $isMatching, string $billingHouseNumber, bool $noCustomer = false, bool $noAddress = false): void
     {
-        $streetName = 'kyln';
+        $houseNumber = '123';
         $salesChannelContext = $this->createMock(SalesChannelContext::class);
-
         $customerAddress = new CustomerAddressEntity();
-        $customerAddress->setStreet($shippingStreet);
+        $customerAddress->setHouseNumber($billingHouseNumber);
 
-        if ($noAddress) {
-            $customerAddress = null;
+        $customer = new CustomerEntity();
+
+        if (!$noAddress) {
+            $customer->setActiveBillingAddress($customerAddress);
         }
 
-        $location = new ShippingLocation(new CountryEntity(), null, $customerAddress);
-        $salesChannelContext->method('getShippingLocation')->willReturn($location);
+        if ($noCustomer) {
+            $customer = null;
+        }
+
+        $salesChannelContext->method('getCustomer')->willReturn($customer);
         $scope = new CheckoutRuleScope($salesChannelContext);
-        $this->rule->assign(['streetName' => $streetName, 'operator' => $operator]);
+        $this->rule->assign(['houseNumber' => $houseNumber, 'operator' => $operator]);
 
         $match = $this->rule->match($scope);
         if ($isMatching) {
@@ -201,28 +232,20 @@ class ShippingStreetRuleTest extends TestCase
      */
     public static function getMatchValues(): \Traversable
     {
-        yield 'operator_eq / not match / street' => [Rule::OPERATOR_EQ, false, 'nova'];
-        yield 'operator_eq / match / street' => [Rule::OPERATOR_EQ, true, 'kyln'];
-        yield 'operator_neq / match / street' => [Rule::OPERATOR_NEQ, true, 'nova'];
-        yield 'operator_neq / not match / street' => [Rule::OPERATOR_NEQ, false, 'kyln'];
-        yield 'operator_empty / not match / street' => [Rule::OPERATOR_NEQ, false, 'kyln'];
-        yield 'operator_empty / match / street' => [Rule::OPERATOR_EMPTY, true, ' '];
+        yield 'operator_oq / not match / house number' => [Rule::OPERATOR_EQ, false, '000'];
+        yield 'operator_oq / match / house number' => [Rule::OPERATOR_EQ, true, '123'];
+        yield 'operator_neq / match / house number' => [Rule::OPERATOR_NEQ, true, '000'];
+        yield 'operator_neq / not match / house number' => [Rule::OPERATOR_NEQ, false, '123'];
+        yield 'operator_empty / not match / house number' => [Rule::OPERATOR_NEQ, false, '123'];
+        yield 'operator_empty / match / house number' => [Rule::OPERATOR_EMPTY, true, ' '];
 
-        yield 'operator_neq / match / no customer' => [Rule::OPERATOR_NEQ, true, 'ky', true];
-        yield 'operator_empty / match / no customer' => [Rule::OPERATOR_EMPTY, true, 'ky', true];
-    }
+        yield 'operator_eq / no match / no customer' => [Rule::OPERATOR_EQ, false, '', true];
+        yield 'operator_eq / no match / no address' => [Rule::OPERATOR_EQ, false, '', false, true];
 
-    public function testUnsupportedValue(): void
-    {
-        try {
-            $rule = new ShippingStreetRule();
-            $salesChannelContext = $this->createMock(SalesChannelContext::class);
-            $location = new ShippingLocation(new CountryEntity(), null, new CustomerAddressEntity());
-            $salesChannelContext->method('getShippingLocation')->willReturn($location);
-            $rule->match(new CheckoutRuleScope($salesChannelContext));
-            static::fail('Exception was not thrown');
-        } catch (\Throwable $exception) {
-            static::assertInstanceOf(UnsupportedValueException::class, $exception);
-        }
+        yield 'operator_empty / match / no customer' => [Rule::OPERATOR_EMPTY, true, '', true];
+        yield 'operator_empty / match / no address' => [Rule::OPERATOR_EMPTY, true, '', false, true];
+
+        yield 'operator_neq / match / no customer' => [Rule::OPERATOR_NEQ, true, '', true];
+        yield 'operator_neq / match / no address' => [Rule::OPERATOR_NEQ, true, '', false, true];
     }
 }

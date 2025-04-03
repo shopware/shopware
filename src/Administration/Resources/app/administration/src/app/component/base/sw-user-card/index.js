@@ -21,7 +21,8 @@ const { Component } = Shopware;
  *         title: 'Doctor',
  *         firstName: 'John',
  *         lastName: 'Doe',
- *         street: 'Main St 123',
+ *         street: 'Main St',
+ *         houseNumber: '123',
  *         zipcode: '12456',
  *         city: 'Anytown',
  *         country: { name: 'Germany' }
@@ -30,7 +31,8 @@ const { Component } = Shopware;
  *     title: 'Doctor',
  *     firstName: 'John',
  *     lastName: 'Doe',
- *     street: 'Main St 123',
+ *     street: 'Main St',
+ *     houseNumber: '123',
  *     zipcode: '12456',
  *     city: 'Anytown',
  *     country: { name: 'Germany' }

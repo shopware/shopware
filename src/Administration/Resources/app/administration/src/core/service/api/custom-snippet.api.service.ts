@@ -29,6 +29,7 @@ interface Address {
     firstName: string;
     lastName: string;
     street: string;
+    houseNumber?: string;
     zipcode?: string;
     city: string;
     country: Country;

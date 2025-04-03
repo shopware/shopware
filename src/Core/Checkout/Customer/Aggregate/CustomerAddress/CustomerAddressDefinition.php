@@ -30,6 +30,7 @@ class CustomerAddressDefinition extends EntityDefinition
     public const MAX_LENGTH_LAST_NAME = 60;
     public const MAX_LENGTH_TITLE = 100;
     public const MAX_LENGTH_ZIPCODE = 50;
+    public const MAX_LENGTH_HOUSE_NUMBER = 30;
 
     public function getEntityName(): string
     {
@@ -73,6 +74,7 @@ class CustomerAddressDefinition extends EntityDefinition
             (new StringField('city', 'city'))->addFlags(new ApiAware(), new Required(), new SearchRanking(SearchRanking::MIDDLE_SEARCH_RANKING)),
             (new StringField('company', 'company'))->addFlags(new ApiAware(), new SearchRanking(SearchRanking::MIDDLE_SEARCH_RANKING)),
             (new StringField('street', 'street'))->addFlags(new ApiAware(), new Required(), new SearchRanking(SearchRanking::HIGH_SEARCH_RANKING)),
+            (new StringField('house_number', 'houseNumber', self::MAX_LENGTH_HOUSE_NUMBER))->addFlags(new ApiAware(), new SearchRanking(SearchRanking::LOW_SEARCH_RANKING)),
             (new StringField('department', 'department'))->addFlags(new ApiAware()),
             (new StringField('title', 'title', self::MAX_LENGTH_TITLE))->addFlags(new ApiAware()),
             (new StringField('phone_number', 'phoneNumber', self::MAX_LENGTH_PHONE_NUMBER))->addFlags(new ApiAware()),

@@ -1,6 +1,9 @@
 {# @internal #}
 {% block sw_snippet_element_street %}
     {{ address.street }}
+    {% if address.houseNumber %}
+        {{ address.houseNumber }}
+    {% endif %}
     {% if address.additionalAddressLine1 %}
         <br>{{ address.additionalAddressLine1 }}
     {% endif %}

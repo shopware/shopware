@@ -32,6 +32,7 @@
                     "city": { "type": "string" },
                     "company": { "type": "string" },
                     "street": { "type": "string" },
+                    "houseNumber": { "type": "string" },
                     "department": { "type": "string" },
                     "title": { "type": "string" },
                     "phoneNumber": { "type": "string" },

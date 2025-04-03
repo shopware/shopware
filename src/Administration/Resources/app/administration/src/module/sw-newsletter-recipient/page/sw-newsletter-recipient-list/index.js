@@ -238,6 +238,12 @@ export default {
                     visible: false,
                 },
                 {
+                    property: 'houseNumber',
+                    label: 'sw-newsletter-recipient.list.houseNumber',
+                    allowResize: true,
+                    visible: false,
+                },
+                {
                     property: 'updatedAt',
                     label: 'sw-newsletter-recipient.list.updatedAt',
                     allowResize: true,

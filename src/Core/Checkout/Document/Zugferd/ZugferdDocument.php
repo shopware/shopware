@@ -78,7 +78,7 @@ class ZugferdDocument
             ->setDocumentBuyer($customerName, $customer->getCustomerNumber())
             ->setDocumentBuyerCommunication('EM', $customer->getEmail())
             ->setDocumentBuyerAddress(
-                $billingAddress->getStreet(),
+                trim($billingAddress->getStreet() . ' ' . ($billingAddress->getHouseNumber() ?? '')),
                 $billingAddress->getAdditionalAddressLine1(),
                 $billingAddress->getAdditionalAddressLine2(),
                 $billingAddress->getZipcode(),
@@ -93,7 +93,7 @@ class ZugferdDocument
     public function withSellerInformation(DocumentConfiguration $documentConfig): self
     {
         $sellerAddress = [
-            'lineOne' => $documentConfig->getCompanyStreet(),
+            'lineOne' => trim($documentConfig->getCompanyStreet() . ' ' . ($documentConfig->getCompanyHouseNumber() ?? '')),
             'postCode' => $documentConfig->getCompanyZipcode(),
             'city' => $documentConfig->getCompanyCity(),
             'country' => $documentConfig->getCompanyCountry()?->getIso(),

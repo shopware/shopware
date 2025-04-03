@@ -101,6 +101,18 @@
         />
         {% endblock %}
 
+        {% block sw_customer_address_form_house_number_field %}
+
+        <mt-text-field
+            v-model="address.houseNumber"
+            name="sw-field--address-houseNumber"
+            :label="$tc('sw-customer.addressForm.labelHouseNumber')"
+            :placeholder="$tc('sw-customer.addressForm.placeholderHouseNumber')"
+            :error="disabled ? null : addressHouseNumberError"
+            :disabled="disabled"
+        />
+        {% endblock %}
+
         {% block sw_customer_address_form_additional_address_line_1_field %}
 
         <mt-text-field

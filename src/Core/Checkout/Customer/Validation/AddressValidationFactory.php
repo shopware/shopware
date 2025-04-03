@@ -79,6 +79,11 @@ class AddressValidationFactory implements DataValidationFactoryInterface
             $definition->add('phoneNumber', new Length(['max' => CustomerAddressDefinition::MAX_LENGTH_PHONE_NUMBER], null, null, null, null, null, 'VIOLATION::PHONE_NUMBER_IS_TOO_LONG'));
         }
 
+        if ($this->systemConfigService->get('core.loginRegistration.houseNumberFieldRequired', $salesChannelId)) {
+            $definition->add('houseNumber', new NotBlank(null, 'VIOLATION::HOUSE_NUMBER_IS_BLANK_ERROR'));
+            $definition->add('houseNumber', new Length(['max' => CustomerAddressDefinition::MAX_LENGTH_HOUSE_NUMBER], null, null, null, null, null, 'VIOLATION::HOUSE_NUMBER_IS_TOO_LONG'));
+        }
+
         return $definition;
     }
 }

@@ -136,7 +136,7 @@ class BillingStreetRuleTest extends TestCase
                 'type' => (new BillingStreetRule())->getName(),
                 'ruleId' => $ruleId,
                 'value' => [
-                    'streetName' => 'Street 1',
+                    'streetName' => 'Street',
                     'operator' => BillingStreetRule::OPERATOR_EQ,
                 ],
             ],
@@ -200,7 +200,7 @@ class BillingStreetRuleTest extends TestCase
     #[DataProvider('getMatchValues')]
     public function testRuleMatching(string $operator, bool $isMatching, string $billingStreet, bool $noCustomer = false, bool $noAddress = false): void
     {
-        $streetName = 'kyln123';
+        $streetName = 'kyln';
         $salesChannelContext = $this->createMock(SalesChannelContext::class);
         $customerAddress = new CustomerAddressEntity();
         $customerAddress->setStreet($billingStreet);
@@ -232,11 +232,11 @@ class BillingStreetRuleTest extends TestCase
      */
     public static function getMatchValues(): \Traversable
     {
-        yield 'operator_oq / not match / street' => [Rule::OPERATOR_EQ, false, 'kyln000'];
-        yield 'operator_oq / match / street' => [Rule::OPERATOR_EQ, true, 'kyln123'];
-        yield 'operator_neq / match / street' => [Rule::OPERATOR_NEQ, true, 'kyln000'];
-        yield 'operator_neq / not match / street' => [Rule::OPERATOR_NEQ, false, 'kyln123'];
-        yield 'operator_empty / not match / street' => [Rule::OPERATOR_NEQ, false, 'kyln123'];
+        yield 'operator_oq / not match / street' => [Rule::OPERATOR_EQ, false, 'nova'];
+        yield 'operator_oq / match / street' => [Rule::OPERATOR_EQ, true, 'kyln'];
+        yield 'operator_neq / match / street' => [Rule::OPERATOR_NEQ, true, 'nova'];
+        yield 'operator_neq / not match / street' => [Rule::OPERATOR_NEQ, false, 'kyln'];
+        yield 'operator_empty / not match / street' => [Rule::OPERATOR_NEQ, false, 'kyln'];
         yield 'operator_empty / match / street' => [Rule::OPERATOR_EMPTY, true, ' '];
 
         yield 'operator_eq / no match / no customer' => [Rule::OPERATOR_EQ, false, '', true];

@@ -84,6 +84,10 @@
             <tag name="shopware.rule.definition"/>
         </service>
 
+        <service id="Shopware\Core\Checkout\Customer\Rule\BillingHouseNumberRule">
+            <tag name="shopware.rule.definition"/>
+        </service>
+
         <service id="Shopware\Core\Checkout\Customer\Rule\BillingZipCodeRule">
             <tag name="shopware.rule.definition"/>
         </service>
@@ -145,6 +149,10 @@
         </service>
 
         <service id="Shopware\Core\Checkout\Customer\Rule\ShippingStreetRule">
+            <tag name="shopware.rule.definition"/>
+        </service>
+
+        <service id="Shopware\Core\Checkout\Customer\Rule\ShippingHouseNumberRule">
             <tag name="shopware.rule.definition"/>
         </service>
 

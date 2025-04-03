@@ -73,7 +73,8 @@ class ListAddressRouteTest extends TestCase
         static::assertNotEmpty($response['elements']);
         static::assertSame('Max', $response['elements'][0]['firstName']);
         static::assertSame('Mustermann', $response['elements'][0]['lastName']);
-        static::assertSame('Musterstraße 1', $response['elements'][0]['street']);
+        static::assertSame('Musterstraße', $response['elements'][0]['street']);
+        static::assertSame('1', $response['elements'][0]['houseNumber']);
         static::assertSame('Schöppingen', $response['elements'][0]['city']);
         static::assertSame('12345', $response['elements'][0]['zipcode']);
         static::assertSame($this->getValidCountryId(), $response['elements'][0]['countryId']);
@@ -125,7 +126,8 @@ class ListAddressRouteTest extends TestCase
         static::assertNotEmpty($response['elements']);
         static::assertSame('Max', $response['elements'][0]['firstName']);
         static::assertSame('Mustermann', $response['elements'][0]['lastName']);
-        static::assertSame('Musterstraße 1', $response['elements'][0]['street']);
+        static::assertSame('Musterstraße', $response['elements'][0]['street']);
+        static::assertSame('1', $response['elements'][0]['houseNumber']);
         static::assertSame('Schöppingen', $response['elements'][0]['city']);
         static::assertSame('12345', $response['elements'][0]['zipcode']);
         static::assertSame($this->getValidCountryId(), $response['elements'][0]['countryId']);

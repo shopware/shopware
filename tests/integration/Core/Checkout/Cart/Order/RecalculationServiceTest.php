@@ -1649,7 +1649,8 @@ class RecalculationServiceTest extends TestCase
         $address->setCountryId($this->getValidCountryId());
         $address->setFirstName('Max');
         $address->setLastName('Mustermann');
-        $address->setStreet('Musterstraße 1');
+        $address->setStreet('Musterstraße');
+        $address->setHouseNumber('1');
         $address->setZipcode('12345');
         $address->setCity('Musterstadt');
 

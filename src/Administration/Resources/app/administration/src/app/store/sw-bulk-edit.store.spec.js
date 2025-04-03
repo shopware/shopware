@@ -2,7 +2,7 @@
  * @sw-package framework
  */
 
-describe('src/module/sw-bulk-edit/state/sw-bulk-edit.state', () => {
+describe('src/app/store/sw-bulk-edit.store', () => {
     it('should be able to setIsFlowTriggered', async () => {
         const state = Shopware.Store.get('swBulkEdit');
 

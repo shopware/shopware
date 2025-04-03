@@ -23,14 +23,14 @@ Install the GitHub CLI tool (`gh`) and use:
 gh pr checkout <PR-ID>
 ```
 
-This allows you to checkout PRs and push against them directly without configuring remotes.
+This allows you to check out PRs and push against them directly without configuring remotes.
 
 ### Using IDE Integration
 
-Most modern IDEs have GitHub integrations that allows you to:
+Most modern IDEs have GitHub integrations that allow you to:
 - Browse all PRs
 - Review PR files
-- Checkout PRs with a single click
+- Check out PRs with a single click
 
 ## Pushing Changes to External PRs
 

@@ -3,7 +3,6 @@ import Debouncer from 'src/helper/debouncer.helper';
 /** @deprecated tag:v6.8.0 - HttpClient is deprecated. Use native fetch API instead. */
 import HttpClient from 'src/service/http-client.service';
 import ButtonLoadingIndicator from 'src/utility/loading-indicator/button-loading-indicator.util';
-import DeviceDetection from 'src/helper/device-detection.helper';
 
 export default class SearchWidgetPlugin extends Plugin {
 
@@ -35,6 +34,8 @@ export default class SearchWidgetPlugin extends Plugin {
         /** @deprecated tag:v6.8.0 - HttpClient is deprecated. Use native fetch API instead. */
         this._client = new HttpClient();
 
+        this.searchSuggestLinks = [];
+
         this._registerEvents();
     }
 
@@ -58,8 +59,7 @@ export default class SearchWidgetPlugin extends Plugin {
         this.el.addEventListener('submit', this._handleSearchEvent.bind(this));
 
         // add click event listener to body
-        const event = (DeviceDetection.isTouchDevice()) ? 'touchstart' : 'click';
-        document.body.addEventListener(event, this._onBodyClick.bind(this));
+        document.body.addEventListener('click', this._onBodyClick.bind(this));
 
         // add click event for mobile search
         this._registerInputFocus();
@@ -112,30 +112,22 @@ export default class SearchWidgetPlugin extends Plugin {
 
         event.preventDefault();
 
-        const searchSuggest = document.querySelector(this.options.searchWidgetResultSelector);
-        if (!searchSuggest) {
+        if (!this.searchSuggestLinks || !this.searchSuggestLinks.length) {
             return;
         }
 
-        const searchSuggestItems = searchSuggest.querySelectorAll(this.options.searchWidgetResultItemSelector);
-        const firstItem = searchSuggestItems[0];
-
-        if (!firstItem) {
-            return;
-        }
-
-        const firstAnchor = firstItem.querySelector('a');
-        window.focusHandler.setFocus(firstAnchor, { focusVisible: true, preventScroll: true });
+        window.focusHandler.setFocus(this.searchSuggestLinks[0], { focusVisible: true });
     }
 
     /**
      * Handles the keydown event on the search suggestions list,
      * to move the focus up or down the list.
      * 
+     * @param {number} index
      * @param {Event} event
      * @private
      */
-    _handleSearchItemKeyEvent(event) {
+    _handleSearchItemKeyEvent(index, event) {
         if (event.key !== 'ArrowDown' && 
             event.key !== 'ArrowUp') {
             return;
@@ -146,56 +138,40 @@ export default class SearchWidgetPlugin extends Plugin {
         event.stopImmediatePropagation();
 
         if (event.key === 'ArrowDown') {
-            this._moveFocusDown(event.target);
+            this._moveFocusDown(index);
         }
 
         if (event.key === 'ArrowUp') {
-            this._moveFocusUp(event.target);
+            this._moveFocusUp(index);
         }
     }
 
     /**
      * Moves the focus up the search results list.
      * 
-     * @param {EventTarget} eventTarget
+     * @param {number} currentIndex
      * @private
      */
-    _moveFocusUp(eventTarget) {
-        const listItem = eventTarget.closest(this.options.searchWidgetResultItemSelector);
-        if (!listItem) {
-            return;
-        }
-
-        const previousItem = listItem.previousElementSibling;
-
-        if (!previousItem) {
+    _moveFocusUp(currentIndex) {
+        if (currentIndex === 0) {
             // Focus back on the input field.
-            window.focusHandler.setFocus(this._inputField, { focusVisible: true, preventScroll: true });
+            window.focusHandler.setFocus(this._inputField, { focusVisible: true });
         } else {
-            const previousAnchor = previousItem.querySelector('a');
-
-            window.focusHandler.setFocus(previousAnchor, { focusVisible: true, preventScroll: true });
+            const previousItem = this.searchSuggestLinks[currentIndex - 1];
+            window.focusHandler.setFocus(previousItem, { focusVisible: true });
         }
     }
 
     /**
      * Moves the focus down the search results list.
      * 
-     * @param {EventTarget} eventTarget
+     * @param {number} currentIndex
      * @private
      */
-    _moveFocusDown(eventTarget) {
-        const listItem = eventTarget.closest(this.options.searchWidgetResultItemSelector);
-        if (!listItem) {
-            return;
-        }
-
-        const nextItem = listItem.nextElementSibling;
-
-        if (nextItem) {
-            const nextAnchor = nextItem.querySelector('a');
-
-            window.focusHandler.setFocus(nextAnchor, { focusVisible: true, preventScroll: true });
+    _moveFocusDown(currentIndex) {
+        if (currentIndex < this.searchSuggestLinks.length) {
+            const nextItem = this.searchSuggestLinks[currentIndex + 1];
+            window.focusHandler.setFocus(nextItem, { focusVisible: true });
         }
     }
 
@@ -231,14 +207,21 @@ export default class SearchWidgetPlugin extends Plugin {
                 this._inputField.setAttribute('aria-expanded', 'true');
 
                 const searchSuggest = document.querySelector(this.options.searchWidgetResultSelector);
-                const searchSuggestItems = searchSuggest.querySelectorAll(this.options.searchWidgetResultItemSelector);
 
-                searchSuggestItems.forEach(item => {
-                    const anchor = item.querySelector('a');
-                    anchor.addEventListener('keydown', this._handleSearchItemKeyEvent.bind(this));
+                this.searchSuggestLinks = Array.from(window.focusHandler.getFocusableElements(searchSuggest));
+
+                this.searchSuggestLinks.forEach((item, index) => {
+                    item.addEventListener('keydown', this._handleSearchItemKeyEvent.bind(this, index));
                 });
 
                 this.$emitter.publish('afterSuggest');
+            })
+            .catch(() => {
+                // remove indicator
+                indicator.remove();
+                
+                // clear any existing results
+                this._clearSuggestResults();
             });
     }
 
@@ -272,6 +255,7 @@ export default class SearchWidgetPlugin extends Plugin {
         if (e.target.closest(this.options.searchWidgetResultSelector)) {
             return;
         }
+
         // remove existing search results popover
         this._clearSuggestResults();
 
@@ -296,14 +280,10 @@ export default class SearchWidgetPlugin extends Plugin {
         this._toggleButton = document.querySelector(this.options.searchWidgetCollapseButtonSelector);
 
         if (!this._toggleButton) {
-            console.warn(`Called selector '${this.options.searchWidgetCollapseButtonSelector}' for the search toggle button not found. Autofocus has been disabled on mobile.`);
             return;
         }
 
-        const event = (DeviceDetection.isTouchDevice()) ? 'touchstart' : 'click';
-        this._toggleButton.addEventListener(event, () => {
-            setTimeout(() => this._focusInput(), 0);
-        });
+        this._toggleButton.addEventListener('click', this._focusInput.bind(this));
     }
 
     /**

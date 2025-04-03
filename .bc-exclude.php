@@ -32,5 +32,8 @@ return [
 
         // Fix to make promotions work with order recalculation
         'Value of constant Shopware\\\\Core\\\\Checkout\\\\Cart\\\\Order\\\\OrderConverter::ADMIN_EDIT_ORDER_PERMISSIONS changed from array \((\n.*)*skipPromotion.*(\n.*)*to array \((\n.*)*pinAutomaticPromotions',
+
+        // Add address house number field to the default address format
+        'CHANGED: Value of constant Shopware\\\\Core\\\\System\\\\Country\\\\CountryDefinition::DEFAULT_ADDRESS_FORMAT changed from array \(.*'
     ],
 ];

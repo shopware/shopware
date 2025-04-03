@@ -213,6 +213,23 @@ export default {
             }
         },
 
+        getItemName(product) {
+            const name = product.name ? product.name : product.translated.name;
+            if (name) {
+                return name;
+            }
+
+            const parent = this.parentProducts.find((parentProduct) => {
+                return parentProduct.id === product.parentId;
+            });
+
+            if (parent) {
+                return parent.name ? parent.name : product.translated.name;
+            }
+
+            return null;
+        },
+
         getManufacturer(product) {
             if (product.manufacturerId) {
                 return product.manufacturer;

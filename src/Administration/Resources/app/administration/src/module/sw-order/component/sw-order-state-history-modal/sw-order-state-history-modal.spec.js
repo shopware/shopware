@@ -271,21 +271,24 @@ describe('src/module/sw-order/component/sw-order-state-history-modal', () => {
     });
 
     it('should not enumerate single transaction', async () => {
-        const wrapper = await createWrapper({}, {
-            ...orderProp,
-            transactions: getCollection('order_transaction', [
-                {
-                    id: '2',
-                    stateMachineState: {
-                        technicalName: 'open',
-                        translated: {
-                            name: 'Open',
+        const wrapper = await createWrapper(
+            {},
+            {
+                ...orderProp,
+                transactions: getCollection('order_transaction', [
+                    {
+                        id: '2',
+                        stateMachineState: {
+                            technicalName: 'open',
+                            translated: {
+                                name: 'Open',
+                            },
                         },
+                        getEntityName: () => 'order_transaction',
                     },
-                    getEntityName: () => 'order_transaction',
-                },
-            ])
-        });
+                ]),
+            },
+        );
 
         const spy = jest.spyOn(wrapper.vm, 'enumerateTransaction');
 

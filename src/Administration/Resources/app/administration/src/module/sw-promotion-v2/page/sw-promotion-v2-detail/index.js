@@ -127,6 +127,10 @@ export default {
         this.createdComponent();
     },
 
+    beforeRouteLeave() {
+        Shopware.Store.get('shopwareApps').selectedIds = [];
+    },
+
     methods: {
         createdComponent() {
             Shopware.ExtensionAPI.publishData({
@@ -147,6 +151,10 @@ export default {
 
                 return;
             }
+
+            Shopware.Store.get('shopwareApps').selectedIds = [
+                this.promotionId,
+            ];
 
             this.loadEntityData();
         },

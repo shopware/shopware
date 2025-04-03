@@ -178,11 +178,11 @@
                                 {% block sw_media_modal_folder_settings_thumbnail_size_switch %}
 
                                 <mt-switch
-                                    :checked="isThumbnailSizeActive(size)"
+                                    :model-value="isThumbnailSizeActive(size)"
                                     :name="thumbnailSizeCheckboxName(size)"
                                     :label="thumbnailSizeFilter(size)"
                                     :disabled="notEditable"
-                                    @change="onChangeThumbnailSize($event, size)"
+                                    @update:model-value="onChangeThumbnailSize($event, size)"
                                 />
                                 {% endblock %}
 

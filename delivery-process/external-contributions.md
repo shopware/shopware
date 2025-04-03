@@ -73,3 +73,5 @@ If you need more control or are experiencing issues with the GitHub CLI:
 
 If the contributor has not enabled "Allow edits from maintainers", ask them politely to enable this option.
 If they don't respond or refuse, you may need to create a new PR and close the old one (though this should be avoided if possible as it's less collaborative).
+In that case, make sure that you set the author of the new commits to the original contributor.
+You can use tools like `lazygit` for this.

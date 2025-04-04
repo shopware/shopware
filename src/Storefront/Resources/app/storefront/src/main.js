@@ -121,6 +121,11 @@ PluginManager.register('SpatialArViewer', () => import('src/plugin/spatial/spati
  */
 PluginManager.register('PageQrcodeGenerator', () => import('src/plugin/qrcode/page-qrcode-generator'), '[data-page-qrcode-generator]');
 
+/**
+ * Store affiliate and campaign codes in cookies
+ */
+PluginManager.register('AffiliateTracking', () => import('src/plugin/affiliate-tracking/affiliate-tracking.plugin'), 'body');
+
 if (window.useDefaultCookieConsent) {
     PluginManager.register('CookiePermission', () => import('src/plugin/cookie/cookie-permission.plugin'), '[data-cookie-permission]');
     PluginManager.register('CookieConfiguration', () => import('src/plugin/cookie/cookie-configuration.plugin'), '[data-cookie-permission]');

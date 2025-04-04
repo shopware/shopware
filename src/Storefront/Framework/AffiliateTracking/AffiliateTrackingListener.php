@@ -13,6 +13,7 @@ use Symfony\Component\HttpKernel\KernelEvents;
 
 /**
  * @internal
+ * @deprecated tag:v6.8.0 - Will be removed in v6.8.0. Use cookies for affiliate and campaign tracking instead.
  */
 #[Package('framework')]
 class AffiliateTrackingListener implements EventSubscriberInterface

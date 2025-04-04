@@ -183,7 +183,10 @@ export default {
         },
 
         updateLoading(loadingValue) {
-            Store.get('swOrderDetail').setLoading(['order', loadingValue]);
+            Store.get('swOrderDetail').setLoading([
+                'order',
+                loadingValue,
+            ]);
         },
 
         reloadEntityData() {

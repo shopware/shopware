@@ -273,11 +273,11 @@
       },
       "affiliateCode": {
         "label": "Affiliate-Code",
-        "placeholder": "Affiliate-Code auswählen ..."
+        "placeholder": "Affiliate-Code eingeben ..."
       },
       "campaignCode": {
         "label": "Kampagnen-Code",
-        "placeholder": "Kampagnen-Code auswählen ..."
+        "placeholder": "Kampagnen-Code eingeben ..."
       },
       "customerGroupRequest": {
         "label": "Kundengruppen-Anfragen",

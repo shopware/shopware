@@ -41,7 +41,7 @@ class AppAdministrationSnippetPersisterTest extends TestCase
     ): void {
         $cacheInvalidator = $this->createMock(CacheInvalidator::class);
         $cacheInvalidator
-            ->expects(static::once())
+            ->expects($this->once())
             ->method('invalidate')
             ->with([CachedSnippetFinder::CACHE_TAG]);
 

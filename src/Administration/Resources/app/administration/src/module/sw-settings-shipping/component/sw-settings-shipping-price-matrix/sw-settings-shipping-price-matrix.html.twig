@@ -41,7 +41,8 @@
         <mt-button
             size="x-small"
             class="sw-settings-shipping-price-matrix__top-container-add-new-rule"
-            :variant="!showDataGrid ? '': 'ghost'"
+            variant="primary"
+            :ghost="showDataGrid"
             :disabled="!showDataGrid || disabled"
             @click="onAddNewShippingPrice"
         >
@@ -268,6 +269,7 @@
             <sw-select-rule-create
                 size="small"
                 :disabled="disabled"
+                :rule-filter="shippingRuleFilterCriteria"
                 :placeholder="$tc('sw-settings-shipping.priceMatrix.chooseCustomRule')"
                 rule-aware-group-key="shippingMethodPriceCalculations"
                 :restricted-rule-ids="usedCalculationRules"

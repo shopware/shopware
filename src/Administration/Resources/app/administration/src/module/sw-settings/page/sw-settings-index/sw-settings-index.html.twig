@@ -6,7 +6,7 @@
 
     {% block sw_settings_content %}
     <template #content>
-        <sw-card-view>
+        <sw-card-view class="sw-settings-index__card-view">
             {% block sw_settings_content_card_view %}
             <mt-card
                 hero
@@ -47,6 +47,7 @@
                                 <mt-icon
                                     v-else
                                     :name="settingsItem.icon"
+                                    size="16px"
                                 />
                             </template>
                         </sw-settings-item>

@@ -1,6 +1,6 @@
 import { test } from '@fixtures/AcceptanceTest';
 
-test.skip('Customer gets a special product price depending on the amount of products bought.', {
+test('Customer gets a special product price depending on the amount of products bought.', {
     tag: ['@Product', '@Checkout'],
 }, async ({
     ShopCustomer,
@@ -56,7 +56,7 @@ test.skip('Customer gets a special product price depending on the amount of prod
         ).toContainText('From €70.00');
         await ShopCustomer.expects(StorefrontHome.productListItems
             .filter({ hasText: product.name })
-            .getByTitle('Details')
+            .getByText('Details')
         ).toBeVisible();
     });
 });

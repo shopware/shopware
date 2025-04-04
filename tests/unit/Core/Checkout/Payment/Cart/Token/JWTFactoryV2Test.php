@@ -16,6 +16,7 @@ use Shopware\Core\Checkout\Order\Aggregate\OrderTransaction\OrderTransactionEnti
 use Shopware\Core\Checkout\Payment\Cart\Token\JWTFactoryV2;
 use Shopware\Core\Checkout\Payment\Cart\Token\TokenStruct;
 use Shopware\Core\Checkout\Payment\PaymentException;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Test\Stub\Checkout\Payment\Cart\Token\TestKey;
 use Shopware\Core\Test\Stub\Checkout\Payment\Cart\Token\TestSigner;
@@ -24,6 +25,7 @@ use Shopware\Core\Test\Stub\Checkout\Payment\Cart\Token\TestSigner;
  * @internal
  */
 #[CoversClass(JWTFactoryV2::class)]
+#[Package('checkout')]
 class JWTFactoryV2Test extends TestCase
 {
     private JWTFactoryV2 $tokenFactory;
@@ -156,6 +158,7 @@ class JWTFactoryV2Test extends TestCase
 /**
  * @internal
  */
+#[Package('checkout')]
 class NoopConstraint implements Constraint
 {
     public function assert(Token $token): void

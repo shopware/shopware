@@ -87,7 +87,7 @@ class ShopConfigurationControllerTest extends TestCase
         $request->setSession($session);
         $request->attributes->set('_locale', 'de');
 
-        $this->connection->expects(static::once())
+        $this->connection->expects($this->once())
             ->method('fetchAllAssociative')
             ->willReturn([
                 ['iso3' => 'DEU', 'iso' => 'DE'],
@@ -96,7 +96,7 @@ class ShopConfigurationControllerTest extends TestCase
 
         $this->translator->method('trans')->willReturnCallback(fn (string $key): string => $key);
 
-        $this->twig->expects(static::once())->method('render')
+        $this->twig->expects($this->once())->method('render')
             ->with(
                 '@Installer/installer/shop-configuration.html.twig',
                 array_merge($this->getDefaultViewParams(), [
@@ -123,11 +123,11 @@ class ShopConfigurationControllerTest extends TestCase
         $request->setMethod('GET');
         $request->setSession($session);
 
-        $this->router->expects(static::once())->method('generate')
+        $this->router->expects($this->once())->method('generate')
             ->with('installer.database-configuration', [], UrlGeneratorInterface::ABSOLUTE_PATH)
             ->willReturn('/installer/database-configuration');
 
-        $this->twig->expects(static::never())->method('render');
+        $this->twig->expects($this->never())->method('render');
 
         $response = $this->controller->shopConfiguration($request);
         static::assertInstanceOf(RedirectResponse::class, $response);
@@ -177,8 +177,8 @@ class ShopConfigurationControllerTest extends TestCase
             'blueGreenDeployment' => true,
         ];
 
-        $this->envConfigWriter->expects(static::once())->method('writeConfig')->with($connectionInfo, $expectedShopInfo);
-        $this->shopConfigService->expects(static::once())->method('updateShop')->with($expectedShopInfo, $this->connection);
+        $this->envConfigWriter->expects($this->once())->method('writeConfig')->with($connectionInfo, $expectedShopInfo);
+        $this->shopConfigService->expects($this->once())->method('updateShop')->with($expectedShopInfo, $this->connection);
 
         $expectedAdmin = [
             'email' => 'test@test.com',
@@ -188,15 +188,15 @@ class ShopConfigurationControllerTest extends TestCase
             'password' => 'shopware',
             'locale' => 'de-DE',
         ];
-        $this->adminConfigService->expects(static::once())->method('createAdmin')->with($expectedAdmin, $this->connection);
+        $this->adminConfigService->expects($this->once())->method('createAdmin')->with($expectedAdmin, $this->connection);
 
         $this->translator->method('trans')->willReturnCallback(fn (string $key): string => $key);
 
-        $this->router->expects(static::once())->method('generate')
+        $this->router->expects($this->once())->method('generate')
             ->with('installer.finish', [], UrlGeneratorInterface::ABSOLUTE_PATH)
             ->willReturn('/installer/finish');
 
-        $this->twig->expects(static::never())->method('render');
+        $this->twig->expects($this->never())->method('render');
 
         $response = $this->controller->shopConfiguration($request);
         static::assertInstanceOf(RedirectResponse::class, $response);
@@ -222,18 +222,18 @@ class ShopConfigurationControllerTest extends TestCase
             'SCRIPT_NAME' => '/shop/index.php',
         ]);
 
-        $this->connection->expects(static::once())
+        $this->connection->expects($this->once())
             ->method('fetchAllAssociative')
             ->willReturn([
                 ['iso3' => 'DEU', 'iso' => 'DE'],
                 ['iso3' => 'GBR', 'iso' => 'GB'],
             ]);
 
-        $this->envConfigWriter->expects(static::once())->method('writeConfig')->willThrowException(new \Exception('Test Exception'));
+        $this->envConfigWriter->expects($this->once())->method('writeConfig')->willThrowException(new \Exception('Test Exception'));
 
         $this->translator->method('trans')->willReturnCallback(fn (string $key): string => $key);
 
-        $this->twig->expects(static::once())->method('render')
+        $this->twig->expects($this->once())->method('render')
             ->with(
                 '@Installer/installer/shop-configuration.html.twig',
                 array_merge($this->getDefaultViewParams(), [
@@ -286,15 +286,15 @@ class ShopConfigurationControllerTest extends TestCase
             'shopware.installer.select_country_deu' => 'Germany',
         ];
 
-        $this->connection->expects(static::once())
+        $this->connection->expects($this->once())
             ->method('fetchAllAssociative')
             ->willReturn($countries);
 
-        $this->envConfigWriter->expects(static::once())->method('writeConfig')->willThrowException(new \Exception('Test Exception'));
+        $this->envConfigWriter->expects($this->once())->method('writeConfig')->willThrowException(new \Exception('Test Exception'));
 
         $this->translator->method('trans')->willReturnCallback(fn (string $key): string => $translations[$key]);
 
-        $this->twig->expects(static::once())->method('render')->willReturnCallback(function (string $view, array $parameters): string {
+        $this->twig->expects($this->once())->method('render')->willReturnCallback(function (string $view, array $parameters): string {
             static::assertEquals('@Installer/installer/shop-configuration.html.twig', $view);
             static::assertArrayHasKey('countryIsos', $parameters);
 

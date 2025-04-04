@@ -34,6 +34,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\TranslatedField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\TranslationsAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\System\CustomEntity\CustomEntityException;
 use Shopware\Core\System\CustomEntity\CustomEntityRegistrar;
 use Shopware\Core\System\CustomEntity\Xml\Field\AssociationField;
 use Symfony\Component\DependencyInjection\ContainerInterface;
@@ -424,7 +425,7 @@ class DynamicFieldFactory
             AssociationField::CASCADE => new CascadeDelete(),
             AssociationField::SET_NULL => new SetNullOnDelete(),
             AssociationField::RESTRICT => new RestrictDelete(),
-            default => throw new \RuntimeException(\sprintf('onDelete property %s are not supported on field %s', $field['onDelete'], $field['name'])),
+            default => throw CustomEntityException::unsupportedOnDeletePropertyOnField($field['onDelete'], $field['name']),
         };
     }
 

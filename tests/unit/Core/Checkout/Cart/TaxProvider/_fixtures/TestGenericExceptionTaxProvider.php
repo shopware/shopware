@@ -5,11 +5,13 @@ namespace Shopware\Tests\Unit\Core\Checkout\Cart\TaxProvider\_fixtures;
 use Shopware\Core\Checkout\Cart\Cart;
 use Shopware\Core\Checkout\Cart\TaxProvider\AbstractTaxProvider;
 use Shopware\Core\Checkout\Cart\TaxProvider\Struct\TaxProviderResult;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
 /**
  * @internal
  */
+#[Package('checkout')]
 class TestGenericExceptionTaxProvider extends AbstractTaxProvider
 {
     public function provide(Cart $cart, SalesChannelContext $context): TaxProviderResult

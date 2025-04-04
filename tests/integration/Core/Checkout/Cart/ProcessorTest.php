@@ -355,11 +355,11 @@ class ProcessorTest extends TestCase
         $cart = new Cart('test');
 
         $collector = $this->createMock(CartDataCollectorInterface::class);
-        $collector->expects(static::never())
+        $collector->expects($this->never())
             ->method('collect');
 
         $processorMock = $this->createMock(CartProcessorInterface::class);
-        $processorMock->expects(static::never())
+        $processorMock->expects($this->never())
             ->method('process');
 
         $processor = new Processor(
@@ -402,6 +402,7 @@ class ProcessorTest extends TestCase
 /**
  * @internal
  */
+#[Package('checkout')]
 class PersistentError extends Error
 {
     public function getId(): string
@@ -441,6 +442,7 @@ class PersistentError extends Error
 /**
  * @internal
  */
+#[Package('checkout')]
 class NonePersistentError extends PersistentError
 {
     public function getId(): string

@@ -88,7 +88,7 @@ class MediaPathStorageTest extends TestCase
     public function testEmptyParametersDoesNotTriggerDatabaseQueries(): void
     {
         $statement = $this->createMock(Statement::class);
-        $statement->expects(static::never())->method('executeStatement');
+        $statement->expects($this->never())->method('executeStatement');
 
         $connection = $this->createMock(Connection::class);
         $connection->method('prepare')->willReturn($statement);

@@ -36,15 +36,15 @@
                                 {% if not defaultShipping %}
                                     <li>
                                         <form
-                                            action="{{ path('frontend.account.address.set-default-address', {'type': 'shipping', 'addressId': address.id}) }}"
+                                            action="{{ path('frontend.account.address.set-default-address', {type: 'shipping', addressId: address.id}) }}"
                                             method="post"
                                         >
                                             <button
                                                 type="submit"
-                                                title="{{ "account.addressesSetAsDefaultShippingAction"|trans|striptags }}"
+                                                title="{{ 'account.addressesSetAsDefaultShippingAction'|trans|striptags }}"
                                                 class="dropdown-item"{% if not address.country.shippingAvailable %}disabled="disabled"{% endif %}
                                             >
-                                                {{ "account.addressesSetAsDefaultShippingAction"|trans|sw_sanitize }}
+                                                {{ 'account.addressesSetAsDefaultShippingAction'|trans|sw_sanitize }}
                                             </button>
                                         </form>
                                     </li>
@@ -52,27 +52,27 @@
                                 {% if not defaultBilling %}
                                     <li>
                                         <form
-                                            action="{{ path('frontend.account.address.set-default-address', {'type': 'billing', 'addressId': address.id}) }}"
+                                            action="{{ path('frontend.account.address.set-default-address', {type: 'billing', addressId: address.id}) }}"
                                             method="post"
                                         >
                                             <button
                                                 type="submit"
-                                                title="{{ "account.addressesSetAsDefaultBillingAction"|trans|striptags }}"
+                                                title="{{ 'account.addressesSetAsDefaultBillingAction'|trans|striptags }}"
                                                 class="dropdown-item"
                                             >
-                                                {{ "account.addressesSetAsDefaultBillingAction"|trans|sw_sanitize }}
+                                                {{ 'account.addressesSetAsDefaultBillingAction'|trans|sw_sanitize }}
                                             </button>
                                         </form>
                                     </li>
                                 {% endif %}
-                                {% if not (defaultShipping || defaultBilling) %}
+                                {% if not (defaultShipping or defaultBilling) %}
                                     <li>
                                         <form
-                                            action="{{ path('frontend.account.address.delete', {'addressId': address.id}) }}"
+                                            action="{{ path('frontend.account.address.delete', {addressId: address.id}) }}"
                                             method="post"
                                         >
                                             <button type="submit" class="dropdown-item text-danger">
-                                                {{ "account.addressesContentItemActionDelete"|trans|sw_sanitize }}
+                                                {{ 'account.addressesContentItemActionDelete'|trans|sw_sanitize }}
                                             </button>
                                         </form>
                                     </li>

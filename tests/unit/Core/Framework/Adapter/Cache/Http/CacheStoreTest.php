@@ -28,13 +28,13 @@ class CacheStoreTest extends TestCase
 
         $cache = $this->createMock(TagAwareAdapterInterface::class);
 
-        $cache->expects(static::once())->method('hasItem')->willReturn(false);
+        $cache->expects($this->once())->method('hasItem')->willReturn(false);
 
         $item = new CacheItem();
 
-        $cache->expects(static::once())->method('getItem')->willReturn($item);
+        $cache->expects($this->once())->method('getItem')->willReturn($item);
 
-        $cache->expects(static::once())->method('save')->with($item);
+        $cache->expects($this->once())->method('save')->with($item);
 
         $store = new CacheStore(
             $cache,
@@ -61,10 +61,10 @@ class CacheStoreTest extends TestCase
         $response = new Response();
 
         $cache = $this->createMock(TagAwareAdapterInterface::class);
-        $cache->expects(static::never())->method('save');
+        $cache->expects($this->never())->method('save');
 
         $stateValidator = $this->createMock(CacheStateValidator::class);
-        $stateValidator->expects(static::once())->method('isValid')->with($request)->willReturn(false);
+        $stateValidator->expects($this->once())->method('isValid')->with($request)->willReturn(false);
 
         $store = new CacheStore(
             $cache,

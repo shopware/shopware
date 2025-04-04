@@ -8,11 +8,13 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Promotion\Aggregate\PromotionSetGroup\PromotionSetGroupEntity;
 use Shopware\Core\Content\Rule\RuleCollection;
 use Shopware\Core\Content\Rule\RuleEntity;
+use Shopware\Core\Framework\Log\Package;
 
 /**
  * @internal
  */
 #[CoversClass(PromotionSetGroupEntity::class)]
+#[Package('checkout')]
 class PromotionSetGroupEntityTest extends TestCase
 {
     private const KEY_PACKAGER_COUNT = 'PACKAGER_COUNT';

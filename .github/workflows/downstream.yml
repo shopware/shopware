@@ -21,11 +21,10 @@ jobs:
   rufus:
     name: Rufus
     runs-on: ubuntu-24.04
-    if: ${{ !github.event.pull_request && github.event_name != 'merge_group'}}
     steps:
       - id: sts
         continue-on-error: true
-        uses: octo-sts/action@v1.0.0
+        uses: octo-sts/action@6177b4481c00308b3839969c3eca88c96a91775f # 1.0.0
         with:
           scope: shopware
           identity: ShopwareDownstream
@@ -47,7 +46,7 @@ jobs:
     steps:
       - id: sts
         continue-on-error: true
-        uses: octo-sts/action@v1.0.0
+        uses: octo-sts/action@6177b4481c00308b3839969c3eca88c96a91775f # 1.0.0
         with:
           scope: shopware
           identity: ShopwareDownstream
@@ -67,14 +66,13 @@ jobs:
   downstream-check:
     if: always()
     needs:
-    # fix with shopware/shopware#6556
-    # - rufus
+    - rufus
     - commercial
 
     runs-on: Ubuntu-latest
     steps:
     - name: Decide whether the needed jobs succeeded or failed
-      uses: re-actors/alls-green@release/v1
+      uses: re-actors/alls-green@05ac9388f0aebcb5727afa17fcccfecd6f8ec5fe # v1.2.2
       with:
         allowed-skips: rufus, commercial
         jobs: ${{ toJSON(needs) }}

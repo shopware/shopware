@@ -52,13 +52,13 @@ class ZugferdRendererTest extends TestCase
 
         $connection = $this->createMock(Connection::class);
         $connection
-            ->expects(static::once())
+            ->expects($this->once())
             ->method('fetchAllAssociative')
             ->willReturn([['language_id' => Defaults::LANGUAGE_SYSTEM, 'ids' => '0192b305fddb7347be83a311a82f0649']]);
 
         $builder = $this->createMock(ZugferdBuilder::class);
         $builder
-            ->expects(static::once())
+            ->expects($this->once())
             ->method('buildDocument')
             ->willReturn('<?xml version="1.0" encoding="UTF-8"?>');
 

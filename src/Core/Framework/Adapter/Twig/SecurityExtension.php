@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Framework\Adapter\Twig;
 
+use Shopware\Core\Framework\Adapter\AdapterException;
 use Shopware\Core\Framework\Log\Package;
 use Twig\Extension\AbstractExtension;
 use Twig\TwigFilter;
@@ -45,7 +46,7 @@ class SecurityExtension extends AbstractExtension
         }
 
         if (\is_string($function) && !\in_array($function, $this->allowedPHPFunctions, true)) {
-            throw new \RuntimeException(\sprintf('Function "%s" is not allowed', $function));
+            throw AdapterException::securityFunctionNotAllowed($function);
         }
 
         $result = [];
@@ -78,7 +79,7 @@ class SecurityExtension extends AbstractExtension
         }
 
         if (\is_string($function) && !\in_array($function, $this->allowedPHPFunctions, true)) {
-            throw new \RuntimeException(\sprintf('Function "%s" is not allowed', $function));
+            throw AdapterException::securityFunctionNotAllowed($function);
         }
 
         if (!\is_array($array)) {
@@ -106,7 +107,7 @@ class SecurityExtension extends AbstractExtension
         }
 
         if (\is_string($arrow) && !\in_array($arrow, $this->allowedPHPFunctions, true)) {
-            throw new \RuntimeException(\sprintf('Function "%s" is not allowed', $arrow));
+            throw AdapterException::securityFunctionNotAllowed($arrow);
         }
 
         if (\is_array($array)) {
@@ -135,7 +136,7 @@ class SecurityExtension extends AbstractExtension
         }
 
         if (\is_string($arrow) && !\in_array($arrow, $this->allowedPHPFunctions, true)) {
-            throw new \RuntimeException(\sprintf('Function "%s" is not allowed', $arrow));
+            throw AdapterException::securityFunctionNotAllowed($arrow);
         }
 
         if ($array instanceof \Traversable) {

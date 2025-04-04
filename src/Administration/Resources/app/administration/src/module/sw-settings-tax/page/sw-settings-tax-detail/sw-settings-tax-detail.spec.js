@@ -142,4 +142,21 @@ describe('module/sw-settings-tax/page/sw-settings-tax-detail', () => {
 
         expect(taxRateField.attributes('digits')).toBe('3');
     });
+
+    it('should change the default tax rate', async () => {
+        const wrapper = await createWrapper([
+            'tax.editor',
+        ]);
+        await wrapper.setProps({
+            taxId: '12345',
+        });
+        await flushPromises();
+
+        // Look for defaultTaxRate switch
+        const defaultTaxRateSwitch = wrapper.find('.sw-settings-tax-detail__default-tax-rate');
+        await defaultTaxRateSwitch.find('input').setValue(true);
+
+        // Check if config value is set to the default tax id
+        expect(wrapper.vm.config['core.tax.defaultTaxRate']).toBe('12345');
+    });
 });

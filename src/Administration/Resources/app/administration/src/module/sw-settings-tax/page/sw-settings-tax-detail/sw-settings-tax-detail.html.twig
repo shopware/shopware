@@ -18,6 +18,7 @@
             v-tooltip.bottom="{ message: 'ESC', appearance: 'light' }"
             :disabled="isLoading"
             variant="secondary"
+            size="default"
             @click="onCancel"
         >
             {{ $tc('global.default.cancel') }}
@@ -109,9 +110,9 @@
                                 class="sw-settings-tax-detail__default-tax-rate"
                                 :label="$tc('sw-settings-tax.detail.defaultTaxLabel')"
                                 :help-text="$tc('sw-settings-tax.detail.defaultTaxHelpText')"
-                                :checked="isDefault"
+                                :model-value="isDefault"
                                 name="sw-field--isDefault"
-                                @change="onChangeDefaultTaxRate"
+                                @update:model-value="onChangeDefaultTaxRate"
                             />
                         {% endblock %}
                         </div>

@@ -222,7 +222,7 @@ class BlockedShippingMethodSwitcherTest extends TestCase
 
         $shippingMethodResponse = $this->createMock(ShippingMethodRouteResponse::class);
         $shippingMethodResponse
-            ->expects(static::once())
+            ->expects($this->once())
             ->method('getShippingMethods')
             ->willReturn($collection);
 
@@ -243,7 +243,7 @@ class BlockedShippingMethodSwitcherTest extends TestCase
 
         $shippingMethodResponse = $this->createMock(ShippingMethodRouteResponse::class);
         $shippingMethodResponse
-            ->expects(static::once())
+            ->expects($this->once())
             ->method('getShippingMethods')
             ->willReturn($collection);
 
@@ -259,7 +259,7 @@ class BlockedShippingMethodSwitcherTest extends TestCase
 
         $shippingMethodRoute = $this->createMock(ShippingMethodRoute::class);
         $shippingMethodRoute
-            ->expects(static::exactly(2))
+            ->expects($this->exactly(2))
             ->method('load')
             ->with(
                 static::equalTo(new Request(['onlyAvailable' => true])),

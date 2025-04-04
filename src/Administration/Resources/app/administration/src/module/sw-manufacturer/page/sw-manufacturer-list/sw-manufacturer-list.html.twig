@@ -43,6 +43,7 @@
             :disabled="!acl.can('product_manufacturer.creator') || undefined"
             class="sw-manufacturer-list__add-manufacturer"
             variant="primary"
+            size="default"
             @click="$router.push({ name: 'sw.manufacturer.create' })"
         >
             {{ $tc('sw-manufacturer.list.buttonAddManufacturer') }}

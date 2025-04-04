@@ -19,8 +19,6 @@
       "labelSortByUpdatedDsc": "Modification date, descending"
     },
     "themeListItem": {
-      "edit": "Edit",
-      "delete": "Delete",
       "rename": "Rename",
       "duplicate": "Duplicate",
       "emptyText": "No theme assigned",
@@ -31,9 +29,6 @@
     },
     "modal": {
       "textDeleteInfo": "Are you sure you really want to delete the theme \"{themeName}\"?",
-      "buttonCancel":  "Cancel",
-      "buttonDelete": "Delete",
-      "buttonClose": "Close",
       "errorModalTitle": "Unable to compile theme",
       "modalTitleDuplicate": "Create duplicate",
       "textDuplicateInfo": "If you create a duplicate, you can use the theme with a different colour configuration for additional Sales Channels.",
@@ -48,7 +43,6 @@
       "modalTitleReset": "Reset theme",
       "modalTextResetInfo": "Are you sure you want to reset the theme to the default settings?",
       "modalTextResetAssigned": "This will change the appearance of your shop.",
-      "buttonSave": "Save",
       "modalTitleSave": "Save theme",
       "textSaveInfo": "Do you really want to save the changes? This will change the appearance of your shops.",
       "addToMediaLabel": "Add to {name}",
@@ -69,18 +63,14 @@
       "gridHeaderAssignment": "Assigned Sales Channels"
     },
     "actions": {
-      "edit": "Edit",
-      "save": "Save",
       "saveClean": "Clean Save",
       "saveCleanToolTip": "The current values will be rewritten completely. Use this to make a clean entry after fields were deleted or changed its types.",
       "validate": "Validate",
       "validateToolTip": "Validate the whole configuration. Changes will stay unsaved!",
       "rename": "Rename",
-      "delete": "Delete",
       "duplicate": "Create duplicate",
       "useImageAs": "Use image as",
       "buttonReset": "Reset to default",
-      "buttonCancel": "Cancel",
       "buttonUseTheme": "Use theme",
       "deleteDisabledToolTip": "Theme is still assigned to a Sales Channel."
     },
@@ -123,7 +113,6 @@
       }
     },
     "themeModal": {
-      "actionCancel": "Cancel",
       "actionConfirm": "Change theme",
       "modalTitle": "Select theme",
       "modalSubtitle": "Changing your theme may alter the visualisation of your shop.",

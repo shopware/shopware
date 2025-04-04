@@ -1,20 +1,19 @@
 {% block page_account_order_detail_document_table_body %}
     {% if order.documents|length %}
         <ul class="order-detail-content-body list-unstyled" aria-label="{{ 'account.orderDocumentsAriaLabel'|trans|striptags }}">
-
             {% block page_account_order_document_detail_table_header %}
                 <li class="order-detail-content-header document-detail-content-header" aria-hidden="true">
 
                     <div class="row">
                         {% block page_account_order_document_detail_table_header_name %}
                             <div class="col-6 order-detail-content-header-cell document-header-file-name">
-                                {{ "account.documentItemColumnTitle"|trans|sw_sanitize }}
+                                {{ 'account.documentItemColumnTitle'|trans|sw_sanitize }}
                             </div>
                         {% endblock %}
 
                         {% block page_account_order_document_detail_table_header_quantity %}
                             <div class="col-4 order-detail-content-header-cell document-header-date">
-                                {{ "account.documentItemColumnDate"|trans|sw_sanitize }}
+                                {{ 'account.documentItemColumnDate'|trans|sw_sanitize }}
                             </div>
                         {% endblock %}
 

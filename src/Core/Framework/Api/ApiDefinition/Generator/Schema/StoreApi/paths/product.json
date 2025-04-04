@@ -397,11 +397,22 @@
                                 ],
                                 "properties": {
                                     "options": {
-                                        "description": "The options parameter for the variant to find.",
-                                        "type": "array",
-                                        "items": {
-                                            "type": "string"
-                                        }
+                                        "oneOf": [
+                                            {
+                                                "description": "The options parameter for the variant to find.",
+                                                "type": "array",
+                                                "items": {
+                                                    "type": "string"
+                                                }
+                                            },
+                                            {
+                                                "description": "The options parameter as a map of groupId => optionId.",
+                                                "type": "object",
+                                                "additionalProperties": {
+                                                    "type": "string"
+                                                }
+                                            }
+                                        ]
                                     },
                                     "switchedGroup": {
                                         "description": "The id of the option group that has been switched.",

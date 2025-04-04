@@ -3,12 +3,9 @@
 namespace Shopware\Tests\Integration\Core\Framework\FeatureFlag;
 
 use PHPUnit\Framework\Attributes\DataProvider;
-use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Adapter\Twig\Extension\FeatureFlagExtension;
 use Shopware\Core\Framework\Feature;
-use Shopware\Core\Framework\Test\TestCaseBase\KernelLifecycleManager;
-use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
 use Twig\Environment;
 use Twig\Loader\FilesystemLoader;
 
@@ -17,11 +14,8 @@ use Twig\Loader\FilesystemLoader;
  *
  * @phpstan-import-type FeatureFlagConfig from Feature
  */
-#[Group('skip-paratest')]
 class FeatureTest extends TestCase
 {
-    use KernelTestBehaviour;
-
     /**
      * @var array<string, FeatureFlagConfig>
      */
@@ -46,7 +40,6 @@ class FeatureTest extends TestCase
         self::$featureAllValue = $_SERVER['FEATURE_ALL'] ?? 'false';
         self::$appEnvValue = $_ENV['APP_ENV'] ?? $_SERVER['APP_ENV'];
         self::$features = Feature::getRegisteredFeatures();
-        KernelLifecycleManager::bootKernel(true, self::$customCacheId);
     }
 
     protected function setUp(): void
@@ -72,8 +65,6 @@ class FeatureTest extends TestCase
 
         Feature::resetRegisteredFeatures();
         Feature::registerFeatures(self::$features);
-
-        KernelLifecycleManager::bootKernel(true, self::$customCacheId);
     }
 
     public function testABoolGetsReturned(): void
@@ -166,7 +157,6 @@ class FeatureTest extends TestCase
 
         $_SERVER['APP_ENV'] = 'test';
         $_ENV['APP_ENV'] = 'test';
-        KernelLifecycleManager::bootKernel(true, self::$customCacheId);
 
         $loader = new FilesystemLoader(__DIR__ . '/_fixture/');
         $twig = new Environment($loader, [
@@ -177,16 +167,18 @@ class FeatureTest extends TestCase
 
         $this->expectExceptionMessageMatches('/.*RANDOMFLAGTHATISNOTREGISTERDE471112.*/');
 
-        $template->render([]);
-
-        restore_error_handler();
+        try {
+            $template->render([]);
+        } catch (\Exception $e) {
+            restore_error_handler();
+            throw $e;
+        }
     }
 
     public function testTwigFeatureFlagNotRegisteredInProd(): void
     {
         $_SERVER['APP_ENV'] = 'prod';
         $_ENV['APP_ENV'] = 'prod';
-        KernelLifecycleManager::bootKernel(true, self::$customCacheId);
 
         $loader = new FilesystemLoader(__DIR__ . '/_fixture/');
         $twig = new Environment($loader, [
@@ -585,8 +577,6 @@ class FeatureTest extends TestCase
     {
         $_SERVER['APP_ENV'] = 'prod';
         $_ENV['APP_ENV'] = 'prod';
-
-        KernelLifecycleManager::bootKernel(true, self::$customCacheId);
 
         foreach ($env as $key => $value) {
             $_SERVER[$key] = $value;

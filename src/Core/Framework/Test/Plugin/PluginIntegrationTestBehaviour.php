@@ -9,24 +9,25 @@ use PHPUnit\Framework\Attributes\Before;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Plugin\PluginEntity;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelLifecycleManager;
+use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
-use Shopware\Core\Kernel;
 use SwagTestPlugin\SwagTestPlugin;
 use SwagTestSkipRebuild\SwagTestSkipRebuild;
 use SwagTestWithBundle\SwagTestWithBundle;
 
 trait PluginIntegrationTestBehaviour
 {
-    protected ClassLoader $classLoader;
+    use KernelTestBehaviour;
 
-    protected Connection $connection;
+    protected ClassLoader $classLoader;
 
     #[Before]
     public function pluginIntegrationSetUp(): void
     {
-        $this->connection = Kernel::getConnection();
-        $this->connection->beginTransaction();
-        $this->connection->executeStatement('DELETE FROM plugin');
+        $connection = static::getContainer()
+            ->get(Connection::class);
+        $connection->beginTransaction();
+        $connection->executeStatement('DELETE FROM plugin');
 
         $this->classLoader = clone KernelLifecycleManager::getClassLoader();
         KernelLifecycleManager::getClassLoader()->unregister();
@@ -39,7 +40,9 @@ trait PluginIntegrationTestBehaviour
         $this->classLoader->unregister();
         KernelLifecycleManager::getClassLoader()->register();
 
-        $this->connection->rollBack();
+        static::getContainer()
+            ->get(Connection::class)
+            ->rollBack();
     }
 
     protected function insertPlugin(PluginEntity $plugin): void
@@ -61,7 +64,9 @@ trait PluginIntegrationTestBehaviour
             'installed_at' => $installedAt ? $installedAt->format(Defaults::STORAGE_DATE_TIME_FORMAT) : null,
         ];
 
-        $this->connection->insert('plugin', $data);
+        static::getContainer()
+            ->get(Connection::class)
+            ->insert('plugin', $data);
     }
 
     protected function getNotInstalledPlugin(): PluginEntity

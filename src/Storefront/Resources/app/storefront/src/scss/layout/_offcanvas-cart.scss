@@ -31,7 +31,6 @@ Extends the basic offcanvas component with additional cart styles.
             color: inherit;
         }
     }
-
 }
 
 .offcanvas-summary {
@@ -45,7 +44,10 @@ Extends the basic offcanvas component with additional cart styles.
     }
 
     .offcanvas-shipping-preference {
-        transition: max-height 0.3s ease, opacity 0.3s ease, margin 0.3s ease;
+        transition:
+            max-height 0.3s ease,
+            opacity 0.3s ease,
+            margin 0.3s ease;
         max-height: 100px;
         height: auto;
         visibility: visible;

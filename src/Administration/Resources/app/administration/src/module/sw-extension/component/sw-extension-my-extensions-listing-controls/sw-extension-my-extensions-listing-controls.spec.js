@@ -28,7 +28,11 @@ describe('src/module/sw-extension/component/sw-extension-my-extensions-listing-c
         const wrapper = await createWrapper();
         expect(wrapper.vm.selectedSortingOption).toBe('updated-at');
 
-        await selectMtSelectOptionByText(wrapper, 'sw-extension.my-extensions.listing.controls.filterOptions.name-asc');
+        await selectMtSelectOptionByText(
+            wrapper,
+            'sw-extension.my-extensions.listing.controls.filterOptions.name-asc',
+            '.mt-select__selection',
+        );
 
         expect(wrapper.vm.selectedSortingOption).toBe('name-asc');
         expect(wrapper.emitted()).toHaveProperty('update:sorting-option');

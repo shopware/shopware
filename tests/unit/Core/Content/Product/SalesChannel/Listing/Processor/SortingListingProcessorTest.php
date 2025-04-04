@@ -173,6 +173,69 @@ class SortingListingProcessorTest extends TestCase
         );
     }
 
+    public function testGetAvailableSortingsWithValidUuids(): void
+    {
+        $context = Context::createDefaultContext();
+        $repository = $this->createMock(EntityRepository::class);
+
+        // Create test UUIDs
+        $uuid1 = Uuid::randomHex();
+        $uuid2 = Uuid::randomHex();
+
+        // Create sortings with these IDs
+        $sorting1 = new ProductSortingEntity();
+        $sorting1->setId($uuid1);
+        $sorting1->setUniqueIdentifier($uuid1);
+        $sorting1->assign(['key' => 'sort1', 'active' => true]);
+
+        $sorting2 = new ProductSortingEntity();
+        $sorting2->setId($uuid2);
+        $sorting2->setUniqueIdentifier($uuid2);
+        $sorting2->assign(['key' => 'sort2', 'active' => true]);
+
+        // Set up the repository mock to return these sortings when searched
+        $repository->method('search')->willReturn(
+            new EntitySearchResult(
+                ProductSortingDefinition::ENTITY_NAME,
+                2,
+                new ProductSortingCollection([$sorting1, $sorting2]),
+                null,
+                new Criteria(),
+                $context
+            )
+        );
+
+        // Create request with availableSortings containing valid UUIDs
+        $request = new Request([
+            'availableSortings' => [
+                $uuid1 => 10,
+                $uuid2 => 20,
+                'not-a-uuid' => 5, // This should be filtered out by line 96
+            ],
+        ]);
+
+        $processor = new SortingListingProcessor(
+            new StaticSystemConfigService([]),
+            $repository
+        );
+
+        $processor->prepare(
+            $request,
+            $criteria = new Criteria(),
+            $this->createMock(SalesChannelContext::class)
+        );
+
+        // Check that sortings extension was properly added
+        $sortings = $criteria->getExtension('sortings');
+        static::assertInstanceOf(ProductSortingCollection::class, $sortings);
+        static::assertCount(2, $sortings);
+
+        // Verify that sortings are ordered based on the requested priority
+        // The second sorting (uuid2) has higher priority (20) so it should come first
+        static::assertEquals($uuid2, $sortings->first()->getId());
+        static::assertEquals($uuid1, $sortings->last()->getId());
+    }
+
     public static function prepareProvider(): \Generator
     {
         yield 'Requested foo sorting will be accepted' => [

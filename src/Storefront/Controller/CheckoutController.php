@@ -293,8 +293,14 @@ class CheckoutController extends StorefrontController
 
     private function addAffiliateTracking(RequestDataBag $dataBag, SessionInterface $session): void
     {
-        $affiliateCode = $session->get(AffiliateTrackingListener::AFFILIATE_CODE_KEY);
-        $campaignCode = $session->get(AffiliateTrackingListener::CAMPAIGN_CODE_KEY);
+        $request = $this->container->get('request_stack')->getCurrentRequest();
+        
+        $affiliateCode = $request->cookies->get('affiliate-code');
+        $affiliateCode = $affiliateCode ?: $session->get(AffiliateTrackingListener::AFFILIATE_CODE_KEY);
+        
+        $campaignCode = $request->cookies->get('campaign-code');
+        $campaignCode = $campaignCode ?: $session->get(AffiliateTrackingListener::CAMPAIGN_CODE_KEY);
+        
         if ($affiliateCode) {
             $dataBag->set(AffiliateTrackingListener::AFFILIATE_CODE_KEY, $affiliateCode);
         }

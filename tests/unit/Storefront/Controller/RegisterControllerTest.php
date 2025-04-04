@@ -335,6 +335,28 @@ class RegisterControllerTest extends TestCase
         static::assertSame('affiliate-code', $dataBag->get('affiliateCode'));
         static::assertSame('affiliate-campaign', $dataBag->get('campaignCode'));
     }
+    
+    public function testRegisterWithAffiliateTrackingFromCookies(): void
+    {
+        $context = Generator::generateSalesChannelContext();
+        $context->assign(['customer' => null]);
+
+        $request = new Request();
+        $request->attributes->set(RequestTransformer::STOREFRONT_URL, $_SERVER['APP_URL']);
+        $session = new Session(new MockArraySessionStorage());
+        $session->set(AffiliateTrackingListener::AFFILIATE_CODE_KEY, 'session-affiliate-code');
+        $session->set(AffiliateTrackingListener::CAMPAIGN_CODE_KEY, 'session-campaign-code');
+        $request->setSession($session);
+        $request->cookies->set('affiliate-code', 'cookie-affiliate-code');
+        $request->cookies->set('campaign-code', 'cookie-campaign-code');
+
+        $dataBag = new RequestDataBag();
+
+        $this->controller->register($request, $dataBag, $context);
+
+        static::assertSame('cookie-affiliate-code', $dataBag->get('affiliateCode'));
+        static::assertSame('cookie-campaign-code', $dataBag->get('campaignCode'));
+    }
 
     private function createRegisterRequest(): Request
     {

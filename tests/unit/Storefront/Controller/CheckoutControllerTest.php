@@ -574,6 +574,48 @@ class CheckoutControllerTest extends TestCase
         static::assertSame('noindex', $response->headers->get('x-robots-tag'));
         static::assertInstanceOf(OffcanvasCartPage::class, $this->controller->renderStorefrontParameters['page']);
     }
+    
+    public function testOrderWithAffiliateTrackingFromSession(): void
+    {
+        $request = new Request();
+        $session = new Session(new MockArraySessionStorage());
+        $session->set(AffiliateTrackingListener::AFFILIATE_CODE_KEY, 'session-affiliate-code');
+        $session->set(AffiliateTrackingListener::CAMPAIGN_CODE_KEY, 'session-campaign-code');
+        $request->setSession($session);
+
+        $context = $this->createMock(SalesChannelContext::class);
+        $context->method('getCustomer')->willReturn(new CustomerEntity());
+
+        $this->orderServiceMock->expects($this->once())->method('createOrder');
+
+        $dataBag = new RequestDataBag();
+        $this->controller->order($dataBag, $context, $request);
+
+        static::assertSame('session-affiliate-code', $dataBag->get(AffiliateTrackingListener::AFFILIATE_CODE_KEY));
+        static::assertSame('session-campaign-code', $dataBag->get(AffiliateTrackingListener::CAMPAIGN_CODE_KEY));
+    }
+    
+    public function testOrderWithAffiliateTrackingFromCookies(): void
+    {
+        $request = new Request();
+        $session = new Session(new MockArraySessionStorage());
+        $session->set(AffiliateTrackingListener::AFFILIATE_CODE_KEY, 'session-affiliate-code');
+        $session->set(AffiliateTrackingListener::CAMPAIGN_CODE_KEY, 'session-campaign-code');
+        $request->setSession($session);
+        $request->cookies->set('affiliate-code', 'cookie-affiliate-code');
+        $request->cookies->set('campaign-code', 'cookie-campaign-code');
+
+        $context = $this->createMock(SalesChannelContext::class);
+        $context->method('getCustomer')->willReturn(new CustomerEntity());
+
+        $this->orderServiceMock->expects($this->once())->method('createOrder');
+
+        $dataBag = new RequestDataBag();
+        $this->controller->order($dataBag, $context, $request);
+
+        static::assertSame('cookie-affiliate-code', $dataBag->get(AffiliateTrackingListener::AFFILIATE_CODE_KEY));
+        static::assertSame('cookie-campaign-code', $dataBag->get(AffiliateTrackingListener::CAMPAIGN_CODE_KEY));
+    }
 
     public function testInfoEmptyCart(): void
     {

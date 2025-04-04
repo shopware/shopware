@@ -574,7 +574,7 @@ class CheckoutControllerTest extends TestCase
         static::assertSame('noindex', $response->headers->get('x-robots-tag'));
         static::assertInstanceOf(OffcanvasCartPage::class, $this->controller->renderStorefrontParameters['page']);
     }
-    
+
     public function testOrderWithAffiliateTrackingFromSession(): void
     {
         $request = new Request();
@@ -594,7 +594,7 @@ class CheckoutControllerTest extends TestCase
         static::assertSame('session-affiliate-code', $dataBag->get(AffiliateTrackingListener::AFFILIATE_CODE_KEY));
         static::assertSame('session-campaign-code', $dataBag->get(AffiliateTrackingListener::CAMPAIGN_CODE_KEY));
     }
-    
+
     public function testOrderWithAffiliateTrackingFromCookies(): void
     {
         $request = new Request();

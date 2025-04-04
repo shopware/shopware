@@ -335,7 +335,7 @@ class RegisterControllerTest extends TestCase
         static::assertSame('affiliate-code', $dataBag->get('affiliateCode'));
         static::assertSame('affiliate-campaign', $dataBag->get('campaignCode'));
     }
-    
+
     public function testRegisterWithAffiliateTrackingFromCookies(): void
     {
         $context = Generator::generateSalesChannelContext();

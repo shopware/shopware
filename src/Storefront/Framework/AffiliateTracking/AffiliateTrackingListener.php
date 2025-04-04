@@ -3,7 +3,6 @@
 namespace Shopware\Storefront\Framework\AffiliateTracking;
 
 use Shopware\Core\Checkout\Order\SalesChannel\OrderService;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Routing\KernelListenerPriorities;
 use Shopware\Core\PlatformRequest;
@@ -14,6 +13,7 @@ use Symfony\Component\HttpKernel\KernelEvents;
 
 /**
  * @internal
+ *
  * @deprecated tag:v6.8.0 - Will be removed in v6.8.0. Use cookies for affiliate and campaign tracking instead. - reason:remove-subscriber
  */
 #[Package('framework')]

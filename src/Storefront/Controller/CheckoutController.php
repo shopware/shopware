@@ -295,10 +295,10 @@ class CheckoutController extends StorefrontController
     {
         $affiliateCode = $request->cookies->get('affiliate-code');
         $affiliateCode = $affiliateCode ?: $session->get(AffiliateTrackingListener::AFFILIATE_CODE_KEY);
-        
+
         $campaignCode = $request->cookies->get('campaign-code');
         $campaignCode = $campaignCode ?: $session->get(AffiliateTrackingListener::CAMPAIGN_CODE_KEY);
-        
+
         if ($affiliateCode) {
             $dataBag->set(AffiliateTrackingListener::AFFILIATE_CODE_KEY, $affiliateCode);
         }

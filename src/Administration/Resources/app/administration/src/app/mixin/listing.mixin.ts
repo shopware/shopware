@@ -123,7 +123,7 @@ export default Shopware.Mixin.register(
         watch: {
             // Watch for changes in query parameters and update listing
             $route(newRoute, oldRoute) {
-                if (this.disableRouteParams || this.previousRouteName !== newRoute.name) {
+                if (this.disableRouteParams || oldRoute.name !== newRoute.name) {
                     return;
                 }
 

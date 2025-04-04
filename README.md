@@ -106,20 +106,26 @@ To ensure the quality of our code and our products we have created a guideline w
 It helps you and us to collaborate.
 Following these guidelines will help us to integrate your changes in our daily workflow.
 
-Read more in [our contribution guideline](https://docs.shopware.com/en/shopware-platform-dev-en/contribution/contribution-guideline) or in our short [HowTo contribute code](https://docs.shopware.com/en/shopware-platform-dev-en/contribution/contributing-code).
+Read more in [our contribution guidelines](https://developer.shopware.com/docs/resources/guidelines/) or in our short [HowTo contribute code](https://developer.shopware.com/docs/resources/guidelines/code/).
 
 #### Proposing Large Changes? Use the RFC Process
 
-For **substantial changes** (e.g. new APIs, architectural proposals, or deprecations), please use our [RFC (Request for Comments) process](https://github.com/shopware/rfcs) to gather early feedback and discuss design decisions with the community and core maintainers.
+For **substantial changes** (e.g. new APIs, architectural proposals, or deprecations), please use our [RFC (Request for Comments) process](https://github.com/shopware/shopware/rfcs) to gather early feedback and discuss design decisions with the community and core maintainers.
 
 The process is simple:
-- Fork the [`shopware/rfcs`](https://github.com/shopware/rfcs) repository
-- Use the [RFC template](https://github.com/shopware/rfcs/blob/master/0000-template.md)
-- Submit a pull request with your proposal
+- Create a proposal in this repository, inside the [`/rfcs`](https://github.com/shopware/shopware/tree/trunk/rfcs) folder.
+- Use the [RFC template](https://github.com/shopware/shopware/blob/trunk/rfcs/0000-template.md) to structure your proposal.
+- Submit a pull request targeting the `trunk` branch.
+- Your proposal will be reviewed by the community and Shopware maintainers.
+- A **Review Facilitator** will guide the discussion and next steps.
+- Once the proposal is accepted, it will be merged and marked with an RFC number.
 
-#### Contribution setup
+[See the full RFC process here](https://github.com/shopware/shopware/blob/trunk/delivery-process/community-rfcs.md
+)
 
-There are multiple ways to get an installation running, the way with the fewest steps involved is using the docker image from [dockware](https://dockware.io/),
+#### Contribution Setup
+
+The simplest way to install Shopware is to use the Docker image from [dockware](https://dockware.io/),
 a community maintained docker setup by the Shopware agency [dasistweb](https://www.dasistweb.de/en/).
 More on this in the [documentation](https://developer.shopware.com/docs/guides/installation/community/dockware.html).
 

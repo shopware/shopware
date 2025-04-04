@@ -1,76 +1,127 @@
 # Shopware RFC Process – GitHub Community Contributions
 
 ## Purpose
-This document establishes a standardized process for submitting and reviewing Requests for Comments (RFCs) within the Shopware community. The goal is to have a transparent, inclusive, and efficient decision-making workflow for substantial changes to the Shopware codebase or policies.
+This document establishes a standardized process for submitting and reviewing Requests for Comments (RFCs) within the Shopware community. The goal is to have a transparent, inclusive, and efficient decision-making workflow for changes such as API additions, core reworks, or removals of public features to the Shopware codebase or policies.
 
 ## When to Submit an RFC
-The RFC process applies to all significant modifications, including but not limited to:
 
-- Introduction of new features or APIs
-- Deprecation or removal of existing features
-- Changes that affect the public interface or behavior
-- Modifications to the development process or policies
+### Use the RFC process if your proposal:
 
-Minor changes, bug fixes, and documentation updates that do not have broad implications can proceed through the standard pull request workflow without an RFC.
+- Introduces or removes public APIs (Store API, Admin Extension API, etc.).
+- Changes architectural patterns or internal conventions.
+- Involves multiple product units, teams, or repositories.
+- Requires input from roles like UX, DevRel, QA, or Cloud.
+- Affects developers, extension builders, or merchants in a non-trivial way.
+- Is something that would need documentation, training, or a product update.
+- Would likely generate a Shopware blog post upon release.
+- Represents a long-term commitment or a migration path.
+
+### You don’t need an RFC if the proposal is:
+
+- Bug fixes or performance optimization
+- Internal-only cleanup or refactor
+- A configuration or label change that does not affect usage or expectations
+- UI tweaks not requiring UX alignment
+
+Remember that UserVoic is the place to suggest product features.
+When in doubt, please open a discussion in the relevant GitHub issue or Slack channel.
 
 ## Process Overview
-### Prepare your idea
 
-- Discuss informally in GitHub issues, Slack, or community channels.
-- An RFC is initiated by creating a new issue in the shopware/rfcs repository using the RFC template provided.
+### 1. Prepare your idea
 
-### Create your RFC
+- If you're unsure whether your proposal needs an RFC, refer to the [When to Submit an RFC](##when-to-submit-an-rfc) section.
+- Start a GitHub Discussion or comment on a relevant issue to collect early feedback to shape an idea before drafting a formal RFC.
 
-- Fork the shopware/rfcs repo.
-- Copy 0000-template.md → rfcs/0000-my-feature-name.md.
-- Fill in your proposal using clear, thoughtful reasoning.
+### 2. Create your RFC
 
-### Submit a Pull Request
+- In the [`shopware/shopware`](https://github.com/shopware/shopware) repository, copy the [RFC template](https://github.com/shopware/shopware/blob/trunk/rfcs/0000-template.md) to a new file inside the [`/rfcs`](https://github.com/shopware/shopware/tree/trunk/rfcs) folder.
+- Name the file `0000-my-feature-name.md`. Keep the `0000` until the RFC is merged.
+- Structure your proposal clearly using the template, including real-world motivation, technical details, and potential drawbacks.
 
-- Open a PR to the shopware/rfcs repo with the new file.
-- Link to any pre-discussion or related issue.
-- Don’t assign an RFC number yet (the PR number will be used).
+### 3. Submit a Pull Request
 
-### Community & Core Team Feedback
+- Open a pull request targeting the `trunk` branch.
+- Include a brief summary in the PR description and link to any relevant GitHub Discussions or issues.
+- Label the PR with `Type:RFC` (or your reviewer will) and select the relevant domain.
 
-- The PR remains open for feedback and iteration.
-- Proposal is labeled with the relevant domain/* and assigned a Review Facilitator (usually an internal TDM/PM/Engineer).
-- Substantial changes may require UX/DevRel/Product/Cloud input.
+### 4. Assign a Review Facilitator
 
-### Final Comment Period (FCP)
+Once the RFC is submitted, a **Review Facilitator** will be assigned.
 
-- After consensus-building, the facilitator proposes an FCP. We suggest a 10 days time frame.
-- This period is publicly announced (e.g. via Slack, GitHub Discussions).
-- Silence during this phase does not mean implicit agreement. Please make sure the necessary feedback is gathered.
+The Facilitator is responsible for:
+- Making sure the proposal is reviewed by the right stakeholders (e.g., QA, UX, DevRel, Cloud, etc.).
+- Guiding the discussion.
+- Tracking open questions.
+- Deciding when the RFC is ready to proceed to the next phase.
 
-### Decision & Merge
+### 5. Community & Shopware Team Feedback
 
-- If accepted: the RFC is merged and marked active.
-- If rejected: closed with a rationale comment.
-- If unresolved: marked postponed, pending future iteration.
+- The RFC PR remains open for review and iterative feedback.
+- Reviewers may request clarifications, alternative approaches, or additional use cases.
+- Major concerns should be resolved through constructive discussion.
+- The Facilitator may invite reviewers from other teams if the proposal has cross-cutting impact.
 
-### Implementation Phase
+### 6. Final Comment Period (FCP)
 
-- The RFC author or any contributor may start implementing.
-- Link the implementation PR back to the RFC.
-- Significant deviations must be raised via follow-up PRs.
+Once the Facilitator and relevant stakeholders agree that the proposal is stable and no major objections remain, the RFC enters a **10-day Final Comment Period (FCP)**.
+
+- During FCP, contributors can raise final questions or blocking objections.
+- If no significant issues are raised, the Facilitator will approve the merge after 15 days.
+- If concerns emerge, the RFC returns to active discussion.
+
+### 7. Acceptance & Merge
+
+If approved, the Facilitator (or a Shopware team member) merges the RFC and:
+- Renames the file from `0000-...` to an assigned number (e.g., `0023-my-feature.md`)
+- Updates metadata (status, version, domain)
+
+### 8. Post-Merge Follow-up
+
+The Facilitator or another responsible team member may:
+- Create follow-up tickets for implementation
+- Notify impacted teams
+- Add the RFC to internal or developer-facing documentation
+
+Note: Merging an RFC doesn’t mean the feature is implemented. It means the idea is accepted as good to move forward into planning or development.
+
+### 9. Implementation Phase
+
+Once the RFC is merged, implementation can begin.
+
+- The RFC author, or any interested contributor, may start development.
+- All work should link back to the RFC pull request for traceability.
+- Significant deviations from the agreed design should trigger a follow-up RFC or discussion.
+
+Implementation may involve:
+- Creating one or more GitHub issues or PRs.
+- Involving QA, UX, DevRel, or other roles depending on impact.
+- Adding changelogs, upgrade guides, or developer documentation where needed.
 
 ## Governance & Veto Handling
-Shopware promotes a consensus-seeking model: disagreement is expected, but collaboration is key.
+Shopware promotes a consensus-driven approach to RFCs. Disagreement is normal—but it should be handled transparently and constructively.
 
-1. A “no response = no veto” policy applies during the FCP. Concerns must be raised during the open discussion or FCP window.
-2. Objections must be reasoned, not based on gut feeling or personal preference.
-3. The Review Facilitator may resolve edge cases, escalate to core maintainers, or reopen if strong community objections arise post-FCP.
-4. Major areas (Cloud, Admin, API, DAL, etc.) may have domain experts who are consulted before merge.
+- During the Final Comment Period (FCP), silence is interpreted as agreement (“no response = no veto”).
+- Objections should be supported with reasoning, such as risks, edge cases, or better alternatives.
+- The Review Facilitator is responsible for managing disagreements and may:
+    - Escalate concerns to core maintainers
+    - Reopen the RFC after merge if new, critical objections emerge
+    - Delay merge if stakeholder input is missing
 
-## Tips for Successful RFCs
-- Collaborate early and respond respectfully.
-- Keep implementation out of scope—focus on design decisions.
-- Highlight impacts on extensions, SaaS setups, or B2B/B2C merchants.
-- Don't worry if the RFC is declined—every proposal helps evolve Shopware.
+For RFCs touching critical areas (e.g. Cloud rollout, Admin UI, API contracts, DAL behaviors), domain experts are consulted before approval.
 
+## Tips for a Successful RFC
 
-## Inspired by
-This RFC process has been inspired by:
-- [Rust RFC Process](https://github.com/rust-lang/rfcs)
-- [Vue RFC Process](https://github.com/vuejs/rfcs)
+- Collaborate early and revise based on community feedback.
+- Focus on design, goals, and impact—leave implementation details for follow-up.
+- Anticipate how changes affect extensions, integrations, or B2B/B2C merchants.
+- Keep the scope tight—large features can be split into multiple RFCs.
+- Don’t worry if your RFC isn’t accepted right away—every proposal helps improve the platform.
+
+## Inspired By
+This RFC process was shaped by open source communities we admire:
+
+[Rust RFC Process](https://github.com/rust-lang/rfcs)
+[Vue RFC Process](https://github.com/vuejs/rfcs)
+[Kubernetes Enhancements](https://github.com/kubernetes/enhancements)
+[Python PEP Process](https://peps.python.org/pep-0001/)

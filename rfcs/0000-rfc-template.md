@@ -101,7 +101,6 @@ Are there edge cases you haven't explored yet?
 What could evolve from this proposal later?
 
 Think in terms of:
-- ProductOS alignment (discovery → delivery → release)
 - Roadmap implications
 - Extensibility layers (Apps, Plugins, API)
 - Admin UX patterns

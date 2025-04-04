@@ -65,7 +65,7 @@ class AppListCommandTest extends TestCase
 
         $commandTester = $this->executeCommand([]);
         static::assertSame(0, $commandTester->getStatusCode());
-        
+
         $display = $commandTester->getDisplay();
         static::assertStringContainsString('Shopware App Service', $display);
         static::assertStringContainsString('App List Test', $display);

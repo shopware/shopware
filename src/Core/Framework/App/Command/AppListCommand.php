@@ -27,7 +27,7 @@ class AppListCommand extends Command
 {
     /**
      * @internal
-     * 
+     *
      * @param EntityRepository<AppCollection> $appRepository
      */
     public function __construct(private readonly EntityRepository $appRepository)
@@ -96,7 +96,7 @@ class AppListCommand extends Command
             if ($app->isActive()) {
                 ++$active;
             }
-            
+
             ++$installed;
         }
 
@@ -104,7 +104,7 @@ class AppListCommand extends Command
             ['App', 'Label', 'Version', 'Author', 'Active'],
             $appTable
         );
-        
+
         $io->text(
             \sprintf(
                 '%d apps, %d active',

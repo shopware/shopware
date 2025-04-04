@@ -38,6 +38,7 @@ export default Shopware.Mixin.register(
             entitySearchable: boolean;
             freshSearchTerm: boolean;
             previousRouteName: string;
+            isNavigationInProgress: boolean;
         } {
             return {
                 page: 1,
@@ -53,6 +54,7 @@ export default Shopware.Mixin.register(
                 entitySearchable: true,
                 freshSearchTerm: false,
                 previousRouteName: '',
+                isNavigationInProgress: false,
             };
         },
 
@@ -105,7 +107,7 @@ export default Shopware.Mixin.register(
 
             // When no route information are provided
             if (Shopware.Utils.types.isEmpty(actualQueryParameters)) {
-                this.resetListing();
+                this.getList();
             } else {
                 this.parseBooleanQueryParams(actualQueryParameters);
 
@@ -113,6 +115,37 @@ export default Shopware.Mixin.register(
                 this.updateData(actualQueryParameters);
                 this.getList();
             }
+
+            // Instead of using a watch, use the router's beforeEach hook
+            // This will run for all route changes but we can filter out the ones we care about
+            this.$router.beforeEach((to, from, next) => {
+                // Prevent recursive calls - if we're already processing a navigation, just proceed
+                if (this.isNavigationInProgress) {
+                    next();
+                    return;
+                }
+
+                // Only handle if we're staying on the same route name
+                if (to.name === from.name && to.name === this.previousRouteName && !this.disableRouteParams) {
+                    if (Shopware.Utils.types.isEmpty(to.query)) {
+                        window.history.back(); // this fixes an issue where you have to go back twice to get to the correct page
+                        return;
+                    }
+                    // Update component data from the new route
+                    if (!Shopware.Utils.types.isEmpty(to.query)) {
+                        this.isNavigationInProgress = true;
+                        this.parseBooleanQueryParams(to.query);
+                        this.updateData(to.query);
+                        // Load the data to populate the listing
+                        this.getList();
+                        // Reset the flag after a short delay to ensure the route has finished updating
+                        setTimeout(() => {
+                            this.isNavigationInProgress = false;
+                        }, 50);
+                    }
+                }
+                next();
+            });
         },
 
         beforeRouteLeave() {
@@ -121,41 +154,13 @@ export default Shopware.Mixin.register(
         },
 
         watch: {
-            // Watch for changes in query parameters and update listing
-            $route(newRoute, oldRoute) {
-                if (this.disableRouteParams || this.previousRouteName !== newRoute.name) {
-                    return;
-                }
-
-                const query = this.$route.query;
-
-                if (Shopware.Utils.types.isEmpty(query)) {
-                    this.resetListing();
-                }
-
-                this.parseBooleanQueryParams(query);
-
-                // Update data information from the url
-                this.updateData(query);
-
-                // @ts-expect-error - properties are defined in base component
-                if (newRoute.query[this.storeKey] !== oldRoute.query[this.storeKey] && this.filterCriteria.length) {
-                    // @ts-expect-error - filterCriteria is defined in base component
-                    this.filterCriteria = [];
-                    return;
-                }
-
-                // Fetch new list
-                this.getList();
-            },
-
             selection() {
                 Shopware.Store.get('shopwareApps').selectedIds = Object.keys(this.selection);
                 Shopware.Store.get('swBulkEdit').selectedIds = Object.keys(this.selection);
             },
 
             term(newValue) {
-                if (newValue && newValue.length) {
+                if (newValue?.length) {
                     this.freshSearchTerm = true;
                 }
             },
@@ -178,8 +183,8 @@ export default Shopware.Mixin.register(
                 sortDirection?: string;
                 naturalSorting?: boolean;
             }) {
-                this.page = parseInt(customData.page as unknown as string, 10) || this.page;
-                this.limit = parseInt(customData.limit as unknown as string, 10) || this.limit;
+                this.page = Number.parseInt(customData.page as unknown as string, 10) || this.page;
+                this.limit = Number.parseInt(customData.limit as unknown as string, 10) || this.limit;
                 this.term = customData.term ?? this.term;
                 this.sortBy = customData.sortBy || this.sortBy;
                 this.sortDirection = customData.sortDirection || this.sortDirection;
@@ -199,7 +204,6 @@ export default Shopware.Mixin.register(
             ) {
                 // Get actual query parameter
                 const query = customQuery || this.$route.query;
-                const routeQuery = this.$route.query;
 
                 // Create new route
                 const route = {
@@ -217,26 +221,7 @@ export default Shopware.Mixin.register(
                 };
 
                 // If query is empty then replace route, otherwise push
-                if (Shopware.Utils.types.isEmpty(routeQuery)) {
-                    void this.$router.replace(route as unknown as RouteLocationNamedRaw);
-                } else {
-                    void this.$router.push(route as unknown as RouteLocationNamedRaw);
-                }
-            },
-
-            resetListing() {
-                this.updateRoute({
-                    // @ts-expect-error
-                    name: this.$route.name,
-                    query: {
-                        limit: this.limit,
-                        page: this.page,
-                        term: this.term,
-                        sortBy: this.sortBy,
-                        sortDirection: this.sortDirection,
-                        naturalSorting: this.naturalSorting,
-                    },
-                });
+                void this.$router.replace(route as unknown as RouteLocationNamedRaw);
             },
 
             getMainListingParams() {
@@ -377,7 +362,7 @@ export default Shopware.Mixin.register(
              * Only works on root level of the query object.
              */
             parseBooleanQueryParams(query: LocationQuery) {
-                Object.keys(query).forEach((key) => {
+                Object.keys(query).map(key => {
                     if (String(query[key]).toLowerCase() === 'true') {
                         // @ts-expect-error
                         query[key] = true;
@@ -385,6 +370,7 @@ export default Shopware.Mixin.register(
                         // @ts-expect-error
                         query[key] = false;
                     }
+                    return key;
                 });
             },
         },

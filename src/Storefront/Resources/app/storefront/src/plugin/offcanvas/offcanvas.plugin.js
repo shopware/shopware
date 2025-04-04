@@ -1,7 +1,10 @@
 import NativeEventEmitter from 'src/helper/emitter.helper';
 import Iterator from 'src/helper/iterator.helper';
 
+// The bootstrap offcanvas class
 const OFF_CANVAS_CLASS = 'offcanvas';
+// Custom offcanvas class to identify offcanvas created by OffCanvasSingleton
+const OFF_CANVAS_JS_CLASS = 'js-offcanvas-singleton';
 const OFF_CANVAS_FULLWIDTH_CLASS = 'is-fullwidth';
 const OFF_CANVAS_CLOSE_TRIGGER_CLASS = 'js-offcanvas-close';
 const REMOVE_OFF_CANVAS_DELAY = 350;
@@ -70,7 +73,7 @@ class OffCanvasSingleton {
      * @private
      */
     getOffCanvas() {
-        return document.querySelectorAll(`.${OFF_CANVAS_CLASS}`);
+        return document.querySelectorAll(`.${OFF_CANVAS_JS_CLASS}`);
     }
 
     /**
@@ -201,7 +204,7 @@ class OffCanvasSingleton {
      */
     _createOffCanvas(position, fullwidth, cssClass, closable) {
         const offCanvas = document.createElement('div');
-        offCanvas.classList.add(OFF_CANVAS_CLASS);
+        offCanvas.classList.add(OFF_CANVAS_CLASS, OFF_CANVAS_JS_CLASS);
         offCanvas.classList.add(this._getPositionClass(position));
         offCanvas.setAttribute('tabindex', '-1');
 

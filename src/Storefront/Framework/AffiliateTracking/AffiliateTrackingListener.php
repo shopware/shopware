@@ -3,6 +3,7 @@
 namespace Shopware\Storefront\Framework\AffiliateTracking;
 
 use Shopware\Core\Checkout\Order\SalesChannel\OrderService;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Routing\KernelListenerPriorities;
 use Shopware\Core\PlatformRequest;
@@ -23,6 +24,11 @@ class AffiliateTrackingListener implements EventSubscriberInterface
 
     public static function getSubscribedEvents(): array
     {
+        Feature::triggerDeprecationOrThrow(
+            'v6.8.0',
+            'The AffiliateTrackingListener class is deprecated and will be removed in v6.8.0. Use cookies for affiliate and campaign tracking instead.'
+        );
+        
         return [
             KernelEvents::CONTROLLER => [
                 ['checkAffiliateTracking', KernelListenerPriorities::KERNEL_CONTROLLER_EVENT_SCOPE_VALIDATE_POST],
@@ -32,6 +38,10 @@ class AffiliateTrackingListener implements EventSubscriberInterface
 
     public function checkAffiliateTracking(ControllerEvent $event): void
     {
+        Feature::triggerDeprecationOrThrow(
+            'v6.8.0',
+            'The AffiliateTrackingListener class is deprecated and will be removed in v6.8.0. Use cookies for affiliate and campaign tracking instead.'
+        );
         $request = $event->getRequest();
 
         /** @var list<string> $scopes */

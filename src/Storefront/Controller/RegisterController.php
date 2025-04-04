@@ -296,10 +296,15 @@ class RegisterController extends StorefrontController
             $request = $this->container->get('request_stack')->getCurrentRequest();
         }
         
-        $affiliateCode = $request->cookies->get('affiliate-code');
-        $affiliateCode = $affiliateCode ?: $session->get(AffiliateTrackingListener::AFFILIATE_CODE_KEY);
+        $affiliateCode = null;
+        $campaignCode = null;
         
-        $campaignCode = $request->cookies->get('campaign-code');
+        if ($request !== null) {
+            $affiliateCode = $request->cookies->get('affiliate-code');
+            $campaignCode = $request->cookies->get('campaign-code');
+        }
+        
+        $affiliateCode = $affiliateCode ?: $session->get(AffiliateTrackingListener::AFFILIATE_CODE_KEY);
         $campaignCode = $campaignCode ?: $session->get(AffiliateTrackingListener::CAMPAIGN_CODE_KEY);
 
         if ($affiliateCode !== null) {

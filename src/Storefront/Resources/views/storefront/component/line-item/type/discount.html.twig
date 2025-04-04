@@ -9,6 +9,10 @@
     {% set showRemoveButton = true %}
 {% endif %}
 
+{% if showSubtotal is not defined %}
+    {% set showSubtotal = true %}
+{% endif %}
+
 {% set lineItemClasses = 'line-item line-item-' ~ lineItem.type ~ ' is-' ~ displayMode %}
 
 {% if displayMode === 'offcanvas' %}
@@ -17,6 +21,10 @@
 
 {% if not showRemoveButton %}
     {% set lineItemClasses = lineItemClasses ~ ' no-remove-button' %}
+{% endif %}
+
+{% if not showSubtotal %}
+    {% set lineItemClasses = lineItemClasses ~ ' no-summary' %}
 {% endif %}
 
 {% block component_line_item_type_discount %}
@@ -79,13 +87,15 @@
                         {% endblock %}
                     {% endif %}
 
-                    {% block component_line_item_type_discount_col_total_price %}
-                        <div class="line-item-total-price">
-                            {% sw_include '@Storefront/storefront/component/line-item/element/total-price.html.twig' with {
-                                currency: lineItem.order.currency.isoCode
-                            } %}
-                        </div>
-                    {% endblock %}
+                    {% if showSubtotal %}
+                        {% block component_line_item_type_discount_col_total_price %}
+                            <div class="line-item-total-price">
+                                {% sw_include '@Storefront/storefront/component/line-item/element/total-price.html.twig' with {
+                                    currency: lineItem.order.currency.isoCode
+                                } %}
+                            </div>
+                        {% endblock %}
+                    {% endif %}
 
                     {% if showRemoveButton %}
                         {% block component_line_item_type_discount_col_total_remove %}

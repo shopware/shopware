@@ -35,11 +35,11 @@ class ThemeRuntimeConfig
      * @param array{
      *     themeId: string,
      *     technicalName: string,
-     *     resolvedConfig: array<mixed>,
+     *     resolvedConfig?: array<mixed>,
      *     viewInheritance?: array<string>,
      *     scriptFiles?: array<string>|null,
-     *     iconSets: array<string, array{path: string, namespace: string}>,
-     *     updatedAt: \DateTimeInterface
+     *     iconSets?: array<string, array{path: string, namespace: string}>,
+     *     updatedAt?: \DateTimeInterface
      * } $data
      */
     public static function fromArray(array $data): self

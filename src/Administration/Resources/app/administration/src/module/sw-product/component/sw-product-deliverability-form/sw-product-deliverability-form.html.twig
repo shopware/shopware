@@ -41,8 +41,8 @@
                     :label="$tc('sw-product.settingsForm.labelIsCloseout')"
                     :help-text="$tc('sw-product.settingsForm.isCloseoutHelpText')"
                     :disabled="props.isInherited || !allowEdit"
-                    :checked="props.currentValue"
-                    @change="props.updateCurrentValue"
+                    :model-value="props.currentValue"
+                    @update:model-value="props.updateCurrentValue"
                 />
 
             </template>
@@ -123,8 +123,8 @@
                     :error="productShippingFreeError"
                     :label="$tc('sw-product.settingsForm.labelShippingFree')"
                     :disabled="props.isInherited || !allowEdit"
-                    :checked="props.currentValue"
-                    @change="props.updateCurrentValue"
+                    :model-value="props.currentValue"
+                    @update:model-value="props.updateCurrentValue"
                 />
 
             </template>

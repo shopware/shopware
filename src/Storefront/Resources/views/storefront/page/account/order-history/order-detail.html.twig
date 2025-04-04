@@ -1,4 +1,11 @@
 {% block page_account_order_item_detail_overview %}
+    {% set showTaxPrice = config('core.cart.columnTaxInsteadUnitPrice') %}
+    {# @deprecated tag:v6.8.0 - Will listening to core.cart.columnTaxInsteadUnitPrice instead #}
+    {% if not feature('v6.8.0.0') %}
+        {% set showTaxPrice = false %}
+    {% endif %}
+    {% set showSubtotal = config('core.cart.showSubtotal') %}
+
     <div class="order-item-detail">
         <div class="collapse"
              id="order{{ order.orderNumber }}">
@@ -10,10 +17,16 @@
                 {% endblock %}
 
                 {% block page_account_order_item_detail_table_header %}
+                    {% set subtotalColumnSize = 2 %}
+                    {% set infoColumnSize = 8 %}
+                    {% if showSubtotal %}
+                        {% set infoColumnSize = infoColumnSize - subtotalColumnSize %}
+                    {% endif %}
+
                     <div class="order-detail-content-header" aria-hidden="true">
                         <div class="row">
                             {% block page_account_order_item_detail_table_header_name %}
-                                <div class="col-6 order-detail-content-header-cell order-header-name">
+                                <div class="col-{{ infoColumnSize }} order-detail-content-header-cell order-header-name">
                                     {{ 'account.orderItemColumnName'|trans|sw_sanitize }}
                                 </div>
                             {% endblock %}
@@ -24,16 +37,33 @@
                                 </div>
                             {% endblock %}
 
-                            {% block page_account_order_item_detail_table_header_price %}
-                                <div class="col-2 order-detail-content-header-cell order-header-price">
-                                    {{ 'account.orderItemColumnPrice'|trans|sw_sanitize }}
-                                </div>
-                            {% endblock %}
+                            {% if showTaxPrice %}
+                                {% block component_checkout_cart_header_tax_price %}
+                                    <div class="col-2 order-detail-content-header-cell order-header-tax-price">
+                                        {% if context.salesChannel.taxCalculationType == 'horizontal' %}
+                                            {% if context.taxState == 'gross' %}
+                                                {{ 'checkout.cartHeaderTaxIncludeVat'|trans|sw_sanitize }}
+                                            {% else %}
+                                                {{ 'checkout.cartHeaderTaxExcludeVat'|trans|sw_sanitize }}
+                                            {% endif %}
+                                        {% endif %}
+                                    </div>
+                                {% endblock %}
+                            {% else %}
+                                {# @deprecated tag:v6.8.0 - Will only be rendered, if the "core.cart.columnTaxInsteadUnitPrice" config is false #}
+                                {% block page_account_order_item_detail_table_header_price %}
+                                    <div class="col-2 order-detail-content-header-cell order-header-price">
+                                        {{ 'account.orderItemColumnPrice'|trans|sw_sanitize }}
+                                    </div>
+                                {% endblock %}
+                            {% endif %}
 
                             {% block page_account_order_item_detail_table_header_total %}
-                                <div class="col-2 order-detail-content-header-cell order-header-total">
-                                    {{ 'account.orderItemColumnTotal'|trans|sw_sanitize }}
-                                </div>
+                                {% if showSubtotal %}
+                                    <div class="col-{{ subtotalColumnSize }} order-detail-content-header-cell order-header-total">
+                                        {{ 'account.orderItemColumnTotal'|trans|sw_sanitize }}
+                                    </div>
+                                {% endif %}
                             {% endblock %}
                         </div>
                     </div>
@@ -41,7 +71,10 @@
 
                 {% block page_account_order_item_detail_table_body %}
                     <div class="order-detail-content-body">
-                        {% sw_include '@Storefront/storefront/page/account/order-history/order-detail-list.html.twig' %}
+                        {% sw_include '@Storefront/storefront/page/account/order-history/order-detail-list.html.twig' with {
+                            showTaxPrice: showTaxPrice,
+                            showSubtotal: showSubtotal
+                        } %}
                     </div>
                 {% endblock %}
 

@@ -14,18 +14,21 @@
             variant="attention"
             :title="$tc('sw-app.component.sw-app-wrong-app-url-modal.title')"
         >
+            <div>
+                {{ $tc('sw-app.component.sw-app-wrong-app-url-modal.explanation') }}
+            </div>
 
-            <template #default>
-                <div>
-                    {{ $tc('sw-app.component.sw-app-wrong-app-url-modal.explanation') }}
-                </div>
-                <div>
-                    {{ $tc('sw-app.component.sw-app-wrong-app-url-modal.textGetSupport') }}
-                </div>
-            </template>
+            <div>
+                {{ $tc('sw-app.component.sw-app-wrong-app-url-modal.textGetSupport') }}
+            </div>
 
-            <!-- Slot "actions" was removed and has no replacement. -->
-
+            <mt-button
+                class="sw-app-wrong-app-url-modal__content-link-button"
+                variant="secondary"
+                :link="$tc('sw-app.component.sw-app-wrong-app-url-modal.linkToDocsArticle')"
+            >
+                {{ $tc('sw-app.component.sw-app-wrong-app-url-modal.labelLearnMoreButton') }}
+            </mt-button>
         </mt-banner>
 
         <mt-banner
@@ -34,13 +37,16 @@
             variant="attention"
             :title="$tc('sw-extension-store.component.sw-extension-my-extensions-listing.alertExtensionManagement.title')"
         >
-            <template #default>
-                <div>
-                    {{ $tc('sw-extension-store.component.sw-extension-my-extensions-listing.alertExtensionManagement.description') }}
-                </div>
-            </template>
+            <div>
+                {{ $tc('sw-extension-store.component.sw-extension-my-extensions-listing.alertExtensionManagement.description') }}
+            </div>
 
-            <!-- Slot "actions" was removed and has no replacement. -->
+            <mt-link
+                type="external"
+                href="https://developer.shopware.com/docs/guides/hosting/installation-updates/extension-managment.html"
+            >
+                {{ $tc('sw-app.component.sw-app-wrong-app-url-modal.labelLearnMoreButton') }}
+            </mt-link>
         </mt-banner>
 
         {% block sw_extension_my_extensions_list_empty_state %}

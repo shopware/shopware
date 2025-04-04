@@ -601,11 +601,6 @@ parameters:
 			path: src/Core/Content/Media/Message/DeleteFileMessage.php
 
 		-
-			message: "#^Method Shopware\\\\Core\\\\Content\\\\Media\\\\Metadata\\\\MetadataLoader\\:\\:loadFromFile\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Content/Media/Metadata/MetadataLoader.php
-
-		-
 			message: "#^Method Shopware\\\\Core\\\\Content\\\\Media\\\\TypeDetector\\\\TypeDetector\\:\\:detect\\(\\) should return Shopware\\\\Core\\\\Content\\\\Media\\\\MediaType\\\\MediaType but returns Shopware\\\\Core\\\\Content\\\\Media\\\\MediaType\\\\MediaType\\|null\\.$#"
 			count: 1
 			path: src/Core/Content/Media/TypeDetector/TypeDetector.php

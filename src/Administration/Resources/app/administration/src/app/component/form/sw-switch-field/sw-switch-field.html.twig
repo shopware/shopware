@@ -1,8 +1,8 @@
 {% block sw_switch_field %}
 <mt-switch
     v-bind="$attrs"
-    :checked="checkedValue"
-    @change="onChangeHandler"
+    :model-value="checkedValue"
+    @update:model-value="onChangeHandler"
 >
     <slot></slot>
 </mt-switch>

@@ -28,6 +28,10 @@
         .sw-extension-my-extensions-listing__app-url-warning {
             max-width: 960px;
             margin-bottom: 32px;
+
+            .mt-button {
+                margin-top: 8px;
+            }
         }
 
         .sw-extension-my-extensions-listing__runtime-extension-warning {

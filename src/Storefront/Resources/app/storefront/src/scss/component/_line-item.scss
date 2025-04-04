@@ -1,3 +1,8 @@
+$infoItemDetailMdSpace: 8;
+$infoItemInfoMdSpace: 5;
+$infoItemTotalPriceMdSpace: 2;
+$infoItemRemoveMdSpace: 1;
+
 .line-item {
     margin: 0;
     padding: 10px 0;
@@ -21,7 +26,7 @@
     @include make-col-ready();
     @include make-col(10);
     @include media-breakpoint-up(md) {
-        @include make-col(5);
+        @include make-col($infoItemInfoMdSpace);
     }
 }
 
@@ -33,7 +38,7 @@
         @include make-col(7);
     }
     @include media-breakpoint-up(md) {
-        @include make-col(8);
+        @include make-col($infoItemDetailMdSpace);
     }
 }
 
@@ -101,7 +106,7 @@
         @include make-col(4);
     }
     @include media-breakpoint-up(md) {
-        @include make-col(2);
+        @include make-col($infoItemTotalPriceMdSpace);
     }
 }
 
@@ -112,7 +117,7 @@
     @include make-col-ready();
     @include make-col(2);
     @include media-breakpoint-up(md) {
-        @include make-col(1);
+        @include make-col($infoItemRemoveMdSpace);
     }
 }
 
@@ -181,7 +186,42 @@
     // Info column needs to use more gird space when no remove button exists as last row.
     .line-item-info {
         @include media-breakpoint-up(md) {
-            @include make-col(6);
+            @include make-col($infoItemInfoMdSpace + $infoItemRemoveMdSpace);
+        }
+    }
+    .line-item-details {
+        @include media-breakpoint-up(md) {
+            @include make-col($infoItemDetailMdSpace + 1);
+        }
+    }
+}
+
+.no-summary {
+    // Info column needs to use more gird space when no subtotal column exists.
+    .line-item-info {
+        @include media-breakpoint-up(md) {
+            @include make-col($infoItemInfoMdSpace + $infoItemTotalPriceMdSpace);
+        }
+    }
+    .line-item-details {
+        @include media-breakpoint-up(md) {
+            @include make-col($infoItemDetailMdSpace + 1);
+        }
+    }
+}
+
+.no-summary.no-remove-button {
+    // Info column needs to use more gird space when no remove button and subtotal column exists.
+    .line-item-info {
+        @include media-breakpoint-up(md) {
+            @include make-col(
+                $infoItemInfoMdSpace + $infoItemRemoveMdSpace + $infoItemTotalPriceMdSpace
+            );
+        }
+    }
+    .line-item-details {
+        @include media-breakpoint-up(md) {
+            @include make-col($infoItemDetailMdSpace + 2);
         }
     }
 }

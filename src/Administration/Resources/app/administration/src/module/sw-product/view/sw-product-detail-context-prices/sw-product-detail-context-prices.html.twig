@@ -102,10 +102,10 @@
                     {% block sw_product_detail_prices_price_card_price_group_grid_settings_list_prices %}
 
                         <mt-switch
-                            :checked="showListPrices[priceGroup.ruleId] !== false"
+                            :model-value="showListPrices[priceGroup.ruleId] !== false"
                             remove-top-margin
                             :label="$tc('sw-product.prices.settingShowListPrices')"
-                            @change="onChangeShowListPrices($event, priceGroup.ruleId)"
+                            @update:model-value="onChangeShowListPrices($event, priceGroup.ruleId)"
                         />
                     {% endblock %}
                     </template>

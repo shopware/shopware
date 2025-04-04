@@ -376,7 +376,7 @@ class OrderServiceTest extends TestCase
 
         $this->orderService->orderTransactionStateTransition(
             $orderTransactionId,
-            'pay_partially',
+            'paid_partially',
             new RequestDataBag(),
             $this->salesChannelContext->getContext()
         );
@@ -432,7 +432,7 @@ class OrderServiceTest extends TestCase
 
         $this->orderService->orderTransactionStateTransition(
             $orderTransactionId,
-            'pay_partially',
+            'paid_partially',
             new RequestDataBag(['sendMail' => false]),
             $this->salesChannelContext->getContext()
         );

@@ -30,6 +30,7 @@ interface SwBulkState {
         credit_note: OrderDocument;
         download: OrderDownloadDocument;
     };
+    selectedIds: string[];
 }
 
 const swBulkStore = Shopware.Store.register('swBulkEdit', {
@@ -80,6 +81,7 @@ const swBulkStore = Shopware.Store.register('swBulkEdit', {
                     value: [],
                 },
             },
+            selectedIds: [],
         } as SwBulkState;
     },
 

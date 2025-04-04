@@ -253,9 +253,13 @@ class ProductListingCmsElementResolverTest extends TestCase
         static::assertInstanceOf(ProductSortingCollection::class, $restrictedSortings);
 
         // Verify the sorting with higher priority comes first
-        static::assertSame(2, $restrictedSortings->count());
-        static::assertSame('sorting-id-2', $restrictedSortings->first()->getId());
-        static::assertSame('sorting-id-1', $restrictedSortings->last()->getId());
+        static::assertCount(2, $restrictedSortings);
+        $firstSorting = $restrictedSortings->first();
+        $lastSorting = $restrictedSortings->last();
+        static::assertNotNull($firstSorting);
+        static::assertNotNull($lastSorting);
+        static::assertSame('sorting-id-2', $firstSorting->getId());
+        static::assertSame('sorting-id-1', $lastSorting->getId());
     }
 
     public function testRestrictSortingsWithEmptyConfig(): void

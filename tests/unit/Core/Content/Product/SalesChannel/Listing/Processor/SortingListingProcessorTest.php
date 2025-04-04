@@ -241,8 +241,12 @@ class SortingListingProcessorTest extends TestCase
 
         // Verify that sortings are ordered based on the requested priority
         // The second sorting (uuid2) has higher priority (20) so it should come first
-        static::assertEquals($uuid2, $sortings->first()->getId());
-        static::assertEquals($uuid1, $sortings->last()->getId());
+        $firstSorting = $sortings->first();
+        $lastSorting = $sortings->last();
+        static::assertNotNull($firstSorting);
+        static::assertNotNull($lastSorting);
+        static::assertEquals($uuid2, $firstSorting->getId());
+        static::assertEquals($uuid1, $lastSorting->getId());
     }
 
     public static function prepareProvider(): \Generator

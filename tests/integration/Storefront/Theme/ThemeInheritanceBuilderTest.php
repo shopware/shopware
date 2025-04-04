@@ -2,15 +2,16 @@
 
 namespace Shopware\Tests\Integration\Storefront\Theme;
 
-use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Bundle;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
+use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Storefront\Storefront;
 use Shopware\Storefront\Theme\StorefrontPluginConfiguration\AbstractStorefrontPluginConfigurationFactory;
 use Shopware\Storefront\Theme\StorefrontPluginConfiguration\StorefrontPluginConfigurationCollection;
 use Shopware\Storefront\Theme\StorefrontPluginConfiguration\StorefrontPluginConfigurationFactory;
-use Shopware\Storefront\Theme\StorefrontPluginRegistry;
+use Shopware\Storefront\Theme\ThemeRuntimeConfig;
+use Shopware\Storefront\Theme\ThemeRuntimeConfigService;
 use Shopware\Storefront\Theme\Twig\ThemeInheritanceBuilder;
 use Shopware\Storefront\Theme\Twig\ThemeInheritanceBuilderInterface;
 use Shopware\Tests\Integration\Storefront\Theme\fixtures\ConfigWithoutStorefrontDefined\ConfigWithoutStorefrontDefined;
@@ -28,7 +29,7 @@ class ThemeInheritanceBuilderTest extends TestCase
 {
     use IntegrationTestBehaviour;
 
-    private MockObject&StorefrontPluginRegistry $themeRegistryMock;
+    private ThemeRuntimeConfigTestService $themeRuntimeConfigService;
 
     private ThemeInheritanceBuilderInterface $builder;
 
@@ -36,9 +37,9 @@ class ThemeInheritanceBuilderTest extends TestCase
 
     protected function setUp(): void
     {
-        $this->themeRegistryMock = $this->createMock(StorefrontPluginRegistry::class);
+        $this->themeRuntimeConfigService = new ThemeRuntimeConfigTestService();
 
-        $this->builder = new ThemeInheritanceBuilder($this->themeRegistryMock);
+        $this->builder = new ThemeInheritanceBuilder($this->themeRuntimeConfigService);
 
         $this->configFactory = static::getContainer()->get(StorefrontPluginConfigurationFactory::class);
     }
@@ -50,8 +51,7 @@ class ThemeInheritanceBuilderTest extends TestCase
             $this->configFactory->createFromBundle(new InheritanceWithConfig()),
         ]);
 
-        $this->themeRegistryMock->method('getConfigurations')
-            ->willReturn($configs);
+        $this->themeRuntimeConfigService->initFromConfigCollection($configs);
 
         $inheritance = $this->builder->build(
             ['InheritanceWithConfig' => 1, 'Storefront' => 1],
@@ -69,8 +69,7 @@ class ThemeInheritanceBuilderTest extends TestCase
             $this->configFactory->createFromBundle($this->getMockedPlugin('PayPal', SimplePlugin::class)),
         ]);
 
-        $this->themeRegistryMock->method('getConfigurations')
-            ->willReturn($configs);
+        $this->themeRuntimeConfigService->initFromConfigCollection($configs);
 
         $inheritance = $this->builder->build(
             ['InheritanceWithConfig' => 1, 'Storefront' => 1, 'PayPal' => 1],
@@ -88,8 +87,7 @@ class ThemeInheritanceBuilderTest extends TestCase
             $this->configFactory->createFromBundle($this->getMockedPlugin('PayPal', SimplePlugin::class)),
         ]);
 
-        $this->themeRegistryMock->method('getConfigurations')
-            ->willReturn($configs);
+        $this->themeRuntimeConfigService->initFromConfigCollection($configs);
 
         $inheritance = $this->builder->build(
             ['ConfigWithoutStorefrontDefined' => 1, 'Storefront' => 1, 'PayPal' => 1],
@@ -108,8 +106,7 @@ class ThemeInheritanceBuilderTest extends TestCase
             $this->configFactory->createFromBundle($this->getMockedPlugin('CustomProducts', SimplePlugin::class)),
         ]);
 
-        $this->themeRegistryMock->method('getConfigurations')
-            ->willReturn($configs);
+        $this->themeRuntimeConfigService->initFromConfigCollection($configs);
 
         $inheritance = $this->builder->build(
             ['PluginWildcardAndExplicit' => 1, 'Storefront' => 1, 'PayPal' => 1, 'CustomProducts' => 1],
@@ -128,8 +125,7 @@ class ThemeInheritanceBuilderTest extends TestCase
             $this->configFactory->createFromBundle($this->getMockedPlugin('CustomProducts', SimplePlugin::class)),
         ]);
 
-        $this->themeRegistryMock->method('getConfigurations')
-            ->willReturn($configs);
+        $this->themeRuntimeConfigService->initFromConfigCollection($configs);
 
         $inheritance = $this->builder->build(
             ['ThemeWithoutStorefront' => 1, 'Storefront' => 1, 'PayPal' => 1, 'CustomProducts' => 1],
@@ -155,8 +151,7 @@ class ThemeInheritanceBuilderTest extends TestCase
             $this->configFactory->createFromBundle($this->getMockedPlugin('ThemeD', SimpleTheme::class)),
         ]);
 
-        $this->themeRegistryMock->method('getConfigurations')
-            ->willReturn($configs);
+        $this->themeRuntimeConfigService->initFromConfigCollection($configs);
 
         $inheritance = $this->builder->build(
             ['ThemeWithMultiInheritance' => 1, 'ThemeA' => 1, 'ThemeB' => 1, 'ThemeC' => 1, 'ThemeD' => 1, 'PayPal' => 1],
@@ -183,5 +178,46 @@ class ThemeInheritanceBuilderTest extends TestCase
         $name->setValue($bundle, $pluginName);
 
         return $bundle;
+    }
+}
+
+/**
+ * @internal
+ */
+class ThemeRuntimeConfigTestService extends ThemeRuntimeConfigService
+{
+    /**
+     * @var array<string, ThemeRuntimeConfig>
+     */
+    private array $configs = [];
+
+    public function __construct(
+    ) {
+    }
+
+    public function initFromConfigCollection(StorefrontPluginConfigurationCollection $configurationCollection): void
+    {
+        $this->configs = [];
+        foreach ($configurationCollection as $plugin) {
+            if (!$plugin->getIsTheme()) {
+                continue;
+            }
+
+            $this->configs[$plugin->getTechnicalName()] = ThemeRuntimeConfig::fromArray([
+                'themeId' => Uuid::randomHex(),
+                'technicalName' => $plugin->getTechnicalName(),
+                'viewInheritance' => $plugin->getViewInheritance(),
+            ]);
+        }
+    }
+
+    public function getActiveThemeNames(): array
+    {
+        return array_keys($this->configs);
+    }
+
+    public function getRuntimeConfigByName(string $technicalName): ?ThemeRuntimeConfig
+    {
+        return $this->configs[$technicalName] ?? null;
     }
 }

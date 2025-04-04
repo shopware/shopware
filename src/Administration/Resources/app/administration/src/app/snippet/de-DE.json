@@ -1496,6 +1496,11 @@
     "active": "Aktiv",
     "inactive": "Inaktiv"
   },
+  "sw-date-filter": {
+    "selectTimeframe": {
+      "placeholder": "Zeitraum auswählen"
+    }
+  },
   "sw-existence-filter": {
     "placeholder": "Alle",
     "noCriteria": "Kein {criteriaName}",

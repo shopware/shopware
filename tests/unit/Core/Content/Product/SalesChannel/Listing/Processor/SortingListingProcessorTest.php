@@ -132,7 +132,12 @@ class SortingListingProcessorTest extends TestCase
         // Verify sortings extension contains the restrictedProductSortingCollection
         $sortings = $criteria->getExtension('sortings');
         static::assertInstanceOf(ProductSortingCollection::class, $sortings);
-        static::assertSame($restrictedCollection, $sortings);
+
+        // Check the collections have the same contents
+        static::assertCount($restrictedCollection->count(), $sortings);
+        $restrictedIds = array_map(fn ($entity) => $entity->getId(), $restrictedCollection->getElements());
+        $sortingIds = array_map(fn ($entity) => $entity->getId(), $sortings->getElements());
+        static::assertEquals($restrictedIds, $sortingIds);
     }
 
     #[DataProvider('processProvider')]

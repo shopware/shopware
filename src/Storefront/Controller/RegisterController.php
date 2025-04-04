@@ -290,19 +290,10 @@ class RegisterController extends StorefrontController
         return $definition;
     }
 
-    private function prepareAffiliateTracking(RequestDataBag $data, SessionInterface $session, ?Request $request = null): RequestDataBag
+    private function prepareAffiliateTracking(RequestDataBag $data, SessionInterface $session, Request $request): RequestDataBag
     {
-        if ($request === null) {
-            $request = $this->container->get('request_stack')->getCurrentRequest();
-        }
-
-        $affiliateCode = null;
-        $campaignCode = null;
-
-        if ($request !== null) {
-            $affiliateCode = $request->cookies->get('affiliate-code');
-            $campaignCode = $request->cookies->get('campaign-code');
-        }
+        $affiliateCode = $request->cookies->get('affiliate-code');
+        $campaignCode = $request->cookies->get('campaign-code');
 
         $affiliateCode = $affiliateCode ?: $session->get(AffiliateTrackingListener::AFFILIATE_CODE_KEY);
         $campaignCode = $campaignCode ?: $session->get(AffiliateTrackingListener::CAMPAIGN_CODE_KEY);

@@ -1,0 +1,8 @@
+Shopware App Service
+===============
+
+ App          Label        Version    Author         Active
+ App List Test alt          1.0.0      Shopware AG    Yes
+ Inactive App Inactive App... 2.0.0    Test Developer No
+
+2 apps, 1 active

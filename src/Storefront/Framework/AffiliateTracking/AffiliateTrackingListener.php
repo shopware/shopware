@@ -14,7 +14,7 @@ use Symfony\Component\HttpKernel\KernelEvents;
 
 /**
  * @internal
- * @deprecated tag:v6.8.0 - Will be removed in v6.8.0. Use cookies for affiliate and campaign tracking instead.
+ * @deprecated tag:v6.8.0 - Will be removed in v6.8.0. Use cookies for affiliate and campaign tracking instead. - reason:remove-subscriber
  */
 #[Package('framework')]
 class AffiliateTrackingListener implements EventSubscriberInterface
@@ -24,11 +24,6 @@ class AffiliateTrackingListener implements EventSubscriberInterface
 
     public static function getSubscribedEvents(): array
     {
-        Feature::triggerDeprecationOrThrow(
-            'v6.8.0',
-            'The AffiliateTrackingListener class is deprecated and will be removed in v6.8.0. Use cookies for affiliate and campaign tracking instead.'
-        );
-        
         return [
             KernelEvents::CONTROLLER => [
                 ['checkAffiliateTracking', KernelListenerPriorities::KERNEL_CONTROLLER_EVENT_SCOPE_VALIDATE_POST],
@@ -38,10 +33,6 @@ class AffiliateTrackingListener implements EventSubscriberInterface
 
     public function checkAffiliateTracking(ControllerEvent $event): void
     {
-        Feature::triggerDeprecationOrThrow(
-            'v6.8.0',
-            'The AffiliateTrackingListener class is deprecated and will be removed in v6.8.0. Use cookies for affiliate and campaign tracking instead.'
-        );
         $request = $event->getRequest();
 
         /** @var list<string> $scopes */

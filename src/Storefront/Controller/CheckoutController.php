@@ -214,7 +214,7 @@ class CheckoutController extends StorefrontController
         }
 
         try {
-            $this->addAffiliateTracking($data, $request->getSession());
+            $this->addAffiliateTracking($data, $request->getSession(), $request);
 
             $orderId = Profiler::trace('checkout-order', fn () => $this->orderService->createOrder($data, $context));
         } catch (ConstraintViolationException $formViolations) {
@@ -291,10 +291,8 @@ class CheckoutController extends StorefrontController
         return $this->renderStorefront('@Storefront/storefront/component/checkout/offcanvas-cart.html.twig', ['page' => $page]);
     }
 
-    private function addAffiliateTracking(RequestDataBag $dataBag, SessionInterface $session): void
+    private function addAffiliateTracking(RequestDataBag $dataBag, SessionInterface $session, Request $request): void
     {
-        $request = $this->container->get('request_stack')->getCurrentRequest();
-        
         $affiliateCode = $request->cookies->get('affiliate-code');
         $affiliateCode = $affiliateCode ?: $session->get(AffiliateTrackingListener::AFFILIATE_CODE_KEY);
         

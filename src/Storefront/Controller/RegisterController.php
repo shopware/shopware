@@ -175,7 +175,7 @@ class RegisterController extends StorefrontController
             }
 
             $data->set('storefrontUrl', $this->getConfirmUrl($context, $request));
-            $data = $this->prepareAffiliateTracking($data, $request->getSession());
+            $data = $this->prepareAffiliateTracking($data, $request->getSession(), $request);
             $data->set('guest', !$data->getBoolean('createCustomerAccount'));
 
             $this->registerRoute->register(
@@ -290,9 +290,11 @@ class RegisterController extends StorefrontController
         return $definition;
     }
 
-    private function prepareAffiliateTracking(RequestDataBag $data, SessionInterface $session): RequestDataBag
+    private function prepareAffiliateTracking(RequestDataBag $data, SessionInterface $session, Request $request = null): RequestDataBag
     {
-        $request = $this->container->get('request_stack')->getCurrentRequest();
+        if ($request === null) {
+            $request = $this->container->get('request_stack')->getCurrentRequest();
+        }
         
         $affiliateCode = $request->cookies->get('affiliate-code');
         $affiliateCode = $affiliateCode ?: $session->get(AffiliateTrackingListener::AFFILIATE_CODE_KEY);

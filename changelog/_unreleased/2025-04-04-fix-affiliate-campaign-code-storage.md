@@ -5,15 +5,6 @@ author: Devin AI
 author_email: devin-ai-integration[bot]@users.noreply.github.com
 author_github: @devin-ai-integration
 ---
-# Core
-*  
-___
-# API
-*  
-___
-# Administration
-*  
-___
 # Storefront
 * Added new plugin class `affiliate-tracking.plugin.js` to store affiliate and campaign codes in cookies
 * Deprecated `AffiliateTrackingListener` class (to be removed in v6.8.0)

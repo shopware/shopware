@@ -4,6 +4,7 @@ namespace Shopware\Core\Content\Media\Infrastructure\Path;
 
 use League\Flysystem\FilesystemOperator;
 use Shopware\Core\Content\Media\Core\Application\AbstractMediaUrlGenerator;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 
 /**
@@ -27,13 +28,14 @@ class MediaUrlGenerator extends AbstractMediaUrlGenerator
                 $url = $value->path;
             } else {
                 $url = $this->filesystem->publicUrl($value->path);
+                $url = $this->encodeUrl($url);
             }
 
             if ($value->updatedAt !== null) {
                 $url .= '?ts=' . $value->updatedAt->getTimestamp();
             }
 
-            $urls[$key] = $this->encodeUrl($url);
+            $urls[$key] = $url;
         }
 
         return $urls;
@@ -41,6 +43,10 @@ class MediaUrlGenerator extends AbstractMediaUrlGenerator
 
     private function encodeUrl(string $mediaUrl): string
     {
+        if (!Feature::isActive('v6.8.0.0')) {
+            return $mediaUrl;
+        }
+
         $urlInfo = parse_url($mediaUrl);
         if (!\is_array($urlInfo)) {
             return $mediaUrl;
@@ -65,13 +71,12 @@ class MediaUrlGenerator extends AbstractMediaUrlGenerator
 
         if (isset($urlInfo['host'])) {
             $encodedPath .= "{$urlInfo['host']}";
-        }
 
-        if (isset($urlInfo['port'])) {
-            $encodedPath .= ":{$urlInfo['port']}";
+            if (isset($urlInfo['port'])) {
+                $encodedPath .= ":{$urlInfo['port']}";
+            }
         }
 
         return $encodedPath . $path;
     }
-
 }

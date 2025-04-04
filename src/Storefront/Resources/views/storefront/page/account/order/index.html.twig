@@ -5,6 +5,8 @@
 {% endblock %}
 
 {% set orderState = page.order.stateMachineState.technicalName %}
+{% set showTaxPrice = config('core.cart.columnTaxInsteadUnitPrice') %}
+{% set showSubtotal = config('core.cart.showSubtotal') %}
 
 {% block page_checkout_confirm_header %}
     {% if page.errorCode == 'CHECKOUT__CUSTOMER_CANCELED_EXTERNAL_PAYMENT' %}
@@ -66,8 +68,9 @@
 
 {% block page_checkout_confirm_table_header %}
     {% sw_include '@Storefront/storefront/component/checkout/cart-header.html.twig' with {
-        showTaxPrice: true,
-        showRemoveColumn: false
+        showTaxPrice: showTaxPrice,
+        showRemoveColumn: false,
+        showSubtotal: showSubtotal
     } %}
 {% endblock %}
 
@@ -76,8 +79,9 @@
         {% block page_checkout_confirm_table_item %}
             {% sw_include '@Storefront/storefront/component/line-item/line-item.html.twig' with {
                 redirectTo: 'frontend.checkout.confirm.page',
-                showTaxPrice: true,
-                showRemoveButton: false
+                showTaxPrice: showTaxPrice,
+                showRemoveButton: false,
+                showSubtotal: showSubtotal
             } %}
         {% endblock %}
     {% endfor %}

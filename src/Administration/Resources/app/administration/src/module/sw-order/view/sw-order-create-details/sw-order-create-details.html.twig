@@ -187,9 +187,9 @@
 
         <mt-switch
             class="sw-order-create-details__disable-auto-promotion"
-            :checked="disabledAutoPromotion"
+            :model-value="disabledAutoPromotion"
             :label="$tc('sw-order.createBase.labelToggleAutomaticPromotions')"
-            @change="toggleAutomaticPromotions"
+            @update:model-value="toggleAutomaticPromotions"
         />
         {% endblock %}
     </mt-card>

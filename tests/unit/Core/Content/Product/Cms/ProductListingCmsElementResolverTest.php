@@ -179,6 +179,7 @@ class ProductListingCmsElementResolverTest extends TestCase
         $route = $this->createMock(AbstractProductListingRoute::class);
         $route->expects($this->once())->method('load')->willReturn($response);
 
+        // Create a sorting with the ID from defaultSorting config
         $sorting = new ProductSortingCollection([
             (new ProductSortingEntity())->assign([
                 'id' => 'sorting-id-1',
@@ -191,8 +192,9 @@ class ProductListingCmsElementResolverTest extends TestCase
         $resolver = new ProductListingCmsElementResolver($route, $repository);
         $resolver->enrich($slot, $context, $data);
 
-        // Verify that order parameter is not overwritten
+        // Verify that order parameter is not overwritten (i.e., line 129 was executed)
         static::assertSame('existing-order', $request->get('order'));
+        static::assertNotSame('expected-sorting', $request->get('order'));
     }
 
     public function testRestrictSortings(): void

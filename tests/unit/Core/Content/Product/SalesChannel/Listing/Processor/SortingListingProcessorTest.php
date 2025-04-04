@@ -112,8 +112,12 @@ class SortingListingProcessorTest extends TestCase
             $sortingRepository
         );
 
+        $restrictedCollection = $this->buildRestrictedProductSortingCollection();
+        $request = new Request(['order' => 'foo']);
+        $request->attributes->set('restrictedProductSortingCollection', $restrictedCollection);
+
         $processor->prepare(
-            new Request(['order' => 'foo']),
+            $request,
             $criteria = new Criteria(),
             $this->createMock(SalesChannelContext::class)
         );
@@ -124,6 +128,11 @@ class SortingListingProcessorTest extends TestCase
         ];
 
         static::assertEquals($expected, $criteria->getSorting());
+
+        // Verify sortings extension contains the restrictedProductSortingCollection
+        $sortings = $criteria->getExtension('sortings');
+        static::assertInstanceOf(ProductSortingCollection::class, $sortings);
+        static::assertSame($restrictedCollection, $sortings);
     }
 
     #[DataProvider('processProvider')]

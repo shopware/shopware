@@ -109,8 +109,8 @@
                     :help-text="highlightHelpText"
                     :label="$tc('sw-product.settingsForm.labelMarkAsTopseller')"
                     :disabled="props.isInherited || !allowEdit"
-                    :checked="props.currentValue"
-                    @change="props.updateCurrentValue"
+                    :model-value="props.currentValue"
+                    @update:model-value="props.updateCurrentValue"
                 />
 
             </template>

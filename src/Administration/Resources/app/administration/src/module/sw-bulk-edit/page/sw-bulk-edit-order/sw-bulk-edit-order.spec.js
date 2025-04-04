@@ -332,8 +332,8 @@ describe('src/module/sw-bulk-edit/page/sw-bulk-edit-order', () => {
             },
         });
 
-        Shopware.Store.get('shopwareApps').selectedIds = [selectedOrderId];
         Shopware.Store.get('swBulkEdit').$reset();
+        Shopware.Store.get('swBulkEdit').selectedIds = [selectedOrderId];
     });
 
     it('should show all form fields', async () => {
@@ -521,7 +521,7 @@ describe('src/module/sw-bulk-edit/page/sw-bulk-edit-order', () => {
     it('should show empty state', async () => {
         wrapper = await createWrapper();
 
-        Shopware.Store.get('shopwareApps').selectedIds = [];
+        Shopware.Store.get('swBulkEdit').selectedIds = [];
         await wrapper.setData({
             isLoading: false,
         });

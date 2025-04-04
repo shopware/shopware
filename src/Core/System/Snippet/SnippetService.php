@@ -9,9 +9,11 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Aggregation\Bucket\TermsAggregation;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\AggregationResult\Bucket\TermsResult;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\Extensions\ExtensionDispatcher;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\Snippet\Aggregate\SnippetSet\SnippetSetCollection;
+use Shopware\Core\System\Snippet\Extension\StorefrontSnippetsExtension;
 use Shopware\Core\System\Snippet\Files\AbstractSnippetFile;
 use Shopware\Core\System\Snippet\Files\SnippetFileCollection;
 use Shopware\Core\System\Snippet\Filter\SnippetFilterFactory;
@@ -47,6 +49,7 @@ class SnippetService
          * We need to get StorefrontPluginRegistry service from service_container lazily because it depends on kernel service.
          */
         private readonly ContainerInterface $container,
+        private readonly ExtensionDispatcher $extensionDispatcher,
         private readonly ?DatabaseSalesChannelThemeLoader $salesChannelThemeLoader = null
     ) {
     }
@@ -122,11 +125,32 @@ class SnippetService
             $locale === $fallbackLocale ? $fallbackSnippets : $this->getSnippetsByLocale($snippetCollection, $locale)
         );
 
-        // at least overwrite the snippets with the database customer overwrites
-        return array_replace_recursive(
-            $snippets,
-            $this->fetchSnippetsFromDatabase($snippetSetId, $unusedThemes)
-        );
+        return $this->extensionDispatcher
+            ->publish(
+                StorefrontSnippetsExtension::NAME,
+                new StorefrontSnippetsExtension(
+                    $snippets,
+                    $locale,
+                    $catalog,
+                    $snippetSetId,
+                    $fallbackLocale,
+                    $salesChannelId,
+                    $unusedThemes
+                ),
+                // overwrite the snippets with the database customer overwrites
+                fn (
+                    $snippets,
+                    $locale,
+                    $catalog,
+                    $snippetSetId,
+                    $fallbackLocale,
+                    $salesChannelId,
+                    $unusedThemes
+                ) => array_replace_recursive(
+                    $snippets,
+                    $this->fetchSnippetsFromDatabase($snippetSetId, $unusedThemes)
+                )
+            );
     }
 
     /**

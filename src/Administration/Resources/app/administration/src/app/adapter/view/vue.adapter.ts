@@ -252,7 +252,6 @@ export default class VueAdapter extends ViewAdapter {
             'MtButton',
             'MtCheckbox',
             'MtColorpicker',
-            'MtDatepicker',
             'MtEmailField',
             'MtNumberField',
             'MtPasswordField',
@@ -274,6 +273,7 @@ export default class VueAdapter extends ViewAdapter {
             'MtModalClose',
             'MtUrlField',
             'MtSearch',
+            'MtLink',
         ];
 
         meteorComponents.forEach((componentName) => {

@@ -85,7 +85,7 @@ class OrderTransactionStateHandlerTest extends TestCase
                 'refund' => OrderTransactionStates::STATE_REFUNDED,
             ]],
             'Partially pay & Refund' => [[
-                'payPartially' => OrderTransactionStates::STATE_PARTIALLY_PAID,
+                'paidPartially' => OrderTransactionStates::STATE_PARTIALLY_PAID,
                 'refund' => OrderTransactionStates::STATE_REFUNDED,
             ]],
             'Pay & Partially Refund' => [[
@@ -98,7 +98,7 @@ class OrderTransactionStateHandlerTest extends TestCase
                 'fail' => OrderTransactionStates::STATE_FAILED,
             ]],
             'Partially Pay & Process & Pay' => [[
-                'payPartially' => OrderTransactionStates::STATE_PARTIALLY_PAID,
+                'paidPartially' => OrderTransactionStates::STATE_PARTIALLY_PAID,
                 'processUnconfirmed' => OrderTransactionStates::STATE_UNCONFIRMED,
                 'paid' => OrderTransactionStates::STATE_PAID,
             ]],
@@ -106,6 +106,14 @@ class OrderTransactionStateHandlerTest extends TestCase
                 'paid' => OrderTransactionStates::STATE_PAID,
                 'chargeback' => OrderTransactionStates::STATE_CHARGEBACK,
                 'cancel' => OrderTransactionStates::STATE_CANCELLED,
+            ]],
+            'Partially Pay & Pay' => [[
+                'paidPartially' => OrderTransactionStates::STATE_PARTIALLY_PAID,
+                'paid' => OrderTransactionStates::STATE_PAID,
+            ]],
+            'Remind & Pay' => [[
+                'remind' => OrderTransactionStates::STATE_REMINDED,
+                'paid' => OrderTransactionStates::STATE_PAID,
             ]],
         ];
     }

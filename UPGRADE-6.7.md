@@ -1,5 +1,4 @@
 # 6.7.0.0 Upgrade Guide
-**NOTE:** All the breaking changes described here can be already opted in by activating the `v6.7.0.0` [feature flag](https://developer.shopware.com/docs/resources/references/adr/2022-01-20-feature-flags-for-major-versions.html#activating-the-flag) on previous versions.
 
 # Notable Changes
 
@@ -11,16 +10,12 @@ This means that when your plugins depends on a custom `webpack.config.js` file, 
 Additionally, this means that you will need to distribute a separate plugin version starting for 6.7, when you extend the administration to distribute the correct build files.
 For more information please take a look at the [docs](https://developer.shopware.com/docs/guides/plugins/plugins/administration/system-updates/vite.html).
 
-**Note:** This change can be activated separately with the `ADMIN_VITE` feature flag.
-
 # Vue.js Enhancements (full native vue 3 support)
 ## Removal of Vue 2 compatibility layer
 The Vue 2 compatibility layer has been removed from the administration. This means that all components that still rely on Vue 2 features need to be updated.
 This ensures that our administration stays future-proof and we can make use of the most recent Vue 3 features.
 
 For detailed explanation of what was covered by the compatibility layer and what needs to be updated, please refer to the [Vue docs](https://v3-migration.vuejs.org/migration-build.html).
-
-**Note:** This change can be activated separately with the `DISABLE_VUE_COMPAT` feature flag.
 
 ## Migration from Vuex to Pinia
 For Vue 3 the default state management library has become Pinia, therefore we are migrating from Vuex to Pinia. to stay as close to the default as possible.
@@ -92,8 +87,19 @@ If you are still using Vuex, please update your code accordingly:
 
 For more information refer to the [docs](https://developer.shopware.com/docs/resources/references/adr/2024-06-17-replace-vuex-with-pinia.html#replace-vuex-with-pinia).
 
+## vue-i18n v10 Update
+We have updated `vue-i18n` to version 10, which introduces a significant change by removing the `tc` function. In Shopware, `$tc` remains available on Vue components, but it now internally references the `t` function from `vue-i18n`. 
+
+### Key Considerations
+- While this change works for most use cases, some specific function overloads are no longer supported.
+- For a comprehensive list of deprecated features and migration strategies, refer to the official [vue-i18n migration guide](https://vue-i18n.intlify.dev/guide/migration/breaking10#deprecate-tc-and-tc-for-legacy-api-mode).
+
+### Recommended Actions
+- Review your existing translation calls
+- Test components that heavily rely on translation methods
+- Consider updating to the recommended `t` function where possible
+
 # Cache Rework
-**Note:** Those changes can be activated separately with the `cache_rework` feature flag.
 
 ## Delayed Cache Invalidation
 The cache invalidation will be delayed by default. This means that the cache will be invalidated in regular intervals and not immediately.
@@ -135,6 +141,8 @@ The rendered header and footer are included into the page with the Twig function
 Two new templates `src/Storefront/Resources/views/storefront/layout/header.html.twig` and `src/Storefront/Resources/views/storefront/layout/footer.html.twig` were introduced as new entry points for the header and footer.
 Make sure to adjust your template extensions to be compatible with the new structure.
 The block names are still the same, so it just should be necessary to extend from the new templates.
+New blocks (`base_esi_header` and `base_esi_footer`) were added to the `base.html.twig` template to overwrite header and footer completely.
+This is e.g. used to show minimal header and footer during the checkout process.
 
 # Major Library Updates
 We upgraded the following libraries to their latest versions:
@@ -145,7 +153,6 @@ We upgraded the following libraries to their latest versions:
 
 # Accessibility Compliance
 In alignment with the European Accessibility Act (EAA) we made significant accessibility improvements.
-**Note:** Those changes can be activated separately with the `ACCESSIBILITY_TWEAKS` feature flag.
 
 <details>
   <summary>Detailed Changes</summary>
@@ -523,7 +530,8 @@ The default payment method "Direct debit" will no longer automatically change th
 The `technicalName` property will be required for payment and shipping methods in the API.
 The `technical_name` column will be made non-nullable for the `payment_method` and `shipping_method` tables in the database.
 
-Plugin developers will be required to supply a `technicalName` for their payment and shipping methods.
+Plugin developers will be required to supply a `technicalName` for their payment and shipping methods.  
+**If no technical name is specified before the migration is run, a temporary placeholder `temporary_<method-id>` will be used instead.**
 
 Merchants must review their custom created payment and shipping methods for the new `technicalName` property and update their methods through the administration accordingly.
 </details>
@@ -600,6 +608,14 @@ Merchants must review their custom created payment and shipping methods for the 
 ## Customer: Default payment method removed
 * Removed default payment method from customer entity, since it was mostly overriden by old saved contexts
 * Logic is now more consistent to always be the last used payment method
+
+## Bulletproofing Plugin Migrations
+### Creation timestamp is now validated
+The returned timestamp `MigrationStep::getCreationTimestamp()` method is now validated, it needs to be between `1` and `2147483647` (the `max_int` value on 32-bit systems). This ensures that the migration order is always deterministic and prevents common errors when the method returns a higher number,
+that will silently be treated as max_int, leading to multiple migrations having the same creation timestamp, thus the execution order becomes random, which might lead to hard to debug errors while executing migrations.
+### Plugin migrations are now removed before calling `uninstall()`
+When `keepUserData` is set to false during plugin uninstall, the plugin is expected to clean up all DB tables the plugin created in the `install` method.
+Now we are cleaning up the plugin migrations from the migration table before calling the `uninstall` method, so in case of an error, the plugin can be reinstalled and the migrations can be rerun.
 
 ## Required foreign key in mapping definition for many-to-many associations
 If the mapping definition of a many-to-many association does not contain foreign key fields, an exception will be thrown.
@@ -763,7 +779,19 @@ We have made attribute classes final.
 * `\Shopware\Core\Framework\Event\IsFlowEventAware`
 </details>
 
+## Move notifications from admin to core
+
+The following classes have been moved from the admin bundle to the core:
+
+* `Shopware\Core\Framework\Notification\NotificationCollection`
+* `Shopware\Core\Framework\Notification\NotificationDefinition` 
+* `Shopware\Core\Framework\Notification\NotificationEntity`
+
+The controller `Shopware\Core\Framework\Notification\Api\NotificationController` has been moved from the admin bundle to the core and made internal.
+
 </details>
+
+
 
 # Administration
 We made some changes in the administration, which might affect your plugins.
@@ -2120,6 +2148,18 @@ After:
 <mt-switch>Hello World</mt-switch>
 ```
 
+### "mt-switch" v-model:value is deprecated
+Replace all occurrences of the "v-model:value" directive with "v-model"
+
+Before:
+```html
+<mt-switch v-model:value="myValue" />
+```
+After:
+```html
+<mt-switch v-model="myValue" />
+```
+
 ### "mt-switch" has no "noMarginTop" prop anymore
 Replace all occurrences of the "noMarginTop" prop with "removeTopMargin".
 
@@ -2465,6 +2505,19 @@ After:
 <mt-checkbox @update:checked="updateValue" />
 ```
 </details>
+
+### Deprecated admin notification entity + related classes
+
+We have moved the notification entity, collection and definition to core. You should update your code to reference the new classes. The old classes are deprecated.
+
+* `Shopware\Administration\Notification\NotificationCollection` -> `Shopware\Core\Framework\Notification\NotificationCollection`
+* `Shopware\Administration\Notification\NotificationDefinition` -> `Shopware\Core\Framework\Notification\NotificationDefinition`
+* `Shopware\Administration\Notification\NotificationEntity` -> `Shopware\Core\Framework\Notification\NotificationEntity`
+
+### Deprecated notification controller
+
+`\Shopware\Administration\Controller\NotificationController` is now moved to core `\Shopware\Core\Framework\Notification\Api\NotificationController` - if you type hint on this class, please update it. The HTTP route is still the same. The old class is deprecated.
+
 </details>
 
 # Storefront
@@ -2516,6 +2569,11 @@ foreach($storefrontPluginConfig->getAssetPaths() as $relativePath) {
     $absolutePath = $fs->path('Resources', $relativePath);
 }
 ```
+
+## Removal of `setTwig` method in `StorefrontController`
+The method `Shopware\Storefront\Controller\StorefrontController::setTwig` has been removed.
+Remove the `setTwig` call from the services config files.
+There is no further change required.
 
 ## Removal of deprecated product review loading logic in Storefront
 * The service `\Shopware\Storefront\Page\Product\Review\ProductReviewLoader` was removed. Use `\Shopware\Core\Content\Product\SalesChannel\Review\AbstractProductReviewLoader` instead.
@@ -2770,5 +2828,12 @@ The fine-grained caching mechanism for system-config, snippets and theme config 
 
 Removed `SQL_SET_DEFAULT_SESSION_VARIABLES` env variable. It has no effect anymore. 
 The previously optional performance tweaks to MySQL are now enforced on connection buildup inside the `\Shopware\Core\Framework\Adapter\Database\MySQLFactory`.
+
+## Removal of RSA JWT secrets
+
+The custom JWT secrets where removed, instead the JWTs will now be signed with the `APP_SECRET`. Therefore, please make sure that the `APP_SECRET` environment variable is at least 32 characters long. You can use the `bin/console system:generate-app-secret` command to generate a valid secret.
+
+This means the `shopware.api.jwt_key.use_app_secret` configuration is no longer available, as that is the only behavior now.
+Additionally, the `system:generate-jwt-secret` command was removed, as it is not needed anymore.
 
 </details>

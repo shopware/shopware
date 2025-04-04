@@ -150,3 +150,7 @@ a[target="_blank"]:not(.sw-external-link, .sw-internal-link, .mt-button) {
     background-color: $color-gray-100;
     border-bottom: 1px solid $color-gray-300;
 }
+
+.mt-button {
+    line-height: 1;
+}

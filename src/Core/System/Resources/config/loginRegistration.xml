@@ -26,6 +26,12 @@
         </input-field>
 
         <input-field type="bool">
+            <name>showSalutation</name>
+            <label>Show salutation</label>
+            <label lang="de-DE">Anrede anzeigen</label>
+        </input-field>
+
+        <input-field type="bool">
             <name>showTitleField</name>
             <label>Show title</label>
             <label lang="de-DE">Titel anzeigen</label>

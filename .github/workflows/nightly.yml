@@ -70,6 +70,12 @@ jobs:
     if: github.repository == 'shopware/shopware' && github.ref == 'refs/heads/trunk'
     permissions:
       id-token: write
+    strategy:
+      fail-fast: false
+      matrix:
+        branch:
+          - "6.6.x"
+          - "6.7.0.0"
     steps:
       - name: Delay
         run: sleep 20m
@@ -80,4 +86,4 @@ jobs:
           identity: ShopwareNightly
       - env:
           GH_TOKEN: ${{ steps.sts.outputs.token }}
-        run: gh workflow run "${{ github.workflow }}" --repo "${{ github.repository }}" --ref "6.6.x"
+        run: gh workflow run "${{ github.workflow }}" --repo "${{ github.repository }}" --ref "${{ matrix.branch }}"

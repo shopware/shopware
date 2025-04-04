@@ -33,7 +33,7 @@ class ExternalTokenServiceTest extends TestCase
     private function createExternalTokenService(string $token): ExternalTokenService
     {
         $responseInterface = $this->createMock(ResponseInterface::class);
-        $responseInterface->expects(static::once())->method('getContent')->willReturn(
+        $responseInterface->expects($this->once())->method('getContent')->willReturn(
             \json_encode(
                 [
                     'id_token' => $token,
@@ -41,12 +41,13 @@ class ExternalTokenServiceTest extends TestCase
                     'refresh_token' => 'refresh_token',
                     'expires_in' => 3600,
                     'token_type' => 'Bearer',
+                    'scope' => 'scope',
                 ]
             )
         );
 
         $client = $this->createMock(HttpClientInterface::class);
-        $client->expects(static::once())->method('request')->willReturn($responseInterface);
+        $client->expects($this->once())->method('request')->willReturn($responseInterface);
 
         $loginConfigService = new LoginConfigService(
             [
@@ -58,6 +59,8 @@ class ExternalTokenServiceTest extends TestCase
                 'session_key' => 'session_key',
                 'authorize_path' => '/authorize',
                 'token_path' => '/token',
+                'jwks_path' => '/json.json',
+                'scope' => 'scope',
             ],
             '',
             ''

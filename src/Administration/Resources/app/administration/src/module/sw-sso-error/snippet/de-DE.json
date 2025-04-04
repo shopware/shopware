@@ -1,0 +1,15 @@
+{
+  "sw-sso-error": {
+    "general": {
+      "title": "SSO Fehler",
+      "description": "Shopware-Login-Fehler"
+    },
+    "error-card": {
+      "title": "Kein Zugriff auf diesen Shop",
+      "text": "Deine Anmeldung war erfolgreich, aber du hast keinen Zugriff auf diesen Shopware Shop.",
+      "button": "Mit anderem Account anmelden",
+      "loggedInAsPrefix": "Angemeldet als:",
+      "logoAltText": "Shopware Logo"
+    }
+  }
+}

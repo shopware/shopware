@@ -25,8 +25,12 @@ use Shopware\Core\Test\Stub\Checkout\Payment\Cart\Token\TestKey;
 use Shopware\Core\Test\Stub\Checkout\Payment\Cart\Token\TestSigner;
 use Shopware\Tests\Integration\Administration\Login\Helper\FakeTokenGenerator;
 use Shopware\Tests\Integration\Administration\Login\Helper\FakeUserInstaller;
+use Shopware\Tests\Integration\Administration\Login\Helper\ValidUserServiceCreator;
+use Shopware\Tests\Unit\Administration\Login\TokenService\_fixtures\JwksIds;
 use Symfony\Bridge\PsrHttpMessage\Factory\PsrHttpFactory;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\Session\Session;
+use Symfony\Component\HttpFoundation\Session\Storage\MockArraySessionStorage;
 use Symfony\Contracts\HttpClient\HttpClientInterface;
 use Symfony\Contracts\HttpClient\ResponseInterface;
 
@@ -43,15 +47,18 @@ class ShopwareGrantTypeTest extends TestCase
     public function testRespondToAccessTokenRequest(): void
     {
         $email = 'test@shopware.com';
-        $idToken = (new FakeTokenGenerator())->setEmail($email)->generate();
+        $idToken = (new FakeTokenGenerator())->setEmail($email)->generate(JwksIds::KEY_ID_ONE);
 
         $fakeUserInstall = new FakeUserInstaller($this->getContainer()->get(Connection::class));
         $fakeUserInstall->installBaseUserData(Uuid::randomHex(), $email);
 
+        $session = new Session(new MockArraySessionStorage());
+        $session->set('sso_proof_key_verifier', 'proofKeyVerifier');
+
         $shopwareGrantType = new ShopwareGrantType(
             $this->createRefreshTokenRepository(),
             $this->createUserService(),
-            $this->createExternalTokenService($idToken)
+            $this->createExternalTokenService($idToken),
         );
 
         $shopwareGrantType->setClientRepository($this->getContainer()->get(ClientRepository::class));
@@ -79,6 +86,7 @@ class ShopwareGrantTypeTest extends TestCase
         $result = $responseResult->generateHttpResponse(new Psr7Response());
 
         $responseBodyData = \json_decode($result->getBody()->__toString(), true);
+        static::assertIsArray($responseBodyData);
 
         static::assertArrayHasKey('token_type', $responseBodyData);
         static::assertArrayHasKey('expires_in', $responseBodyData);
@@ -98,7 +106,7 @@ class ShopwareGrantTypeTest extends TestCase
     private function createExternalTokenService(string $token): ExternalTokenService
     {
         $responseInterface = $this->createMock(ResponseInterface::class);
-        $responseInterface->expects(static::once())->method('getContent')->willReturn(
+        $responseInterface->expects($this->once())->method('getContent')->willReturn(
             \json_encode(
                 [
                     'id_token' => $token,
@@ -106,12 +114,13 @@ class ShopwareGrantTypeTest extends TestCase
                     'refresh_token' => 'refresh_token',
                     'expires_in' => 3600,
                     'token_type' => 'Bearer',
+                    'scope' => 'scope',
                 ]
             )
         );
 
         $client = $this->createMock(HttpClientInterface::class);
-        $client->expects(static::once())->method('request')->willReturn($responseInterface);
+        $client->expects($this->once())->method('request')->willReturn($responseInterface);
 
         $loginConfig = new LoginConfigService(
             [
@@ -123,6 +132,8 @@ class ShopwareGrantTypeTest extends TestCase
                 'session_key' => 'session_key',
                 'authorize_path' => '/authorize',
                 'token_path' => '/token',
+                'jwks_path' => '/jwks.json',
+                'scope' => 'scope',
             ],
             '',
             ''
@@ -133,8 +144,6 @@ class ShopwareGrantTypeTest extends TestCase
 
     private function createUserService(): UserService
     {
-        return new UserService(
-            $this->getContainer()->get(Connection::class),
-        );
+        return (new ValidUserServiceCreator())->create();
     }
 }

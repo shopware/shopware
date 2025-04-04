@@ -2,6 +2,10 @@
 
 namespace Shopware\Tests\Unit\Administration\Login\TokenService;
 
+use Lcobucci\JWT\Encoding\JoseEncoder;
+use Lcobucci\JWT\Token\DataSet;
+use Lcobucci\JWT\Token\Parser;
+use Lcobucci\JWT\Token\Plain;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
@@ -9,7 +13,6 @@ use Shopware\Administration\Login\Exception\LoginException;
 use Shopware\Administration\Login\TokenService\ParsedIdToken;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Tests\Integration\Administration\Login\Helper\FakeTokenGenerator;
-use Symfony\Component\HttpFoundation\Response;
 
 /**
  * @internal
@@ -18,120 +21,73 @@ use Symfony\Component\HttpFoundation\Response;
 #[CoversClass(ParsedIdToken::class)]
 class ParsedIdTokenTest extends TestCase
 {
-    public function testCreateFromIdToken(): void
+    public function testCreateFromDataSet(): void
     {
         $token = (new FakeTokenGenerator())->generate();
+        $parser = new Parser(new JoseEncoder());
+        $parsed = $parser->parse($token);
+        static::assertInstanceOf(Plain::class, $parsed);
 
-        $result = ParsedIdToken::createFromIdToken($token);
+        $result = ParsedIdToken::createFromDataSet($parsed->claims());
 
         static::assertSame('fake-subject', $result->sub);
         static::assertSame('fake@email.com', $result->email);
     }
 
-    /**
-     * @param array<int, string>|null $audience
-     */
-    #[DataProvider('createFromIdTokenWithInvalidFieldsTestDataProvider')]
-    public function testCreateFromIdTokenWithInvalidFields(
-        ?array $audience,
-        ?string $issuer,
-        ?\DateTimeImmutable $issuedAt,
-        ?\DateTimeImmutable $expiredAt,
-        ?string $subject,
-        ?string $email,
-        string $expected
-    ): void {
+    #[DataProvider('invalidData')]
+    public function testCreateFromDataSetShouldThrowException(DataSet $dataSet, string $expectedExceptionMessage): void
+    {
         try {
-            $tokenGenerator = (new FakeTokenGenerator())
-                ->setAudience($audience)
-                ->setIssuer($issuer)
-                ->setIssuedAt($issuedAt)
-                ->setExpiresAt($expiredAt)
-                ->setSubject($subject)
-                ->setEmail($email);
+            ParsedIdToken::createFromDataSet($dataSet);
+        } catch (LoginException $loginException) {
+            static::assertSame($expectedExceptionMessage, $loginException->getMessage());
+            static::assertSame(LoginException::LOGIN_INVALID_ID_TOKEN_DATA_SET, $loginException->getErrorCode());
 
-            ParsedIdToken::createFromIdToken($tokenGenerator->generate());
-        } catch (LoginException $exception) {
-            static::assertSame($expected, $exception->getMessage());
-            static::assertSame(Response::HTTP_UNAUTHORIZED, $exception->getStatusCode());
-            static::assertSame(LoginException::LOGIN_INVALID_ID_TOKEN_RESPONSE, $exception->getErrorCode());
+            return;
         }
+
+        static::fail('LoginException should have thrown: ' . $expectedExceptionMessage);
     }
 
     /**
-     * @return array<string, array{audience: array<int, string>|null, issuer: string|null, issuedAt: \DateTimeImmutable, expiredAt: \DateTimeImmutable, subject: string|null, email: string|null, expected: string}>
+     * @return array<string, array<int, DataSet|string>>
      */
-    public static function createFromIdTokenWithInvalidFieldsTestDataProvider(): array
+    public static function invalidData(): array
     {
         return [
-            'all is null' => [
-                'audience' => null,
-                'issuer' => null,
-                'issuedAt' => new \DateTimeImmutable(),
-                'expiredAt' => new \DateTimeImmutable(),
-                'subject' => null,
-                'email' => null,
-                'expected' => 'ID-Token not valid. Missing: [aud], [iss], [sub], [email]',
+            'All is not set' => [
+                new DataSet([], ''),
+                'ID-Token not valid: [exp] This field is missing., [sub] This field is missing., [email] This field is missing.',
             ],
 
-            'all is blank' => [
-                'audience' => [],
-                'issuer' => '',
-                'issuedAt' => new \DateTimeImmutable(),
-                'expiredAt' => new \DateTimeImmutable(),
-                'subject' => '',
-                'email' => '',
-                'expected' => 'ID-Token not valid. Missing: [aud], [iss], [sub], [email]',
+            'All is NULL' => [
+                new DataSet(['exp' => null, 'sub' => null, 'email' => null], ''),
+                'ID-Token not valid: [exp] is empty, [sub] is empty, [email] is empty',
             ],
 
-            'audience is set' => [
-                'audience' => ['audience'],
-                'issuer' => '',
-                'issuedAt' => new \DateTimeImmutable(),
-                'expiredAt' => new \DateTimeImmutable(),
-                'subject' => '',
-                'email' => '',
-                'expected' => 'ID-Token not valid. Missing: [iss], [sub], [email]',
+            'All is blank' => [
+                new DataSet(['exp' => '', 'sub' => '', 'email' => ''], ''),
+                'ID-Token not valid: [exp] is empty, [sub] is empty, [email] is empty',
             ],
 
-            'issuer is set' => [
-                'audience' => [],
-                'issuer' => 'issuer',
-                'issuedAt' => new \DateTimeImmutable(),
-                'expiredAt' => new \DateTimeImmutable(),
-                'subject' => '',
-                'email' => '',
-                'expected' => 'ID-Token not valid. Missing: [aud], [sub], [email]',
+            'exp is blank' => [
+                new DataSet(['exp' => '', 'sub' => 'sub', 'email' => 'foo@bar.baz'], ''),
+                'ID-Token not valid: [exp] is empty',
             ],
 
-            'subject is set' => [
-                'audience' => [],
-                'issuer' => '',
-                'issuedAt' => new \DateTimeImmutable(),
-                'expiredAt' => new \DateTimeImmutable(),
-                'subject' => 'subject',
-                'email' => '',
-                'expected' => 'ID-Token not valid. Missing: [aud], [iss], [email]',
+            'sub is blank' => [
+                new DataSet(['exp' => 'exp', 'sub' => '', 'email' => 'foo@bar.baz'], ''),
+                'ID-Token not valid: [sub] is empty',
             ],
 
-            'email is set but invalid' => [
-                'audience' => [],
-                'issuer' => '',
-                'issuedAt' => new \DateTimeImmutable(),
-                'expiredAt' => new \DateTimeImmutable(),
-                'subject' => '',
-                'email' => 'invalid email',
-                'expected' => 'ID-Token not valid. Missing: [aud], [iss], [sub], [email]',
+            'email is blank' => [
+                new DataSet(['exp' => 'exp', 'sub' => 'sub', 'email' => ''], ''),
+                'ID-Token not valid: [email] is empty',
             ],
 
-            'email is set and valid' => [
-                'audience' => [],
-                'issuer' => '',
-                'issuedAt' => new \DateTimeImmutable(),
-                'expiredAt' => new \DateTimeImmutable(),
-                'subject' => '',
-                'email' => 'test@example.com',
-                'expected' => 'ID-Token not valid. Missing: [aud], [iss], [sub]',
+            'email is invalid' => [
+                new DataSet(['exp' => 'exp', 'sub' => 'sub', 'email' => 'invalid'], ''),
+                'ID-Token not valid: [email] is a invalid email address',
             ],
         ];
     }

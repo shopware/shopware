@@ -1045,6 +1045,8 @@ class Configuration implements ConfigurationInterface
                 ->scalarNode('base_url')->isRequired()->end()
                 ->scalarNode('authorize_path')->isRequired()->end()
                 ->scalarNode('token_path')->isRequired()->end()
+                ->scalarNode('jwks_path')->isRequired()->end()
+                ->scalarNode('scope')->isRequired()->end()
             ->end();
 
         return $rootNode;

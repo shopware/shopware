@@ -17,6 +17,8 @@ final class LoginConfig
      * @param non-empty-string $baseUrl
      * @param non-empty-string $authorizePath
      * @param non-empty-string $tokenPath
+     * @param non-empty-string $jwksPath
+     * @param non-empty-string $scope
      */
     public function __construct(
         public readonly bool $useDefault,
@@ -26,6 +28,8 @@ final class LoginConfig
         public readonly string $baseUrl,
         public readonly string $authorizePath,
         public readonly string $tokenPath,
+        public readonly string $jwksPath,
+        public readonly string $scope,
     ) {
     }
 }

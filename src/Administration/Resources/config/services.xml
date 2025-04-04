@@ -190,6 +190,7 @@
 
         <service id="Shopware\Administration\Login\UserService\UserService">
             <argument type="service" id="Doctrine\DBAL\Connection"/>
+            <argument type="service" id="Shopware\Administration\Login\TokenService\IdTokenParser"/>
         </service>
 
         <service id="Shopware\Administration\Login\TokenService\ExternalTokenService">
@@ -205,6 +206,18 @@
 
         <service id="Shopware\Administration\Login\LoginResponseService">
             <argument type="service" id="Symfony\Component\Routing\RouterInterface"/>
+        </service>
+
+        <service id="Shopware\Administration\Login\TokenService\IdTokenParser">
+            <argument type="service" id="Shopware\Administration\Login\TokenService\PublicKeyLoader"/>
+            <argument type="service" id="Shopware\Administration\Login\Config\LoginConfigService"/>
+            <argument type="service" id="Symfony\Component\Clock\ClockInterface"/>
+        </service>
+
+        <service id="Shopware\Administration\Login\TokenService\PublicKeyLoader">
+            <argument type="service" id="http_client"/>
+            <argument type="service" id="Shopware\Administration\Login\Config\LoginConfigService"/>
+            <argument type="service" id="cache.object" />
         </service>
 
         <service id="Shopware\Administration\Login\StateValidator" />

@@ -30,7 +30,7 @@ final class ExternalTokenService
         $tokenResponse = $this->client->request('POST', $loginConfig->baseUrl . $loginConfig->tokenPath, [
             'body' => [
                 'grant_type' => 'authorization_code',
-                'scope' => 'openid',
+                'scope' => $loginConfig->scope,
                 'client_id' => $loginConfig->clientId,
                 'client_secret' => $loginConfig->clientSecret,
                 'code' => $code,

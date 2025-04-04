@@ -53,7 +53,7 @@ class LoginResponseServiceTest extends TestCase
     private function createLoginResponseService(): LoginResponseService
     {
         $urlGenerator = $this->createMock(UrlGeneratorInterface::class);
-        $urlGenerator->expects(static::once())->method('generate')->willReturn('/admin');
+        $urlGenerator->expects($this->once())->method('generate')->willReturn('/admin');
 
         return new LoginResponseService($urlGenerator);
     }

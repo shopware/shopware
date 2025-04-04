@@ -5,7 +5,6 @@ namespace Shopware\Tests\Integration\Administration\Login\UserService;
 use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
-use Shopware\Administration\Login\UserService\ExternalAuthUser;
 use Shopware\Administration\Login\UserService\UserService;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\DatabaseTransactionBehaviour;
@@ -13,6 +12,8 @@ use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Tests\Integration\Administration\Login\Helper\FakeTokenGenerator;
 use Shopware\Tests\Integration\Administration\Login\Helper\FakeUserInstaller;
+use Shopware\Tests\Integration\Administration\Login\Helper\ValidUserServiceCreator;
+use Shopware\Tests\Unit\Administration\Login\TokenService\_fixtures\JwksIds;
 
 /**
  * @internal
@@ -33,11 +34,10 @@ class UserServiceTest extends TestCase
         $fakeUserInstaller = new FakeUserInstaller($this->getContainer()->get(Connection::class));
         $fakeUserInstaller->installBaseUserData($userId, $email);
 
-        $idToken = (new FakeTokenGenerator())->setEmail($email)->setSubject($subject)->generate();
+        $idToken = (new FakeTokenGenerator())->setEmail($email)->setSubject($subject)->generate(JwksIds::KEY_ID_ONE);
         $refreshToken = Uuid::randomHex();
 
         $externalAuthUser = $this->createUserService()->getUser($idToken, $refreshToken);
-        static::assertInstanceOf(ExternalAuthUser::class, $externalAuthUser);
         static::assertSame($userId, $externalAuthUser->userId);
         static::assertSame($refreshToken, $externalAuthUser->refreshToken);
         static::assertTrue($externalAuthUser->isNew);
@@ -64,11 +64,10 @@ class UserServiceTest extends TestCase
         $fakeUserInstaller->installBaseUserData($userId, $email);
         $fakeUserInstaller->installTokenUser($userId, $subject);
 
-        $idToken = (new FakeTokenGenerator())->setEmail($email)->setSubject($subject)->generate();
+        $idToken = (new FakeTokenGenerator())->setEmail($email)->setSubject($subject)->generate(JwksIds::KEY_ID_ONE);
         $refreshToken = Uuid::randomHex();
 
         $externalAuthUser = $this->createUserService()->getUser($idToken, $refreshToken);
-        static::assertInstanceOf(ExternalAuthUser::class, $externalAuthUser);
         static::assertSame($userId, $externalAuthUser->userId);
         static::assertSame($refreshToken, $externalAuthUser->refreshToken);
         static::assertFalse($externalAuthUser->isNew);
@@ -86,9 +85,7 @@ class UserServiceTest extends TestCase
 
     private function createUserService(): UserService
     {
-        $connection = $this->getContainer()->get(Connection::class);
-
-        return new UserService($connection);
+        return (new ValidUserServiceCreator())->create();
     }
 
     /**

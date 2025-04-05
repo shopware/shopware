@@ -129,6 +129,9 @@ class AppListCommandTest extends TestCase
         static::assertSame($json, trim($commandTester->getDisplay()));
     }
 
+    /**
+     * @param array<string, bool|string> $options
+     */
     private function executeCommand(array $options): CommandTester
     {
         $commandTester = new CommandTester($this->command);
@@ -137,6 +140,9 @@ class AppListCommandTest extends TestCase
         return $commandTester;
     }
 
+    /**
+     * @param array<int, AppEntity> $entities
+     */
     private function setupEntityCollection(array $entities): void
     {
         $result = $this->createMock(EntitySearchResult::class);

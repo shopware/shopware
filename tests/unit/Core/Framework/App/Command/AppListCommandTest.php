@@ -82,14 +82,12 @@ class AppListCommandTest extends TestCase
             if (!(\count($filters) === 1 && $filters[0] instanceof MultiFilter)) {
                 return false;
             }
-            /** @var MultiFilter $filter */
             $filter = $filters[0];
             if ($filter->getOperator() !== MultiFilter::CONNECTION_OR) {
                 return false;
             }
             $fields = ['name', 'label'];
             foreach ($filter->getQueries() as $query) {
-                /** @var ContainsFilter $query */
                 if (!(
                     $query instanceof ContainsFilter
                     && $query->getValue() === $filterValue
@@ -131,9 +129,6 @@ class AppListCommandTest extends TestCase
         static::assertSame($json, trim($commandTester->getDisplay()));
     }
 
-    /**
-     * @param array<string, bool|string> $options
-     */
     private function executeCommand(array $options): CommandTester
     {
         $commandTester = new CommandTester($this->command);
@@ -142,9 +137,6 @@ class AppListCommandTest extends TestCase
         return $commandTester;
     }
 
-    /**
-     * @param AppEntity[] $entities
-     */
     private function setupEntityCollection(array $entities): void
     {
         $result = $this->createMock(EntitySearchResult::class);

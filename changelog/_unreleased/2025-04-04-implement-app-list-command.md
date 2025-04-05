@@ -1,6 +1,6 @@
 ---
 title: Implement app:list command
-issue: NEXT-7792
+issue: 7792
 author: Devin AI
 author_email: devin-ai-integration[bot]@users.noreply.github.com
 author_github: devin-ai-integration

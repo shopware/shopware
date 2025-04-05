@@ -65,7 +65,6 @@ class AppListCommand extends Command
             ));
         }
 
-        /** @var AppCollection $apps */
         $apps = $this->appRepository->search($criteria, $context)->getEntities();
 
         if ($input->getOption('json')) {
@@ -83,7 +82,6 @@ class AppListCommand extends Command
             $io->comment(\sprintf('Filtering for: %s', $filter));
         }
 
-        /** @var AppEntity $app */
         foreach ($apps as $app) {
             $appTable[] = [
                 $app->getName(),

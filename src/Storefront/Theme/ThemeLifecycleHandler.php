@@ -40,7 +40,7 @@ class ThemeLifecycleHandler
     ): void {
         $themeId = null;
         if ($config->getIsTheme()) {
-            $this->themeLifecycleService->refreshTheme($config, $context);
+            $this->themeLifecycleService->refreshTheme($config, $context, $configurationCollection);
             $themeData = $this->getThemeDataByTechnicalName($config->getTechnicalName());
             $themeId = $themeData->getId();
             $this->changeThemeActive($themeData, true, $context);

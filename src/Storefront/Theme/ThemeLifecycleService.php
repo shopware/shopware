@@ -65,11 +65,14 @@ class ThemeLifecycleService
 
         // iterate over all theme configs in the filesystem (plugins/bundles)
         foreach ($configurationCollection as $config) {
-            $this->refreshTheme($config, $context);
+            $this->refreshTheme($config, $context, $configurationCollection);
         }
     }
 
-    public function refreshTheme(StorefrontPluginConfiguration $configuration, Context $context): void
+    /**
+     * @deprecated tag:v6.8.0 - parameter $configurationCollection will become a part of method signature
+     */
+    public function refreshTheme(StorefrontPluginConfiguration $configuration, Context $context/* , ?StorefrontPluginConfigurationCollection $configurationCollection = null */): void
     {
         $themeData = [];
         $themeData['name'] = $configuration->getName();
@@ -117,8 +120,14 @@ class ThemeLifecycleService
         $this->themeChildRepository->delete($toDeleteIds, $context);
         $this->themeChildRepository->upsert($parentThemes, $context);
 
+        /** @deprecated tag:v6.8.0 - Remove whole next line as $configurationCollection will become a part of method signature */
+        $configurationCollection = \func_num_args() === 3 ? \func_get_arg(2) : null;
+
+        if ($configurationCollection === null) {
+            $configurationCollection = $this->pluginRegistry->getConfigurations();
+        }
         // we don't resolve files as theme can be refreshed before it's built
-        $this->runtimeConfigService->updateRuntimeConfig($themeData['id'], $themeData['technicalName'], $context, false);
+        $this->runtimeConfigService->updateRuntimeConfig($themeData['id'], $themeData['technicalName'], $context, false, $configurationCollection);
     }
 
     public function removeTheme(string $technicalName, Context $context): void

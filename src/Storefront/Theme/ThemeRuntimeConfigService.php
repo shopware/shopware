@@ -108,9 +108,11 @@ class ThemeRuntimeConfigService
         ]);
     }
 
-    public function updateRuntimeConfig(string $themeId, string $themeTechnicalName, Context $context, bool $resolveFiles = false): ThemeRuntimeConfig
+    public function updateRuntimeConfig(string $themeId, string $themeTechnicalName, Context $context, bool $resolveFiles, ?StorefrontPluginConfigurationCollection $configCollection): ThemeRuntimeConfig
     {
-        $configCollection = $this->pluginRegistry->getConfigurations();
+        if ($configCollection === null) {
+            $configCollection = $this->pluginRegistry->getConfigurations();
+        }
         $themeConfig = $configCollection->getByTechnicalName($themeTechnicalName);
         if ($themeConfig === null) {
             // todo: replace with specific exception (resulting in 500 error)

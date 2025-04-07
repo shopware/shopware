@@ -66,8 +66,13 @@ class CustomerException extends HttpException
     public const OPERATOR_NOT_SUPPORTED = 'CHECKOUT__CUSTOMER_RULE_OPERATOR_NOT_SUPPORTED';
     public const VALUE_NOT_SUPPORTED = 'CONTENT__RULE_VALUE_NOT_SUPPORTED';
     public const MISSING_REQUEST_PARAMETER_CODE = 'CONTENT__MISSING_REQUEST_PARAMETER_CODE';
+    /**
+     * @deprecated tag:v6.8.0 - Use MISSING_OPTION instead
+     */
     public const MISSING_OPTIONS = 'CONTENT__MISSING_OPTIONS';
     public const UNEXPECTED_TYPE = 'CHECKOUT__UNEXPECTED_TYPE';
+    public const MISSING_OPTION = 'CONTENT__MISSING_OPTION';
+    public const INVALID_OPTION = 'CONTENT__INVALID_OPTION';
 
     public static function customerGroupNotFound(string $id): self
     {
@@ -391,7 +396,7 @@ class CustomerException extends HttpException
 
         return new self(
             Response::HTTP_BAD_REQUEST,
-            self::MISSING_OPTIONS,
+            self::MISSING_OPTION,
             'Option "{{ option }}" must be given for constraint {{ constraint }}',
             ['option' => $option, 'constraint' => $constraint]
         );
@@ -411,6 +416,23 @@ class CustomerException extends HttpException
             self::UNEXPECTED_TYPE,
             'Expected argument of type "{{ expectedType }}", "{{ givenType }}" given',
             ['expectedType' => $class, 'givenType' => get_debug_type($constraint)]
+        );
+    }
+
+    /**
+     * @deprecated tag:v6.8.0 - reason:return-type-change - Will return self
+     */
+    public static function invalidOption(string $option, string $type, string $constraint): self|\InvalidArgumentException
+    {
+        if (!Feature::isActive('v6.8.0.0')) {
+            return new \InvalidArgumentException(\sprintf('Option "%s" must be of type "%s" for constraint %s', $option, $type, $constraint));
+        }
+
+        return new self(
+            Response::HTTP_BAD_REQUEST,
+            self::INVALID_OPTION,
+            'Option "{{ option }}" must be of type "{{ type }}" for constraint {{ constraint }}',
+            ['option' => $option, 'type' => $type, 'constraint' => $constraint]
         );
     }
 }

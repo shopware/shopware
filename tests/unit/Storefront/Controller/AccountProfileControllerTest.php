@@ -33,7 +33,7 @@ class AccountProfileControllerTest extends TestCase
         $controller->savePassword(
             $dataBag,
             $this->createMock(SalesChannelContext::class),
-            $this->createMock(CustomerEntity::class),
+            new CustomerEntity(),
             new Request()
         );
     }
@@ -53,11 +53,10 @@ class AccountProfileControllerTest extends TestCase
         $response = $controller->savePassword(
             $dataBag,
             $this->createMock(SalesChannelContext::class),
-            $this->createMock(CustomerEntity::class),
+            new CustomerEntity(),
             new Request()
         );
 
-        static::assertInstanceOf(Response::class, $response);
         static::assertEquals('frontend.account.profile.page', $response->headers->get('X-Forwarded-Route'));
     }
 
@@ -76,11 +75,10 @@ class AccountProfileControllerTest extends TestCase
         $response = $controller->savePassword(
             $dataBag,
             $this->createMock(SalesChannelContext::class),
-            $this->createMock(CustomerEntity::class),
+            new CustomerEntity(),
             new Request()
         );
 
-        static::assertInstanceOf(RedirectResponse::class, $response);
         static::assertEquals('/account/profile', $response->getTargetUrl());
     }
 
@@ -100,11 +98,10 @@ class AccountProfileControllerTest extends TestCase
         $response = $controller->savePassword(
             $dataBag,
             $this->createMock(SalesChannelContext::class),
-            $this->createMock(CustomerEntity::class),
+            new CustomerEntity(),
             $request
         );
 
-        static::assertInstanceOf(Response::class, $response);
         static::assertEquals('frontend.home.page', $response->headers->get('X-Redirect-Route'));
     }
 
@@ -124,11 +121,10 @@ class AccountProfileControllerTest extends TestCase
         $response = $controller->savePassword(
             $dataBag,
             $this->createMock(SalesChannelContext::class),
-            $this->createMock(CustomerEntity::class),
+            new CustomerEntity(),
             $request
         );
 
-        static::assertInstanceOf(Response::class, $response);
         static::assertEquals('frontend.account.home.page', $response->headers->get('X-Forward-Route'));
     }
 

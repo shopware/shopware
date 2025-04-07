@@ -34,10 +34,10 @@ Contains styles for the search suggest popover in the shop header.
 }
 
 .search-suggest-product {
-    &.is-active {
-        .search-suggest-product-link {
-            color: $primary;
-        }
+    border-bottom: 1px solid $border-color;
+
+    &:last-child {
+        border-bottom: 0;
     }
 }
 
@@ -45,6 +45,13 @@ Contains styles for the search suggest popover in the shop header.
 .search-suggest-total-link {
     &:hover {
         text-decoration: none;
+    }
+
+    &:focus,
+    &:focus-visible {
+        color: $primary;
+        box-shadow: $focus-ring-box-shadow-inset;
+        outline: none;
     }
 }
 
@@ -61,6 +68,7 @@ Contains styles for the search suggest popover in the shop header.
 
 .search-suggest-product-price {
     text-align: right;
+    padding-right: 0.25rem;
 }
 
 .search-suggest-product-list-price,

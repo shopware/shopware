@@ -73,7 +73,7 @@ class AppListCommand extends Command
         }
 
         $appTable = [];
-        $active = $installed = 0;
+        $active = 0;
 
         $io->title('Shopware App Service');
 
@@ -93,8 +93,6 @@ class AppListCommand extends Command
             if ($app->isActive()) {
                 ++$active;
             }
-
-            ++$installed;
         }
 
         $io->table(

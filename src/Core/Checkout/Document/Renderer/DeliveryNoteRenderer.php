@@ -82,7 +82,6 @@ final class DeliveryNoteRenderer extends AbstractDocumentRenderer
                 $orderId = $order->getId();
 
                 try {
-                    var_dump('try');
                     if (!\array_key_exists($order->getId(), $operations)) {
                         continue;
                     }
@@ -150,7 +149,6 @@ final class DeliveryNoteRenderer extends AbstractDocumentRenderer
 
                     $result->addSuccess($orderId, $doc);
                 } catch (\Throwable $exception) {
-                    var_dump('catch');
                     $result->addError($orderId, $exception);
                 }
             }

@@ -91,8 +91,8 @@ class DeliveryNoteRendererTest extends TestCase
 
         $result = $deliveryNoteRenderer->render($operations, $context, new DocumentRendererConfig());
 
-        self::assertArrayHasKey($orderId, $result->getSuccess());
-        self::assertCount(0, $result->getErrors());
+        static::assertArrayHasKey($orderId, $result->getSuccess());
+        static::assertCount(0, $result->getErrors());
     }
 
     private function createOrder(): OrderEntity

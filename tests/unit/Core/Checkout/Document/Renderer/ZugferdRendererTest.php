@@ -144,7 +144,7 @@ class ZugferdRendererTest extends TestCase
             new DocumentRendererConfig()
         );
 
-        self::assertArrayHasKey($order->getId(), $result->getSuccess());
-        self::assertCount(0, $result->getErrors());
+        static::assertArrayHasKey($order->getId(), $result->getSuccess());
+        static::assertCount(0, $result->getErrors());
     }
 }

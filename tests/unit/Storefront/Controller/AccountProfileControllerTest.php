@@ -20,7 +20,7 @@ use Symfony\Component\Validator\ConstraintViolationList;
  * @internal
  */
 #[CoversClass(AccountProfileController::class)]
-class AccountProfileControllerUnitTest extends TestCase
+class AccountProfileControllerTest extends TestCase
 {
     public function testSavePasswordWithMissingPasswordParam(): void
     {

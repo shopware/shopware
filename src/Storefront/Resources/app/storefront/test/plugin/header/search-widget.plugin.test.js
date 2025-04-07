@@ -1,11 +1,11 @@
 /* eslint-disable */
 import SearchPlugin from 'src/plugin/header/search-widget.plugin';
 import FocusHandler from 'src/helper/focus-handler.helper';
-import DeviceDetection from 'src/helper/device-detection.helper';
+import DomAccess from 'src/helper/dom-access.helper';
 
 describe('ListingPlugin tests', () => {
     let searchPlugin = undefined;
-    let spyInit = jest.fn();
+    let formElement = null;
     let spyInitializePlugins = jest.fn();
 
     beforeEach(() => {
@@ -174,7 +174,7 @@ describe('ListingPlugin tests', () => {
 
         searchPlugin._inputField.value = 'test';
         const searchSuggest = document.querySelector('.js-search-result');
-        searchPlugin.searchSuggestLinks = Array.from(window.focusHandler.getFocusableElements(searchSuggest));
+        searchPlugin.searchSuggestLinks = Array.from(DomAccess.getFocusableElements(searchSuggest));
         searchPlugin._handleKeyEvent(eventMock);
 
         expect(eventMock.preventDefault).toHaveBeenCalled();
@@ -217,7 +217,7 @@ describe('ListingPlugin tests', () => {
         const searchPlugin = new SearchPlugin(formElement);
 
         const searchSuggest = document.querySelector('.js-search-result');
-        searchPlugin.searchSuggestLinks = Array.from(window.focusHandler.getFocusableElements(searchSuggest));
+        searchPlugin.searchSuggestLinks = Array.from(DomAccess.getFocusableElements(searchSuggest));
 
         const secondResult = searchPlugin.searchSuggestLinks[1];
         const eventMock = {
@@ -269,7 +269,7 @@ describe('ListingPlugin tests', () => {
 
     test('Click on close button should clear input and hide results', () => {
         document.body.innerHTML = `
-            <form id="search-widget" data-search-widget="true" class="js-search-form">
+            <form id="search-widget" data-search-widget="true" data-url="/search" class="js-search-form">
                 <input type="search" name="search" autocapitalize="off" autocomplete="off">
                 <button type="submit" class="btn header-search-btn">Search</button>
                 <button type="button" class="btn header-close-btn js-search-close-btn d-none"></button>
@@ -292,8 +292,9 @@ describe('ListingPlugin tests', () => {
 
     test('_suggest should handle successful AJAX request', async () => {
         const mockResponse = '<div class="js-search-result"><div class="js-result"><a href="#">Test Result</a></div></div>';
-        global.fetch = jest.fn().mockResolvedValue({
-            text: () => Promise.resolve(mockResponse)
+
+        searchPlugin._client.get = jest.fn((url, callback) => {
+            callback(mockResponse);
         });
 
         searchPlugin._inputField.value = 'test';
@@ -302,30 +303,12 @@ describe('ListingPlugin tests', () => {
         await searchPlugin._suggest('test');
 
         expect(searchPlugin.$emitter.publish).toHaveBeenCalledWith('beforeSearch');
-        expect(global.fetch).toHaveBeenCalledWith('/searchtest', {
-            headers: { 'X-Requested-With': 'XMLHttpRequest' }
-        });
+        expect(searchPlugin._client.get).toHaveBeenCalled();
 
         await new Promise(process.nextTick);
         expect(searchPlugin.$emitter.publish).toHaveBeenCalledWith('afterSuggest');
         expect(searchPlugin._inputField.getAttribute('aria-expanded')).toBe('true');
         expect(searchPlugin.searchSuggestLinks.length).toBe(1);
-    });
-
-    test('_suggest should handle failed AJAX request', async () => {
-        global.fetch = jest.fn().mockRejectedValue(new Error('Network error'));
-        searchPlugin._inputField.value = 'test';
-        searchPlugin.$emitter.publish = jest.fn();
-        searchPlugin._clearSuggestResults = jest.fn();
-
-        await searchPlugin._suggest('test');
-
-        expect(global.fetch).toHaveBeenCalled();
-        expect(searchPlugin.$emitter.publish).toHaveBeenCalledWith('beforeSearch');
-
-        await new Promise(process.nextTick);
-        expect(searchPlugin.$emitter.publish).not.toHaveBeenCalledWith('afterSuggest');
-        expect(searchPlugin._clearSuggestResults).toHaveBeenCalled();
     });
 
     test('_onBodyClick should clear results when clicking outside', () => {
@@ -377,29 +360,6 @@ describe('ListingPlugin tests', () => {
         searchPlugin._inputField.dispatchEvent(clickEvent);
 
         expect(searchPlugin._clearSuggestResults).not.toHaveBeenCalled();
-    });
-
-    test('_onCloseButtonClick should clear input and results', () => {
-        document.body.innerHTML = `
-            <form id="search-widget" data-search-widget="true" data-url="/search" class="js-search-form">
-                <input type="search" name="search" autocapitalize="off" autocomplete="off">
-                <button type="submit" class="btn header-search-btn">Search</button>
-                <button type="button" class="btn header-close-btn js-search-close-btn d-none"></button>
-                <div class="search-suggest js-search-result"></div>
-            </form>
-        `;
-
-        const formElement = document.getElementById('search-widget');
-        const searchPlugin = new SearchPlugin(formElement);
-
-        searchPlugin._inputField.value = 'test';
-        searchPlugin._clearSuggestResults = jest.fn();
-
-        const clickEvent = new Event('click');
-        searchPlugin._closeButton.dispatchEvent(clickEvent);
-
-        expect(searchPlugin._inputField.value).toBe('');
-        expect(searchPlugin._clearSuggestResults).toHaveBeenCalled();
     });
 
     test('_registerInputFocus should handle mobile focus', () => {

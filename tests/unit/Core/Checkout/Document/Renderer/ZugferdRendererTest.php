@@ -22,7 +22,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\NumberRange\ValueGenerator\NumberRangeValueGeneratorInterface;
-use Shopware\Core\Test\Stub\DataAbstractionLayer\StaticEntityRepository;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
 /**
@@ -54,58 +53,13 @@ class ZugferdRendererTest extends TestCase
         $order->setId(self::ORDER_ID);
         $order->setSalesChannelId(Uuid::randomHex());
 
-        $connection = $this->createMock(Connection::class);
-        $connection
-            ->expects($this->once())
-            ->method('fetchAllAssociative')
-            ->willReturn([['language_id' => Defaults::LANGUAGE_SYSTEM, 'ids' => self::ORDER_ID]]);
-
-        $builder = $this->createMock(ZugferdBuilder::class);
-        $builder
-            ->expects($this->once())
-            ->method('buildDocument')
-            ->willReturn('<?xml version="1.0" encoding="UTF-8"?>');
-
-        /** @var StaticEntityRepository<OrderCollection> $staticRepository */
-        $staticRepository = new StaticEntityRepository([new OrderCollection([$order])], new OrderDefinition());
-
-        $renderer = new ZugferdRenderer(
-            $staticRepository,
-            $connection,
-            $builder,
-            $this->createMock(EventDispatcherInterface::class),
-            new DocumentConfigLoader($this->createMock(EntityRepository::class), $this->createMock(EntityRepository::class)),
-            $this->createMock(NumberRangeValueGeneratorInterface::class)
-        );
-
-        $rendered = $renderer->render(
-            [self::ORDER_ID => new DocumentGenerateOperation(self::ORDER_ID)],
-            Context::createDefaultContext(),
-            new DocumentRendererConfig()
-        )->getOrderSuccess(self::ORDER_ID);
-
-        static::assertNotNull($rendered);
-        static::assertEquals(FileTypes::XML, $rendered->getFileExtension());
-        static::assertEquals('application/xml', $rendered->getContentType());
-        static::assertStringStartsWith('<?xml ', $rendered->getContent());
-    }
-
-    public function testRenderCreatesNewOrderVersion(): void
-    {
-        $context = Context::createDefaultContext();
-
-        $order = new OrderEntity();
-        $order->setId(self::ORDER_ID);
-        $order->setSalesChannelId(Uuid::randomHex());
-        $order->setVersionId(Defaults::LIVE_VERSION);
-
         $orderSearchResult = new EntitySearchResult(
             OrderDefinition::ENTITY_NAME,
             1,
             new OrderCollection([$order]),
             null,
             new Criteria(),
-            $context
+            Context::createDefaultContext()
         );
 
         $orderRepositoryMock = $this->createMock(EntityRepository::class);
@@ -113,6 +67,11 @@ class ZugferdRendererTest extends TestCase
             ->expects($this->once())
             ->method('search')
             ->willReturn($orderSearchResult);
+
+        $orderRepositoryMock
+            ->expects($this->once())
+            ->method('createVersion')
+            ->willReturn('new-order-version-id');
 
         $connection = $this->createMock(Connection::class);
         $connection
@@ -131,20 +90,19 @@ class ZugferdRendererTest extends TestCase
             $connection,
             $builder,
             $this->createMock(EventDispatcherInterface::class),
-            new DocumentConfigLoader(
-                $this->createMock(EntityRepository::class),
-                $this->createMock(EntityRepository::class)
-            ),
+            new DocumentConfigLoader($this->createMock(EntityRepository::class), $this->createMock(EntityRepository::class)),
             $this->createMock(NumberRangeValueGeneratorInterface::class)
         );
 
-        $result = $renderer->render(
+        $rendered = $renderer->render(
             [self::ORDER_ID => new DocumentGenerateOperation(self::ORDER_ID)],
-            $context,
+            Context::createDefaultContext(),
             new DocumentRendererConfig()
-        );
+        )->getOrderSuccess(self::ORDER_ID);
 
-        static::assertArrayHasKey($order->getId(), $result->getSuccess());
-        static::assertCount(0, $result->getErrors());
+        static::assertNotNull($rendered);
+        static::assertEquals(FileTypes::XML, $rendered->getFileExtension());
+        static::assertEquals('application/xml', $rendered->getContentType());
+        static::assertStringStartsWith('<?xml ', $rendered->getContent());
     }
 }

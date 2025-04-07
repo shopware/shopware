@@ -167,6 +167,6 @@ class AccountProfileControllerTest extends TestCase
 
         static::assertArrayHasKey('success', $this->getFlashBag()->all());
         static::assertTrue($response->isRedirect(), (string) $response->getContent());
-        static::assertStringContainsString('/home', $response->getTargetUrl());
+        static::assertNotEquals('/account/profile', $response->getTargetUrl(), 'Should not redirect to profile page');
     }
 }

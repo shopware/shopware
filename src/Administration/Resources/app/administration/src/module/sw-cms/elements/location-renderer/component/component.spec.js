@@ -63,6 +63,10 @@ describe('module/sw-cms/elements/location-renderer/component', () => {
             id: 'example_cms_element_type__config-element',
             path: 'element',
             scope: expect.anything(),
+            deprecated: true,
+            deprecationMessage:
+                // eslint-disable-next-line max-len
+                'The general cms element data set is deprecated. Please use a specific cms data set instead by provoding the element id.',
         });
 
         expect(Shopware.ExtensionAPI.publishData).toHaveBeenNthCalledWith(2, {

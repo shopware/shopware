@@ -304,6 +304,10 @@ export default {
         this.createdComponent();
     },
 
+    beforeRouteLeave() {
+        Shopware.Store.get('shopwareApps').selectedIds = [];
+    },
+
     beforeUnmount() {
         this.beforeDestroyedComponent();
     },

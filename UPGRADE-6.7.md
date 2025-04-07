@@ -604,7 +604,8 @@ The default payment method "Direct debit" will no longer automatically change th
 The `technicalName` property will be required for payment and shipping methods in the API.
 The `technical_name` column will be made non-nullable for the `payment_method` and `shipping_method` tables in the database.
 
-Plugin developers will be required to supply a `technicalName` for their payment and shipping methods.
+Plugin developers will be required to supply a `technicalName` for their payment and shipping methods.  
+**If no technical name is specified before the migration is run, a temporary placeholder `temporary_<method-id>` will be used instead.**
 
 Merchants must review their custom created payment and shipping methods for the new `technicalName` property and update their methods through the administration accordingly.
 </details>
@@ -666,6 +667,14 @@ Merchants must review their custom created payment and shipping methods for the 
 ## Customer: Default payment method removed
 * Removed default payment method from customer entity, since it was mostly overriden by old saved contexts
 * Logic is now more consistent to always be the last used payment method
+
+## Bulletproofing Plugin Migrations
+### Creation timestamp is now validated
+The returned timestamp `MigrationStep::getCreationTimestamp()` method is now validated, it needs to be between `1` and `2147483647` (the `max_int` value on 32-bit systems). This ensures that the migration order is always deterministic and prevents common errors when the method returns a higher number,
+that will silently be treated as max_int, leading to multiple migrations having the same creation timestamp, thus the execution order becomes random, which might lead to hard to debug errors while executing migrations.
+### Plugin migrations are now removed before calling `uninstall()`
+When `keepUserData` is set to false during plugin uninstall, the plugin is expected to clean up all DB tables the plugin created in the `install` method.
+Now we are cleaning up the plugin migrations from the migration table before calling the `uninstall` method, so in case of an error, the plugin can be reinstalled and the migrations can be rerun.
 
 ## Required foreign key in mapping definition for many-to-many associations
 If the mapping definition of a many-to-many association does not contain foreign key fields, an exception will be thrown.

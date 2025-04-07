@@ -279,7 +279,7 @@ describe('src/module/sw-bulk-edit/page/sw-bulk-edit-customer', () => {
             },
         });
 
-        Shopware.Store.get('shopwareApps').selectedIds = [
+        Shopware.Store.get('swBulkEdit').selectedIds = [
             Shopware.Utils.createId(),
         ];
     });
@@ -294,7 +294,7 @@ describe('src/module/sw-bulk-edit/page/sw-bulk-edit-customer', () => {
     it('should be show empty state', async () => {
         wrapper = await createWrapper();
 
-        Shopware.Store.get('shopwareApps').selectedIds = [];
+        Shopware.Store.get('swBulkEdit').selectedIds = [];
         await wrapper.setData({
             isLoading: false,
         });
@@ -330,7 +330,7 @@ describe('src/module/sw-bulk-edit/page/sw-bulk-edit-customer', () => {
         await tagsCard.find('.sw-bulk-edit-change-field__change input').trigger('click');
         await flushPromises();
 
-        Shopware.Store.get('shopwareApps').selectedIds = new Array(100).fill(1);
+        Shopware.Store.get('swBulkEdit').selectedIds = new Array(100).fill(1);
 
         await wrapper.find('.sw-bulk-edit-customer__save-action').trigger('click');
 

@@ -380,12 +380,12 @@
                                                                                     @update:value="updateCurrentValue"
                                                                                 />
 
-                                                                                <sw-text-field
+                                                                                <mt-text-field
                                                                                     v-else-if="mapSwFieldTypes(field.type) === 'text' || mapSwFieldTypes(field.type) === null"
                                                                                     :helpText="!field.helpText ? null : field.helpText"
                                                                                     :disabled="isInherited || !acl.can('theme.editor') || themeConfig[fieldName].editable === false"
-                                                                                    :value="currentValue | cssValue"
-                                                                                    @update:value="updateCurrentValue"
+                                                                                    :model-value="cssValue(currentValue)"
+                                                                                    @update:modelValue="updateCurrentValue"
                                                                                 />
                                                                             </template>
                                                                         </sw-inherit-wrapper>

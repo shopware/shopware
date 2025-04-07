@@ -7,8 +7,6 @@ use Shopware\Core\PlatformRequest;
 use Shopware\Core\SalesChannelRequest;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Component\HttpFoundation\RequestStack;
-use Symfony\Contracts\Cache\CacheInterface;
-use Symfony\Contracts\Cache\ItemInterface;
 
 /**
  * @internal
@@ -21,14 +19,12 @@ readonly class ThemeScripts
      */
     public function __construct(
         private RequestStack $requestStack,
-        private AbstractThemePathBuilder $themePathBuilder,
-        private CacheInterface $cache,
         private ThemeRuntimeConfigService $themeRuntimeConfigService,
     ) {
     }
 
     /**
-     * @return array<int, string>
+     * @return array<string>
      */
     public function getThemeScripts(): array
     {
@@ -53,16 +49,13 @@ readonly class ThemeScripts
             return [];
         }
 
-        $path = $this->themePathBuilder->assemblePath($salesChannelId, $themeId);
+        $runtimeConfig = $this->themeRuntimeConfigService->getResolvedRuntimeConfig($themeId);
 
-        return $this->cache->get('theme_scripts_' . $path, function (ItemInterface $item) use ($themeId) {
-            $runtimeConfig = $this->themeRuntimeConfigService->getResolvedRuntimeConfig($themeId);
+        if ($runtimeConfig === null) {
+            return [];
+        }
+        \assert($runtimeConfig->scriptFiles !== null);
 
-            if ($runtimeConfig === null) {
-                return [];
-            }
-
-            return $runtimeConfig->scriptFiles;
-        });
+        return $runtimeConfig->scriptFiles;
     }
 }

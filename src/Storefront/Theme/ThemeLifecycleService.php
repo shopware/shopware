@@ -70,7 +70,7 @@ class ThemeLifecycleService
     }
 
     /**
-     * @deprecated tag:v6.8.0 - parameter $configurationCollection will become a part of method signature
+     * @deprecated tag:v6.8.0 parameter $configurationCollection will be added - reason:new-optional-parameter
      */
     public function refreshTheme(StorefrontPluginConfiguration $configuration, Context $context/* , ?StorefrontPluginConfigurationCollection $configurationCollection = null */): void
     {

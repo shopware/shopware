@@ -15,6 +15,7 @@ class ThemeException extends HttpException
     public const INVALID_THEME_BY_ID = 'THEME__INVALID_THEME_BY_ID';
     public const INVALID_SCSS_VAR = 'THEME__INVALID_SCSS_VAR';
     public const THEME__COMPILING_ERROR = 'THEME__COMPILING_ERROR';
+    public const ERROR_LOADING_RUNTIME_CONFIG = 'THEME__ERROR_LOADING_RUNTIME_CONFIG';
 
     public static function themeMediaStillInUse(): self
     {
@@ -71,6 +72,37 @@ class ThemeException extends HttpException
             $themeName,
             $message,
             $e
+        );
+    }
+
+    /**
+     * @param array<string, array<int, string>> $themeSalesChannel
+     * @param array<string, array<int, string>> $childThemeSalesChannel
+     * @param array<string, string> $assignedSalesChannels
+     */
+    public static function themeAssignmentException(
+        string $themeName,
+        array $themeSalesChannel,
+        array $childThemeSalesChannel,
+        array $assignedSalesChannels,
+        ?\Throwable $e = null,
+    ): ThemeAssignmentException {
+        return new ThemeAssignmentException(
+            $themeName,
+            $themeSalesChannel,
+            $childThemeSalesChannel,
+            $assignedSalesChannels,
+            $e,
+        );
+    }
+
+    public static function errorLoadingRuntimeConfig(string $themeId): self
+    {
+        return new self(
+            Response::HTTP_INTERNAL_SERVER_ERROR,
+            self::ERROR_LOADING_RUNTIME_CONFIG,
+            'Error loading runtime config for theme with id "{{ themeId }}"',
+            ['themeId' => $themeId]
         );
     }
 }

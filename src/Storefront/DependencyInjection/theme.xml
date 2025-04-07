@@ -62,8 +62,6 @@
 
         <service id="Shopware\Storefront\Theme\ThemeScripts">
             <argument type="service" id="request_stack"/>
-            <argument type="service" id="Shopware\Storefront\Theme\AbstractThemePathBuilder"/>
-            <argument type="service" id="cache.object"/>
             <argument type="service" id="Shopware\Storefront\Theme\ThemeRuntimeConfigService"/>
         </service>
 

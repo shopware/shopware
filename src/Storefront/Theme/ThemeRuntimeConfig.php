@@ -19,7 +19,7 @@ class ThemeRuntimeConfig
     public function __construct(
         public readonly string $themeId,
         public readonly string $technicalName,
-        /** @var array<mixed> */
+        /** @var array<string, mixed> */
         public readonly array $resolvedConfig,
         /** @var array<string> */
         public readonly array $viewInheritance,
@@ -35,11 +35,11 @@ class ThemeRuntimeConfig
      * @param array{
      *     themeId: string,
      *     technicalName: string,
-     *     resolvedConfig?: array<mixed>,
+     *     resolvedConfig?: array<string, mixed>,
      *     viewInheritance?: array<string>,
      *     scriptFiles?: array<string>|null,
      *     iconSets?: array<string, array{path: string, namespace: string}>,
-     *     updatedAt?: \DateTimeInterface
+     *     updatedAt?: \DateTimeInterface|null
      * } $data
      */
     public static function fromArray(array $data): self

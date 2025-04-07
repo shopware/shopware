@@ -108,12 +108,13 @@ class ThemeRuntimeConfigService
         ]);
     }
 
-    public function updateRuntimeConfig(string $themeId, string $themeTechnicalName, Context $context, bool $resolveFiles, ?StorefrontPluginConfigurationCollection $configCollection): ThemeRuntimeConfig
+    public function updateRuntimeConfig(string $themeId, string $themeTechnicalName, Context $context, bool $resolveFiles, ?StorefrontPluginConfigurationCollection $configCollection = null): ThemeRuntimeConfig
     {
         if ($configCollection === null) {
             $configCollection = $this->pluginRegistry->getConfigurations();
         }
         $themeConfig = $configCollection->getByTechnicalName($themeTechnicalName);
+
         if ($themeConfig === null) {
             // todo: replace with specific exception (resulting in 500 error)
             throw ThemeException::couldNotFindThemeByName($themeTechnicalName);
@@ -161,7 +162,7 @@ class ThemeRuntimeConfigService
             'viewInheritance' => json_decode($record['view_inheritance'], true, 512, \JSON_THROW_ON_ERROR),
             'scriptFiles' => json_decode($record['script_files'], true, 512, \JSON_THROW_ON_ERROR),
             'iconSets' => json_decode($record['icon_sets'], true, 512, \JSON_THROW_ON_ERROR),
-            'updatedAt' => \DateTime::createFromFormat(Defaults::STORAGE_DATE_TIME_FORMAT, $record['updated_at']),
+            'updatedAt' => \DateTime::createFromFormat(Defaults::STORAGE_DATE_TIME_FORMAT, $record['updated_at']) ?: null,
         ]);
     }
 

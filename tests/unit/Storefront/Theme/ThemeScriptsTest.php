@@ -8,11 +8,9 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\PlatformRequest;
 use Shopware\Core\SalesChannelRequest;
 use Shopware\Core\Test\Generator;
-use Shopware\Storefront\Theme\MD5ThemePathBuilder;
 use Shopware\Storefront\Theme\ThemeRuntimeConfig;
 use Shopware\Storefront\Theme\ThemeRuntimeConfigService;
 use Shopware\Storefront\Theme\ThemeScripts;
-use Symfony\Component\Cache\Adapter\ArrayAdapter;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\RequestStack;
 
@@ -34,8 +32,6 @@ class ThemeScriptsTest extends TestCase
     {
         $themeScripts = new ThemeScripts(
             $this->createMock(RequestStack::class),
-            new MD5ThemePathBuilder(),
-            new ArrayAdapter(),
             $this->themeRuntimeConfigService,
         );
 
@@ -50,8 +46,6 @@ class ThemeScriptsTest extends TestCase
 
         $themeScripts = new ThemeScripts(
             $requestStack,
-            new MD5ThemePathBuilder(),
-            new ArrayAdapter(),
             $this->themeRuntimeConfigService,
         );
 
@@ -73,8 +67,6 @@ class ThemeScriptsTest extends TestCase
 
         $themeScripts = new ThemeScripts(
             $requestStack,
-            new MD5ThemePathBuilder(),
-            new ArrayAdapter(),
             $this->themeRuntimeConfigService,
         );
 
@@ -107,8 +99,6 @@ class ThemeScriptsTest extends TestCase
 
         $themeScripts = new ThemeScripts(
             $requestStack,
-            new MD5ThemePathBuilder(),
-            new ArrayAdapter(),
             $this->themeRuntimeConfigService,
         );
 

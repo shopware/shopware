@@ -9,6 +9,7 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
+use Shopware\Storefront\Theme\Exception\ThemeException;
 
 #[Package('framework')]
 class ResolvedConfigLoader extends AbstractResolvedConfigLoader
@@ -33,8 +34,7 @@ class ResolvedConfigLoader extends AbstractResolvedConfigLoader
     {
         $runtimeConfig = $this->runtimeConfigService->getRuntimeConfig($themeId);
         if ($runtimeConfig === null) {
-            // todo: validate what has to be done if config is missing
-            throw new \RuntimeException('No runtime config found for theme with id ' . $themeId);
+            throw ThemeException::errorLoadingRuntimeConfig($themeId);
         }
         $config = $runtimeConfig->resolvedConfig;
         $resolvedConfig = [];

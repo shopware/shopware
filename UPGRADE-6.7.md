@@ -577,6 +577,20 @@ Some functionality changed in a way that might be noticeable for merchants. Addi
 <details>
   <summary>Detailed Changes</summary>
 
+## Pinning promotions in administration
+When an _existing_ order is changed in administration, the promotions are pinned.
+No changes will be made to the promotions, other than recalculating the price, unless done manually.
+This means that when changing the order:
+* No promotions are _automatically_ added
+* No promotions are _automatically_ removed
+* Disabled promotions are kept and recalculated correctly
+* Adding promotion codes works as expected
+
+In addition, the switch for toggling automatic promotions is replaced by a button.
+The button will reapply _automatic_ promotions by:
+* Removing _automatic_ promotions whose conditions aren't met anymore
+* Adding _automatic_ promotions whose conditions apply to the order
+
 ## Vat Ids will be validated case sensitive
 Vat Ids will now be checked for case sensitivity, which means that most Vat Ids will now have to be upper case, depending on their validation pattern.
 For customers without a company, this check will only be done on entry, so it is still possible to checkout with an existing lower case Vat Id.

@@ -1,6 +1,25 @@
 # Changelog
 This is the official changelog index of Shopware 6. Here you find a registry of all Shopware 6 releases with a reference to the detailed changelog of each version. If you want to know more about how the changelog is created have a look [here](/adr/workflow/2020-08-03-implement-New-Changelog.md).
 
+## 6.7.0.0-rc2
+*  [#4654 - Fix HTML quirks mode in the Storefront](./changelog/release-6-7-0-1/2025-03-25-Fix-html-quirks-mode.md)
+*  [#5900 - Only add gtag consent mode if Google Analytics is enabled](./changelog/release-6-7-0-1/2024-12-18-only-add-gtag-consent-mode-if-google-analytics-is-enabled.md) ([Max](https://github.com/aragon999))
+*  [#6960 - ci: skip downstreams in case of no write perms (fixes: #6960) (#6963)](https://github.com/shopware/shopware/issues/6960)
+*  [#7070 - ci: only execute downstream with valid token (fixes: #7070) (#7118)](https://github.com/shopware/shopware/issues/7070)
+*  [#7108 - Add title attribute to filter remove button](./changelog/release-6-7-0-1/2025-03-27-add-title-to-filter-remove-button.md)
+*  [#7259 - ci: Move reopened GitHub issues back to WIP (fixes: #7259) (#7381)](https://github.com/shopware/shopware/issues/7259)
+*  [#7624 - Improve cookie settings accessibility](./changelog/release-6-7-0-1/2025-03-26-cookie-constent-keyboard-nav.md)
+*  [#7843 - Update storefront Inter font and remove non-variable fonts](./changelog/release-6-7-0-1/2024-11-29-update-storefront-inter-font-and-remove-non-variable-fonts.md) ([Max](https://github.com/aragon999))
+*  [#7867 - Add login scripts to window](./changelog/release-6-7-0-1/2025-03-25-add-login-scripts-to-window.md)
+*  [#7877 - Improve search widget accessibility](./changelog/release-6-7-0-1/2025-04-02-search-widget-accessibility.md)
+*  [#7888 - Cleanup storefront stylelint integration](./changelog/release-6-7-0-1/2024-11-23-cleanup-storefront-stylelint-integration.md) ([Max](https://github.com/aragon999))
+*  [#7965 - Raise version in composer.stub](./changelog/release-6-7-0-1/2025-03-26-raise-version-in-composer-stub.md) ([Marcus Müller](https://github.com/M-arcus))
+*  [#8009 - Correctly reset promotion duplication fields](./changelog/release-6-7-0-1/2025-03-26-fix-correctly-reset-promotion-duplication-fields.md) ([Benjamin Wittwer](https://github.com/akf-bw))
+*  [#8021 - Pin promotions for admin orders](./changelog/release-6-7-0-1/2025-03-25-pin-promotions-for-admin-orders.md)
+*  [#8235 - Fix loading of to one associations with partial data loading](./changelog/release-6-7-0-1/2025-04-03-fix-loading-of-to-one-associations-with-partial-data-loading.md) ([Pascal Paul](https://github.com/pascalniklaspaul))
+*  [#8280 - Fix the issue where a criteria limit of 500 prevents loading admin modules](./changelog/release-6-7-0-1/2025-03-31-fix-issue-where-criteria-limit-of-500-prevents-loading-admin-modules.md)
+*  [7093 - a11y insufficient accessibility of the search form field for screen readers](./changelog/release-6-7-0-1/2025-03-27-a11y-insufficient-accessibility-of-the-search-form-field-for-screen-readers.md) ([Le Nguyen](https://github.com/nguyenquocdaile))
+
 ## 6.7.0.0-rc1
 *  [!4345 - fix-media-folder-thumbnail-settings](./changelog/release-6-7-0-0/2025-03-16-fix-media-folder-thumbnail-settings.md) ([Felix Schneider](https://github.com/schneider-felix))
 *  [#4980 - Add Twig functions and tokens with their alternatives with inheritance](./changelog/release-6-7-0-0/2024-10-04-add-twig-functions-and-tokens-with-their-alternatives-with-inheritance.md) ([Joshua Behrens](https://github.com/JoshuaBehrens))

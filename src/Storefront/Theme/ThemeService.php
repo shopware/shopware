@@ -314,7 +314,7 @@ class ThemeService implements ResetInterface
             $outputStructure['tabs'][$tab]['blocks'][$block]['sections'][$section]['fields'][$fieldName] = [
                 'label' => $fieldConfig['label'],
                 'helpText' => $fieldConfig['helpText'] ?? null,
-                'type' => $fieldConfig['type'],
+                'type' => $fieldConfig['type'] ?? null,
                 'custom' => $fieldConfig['custom'],
                 'fullWidth' => $fieldConfig['fullWidth'],
             ];

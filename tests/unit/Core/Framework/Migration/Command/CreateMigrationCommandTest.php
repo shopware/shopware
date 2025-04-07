@@ -103,10 +103,7 @@ class CreateMigrationCommandTest extends TestCase
 
         $input = ['--plugin' => 'SimplePlugin'];
 
-        $this->expectExceptionObject(MigrationException::migrationDirectoryNotCreated(
-            '/tests/unit/Storefront/Theme/fixtures/SimplePlugin/Migration'
-        ));
-
+        $this->expectExceptionMessage('Failed to create "/tests/unit/Storefront/Theme/fixtures/SimplePlugin/Migration": mkdir(): Read-only file system');
         $commandTester->execute($input);
     }
 }

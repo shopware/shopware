@@ -61,7 +61,7 @@ class ThemeConfigValueAccessor
         }
 
         $this->dispatcher->dispatch(new AddCacheTagEvent(
-            CachedResolvedConfigLoader::buildName($themeId)
+            CachedResolvedConfigLoaderInvalidator::buildCacheTag($themeId)
         ));
 
         $themeConfig = array_merge(

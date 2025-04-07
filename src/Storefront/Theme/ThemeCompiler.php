@@ -144,7 +144,7 @@ class ThemeCompiler implements ThemeCompilerInterface
         }
 
         $this->cacheInvalidator->invalidate([
-            CachedResolvedConfigLoader::buildName($themeId),
+            CachedResolvedConfigLoaderInvalidator::buildCacheTag($themeId),
         ]);
     }
 

@@ -109,7 +109,7 @@ class CartFacadeTest extends TestCase
         $split = $product->take(1);
         static::assertInstanceOf(ItemFacade::class, $split);
         $container->add($split);
-        $container->discount('my-discount', 'percentage', -10, 'Fanzy discount');
+        $container->discount('my-discount', 'percentage', -10, 'Fancy discount');
 
         $surcharge = new PriceCollection([new Price(Defaults::CURRENCY, 2, 2, false)]);
         $container->surcharge('my-surcharge', 'absolute', $surcharge, 'unit test');

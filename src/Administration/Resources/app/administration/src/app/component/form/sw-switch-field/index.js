@@ -64,5 +64,12 @@ Component.register('sw-switch-field', {
             // For backwards compatibility
             this.$emit('update:value', value);
         },
+
+        onChangeHandlerCompat(value) {
+            if (!this.isCompatEnabled('INSTANCE_LISTENERS')) {
+                // For backwards compatibility
+                this.$emit('update:value', value);
+            }
+        },
     },
 });

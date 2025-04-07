@@ -22,7 +22,7 @@ jobs:
           shopware-repository: ${{ github.repository }}
 
       - name: Cache ESLint and Stylelint
-        uses: actions/cache@d4323d4df104b026a6aa633fdb11d772146be0bf # 4
+        uses: actions/cache@5a3ec84eff668545956fd18022155c47e93e2684 # 4
         with:
           path: |
             src/Storefront/Resources/app/storefront/node_modules/.eslintcache

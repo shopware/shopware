@@ -35,12 +35,20 @@ class Migration1733136208AddH1ToCmsCategoryListing extends MigrationStep
 
     private function addH1ToDefaultListing(Connection $connection, string $cmsPageId): void
     {
-        $sectionId = $connection->fetchOne(
-            'SELECT id
+        $sectionData = $connection->fetchAssociative(
+            'SELECT id, version_id
             FROM cms_section
             WHERE cms_page_id = :cms_page_id',
             ['cms_page_id' => $cmsPageId]
         );
+
+        if (!$sectionData) {
+            return;
+        }
+
+        $sectionId = $sectionData['id'];
+        $sectionVersionId = $sectionData['version_id'];
+
         $connection->executeStatement(
             'UPDATE cms_block
             SET position = position + 1
@@ -49,18 +57,20 @@ class Migration1733136208AddH1ToCmsCategoryListing extends MigrationStep
             ['cms_section_id' => $sectionId]
         );
 
+        $versionId = Uuid::fromHexToBytes(Defaults::LIVE_VERSION);
+
         $categoryNameBlock = [
             'id' => Uuid::randomBytes(),
             'cms_section_id' => $sectionId,
+            'cms_section_version_id' => $sectionVersionId,
             'position' => 0,
             'locked' => 1,
             'type' => 'text',
             'name' => 'Category name',
             'created_at' => (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT),
+            'version_id' => $versionId,
         ];
         $connection->insert('cms_block', $categoryNameBlock);
-
-        $versionId = Uuid::fromHexToBytes(Defaults::LIVE_VERSION);
 
         $categoryNameSlot = [
             'id' => Uuid::randomBytes(),

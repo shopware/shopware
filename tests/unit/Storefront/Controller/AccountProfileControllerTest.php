@@ -41,13 +41,13 @@ class AccountProfileControllerTest extends TestCase
     public function testSavePasswordWithConstraintViolation(): void
     {
         $controller = $this->createAccountProfileController(true);
-        
+
         $passwordBag = new RequestDataBag([
             'newPassword' => 'newPassword123',
             'newPasswordConfirm' => 'newPassword123',
             'password' => 'oldPassword',
         ]);
-        
+
         $dataBag = new RequestDataBag(['password' => $passwordBag]);
 
         $response = $controller->savePassword(
@@ -64,13 +64,13 @@ class AccountProfileControllerTest extends TestCase
     public function testSavePasswordWithDefaultRedirect(): void
     {
         $controller = $this->createAccountProfileController();
-        
+
         $passwordBag = new RequestDataBag([
             'newPassword' => 'newPassword123',
             'newPasswordConfirm' => 'newPassword123',
             'password' => 'oldPassword',
         ]);
-        
+
         $dataBag = new RequestDataBag(['password' => $passwordBag]);
 
         $response = $controller->savePassword(
@@ -87,13 +87,13 @@ class AccountProfileControllerTest extends TestCase
     public function testSavePasswordWithCustomRedirect(): void
     {
         $controller = $this->createAccountProfileController();
-        
+
         $passwordBag = new RequestDataBag([
             'newPassword' => 'newPassword123',
             'newPasswordConfirm' => 'newPassword123',
             'password' => 'oldPassword',
         ]);
-        
+
         $dataBag = new RequestDataBag(['password' => $passwordBag]);
         $request = new Request([], ['redirectTo' => 'frontend.home.page']);
 
@@ -111,13 +111,13 @@ class AccountProfileControllerTest extends TestCase
     public function testSavePasswordWithForwardToParam(): void
     {
         $controller = $this->createAccountProfileController();
-        
+
         $passwordBag = new RequestDataBag([
             'newPassword' => 'newPassword123',
             'newPasswordConfirm' => 'newPassword123',
             'password' => 'oldPassword',
         ]);
-        
+
         $dataBag = new RequestDataBag(['password' => $passwordBag]);
         $request = new Request([], ['forwardTo' => 'frontend.account.home.page']);
 
@@ -135,58 +135,60 @@ class AccountProfileControllerTest extends TestCase
     private function createAccountProfileController(bool $throwConstraintViolation = false): AccountProfileController
     {
         $changePasswordRoute = $this->createMock(ChangePasswordRoute::class);
-        
+
         if ($throwConstraintViolation) {
             $changePasswordRoute->method('change')->willThrowException(
                 new ConstraintViolationException(new ConstraintViolationList(), [])
             );
         }
-        
+
         $controller = $this->getMockBuilder(AccountProfileController::class)
             ->disableOriginalConstructor()
             ->onlyMethods(['trans', 'addFlash', 'redirectToRoute', 'forwardToRoute', 'createActionResponse'])
             ->getMock();
-            
+
         $reflectionProperty = new \ReflectionProperty(AccountProfileController::class, 'changePasswordRoute');
         $reflectionProperty->setAccessible(true);
         $reflectionProperty->setValue($controller, $changePasswordRoute);
-        
+
         $controller->method('trans')->willReturn('translated.message');
-        
+
         $controller->method('addFlash')->willReturnSelf();
-        
+
         $controller->method('redirectToRoute')->willReturnCallback(
             function (string $route) {
                 $response = new RedirectResponse('/account/profile');
                 $response->headers->set('X-Redirect-Route', $route);
+
                 return $response;
             }
         );
-        
+
         $controller->method('forwardToRoute')->willReturnCallback(
             function (string $routeName) {
                 $response = new Response();
                 $response->headers->set('X-Forwarded-Route', $routeName);
+
                 return $response;
             }
         );
-        
+
         $controller->method('createActionResponse')->willReturnCallback(
             function (Request $request) {
                 $response = new Response();
-                
+
                 if ($request->get('redirectTo')) {
                     $response->headers->set('X-Redirect-Route', $request->get('redirectTo'));
                 }
-                
+
                 if ($request->get('forwardTo')) {
                     $response->headers->set('X-Forward-Route', $request->get('forwardTo'));
                 }
-                
+
                 return $response;
             }
         );
-        
+
         return $controller;
     }
 }

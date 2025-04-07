@@ -6,7 +6,7 @@
       ],
       "dynamic": [],
       "js": [
-        "/bundles/some-functionality-bundle/administration/js/some-functionality-bundle.js"
+        "/bundles/somefunctionalitybundle/administration/js/some-functionality-bundle.js"
       ],
       "legacy": false,
       "preload": []

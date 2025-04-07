@@ -143,4 +143,30 @@ class AccountProfileControllerTest extends TestCase
 
         return $session->getFlashBag();
     }
+
+    public function testSavePasswordWithCustomRedirect(): void
+    {
+        $context = Context::createDefaultContext();
+        $customer = $this->createCustomer($context);
+
+        $browser = $this->login($customer->getEmail());
+
+        $browser->request(
+            'POST',
+            $_SERVER['APP_URL'] . '/account/profile/password?redirectTo=frontend.home.page',
+            $this->tokenize('frontend.account.profile.password.save', [
+                'password' => [
+                    'newPassword' => 'shopware123',
+                    'newPasswordConfirm' => 'shopware123',
+                    'password' => 'shopware',
+                ],
+            ])
+        );
+
+        $response = $browser->getResponse();
+
+        static::assertArrayHasKey('success', $this->getFlashBag()->all());
+        static::assertTrue($response->isRedirect(), (string) $response->getContent());
+        static::assertStringContainsString('/home', $response->getTargetUrl());
+    }
 }

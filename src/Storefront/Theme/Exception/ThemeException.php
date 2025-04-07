@@ -16,6 +16,7 @@ class ThemeException extends HttpException
     public const INVALID_SCSS_VAR = 'THEME__INVALID_SCSS_VAR';
     public const THEME__COMPILING_ERROR = 'THEME__COMPILING_ERROR';
     public const ERROR_LOADING_RUNTIME_CONFIG = 'THEME__ERROR_LOADING_RUNTIME_CONFIG';
+    public const ERROR_LOADING_FROM_PLUGIN_REGISTRY = 'THEME__ERROR_LOADING_THEME_FROM_PLUGIN_REGISTRY';
 
     public static function themeMediaStillInUse(): self
     {
@@ -103,6 +104,16 @@ class ThemeException extends HttpException
             self::ERROR_LOADING_RUNTIME_CONFIG,
             'Error loading runtime config for theme with id "{{ themeId }}"',
             ['themeId' => $themeId]
+        );
+    }
+
+    public static function errorLoadingFromPluginRegistry(string $technicalName): self
+    {
+        return new self(
+            Response::HTTP_INTERNAL_SERVER_ERROR,
+            self::ERROR_LOADING_FROM_PLUGIN_REGISTRY,
+            'Error loading theme with technical name "{{ technicalName }}" from plugin registry',
+            ['technicalName' => $technicalName]
         );
     }
 }

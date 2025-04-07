@@ -83,6 +83,7 @@
         {# file: src/Administration/Resources/app/administration/src/module/sw-order/view/sw-order-detail-general/sw-order-detail-general.html.twig #}
         {% block sw_order_detail_details_shipping_costs %}
         <mt-number-field
+            v-if="!feature.isActive('v6.8.0.0')"
             v-model="shippingCosts"
             class="sw-order-detail-details__shipping-cost"
             :disabled="!acl.can('order.editor')"

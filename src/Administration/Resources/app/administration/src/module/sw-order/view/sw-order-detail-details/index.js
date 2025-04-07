@@ -14,6 +14,10 @@ export default {
     template,
 
     inject: {
+        feature: {
+            from: 'feature',
+            default: null,
+        },
         swOrderDetailOnSaveAndReload: {
             from: 'swOrderDetailOnSaveAndReload',
             default: null,

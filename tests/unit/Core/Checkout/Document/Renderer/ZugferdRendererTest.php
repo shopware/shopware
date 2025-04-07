@@ -17,6 +17,8 @@ use Shopware\Core\Checkout\Order\OrderEntity;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\NumberRange\ValueGenerator\NumberRangeValueGeneratorInterface;
@@ -30,6 +32,8 @@ use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 #[CoversClass(ZugferdRenderer::class)]
 class ZugferdRendererTest extends TestCase
 {
+    private const ORDER_ID = '0192b305fddb7347be83a311a82f0649';
+
     public function testSupports(): void
     {
         $renderer = new ZugferdRenderer(
@@ -47,14 +51,14 @@ class ZugferdRendererTest extends TestCase
     public function testRender(): void
     {
         $order = new OrderEntity();
-        $order->setId('0192b305fddb7347be83a311a82f0649');
+        $order->setId(self::ORDER_ID);
         $order->setSalesChannelId(Uuid::randomHex());
 
         $connection = $this->createMock(Connection::class);
         $connection
             ->expects($this->once())
             ->method('fetchAllAssociative')
-            ->willReturn([['language_id' => Defaults::LANGUAGE_SYSTEM, 'ids' => '0192b305fddb7347be83a311a82f0649']]);
+            ->willReturn([['language_id' => Defaults::LANGUAGE_SYSTEM, 'ids' => self::ORDER_ID]]);
 
         $builder = $this->createMock(ZugferdBuilder::class);
         $builder
@@ -75,14 +79,72 @@ class ZugferdRendererTest extends TestCase
         );
 
         $rendered = $renderer->render(
-            ['0192b305fddb7347be83a311a82f0649' => new DocumentGenerateOperation('0192b305fddb7347be83a311a82f0649')],
+            [self::ORDER_ID => new DocumentGenerateOperation(self::ORDER_ID)],
             Context::createDefaultContext(),
             new DocumentRendererConfig()
-        )->getOrderSuccess('0192b305fddb7347be83a311a82f0649');
+        )->getOrderSuccess(self::ORDER_ID);
 
         static::assertNotNull($rendered);
         static::assertEquals(FileTypes::XML, $rendered->getFileExtension());
         static::assertEquals('application/xml', $rendered->getContentType());
         static::assertStringStartsWith('<?xml ', $rendered->getContent());
+    }
+
+    public function testRenderCreatesNewOrderVersion(): void
+    {
+        $context = Context::createDefaultContext();
+
+        $order = new OrderEntity();
+        $order->setId(self::ORDER_ID);
+        $order->setSalesChannelId(Uuid::randomHex());
+        $order->setVersionId(Defaults::LIVE_VERSION);
+
+        $orderSearchResult = new EntitySearchResult(
+            OrderDefinition::ENTITY_NAME,
+            1,
+            new OrderCollection([$order]),
+            null,
+            new Criteria(),
+            $context
+        );
+
+        $orderRepositoryMock = $this->createMock(EntityRepository::class);
+        $orderRepositoryMock
+            ->expects($this->once())
+            ->method('search')
+            ->willReturn($orderSearchResult);
+
+        $connection = $this->createMock(Connection::class);
+        $connection
+            ->expects($this->once())
+            ->method('fetchAllAssociative')
+            ->willReturn([['language_id' => Defaults::LANGUAGE_SYSTEM, 'ids' => self::ORDER_ID]]);
+
+        $builder = $this->createMock(ZugferdBuilder::class);
+        $builder
+            ->expects($this->once())
+            ->method('buildDocument')
+            ->willReturn('<?xml version="1.0" encoding="UTF-8"?>');
+
+        $renderer = new ZugferdRenderer(
+            $orderRepositoryMock,
+            $connection,
+            $builder,
+            $this->createMock(EventDispatcherInterface::class),
+            new DocumentConfigLoader(
+                $this->createMock(EntityRepository::class),
+                $this->createMock(EntityRepository::class)
+            ),
+            $this->createMock(NumberRangeValueGeneratorInterface::class)
+        );
+
+        $result = $renderer->render(
+            [self::ORDER_ID => new DocumentGenerateOperation(self::ORDER_ID)],
+            $context,
+            new DocumentRendererConfig()
+        );
+
+        self::assertArrayHasKey($order->getId(), $result->getSuccess());
+        self::assertCount(0, $result->getErrors());
     }
 }

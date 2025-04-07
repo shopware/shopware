@@ -82,6 +82,7 @@ final class DeliveryNoteRenderer extends AbstractDocumentRenderer
                 $orderId = $order->getId();
 
                 try {
+                    var_dump('try');
                     if (!\array_key_exists($order->getId(), $operations)) {
                         continue;
                     }
@@ -112,6 +113,9 @@ final class DeliveryNoteRenderer extends AbstractDocumentRenderer
                             'deliveryNoteDate' => $customConfig['deliveryNoteDate'] ?? $now,
                         ],
                     ]);
+
+                    // create version of order to ensure the document stays the same even if the order changes
+                    $operation->setOrderVersionId($this->orderRepository->createVersion($orderId, $context, 'document'));
 
                     if ($operation->isStatic()) {
                         $doc = new RenderedDocument($number, $config->buildName(), $operation->getFileType(), $config->jsonSerialize());
@@ -146,6 +150,7 @@ final class DeliveryNoteRenderer extends AbstractDocumentRenderer
 
                     $result->addSuccess($orderId, $doc);
                 } catch (\Throwable $exception) {
+                    var_dump('catch');
                     $result->addError($orderId, $exception);
                 }
             }

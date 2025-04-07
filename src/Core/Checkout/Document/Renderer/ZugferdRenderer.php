@@ -61,6 +61,7 @@ class ZugferdRenderer extends AbstractDocumentRenderer
 
         $chunk = $this->getOrdersLanguageId(array_values($ids), $context->getVersionId(), $this->connection);
         foreach ($chunk as ['language_id' => $languageId, 'ids' => $ids]) {
+            var_dump('inside foreach');
             $criteria = OrderDocumentCriteriaFactory::create(\explode(',', (string) $ids), $rendererConfig->deepLinkCode);
             $criteria->addAssociation('lineItems.product.manufacturer');
 
@@ -93,6 +94,10 @@ class ZugferdRenderer extends AbstractDocumentRenderer
         $config->merge($operation->getConfig());
         // So no A11y will be generated
         $config->merge(['fileTypes' => ['xml']]);
+
+
+        // create version of order to ensure the document stays the same even if the order changes
+        $operation->setOrderVersionId($this->orderRepository->createVersion($order->getId(), $context, 'document'));
 
         $documentNumber = $config->getDocumentNumber();
         if ($documentNumber === null) {

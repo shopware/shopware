@@ -21,11 +21,15 @@ To run the Administration Watcher you can use:
 docker compose run --rm -p 5773:5773 web composer watch:admin
 ```
 
+and the Watcher is available at [http://localhost:5773](http://localhost:5773).
+
 To run the Storefront Watcher you can use:
 
 ```bash
 docker compose run --rm -p 9998:9998 -p 9999:9999 web composer watch:storefront
 ```
+
+and the Watcher is available at [http://localhost:9998](http://localhost:9998).
 
 To access the database you can go to [http://localhost:9080](http://localhost:9080) and use the following credentials:
 

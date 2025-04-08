@@ -4,6 +4,8 @@ namespace Shopware\Tests\Integration\Core\Content\Category\SalesChannel;
 
 use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Content\Product\Aggregate\ProductVisibility\ProductVisibilityDefinition;
+use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\SalesChannelApiTestBehaviour;
@@ -282,6 +284,55 @@ class NavigationRouteTest extends TestCase
         foreach ($response as $category) {
             if ($category['id'] === $this->ids->get('category3') && $category['linkType'] === 'landing_page') {
                 static::assertStringContainsString('/landingPage/' . $landingPageId, $category['internalLink']);
+            }
+        }
+    }
+
+    public function testProductInternalLinkHasSeoUrl(): void
+    {
+        $productId = Uuid::randomHex();
+        $this->getContainer()->get('product.repository')->create([
+            [
+                'id' => $productId,
+                'name' => 'Test Product',
+                'productNumber' => 'TEST-1234',
+                'stock' => 10,
+                'price' => [['currencyId' => Defaults::CURRENCY, 'gross' => 15, 'net' => 10, 'linked' => false]],
+                'tax' => ['name' => 'test', 'taxRate' => 15],
+                'active' => true,
+                'visibilities' => [
+                    ['salesChannelId' => $this->ids->get('sales-channel'), 'visibility' => ProductVisibilityDefinition::VISIBILITY_ALL],
+                ],
+            ],
+        ], Context::createDefaultContext());
+
+        $this->getContainer()->get('category.repository')->update([
+            [
+                'id' => $this->ids->get('category4'),
+                'type' => 'link',
+                'linkType' => 'product',
+                'internalLink' => $productId,
+            ],
+        ], Context::createDefaultContext());
+
+        $this->browser
+            ->request(
+                'POST',
+                '/store-api/navigation/footer-navigation/footer-navigation',
+                [
+                    'includes' => [
+                        'category' => ['id', 'name', 'type', 'linkType', 'internalLink'],
+                    ],
+                ],
+                [],
+                ['HTTP_SW-INCLUDE-SEO-URLS' => 'true']
+            );
+
+        $response = json_decode($this->getResponseContent(), true, 512, \JSON_THROW_ON_ERROR);
+
+        foreach ($response as $category) {
+            if ($category['id'] === $this->ids->get('category4') && $category['linkType'] === 'product') {
+                static::assertStringContainsString('/detail/' . $productId, $category['internalLink']);
             }
         }
     }

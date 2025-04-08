@@ -312,15 +312,10 @@ class NavigationRoute extends AbstractNavigationRoute
         foreach ($categories as $category) {
             if ($category->getType() === CategoryDefinition::TYPE_LINK
                 && $category->getLinkType() !== CategoryDefinition::LINK_TYPE_EXTERNAL) {
-                if ($category->getLinkType() === 'landing_page' && $category->getInternalLink()) {
-                    $url = '/landingPage/' . $category->getInternalLink();
+                $plainUrl = $this->categoryUrlGenerator->generate($category, $context->getSalesChannel());
+                if ($plainUrl !== null) {
+                    $url = $this->seoUrlReplacer->replace($plainUrl, '', $context);
                     $category->setInternalLink($url);
-                } else {
-                    $plainUrl = $this->categoryUrlGenerator->generate($category, $context->getSalesChannel());
-                    if ($plainUrl !== null) {
-                        $url = $this->seoUrlReplacer->replace($plainUrl, '', $context);
-                        $category->setInternalLink($url);
-                    }
                 }
             }
         }

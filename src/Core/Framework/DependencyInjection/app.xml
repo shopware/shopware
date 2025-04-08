@@ -469,6 +469,12 @@
             <tag name="console.command"/>
         </service>
 
+        <service id="Shopware\Core\Framework\App\Command\AppListCommand">
+            <argument type="service" id="app.repository"/>
+
+            <tag name="console.command"/>
+        </service>
+
         <service id="Shopware\Core\Framework\App\Api\AppUrlChangeController" public="true">
             <argument type="service" id="Shopware\Core\Framework\App\AppUrlChangeResolver\Resolver"/>
             <argument type="service" id="Shopware\Core\Framework\App\ShopId\ShopIdProvider"/>

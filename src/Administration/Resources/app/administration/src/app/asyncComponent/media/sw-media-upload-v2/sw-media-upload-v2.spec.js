@@ -13,7 +13,6 @@ async function createWrapper(customOptions = {}) {
     };
 
     return mount(await wrapTestComponent('sw-media-upload-v2', { sync: true }), {
-        attachTo: document.body,
         props: {
             uploadTag: 'my-upload',
             addFilesOnMultiselect: true,
@@ -589,9 +588,8 @@ describe('src/app/component/media/sw-media-upload-v2', () => {
         await flushPromises();
 
         // enable uploads via url
-        const contextMenuItem = document.body.querySelector('.sw-media-upload-v2__button-url-upload');
-        expect(contextMenuItem).toBeInstanceOf(HTMLElement);
-        contextMenuItem.click();
+        const contextMenuItem = wrapper.find('.sw-media-upload-v2__button-url-upload');
+        await contextMenuItem.trigger('click');
         await flushPromises();
 
         const urlInput = wrapper.find('#sw-field--url');

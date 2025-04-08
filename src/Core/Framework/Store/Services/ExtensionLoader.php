@@ -249,8 +249,6 @@ class ExtensionLoader
                 'type' => ExtensionStruct::EXTENSION_TYPE_APP,
                 'allowUpdate' => !$app->isManagedByComposer(),
                 'managedByComposer' => $app->isManagedByComposer(),
-                'allowUpdate' => !$app->isManagedByComposer(),
-                'managedByComposer' => $app->isManagedByComposer(),
                 'isTheme' => is_file($app->getPath() . '/Resources/theme.json'),
                 'privacyPolicyExtension' => isset($appArray['privacyPolicyExtensions']) ? $this->getTranslationFromArray($appArray['privacyPolicyExtensions'], $language, 'en-GB') : '',
                 'privacyPolicyLink' => $app->getMetadata()->getPrivacy(),

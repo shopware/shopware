@@ -291,20 +291,15 @@ class NavigationRouteTest extends TestCase
     public function testProductInternalLinkHasSeoUrl(): void
     {
         $productId = Uuid::randomHex();
-        $this->getContainer()->get('product.repository')->create([
-            [
-                'id' => $productId,
-                'name' => 'Test Product',
-                'productNumber' => 'TEST-1234',
-                'stock' => 10,
-                'price' => [['currencyId' => Defaults::CURRENCY, 'gross' => 15, 'net' => 10, 'linked' => false]],
-                'tax' => ['name' => 'test', 'taxRate' => 15],
-                'active' => true,
-                'visibilities' => [
-                    ['salesChannelId' => $this->ids->get('sales-channel'), 'visibility' => ProductVisibilityDefinition::VISIBILITY_ALL],
-                ],
-            ],
-        ], Context::createDefaultContext());
+        $productBuilder = new \Shopware\Core\Content\Test\Product\ProductBuilder($this->ids, 'TEST-1234');
+        $productBuilder->id = $productId; // Set specific ID for the test
+        $productBuilder
+            ->name('Test Product')
+            ->price(15, 10)
+            ->visibility($this->ids->get('sales-channel'), ProductVisibilityDefinition::VISIBILITY_ALL)
+            ->active(true);
+            
+        $productBuilder->write($this->getContainer());
 
         $this->getContainer()->get('category.repository')->update([
             [

@@ -193,6 +193,39 @@ class StructEncoderTest extends TestCase
         static::assertEquals($expectedCustomFields, $encoded['customFields']);
     }
 
+    public function testCustomFieldsFieldIsBlockedInTranslation(): void
+    {
+        $product = new ProductEntity();
+        $product->internalSetEntityData('product', new FieldVisibility([]));
+
+        $product->setName('test');
+        $product->setCustomFields(['foo' => 'bar', 'bar' => 'foo']);
+        $product->setTranslated(['customFields' => ['foo' => 'bar', 'bar' => 'foo']]);
+
+        $connection = $this->createMock(Connection::class);
+
+        $connection->expects($this->once())
+            ->method('fetchAllAssociative')
+            ->willReturn([
+                [
+                    'entity_name' => 'product',
+                    'name' => 'bar',
+                ],
+            ]);
+
+        $structEncoder = $this->createStructEncoder([SalesChannelProductDefinition::class], $connection);
+
+        $encoded = $structEncoder->encode($product, new ResponseFields(null));
+
+        $expectedCustomFields = [
+            'foo' => 'bar',
+        ];
+
+        static::assertArrayHasKey('customFields', $encoded);
+        static::assertEquals($expectedCustomFields, $encoded['customFields']);
+        static::assertEquals($expectedCustomFields, $encoded['translated']['customFields']);
+    }
+
     /**
      * @param array<int|string, class-string<EntityDefinition>|EntityDefinition> $definitions
      */

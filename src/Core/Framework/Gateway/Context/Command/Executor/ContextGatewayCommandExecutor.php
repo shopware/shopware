@@ -4,6 +4,7 @@ namespace Shopware\Core\Framework\Gateway\Context\Command\Executor;
 
 use Shopware\Core\Checkout\Customer\SalesChannel\CustomerResponse;
 use Shopware\Core\Framework\Gateway\Context\Command\ContextGatewayCommandCollection;
+use Shopware\Core\Framework\Gateway\Context\Command\LoginCustomerCommand;
 use Shopware\Core\Framework\Gateway\Context\Command\RegisterCustomerCommand;
 use Shopware\Core\Framework\Gateway\Context\Command\Registry\ContextGatewayCommandRegistry;
 use Shopware\Core\Framework\Gateway\Context\ContextGatewayException;
@@ -42,17 +43,25 @@ class ContextGatewayCommandExecutor
             $response = $parameters['customerResponse'];
 
             $token = $response->headers->get(PlatformRequest::HEADER_CONTEXT_TOKEN);
-            $contextParameters = new SalesChannelContextServiceParameters($context->getSalesChannelId(), $token);
+            $commands->remove($register::COMMAND_KEY);
+        }
 
+        if ($login = $commands->getLoginCommand()) {
+            $this->registry->get($login::COMMAND_KEY)->handle($login, $context, $parameters);
+
+            /** @var ContextTokenResponse $response */
+            $response = $parameters['tokenResponse'];
+
+            $token = $response->getToken();
+            $commands->remove($login::COMMAND_KEY);
+        }
+
+        if (isset($token)) {
+            $contextParameters = new SalesChannelContextServiceParameters($context->getSalesChannelId(), $token);
             $context = $this->salesChannelContextService->get($contextParameters);
         }
 
         foreach ($commands as $command) {
-            // registration is done before
-            if ($command instanceof RegisterCustomerCommand) {
-                continue;
-            }
-
             if (!$this->registry->has($command::getDefaultKeyName())) {
                 $this->logger->logOrThrowException(ContextGatewayException::handlerNotFound($command::getDefaultKeyName()));
                 continue;

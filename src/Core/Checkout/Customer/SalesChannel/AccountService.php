@@ -170,7 +170,7 @@ class AccountService
     /**
      * @throws CustomerNotFoundException
      */
-    private function getCustomerByEmail(string $email, SalesChannelContext $context): CustomerEntity
+    public function getCustomerByEmail(string $email, SalesChannelContext $context): CustomerEntity
     {
         $criteria = (new Criteria())
             ->addFilter(new EqualsFilter('email', $email));

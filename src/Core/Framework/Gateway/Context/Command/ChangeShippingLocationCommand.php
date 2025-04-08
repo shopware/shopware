@@ -5,12 +5,13 @@ namespace Shopware\Core\Framework\Gateway\Context\Command;
 use Shopware\Core\Framework\Log\Package;
 
 #[Package('framework')]
-class RegisterCustomerCommand extends AbstractContextGatewayCommand
+class ChangeShippingLocationCommand extends AbstractContextGatewayCommand
 {
-    public const COMMAND_KEY = 'context_register-customer';
+    public const COMMAND_KEY = 'context_change-shipping-location';
 
     public function __construct(
-        public readonly array $data
+        public readonly ?string $countryIso = null,
+        public readonly ?string $countryStateIso = null,
     ) {
     }
 

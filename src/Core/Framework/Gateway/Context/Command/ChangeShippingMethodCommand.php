@@ -5,12 +5,12 @@ namespace Shopware\Core\Framework\Gateway\Context\Command;
 use Shopware\Core\Framework\Log\Package;
 
 #[Package('framework')]
-class RegisterCustomerCommand extends AbstractContextGatewayCommand
+class ChangeShippingMethodCommand extends AbstractContextGatewayCommand
 {
-    public const COMMAND_KEY = 'context_register-customer';
+    public const COMMAND_KEY = 'context_change-shipping-method';
 
     public function __construct(
-        public readonly array $data
+        public readonly string $technicalName,
     ) {
     }
 

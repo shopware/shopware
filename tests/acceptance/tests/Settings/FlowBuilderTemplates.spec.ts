@@ -8,7 +8,6 @@ test('As an admin, I want to create new flows from templates, so that I can easi
         AdminFlowBuilderDetail,
         IdProvider,
         AdminApiContext,
-
     }) => {
 
     const flowTemplateName = 'Order placed';
@@ -32,7 +31,11 @@ test('As an admin, I want to create new flows from templates, so that I can easi
     await test.step('Create flow from template and compare it with template', async () => {
         const flowTemplateUrl = AdminFlowBuilderDetail.page.url().split('/');
         const flowTemplateId = flowTemplateUrl[flowTemplateUrl.length - 2];
-        await ShopAdmin.goesTo(AdminFlowBuilderCreate.url(`${flowTemplateId}`));
+        await ShopAdmin.goesTo(AdminFlowBuilderTemplates.url());
+        await ShopAdmin.expects(AdminFlowBuilderTemplates.searchBar).toBeVisible();
+        await AdminFlowBuilderTemplates.searchBar.fill(flowTemplateSearchTerm);
+        const adminFlowBuilderTemplatesRow = await AdminFlowBuilderTemplates.getLineItemByFlowName(flowTemplateName);
+        await adminFlowBuilderTemplatesRow.createFlowLink.click();
         await ShopAdmin.expects(AdminFlowBuilderCreate.smartBarHeader).toContainText(flowTemplateName);
         await AdminFlowBuilderCreate.nameField.fill(flowName);
         await AdminFlowBuilderCreate.saveButton.click();

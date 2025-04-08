@@ -26,9 +26,8 @@
                                         aria-expanded="false"
                                         aria-label="{{ 'header.currencyTrigger'|trans({ '%currency%': context.currency.translated.name })|striptags }}">
                                     {% block layout_header_actions_currency_widget_dropdown_toggle_name %}
-                                        <span aria-hidden="true">{{ context.currency.translated.symbol }}</span>
-                                        {# @deprecated tag:v6.7.0 - Toggling the text display will use Bootstrap helper classes instead of custom CSS. #}
-                                        <span class="top-bar-nav-text{% if feature('ACCESSIBILITY_TWEAKS') %} d-none d-md-inline{% endif %}">{{ context.currency.translated.name }}</span>
+                                        <span aria-hidden="true">{{ context.currency.symbol }}</span>
+                                        <span class="top-bar-nav-text">{{ context.currency.translated.name }}</span>
                                     {% endblock %}
                                 </button>
                             {% endblock %}

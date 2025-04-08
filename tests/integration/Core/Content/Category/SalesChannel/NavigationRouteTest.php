@@ -260,8 +260,8 @@ class NavigationRouteTest extends TestCase
         $this->getContainer()->get('category.repository')->update([
             [
                 'id' => $this->ids->get('category3'),
-                'type' => 'link',
-                'linkType' => 'landing_page',
+                'type' => CategoryDefinition::TYPE_LINK,
+                'linkType' => CategoryDefinition::LINK_TYPE_LANDING_PAGE,
                 'internalLink' => $landingPageId,
             ],
         ], Context::createDefaultContext());
@@ -304,8 +304,8 @@ class NavigationRouteTest extends TestCase
         $this->getContainer()->get('category.repository')->update([
             [
                 'id' => $this->ids->get('category4'),
-                'type' => 'link',
-                'linkType' => 'product',
+                'type' => CategoryDefinition::TYPE_LINK,
+                'linkType' => CategoryDefinition::LINK_TYPE_PRODUCT,
                 'internalLink' => $productId,
             ],
         ], Context::createDefaultContext());
@@ -337,8 +337,8 @@ class NavigationRouteTest extends TestCase
         $this->getContainer()->get('category.repository')->update([
             [
                 'id' => $this->ids->get('category3'),
-                'type' => 'link',
-                'linkType' => 'category',
+                'type' => CategoryDefinition::TYPE_LINK,
+                'linkType' => CategoryDefinition::LINK_TYPE_CATEGORY,
                 'internalLink' => $this->ids->get('category'),
             ],
         ], Context::createDefaultContext());

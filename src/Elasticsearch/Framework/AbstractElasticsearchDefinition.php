@@ -24,6 +24,12 @@ abstract class AbstractElasticsearchDefinition
 
     final public const INT_FIELD = ['type' => 'long'];
 
+    final public const TEXT_FIELD = [
+        'type' => 'text',
+        'ignore_above' => 10000,
+        'normalizer' => 'sw_lowercase_normalizer',
+    ];
+
     final public const SEARCH_FIELD = [
         'fields' => [
             'search' => ['type' => 'text', 'analyzer' => 'sw_whitespace_analyzer'],

@@ -240,6 +240,52 @@ class NavigationRouteTest extends TestCase
         static::assertArrayNotHasKey('id', $response[0]);
     }
 
+    public function testLandingPageInternalLinkHasSeoUrl(): void
+    {
+        $landingPageId = Uuid::randomHex();
+        $this->getContainer()->get('landing_page.repository')->create([
+            [
+                'id' => $landingPageId,
+                'name' => 'Test Landing Page',
+                'url' => 'test-landing-page',
+                'active' => true,
+                'salesChannels' => [
+                    ['id' => $this->ids->get('sales-channel')],
+                ],
+            ],
+        ], Context::createDefaultContext());
+
+        $this->getContainer()->get('category.repository')->update([
+            [
+                'id' => $this->ids->get('category3'),
+                'type' => 'link',
+                'linkType' => 'landing_page',
+                'internalLink' => $landingPageId,
+            ],
+        ], Context::createDefaultContext());
+
+        $this->browser
+            ->request(
+                'POST',
+                '/store-api/navigation/footer-navigation/footer-navigation',
+                [
+                    'includes' => [
+                        'category' => ['id', 'name', 'type', 'linkType', 'internalLink'],
+                    ],
+                ],
+                [],
+                ['HTTP_SW-INCLUDE-SEO-URLS' => 'true']
+            );
+
+        $response = json_decode($this->getResponseContent(), true, 512, \JSON_THROW_ON_ERROR);
+
+        foreach ($response as $category) {
+            if ($category['id'] === $this->ids->get('category3') && $category['linkType'] === 'landing_page') {
+                static::assertStringContainsString('/landingPage/' . $landingPageId, $category['internalLink']);
+            }
+        }
+    }
+
     private function createData(): void
     {
         $data = [
@@ -286,51 +332,5 @@ class NavigationRouteTest extends TestCase
         static::assertIsString($content);
 
         return $content;
-    }
-
-    public function testLandingPageInternalLinkHasSeoUrl(): void
-    {
-        $landingPageId = Uuid::randomHex();
-        $this->getContainer()->get('landing_page.repository')->create([
-            [
-                'id' => $landingPageId,
-                'name' => 'Test Landing Page',
-                'url' => 'test-landing-page',
-                'active' => true,
-                'salesChannels' => [
-                    ['id' => $this->ids->get('sales-channel')],
-                ],
-            ],
-        ], Context::createDefaultContext());
-
-        $this->getContainer()->get('category.repository')->update([
-            [
-                'id' => $this->ids->get('category3'),
-                'type' => 'link',
-                'linkType' => 'landing_page',
-                'internalLink' => $landingPageId,
-            ],
-        ], Context::createDefaultContext());
-
-        $this->browser
-            ->request(
-                'POST',
-                '/store-api/navigation/footer-navigation/footer-navigation',
-                [
-                    'includes' => [
-                        'category' => ['id', 'name', 'type', 'linkType', 'internalLink'],
-                    ],
-                ],
-                [],
-                ['HTTP_SW-INCLUDE-SEO-URLS' => 'true']
-            );
-
-        $response = json_decode($this->getResponseContent(), true, 512, \JSON_THROW_ON_ERROR);
-
-        foreach ($response as $category) {
-            if ($category['id'] === $this->ids->get('category3') && $category['linkType'] === 'landing_page') {
-                static::assertStringContainsString('/landingPage/' . $landingPageId, $category['internalLink']);
-            }
-        }
     }
 }

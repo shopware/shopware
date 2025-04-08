@@ -54,7 +54,6 @@ class DocumentRouteTest extends TestCase
         $this->getContainer()->get(DocumentConfigLoader::class)->reset();
         $this->customerId = $this->createCustomer();
         $this->guestId = $this->createCustomer('guest@example.com', true);
-        $this->createOrder($this->customerId);
     }
 
     /**
@@ -62,7 +61,10 @@ class DocumentRouteTest extends TestCase
      */
     public function testDownload(bool $isGuest, ?bool $withValidDeepLinkCode, \Closure $assertionCallback): void
     {
-        $token = $this->getLoggedInContextToken($isGuest ? $this->guestId : $this->customerId, $this->ids->get('sales-channel'));
+        $customerId = $isGuest ? $this->guestId : $this->customerId;
+
+        $this->createOrder($customerId);
+        $token = $this->getLoggedInContextToken($customerId, $this->ids->get('sales-channel'));
 
         $this->browser->setServerParameter('HTTP_SW_CONTEXT_TOKEN', $token);
 

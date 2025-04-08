@@ -1,6 +1,24 @@
 # Changelog
 This is the official changelog index of Shopware 6. Here you find a registry of all Shopware 6 releases with a reference to the detailed changelog of each version. If you want to know more about how the changelog is created have a look [here](/adr/workflow/2020-08-03-implement-New-Changelog.md).
 
+## 6.5.8.17
+*  [#3476 - NEXT-33504 - fix: Allow `association_fields` of `media_default_folder` to be nullable](https://github.com/shopware/shopware/issues/3476) ([@aragon999](https://github.com/aragon999))
+*  [#3486 - NEXT-32844 - fix(elasticsearch): Add separator to admin ES search indexer queries](https://github.com/shopware/shopware/issues/3486) ([@M-arcus](https://github.com/M-arcus))
+*  [#3494 - NEXT-30575 - fix(core): Remove HTML sanitization from mail header and footer fields](https://github.com/shopware/shopware/issues/3494) ([@M-arcus](https://github.com/M-arcus))
+*  [#3518 - NEXT-33235 - perf: Only use `searchIds` for import id resolving](https://github.com/shopware/shopware/issues/3518) ([@aragon999](https://github.com/aragon999))
+*  [#3567 - NEXT-34491 - NEXT-14691 - Add pseudo modal twig blocks](https://github.com/shopware/shopware/issues/3567) ([@lacknere](https://github.com/lacknere))
+*  [#3579 - NEXT-34070 - Improved seo url replacer](https://github.com/shopware/shopware/issues/3579) ([@akf-bw](https://github.com/akf-bw))
+*  [#3580 - NEXT-34102 - Add new block in analytics template](https://github.com/shopware/shopware/issues/3580) ([@wannevancamp](https://github.com/wannevancamp))
+*  [#3605 - NEXT-34399 - Update action.html.twig to include css class for detail button](https://github.com/shopware/shopware/issues/3605) ([@choeft](https://github.com/choeft))
+*  [#3611 - NEXT-34676 - Update ProductDetailRoute.php](https://github.com/shopware/shopware/issues/3611) ([@aneufeld23](https://github.com/aneufeld23))
+*  [#3684 - NEXT-36143 - feat: resolve extension parameters in compiler passes](https://github.com/shopware/shopware/issues/3684) ([@Ocarthon](https://github.com/Ocarthon))
+*  [#3718 - NEXT-36288 - feat: Add event to select variant on product detail page](https://github.com/shopware/shopware/issues/3718) ([@aragon999](https://github.com/aragon999))
+*  [#3779 - NEXT-36924 - Add missing check for context object in request attributes for StoreApiSeoResolver](https://github.com/shopware/shopware/issues/3779) ([@mromeike](https://github.com/mromeike))
+*  [#3833 - NEXT-37557 - Update Bootstrap Docs Link](https://github.com/shopware/shopware/issues/3833) ([@levin192](https://github.com/levin192))
+*  [#3836 - NEXT-37684 - Fix updating thumbnails in strict mode](https://github.com/shopware/shopware/issues/3836) ([@phizab](https://github.com/phizab))
+*  [#5759 - NEXT-39897 - Backport the `getAssociatedDefinition` method of the `EntityDefinitionQueryHelper` from NEXT-34674](https://github.com/shopware/shopware/issues/5759) ([@SpiGAndromeda](https://github.com/SpiGAndromeda))
+*  [NEXT-29637 - Allowed nulls in SystemConfigValidator for required values in child-configs](./changelog/release-6-5-8-17/2025-02-24-allowed-nulls-in-systemconfigvalidator-for-required-values-in-child-configs.md)
+
 ## 6.5.8.16
 *  [#3476 - NEXT-33504 - fix: Allow `association_fields` of `media_default_folder` to be nullable](https://github.com/shopware/shopware/issues/3476) ([@aragon999](https://github.com/aragon999))
 *  [#3486 - NEXT-32844 - fix(elasticsearch): Add separator to admin ES search indexer queries](https://github.com/shopware/shopware/issues/3486) ([@M-arcus](https://github.com/M-arcus))

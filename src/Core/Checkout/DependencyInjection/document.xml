@@ -139,6 +139,7 @@
 
         <service id="Shopware\Core\Checkout\Document\SalesChannel\DocumentRoute" public="true">
             <argument type="service" id="Shopware\Core\Checkout\Document\Service\DocumentGenerator"/>
+            <argument type="service" id="document.repository" />
         </service>
     </services>
 </container>

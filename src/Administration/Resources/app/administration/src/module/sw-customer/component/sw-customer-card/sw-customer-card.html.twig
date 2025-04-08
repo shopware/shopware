@@ -18,8 +18,8 @@
         {% block sw_customer_card_action_customer_impersonation %}
         <mt-button
             v-tooltip="{
-                message: $tc(customer.guest ? 'sw-customer.card.tooltipImitateCustomerGuest' : 'sw-privileges.tooltip.warning'),
-                disabled: !customer.guest && acl.can('api_proxy_imitate-customer'),
+                message: customerImitationWarning,
+                disabled: canUseCustomerImitation,
                 showOnDisabledElements: true
             }"
             :disabled="!canUseCustomerImitation"

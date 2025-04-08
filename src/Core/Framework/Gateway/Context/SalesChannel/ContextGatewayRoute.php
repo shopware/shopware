@@ -30,8 +30,6 @@ class ContextGatewayRoute extends AbstractContextGatewayRoute
     #[Route(path: '/store-api/context/gateway', name: 'store-api.context.gateway', methods: ['GET', 'POST'])]
     public function load(Request $request, Cart $cart, SalesChannelContext $context): ContextTokenResponse
     {
-        $data = new RequestDataBag($request->request->all());
-
-        return $this->contextGateway->process(new ContextGatewayPayloadStruct($cart, $context, $data));
+        return $this->contextGateway->process(new ContextGatewayPayloadStruct($cart, $context, new RequestDataBag($request->request->all())));
     }
 }

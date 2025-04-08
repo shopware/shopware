@@ -228,11 +228,16 @@
             <argument type="service" id="Shopware\Core\Framework\Gateway\Context\Command\Executor\ContextGatewayCommandExecutor"/>
         </service>
 
+        <service id="Shopware\Core\Framework\Gateway\Context\Command\Executor\ContextGatewayCommandValidator">
+            <argument type="service" id="Shopware\Core\Framework\Log\ExceptionLogger"/>
+        </service>
+
         <service id="Shopware\Core\Framework\Gateway\Context\Command\Executor\ContextGatewayCommandExecutor">
             <argument type="service" id="Shopware\Core\Framework\Gateway\Context\Command\Registry\ContextGatewayCommandRegistry"/>
             <argument type="service" id="Shopware\Core\System\SalesChannel\SalesChannel\ContextSwitchRoute"/>
             <argument type="service" id="Shopware\Core\Framework\Log\ExceptionLogger"/>
             <argument type="service" id="Shopware\Core\System\SalesChannel\Context\SalesChannelContextService"/>
+            <argument type="service" id="Shopware\Core\Framework\Gateway\Context\Command\Executor\ContextGatewayCommandValidator"/>
         </service>
 
         <service id="Shopware\Core\Framework\Gateway\Context\Command\Registry\ContextGatewayCommandRegistry">

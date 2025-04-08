@@ -3,6 +3,7 @@
 namespace Shopware\Core\Framework\Gateway\Context\Command\Executor;
 
 use Shopware\Core\Checkout\Customer\SalesChannel\CustomerResponse;
+use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Gateway\Context\Command\ContextGatewayCommandCollection;
 use Shopware\Core\Framework\Gateway\Context\Command\LoginCustomerCommand;
 use Shopware\Core\Framework\Gateway\Context\Command\RegisterCustomerCommand;
@@ -29,11 +30,14 @@ class ContextGatewayCommandExecutor
         private readonly AbstractContextSwitchRoute $contextSwitchRoute,
         private readonly ExceptionLogger $logger,
         private readonly SalesChannelContextServiceInterface $salesChannelContextService,
+        private readonly ContextGatewayCommandValidator $commandValidator,
     ) {
     }
 
     public function execute(ContextGatewayCommandCollection $commands, SalesChannelContext $context): ContextTokenResponse
     {
+        $this->commandValidator->validate($commands, $context);
+
         $parameters = [];
 
         if ($register = $commands->getRegisterCommand()) {
@@ -43,7 +47,6 @@ class ContextGatewayCommandExecutor
             $response = $parameters['customerResponse'];
 
             $token = $response->headers->get(PlatformRequest::HEADER_CONTEXT_TOKEN);
-            $commands->remove($register::COMMAND_KEY);
         }
 
         if ($login = $commands->getLoginCommand()) {
@@ -53,7 +56,6 @@ class ContextGatewayCommandExecutor
             $response = $parameters['tokenResponse'];
 
             $token = $response->getToken();
-            $commands->remove($login::COMMAND_KEY);
         }
 
         if (isset($token)) {
@@ -62,6 +64,11 @@ class ContextGatewayCommandExecutor
         }
 
         foreach ($commands as $command) {
+            // these commands are already handled
+            if ($command instanceof RegisterCustomerCommand || $command instanceof LoginCustomerCommand) {
+                continue;
+            }
+
             if (!$this->registry->has($command::getDefaultKeyName())) {
                 $this->logger->logOrThrowException(ContextGatewayException::handlerNotFound($command::getDefaultKeyName()));
                 continue;

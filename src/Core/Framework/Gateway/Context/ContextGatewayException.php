@@ -11,10 +11,9 @@ class ContextGatewayException extends HttpException
 {
     public const EMPTY_APP_RESPONSE_CODE = 'CONTEXT_GATEWAY__EMPTY_APP_RESPONSE';
     public const PAYLOAD_INVALID_CODE = 'CONTEXT_GATEWAY__PAYLOAD_INVALID';
-
     public const HANDLER_NOT_FOUND_CODE = 'CONTEXT_GATEWAY__HANDLER_NOT_FOUND';
-
     public const HANDLER_EXCEPTION = 'CONTEXT_GATEWAY__HANDLER_EXCEPTION';
+    public const COMMAND_VALIDATION_FAILED = 'CONTEXT_GATEWAY__COMMAND_VALIDATION_FAILED';
 
     public static function emptyAppResponse(string $appName): self
     {
@@ -60,6 +59,16 @@ class ContextGatewayException extends HttpException
         return new self(
             Response::HTTP_BAD_REQUEST,
             self::HANDLER_EXCEPTION,
+            $message,
+            $parameters
+        );
+    }
+
+    public static function commandValidationFailed(string $message, array $parameters = []): self
+    {
+        return new self(
+            Response::HTTP_BAD_REQUEST,
+            self::COMMAND_VALIDATION_FAILED,
             $message,
             $parameters
         );

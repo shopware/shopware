@@ -3,6 +3,7 @@
 namespace Shopware\Storefront\Controller;
 
 use Shopware\Core\Checkout\Cart\SalesChannel\CartService;
+use Shopware\Core\Framework\Gateway\Context\ContextGatewayException;
 use Shopware\Core\Framework\Gateway\Context\SalesChannel\AbstractContextGatewayRoute;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
@@ -32,7 +33,7 @@ class ContextGatewayController extends StorefrontController
 
         try {
             $response = $this->contextGatewayRoute->load($request, $cart, $context);
-        } catch (\Throwable $e) {
+        } catch (ContextGatewayException $e) {
             $this->addFlash(self::DANGER, $e->getMessage());
             return new JsonResponse(status: Response::HTTP_BAD_REQUEST);
         }

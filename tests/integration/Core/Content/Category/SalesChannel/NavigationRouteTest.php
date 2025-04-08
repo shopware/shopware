@@ -302,7 +302,7 @@ class NavigationRouteTest extends TestCase
                 ],
             ],
         ], Context::createDefaultContext());
-        
+
         $this->getContainer()->get('category.repository')->update([
             [
                 'id' => $this->ids->get('category3'),
@@ -311,7 +311,7 @@ class NavigationRouteTest extends TestCase
                 'internalLink' => $landingPageId,
             ],
         ], Context::createDefaultContext());
-        
+
         $this->browser
             ->request(
                 'POST',
@@ -324,9 +324,9 @@ class NavigationRouteTest extends TestCase
                 [],
                 ['HTTP_SW-INCLUDE-SEO-URLS' => 'true']
             );
-        
+
         $response = json_decode($this->getResponseContent(), true, 512, \JSON_THROW_ON_ERROR);
-        
+
         foreach ($response as $category) {
             if ($category['id'] === $this->ids->get('category3') && $category['linkType'] === 'landing_page') {
                 static::assertStringContainsString('/landingPage/' . $landingPageId, $category['internalLink']);

@@ -72,7 +72,7 @@ export default {
         previewCriteria() {
             const criteria = new Criteria(this.page, this.limit).setTerm(this.searchTerm);
 
-            if (this.sorting) {
+            if (this.sorting && this.sorting !== 'random') {
                 const [
                     field,
                     direction,

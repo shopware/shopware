@@ -12,6 +12,7 @@ use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
+use Symfony\Component\Filesystem\Filesystem;
 
 #[AsCommand(
     name: 'database:create-migration',
@@ -125,9 +126,8 @@ class CreateMigrationCommand extends Command
         $pluginBundle = array_values($pluginBundles)[0];
 
         $directory = $pluginBundle->getMigrationPath();
-        if (!is_dir($directory) && !mkdir($directory) && !is_dir($directory)) {
-            throw MigrationException::migrationDirectoryNotCreated($directory);
-        }
+
+        (new Filesystem())->mkdir($directory);
 
         $namespace = $pluginBundle->getMigrationNamespace();
 

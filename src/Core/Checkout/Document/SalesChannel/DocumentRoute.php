@@ -4,6 +4,8 @@ namespace Shopware\Core\Checkout\Document\SalesChannel;
 
 use Shopware\Core\Checkout\Cart\CartException;
 use Shopware\Core\Checkout\Document\Service\DocumentGenerator;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
@@ -20,8 +22,10 @@ final class DocumentRoute extends AbstractDocumentRoute
     /**
      * @internal
      */
-    public function __construct(private readonly DocumentGenerator $documentGenerator)
-    {
+    public function __construct(
+        private readonly DocumentGenerator $documentGenerator,
+        private readonly EntityRepository $documentRepository
+    ) {
     }
 
     public function getDecorated(): AbstractDocumentRoute
@@ -32,6 +36,8 @@ final class DocumentRoute extends AbstractDocumentRoute
     #[Route(path: '/store-api/document/download/{documentId}/{deepLinkCode}', name: 'store-api.document.download', methods: ['GET', 'POST'], defaults: ['_loginRequired' => true, '_loginRequiredAllowGuest' => true, '_entity' => 'document'])]
     public function download(string $documentId, Request $request, SalesChannelContext $context, string $deepLinkCode = ''): Response
     {
+        $this->checkAuth($documentId, $context);
+
         if ($context->getCustomer() === null || ($context->getCustomer()->getGuest() && $deepLinkCode === '')) {
             throw CartException::customerNotLoggedIn();
         }
@@ -50,6 +56,31 @@ final class DocumentRoute extends AbstractDocumentRoute
             $download,
             $document->getContentType()
         );
+    }
+
+    private function checkAuth(string $documentId, SalesChannelContext $context): void
+    {
+        $criteria = (new Criteria([$documentId]))
+            ->addAssociations(['order.orderCustomer.customer', 'order.billingAddress']);
+
+        $document = $this->documentRepository->search($criteria, $context->getContext())->first();
+        if (!$document) {
+            throw CartException::insufficientPermission();
+        }
+
+        $order = $document->getOrder();
+        if (!$order) {
+            throw CartException::insufficientPermission();
+        }
+
+        $orderCustomer = $order->getOrderCustomer();
+        if (!$orderCustomer) {
+            throw CartException::insufficientPermission();
+        }
+
+        if ($context->getCustomer() !== null && $orderCustomer->getCustomerId() !== $context->getCustomer()->getId()) {
+            throw CartException::insufficientPermission();
+        }
     }
 
     private function createResponse(string $filename, string $content, bool $forceDownload, string $contentType): Response

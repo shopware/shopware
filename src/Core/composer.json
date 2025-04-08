@@ -10,8 +10,7 @@
     "license": "MIT",
     "autoload": {
         "files": [
-            "Framework/Adapter/Doctrine/Patch/AbstractAsset.php",
-            "Framework/Adapter/Twig/functions.php"
+            "Framework/Adapter/Doctrine/Patch/AbstractAsset.php"
         ],
         "exclude-from-classmap": [
             "*/Test/"

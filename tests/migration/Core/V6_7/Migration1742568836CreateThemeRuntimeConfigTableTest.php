@@ -50,5 +50,8 @@ class Migration1742568836CreateThemeRuntimeConfigTableTest extends TestCase
 
         static::assertArrayHasKey('script_files', $cols);
         static::assertFalse($cols['script_files']->getNotnull());
+
+        $indexes = $sm->listTableIndexes('theme_runtime_config');
+        static::assertArrayHasKey('idx.technical_name', $indexes);
     }
 }

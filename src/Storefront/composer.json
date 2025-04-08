@@ -32,7 +32,7 @@
         "cocur/slugify": "^4.3.0",
         "doctrine/dbal": "^4.2",
         "meyfa/php-svg": "^0.14.0",
-        "scssphp/scssphp": "v1.12.0",
+        "scssphp/scssphp": "v2.0.1",
         "shopware/core": "*",
         "symfony/cache": "~7.2.0",
         "symfony/cache-contracts": "~3.5.0",

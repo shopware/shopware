@@ -242,104 +242,142 @@ class NavigationRouteTest extends TestCase
         static::assertArrayNotHasKey('id', $response[0]);
     }
 
-    public function testLandingPageInternalLinkHasSeoUrl(): void
+    /**
+     * @return array<string, array{linkType: string, categoryId: string, targetId: ?string, expectedUrlPart: string, createEntity: bool, preConfiguredSeoUrl: bool}>
+     */
+    public static function internalLinkSeoUrlDataProvider(): array
     {
-        $landingPageId = Uuid::randomHex();
-        $this->getContainer()->get('landing_page.repository')->create([
-            [
-                'id' => $landingPageId,
-                'name' => 'Test Landing Page',
-                'url' => 'test-landing-page',
-                'active' => true,
-                'salesChannels' => [
-                    ['id' => $this->ids->get('sales-channel')],
-                ],
-            ],
-        ], Context::createDefaultContext());
-
-        $this->getContainer()->get('category.repository')->update([
-            [
-                'id' => $this->ids->get('category3'),
-                'type' => CategoryDefinition::TYPE_LINK,
+        return [
+            'landing_page without pre-configured SEO URL' => [
                 'linkType' => CategoryDefinition::LINK_TYPE_LANDING_PAGE,
-                'internalLink' => $landingPageId,
+                'categoryId' => 'category3',
+                'targetId' => null, // Will be generated in test
+                'expectedUrlPart' => '/test-landing-page',
+                'createEntity' => true,
+                'preConfiguredSeoUrl' => false,
             ],
-        ], Context::createDefaultContext());
-
-        $this->browser
-            ->request(
-                'POST',
-                '/store-api/navigation/footer-navigation/footer-navigation',
-                [
-                    'includes' => [
-                        'category' => ['id', 'name', 'type', 'linkType', 'internalLink'],
-                    ],
-                ],
-                [],
-                ['HTTP_SW-INCLUDE-SEO-URLS' => 'true']
-            );
-
-        $response = json_decode($this->getResponseContent(), true, 512, \JSON_THROW_ON_ERROR);
-
-        foreach ($response as $category) {
-            if ($category['id'] === $this->ids->get('category3') && $category['linkType'] === 'landing_page') {
-                static::assertStringContainsString('/test-landing-page', $category['internalLink']);
-            }
-        }
-    }
-
-    public function testProductInternalLinkHasSeoUrl(): void
-    {
-        $productId = Uuid::randomHex();
-        $productBuilder = new \Shopware\Core\Content\Test\Product\ProductBuilder($this->ids, 'TEST-1234');
-        $productBuilder->id = $productId; // Set specific ID for the test
-        $productBuilder
-            ->name('Test Product')
-            ->price(15, 10)
-            ->visibility($this->ids->get('sales-channel'), ProductVisibilityDefinition::VISIBILITY_ALL)
-            ->active(true);
-            
-        $productBuilder->write($this->getContainer());
-
-        $this->getContainer()->get('category.repository')->update([
-            [
-                'id' => $this->ids->get('category4'),
-                'type' => CategoryDefinition::TYPE_LINK,
+            'landing_page with pre-configured SEO URL' => [
+                'linkType' => CategoryDefinition::LINK_TYPE_LANDING_PAGE,
+                'categoryId' => 'category3',
+                'targetId' => null, // Will be generated in test
+                'expectedUrlPart' => '/custom-landing-page-url',
+                'createEntity' => true,
+                'preConfiguredSeoUrl' => true,
+            ],
+            'product without pre-configured SEO URL' => [
                 'linkType' => CategoryDefinition::LINK_TYPE_PRODUCT,
-                'internalLink' => $productId,
+                'categoryId' => 'category4',
+                'targetId' => null, // Will be generated in test
+                'expectedUrlPart' => '/detail/',
+                'createEntity' => true,
+                'preConfiguredSeoUrl' => false,
             ],
-        ], Context::createDefaultContext());
-
-        $this->browser
-            ->request(
-                'POST',
-                '/store-api/navigation/footer-navigation/footer-navigation',
-                [
-                    'includes' => [
-                        'category' => ['id', 'name', 'type', 'linkType', 'internalLink'],
-                    ],
-                ],
-                [],
-                ['HTTP_SW-INCLUDE-SEO-URLS' => 'true']
-            );
-
-        $response = json_decode($this->getResponseContent(), true, 512, \JSON_THROW_ON_ERROR);
-
-        foreach ($response as $category) {
-            if ($category['id'] === $this->ids->get('category4') && $category['linkType'] === 'product') {
-                static::assertStringContainsString('/detail/' . $productId, $category['internalLink']);
-            }
-        }
+            'product with pre-configured SEO URL' => [
+                'linkType' => CategoryDefinition::LINK_TYPE_PRODUCT,
+                'categoryId' => 'category4',
+                'targetId' => null, // Will be generated in test
+                'expectedUrlPart' => '/custom-product-url',
+                'createEntity' => true,
+                'preConfiguredSeoUrl' => true,
+            ],
+            'category without pre-configured SEO URL' => [
+                'linkType' => CategoryDefinition::LINK_TYPE_CATEGORY,
+                'categoryId' => 'category3',
+                'targetId' => 'category',
+                'expectedUrlPart' => '',
+                'createEntity' => false,
+                'preConfiguredSeoUrl' => false,
+            ],
+            'category with pre-configured SEO URL' => [
+                'linkType' => CategoryDefinition::LINK_TYPE_CATEGORY,
+                'categoryId' => 'category3',
+                'targetId' => 'category',
+                'expectedUrlPart' => '/custom-category-url',
+                'createEntity' => false,
+                'preConfiguredSeoUrl' => true,
+            ],
+        ];
     }
 
-    public function testCategoryInternalLinkHasSeoUrl(): void
-    {
+    /**
+     * @param string $linkType Type of internal link (landing_page, product, category)
+     * @param string $categoryId ID of the category to update with the internal link
+     * @param string|null $targetId ID of the target entity (or null if it should be generated)
+     * @param string $expectedUrlPart Expected part of the SEO URL
+     * @param bool $createEntity Whether to create a new entity or use an existing one
+     * @param bool $preConfiguredSeoUrl Whether to pre-configure a custom SEO URL
+     */
+    #[DataProvider('internalLinkSeoUrlDataProvider')]
+    public function testInternalLinkHasSeoUrl(
+        string $linkType,
+        string $categoryId,
+        ?string $targetId,
+        string $expectedUrlPart,
+        bool $createEntity,
+        bool $preConfiguredSeoUrl
+    ): void {
+        $entityId = $targetId ? $this->ids->get($targetId) : Uuid::randomHex();
+        
+        if ($createEntity) {
+            if ($linkType === CategoryDefinition::LINK_TYPE_LANDING_PAGE) {
+                $this->getContainer()->get('landing_page.repository')->create([
+                    [
+                        'id' => $entityId,
+                        'name' => 'Test Landing Page',
+                        'url' => 'test-landing-page',
+                        'active' => true,
+                        'salesChannels' => [
+                            ['id' => $this->ids->get('sales-channel')],
+                        ],
+                    ],
+                ], Context::createDefaultContext());
+            } elseif ($linkType === CategoryDefinition::LINK_TYPE_PRODUCT) {
+                $productBuilder = new \Shopware\Core\Content\Test\Product\ProductBuilder($this->ids, 'TEST-1234');
+                $productBuilder->id = $entityId;
+                $productBuilder
+                    ->name('Test Product')
+                    ->price(15, 10)
+                    ->visibility($this->ids->get('sales-channel'), ProductVisibilityDefinition::VISIBILITY_ALL)
+                    ->active(true);
+                
+                $productBuilder->write($this->getContainer());
+            }
+        }
+        
+        if ($preConfiguredSeoUrl) {
+            $routeName = '';
+            $pathInfo = '';
+            
+            if ($linkType === CategoryDefinition::LINK_TYPE_LANDING_PAGE) {
+                $routeName = 'frontend.landing.page';
+                $pathInfo = '/landingPage/' . $entityId;
+            } elseif ($linkType === CategoryDefinition::LINK_TYPE_PRODUCT) {
+                $routeName = 'frontend.detail.page';
+                $pathInfo = '/detail/' . $entityId;
+            } elseif ($linkType === CategoryDefinition::LINK_TYPE_CATEGORY) {
+                $routeName = 'frontend.navigation.page';
+                $pathInfo = '/navigation/' . $entityId;
+            }
+            
+            $this->getContainer()->get('seo_url.repository')->create([
+                [
+                    'id' => Uuid::randomHex(),
+                    'salesChannelId' => $this->ids->get('sales-channel'),
+                    'routeName' => $routeName,
+                    'pathInfo' => $pathInfo,
+                    'seoPathInfo' => 'custom-' . $linkType . '-url',
+                    'isCanonical' => true,
+                    'foreignKey' => $entityId,
+                ],
+            ], Context::createDefaultContext());
+        }
+
         $this->getContainer()->get('category.repository')->update([
             [
-                'id' => $this->ids->get('category3'),
+                'id' => $this->ids->get($categoryId),
                 'type' => CategoryDefinition::TYPE_LINK,
-                'linkType' => CategoryDefinition::LINK_TYPE_CATEGORY,
-                'internalLink' => $this->ids->get('category'),
+                'linkType' => $linkType,
+                'internalLink' => $entityId,
             ],
         ], Context::createDefaultContext());
 
@@ -359,8 +397,16 @@ class NavigationRouteTest extends TestCase
         $response = json_decode($this->getResponseContent(), true, 512, \JSON_THROW_ON_ERROR);
 
         foreach ($response as $category) {
-            if ($category['id'] === $this->ids->get('category3') && $category['linkType'] === 'category') {
-                static::assertNotEmpty($category['internalLink']);
+            if ($category['id'] === $this->ids->get($categoryId) && $category['linkType'] === $linkType) {
+                if ($preConfiguredSeoUrl) {
+                    static::assertStringContainsString($expectedUrlPart, $category['internalLink']);
+                } else {
+                    if ($expectedUrlPart) {
+                        static::assertStringContainsString($expectedUrlPart, $category['internalLink']);
+                    } else {
+                        static::assertNotEmpty($category['internalLink']);
+                    }
+                }
             }
         }
     }

@@ -46,7 +46,7 @@ class ThemeRuntimeConfigService
         }
 
         if ($runtimeConfig->scriptFiles === null) {
-            $runtimeConfig = $this->updateRuntimeConfig($runtimeConfig->themeId, $runtimeConfig->technicalName, Context::createDefaultContext(), true);
+            $runtimeConfig = $this->refreshRuntimeConfig($runtimeConfig->themeId, $runtimeConfig->technicalName, Context::createDefaultContext(), true);
         }
 
         return $runtimeConfig;
@@ -84,7 +84,7 @@ class ThemeRuntimeConfigService
         return $config;
     }
 
-    public function updateRuntimeConfig(string $themeId, string $themeTechnicalName, Context $context, bool $resolveFiles, ?StorefrontPluginConfigurationCollection $configCollection = null): ThemeRuntimeConfig
+    public function refreshRuntimeConfig(string $themeId, string $themeTechnicalName, Context $context, bool $resolveFiles, ?StorefrontPluginConfigurationCollection $configCollection = null): ThemeRuntimeConfig
     {
         if ($configCollection === null) {
             $configCollection = $this->pluginRegistry->getConfigurations();
@@ -107,7 +107,17 @@ class ThemeRuntimeConfigService
 
         $this->storage->save($runtimeConfig);
 
+        // Cache the new configuration
+        $this->cacheConfig($runtimeConfig);
+
         return $runtimeConfig;
+    }
+
+    public function resetCaches(): void
+    {
+        $this->runtimeConfigCacheById = [];
+        $this->runtimeConfigCacheByName = [];
+        $this->activeThemeNamesCache = null;
     }
 
     /**
@@ -122,6 +132,12 @@ class ThemeRuntimeConfigService
         $this->activeThemeNamesCache = $this->storage->getActiveThemeNames();
 
         return $this->activeThemeNamesCache;
+    }
+
+    private function cacheConfig(ThemeRuntimeConfig $config): void
+    {
+        $this->runtimeConfigCacheById[$config->themeId] = $config;
+        $this->runtimeConfigCacheByName[$config->technicalName] = $config;
     }
 
     /**

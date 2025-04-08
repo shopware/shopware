@@ -23,6 +23,7 @@ use Shopware\Core\System\Snippet\SnippetDefinition;
 use Shopware\Core\Test\AppSystemTestBehaviour;
 use Shopware\Core\Test\TestDefaults;
 use Shopware\Storefront\Theme\DatabaseSalesChannelThemeLoader;
+use Shopware\Storefront\Theme\ThemeRuntimeConfigService;
 use Shopware\Storefront\Theme\ThemeService;
 use Shopware\Tests\Integration\Core\Framework\Translation\Fixtures\UnitTest_SnippetFile;
 use Symfony\Component\HttpFoundation\Request;
@@ -311,6 +312,8 @@ class TranslatorTest extends TestCase
         $themeService = static::getContainer()->get(ThemeService::class);
         $themeRepo = static::getContainer()->get('theme.repository');
         $loader = static::getContainer()->get(DatabaseSalesChannelThemeLoader::class);
+        $runtimeConfigService = static::getContainer()->get(ThemeRuntimeConfigService::class);
+        $runtimeConfigService->resetCaches(); // we can have caches from previous tests
 
         // Install the app
         $this->loadAppsFromDir(__DIR__ . '/Fixtures/theme');
@@ -334,6 +337,7 @@ class TranslatorTest extends TestCase
         static::assertEquals('Service date equivalent to invoice date', $translator->trans('document.serviceDateNotice'));
         $translator->reset();
         $loader->reset();
+        $runtimeConfigService->resetCaches();
 
         // Assign the SwagTheme and assert that the snippet is overwritten
         $criteria = new Criteria();
@@ -355,6 +359,7 @@ class TranslatorTest extends TestCase
 
         $translator->reset();
         $loader->reset();
+        $runtimeConfigService->resetCaches();
 
         // In reset, we ignore all theme snippets and use the default ones
         static::assertEquals('Service date equivalent to invoice date', $translator->trans('document.serviceDateNotice'));
@@ -369,6 +374,7 @@ class TranslatorTest extends TestCase
 
         $translator->reset();
         $loader->reset();
+        $runtimeConfigService->resetCaches();
 
         $translator->injectSettings(
             $salesChannelContext->getSalesChannelId(),

@@ -21,7 +21,6 @@ class Migration1742568836CreateThemeRuntimeConfigTableTest extends TestCase
     protected function setUp(): void
     {
         $this->connection = KernelLifecycleManager::getConnection();
-        $this->connection->executeStatement('DROP TABLE IF EXISTS `theme_runtime_config`;');
     }
 
     public function testGetCreationTimestamp(): void
@@ -32,6 +31,8 @@ class Migration1742568836CreateThemeRuntimeConfigTableTest extends TestCase
 
     public function testMigration(): void
     {
+        $this->connection->executeStatement('DROP TABLE IF EXISTS `theme_runtime_config`;');
+
         $sm = $this->connection->createSchemaManager();
         static::assertFalse($sm->tablesExist(['theme_runtime_config']));
 

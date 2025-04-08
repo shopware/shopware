@@ -127,7 +127,7 @@ class ThemeLifecycleService
             $configurationCollection = $this->pluginRegistry->getConfigurations();
         }
         // we don't resolve files as theme can be refreshed before it's built
-        $this->runtimeConfigService->updateRuntimeConfig($themeData['id'], $themeData['technicalName'], $context, false, $configurationCollection);
+        $this->runtimeConfigService->refreshRuntimeConfig($themeData['id'], $themeData['technicalName'], $context, false, $configurationCollection);
     }
 
     public function removeTheme(string $technicalName, Context $context): void

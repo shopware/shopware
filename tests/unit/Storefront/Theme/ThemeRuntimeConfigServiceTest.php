@@ -144,7 +144,7 @@ class ThemeRuntimeConfigServiceTest extends TestCase
 
         $serviceMock = $this->createPartialMock(
             ThemeRuntimeConfigService::class,
-            ['updateRuntimeConfig'] // Only mock this method
+            ['refreshRuntimeConfig'] // Only mock this method
         );
 
         $serviceMock->__construct(
@@ -172,7 +172,7 @@ class ThemeRuntimeConfigServiceTest extends TestCase
 
         // We only need to verify that updateRuntimeConfig is called with resolveFiles=true
         $serviceMock->expects($this->once())
-            ->method('updateRuntimeConfig')
+            ->method('refreshRuntimeConfig')
             ->with($themeId, $technicalName, static::isInstanceOf(Context::class), true)
             ->willReturn($fullConfig);
 
@@ -181,7 +181,7 @@ class ThemeRuntimeConfigServiceTest extends TestCase
         static::assertSame($fullConfig, $result);
     }
 
-    public function testUpdateRuntimeConfig(): void
+    public function testRefreshRuntimeConfig(): void
     {
         $themeId = '1234567890abcdef1234567890abcdef';
         $technicalName = 'test-theme';
@@ -225,7 +225,7 @@ class ThemeRuntimeConfigServiceTest extends TestCase
                 static::assertEquals(['js/foo/file1.js', 'js/foo/file2.js'], $config->scriptFiles);
             });
 
-        $result = $this->service->updateRuntimeConfig($themeId, $technicalName, $context, $resolveFiles, $configCollection);
+        $result = $this->service->refreshRuntimeConfig($themeId, $technicalName, $context, $resolveFiles, $configCollection);
 
         static::assertEquals($themeId, $result->themeId);
         static::assertEquals($technicalName, $result->technicalName);
@@ -235,7 +235,7 @@ class ThemeRuntimeConfigServiceTest extends TestCase
         static::assertEquals(['iconSet1' => ['path' => 'path/to/iconSet1', 'namespace' => $technicalName]], $result->iconSets);
     }
 
-    public function testUpdateRuntimeConfigThrowsExceptionWhenThemeNotFound(): void
+    public function testRefreshRuntimeConfigThrowsExceptionWhenThemeNotFound(): void
     {
         $themeId = '1234567890abcdef1234567890abcdef';
         $technicalName = 'nonexistent-theme';
@@ -248,7 +248,42 @@ class ThemeRuntimeConfigServiceTest extends TestCase
         $this->expectException(ThemeException::class);
         $this->expectExceptionMessage('Error loading theme with technical name "nonexistent-theme" from plugin registry');
 
-        $this->service->updateRuntimeConfig($themeId, $technicalName, $context, $resolveFiles, $configCollection);
+        $this->service->refreshRuntimeConfig($themeId, $technicalName, $context, $resolveFiles, $configCollection);
+    }
+
+    public function testResetCaches(): void
+    {
+        $themeId = '1234567890abcdef1234567890abcdef';
+        $technicalName = 'test-theme';
+        $activeThemeNames = ['theme1', 'theme2'];
+
+        $config = $this->createThemeRuntimeConfig($themeId, $technicalName);
+
+        // storage should be called 2 times, before and after reset
+        $this->storage
+            ->expects($this->exactly(2))
+            ->method('getById')
+            ->with($themeId)
+            ->willReturn($config);
+
+        $this->storage
+            ->expects($this->exactly(2))
+            ->method('getActiveThemeNames')
+            ->willReturn($activeThemeNames);
+
+        // Populate caches
+        $this->service->getRuntimeConfig($themeId);
+        $this->service->getRuntimeConfigByName($technicalName);
+        $this->service->getActiveThemeNames();
+
+        // Reset all caches
+        $this->service->resetCaches();
+
+        // Load from storage
+        $this->service->getRuntimeConfig($themeId);
+        $this->service->getRuntimeConfigByName($technicalName);
+        $this->service->getActiveThemeNames();
+        $this->service->getActiveThemeNames();
     }
 
     public function testGetActiveThemeNames(): void

@@ -3,9 +3,6 @@ services:
         image: ghcr.io/shopwarelabs/devcontainer/base-slim:8.3
         ports:
             - 8000:8000
-            - 5173:5173
-            - 9998:9998
-            - 9999:9999
         environment:
             HOST: '0.0.0.0'
             APP_URL: http://localhost:8000
@@ -34,8 +31,6 @@ services:
             - --default-time-zone=+00:00
             - --max_binlog_size=512M
             - --binlog_expire_logs_seconds=86400
-        ports:
-            - '3306:3306'
         tmpfs:
             - /var/lib/mysql:uid=999,gid=999
 
@@ -50,20 +45,15 @@ services:
 
     valkey:
         image: valkey/valkey:alpine
-        command: [ "--maxmemory-policy", "volatile-lfu" ]
-        ports:
-            - '6379:6379'
+        command: [ "--maxmemory-policy", "volatile-lfu", "--save", "", "--appendonly", "no" ]
 
     mailer:
         image: axllent/mailpit
         ports:
             - '8025:8025'
-            - '1025:1025'
 
     opensearch:
         image: opensearchproject/opensearch:latest
-        ports:
-            - '9200:9200'
         environment:
             OPENSEARCH_INITIAL_ADMIN_PASSWORD: 'c3o_ZPHo!'
             discovery.type: single-node

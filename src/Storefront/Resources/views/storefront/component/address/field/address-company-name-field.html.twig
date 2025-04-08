@@ -1,0 +1,21 @@
+{% block component_address_field_company_name %}
+    {% if formViolations.getViolations('/company') is not empty %}
+        {% set violationPath = '/company' %}
+    {% elseif formViolations.getViolations("/#{prefix}/company") is not empty %}
+        {% set violationPath = "/#{prefix}/company" %}
+    {% endif %}
+
+    {% set companyValidationRules = (prefix != 'shippingAddress' and accountTypeRequired) ? 'required' : '' %}
+
+    {# This field is only rendered in the account address editing, if the account type is "commercial". #}
+    {% sw_include '@Storefront/storefront/component/form/form-input.html.twig' with {
+        label: 'address.companyNameLabel'|trans|sw_sanitize,
+        id: idPrefix ~ prefix ~ '-company',
+        name: prefix ~ '[company]',
+        value: data.get('company'),
+        autocomplete: 'organization',
+        violationPath: violationPath,
+        validationRules: companyValidationRules,
+        additionalClass: additionalClass ?? 'col-sm-6',
+    } %}
+{% endblock %}

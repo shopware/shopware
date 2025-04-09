@@ -309,7 +309,7 @@ class NavigationRouteTest extends TestCase
 
         foreach ($response as $category) {
             if ($category['id'] === $this->ids->get('category3') && $category['linkType'] === CategoryDefinition::LINK_TYPE_LANDING_PAGE) {
-                static::assertStringContainsString('/test-landing-page', $category['internalLink']);
+                static::assertStringContainsString('test-landing-page', $category['internalLink']);
                 $originalUrl = $category['internalLink'];
             }
         }

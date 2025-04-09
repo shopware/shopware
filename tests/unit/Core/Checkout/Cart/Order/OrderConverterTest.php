@@ -23,6 +23,7 @@ use Shopware\Core\Checkout\Cart\Price\Struct\CalculatedPrice;
 use Shopware\Core\Checkout\Cart\Price\Struct\CartPrice;
 use Shopware\Core\Checkout\Cart\Tax\Struct\CalculatedTaxCollection;
 use Shopware\Core\Checkout\Cart\Tax\Struct\TaxRuleCollection;
+use Shopware\Core\Checkout\Cart\Transaction\Struct\Transaction;
 use Shopware\Core\Checkout\Customer\Aggregate\CustomerAddress\CustomerAddressCollection;
 use Shopware\Core\Checkout\Customer\Aggregate\CustomerAddress\CustomerAddressEntity;
 use Shopware\Core\Checkout\Customer\CustomerCollection;
@@ -696,6 +697,7 @@ class OrderConverterTest extends TestCase
                 ->setPrice(new CalculatedPrice(1, 1, new CalculatedTaxCollection(), new TaxRuleCollection()))
                 ->setLabel('line-item-label-2')
         );
+        $cart->getTransactions()->add(new Transaction(new CalculatedPrice(1, 1, new CalculatedTaxCollection(), new TaxRuleCollection()), 'payment-method-id'));
 
         return $cart;
     }
@@ -763,6 +765,7 @@ class OrderConverterTest extends TestCase
         $orderTransaction = new OrderTransactionEntity();
         $orderTransaction->setId('order-transaction-id');
         $orderTransaction->setPaymentMethodId('order-transaction-payment-method-id');
+        $orderTransaction->setAmount(new CalculatedPrice(1, 1, new CalculatedTaxCollection(), new TaxRuleCollection()));
         $stateMachineState = new StateMachineStateEntity();
         $stateMachineState->setId('state-machine-state-id');
         $stateMachineState->setTechnicalName('state-machine-state-technical-name');
@@ -771,6 +774,7 @@ class OrderConverterTest extends TestCase
         $orderTransactionCancelled = new OrderTransactionEntity();
         $orderTransactionCancelled->setId('order-transaction-cancelled-id');
         $orderTransactionCancelled->setPaymentMethodId('order-transaction-cancelled-payment-method-id');
+        $orderTransactionCancelled->setAmount(new CalculatedPrice(1, 1, new CalculatedTaxCollection(), new TaxRuleCollection()));
         $stateMachineStateCancelled = new StateMachineStateEntity();
         $stateMachineStateCancelled->setId('state-machine-cancelled-state-id');
         $stateMachineStateCancelled->setTechnicalName('cancelled');
@@ -779,6 +783,7 @@ class OrderConverterTest extends TestCase
         $orderTransactionFailed = new OrderTransactionEntity();
         $orderTransactionFailed->setId('order-transaction-failed-id');
         $orderTransactionFailed->setPaymentMethodId('order-transaction-failed-payment-method-id');
+        $orderTransactionFailed->setAmount(new CalculatedPrice(1, 1, new CalculatedTaxCollection(), new TaxRuleCollection()));
         $stateMachineStateFailed = new StateMachineStateEntity();
         $stateMachineStateFailed->setId('state-machine-failed-state-id');
         $stateMachineStateFailed->setTechnicalName('failed');
@@ -1246,7 +1251,71 @@ class OrderConverterTest extends TestCase
                     ],
                 ],
             ],
-            'transactions' => [],
+            'transactions' => [
+                [
+                    'amount' => [
+                        'totalPrice' => 1,
+                        'calculatedTaxes' => [],
+                        'taxRules' => [],
+                        'extensions' => [],
+                        'unitPrice' => 1,
+                        'quantity' => 1,
+                        'referencePrice' => null,
+                        'listPrice' => null,
+                        'regulationPrice' => null,
+                    ],
+                    'paymentMethodId' => 'order-transaction-cancelled-payment-method-id',
+                    'extensions' => [
+                        'originalId' => [
+                            'id' => 'order-transaction-cancelled-id',
+                            'extensions' => [],
+                        ],
+                    ],
+                    'validationStruct' => null,
+                ],
+                [
+                    'amount' => [
+                        'totalPrice' => 1,
+                        'calculatedTaxes' => [],
+                        'taxRules' => [],
+                        'extensions' => [],
+                        'unitPrice' => 1,
+                        'quantity' => 1,
+                        'referencePrice' => null,
+                        'listPrice' => null,
+                        'regulationPrice' => null,
+                    ],
+                    'paymentMethodId' => 'order-transaction-payment-method-id',
+                    'extensions' => [
+                        'originalId' => [
+                            'id' => 'order-transaction-id',
+                            'extensions' => [],
+                        ],
+                    ],
+                    'validationStruct' => null,
+                ],
+                [
+                    'amount' => [
+                        'totalPrice' => 1,
+                        'calculatedTaxes' => [],
+                        'taxRules' => [],
+                        'extensions' => [],
+                        'unitPrice' => 1,
+                        'quantity' => 1,
+                        'referencePrice' => null,
+                        'listPrice' => null,
+                        'regulationPrice' => null,
+                    ],
+                    'paymentMethodId' => 'order-transaction-failed-payment-method-id',
+                    'extensions' => [
+                        'originalId' => [
+                            'id' => 'order-transaction-failed-id',
+                            'extensions' => [],
+                        ],
+                    ],
+                    'validationStruct' => null,
+                ],
+            ],
             'modified' => false,
             'customerComment' => null,
             'affiliateCode' => null,
@@ -1393,7 +1462,22 @@ class OrderConverterTest extends TestCase
                 'title' => null,
                 'vatIds' => null,
             ],
-            'transactions' => [],
+            'transactions' => [
+                [
+                    'amount' => [
+                        'calculatedTaxes' => [],
+                        'extensions' => [],
+                        'listPrice' => null,
+                        'quantity' => 1,
+                        'referencePrice' => null,
+                        'regulationPrice' => null,
+                        'taxRules' => [],
+                        'totalPrice' => 1,
+                        'unitPrice' => 1,
+                    ],
+                    'paymentMethodId' => 'payment-method-id',
+                ],
+            ],
             'orderNumber' => '10000',
             'ruleIds' => [
                 'order-rule-id-1',

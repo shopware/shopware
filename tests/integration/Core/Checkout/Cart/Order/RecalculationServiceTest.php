@@ -185,9 +185,6 @@ class RecalculationServiceTest extends TestCase
         // set token to be equal for further comparison
         $cart->setToken($convertedCart->getToken());
 
-        // transactions are currently not supported so they are excluded for comparison
-        $cart->setTransactions(new TransactionCollection());
-
         $this->removeExtensions($cart);
         $this->removeExtensions($convertedCart);
 
@@ -1467,6 +1464,10 @@ class RecalculationServiceTest extends TestCase
                 $position->setExtensions([]);
                 $this->removeLineItemsExtension(new LineItemCollection([$position->getLineItem()]));
             }
+        }
+
+        foreach ($cart->getTransactions() as $transaction) {
+            $transaction->setExtensions([]);
         }
 
         $cart->setExtensions([]);

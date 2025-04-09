@@ -316,14 +316,25 @@ class NavigationRoute extends AbstractNavigationRoute
                 continue;
             }
 
-            $plainUrl = $this->categoryUrlGenerator->generate($category, $context->getSalesChannel());
+            if ($category->getLinkType() === CategoryDefinition::LINK_TYPE_CATEGORY) {
+                $tempCategory = new CategoryEntity();
+                $tempCategory->setId($category->getInternalLink());
+                $tempCategory->setType(CategoryDefinition::TYPE_PAGE);
+                
+                $plainUrl = $this->categoryUrlGenerator->generate($tempCategory, $context->getSalesChannel());
+            } else {
+                $plainUrl = $this->categoryUrlGenerator->generate($category, $context->getSalesChannel());
+            }
 
             if ($plainUrl === null) {
                 continue;
             }
 
             $seoUrl = $this->seoUrlReplacer->replace($plainUrl, '', $context);
-            $category->setInternalLink($seoUrl);
+            
+            if ($seoUrl !== '/' && strpos($seoUrl, '/') !== false) {
+                $category->setInternalLink($seoUrl);
+            }
         }
     }
 }

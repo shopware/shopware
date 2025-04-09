@@ -344,6 +344,15 @@ class NavigationRouteTest extends TestCase
     {
         $this->getContainer()->get('category.repository')->update([
             [
+                'id' => $this->ids->get('category'),
+                'salesChannels' => [
+                    ['id' => $this->ids->get('sales-channel')],
+                ],
+            ],
+        ], Context::createDefaultContext());
+
+        $this->getContainer()->get('category.repository')->update([
+            [
                 'id' => $this->ids->get('category3'),
                 'type' => CategoryDefinition::TYPE_LINK,
                 'linkType' => CategoryDefinition::LINK_TYPE_CATEGORY,
@@ -356,6 +365,7 @@ class NavigationRouteTest extends TestCase
         foreach ($response as $category) {
             if ($category['id'] === $this->ids->get('category3') && $category['linkType'] === CategoryDefinition::LINK_TYPE_CATEGORY) {
                 static::assertNotEmpty($category['internalLink']);
+                static::assertStringContainsString('/navigation/' . $this->ids->get('category'), $category['internalLink']);
             }
         }
 
@@ -365,6 +375,8 @@ class NavigationRouteTest extends TestCase
             'custom-category-url',
             $this->ids->get('category')
         );
+
+        $this->getContainer()->get('cache.object')->invalidateTags(['seo-url']);
 
         $response = $this->requestFooterNavigationWithSeoUrls();
 

@@ -8,6 +8,8 @@ use Shopware\Core\Content\Category\CategoryDefinition;
 use Shopware\Core\Content\Category\Service\AbstractCategoryUrlGenerator;
 use Shopware\Core\Content\Product\Aggregate\ProductVisibility\ProductVisibilityDefinition;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\SalesChannelApiTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
@@ -411,17 +413,31 @@ class NavigationRouteTest extends TestCase
      */
     private function createSeoUrl(string $routeName, string $pathInfo, string $seoPathInfo, string $entityId): void
     {
-        $this->getContainer()->get('seo_url.repository')->upsert([
-            [
-                'id' => Uuid::randomHex(),
-                'salesChannelId' => $this->ids->get('sales-channel'),
-                'routeName' => $routeName,
-                'pathInfo' => $pathInfo,
-                'seoPathInfo' => $seoPathInfo,
-                'isCanonical' => true,
-                'foreignKey' => $entityId,
-            ],
-        ], Context::createDefaultContext());
+        $criteria = new Criteria();
+        $criteria->addFilter(new EqualsFilter('foreignKey', $entityId));
+        $criteria->addFilter(new EqualsFilter('routeName', $routeName));
+
+        $existingSeoUrls = $this->getContainer()->get('seo_url.repository')
+            ->search($criteria, Context::createDefaultContext());
+
+        $data = [
+            'salesChannelId' => $this->ids->get('sales-channel'),
+            'routeName' => $routeName,
+            'pathInfo' => $pathInfo,
+            'seoPathInfo' => $seoPathInfo,
+            'isCanonical' => true,
+            'foreignKey' => $entityId,
+        ];
+
+        if ($existingSeoUrls->count() > 0) {
+            $data['id'] = $existingSeoUrls->first()->getId();
+        } else {
+            $data['id'] = Uuid::randomHex();
+        }
+
+        $this->getContainer()->get('seo_url.repository')->upsert([$data], Context::createDefaultContext());
+
+        $this->getContainer()->get('cache.object')->invalidateTags(['seo-url']);
     }
 
     /**

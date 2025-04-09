@@ -6,7 +6,6 @@ use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Category\CategoryDefinition;
 use Shopware\Core\Content\Product\Aggregate\ProductVisibility\ProductVisibilityDefinition;
-use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\SalesChannelApiTestBehaviour;
@@ -243,47 +242,6 @@ class NavigationRouteTest extends TestCase
         static::assertArrayNotHasKey('id', $response[0]);
     }
 
-    /**
-     * Helper method to create a pre-configured SEO URL for an entity
-     */
-    private function createSeoUrl(string $routeName, string $pathInfo, string $seoPathInfo, string $entityId): void
-    {
-        $this->getContainer()->get('seo_url.repository')->create([
-            [
-                'id' => Uuid::randomHex(),
-                'salesChannelId' => $this->ids->get('sales-channel'),
-                'routeName' => $routeName,
-                'pathInfo' => $pathInfo,
-                'seoPathInfo' => $seoPathInfo,
-                'isCanonical' => true,
-                'foreignKey' => $entityId,
-            ],
-        ], Context::createDefaultContext());
-    }
-
-    /**
-     * Helper method to request the footer navigation with SEO URLs
-     *
-     * @return array<string, mixed>
-     */
-    private function requestFooterNavigationWithSeoUrls(): array
-    {
-        $this->browser
-            ->request(
-                'POST',
-                '/store-api/navigation/footer-navigation/footer-navigation',
-                [
-                    'includes' => [
-                        'category' => ['id', 'name', 'type', 'linkType', 'internalLink'],
-                    ],
-                ],
-                [],
-                ['HTTP_SW-INCLUDE-SEO-URLS' => 'true']
-            );
-
-        return json_decode($this->getResponseContent(), true, 512, \JSON_THROW_ON_ERROR);
-    }
-
     public function testLandingPageInternalLinkHasSeoUrl(): void
     {
         $landingPageId = Uuid::randomHex();
@@ -346,7 +304,7 @@ class NavigationRouteTest extends TestCase
             ->price(15, 10)
             ->visibility($this->ids->get('sales-channel'), ProductVisibilityDefinition::VISIBILITY_ALL)
             ->active(true);
-        
+
         $productBuilder->write($this->getContainer());
 
         $this->getContainer()->get('category.repository')->update([
@@ -423,6 +381,47 @@ class NavigationRouteTest extends TestCase
                 static::assertNotEquals($originalUrl, $category['internalLink']);
             }
         }
+    }
+
+    /**
+     * Helper method to create a pre-configured SEO URL for an entity
+     */
+    private function createSeoUrl(string $routeName, string $pathInfo, string $seoPathInfo, string $entityId): void
+    {
+        $this->getContainer()->get('seo_url.repository')->create([
+            [
+                'id' => Uuid::randomHex(),
+                'salesChannelId' => $this->ids->get('sales-channel'),
+                'routeName' => $routeName,
+                'pathInfo' => $pathInfo,
+                'seoPathInfo' => $seoPathInfo,
+                'isCanonical' => true,
+                'foreignKey' => $entityId,
+            ],
+        ], Context::createDefaultContext());
+    }
+
+    /**
+     * Helper method to request the footer navigation with SEO URLs
+     *
+     * @return array<string, mixed>
+     */
+    private function requestFooterNavigationWithSeoUrls(): array
+    {
+        $this->browser
+            ->request(
+                'POST',
+                '/store-api/navigation/footer-navigation/footer-navigation',
+                [
+                    'includes' => [
+                        'category' => ['id', 'name', 'type', 'linkType', 'internalLink'],
+                    ],
+                ],
+                [],
+                ['HTTP_SW-INCLUDE-SEO-URLS' => 'true']
+            );
+
+        return json_decode($this->getResponseContent(), true, 512, \JSON_THROW_ON_ERROR);
     }
 
     private function createData(): void

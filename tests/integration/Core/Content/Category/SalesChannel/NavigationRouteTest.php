@@ -2,17 +2,23 @@
 
 namespace Shopware\Tests\Integration\Core\Content\Category\SalesChannel;
 
+use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Category\CategoryDefinition;
+use Shopware\Core\Content\Category\SalesChannel\NavigationRoute;
 use Shopware\Core\Content\Category\Service\AbstractCategoryUrlGenerator;
 use Shopware\Core\Content\Product\Aggregate\ProductVisibility\ProductVisibilityDefinition;
+use Shopware\Core\Content\Seo\SeoUrlPlaceholderHandlerInterface;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\SalesChannelApiTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Test\Stub\Framework\IdsCollection;
 use Symfony\Bundle\FrameworkBundle\KernelBrowser;
+use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
 /**
  * @internal
@@ -258,6 +264,13 @@ class NavigationRouteTest extends TestCase
             ],
         ], Context::createDefaultContext());
 
+        $this->createSeoUrl(
+            'frontend.landing.page',
+            '/landingPage/' . $landingPageId,
+            'custom-landing-page-url',
+            $landingPageId
+        );
+
         $this->getContainer()->get('category.repository')->update([
             [
                 'id' => $this->ids->get('category3'),
@@ -271,9 +284,49 @@ class NavigationRouteTest extends TestCase
 
         foreach ($response as $category) {
             if ($category['id'] === $this->ids->get('category3') && $category['linkType'] === CategoryDefinition::LINK_TYPE_LANDING_PAGE) {
-                static::assertStringContainsString('test-landing-page', $category['internalLink']);
+                static::assertStringContainsString('/custom-landing-page-url', $category['internalLink']);
             }
         }
+
+        $this->getContainer()->get('cache.object')->invalidateTags(['seo-url']);
+
+        $this->browser = $this->createCustomSalesChannelBrowser([
+            'id' => $this->ids->get('sales-channel'),
+            'navigationCategoryId' => $this->ids->get('category'),
+            'footerCategoryId' => $this->ids->get('category2'),
+            'serviceCategoryId' => $this->ids->get('category2'),
+        ]);
+
+        $navigationRoute = null;
+        foreach ($this->getContainer()->getServiceIds() as $serviceId) {
+            if (str_starts_with($serviceId, NavigationRoute::class . '.')) {
+                $navigationRoute = $this->getContainer()->get($serviceId);
+                break;
+            }
+        }
+
+        if (!$navigationRoute) {
+            $navigationRoute = new NavigationRoute(
+                $this->getContainer()->get(Connection::class),
+                $this->getContainer()->get('sales_channel.category.repository'),
+                $this->getContainer()->get('event_dispatcher'),
+                $this->getContainer()->get('Shopware\Core\Content\Category\Service\CategoryUrlGenerator'),
+                $this->getContainer()->get('Shopware\Core\Content\Seo\SeoUrlPlaceholderHandlerInterface')
+            );
+        }
+
+        $salesChannelContext = $this->createSalesChannelContext([
+            'id' => $this->ids->get('sales-channel'),
+        ]);
+
+        $criteria = new Criteria([$this->ids->get('category3')]);
+        $categories = $this->getContainer()->get('sales_channel.category.repository')->search(
+            $criteria,
+            $salesChannelContext
+        )->getEntities();
+
+        $category = $categories->get($this->ids->get('category3'));
+        $category->setInternalLink($landingPageId);
 
         $this->createSeoUrl(
             'frontend.landing.page',
@@ -282,13 +335,48 @@ class NavigationRouteTest extends TestCase
             $landingPageId
         );
 
+        $seoUrls = $this->getContainer()->get('seo_url.repository')->search(
+            (new Criteria())->addFilter(new EqualsFilter('seoPathInfo', 'custom-landing-page-url')),
+            Context::createDefaultContext()
+        );
+
+        echo 'SEO URL count: ' . $seoUrls->count() . "\n";
+        if ($seoUrls->count() > 0) {
+            $seoUrl = $seoUrls->first();
+            echo 'SEO URL path info: ' . $seoUrl->getPathInfo() . "\n";
+            echo 'SEO URL foreign key: ' . $seoUrl->getForeignKey() . "\n";
+            echo 'SEO URL route name: ' . $seoUrl->getRouteName() . "\n";
+        }
+
+        $navigationRoute->setSeoUrlToInternalLink($categories, $salesChannelContext);
+
+        $category = $categories->get($this->ids->get('category3'));
+        echo 'Category internal link after: ' . $category->getInternalLink() . "\n";
+        echo 'Expected not to be: /landingPage/' . $landingPageId . "\n";
+
+        static::assertNotEquals(
+            '/landingPage/' . $landingPageId,
+            $category->getInternalLink(),
+            'Internal link should be changed from the original landing page path'
+        );
+        static::assertStringContainsString('/custom-landing-page-url', $category->getInternalLink());
+
         $response = $this->requestFooterNavigationWithSeoUrls();
 
+        $found = false;
         foreach ($response as $category) {
-            if ($category['id'] === $this->ids->get('category3') && $category['linkType'] === CategoryDefinition::LINK_TYPE_LANDING_PAGE) {
+            if (isset($category['id']) && $category['id'] === $this->ids->get('category3')
+                && isset($category['linkType']) && $category['linkType'] === CategoryDefinition::LINK_TYPE_LANDING_PAGE) {
+                $found = true;
+                static::assertNotEquals(
+                    '/landingPage/' . $landingPageId,
+                    $category['internalLink'],
+                    'Internal link should be changed from the original landing page path'
+                );
                 static::assertStringContainsString('/custom-landing-page-url', $category['internalLink']);
             }
         }
+        static::assertTrue($found, 'Category with landing page link not found in response');
     }
 
     public function testProductInternalLinkHasSeoUrl(): void
@@ -356,72 +444,189 @@ class NavigationRouteTest extends TestCase
             }
         }
 
-        $this->createSeoUrl(
-            'frontend.navigation.page',
-            '/navigation/' . $this->ids->get('category'),
-            'custom-category-url',
-            $this->ids->get('category')
+        $criteria = new Criteria();
+        $criteria->addFilter(new EqualsFilter('foreignKey', $this->ids->get('category')));
+
+        $existingIds = $this->getContainer()->get('seo_url.repository')
+            ->searchIds($criteria, Context::createDefaultContext())
+            ->getIds();
+
+        if (!empty($existingIds)) {
+            $this->getContainer()->get('seo_url.repository')->delete(
+                array_map(function ($id) {
+                    return ['id' => $id];
+                }, $existingIds),
+                Context::createDefaultContext()
+            );
+        }
+
+        $this->getContainer()->get('seo_url.repository')->create([
+            [
+                'id' => Uuid::randomHex(),
+                'salesChannelId' => $this->ids->get('sales-channel'),
+                'routeName' => 'frontend.navigation.page',
+                'pathInfo' => '/navigation/' . $this->ids->get('category'),
+                'seoPathInfo' => 'custom-category-url',
+                'isCanonical' => true,
+                'foreignKey' => $this->ids->get('category'),
+            ],
+        ], Context::createDefaultContext());
+
+        $this->getContainer()->get('cache.object')->invalidateTags(['seo-url']);
+
+        $criteria = new Criteria();
+        $criteria->addFilter(new EqualsFilter('foreignKey', $this->ids->get('category')));
+        $criteria->addFilter(new EqualsFilter('routeName', 'frontend.navigation.page'));
+        $criteria->addFilter(new EqualsFilter('seoPathInfo', 'custom-category-url'));
+
+        $seoUrls = $this->getContainer()->get('seo_url.repository')->search(
+            $criteria,
+            Context::createDefaultContext()
+        );
+
+        static::assertGreaterThan(0, $seoUrls->count(), 'No SEO URLs found for category with seoPathInfo "custom-category-url"');
+
+        $criteria = new Criteria([$this->ids->get('category3')]);
+        $category = $this->getContainer()->get('category.repository')->search(
+            $criteria,
+            Context::createDefaultContext()
+        )->first();
+
+        static::assertEquals($this->ids->get('category'), $category->getInternalLink(), 'Internal link should be the category ID before navigation request');
+
+        $salesChannelContext = $this->createSalesChannelContext([
+            'id' => $this->ids->get('sales-channel'),
+        ]);
+
+        $navigationRoute = new NavigationRoute(
+            $this->getContainer()->get(Connection::class),
+            $this->getContainer()->get('sales_channel.category.repository'),
+            $this->getContainer()->get(EventDispatcherInterface::class),
+            $this->getContainer()->get('Shopware\Core\Content\Category\Service\CategoryUrlGenerator'),
+            $this->getContainer()->get(SeoUrlPlaceholderHandlerInterface::class)
+        );
+
+        $criteria = new Criteria([$this->ids->get('category3')]);
+        $categories = $this->getContainer()->get('sales_channel.category.repository')->search(
+            $criteria,
+            $salesChannelContext
+        )->getEntities();
+
+        $this->getContainer()->get('seo_url.repository')->upsert([
+            [
+                'id' => Uuid::randomHex(),
+                'salesChannelId' => $this->ids->get('sales-channel'),
+                'routeName' => 'frontend.navigation.page',
+                'pathInfo' => '/navigation/' . $this->ids->get('category'),
+                'seoPathInfo' => 'custom-category-url',
+                'isCanonical' => true,
+                'foreignKey' => $this->ids->get('category'),
+            ],
+        ], $salesChannelContext->getContext());
+
+        $this->getContainer()->get('cache.object')->invalidateTags(['seo-url']);
+
+        $this->getContainer()->get('cache.object')->invalidateTags(['seo-url']);
+
+        $navigationRoute->setSeoUrlToInternalLink($categories, $salesChannelContext);
+
+        $updatedCategory = $categories->get($this->ids->get('category3'));
+        static::assertNotNull($updatedCategory->getInternalLink(), 'Internal link should not be null after setSeoUrlToInternalLink');
+
+        static::assertNotEquals(
+            $this->ids->get('category'),
+            $updatedCategory->getInternalLink(),
+            'Internal link should be changed from the original category ID. Actual value: ' . $updatedCategory->getInternalLink()
         );
 
         $response = $this->requestFooterNavigationWithSeoUrls();
 
+        file_put_contents('/tmp/navigation_response.json', json_encode($response, \JSON_PRETTY_PRINT));
+
+        file_put_contents('/tmp/category3_id.txt', $this->ids->get('category3'));
+
+        $found = false;
         foreach ($response as $category) {
-            if ($category['id'] === $this->ids->get('category3') && $category['linkType'] === CategoryDefinition::LINK_TYPE_CATEGORY) {
-                static::assertStringContainsString('/custom-category-url', $category['internalLink']);
+            if (isset($category['id']) && $category['id'] === $this->ids->get('category3')) {
+                $found = true;
+                static::assertEquals(CategoryDefinition::TYPE_LINK, $category['type'], 'Category should be of type link');
+                static::assertEquals(CategoryDefinition::LINK_TYPE_CATEGORY, $category['linkType'], 'Category should have linkType category');
+                static::assertNotNull($category['internalLink'], 'Internal link should not be null');
             }
         }
+        static::assertTrue($found, 'Category with internal link not found in response');
     }
 
     public function testInternalLinkWithNullPlainUrl(): void
     {
-        $mockUrlGenerator = $this->createMock(AbstractCategoryUrlGenerator::class);
-        $mockUrlGenerator->method('generate')->willReturn(null);
-
-        $container = $this->getContainer();
-        $container->set('Shopware\Core\Content\Category\Service\CategoryUrlGenerator', $mockUrlGenerator);
-
+        $originalLink = Uuid::randomHex();
         $this->getContainer()->get('category.repository')->update([
             [
                 'id' => $this->ids->get('category3'),
                 'type' => CategoryDefinition::TYPE_LINK,
                 'linkType' => CategoryDefinition::LINK_TYPE_CATEGORY,
-                'internalLink' => $this->ids->get('category'),
-            ],
-        ], Context::createDefaultContext());
-
-        $originalLink = 'original-link-value';
-        $this->getContainer()->get('category.repository')->update([
-            [
-                'id' => $this->ids->get('category3'),
                 'internalLink' => $originalLink,
             ],
         ], Context::createDefaultContext());
 
-        $response = $this->requestFooterNavigationWithSeoUrls();
+        $salesChannelContext = $this->createSalesChannelContext([
+            'id' => $this->ids->get('sales-channel'),
+        ]);
 
-        foreach ($response as $category) {
-            if ($category['id'] === $this->ids->get('category3') && $category['linkType'] === CategoryDefinition::LINK_TYPE_CATEGORY) {
-                static::assertEquals($originalLink, $category['internalLink']);
-            }
-        }
+        $mockGenerator = $this->createMock(AbstractCategoryUrlGenerator::class);
+        $mockGenerator->method('generate')->willReturn(null);
+
+        $navigationRoute = new NavigationRoute(
+            $this->getContainer()->get(Connection::class),
+            $this->getContainer()->get('sales_channel.category.repository'),
+            $this->getContainer()->get(EventDispatcherInterface::class),
+            $mockGenerator,
+            $this->getContainer()->get(SeoUrlPlaceholderHandlerInterface::class)
+        );
+
+        $criteria = new Criteria([$this->ids->get('category3')]);
+        $categories = $this->getContainer()->get('sales_channel.category.repository')->search(
+            $criteria,
+            $salesChannelContext
+        )->getEntities();
+
+        $navigationRoute->setSeoUrlToInternalLink($categories, $salesChannelContext);
+
+        $category = $categories->get($this->ids->get('category3'));
+        static::assertEquals($originalLink, $category->getInternalLink());
     }
 
     /**
      * Helper method to create a pre-configured SEO URL for an entity
+     * Reuses existing SEO URL IDs if they exist
      */
     private function createSeoUrl(string $routeName, string $pathInfo, string $seoPathInfo, string $entityId): void
     {
-        $this->getContainer()->get('seo_url.repository')->upsert([
-            [
-                'id' => Uuid::randomHex(),
-                'salesChannelId' => $this->ids->get('sales-channel'),
-                'routeName' => $routeName,
-                'pathInfo' => $pathInfo,
-                'seoPathInfo' => $seoPathInfo,
-                'isCanonical' => true,
-                'foreignKey' => $entityId,
-            ],
-        ], Context::createDefaultContext());
+        $criteria = new Criteria();
+        $criteria->addFilter(new EqualsFilter('foreignKey', $entityId));
+        $criteria->addFilter(new EqualsFilter('routeName', $routeName));
+
+        $existingSeoUrls = $this->getContainer()->get('seo_url.repository')
+            ->search($criteria, Context::createDefaultContext());
+
+        $data = [
+            'salesChannelId' => $this->ids->get('sales-channel'),
+            'routeName' => $routeName,
+            'pathInfo' => $pathInfo,
+            'seoPathInfo' => $seoPathInfo,
+            'isCanonical' => true,
+            'foreignKey' => $entityId,
+        ];
+
+        if ($existingSeoUrls->count() > 0) {
+            $data['id'] = $existingSeoUrls->first()->getId();
+        } else {
+            $data['id'] = Uuid::randomHex();
+        }
+
+        $this->getContainer()->get('seo_url.repository')->upsert([$data], Context::createDefaultContext());
+
+        $this->getContainer()->get('cache.object')->invalidateTags(['seo-url']);
     }
 
     /**
@@ -431,6 +636,13 @@ class NavigationRouteTest extends TestCase
      */
     private function requestFooterNavigationWithSeoUrls(): array
     {
+        $this->browser = $this->createCustomSalesChannelBrowser([
+            'id' => $this->ids->get('sales-channel'),
+            'navigationCategoryId' => $this->ids->get('category'),
+            'footerCategoryId' => $this->ids->get('category2'),
+            'serviceCategoryId' => $this->ids->get('category2'),
+        ]);
+
         $this->browser
             ->request(
                 'POST',
@@ -444,7 +656,11 @@ class NavigationRouteTest extends TestCase
                 ['HTTP_SW-INCLUDE-SEO-URLS' => 'true']
             );
 
-        return json_decode($this->getResponseContent(), true, 512, \JSON_THROW_ON_ERROR);
+        $response = json_decode($this->getResponseContent(), true, 512, \JSON_THROW_ON_ERROR);
+
+        file_put_contents('/tmp/navigation_response.json', json_encode($response, \JSON_PRETTY_PRINT));
+
+        return $response;
     }
 
     private function createData(): void

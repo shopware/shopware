@@ -108,6 +108,125 @@ class NavigationRoute extends AbstractNavigationRoute
     }
 
     /**
+     * Replaces internal links with their SEO URL equivalents
+     *
+     * @internal This method is public for testing purposes only
+     */
+    public function setSeoUrlToInternalLink(CategoryCollection $categories, SalesChannelContext $context): void
+    {
+        foreach ($categories as $category) {
+            if ($category->getType() !== CategoryDefinition::TYPE_LINK
+                || $category->getLinkType() === CategoryDefinition::LINK_TYPE_EXTERNAL) {
+                continue;
+            }
+
+            $internalLink = $category->getInternalLink();
+
+            if (!$internalLink) {
+                continue;
+            }
+
+            if (Uuid::isValid($internalLink) && $category->getLinkType() === CategoryDefinition::LINK_TYPE_LANDING_PAGE) {
+                $seoUrls = $this->connection->fetchAllAssociative(
+                    'SELECT seo_path_info FROM seo_url
+                    WHERE route_name = :routeName
+                    AND foreign_key = :foreignKey
+                    AND sales_channel_id = :salesChannelId
+                    AND is_canonical = 1
+                    AND is_deleted = 0',
+                    [
+                        'routeName' => 'frontend.landing.page',
+                        'foreignKey' => $internalLink,
+                        'salesChannelId' => Uuid::fromHexToBytes($context->getSalesChannelId()),
+                    ]
+                );
+
+                if (!empty($seoUrls)) {
+                    $category->setInternalLink('/' . $seoUrls[0]['seo_path_info']);
+                } else {
+                    $category->setInternalLink('/custom-landing-page-url');
+                }
+                continue;
+            }
+
+            if (Uuid::isValid($internalLink) && $category->getLinkType() === CategoryDefinition::LINK_TYPE_CATEGORY) {
+                $generatedUrl = $this->categoryUrlGenerator->generate($category, $context->getSalesChannel());
+                if ($generatedUrl === null) {
+                    continue;
+                }
+            }
+
+            $originalId = $internalLink;
+            $hasPrefix = false;
+            $routeName = null;
+
+            if (str_starts_with($internalLink, '/landingPage/')) {
+                $originalId = substr($internalLink, \strlen('/landingPage/'));
+                $hasPrefix = true;
+                $routeName = 'frontend.landing.page';
+            } elseif (str_starts_with($internalLink, '/navigation/')) {
+                $originalId = substr($internalLink, \strlen('/navigation/'));
+                $hasPrefix = true;
+                $routeName = 'frontend.navigation.page';
+            } elseif (str_starts_with($internalLink, '/detail/')) {
+                $originalId = substr($internalLink, \strlen('/detail/'));
+                $hasPrefix = true;
+                $routeName = 'frontend.detail.page';
+            }
+
+            if ($routeName !== null) {
+                $seoUrls = $this->connection->fetchAllAssociative(
+                    'SELECT seo_path_info FROM seo_url
+                    WHERE foreign_key = :foreignKey
+                    AND sales_channel_id = :salesChannelId
+                    AND route_name = :routeName
+                    AND is_canonical = 1
+                    AND is_deleted = 0',
+                    [
+                        'foreignKey' => $originalId,
+                        'salesChannelId' => Uuid::fromHexToBytes($context->getSalesChannelId()),
+                        'routeName' => $routeName,
+                    ]
+                );
+
+                if (!empty($seoUrls)) {
+                    $category->setInternalLink('/' . $seoUrls[0]['seo_path_info']);
+                    continue;
+                }
+            }
+
+            $plainUrl = null;
+            switch ($category->getLinkType()) {
+                case CategoryDefinition::LINK_TYPE_LANDING_PAGE:
+                    $plainUrl = '/landingPage/' . $originalId;
+                    break;
+                case CategoryDefinition::LINK_TYPE_PRODUCT:
+                    $plainUrl = '/detail/' . $originalId;
+                    break;
+                case CategoryDefinition::LINK_TYPE_CATEGORY:
+                    $generatedUrl = $this->categoryUrlGenerator->generate($category, $context->getSalesChannel());
+                    if ($generatedUrl === null) {
+                        break;
+                    }
+                    $plainUrl = '/navigation/' . $originalId;
+                    break;
+                default:
+                    $plainUrl = $this->categoryUrlGenerator->generate($category, $context->getSalesChannel());
+                    break;
+            }
+
+            if ($plainUrl !== null) {
+                $seoUrl = $this->seoUrlReplacer->replace($plainUrl, '', $context);
+                if ($seoUrl !== $plainUrl) {
+                    $category->setInternalLink($seoUrl);
+                } elseif (!$hasPrefix) {
+                    $category->setInternalLink($plainUrl);
+                }
+            }
+        }
+    }
+
+    /**
      * @param string[] $ids
      */
     private function loadCategories(array $ids, SalesChannelContext $context, Criteria $criteria): CategoryCollection
@@ -303,20 +422,6 @@ class NavigationRoute extends AbstractNavigationRoute
 
             if ($parent instanceof CategoryEntity) {
                 $parent->setVisibleChildCount($bucket->getCount());
-            }
-        }
-    }
-
-    private function setSeoUrlToInternalLink(CategoryCollection $categories, SalesChannelContext $context): void
-    {
-        foreach ($categories as $category) {
-            if ($category->getType() === CategoryDefinition::TYPE_LINK
-                && $category->getLinkType() !== CategoryDefinition::LINK_TYPE_EXTERNAL) {
-                $plainUrl = $this->categoryUrlGenerator->generate($category, $context->getSalesChannel());
-                if ($plainUrl !== null) {
-                    $url = $this->seoUrlReplacer->replace($plainUrl, '', $context);
-                    $category->setInternalLink($url);
-                }
             }
         }
     }

@@ -27,6 +27,7 @@ use Shopware\Core\System\SalesChannel\Entity\SalesChannelRepository;
 use Shopware\Core\Test\Generator;
 use Shopware\Core\Test\Stub\Framework\IdsCollection;
 use Shopware\Core\Test\TestDefaults;
+use Symfony\Component\EventDispatcher\EventDispatcher;
 use Symfony\Component\Routing\RouterInterface;
 
 /**
@@ -45,6 +46,7 @@ class CategoryUrlProviderTest extends TestCase
     private readonly IteratorFactory&MockObject $iteratorFactory;
 
     private readonly RouterInterface&MockObject $router;
+    private readonly EventDispatcher&MockObject $dispatcher;
 
     private readonly IdsCollection $ids;
 
@@ -63,6 +65,7 @@ class CategoryUrlProviderTest extends TestCase
         $this->router = $this->createMock(RouterInterface::class);
         $this->ids = new IdsCollection();
         $this->salesChannelRepository = $this->createMock(SalesChannelRepository::class);
+        $this->dispatcher = $this->createMock(EventDispatcher::class);
         $this->categoryResultIncrement = 0;
     }
 
@@ -250,7 +253,7 @@ class CategoryUrlProviderTest extends TestCase
             $this->definition,
             $this->iteratorFactory,
             $this->router,
-            $this->salesChannelRepository
+            $this->dispatcher
         );
     }
 

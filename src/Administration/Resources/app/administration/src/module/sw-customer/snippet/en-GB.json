@@ -31,7 +31,11 @@
     },
     "card": {
       "buttonImitateCustomer": "Log in as customer",
-      "tooltipImitateCustomerGuest": "Guest accounts cannot be imitated.",
+      "tooltipImitateCustomerGuest": "Guest customers cannot be imitated.",
+      "tooltipImitateCustomerInactive": "Inactive customers cannot be imitated.",
+      "tooltipImitateCustomerInactiveSalesChannel": "The customers Sales Channel is not active.",
+      "tooltipImitateCustomerNoDomain": "The Sales Channel of the customer has no domain configured.",
+      "tooltipImitateCustomerNoStorefront": "The Sales Channel of the customer is not of type Storefront.",
       "placeholderTitle": "Title",
       "placeholderFirstName": "First name",
       "placeholderLastName": "Last name",

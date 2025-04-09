@@ -93,7 +93,7 @@
                 v-model="shippingCosts"
                 :label="$tc('sw-order.createBase.labelShippingCosts')"
                 :min="0"
-                fill-digits
+                :step="1"
                 required
             >
                 <template #suffix>

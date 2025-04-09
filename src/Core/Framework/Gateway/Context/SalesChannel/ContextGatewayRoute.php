@@ -17,6 +17,9 @@ use Symfony\Component\Routing\Attribute\Route;
 #[Package('framework')]
 class ContextGatewayRoute extends AbstractContextGatewayRoute
 {
+    /**
+     * @internal
+     */
     public function __construct(
         private readonly AppContextGateway $contextGateway,
     ) {

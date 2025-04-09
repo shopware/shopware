@@ -3,6 +3,7 @@
 namespace Shopware\Core\Framework\App\Context\Gateway;
 
 use Shopware\Core\Framework\App\AppEntity;
+use Shopware\Core\Framework\App\AppException;
 use Shopware\Core\Framework\App\Context\Payload\AppContextGatewayPayload;
 use Shopware\Core\Framework\App\Context\Payload\AppContextGatewayPayloadService;
 use Shopware\Core\Framework\Context;
@@ -37,7 +38,9 @@ class AppContextGateway
     public function process(ContextGatewayPayloadStruct $payload): ContextTokenResponse
     {
         if (!$payload->getData()->get('appName')) {
-            $this->logger->logOrThrowException(new \RuntimeException('\'appName\' not found in payload'));
+            $this->logger->logOrThrowException(ContextGatewayException::payloadInvalid('\'appName\' not found in payload'));
+
+            return new ContextTokenResponse($payload->getContext()->getToken());
         }
 
         $appName = $payload->getData()->get('appName');
@@ -51,6 +54,8 @@ class AppContextGateway
 
         if (!$appResponse) {
             $this->logger->logOrThrowException(ContextGatewayException::emptyAppResponse($app->getName()));
+
+            return new ContextTokenResponse($payload->getContext()->getToken());
         }
 
         $commands = $this->collectCommandsFromAppResponse($appResponse);
@@ -62,20 +67,17 @@ class AppContextGateway
     {
         $criteria = new Criteria();
         $criteria->addFilter(new EqualsFilter('name', $appName));
+        $criteria->addFilter(new EqualsFilter('active', true));
 
         /** @var AppEntity|null $app */
         $app = $this->appRepository->search($criteria, $context)->first();
 
         if (!$app) {
-            $this->logger->logOrThrowException(new \RuntimeException(sprintf('App with name "%s" not found', $appName)));
+            throw AppException::appNotFoundByName($appName);
         }
 
         if (!$app->getContextGatewayUrl()) {
-            $this->logger->logOrThrowException(new \RuntimeException(sprintf('App with name "%s" has no context gateway url', $appName)));
-        }
-
-        if (!$app->isActive()) {
-            $this->logger->logOrThrowException(new \RuntimeException(sprintf('App with name "%s" is not active', $appName)));
+            throw AppException::gatewayNotConfigured($appName, 'context');
         }
 
         return $app;
@@ -112,7 +114,7 @@ class AppContextGateway
 
             try {
                 $executableCommand = $command::createFromPayload($commandPayload);
-            } catch (\Error) {
+            } catch (\Throwable) {
                 $this->logger->logOrThrowException(ContextGatewayException::payloadInvalid($payload['command']));
                 continue;
             }

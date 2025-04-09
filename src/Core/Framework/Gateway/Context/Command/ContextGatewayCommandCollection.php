@@ -13,11 +13,17 @@ class ContextGatewayCommandCollection extends Collection
 {
     public function getRegisterCommand(): ?RegisterCustomerCommand
     {
-        return $this->filter(static fn (AbstractContextGatewayCommand $command) => $command instanceof RegisterCustomerCommand)->first();
+        /** @var RegisterCustomerCommand|null $command */
+        $command = $this->filter(static fn (AbstractContextGatewayCommand $command) => $command instanceof RegisterCustomerCommand)->first();
+
+        return $command;
     }
 
     public function getLoginCommand(): ?LoginCustomerCommand
     {
-        return $this->filter(static fn (AbstractContextGatewayCommand $command) => $command instanceof LoginCustomerCommand)->first();
+        /** @var LoginCustomerCommand|null $command */
+        $command = $this->filter(static fn (AbstractContextGatewayCommand $command) => $command instanceof LoginCustomerCommand)->first();
+
+        return $command;
     }
 }

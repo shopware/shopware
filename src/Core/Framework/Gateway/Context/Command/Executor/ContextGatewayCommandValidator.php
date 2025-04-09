@@ -14,6 +14,9 @@ use Shopware\Core\System\SalesChannel\SalesChannelContext;
 #[Package('framework')]
 class ContextGatewayCommandValidator
 {
+    /**
+     * @internal
+     */
     public function __construct(
         private readonly ExceptionLogger $logger,
     ) {
@@ -25,16 +28,22 @@ class ContextGatewayCommandValidator
 
         if ($registerCommands->count() > 1) {
             $this->logger->logOrThrowException(ContextGatewayException::commandValidationFailed('Only one register command is allowed'));
+
+            return;
         }
 
         $loginCommands = $commands->filter(static fn (AbstractContextGatewayCommand $command) => $command instanceof LoginCustomerCommand);
 
         if ($loginCommands->count() > 1) {
             $this->logger->logOrThrowException(ContextGatewayException::commandValidationFailed('Only one login command is allowed'));
+
+            return;
         }
 
         if ($registerCommands->count() > 0 && $loginCommands->count() > 0) {
             $this->logger->logOrThrowException(ContextGatewayException::commandValidationFailed('Register and login commands cannot be used together'));
+
+            return;
         }
 
         $types = $commands->map(static fn (AbstractContextGatewayCommand $command) => $command::getDefaultKeyName());

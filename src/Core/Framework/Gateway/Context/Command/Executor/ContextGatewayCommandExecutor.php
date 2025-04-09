@@ -3,7 +3,6 @@
 namespace Shopware\Core\Framework\Gateway\Context\Command\Executor;
 
 use Shopware\Core\Checkout\Customer\SalesChannel\CustomerResponse;
-use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Gateway\Context\Command\ContextGatewayCommandCollection;
 use Shopware\Core\Framework\Gateway\Context\Command\LoginCustomerCommand;
 use Shopware\Core\Framework\Gateway\Context\Command\RegisterCustomerCommand;
@@ -26,11 +25,11 @@ class ContextGatewayCommandExecutor
      * @internal
      */
     public function __construct(
-        private readonly ContextGatewayCommandRegistry $registry,
         private readonly AbstractContextSwitchRoute $contextSwitchRoute,
+        private readonly ContextGatewayCommandRegistry $registry,
+        private readonly ContextGatewayCommandValidator $commandValidator,
         private readonly ExceptionLogger $logger,
         private readonly SalesChannelContextServiceInterface $salesChannelContextService,
-        private readonly ContextGatewayCommandValidator $commandValidator,
     ) {
     }
 
@@ -41,21 +40,20 @@ class ContextGatewayCommandExecutor
         $parameters = [];
 
         if ($register = $commands->getRegisterCommand()) {
-            $this->registry->get($register::COMMAND_KEY)->handle($register, $context, $parameters);
+            $this->registry->get(RegisterCustomerCommand::COMMAND_KEY)->handle($register, $context, $parameters);
 
             /** @var CustomerResponse $response */
             $response = $parameters['customerResponse'];
+            unset($parameters['customerResponse']);
 
             $token = $response->headers->get(PlatformRequest::HEADER_CONTEXT_TOKEN);
         }
 
         if ($login = $commands->getLoginCommand()) {
-            $this->registry->get($login::COMMAND_KEY)->handle($login, $context, $parameters);
+            $this->registry->get(LoginCustomerCommand::COMMAND_KEY)->handle($login, $context, $parameters);
 
-            /** @var ContextTokenResponse $response */
-            $response = $parameters['tokenResponse'];
-
-            $token = $response->getToken();
+            $token = $parameters['token'];
+            unset($parameters['token']);
         }
 
         if (isset($token)) {

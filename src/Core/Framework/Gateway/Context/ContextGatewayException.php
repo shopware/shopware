@@ -20,7 +20,7 @@ class ContextGatewayException extends HttpException
         return new self(
             Response::HTTP_BAD_REQUEST,
             self::EMPTY_APP_RESPONSE_CODE,
-            'App "{{ app }}" did not provide checkout gateway response',
+            'App "{{ app }}" did not provide context gateway response',
             ['app' => $appName]
         );
     }
@@ -64,6 +64,9 @@ class ContextGatewayException extends HttpException
         );
     }
 
+    /**
+     * @param array<string, string|\Stringable> $parameters
+     */
     public static function commandValidationFailed(string $message, array $parameters = []): self
     {
         return new self(

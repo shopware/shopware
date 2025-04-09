@@ -3,7 +3,6 @@
 namespace Shopware\Core\Framework\Gateway\Context\Command;
 
 use Shopware\Core\Framework\Log\Package;
-use Shopware\Core\Framework\Struct\Struct;
 
 #[Package('framework')]
 abstract class AbstractContextGatewayCommand
@@ -13,7 +12,7 @@ abstract class AbstractContextGatewayCommand
     /**
      * @param array<array-key, mixed> $payload
      */
-    public static function createFromPayload(array $payload): static
+    public static function createFromPayload(array $payload = []): static
     {
         /** @phpstan-ignore-next-line  */
         return new static(...$payload);

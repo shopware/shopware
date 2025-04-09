@@ -9,6 +9,9 @@ class RegisterCustomerCommand extends AbstractContextGatewayCommand
 {
     public const COMMAND_KEY = 'context_register-customer';
 
+    /**
+     * @param array<string, mixed> $data
+     */
     public function __construct(
         public readonly array $data
     ) {

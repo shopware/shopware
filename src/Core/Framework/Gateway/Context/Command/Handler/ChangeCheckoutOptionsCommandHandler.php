@@ -8,15 +8,21 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\Gateway\Context\Command\AbstractContextGatewayCommand;
 use Shopware\Core\Framework\Gateway\Context\Command\ChangePaymentMethodCommand;
 use Shopware\Core\Framework\Gateway\Context\Command\ChangeShippingMethodCommand;
+use Shopware\Core\Framework\Gateway\Context\ContextGatewayException;
+use Shopware\Core\Framework\Log\ExceptionLogger;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
 #[Package('framework')]
 class ChangeCheckoutOptionsCommandHandler extends AbstractContextGatewayCommandHandler
 {
+    /**
+     * @internal
+     */
     public function __construct(
         private readonly EntityRepository $paymentMethodRepository,
-        private readonly EntityRepository $shippingMethodRepository
+        private readonly EntityRepository $shippingMethodRepository,
+        private readonly ExceptionLogger $exceptionLogger,
     ) {
     }
 
@@ -34,6 +40,8 @@ class ChangeCheckoutOptionsCommandHandler extends AbstractContextGatewayCommandH
             $shippingMethodId = $this->shippingMethodRepository->searchIds($criteria, $context->getContext())->firstId();
 
             if ($shippingMethodId === null) {
+                $this->exceptionLogger->logOrThrowException(ContextGatewayException::handlerException('Shipping method with technical name {{ technicalName }} not found', ['technicalName' => $technicalName]));
+
                 return;
             }
 
@@ -44,6 +52,8 @@ class ChangeCheckoutOptionsCommandHandler extends AbstractContextGatewayCommandH
             $paymentMethodId = $this->paymentMethodRepository->searchIds($criteria, $context->getContext())->firstId();
 
             if ($paymentMethodId === null) {
+                $this->exceptionLogger->logOrThrowException(ContextGatewayException::handlerException('Payment method with technical name {{ technicalName }} not found', ['technicalName' => $technicalName]));
+
                 return;
             }
 

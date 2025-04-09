@@ -233,11 +233,11 @@
         </service>
 
         <service id="Shopware\Core\Framework\Gateway\Context\Command\Executor\ContextGatewayCommandExecutor">
-            <argument type="service" id="Shopware\Core\Framework\Gateway\Context\Command\Registry\ContextGatewayCommandRegistry"/>
             <argument type="service" id="Shopware\Core\System\SalesChannel\SalesChannel\ContextSwitchRoute"/>
+            <argument type="service" id="Shopware\Core\Framework\Gateway\Context\Command\Registry\ContextGatewayCommandRegistry"/>
+            <argument type="service" id="Shopware\Core\Framework\Gateway\Context\Command\Executor\ContextGatewayCommandValidator"/>
             <argument type="service" id="Shopware\Core\Framework\Log\ExceptionLogger"/>
             <argument type="service" id="Shopware\Core\System\SalesChannel\Context\SalesChannelContextService"/>
-            <argument type="service" id="Shopware\Core\Framework\Gateway\Context\Command\Executor\ContextGatewayCommandValidator"/>
         </service>
 
         <service id="Shopware\Core\Framework\Gateway\Context\Command\Registry\ContextGatewayCommandRegistry">
@@ -251,24 +251,26 @@
         <service id="Shopware\Core\Framework\Gateway\Context\Command\Handler\ChangeCheckoutOptionsCommandHandler">
             <argument type="service" id="payment_method.repository"/>
             <argument type="service" id="shipping_method.repository"/>
-
+            <argument type="service" id="Shopware\Core\Framework\Log\ExceptionLogger"/>
             <tag name="shopware.context.gateway.command"/>
         </service>
 
         <service id="Shopware\Core\Framework\Gateway\Context\Command\Handler\ChangeCurrencyCommandHandler">
             <argument type="service" id="currency.repository"/>
+            <argument type="service" id="Shopware\Core\Framework\Log\ExceptionLogger"/>
             <tag name="shopware.context.gateway.command"/>
         </service>
 
         <service id="Shopware\Core\Framework\Gateway\Context\Command\Handler\ChangeLanguageCommandHandler">
             <argument type="service" id="language.repository"/>
+            <argument type="service" id="Shopware\Core\Framework\Log\ExceptionLogger"/>
             <tag name="shopware.context.gateway.command"/>
         </service>
 
         <service id="Shopware\Core\Framework\Gateway\Context\Command\Handler\ChangeShippingLocationCommandHandler">
             <argument type="service" id="country.repository"/>
             <argument type="service" id="country_state.repository"/>
-
+            <argument type="service" id="Shopware\Core\Framework\Log\ExceptionLogger"/>
             <tag name="shopware.context.gateway.command"/>
         </service>
 

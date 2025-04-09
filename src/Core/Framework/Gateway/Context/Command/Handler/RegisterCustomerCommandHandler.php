@@ -13,6 +13,9 @@ use Shopware\Core\System\SalesChannel\SalesChannelContext;
 #[Package('framework')]
 class RegisterCustomerCommandHandler extends AbstractContextGatewayCommandHandler
 {
+    /**
+     * @internal
+     */
     public function __construct(
         private readonly AbstractRegisterRoute $registerRoute,
     ) {
@@ -23,15 +26,15 @@ class RegisterCustomerCommandHandler extends AbstractContextGatewayCommandHandle
      */
     public function handle(AbstractContextGatewayCommand $command, SalesChannelContext $context, array &$parameters): void
     {
-        $data = $command->data;
-        $data['billing'] = new DataBag($data['billingAddress']);
+        $payload = $command->data;
+        $data['billing'] = new DataBag($payload['billingAddress']);
 
-        if (isset($data['shippingAddress'])) {
-            $data['shipping'] = new DataBag($data['shippingAddress']);
+        if (isset($payload['shippingAddress'])) {
+            $data['shipping'] = new DataBag($payload['shippingAddress']);
         }
 
-        if (isset($data['vatIds'])) {
-            $data['vatIds'] = new DataBag($data['vatIds']);
+        if (isset($payload['vatIds'])) {
+            $data['vatIds'] = new DataBag($payload['vatIds']);
         }
 
         $data = new RequestDataBag($data);

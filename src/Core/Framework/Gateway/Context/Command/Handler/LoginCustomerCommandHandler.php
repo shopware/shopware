@@ -2,15 +2,10 @@
 
 namespace Shopware\Core\Framework\Gateway\Context\Command\Handler;
 
-use Shopware\Core\Checkout\Customer\SalesChannel\AbstractLoginRoute;
-use Shopware\Core\Checkout\Customer\SalesChannel\AbstractRegisterRoute;
 use Shopware\Core\Checkout\Customer\SalesChannel\AccountService;
 use Shopware\Core\Framework\Gateway\Context\Command\AbstractContextGatewayCommand;
 use Shopware\Core\Framework\Gateway\Context\Command\LoginCustomerCommand;
-use Shopware\Core\Framework\Gateway\Context\Command\RegisterCustomerCommand;
 use Shopware\Core\Framework\Log\Package;
-use Shopware\Core\Framework\Validation\DataBag\DataBag;
-use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
 #[Package('framework')]
@@ -27,11 +22,11 @@ class LoginCustomerCommandHandler extends AbstractContextGatewayCommandHandler
     public function handle(AbstractContextGatewayCommand $command, SalesChannelContext $context, array &$parameters): void
     {
         $customer = $this->accountService->getCustomerByEmail($command->customerEmail, $context);
-        $parameters['tokenResponse'] = $this->accountService->loginById($customer->getId(), $context);
+        $parameters['token'] = $this->accountService->loginById($customer->getId(), $context);
     }
 
     public static function supportedCommands(): array
     {
-        return [RegisterCustomerCommand::class];
+        return [LoginCustomerCommand::class];
     }
 }

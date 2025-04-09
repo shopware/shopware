@@ -5,7 +5,6 @@ namespace Shopware\Core\Framework\Gateway\Context\Command\Handler;
 use Shopware\Core\Framework\Gateway\Context\Command\AbstractContextGatewayCommand;
 use Shopware\Core\Framework\Gateway\Context\Command\ChangeBillingAddressCommand;
 use Shopware\Core\Framework\Gateway\Context\Command\ChangeShippingAddressCommand;
-use Shopware\Core\Framework\Gateway\Context\Command\ChangeShippingMethodCommand;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
@@ -13,7 +12,7 @@ use Shopware\Core\System\SalesChannel\SalesChannelContext;
 class ChangeCheckoutAddressCommandHandler extends AbstractContextGatewayCommandHandler
 {
     /**
-     * @param ChangeBillingAddressCommand|ChangeShippingMethodCommand $command
+     * @param ChangeBillingAddressCommand|ChangeShippingAddressCommand $command
      */
     public function handle(AbstractContextGatewayCommand $command, SalesChannelContext $context, array &$parameters): void
     {

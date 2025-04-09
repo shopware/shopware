@@ -7,14 +7,20 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\Gateway\Context\Command\AbstractContextGatewayCommand;
 use Shopware\Core\Framework\Gateway\Context\Command\ChangeCurrencyCommand;
+use Shopware\Core\Framework\Gateway\Context\ContextGatewayException;
+use Shopware\Core\Framework\Log\ExceptionLogger;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
 #[Package('framework')]
 class ChangeCurrencyCommandHandler extends AbstractContextGatewayCommandHandler
 {
+    /**
+     * @internal
+     */
     public function __construct(
-        private readonly EntityRepository $currencyRepository
+        private readonly EntityRepository $currencyRepository,
+        private readonly ExceptionLogger $exceptionLogger,
     ) {
     }
 
@@ -29,6 +35,8 @@ class ChangeCurrencyCommandHandler extends AbstractContextGatewayCommandHandler
         $currencyId = $this->currencyRepository->searchIds($criteria, $context->getContext())->firstId();
 
         if ($currencyId === null) {
+            $this->exceptionLogger->logOrThrowException(ContextGatewayException::handlerException('Currency with iso code {{ isoCode }} not found', ['isoCode' => $command->iso]));
+
             return;
         }
 

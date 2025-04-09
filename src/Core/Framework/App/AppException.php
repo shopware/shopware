@@ -45,6 +45,7 @@ class AppException extends HttpException
     final public const APP_CREATE_COMMAND_VALIDATION_ERROR = 'FRAMEWORK__APP_CREATE_COMMAND_VALIDATION_ERROR';
     final public const APP_DIRECTORY_ALREADY_EXISTS = 'FRAMEWORK__APP_DIRECTORY_ALREADY_EXISTS';
     final public const APP_DIRECTORY_CREATION_FAILED = 'FRAMEWORK__APP_DIRECTORY_CREATION_FAILED';
+    final public const APP_GATEWAY_NOT_CONFIGURED = 'FRAMEWORK__APP_GATEWAY_NOT_CONFIGURED';
 
     /**
      * @internal will be removed once store extensions are installed over composer
@@ -404,6 +405,16 @@ class AppException extends HttpException
             self::APP_DIRECTORY_CREATION_FAILED,
             'Unable to create directory "{{ path }}". Please check permissions',
             ['path' => $path]
+        );
+    }
+
+    public static function gatewayNotConfigured(string $appName, string $gateway): self
+    {
+        return new self(
+            Response::HTTP_BAD_REQUEST,
+            self::APP_GATEWAY_NOT_CONFIGURED,
+            'Gateway "{{ gateway }}" is not configured for app "{{ appName }}". Please check the manifest file',
+            ['appName' => $appName, 'gateway' => $gateway]
         );
     }
 }

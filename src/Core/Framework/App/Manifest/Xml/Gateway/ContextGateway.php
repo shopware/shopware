@@ -4,6 +4,9 @@ namespace Shopware\Core\Framework\App\Manifest\Xml\Gateway;
 
 use Shopware\Core\Framework\Log\Package;
 
+/**
+ * @internal only for use by the app-system
+ */
 #[Package('framework')]
 class ContextGateway extends AbstractGateway
 {

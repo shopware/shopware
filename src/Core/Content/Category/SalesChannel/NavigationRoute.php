@@ -311,13 +311,8 @@ class NavigationRoute extends AbstractNavigationRoute
     {
         foreach ($categories as $category) {
             if ($category->getType() !== CategoryDefinition::TYPE_LINK
-                || $category->getLinkType() === CategoryDefinition::LINK_TYPE_EXTERNAL) {
-                continue;
-            }
-
-            $internalLink = $category->getInternalLink();
-
-            if (!$internalLink) {
+                || $category->getLinkType() === CategoryDefinition::LINK_TYPE_EXTERNAL
+                || !$category->getInternalLink()) {
                 continue;
             }
 

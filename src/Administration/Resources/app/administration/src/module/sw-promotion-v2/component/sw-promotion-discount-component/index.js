@@ -337,7 +337,7 @@ export default {
             return this.graduationAppliers.map((applier, index) => {
                 return {
                     id: index,
-                    value: applier.key,
+                    value: applier.key.toString(),
                     label: applier.name,
                 };
             });

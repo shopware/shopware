@@ -314,19 +314,19 @@ class NavigationRoute extends AbstractNavigationRoute
                 || $category->getLinkType() === CategoryDefinition::LINK_TYPE_EXTERNAL) {
                 continue;
             }
-            
+
             $internalLink = $category->getInternalLink();
-            
+
             if (!$internalLink) {
                 continue;
             }
-            
+
             $plainUrl = $this->categoryUrlGenerator->generate($category, $context->getSalesChannel());
-            
+
             if ($plainUrl === null) {
                 continue;
             }
-            
+
             $seoUrl = $this->seoUrlReplacer->replace($plainUrl, '', $context);
             $category->setInternalLink($seoUrl);
         }

@@ -42,6 +42,7 @@ class ThemeCompileCommand extends Command
             ->addOption('only-themes', 'O', InputOption::VALUE_REQUIRED | InputOption::VALUE_IS_ARRAY, 'Compile only themes for given theme ids')
             ->addOption('skip-themes', 'S', InputOption::VALUE_REQUIRED | InputOption::VALUE_IS_ARRAY, 'Skip compiling themes for given theme ids')
             ->addOption('sync', null, InputOption::VALUE_NONE, 'Compile the theme synchronously')
+            ->addOption('skip-cache', null, InputOption::VALUE_NONE, 'Skip using cached files when compiling the theme')
         ;
     }
 
@@ -51,6 +52,10 @@ class ThemeCompileCommand extends Command
         $context = Context::createCLIContext();
         if ($input->getOption('sync')) {
             $context->addState(ThemeService::STATE_NO_QUEUE);
+        }
+
+        if ($input->getOption('skip-cache')) {
+            $context->addState(ThemeService::STATE_SKIP_THEME_CACHE);
         }
 
         $this->io->writeln('Start theme compilation');

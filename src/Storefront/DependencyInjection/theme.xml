@@ -19,7 +19,13 @@
             <tag name="kernel.reset" method="reset"/>
         </service>
 
-        <service id="Shopware\Storefront\Theme\ScssPhpCompiler" />
+        <service id="Shopware\Storefront\Theme\ScssPhpCompiler">
+            <argument type="collection">
+                <argument key="lifetime">3600</argument>
+                <argument key="tags">['scss_compiler']</argument>
+            </argument>
+            <argument type="service" id="cache.app.taggable" on-invalid="null"/>
+        </service>
 
         <service id="Shopware\Storefront\Theme\ThemeCompiler">
             <argument type="service" id="shopware.filesystem.theme"/>

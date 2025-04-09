@@ -87,7 +87,7 @@ class SCSSValidatorTest extends TestCase
                 'type' => 'color',
                 'value' => '#fff0',
             ],
-            '#fff0',
+            'rgba(255,255,255,0)',
         ];
         yield 'color correct hex 6' => [
             [
@@ -108,7 +108,7 @@ class SCSSValidatorTest extends TestCase
                 'type' => 'color',
                 'value' => '#fff00000',
             ],
-            '#fff00000',
+            'rgba(255,240,0,0)',
         ];
         yield 'color correct name' => [
             [
@@ -129,7 +129,7 @@ class SCSSValidatorTest extends TestCase
                 'type' => 'color',
                 'value' => 'hsl(4, 4, 4, 0.5)',
             ],
-            'rgba(11, 10, 10, 0.5)',
+            'rgba(11,10,10,.5)',
         ];
         yield 'color correct rgb 3' => [
             [
@@ -143,21 +143,21 @@ class SCSSValidatorTest extends TestCase
                 'type' => 'color',
                 'value' => 'rgb(4, 4, 4, 0.5)',
             ],
-            'rgba(4, 4, 4, 0.5)',
+            'rgba(4,4,4,.5)',
         ];
         yield 'color correct hsla 3' => [
             [
                 'type' => 'color',
                 'value' => 'hsla(4, 4, 4, 0.5)',
             ],
-            'rgba(11, 10, 10, 0.5)',
+            'rgba(11,10,10,.5)',
         ];
         yield 'color correct hsla 4' => [
             [
                 'type' => 'color',
                 'value' => 'hsla(4, 4, 4, 0.5)',
             ],
-            'rgba(11, 10, 10, 0.5)',
+            'rgba(11,10,10,.5)',
         ];
         yield 'color correct rgba 3' => [
             [
@@ -171,7 +171,7 @@ class SCSSValidatorTest extends TestCase
                 'type' => 'color',
                 'value' => 'rgba(4, 4, 4, 0.5)',
             ],
-            'rgba(4, 4, 4, 0.5)',
+            'rgba(4,4,4,.5)',
         ];
         // Empty values (are valid and will be set to null)
         yield 'color empty' => [
@@ -257,7 +257,7 @@ class SCSSValidatorTest extends TestCase
                 'type' => 'color',
                 'value' => 'hsl(4, 4, 500)',
             ],
-            'white',
+            '#fff',
         ];
         yield 'color incorrect but valid hsl 4' => [
             [
@@ -354,7 +354,7 @@ class SCSSValidatorTest extends TestCase
                 'type' => 'color',
                 'value' => 'darken($myColor, 15%)',
             ],
-            'black',
+            '#000',
         ];
         yield 'color correct lighten' => [
             [
@@ -382,7 +382,7 @@ class SCSSValidatorTest extends TestCase
                 'type' => 'color',
                 'value' => '#fff0',
             ],
-            '#fff0',
+            'rgba(255,255,255,0)',
         ];
         yield 'color correct hex 6' => [
             [
@@ -404,7 +404,7 @@ class SCSSValidatorTest extends TestCase
                 'type' => 'color',
                 'value' => '#fff00000',
             ],
-            '#fff00000',
+            'rgba(255,240,0,0)',
         ];
         yield 'color correct name' => [
             [
@@ -425,7 +425,7 @@ class SCSSValidatorTest extends TestCase
                 'type' => 'color',
                 'value' => 'hsl(4, 4, 4, 0.5)',
             ],
-            'rgba(11, 10, 10, 0.5)',
+            'rgba(11,10,10,.5)',
         ];
         yield 'color correct rgb 3' => [
             [
@@ -439,21 +439,21 @@ class SCSSValidatorTest extends TestCase
                 'type' => 'color',
                 'value' => 'rgb(4, 4, 4, 0.5)',
             ],
-            'rgba(4, 4, 4, 0.5)',
+            'rgba(4,4,4,.5)',
         ];
         yield 'color correct hsla 3' => [
             [
                 'type' => 'color',
                 'value' => 'hsla(4, 4, 4, 0.5)',
             ],
-            'rgba(11, 10, 10, 0.5)',
+            'rgba(11,10,10,.5)',
         ];
         yield 'color correct hsla 4' => [
             [
                 'type' => 'color',
                 'value' => 'hsla(4, 4, 4, 0.5)',
             ],
-            'rgba(11, 10, 10, 0.5)',
+            'rgba(11,10,10,.5)',
         ];
         yield 'color correct rgba 3' => [
             [
@@ -467,7 +467,7 @@ class SCSSValidatorTest extends TestCase
                 'type' => 'color',
                 'value' => 'rgba(4, 4, 4, 0.5)',
             ],
-            'rgba(4, 4, 4, 0.5)',
+            'rgba(4,4,4,.5)',
         ];
         yield 'color incorrect hex 3' => [
             [
@@ -522,7 +522,7 @@ class SCSSValidatorTest extends TestCase
                 'type' => 'color',
                 'value' => 'hsl(4, 4, 500)',
             ],
-            'white',
+            '#fff',
         ];
         yield 'color incorrect but valid hsl 4' => [
             [

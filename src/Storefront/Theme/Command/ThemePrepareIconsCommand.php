@@ -67,7 +67,7 @@ class ThemePrepareIconsCommand extends Command
         $this->io = new SymfonyStyle($input, $output);
 
         $this->io->writeln('Start Icon preparation');
-        $svgReader = new SVGReader();
+        $svgReader = $this->getSVGReader();
         @mkdir($path . 'processed/');
         $this->io->writeln('Created sub directory "processed" in working directory ' . str_replace(__DIR__, '', $path) . '.');
         $this->io->writeln('The processed icons will be written in the "processed" sub directory.');
@@ -173,6 +173,11 @@ class ThemePrepareIconsCommand extends Command
                 $this->removeStyles($grandChild);
             }
         }
+    }
+
+    protected function getSVGReader(): SVGReader
+    {
+        return new SVGReader();
     }
 
     private function getChildren(SVGNodeContainer $fragment): array

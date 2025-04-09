@@ -14,6 +14,7 @@ use Shopware\Core\Framework\Adapter\Filesystem\Plugin\CopyBatchInputFactory;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\Util\Hasher;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Storefront\Event\ThemeCompilerConcatenatedStylesEvent;
 use Shopware\Storefront\Theme\Event\ThemeCompilerEnrichScssVariablesEvent;
@@ -66,7 +67,8 @@ class ThemeCompiler implements ThemeCompilerInterface
         StorefrontPluginConfiguration $themeConfig,
         StorefrontPluginConfigurationCollection $configurationCollection,
         bool $withAssets,
-        Context $context
+        Context $context,
+        bool $skipCache = false
     ): void {
         try {
             $resolvedFiles = $this->themeFileResolver->resolveFiles($themeConfig, $configurationCollection, false);
@@ -81,7 +83,7 @@ class ThemeCompiler implements ThemeCompilerInterface
         }
 
         try {
-            $concatenatedStyles = $this->concatenateStyles($styleFiles, $salesChannelId);
+            $concatenatedStylesResult = $this->concatenateStyles($styleFiles, $salesChannelId, $skipCache);
         } catch (\Throwable $e) {
             throw ThemeException::themeCompileException(
                 $themeConfig->getName() ?? '',
@@ -91,7 +93,7 @@ class ThemeCompiler implements ThemeCompilerInterface
         }
 
         $compiled = $this->compileStyles(
-            $concatenatedStyles,
+            $concatenatedStylesResult,
             $themeConfig,
             $styleFiles->getResolveMappings(),
             $salesChannelId,
@@ -211,7 +213,7 @@ class ThemeCompiler implements ThemeCompilerInterface
 
             $targetPath = $themePath . '/js/' . $folderName;
             foreach ($files as $file) {
-                if (file_exists($file->getRealPath())) {
+                if ($file->getRealPath() && file_exists($file->getRealPath())) {
                     $copyFiles[] = new CopyBatchInput($file->getRealPath(), [$targetPath . '/' . $file->getFilename()]);
                 }
             }
@@ -293,10 +295,11 @@ class ThemeCompiler implements ThemeCompilerInterface
     }
 
     /**
+     * @param array<string, mixed>|string $concatenatedStylesConfig
      * @param array<string, string> $resolveMappings
      */
     private function compileStyles(
-        string $concatenatedStyles,
+        string|array $concatenatedStylesConfig,
         StorefrontPluginConfiguration $configuration,
         array $resolveMappings,
         string $salesChannelId,
@@ -304,6 +307,15 @@ class ThemeCompiler implements ThemeCompilerInterface
         Context $context
     ): string {
         try {
+            $skipCache = false;
+            $timestampHash = '';
+            $concatenatedStylesRaw = \is_string($concatenatedStylesConfig) ? $concatenatedStylesConfig : '';
+            if (\is_array($concatenatedStylesConfig) && isset($concatenatedStylesConfig['event']) && $concatenatedStylesConfig['event'] instanceof ThemeCompilerConcatenatedStylesEvent) {
+                $skipCache = $concatenatedStylesConfig['skipCache'] ?? false;
+                $timestampHash = $concatenatedStylesConfig['timestampHash'] ?? '';
+                $concatenatedStylesRaw = $concatenatedStylesConfig['event']->getConcatenatedStyles();
+            }
+
             $variables = $this->dumpVariables($configuration->getThemeConfig() ?? [], $themeId, $salesChannelId, $context);
             $features = $this->getFeatureConfigScssMap();
             $resolveImportPath = $this->getResolveImportPathsCallback($resolveMappings);
@@ -321,12 +333,23 @@ class ThemeCompiler implements ThemeCompilerInterface
                 [
                     'importPaths' => $importPaths,
                     'outputStyle' => $this->debug ? OutputStyle::EXPANDED : OutputStyle::COMPRESSED,
+                    'skipCache' => $skipCache,
                 ]
             );
 
+            // Write concatenated styles to a temporary file to properly track imports
+            $fullScssContent = $features . $variables . $concatenatedStylesRaw;
+            $this->tempFilesystem->write('theme-scss-temp.scss', $fullScssContent);
+
+            // Don't use an actual file path to avoid circular imports
+            // Instead use a special identifier that won't conflict with real files
+            // Include the timestamp hash to ensure cache is invalidated when any imported file changes
+            $virtualFilePath = 'theme-scss:' . $timestampHash;
+
             $cssOutput = $this->scssCompiler->compileString(
                 $compilerConfig,
-                $features . $variables . $concatenatedStyles
+                $fullScssContent,
+                $virtualFilePath
             );
         } catch (\Throwable $exception) {
             throw ThemeException::themeCompileException(
@@ -468,19 +491,94 @@ class ThemeCompiler implements ThemeCompilerInterface
 PHP_EOL;
     }
 
+    /**
+     * @return array{event: ThemeCompilerConcatenatedStylesEvent, filePaths: array<string>, timestampHash: string, skipCache: bool}
+     */
     private function concatenateStyles(
         FileCollection $styleFiles,
-        string $salesChannelId
-    ): string {
+        string $salesChannelId,
+        bool $skipCache = false
+    ): array {
         $styles = $styleFiles->map(fn (File $file) => \sprintf('@import \'%s\';', $file->getFilepath()));
 
+        $filePaths = $styleFiles->map(fn (File $file) => $file->getFilepath());
+        $importTimestamps = [];
+        foreach ($filePaths as $filePath) {
+            if (file_exists($filePath)) {
+                $timestamp = filemtime($filePath);
+                $importTimestamps[$filePath] = $timestamp !== false ? $timestamp : 0;
+
+                // Also try to load direct imports from this file to get their timestamps
+                $this->addRecursiveImportTimestamps($filePath, $importTimestamps);
+            }
+        }
+
+        $timestampHash = Hasher::hash(json_encode($importTimestamps));
         $concatenatedStylesEvent = new ThemeCompilerConcatenatedStylesEvent(
             implode("\n", $styles),
             $salesChannelId
         );
         $this->eventDispatcher->dispatch($concatenatedStylesEvent);
 
-        return $concatenatedStylesEvent->getConcatenatedStyles();
+        $contentHash = substr(Hasher::hash($concatenatedStylesEvent->getConcatenatedStyles()), 0, 8);
+
+        return [
+            'event' => $concatenatedStylesEvent,
+            'filePaths' => $filePaths,
+            'timestampHash' => $timestampHash,
+            'skipCache' => $skipCache,
+        ];
+    }
+
+    /**
+     * @param array<string, int> &$importTimestamps Associative array of file paths and their timestamps
+     * @param array<string> $processedFiles List of already processed files to prevent infinite recursion
+     */
+    private function addRecursiveImportTimestamps(string $filePath, array &$importTimestamps, array $processedFiles = []): void
+    {
+        // Prevent infinite recursion
+        if (\in_array($filePath, $processedFiles, true)) {
+            return;
+        }
+
+        $processedFiles[] = $filePath;
+
+        if (!file_exists($filePath)) {
+            return;
+        }
+
+        // Read file content and look for @import statements
+        $content = file_get_contents($filePath);
+        if ($content === false) {
+            return;
+        }
+
+        $matches = [];
+        if (preg_match_all('/@import\s+[\'"]([^\'"]+)[\'"]\s*;/', $content, $matches)) {
+            $directory = \dirname($filePath);
+
+            foreach ($matches[1] as $importPath) {
+                // If import doesn't end with .scss, add it
+                if (!str_ends_with($importPath, '.scss')) {
+                    $importPath .= '.scss';
+                }
+
+                // Try both relative path and with underscore prefix (partial)
+                $paths = [
+                    $directory . '/' . $importPath,
+                    $directory . '/' . \dirname($importPath) . '/_' . basename($importPath),
+                ];
+
+                foreach ($paths as $path) {
+                    if (file_exists($path)) {
+                        $timestamp = filemtime($path);
+                        $importTimestamps[$path] = $timestamp !== false ? $timestamp : 0;
+                        $this->addRecursiveImportTimestamps($path, $importTimestamps, $processedFiles);
+                        break;
+                    }
+                }
+            }
+        }
     }
 
     /**

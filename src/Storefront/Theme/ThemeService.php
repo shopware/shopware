@@ -31,6 +31,7 @@ class ThemeService implements ResetInterface
 {
     public const CONFIG_THEME_COMPILE_ASYNC = 'core.storefrontSettings.asyncThemeCompilation';
     public const STATE_NO_QUEUE = 'state-no-queue';
+    public const STATE_SKIP_THEME_CACHE = 'state-skip-theme-cache';
 
     private bool $notified = false;
 
@@ -70,13 +71,17 @@ class ThemeService implements ResetInterface
 
             return;
         }
+
+        $skipCache = $context->hasState(self::STATE_SKIP_THEME_CACHE);
+
         $this->themeCompiler->compileTheme(
             $salesChannelId,
             $themeId,
             $this->configLoader->load($themeId, $context),
             $configurationCollection ?? $this->extensionRegistry->getConfigurations(),
             $withAssets,
-            $context
+            $context,
+            $skipCache
         );
     }
 

@@ -307,6 +307,31 @@ class ThemeCompileCommandTest extends TestCase
         static::assertSame(1, $commandTester->getStatusCode());
     }
 
+    public function testItSetsSkipCacheThemeCompileContextState(): void
+    {
+        $salesChannelId = 'sales-channel-id';
+        $themeId = 'theme-id';
+
+        $context = Context::createDefaultContext();
+        $context->addState(ThemeService::STATE_SKIP_THEME_CACHE);
+
+        $themeService = static::createMock(ThemeService::class);
+        $themeService->expects($this->once())
+            ->method('compileTheme')
+            ->with($salesChannelId, $themeId, $context);
+
+        $themeProvider = static::createMock(AbstractAvailableThemeProvider::class);
+        $themeProvider->expects($this->once())
+            ->method('load')
+            ->with(static::anything(), false)
+            ->willReturn([$salesChannelId => $themeId]);
+
+        $commandTester = new CommandTester(new ThemeCompileCommand($themeService, $themeProvider));
+
+        $commandTester->execute(['--skip-cache' => true]);
+        $commandTester->assertCommandIsSuccessful();
+    }
+
     /**
      * @return iterable<array<bool>>
      */

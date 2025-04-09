@@ -134,17 +134,26 @@ class SCSSValidator
 
     private static function isValidColorName(mixed $value): bool
     {
-        return (
-            str_starts_with($value, '#')
-            && self::isHex(substr($value, 1))
-        ) || str_starts_with($value, 'rgb')
-                || str_starts_with($value, 'rgba')
-                || str_starts_with($value, 'hsl')
-                || str_starts_with($value, 'hsla')
-                || (
-                    !str_starts_with($value, '#')
-                    && Colors::colorNameToRGBa($value) !== null
-                );
+        if (!\is_string($value)) {
+            return false;
+        }
+
+        if (str_starts_with($value, '#') && self::isHex(substr($value, 1))) {
+            return true;
+        }
+
+        if (str_starts_with($value, 'rgb')
+            || str_starts_with($value, 'rgba')
+            || str_starts_with($value, 'hsl')
+            || str_starts_with($value, 'hsla')) {
+            return true;
+        }
+
+        if (!str_starts_with($value, '#') && Colors::colorNameToColor($value) !== null) {
+            return true;
+        }
+
+        return false;
     }
 
     private static function initVariables(string $value, string $varVal): string

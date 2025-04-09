@@ -16,6 +16,7 @@ use Shopware\Core\Checkout\Promotion\Cart\Discount\DiscountLineItem;
 use Shopware\Core\Checkout\Promotion\Cart\Discount\ScopePackager\CartScopeDiscountPackager;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
+use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
 /**
@@ -44,6 +45,7 @@ class CartScopeDiscountPackagerTest extends TestCase
             'discountScope' => 'scope',
             'discountType' => 'type',
             'filter' => [],
+            'considerAdvancedRules' => '1'
         ], null);
 
         $packages = $packager->getMatchingItems($discount, $cart, $context);

@@ -9,6 +9,7 @@ use Shopware\Core\Checkout\Cart\LineItem\LineItem;
 use Shopware\Core\Checkout\Cart\LineItem\LineItemCollection;
 use Shopware\Core\Checkout\Cart\Price\Struct\FilterableInterface;
 use Shopware\Core\Checkout\Cart\Rule\LineItemScope;
+use Shopware\Core\Checkout\Promotion\Cart\CartPromotionsDataDefinition;
 use Shopware\Core\Checkout\Promotion\Cart\Discount\DiscountLineItem;
 use Shopware\Core\Checkout\Promotion\Cart\Discount\DiscountPackage;
 use Shopware\Core\Checkout\Promotion\Cart\Discount\DiscountPackageCollection;
@@ -38,7 +39,7 @@ class CartScopeDiscountPackager extends DiscountPackager
             $allItems = $allItems->filter(fn (LineItem $lineItem) => $priceDefinition->getFilter()->match(new LineItemScope($lineItem, $context)));
         }
 
-        $discountPackage = $this->getDiscountPackage($allItems);
+        $discountPackage = $this->getDiscountPackage($allItems, $this->isAdvanceRuled($discount, $cart));
         if ($discountPackage === null) {
             return new DiscountPackageCollection([]);
         }
@@ -46,17 +47,57 @@ class CartScopeDiscountPackager extends DiscountPackager
         return new DiscountPackageCollection([$discountPackage]);
     }
 
-    private function getDiscountPackage(LineItemCollection $cartItems): ?DiscountPackage
+    private function isAdvanceRuled(DiscountLineItem $discount, Cart $cart): bool
+    {
+        if ($discount->hasPayloadValue('considerAdvancedRules')) {
+            return $discount->getPayloadValue('considerAdvancedRules') === '1';
+        }
+
+        try {
+            $promotionId = $discount->getPayloadValue('promotionId');
+            $discountId = $discount->getPayloadValue('discountId');
+        } catch (\Exception) {
+            return false;
+        }
+
+        if (!\is_string($promotionId) || !\is_string($discountId)) {
+            return false;
+        }
+
+        $promotionsData = $cart
+            ->getData()
+            ->get('promotions-code');
+
+        if (!$promotionsData instanceof CartPromotionsDataDefinition) {
+            return false;
+        }
+
+        $discountEntity = $promotionsData
+            ->findCodeById($promotionId)
+            ?->getDiscounts()
+            ?->get($discountId);
+
+        return (bool) $discountEntity?->isConsiderAdvancedRules();
+    }
+
+    private function getDiscountPackage(LineItemCollection $cartItems, bool $isAdvanceRuled): ?DiscountPackage
     {
         $discountItems = [];
         foreach ($cartItems as $cartLineItem) {
-            for ($i = 1; $i <= $cartLineItem->getQuantity(); ++$i) {
-                $item = new LineItemQuantity(
-                    $cartLineItem->getId(),
-                    1
-                );
+            if ($isAdvanceRuled) {
+                for ($i = 1; $i <= $cartLineItem->getQuantity(); ++$i) {
+                    $item = new LineItemQuantity(
+                        $cartLineItem->getId(),
+                        1
+                    );
 
-                $discountItems[] = $item;
+                    $discountItems[] = $item;
+                }
+            } else {
+                $discountItems[] = new LineItemQuantity(
+                    $cartLineItem->getId(),
+                    $cartLineItem->getQuantity()
+                );
             }
         }
 

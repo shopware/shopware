@@ -30,7 +30,12 @@ class PriceCollection extends Collection
         $rules = new TaxRuleCollection([]);
 
         foreach ($this->getIterator() as $price) {
-            $rules = $rules->merge($price->getTaxRules());
+            // logic from "rules->merge". But "merge" will create a new object each time
+            foreach ($price->getTaxRules() as $taxRule) {
+                if (!$rules->exists($taxRule)) {
+                    $rules->add(clone $taxRule);
+                }
+            }
         }
 
         return $rules;

@@ -10,7 +10,7 @@ use Shopware\Core\Framework\Log\Package;
 class DiscountLineItem
 {
     /**
-     * @var array<mixed>
+     * @var array<string, string|array<mixed>>
      */
     private array $payload;
 
@@ -27,7 +27,7 @@ class DiscountLineItem
     private readonly string $filterPickerKey;
 
     /**
-     * @param array<mixed> $payload
+     * @param array<string, string|array<mixed>> $payload
      */
     public function __construct(
         private readonly string $label,

@@ -2,7 +2,6 @@
 
 namespace Shopware\Core\Checkout\Promotion\Cart\Discount\Filter;
 
-use Shopware\Core\Checkout\Cart\LineItem\Group\LineItemQuantity;
 use Shopware\Core\Checkout\Cart\LineItem\Group\LineItemQuantityCollection;
 use Shopware\Core\Checkout\Cart\LineItem\LineItem;
 use Shopware\Core\Checkout\Cart\Price\Struct\PriceDefinitionInterface;
@@ -26,31 +25,30 @@ class AdvancedPackageRules extends SetGroupScopeFilter
     public function filter(DiscountLineItem $discount, DiscountPackageCollection $packages, SalesChannelContext $context): DiscountPackageCollection
     {
         $priceDefinition = $discount->getPriceDefinition();
-
-        $newPackages = [];
+        $newPackages = new DiscountPackageCollection();
 
         foreach ($packages as $package) {
-            $foundItems = [];
+            $foundItems = new LineItemQuantityCollection();
+            $checkedItems = [];
 
             foreach ($package->getMetaData() as $item) {
-                $lineItem = $package->getCartItem($item->getLineItemId());
+                if (!\array_key_exists($item->getLineItemId(), $checkedItems)) {
+                    $lineItem = $package->getCartItem($item->getLineItemId());
 
-                if ($this->isRulesFilterValid($lineItem, $priceDefinition, $context)) {
-                    $item = new LineItemQuantity(
-                        $lineItem->getId(),
-                        $lineItem->getQuantity()
-                    );
+                    $checkedItems[$item->getLineItemId()] = $this->isRulesFilterValid($lineItem, $priceDefinition, $context);
+                }
 
-                    $foundItems[] = $item;
+                if ($checkedItems[$item->getLineItemId()]) {
+                    $foundItems->add($item);
                 }
             }
 
             if (\count($foundItems) > 0) {
-                $newPackages[] = new DiscountPackage(new LineItemQuantityCollection($foundItems));
+                $newPackages->add(new DiscountPackage($foundItems));
             }
         }
 
-        return new DiscountPackageCollection($newPackages);
+        return $newPackages;
     }
 
     private function isRulesFilterValid(LineItem $item, PriceDefinitionInterface $priceDefinition, SalesChannelContext $context): bool

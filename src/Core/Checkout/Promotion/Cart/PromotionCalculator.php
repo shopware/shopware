@@ -37,6 +37,7 @@ use Shopware\Core\Checkout\Promotion\Cart\Error\PromotionExcludedError;
 use Shopware\Core\Checkout\Promotion\Cart\Error\PromotionNotEligibleError;
 use Shopware\Core\Checkout\Promotion\Exception\DiscountCalculatorNotFoundException;
 use Shopware\Core\Checkout\Promotion\Exception\InvalidScopeDefinitionException;
+use Shopware\Core\Checkout\Promotion\PromotionEntity;
 use Shopware\Core\Checkout\Promotion\PromotionException;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
@@ -48,11 +49,6 @@ use Shopware\Core\System\SalesChannel\SalesChannelContext;
 class PromotionCalculator
 {
     use PromotionCartInformationTrait;
-
-    /**
-     * @var array<string, LineItem>
-     */
-    private array $splitted = [];
 
     /**
      * @internal
@@ -269,12 +265,16 @@ class PromotionCalculator
         // remember our initial package count
         $originalPackageCount = $packages->count();
 
-        foreach ($calculatedCart->getLineItems() as $item) {
-            $item->setStackable(true);
-            $this->splitted[$item->getId()] = $this->lineItemQuantitySplitter->split($item, 1, $context);
+        $promotion = $this->getPromotionEntity($item->getPayloadValue('promotionId'), $calculatedCart);
+        $discountEntity = $promotion?->getDiscounts()?->get($item->getId());
+
+        $splitItems = [];
+        foreach ($calculatedCart->getLineItems() as $split) {
+            $split->setStackable(true);
+            $splitItems[$split->getId()] = $this->lineItemQuantitySplitter->split($split, $discountEntity?->isConsiderAdvancedRules() ? 1 : $split->getQuantity(), $context);
         }
 
-        $packages = $this->enrichPackagesWithCartData($packages, $calculatedCart, $context);
+        $packages = $this->enrichPackagesWithCartData($packages, $splitItems);
 
         // every scope packager can have an additional
         // list of rules that can be used to filter out items.
@@ -285,15 +285,15 @@ class PromotionCalculator
         }
 
         // depending on the selected picker of our
-        // discount, the packages might be restructure
+        // discount, the packages might be restructured
         // also make sure we have correct cart items in our restructured packages from the picker
         $packages = $this->advancedPicker->pickItems($discount, $packages);
-        $packages = $this->enrichPackagesWithCartData($packages, $calculatedCart, $context);
+        $packages = $this->enrichPackagesWithCartData($packages, $splitItems);
 
         // if we have any graduation settings, make sure to reduce the items
         // that are eligible for our discount by executing our graduation resolver.
         $packages = $this->advancedFilter->filterPackages($discount, $packages, $originalPackageCount);
-        $packages = $this->enrichPackagesWithCartData($packages, $calculatedCart, $context);
+        $packages = $this->enrichPackagesWithCartData($packages, $splitItems);
 
         $calculator = match ($discount->getType()) {
             PromotionDiscountEntity::TYPE_ABSOLUTE => new DiscountAbsoluteCalculator($this->absolutePriceCalculator),
@@ -396,9 +396,11 @@ class PromotionCalculator
     }
 
     /**
+     * @param LineItem[] $splitItems
+     *
      * @throws CartException
      */
-    private function enrichPackagesWithCartData(DiscountPackageCollection $result, Cart $cart, SalesChannelContext $context): DiscountPackageCollection
+    private function enrichPackagesWithCartData(DiscountPackageCollection $result, array $splitItems): DiscountPackageCollection
     {
         // set the line item from the cart for each unit
         foreach ($result as $package) {
@@ -407,7 +409,7 @@ class PromotionCalculator
             foreach ($package->getMetaData() as $item) {
                 $lineItemId = $item->getLineItemId();
 
-                $cartItemsForUnit->add($this->splitted[$lineItemId]);
+                $cartItemsForUnit->add($splitItems[$lineItemId]);
             }
 
             $package->setCartItems($cartItemsForUnit);
@@ -419,5 +421,18 @@ class PromotionCalculator
     private function isAutomaticDiscount(LineItem $discountItem): bool
     {
         return empty($discountItem->getPayloadValue('code'));
+    }
+
+    private function getPromotionEntity(string $promotionId, Cart $cart): ?PromotionEntity
+    {
+        $promotionsData = $cart
+            ->getData()
+            ->get('promotions-code');
+
+        if (!$promotionsData instanceof CartPromotionsDataDefinition) {
+            return null;
+        }
+
+        return $promotionsData->findCodeById($promotionId);
     }
 }

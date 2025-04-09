@@ -272,6 +272,7 @@ class PromotionItemBuilder
         }
 
         $payload['filter'] = [
+            'considerAdvancedRules' => false, // TODO: first idea
             'sorterKey' => null,
             'applierKey' => null,
             'usageKey' => null,
@@ -279,7 +280,9 @@ class PromotionItemBuilder
         ];
 
         if ($discount->isConsiderAdvancedRules()) {
+            $payload['considerAdvancedRules'] = '1'; // TODO: second idea. No bool cause of return type
             $payload['filter'] = [
+                'considerAdvancedRules' => true,
                 'sorterKey' => $discount->getSorterKey(),
                 'applierKey' => $discount->getApplierKey(),
                 'usageKey' => $discount->getUsageKey(),

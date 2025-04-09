@@ -2,9 +2,9 @@
  * @sw-package inventory
  */
 
+import shuffle from 'lodash/shuffle';
 import template from './sw-product-stream-modal-preview.html.twig';
 import './sw-product-stream-modal-preview.scss';
-import shuffle from 'lodash/shuffle';
 
 const { Context } = Shopware;
 const { Criteria } = Shopware.Data;
@@ -286,7 +286,7 @@ export default {
                 'name',
                 'createdAt',
                 'cheapestPrice',
-                'releaseDate'
+                'releaseDate',
             ];
 
             fields = shuffle(fields);

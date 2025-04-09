@@ -34,7 +34,7 @@ class InAppPurchasesController
     public function activeExtensionInAppPurchases(Context $context): JsonResponse
     {
         return new JsonResponse(
-            ['inAppPurchases' => $this->inAppPurchase->getByExtension($this->getAppName($context))]
+            ['inAppPurchases' => $this->inAppPurchase->getJWTByExtension($this->getAppName($context)) ?? []]
         );
     }
 

@@ -1,6 +1,6 @@
 ---
 title: Fix SEO URLs for landing pages in footer navigation
-issue: NEXT-3784
+issue: #3784
 author: Devin AI
 author_email: devin-ai-integration[bot]@users.noreply.github.com
 author_github: devin-ai-integration

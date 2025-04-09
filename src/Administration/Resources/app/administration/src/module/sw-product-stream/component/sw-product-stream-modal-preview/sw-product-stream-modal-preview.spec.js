@@ -360,12 +360,13 @@ describe('src/module/sw-product-stream/component/sw-product-stream-modal-preview
 
         await wrapper.setData({ sorting: 'random' });
         const criteria = wrapper.vm.previewCriteria;
-        expect(criteria.sortings.length).toBe(2);
+        const sortings = criteria.sortings;
+        expect(sortings).toHaveLength(2);
 
         const allowedFields = ['name', 'createdAt', 'cheapestPrice', 'releaseDate'];
         const validDirections = ['ASC', 'DESC'];
 
-        criteria.sortings.forEach((sorting) => {
+        sortings.forEach((sorting) => {
             expect(allowedFields).toContain(sorting.field);
             expect(validDirections).toContain(sorting.order);
         });
@@ -378,7 +379,7 @@ describe('src/module/sw-product-stream/component/sw-product-stream-modal-preview
         wrapper.vm.addRandomSort(criteria);
 
         const sortings = criteria.sortings;
-        expect(sortings.length).toBe(2);
+        expect(sortings).toHaveLength(2);
 
         const allowedFields = ['name', 'createdAt', 'cheapestPrice', 'releaseDate'];
         const validDirections = ['ASC', 'DESC'];

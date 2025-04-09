@@ -310,14 +310,25 @@ class NavigationRoute extends AbstractNavigationRoute
     private function setSeoUrlToInternalLink(CategoryCollection $categories, SalesChannelContext $context): void
     {
         foreach ($categories as $category) {
-            if ($category->getType() === CategoryDefinition::TYPE_LINK
-                && $category->getLinkType() !== CategoryDefinition::LINK_TYPE_EXTERNAL) {
-                $plainUrl = $this->categoryUrlGenerator->generate($category, $context->getSalesChannel());
-                if ($plainUrl !== null) {
-                    $url = $this->seoUrlReplacer->replace($plainUrl, '', $context);
-                    $category->setInternalLink($url);
-                }
+            if ($category->getType() !== CategoryDefinition::TYPE_LINK
+                || $category->getLinkType() === CategoryDefinition::LINK_TYPE_EXTERNAL) {
+                continue;
             }
+            
+            $internalLink = $category->getInternalLink();
+            
+            if (!$internalLink) {
+                continue;
+            }
+            
+            $plainUrl = $this->categoryUrlGenerator->generate($category, $context->getSalesChannel());
+            
+            if ($plainUrl === null) {
+                continue;
+            }
+            
+            $seoUrl = $this->seoUrlReplacer->replace($plainUrl, '', $context);
+            $category->setInternalLink($seoUrl);
         }
     }
 }

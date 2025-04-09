@@ -40,8 +40,8 @@ test('Guest customer is able to add and remove products to the wishlist',{ tag: 
 
     await test.step('Login as customer and verify product1 is still in wishlist', async () => {
         await ShopCustomer.attemptsTo(Login());
-        await ShopCustomer.goesTo(StorefrontHome.url());
         await ShopCustomer.expects(StorefrontHome.wishlistBasket).toHaveText('1');
+        await ShopCustomer.goesTo(StorefrontHome.url());
         await ShopCustomer.expects(product1Locators.wishlistAddedIcon).toBeVisible();
     });
 

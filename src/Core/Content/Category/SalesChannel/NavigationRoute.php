@@ -320,7 +320,6 @@ class NavigationRoute extends AbstractNavigationRoute
                 $tempCategory = new CategoryEntity();
                 $tempCategory->setId($category->getInternalLink());
                 $tempCategory->setType(CategoryDefinition::TYPE_PAGE);
-                
                 $plainUrl = $this->categoryUrlGenerator->generate($tempCategory, $context->getSalesChannel());
             } else {
                 $plainUrl = $this->categoryUrlGenerator->generate($category, $context->getSalesChannel());
@@ -331,7 +330,6 @@ class NavigationRoute extends AbstractNavigationRoute
             }
 
             $seoUrl = $this->seoUrlReplacer->replace($plainUrl, '', $context);
-            
             if ($seoUrl !== '/' && strpos($seoUrl, '/') !== false) {
                 $category->setInternalLink($seoUrl);
             }

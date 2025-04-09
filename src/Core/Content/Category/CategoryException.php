@@ -3,6 +3,7 @@
 namespace Shopware\Core\Content\Category;
 
 use Shopware\Core\Content\Category\Exception\CategoryNotFoundException;
+use Shopware\Core\Content\Category\Exception\InvalidCategoryIdException;
 use Shopware\Core\Content\Cms\Exception\PageNotFoundException;
 use Shopware\Core\Framework\HttpException;
 use Shopware\Core\Framework\Log\Package;
@@ -25,6 +26,11 @@ class CategoryException extends HttpException
     public static function categoryNotFound(string $id): ShopwareHttpException
     {
         return new CategoryNotFoundException($id);
+    }
+
+    public static function invalidCategoryId(string $categoryId): InvalidCategoryIdException
+    {
+        return new InvalidCategoryIdException($categoryId);
     }
 
     public static function serviceCategoryNotFoundForSalesChannel(string $salesChannelName): self

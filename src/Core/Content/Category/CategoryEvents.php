@@ -3,6 +3,7 @@
 namespace Shopware\Core\Content\Category;
 
 use Shopware\Core\Content\Category\Event\CategoryIndexerEvent;
+use Shopware\Core\Content\Category\Event\SalesChannelCategoryIdsFetched;
 use Shopware\Core\Framework\Log\Package;
 
 #[Package('discovery')]
@@ -13,6 +14,8 @@ class CategoryEvents
     final public const CATEGORY_DELETED_EVENT = 'category.deleted';
 
     final public const CATEGORY_LOADED_EVENT = 'category.loaded';
+
+    final public const SALES_CHANNEL_CATEGORY_IDS_FETCHED_EVENT = SalesChannelCategoryIdsFetched::NAME;
 
     final public const CATEGORY_SEARCH_RESULT_LOADED_EVENT = 'category.search.result.loaded';
 

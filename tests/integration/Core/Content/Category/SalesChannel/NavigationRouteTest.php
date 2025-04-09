@@ -4,6 +4,7 @@ namespace Shopware\Tests\Integration\Core\Content\Category\SalesChannel;
 
 use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Content\Category\CategoryDefinition;
 use Shopware\Core\Content\Product\Aggregate\ProductVisibility\ProductVisibilityDefinition;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
@@ -262,6 +263,8 @@ class NavigationRouteTest extends TestCase
 
     /**
      * Helper method to request the footer navigation with SEO URLs
+     *
+     * @return array<string, mixed>
      */
     private function requestFooterNavigationWithSeoUrls(): array
     {
@@ -307,12 +310,14 @@ class NavigationRouteTest extends TestCase
 
         $response = $this->requestFooterNavigationWithSeoUrls();
 
+        $originalUrl = null;
         foreach ($response as $category) {
             if ($category['id'] === $this->ids->get('category3') && $category['linkType'] === CategoryDefinition::LINK_TYPE_LANDING_PAGE) {
                 static::assertStringContainsString('test-landing-page', $category['internalLink']);
                 $originalUrl = $category['internalLink'];
             }
         }
+        static::assertNotNull($originalUrl, 'Could not find category with landing page link');
 
         $this->createSeoUrl(
             'frontend.landing.page',
@@ -355,12 +360,14 @@ class NavigationRouteTest extends TestCase
 
         $response = $this->requestFooterNavigationWithSeoUrls();
 
+        $originalUrl = null;
         foreach ($response as $category) {
             if ($category['id'] === $this->ids->get('category4') && $category['linkType'] === CategoryDefinition::LINK_TYPE_PRODUCT) {
                 static::assertStringContainsString('/detail/' . $productId, $category['internalLink']);
                 $originalUrl = $category['internalLink'];
             }
         }
+        static::assertNotNull($originalUrl, 'Could not find category with product link');
 
         $this->createSeoUrl(
             'frontend.detail.page',
@@ -392,12 +399,14 @@ class NavigationRouteTest extends TestCase
 
         $response = $this->requestFooterNavigationWithSeoUrls();
 
+        $originalUrl = null;
         foreach ($response as $category) {
             if ($category['id'] === $this->ids->get('category3') && $category['linkType'] === CategoryDefinition::LINK_TYPE_CATEGORY) {
                 static::assertNotEmpty($category['internalLink']);
                 $originalUrl = $category['internalLink'];
             }
         }
+        static::assertNotNull($originalUrl, 'Could not find category with category link');
 
         $this->createSeoUrl(
             'frontend.navigation.page',

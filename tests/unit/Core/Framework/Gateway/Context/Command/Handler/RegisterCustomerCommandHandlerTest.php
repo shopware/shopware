@@ -40,6 +40,8 @@ class RegisterCustomerCommandHandlerTest extends TestCase
                 'billing' => new DataBag(['foo' => 'bar']),
                 'shipping' => new DataBag(['baz' => 'bat']),
                 'vatIds' => new DataBag(['vatId1', 'vatId2']),
+                'billingAddress' => ['foo' => 'bar'],
+                'shippingAddress' => ['baz' => 'bat'],
             ]
         );
 

@@ -26,15 +26,15 @@ class RegisterCustomerCommandHandler extends AbstractContextGatewayCommandHandle
      */
     public function handle(AbstractContextGatewayCommand $command, SalesChannelContext $context, array &$parameters): void
     {
-        $payload = $command->data;
-        $data['billing'] = new DataBag($payload['billingAddress']);
+        $data = $command->data;
+        $data['billing'] = new DataBag($data['billingAddress']);
 
-        if (isset($payload['shippingAddress'])) {
-            $data['shipping'] = new DataBag($payload['shippingAddress']);
+        if (isset($data['shippingAddress'])) {
+            $data['shipping'] = new DataBag($data['shippingAddress']);
         }
 
-        if (isset($payload['vatIds'])) {
-            $data['vatIds'] = new DataBag($payload['vatIds']);
+        if (isset($data['vatIds'])) {
+            $data['vatIds'] = new DataBag($data['vatIds']);
         }
 
         $data = new RequestDataBag($data);

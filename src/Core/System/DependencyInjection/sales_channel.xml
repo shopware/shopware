@@ -223,7 +223,7 @@
 
         <!-- Context Gateway -->
 
-        <service id="Shopware\Core\Framework\Gateway\Context\SalesChannel\ContextGatewayRoute">
+        <service id="Shopware\Core\Framework\Gateway\Context\SalesChannel\ContextGatewayRoute" public="true">
             <argument type="service" id="Shopware\Core\Framework\App\Context\Gateway\AppContextGateway"/>
             <argument type="service" id="Shopware\Core\Framework\Gateway\Context\Command\Executor\ContextGatewayCommandExecutor"/>
         </service>
@@ -271,6 +271,11 @@
             <argument type="service" id="country.repository"/>
             <argument type="service" id="country_state.repository"/>
             <argument type="service" id="Shopware\Core\Framework\Log\ExceptionLogger"/>
+            <tag name="shopware.context.gateway.command"/>
+        </service>
+
+        <service id="Shopware\Core\Framework\Gateway\Context\Command\Handler\LoginCustomerCommandHandler">
+            <argument type="service" id="Shopware\Core\Checkout\Customer\SalesChannel\AccountService"/>
             <tag name="shopware.context.gateway.command"/>
         </service>
 

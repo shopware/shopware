@@ -1,6 +1,9 @@
 # Changelog
 This is the official changelog index of Shopware 6. Here you find a registry of all Shopware 6 releases with a reference to the detailed changelog of each version. If you want to know more about how the changelog is created have a look [here](/adr/workflow/2020-08-03-implement-New-Changelog.md).
 
+## 6.6.10.3
+*  [ANA-217 - Add shopware.usage_data.collection_enabled config to improve usage of shopware.usage_data.gateway.dispatch_enabled](./changelog/release-6-6-10-3/2025-02-28-add-shopware-usage-data-collection-enabled-config-to-improve-usage-of-shopware-usage-data-gateway-dispatch-enabled.md)
+
 ## 6.6.10.2
 *  [#6964 - Fix updates for Composer plugins](./changelog/release-6-6-10-2/2025-03-03-fix-updates-for-composer-plugins.md)
 *  [#7153 - Put ajax modal buttons behind accessibility flag](./changelog/release-6-6-10-2/2025-03-03-put-ajax-modal-buttons-behind-accessibility-flag.md)
@@ -112,7 +115,7 @@ This is the official changelog index of Shopware 6. Here you find a registry of 
 *  [#6360 - Change sidebar support link styles](./changelog/release-6-6-10-0/2025-01-22-change-sidebar-support-link-styles.md)
 *  [#6368 - Fix `EntitySearchResult` entity types](./changelog/release-6-6-10-0/2025-01-23-fix-entity-search-result-entity-types.md) ([Benjamin Wittwer](https://github.com/akf-bw))
 *  [#6402 - Added live updates for cart changes in the Storefront](./changelog/release-6-6-10-0/2025-01-23-assertive-cart-live-updates.md)
-*  [#6448 - Make Rule classes final](./changelog/release-6-6-10-0/2025-01-29-make-rule-classes-final.md)
+*  [#6448 - Make Rule classes internal](./changelog/release-6-6-10-0/2025-01-29-make-rule-classes-internal.md)
 *  [#6462 - Fixed the listing when using the browser back button and filters](./changelog/release-6-6-10-0/2025-01-28-fix-history-back-for-listing-filters.md)
 *  [#6474 - Fix data grid inline edit](./changelog/release-6-6-10-0/2025-01-29-fix-data-grid-inline-edit.md) ([Iván Tajes Vidal](https://github.com/Iván Tajes Vidal))
 *  [#6490 - Add addTrailingSlash option to url field](./changelog/release-6-6-10-0/2025-01-30-add-addtrailingslash-option-to-url-field.md) ([Iván Tajes Vidal](https://github.com/Iván Tajes Vidal))

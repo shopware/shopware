@@ -32,6 +32,10 @@
     "card": {
       "buttonImitateCustomer": "Als Kunde anmelden",
       "tooltipImitateCustomerGuest": "Gastbesteller können nicht imitiert werden.",
+      "tooltipImitateCustomerInactive": "Inaktive Kunden können nicht imitiert werden.",
+      "tooltipImitateCustomerInactiveSalesChannel": "Der Verkaufskanal des Kunden ist inaktiv.",
+      "tooltipImitateCustomerNoDomain": "Der Verkaufskanal des Kunden hat keine Domain.",
+      "tooltipImitateCustomerNoStorefront": "Der Verkaufskanal des Kunden ist nicht vom Typ Storefront.",
       "placeholderTitle": "Titel",
       "placeholderFirstName": "Vorname",
       "placeholderLastName": "Nachname",

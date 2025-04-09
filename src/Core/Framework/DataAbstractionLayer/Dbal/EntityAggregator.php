@@ -121,15 +121,24 @@ class EntityAggregator implements EntityAggregatorInterface
         }
     }
 
+    private function validateAggregation(Aggregation $aggregation): void
+    {
+        if (str_contains($aggregation->getName(), '?') || str_contains($aggregation->getName(), ':')) {
+            throw DataAbstractionLayerException::invalidAggregationName($aggregation->getName());
+        }
+
+        if ($aggregation instanceof BucketAggregation && $aggregation->getAggregation()) {
+            $this->validateAggregation($aggregation->getAggregation());
+        }
+    }
+
     private function fetchAggregation(
         Aggregation $aggregation,
         EntityDefinition $definition,
         Criteria $criteria,
         Context $context
     ): AggregationResult {
-        if (str_contains($aggregation->getName(), '?') || str_contains($aggregation->getName(), ':')) {
-            throw DataAbstractionLayerException::invalidAggregationName($aggregation->getName());
-        }
+        $this->validateAggregation($aggregation);
 
         $clone = clone $criteria;
         $clone->resetAggregations();

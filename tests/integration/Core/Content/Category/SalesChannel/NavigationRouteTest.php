@@ -376,8 +376,6 @@ class NavigationRouteTest extends TestCase
         }
     }
 
-
-
     /**
      * Helper method to create a pre-configured SEO URL for an entity
      */

@@ -61,9 +61,15 @@
 
                         {% block sw_order_detail_general_line_items_summary_shipping_cost %}
                         <template v-if="delivery">
-                            <dt>{{ $tc('sw-order.detailBase.summaryLabelShippingCosts') }}</dt>
+                            <!-- eslint-disable-next-line vuejs-accessibility/click-events-have-key-events, vuejs-accessibility/no-static-element-interactions -->
+                            <dt
+                                @click="$refs.editShippingCosts.onClick()"
+                            >
+                                {{ $tc('sw-order.detailBase.summaryLabelShippingCosts') }}
+                            </dt>
                             <dd>
                                 <sw-order-saveable-field
+                                    ref="editShippingCosts"
                                     v-tooltip="{
                                         showDelay: 300,
                                         message: shippingCostsDetail,
@@ -71,6 +77,7 @@
                                     }"
                                     type="number"
                                     :editable="acl.can('order.editor')"
+                                    :step="1"
                                     :value="delivery.shippingCosts.totalPrice"
                                     @value-change="onShippingChargeEdited"
                                     @update:value="onShippingChargeUpdated"

@@ -1,7 +1,7 @@
 import { MtDatepicker as MtDatepickerOriginal } from '@shopware-ag/meteor-component-library';
 import type { PropType } from 'vue';
 // eslint-disable-next-line max-len
-import type {DateTimeOptions} from "vue-i18n";
+import type { DateTimeOptions } from 'vue-i18n';
 import template from './mt-datepicker.html.twig';
 
 /**
@@ -53,9 +53,9 @@ Shopware.Component.register('mt-datepicker', {
          * Options: "date" (for selecting a date), or "datetime" (for selecting both).
          */
         dateType: {
-            type: String as PropType<"date" | "datetime" | "time">,
+            type: String as PropType<'date' | 'datetime' | 'time'>,
             required: false,
-            default: "datetime",
+            default: 'datetime',
         },
 
         /**

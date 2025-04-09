@@ -420,7 +420,7 @@ class InfoControllerTest extends TestCase
         static::assertArrayHasKey('SomeFunctionalityBundle', $config['bundles']);
 
         static::assertStringEndsWith(
-            '/bundles/some-functionality-bundle/administration/js/some-functionality-bundle.js',
+            '/bundles/somefunctionality/administration/js/some-functionality-bundle.js',
             (string) $config['bundles']['SomeFunctionalityBundle']['js'][0]
         );
     }

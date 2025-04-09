@@ -478,8 +478,7 @@ class RegisterRoute extends AbstractRegisterRoute
         if (!$isGuest) {
             $minLength = $this->systemConfigService->get('core.loginRegistration.passwordMinLength', $context->getSalesChannelId());
             $validation->add('password', new NotBlank(), new Length(['min' => $minLength]));
-            $options = ['context' => $context->getContext(), 'salesChannelContext' => $context];
-            $validation->add('email', new CustomerEmailUnique($options));
+            $validation->add('email', new CustomerEmailUnique(['salesChannelContext' => $context]));
         }
 
         $validationEvent = new BuildValidationEvent($validation, $data, $context->getContext());

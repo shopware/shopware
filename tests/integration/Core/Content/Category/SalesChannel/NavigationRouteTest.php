@@ -8,6 +8,7 @@ use Shopware\Core\Content\Category\CategoryDefinition;
 use Shopware\Core\Content\Category\Service\AbstractCategoryUrlGenerator;
 use Shopware\Core\Content\Product\Aggregate\ProductVisibility\ProductVisibilityDefinition;
 use Shopware\Core\Content\Seo\SeoUrl\SeoUrlEntity;
+use Shopware\Core\Content\Test\Product\ProductBuilder;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
@@ -297,7 +298,7 @@ class NavigationRouteTest extends TestCase
     public function testProductInternalLinkHasSeoUrl(): void
     {
         $productId = Uuid::randomHex();
-        $productBuilder = new \Shopware\Core\Content\Test\Product\ProductBuilder($this->ids, 'TEST-1234');
+        $productBuilder = new ProductBuilder($this->ids, 'TEST-1234');
         $productBuilder->id = $productId;
         $productBuilder
             ->name('Test Product')

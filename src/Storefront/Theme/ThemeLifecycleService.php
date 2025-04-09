@@ -126,6 +126,8 @@ class ThemeLifecycleService
         if ($configurationCollection === null) {
             $configurationCollection = $this->pluginRegistry->getConfigurations();
         }
+
+        $this->runtimeConfigService->resetCaches();
         // we don't resolve files as theme can be refreshed before it's built
         $this->runtimeConfigService->refreshRuntimeConfig($themeData['id'], $themeData['technicalName'], $context, false, $configurationCollection);
     }

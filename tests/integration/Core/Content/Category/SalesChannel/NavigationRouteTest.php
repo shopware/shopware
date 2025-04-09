@@ -7,6 +7,7 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Category\CategoryDefinition;
 use Shopware\Core\Content\Category\Service\AbstractCategoryUrlGenerator;
 use Shopware\Core\Content\Product\Aggregate\ProductVisibility\ProductVisibilityDefinition;
+use Shopware\Core\Content\Seo\SeoUrl\SeoUrlEntity;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
@@ -429,8 +430,10 @@ class NavigationRouteTest extends TestCase
             'foreignKey' => $entityId,
         ];
 
-        if ($existingSeoUrls->count() > 0) {
-            $data['id'] = $existingSeoUrls->first()->getId();
+        if ($existingSeoUrls->count() > 0 && $existingSeoUrls->first() !== null) {
+            /** @var SeoUrlEntity $seoUrl */
+            $seoUrl = $existingSeoUrls->first();
+            $data['id'] = $seoUrl->getId();
         } else {
             $data['id'] = Uuid::randomHex();
         }

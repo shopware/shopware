@@ -21,6 +21,8 @@ trait KernelTestBehaviour
     {
         $container = static::getKernel()->getContainer();
 
+        dd(static::getKernel()->getEnvironment());
+
         if (!$container->has('test.service_container')) {
             throw new \RuntimeException('Unable to run tests against kernel without test.service_container');
         }

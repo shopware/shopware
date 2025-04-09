@@ -99,7 +99,7 @@ class ContextGatewayControllerTest extends TestCase
 
         $error = $errors[0];
 
-        static::assertSame('App "test_app" did not provide checkout gateway response', $error);
+        static::assertSame('App "test_app" did not provide context gateway response', $error);
     }
 
     private function createStubContainerWithFlashBag(): ContainerInterface

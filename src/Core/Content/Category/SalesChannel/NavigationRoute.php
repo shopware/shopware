@@ -330,7 +330,7 @@ class NavigationRoute extends AbstractNavigationRoute
             }
 
             $seoUrl = $this->seoUrlReplacer->replace($plainUrl, '', $context);
-            if ($seoUrl !== '/' && strpos($seoUrl, '/') !== false) {
+            if ($seoUrl !== '/' && str_contains($seoUrl, '/')) {
                 $category->setInternalLink($seoUrl);
             }
         }

@@ -15,7 +15,7 @@ use Shopware\Core\Migration\V6_6\Migration1696515133AddCheckoutGatewayUrl;
  */
 #[CoversClass(Migration1696515133AddCheckoutGatewayUrl::class)]
 #[Package('framework')]
-class Migration1696515133AddCheckoutGatewayUrlTest extends TestCase
+class Migration1743151679AddContextGatewayUrlTest extends TestCase
 {
     use ColumnExistsTrait;
     use KernelTestBehaviour;

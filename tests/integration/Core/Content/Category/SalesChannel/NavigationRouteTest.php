@@ -371,15 +371,15 @@ class NavigationRouteTest extends TestCase
             }
         }
     }
-    
+
     public function testInternalLinkWithNullPlainUrl(): void
     {
         $mockUrlGenerator = $this->createMock(AbstractCategoryUrlGenerator::class);
         $mockUrlGenerator->method('generate')->willReturn(null);
-        
+
         $container = $this->getContainer();
         $container->set('Shopware\Core\Content\Category\Service\CategoryUrlGenerator', $mockUrlGenerator);
-        
+
         $this->getContainer()->get('category.repository')->update([
             [
                 'id' => $this->ids->get('category3'),
@@ -388,7 +388,7 @@ class NavigationRouteTest extends TestCase
                 'internalLink' => $this->ids->get('category'),
             ],
         ], Context::createDefaultContext());
-        
+
         $originalLink = 'original-link-value';
         $this->getContainer()->get('category.repository')->update([
             [
@@ -396,9 +396,9 @@ class NavigationRouteTest extends TestCase
                 'internalLink' => $originalLink,
             ],
         ], Context::createDefaultContext());
-        
+
         $response = $this->requestFooterNavigationWithSeoUrls();
-        
+
         foreach ($response as $category) {
             if ($category['id'] === $this->ids->get('category3') && $category['linkType'] === CategoryDefinition::LINK_TYPE_CATEGORY) {
                 static::assertEquals($originalLink, $category['internalLink']);

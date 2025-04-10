@@ -59,7 +59,7 @@ class OrderTransactionStatusRule extends FlowRule
             }
 
             /** @var OrderTransactionEntity $last */
-            $last = $scope->getOrder()->getPrimaryOrderTransaction();
+            $last = $transactions->last();
             $paymentMethodId = $last->getStateId();
 
             foreach ($transactions->getElements() as $transaction) {

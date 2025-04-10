@@ -359,7 +359,6 @@ class RecalculationService
     {
         $criteria = (new Criteria([$orderId]))
             ->addAssociations([
-                'primaryOrderTransaction',
                 'primaryOrderDelivery',
                 'lineItems.downloads',
                 'transactions.stateMachineState',

@@ -10,6 +10,7 @@ use Shopware\Core\Content\Category\Exception\CategoryNotFoundException;
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\InconsistentCriteriaIdsException;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Routing\RoutingException;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
@@ -55,19 +56,26 @@ class AccountOrderDetailPageLoader
 
         $criteria = new Criteria([$orderId]);
         $criteria
-            ->addAssociation('primaryOrderDelivery')
-            ->addAssociation('primaryOrderTransaction')
+            ->addAssociation('primaryOrderTransaction.paymentMethod')
+            ->addAssociation('primaryOrderTransaction.stateMachineState')
+            ->addAssociation('primaryOrderDelivery.shippingMethod')
+            ->addAssociation('primaryOrderDelivery.stateMachineState')
             ->addAssociation('lineItems')
             ->addAssociation('orderCustomer')
             ->addAssociation('stateMachineState')
-            ->addAssociation('transactions.paymentMethod')
-            ->addAssociation('transactions.stateMachineState')
             ->addAssociation('deliveries.shippingMethod')
-            ->addAssociation('deliveries.stateMachineState')
             ->addAssociation('lineItems.cover');
 
-        $criteria->getAssociation('transactions')
-            ->addSorting(new FieldSorting('createdAt'));
+        if (!Feature::isActive('v6.8.0.0')) {
+            $criteria
+                ->addAssociation('transactions.paymentMethod')
+                ->addAssociation('transactions.stateMachineState')
+                ->addAssociation('deliveries.stateMachineState');
+
+            $criteria
+                ->getAssociation('transactions')
+                ->addSorting(new FieldSorting('createdAt'));
+        }
 
         $apiRequest = $request->duplicate();
 

@@ -298,7 +298,7 @@ class OrderConverter
 
         $orderShippingAddressId = $order->getPrimaryOrderDelivery()?->getShippingOrderAddressId();
 
-        if (Feature::isActive('v6.8.0.0')) {
+        if (!Feature::isActive('v6.8.0.0')) {
             $orderShippingAddressId = $order->getDeliveries()?->first()?->getShippingOrderAddressId() ?? '';
         }
 

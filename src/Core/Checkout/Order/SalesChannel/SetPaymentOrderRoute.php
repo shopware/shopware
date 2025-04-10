@@ -236,7 +236,8 @@ class SetPaymentOrderRoute extends AbstractSetPaymentOrderRoute
     private function loadOrder(string $orderId, SalesChannelContext $context): OrderEntity
     {
         $criteria = (new Criteria([$orderId]))
-            ->addAssociation('transactions');
+            ->addAssociation('transactions')
+            ->addAssociation('primaryOrderTransaction.stateMachineState');
 
         $criteria->getAssociation('transactions')
             ->addSorting(new FieldSorting('createdAt'));
@@ -247,8 +248,6 @@ class SetPaymentOrderRoute extends AbstractSetPaymentOrderRoute
         $criteria
             ->addFilter(new EqualsFilter('order.orderCustomer.customerId', $customer->getId()))
             ->addAssociations([
-                'primaryOrderDelivery',
-                'primaryOrderTransaction.stateMachineState',
                 'lineItems',
                 'deliveries.shippingOrderAddress',
                 'deliveries.stateMachineState',

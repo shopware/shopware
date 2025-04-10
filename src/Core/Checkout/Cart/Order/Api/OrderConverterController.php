@@ -36,7 +36,6 @@ class OrderConverterController extends AbstractController
     {
         $criteria = (new Criteria([$orderId]))
             ->addAssociation('primaryOrderDelivery')
-            ->addAssociation('primaryOrderTransaction')
             ->addAssociation('lineItems')
             ->addAssociation('transactions.stateMachineState')
             ->addAssociation('deliveries.shippingMethod')

@@ -6,11 +6,9 @@ author_email: hannes.wernery@pickware.de
 author_github: @hanneswernery
 ---
 # Core
-* Added `primaryOrderDelivery` to `Core/Checkout/Order/OrderDefinition.php` to reference the primary order
-  delivery that is shown in the Administration for direct access and management of the delivery (e.g. changing the state)
-* Added `primaryOrderTransaction` to `Core/Checkout/Order/OrderDefinition.php` to reference the primary order
-  transaction that is shown in the Administration for direct access and management of the transaction (e.g. changing the state)
-* Added `Core/Migration/V6_7/Migration1728040169AddPrimaryOrderDeliveryAndTransaction.php` to rows and update existing orders
+* Added `primaryOrderDelivery` to `Core/Checkout/Order/OrderDefinition.php` to reference the primary order delivery that is shown in the Administration for direct access and management of the delivery (e.g. changing the state)
+* Added `primaryOrderTransaction` to `Core/Checkout/Order/OrderDefinition.php` to reference the primary order transaction that is shown in the Administration for direct access and management of the transaction (e.g. changing the state)
+* Added `Core/Migration/V6_7/Migration1728040169AddPrimaryOrderDelivery.php` and `Core/Migration/V6_7/Migration1728040170AddPrimaryOrderTransaction.php` to add new rows and update existing orders
 * Changed `Core/Checkout/Cart/Order/OrderConverter.php` to set the primaryOrderDelivery (delivery with the highest shipping costs)
 ___
 # Administration
@@ -24,9 +22,7 @@ ___
   * `src/module/sw-order/view/sw-order-detail-general`
 ___
 # Upgrade Information
-Currently, there are multiple order deliveries and multiple order transactions per order.
-If only one, the "primary", order delivery and order transaction is displayed and used in the administration, there is now an easy way in version 6.8 using the `primaryOrderDelivery` and `primaryOrderTransaction`.
-All existing orders will be updated with a migration so that they also have the primary values.
+Currently, there are multiple order deliveries and multiple order transactions per order. If only one, the "primary", order delivery and order transaction is displayed and used in the administration, there is now an easy way in version 6.8 using the `primaryOrderDelivery` and `primaryOrderTransaction`. All existing orders will be updated with a migration so that they also have the primary values.
 ## Use `primaryOrderDelivery` 
 Get the first order delivery with `primaryOrderDelivery` so you should replace methods like `deliveries.first()` or `deliveries[0]`
 ## Use `primaryOrderTransaction`

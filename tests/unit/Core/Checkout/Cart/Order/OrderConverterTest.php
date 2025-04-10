@@ -652,6 +652,7 @@ class OrderConverterTest extends TestCase
         $order = $this->getOrder();
         $order->setBillingAddressId('order-billing-address-id');
         $delivery = $order->getDeliveries()?->first();
+        $order->setPrimaryOrderDelivery($delivery);
         static::assertNotNull($delivery);
         $delivery->setShippingOrderAddressId('order-shipping-address-id');
 

@@ -14,6 +14,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Storefront\Event\RouteRequest\OrderRouteRequestEvent;
@@ -121,12 +122,10 @@ class AccountOrderPageLoader
 
         $criteria = (new Criteria())
             ->addSorting(new FieldSorting('order.createdAt', FieldSorting::DESCENDING))
-            ->addAssociation('primaryOrderDelivery')
-            ->addAssociation('primaryOrderTransaction')
-            ->addAssociation('transactions.paymentMethod')
-            ->addAssociation('transactions.stateMachineState')
-            ->addAssociation('deliveries.shippingMethod')
-            ->addAssociation('deliveries.stateMachineState')
+            ->addAssociation('primaryOrderTransaction.paymentMethod')
+            ->addAssociation('primaryOrderTransaction.stateMachineState')
+            ->addAssociation('primaryOrderDelivery.shippingMethod')
+            ->addAssociation('primaryOrderDelivery.stateMachineState')
             ->addAssociation('orderCustomer.customer')
             ->addAssociation('lineItems')
             ->addAssociation('lineItems.cover')
@@ -141,9 +140,17 @@ class AccountOrderPageLoader
             ->setOffset(($page - 1) * self::DEFAULT_LIMIT)
             ->setTotalCountMode(Criteria::TOTAL_COUNT_MODE_EXACT);
 
-        $criteria
-            ->getAssociation('transactions')
-            ->addSorting(new FieldSorting('createdAt'));
+        if (!Feature::isActive('v6.8.0.0')) {
+            $criteria
+                ->addAssociation('transactions.paymentMethod')
+                ->addAssociation('transactions.stateMachineState')
+                ->addAssociation('deliveries.stateMachineState')
+                ->addAssociation('deliveries.shippingMethod');
+
+            $criteria
+                ->getAssociation('transactions')
+                ->addSorting(new FieldSorting('createdAt'));
+        }
 
         $criteria
             ->addSorting(new FieldSorting('orderDateTime', FieldSorting::DESCENDING));

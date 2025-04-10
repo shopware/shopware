@@ -187,6 +187,7 @@ class PromotionItemBuilder
         $promotionItem->setPayload($discount->getPayload());
         $promotionItem->setPriceDefinition($priceDefinition);
         $promotionItem->setPrice($price);
+        $promotionItem->setExtensions($discount->getExtensions());
 
         return $promotionItem;
     }

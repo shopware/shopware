@@ -13,6 +13,7 @@ use Shopware\Core\Checkout\Cart\Order\OrderConversionContext;
 use Shopware\Core\Checkout\Cart\Order\OrderConverter;
 use Shopware\Core\Checkout\Cart\Order\RecalculationService;
 use Shopware\Core\Checkout\Cart\Order\Transformer\CartTransformer;
+use Shopware\Core\Checkout\Cart\Price\Struct\CalculatedPrice;
 use Shopware\Core\Checkout\Cart\Price\Struct\CartPrice;
 use Shopware\Core\Checkout\Cart\Processor;
 use Shopware\Core\Checkout\Cart\RuleLoaderResult;
@@ -82,14 +83,8 @@ class RecalculationServiceTest extends TestCase
     {
         $lineItem = new LineItem(Uuid::randomHex(), LineItem::CUSTOM_LINE_ITEM_TYPE);
 
-        $deliveryEntity = new OrderDeliveryEntity();
-        $deliveryEntity->setId(Uuid::randomHex());
-        $deliveryEntity->setStateId(Uuid::randomHex());
-
-        $deliveries = new OrderDeliveryCollection([$deliveryEntity]);
-
         $orderEntity = $this->orderEntity();
-        $orderEntity->setDeliveries($deliveries);
+        $orderEntity->setDeliveries(new OrderDeliveryCollection([$this->orderDeliveryEntity()]));
         $cart = $this->getCart();
         $cart->add($lineItem);
 
@@ -137,12 +132,23 @@ class RecalculationServiceTest extends TestCase
                 $salesChannelContext->method('getTaxState')
                     ->willReturn(CartPrice::TAX_STATE_FREE);
 
-                return CartTransformer::transform(
+                $order = CartTransformer::transform(
                     $cart,
                     $salesChannelContext,
                     '',
                     $conversionContext->shouldIncludeOrderDate()
                 );
+
+                // add empty delivery to trigger settings the state id
+                if ($conversionContext->shouldIncludeDeliveries()) {
+                    $order['deliveries'] = [[
+                        'id' => Uuid::randomHex(),
+                        'stateId' => 'some-random-state-id',
+                        'shippingCosts' => new CalculatedPrice(0, 0, new CalculatedTaxCollection(), new TaxRuleCollection()),
+                    ]];
+                }
+
+                return $order;
             });
 
         $this->cartRuleLoader
@@ -163,24 +169,19 @@ class RecalculationServiceTest extends TestCase
             $entityRepository,
             $entityRepository,
             $entityRepository,
+            $entityRepository,
             $this->createMock(Processor::class),
             $this->cartRuleLoader,
             $this->createMock(PromotionItemBuilder::class)
         );
 
-        $recalculationService->recalculateOrder($orderEntity->getId(), $this->context);
+        $recalculationService->recalculate($orderEntity->getId(), $this->context);
     }
 
     public function testAddProductToOrder(): void
     {
-        $deliveryEntity = new OrderDeliveryEntity();
-        $deliveryEntity->setId(Uuid::randomHex());
-        $deliveryEntity->setStateId(Uuid::randomHex());
-
-        $deliveries = new OrderDeliveryCollection([$deliveryEntity]);
-
         $order = $this->orderEntity();
-        $order->setDeliveries($deliveries);
+        $order->setDeliveries(new OrderDeliveryCollection([$this->orderDeliveryEntity()]));
 
         $entityRepository = $this->createMock(EntityRepository::class);
         $entityRepository->method('search')->willReturnOnConsecutiveCalls(
@@ -192,9 +193,7 @@ class RecalculationServiceTest extends TestCase
             ->method('upsert')
             ->willReturnCallback(function (array $data) use ($order) {
                 static::assertSame($data[0]['stateId'], $order->getStateId());
-                static::assertNotNull($data[0]['deliveries']);
-                static::assertNotNull($data[0]['deliveries'][0]);
-                static::assertSame($data[0]['deliveries'][0]['stateId'], $order->getDeliveries()?->first()?->getStateId());
+                static::assertFalse(isset($data[0]['deliveries']));
 
                 return new EntityWrittenContainerEvent(Context::createDefaultContext(), new NestedEventCollection([
                     new EntityWrittenEvent('order', [new EntityWriteResult('created-id', [], 'order', EntityWriteResult::OPERATION_INSERT)], $this->context),
@@ -213,6 +212,7 @@ class RecalculationServiceTest extends TestCase
             $this->orderConverter,
             $this->createMock(CartService::class),
             $productRepository,
+            $entityRepository,
             $entityRepository,
             $entityRepository,
             $entityRepository,
@@ -256,6 +256,7 @@ class RecalculationServiceTest extends TestCase
             $entityRepository,
             $entityRepository,
             $entityRepository,
+            $entityRepository,
             $this->createMock(Processor::class),
             $this->cartRuleLoader,
             $this->createMock(PromotionItemBuilder::class)
@@ -285,9 +286,7 @@ class RecalculationServiceTest extends TestCase
             ->method('upsert')
             ->willReturnCallback(function (array $data) use ($order) {
                 static::assertSame($data[0]['stateId'], $order->getStateId());
-                static::assertNotNull($data[0]['deliveries']);
-                static::assertNotNull($data[0]['deliveries'][0]);
-                static::assertSame($data[0]['deliveries'][0]['stateId'], $order->getDeliveries()?->first()?->getStateId());
+                static::assertFalse(isset($data[0]['deliveries']));
 
                 return new EntityWrittenContainerEvent(Context::createDefaultContext(), new NestedEventCollection([
                     new EntityWrittenEvent('order', [new EntityWriteResult('created-id', [], 'order', EntityWriteResult::OPERATION_INSERT)], $this->context),
@@ -308,6 +307,7 @@ class RecalculationServiceTest extends TestCase
             $this->orderConverter,
             $this->createMock(CartService::class),
             $productRepository,
+            $entityRepository,
             $entityRepository,
             $entityRepository,
             $entityRepository,
@@ -354,6 +354,7 @@ class RecalculationServiceTest extends TestCase
             $entityRepository,
             $entityRepository,
             $entityRepository,
+            $entityRepository,
             $this->createMock(Processor::class),
             $this->cartRuleLoader,
             $this->createMock(PromotionItemBuilder::class)
@@ -362,6 +363,9 @@ class RecalculationServiceTest extends TestCase
         $recalculationService->addPromotionLineItem($order->getId(), '', $this->context);
     }
 
+    /**
+     * @deprecated tag:v6.8.0 - Will be removed without replacement
+     */
     public function testToggleAutomaticPromotion(): void
     {
         $order = $this->orderEntity();
@@ -380,12 +384,21 @@ class RecalculationServiceTest extends TestCase
             ->method('convertToOrder')
             ->with(static::anything(), static::anything(), static::callback(static function (OrderConversionContext $context) {
                 return $context->shouldIncludeDeliveries();
-            }));
+            }))
+            ->willReturnCallback(function (Cart $cart, SalesChannelContext $context, OrderConversionContext $conversionContext) {
+                return CartTransformer::transform(
+                    $cart,
+                    $context,
+                    '',
+                    $conversionContext->shouldIncludeOrderDate()
+                );
+            });
 
         $recalculationService = new RecalculationService(
             $entityRepository,
             $this->orderConverter,
             $this->createMock(CartService::class),
+            $entityRepository,
             $entityRepository,
             $entityRepository,
             $entityRepository,
@@ -443,12 +456,13 @@ class RecalculationServiceTest extends TestCase
             $entityRepository,
             $entityRepository,
             $entityRepository,
+            $entityRepository,
             $this->createMock(Processor::class),
             $this->cartRuleLoader,
             $this->createMock(PromotionItemBuilder::class)
         );
 
-        $recalculationService->recalculateOrder($orderEntity->getId(), $this->context);
+        $recalculationService->recalculate($orderEntity->getId(), $this->context);
     }
 
     private function orderEntity(): OrderEntity
@@ -460,6 +474,21 @@ class RecalculationServiceTest extends TestCase
         $order->setStateId(Uuid::randomHex());
 
         return $order;
+    }
+
+    private function orderDeliveryEntity(int $price = 0): OrderDeliveryEntity
+    {
+        $delivery = new OrderDeliveryEntity();
+        $delivery->setId(Uuid::randomHex());
+        $delivery->setStateId(Uuid::randomHex());
+        $delivery->setShippingCosts(new CalculatedPrice(
+            $price,
+            $price,
+            new CalculatedTaxCollection(),
+            new TaxRuleCollection(),
+        ));
+
+        return $delivery;
     }
 
     private function getCart(): Cart

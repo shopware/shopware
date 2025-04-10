@@ -58,7 +58,7 @@ public function loadCombinations(string $productId, SalesChannelContext $salesCh
 
 The `loadCombinations` method has been made abstract so it must be implemented. The `SalesChannelContext` instance, contains the data which was previously in the defined on the `load` method. 
 
-`$salesChannelId` can be replaced with `$salesChannelContext->getSalesChannel()->getId()`.
+`$salesChannelId` can be replaced with `$salesChannelContext->getSalesChannelId()`.
 
 `$context` can be replaced with `$salesChannelContext->getContext()`.
 

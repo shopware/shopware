@@ -1,5 +1,5 @@
 /**
- * @package admin
+ * @sw-package framework
  */
 
 import { mount } from '@vue/test-utils';
@@ -19,12 +19,9 @@ describe('src/component/grid/sw-pagination', () => {
     }
 
     function getPositionOfActiveButton() {
-        const allPageButtons = wrapper.findAll(
-            '.sw-pagination__list-item :not(span.sw-pagination__list-separator)',
-        );
+        const allPageButtons = wrapper.findAll('.sw-pagination__list-item :not(span.sw-pagination__list-separator)');
 
-        return allPageButtons
-            .findIndex(currentElement => currentElement.attributes('class').includes('is-active'));
+        return allPageButtons.findIndex((currentElement) => currentElement.attributes('class').includes('is-active'));
     }
 
     async function checkNextPage(currentPage, direction, arrowButton) {
@@ -65,9 +62,6 @@ describe('src/component/grid/sw-pagination', () => {
             },
             global: {
                 stubs: {
-                    'sw-icon': {
-                        template: '<div class="icon"></div>',
-                    },
                     'sw-field': {
                         template: '<div class="field"></div>',
                     },
@@ -87,13 +81,13 @@ describe('src/component/grid/sw-pagination', () => {
     });
 
     it('should have two arrow icons', async () => {
-        const [leftArrow, rightArrow] = wrapper.findAll('div.icon');
+        const [
+            leftArrow,
+            rightArrow,
+        ] = wrapper.findAll('.mt-icon');
 
-        expect(leftArrow.exists()).toBe(true);
-        expect(leftArrow.attributes('name')).toBe('regular-chevron-left-xs');
-
-        expect(rightArrow.exists()).toBe(true);
-        expect(rightArrow.attributes('name')).toBe('regular-chevron-right-xs');
+        expect(leftArrow.classes()).toContain('icon--regular-chevron-left-xs');
+        expect(rightArrow.classes()).toContain('icon--regular-chevron-right-xs');
     });
 
     it('should have the right amount of elements', async () => {
@@ -134,7 +128,10 @@ describe('src/component/grid/sw-pagination', () => {
     });
 
     it('should navigate to another page via arrows', async () => {
-        const [leftArrow, rightArrow] = wrapper.findAll('div.icon');
+        const [
+            leftArrow,
+            rightArrow,
+        ] = wrapper.findAll('.mt-icon');
 
         expect(getActivePage().text()).toBe('1');
 
@@ -148,7 +145,7 @@ describe('src/component/grid/sw-pagination', () => {
     });
 
     it('should emit event when clicking on an arrow', async () => {
-        const rightArrow = wrapper.find('div.icon[name="regular-chevron-right-xs"]');
+        const rightArrow = wrapper.find('.mt-icon.icon--regular-chevron-right-xs');
 
         await rightArrow.trigger('click');
 
@@ -211,7 +208,10 @@ describe('src/component/grid/sw-pagination', () => {
 
     it('should navigate through complete pagination only with arrows', async () => {
         const startingPoint = wrapper.vm.currentPage;
-        const [leftArrow, rightArrow] = wrapper.findAll('div.icon');
+        const [
+            leftArrow,
+            rightArrow,
+        ] = wrapper.findAll('div.icon');
 
         await checkNextPage(startingPoint, 'right', rightArrow);
 
@@ -259,7 +259,11 @@ describe('src/component/grid/sw-pagination', () => {
     it('should return correct range', async () => {
         const range = wrapper.vm.range(1, 3);
 
-        expect(range).toEqual([1, 2, 3]);
+        expect(range).toEqual([
+            1,
+            2,
+            3,
+        ]);
     });
 
     it('should be visible when autoHide is set to false', async () => {
@@ -279,7 +283,7 @@ describe('src/component/grid/sw-pagination', () => {
 
         expect(wrapper.find('.sw-pagination__list-button.is-active').exists()).toBe(true);
 
-        const rightArrow = wrapper.find('div.icon[name="regular-chevron-right-xs"]');
+        const rightArrow = wrapper.find('.icon--regular-chevron-right-xs');
         await rightArrow.trigger('click');
 
         expect(wrapper.findAll('.sw-pagination__list-button')).toHaveLength(3);

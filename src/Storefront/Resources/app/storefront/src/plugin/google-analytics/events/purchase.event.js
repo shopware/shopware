@@ -1,5 +1,4 @@
 import AnalyticsEvent from 'src/plugin/google-analytics/analytics-event';
-import DomAccessHelper from 'src/helper/dom-access.helper';
 import LineItemHelper from 'src/plugin/google-analytics/line-item.helper';
 
 export default class PurchaseEvent extends AnalyticsEvent
@@ -13,13 +12,14 @@ export default class PurchaseEvent extends AnalyticsEvent
             return;
         }
 
-        const orderNumberElement = DomAccessHelper.querySelector(document, '.finish-ordernumber');
-
+        const orderNumberElement = document.querySelector('.finish-ordernumber');
         if (!orderNumberElement) {
+            console.warn('Cannot get order number element - Skip order tracking');
+
             return;
         }
 
-        const orderNumber = DomAccessHelper.getDataAttribute(orderNumberElement, 'order-number');
+        const orderNumber = orderNumberElement.getAttribute('data-order-number');
         if (!orderNumber) {
             console.warn('Cannot determine order number - Skip order tracking');
 

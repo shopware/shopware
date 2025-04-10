@@ -16,7 +16,7 @@ use Symfony\Component\Cache\Adapter\AdapterInterface;
 /**
  * @internal
  */
-#[Package('core')]
+#[Package('framework')]
 class CustomEntityPersister
 {
     public function __construct(

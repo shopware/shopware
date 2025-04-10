@@ -15,13 +15,14 @@ use Shopware\Core\System\SalesChannel\Context\SalesChannelContextPersister;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextService;
 use Shopware\Core\System\SalesChannel\ContextTokenResponse;
 use Shopware\Core\System\SalesChannel\Event\SalesChannelContextSwitchEvent;
+use Shopware\Core\System\SalesChannel\Event\SwitchContextEvent;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\Validator\Constraints\Type;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
 #[Route(defaults: ['_routeScope' => ['store-api']])]
-#[Package('core')]
+#[Package('framework')]
 class ContextSwitchRoute extends AbstractContextSwitchRoute
 {
     private const SHIPPING_METHOD_ID = SalesChannelContextService::SHIPPING_METHOD_ID;
@@ -76,11 +77,15 @@ class ContextSwitchRoute extends AbstractContextSwitchRoute
             ->add(self::STATE_ID, new Type('string'))
         ;
 
+        $event = new SwitchContextEvent($data, $context, $definition, $parameters);
+        $this->eventDispatcher->dispatch($event, SwitchContextEvent::CONSISTENT_CHECK);
+        $parameters = $event->getParameters();
+
         $this->validator->validate($parameters, $definition);
 
         $addressCriteria = new Criteria();
         if ($context->getCustomer()) {
-            $addressCriteria->addFilter(new EqualsFilter('customer_address.customerId', $context->getCustomer()->getId()));
+            $addressCriteria->addFilter(new EqualsFilter('customer_address.customerId', $context->getCustomerId()));
         } else {
             // do not allow to set address ids if the customer is not logged in
             if (isset($parameters[self::SHIPPING_ADDRESS_ID])) {
@@ -92,36 +97,35 @@ class ContextSwitchRoute extends AbstractContextSwitchRoute
             }
         }
 
-        $currencyCriteria = new Criteria();
-        $currencyCriteria->addFilter(
-            new EqualsFilter('currency.salesChannels.id', $context->getSalesChannel()->getId())
-        );
+        $salesChannelId = $context->getSalesChannelId();
+        $frameworkContext = $context->getContext();
 
-        $languageCriteria = new Criteria();
-        $languageCriteria->addFilter(
-            new EqualsFilter('language.salesChannels.id', $context->getSalesChannel()->getId())
-        );
+        $currencyCriteria = (new Criteria())
+            ->addFilter(new EqualsFilter('currency.salesChannels.id', $salesChannelId));
 
-        $paymentMethodCriteria = new Criteria();
-        $paymentMethodCriteria->addFilter(
-            new EqualsFilter('payment_method.salesChannels.id', $context->getSalesChannel()->getId())
-        );
+        $languageCriteria = (new Criteria())
+            ->addFilter(new EqualsFilter('language.salesChannels.id', $salesChannelId));
 
-        $shippingMethodCriteria = new Criteria();
-        $shippingMethodCriteria->addFilter(
-            new EqualsFilter('shipping_method.salesChannels.id', $context->getSalesChannel()->getId())
-        );
+        $paymentMethodCriteria = (new Criteria())
+            ->addFilter(new EqualsFilter('payment_method.salesChannels.id', $salesChannelId));
+
+        $shippingMethodCriteria = (new Criteria())
+            ->addFilter(new EqualsFilter('shipping_method.salesChannels.id', $salesChannelId));
 
         $definition
-            ->add(self::LANGUAGE_ID, new EntityExists(['entity' => 'language', 'context' => $context->getContext(), 'criteria' => $languageCriteria]))
-            ->add(self::CURRENCY_ID, new EntityExists(['entity' => 'currency', 'context' => $context->getContext(), 'criteria' => $currencyCriteria]))
-            ->add(self::SHIPPING_METHOD_ID, new EntityExists(['entity' => 'shipping_method', 'context' => $context->getContext(), 'criteria' => $shippingMethodCriteria]))
-            ->add(self::PAYMENT_METHOD_ID, new EntityExists(['entity' => 'payment_method', 'context' => $context->getContext(), 'criteria' => $paymentMethodCriteria]))
-            ->add(self::BILLING_ADDRESS_ID, new EntityExists(['entity' => 'customer_address', 'context' => $context->getContext(), 'criteria' => $addressCriteria]))
-            ->add(self::SHIPPING_ADDRESS_ID, new EntityExists(['entity' => 'customer_address', 'context' => $context->getContext(), 'criteria' => $addressCriteria]))
-            ->add(self::COUNTRY_ID, new EntityExists(['entity' => 'country', 'context' => $context->getContext()]))
-            ->add(self::STATE_ID, new EntityExists(['entity' => 'country_state', 'context' => $context->getContext()]))
+            ->add(self::LANGUAGE_ID, new EntityExists(['entity' => 'language', 'context' => $frameworkContext, 'criteria' => $languageCriteria]))
+            ->add(self::CURRENCY_ID, new EntityExists(['entity' => 'currency', 'context' => $frameworkContext, 'criteria' => $currencyCriteria]))
+            ->add(self::SHIPPING_METHOD_ID, new EntityExists(['entity' => 'shipping_method', 'context' => $frameworkContext, 'criteria' => $shippingMethodCriteria]))
+            ->add(self::PAYMENT_METHOD_ID, new EntityExists(['entity' => 'payment_method', 'context' => $frameworkContext, 'criteria' => $paymentMethodCriteria]))
+            ->add(self::BILLING_ADDRESS_ID, new EntityExists(['entity' => 'customer_address', 'context' => $frameworkContext, 'criteria' => $addressCriteria]))
+            ->add(self::SHIPPING_ADDRESS_ID, new EntityExists(['entity' => 'customer_address', 'context' => $frameworkContext, 'criteria' => $addressCriteria]))
+            ->add(self::COUNTRY_ID, new EntityExists(['entity' => 'country', 'context' => $frameworkContext]))
+            ->add(self::STATE_ID, new EntityExists(['entity' => 'country_state', 'context' => $frameworkContext]))
         ;
+
+        $event = new SwitchContextEvent($data, $context, $definition, $parameters);
+        $this->eventDispatcher->dispatch($event, SwitchContextEvent::DATABASE_CHECK);
+        $parameters = $event->getParameters();
 
         $this->validator->validate($parameters, $definition);
 
@@ -129,7 +133,7 @@ class ContextSwitchRoute extends AbstractContextSwitchRoute
         $this->contextPersister->save(
             $context->getToken(),
             $parameters,
-            $context->getSalesChannel()->getId(),
+            $salesChannelId,
             $customer && empty($context->getPermissions()) ? $customer->getId() : null
         );
 

@@ -6,7 +6,7 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Struct\Struct;
 use Symfony\Component\Serializer\NameConverter\CamelCaseToSnakeCaseNameConverter;
 
-#[Package('storefront')]
+#[Package('framework')]
 class StorefrontPluginConfiguration extends Struct
 {
     /**
@@ -32,8 +32,6 @@ class StorefrontPluginConfiguration extends Struct
     protected FileCollection $scriptFiles;
 
     protected ?string $storefrontEntryFilepath = null;
-
-    protected string $basePath;
 
     /**
      * @var array<int, string>
@@ -129,16 +127,6 @@ class StorefrontPluginConfiguration extends Struct
     public function setStorefrontEntryFilepath(?string $storefrontEntryFilepath): void
     {
         $this->storefrontEntryFilepath = $storefrontEntryFilepath;
-    }
-
-    public function getBasePath(): string
-    {
-        return $this->basePath ?? '';
-    }
-
-    public function setBasePath(string $basePath): void
-    {
-        $this->basePath = $basePath;
     }
 
     /**

@@ -1,5 +1,5 @@
 /**
- * @package buyers-experience
+ * @sw-package discovery
  */
 import { mount } from '@vue/test-utils';
 import { setupCmsEnvironment } from 'src/module/sw-cms/test-utils';
@@ -24,22 +24,24 @@ const defaultElement = {
 };
 
 async function createWrapper(element = defaultElement) {
-    return mount(await wrapTestComponent('sw-cms-el-cross-selling', {
-        sync: true,
-    }), {
-        props: {
-            element,
-        },
-        global: {
-            stubs: {
-                'sw-cms-el-product-box': true,
-                'sw-icon': true,
+    return mount(
+        await wrapTestComponent('sw-cms-el-cross-selling', {
+            sync: true,
+        }),
+        {
+            props: {
+                element,
             },
-            provide: {
-                cmsService: Shopware.Service('cmsService'),
+            global: {
+                stubs: {
+                    'sw-cms-el-product-box': true,
+                },
+                provide: {
+                    cmsService: Shopware.Service('cmsService'),
+                },
             },
         },
-    });
+    );
 }
 
 describe('module/sw-cms/elements/cross-selling/component', () => {
@@ -49,7 +51,7 @@ describe('module/sw-cms/elements/cross-selling/component', () => {
     });
 
     afterEach(() => {
-        Shopware.Store.get('cmsPageState').resetCmsPageState();
+        Shopware.Store.get('cmsPage').resetCmsPageState();
     });
 
     it('getProductEl applies props to the config object', async () => {

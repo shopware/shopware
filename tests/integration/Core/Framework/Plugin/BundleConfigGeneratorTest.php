@@ -3,11 +3,12 @@
 namespace Shopware\Tests\Integration\Core\Framework\Plugin;
 
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Framework\App\Source\SourceResolver;
 use Shopware\Core\Framework\Plugin\BundleConfigGenerator;
 use Shopware\Core\Framework\Plugin\BundleConfigGeneratorInterface;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
+use Shopware\Core\Test\AppSystemTestBehaviour;
 use Shopware\Storefront\Theme\StorefrontPluginRegistry;
-use Shopware\Tests\Integration\Core\Framework\App\AppSystemTestBehaviour;
 
 /**
  * @internal
@@ -24,14 +25,19 @@ class BundleConfigGeneratorTest extends TestCase
     protected function setUp(): void
     {
         $this->fixturePath = __DIR__ . '/../../../../../src/Core/Framework/Test/Plugin/_fixture/';
-        $this->configGenerator = $this->getContainer()->get(BundleConfigGenerator::class);
+        $this->configGenerator = static::getContainer()->get(BundleConfigGenerator::class);
+    }
+
+    protected function tearDown(): void
+    {
+        static::getContainer()->get(SourceResolver::class)->reset();
     }
 
     public function testGenerateAppConfigWithThemeAndScriptAndStylePaths(): void
     {
         $appPath = $this->fixturePath . 'apps/theme/';
         $this->loadAppsFromDir($appPath);
-        $projectDir = $this->getContainer()->getParameter('kernel.project_dir');
+        $projectDir = static::getContainer()->getParameter('kernel.project_dir');
 
         if (mb_strpos($appPath, $projectDir) === 0) {
             // make relative
@@ -59,7 +65,7 @@ class BundleConfigGeneratorTest extends TestCase
         static::assertNull($storefrontConfig['webpack']);
 
         // Style files can and need only be imported if storefront is installed
-        if ($this->getContainer()->has(StorefrontPluginRegistry::class)) {
+        if (static::getContainer()->has(StorefrontPluginRegistry::class)) {
             $appPath = 'src/Core/Framework/Test/Plugin/_fixture/apps/theme/';
             $expectedStyles = [
                 $appPath . 'Resources/app/storefront/src/scss/base.scss',
@@ -75,14 +81,14 @@ class BundleConfigGeneratorTest extends TestCase
         $this->loadAppsFromDir($appPath);
 
         $configs = $this->configGenerator->getConfig();
-        $projectDir = $this->getContainer()->getParameter('kernel.project_dir');
+        $projectDir = static::getContainer()->getParameter('kernel.project_dir');
 
         static::assertArrayHasKey('SwagApp', $configs);
 
         $appConfig = $configs['SwagApp'];
         static::assertEquals(
-            $appPath,
-            $projectDir . '/' . $appConfig['basePath']
+            realpath($appPath),
+            realpath($projectDir . '/' . $appConfig['basePath'])
         );
         static::assertEquals(['Resources/views'], $appConfig['views']);
         static::assertEquals('swag-app', $appConfig['technicalName']);
@@ -96,15 +102,15 @@ class BundleConfigGeneratorTest extends TestCase
         static::assertNull($storefrontConfig['webpack']);
 
         // Style files can and need only be imported if storefront is installed
-        if ($this->getContainer()->has(StorefrontPluginRegistry::class)) {
+        if (static::getContainer()->has(StorefrontPluginRegistry::class)) {
             if (mb_strpos($appPath, $projectDir) === 0) {
                 // make relative
-                $appPath = ltrim(mb_substr($appPath, mb_strlen($projectDir)), '/');
+                $appPath = ltrim(mb_substr((string) realpath($appPath), mb_strlen($projectDir)), '/');
             }
 
             // Only base.scss from /_fixture/apps/plugin/ should be included
             $expectedStyles = [
-                $appPath . 'Resources/app/storefront/src/scss/base.scss',
+                $appPath . '/Resources/app/storefront/src/scss/base.scss',
             ];
 
             static::assertEquals($expectedStyles, $storefrontConfig['styleFiles']);
@@ -133,7 +139,7 @@ class BundleConfigGeneratorTest extends TestCase
         $appConfig = $configs['SwagTest'];
         static::assertEquals(
             $appPath,
-            $this->getContainer()->getParameter('kernel.project_dir') . '/' . $appConfig['basePath']
+            static::getContainer()->getParameter('kernel.project_dir') . '/' . $appConfig['basePath']
         );
         static::assertEquals(['Resources/views'], $appConfig['views']);
         static::assertEquals('swag-test', $appConfig['technicalName']);

@@ -28,9 +28,9 @@ class ExtensionDownloaderTest extends TestCase
 
     protected function setUp(): void
     {
-        $this->extensionDownloader = $this->getContainer()->get(ExtensionDownloader::class);
+        $this->extensionDownloader = static::getContainer()->get(ExtensionDownloader::class);
 
-        @mkdir($this->getContainer()->getParameter('kernel.app_dir'), 0777, true);
+        @mkdir(static::getContainer()->getParameter('kernel.app_dir'), 0777, true);
     }
 
     public function testDownloadExtension(): void
@@ -42,7 +42,7 @@ class ExtensionDownloaderTest extends TestCase
         $context = $this->createAdminStoreContext();
 
         $this->extensionDownloader->download('TestApp', $context);
-        $expectedLocation = $this->getContainer()->getParameter('kernel.app_dir') . '/TestApp';
+        $expectedLocation = static::getContainer()->getParameter('kernel.app_dir') . '/TestApp';
 
         static::assertFileExists($expectedLocation);
         (new Filesystem())->remove($expectedLocation);
@@ -65,13 +65,13 @@ class ExtensionDownloaderTest extends TestCase
     {
         static::expectException(StoreException::class);
 
-        $this->getContainer()->get('plugin.repository')->create(
+        static::getContainer()->get('plugin.repository')->create(
             [
                 [
                     'name' => 'TestApp',
                     'label' => 'TestApp',
                     'baseClass' => 'TestApp',
-                    'path' => $this->getContainer()->getParameter('kernel.project_dir') . '/vendor/swag/TestApp',
+                    'path' => static::getContainer()->getParameter('kernel.project_dir') . '/vendor/swag/TestApp',
                     'autoload' => [],
                     'version' => '1.0.0',
                     'managedByComposer' => true,
@@ -89,10 +89,10 @@ class ExtensionDownloaderTest extends TestCase
         $this->getStoreRequestHandler()->append(new Response(200, [], '{"location": "http://localhost/my.zip", "type": "app"}'));
         $this->getStoreRequestHandler()->append(new Response(200, [], (string) file_get_contents(__DIR__ . '/../_fixtures/TestApp.zip')));
 
-        $pluginPath = $this->getContainer()->getParameter('kernel.plugin_dir') . '/TestApp';
-        $projectPath = $this->getContainer()->getParameter('kernel.project_dir');
+        $pluginPath = static::getContainer()->getParameter('kernel.plugin_dir') . '/TestApp';
+        $projectPath = static::getContainer()->getParameter('kernel.project_dir');
 
-        $this->getContainer()->get('plugin.repository')->create(
+        static::getContainer()->get('plugin.repository')->create(
             [
                 [
                     'name' => 'TestApp',
@@ -110,7 +110,7 @@ class ExtensionDownloaderTest extends TestCase
         $context = $this->createAdminStoreContext();
 
         $this->extensionDownloader->download('TestApp', $context);
-        $expectedLocation = $this->getContainer()->getParameter('kernel.app_dir') . '/TestApp';
+        $expectedLocation = static::getContainer()->getParameter('kernel.app_dir') . '/TestApp';
 
         static::assertFileExists($expectedLocation);
         (new Filesystem())->remove($expectedLocation);

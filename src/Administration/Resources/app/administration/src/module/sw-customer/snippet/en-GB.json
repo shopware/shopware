@@ -31,6 +31,11 @@
     },
     "card": {
       "buttonImitateCustomer": "Log in as customer",
+      "tooltipImitateCustomerGuest": "Guest customers cannot be imitated.",
+      "tooltipImitateCustomerInactive": "Inactive customers cannot be imitated.",
+      "tooltipImitateCustomerInactiveSalesChannel": "The customers Sales Channel is not active.",
+      "tooltipImitateCustomerNoDomain": "The Sales Channel of the customer has no domain configured.",
+      "tooltipImitateCustomerNoStorefront": "The Sales Channel of the customer is not of type Storefront.",
       "placeholderTitle": "Title",
       "placeholderFirstName": "First name",
       "placeholderLastName": "Last name",
@@ -53,6 +58,7 @@
       "textCustomers": "Customers",
       "textCustomersTotal": "No customer | One customer | {count} customers",
       "buttonAddCustomer": "Add customer",
+      "columnCompany": "Company",
       "columnCustomerNumber": "Customer number",
       "columnName": "Name",
       "columnGroup": "Customer group",
@@ -78,7 +84,6 @@
       "contextMenuEdit": "Edit",
       "messageEmpty": "No customers yet",
       "textDeleteConfirm": "Are you sure you want to delete the customer \"{name}\"?",
-      "buttonCancel": "Cancel",
       "buttonDelete": "Delete",
       "titleSidebarItemRefresh": "Refresh",
       "titleSidebarItemFilter": "Filter",
@@ -155,10 +160,7 @@
     },
     "detailAddresses": {
       "buttonAddAddress": "Add address",
-      "buttonAdd": "Add",
-      "buttonCancel": "Cancel",
       "buttonClose": "Close",
-      "buttonApply": "Apply",
       "buttonDelete": "Delete",
       "buttonSelect": "Select",
       "buttonSaveAndSelect": "Save and select",
@@ -235,7 +237,6 @@
     },
     "detail": {
       "buttonSave": "Save",
-      "buttonCancel": "Cancel",
       "buttonEdit": "Edit",
       "tabGeneral": "General",
       "tabAddresses": "Addresses",
@@ -258,10 +259,6 @@
         "label": "Status",
         "placeholder": "Select status..."
       },
-      "defaultPaymentMethod": {
-        "label": "Default payment method",
-        "placeholder": "Select default payment method..."
-      },
       "customerGroup": {
         "label": "Customer group",
         "placeholder": "Select customer group..."
@@ -280,11 +277,11 @@
       },
       "affiliateCode": {
         "label": "Affiliate code",
-        "placeholder": "Select affiliate code..."
+        "placeholder": "Enter affiliate code..."
       },
       "campaignCode": {
         "label": "Campaign code",
-        "placeholder": "Select campaign code..."
+        "placeholder": "Enter campaign code..."
       },
       "customerGroupRequest": {
         "label": "Customer group requests",

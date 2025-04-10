@@ -11,10 +11,15 @@ use Shopware\Core\Framework\Script\Debugging\ScriptTraces;
 /**
  * @phpstan-type FeatureFlagConfig array{name?: string, default?: boolean, major?: boolean, description?: string, active?: bool, static?: bool}
  */
-#[Package('core')]
+#[Package('framework')]
 class Feature
 {
     final public const ALL_MAJOR = 'major';
+
+    /**
+     * @internal
+     */
+    public static bool $emitDeprecations = true;
 
     /**
      * @var array<bool>
@@ -230,22 +235,24 @@ class Feature
 
     public static function triggerDeprecationOrThrow(string $majorFlag, string $message): void
     {
+        if (!self::$emitDeprecations || !empty(self::$silent[$majorFlag])) {
+            return;
+        }
+
         if (self::isActive($majorFlag) || (self::$registeredFeatures !== [] && !self::has($majorFlag))) {
             throw FeatureException::error('Tried to access deprecated functionality: ' . $message);
         }
 
-        if (empty(self::$silent[$majorFlag])) {
-            if (\PHP_SAPI !== 'cli') {
-                ScriptTraces::addDeprecationNotice($message);
-            }
-
-            if (EnvironmentHelper::getVariable('TESTS_RUNNING')) {
-                // no need to trigger deprecation in tests as we cover all cases of the feature flag behaviour
-                return;
-            }
-
-            trigger_deprecation('shopware/core', '', $message);
+        if (\PHP_SAPI !== 'cli') {
+            ScriptTraces::addDeprecationNotice($message);
         }
+
+        if (EnvironmentHelper::getVariable('TESTS_RUNNING')) {
+            // no need to trigger deprecation in tests as we cover all cases of the feature flag behaviour
+            return;
+        }
+
+        trigger_deprecation('shopware/core', '', $message);
     }
 
     public static function deprecatedMethodMessage(string $class, string $method, string $majorVersion, ?string $replacement = null): string

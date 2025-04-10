@@ -1,7 +1,7 @@
 import template from './sw-settings-tax-rule-modal.html.twig';
 
 /**
- * @package checkout
+ * @sw-package checkout
  */
 
 const { Context } = Shopware;
@@ -12,9 +12,9 @@ const { mapPropertyErrors } = Shopware.Component.getComponentHelper();
 export default {
     template,
 
-    compatConfig: Shopware.compatConfig,
-
-    inject: ['repositoryFactory', 'feature'],
+    inject: [
+        'repositoryFactory',
+    ],
 
     emits: ['modal-close'],
 
@@ -66,7 +66,12 @@ export default {
             return criteria;
         },
 
-        ...mapPropertyErrors('taxRule', ['taxRuleTypeId', 'countryId', 'taxRate', 'activeFrom']),
+        ...mapPropertyErrors('taxRule', [
+            'taxRuleTypeId',
+            'countryId',
+            'taxRate',
+            'activeFrom',
+        ]),
     },
 
     created() {
@@ -92,13 +97,16 @@ export default {
         },
 
         onConfirm() {
-            this.taxRuleRepository.save(this.taxRule, Context.api).then(() => {
-                this.isSaveSuccessful = true;
+            this.taxRuleRepository
+                .save(this.taxRule, Context.api)
+                .then(() => {
+                    this.isSaveSuccessful = true;
 
-                this.$emit('modal-close');
-            }).catch(() => {
-                this.isLoading = false;
-            });
+                    this.$emit('modal-close');
+                })
+                .catch(() => {
+                    this.isLoading = false;
+                });
         },
     },
 };

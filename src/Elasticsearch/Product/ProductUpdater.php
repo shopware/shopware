@@ -3,6 +3,7 @@
 namespace Shopware\Elasticsearch\Product;
 
 use Shopware\Core\Content\Product\Events\ProductIndexerEvent;
+use Shopware\Core\Content\Product\Events\ProductStockAlteredEvent;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Elasticsearch\Framework\Indexing\ElasticsearchIndexer;
@@ -11,7 +12,7 @@ use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 /**
  * @internal
  */
-#[Package('core')]
+#[Package('framework')]
 class ProductUpdater implements EventSubscriberInterface
 {
     /**
@@ -23,17 +24,15 @@ class ProductUpdater implements EventSubscriberInterface
     ) {
     }
 
-    /**
-     * @return array<string, string|array{0: string, 1: int}|list<array{0: string, 1?: int}>>
-     */
     public static function getSubscribedEvents(): array
     {
         return [
             ProductIndexerEvent::class => 'update',
+            ProductStockAlteredEvent::class => 'update',
         ];
     }
 
-    public function update(ProductIndexerEvent $event): void
+    public function update(ProductIndexerEvent|ProductStockAlteredEvent $event): void
     {
         $this->indexer->updateIds($this->definition, $event->getIds());
     }

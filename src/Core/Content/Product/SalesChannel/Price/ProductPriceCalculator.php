@@ -190,7 +190,7 @@ class ProductPriceCalculator extends AbstractProductPriceCalculator
 
         $value = $this->getPriceForTaxState($currency, $context);
 
-        if ($currency->getCurrencyId() !== $context->getCurrency()->getId()) {
+        if ($currency->getCurrencyId() !== $context->getCurrencyId()) {
             $value *= $context->getContext()->getCurrencyFactor();
         }
 
@@ -208,14 +208,14 @@ class ProductPriceCalculator extends AbstractProductPriceCalculator
 
     private function getListPrice(PriceCollection $prices, SalesChannelContext $context): ?float
     {
-        $price = $prices->getCurrencyPrice($context->getCurrency()->getId());
+        $price = $prices->getCurrencyPrice($context->getCurrencyId());
         if ($price === null || $price->getListPrice() === null) {
             return null;
         }
 
         $value = $this->getPriceForTaxState($price->getListPrice(), $context);
 
-        if ($price->getCurrencyId() !== $context->getCurrency()->getId()) {
+        if ($price->getCurrencyId() !== $context->getCurrencyId()) {
             $value *= $context->getContext()->getCurrencyFactor();
         }
 
@@ -224,18 +224,19 @@ class ProductPriceCalculator extends AbstractProductPriceCalculator
 
     private function getRegulationPrice(PriceCollection $prices, SalesChannelContext $context): ?float
     {
-        $price = $prices->getCurrencyPrice($context->getCurrency()->getId());
+        $price = $prices->getCurrencyPrice($context->getCurrencyId());
         if ($price === null || $price->getRegulationPrice() === null) {
             return null;
         }
 
         $taxPrice = $this->getPriceForTaxState($price, $context);
         $value = $this->getPriceForTaxState($price->getRegulationPrice(), $context);
-        if ($taxPrice === 0.0 || $taxPrice === $value) {
+
+        if ($taxPrice === 0.0) {
             return null;
         }
 
-        if ($price->getCurrencyId() !== $context->getCurrency()->getId()) {
+        if ($price->getCurrencyId() !== $context->getCurrencyId()) {
             $value *= $context->getContext()->getCurrencyFactor();
         }
 

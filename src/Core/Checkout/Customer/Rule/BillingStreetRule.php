@@ -3,15 +3,18 @@
 namespace Shopware\Core\Checkout\Customer\Rule;
 
 use Shopware\Core\Checkout\CheckoutRuleScope;
+use Shopware\Core\Checkout\Customer\CustomerException;
 use Shopware\Core\Framework\Log\Package;
-use Shopware\Core\Framework\Rule\Exception\UnsupportedValueException;
 use Shopware\Core\Framework\Rule\Rule;
 use Shopware\Core\Framework\Rule\RuleComparison;
 use Shopware\Core\Framework\Rule\RuleConfig;
 use Shopware\Core\Framework\Rule\RuleConstraints;
 use Shopware\Core\Framework\Rule\RuleScope;
 
-#[Package('services-settings')]
+/**
+ * @final
+ */
+#[Package('fundamentals@after-sales')]
 class BillingStreetRule extends Rule
 {
     final public const RULE_NAME = 'customerBillingStreet';
@@ -41,7 +44,7 @@ class BillingStreetRule extends Rule
         }
 
         if (!\is_string($this->streetName) && $this->operator !== self::OPERATOR_EMPTY) {
-            throw new UnsupportedValueException(\gettype($this->streetName), self::class);
+            throw CustomerException::unsupportedValue(\gettype($this->streetName), self::class);
         }
 
         return RuleComparison::string($address->getStreet(), $this->streetName ?? '', $this->operator);

@@ -4,13 +4,13 @@ namespace Shopware\Core\Framework\Struct;
 
 use Shopware\Core\Framework\Log\Package;
 
-#[Package('core')]
+#[Package('framework')]
 trait StateAwareTrait
 {
     /**
      * @var array<string>
      */
-    private array $states = [];
+    protected array $states = [];
 
     public function addState(string ...$states): void
     {

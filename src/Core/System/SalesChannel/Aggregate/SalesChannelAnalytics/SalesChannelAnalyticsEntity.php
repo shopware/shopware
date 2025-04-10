@@ -7,35 +7,20 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityIdTrait;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\SalesChannelEntity;
 
-#[Package('buyers-experience')]
+#[Package('discovery')]
 class SalesChannelAnalyticsEntity extends Entity
 {
     use EntityIdTrait;
 
-    /**
-     * @var string
-     */
-    protected $trackingId;
+    protected string $trackingId;
 
-    /**
-     * @var bool
-     */
-    protected $active;
+    protected bool $active;
 
-    /**
-     * @var bool
-     */
-    protected $trackOrders;
+    protected bool $trackOrders;
 
-    /**
-     * @var bool
-     */
-    protected $anonymizeIp;
+    protected bool $anonymizeIp;
 
-    /**
-     * @var SalesChannelEntity
-     */
-    protected $salesChannel;
+    protected ?SalesChannelEntity $salesChannel = null;
 
     public function getTrackingId(): string
     {
@@ -77,7 +62,7 @@ class SalesChannelAnalyticsEntity extends Entity
         $this->anonymizeIp = $anonymizeIp;
     }
 
-    public function getSalesChannel(): SalesChannelEntity
+    public function getSalesChannel(): ?SalesChannelEntity
     {
         return $this->salesChannel;
     }

@@ -3,13 +3,11 @@ import template from './sw-shopware-updates-plugins.html.twig';
 const { Component } = Shopware;
 
 /**
- * @package services-settings
+ * @sw-package framework
  * @private
  */
 Component.register('sw-settings-shopware-updates-plugins', {
     template,
-
-    compatConfig: Shopware.compatConfig,
 
     inject: ['feature'],
 
@@ -41,7 +39,9 @@ Component.register('sw-settings-shopware-updates-plugins', {
 
     methods: {
         openMyExtensions() {
-            this.$router.push({ name: 'sw.extension.my-extensions.listing.app' });
+            this.$router.push({
+                name: 'sw.extension.my-extensions.listing.app',
+            });
         },
     },
 });

@@ -8,25 +8,16 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityCustomFieldsTrait;
 use Shopware\Core\Framework\DataAbstractionLayer\TranslationEntity;
 use Shopware\Core\Framework\Log\Package;
 
-#[Package('buyers-experience')]
+#[Package('checkout')]
 class PromotionTranslationEntity extends TranslationEntity
 {
     use EntityCustomFieldsTrait;
 
-    /**
-     * @var string
-     */
-    protected $promotionId;
+    protected string $promotionId;
 
-    /**
-     * @var string|null
-     */
-    protected $name;
+    protected ?string $name = null;
 
-    /**
-     * @var PromotionEntity|null
-     */
-    protected $promotion;
+    protected ?PromotionEntity $promotion = null;
 
     public function getPromotionId(): string
     {

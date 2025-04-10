@@ -1,22 +1,13 @@
 /**
- * @package admin
+ * @sw-package framework
  */
 
 import { mount } from '@vue/test-utils';
 import 'src/app/component/form/sw-file-input';
-import 'src/app/component/base/sw-button';
 import 'src/app/component/context-menu/sw-context-menu-item';
 
 async function createWrapper(customOptions = {}) {
     return mount(await wrapTestComponent('sw-file-input', { sync: true }), {
-        global: {
-            stubs: {
-                'sw-icon': { template: '<div class="sw-icon" @click="$emit(\'click\')"></div>' },
-                'sw-button': await Shopware.Component.build('sw-button'),
-                'mt-button': true,
-                'sw-button-deprecated': true,
-            },
-        },
         ...customOptions,
     });
 }
@@ -37,7 +28,7 @@ describe('src/app/component/form/sw-file-input', () => {
 
         fileInputFilesGet = jest.fn();
         fileInputValueGet = jest.fn().mockReturnValue(fileInputValue);
-        fileInputValueSet = jest.fn().mockImplementation(v => {
+        fileInputValueSet = jest.fn().mockImplementation((v) => {
             fileInputValue = v;
         });
 
@@ -77,11 +68,13 @@ describe('src/app/component/form/sw-file-input', () => {
         });
 
         fileInputValue = 'dummy.pdf';
-        fileInputFilesGet.mockReturnValue([{
-            size: 12345,
-            name: 'dummy.pdf',
-            type: 'application/pdf',
-        }]);
+        fileInputFilesGet.mockReturnValue([
+            {
+                size: 12345,
+                name: 'dummy.pdf',
+                type: 'application/pdf',
+            },
+        ]);
 
         await fileInput.trigger('change');
 
@@ -99,11 +92,13 @@ describe('src/app/component/form/sw-file-input', () => {
         });
 
         fileInputValue = 'dummy.jpg';
-        fileInputFilesGet.mockReturnValue([{
-            size: 12345,
-            name: 'dummy.jpg',
-            type: 'image/jpg',
-        }]);
+        fileInputFilesGet.mockReturnValue([
+            {
+                size: 12345,
+                name: 'dummy.jpg',
+                type: 'image/jpg',
+            },
+        ]);
 
         await fileInput.trigger('change');
 
@@ -120,11 +115,13 @@ describe('src/app/component/form/sw-file-input', () => {
         });
 
         fileInputValue = 'dummy.pdf';
-        fileInputFilesGet.mockReturnValue([{
-            size: 1234,
-            name: 'dummy.pdf',
-            type: 'application/pdf',
-        }]);
+        fileInputFilesGet.mockReturnValue([
+            {
+                size: 1234,
+                name: 'dummy.pdf',
+                type: 'application/pdf',
+            },
+        ]);
 
         await fileInput.trigger('change');
 

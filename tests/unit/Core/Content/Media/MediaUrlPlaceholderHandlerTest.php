@@ -19,19 +19,19 @@ use Shopware\Core\Framework\Uuid\Uuid;
 /**
  * @internal
  */
-#[Package('buyers-experience')]
+#[Package('discovery')]
 #[CoversClass(MediaUrlPlaceholderHandler::class)]
 class MediaUrlPlaceholderHandlerTest extends TestCase
 {
-    private MockObject&Connection $connection;
-
-    private MediaUrlPlaceholderHandlerInterface $mediaUrlPlaceholderHandler;
-
     private const MEDIA1_ID = 'ade8de5aba434c6c8b871e7785d57596';
     private const MEDIA2_ID = 'f120665e491849d38f1a94e912fbc7e3';
     private const MEDIA3_ID = 'b897b4b7c8394387ac88341951816613';
     private const PRODUCT_ID = 'ad518375caa8445caad158291c0c5234';
     private const DATETIME = '2024-05-14 13:37:00';
+
+    private MockObject&Connection $connection;
+
+    private MediaUrlPlaceholderHandlerInterface $mediaUrlPlaceholderHandler;
 
     protected function setUp(): void
     {
@@ -39,7 +39,7 @@ class MediaUrlPlaceholderHandlerTest extends TestCase
         $this->connection->method('getDatabasePlatform')->willReturn($this->createMock(AbstractPlatform::class));
 
         $fileSystemOperator = $this->createMock(Filesystem::class);
-        $fileSystemOperator->expects(static::any())->method('publicUrl')->willReturnCallback(function ($path) {
+        $fileSystemOperator->expects($this->any())->method('publicUrl')->willReturnCallback(function ($path) {
             return 'http://foo.text:8000/' . $path;
         });
 
@@ -86,7 +86,7 @@ class MediaUrlPlaceholderHandlerTest extends TestCase
     public function testReplace(string $content, string $expected): void
     {
         $result = $this->createMock(Result::class);
-        $result->expects(static::any())->method('fetchAllAssociative')->willReturn([
+        $result->expects($this->any())->method('fetchAllAssociative')->willReturn([
             [
                 'id' => Uuid::fromHexToBytes(self::MEDIA1_ID),
                 'path' => 'media/12/34/cat.pdf',

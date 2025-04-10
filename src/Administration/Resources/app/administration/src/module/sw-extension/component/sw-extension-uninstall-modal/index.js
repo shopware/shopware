@@ -2,15 +2,16 @@ import template from './sw-extension-uninstall-modal.html.twig';
 import './sw-extension-uninstall-modal.scss';
 
 /**
- * @package checkout
+ * @sw-package checkout
  * @private
  */
 export default {
     template,
 
-    compatConfig: Shopware.compatConfig,
-
-    emits: ['modal-close', 'uninstall-extension'],
+    emits: [
+        'modal-close',
+        'uninstall-extension',
+    ],
 
     props: {
         extensionName: {
@@ -35,10 +36,9 @@ export default {
 
     computed: {
         title() {
-            return this.$t(
-                'sw-extension-store.component.sw-extension-uninstall-modal.title',
-                { extensionName: this.extensionName },
-            );
+            return this.$t('sw-extension-store.component.sw-extension-uninstall-modal.title', {
+                extensionName: this.extensionName,
+            });
         },
     },
 

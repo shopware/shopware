@@ -5,35 +5,26 @@ namespace Shopware\Core\Framework\Log;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityIdTrait;
 
-#[Package('core')]
+#[Package('framework')]
 class LogEntryEntity extends Entity
 {
     use EntityIdTrait;
 
-    /**
-     * @var string
-     */
-    protected $message;
+    protected string $message;
+
+    protected int $level;
+
+    protected string $channel;
 
     /**
-     * @var int
+     * @var array<string, mixed>|null
      */
-    protected $level;
+    protected ?array $context = null;
 
     /**
-     * @var string
+     * @var array<string, mixed>|null
      */
-    protected $channel;
-
-    /**
-     * @var string|null
-     */
-    protected $context;
-
-    /**
-     * @var string|null
-     */
-    protected $extra;
+    protected ?array $extra = null;
 
     public function getMessage(): string
     {
@@ -65,22 +56,34 @@ class LogEntryEntity extends Entity
         $this->channel = $channel;
     }
 
-    public function getContext(): ?string
+    /**
+     * @return array<string, mixed>|null
+     */
+    public function getContext(): ?array
     {
         return $this->context;
     }
 
-    public function setContext(?string $context): void
+    /**
+     * @param array<string, mixed>|null $context
+     */
+    public function setContext(?array $context): void
     {
         $this->context = $context;
     }
 
-    public function getExtra(): ?string
+    /**
+     * @return array<string, mixed>|null
+     */
+    public function getExtra(): ?array
     {
         return $this->extra;
     }
 
-    public function setExtra(?string $extra): void
+    /**
+     * @param array<string, mixed>|null $extra
+     */
+    public function setExtra(?array $extra): void
     {
         $this->extra = $extra;
     }

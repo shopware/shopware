@@ -9,28 +9,16 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\Country\CountryCollection;
 use Shopware\Storefront\Page\Page;
 
-#[Package('storefront')]
+#[Package('framework')]
 class CheckoutCartPage extends Page
 {
-    /**
-     * @var Cart
-     */
-    protected $cart;
+    protected Cart $cart;
 
-    /**
-     * @var CountryCollection
-     */
-    protected $countries;
+    protected CountryCollection $countries;
 
-    /**
-     * @var PaymentMethodCollection
-     */
-    protected $paymentMethods;
+    protected PaymentMethodCollection $paymentMethods;
 
-    /**
-     * @var ShippingMethodCollection
-     */
-    protected $shippingMethods;
+    protected ShippingMethodCollection $shippingMethods;
 
     public function getCart(): Cart
     {

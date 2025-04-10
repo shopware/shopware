@@ -7,7 +7,7 @@ import './sw-address.scss';
 const { Component } = Shopware;
 
 /**
- * @package admin
+ * @sw-package framework
  *
  * @private
  * @description Component to render a postal address
@@ -27,8 +27,6 @@ const { Component } = Shopware;
  */
 Component.register('sw-address', {
     template,
-
-    compatConfig: Shopware.compatConfig,
 
     props: {
         address: {

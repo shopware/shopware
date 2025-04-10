@@ -1,5 +1,5 @@
 /**
- * @package admin
+ * @sw-package framework
  *
  * @module core/factory/directive
  */
@@ -25,9 +25,11 @@ const pluginPromises = [];
 function addBootPromise() {
     let promiseResolve;
 
-    pluginPromises.push(new Promise((resolve) => {
-        promiseResolve = resolve;
-    }));
+    pluginPromises.push(
+        new Promise((resolve) => {
+            promiseResolve = resolve;
+        }),
+    );
 
     return promiseResolve;
 }

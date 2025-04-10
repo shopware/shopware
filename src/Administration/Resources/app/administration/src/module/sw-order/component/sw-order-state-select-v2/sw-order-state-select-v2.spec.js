@@ -1,7 +1,7 @@
 import { mount } from '@vue/test-utils';
 
 /**
- * @package checkout
+ * @sw-package checkout
  */
 
 describe('src/module/sw-order/component/sw-order-state-select-v2', () => {
@@ -69,15 +69,17 @@ describe('src/module/sw-order/component/sw-order-state-select-v2', () => {
         const singleSelect = wrapper.findComponent('.sw-single-select');
         await singleSelect.vm.$emit('update:value', 'in_progress');
 
-        expect(wrapper.emitted('state-select')[0]).toEqual(['order', 'in_progress']);
+        expect(wrapper.emitted('state-select')[0]).toEqual([
+            'order',
+            'in_progress',
+        ]);
     });
 
     it('should show placeholder correctly', async () => {
         const wrapper = await createWrapper();
         const singleSelect = wrapper.findComponent('.sw-single-select');
 
-        expect(singleSelect.props('placeholder'))
-            .toBe('sw-order.stateCard.labelSelectStatePlaceholder');
+        expect(singleSelect.props('placeholder')).toBe('sw-order.stateCard.labelSelectStatePlaceholder');
 
         await wrapper.setProps({
             placeholder: 'Open',

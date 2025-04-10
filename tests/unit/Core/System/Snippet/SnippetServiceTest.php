@@ -8,6 +8,8 @@ use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
+use Shopware\Core\Framework\Extensions\ExtensionDispatcher;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\Snippet\Files\SnippetFileCollection;
 use Shopware\Core\System\Snippet\Filter\SnippetFilterFactory;
@@ -19,11 +21,13 @@ use Shopware\Storefront\Theme\StorefrontPluginConfiguration\StorefrontPluginConf
 use Shopware\Storefront\Theme\StorefrontPluginRegistry;
 use Shopware\Tests\Unit\Core\System\Snippet\Mock\MockSnippetFile;
 use Symfony\Component\DependencyInjection\ContainerInterface;
+use Symfony\Component\EventDispatcher\EventDispatcher;
 use Symfony\Component\Translation\MessageCatalogue;
 
 /**
  * @internal
  */
+#[Package('discovery')]
 #[CoversClass(SnippetService::class)]
 class SnippetServiceTest extends TestCase
 {
@@ -68,7 +72,7 @@ class SnippetServiceTest extends TestCase
 
         $container = $this->createMock(ContainerInterface::class);
         $container->method('has')->with(StorefrontPluginRegistry::class)->willReturn($withThemeRegistry);
-        $this->connection->expects(static::once())->method('fetchOne')->willReturn($fetchLocaleResult);
+        $this->connection->expects($this->once())->method('fetchOne')->willReturn($fetchLocaleResult);
 
         if ($withThemeRegistry) {
             $plugins = new StorefrontPluginConfigurationCollection();
@@ -80,8 +84,8 @@ class SnippetServiceTest extends TestCase
             }
 
             $themeRegistry = $this->createMock(StorefrontPluginRegistry::class);
-            $themeRegistry->expects(static::once())->method('getConfigurations')->willReturn($plugins);
-            $container->expects(static::once())->method('get')->with(StorefrontPluginRegistry::class)->willReturn($themeRegistry);
+            $themeRegistry->expects($this->once())->method('getConfigurations')->willReturn($plugins);
+            $container->expects($this->once())->method('get')->with(StorefrontPluginRegistry::class)->willReturn($themeRegistry);
         }
 
         $cachedThemeLoader = null;
@@ -92,12 +96,12 @@ class SnippetServiceTest extends TestCase
                 'themeId' => Uuid::randomHex(),
             ];
             $connectionMock = $this->createMock(Connection::class);
-            $connectionMock->expects(static::once())->method('fetchAssociative')->willReturn($expectedDB);
+            $connectionMock->expects($this->once())->method('fetchAssociative')->willReturn($expectedDB);
             $cachedThemeLoader = new DatabaseSalesChannelThemeLoader($connectionMock);
         }
 
         if ($databaseSnippets !== []) {
-            $this->connection->expects(static::once())->method('fetchAllKeyValue')->willReturn($databaseSnippets);
+            $this->connection->expects($this->once())->method('fetchAllKeyValue')->willReturn($databaseSnippets);
         }
 
         $snippetService = new SnippetService(
@@ -107,6 +111,7 @@ class SnippetServiceTest extends TestCase
             $this->createMock(EntityRepository::class),
             $this->createMock(SnippetFilterFactory::class),
             $container,
+            new ExtensionDispatcher(new EventDispatcher()),
             $cachedThemeLoader,
         );
 
@@ -124,7 +129,7 @@ class SnippetServiceTest extends TestCase
         $catalog = new MessageCatalogue($locale, []);
 
         $container = $this->createMock(ContainerInterface::class);
-        $container->expects(static::exactly(2))->method('has')->with(StorefrontPluginRegistry::class)->willReturn(false);
+        $container->expects($this->exactly(2))->method('has')->with(StorefrontPluginRegistry::class)->willReturn(false);
 
         $snippetService = new SnippetService(
             $this->connection,
@@ -132,7 +137,8 @@ class SnippetServiceTest extends TestCase
             $this->createMock(EntityRepository::class),
             $this->createMock(EntityRepository::class),
             $this->createMock(SnippetFilterFactory::class),
-            $container
+            $container,
+            new ExtensionDispatcher(new EventDispatcher())
         );
 
         $snippets = $snippetService->getStorefrontSnippets($catalog, $snippetSetId, $locale);
@@ -146,7 +152,7 @@ class SnippetServiceTest extends TestCase
     {
         $snippetSetIdWithSalesChannelDomain = Uuid::randomHex();
 
-        $this->connection->expects(static::once())->method('fetchOne')->willReturn($snippetSetIdWithSalesChannelDomain);
+        $this->connection->expects($this->once())->method('fetchOne')->willReturn($snippetSetIdWithSalesChannelDomain);
 
         $snippetService = new SnippetService(
             $this->connection,
@@ -155,6 +161,7 @@ class SnippetServiceTest extends TestCase
             $this->createMock(EntityRepository::class),
             $this->createMock(SnippetFilterFactory::class),
             $this->createMock(ContainerInterface::class),
+            new ExtensionDispatcher(new EventDispatcher())
         );
 
         $snippetSetId = $snippetService->findSnippetSetId(Uuid::randomHex(), Uuid::randomHex(), 'en-GB');
@@ -168,8 +175,8 @@ class SnippetServiceTest extends TestCase
     #[DataProvider('findSnippetSetIdDataProvider')]
     public function testFindSnippetSetIdWithoutSalesChannelDomain(array $sets, string $expected): void
     {
-        $this->connection->expects(static::once())->method('fetchOne')->willReturn(null);
-        $this->connection->expects(static::once())->method('fetchAllKeyValue')->willReturn($sets);
+        $this->connection->expects($this->once())->method('fetchOne')->willReturn(null);
+        $this->connection->expects($this->once())->method('fetchAllKeyValue')->willReturn($sets);
 
         $snippetService = new SnippetService(
             $this->connection,
@@ -178,6 +185,7 @@ class SnippetServiceTest extends TestCase
             $this->createMock(EntityRepository::class),
             $this->createMock(SnippetFilterFactory::class),
             $this->createMock(ContainerInterface::class),
+            new ExtensionDispatcher(new EventDispatcher())
         );
 
         $snippetSetId = $snippetService->findSnippetSetId(Uuid::randomHex(), Uuid::randomHex(), 'vi-VN');

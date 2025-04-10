@@ -17,6 +17,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Write\EntityWriteGatewayInterfa
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Validation\PreWriteValidationEvent;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteContext;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteException;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Exception\InvalidUuidException;
 use Shopware\Core\Framework\Uuid\Exception\InvalidUuidLengthException;
 use Shopware\Core\Framework\Uuid\Uuid;
@@ -29,6 +30,7 @@ use Symfony\Component\Validator\Validator\ValidatorInterface;
  * @internal
  */
 #[CoversClass(PromotionValidator::class)]
+#[Package('checkout')]
 class PromotionValidatorTest extends TestCase
 {
     private WriteContext $context;

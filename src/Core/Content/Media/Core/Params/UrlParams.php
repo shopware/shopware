@@ -6,7 +6,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Struct\Struct;
 
-#[Package('buyers-experience')]
+#[Package('discovery')]
 class UrlParams extends Struct
 {
     public function __construct(

@@ -1,5 +1,5 @@
 /**
- * @package buyers-experience
+ * @sw-package checkout
  */
 import template from './sw-promotion-v2-generate-codes-modal.html.twig';
 import './sw-promotion-v2-generate-codes-modal.scss';
@@ -10,13 +10,14 @@ const debounce = Shopware.Utils.debounce;
 export default {
     template,
 
-    compatConfig: Shopware.compatConfig,
-
     inject: [
         'promotionCodeApiService',
     ],
 
-    emits: ['generate-finish', 'close'],
+    emits: [
+        'generate-finish',
+        'close',
+    ],
 
     mixins: [
         'notification',
@@ -115,37 +116,34 @@ export default {
 
         onGenerate() {
             this.isGenerating = true;
-            this.promotionCodeApiService.replaceIndividualCodes(
-                this.promotion.id,
-                this.promotion.individualCodePattern,
-                this.codeAmount,
-            ).then(() => {
-                this.isGenerating = false;
-                this.$emit('generate-finish');
-            }).catch((e) => {
-                this.isGenerating = false;
-                e.response.data.errors.forEach((error) => {
-                    let errorType;
-                    switch (error.code) {
-                        case 'PROMOTION__INDIVIDUAL_CODES_PATTERN_INSUFFICIENTLY_COMPLEX':
-                            errorType = 'notComplexEnoughException';
-                            break;
-                        case 'PROMOTION__INDIVIDUAL_CODES_PATTERN_ALREADY_IN_USE':
-                            errorType = 'alreadyInUseException';
-                            break;
-                        default:
-                            errorType = 'unknownErrorCode';
-                            break;
-                    }
+            this.promotionCodeApiService
+                .replaceIndividualCodes(this.promotion.id, this.promotion.individualCodePattern, this.codeAmount)
+                .then(() => {
+                    this.isGenerating = false;
+                    this.$emit('generate-finish');
+                })
+                .catch((e) => {
+                    this.isGenerating = false;
+                    e.response.data.errors.forEach((error) => {
+                        let errorType;
+                        switch (error.code) {
+                            case 'PROMOTION__INDIVIDUAL_CODES_PATTERN_INSUFFICIENTLY_COMPLEX':
+                                errorType = 'notComplexEnoughException';
+                                break;
+                            case 'PROMOTION__INDIVIDUAL_CODES_PATTERN_ALREADY_IN_USE':
+                                errorType = 'alreadyInUseException';
+                                break;
+                            default:
+                                errorType = 'unknownErrorCode';
+                                break;
+                        }
 
-                    this.createNotificationError({
-                        autoClose: false,
-                        message: this.$tc(
-                            `sw-promotion-v2.detail.base.codes.individual.generateModal.${errorType}`,
-                        ),
+                        this.createNotificationError({
+                            autoClose: false,
+                            message: this.$tc(`sw-promotion-v2.detail.base.codes.individual.generateModal.${errorType}`),
+                        });
                     });
                 });
-            });
         },
 
         onClose() {

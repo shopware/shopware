@@ -13,7 +13,7 @@ use Shopware\Core\Framework\Log\Package;
  *
  * @phpstan-type CustomFieldSetArray array{name: string, global: bool, config: array<string, mixed>, relations: array<array<string, string>>, appId: string, customFields: list<array<string, mixed>>}
  */
-#[Package('core')]
+#[Package('framework')]
 class CustomFieldSet extends XmlElement
 {
     protected const REQUIRED_FIELDS = [

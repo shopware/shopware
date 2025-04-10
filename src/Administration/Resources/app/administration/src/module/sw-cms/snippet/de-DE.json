@@ -78,7 +78,6 @@
       "chooseSectionHelpText": "Sektionen teilen Deine Arbeitsbühne in Bereiche, in denen Du kreativ sein kannst. Du kannst Sektionen miteinander kombinieren und jederzeit wieder entfernen oder verschieben.",
       "chooseNameTitle": "Wie soll Dein Layout heißen?",
       "createLayout": "Layout erstellen",
-      "abortCreation": "Abbrechen",
       "stepBack": "Zurück"
     },
     "detail": {
@@ -118,7 +117,6 @@
         "blockCategoryApp": "Apps",
         "blockCategoryHtml": "HTML",
         "buttonElementSettingsConfirm": "Fertig",
-        "buttonElementChangeAbort": "Abbrechen",
         "blockNameField": "Block-Name",
         "blockNameFieldPlaceholder": "Gib einen Namen ein ...",
         "blockSizingField": "Größenmodus",
@@ -205,22 +203,22 @@
             "verticalAlignCenter": "Mitte",
             "verticalAlignBottom": "Unten",
             "displayMode": "Anzeigemodus",
-            "displayModeStandard": "Standard",
-            "displayModeCover": "Füllen",
-            "displayModeStretch": "Strecken",
-            "displayModeContain": "Beinhalten",
+            "displayModeStandard": "Original",
+            "displayModeCover": "Zugeschnitten",
+            "displayModeStretch": "Skaliert",
+            "displayModeContain": "Feste Höhe",
             "autoSlide": "Automatischer Wechsel",
             "autoplayTimeout": "Verzögerung",
-            "speed": "Animationsverzögerung",
+            "speed": "Animationsdauer",
             "horizontalAlign": "Horizontale Ausrichtung",
             "horizontalAlignLeft": "Links",
             "horizontalAlignCenter": "Mitte",
             "horizontalAlignRight": "Rechts"
           },
           "helpText": {
-            "autoSlide": "Der Bilderwechsel erfolgt automatisch nach den hier gemachten Vorgaben.",
             "autoplayTimeout": "Die Anzeigezeit eines einzelnen Bildes in Millisekunden.",
-            "speed": "Die Dauer der Wechselanimation in  Millisekunden."
+            "speed": "Die Dauer der Wechselanimation in Millisekunden.",
+            "displayMode": "<strong>Original:</strong> Das Bild wird in seiner ursprünglichen Auflösung erhalten oder auf die aktuelle Breite der CMS-Seite verkleinert.<br><br><strong>Skaliert:</strong> Das Bild wird ohne Höhenbeschränkungen auf die Breite der CMS-Seite skaliert.<br><br><strong>Zugeschnitten:</strong> Das Bild wird auf die aktuelle Breite der CMS-Seite skaliert. Jeglicher vertikaler Überlauf wird auf die konfigurierte maximale Höhe zugeschnitten."
           },
           "caption": {
             "mediaUpload": "Lade ein Bild hoch"
@@ -231,6 +229,8 @@
             "options": "Optionen"
           },
           "infoText": {
+            "autoSlideTitle": "Bedenken hinsichtlich der Barrierefreiheit",
+            "autoSlide": "Das Aktivieren dieser Funktion kann dazu führen, dass Teile Deiner Storefront für Menschen mit Einschränkungen nicht zugänglich sind. Dies kann eine Nichteinhaltung der in Deiner Gerichtsbarkeit geltenden Barrierefreiheitsgesetze darstellen (z.B. des Europäischen Rechtsakts zur Barrierefreiheit). Mit dem Fortfahren erkennst Du dieses Risiko an und übernimmst die volle Verantwortung.",
             "listingElement": "Die Produktdaten für dieses Element werden automatisiert über die Kategoriezuweisung befüllt. Der Inhalt zeigt nur eine ungefähre Vorschau."
           }
         },
@@ -247,6 +247,8 @@
           "label": {
             "minHeight": "Minimale Höhe",
             "minHeightHelpText": "Gib die Mindesthöhe in der gewünschten Einheit an. Zum Beispiel: 200px",
+            "isDecorative": "Bilder als ausschließlich dekorativ kennzeichen",
+            "isDecorativeHelpText": "Wenn diese Option eingeschaltet wird, werden die Bildinformationen nicht von Screenreadern vorgelesen.",
             "linkNewTab": "Link in neuem Tab öffnen",
             "linkTo": "Linkziel"
           },
@@ -268,6 +270,9 @@
             "keepAspectRatioOnZoom": "Seitenverhältnis beim Zoomen beibehalten",
             "magnifierOverGallery": "Lupe über Galerie anzeigen",
             "magnifierOverGalleryHelpText": "Zeige die Lupe über der Galerie, anstatt daneben an."
+          },
+          "helpText": {
+            "displayMode": "<strong>Original:</strong> Die Bilder werden in ihrer ursprünglichen Auflösung erhalten oder auf die Höhe des Sliders verkleinert.<br><br><strong>Feste Höhe:</strong> Die Bilder werden in ihrer ursprünglichen Auflösung erhalten oder auf die konfigurierte Höhe verkleinert.<br><br><strong>Zugeschnitten:</strong> Die Bilder werden auf die aktuelle Breite der CMS-Seite skaliert. Jeglicher vertikaler Überlauf wird auf die konfigurierte Höhe zugeschnitten."
           }
         }
       },
@@ -275,11 +280,14 @@
         "label": "Bild-Slider",
         "config": {
           "label": {
-            "navigationArrows": "Pfeile-Navigation",
+            "navigationArrows": "Pfeil-Navigation",
             "navigationPositionNone": "Keine",
             "navigationPositionInside": "Innen",
             "navigationPositionOutside": "Außen",
-            "navigationDots": "Punkte-Navigation"
+            "navigationDots": "Punkt-Navigation"
+          },
+          "helpText": {
+            "displayMode": "<strong>Original:</strong> Die Bilder werden ohne Höhenbeschränkungen auf die Breite der CMS-Seite skaliert. Der Slider passt seine Höhe dynamisch an.<br><br><strong>Feste Höhe:</strong> Die Bilder werden ohne Höhenbeschränkungen auf die Breite der CMS-Seite skaliert. Der Slider behält die Höhe des höchsten Bildes bei.<br><br><strong>Zugeschnitten:</strong> Die Bilder werden auf die aktuelle Breite der CMS-Seite skaliert. Jeglicher vertikaler Überlauf wird auf die konfigurierte Höhe zugeschnitten."
           }
         }
       },
@@ -299,7 +307,12 @@
             "layoutType": "Layout-Typ",
             "layoutTypeStandard": "Standard",
             "layoutTypeImage": "Großes Bild",
-            "layoutTypeMinimal": "Minimaler Inhalt"
+            "layoutTypeMinimal": "Minimaler Inhalt",
+            "headlineLevel": "Überschrift-Ebene für Produkt-Boxen",
+            "headlineLevelHelp": "Wähle eine Überschrift-Ebene für die Produkt-Box Titel in diesem Produkt-Listing. Wenn \"Keine Überschrift\" ausgewählt wird, wird keine Überschrift-Ebene angewendet.",
+            "headlineLevelOption": "Überschrift {level}",
+            "headlineLevelDefaultOption": "Überschrift 2 (empfohlener Standard)",
+            "headlineLevelEmptyOption": "Keine Überschrift (nicht empfohlen)"
           },
           "placeholder": {
             "selection": "Wähle ein Produkt ..."
@@ -355,9 +368,12 @@
             "title": "Slider-Titel",
             "selection": "Produkte",
             "navigation": "Navigation",
-            "rotate": "Automatischer Wechsel",
             "border": "Rahmen",
-            "minWidth": "Minimale Weite",
+            "minWidth": "Minimale Breite",
+            "navigationArrows": "Pfeil-Navigation",
+            "navigationPositionNone": "Keine",
+            "navigationPositionInside": "Innen",
+            "navigationPositionOutside": "Außen",
             "productAssignmentType": "Produkt-Zuweisung",
             "productStreamSorting": "Sortierung",
             "productStreamLimit": "Maximale Produktanzahl",
@@ -370,6 +386,10 @@
             "productStreamChoice": "Wähle eine dynamische Produktgruppe ...",
             "productStreamSorting": "Wähle eine Sortierung ..."
           },
+          "helpText": {
+            "minWidth": "Gib die minimale Breite in der gewünschten Einheit an. Zum Beispiel: 200px",
+            "displayMode": "<strong>Original:</strong> Die Bilder werden auf Höhe oder Breite der Produktbox skaliert, so dass die Bilder immer komplett in den für sie vorgesehenen Bereich passen. Die Bilder werden nie hochskaliert.<br><br><strong>Feste Höhe:</strong> Die Bilder werden auf Höhe oder Breite der Produktbox skaliert, so dass die Bilder immer komplett in den für sie vorgesehenen Bereich passen. Die Bilder können hochskaliert werden.<br><br><strong>Zugeschnitten:</strong> Die Bilder werden auf die Höhe oder Breite der Produktbox skaliert. Jeglicher Überlauf wird entsprechend zugeschnitten."
+          },
           "productAssignmentTypeOptions": {
             "manual": "Manuelle Zuweisung",
             "productStream": "Dynamische Produktgruppe"
@@ -381,6 +401,8 @@
             "priceDesc": "Price absteigend",
             "creationDateAsc": "Erstellungsdatum aufsteigend",
             "creationDateDesc": "Erstellungsdatum absteigend",
+            "releaseDateAsc": "Erscheinungsdatum aufsteigend",
+            "releaseDateDesc": "Erscheinungsdatum absteigend",
             "random": "Zufällig"
           },
           "textProductStreamPreviewLink": "Vorschau dynamische Produktgruppe",
@@ -433,10 +455,12 @@
             "start": "Video starten ab",
             "end": "Video abspielen bis",
             "needsConfirmation": "Video erst nach Bestätigung durch den User laden",
-            "previewImage": "Vorschau-Bild"
+            "previewImage": "Vorschau-Bild",
+            "videoTitle" : "Videotitel"
           },
           "placeholder": {
-            "videoId": "Video-Link eingeben ..."
+            "videoId": "Video-Link eingeben ...",
+            "videoTitle": "Einen beschreibenden Titel eingeben ..."
           },
           "helpText": {
             "autoPlay": "Achtung, einige Browser verhindern das automatische Abspielen von Videos.",
@@ -725,7 +749,6 @@
         "infoText": "Bitte beachte, dass alle Produkte, die derzeit einem Standardlayout zugewiesen sind, diesem Layout zugewiesen werden und dass neu erstellte Produkte diesem Layout automatisch zugewiesen werden. Möchtest Du dieses Layout wirklich als Standard verwenden? | Bitte beachte, dass alle Kategorien, die derzeit einem Standardlayout zugewiesen sind, diesem Layout zugewiesen werden und dass neu erstellte Kategorien diesem Layout automatisch zugewiesen werden. Möchtest Du dieses Layout wirklich als Standard verwenden?"
       },
       "cmsLayoutModal": {
-        "actionCancel": "Abbrechen",
         "actionConfirm": "Layout übernehmen",
         "modalTitle": "Layout auswählen",
         "headline": "Landingpage / Produktlisting"
@@ -742,9 +765,6 @@
         "resetOptionSalesChannel": "Alle Verkaufskanäle",
         "helpTextSalesChannel": "Layouts, die spezifischen Verkaufskanälen zugewiesen sind, überschreiben Layout-Zuweisungen in \"Alle Verkaufskanäle\".",
         "labelShopPages": "Shopseiten",
-        "confirmChanges": "Übernehmen",
-        "confirmChangesConfirm": "Übernehmen",
-        "confirmChangesRestorePrev": "Verwerfen",
         "confirmChangesTextCategories": "Du hast Layout-Zuweisungen von Kategorie entfernt. Wenn Du diese Änderungen bestätigst, ist für diese Kategorien kein Layout mehr zugewiesen.",
         "confirmChangesTextCategoriesAssignedLayouts": "Einigen der ausgewählten Kategorien ist bereits ein Layout zugewiesen. Wenn Du fortfährst, werden die bestehenden Zuweisungen durch das aktuelle Layout ersetzt.",
         "confirmChangesTextProducts": "Sie haben Layoutzuweisungen aus Produkten entfernt. Wenn Sie diese Änderungen bestätigen, ist diesen Produkten kein Layout mehr zugewiesen.",
@@ -806,7 +826,6 @@
           "textRenameConfirm": "Wähle einen neuen Namen für \"{pageName}\":",
           "textDeleteConfirm": "Möchtest Du das Layout \"{pageName}\" wirklich löschen?",
           "buttonRename": "Umbenennen",
-          "buttonCancel": "Abbrechen",
           "buttonDelete": "Löschen"
         }
       }

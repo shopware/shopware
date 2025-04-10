@@ -1,5 +1,5 @@
 /**
- * @package services-settings
+ * @sw-package checkout
  */
 import template from './sw-bulk-edit-order-documents.html.twig';
 import './sw-bulk-edit-order-documents.scss';
@@ -10,8 +10,6 @@ const { Criteria } = Shopware.Data;
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default {
     template,
-
-    compatConfig: Shopware.compatConfig,
 
     inject: [
         'repositoryFactory',
@@ -66,7 +64,7 @@ export default {
             this.documentTypeRepository.search(this.documentTypeCriteria).then((res) => {
                 this.documentTypes = res;
 
-                this.documentTypes.forEach(type => {
+                this.documentTypes.forEach((type) => {
                     this.value.documentType[type.technicalName] = null;
                 });
             });

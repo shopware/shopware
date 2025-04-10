@@ -3,6 +3,8 @@
 namespace Shopware\Tests\Integration\Core\Content\Media\Api;
 
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Content\Media\Aggregate\MediaFolder\MediaFolderCollection;
+use Shopware\Core\Content\Media\Aggregate\MediaFolderConfiguration\MediaFolderConfigurationCollection;
 use Shopware\Core\Content\Test\Media\MediaFixtures;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
@@ -19,21 +21,21 @@ class MediaFolderControllerTest extends TestCase
     use MediaFixtures;
 
     /**
-     * @var EntityRepository
+     * @var EntityRepository<MediaFolderCollection>
      */
-    private $mediaFolderRepo;
+    private EntityRepository $mediaFolderRepo;
 
     private Context $context;
 
     /**
-     * @var EntityRepository
+     * @var EntityRepository<MediaFolderConfigurationCollection>
      */
-    private $mediaFolderConfigRepo;
+    private EntityRepository $mediaFolderConfigRepo;
 
     protected function setUp(): void
     {
-        $this->mediaFolderRepo = $this->getContainer()->get('media_folder.repository');
-        $this->mediaFolderConfigRepo = $this->getContainer()->get('media_folder_configuration.repository');
+        $this->mediaFolderRepo = static::getContainer()->get('media_folder.repository');
+        $this->mediaFolderConfigRepo = static::getContainer()->get('media_folder_configuration.repository');
 
         $this->context = Context::createDefaultContext();
     }

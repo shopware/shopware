@@ -2,7 +2,9 @@
 
 namespace Shopware\Elasticsearch\Product;
 
+use OpenSearchDSL\BuilderInterface;
 use OpenSearchDSL\Query\Compound\BoolQuery;
+use OpenSearchDSL\Query\Compound\DisMaxQuery;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
@@ -16,7 +18,7 @@ use Shopware\Elasticsearch\TokenQueryBuilder;
 /**
  * @phpstan-type SearchConfig array{and_logic: string, field: string, tokenize: int, ranking: int}
  */
-#[Package('core')]
+#[Package('framework')]
 class ProductSearchQueryBuilder extends AbstractProductSearchQueryBuilder
 {
     /**
@@ -36,16 +38,12 @@ class ProductSearchQueryBuilder extends AbstractProductSearchQueryBuilder
         throw new DecorationPatternException(self::class);
     }
 
-    public function build(Criteria $criteria, Context $context): BoolQuery
+    public function build(Criteria $criteria, Context $context): BuilderInterface
     {
         $originalTerm = mb_strtolower((string) $criteria->getTerm());
 
         $tokens = $this->tokenizer->tokenize($originalTerm);
         $tokens = $this->tokenFilter->filter($tokens, $context);
-
-        if (!\in_array($originalTerm, $tokens, true)) {
-            $tokens[] = $originalTerm;
-        }
 
         if (empty(array_filter($tokens))) {
             throw ElasticsearchException::emptyQuery();
@@ -62,6 +60,10 @@ class ProductSearchQueryBuilder extends AbstractProductSearchQueryBuilder
             );
         }, $searchConfig);
 
+        if (!$configs[0]->isAndLogic()) {
+            $tokens = [$originalTerm];
+        }
+
         $queries = [];
 
         foreach ($tokens as $token) {
@@ -69,7 +71,7 @@ class ProductSearchQueryBuilder extends AbstractProductSearchQueryBuilder
                 $this->productDefinition->getEntityName(),
                 $token,
                 $configs,
-                $context->getLanguageIdChain()
+                $context,
             );
 
             if ($query) {
@@ -81,8 +83,34 @@ class ProductSearchQueryBuilder extends AbstractProductSearchQueryBuilder
             throw ElasticsearchException::emptyQuery();
         }
 
+        if (\count($queries) === 1 && $queries[0] instanceof BoolQuery) {
+            return $queries[0];
+        }
+
         $andSearch = $configs[0]->isAndLogic() ? BoolQuery::MUST : BoolQuery::SHOULD;
 
-        return new BoolQuery([$andSearch => $queries]);
+        $tokensQuery = new BoolQuery([$andSearch => $queries]);
+
+        if (\in_array($originalTerm, $tokens, true)) {
+            return $tokensQuery;
+        }
+
+        $originalTermQuery = $this->tokenQueryBuilder->build(
+            $this->productDefinition->getEntityName(),
+            $originalTerm,
+            $configs,
+            $context
+        );
+
+        if (!$originalTermQuery) {
+            return $tokensQuery;
+        }
+
+        $dismax = new DisMaxQuery();
+
+        $dismax->addQuery($tokensQuery);
+        $dismax->addQuery($originalTermQuery);
+
+        return $dismax;
     }
 }

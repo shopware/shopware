@@ -1,5 +1,4 @@
 import ListingPlugin from 'src/plugin/listing/listing.plugin';
-import Feature from 'src/helper/feature.helper.js';
 
 const template = `
     <div class="cms-element-product-listing-wrapper" data-listing-pagination="true">
@@ -38,9 +37,6 @@ describe('listing-pagination.plugin', () => {
     let resumeFocusSpy;
 
     beforeEach(async () => {
-        window.Feature = Feature;
-        window.Feature.init({ 'ACCESSIBILITY_TWEAKS': true });
-
         // Import plugin class async because of feature toggles inside static options
         const { default: ListingPaginationPlugin }  = await import('src/plugin/listing/listing-pagination.plugin');
 
@@ -50,7 +46,7 @@ describe('listing-pagination.plugin', () => {
         window.PluginManager.getPluginInstanceFromElement = () => {
             // Listing plugin is using the same element as the pagination plugin
             return new ListingPlugin(element);
-        }
+        };
 
         window.PluginManager.initializePlugins = jest.fn();
 
@@ -65,9 +61,9 @@ describe('listing-pagination.plugin', () => {
 
         listingPaginationPlugin = new ListingPaginationPlugin(element);
 
-        listingPaginationPlugin.listing.httpClient = {
-            get: jest.fn((url, callback) => {
-                callback(`
+        global.fetch = jest.fn(() =>
+            Promise.resolve({
+                text: () => Promise.resolve(`
                 <div class="cms-element-product-listing-wrapper" data-listing="true">
                     <div class="cms-element-product-listing">
                         <div class="row cms-listing-row js-listing-wrapper">
@@ -76,21 +72,22 @@ describe('listing-pagination.plugin', () => {
                         </div>
                     </div>
                 </div>
-                `);
-            }),
-        }
+                `),
+            })
+        );
     });
 
     test('plugin instance is created', () => {
         expect(typeof listingPaginationPlugin).toBe('object');
     });
 
-    test('attempts to change listing when clicking on pagination item', () => {
+    test('attempts to change listing when clicking on pagination item', async () => {
         const pageItem = document.querySelector('[data-page="3"]');
         const getValuesSpy = jest.spyOn(listingPaginationPlugin, 'getValues');
 
         // Click on page-item for page 3
         pageItem.dispatchEvent(new Event('click', { bubbles: true }));
+        await new Promise(process.nextTick);
 
         // Ensure correct page is communicated to listing plugin
         expect(listingPaginationPlugin.getValues).toReturnWith({ 'p': '3' });
@@ -98,11 +95,12 @@ describe('listing-pagination.plugin', () => {
         expect(changeListingSpy).toHaveBeenCalledTimes(1);
     });
 
-    test('tries to set the focus back to the pagination link when content changes after pagination', () => {
+    test('tries to set the focus back to the pagination link when content changes after pagination', async () => {
         const pageItem = document.querySelector('[data-page="4"]');
 
         // Click on page-item for page 4
         pageItem.dispatchEvent(new Event('click', { bubbles: true }));
+        await new Promise(process.nextTick);
 
         // Ensure the focusHandler tries to save the correct selector
         expect(saveFocusSpy).toHaveBeenCalledTimes(1);

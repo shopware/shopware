@@ -10,36 +10,21 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityIdTrait;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\SalesChannelEntity;
 
-#[Package('checkout')]
+#[Package('discovery')]
 class CustomerWishlistEntity extends Entity
 {
     use EntityCustomFieldsTrait;
     use EntityIdTrait;
 
-    /**
-     * @var string
-     */
-    protected $customerId;
+    protected string $customerId;
 
-    /**
-     * @var string
-     */
-    protected $salesChannelId;
+    protected string $salesChannelId;
 
-    /**
-     * @var CustomerEntity|null
-     */
-    protected $customer;
+    protected ?CustomerEntity $customer = null;
 
-    /**
-     * @var SalesChannelEntity|null
-     */
-    protected $salesChannel;
+    protected ?SalesChannelEntity $salesChannel = null;
 
-    /**
-     * @var CustomerWishlistProductCollection|null
-     */
-    protected $products;
+    protected ?CustomerWishlistProductCollection $products = null;
 
     public function getCustomerId(): string
     {

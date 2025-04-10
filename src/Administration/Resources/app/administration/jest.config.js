@@ -1,5 +1,5 @@
 /**
- * @package admin
+ * @sw-package framework
  */
 
 // For a detailed explanation regarding each configuration property, visit:
@@ -43,6 +43,8 @@ module.exports = {
 
     testRunner: 'jest-jasmine2',
 
+    resolver: '<rootDir>/test/_helper_/jest-resolver.js',
+
     runner: 'groups',
 
     coverageDirectory: join(process.env.PROJECT_ROOT, '/build/artifacts/jest'),
@@ -51,6 +53,11 @@ module.exports = {
         'src/**/*.js',
         'src/**/*.ts',
         '!src/**/*.spec.js',
+        '!**/*.d.ts',
+
+        // Exception in the build dir for vite plugins
+        'build/vite-plugins/**/*.ts',
+        '!build/vite-plugins/**/*.spec.ts',
     ],
 
     coverageReporters: [
@@ -67,18 +74,20 @@ module.exports = {
     transform: {
         // stringify svg imports
         '.*\\.(svg)$': '<rootDir>/test/transformer/svgStringifyTransformer.js',
+        '^.+\\.vue$': "@vue/vue3-jest",
     },
 
     transformIgnorePatterns: [
-        '/node_modules/(?!(@shopware-ag/meteor-icon-kit|uuidv7|@vue/compat|other)/)',
+        '/node_modules/(?!(@shopware-ag/meteor-component-library|@shopware-ag/meteor-icon-kit|uuidv7|other)/)',
     ],
 
     moduleNameMapper: {
         '^test(.*)$': '<rootDir>/test$1',
         '^\@shopware-ag\/admin-extension-sdk\/es\/(.*)': '<rootDir>/node_modules/@shopware-ag/admin-extension-sdk/umd/$1',
         '^\@shopware-ag\/meteor-admin-sdk\/es\/(.*)': '<rootDir>/node_modules/@shopware-ag/meteor-admin-sdk/umd/$1',
+        '^@shopware-ag/meteor-component-library$': '<rootDir>/node_modules/@shopware-ag/meteor-component-library/dist/common/index.js',
         '^lodash-es$': 'lodash',
-        vue$: '@vue/compat/dist/vue.cjs.js',
+        vue$: 'vue/dist/vue.cjs.js',
     },
 
     reporters: isCi ? [
@@ -97,12 +106,17 @@ module.exports = {
         }],
     ] : [
         'default',
+        '<rootDir>/test/_helper_/failedSpecFileReporter.js',
     ],
 
     testMatch: [
         '<rootDir>/src/**/*.spec.js',
+        '<rootDir>/src/**/*.spec.ts',
         '<rootDir>/eslint-rules/**/*.spec.js',
+        '<rootDir>/build/vite-plugins/**/*.spec.ts',
+        '<rootDir>/build/vite-plugins/**/*.spec.js',
         '!<rootDir>/src/**/*.spec.vue2.js',
+        '<rootDir>/scripts/**/*.spec.ts',
     ],
 
     testEnvironmentOptions: {

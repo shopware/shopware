@@ -25,10 +25,12 @@ $sw-page-search-bar-z-index: $z-index-sw-page-search-bar;
         position: relative;
         display: grid;
         grid-column-gap: 8px;
+        /* stylelint-disable-next-line max-line-length */
         grid-template-columns: [head-start back-btn-start] 1fr [back-btn-end header-content-start] minmax(0, $content-width) [header-content-end] 1fr [smart-bar-end];
         align-items: center;
         background: $sw-page-smart-bar-background-color;
         border-bottom: 2px solid $sw-page-smart-bar-border-color;
+        z-index: $z-index-page-header;
     }
 
     .sw-page__search-bar {
@@ -48,6 +50,7 @@ $sw-page-search-bar-z-index: $z-index-sw-page-search-bar;
         display: flex;
         align-content: flex-end;
         justify-content: flex-end;
+        align-items: center;
         gap: 16px;
     }
 
@@ -73,7 +76,7 @@ $sw-page-search-bar-z-index: $z-index-sw-page-search-bar;
         align-items: center;
         margin-left: 20px;
 
-        .sw-icon.icons--regular-chevron-left-s {
+        .mt-icon.icon--regular-chevron-left-s {
             line-height: $line-height-md;
             margin: auto;
         }
@@ -107,7 +110,7 @@ $sw-page-search-bar-z-index: $z-index-sw-page-search-bar;
         text-overflow: ellipsis;
         margin-bottom: 0;
 
-        .sw-icon {
+        .mt-icon {
             position: relative;
             top: -1px;
 
@@ -123,8 +126,9 @@ $sw-page-search-bar-z-index: $z-index-sw-page-search-bar;
         flex-direction: row;
         text-align: right;
         white-space: nowrap;
+        align-items: center;
 
-        .sw-button,
+        .mt-button,
         .sw-button-group,
         .sw-tooltip--wrapper {
             margin-left: 8px;

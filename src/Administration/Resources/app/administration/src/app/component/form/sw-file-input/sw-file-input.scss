@@ -37,7 +37,8 @@ $sw-file-input-background-color-highlighted: $color-shopware-brand-50;
             color: $sw-file-input-color-highlighted;
 
             .sw-file-input__upload-caption {
-                .sw-icon {
+                /* stylelint-disable-next-line max-nesting-depth */
+                .mt-icon {
                     color: $sw-file-input-color-highlighted;
                 }
             }
@@ -48,7 +49,7 @@ $sw-file-input-background-color-highlighted: $color-shopware-brand-50;
         font-size: $font-size-m;
         margin: 12px auto;
 
-        .sw-icon {
+        .mt-icon {
             margin-right: 8px;
             color: $color-gray-300;
         }

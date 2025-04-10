@@ -37,10 +37,10 @@ class ProductSearchTermInterpreterTest extends TestCase
 
     protected function setUp(): void
     {
-        $this->connection = $this->getContainer()->get(Connection::class);
-        $this->interpreter = $this->getContainer()->get(ProductSearchTermInterpreter::class);
+        $this->connection = static::getContainer()->get(Connection::class);
+        $this->interpreter = static::getContainer()->get(ProductSearchTermInterpreter::class);
 
-        $this->productSearchConfigRepository = $this->getContainer()->get('product_search_config.repository');
+        $this->productSearchConfigRepository = static::getContainer()->get('product_search_config.repository');
         $this->productSearchConfigId = $this->getProductSearchConfigId();
 
         $this->setupKeywords();
@@ -178,6 +178,10 @@ class ProductSearchTermInterpreterTest extends TestCase
             [
                 '1000',
                 ['10000', '10001', '10002', '10007'],
+            ],
+            [
+                '9000',
+                ['SW-9000'],
             ],
             'test it uses only first 8 keywords' => [
                 '10',
@@ -447,6 +451,7 @@ class ProductSearchTermInterpreterTest extends TestCase
             'netzwerkspieler',
             'schwarzweiß',
             'netzwerkprotokolle',
+            'SW-9000',
             '10100',
             '10000',
             '10001',

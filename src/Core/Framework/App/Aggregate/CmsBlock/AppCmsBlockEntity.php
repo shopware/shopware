@@ -14,45 +14,27 @@ use Shopware\Core\Framework\Log\Package;
  *
  * @phpstan-import-type BlockArray from Block
  */
-#[Package('buyers-experience')]
+#[Package('discovery')]
 class AppCmsBlockEntity extends Entity
 {
     use EntityIdTrait;
 
-    /**
-     * @var string
-     */
-    protected $appId;
+    protected string $appId;
 
-    /**
-     * @var AppEntity
-     */
-    protected $app;
+    protected AppEntity $app;
 
-    /**
-     * @var string
-     */
-    protected $name;
+    protected string $name;
 
     /**
      * @var BlockArray
      */
-    protected $block;
+    protected array $block;
 
-    /**
-     * @var string
-     */
-    protected $template;
+    protected string $template;
 
-    /**
-     * @var string
-     */
-    protected $styles;
+    protected string $styles;
 
-    /**
-     * @var AppCmsBlockTranslationCollection
-     */
-    protected $translations;
+    protected AppCmsBlockTranslationCollection $translations;
 
     protected ?string $label = null;
 

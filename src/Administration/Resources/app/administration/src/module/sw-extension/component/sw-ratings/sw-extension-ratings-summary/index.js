@@ -2,13 +2,11 @@ import template from './sw-extension-ratings-summary.html.twig';
 import './sw-extension-ratings-summary.scss';
 
 /**
- * @package checkout
+ * @sw-package checkout
  * @private
  */
 export default {
     template,
-
-    compatConfig: Shopware.compatConfig,
 
     props: {
         summary: {

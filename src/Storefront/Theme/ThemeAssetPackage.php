@@ -9,13 +9,13 @@ use Shopware\Core\SalesChannelRequest;
 use Symfony\Component\Asset\VersionStrategy\VersionStrategyInterface;
 use Symfony\Component\HttpFoundation\RequestStack;
 
-#[Package('storefront')]
+#[Package('framework')]
 class ThemeAssetPackage extends FallbackUrlPackage
 {
     /**
      * @internal
      *
-     * @param string|string[] $baseUrls
+     * @param string|list<string> $baseUrls
      */
     public function __construct(
         string|array $baseUrls,

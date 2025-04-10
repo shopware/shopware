@@ -4,7 +4,7 @@ namespace Shopware\Core\Framework\App;
 
 use Doctrine\DBAL\Connection;
 use Shopware\Core\DevOps\Environment\EnvironmentHelper;
-use Shopware\Core\Framework\App\Lifecycle\AbstractAppLoader;
+use Shopware\Core\Framework\App\Lifecycle\AppLoader;
 use Shopware\Core\Framework\App\Manifest\Manifest;
 use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\Filesystem\Path;
@@ -13,9 +13,9 @@ use Symfony\Contracts\Service\ResetInterface;
 /**
  * @internal only for use by the app-system
  *
- * @phpstan-type App array{name: string, path: string, author: string|null}
+ * @phpstan-type App array{name: string, path: string, author: string|null, selfManaged: bool}
  */
-#[Package('core')]
+#[Package('framework')]
 class ActiveAppsLoader implements ResetInterface
 {
     /**
@@ -25,7 +25,7 @@ class ActiveAppsLoader implements ResetInterface
 
     public function __construct(
         private readonly Connection $connection,
-        private readonly AbstractAppLoader $appLoader,
+        private readonly AppLoader $appLoader,
         private readonly string $projectDir
     ) {
     }
@@ -35,10 +35,6 @@ class ActiveAppsLoader implements ResetInterface
      */
     public function getActiveApps(): array
     {
-        if (EnvironmentHelper::getVariable('DISABLE_EXTENSIONS', false)) {
-            return [];
-        }
-
         if ($this->activeApps === null) {
             $this->activeApps = $this->loadApps();
         }
@@ -57,14 +53,20 @@ class ActiveAppsLoader implements ResetInterface
     private function loadApps(): array
     {
         try {
-            /** @phpstan-ignore-next-line PHPStan could not recognize the loaded array shape from the database */
-            return $this->connection->fetchAllAssociative('
-                SELECT `name`, `path`, `author`
+            $data = $this->connection->fetchAllAssociative('
+                SELECT `name`, `path`, `author`, `self_managed`
                 FROM `app`
                 WHERE `active` = 1
             ');
+
+            return array_map(fn (array $app) => [
+                'name' => $app['name'],
+                'path' => $app['path'],
+                'author' => $app['author'],
+                'selfManaged' => (bool) $app['self_managed'],
+            ], $data);
         } catch (\Throwable $e) {
-            if (\defined('\STDERR')) {
+            if (\defined('\STDERR') && !EnvironmentHelper::getVariable('TESTS_RUNNING')) {
                 fwrite(\STDERR, 'Warning: Failed to load apps. Loading apps from local. Message: ' . $e->getMessage() . \PHP_EOL);
             }
 
@@ -72,6 +74,7 @@ class ActiveAppsLoader implements ResetInterface
                 'name' => $manifest->getMetadata()->getName(),
                 'path' => Path::makeRelative($manifest->getPath(), $this->projectDir),
                 'author' => $manifest->getMetadata()->getAuthor(),
+                'selfManaged' => false,
             ], $this->appLoader->load());
         }
     }

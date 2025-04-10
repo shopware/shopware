@@ -2,11 +2,12 @@
 
 namespace Shopware\Elasticsearch;
 
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\HttpException;
 use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\HttpFoundation\Response;
 
-#[Package('core')]
+#[Package('framework')]
 class ElasticsearchException extends HttpException
 {
     public const DEFINITION_NOT_FOUND = 'ELASTICSEARCH__DEFINITION_NOT_FOUND';
@@ -18,8 +19,12 @@ class ElasticsearchException extends HttpException
     public const NESTED_AGGREGATION_PARSE_ERROR = 'ELASTICSEARCH__NESTED_AGGREGATION_PARSE_ERROR';
     public const PARENT_FILTER_ERROR = 'ELASTICSEARCH__PARENT_FILTER_ERROR';
     public const SERVER_NOT_AVAILABLE = 'ELASTICSEARCH__SERVER_NOT_AVAILABLE';
-
     public const EMPTY_QUERY = 'ELASTICSEARCH__EMPTY_QUERY';
+    public const EMPTY_INDEXING_REQUEST = 'ELASTICSEARCH__EMPTY_INDEXING_REQUEST';
+
+    public const AWS_CREDENTIALS_NOT_FOUND = 'ELASTICSEARCH__AWS_CREDENTIALS_NOT_FOUND';
+
+    public const OPERATOR_NOT_ALLOWED = 'ELASTICSEARCH__OPERATOR_NOT_ALLOWED';
 
     public static function definitionNotFound(string $definition): self
     {
@@ -126,6 +131,41 @@ class ElasticsearchException extends HttpException
             Response::HTTP_INTERNAL_SERVER_ERROR,
             self::EMPTY_QUERY,
             'Empty query provided'
+        );
+    }
+
+    public static function awsCredentialsNotFound(): self
+    {
+        return new self(
+            Response::HTTP_INTERNAL_SERVER_ERROR,
+            self::AWS_CREDENTIALS_NOT_FOUND,
+            'Could not get AWS credentials'
+        );
+    }
+
+    public static function emptyIndexingRequest(): self
+    {
+        return new self(
+            Response::HTTP_BAD_REQUEST,
+            self::EMPTY_INDEXING_REQUEST,
+            'Empty indexing request provided'
+        );
+    }
+
+    /**
+     * @deprecated tag:v6.8.0 - reason:return-type-change - Will only return `self` in the future
+     */
+    public static function operatorNotAllowed(string $operator): self|\InvalidArgumentException
+    {
+        if (!Feature::isActive('v6.8.0.0')) {
+            return new \InvalidArgumentException('Operator ' . $operator . ' not allowed');
+        }
+
+        return new self(
+            Response::HTTP_INTERNAL_SERVER_ERROR,
+            self::OPERATOR_NOT_ALLOWED,
+            'Operator {{ operator }} not allowed',
+            ['operator' => $operator]
         );
     }
 }

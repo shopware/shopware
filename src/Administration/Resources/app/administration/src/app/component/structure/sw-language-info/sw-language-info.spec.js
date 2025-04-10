@@ -1,5 +1,5 @@
 /**
- * @package admin
+ * @sw-package framework
  */
 
 import { mount } from '@vue/test-utils';
@@ -7,19 +7,18 @@ import { mount } from '@vue/test-utils';
 describe('src/app/component/structure/sw-language-info', () => {
     let wrapper = null;
 
-
     beforeEach(async () => {
-        Shopware.State.commit('context/setApiLanguageId', '123456789');
-        Shopware.State.commit('context/setApiSystemLanguageId', '123456789');
-        Shopware.State.commit('context/setApiLanguage', {
+        Shopware.Store.get('context').api.languageId = '123456789';
+        Shopware.Store.get('context').api.systemLanguageId = 123456789;
+        Shopware.Store.get('context').api.language = {
             id: '123',
             parentId: '456',
-        });
+        };
 
         wrapper = mount(await wrapTestComponent('sw-language-info', { sync: true }), {
             global: {
                 mocks: {
-                    $tc: (snippetKey, count, args) => {
+                    $tc: (snippetKey, args, count) => {
                         let value = `|${snippetKey}|${count}|`;
 
                         if (typeof args !== 'object') {
@@ -55,11 +54,11 @@ describe('src/app/component/structure/sw-language-info', () => {
     it('should not render the infoText when no language is set', async () => {
         const typeError = {
             method: 'warn',
-            msg: '[TypeError: Cannot read properties of null (reading \'id\')]',
+            msg: "[TypeError: Cannot read properties of null (reading 'id')]",
         };
         global.allowedErrors.push(typeError);
 
-        Shopware.State.commit('context/setApiLanguage', null);
+        Shopware.Store.get('context').api.language = null;
 
         await wrapper.vm.$nextTick();
 
@@ -71,12 +70,12 @@ describe('src/app/component/structure/sw-language-info', () => {
     });
 
     it('should not render the infoText when user is in default language', async () => {
-        Shopware.State.commit('context/setApiLanguage', {
+        Shopware.Store.get('context').api.language = {
             id: '1a2b3c',
             parentId: null,
-        });
-        Shopware.State.commit('context/setApiLanguageId', '123');
-        Shopware.State.commit('context/setApiSystemLanguageId', '123');
+        };
+        Shopware.Store.get('context').api.languageId = '123';
+        Shopware.Store.get('context').api.systemLanguageId = '123';
 
         await wrapper.vm.$nextTick();
 
@@ -88,28 +87,34 @@ describe('src/app/component/structure/sw-language-info', () => {
             isNewEntity: true,
         });
 
-        expect(wrapper.find('.sw_language-info__info').text()).toBe('|sw-language-info.infoTextNewEntity|0|entityDescription:|');
+        expect(wrapper.find('.sw_language-info__info').text()).toBe(
+            '|sw-language-info.infoTextNewEntity|0|entityDescription:|',
+        );
     });
 
     it('should render the infoText for a child language', async () => {
-        Shopware.State.commit('context/setApiLanguage', {
+        Shopware.Store.get('context').api.language = {
             id: '1a2b3c',
             parentId: '123',
-        });
+        };
 
-        expect(wrapper.find('.sw_language-info__info').text()).toBe('|sw-language-info.infoTextChildLanguage|0|entityDescription:|language:undefined|');
+        expect(wrapper.find('.sw_language-info__info').text()).toBe(
+            '|sw-language-info.infoTextChildLanguage|0|entityDescription:|language:undefined|',
+        );
     });
 
     it('should render the infoText for a root language', async () => {
-        Shopware.State.commit('context/setApiSystemLanguageId', '987654312');
-        Shopware.State.commit('context/setApiLanguage', {
+        Shopware.Store.get('context').api.systemLanguageId = '987654312';
+        Shopware.Store.get('context').api.language = {
             id: '1a2b3c',
             parentId: null,
-        });
+        };
 
         await wrapper.vm.$nextTick();
 
-        expect(wrapper.find('.sw_language-info__info').text()).toBe('|sw-language-info.infoTextRootLanguage|0|entityDescription:|language:undefined|');
+        expect(wrapper.find('.sw_language-info__info').text()).toBe(
+            '|sw-language-info.infoTextRootLanguage|0|entityDescription:|language:undefined|',
+        );
     });
 
     it('should render the infoText with entityDescription for a new entity', async () => {
@@ -118,62 +123,72 @@ describe('src/app/component/structure/sw-language-info', () => {
             entityDescription: 'My entity description',
         });
 
-        expect(wrapper.find('.sw_language-info__info').text()).toBe('|sw-language-info.infoTextNewEntity|0|entityDescription:My entity description|');
+        expect(wrapper.find('.sw_language-info__info').text()).toBe(
+            '|sw-language-info.infoTextNewEntity|0|entityDescription:My entity description|',
+        );
     });
 
     it('should render the infoText with entityDescription for a child language', async () => {
-        Shopware.State.commit('context/setApiLanguage', {
+        Shopware.Store.get('context').api.language = {
             id: '1a2b3c',
             parentId: '123',
-        });
+        };
 
         await wrapper.setProps({
             entityDescription: 'My entity description',
         });
 
-        expect(wrapper.find('.sw_language-info__info').text()).toBe('|sw-language-info.infoTextChildLanguage|0|entityDescription:My entity description|language:undefined|');
+        expect(wrapper.find('.sw_language-info__info').text()).toBe(
+            '|sw-language-info.infoTextChildLanguage|0|entityDescription:My entity description|language:undefined|',
+        );
     });
 
     it('should render the infoText with entityDescription for a root language', async () => {
-        Shopware.State.commit('context/setApiSystemLanguageId', '987654312');
-        Shopware.State.commit('context/setApiLanguage', {
+        Shopware.Store.get('context').api.systemLanguageId = '987654312';
+        Shopware.Store.get('context').api.language = {
             id: '1a2b3c',
             parentId: null,
-        });
+        };
 
         await wrapper.setProps({
             entityDescription: 'My entity description',
         });
 
-        expect(wrapper.find('.sw_language-info__info').text()).toBe('|sw-language-info.infoTextRootLanguage|0|entityDescription:My entity description|language:undefined|');
+        expect(wrapper.find('.sw_language-info__info').text()).toBe(
+            '|sw-language-info.infoTextRootLanguage|0|entityDescription:My entity description|language:undefined|',
+        );
     });
 
     it('should render the infoText with language name for a child language', async () => {
-        Shopware.State.commit('context/setApiLanguage', {
+        Shopware.Store.get('context').api.language = {
             id: '1a2b3c',
             name: 'demoLanguage',
             parentId: '123',
-        });
+        };
 
         await wrapper.setProps({
             entityDescription: 'My entity description',
         });
 
-        expect(wrapper.find('.sw_language-info__info').text()).toBe('|sw-language-info.infoTextChildLanguage|0|entityDescription:My entity description|language:demoLanguage|');
+        expect(wrapper.find('.sw_language-info__info').text()).toBe(
+            '|sw-language-info.infoTextChildLanguage|0|entityDescription:My entity description|language:demoLanguage|',
+        );
     });
 
     it('should render the infoText with language name for a root language', async () => {
-        Shopware.State.commit('context/setApiSystemLanguageId', '987654312');
-        Shopware.State.commit('context/setApiLanguage', {
+        Shopware.Store.get('context').api.systemLanguageId = '987654312';
+        Shopware.Store.get('context').api.language = {
             id: '1a2b3c',
             name: 'demoLanguage',
             parentId: null,
-        });
+        };
 
         await wrapper.setProps({
             entityDescription: 'My entity description',
         });
 
-        expect(wrapper.find('.sw_language-info__info').text()).toBe('|sw-language-info.infoTextRootLanguage|0|entityDescription:My entity description|language:demoLanguage|');
+        expect(wrapper.find('.sw_language-info__info').text()).toBe(
+            '|sw-language-info.infoTextRootLanguage|0|entityDescription:My entity description|language:demoLanguage|',
+        );
     });
 });

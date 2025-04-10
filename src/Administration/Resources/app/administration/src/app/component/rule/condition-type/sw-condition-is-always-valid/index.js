@@ -5,7 +5,7 @@ const { mapPropertyErrors } = Component.getComponentHelper();
 
 /**
  * @public
- * @package services-settings
+ * @sw-package fundamentals@after-sales
  * @description Always valid condition item for the condition-tree. This component must be a child of sw-condition-tree.
  * @status prototype
  * @example-type code-only
@@ -29,7 +29,7 @@ Component.extend('sw-condition-is-always-valid', 'sw-condition-base', {
         selectValues() {
             return [
                 {
-                    label: this.$tc('global.sw-condition.condition.yes'),
+                    label: this.$tc('global.default.yes'),
                     value: true,
                 },
             ];

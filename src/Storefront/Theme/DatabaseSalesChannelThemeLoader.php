@@ -6,17 +6,12 @@ use Doctrine\DBAL\Connection;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 
-#[Package('storefront')]
+#[Package('framework')]
 /**
  * @internal
  */
 final class DatabaseSalesChannelThemeLoader
 {
-    /**
-     * @deprecated tag:v6.7.0 - Will be removed in 6.7.0 as the cache key is not used anymore
-     */
-    final public const CACHE_KEY = 'sales-channel-themes';
-
     /**
      * @var array<string, array<int, string>>
      */

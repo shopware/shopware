@@ -5,15 +5,16 @@ const { Mixin } = Shopware;
 const { Criteria } = Shopware.Data;
 
 /**
- * @package inventory
+ * @sw-package inventory
  */
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default {
     template,
 
-    compatConfig: Shopware.compatConfig,
-
-    inject: ['repositoryFactory', 'acl'],
+    inject: [
+        'repositoryFactory',
+        'acl',
+    ],
 
     mixins: [
         Mixin.getByName('listing'),
@@ -87,7 +88,7 @@ export default {
 
             criteria.setTerm(this.term);
 
-            this.sortBy.split(',').forEach(sorting => {
+            this.sortBy.split(',').forEach((sorting) => {
                 criteria.addSorting(Criteria.sort(sorting, this.sortDirection, this.naturalSorting));
             });
             criteria.addAssociation('customer');
@@ -124,10 +125,15 @@ export default {
         onDelete(option) {
             this.$refs.listing.deleteItem(option);
 
-            this.repository.search(this.criteria, { ...Shopware.Context.api, inheritance: true }).then((result) => {
-                this.total = result.total;
-                this.items = result;
-            });
+            this.repository
+                .search(this.criteria, {
+                    ...Shopware.Context.api,
+                    inheritance: true,
+                })
+                .then((result) => {
+                    this.total = result.total;
+                    this.items = result;
+                });
         },
     },
 };

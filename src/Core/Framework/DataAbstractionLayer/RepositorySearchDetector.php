@@ -12,7 +12,7 @@ use Shopware\Core\Framework\Log\Package;
 /**
  * @internal
  */
-#[Package('core')]
+#[Package('framework')]
 class RepositorySearchDetector
 {
     public static function isSearchRequired(EntityDefinition $definition, Criteria $criteria): bool

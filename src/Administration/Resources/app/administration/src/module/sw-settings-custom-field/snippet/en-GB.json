@@ -11,7 +11,6 @@
       "list": {
         "textHeadline": "Custom fields",
         "textDeleteConfirm": "Do you really want to delete the set \"{name}\" ?",
-        "buttonCancel": "Cancel",
         "buttonAdd": "Add new set",
         "columnName": "Label",
         "contextMenuEdit": "Edit",
@@ -24,7 +23,6 @@
         "labelTechnicalName": "Technical name",
         "labelPosition": "Position",
         "textHeadline": "Custom field set",
-        "buttonCancel": "Cancel",
         "buttonSave": "Save",
         "titleCardInformation": "General information",
         "labelName": "Set name",
@@ -45,9 +43,7 @@
       "detail": {
         "titleNewCustomField": "New custom field",
         "titleEditCustomField": "Edit custom field",
-        "buttonSaveApply": "Add",
         "buttonEditApply": "Apply changes",
-        "buttonCancel": "Cancel",
         "labelCustomFieldType": "Type",
         "placeholderCustomFieldType": "Select...",
         "labelTechnicalName": "Technical name",
@@ -68,8 +64,6 @@
         "labelDateType": "Type",
         "labelHelpText": "Help text",
         "labelTimeForm": "24-hour time format",
-        "labelYes": "Yes",
-        "labelNo": "No",
         "labelCustomFieldPosition": "Position",
         "labelMultiSelect": "Multi select",
         "helpTextMultiSelect": "The multi select option cannot be toggled once the custom field has been created.",
@@ -81,7 +75,9 @@
         "tooltipAllowCustomerWrite": "When active, the Store API is allowed to modify this field. This can be used to store custom data if adding new fields to the storefront. For example for new fields in the registration form.",
         "labelAllowCartExpose": "Available in shopping carts",
         "tooltipAllowCartExpose": "Activate, to make this custom field available in the payload of shopping cart line items. This is required in order to initially use this custom field in the Rule Builder or custom templates.",
-        "tooltipCartExposeDisabled": "This setting can currently not be changed, because the custom field is in use by one or more conditions in the Rule Builder."
+        "tooltipCartExposeDisabled": "This setting can currently not be changed, because the custom field is in use by one or more conditions in the Rule Builder.",
+        "labelStoreApiAware": "Visible in Store API",
+        "tooltipStoreApiAware": "When active, this field will be available in the Store API. This option can be disabled to store custom data only internally and not make it available via the Store API."
       },
       "list": {
         "labelCustomFieldLabel": "Label",

@@ -4,7 +4,7 @@ namespace Shopware\Core\Framework\DataAbstractionLayer\Search\Filter;
 
 use Shopware\Core\Framework\Log\Package;
 
-#[Package('core')]
+#[Package('framework')]
 class NotFilter extends MultiFilter
 {
 }

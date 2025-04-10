@@ -7,20 +7,15 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpKernel\Exception\HttpException;
 use Twig\Environment;
 
-#[Package('storefront')]
+#[Package('framework')]
 class ErrorTemplateResolver
 {
     /**
-     * @var Environment
-     */
-    protected $twig;
-
-    /**
      * @internal
      */
-    public function __construct(Environment $twig)
-    {
-        $this->twig = $twig;
+    public function __construct(
+        protected Environment $twig,
+    ) {
     }
 
     public function resolve(\Throwable $exception, Request $request): ErrorTemplateStruct

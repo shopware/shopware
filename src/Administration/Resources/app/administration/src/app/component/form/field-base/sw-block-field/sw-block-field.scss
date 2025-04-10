@@ -7,9 +7,10 @@ $sw-field-transition: border-color 0.3s ease-out, background 0.3s ease;
         border: 1px solid $color-gray-300;
         border-radius: $border-radius-default;
         overflow: hidden;
+        height: 48px;
     }
 
-    .sw-field--select__options .sw-icon {
+    .sw-field--select__options .mt-icon {
         margin-bottom: 5px;
     }
 
@@ -43,7 +44,7 @@ $sw-field-transition: border-color 0.3s ease-out, background 0.3s ease;
         }
 
         &::placeholder {
-            color: lighten($color-darkgray-200, 25%);
+            color: var(--color-text-secondary-default);
         }
     }
 

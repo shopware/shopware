@@ -5,7 +5,7 @@ const { Component, Mixin } = Shopware;
 const debounce = Shopware.Utils.debounce;
 
 /**
- * @package admin
+ * @sw-package framework
  *
  * @private
  * @description
@@ -37,8 +37,6 @@ Component.register('sw-colorpicker-deprecated', {
         Mixin.getByName('sw-form-field'),
         Mixin.getByName('remove-api-error'),
     ],
-
-    compatConfig: Shopware.compatConfig,
 
     props: {
         value: {
@@ -86,7 +84,10 @@ Component.register('sw-colorpicker-deprecated', {
         },
 
         zIndex: {
-            type: [Number, null],
+            type: [
+                Number,
+                null,
+            ],
             required: false,
             default: null,
         },
@@ -133,8 +134,7 @@ Component.register('sw-colorpicker-deprecated', {
         },
 
         isColorValid() {
-            return /^rgb/.test(this.colorValue) || /^hsl/.test(this.colorValue)
-                || /^#/.test(this.colorValue);
+            return /^rgb/.test(this.colorValue) || /^hsl/.test(this.colorValue) || /^#/.test(this.colorValue);
         },
 
         previewColorValue() {
@@ -151,12 +151,7 @@ Component.register('sw-colorpicker-deprecated', {
 
         redValue: {
             get() {
-                return this.convertHSLtoRGB(
-                    this.hueValue,
-                    this.saturationValue,
-                    this.luminanceValue,
-                    this.alphaValue,
-                ).red;
+                return this.convertHSLtoRGB(this.hueValue, this.saturationValue, this.luminanceValue, this.alphaValue).red;
             },
 
             set(newRedValue) {
@@ -166,12 +161,7 @@ Component.register('sw-colorpicker-deprecated', {
 
         greenValue: {
             get() {
-                return this.convertHSLtoRGB(
-                    this.hueValue,
-                    this.saturationValue,
-                    this.luminanceValue,
-                    this.alphaValue,
-                ).green;
+                return this.convertHSLtoRGB(this.hueValue, this.saturationValue, this.luminanceValue, this.alphaValue).green;
             },
 
             set(newGreenValue) {
@@ -181,12 +171,7 @@ Component.register('sw-colorpicker-deprecated', {
 
         blueValue: {
             get() {
-                return this.convertHSLtoRGB(
-                    this.hueValue,
-                    this.saturationValue,
-                    this.luminanceValue,
-                    this.alphaValue,
-                ).blue;
+                return this.convertHSLtoRGB(this.hueValue, this.saturationValue, this.luminanceValue, this.alphaValue).blue;
             },
 
             set(newBlueValue) {
@@ -219,12 +204,7 @@ Component.register('sw-colorpicker-deprecated', {
         hexValue: {
             get() {
                 if (this.alphaValue < 1) {
-                    return this.convertHSLtoHEX(
-                        this.hueValue,
-                        this.saturationValue,
-                        this.luminanceValue,
-                        this.alphaValue,
-                    );
+                    return this.convertHSLtoHEX(this.hueValue, this.saturationValue, this.luminanceValue, this.alphaValue);
                 }
 
                 return this.convertHSLtoHEX(this.hueValue, this.saturationValue, this.luminanceValue);
@@ -244,12 +224,7 @@ Component.register('sw-colorpicker-deprecated', {
                     return;
                 }
 
-                this.setHslaValues(
-                    hslValue.hue,
-                    hslValue.saturation,
-                    hslValue.luminance,
-                    hslValue.alpha || this.alphaValue,
-                );
+                this.setHslaValues(hslValue.hue, hslValue.saturation, hslValue.luminance, hslValue.alpha || this.alphaValue);
             },
         },
 
@@ -334,12 +309,7 @@ Component.register('sw-colorpicker-deprecated', {
                 // if color is an hsl value
                 const hslValues = this.splitHSLValues(this.colorValue);
 
-                this.setHslaValues(
-                    hslValues.hue,
-                    hslValues.saturation,
-                    hslValues.luminance,
-                    hslValues.alpha,
-                );
+                this.setHslaValues(hslValues.hue, hslValues.saturation, hslValues.luminance, hslValues.alpha);
             }
         },
     },
@@ -418,7 +388,7 @@ Component.register('sw-colorpicker-deprecated', {
                 correctedXValue = xValue;
             }
 
-            const yValue = ((cursorY / colorpickerLocation.height) - 1) * -100;
+            const yValue = (cursorY / colorpickerLocation.height - 1) * -100;
             let correctedYValue;
 
             if (yValue > 100) {
@@ -451,7 +421,11 @@ Component.register('sw-colorpicker-deprecated', {
         },
 
         setSingleRGBValue(newColorValue, type) {
-            const validTypes = ['red', 'green', 'blue'];
+            const validTypes = [
+                'red',
+                'green',
+                'blue',
+            ];
 
             if (validTypes.indexOf(type) === -1) {
                 return;
@@ -548,7 +522,10 @@ Component.register('sw-colorpicker-deprecated', {
         },
 
         convertHSL(mode, color) {
-            const validModes = ['hex', 'rgb'];
+            const validModes = [
+                'hex',
+                'rgb',
+            ];
             if (!validModes.includes(mode)) {
                 return {};
             }
@@ -567,17 +544,29 @@ Component.register('sw-colorpicker-deprecated', {
             let blue = 0;
 
             if (hue >= 0 && hue < 60) {
-                red = chroma; green = x; blue = 0;
+                red = chroma;
+                green = x;
+                blue = 0;
             } else if (hue >= 60 && hue < 120) {
-                red = x; green = chroma; blue = 0;
+                red = x;
+                green = chroma;
+                blue = 0;
             } else if (hue >= 120 && hue < 180) {
-                red = 0; green = chroma; blue = x;
+                red = 0;
+                green = chroma;
+                blue = x;
             } else if (hue >= 180 && hue < 240) {
-                red = 0; green = x; blue = chroma;
+                red = 0;
+                green = x;
+                blue = chroma;
             } else if (hue >= 240 && hue < 300) {
-                red = x; green = 0; blue = chroma;
+                red = x;
+                green = 0;
+                blue = chroma;
             } else if (hue >= 300 && hue < 361) {
-                red = chroma; green = 0; blue = x;
+                red = chroma;
+                green = 0;
+                blue = x;
             }
 
             red = Math.round((red + m) * 255);

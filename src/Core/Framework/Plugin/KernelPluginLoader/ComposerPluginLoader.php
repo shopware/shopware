@@ -10,9 +10,19 @@ use Shopware\Core\Framework\Plugin\Util\PluginFinder;
 /**
  * @phpstan-import-type PluginInfo from KernelPluginLoader
  */
-#[Package('core')]
+#[Package('framework')]
 class ComposerPluginLoader extends KernelPluginLoader
 {
+    /**
+     * @return array<PluginInfo>
+     */
+    public function fetchPluginInfos(): array
+    {
+        $this->loadPluginInfos();
+
+        return $this->pluginInfos;
+    }
+
     protected function loadPluginInfos(): void
     {
         $composerPlugins = InstalledVersions::getInstalledPackagesByType(PluginFinder::COMPOSER_TYPE);
@@ -53,15 +63,5 @@ class ComposerPluginLoader extends KernelPluginLoader
                 'composerName' => $composerName,
             ];
         }
-    }
-
-    /**
-     * @return array<PluginInfo>
-     */
-    public function fetchPluginInfos(): array
-    {
-        $this->loadPluginInfos();
-
-        return $this->pluginInfos;
     }
 }

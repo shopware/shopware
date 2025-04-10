@@ -32,7 +32,7 @@ use Symfony\Component\HttpKernel\KernelEvents;
 /**
  * @internal
  */
-#[Package('buyers-experience')]
+#[Package('inventory')]
 #[CoversClass(StoreApiSeoResolver::class)]
 class StoreApiSeoResolverTest extends TestCase
 {
@@ -100,7 +100,7 @@ class StoreApiSeoResolverTest extends TestCase
         // @phpstan-ignore-next-line > Ignore PHPStan error, to be able to assert that this method has not been called
         $attributes = $this->createMock(ParameterBag::class);
         $attributes
-            ->expects(static::never())
+            ->expects($this->never())
             ->method('get');
 
         $request = new Request();
@@ -155,6 +155,14 @@ class StoreApiSeoResolverTest extends TestCase
         $storeApiSeoResolver->addSeoInformation($event);
     }
 
+    public function createProductEntity(): SalesChannelProductEntity
+    {
+        $productEntity = new SalesChannelProductEntity();
+        $productEntity->setUniqueIdentifier('random');
+
+        return $productEntity;
+    }
+
     private function createStoreApiSeoResolver(): StoreApiSeoResolver
     {
         $productDefinition = $this->createMock(ProductDefinition::class);
@@ -162,7 +170,7 @@ class StoreApiSeoResolverTest extends TestCase
             ->method('isSeoAware')
             ->willReturn(true);
         $productDefinition
-            ->expects(static::atLeastOnce())
+            ->expects($this->atLeastOnce())
             ->method('getEntityName')
             ->willReturn('product');
 
@@ -195,13 +203,5 @@ class StoreApiSeoResolverTest extends TestCase
             $salesChannelDefinitionInstanceRegistry,
             new SeoUrlRouteRegistry([new TestProductSeoUrlRoute($productDefinition)]),
         );
-    }
-
-    public function createProductEntity(): SalesChannelProductEntity
-    {
-        $productEntity = new SalesChannelProductEntity();
-        $productEntity->setUniqueIdentifier('random');
-
-        return $productEntity;
     }
 }

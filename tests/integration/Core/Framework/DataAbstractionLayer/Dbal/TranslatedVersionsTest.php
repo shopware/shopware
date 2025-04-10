@@ -18,9 +18,9 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\StringField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\TranslatedField;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
-use Shopware\Core\Framework\Test\IdsCollection;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
+use Shopware\Core\Test\Stub\Framework\IdsCollection;
 
 /**
  * @internal
@@ -43,7 +43,7 @@ class TranslatedVersionsTest extends TestCase
 
     protected function setUp(): void
     {
-        $this->manufacturerRepository = $this->getContainer()->get('product_manufacturer.repository');
+        $this->manufacturerRepository = static::getContainer()->get('product_manufacturer.repository');
     }
 
     public function testTranslationsAreAllSelectable(): void
@@ -119,7 +119,7 @@ class TranslatedVersionsTest extends TestCase
     {
         $enContext = Context::createDefaultContext();
         $deContext = $this->createDeContext($enContext);
-        $productRepository = $this->getContainer()->get('product.repository');
+        $productRepository = static::getContainer()->get('product.repository');
 
         $ids = $this->createParentChildProduct();
 
@@ -146,7 +146,7 @@ class TranslatedVersionsTest extends TestCase
     {
         $enContext = Context::createDefaultContext();
         $deContext = $this->createDeContext($enContext);
-        $productRepository = $this->getContainer()->get('product.repository');
+        $productRepository = static::getContainer()->get('product.repository');
 
         $ids = $this->createParentChildProduct();
 
@@ -172,7 +172,7 @@ class TranslatedVersionsTest extends TestCase
     {
         $enContext = Context::createDefaultContext();
         $deContext = $this->createDeContext($enContext);
-        $productRepository = $this->getContainer()->get('product.repository');
+        $productRepository = static::getContainer()->get('product.repository');
 
         $ids = $this->createParentChildProduct(false);
 
@@ -196,14 +196,14 @@ class TranslatedVersionsTest extends TestCase
 
     public function testFieldResolverThrowsOnNotTranslatedEntities(): void
     {
-        $resolver = $this->getContainer()->get(TranslationFieldResolver::class);
+        $resolver = static::getContainer()->get(TranslationFieldResolver::class);
         $context = new FieldResolverContext(
             '',
             '',
             new TranslatedField(''),
-            $this->getContainer()->get(ProductManufacturerTranslationDefinition::class),
-            $this->getContainer()->get(ProductManufacturerTranslationDefinition::class),
-            new QueryBuilder($this->getContainer()->get(Connection::class)),
+            static::getContainer()->get(ProductManufacturerTranslationDefinition::class),
+            static::getContainer()->get(ProductManufacturerTranslationDefinition::class),
+            new QueryBuilder(static::getContainer()->get(Connection::class)),
             Context::createDefaultContext(),
             null
         );
@@ -214,14 +214,14 @@ class TranslatedVersionsTest extends TestCase
 
     public function testFieldResolverReturnsOnNotTranslatedFields(): void
     {
-        $resolver = $this->getContainer()->get(TranslationFieldResolver::class);
+        $resolver = static::getContainer()->get(TranslationFieldResolver::class);
         $result = $resolver->join(new FieldResolverContext(
             '',
             'THIS_SHOULD_BE_RETURNED',
             new StringField('', ''),
-            $this->getContainer()->get(ProductManufacturerDefinition::class),
-            $this->getContainer()->get(ProductManufacturerDefinition::class),
-            new QueryBuilder($this->getContainer()->get(Connection::class)),
+            static::getContainer()->get(ProductManufacturerDefinition::class),
+            static::getContainer()->get(ProductManufacturerDefinition::class),
+            new QueryBuilder(static::getContainer()->get(Connection::class)),
             Context::createDefaultContext(),
             null
         ));
@@ -284,7 +284,7 @@ class TranslatedVersionsTest extends TestCase
         $context->setConsiderInheritance(true);
 
         /** @var ProductEntity $product */
-        $product = $this->getContainer()
+        $product = static::getContainer()
             ->get('product.repository')
             ->search(new Criteria([$id]), $context)->first();
 
@@ -322,7 +322,7 @@ class TranslatedVersionsTest extends TestCase
             $childProduct['translations'] = $this->getTestTranslations('child-');
         }
 
-        $this->getContainer()
+        static::getContainer()
             ->get('product.repository')
             ->create([$parentProduct, $childProduct], $context);
 

@@ -10,13 +10,14 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\System\Country\Aggregate\CountryState\CountryStateCollection;
+use Shopware\Core\System\Country\Event\CountryStateCriteriaEvent;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
 #[Route(defaults: ['_routeScope' => ['store-api']])]
-#[Package('buyers-experience')]
+#[Package('fundamentals@discovery')]
 class CountryStateRoute extends AbstractCountryStateRoute
 {
     final public const ALL_TAG = 'country-state-route';
@@ -52,6 +53,7 @@ class CountryStateRoute extends AbstractCountryStateRoute
         $criteria->addSorting(new FieldSorting('position', FieldSorting::ASCENDING, true));
         $criteria->addSorting(new FieldSorting('name', FieldSorting::ASCENDING));
 
+        $this->dispatcher->dispatch(new CountryStateCriteriaEvent($countryId, $request, $criteria, $context));
         $countryStates = $this->countryStateRepository->search($criteria, $context->getContext());
 
         return new CountryStateRouteResponse($countryStates);

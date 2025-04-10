@@ -1,5 +1,5 @@
 /**
- * @package buyers-experience
+ * @sw-package checkout
  */
 import template from './sw-promotion-v2-settings-trigger.html.twig';
 
@@ -8,8 +8,6 @@ const { Criteria } = Shopware.Data;
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default {
     template,
-
-    compatConfig: Shopware.compatConfig,
 
     inject: [
         'acl',
@@ -31,8 +29,17 @@ export default {
 
     computed: {
         ruleCriteria() {
-            return (new Criteria(1, 25))
-                .addSorting(Criteria.sort('name', 'ASC', false));
+            return new Criteria(1, 25).addSorting(Criteria.sort('name', 'ASC', false));
+        },
+
+        triggerOptions() {
+            return this.getTriggerSelection().map((trigger) => {
+                return {
+                    id: trigger.value,
+                    value: trigger.value,
+                    label: trigger.display,
+                };
+            });
         },
     },
 
@@ -45,15 +52,18 @@ export default {
     methods: {
         getTriggerSelection() {
             const prefix = 'sw-promotion-v2.detail.discounts.settings.trigger.triggerType';
-            return [{
-                value: 'single',
-                display: this.$tc(`${prefix}.displaySingleTrigger`),
-                disabled: false,
-            }, {
-                value: 'multi',
-                display: this.$tc(`${prefix}.displayMultiTrigger`),
-                disabled: true,
-            }];
+            return [
+                {
+                    value: 'single',
+                    display: this.$tc(`${prefix}.displaySingleTrigger`),
+                    disabled: false,
+                },
+                {
+                    value: 'multi',
+                    display: this.$tc(`${prefix}.displayMultiTrigger`),
+                    disabled: true,
+                },
+            ];
         },
     },
 };

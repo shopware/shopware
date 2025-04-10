@@ -63,316 +63,139 @@ use Shopware\Core\System\Tax\Aggregate\TaxRuleTypeTranslation\TaxRuleTypeTransla
 use Shopware\Core\System\TaxProvider\Aggregate\TaxProviderTranslation\TaxProviderTranslationCollection;
 use Shopware\Core\System\Unit\Aggregate\UnitTranslation\UnitTranslationCollection;
 
-#[Package('buyers-experience')]
+#[Package('fundamentals@discovery')]
 class LanguageEntity extends Entity
 {
     use EntityCustomFieldsTrait;
     use EntityIdTrait;
 
-    /**
-     * @var string|null
-     */
-    protected $parentId;
+    protected ?string $parentId = null;
 
-    /**
-     * @var string
-     */
-    protected $localeId;
+    protected string $localeId;
 
-    /**
-     * @var string|null
-     */
-    protected $translationCodeId;
+    protected ?string $translationCodeId = null;
 
-    /**
-     * @var LocaleEntity|null
-     */
-    protected $translationCode;
+    protected ?LocaleEntity $translationCode = null;
 
-    /**
-     * @var string
-     */
-    protected $name;
+    protected string $name;
 
-    /**
-     * @var LocaleEntity|null
-     */
-    protected $locale;
+    protected ?LocaleEntity $locale = null;
 
-    /**
-     * @var LanguageEntity|null
-     */
-    protected $parent;
+    protected ?LanguageEntity $parent = null;
 
-    /**
-     * @var LanguageCollection|null
-     */
-    protected $children;
+    protected ?LanguageCollection $children = null;
 
-    /**
-     * @var SalesChannelCollection|null
-     */
-    protected $salesChannels;
+    protected ?SalesChannelCollection $salesChannels = null;
 
-    /**
-     * @var CustomerCollection|null
-     */
-    protected $customers;
+    protected ?CustomerCollection $customers = null;
 
-    /**
-     * @var SalesChannelCollection|null
-     */
-    protected $salesChannelDefaultAssignments;
+    protected ?SalesChannelCollection $salesChannelDefaultAssignments = null;
 
-    /**
-     * @var CategoryTranslationCollection|null
-     */
-    protected $categoryTranslations;
+    protected ?CategoryTranslationCollection $categoryTranslations = null;
 
-    /**
-     * @var CountryStateTranslationCollection|null
-     */
-    protected $countryStateTranslations;
+    protected ?CountryStateTranslationCollection $countryStateTranslations = null;
 
-    /**
-     * @var CountryTranslationCollection|null
-     */
-    protected $countryTranslations;
+    protected ?CountryTranslationCollection $countryTranslations = null;
 
-    /**
-     * @var CurrencyTranslationCollection|null
-     */
-    protected $currencyTranslations;
+    protected ?CurrencyTranslationCollection $currencyTranslations = null;
 
-    /**
-     * @var CustomerGroupTranslationCollection|null
-     */
-    protected $customerGroupTranslations;
+    protected ?CustomerGroupTranslationCollection $customerGroupTranslations = null;
 
-    /**
-     * @var LocaleTranslationCollection|null
-     */
-    protected $localeTranslations;
+    protected ?LocaleTranslationCollection $localeTranslations = null;
 
-    /**
-     * @var MediaTranslationCollection|null
-     */
-    protected $mediaTranslations;
+    protected ?MediaTranslationCollection $mediaTranslations = null;
 
-    /**
-     * @var PaymentMethodTranslationCollection|null
-     */
-    protected $paymentMethodTranslations;
+    protected ?PaymentMethodTranslationCollection $paymentMethodTranslations = null;
 
-    /**
-     * @var ProductManufacturerTranslationCollection|null
-     */
-    protected $productManufacturerTranslations;
+    protected ?ProductManufacturerTranslationCollection $productManufacturerTranslations = null;
 
-    /**
-     * @var ProductTranslationCollection|null
-     */
-    protected $productTranslations;
+    protected ?ProductTranslationCollection $productTranslations = null;
 
-    /**
-     * @var ShippingMethodTranslationCollection|null
-     */
-    protected $shippingMethodTranslations;
+    protected ?ShippingMethodTranslationCollection $shippingMethodTranslations = null;
 
-    /**
-     * @var UnitTranslationCollection|null
-     */
-    protected $unitTranslations;
+    protected ?UnitTranslationCollection $unitTranslations = null;
 
-    /**
-     * @var PropertyGroupTranslationCollection|null
-     */
-    protected $propertyGroupTranslations;
+    protected ?PropertyGroupTranslationCollection $propertyGroupTranslations = null;
 
-    /**
-     * @var PropertyGroupOptionTranslationCollection|null
-     */
-    protected $propertyGroupOptionTranslations;
+    protected ?PropertyGroupOptionTranslationCollection $propertyGroupOptionTranslations = null;
 
-    /**
-     * @var SalesChannelTranslationCollection|null
-     */
-    protected $salesChannelTranslations;
+    protected ?SalesChannelTranslationCollection $salesChannelTranslations = null;
 
-    /**
-     * @var SalesChannelTypeTranslationCollection|null
-     */
-    protected $salesChannelTypeTranslations;
+    protected ?SalesChannelTypeTranslationCollection $salesChannelTypeTranslations = null;
 
-    /**
-     * @var SalutationTranslationCollection|null
-     */
-    protected $salutationTranslations;
+    protected ?SalutationTranslationCollection $salutationTranslations = null;
 
-    /**
-     * @var SalesChannelDomainCollection|null
-     */
-    protected $salesChannelDomains;
+    protected ?SalesChannelDomainCollection $salesChannelDomains = null;
 
-    /**
-     * @var PluginTranslationCollection|null
-     */
-    protected $pluginTranslations;
+    protected ?PluginTranslationCollection $pluginTranslations = null;
 
-    /**
-     * @var ProductStreamTranslationCollection|null
-     */
-    protected $productStreamTranslations;
+    protected ?ProductStreamTranslationCollection $productStreamTranslations = null;
 
-    /**
-     * @var StateMachineTranslationCollection|null
-     */
-    protected $stateMachineTranslations;
+    protected ?StateMachineTranslationCollection $stateMachineTranslations = null;
 
-    /**
-     * @var StateMachineStateTranslationCollection|null
-     */
-    protected $stateMachineStateTranslations;
+    protected ?StateMachineStateTranslationCollection $stateMachineStateTranslations = null;
 
     /**
      * @var EntityCollection<CmsPageTranslationEntity>|null
      */
-    protected $cmsPageTranslations;
+    protected ?EntityCollection $cmsPageTranslations = null;
 
     /**
      * @var EntityCollection<CmsSlotTranslationEntity>|null
      */
-    protected $cmsSlotTranslations;
+    protected ?EntityCollection $cmsSlotTranslations = null;
 
-    /**
-     * @var MailTemplateCollection|null
-     */
-    protected $mailTemplateTranslations;
+    protected ?MailTemplateCollection $mailTemplateTranslations = null;
 
-    /**
-     * @var MailHeaderFooterCollection|null
-     */
-    protected $mailHeaderFooterTranslations;
+    protected ?MailHeaderFooterCollection $mailHeaderFooterTranslations = null;
 
-    /**
-     * @var DocumentTypeTranslationCollection|null
-     */
-    protected $documentTypeTranslations;
+    protected ?DocumentTypeTranslationCollection $documentTypeTranslations = null;
 
-    /**
-     * @var DeliveryTimeCollection|null
-     */
-    protected $deliveryTimeTranslations;
+    protected ?DeliveryTimeCollection $deliveryTimeTranslations = null;
 
-    /**
-     * @var NewsletterRecipientCollection|null
-     */
-    protected $newsletterRecipients;
+    protected ?NewsletterRecipientCollection $newsletterRecipients = null;
 
-    /**
-     * @var OrderCollection|null
-     */
-    protected $orders;
+    protected ?OrderCollection $orders = null;
 
-    /**
-     * @var NumberRangeTypeTranslationCollection|null
-     */
-    protected $numberRangeTypeTranslations;
+    protected ?NumberRangeTypeTranslationCollection $numberRangeTypeTranslations = null;
 
-    /**
-     * @var ProductSearchKeywordCollection|null
-     */
-    protected $productSearchKeywords;
+    protected ?ProductSearchKeywordCollection $productSearchKeywords = null;
 
-    /**
-     * @var ProductKeywordDictionaryCollection|null
-     */
-    protected $productKeywordDictionaries;
+    protected ?ProductKeywordDictionaryCollection $productKeywordDictionaries = null;
 
-    /**
-     * @var MailTemplateTypeDefinition|null
-     */
-    protected $mailTemplateTypeTranslations;
+    protected ?MailTemplateTypeDefinition $mailTemplateTypeTranslations = null;
 
-    /**
-     * @var PromotionTranslationCollection|null
-     */
-    protected $promotionTranslations;
+    protected ?PromotionTranslationCollection $promotionTranslations = null;
 
-    /**
-     * @var NumberRangeTranslationCollection|null
-     */
-    protected $numberRangeTranslations;
+    protected ?NumberRangeTranslationCollection $numberRangeTranslations = null;
 
-    /**
-     * @var ProductReviewCollection|null
-     */
-    protected $productReviews;
+    protected ?ProductReviewCollection $productReviews = null;
 
-    /**
-     * @var SeoUrlCollection|null
-     */
-    protected $seoUrlTranslations;
+    protected ?SeoUrlCollection $seoUrlTranslations = null;
 
-    /**
-     * @var TaxRuleTypeTranslationCollection|null
-     */
-    protected $taxRuleTypeTranslations;
+    protected ?TaxRuleTypeTranslationCollection $taxRuleTypeTranslations = null;
 
-    /**
-     * @var ProductCrossSellingTranslationCollection|null
-     */
-    protected $productCrossSellingTranslations;
+    protected ?ProductCrossSellingTranslationCollection $productCrossSellingTranslations = null;
 
-    /**
-     * @var ImportExportProfileTranslationCollection|null
-     */
-    protected $importExportProfileTranslations;
+    protected ?ImportExportProfileTranslationCollection $importExportProfileTranslations = null;
 
-    /**
-     * @var ProductFeatureSetTranslationCollection|null
-     */
-    protected $productFeatureSetTranslations;
+    protected ?ProductFeatureSetTranslationCollection $productFeatureSetTranslations = null;
 
-    /**
-     * @var AppTranslationCollection|null
-     */
-    protected $appTranslations;
+    protected ?AppTranslationCollection $appTranslations = null;
 
-    /**
-     * @var ActionButtonTranslationCollection|null
-     */
-    protected $actionButtonTranslations;
+    protected ?ActionButtonTranslationCollection $actionButtonTranslations = null;
 
-    /**
-     * @var ProductSortingTranslationCollection|null
-     */
-    protected $productSortingTranslations;
+    protected ?ProductSortingTranslationCollection $productSortingTranslations = null;
 
-    /**
-     * @var ProductSearchConfigEntity|null
-     */
-    protected $productSearchConfig;
+    protected ?ProductSearchConfigEntity $productSearchConfig = null;
 
-    /**
-     * @var LandingPageTranslationCollection|null
-     */
-    protected $landingPageTranslations;
+    protected ?LandingPageTranslationCollection $landingPageTranslations = null;
 
-    /**
-     * @var AppCmsBlockTranslationCollection|null
-     */
-    protected $appCmsBlockTranslations;
+    protected ?AppCmsBlockTranslationCollection $appCmsBlockTranslations = null;
 
-    /**
-     * @var AppScriptConditionTranslationCollection|null
-     */
-    protected $appScriptConditionTranslations;
+    protected ?AppScriptConditionTranslationCollection $appScriptConditionTranslations = null;
 
-    /**
-     * @var AppFlowActionTranslationCollection|null
-     */
-    protected $appFlowActionTranslations;
+    protected ?AppFlowActionTranslationCollection $appFlowActionTranslations = null;
 
     protected ?TaxProviderTranslationCollection $taxProviderTranslations = null;
 

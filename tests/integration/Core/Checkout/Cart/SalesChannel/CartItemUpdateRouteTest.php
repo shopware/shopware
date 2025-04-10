@@ -7,6 +7,7 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\Rule\CartAmountRule;
 use Shopware\Core\Content\Product\Aggregate\ProductVisibility\ProductVisibilityDefinition;
 use Shopware\Core\Content\Product\Cart\ProductCartProcessor;
+use Shopware\Core\Content\Product\ProductCollection;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
@@ -15,9 +16,9 @@ use Shopware\Core\Framework\Rule\Container\AndRule;
 use Shopware\Core\Framework\Rule\Rule;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\SalesChannelApiTestBehaviour;
-use Shopware\Core\Framework\Test\TestDataCollection;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextPersister;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextService;
+use Shopware\Core\Test\Stub\Framework\IdsCollection;
 use Symfony\Bundle\FrameworkBundle\KernelBrowser;
 
 /**
@@ -33,20 +34,23 @@ class CartItemUpdateRouteTest extends TestCase
 
     private KernelBrowser $browser;
 
-    private TestDataCollection $ids;
+    private IdsCollection $ids;
 
+    /**
+     * @var EntityRepository<ProductCollection>
+     */
     private EntityRepository $productRepository;
 
     protected function setUp(): void
     {
-        $this->ids = new TestDataCollection();
+        $this->ids = new IdsCollection();
 
         $this->browser = $this->createCustomSalesChannelBrowser([
             'id' => $this->ids->create('sales-channel'),
         ]);
 
         $this->browser->setServerParameter('HTTP_SW_CONTEXT_TOKEN', $this->ids->create('token'));
-        $this->productRepository = $this->getContainer()->get('product.repository');
+        $this->productRepository = static::getContainer()->get('product.repository');
 
         $this->createTestData();
     }
@@ -401,12 +405,12 @@ class CartItemUpdateRouteTest extends TestCase
             ],
         ];
 
-        $this->getContainer()->get('rule.repository')->create([
+        static::getContainer()->get('rule.repository')->create([
             ['id' => $this->ids->get('rule-a'), 'name' => 'testA', 'priority' => 1, 'payload' => serialize(new AndRule([new CartAmountRule(Rule::OPERATOR_GTE, 0)]))],
             ['id' => $this->ids->get('rule-b'), 'name' => 'testB', 'priority' => 2, 'payload' => serialize(new AndRule([new CartAmountRule(Rule::OPERATOR_NEQ, 0)]))],
         ], Context::createDefaultContext());
 
-        $this->getContainer()->get('product.repository')->create(
+        static::getContainer()->get('product.repository')->create(
             [$data],
             Context::createDefaultContext()
         );
@@ -504,10 +508,10 @@ class CartItemUpdateRouteTest extends TestCase
     private function enableAdminAccess(): void
     {
         $token = $this->browser->getServerParameter('HTTP_SW_CONTEXT_TOKEN');
-        $payload = $this->getContainer()->get(SalesChannelContextPersister::class)->load($token, $this->ids->get('sales-channel'));
+        $payload = static::getContainer()->get(SalesChannelContextPersister::class)->load($token, $this->ids->get('sales-channel'));
 
         $payload[SalesChannelContextService::PERMISSIONS] = [ProductCartProcessor::ALLOW_PRODUCT_PRICE_OVERWRITES => true];
 
-        $this->getContainer()->get(SalesChannelContextPersister::class)->save($token, $payload, $this->ids->get('sales-channel'));
+        static::getContainer()->get(SalesChannelContextPersister::class)->save($token, $payload, $this->ids->get('sales-channel'));
     }
 }

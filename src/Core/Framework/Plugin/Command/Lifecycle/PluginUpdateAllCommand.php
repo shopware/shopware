@@ -18,7 +18,7 @@ use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 
-#[Package('core')]
+#[Package('framework')]
 #[AsCommand(name: 'plugin:update:all', description: 'Install all available plugin updates')]
 class PluginUpdateAllCommand extends Command
 {

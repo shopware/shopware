@@ -1,5 +1,5 @@
 /**
- * @package buyers-experience
+ * @sw-package after-sales
  */
 
 import { mount } from '@vue/test-utils';
@@ -45,7 +45,9 @@ const createWrapper = async (privileges = []) => {
                 },
                 acl: {
                     can: (identifier) => {
-                        if (!identifier) { return true; }
+                        if (!identifier) {
+                            return true;
+                        }
 
                         return privileges.includes(identifier);
                     },
@@ -66,7 +68,7 @@ const createWrapper = async (privileges = []) => {
                 'sw-card-view': {
                     template: '<div><slot></slot></div>',
                 },
-                'sw-card': {
+                'mt-card': {
                     template: '<div><slot></slot></div>',
                 },
                 'sw-button-process': true,
@@ -75,7 +77,6 @@ const createWrapper = async (privileges = []) => {
                 'sw-textarea-field': true,
                 'sw-text-field': true,
                 'sw-code-editor': true,
-                'sw-button': true,
                 'sw-skeleton': true,
                 'sw-language-switch': true,
             },
@@ -96,12 +97,12 @@ describe('modules/sw-mail-template/page/sw-mail-header-footer-detail', () => {
             { wrappers: wrapper.findAll('sw-textarea-field-stub') },
             { wrappers: wrapper.findAll('sw-code-editor-stub') },
             wrapper.find('sw-entity-multi-select-stub'),
-        ].forEach(element => {
+        ].forEach((element) => {
             if (!Array.isArray(element.wrappers)) {
                 element = { wrappers: [element] };
             }
 
-            element.wrappers.forEach(el => {
+            element.wrappers.forEach((el) => {
                 expect(el.attributes().disabled).toBeTruthy();
             });
         });
@@ -123,12 +124,12 @@ describe('modules/sw-mail-template/page/sw-mail-header-footer-detail', () => {
             { wrappers: wrapper.findAll('sw-textarea-field-stub') },
             { wrappers: wrapper.findAll('sw-code-editor-stub') },
             wrapper.find('sw-entity-multi-select-stub'),
-        ].forEach(element => {
+        ].forEach((element) => {
             if (!Array.isArray(element.wrappers)) {
                 element = { wrappers: [element] };
             }
 
-            element.wrappers.forEach(el => {
+            element.wrappers.forEach((el) => {
                 expect(el.attributes().disabled).toBeFalsy();
             });
         });

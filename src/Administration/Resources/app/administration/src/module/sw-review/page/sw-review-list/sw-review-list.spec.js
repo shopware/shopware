@@ -1,5 +1,5 @@
 /**
- * @package inventory
+ * @sw-package inventory
  */
 import { mount } from '@vue/test-utils';
 
@@ -18,23 +18,27 @@ async function createWrapper() {
                 repositoryFactory: {
                     create: () => ({
                         create: () => {
-                            return Promise.resolve([{
-                                id: '1a2b3c',
-                                entity: 'review',
-                                customerId: 'd4c3b2a1',
-                                productId: 'd4c3b2a1',
-                                salesChannelId: 'd4c3b2a1',
-                            }]);
+                            return Promise.resolve([
+                                {
+                                    id: '1a2b3c',
+                                    entity: 'review',
+                                    customerId: 'd4c3b2a1',
+                                    productId: 'd4c3b2a1',
+                                    salesChannelId: 'd4c3b2a1',
+                                },
+                            ]);
                         },
                         search: () => {
-                            return Promise.resolve([{
-                                id: '1a2b3c',
-                                entity: 'review',
-                                customerId: 'd4c3b2a1',
-                                productId: 'd4c3b2a1',
-                                salesChannelId: 'd4c3b2a1',
-                                sourceEntitiy: 'product-review',
-                            }]);
+                            return Promise.resolve([
+                                {
+                                    id: '1a2b3c',
+                                    entity: 'review',
+                                    customerId: 'd4c3b2a1',
+                                    productId: 'd4c3b2a1',
+                                    salesChannelId: 'd4c3b2a1',
+                                    sourceEntitiy: 'product-review',
+                                },
+                            ]);
                         },
                     }),
                 },
@@ -49,8 +53,6 @@ async function createWrapper() {
                         <slot></slot>
                     </div>`,
                 },
-                'sw-button': true,
-                'sw-icon': true,
                 'sw-search-bar': true,
                 'sw-entity-listing': true,
                 'sw-language-switch': true,

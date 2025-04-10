@@ -16,35 +16,17 @@ class TaxEntity extends Entity
     use EntityCustomFieldsTrait;
     use EntityIdTrait;
 
-    /**
-     * @var float
-     */
-    protected $taxRate;
+    protected float $taxRate;
 
-    /**
-     * @var string
-     */
-    protected $name;
+    protected string $name;
 
-    /**
-     * @var int
-     */
-    protected $position;
+    protected int $position;
 
-    /**
-     * @var ProductCollection|null
-     */
-    protected $products;
+    protected ?ProductCollection $products = null;
 
-    /**
-     * @var TaxRuleCollection|null
-     */
-    protected $rules;
+    protected ?TaxRuleCollection $rules = null;
 
-    /**
-     * @var ShippingMethodCollection|null
-     */
-    protected $shippingMethods;
+    protected ?ShippingMethodCollection $shippingMethods = null;
 
     public function getTaxRate(): float
     {

@@ -1,5 +1,5 @@
 /**
- * @package admin
+ * @sw-package framework
  */
 
 Shopware.Filter.register('asset', (value: string) => {
@@ -21,4 +21,3 @@ Shopware.Filter.register('asset', (value: string) => {
  * @private
  */
 export {};
-

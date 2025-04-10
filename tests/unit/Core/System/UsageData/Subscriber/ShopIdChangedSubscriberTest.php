@@ -37,11 +37,11 @@ class ShopIdChangedSubscriberTest extends TestCase
         ]);
 
         $bannerService = $this->createMock(BannerService::class);
-        $bannerService->expects(static::once())
+        $bannerService->expects($this->once())
             ->method('resetIsBannerHiddenForAllUsers');
 
         $entityDispatchService = $this->createMock(EntityDispatchService::class);
-        $entityDispatchService->expects(static::once())
+        $entityDispatchService->expects($this->once())
             ->method('resetLastRunDateForAllEntities');
 
         $shopIdChangedSubscriber = new ShopIdChangedSubscriber(
@@ -63,11 +63,11 @@ class ShopIdChangedSubscriberTest extends TestCase
         ]);
 
         $bannerService = $this->createMock(BannerService::class);
-        $bannerService->expects(static::once())
+        $bannerService->expects($this->once())
             ->method('resetIsBannerHiddenForAllUsers');
 
         $entityDispatchService = $this->createMock(EntityDispatchService::class);
-        $entityDispatchService->expects(static::once())
+        $entityDispatchService->expects($this->once())
             ->method('resetLastRunDateForAllEntities');
 
         $shopIdChangedSubscriber = new ShopIdChangedSubscriber(
@@ -91,11 +91,11 @@ class ShopIdChangedSubscriberTest extends TestCase
     public function testHandleShopIdChangedDoesNothingIfOldShopIdIsNull(): void
     {
         $bannerService = $this->createMock(BannerService::class);
-        $bannerService->expects(static::never())
+        $bannerService->expects($this->never())
             ->method('resetIsBannerHiddenForAllUsers');
 
         $entityDispatchService = $this->createMock(EntityDispatchService::class);
-        $entityDispatchService->expects(static::never())
+        $entityDispatchService->expects($this->never())
             ->method('resetLastRunDateForAllEntities');
 
         $shopIdChangedSubscriber = new ShopIdChangedSubscriber(
@@ -116,11 +116,11 @@ class ShopIdChangedSubscriberTest extends TestCase
     public function testHandleShopIdDoesNothingIfOldShopIdWasSet(): void
     {
         $bannerService = $this->createMock(BannerService::class);
-        $bannerService->expects(static::never())
+        $bannerService->expects($this->never())
             ->method('resetIsBannerHiddenForAllUsers');
 
         $entityDispatchService = $this->createMock(EntityDispatchService::class);
-        $entityDispatchService->expects(static::never())
+        $entityDispatchService->expects($this->never())
             ->method('resetLastRunDateForAllEntities');
 
         $shopIdChangedSubscriber = new ShopIdChangedSubscriber(

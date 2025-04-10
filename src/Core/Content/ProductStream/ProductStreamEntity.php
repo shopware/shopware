@@ -18,57 +18,33 @@ class ProductStreamEntity extends Entity
     use EntityCustomFieldsTrait;
     use EntityIdTrait;
 
-    /**
-     * @var string
-     */
-    protected $name;
+    protected ?string $name = null;
 
-    /**
-     * @var string|null
-     */
-    protected $description;
+    protected ?string $description = null;
 
     /**
      * @var array<array<string, string|array<array<string, mixed>>>>|null
      */
-    protected $apiFilter;
+    protected ?array $apiFilter = null;
 
-    /**
-     * @var ProductStreamFilterCollection|null
-     */
-    protected $filters;
+    protected ?ProductStreamFilterCollection $filters = null;
 
-    /**
-     * @var bool
-     */
-    protected $invalid;
+    protected bool $invalid;
 
-    /**
-     * @var ProductStreamTranslationCollection|null
-     */
-    protected $translations;
+    protected ?ProductStreamTranslationCollection $translations = null;
 
-    /**
-     * @var ProductExportCollection|null
-     */
-    protected $productExports;
+    protected ?ProductExportCollection $productExports = null;
 
-    /**
-     * @var ProductCrossSellingCollection|null
-     */
-    protected $productCrossSellings;
+    protected ?ProductCrossSellingCollection $productCrossSellings = null;
 
-    /**
-     * @var CategoryCollection|null
-     */
-    protected $categories;
+    protected ?CategoryCollection $categories = null;
 
-    public function getName(): string
+    public function getName(): ?string
     {
         return $this->name;
     }
 
-    public function setName(string $name): void
+    public function setName(?string $name): void
     {
         $this->name = $name;
     }

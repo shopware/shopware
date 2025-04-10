@@ -5,53 +5,26 @@ namespace Shopware\Storefront\Page;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Struct\Struct;
 
-#[Package('storefront')]
+#[Package('framework')]
 class MetaInformation extends Struct
 {
-    /**
-     * @var string
-     */
-    protected $metaTitle = '';
+    protected string $metaTitle = '';
 
-    /**
-     * @var string
-     */
-    protected $metaDescription = '';
+    protected string $metaDescription = '';
 
-    /**
-     * @var string
-     */
-    protected $metaKeywords = '';
+    protected string $metaKeywords = '';
 
-    /**
-     * @var string
-     */
-    protected $author = '';
+    protected string $author = '';
 
-    /**
-     * @var string
-     */
-    protected $xmlLang = '';
+    protected string $xmlLang = '';
 
-    /**
-     * @var string
-     */
-    protected $copyrightYear = '';
+    protected string $copyrightYear = '';
 
-    /**
-     * @var string
-     */
-    protected $revisit = '';
+    protected string $revisit = '';
 
-    /**
-     * @var string
-     */
-    protected $robots = '';
+    protected string $robots = '';
 
-    /**
-     * @var string|null
-     */
-    protected $canonical;
+    protected ?string $canonical = null;
 
     public function getMetaTitle(): string
     {

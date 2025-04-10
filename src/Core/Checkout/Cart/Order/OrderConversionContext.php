@@ -8,25 +8,13 @@ use Shopware\Core\Framework\Struct\Struct;
 #[Package('checkout')]
 class OrderConversionContext extends Struct
 {
-    /**
-     * @var bool
-     */
-    protected $includeCustomer = true;
+    protected bool $includeCustomer = true;
 
-    /**
-     * @var bool
-     */
-    protected $includeBillingAddress = true;
+    protected bool $includeBillingAddress = true;
 
-    /**
-     * @var bool
-     */
-    protected $includeDeliveries = true;
+    protected bool $includeDeliveries = true;
 
-    /**
-     * @var bool
-     */
-    protected $includeTransactions = true;
+    protected bool $includeTransactions = true;
 
     protected bool $includeOrderDate = true;
 

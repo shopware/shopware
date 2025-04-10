@@ -19,7 +19,7 @@ use Shopware\Core\System\SalesChannel\SalesChannelContext;
 /**
  * @internal
  */
-#[Package('services-settings')]
+#[Package('fundamentals@after-sales')]
 #[CoversClass(LineItemUnitPriceRule::class)]
 class LineItemUnitPriceRuleTest extends TestCase
 {

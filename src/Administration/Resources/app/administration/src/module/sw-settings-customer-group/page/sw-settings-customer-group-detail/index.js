@@ -2,7 +2,7 @@ import './sw-settings-customer-group-detail.scss';
 import template from './sw-settings-customer-group-detail.html.twig';
 
 /**
- * @package services-settings
+ * @sw-package discovery
  */
 const { Mixin } = Shopware;
 const { Criteria } = Shopware.Data;
@@ -15,9 +15,11 @@ const domainPlaceholderId = '124c71d524604ccbad6042edce3ac799';
 export default {
     template,
 
-    compatConfig: Shopware.compatConfig,
-
-    inject: ['repositoryFactory', 'acl', 'customFieldDataProviderService'],
+    inject: [
+        'repositoryFactory',
+        'acl',
+        'customFieldDataProviderService',
+    ],
 
     mixins: [
         Mixin.getByName('notification'),
@@ -191,11 +193,10 @@ export default {
             const criteria = new Criteria(1, 25);
             criteria.addAssociation('registrationSalesChannels');
 
-            this.customerGroupRepository.get(this.customerGroupId, Shopware.Context.api, criteria)
-                .then((customerGroup) => {
-                    this.customerGroup = customerGroup;
-                    this.isLoading = false;
-                });
+            this.customerGroupRepository.get(this.customerGroupId, Shopware.Context.api, criteria).then((customerGroup) => {
+                this.customerGroup = customerGroup;
+                this.isLoading = false;
+            });
         },
 
         async loadSeoUrls() {
@@ -223,7 +224,7 @@ export default {
         getSeoUrl(seoUrl) {
             let shopUrl = '';
 
-            seoUrl.salesChannel.domains.forEach(domain => {
+            seoUrl.salesChannel.domains.forEach((domain) => {
                 if (domain.languageId === seoUrl.languageId) {
                     shopUrl = domain.url;
                 }
@@ -236,7 +237,8 @@ export default {
             if (
                 Shopware.Context.api.languageId === Shopware.Context.api.systemLanguageId &&
                 this.customerGroup.registrationActive &&
-                types.isEmpty(this.customerGroup.registrationTitle)) {
+                types.isEmpty(this.customerGroup.registrationTitle)
+            ) {
                 this.createNotificationError({
                     message: this.$tc('global.notification.notificationSaveErrorMessageRequiredFieldsInvalid'),
                 });

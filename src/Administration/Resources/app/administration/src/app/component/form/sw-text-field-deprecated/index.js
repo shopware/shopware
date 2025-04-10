@@ -1,9 +1,10 @@
+import { inject } from 'vue';
 import template from './sw-text-field-deprecated.html.twig';
 
 const { Component, Mixin } = Shopware;
 
 /**
- * @package admin
+ * @sw-package framework
  *
  * @private
  * @description Simple text field.
@@ -11,13 +12,12 @@ const { Component, Mixin } = Shopware;
  * @example-type dynamic
  * @component-example
  * <sw-text-field label="Name" placeholder="placeholder goes here..."></sw-text-field>
+ * @deprecated tag:v6.8.0 - Will be removed, use mt-text-field instead
  */
 Component.register('sw-text-field-deprecated', {
     template,
 
     inheritAttrs: false,
-
-    compatConfig: Shopware.compatConfig,
 
     inject: ['feature'],
 
@@ -64,6 +64,14 @@ Component.register('sw-text-field-deprecated', {
                 return '';
             },
         },
+
+        ariaLabel: {
+            type: String,
+            required: false,
+            default() {
+                return inject('ariaLabel', null)?.value;
+            },
+        },
     },
 
     data() {
@@ -74,46 +82,20 @@ Component.register('sw-text-field-deprecated', {
 
     computed: {
         hasPrefix() {
-            if (this.isCompatEnabled('INSTANCE_SCOPED_SLOTS')) {
-                return this.$scopedSlots.hasOwnProperty('prefix');
-            }
-
             return this.$slots.hasOwnProperty('prefix');
         },
 
         hasSuffix() {
-            if (this.isCompatEnabled('INSTANCE_SCOPED_SLOTS')) {
-                return this.$scopedSlots.hasOwnProperty('suffix');
-            }
-
             return this.$slots.hasOwnProperty('suffix');
-        },
-
-        additionalListeners() {
-            if (!this.isCompatEnabled('INSTANCE_LISTENERS')) {
-                return {};
-            }
-
-            const additionalListeners = { ...this.$listeners };
-
-            delete additionalListeners.input;
-            delete additionalListeners.change;
-
-            return additionalListeners;
-        },
-
-        listeners() {
-            if (this.isCompatEnabled('INSTANCE_LISTENERS')) {
-                return this.$listeners;
-            }
-
-            return {};
         },
 
         filteredInputAttributes() {
             // Filter attributes and remove "size" attribute
             return Object.keys(this.$attrs).reduce((acc, key) => {
-                const filteredValues = ['size', 'class'];
+                const filteredValues = [
+                    'size',
+                    'class',
+                ];
 
                 if (!filteredValues.includes(key)) {
                     acc[key] = this.$attrs[key];

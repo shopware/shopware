@@ -38,7 +38,7 @@ class ValidateAppCommandTest extends TestCase
     {
         return new ValidateAppCommand(
             $appFolder,
-            $this->getContainer()->get(ManifestValidator::class)
+            static::getContainer()->get(ManifestValidator::class)
         );
     }
 }

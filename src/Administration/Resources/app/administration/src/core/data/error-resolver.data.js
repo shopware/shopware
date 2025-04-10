@@ -1,5 +1,5 @@
 /**
- * @package admin
+ * @sw-package framework
  *
  * @private
  */
@@ -11,7 +11,7 @@ export default class ErrorResolver {
     }
 
     resetApiErrors() {
-        return Shopware.State.dispatch('error/resetApiErrors');
+        return Shopware.Store.get('error').resetApiErrors();
     }
 
     /**
@@ -33,9 +33,11 @@ export default class ErrorResolver {
     handleDeleteError(errors) {
         errors.forEach(({ error, entityName, id }) => {
             const shopwareError = new this.ShopwareError(error);
-            Shopware.State.dispatch('error/addSystemError', { error: shopwareError });
+            Shopware.Store.get('error').addSystemError({
+                error: shopwareError,
+            });
 
-            Shopware.State.dispatch('error/addApiError', {
+            Shopware.Store.get('error').addApiError({
                 expression: `${entityName}.${id}`,
                 error: shopwareError,
             });
@@ -90,7 +92,7 @@ export default class ErrorResolver {
      */
     addSystemErrors(systemErrors) {
         systemErrors.forEach((error) => {
-            Shopware.State.dispatch('error/addSystemError', error);
+            Shopware.Store.get('error').addSystemError(error);
         });
     }
 
@@ -138,18 +140,12 @@ export default class ErrorResolver {
         }
 
         if (definition.isToOneAssociation(field)) {
-            this.resolveOneToOneFieldError(
-                `${entity.getEntityName()}.${entity.id}.${fieldName}`,
-                error,
-            );
+            this.resolveOneToOneFieldError(`${entity.getEntityName()}.${entity.id}.${fieldName}`, error);
             return;
         }
 
         if (definition.isJsonField(field)) {
-            this.resolveJsonFieldError(
-                `${entity.getEntityName()}.${entity.id}.${fieldName}`,
-                error,
-            );
+            this.resolveJsonFieldError(`${entity.getEntityName()}.${entity.id}.${fieldName}`, error);
             return;
         }
 
@@ -157,7 +153,7 @@ export default class ErrorResolver {
             error = new this.ShopwareError(error);
         }
 
-        Shopware.State.dispatch('error/addApiError', {
+        Shopware.Store.get('error').addApiError({
             expression: this.getErrorPath(entity, fieldName),
             error: error,
         });
@@ -165,7 +161,7 @@ export default class ErrorResolver {
 
     buildAssociationChangeset(entity, changeset, error, associationName) {
         if (!changeset || !Shopware.Utils.object.hasOwnProperty(changeset, associationName)) {
-            Shopware.State.dispatch('error/addApiError', {
+            Shopware.Store.get('error').addApiError({
                 expression: this.getErrorPath(entity, associationName),
                 error: new this.ShopwareError(error),
             });
@@ -186,7 +182,7 @@ export default class ErrorResolver {
             const path = `${basePath}.${fieldName}`;
 
             if (error[fieldName] instanceof this.ShopwareError) {
-                Shopware.State.dispatch('error/addApiError', {
+                Shopware.Store.get('error').addApiError({
                     expression: path,
                     error: error[fieldName],
                 });
@@ -202,7 +198,7 @@ export default class ErrorResolver {
             const path = `${basePath}.${fieldName}`;
 
             if (error[fieldName] instanceof this.ShopwareError) {
-                Shopware.State.dispatch('error/addApiError', {
+                Shopware.Store.get('error').addApiError({
                     expression: path,
                     error: error[fieldName],
                 });

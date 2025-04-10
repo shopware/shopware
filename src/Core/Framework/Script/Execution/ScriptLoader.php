@@ -8,6 +8,7 @@ use Shopware\Core\Framework\Adapter\Cache\CacheCompressor;
 use Shopware\Core\Framework\App\Lifecycle\Persister\ScriptPersister;
 use Shopware\Core\Framework\DataAbstractionLayer\Doctrine\FetchModeHelper;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\Util\Hasher;
 use Symfony\Component\Cache\Adapter\TagAwareAdapterInterface;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use Twig\Cache\FilesystemCache;
@@ -18,7 +19,7 @@ use Twig\Cache\FilesystemCache;
  * @phpstan-type ScriptInfo = array{app_id: ?string, scriptName: string, script: string, hook: string, appName: ?string, integrationId: ?string, lastModified: string, appVersion: string, active: bool}
  * @phpstan-type IncludesInfo = array{app_id: ?string, name: string, script: string, appName: ?string, integrationId: ?string, lastModified: string}
  */
-#[Package('core')]
+#[Package('framework')]
 class ScriptLoader implements EventSubscriberInterface
 {
     final public const CACHE_KEY = 'shopware-app-scripts';
@@ -46,7 +47,7 @@ class ScriptLoader implements EventSubscriberInterface
     public function get(string $hook): array
     {
         $cacheItem = $this->cache->getItem(self::CACHE_KEY);
-        if ($cacheItem->isHit() && $cacheItem->get() && !$this->debug) {
+        if ($cacheItem->isHit() && $cacheItem->get()) {
             return CacheCompressor::uncompress($cacheItem)[$hook] ?? [];
         }
 
@@ -115,7 +116,7 @@ class ScriptLoader implements EventSubscriberInterface
 
             $lastModified = new \DateTimeImmutable(max($dates));
 
-            $cachePrefix = $script['appName'] ? md5($script['appName'] . $script['appVersion']) : EnvironmentHelper::getVariable('INSTANCE_ID', '');
+            $cachePrefix = $script['appName'] ? Hasher::hash($script['appName'] . $script['appVersion']) : EnvironmentHelper::getVariable('INSTANCE_ID', '');
 
             $includes = array_map(function (array $script) use ($appId) {
                 $script['app_id'] = $appId;

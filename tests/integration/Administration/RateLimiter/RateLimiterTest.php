@@ -4,12 +4,13 @@ namespace Shopware\Tests\Integration\Administration\RateLimiter;
 
 use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Framework\App\AppCollection;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
-use Shopware\Core\Framework\Test\IdsCollection;
 use Shopware\Core\Framework\Test\RateLimiter\DisableRateLimiterCompilerPass;
 use Shopware\Core\Framework\Test\TestCaseBase\AdminApiTestBehaviour;
 use Shopware\Core\Test\Integration\Traits\CustomerTestTrait;
+use Shopware\Core\Test\Stub\Framework\IdsCollection;
 
 /**
  * @internal
@@ -22,6 +23,9 @@ class RateLimiterTest extends TestCase
 
     private Context $context;
 
+    /**
+     * @var EntityRepository<AppCollection>
+     */
     private EntityRepository $appRepository;
 
     public static function setUpBeforeClass(): void
@@ -37,7 +41,7 @@ class RateLimiterTest extends TestCase
     protected function setUp(): void
     {
         $this->context = Context::createDefaultContext();
-        $this->appRepository = $this->getContainer()->get('app.repository');
+        $this->appRepository = static::getContainer()->get('app.repository');
     }
 
     protected function tearDown(): void

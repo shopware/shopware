@@ -4,6 +4,7 @@ namespace Shopware\Core\Content\Product\Stock;
 
 use Shopware\Core\Content\Product\ProductEntity;
 use Shopware\Core\Content\Product\ProductEvents;
+use Shopware\Core\Framework\DataAbstractionLayer\PartialEntity;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\Entity\SalesChannelEntityLoadedEvent;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
@@ -21,11 +22,14 @@ class LoadProductStockSubscriber implements EventSubscriberInterface
     public static function getSubscribedEvents(): array
     {
         return [
-            'sales_channel.' . ProductEvents::PRODUCT_LOADED_EVENT => 'salesChannelLoaded',
-            'sales_channel.product.partial_loaded' => 'salesChannelLoaded',
+            'sales_channel.' . ProductEvents::PRODUCT_LOADED_EVENT => ['salesChannelLoaded', 50],
+            'sales_channel.product.partial_loaded' => ['salesChannelLoaded', 50],
         ];
     }
 
+    /**
+     * @param SalesChannelEntityLoadedEvent<ProductEntity|PartialEntity> $event
+     */
     public function salesChannelLoaded(SalesChannelEntityLoadedEvent $event): void
     {
         $stocks = $this->stockStorage->load(
@@ -34,7 +38,6 @@ class LoadProductStockSubscriber implements EventSubscriberInterface
         );
 
         foreach ($event->getEntities() as $product) {
-            /** @var ProductEntity $product */
             $stock = $stocks->getStockForProductId($product->getId());
 
             if ($stock === null) {

@@ -1,13 +1,11 @@
 import type CriteriaType from 'src/core/data/criteria.data';
 import type Repository from 'src/core/data/repository.data';
-import type { Entity } from '@shopware-ag/meteor-admin-sdk/es/_internals/data/Entity';
-import type EntityCollection from '@shopware-ag/meteor-admin-sdk/es/_internals/data/EntityCollection';
-import type { PaymentOverviewCard } from '../../state/overview-cards.store';
+import type { PaymentOverviewCard } from '../../store/overview-cards.store';
 import template from './sw-settings-payment-overview.html.twig';
 import './sw-settings-payment-overview.scss';
 
 /**
- * @package checkout
+ * @sw-package checkout
  */
 
 interface PaymentMethodCard {
@@ -28,19 +26,20 @@ const { cloneDeep } = Shopware.Utils.object;
 export default Shopware.Component.wrapComponentConfig({
     template,
 
-    compatConfig: Shopware.compatConfig,
-
-    inject: ['repositoryFactory', 'acl'],
+    inject: [
+        'repositoryFactory',
+        'acl',
+    ],
 
     mixins: [
         Mixin.getByName('notification'),
     ],
 
     data(): {
-        isLoading: boolean,
-        showSortingModal: boolean,
-        paymentMethods: EntityCollection<'payment_method'>|[],
-        } {
+        isLoading: boolean;
+        showSortingModal: boolean;
+        paymentMethods: EntityCollection<'payment_method'> | [];
+    } {
         return {
             paymentMethods: [],
             isLoading: false,
@@ -56,7 +55,7 @@ export default Shopware.Component.wrapComponentConfig({
 
     computed: {
         customCards(): PaymentOverviewCard[] {
-            return Shopware.State.get('paymentOverviewCardState').cards ?? [];
+            return Shopware.Store.get('paymentOverviewCard').cards ?? [];
         },
 
         paymentMethodRepository(): Repository<'payment_method'> {
@@ -87,7 +86,7 @@ export default Shopware.Component.wrapComponentConfig({
             this.customCards.forEach((customCard: PaymentOverviewCard) => {
                 const customPaymentMethods = paymentMethods
                     // @ts-expect-error - can be undefined
-                    .filter(pm => customCard.paymentMethodHandlers.includes(pm.formattedHandlerIdentifier));
+                    .filter((pm) => customCard.paymentMethodHandlers.includes(pm.formattedHandlerIdentifier));
 
                 if (customPaymentMethods.length === 0) {
                     return;
@@ -98,7 +97,7 @@ export default Shopware.Component.wrapComponentConfig({
                     hasCustomCard: true,
                     component: customCard.component,
                     // @ts-expect-error - can be undefined
-                    position: Math.min(...customPaymentMethods.map(pm => pm.position)),
+                    position: Math.min(...customPaymentMethods.map((pm) => pm.position)),
                     positionId: customCard.positionId,
                     paymentMethods: customPaymentMethods,
                 });
@@ -106,16 +105,21 @@ export default Shopware.Component.wrapComponentConfig({
                 // @ts-expect-error - can be undefined
                 paymentMethods = paymentMethods
                     // @ts-expect-error - can be undefined
-                    .filter(pm => !customCard.paymentMethodHandlers.includes(pm.formattedHandlerIdentifier));
+                    .filter((pm) => !customCard.paymentMethodHandlers.includes(pm.formattedHandlerIdentifier));
             });
 
-            paymentMethodCards.push(...paymentMethods.map(paymentMethod => <PaymentMethodCard>{
-                id: paymentMethod.id,
-                hasCustomCard: false,
-                paymentMethod,
-                position: paymentMethod.position,
-                positionId: '',
-            }));
+            paymentMethodCards.push(
+                ...paymentMethods.map(
+                    (paymentMethod) =>
+                        <PaymentMethodCard>{
+                            id: paymentMethod.id,
+                            hasCustomCard: false,
+                            paymentMethod,
+                            position: paymentMethod.position,
+                            positionId: '',
+                        },
+                ),
+            );
 
             return paymentMethodCards.sort((a: PaymentMethodCard, b: PaymentMethodCard) => {
                 return a.position - b.position;
@@ -135,21 +139,23 @@ export default Shopware.Component.wrapComponentConfig({
         loadPaymentMethods(): void {
             this.isLoading = true;
 
-            void this.paymentMethodRepository.search(this.paymentMethodCriteria).then((items) => {
-                this.paymentMethods = items;
-            }).finally(() => {
-                this.isLoading = false;
-            });
+            void this.paymentMethodRepository
+                .search(this.paymentMethodCriteria)
+                .then((items) => {
+                    this.paymentMethods = items;
+                })
+                .finally(() => {
+                    this.isLoading = false;
+                });
         },
 
         onChangeLanguage(languageId: string): void {
-            Shopware.State.commit('context/setApiLanguageId', languageId);
+            Shopware.Store.get('context').api.languageId = languageId;
             this.loadPaymentMethods();
         },
 
         togglePaymentMethodActive(paymentMethod: Entity<'payment_method'>): void {
-            const paymentMethodEntity = this.paymentMethods
-                .find((pm) => pm.id === paymentMethod.id);
+            const paymentMethodEntity = this.paymentMethods.find((pm) => pm.id === paymentMethod.id);
 
             if (!paymentMethodEntity) {
                 return;
@@ -157,34 +163,40 @@ export default Shopware.Component.wrapComponentConfig({
 
             paymentMethodEntity.active = paymentMethod.active;
 
-            this.paymentMethodRepository.save(paymentMethodEntity).then(() => {
-                this.loadPaymentMethods();
-                this.showActivationSuccessNotification(
-                    paymentMethodEntity.translated?.name ?? '',
-                    // @ts-expect-error - can be undefined
-                    paymentMethodEntity.active,
-                );
-            }).catch(() => {
-                // @ts-expect-error - can be undefined
-                this.showActivationErrorNotification(paymentMethodEntity.translated?.name ?? '', paymentMethodEntity.active);
-                void this.$nextTick(() => {
-                    paymentMethodEntity.active = !paymentMethodEntity.active;
+            this.paymentMethodRepository
+                .save(paymentMethodEntity)
+                .then(() => {
+                    this.loadPaymentMethods();
+                    this.showActivationSuccessNotification(
+                        paymentMethodEntity.translated?.name ?? '',
+                        // @ts-expect-error - can be undefined
+                        paymentMethodEntity.active,
+                    );
+                })
+                .catch(() => {
+                    this.showActivationErrorNotification(
+                        paymentMethodEntity.translated?.name ?? '',
+                        // @ts-expect-error - can be undefined
+                        paymentMethodEntity.active,
+                    );
+                    void this.$nextTick(() => {
+                        paymentMethodEntity.active = !paymentMethodEntity.active;
+                    });
                 });
-            });
         },
 
         showActivationSuccessNotification(name: string, active: boolean) {
-            const message = active ?
-                this.$tc('sw-settings-payment.overview.notification.activationSuccess', 0, { name }) :
-                this.$tc('sw-settings-payment.overview.notification.deactivationSuccess', 0, { name });
+            const message = active
+                ? this.$t('sw-settings-payment.overview.notification.activationSuccess', { name }, 0)
+                : this.$t('sw-settings-payment.overview.notification.deactivationSuccess', { name }, 0);
 
             this.createNotificationSuccess({ message });
         },
 
         showActivationErrorNotification(name: string, active: boolean) {
-            const message = active ?
-                this.$tc('sw-settings-payment.overview.notification.activationError', 0, { name }) :
-                this.$tc('sw-settings-payment.overview.notification.deactivationError', 0, { name });
+            const message = active
+                ? this.$t('sw-settings-payment.overview.notification.activationError', { name }, 0)
+                : this.$t('sw-settings-payment.overview.notification.deactivationError', { name }, 0);
 
             this.createNotificationError({ message });
         },

@@ -16,7 +16,7 @@ use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 /**
  * @final
  */
-#[Package('services-settings')]
+#[Package('after-sales')]
 class FlowIndexer extends EntityIndexer
 {
     public const NAME = 'flow.indexer';
@@ -65,8 +65,12 @@ class FlowIndexer extends EntityIndexer
 
     public function handle(EntityIndexingMessage $message): void
     {
-        $ids = array_unique(array_filter($message->getData()));
+        $ids = $message->getData();
+        if (!\is_array($ids)) {
+            return;
+        }
 
+        $ids = array_unique(array_filter($ids));
         if (empty($ids)) {
             return;
         }

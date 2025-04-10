@@ -7,41 +7,26 @@ use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityIdTrait;
 use Shopware\Core\Framework\Log\Package;
 
-#[Package('core')]
+#[Package('framework')]
 class WebhookEntity extends Entity
 {
     use EntityIdTrait;
 
-    /**
-     * @var string
-     */
-    protected $name;
+    protected string $name;
 
-    /**
-     * @var string
-     */
-    protected $eventName;
+    protected string $eventName;
 
-    /**
-     * @var string
-     */
-    protected $url;
+    protected string $url;
 
     protected bool $onlyLiveVersion;
 
-    /**
-     * @var string|null
-     */
-    protected $appId;
+    protected ?string $appId = null;
 
     protected bool $active;
 
     protected int $errorCount;
 
-    /**
-     * @var AppEntity|null
-     */
-    protected $app;
+    protected ?AppEntity $app = null;
 
     public function getName(): string
     {

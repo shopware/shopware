@@ -27,60 +27,33 @@ use Shopware\Core\System\TaxProvider\TaxProviderCollection;
  * @phpstan-type Module array{name: string, label: array<string, string>, parent: string, source: string|null, position: int}
  * @phpstan-type Cookie array{snippet_name: string, snippet_description?: string, cookie: string, value?: string, expiration?: int, entries?: list<array{snippet_name: string, snippet_description?: string, cookie: string, value?: string, expiration?: int}>}
  */
-#[Package('core')]
+#[Package('framework')]
 class AppEntity extends Entity
 {
     use EntityCustomFieldsTrait;
     use EntityIdTrait;
 
-    /**
-     * @var string
-     */
-    protected $id;
+    protected string $name;
 
-    /**
-     * @var string
-     */
-    protected $name;
+    protected string $path;
 
-    /**
-     * @var string
-     */
-    protected $path;
+    protected ?string $author = null;
 
-    /**
-     * @var string|null
-     */
-    protected $author;
+    protected ?string $copyright = null;
 
-    /**
-     * @var string|null
-     */
-    protected $copyright;
+    protected ?string $license = null;
 
-    /**
-     * @var string|null
-     */
-    protected $license;
+    protected ?string $privacy = null;
 
-    /**
-     * @var string|null
-     */
-    protected $privacy;
+    protected string $version;
 
-    /**
-     * @var string
-     */
-    protected $version;
-
-    /**
-     * @var bool
-     */
-    protected $allowDisable;
+    protected bool $allowDisable;
 
     protected ?string $baseAppUrl = null;
 
     protected ?string $checkoutGatewayUrl = null;
+
+    protected ?string $inAppPurchasesGatewayUrl = null;
 
     /**
      * @var list<Module>
@@ -104,148 +77,82 @@ class AppEntity extends Entity
 
     /**
      * @internal
-     *
-     * @var string|null
      */
-    protected $iconRaw;
+    protected ?string $iconRaw = null;
 
-    /**
-     * @var string|null
-     */
-    protected $icon;
+    protected ?string $icon = null;
 
-    /**
-     * @var AppTranslationCollection|null
-     */
-    protected $translations;
+    protected ?AppTranslationCollection $translations = null;
 
-    /**
-     * @var string|null
-     */
-    protected $label;
+    protected ?string $label = null;
 
-    /**
-     * @var string|null
-     */
-    protected $description;
+    protected ?string $description = null;
 
-    /**
-     * @var string|null
-     */
-    protected $privacyPolicyExtensions;
+    protected ?string $privacyPolicyExtensions = null;
 
     /**
      * @internal
-     *
-     * @var string|null
      */
-    protected $appSecret;
+    protected ?string $appSecret = null;
 
-    /**
-     * @var string
-     */
-    protected $integrationId;
+    protected string $integrationId;
 
-    /**
-     * @var bool
-     */
-    protected $active;
+    protected bool $active;
 
-    /**
-     * @var bool
-     */
-    protected $configurable;
+    protected bool $configurable;
 
-    /**
-     * @var IntegrationEntity|null
-     */
-    protected $integration;
+    protected ?IntegrationEntity $integration = null;
 
-    /**
-     * @var string
-     */
-    protected $aclRoleId;
+    protected string $aclRoleId;
 
-    /**
-     * @var AclRoleEntity|null
-     */
-    protected $aclRole;
+    protected ?AclRoleEntity $aclRole = null;
 
-    /**
-     * @var TemplateCollection|null
-     */
-    protected $templates;
+    protected ?TemplateCollection $templates = null;
 
     /**
      * @internal
      */
     protected ?ScriptCollection $scripts = null;
 
-    /**
-     * @var CustomFieldSetCollection|null
-     */
-    protected $customFieldSets;
+    protected ?CustomFieldSetCollection $customFieldSets = null;
 
-    /**
-     * @var ActionButtonCollection|null
-     */
-    protected $actionButtons;
+    protected ?ActionButtonCollection $actionButtons = null;
 
-    /**
-     * @var WebhookCollection|null
-     */
-    protected $webhooks;
+    protected ?WebhookCollection $webhooks = null;
 
-    /**
-     * @var AppPaymentMethodCollection|null
-     */
-    protected $paymentMethods;
+    protected ?AppPaymentMethodCollection $paymentMethods = null;
 
     protected ?TaxProviderCollection $taxProviders = null;
 
     /**
      * @internal
-     *
-     * @var AppScriptConditionCollection|null
      */
-    protected $scriptConditions;
+    protected ?AppScriptConditionCollection $scriptConditions = null;
 
     /**
      * @internal
-     *
-     * @var AppCmsBlockCollection|null
      */
-    protected $cmsBlocks;
+    protected ?AppCmsBlockCollection $cmsBlocks = null;
 
-    /**
-     * @var AppFlowActionCollection|null
-     */
-    protected $flowActions;
+    protected ?AppFlowActionCollection $flowActions = null;
 
-    /**
-     * @var AppFlowEventCollection|null
-     */
-    protected $flowEvents;
+    protected ?AppFlowEventCollection $flowEvents = null;
 
     /**
      * @var EntityCollection<AppShippingMethodEntity>|null
      */
     protected ?EntityCollection $appShippingMethods = null;
 
+    protected int $templateLoadPriority;
+
+    protected string $sourceType = 'local';
+
     /**
-     * @var int
+     * @var array<string, string|null>
      */
-    protected $templateLoadPriority;
+    protected array $sourceConfig = [];
 
-    public function getId(): string
-    {
-        return $this->id;
-    }
-
-    public function setId(string $id): void
-    {
-        $this->id = $id;
-    }
+    protected bool $selfManaged = false;
 
     public function getName(): string
     {
@@ -338,6 +245,16 @@ class AppEntity extends Entity
     public function setCheckoutGatewayUrl(?string $checkoutGatewayUrl): void
     {
         $this->checkoutGatewayUrl = $checkoutGatewayUrl;
+    }
+
+    public function getInAppPurchasesGatewayUrl(): ?string
+    {
+        return $this->inAppPurchasesGatewayUrl;
+    }
+
+    public function setInAppPurchasesGatewayUrl(?string $inAppPurchasesGatewayUrl): void
+    {
+        $this->inAppPurchasesGatewayUrl = $inAppPurchasesGatewayUrl;
     }
 
     /**
@@ -727,5 +644,46 @@ class AppEntity extends Entity
     public function setTemplateLoadPriority(int $templateLoadPriority): void
     {
         $this->templateLoadPriority = $templateLoadPriority;
+    }
+
+    public function getSourceType(): string
+    {
+        return $this->sourceType;
+    }
+
+    public function setSourceType(string $sourceType): void
+    {
+        $this->sourceType = $sourceType;
+    }
+
+    /**
+     * @return array<string, string|null>
+     */
+    public function getSourceConfig(): array
+    {
+        return $this->sourceConfig;
+    }
+
+    /**
+     * @param array<string, string|null> $config
+     */
+    public function setSourceConfig(array $config): void
+    {
+        $this->sourceConfig = $config;
+    }
+
+    /**
+     * Is this App managed by itself?
+     *
+     * If so, it should not be presented to the client, it is managed and updated by itself
+     */
+    public function isSelfManaged(): bool
+    {
+        return $this->selfManaged;
+    }
+
+    public function setSelfManaged(bool $selfManaged): void
+    {
+        $this->selfManaged = $selfManaged;
     }
 }

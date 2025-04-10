@@ -29,7 +29,7 @@ class PromotionExclusionIndexerTest extends TestCase
 
     protected function setUp(): void
     {
-        $this->promotionRepository = $this->getContainer()->get('promotion.repository');
+        $this->promotionRepository = static::getContainer()->get('promotion.repository');
         $this->context = Context::createDefaultContext();
     }
 

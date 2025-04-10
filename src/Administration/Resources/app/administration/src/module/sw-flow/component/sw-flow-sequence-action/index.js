@@ -3,23 +3,25 @@ import sortBy from 'lodash/sortBy';
 import template from './sw-flow-sequence-action.html.twig';
 import './sw-flow-sequence-action.scss';
 
-const { Component, State, Mixin } = Shopware;
+const { Component, Store, Mixin } = Shopware;
 const utils = Shopware.Utils;
 const { cloneDeep } = utils.object;
 const { ShopwareError } = Shopware.Classes;
-const { mapState, mapGetters } = Component.getComponentHelper();
+const { mapState } = Component.getComponentHelper();
 const { snakeCase } = utils.string;
 
 /**
  * @private
- * @package services-settings
+ * @sw-package after-sales
  */
 export default {
     template,
 
-    compatConfig: Shopware.compatConfig,
-
-    inject: ['repositoryFactory', 'flowBuilderService', 'feature'],
+    inject: [
+        'repositoryFactory',
+        'flowBuilderService',
+        'feature',
+    ],
 
     mixins: [
         Mixin.getByName('sw-inline-snippet'),
@@ -62,6 +64,9 @@ export default {
         },
 
         actionOptions() {
+            // ATTENTION: If the flow builder ever stops working. Take a look at the store first, it's probably the cause.
+            // For example this getter had several side effects causing the store to update and trigger an update of
+            // this component constantly.
             const actions = this.availableActions.map((action) => {
                 return this.getActionTitle(action);
             });
@@ -70,7 +75,7 @@ export default {
         },
 
         groups() {
-            const groups = this.actionGroups.map(group => {
+            const groups = this.actionGroups.map((group) => {
                 return {
                     id: group,
                     label: this.$tc(`sw-flow.actions.group.${group}`),
@@ -79,7 +84,7 @@ export default {
 
             if (this.appActions?.length) {
                 const action = this.appActions[0];
-                const appGroup = this.actionGroups.find(group => group === action?.app?.name);
+                const appGroup = this.actionGroups.find((group) => group === action?.app?.name);
                 if (!appGroup) {
                     groups.unshift({
                         id: `${action?.app?.name[0].toLowerCase()}${action?.app?.name.slice(1)}`,
@@ -101,18 +106,20 @@ export default {
                 ];
             }
 
-            return this.sortByPosition(Object.values(this.sequence).map(item => {
-                return {
-                    ...item,
-                    ...this.getActionTitle(item.actionName),
-                };
-            }));
+            return this.sortByPosition(
+                Object.values(this.sequence).map((item) => {
+                    return {
+                        ...item,
+                        ...this.getActionTitle(item.actionName),
+                    };
+                }),
+            );
         },
 
         showAddAction() {
             return !(
                 this.sequence.actionName === this.stopFlowActionName ||
-                this.sequenceData.some(sequence => sequence.actionName === this.stopFlowActionName)
+                this.sequenceData.some((sequence) => sequence.actionName === this.stopFlowActionName)
             );
         },
 
@@ -140,11 +147,11 @@ export default {
         },
 
         currentLocale() {
-            return Shopware.State.get('session').currentLocale;
+            return Shopware.Store.get('session').currentLocale;
         },
 
         ...mapState(
-            'swFlowState',
+            () => Store.get('swFlow'),
             [
                 'invalidSequences',
                 'stateMachineState',
@@ -155,16 +162,12 @@ export default {
                 'customFields',
                 'triggerEvent',
                 'triggerActions',
-            ],
-        ),
-        ...mapGetters(
-            'swFlowState',
-            [
                 'availableActions',
                 'actionGroups',
                 'sequences',
                 'appActions',
                 'getSelectedAppAction',
+                'hasAvailableAction',
             ],
         ),
     },
@@ -225,11 +228,7 @@ export default {
             this.currentSequence = {};
             this.selectedAction = '';
             this.isAppAction = false;
-            if (this.isCompatEnabled('INSTANCE_DELETE')) {
-                this.$delete(this.sequence, 'propsAppFlowAction');
-            } else {
-                delete this.sequence.propsAppFlowAction;
-            }
+            delete this.sequence.propsAppFlowAction;
         },
 
         addAction(action) {
@@ -250,7 +249,7 @@ export default {
                     data.appFlowActionId = appAction.id;
                 }
 
-                State.commit('swFlowState/updateSequence', data);
+                Store.get('swFlow').updateSequence(data);
             } else {
                 const lastSequence = this.sequenceData[this.sequenceData.length - 1];
 
@@ -272,7 +271,7 @@ export default {
                 }
 
                 sequence = Object.assign(sequence, newSequence);
-                State.commit('swFlowState/addSequence', sequence);
+                Store.get('swFlow').addSequence(sequence);
             }
 
             this.removeFieldError();
@@ -283,7 +282,7 @@ export default {
                 return;
             }
 
-            State.commit('swFlowState/updateSequence', {
+            Store.get('swFlow').updateSequence({
                 id: this.currentSequence.id,
                 actionName: action.name,
                 config: action.config,
@@ -291,14 +290,14 @@ export default {
         },
 
         removeAction(id) {
-            const action = this.sequences.find(sequence => sequence.id === id);
+            const action = this.sequences.find((sequence) => sequence.id === id);
             if (action?.id) {
-                const sequencesInGroup = this.sequences.filter(item => item.parentId === action.parentId
-                    && item.trueCase === action.trueCase
-                    && item.id !== id);
+                const sequencesInGroup = this.sequences.filter(
+                    (item) => item.parentId === action.parentId && item.trueCase === action.trueCase && item.id !== id,
+                );
 
                 sequencesInGroup.forEach((item, index) => {
-                    State.commit('swFlowState/updateSequence', {
+                    Store.get('swFlow').updateSequence({
                         id: item.id,
                         position: index + 1,
                     });
@@ -307,19 +306,21 @@ export default {
 
             if (this.isAppDisabled(this.getSelectedAppAction(this.sequence[id]?.actionName))) return;
 
-            State.commit('swFlowState/removeSequences', [id]);
+            Store.get('swFlow').removeSequences([id]);
         },
 
         actionsWithoutStopFlow() {
             // When action list only has 1 item, this.sequence has object type
             if (this.sequence.id) {
-                return [{
-                    ...this.sequence,
-                }];
+                return [
+                    {
+                        ...this.sequence,
+                    },
+                ];
             }
 
             const sequences = Object.values(this.sequence);
-            return this.sortByPosition(sequences.filter(sequence => sequence.actionName !== this.stopFlowActionName));
+            return this.sortByPosition(sequences.filter((sequence) => sequence.actionName !== this.stopFlowActionName));
         },
 
         showMoveOption(action, type) {
@@ -335,16 +336,28 @@ export default {
             if (this.isAppDisabled(this.getSelectedAppAction(action.actionName))) return;
 
             const actions = this.actionsWithoutStopFlow();
-            const currentIndex = actions.findIndex(item => item.position === action.position);
+            const currentIndex = actions.findIndex((item) => item.position === action.position);
             const moveAction = type === 'up' ? actions[currentIndex - 1] : actions[currentIndex + 1];
             const moveActionClone = cloneDeep(moveAction);
 
-            State.commit('swFlowState/updateSequence', { id: moveAction.id, position: action.position });
-            State.commit('swFlowState/updateSequence', { id: action.id, position: moveActionClone.position });
+            Store.get('swFlow').updateSequence({
+                id: moveAction.id,
+                position: action.position,
+            });
+            Store.get('swFlow').updateSequence({
+                id: action.id,
+                position: moveActionClone.position,
+            });
 
             const index = type === 'up' ? key - 1 : key + 1;
             const contextButtons = this.$refs.contextButton;
-            [contextButtons[key], contextButtons[index]] = [contextButtons[index], contextButtons[key]];
+            [
+                contextButtons[key],
+                contextButtons[index],
+            ] = [
+                contextButtons[index],
+                contextButtons[key],
+            ];
         },
 
         onEditAction(sequence, target, key) {
@@ -374,7 +387,7 @@ export default {
         removeActionContainer() {
             const removeSequences = this.sequence.id ? [this.sequence.id] : Object.keys(this.sequence);
 
-            State.commit('swFlowState/removeSequences', removeSequences);
+            Store.get('swFlow').removeSequences(removeSequences);
         },
 
         getActionTitle(actionName) {
@@ -447,8 +460,7 @@ export default {
             }
 
             this.fieldError = null;
-            const invalidSequences = this.invalidSequences?.filter(id => this.sequence.id !== id);
-            State.commit('swFlowState/setInvalidSequences', invalidSequences);
+            Store.get('swFlow').invalidSequences = this.invalidSequences?.filter((id) => this.sequence.id !== id);
         },
 
         isNotStopFlow(item) {
@@ -465,20 +477,25 @@ export default {
         },
 
         getStopFlowIndex(actions) {
-            const indexes = actions.map((item, index) => {
-                if (item.group === this.flowBuilderService.getGroup('GENERAL')) {
-                    return index;
-                }
+            const indexes = actions
+                .map((item, index) => {
+                    if (item.group === this.flowBuilderService.getGroup('GENERAL')) {
+                        return index;
+                    }
 
-                return false;
-            }).filter(item => item > 0);
+                    return false;
+                })
+                .filter((item) => item > 0);
 
             return indexes.pop() || actions.length;
         },
 
         sortActionOptions(actions) {
             const stopAction = actions.pop();
-            actions = orderBy(actions, ['group', 'label']);
+            actions = orderBy(actions, [
+                'group',
+                'label',
+            ]);
 
             actions.forEach((action) => {
                 if (action.group && action.group !== this.flowBuilderService.getGroup('GENERAL')) return;
@@ -486,18 +503,29 @@ export default {
                 action.group = action.group || this.flowBuilderService.getGroup('GENERAL');
 
                 // eslint-disable-next-line max-len
-                actions.push(actions.splice(actions.findIndex(el => el.group === this.flowBuilderService.getGroup('GENERAL')), 1)[0]);
+                actions.push(
+                    actions.splice(
+                        actions.findIndex((el) => el.group === this.flowBuilderService.getGroup('GENERAL')),
+                        1,
+                    )[0],
+                );
             });
 
-            actions = sortBy(actions, ['group', 'label'], ['esc', 'esc']);
+            actions = sortBy(
+                actions,
+                [
+                    'group',
+                    'label',
+                ],
+                [
+                    'esc',
+                    'esc',
+                ],
+            );
             const stopFlowIndex = this.getStopFlowIndex(actions) + 1;
             actions.splice(stopFlowIndex, 0, stopAction);
 
             return actions;
-        },
-
-        hasAvailableAction(actionName) {
-            return this.availableActions.includes(actionName);
         },
 
         isValidAction(actionName) {

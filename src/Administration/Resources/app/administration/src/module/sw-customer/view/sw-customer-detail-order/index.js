@@ -2,7 +2,7 @@ import template from './sw-customer-detail-order.html.twig';
 import './sw-customer-detail-order.scss';
 
 /**
- * @package checkout
+ * @sw-package checkout
  */
 
 const { Criteria } = Shopware.Data;
@@ -11,9 +11,10 @@ const { Criteria } = Shopware.Data;
 export default {
     template,
 
-    compatConfig: Shopware.compatConfig,
-
-    inject: ['repositoryFactory', 'acl'],
+    inject: [
+        'repositoryFactory',
+        'acl',
+    ],
 
     props: {
         customer: {
@@ -43,9 +44,9 @@ export default {
         },
 
         emptyTitle() {
-            return this.term ?
-                this.$tc('sw-customer.detailOrder.emptySearchTitle') :
-                this.$tc('sw-customer.detailOrder.emptyTitle');
+            return this.term
+                ? this.$tc('sw-customer.detailOrder.emptySearchTitle')
+                : this.$tc('sw-customer.detailOrder.emptyTitle');
         },
 
         currencyFilter() {
@@ -87,22 +88,27 @@ export default {
         },
 
         getOrderColumns() {
-            return [{
-                property: 'orderNumber',
-                label: 'sw-customer.detailOrder.columnNumber',
-                align: 'center',
-            }, {
-                property: 'amountTotal',
-                label: 'sw-customer.detailOrder.columnAmount',
-                align: 'right',
-            }, {
-                property: 'stateMachineState.name',
-                label: 'sw-customer.detailOrder.columnOrderState',
-            }, {
-                property: 'orderDateTime',
-                label: 'sw-customer.detailOrder.columnOrderDate',
-                align: 'center',
-            }];
+            return [
+                {
+                    property: 'orderNumber',
+                    label: 'sw-customer.detailOrder.columnNumber',
+                    align: 'center',
+                },
+                {
+                    property: 'amountTotal',
+                    label: 'sw-customer.detailOrder.columnAmount',
+                    align: 'right',
+                },
+                {
+                    property: 'stateMachineState.name',
+                    label: 'sw-customer.detailOrder.columnOrderState',
+                },
+                {
+                    property: 'orderDateTime',
+                    label: 'sw-customer.detailOrder.columnOrderDate',
+                    align: 'center',
+                },
+            ];
         },
 
         refreshList() {
@@ -112,8 +118,7 @@ export default {
             } else {
                 criteria = this.orders.criteria;
             }
-            criteria.addAssociation('stateMachineState')
-                .addAssociation('currency');
+            criteria.addAssociation('stateMachineState').addAssociation('currency');
 
             criteria.addSorting(Criteria.sort(this.sortBy, this.sortDirection));
 
@@ -126,8 +131,8 @@ export default {
         navigateToCreateOrder() {
             this.$router.push({
                 name: 'sw.order.create',
-                params: {
-                    customer: this.customer,
+                query: {
+                    customerId: this.customer.id,
                 },
             });
         },

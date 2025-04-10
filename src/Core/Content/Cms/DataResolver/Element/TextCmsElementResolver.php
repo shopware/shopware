@@ -10,14 +10,15 @@ use Shopware\Core\Content\Cms\SalesChannel\Struct\TextStruct;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Util\HtmlSanitizer;
 
-#[Package('buyers-experience')]
+#[Package('discovery')]
 class TextCmsElementResolver extends AbstractCmsElementResolver
 {
     /**
      * @internal
      */
-    public function __construct(private readonly HtmlSanitizer $sanitizer)
-    {
+    public function __construct(
+        private readonly HtmlSanitizer $sanitizer
+    ) {
     }
 
     public function getType(): string

@@ -1,31 +1,33 @@
 /**
- * @package checkout
+ * @sw-package fundamentals@after-sales
  */
 import { mount } from '@vue/test-utils';
 
 async function createWrapper() {
-    return mount(await wrapTestComponent('sw-first-run-wizard-mailer-selection', { sync: true }), {
-        global: {
-            stubs: {
-                'sw-help-text': {
-                    template: '<div class="sw-help-text"></div>',
+    return mount(
+        await wrapTestComponent('sw-first-run-wizard-mailer-selection', {
+            sync: true,
+        }),
+        {
+            global: {
+                stubs: {
+                    'sw-help-text': {
+                        template: '<div class="sw-help-text"></div>',
+                    },
+                    'sw-loader': {
+                        template: '<div class="sw-loader"></div>',
+                    },
                 },
-                'sw-icon': {
-                    template: '<div class="sw-icon"></div>',
-                },
-                'sw-loader': {
-                    template: '<div class="sw-loader"></div>',
-                },
-            },
-            provide: {
-                systemConfigApiService: {
-                    saveValues: function saveValues() {
-                        return Promise.resolve();
+                provide: {
+                    systemConfigApiService: {
+                        saveValues: function saveValues() {
+                            return Promise.resolve();
+                        },
                     },
                 },
             },
         },
-    });
+    );
 }
 
 describe('module/sw-first-run-wizard/view/sw-first-run-wizard-modal', () => {
@@ -33,28 +35,13 @@ describe('module/sw-first-run-wizard/view/sw-first-run-wizard-modal', () => {
     const frwRedirectLocal = 'sw.first.run.wizard.index.mailer.local';
 
     beforeAll(() => {
-        if (Shopware.State.get('context')) {
-            Shopware.State.unregisterModule('context');
-        }
-
-        Shopware.State.registerModule('context', {
-            namespaced: true,
-            state: {
-                app: {
-                    config: {
-                        settings: {
-                            disableExtensionManagement: false,
-                        },
-                    },
-                },
-                api: {
-                    assetPath: 'http://localhost:8000/bundles/administration/',
-                    authToken: {
-                        token: 'testToken',
-                    },
-                },
-            },
-        });
+        Shopware.Store.get('context').app.config = {
+            settings: { disableExtensionManagement: false },
+        };
+        Shopware.Store.get('context').api = {
+            assetPath: 'http://localhost:8000/bundles/administration/',
+            authToken: { token: 'testToken' },
+        };
     });
 
     it('should emit the button config and the title on creation', async () => {

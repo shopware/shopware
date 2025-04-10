@@ -5,12 +5,10 @@ const { Mixin } = Shopware;
 
 /**
  * @private
- * @package buyers-experience
+ * @sw-package discovery
  */
 export default {
     template,
-
-    compatConfig: Shopware.compatConfig,
 
     mixins: [
         Mixin.getByName('cms-element'),
@@ -95,6 +93,10 @@ export default {
             ${this.controls}\
             ${this.title}\
             ${this.portrait}`.replace(/ /g, '');
+        },
+
+        iframeTitle() {
+            return this.element.config.iframeTitle.value;
         },
     },
 

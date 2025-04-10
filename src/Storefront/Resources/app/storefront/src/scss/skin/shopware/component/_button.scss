@@ -10,13 +10,14 @@ https://getbootstrap.com/docs/5.2/components/buttons
     --#{$prefix}btn-disabled-color: #{$btn-link-disabled-color};
     overflow: hidden;
     text-overflow: ellipsis;
-    white-space: nowrap;
 }
 
 // custom add to cart button, used e.g. in product-box and product detail buybox
 .btn-buy {
     @extend .btn-lg;
     @include button-variant($buy-btn-bg, $buy-btn-bg, $buy-btn-color);
+
+    --#{$prefix}btn-focus-box-shadow: #{$focus-ring-box-shadow};
 
     &.disabled,
     &:disabled {
@@ -29,4 +30,33 @@ https://getbootstrap.com/docs/5.2/components/buttons
 
 .btn-link {
     --#{$prefix}btn-font-weight: #{$font-weight-semibold};
+    --#{$prefix}btn-focus-box-shadow: #{$input-btn-focus-box-shadow};
+}
+
+// Button styling with the appearance of a regular text link
+.btn-link-inline {
+    --#{$prefix}btn-color: #{$btn-link-color};
+    --#{$prefix}btn-hover-color: #{$btn-link-hover-color};
+    --#{$prefix}btn-font-weight: #{$font-weight-normal};
+    --#{$prefix}btn-font-size: inherit;
+    --#{$prefix}btn-focus-box-shadow: #{$input-btn-focus-box-shadow};
+    --#{$prefix}btn-line-height: #{$line-height-base};
+    --#{$prefix}btn-padding-y: 0;
+    --#{$prefix}btn-padding-x: 0;
+    --#{$prefix}btn-border-width: 0;
+    text-decoration: underline;
+    vertical-align: baseline;
+    text-align: left;
+    white-space: normal;
+
+    &:hover {
+        text-decoration: underline;
+    }
+}
+
+@each $variant, $value in $theme-colors {
+    .btn-#{$variant},
+    .btn-outline-#{$variant} {
+        --#{$prefix}btn-focus-box-shadow: #{$focus-ring-box-shadow};
+    }
 }

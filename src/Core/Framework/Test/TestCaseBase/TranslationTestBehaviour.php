@@ -14,7 +14,7 @@ trait TranslationTestBehaviour
     public function resetInjectedTranslatorSettings(): void
     {
         /** @var Translator $translator */
-        $translator = $this->getContainer()->get(Translator::class);
+        $translator = static::getContainer()->get(Translator::class);
 
         // reset injected settings to make tests deterministic
         $translator->reset();

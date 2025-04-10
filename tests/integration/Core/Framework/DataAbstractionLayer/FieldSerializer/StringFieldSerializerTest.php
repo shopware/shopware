@@ -69,7 +69,7 @@ class StringFieldSerializerTest extends TestCase
     #[DataProvider('serializerProvider')]
     public function testSerialize(StringField $field, ?string $value, ?string $expected, bool $expectError, EntityExistence $existence): void
     {
-        $field->compile($this->getContainer()->get(DefinitionInstanceRegistry::class));
+        $field->compile(static::getContainer()->get(DefinitionInstanceRegistry::class));
 
         $actual = null;
         $exception = null;
@@ -77,9 +77,9 @@ class StringFieldSerializerTest extends TestCase
         try {
             $kv = new KeyValuePair($field->getPropertyName(), $value, true);
 
-            $params = new WriteParameterBag($this->getContainer()->get(ProductDefinition::class), WriteContext::createFromContext(Context::createDefaultContext()), '', new WriteCommandQueue());
+            $params = new WriteParameterBag(static::getContainer()->get(ProductDefinition::class), WriteContext::createFromContext(Context::createDefaultContext()), '', new WriteCommandQueue());
 
-            $actual = $this->getContainer()->get(StringFieldSerializer::class)
+            $actual = static::getContainer()->get(StringFieldSerializer::class)
                 ->encode($field, $existence, $kv, $params)->current();
         } catch (\Throwable $e) {
             $exception = $e;

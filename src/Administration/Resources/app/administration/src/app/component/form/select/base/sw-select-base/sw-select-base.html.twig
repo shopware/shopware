@@ -1,11 +1,9 @@
-<!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
 {% block sw_select_base %}
 <sw-block-field
     class="sw-select"
     :class="swFieldClasses"
     v-bind="$attrs"
     :disabled="disabled"
-    v-on="listeners"
 >
     <template #sw-field-input="{ identification, error, disabled, size, setFocusClass, removeFocusClass }">
         <!-- eslint-disable-next-line vuejs-accessibility/no-static-element-interactions -->
@@ -13,6 +11,7 @@
             ref="selectWrapper"
             class="sw-select__selection"
             tabindex="0"
+            :aria-expanded="expanded ? 'true' : 'false'"
             @click="expand"
             @focus="expand"
             @keydown.tab="collapse"
@@ -22,37 +21,43 @@
                 name="sw-select-selection"
                 v-bind="{ identification, error, disabled, size, expand, collapse }"
             ></slot>
-            <div class="sw-select__selection-indicators">
-                <sw-loader
-                    v-if="isLoading"
-                    class="sw-select__select-indicator"
+        </div>
+        <div class="sw-select__selection-indicators">
+            <sw-loader
+                v-if="isLoading"
+                class="sw-select__select-indicator"
+                size="16px"
+            />
+
+            <button
+                v-if="!disabled && showClearableButton"
+                class="sw-select__select-indicator-hitbox"
+                data-clearable-button
+                :aria-label="$tc('global.sw-select-base.buttonClear')"
+                @click.prevent.stop="emitClear"
+                @keydown.tab.stop="focusParentSelect"
+            >
+                <mt-icon
+                    class="sw-select__select-indicator sw-select__select-indicator-clear"
+                    name="regular-times-s"
                     size="16px"
                 />
+            </button>
 
-                <button
-                    v-if="!disabled && showClearableButton"
-                    class="sw-select__select-indicator-hitbox"
-                    data-clearable-button
-                    @click.prevent.stop="emitClear"
-                    @keydown.tab.stop="focusParentSelect"
-                >
-                    <sw-icon
-                        class="sw-select__select-indicator sw-select__select-indicator-clear"
-                        name="regular-times-s"
-                        small
-                    />
-                </button>
-
-                <sw-icon
-                    class="sw-select__select-indicator sw-select__select-indicator-expand"
-                    name="regular-chevron-down-xs"
-                    small
-                />
-            </div>
+            <mt-icon
+                class="sw-select__select-indicator sw-select__select-indicator-expand"
+                :class="{ 'sw-select__select-indicator-expand--rotated': !expanded }"
+                name="regular-chevron-up-xs"
+                size="10px"
+                @click="toggleExpand"
+            />
         </div>
 
         <template v-if="expanded">
-            <transition name="sw-select-result-list-fade-down">
+            <transition
+                name="sw-select-result-list-fade-down"
+                @click.stop
+            >
                 <slot
                     name="results-list"
                     v-bind="{ collapse }"

@@ -10,6 +10,7 @@ test('Shop administrator should be able to upload an image to the product galler
     SaveProduct,
     IdProvider,
 }) => {
+
     await test.slow();
 
     const product = await TestDataService.createBasicProduct();

@@ -7,7 +7,7 @@ import objectPick from 'lodash/pick';
 import type from 'src/core/service/utils/types.utils';
 
 /**
- * @package admin
+ * @sw-package framework
  *
  * @module core/service/utils/object
  */
@@ -176,7 +176,7 @@ export function getArrayChanges(a: any[], b: any[]): any[] {
     }
 
     if (!type.isObject(b[0])) {
-        return b.filter(item => !a.includes(item));
+        return b.filter((item) => !a.includes(item));
     }
 
     // eslint-disable-next-line @typescript-eslint/no-explicit-any

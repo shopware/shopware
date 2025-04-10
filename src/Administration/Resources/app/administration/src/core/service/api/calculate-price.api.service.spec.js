@@ -1,5 +1,5 @@
 /**
- * @package checkout
+ * @sw-package checkout
  */
 import CalculatePriceService from 'src/core/service/api/calculate-price.api.service';
 import createLoginService from 'src/core/service/login.service';
@@ -21,24 +21,22 @@ describe('calculatePriceService', () => {
         const productId = Shopware.Utils.createId();
         const currencyId = Shopware.Utils.createId();
         const prices = {
-            [productId]: [{
-                price: 10,
-                currencyId,
-            }],
+            [productId]: [
+                {
+                    price: 10,
+                    currencyId,
+                },
+            ],
         };
 
-        clientMock.onPost(
-            '/api/_action/calculate-prices',
-            {
+        clientMock
+            .onPost('/api/_action/calculate-prices', {
                 taxId,
                 prices,
-            },
-        ).reply(
-            200,
-            {
+            })
+            .reply(200, {
                 data: {},
-            },
-        );
+            });
 
         await calculatePriceService.calculatePrices(taxId, prices);
 

@@ -5,14 +5,12 @@ const { Component, Mixin } = Shopware;
 const { dom, types } = Shopware.Utils;
 
 /**
- * @package admin
+ * @sw-package framework
  *
  * @private
  */
 Component.register('sw-admin-menu', {
     template,
-
-    compatConfig: Shopware.compatConfig,
 
     inject: [
         'menuService',
@@ -65,11 +63,11 @@ Component.register('sw-admin-menu', {
 
     computed: {
         currentUser() {
-            return Shopware.State.get('session').currentUser;
+            return Shopware.Store.get('session').currentUser;
         },
 
         isExpanded() {
-            return Shopware.State.get('adminMenu').isExpanded;
+            return this.adminMenuStore.isExpanded;
         },
 
         userTitle() {
@@ -93,29 +91,35 @@ Component.register('sw-admin-menu', {
         },
 
         currentLocale() {
-            return Shopware.State.get('session').currentLocale;
+            return Shopware.Store.get('session').currentLocale;
         },
 
         currentExpandedMenuEntries() {
-            return Shopware.State.get('adminMenu').expandedEntries;
+            return this.adminMenuStore.expandedEntries;
         },
 
         adminModuleNavigation() {
-            const adminModuleNavigationEntries = Shopware.State.get('adminMenu').adminModuleNavigation;
+            const adminModuleNavigationEntries = this.adminMenuStore.adminModuleNavigation;
 
             // Throw an console error if navigation entry is on level 4 or higher. Also remove the navigation entry from menu
             return adminModuleNavigationEntries.filter((entry) => {
-                const levelOneParent = adminModuleNavigationEntries.find(e => entry.parent && e.id === entry.parent);
+                const levelOneParent = adminModuleNavigationEntries.find((e) => entry.parent && e.id === entry.parent);
                 // eslint-disable-next-line max-len
-                const levelTwoParent = adminModuleNavigationEntries.find(e => levelOneParent?.parent && e.id === levelOneParent?.parent);
+                const levelTwoParent = adminModuleNavigationEntries.find(
+                    (e) => levelOneParent?.parent && e.id === levelOneParent?.parent,
+                );
                 // eslint-disable-next-line max-len
-                const levelThreeParent = adminModuleNavigationEntries.find(e => levelTwoParent?.parent && e.id === levelTwoParent?.parent);
+                const levelThreeParent = adminModuleNavigationEntries.find(
+                    (e) => levelTwoParent?.parent && e.id === levelTwoParent?.parent,
+                );
 
                 if (levelThreeParent) {
-                    Shopware.Utils.debug.error(new Error(
-                        `The navigation entry "${entry.id}" is nested on level 4 or higher.\
+                    Shopware.Utils.debug.error(
+                        new Error(
+                            `The navigation entry "${entry.id}" is nested on level 4 or higher.\
 The admin menu only supports up to three levels of nesting.`,
-                    ));
+                        ),
+                    );
 
                     return false;
                 }
@@ -125,7 +129,7 @@ The admin menu only supports up to three levels of nesting.`,
         },
 
         appModuleNavigation() {
-            return Shopware.State.getters['adminMenu/appModuleNavigation'];
+            return this.adminMenuStore.appModuleNavigation;
         },
 
         navigationEntries() {
@@ -193,7 +197,7 @@ The admin menu only supports up to three levels of nesting.`,
         },
 
         extensionMenuItems() {
-            return Shopware.State.get('menuItem').menuItems;
+            return Shopware.Store.get('menuItem').menuItems;
         },
 
         extensionModuleNavigation() {
@@ -210,6 +214,10 @@ The admin menu only supports up to three levels of nesting.`,
                     },
                 };
             });
+        },
+
+        adminMenuStore() {
+            return Shopware.Store.get('adminMenu');
         },
     },
 
@@ -240,37 +248,31 @@ The admin menu only supports up to three levels of nesting.`,
             this.collapseMenuOnSmallViewports();
             this.getUser();
 
-            if (this.isCompatEnabled('INSTANCE_EVENT_EMITTER')) {
-                this.$root.$on('toggle-offcanvas', (state) => {
-                    this.isOffCanvasShown = state;
-                });
-            } else {
-                Shopware.Utils.EventBus.on('sw-admin-menu/toggle-offcanvas', (state) => {
-                    this.isOffCanvasShown = state;
-                });
-            }
+            Shopware.Utils.EventBus.on('sw-admin-menu/toggle-offcanvas', (state) => {
+                this.isOffCanvasShown = state;
+            });
 
             this.initNavigation();
         },
 
         initNavigation() {
-            Shopware.State.commit('adminMenu/setAdminModuleNavigation', this.menuService.getNavigationFromAdminModules());
+            this.adminMenuStore.adminModuleNavigation = this.menuService.getNavigationFromAdminModules();
 
             this.refreshApps();
         },
 
         refreshApps() {
             return this.appModulesService.fetchAppModules().then((modules) => {
-                return Shopware.State.commit('shopwareApps/setApps', modules);
+                Shopware.Store.get('shopwareApps').apps = modules;
             });
         },
 
         collapseAdminMenu() {
-            Shopware.State.commit('adminMenu/collapseSidebar');
+            this.adminMenuStore.collapseSidebar();
         },
 
         expandAdminMenu() {
-            Shopware.State.commit('adminMenu/expandSidebar');
+            this.adminMenuStore.expandSidebar();
         },
 
         mountedComponent() {
@@ -295,7 +297,7 @@ The admin menu only supports up to three levels of nesting.`,
                 const userData = response.data;
                 delete userData.password;
 
-                Shopware.State.commit('setCurrentUser', userData);
+                Shopware.Store.get('session').setCurrentUser(userData);
 
                 this.isUserLoading = false;
             });
@@ -346,9 +348,11 @@ The admin menu only supports up to three levels of nesting.`,
                 }
 
                 this.removeClassesFromElements(
-                    Array.from(this.$el.querySelectorAll(
-                        '.navigation-list-item__level-1.navigation-list-item__has-children > .router-link-active',
-                    )),
+                    Array.from(
+                        this.$el.querySelectorAll(
+                            '.navigation-list-item__level-1.navigation-list-item__has-children > .router-link-active',
+                        ),
+                    ),
                     ['router-link-active'],
                     ignoreElementsList,
                 );
@@ -385,20 +389,13 @@ The admin menu only supports up to three levels of nesting.`,
 
         onLogoutUser() {
             this.loginService.logout();
-            Shopware.State.commit('adminMenu/clearExpandedMenuEntries');
-            Shopware.State.commit('removeCurrentUser');
-            Shopware.State.commit('notification/setNotifications', {});
-            Shopware.State.commit('notification/clearGrowlNotificationsForCurrentUser');
-            Shopware.State.commit('notification/clearNotificationsForCurrentUser');
+            this.adminMenuStore.clearExpandedMenuEntries();
+            Shopware.Store.get('session').removeCurrentUser();
+            Shopware.Store.get('notification').clearGrowlNotificationsForCurrentUser();
+            Shopware.Store.get('notification').clearNotificationsForCurrentUser();
             this.$router.push({
                 name: 'sw.login.index',
             });
-        },
-
-        /**
-         * @deprecated tag:v6.7.0 - Will be removed
-         */
-        openKeyboardShortcutOverview() {
         },
 
         addScrollbarOffset() {
@@ -434,11 +431,15 @@ The admin menu only supports up to three levels of nesting.`,
 
             const firstChild = target.firstChild;
             this.removeClassesFromElements(
-                Array.from(this.$el.querySelectorAll(
-                    '.sw-admin-menu__navigation-list-item',
-                )),
-                ['is--entry-expanded', 'is--flyout-expanded'],
-                [target, firstChild],
+                Array.from(this.$el.querySelectorAll('.sw-admin-menu__navigation-list-item')),
+                [
+                    'is--entry-expanded',
+                    'is--flyout-expanded',
+                ],
+                [
+                    target,
+                    firstChild,
+                ],
             );
 
             const isEntryExpanded = target.classList.contains('is--entry-expanded');
@@ -450,12 +451,12 @@ The admin menu only supports up to three levels of nesting.`,
             }
 
             if (isEntryExpanded) {
-                Shopware.State.commit('adminMenu/collapseMenuEntry', entry);
+                this.adminMenuStore.collapseMenuEntry(entry);
 
                 firstChild.classList.remove('router-link-active');
                 firstChild.classList.remove('is--entry-expanded');
             } else {
-                Shopware.State.commit('adminMenu/expandMenuEntry', entry);
+                this.adminMenuStore.expandMenuEntry(entry);
 
                 firstChild.classList.add('router-link-active');
                 target.classList.add('is--entry-expanded');
@@ -539,7 +540,7 @@ The admin menu only supports up to three levels of nesting.`,
         },
 
         getChildren(entry) {
-            return entry.children.filter(child => {
+            return entry.children.filter((child) => {
                 if (!child.privilege) {
                     return true;
                 }
@@ -560,8 +561,7 @@ The admin menu only supports up to three levels of nesting.`,
                 const xj = polygon[j][0];
                 const yj = polygon[j][1];
 
-                const intersect = ((yi > y) !== (yj > y)) &&
-                    (x < (((xj - xi) * (y - yi)) / (yj - yi)) + xi);
+                const intersect = yi > y !== yj > y && x < ((xj - xi) * (y - yi)) / (yj - yi) + xi;
                 if (intersect) inside = !inside;
             }
 
@@ -614,7 +614,7 @@ The admin menu only supports up to three levels of nesting.`,
                 let width = el.offsetWidth;
                 const style = el.currentStyle || getComputedStyle(el);
 
-                width += (parseInt(style.marginLeft, 10) || 0);
+                width += parseInt(style.marginLeft, 10) || 0;
                 return width;
             };
 
@@ -622,7 +622,7 @@ The admin menu only supports up to three levels of nesting.`,
                 let height = el.offsetHeight;
                 const style = el.currentStyle || getComputedStyle(el);
 
-                height += (parseInt(style.marginTop, 10) || 0);
+                height += parseInt(style.marginTop, 10) || 0;
                 return height;
             };
 
@@ -642,7 +642,7 @@ The admin menu only supports up to three levels of nesting.`,
             };
 
             const topRight = {
-                x: topLeft.x + (targetWidth * 2),
+                x: topLeft.x + targetWidth * 2,
                 y: topLeft.y,
             };
 
@@ -652,10 +652,22 @@ The admin menu only supports up to three levels of nesting.`,
             };
 
             return [
-                [topLeft.x, topLeft.y],
-                [bottomLeft.x, bottomLeft.y],
-                [bottomRight.x, bottomRight.y],
-                [topRight.x, topRight.y],
+                [
+                    topLeft.x,
+                    topLeft.y,
+                ],
+                [
+                    bottomLeft.x,
+                    bottomLeft.y,
+                ],
+                [
+                    bottomRight.x,
+                    bottomRight.y,
+                ],
+                [
+                    topRight.x,
+                    topRight.y,
+                ],
             ];
         },
 
@@ -672,9 +684,11 @@ The admin menu only supports up to three levels of nesting.`,
                 return 0;
             }
 
-            if (this.lastDelayLocation
-                && currentMousePosition.x === this.lastDelayLocation.x
-                && currentMousePosition.y === this.lastDelayLocation.y) {
+            if (
+                this.lastDelayLocation &&
+                currentMousePosition.x === this.lastDelayLocation.x &&
+                currentMousePosition.y === this.lastDelayLocation.y
+            ) {
                 return 0;
             }
 

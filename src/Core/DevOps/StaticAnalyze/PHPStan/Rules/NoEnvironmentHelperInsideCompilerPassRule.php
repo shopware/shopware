@@ -9,6 +9,7 @@ use PhpParser\Node\Name;
 use PHPStan\Analyser\Scope;
 use PHPStan\Rules\Rule;
 use PHPStan\Rules\RuleError;
+use PHPStan\Rules\RuleErrorBuilder;
 use Shopware\Core\DevOps\Environment\EnvironmentHelper;
 use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\DependencyInjection\Compiler\CompilerPassInterface;
@@ -18,7 +19,7 @@ use Symfony\Component\DependencyInjection\Compiler\CompilerPassInterface;
  *
  * @implements Rule<StaticCall>
  */
-#[Package('core')]
+#[Package('framework')]
 class NoEnvironmentHelperInsideCompilerPassRule implements Rule
 {
     public function getNodeType(): string
@@ -59,6 +60,10 @@ class NoEnvironmentHelperInsideCompilerPassRule implements Rule
             return [];
         }
 
-        return ['Do not use EnvironmentHelper inside compiler passes.'];
+        return [
+            RuleErrorBuilder::message('Do not use EnvironmentHelper inside compiler passes.')
+                ->identifier('shopware.envHelperCompilerPass')
+                ->build(),
+        ];
     }
 }

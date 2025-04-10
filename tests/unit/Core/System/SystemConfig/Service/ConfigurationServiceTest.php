@@ -6,13 +6,13 @@ use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\App\AppCollection;
 use Shopware\Core\Framework\App\AppEntity;
-use Shopware\Core\Framework\App\Lifecycle\AppLoader;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin;
-use Shopware\Core\System\SystemConfig\Exception\ConfigurationNotFoundException;
+use Shopware\Core\System\SystemConfig\Service\AppConfigReader;
 use Shopware\Core\System\SystemConfig\Service\ConfigurationService;
+use Shopware\Core\System\SystemConfig\SystemConfigException;
 use Shopware\Core\System\SystemConfig\Util\ConfigReader;
 use Shopware\Core\Test\Stub\DataAbstractionLayer\StaticEntityRepository;
 use Shopware\Core\Test\Stub\SystemConfigService\StaticSystemConfigService;
@@ -22,7 +22,7 @@ use Shopware\Core\Test\Stub\SystemConfigService\StaticSystemConfigService;
  *
  * @phpstan-import-type FeatureFlagConfig from Feature
  */
-#[Package('services-settings')]
+#[Package('framework')]
 #[CoversClass(ConfigurationService::class)]
 class ConfigurationServiceTest extends TestCase
 {
@@ -46,9 +46,6 @@ class ConfigurationServiceTest extends TestCase
         $this->serverVarsBackup = $_SERVER;
         $this->envVarsBackup = $_ENV;
         $this->featureConfigBackup = Feature::getRegisteredFeatures();
-
-        Feature::registerFeature('FEATURE_NEXT_101');
-        Feature::registerFeature('FEATURE_NEXT_102');
     }
 
     protected function tearDown(): void
@@ -61,14 +58,16 @@ class ConfigurationServiceTest extends TestCase
 
     public function testInvalidDomain(): void
     {
-        $this->expectException(\InvalidArgumentException::class);
-        $this->expectExceptionMessage('Expected domain');
+        $this->expectException(SystemConfigException::class);
+        $this->expectExceptionMessage('Invalid domain');
 
+        /** @var StaticEntityRepository<AppCollection> $appRepository */
+        $appRepository = new StaticEntityRepository([]);
         $configService = new ConfigurationService(
             [],
             new ConfigReader(),
-            $this->createMock(AppLoader::class),
-            new StaticEntityRepository([]),
+            $this->createMock(AppConfigReader::class),
+            $appRepository,
             new StaticSystemConfigService([])
         );
 
@@ -79,21 +78,25 @@ class ConfigurationServiceTest extends TestCase
 
     public function testMissingConfig(): void
     {
-        $this->expectException(ConfigurationNotFoundException::class);
-
+        /** @var StaticEntityRepository<AppCollection> $appRepository */
+        $appRepository = new StaticEntityRepository([new AppCollection([])]);
         $configService = new ConfigurationService(
             [],
             new ConfigReader(),
-            $this->createMock(AppLoader::class),
-            new StaticEntityRepository([new AppCollection()]),
+            $this->createMock(AppConfigReader::class),
+            $appRepository,
             new StaticSystemConfigService([])
         );
 
+        $this->expectExceptionObject(SystemConfigException::configurationNotFound('missing'));
         $configService->getConfiguration('missing', Context::createDefaultContext());
     }
 
     public function testConfigurationFeatureFlag(): void
     {
+        Feature::registerFeature('FEATURE_NEXT_101');
+        Feature::registerFeature('FEATURE_NEXT_102');
+
         $_SERVER['FEATURE_NEXT_101'] = '1';
         $_SERVER['FEATURE_NEXT_102'] = '1';
         static::assertTrue(Feature::isActive('FEATURE_NEXT_101'));
@@ -110,6 +113,9 @@ class ConfigurationServiceTest extends TestCase
 
     public function testConfigurationIsSequentiallyIndexedWhenFeatureFlagNotEnabled(): void
     {
+        Feature::registerFeature('FEATURE_NEXT_101');
+        Feature::registerFeature('FEATURE_NEXT_102');
+
         $_SERVER['FEATURE_NEXT_101'] = '0';
         $_SERVER['FEATURE_NEXT_102'] = '0';
         static::assertFalse(Feature::isActive('FEATURE_NEXT_101'));
@@ -133,9 +139,9 @@ class ConfigurationServiceTest extends TestCase
 
         $actualConfig = $this->getConfiguration($config);
 
-        static::assertTrue(array_is_list($actualConfig));
+        static::assertIsList($actualConfig);
         static::assertCount(1, $actualConfig);
-        static::assertTrue(array_is_list($actualConfig[0]['elements']));
+        static::assertIsList($actualConfig[0]['elements']);
         static::assertCount(1, $actualConfig[0]['elements']);
     }
 
@@ -148,7 +154,7 @@ class ConfigurationServiceTest extends TestCase
 
     public function testEmptyConfigThrowsError(): void
     {
-        $this->expectException(ConfigurationNotFoundException::class);
+        $this->expectExceptionObject(SystemConfigException::configurationNotFound('SwagExampleTest'));
 
         $this->getConfiguration([]);
     }
@@ -219,13 +225,15 @@ class ConfigurationServiceTest extends TestCase
         $configReader = $this->createMock(ConfigReader::class);
         $configReader->method('getConfigFromBundle')->willReturn($config);
 
+        /** @var StaticEntityRepository<AppCollection> $appRepository */
+        $appRepository = new StaticEntityRepository([new AppCollection()]);
         $service = new ConfigurationService(
             [
                 new SwagExampleTest(true, ''),
             ],
             $configReader,
-            $this->createMock(AppLoader::class),
-            new StaticEntityRepository([new AppCollection()]),
+            $this->createMock(AppConfigReader::class),
+            $appRepository,
             new StaticSystemConfigService([])
         );
 
@@ -277,7 +285,7 @@ class ConfigurationServiceTest extends TestCase
                 new SwagExampleTest(true, ''),
             ],
             $configReader,
-            $this->createMock(AppLoader::class),
+            $this->createMock(AppConfigReader::class),
             new StaticEntityRepository([new AppCollection()]),
             new StaticSystemConfigService(['SwagExampleTest.email' => 'foo'])
         );
@@ -297,18 +305,21 @@ class ConfigurationServiceTest extends TestCase
      */
     public function getConfiguration(array $config): array
     {
-        $appLoader = $this->createMock(AppLoader::class);
-        $appLoader->method('getConfiguration')->willReturn($config);
+        $app = (new AppEntity())->assign(['name' => 'SwagExampleTest', '_uniqueIdentifier' => 'test']);
 
-        $appCollection = new AppCollection([(new AppEntity())->assign(['name' => 'SwagExampleTest', '_uniqueIdentifier' => 'test'])]);
+        $appConfigReader = $this->createMock(AppConfigReader::class);
+        $appConfigReader->method('read')->with($app)->willReturn($config);
+
+        /** @var StaticEntityRepository<AppCollection> $appRepository */
+        $appRepository = new StaticEntityRepository([
+            new AppCollection([$app]),
+            new AppCollection([$app]),
+        ]);
         $configService = new ConfigurationService(
             [],
             new ConfigReader(),
-            $appLoader,
-            new StaticEntityRepository([
-                $appCollection,
-                $appCollection,
-            ]),
+            $appConfigReader,
+            $appRepository,
             new StaticSystemConfigService([])
         );
 

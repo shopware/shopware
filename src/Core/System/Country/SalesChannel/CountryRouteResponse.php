@@ -7,22 +7,12 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\Country\CountryCollection;
 use Shopware\Core\System\SalesChannel\StoreApiResponse;
 
-#[Package('buyers-experience')]
+/**
+ * @extends StoreApiResponse<EntitySearchResult<CountryCollection>>
+ */
+#[Package('fundamentals@discovery')]
 class CountryRouteResponse extends StoreApiResponse
 {
-    /**
-     * @var EntitySearchResult<CountryCollection>
-     */
-    protected $object;
-
-    /**
-     * @param EntitySearchResult<CountryCollection> $object
-     */
-    public function __construct(EntitySearchResult $object)
-    {
-        parent::__construct($object);
-    }
-
     /**
      * @return EntitySearchResult<CountryCollection>
      */

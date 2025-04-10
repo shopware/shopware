@@ -4,6 +4,7 @@ namespace Shopware\Core\Content\Product\SalesChannel\Detail;
 
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Struct\Struct;
+use Shopware\Core\Framework\Util\Hasher;
 
 /**
  * @phpstan-type combination array<string, bool>
@@ -14,17 +15,17 @@ class AvailableCombinationResult extends Struct
     /**
      * @var combination
      */
-    protected $hashes = [];
+    protected array $hashes = [];
 
     /**
      * @var combination
      */
-    protected $optionIds = [];
+    protected array $optionIds = [];
 
     /**
      * @var array<string, array<string>>
      */
-    protected $combinations = [];
+    protected array $combinations = [];
 
     /**
      * @var array<string, combination>
@@ -93,6 +94,6 @@ class AvailableCombinationResult extends Struct
         $optionIds = array_values($optionIds);
         sort($optionIds);
 
-        return md5((string) json_encode($optionIds, \JSON_THROW_ON_ERROR));
+        return Hasher::hash($optionIds);
     }
 }

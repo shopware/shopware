@@ -5,7 +5,7 @@
     {% if page.cart.lineItems|length > 0 %}
         <span class="badge bg-primary header-cart-badge">{{ page.cart.lineItems|length }}</span>
     {% endif %}
-    <span class="header-cart-total">
-        {{ page.cart.price.positionPrice|currency }}{{ 'general.star'|trans|sw_sanitize }}
+    <span class="header-cart-total d-none d-sm-inline-block ms-sm-2">
+        {{ page.cart.price.positionPrice|currency }}
     </span>
 {% endblock %}

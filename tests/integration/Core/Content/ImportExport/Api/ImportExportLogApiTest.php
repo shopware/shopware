@@ -16,7 +16,7 @@ use Symfony\Component\HttpFoundation\Response;
 /**
  * @internal
  */
-#[Package('services-settings')]
+#[Package('fundamentals@after-sales')]
 class ImportExportLogApiTest extends TestCase
 {
     use AdminFunctionalTestBehaviour;
@@ -35,11 +35,11 @@ class ImportExportLogApiTest extends TestCase
 
     protected function setUp(): void
     {
-        $this->logRepository = $this->getContainer()->get('import_export_log.repository');
-        $this->profileRepository = $this->getContainer()->get('import_export_profile.repository');
-        $this->fileRepository = $this->getContainer()->get('import_export_file.repository');
-        $this->userRepository = $this->getContainer()->get('user.repository');
-        $this->connection = $this->getContainer()->get(Connection::class);
+        $this->logRepository = static::getContainer()->get('import_export_log.repository');
+        $this->profileRepository = static::getContainer()->get('import_export_profile.repository');
+        $this->fileRepository = static::getContainer()->get('import_export_file.repository');
+        $this->userRepository = static::getContainer()->get('user.repository');
+        $this->connection = static::getContainer()->get(Connection::class);
         $this->context = Context::createDefaultContext();
     }
 

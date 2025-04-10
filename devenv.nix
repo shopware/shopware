@@ -21,7 +21,7 @@ in {
   ];
 
   # Fix .env loading
-  process.implementation = lib.mkDefault "honcho";
+  process.manager.implementation = lib.mkDefault "honcho";
 
   dotenv.disableHint = true;
 
@@ -145,9 +145,6 @@ in {
   env.CYPRESS_dbUser = lib.mkDefault "shopware";
   env.CYPRESS_dbPassword = lib.mkDefault "shopware";
   env.CYPRESS_dbName = lib.mkDefault "shopware";
-
-  # Disable session variables setting in kernel
-  env.SQL_SET_DEFAULT_SESSION_VARIABLES = lib.mkDefault "0";
 
   scripts.build-updater.exec = ''
       ${pkgs.phpPackages.box}/bin/box compile -d src/WebInstaller

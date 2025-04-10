@@ -9,15 +9,12 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\PlatformRequest;
 use Symfony\Component\HttpFoundation\Request;
 
-#[Package('core')]
+#[Package('framework')]
 class ApiRouteScope extends AbstractRouteScope implements ApiContextRouteScopeDependant
 {
     final public const ID = 'api';
 
-    /**
-     * @var array<string>
-     */
-    protected $allowedPaths = ['api', 'sw-domain-hash.html'];
+    protected array $allowedPaths = ['api', 'sw-domain-hash.html'];
 
     public function isAllowed(Request $request): bool
     {

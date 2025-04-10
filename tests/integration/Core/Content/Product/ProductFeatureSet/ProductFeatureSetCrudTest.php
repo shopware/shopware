@@ -8,8 +8,8 @@ use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteException;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
-use Shopware\Core\Framework\Test\TestDataCollection;
 use Shopware\Core\Framework\Uuid\Uuid;
+use Shopware\Core\Test\Stub\Framework\IdsCollection;
 
 /**
  * @internal
@@ -20,7 +20,7 @@ class ProductFeatureSetCrudTest extends TestCase
 
     public function testSetNullOnDelete(): void
     {
-        $ids = new TestDataCollection();
+        $ids = new IdsCollection();
 
         $data = [
             'id' => $ids->create('product'),
@@ -42,10 +42,10 @@ class ProductFeatureSetCrudTest extends TestCase
             ],
         ];
 
-        $this->getContainer()->get('product.repository')
+        static::getContainer()->get('product.repository')
             ->create([$data], Context::createDefaultContext());
 
-        $exists = $this->getContainer()
+        $exists = static::getContainer()
             ->get(Connection::class)
             ->fetchOne(
                 'SELECT id FROM product_feature_set WHERE id = :id',
@@ -56,10 +56,10 @@ class ProductFeatureSetCrudTest extends TestCase
 
         $delete = ['id' => $ids->get('feature-set')];
 
-        $this->getContainer()->get('product_feature_set.repository')
+        static::getContainer()->get('product_feature_set.repository')
             ->delete([$delete], Context::createDefaultContext());
 
-        $exists = $this->getContainer()
+        $exists = static::getContainer()
             ->get(Connection::class)
             ->fetchOne(
                 'SELECT id FROM product_feature_set WHERE id = :id',
@@ -68,7 +68,7 @@ class ProductFeatureSetCrudTest extends TestCase
 
         static::assertFalse($exists);
 
-        $foreignKey = $this->getContainer()
+        $foreignKey = static::getContainer()
             ->get(Connection::class)
             ->fetchOne(
                 'SELECT product_feature_set_id FROM product WHERE id = :id',
@@ -80,7 +80,7 @@ class ProductFeatureSetCrudTest extends TestCase
 
     public function testNameIsRequired(): void
     {
-        $ids = new TestDataCollection();
+        $ids = new IdsCollection();
 
         $data = [
             'id' => $ids->create('feature-set'),
@@ -89,7 +89,7 @@ class ProductFeatureSetCrudTest extends TestCase
         $this->expectException(WriteException::class);
         $this->expectExceptionMessage('This value should not be blank.');
 
-        $this->getContainer()->get('product_feature_set.repository')
+        static::getContainer()->get('product_feature_set.repository')
             ->create([$data], Context::createDefaultContext());
     }
 }

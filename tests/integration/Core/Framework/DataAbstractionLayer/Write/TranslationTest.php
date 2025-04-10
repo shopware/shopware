@@ -26,13 +26,13 @@ use Shopware\Core\Framework\DataAbstractionLayer\Exception\MissingTranslationLan
 use Shopware\Core\Framework\DataAbstractionLayer\Pricing\CashRoundingConfig;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteException;
-use Shopware\Core\Framework\Test\IdsCollection;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\Currency\Aggregate\CurrencyTranslation\CurrencyTranslationDefinition;
 use Shopware\Core\System\Currency\CurrencyDefinition;
 use Shopware\Core\System\Language\LanguageDefinition;
 use Shopware\Core\System\Tax\TaxDefinition;
+use Shopware\Core\Test\Stub\Framework\IdsCollection;
 
 /**
  * @internal
@@ -67,12 +67,12 @@ class TranslationTest extends TestCase
 
     protected function setUp(): void
     {
-        $this->productRepository = $this->getContainer()->get('product.repository');
-        $this->currencyRepository = $this->getContainer()->get('currency.repository');
-        $this->languageRepository = $this->getContainer()->get('language.repository');
-        $this->categoryRepository = $this->getContainer()->get('category.repository');
-        $this->pageRepository = $this->getContainer()->get('cms_page.repository');
-        $this->slotRepository = $this->getContainer()->get('cms_slot.repository');
+        $this->productRepository = static::getContainer()->get('product.repository');
+        $this->currencyRepository = static::getContainer()->get('currency.repository');
+        $this->languageRepository = static::getContainer()->get('language.repository');
+        $this->categoryRepository = static::getContainer()->get('category.repository');
+        $this->pageRepository = static::getContainer()->get('cms_page.repository');
+        $this->slotRepository = static::getContainer()->get('cms_slot.repository');
 
         $this->context = Context::createDefaultContext();
         $this->ids = new IdsCollection();
@@ -662,7 +662,7 @@ sors capulus se Quies, mox qui Sentus dum confirmo do iam. Iunceus postulator in
             ],
         ];
 
-        $productRepo = $this->getContainer()->get('product.repository');
+        $productRepo = static::getContainer()->get('product.repository');
         $affected = $productRepo->upsert([$data], Context::createDefaultContext());
 
         static::assertNotNull($affected->getEventByEntityName(LanguageDefinition::ENTITY_NAME));

@@ -9,7 +9,7 @@ use Shopware\Core\Framework\Migration\MigrationStep;
 /**
  * @internal
  */
-#[Package('core')]
+#[Package('framework')]
 class Migration1707064042CartRemoveFK extends MigrationStep
 {
     private const OBSOLETE_FOREIGN_KEYS = [

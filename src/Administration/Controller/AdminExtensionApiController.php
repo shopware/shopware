@@ -2,13 +2,11 @@
 
 namespace Shopware\Administration\Controller;
 
-use Shopware\Administration\Controller\Exception\AppByNameNotFoundException;
-use Shopware\Administration\Controller\Exception\MissingAppSecretException;
 use Shopware\Core\Framework\App\ActionButton\AppAction;
 use Shopware\Core\Framework\App\ActionButton\Executor;
-use Shopware\Core\Framework\App\AppEntity;
+use Shopware\Core\Framework\App\AppCollection;
+use Shopware\Core\Framework\App\AppException;
 use Shopware\Core\Framework\App\Hmac\QuerySigner;
-use Shopware\Core\Framework\App\Manifest\Exception\UnallowedHostException;
 use Shopware\Core\Framework\App\Payload\AppPayloadServiceHelper;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
@@ -26,9 +24,12 @@ use Symfony\Component\Routing\Attribute\Route;
  * @internal Only to be used by the admin-extension-sdk.
  */
 #[Route(defaults: ['_routeScope' => ['api']])]
-#[Package('administration')]
+#[Package('framework')]
 class AdminExtensionApiController extends AbstractController
 {
+    /**
+     * @param EntityRepository<AppCollection> $appRepository
+     */
     public function __construct(
         private readonly Executor $executor,
         private readonly AppPayloadServiceHelper $appPayloadServiceHelper,
@@ -46,31 +47,30 @@ class AdminExtensionApiController extends AbstractController
             new EqualsFilter('name', $appName)
         );
 
-        /** @var AppEntity|null $app */
-        $app = $this->appRepository->search($criteria, $context)->first();
-        if ($app === null) {
-            throw new AppByNameNotFoundException($appName);
+        $app = $this->appRepository->search($criteria, $context)->getEntities()->first();
+        if (!$app) {
+            throw AppException::appNotFoundByName($appName);
         }
 
-        if ($app->getAppSecret() === null) {
-            throw new MissingAppSecretException();
+        if (!$app->getAppSecret()) {
+            throw AppException::appSecretMissing($app->getName());
         }
 
         $targetUrl = $requestDataBag->getString('url');
         $targetHost = \parse_url($targetUrl, \PHP_URL_HOST);
         $allowedHosts = $app->getAllowedHosts() ?? [];
         if (!$targetHost || !\in_array($targetHost, $allowedHosts, true)) {
-            throw new UnallowedHostException($targetUrl, $allowedHosts, $app->getName());
+            throw AppException::hostNotAllowed($targetUrl, $app->getName());
         }
 
         $ids = $requestDataBag->get('ids', []);
         if (!$ids instanceof RequestDataBag) {
-            throw new \InvalidArgumentException('Ids must be an array');
+            throw AppException::invalidArgument('Ids must be an array');
         }
 
         $action = new AppAction(
             $app,
-            $this->appPayloadServiceHelper->buildSource($app),
+            $this->appPayloadServiceHelper->buildSource($app->getVersion(), $app->getName()),
             $targetUrl,
             $requestDataBag->getString('entity'),
             $requestDataBag->getString('action'),
@@ -90,10 +90,9 @@ class AdminExtensionApiController extends AbstractController
             new EqualsFilter('name', $appName)
         );
 
-        /** @var AppEntity|null $app */
-        $app = $this->appRepository->search($criteria, $context)->first();
-        if ($app === null) {
-            throw new AppByNameNotFoundException($appName);
+        $app = $this->appRepository->search($criteria, $context)->getEntities()->first();
+        if (!$app) {
+            throw AppException::appNotFoundByName($appName);
         }
 
         $uri = $this->querySigner->signUri($requestDataBag->get('uri'), $app, $context)->__toString();

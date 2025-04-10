@@ -4,7 +4,7 @@ import './sw-tagged-field.scss';
 const { Component } = Shopware;
 
 /**
- * @package admin
+ * @sw-package framework
  *
  * @private
  * @status deprecated
@@ -15,8 +15,6 @@ const { Component } = Shopware;
  */
 Component.register('sw-tagged-field', {
     template,
-
-    compatConfig: Shopware.compatConfig,
 
     inject: ['feature'],
 
@@ -68,17 +66,6 @@ Component.register('sw-tagged-field', {
                 'sw-tagged-field__input--hidden': this.hasValues && !this.hasFocus,
             };
         },
-
-        /**
-         * @deprecated tag:v6.7.0 - Will be removed
-         */
-        listeners() {
-            if (this.isCompatEnabled('INSTANCE_LISTENERS')) {
-                return this.$listeners;
-            }
-
-            return {};
-        },
     },
 
     methods: {
@@ -106,7 +93,10 @@ Component.register('sw-tagged-field', {
                 return;
             }
 
-            this.$emit('update:value', [...this.value, this.newTagName]);
+            this.$emit('update:value', [
+                ...this.value,
+                this.newTagName,
+            ]);
             this.newTagName = '';
         },
 

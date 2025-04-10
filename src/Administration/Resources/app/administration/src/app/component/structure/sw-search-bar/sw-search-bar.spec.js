@@ -1,5 +1,5 @@
 /**
- * @package admin
+ * @sw-package framework
  */
 
 /* eslint-disable max-len */
@@ -61,7 +61,6 @@ describe('src/app/component/structure/sw-search-bar', () => {
         return mount(swSearchBarComponent, {
             global: {
                 stubs: {
-                    'sw-icon': true,
                     'sw-version': true,
                     'sw-loader': true,
                     'sw-search-more-results': true,
@@ -112,42 +111,51 @@ describe('src/app/component/structure/sw-search-bar', () => {
                             return Promise.resolve(result);
                         },
 
-                        searchQuery: () => Promise.resolve({
-                            data: {
-                                product: {
-                                    data: {
-                                        dfe80a0ec016413e8e03fa2d85db3dea: {
-                                            id: 'dfe80a0ec016413e8e03fa2d85db3dea',
-                                            name: 'Lightweight Iron Tossed Cookie Salad',
+                        searchQuery: () =>
+                            Promise.resolve({
+                                data: {
+                                    product: {
+                                        data: {
+                                            dfe80a0ec016413e8e03fa2d85db3dea: {
+                                                id: 'dfe80a0ec016413e8e03fa2d85db3dea',
+                                                name: 'Lightweight Iron Tossed Cookie Salad',
+                                            },
                                         },
                                     },
-                                },
 
-                                foo: {
-                                    total: 1,
-                                    data: [
-                                        { name: 'Baz', id: '12345' },
-                                    ],
+                                    foo: {
+                                        total: 1,
+                                        data: [
+                                            { name: 'Baz', id: '12345' },
+                                        ],
+                                    },
                                 },
-                            },
-                        }),
+                            }),
                     },
                     repositoryFactory: {
                         create: (entity) => ({
                             search: (criteria) => {
                                 if (entity === 'sales_channel') {
-                                    return Promise.resolve([{
-                                        id: '8a243080f92e4c719546314b577cf82b',
-                                        translated: { name: 'Storefront' },
-                                        type: { translated: { name: 'Storefront' } },
-                                    }]);
+                                    return Promise.resolve([
+                                        {
+                                            id: '8a243080f92e4c719546314b577cf82b',
+                                            translated: { name: 'Storefront' },
+                                            type: {
+                                                translated: {
+                                                    name: 'Storefront',
+                                                },
+                                            },
+                                        },
+                                    ]);
                                 }
 
                                 if (entity === 'sales_channel_type') {
-                                    return Promise.resolve([{
-                                        id: 'xxxxxxx',
-                                        translated: { name: 'Storefront' },
-                                    }]);
+                                    return Promise.resolve([
+                                        {
+                                            id: 'xxxxxxx',
+                                            translated: { name: 'Storefront' },
+                                        },
+                                    ]);
                                 }
 
                                 if (entity === 'category') {
@@ -155,7 +163,8 @@ describe('src/app/component/structure/sw-search-bar', () => {
                                         {
                                             name: 'Home',
                                             id: '12345',
-                                        }, {
+                                        },
+                                        {
                                             name: 'Electronics',
                                             id: '55523',
                                         },
@@ -182,7 +191,8 @@ describe('src/app/component/structure/sw-search-bar', () => {
                                     {
                                         name: 'Home',
                                         id: '12345',
-                                    }, {
+                                    },
+                                    {
                                         name: 'Electronics',
                                         id: '55523',
                                     },
@@ -198,7 +208,9 @@ describe('src/app/component/structure/sw-search-bar', () => {
                     },
                     acl: {
                         can: (identifier) => {
-                            if (!identifier) { return true; }
+                            if (!identifier) {
+                                return true;
+                            }
 
                             return privileges.includes(identifier);
                         },
@@ -210,7 +222,10 @@ describe('src/app/component/structure/sw-search-bar', () => {
                             });
                         },
                         getSearchFieldsByEntity: (entity) => {
-                            const data = { foo: { name: 500 }, category: { name: 500 } };
+                            const data = {
+                                foo: { name: 500 },
+                                category: { name: 500 },
+                            };
                             return Promise.resolve(data[entity]);
                         },
                         buildSearchQueriesForEntity: (searchFields, term, criteria) => {
@@ -249,12 +264,13 @@ describe('src/app/component/structure/sw-search-bar', () => {
                         },
                     },
                     userActivityApiService: {
-                        getIncrement: () => Promise.resolve({
-                            'dashboard@sw.dashboard.index': {
-                                key: 'dashboard@sw.dashboard.index',
-                                count: '1',
-                            },
-                        }),
+                        getIncrement: () =>
+                            Promise.resolve({
+                                'dashboard@sw.dashboard.index': {
+                                    key: 'dashboard@sw.dashboard.index',
+                                    count: '1',
+                                },
+                            }),
                     },
                     recentlySearchService: {
                         get: () => {
@@ -294,9 +310,9 @@ describe('src/app/component/structure/sw-search-bar', () => {
     });
 
     beforeEach(async () => {
-        Shopware.State.get('session').currentUser = {
+        Shopware.Store.get('session').setCurrentUser({
             id: 'id',
-        };
+        });
         Module.getModuleRegistry().clear();
     });
 
@@ -547,16 +563,19 @@ describe('src/app/component/structure/sw-search-bar', () => {
     });
 
     it('should change search bar type when selecting module filters from type dropdown', async () => {
-        wrapper = await createWrapper({
-            initialSearchType: '',
-        }, {
-            all: {
-                entityName: '',
-                placeholderSnippet: '',
-                listingRoute: '',
+        wrapper = await createWrapper(
+            {
+                initialSearchType: '',
             },
-            ...searchTypeServiceTypes,
-        });
+            {
+                all: {
+                    entityName: '',
+                    placeholderSnippet: '',
+                    listingRoute: '',
+                },
+                ...searchTypeServiceTypes,
+            },
+        );
 
         const moduleFilterSelect = wrapper.find('.sw-search-bar__type--v2');
         await moduleFilterSelect.trigger('click');
@@ -658,7 +677,7 @@ describe('src/app/component/structure/sw-search-bar', () => {
         register('sw-order', {
             title: 'Orders',
             color: '#A092F0',
-            icon: 'default-shopping-paper-bag',
+            icon: 'regular-shopping-bag',
             entity: 'order',
 
             routes: {
@@ -686,7 +705,10 @@ describe('src/app/component/structure/sw-search-bar', () => {
                 initialSearch: '',
             },
             searchTypeServiceTypes,
-            ['order.viewer', 'order.creator'],
+            [
+                'order.viewer',
+                'order.creator',
+            ],
         );
 
         // open search
@@ -716,7 +738,7 @@ describe('src/app/component/structure/sw-search-bar', () => {
         register('sw-category', {
             title: 'Categories',
             color: '#57D9A3',
-            icon: 'default-symbol-products',
+            icon: 'regular-products',
             entity: 'category',
 
             searchMatcher: (regex, labelType, manifest) => {
@@ -737,7 +759,10 @@ describe('src/app/component/structure/sw-search-bar', () => {
                     {
                         icon: manifest.icon,
                         color: manifest.color,
-                        route: { name: 'sw.category.landingPageDetail', params: { id: 'create' } },
+                        route: {
+                            name: 'sw.category.landingPageDetail',
+                            params: { id: 'create' },
+                        },
                         entity: 'landing_page',
                         privilege: manifest.routes.landingPageDetail?.meta.privilege,
                         action: true,
@@ -802,7 +827,10 @@ describe('src/app/component/structure/sw-search-bar', () => {
                 initialSearch: '',
             },
             searchTypeServiceTypes,
-            ['sales_channel.viewer', 'sales_channel.creator'],
+            [
+                'sales_channel.viewer',
+                'sales_channel.creator',
+            ],
         );
 
         // open search
@@ -830,12 +858,16 @@ describe('src/app/component/structure/sw-search-bar', () => {
         expect(module.entities[0].route.name).toBe('sw.sales.channel.create');
     });
 
-    ['order', 'product', 'customer'].forEach(term => {
+    [
+        'order',
+        'product',
+        'customer',
+    ].forEach((term) => {
         it(`should search for module and action with the term "${term}" when the ACL privilege is missing`, async () => {
             register(`sw-${term}`, {
                 title: `${term}s`,
                 color: '#A092F0',
-                icon: 'default-shopping-paper-bag',
+                icon: 'regular-shopping-bag',
                 entity: term,
 
                 routes: {
@@ -857,12 +889,10 @@ describe('src/app/component/structure/sw-search-bar', () => {
                 },
             });
 
-            wrapper = await createWrapper(
-                {
-                    initialSearchType: '',
-                    initialSearch: '',
-                },
-            );
+            wrapper = await createWrapper({
+                initialSearchType: '',
+                initialSearch: '',
+            });
 
             // open search
             const searchInput = wrapper.find('.sw-search-bar__input');
@@ -878,7 +908,7 @@ describe('src/app/component/structure/sw-search-bar', () => {
 
             await flushPromises();
 
-            const results = wrapper.vm.results.filter(item => {
+            const results = wrapper.vm.results.filter((item) => {
                 return item.entity === 'module';
             });
 
@@ -886,12 +916,16 @@ describe('src/app/component/structure/sw-search-bar', () => {
         });
     });
 
-    ['order', 'product', 'customer'].forEach(term => {
+    [
+        'order',
+        'product',
+        'customer',
+    ].forEach((term) => {
         it(`should search for module and action with the term "${term}" when the ACL is can view`, async () => {
             register(`sw-${term}`, {
                 title: `${term}s`,
                 color: '#A092F0',
-                icon: 'default-shopping-paper-bag',
+                icon: 'regular-shopping-bag',
                 entity: term,
 
                 routes: {
@@ -941,7 +975,7 @@ describe('src/app/component/structure/sw-search-bar', () => {
             expect(module.entity).toBe('module');
             expect(module.total).toBe(1);
 
-            expect(module.entities[0].icon).toBe('default-shopping-paper-bag');
+            expect(module.entities[0].icon).toBe('regular-shopping-bag');
             expect(module.entities[0].color).toBe('#A092F0');
             expect(module.entities[0].label).toBe(`${term}s`);
             expect(module.entities[0].entity).toBe(term);
@@ -1128,21 +1162,24 @@ describe('src/app/component/structure/sw-search-bar', () => {
     });
 
     it('should send search query scores for all entity when do global search', async () => {
-        wrapper = await createWrapper({
-            initialSearchType: '',
-            typeSearchAlwaysInContainer: false,
-        }, {
-            all: {
-                entityName: '',
-                placeholderSnippet: '',
-                listingRoute: '',
+        wrapper = await createWrapper(
+            {
+                initialSearchType: '',
+                typeSearchAlwaysInContainer: false,
             },
-            foo: {
-                entityName: 'foo',
-                placeholderSnippet: 'sw-foo.general.placeholderSearchBar',
-                listingRoute: 'sw.foo.index',
+            {
+                all: {
+                    entityName: '',
+                    placeholderSnippet: '',
+                    listingRoute: '',
+                },
+                foo: {
+                    entityName: 'foo',
+                    placeholderSnippet: 'sw-foo.general.placeholderSearchBar',
+                    listingRoute: 'sw.foo.index',
+                },
             },
-        });
+        );
 
         const moduleFilterSelect = wrapper.find('.sw-search-bar__type--v2');
 
@@ -1202,7 +1239,7 @@ describe('src/app/component/structure/sw-search-bar', () => {
         register('sw-dashboard', {
             title: 'sw-dashboard.general.mainMenuItemGeneral',
             color: '#6AD6F0',
-            icon: 'default-device-dashboard',
+            icon: 'regular-dashboard',
             name: 'dashboard',
 
             routes: {
@@ -1234,8 +1271,7 @@ describe('src/app/component/structure/sw-search-bar', () => {
         expect(headerEntity.text()).toBe('global.entities.frequently_used');
         expect(searchBarItem.props().type).toBe('frequently_used');
 
-        const frequentlyUsed = wrapper.vm.resultsSearchTrends
-            .find(item => item.entity === 'frequently_used');
+        const frequentlyUsed = wrapper.vm.resultsSearchTrends.find((item) => item.entity === 'frequently_used');
 
         expect(frequentlyUsed.entity).toBe('frequently_used');
         expect(frequentlyUsed.total).toBe(1);
@@ -1243,7 +1279,7 @@ describe('src/app/component/structure/sw-search-bar', () => {
         const { route, ...frequently } = frequentlyUsed.entities[0];
         expect(frequently).toEqual({
             color: '#6AD6F0',
-            icon: 'default-device-dashboard',
+            icon: 'regular-dashboard',
             title: 'sw-dashboard.general.mainMenuItemGeneral',
             name: 'dashboard',
             privilege: undefined,
@@ -1261,11 +1297,9 @@ describe('src/app/component/structure/sw-search-bar', () => {
     });
 
     it('should always show recently searches correctly', async () => {
-        wrapper = await createWrapper(
-            {},
-            searchTypeServiceTypes,
-            ['product:read'],
-        );
+        wrapper = await createWrapper({}, searchTypeServiceTypes, [
+            'product:read',
+        ]);
 
         const moduleFilterSelect = wrapper.find('.sw-search-bar__type--v2');
 
@@ -1285,8 +1319,7 @@ describe('src/app/component/structure/sw-search-bar', () => {
         expect(headerEntity.text()).toBe('global.entities.recently_searched');
         expect(searchBarItem.props().type).toBe('product');
 
-        const recentlySearched = wrapper.vm.resultsSearchTrends
-            .find(item => item.entity === 'recently_searched');
+        const recentlySearched = wrapper.vm.resultsSearchTrends.find((item) => item.entity === 'recently_searched');
 
         expect(recentlySearched.entity).toBe('recently_searched');
         expect(recentlySearched.total).toBe(1);
@@ -1315,20 +1348,23 @@ describe('src/app/component/structure/sw-search-bar', () => {
 
     it('should search global with ES when adminEsEnable is true', async () => {
         Shopware.Context.app.adminEsEnable = true;
-        wrapper = await createWrapper({
-            initialSearchType: '',
-        }, {
-            all: {
-                entityName: '',
-                placeholderSnippet: '',
-                listingRoute: '',
+        wrapper = await createWrapper(
+            {
+                initialSearchType: '',
             },
-            foo: {
-                entityName: 'foo',
-                placeholderSnippet: 'sw-foo.general.placeholderSearchBar',
-                listingRoute: 'sw.foo.index',
+            {
+                all: {
+                    entityName: '',
+                    placeholderSnippet: '',
+                    listingRoute: '',
+                },
+                foo: {
+                    entityName: 'foo',
+                    placeholderSnippet: 'sw-foo.general.placeholderSearchBar',
+                    listingRoute: 'sw.foo.index',
+                },
             },
-        });
+        );
 
         const moduleFilterSelect = wrapper.find('.sw-search-bar__type--v2');
 
@@ -1368,20 +1404,23 @@ describe('src/app/component/structure/sw-search-bar', () => {
 
     it('should search type with ES when adminEsEnable is true', async () => {
         Shopware.Context.app.adminEsEnable = true;
-        wrapper = await createWrapper({
-            initialSearchType: '',
-        }, {
-            all: {
-                entityName: '',
-                placeholderSnippet: '',
-                listingRoute: '',
+        wrapper = await createWrapper(
+            {
+                initialSearchType: '',
             },
-            esFoo: {
-                entityName: 'esFoo',
-                placeholderSnippet: 'sw-foo.general.placeholderSearchBar',
-                listingRoute: 'sw.foo.index',
+            {
+                all: {
+                    entityName: '',
+                    placeholderSnippet: '',
+                    listingRoute: '',
+                },
+                esFoo: {
+                    entityName: 'esFoo',
+                    placeholderSnippet: 'sw-foo.general.placeholderSearchBar',
+                    listingRoute: 'sw.foo.index',
+                },
             },
-        });
+        );
 
         const searchInput = wrapper.find('.sw-search-bar__input');
 
@@ -1457,7 +1496,7 @@ describe('src/app/component/structure/sw-search-bar', () => {
         register(`sw-${term}`, {
             title: `${term}s`,
             color: '#A092F0',
-            icon: 'default-shopping-paper-bag',
+            icon: 'regular-shopping-bag',
             entity: term,
 
             routes: {
@@ -1479,29 +1518,24 @@ describe('src/app/component/structure/sw-search-bar', () => {
             },
         });
 
-        wrapper = await createWrapper(
-            {
-                initialSearchType: '',
-                initialSearch: '',
-            },
-        );
+        wrapper = await createWrapper({
+            initialSearchType: '',
+            initialSearch: '',
+        });
 
         await wrapper.find('.sw-search-bar__type--v2').trigger('click');
 
         await flushPromises();
 
         // should use correct icon
-        const shoppingBagIcon = wrapper.find('.sw-search-bar__type-item sw-icon-stub[name="default-shopping-paper-bag"]');
-        expect(shoppingBagIcon.exists()).toBe(true);
+        expect(wrapper.find('.sw-search-bar__type-item .mt-icon.icon--regular-shopping-bag')).toBeDefined();
     });
 
     it('should not call the search service when the search term reaches the maximum length', async () => {
-        wrapper = await createWrapper(
-            {
-                initialSearchType: '',
-                initialSearch: '',
-            },
-        );
+        wrapper = await createWrapper({
+            initialSearchType: '',
+            initialSearch: '',
+        });
 
         const searchInput = wrapper.find('.sw-search-bar__input');
         await searchInput.trigger('focus');

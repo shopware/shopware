@@ -1,19 +1,21 @@
 /**
- * @package buyers-experience
+ * @sw-package discovery
  */
 import { mount } from '@vue/test-utils';
 
 async function createWrapper() {
-    return mount(await wrapTestComponent('sw-cms-preview-html', {
-        sync: true,
-    }), {
-        global: {
-            stubs: {
-                'sw-code-editor': await wrapTestComponent('sw-code-editor'),
-                'sw-icon': true,
+    return mount(
+        await wrapTestComponent('sw-cms-preview-html', {
+            sync: true,
+        }),
+        {
+            global: {
+                stubs: {
+                    'sw-code-editor': await wrapTestComponent('sw-code-editor'),
+                },
             },
         },
-    });
+    );
 }
 
 describe('src/module/sw-cms/blocks/html/html/preview', () => {

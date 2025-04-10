@@ -9,10 +9,7 @@ use Shopware\Storefront\Page\Page;
 #[Package('checkout')]
 class AccountProfilePage extends Page
 {
-    /**
-     * @var SalutationCollection
-     */
-    protected $salutations;
+    protected SalutationCollection $salutations;
 
     public function getSalutations(): SalutationCollection
     {

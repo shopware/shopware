@@ -15,7 +15,7 @@ use Symfony\Component\Messenger\Attribute\AsMessageHandler;
  * @internal
  */
 #[AsMessageHandler]
-#[Package('services-settings')]
+#[Package('discovery')]
 final class SitemapMessageHandler
 {
     /**

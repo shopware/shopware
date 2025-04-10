@@ -7,22 +7,12 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\StoreApiResponse;
 
-#[Package('buyers-experience')]
+/**
+ * @extends StoreApiResponse<EntitySearchResult<SeoUrlCollection>>
+ */
+#[Package('inventory')]
 class SeoUrlRouteResponse extends StoreApiResponse
 {
-    /**
-     * @var EntitySearchResult<SeoUrlCollection>
-     */
-    protected $object;
-
-    /**
-     * @param EntitySearchResult<SeoUrlCollection> $object
-     */
-    public function __construct(EntitySearchResult $object)
-    {
-        parent::__construct($object);
-    }
-
     public function getSeoUrls(): SeoUrlCollection
     {
         return $this->object->getEntities();

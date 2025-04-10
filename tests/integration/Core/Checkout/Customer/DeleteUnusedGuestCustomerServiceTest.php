@@ -18,12 +18,12 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Pricing\CashRoundingConfig;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Log\Package;
-use Shopware\Core\Framework\Test\IdsCollection;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\StateMachine\Loader\InitialStateIdLoader;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Shopware\Core\Test\Integration\Builder\Customer\CustomerBuilder;
+use Shopware\Core\Test\Stub\Framework\IdsCollection;
 use Shopware\Core\Test\TestDefaults;
 
 /**
@@ -41,9 +41,9 @@ class DeleteUnusedGuestCustomerServiceTest extends TestCase
     protected function setUp(): void
     {
         $this->ids = new IdsCollection();
-        $this->service = $this->getContainer()->get(DeleteUnusedGuestCustomerService::class);
+        $this->service = static::getContainer()->get(DeleteUnusedGuestCustomerService::class);
 
-        $this->getContainer()
+        static::getContainer()
             ->get(SystemConfigService::class)
             ->set('core.loginRegistration.unusedGuestCustomerLifetime', 86400);
     }
@@ -51,7 +51,7 @@ class DeleteUnusedGuestCustomerServiceTest extends TestCase
     public function testItDeletesUnusedGuestCustomer(): void
     {
         $context = Context::createDefaultContext();
-        $customerRepository = $this->getContainer()->get('customer.repository');
+        $customerRepository = static::getContainer()->get('customer.repository');
 
         $customer = (new CustomerBuilder($this->ids, '10000'))
             ->add('guest', true)
@@ -73,7 +73,7 @@ class DeleteUnusedGuestCustomerServiceTest extends TestCase
     public function testItDoesOnlyDeleteGuestCustomers(): void
     {
         $context = Context::createDefaultContext();
-        $customerRepository = $this->getContainer()->get('customer.repository');
+        $customerRepository = static::getContainer()->get('customer.repository');
 
         $customer = (new CustomerBuilder($this->ids, '10000'))
             ->add('guest', false)
@@ -111,7 +111,7 @@ class DeleteUnusedGuestCustomerServiceTest extends TestCase
     public function testItDeletesOnlyExpiredCustomerAccounts(): void
     {
         $context = Context::createDefaultContext();
-        $customerRepository = $this->getContainer()->get('customer.repository');
+        $customerRepository = static::getContainer()->get('customer.repository');
 
         $nonExpiredCustomer = (new CustomerBuilder($this->ids, '10000'))
             ->add('guest', true)
@@ -150,7 +150,7 @@ class DeleteUnusedGuestCustomerServiceTest extends TestCase
     public function testItDoesOnlyDeleteCustomersWithoutOrders(): void
     {
         $context = Context::createDefaultContext();
-        $customerRepository = $this->getContainer()->get('customer.repository');
+        $customerRepository = static::getContainer()->get('customer.repository');
 
         $customerWithOrder = (new CustomerBuilder($this->ids, '10000'))
             ->add('guest', true)
@@ -189,12 +189,12 @@ class DeleteUnusedGuestCustomerServiceTest extends TestCase
 
     public function testItCancelsWhenMaxLifeTimeIsZero(): void
     {
-        $this->getContainer()
+        static::getContainer()
             ->get(SystemConfigService::class)
             ->set('core.loginRegistration.unusedGuestCustomerLifetime', 0);
 
         $context = Context::createDefaultContext();
-        $customerRepository = $this->getContainer()->get('customer.repository');
+        $customerRepository = static::getContainer()->get('customer.repository');
 
         $customer = (new CustomerBuilder($this->ids, '10000'))
             ->add('guest', true)
@@ -221,12 +221,12 @@ class DeleteUnusedGuestCustomerServiceTest extends TestCase
 
     public function testItCancelsWhenMaxLifeTimeIsNull(): void
     {
-        $this->getContainer()
+        static::getContainer()
             ->get(SystemConfigService::class)
             ->set('core.loginRegistration.unusedGuestCustomerLifetime', null);
 
         $context = Context::createDefaultContext();
-        $customerRepository = $this->getContainer()->get('customer.repository');
+        $customerRepository = static::getContainer()->get('customer.repository');
 
         $customer = (new CustomerBuilder($this->ids, '10000'))
             ->add('guest', true)
@@ -256,8 +256,8 @@ class DeleteUnusedGuestCustomerServiceTest extends TestCase
      */
     private function createOrderForCustomer(array $customer): string
     {
-        $productRepository = $this->getContainer()->get('product.repository');
-        $orderRepository = $this->getContainer()->get('order.repository');
+        $productRepository = static::getContainer()->get('product.repository');
+        $orderRepository = static::getContainer()->get('order.repository');
 
         $product = (new ProductBuilder($this->ids, 'Product-1'))
             ->price(10)
@@ -274,7 +274,7 @@ class DeleteUnusedGuestCustomerServiceTest extends TestCase
             'orderDateTime' => (new \DateTimeImmutable())->format(Defaults::STORAGE_DATE_TIME_FORMAT),
             'price' => new CartPrice(10, 10, 10, new CalculatedTaxCollection(), new TaxRuleCollection(), CartPrice::TAX_STATE_NET),
             'shippingCosts' => new CalculatedPrice(10, 10, new CalculatedTaxCollection(), new TaxRuleCollection()),
-            'stateId' => $this->getContainer()->get(InitialStateIdLoader::class)->get(OrderStates::STATE_MACHINE),
+            'stateId' => static::getContainer()->get(InitialStateIdLoader::class)->get(OrderStates::STATE_MACHINE),
             'paymentMethodId' => $this->getValidPaymentMethodId(),
             'currencyId' => Defaults::CURRENCY,
             'currencyFactor' => 1,
@@ -287,7 +287,7 @@ class DeleteUnusedGuestCustomerServiceTest extends TestCase
             ],
             'deliveries' => [
                 [
-                    'stateId' => $this->getContainer()->get(InitialStateIdLoader::class)->get(OrderDeliveryStates::STATE_MACHINE),
+                    'stateId' => static::getContainer()->get(InitialStateIdLoader::class)->get(OrderDeliveryStates::STATE_MACHINE),
                     'shippingMethodId' => $this->getValidShippingMethodId(),
                     'shippingCosts' => new CalculatedPrice(10, 10, new CalculatedTaxCollection(), new TaxRuleCollection()),
                     'shippingDateEarliest' => date(\DATE_ATOM),

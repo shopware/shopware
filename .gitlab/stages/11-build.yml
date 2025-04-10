@@ -58,21 +58,13 @@ Build:
     - "NODE_ENV=production npm --no-audit --prefer-offline --prefix src/Storefront/Resources/app/storefront/ ci"
     - echo -e "\e[0Ksection_end:`date +%s`:npminstallstorefront\r\e[0K"
 
-    - echo -e "\e[0Ksection_start:$(date +%s):testplugin[collapsed=true]\r\e[0Kprepare test plugin"
-    - composer run e2e:sdk-plugin:fixture-to-plugin
-    - "(cd custom/plugins/TestPlugin/src/Resources/app/administration/ && npm install --no-audit --prefer-offline)"
-    - bin/console plugin:refresh
-    - bin/console plugin:install --activate TestPlugin
-    - echo -e "\e[0Ksection_end:`date +%s`:testplugin\r\e[0K"
     - echo -e "\e[0Ksection_start:$(date +%s):buildjs[collapsed=false]\r\e[0KJavascript build"
     - composer run build:js
-    - rm -Rf custom/plugins/TestPlugin/src/Resources/app/administration/node_modules
     - echo -e "\e[0Ksection_end:`date +%s`:buildjs\r\e[0K"
     - echo -e "\e[0Ksection_start:$(date +%s):theme[collapsed=false]\r\e[0KTheme compile"
     - bin/console theme:compile
     - bin/console theme:change --all Storefront
     - echo -e "\e[0Ksection_end:`date +%s`:theme\r\e[0K"
-    - "mysqldump -uroot -papp -hdatabase root > var/database.sql"
     - chown -R www-data:www-data .
     - tar -cz --exclude .git --exclude "**/node_modules" -f /tmp/context.tar.gz .
     - mv /tmp/context.tar.gz ${CI_PROJECT_DIR}/
@@ -150,6 +142,10 @@ build image:
   dependencies: [Build]
   variables:
     GIT_STRATEGY: none
+    KUBERNETES_CPU_REQUEST: "1000m"
+    KUBERNETES_CPU_LIMIT: "2000m"
+    KUBERNETES_MEMORY_REQUEST: "1Gi"
+    KUBERNETES_MEMORY_LIMIT: "4Gi"
   rules:
     - if: '$CI_COMMIT_BRANCH && $CI_COMMIT_REF_PROTECTED == "true" && $CI_COMMIT_BRANCH !~ /^saas\/.*/'
       variables:
@@ -176,6 +172,10 @@ build image tagged:
   dependencies: [Build, tested_update_tags]
   variables:
     GIT_STRATEGY: fetch
+    KUBERNETES_CPU_REQUEST: "1000m"
+    KUBERNETES_CPU_LIMIT: "2000m"
+    KUBERNETES_MEMORY_REQUEST: "1Gi"
+    KUBERNETES_MEMORY_LIMIT: "4Gi"
   parallel:
     matrix:
       - SHOPWARE_CORE_VERSION: [
@@ -191,11 +191,6 @@ build image tagged:
     - if: !reference [.rules, scheduled, if]
       variables:
         EXTRA_TAGGED_BUILD_TAGS: "$SHOPWARE_CORE_VERSION"
-    - if: '$CI_PIPELINE_SOURCE == "merge_request_event"'
-      changes:
-        - src/WebInstaller/**/*
-        - tests/acceptance/tests/Update/**/*
-    - !reference [.rules, long-running]
   retry: 2
   before_script:
     - echo "Building image for version $SHOPWARE_CORE_VERSION"

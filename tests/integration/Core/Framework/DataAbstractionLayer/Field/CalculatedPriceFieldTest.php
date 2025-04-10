@@ -16,7 +16,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteContext;
 use Shopware\Core\Framework\Struct\ArrayEntity;
 use Shopware\Core\Framework\Test\DataAbstractionLayer\Field\DataAbstractionLayerFieldTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
-use Shopware\Core\Framework\Test\TestDataCollection;
+use Shopware\Core\Test\Stub\Framework\IdsCollection;
 use Shopware\Tests\Integration\Core\Framework\DataAbstractionLayer\Version\CalculatedPriceFieldTestDefinition;
 
 /**
@@ -30,13 +30,13 @@ class CalculatedPriceFieldTest extends TestCase
     public function testListPrice(): void
     {
         $definition = $this->registerDefinition(CalculatedPriceFieldTestDefinition::class);
-        $connection = $this->getContainer()->get(Connection::class);
+        $connection = static::getContainer()->get(Connection::class);
 
         $connection->rollBack();
         $connection->executeStatement(CalculatedPriceFieldTestDefinition::getCreateTable());
         $connection->beginTransaction();
 
-        $ids = new TestDataCollection();
+        $ids = new IdsCollection();
 
         $data = [
             'id' => $ids->create('entity'),
@@ -53,10 +53,10 @@ class CalculatedPriceFieldTest extends TestCase
 
         $writeContext = WriteContext::createFromContext(Context::createDefaultContext());
 
-        $this->getContainer()->get(EntityWriter::class)
+        static::getContainer()->get(EntityWriter::class)
             ->insert($definition, [$data], $writeContext);
 
-        $entity = $this->getContainer()->get(EntityReaderInterface::class)
+        $entity = static::getContainer()->get(EntityReaderInterface::class)
             ->read($definition, new Criteria([$ids->get('entity')]), Context::createDefaultContext())
             ->get($ids->get('entity'));
         static::assertInstanceOf(ArrayEntity::class, $entity);

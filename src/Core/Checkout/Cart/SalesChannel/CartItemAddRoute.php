@@ -40,7 +40,7 @@ class CartItemAddRoute extends AbstractCartItemAddRoute
     }
 
     /**
-     * @param array<LineItem> $items
+     * @param array<LineItem>|null $items
      */
     #[Route(path: '/store-api/checkout/cart/line-item', name: 'store-api.checkout.cart.add', methods: ['POST'])]
     public function add(Request $request, Cart $cart, SalesChannelContext $context, ?array $items): CartResponse

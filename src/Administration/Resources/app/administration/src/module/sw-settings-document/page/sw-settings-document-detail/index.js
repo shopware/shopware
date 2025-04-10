@@ -13,15 +13,18 @@ const documentTypesForDisplayNoteDelivery = [
 ];
 
 /**
- * @package services-settings
+ * @sw-package after-sales
  */
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default {
     template,
 
-    compatConfig: Shopware.compatConfig,
-
-    inject: ['repositoryFactory', 'acl', 'feature', 'customFieldDataProviderService'],
+    inject: [
+        'repositoryFactory',
+        'acl',
+        'feature',
+        'customFieldDataProviderService',
+    ],
 
     mixins: [
         Mixin.getByName('notification'),
@@ -40,7 +43,6 @@ export default {
             default: null,
         },
     },
-
 
     data() {
         return {
@@ -97,7 +99,26 @@ export default {
                         label: this.$tc('sw-settings-document.detail.labelItemsPerPage'),
                     },
                 },
-                null,
+                {
+                    name: 'fileTypes',
+                    type: 'array',
+                    config: {
+                        componentName: 'sw-multi-select',
+                        labelProperty: 'name',
+                        valueProperty: 'id',
+                        options: [
+                            {
+                                id: 'pdf',
+                                name: 'PDF',
+                            },
+                            {
+                                id: 'html',
+                                name: 'HTML',
+                            },
+                        ],
+                        label: this.$tc('sw-settings-document.detail.labelFileTypes'),
+                    },
+                },
                 {
                     name: 'displayHeader',
                     type: 'bool',
@@ -167,12 +188,36 @@ export default {
                     },
                 },
                 {
-                    name: 'companyAddress',
+                    name: 'companyStreet',
                     type: 'text',
                     config: {
                         type: 'text',
-                        label: this.$tc('sw-settings-document.detail.labelCompanyAddress'),
-                        helpText: this.$tc('sw-settings-document.detail.helpTextCompanyAddress'),
+                        label: this.$tc('sw-settings-document.detail.labelCompanyStreet'),
+                    },
+                },
+                {
+                    name: 'companyZipcode',
+                    type: 'text',
+                    config: {
+                        type: 'text',
+                        label: this.$tc('sw-settings-document.detail.labelCompanyZipcode'),
+                    },
+                },
+                {
+                    name: 'companyCity',
+                    type: 'text',
+                    config: {
+                        type: 'text',
+                        label: this.$tc('sw-settings-document.detail.labelCompanyCity'),
+                    },
+                },
+                {
+                    name: 'companyCountryId',
+                    type: 'sw-entity-single-select',
+                    config: {
+                        entity: 'country',
+                        componentName: 'sw-entity-single-select',
+                        label: this.$tc('sw-settings-document.detail.labelCompanyCountry'),
                     },
                 },
                 {
@@ -279,6 +324,15 @@ export default {
                         label: this.$tc('sw-settings-document.detail.labelExecutiveDirector'),
                     },
                 },
+                {
+                    name: 'paymentDueDate',
+                    type: 'text',
+                    config: {
+                        type: 'text',
+                        label: this.$tc('sw-settings-document.detail.labelPaymentDueDate'),
+                        helpText: this.$tc('sw-settings-document.detail.helpTextPaymentDueDate'),
+                    },
+                },
             ],
             alreadyAssignedSalesChannelIdsToType: [],
             typeIsLoading: false,
@@ -304,10 +358,7 @@ export default {
         documentBaseConfigCriteria() {
             const criteria = new Criteria(1, 25);
 
-            criteria
-                .addAssociation('documentType')
-                .getAssociation('salesChannels')
-                .addAssociation('salesChannel');
+            criteria.addAssociation('documentType').getAssociation('salesChannels').addAssociation('salesChannel');
 
             return criteria;
         },
@@ -349,24 +400,33 @@ export default {
             };
         },
 
-        /* @deprecated: tag:v6.7.0 - Will be removed without replacement */
-        showCountriesSelect() {
-            if (!this.isShowDisplayNoteDelivery) {
-                return false;
-            }
-
-            const documentConfig = cloneDeep(this.documentConfig);
-
-            return documentConfig.config?.displayAdditionalNoteDelivery;
-        },
-
         documentBaseConfig() {
             return this.documentConfig;
         },
-        ...mapPropertyErrors('documentBaseConfig', ['name', 'documentTypeId']),
+        ...mapPropertyErrors('documentBaseConfig', [
+            'name',
+            'documentTypeId',
+        ]),
 
         showCustomFields() {
             return this.customFieldSets && this.customFieldSets.length > 0;
+        },
+
+        fileTypesSelected() {
+            if (!this.documentConfig?.config?.fileTypes) {
+                return [];
+            }
+
+            return this.documentConfig.config.fileTypes;
+        },
+
+        // We don't want to select ZUGFeRD as a type. "invoice" configuration is used instead (NEXT-40492)
+        documentCriteria() {
+            const criteria = new Criteria(1, 25);
+
+            criteria.addFilter(Criteria.not('AND', [Criteria.prefix('technicalName', 'zugferd_')]));
+
+            return criteria;
         },
     },
 
@@ -379,7 +439,10 @@ export default {
             this.isLoading = true;
             await this.loadAvailableSalesChannel();
             if (this.documentConfigId) {
-                await Promise.all([this.loadEntityData(), this.loadCustomFieldSets()]);
+                await Promise.all([
+                    this.loadEntityData(),
+                    this.loadCustomFieldSets(),
+                ]);
             } else {
                 this.documentConfig = this.documentBaseConfigRepository.create();
                 this.documentConfig.global = false;
@@ -402,26 +465,19 @@ export default {
                 this.documentConfig = {};
             }
             if (!this.documentConfig.config) {
-                if (this.isCompatEnabled('INSTANCE_SET')) {
-                    this.$set(this.documentConfig, 'config', {});
-                } else {
-                    this.documentConfig.config = {};
-                }
+                this.documentConfig.config = {};
             }
 
             await this.onChangeType(this.documentConfig.documentType);
 
             if (this.documentConfig.salesChannels === undefined) {
-                if (this.isCompatEnabled('INSTANCE_SET')) {
-                    this.$set(this.documentConfig, 'salesChannels', []);
-                } else {
-                    this.documentConfig.salesChannels = [];
-                }
+                this.documentConfig.salesChannels = [];
             }
 
-            this.documentConfig.salesChannels.forEach(salesChannelAssoc => {
+            this.documentConfig.salesChannels.forEach((salesChannelAssoc) => {
                 this.documentConfigSalesChannels.push(salesChannelAssoc.id);
             });
+
             this.isLoading = false;
         },
 
@@ -463,16 +519,17 @@ export default {
 
             this.createSalesChannelSelectOptions();
             const documentSalesChannelCriteria = new Criteria(1, 25);
-            documentSalesChannelCriteria.addFilter(
-                Criteria.equals('documentTypeId', documentType.id),
-            );
+            documentSalesChannelCriteria.addFilter(Criteria.equals('documentTypeId', documentType.id));
 
-            this.documentBaseConfigSalesChannelRepository.search(documentSalesChannelCriteria)
+            this.documentBaseConfigSalesChannelRepository
+                .search(documentSalesChannelCriteria)
                 .then((responseSalesChannels) => {
                     this.alreadyAssignedSalesChannelIdsToType = [];
                     responseSalesChannels.forEach((salesChannel) => {
-                        if (salesChannel.salesChannelId !== null
-                            && salesChannel.documentBaseConfigId !== this.documentConfig.id) {
+                        if (
+                            salesChannel.salesChannelId !== null &&
+                            salesChannel.documentBaseConfigId !== this.documentConfig.id
+                        ) {
                             this.alreadyAssignedSalesChannelIdsToType.push(salesChannel.salesChannelId);
                         }
                     });
@@ -499,23 +556,12 @@ export default {
             });
         },
 
-        abortOnLanguageChange() {
-            return this.documentBaseConfigRepository.hasChanges(this.documentConfig);
-        },
-
-        saveOnLanguageChange() {
-            return this.onSave();
-        },
-
-        onChangeLanguage(languageId) {
-            Shopware.State.commit('context/setApiLanguageId', languageId);
-
-            return this.loadEntityData();
-        },
-
         async saveFinish() {
             if (this.documentConfig.isNew()) {
-                await this.$router.replace({ name: 'sw.settings.document.detail', params: { id: this.documentConfig.id } });
+                await this.$router.replace({
+                    name: 'sw.settings.document.detail',
+                    params: { id: this.documentConfig.id },
+                });
             }
             this.loadEntityData();
         },
@@ -525,12 +571,17 @@ export default {
             this.isLoading = true;
             this.onChangeSalesChannel();
 
-            return this.documentBaseConfigRepository.save(this.documentConfig).then(() => {
-                this.isLoading = false;
-                this.isSaveSuccessful = true;
-            }).catch(() => {
-                this.isLoading = false;
-            });
+            this.isSaveSuccessful = true;
+
+            return this.documentBaseConfigRepository
+                .save(this.documentConfig)
+                .then(() => {
+                    this.isLoading = false;
+                    this.isSaveSuccessful = true;
+                })
+                .catch(() => {
+                    this.isLoading = false;
+                });
         },
 
         onCancel() {
@@ -549,9 +600,9 @@ export default {
                 return;
             }
 
-            this.salesChannels.forEach(salesChannel => {
+            this.salesChannels.forEach((salesChannel) => {
                 let salesChannelAlreadyAssigned = false;
-                this.documentConfig.salesChannels.forEach(documentConfigSalesChannel => {
+                this.documentConfig.salesChannels.forEach((documentConfigSalesChannel) => {
                     if (documentConfigSalesChannel.salesChannelId === salesChannel.id) {
                         salesChannelAlreadyAssigned = true;
                         this.documentConfigSalesChannelOptionsCollection.push(documentConfigSalesChannel);
@@ -566,6 +617,20 @@ export default {
                     this.documentConfigSalesChannelOptionsCollection.push(option);
                 }
             });
+        },
+
+        onRemoveDocumentType(type) {
+            let fileTypes = this.documentConfig.config.fileTypes ?? [];
+            if (fileTypes.length === 1) {
+                return;
+            }
+
+            fileTypes = fileTypes.filter((fileType) => fileType !== type.id);
+            this.documentConfig.config.fileTypes = fileTypes;
+        },
+
+        onAddDocumentType(type) {
+            this.documentConfig.config.fileTypes.push(type.id);
         },
     },
 };

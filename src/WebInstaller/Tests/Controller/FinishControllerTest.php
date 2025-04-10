@@ -21,14 +21,14 @@ class FinishControllerTest extends TestCase
     public function testRendersTemplate(): void
     {
         $controller = new FinishController();
-        $controller->setContainer($this->getContainer());
+        $controller->setContainer($this->buildContainer());
 
         $response = $controller->default(new Request(), '');
 
         static::assertSame('finish.html.twig', $response->getContent());
     }
 
-    private function getContainer(): ContainerInterface
+    private function buildContainer(): ContainerInterface
     {
         $container = new Container();
 

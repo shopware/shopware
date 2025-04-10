@@ -2,13 +2,12 @@ import template from './sw-first-run-wizard-modal.html.twig';
 import './sw-first-run-wizard-modal.scss';
 
 /**
- * @package checkout
+ * @sw-package fundamentals@after-sales
+ *
  * @private
  */
 export default {
     template,
-
-    compatConfig: Shopware.compatConfig,
 
     inject: ['firstRunWizardService'],
 
@@ -35,9 +34,7 @@ export default {
 
     computed: {
         columns() {
-            return this.showSteps
-                ? '1fr 4fr'
-                : '1fr';
+            return this.showSteps ? '1fr 4fr' : '1fr';
         },
 
         variant() {
@@ -96,7 +93,7 @@ export default {
         },
 
         extensionManagementDisabled() {
-            return Shopware.State.get('context').app.config.settings.disableExtensionManagement;
+            return Shopware.Store.get('context').app.config.settings.disableExtensionManagement;
         },
 
         isClosable() {
@@ -104,7 +101,7 @@ export default {
         },
 
         stepper() {
-            if (Shopware.State.get('context').app.config.settings.disableExtensionManagement) {
+            if (Shopware.Store.get('context').app.config.settings.disableExtensionManagement) {
                 return {
                     welcome: {
                         name: 'sw.first.run.wizard.index.welcome',
@@ -220,7 +217,7 @@ export default {
     },
 
     watch: {
-        '$route'(to) {
+        $route(to) {
             this.handleRouteUpdate(to);
         },
     },
@@ -272,10 +269,9 @@ export default {
         },
 
         finishFRW() {
-            this.firstRunWizardService.setFRWFinish()
-                .then(() => {
-                    document.location.href = document.location.origin + document.location.pathname;
-                });
+            this.firstRunWizardService.setFRWFinish().then(() => {
+                document.location.href = document.location.origin + document.location.pathname;
+            });
         },
 
         onExtensionActivated() {

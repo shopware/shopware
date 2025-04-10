@@ -10,6 +10,7 @@ use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\Depends;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Content\Product\ProductCollection;
 use Shopware\Core\Content\Test\Product\ProductBuilder;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
@@ -17,7 +18,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
 use Shopware\Core\Framework\Log\Package;
-use Shopware\Core\Framework\Test\IdsCollection;
 use Shopware\Core\Framework\Test\TestCaseBase\CacheTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\FilesystemBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelLifecycleManager;
@@ -25,10 +25,10 @@ use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\QueueTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\SalesChannelApiTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\SessionTestBehaviour;
-use Shopware\Core\Framework\Test\TestDataCollection;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\CustomField\CustomFieldService;
 use Shopware\Core\System\CustomField\CustomFieldTypes;
+use Shopware\Core\Test\Stub\Framework\IdsCollection;
 use Shopware\Elasticsearch\Event\ElasticsearchCustomFieldsMappingEvent;
 use Shopware\Elasticsearch\Framework\ElasticsearchIndexingUtils;
 use Shopware\Elasticsearch\Product\ProductSearchQueryBuilder;
@@ -38,7 +38,7 @@ use Symfony\Component\DependencyInjection\ContainerInterface;
 /**
  * @internal
  */
-#[Package('services-settings')]
+#[Package('framework')]
 #[CoversClass(ProductSearchQueryBuilder::class)]
 class ProductSearchQueryBuilderTest extends TestCase
 {
@@ -50,6 +50,9 @@ class ProductSearchQueryBuilderTest extends TestCase
     use SalesChannelApiTestBehaviour;
     use SessionTestBehaviour;
 
+    /**
+     * @var EntityRepository<ProductCollection>
+     */
     private EntityRepository $productRepository;
 
     private Connection $connection;
@@ -58,9 +61,9 @@ class ProductSearchQueryBuilderTest extends TestCase
 
     protected function setUp(): void
     {
-        $this->productRepository = $this->getContainer()->get('product.repository');
-        $this->connection = $this->getContainer()->get(Connection::class);
-        $this->customFieldService = $this->getContainer()->get(CustomFieldService::class);
+        $this->productRepository = static::getContainer()->get('product.repository');
+        $this->connection = static::getContainer()->get(Connection::class);
+        $this->customFieldService = static::getContainer()->get(CustomFieldService::class);
     }
 
     protected function tearDown(): void
@@ -90,15 +93,13 @@ class ProductSearchQueryBuilderTest extends TestCase
 
     public function testIndexing(): IdsCollection
     {
-        static::expectNotToPerformAssertions();
-
         $this->connection->executeStatement('DELETE FROM product');
 
         $this->clearElasticsearch();
         $this->registerCustomFieldsMapping();
         $this->indexElasticSearch();
 
-        $ids = new TestDataCollection();
+        $ids = new IdsCollection();
         $this->createData($ids);
 
         $this->refreshIndex();
@@ -175,7 +176,8 @@ class ProductSearchQueryBuilderTest extends TestCase
         $this->setSearchConfiguration(false, $config);
         $this->setSearchScores([]);
 
-        $criteria = new Criteria();
+        // Reduce the possible products to only those, which are set up in this test class. This makes sure other tests do not interfere.
+        $criteria = new Criteria(array_values($ids->all()));
         $criteria->addState(Criteria::STATE_ELASTICSEARCH_AWARE);
         $criteria->setTerm($term);
         $criteria->addSorting(new FieldSorting('name', FieldSorting::ASCENDING));
@@ -185,10 +187,14 @@ class ProductSearchQueryBuilderTest extends TestCase
         /** @var array<string> $resultIds */
         $resultIds = $result->getIds();
 
-        static::assertCount(\count($expectedProducts), $resultIds, 'Product count mismatch, Got ' . $ids->getKeys($resultIds));
+        static::assertCount(\count($expectedProducts), $resultIds, \sprintf('Product count mismatch, Got "%s"', $ids->getKeys($resultIds)));
 
         foreach ($expectedProducts as $key => $expectedProduct) {
-            static::assertEquals($ids->get($expectedProduct), $resultIds[$key], \sprintf('Expected product %s at position %d to be there, but got %s', $expectedProduct, $key, $ids->getKey($resultIds[$key])));
+            static::assertSame(
+                $ids->get($expectedProduct),
+                $resultIds[$key],
+                \sprintf('Expected product %s at position %d to be there, but got %s', $expectedProduct, $key, $ids->getKey($resultIds[$key]))
+            );
         }
     }
 
@@ -303,7 +309,7 @@ class ProductSearchQueryBuilderTest extends TestCase
 
     protected function getDiContainer(): ContainerInterface
     {
-        return $this->getContainer();
+        return static::getContainer();
     }
 
     /**
@@ -370,7 +376,7 @@ class ProductSearchQueryBuilderTest extends TestCase
         }
     }
 
-    private function createData(TestDataCollection $ids): void
+    private function createData(IdsCollection $ids): void
     {
         $products = [
             (new ProductBuilder($ids, 'product-1'))
@@ -445,14 +451,14 @@ class ProductSearchQueryBuilderTest extends TestCase
 
     private function registerCustomFieldsMapping(): void
     {
-        $eventDispatcher = $this->getContainer()->get('event_dispatcher');
+        $eventDispatcher = static::getContainer()->get('event_dispatcher');
 
         $this->addEventListener($eventDispatcher, ElasticsearchCustomFieldsMappingEvent::class, function (ElasticsearchCustomFieldsMappingEvent $event): void {
             $event->setMapping('evolvesTo', CustomFieldTypes::SELECT);
             $event->setMapping('evolvesText', CustomFieldTypes::TEXT);
         });
 
-        $definition = $this->getContainer()->get(ElasticsearchIndexingUtils::class);
+        $definition = static::getContainer()->get(ElasticsearchIndexingUtils::class);
         $class = new \ReflectionClass($definition);
         $reflectionProperty = $class->getProperty('customFieldsTypes');
         $reflectionProperty->setAccessible(true);

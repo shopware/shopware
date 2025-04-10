@@ -7,8 +7,8 @@ use Shopware\Core\Checkout\Customer\CustomerException;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
-use Shopware\Core\Framework\Test\TestDataCollection;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
+use Shopware\Core\Test\Stub\Framework\IdsCollection;
 use Shopware\Storefront\Page\Account\CustomerGroupRegistration\CustomerGroupRegistrationPageLoader;
 use Shopware\Storefront\Test\Page\StorefrontPageTestBehaviour;
 use Symfony\Component\HttpFoundation\Request;
@@ -21,13 +21,13 @@ class CustomerGroupRegistrationTest extends TestCase
     use IntegrationTestBehaviour;
     use StorefrontPageTestBehaviour;
 
-    private TestDataCollection $ids;
+    private IdsCollection $ids;
 
     private SalesChannelContext $salesChannel;
 
     protected function setUp(): void
     {
-        $this->ids = new TestDataCollection();
+        $this->ids = new IdsCollection();
         $this->salesChannel = $this->createSalesChannelContext();
     }
 
@@ -42,14 +42,14 @@ class CustomerGroupRegistrationTest extends TestCase
 
     public function testGetConfiguration(): void
     {
-        $customerGroupRepository = $this->getContainer()->get('customer_group.repository');
+        $customerGroupRepository = static::getContainer()->get('customer_group.repository');
         $customerGroupRepository->create([
             [
                 'id' => $this->ids->create('group'),
                 'name' => 'foo',
                 'registrationActive' => true,
                 'registrationTitle' => 'test',
-                'registrationSalesChannels' => [['id' => $this->salesChannel->getSalesChannel()->getId()]],
+                'registrationSalesChannels' => [['id' => $this->salesChannel->getSalesChannelId()]],
             ],
         ], Context::createDefaultContext());
 
@@ -63,6 +63,6 @@ class CustomerGroupRegistrationTest extends TestCase
 
     protected function getPageLoader(): CustomerGroupRegistrationPageLoader
     {
-        return $this->getContainer()->get(CustomerGroupRegistrationPageLoader::class);
+        return static::getContainer()->get(CustomerGroupRegistrationPageLoader::class);
     }
 }

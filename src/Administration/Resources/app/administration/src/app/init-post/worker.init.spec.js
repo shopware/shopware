@@ -1,9 +1,9 @@
 /**
- * @package admin
+ * @sw-package framework
  */
 import WorkerNotificationFactory from 'src/core/factory/worker-notification.factory';
+import { createPinia, setActivePinia } from 'pinia';
 import initializeWorker from './worker.init';
-import contextStore from '../state/context.store';
 
 describe('src/app/init-post/worker.init.ts', () => {
     let loggedIn = false;
@@ -47,18 +47,13 @@ describe('src/app/init-post/worker.init.ts', () => {
 
         WorkerNotificationFactory.resetHelper();
 
-        if (Shopware.State.get('context')) {
-            Shopware.State.unregisterModule('context');
-        }
-
-        Shopware.State.registerModule('context', contextStore);
+        setActivePinia(createPinia());
     });
 
     afterEach(() => {
         loggedIn = false;
         config = {};
         loginListeners = [];
-        Shopware.State.unregisterModule('context');
     });
 
     it('should not initialize if not logged in', () => {
@@ -141,7 +136,10 @@ describe('src/app/init-post/worker.init.ts', () => {
         // First run should create notification
         helper.go({
             queue: [
-                { name: 'Shopware\\Core\\Framework\\DataAbstractionLayer\\Indexing\\MessageQueue\\IndexerMessage', size: 1 },
+                {
+                    name: 'Shopware\\Core\\Framework\\DataAbstractionLayer\\Indexing\\MessageQueue\\IndexerMessage',
+                    size: 1,
+                },
             ],
             $root: {
                 $tc: (msg) => msg,
@@ -157,7 +155,10 @@ describe('src/app/init-post/worker.init.ts', () => {
         // Second run should update notification
         helper.go({
             queue: [
-                { name: 'Shopware\\Core\\Framework\\DataAbstractionLayer\\Indexing\\MessageQueue\\IndexerMessage', size: 0 },
+                {
+                    name: 'Shopware\\Core\\Framework\\DataAbstractionLayer\\Indexing\\MessageQueue\\IndexerMessage',
+                    size: 0,
+                },
             ],
             $root: {
                 $t: (msg) => msg,
@@ -186,6 +187,6 @@ describe('src/app/init-post/worker.init.ts', () => {
         await flushPromises();
 
         expect(loginListeners).toHaveLength(0);
-        expect(Shopware.State.get('context').app.config.version).toBe('jest');
+        expect(Shopware.Store.get('context').app.config.version).toBe('jest');
     });
 });

@@ -10,19 +10,22 @@ use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\Routing\RoutingException;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
-use Shopware\Core\Framework\Test\TestDataCollection;
 use Shopware\Core\Framework\Util\Random;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\PlatformRequest;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Shopware\Core\Test\Integration\Traits\CustomerTestTrait;
+use Shopware\Core\Test\Stub\Framework\IdsCollection;
 use Symfony\Bundle\FrameworkBundle\KernelBrowser;
 
 /**
  * @internal
  */
 #[Group('store-api')]
+#[Package('checkout')]
 class MergeWishlistProductRouteTest extends TestCase
 {
     use CustomerTestTrait;
@@ -30,7 +33,7 @@ class MergeWishlistProductRouteTest extends TestCase
 
     private KernelBrowser $browser;
 
-    private TestDataCollection $ids;
+    private IdsCollection $ids;
 
     private Context $context;
 
@@ -46,19 +49,19 @@ class MergeWishlistProductRouteTest extends TestCase
     protected function setUp(): void
     {
         $this->context = Context::createDefaultContext();
-        $this->ids = new TestDataCollection();
+        $this->ids = new IdsCollection();
 
         $this->browser = $this->createCustomSalesChannelBrowser([
             'id' => $this->ids->create('sales-channel'),
         ]);
         $this->assignSalesChannelContext($this->browser);
 
-        $this->wishlistProductRepository = $this->getContainer()->get('customer_wishlist_product.repository');
+        $this->wishlistProductRepository = static::getContainer()->get('customer_wishlist_product.repository');
 
         $email = Uuid::randomHex() . '@example.com';
         $this->customerId = $this->createCustomer($email);
 
-        $this->systemConfigService = $this->getContainer()->get(SystemConfigService::class);
+        $this->systemConfigService = static::getContainer()->get(SystemConfigService::class);
         $this->systemConfigService->set('core.cart.wishlistEnabled', true);
 
         $this->browser
@@ -168,9 +171,9 @@ class MergeWishlistProductRouteTest extends TestCase
         $response = json_decode((string) $this->browser->getResponse()->getContent(), true, 512, \JSON_THROW_ON_ERROR);
         $errors = $response['errors'][0];
         static::assertSame(403, $this->browser->getResponse()->getStatusCode());
-        static::assertEquals('CHECKOUT__CUSTOMER_NOT_LOGGED_IN', $errors['code']);
-        static::assertEquals('Forbidden', $errors['title']);
-        static::assertEquals('Customer is not logged in.', $errors['detail']);
+        static::assertSame(RoutingException::CUSTOMER_NOT_LOGGED_IN_CODE, $errors['code']);
+        static::assertSame('Forbidden', $errors['title']);
+        static::assertSame('Customer is not logged in.', $errors['detail']);
 
         $wishlistProduct = $this->wishlistProductRepository->search(new Criteria(), $this->context);
         static::assertNull($wishlistProduct->getEntities()->first());
@@ -353,7 +356,7 @@ class MergeWishlistProductRouteTest extends TestCase
             ],
         ];
 
-        $this->getContainer()->get('product.repository')->create([$data], $context);
+        static::getContainer()->get('product.repository')->create([$data], $context);
 
         return $productId;
     }
@@ -361,7 +364,7 @@ class MergeWishlistProductRouteTest extends TestCase
     private function createCustomerWishlist(?string $productId = null): string
     {
         $customerWishlistId = Uuid::randomHex();
-        $customerWishlistRepository = $this->getContainer()->get('customer_wishlist.repository');
+        $customerWishlistRepository = static::getContainer()->get('customer_wishlist.repository');
 
         $data = [
             'id' => $customerWishlistId,

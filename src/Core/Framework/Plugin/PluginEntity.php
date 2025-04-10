@@ -10,7 +10,7 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin;
 use Shopware\Core\Framework\Plugin\Aggregate\PluginTranslation\PluginTranslationCollection;
 
-#[Package('core')]
+#[Package('framework')]
 class PluginEntity extends Entity
 {
     use EntityCustomFieldsTrait;
@@ -19,114 +19,55 @@ class PluginEntity extends Entity
     /**
      * @var class-string<Plugin>
      */
-    protected $baseClass;
+    protected string $baseClass;
 
-    /**
-     * @var string
-     */
-    protected $name;
+    protected string $name;
 
-    /**
-     * @var string|null
-     */
-    protected $composerName;
+    protected ?string $composerName = null;
 
-    /**
-     * @var bool
-     */
-    protected $active;
+    protected bool $active;
 
-    /**
-     * @var bool
-     */
-    protected $managedByComposer;
+    protected bool $managedByComposer;
 
-    /**
-     * @var string|null
-     */
-    protected $path;
+    protected ?string $path = null;
 
-    /**
-     * @var string|null
-     */
-    protected $author;
+    protected ?string $author = null;
 
-    /**
-     * @var string|null
-     */
-    protected $copyright;
+    protected ?string $copyright = null;
 
-    /**
-     * @var string|null
-     */
-    protected $license;
+    protected ?string $license = null;
 
-    /**
-     * @var string
-     */
-    protected $version;
+    protected string $version;
 
-    /**
-     * @var string|null
-     */
-    protected $upgradeVersion;
+    protected ?string $upgradeVersion = null;
 
-    /**
-     * @var \DateTimeInterface|null
-     */
-    protected $installedAt;
+    protected ?\DateTimeInterface $installedAt = null;
 
-    /**
-     * @var \DateTimeInterface|null
-     */
-    protected $upgradedAt;
+    protected ?\DateTimeInterface $upgradedAt = null;
 
     /**
      * @internal
-     *
-     * @var string|null
      */
-    protected $iconRaw;
+    protected ?string $iconRaw = null;
 
-    /**
-     * @var string|null
-     */
-    protected $icon;
+    protected ?string $icon = null;
 
-    /**
-     * @var string
-     */
-    protected $label;
+    protected string $label;
 
-    /**
-     * @var string|null
-     */
-    protected $description;
+    protected ?string $description = null;
 
-    /**
-     * @var string|null
-     */
-    protected $manufacturerLink;
+    protected ?string $manufacturerLink = null;
 
-    /**
-     * @var string|null
-     */
-    protected $supportLink;
+    protected ?string $supportLink = null;
 
-    /**
-     * @var PluginTranslationCollection|null
-     */
-    protected $translations;
+    protected ?PluginTranslationCollection $translations = null;
 
-    /**
-     * @var PaymentMethodCollection|null
-     */
-    protected $paymentMethods;
+    protected ?PaymentMethodCollection $paymentMethods = null;
 
     /**
      * @var array<string, array<string, list<string>|string>>
      */
-    protected $autoload;
+    protected array $autoload = [];
 
     /**
      * @return class-string<Plugin>
@@ -192,6 +133,11 @@ class PluginEntity extends Entity
     public function setPath(string $path): void
     {
         $this->path = $path;
+    }
+
+    public function isLocatedInCustomDirectory(): bool
+    {
+        return str_starts_with($this->path ?? '', 'custom/');
     }
 
     public function getAuthor(): ?string

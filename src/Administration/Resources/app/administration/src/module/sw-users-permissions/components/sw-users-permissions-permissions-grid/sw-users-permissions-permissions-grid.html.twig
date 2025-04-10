@@ -1,41 +1,33 @@
-<!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
 {% block sw_users_permissions_permissions_grid %}
-<sw-card
+<mt-card
     class="sw-users-permissions-permissions-grid"
     position-identifier="sw-users-permissions-permissions-grid"
     :title="$tc('sw-users-permissions.roles.grid.title')"
 >
     <div class="sw-users-permissions-permissions-grid__grid">
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_users_permissions_permissions_grid_header %}
         <div class="sw-users-permissions-permissions-grid__entry sw-users-permissions-permissions-grid__entry-header">
-            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_users_permissions_permissions_grid_header_title %}
             <div class="sw-users-permissions-permissions-grid__title">
-                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_users_permissions_permissions_grid_header_title_content %}
                 {% endblock %}
             </div>
             {% endblock %}
 
-            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_users_permissions_permissions_grid_header_roles %}
             <div
                 v-for="role in roles"
                 :key="role"
                 class="sw-users-permissions-permissions-grid__checkbox-wrapper"
             >
-                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_users_permissions_permissions_grid_header_roles_name %}
                 {{ $tc('sw-privileges.roles.' + role) }}
                 {% endblock %}
             </div>
             {% endblock %}
 
-            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_users_permissions_permissions_grid_header_all_roles %}
             <div class="sw-users-permissions-permissions-grid__all">
-                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_users_permissions_permissions_grid_header_all_roles_name %}
                 {{ $tc('sw-privileges.roles.all') }}
                 {% endblock %}
@@ -44,7 +36,6 @@
         </div>
         {% endblock %}
 
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_users_permissions_permissions_grid_permissions %}
         <template
             v-for="permission in permissionsWithParents"
@@ -56,17 +47,14 @@
                 class="sw-users-permissions-permissions-grid__entry
                                 sw-users-permissions-permissions-grid__parent"
             >
-                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_users_permissions_permissions_grid_parent_title %}
                 <div class="sw-users-permissions-permissions-grid__title">
-                    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                     {% block sw_users_permissions_permissions_grid_parent_title_content %}
                     {{ $tc('sw-privileges.permissions.parents.' + (permission.value || 'other')) }}
                     {% endblock %}
                 </div>
                 {% endblock %}
 
-                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_users_permissions_permissions_grid_parent_roles %}
                 <div
                     v-for="role in roles"
@@ -74,29 +62,26 @@
                     :class="'sw-users-permissions-permissions-grid__role_' + role"
                     class="sw-users-permissions-permissions-grid__checkbox-wrapper"
                 >
-                    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                     {% block sw_users_permissions_permissions_grid_parent_roles_field %}
-                    <sw-checkbox-field
+                    <mt-checkbox
                         v-if="parentRoleHasChildRoles(permission.value, role)"
-                        :value="areAllChildrenRolesSelected(permission.value, role)"
-                        :ghost-value="areSomeChildrenRolesSelected(permission.value, role)"
+                        :checked="areAllChildrenRolesSelected(permission.value, role)"
+                        :partial="areSomeChildrenRolesSelected(permission.value, role)"
                         :disabled="isParentRoleDisabled(permission.value, role) || disabled"
-                        @update:value="toggleAllChildrenWithRole(permission.value, role)"
+                        @update:checked="toggleAllChildrenWithRole(permission.value, role)"
                     />
                     {% endblock %}
                 </div>
                 {% endblock %}
 
-                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_users_permissions_permissions_grid_parent_all_roles %}
                 <div class="sw-users-permissions-permissions-grid__all sw-users-permissions-permissions-grid__role_all">
-                    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                     {% block sw_users_permissions_permissions_grid_parent_all_roles_field %}
-                    <sw-checkbox-field
-                        :value="areAllChildrenWithAllRolesSelected(permission.value)"
-                        :ghost-value="areSomeChildrenWithAllRolesSelected(permission.value)"
+                    <mt-checkbox
+                        :checked="areAllChildrenWithAllRolesSelected(permission.value)"
+                        :partial="areSomeChildrenWithAllRolesSelected(permission.value)"
                         :disabled="disabled"
-                        @update:value="toggleAllChildrenWithAllRoles(permission.value)"
+                        @update:checked="toggleAllChildrenWithAllRoles(permission.value)"
                     />
                     {% endblock %}
                 </div>
@@ -109,17 +94,14 @@
                 :class="'sw-users-permissions-permissions-grid__entry_' + permission.key"
                 class="sw-users-permissions-permissions-grid__entry"
             >
-                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_users_permissions_permissions_grid_permissions_title %}
                 <div class="sw-users-permissions-permissions-grid__title">
-                    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                     {% block sw_users_permissions_permissions_grid_permissions_title_content %}
                     {{ $tc('sw-privileges.permissions.' + permission.key + '.label') }}
                     {% endblock %}
                 </div>
                 {% endblock %}
 
-                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_users_permissions_permissions_grid_permissions_roles %}
                 <div
                     v-for="role in roles"
@@ -127,33 +109,30 @@
                     :class="'sw-users-permissions-permissions-grid__role_' + role"
                     class="sw-users-permissions-permissions-grid__checkbox-wrapper"
                 >
-                    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                     {% block sw_users_permissions_permissions_grid_permissions_roles_field %}
-                    <sw-checkbox-field
+                    <mt-checkbox
                         v-if="permission.roles[role]"
                         v-tooltip="{
                             message: $tc('sw-users-permissions.roles.grid.disabledCheckboxMessage'),
                             disabled: !isPermissionDisabled(permission.key, role) || disabled,
                             showOnDisabledElements: false
                         }"
-                        :value="isPermissionSelected(permission.key, role)"
+                        :checked="isPermissionSelected(permission.key, role)"
                         :disabled="isPermissionDisabled(permission.key, role) || disabled"
-                        @update:value="changePermission(permission.key, role)"
+                        @update:checked="changePermission(permission.key, role)"
                     />
                     {% endblock %}
                 </div>
                 {% endblock %}
 
-                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_users_permissions_permissions_grid_permissions_all_roles %}
                 <div class="sw-users-permissions-permissions-grid__all sw-users-permissions-permissions-grid__role_all">
-                    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                     {% block sw_users_permissions_permissions_grid_permissions_all_roles_field %}
-                    <sw-checkbox-field
+                    <mt-checkbox
                         v-if="Object.keys(permission.roles).length > 0"
-                        :value="allPermissionsForKeySelected(permission.key)"
+                        :checked="allPermissionsForKeySelected(permission.key)"
                         :disabled="disabled"
-                        @update:value="changeAllPermissionsForKey(permission.key)"
+                        @update:checked="changeAllPermissionsForKey(permission.key)"
                     />
                     {% endblock %}
                 </div>
@@ -162,5 +141,5 @@
         </template>
         {% endblock %}
     </div>
-</sw-card>
+</mt-card>
 {% endblock %}

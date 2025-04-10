@@ -22,10 +22,10 @@ use Shopware\Core\Framework\DataAbstractionLayer\Write\Command\UpdateCommand;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\EntityExistence;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\EntityWriteGatewayInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteContext;
-use Shopware\Core\Framework\Test\IdsCollection;
 use Shopware\Core\System\StateMachine\Aggregation\StateMachineState\StateMachineStateEntity;
 use Shopware\Core\System\StateMachine\Event\StateMachineTransitionEvent;
 use Shopware\Core\Test\Stub\DataAbstractionLayer\StaticDefinitionInstanceRegistry;
+use Shopware\Core\Test\Stub\Framework\IdsCollection;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
 
 /**
@@ -68,7 +68,7 @@ class OrderStockSubscriberTest extends TestCase
         $context = Context::createDefaultContext()->createWithVersionId($this->ids->create('version'));
 
         $stockStorage = $this->createMock(StockStorage::class);
-        $stockStorage->expects(static::never())->method('alter');
+        $stockStorage->expects($this->never())->method('alter');
 
         $stockSubscriber = new OrderStockSubscriber(
             $this->createMock(Connection::class),
@@ -90,7 +90,7 @@ class OrderStockSubscriberTest extends TestCase
         $context = Context::createDefaultContext()->createWithVersionId($this->ids->create('version'));
 
         $stockStorage = $this->createMock(StockStorage::class);
-        $stockStorage->expects(static::never())->method('alter');
+        $stockStorage->expects($this->never())->method('alter');
 
         $stockSubscriber = new OrderStockSubscriber(
             $this->createMock(Connection::class),
@@ -112,7 +112,7 @@ class OrderStockSubscriberTest extends TestCase
         $context = Context::createDefaultContext();
 
         $stockStorage = $this->createMock(StockStorage::class);
-        $stockStorage->expects(static::never())->method('alter');
+        $stockStorage->expects($this->never())->method('alter');
 
         $stockSubscriber = new OrderStockSubscriber(
             $this->createMock(Connection::class),
@@ -149,7 +149,7 @@ class OrderStockSubscriberTest extends TestCase
         $context = Context::createDefaultContext();
 
         $stockStorage = $this->createMock(StockStorage::class);
-        $stockStorage->expects(static::never())->method('alter');
+        $stockStorage->expects($this->never())->method('alter');
 
         $stockSubscriber = new OrderStockSubscriber(
             $this->createMock(Connection::class),
@@ -233,7 +233,7 @@ class OrderStockSubscriberTest extends TestCase
         $expectedUpdates = array_map($idMapper(['lineItemId', 'productId']), $expectedUpdates);
 
         $context = Context::createDefaultContext();
-        $stockStorage->expects(static::once())
+        $stockStorage->expects($this->once())
             ->method('alter')
             ->with(static::callback(function (array $changes) use ($expectedUpdates): bool {
                 static::assertSameSize($expectedUpdates, $changes);
@@ -294,7 +294,7 @@ class OrderStockSubscriberTest extends TestCase
                             []
                         ),
                         '/0'
-                    )
+                    ),
                 };
             },
             $commands
@@ -524,7 +524,7 @@ class OrderStockSubscriberTest extends TestCase
         );
 
         $stockStorage = $this->createMock(StockStorage::class);
-        $stockStorage->expects(static::never())->method('alter');
+        $stockStorage->expects($this->never())->method('alter');
 
         $stockSubscriber = new OrderStockSubscriber(
             $this->createMock(Connection::class),
@@ -554,7 +554,7 @@ class OrderStockSubscriberTest extends TestCase
         );
 
         $stockStorage = $this->createMock(StockStorage::class);
-        $stockStorage->expects(static::never())->method('alter');
+        $stockStorage->expects($this->never())->method('alter');
 
         $stockSubscriber = new OrderStockSubscriber(
             $this->createMock(Connection::class),
@@ -584,7 +584,7 @@ class OrderStockSubscriberTest extends TestCase
         );
 
         $stockStorage = $this->createMock(StockStorage::class);
-        $stockStorage->expects(static::never())->method('alter');
+        $stockStorage->expects($this->never())->method('alter');
 
         $stockSubscriber = new OrderStockSubscriber(
             $this->createMock(Connection::class),
@@ -625,7 +625,7 @@ class OrderStockSubscriberTest extends TestCase
         ]);
 
         $stockStorage = $this->createMock(StockStorage::class);
-        $stockStorage->expects(static::once())
+        $stockStorage->expects($this->once())
             ->method('alter')
             ->with(static::callback(function (array $changes) use ($quantityBefore, $quantityAfter) {
                 static::assertCount(2, $changes);

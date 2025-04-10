@@ -6,9 +6,9 @@ use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Test\Product\ProductBuilder;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\Test\IdsCollection;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
-use Shopware\Tests\Integration\Core\Framework\App\AppSystemTestBehaviour;
+use Shopware\Core\Test\AppSystemTestBehaviour;
+use Shopware\Core\Test\Stub\Framework\IdsCollection;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
 /**
@@ -29,13 +29,13 @@ class ScriptCacheInvalidationSubscriberTest extends TestCase
 
         $this->loadAppsFromDir(__DIR__ . '/_fixtures/');
 
-        $cache = $this->getContainer()->get('cache.object');
+        $cache = static::getContainer()->get('cache.object');
         $item = $cache->getItem($tagName);
         $item->set('test');
         $item->tag($tagName);
         $cache->save($item);
 
-        $closure($this->getContainer());
+        $closure(static::getContainer());
 
         static::assertEquals(!$shouldBeInvalidated, $cache->hasItem($tagName));
     }
@@ -147,7 +147,7 @@ class ScriptCacheInvalidationSubscriberTest extends TestCase
         $product3 = (new ProductBuilder($ids, 'p3'))
             ->price(300);
 
-        $this->getContainer()->get('product.repository')->create([
+        static::getContainer()->get('product.repository')->create([
             $product1->build(),
             $product2->build(),
             $product3->build(),

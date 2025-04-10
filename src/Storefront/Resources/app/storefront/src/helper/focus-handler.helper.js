@@ -2,7 +2,7 @@
  * This class is used to make it easier to preserve the focus state.
  * It is used to set the focus back to a given element after displaying content in a modal.
  *
- * @package storefront
+ * @sw-package framework
  */
 export default class FocusHandler {
 
@@ -16,6 +16,15 @@ export default class FocusHandler {
 
         // Stores different focus states.
         this._focusMap = new Map();
+
+        this._focusAbleElements = `
+            input:not([tabindex^="-"]):not([disabled]):not([type="hidden"]),
+            select:not([tabindex^="-"]):not([disabled]),
+            textarea:not([tabindex^="-"]):not([disabled]),
+            button:not([tabindex^="-"]):not([disabled]),
+            a[href]:not([tabindex^="-"]):not([disabled]),
+            [tabindex]:not([tabindex^="-"]):not([disabled])
+        `;
     }
 
     /**
@@ -74,13 +83,17 @@ export default class FocusHandler {
 
         // Default sessionStorage structure:
         // key: "sw-last-focus-my-example-element" | value: "#my-example-unique-id"
-        const storageKey = `${this._defaultStorageKeyPrefix}-${focusStorageKey}`;
-        window.sessionStorage.setItem(storageKey, uniqueSelector);
+        try {
+            const storageKey = `${this._defaultStorageKeyPrefix}-${focusStorageKey}`;
+            window.sessionStorage.setItem(storageKey, uniqueSelector);
 
-        document.$emitter.publish('Focus/StateSavedPersistent', {
-            focusStorageKey,
-            uniqueSelector,
-        });
+            document.$emitter.publish('Focus/StateSavedPersistent', {
+                focusStorageKey,
+                uniqueSelector,
+            });
+        } catch (e) {
+            console.warn('[FocusHandler] Unable to access sessionStorage', e);
+        }
     }
 
     /**
@@ -90,20 +103,23 @@ export default class FocusHandler {
      * @param focusOptions
      */
     resumeFocusStatePersistent(focusStorageKey, focusOptions) {
-        const uniqueSelector = window.sessionStorage.getItem(`${this._defaultStorageKeyPrefix}-${focusStorageKey}`);
-        if (!uniqueSelector) {
-            return;
+        try {
+            const uniqueSelector = window.sessionStorage.getItem(`${this._defaultStorageKeyPrefix}-${focusStorageKey}`);
+            if (!uniqueSelector) {
+                return;
+            }
+
+            const focusEl = document.querySelector(uniqueSelector);
+            this.setFocus(focusEl, focusOptions);
+            window.sessionStorage.removeItem(`${this._defaultStorageKeyPrefix}-${focusStorageKey}`);
+
+            document.$emitter.publish('Focus/StateResumedPersistent', {
+                focusStorageKey,
+                focusEl,
+            });
+        } catch (e) {
+            console.warn('[FocusHandler] Unable to access sessionStorage', e);
         }
-
-        const focusEl = document.querySelector(uniqueSelector);
-
-        this.setFocus(focusEl, focusOptions);
-        window.sessionStorage.removeItem(`${this._defaultStorageKeyPrefix}-${focusStorageKey}`);
-
-        document.$emitter.publish('Focus/StateResumedPersistent', {
-            focusStorageKey,
-            focusEl,
-        });
     }
 
     /**
@@ -121,5 +137,37 @@ export default class FocusHandler {
         } catch (error) {
             console.error('[FocusHandler]: Unable to focus element.', error);
         }
+    }
+
+    /**
+     * Returns a node list of all focusable elements within the given parent element.
+     *
+     * @param {Element} parentNode
+     * @return {NodeListOf<Element>}
+     */
+    getFocusableElements(parentNode = document.body) {
+        return parentNode.querySelectorAll(this._focusAbleElements);
+    }
+
+    /**
+     * Returns the first focusable element within the given parent element.
+     *
+     * @param {Element} parentNode
+     * @return {Element}
+     */
+    getFirstFocusableElement(parentNode = document.body) {
+        return parentNode.querySelector(this._focusAbleElements);
+    }
+
+    /**
+     * Returns the last focusable element within the given parent element.
+     *
+     * @param {Element} parentNode
+     * @return {Element}
+     */
+    getLastFocusableElement(parentNode = document.body) {
+        const result = this.getFocusableElements(parentNode);
+
+        return result[result.length - 1];
     }
 }

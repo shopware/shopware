@@ -1,3 +1,7 @@
+/**
+ * @sw-package fundamentals@after-sales
+ */
+
 import { mount, config } from '@vue/test-utils';
 
 async function createWrapper(customProps = {}) {
@@ -6,11 +10,13 @@ async function createWrapper(customProps = {}) {
             condition: {
                 id: 'base-condition-id',
                 type: 'condition-and-container',
-                children: [{
-                    type: null,
-                    position: 0,
-                    children: [],
-                }],
+                children: [
+                    {
+                        type: null,
+                        position: 0,
+                        children: [],
+                    },
+                ],
             },
             level: 0,
             ...customProps,
@@ -23,12 +29,10 @@ describe('src/app/component/rule/sw-condition-and-container', () => {
         config.global = {
             ...config.global,
             stubs: {
-                'sw-button': await wrapTestComponent('sw-button'),
-                'sw-button-deprecated': await wrapTestComponent('sw-button-deprecated', { sync: true }),
+                ...config.global.stubs,
                 'sw-condition-tree-node': true,
                 'sw-loader': true,
                 'router-link': true,
-                'mt-button': true,
             },
             provide: {
                 conditionDataProviderService: {
@@ -53,11 +57,13 @@ describe('src/app/component/rule/sw-condition-and-container', () => {
                     condition.children.push(node);
                 },
                 removeNodeFromTree(condition, node) {
-                    condition.children = condition.children.filter((child) => {
-                        return child !== node;
-                    }).map((child, index) => {
-                        return { ...child, position: index };
-                    });
+                    condition.children = condition.children
+                        .filter((child) => {
+                            return child !== node;
+                        })
+                        .map((child, index) => {
+                            return { ...child, position: index };
+                        });
                 },
                 childAssociationField: 'children',
                 acl: {
@@ -88,10 +94,10 @@ describe('src/app/component/rule/sw-condition-and-container', () => {
     it('should have enabled buttons', async () => {
         const wrapper = await createWrapper();
 
-        const buttons = wrapper.findAllComponents('.sw-button');
+        const buttons = wrapper.findAllComponents('button');
 
         expect(buttons.length).toBeGreaterThan(0);
-        buttons.forEach(button => {
+        buttons.forEach((button) => {
             expect(button.attributes('disabled')).toBeUndefined();
         });
     });
@@ -101,10 +107,10 @@ describe('src/app/component/rule/sw-condition-and-container', () => {
             disabled: true,
         });
 
-        const buttons = wrapper.findAllComponents('.sw-button');
+        const buttons = wrapper.findAllComponents('button');
 
         expect(buttons.length).toBeGreaterThan(0);
-        buttons.forEach(button => {
+        buttons.forEach((button) => {
             expect(button.attributes('disabled')).toBeDefined();
         });
     });
@@ -122,23 +128,18 @@ describe('src/app/component/rule/sw-condition-and-container', () => {
         });
 
         expect(insertNodeIntoTreeSpy).toHaveBeenCalled();
-        expect(insertNodeIntoTreeSpy).toHaveBeenCalledWith(
-            wrapper.props('condition'),
-            {
-                type: 'placeholder',
-                children: [],
-                parentId: wrapper.props('condition').id,
-                position: 0,
-            },
-        );
+        expect(insertNodeIntoTreeSpy).toHaveBeenCalledWith(wrapper.props('condition'), {
+            type: 'placeholder',
+            children: [],
+            parentId: wrapper.props('condition').id,
+            position: 0,
+        });
     });
 
     it('creates a new or condition container and replaces placeholder child', async () => {
         const wrapper = await createWrapper();
 
-        const addNewOrContainerButton = wrapper.getComponent(
-            '.sw-button.sw-condition-and-container__actions--sub',
-        );
+        const addNewOrContainerButton = wrapper.findByText('button', 'global.sw-condition.condition.AddSubCondition');
 
         await addNewOrContainerButton.trigger('click');
 
@@ -152,17 +153,17 @@ describe('src/app/component/rule/sw-condition-and-container', () => {
         const wrapper = await createWrapper({
             condition: {
                 type: 'condition-and-container',
-                children: [{
-                    type: 'placeholder',
-                    position: 0,
-                    children: [],
-                }],
+                children: [
+                    {
+                        type: 'placeholder',
+                        position: 0,
+                        children: [],
+                    },
+                ],
             },
         });
 
-        const addNewOrContainerButton = wrapper.getComponent(
-            '.sw-button.sw-condition-and-container__actions--sub',
-        );
+        const addNewOrContainerButton = wrapper.findByText('button', 'global.sw-condition.condition.AddSubCondition');
 
         await addNewOrContainerButton.trigger('click');
 
@@ -192,17 +193,12 @@ describe('src/app/component/rule/sw-condition-and-container', () => {
             condition: andContainer,
         });
 
-        const deleteButton = wrapper.getComponent(
-            '.sw-button.sw-condition-and-container__actions--delete',
-        );
+        const deleteButton = wrapper.findByText('button', 'global.sw-condition.condition.deleteConditions');
 
         await deleteButton.trigger('click');
 
         expect(removeNodeFromTreeSpy).toHaveBeenCalled();
-        expect(removeNodeFromTreeSpy).toHaveBeenCalledWith(
-            wrapper.props('parentCondition'),
-            andContainer,
-        );
+        expect(removeNodeFromTreeSpy).toHaveBeenCalledWith(wrapper.props('parentCondition'), andContainer);
 
         const parentCondition = wrapper.props('parentCondition');
         expect(parentCondition.children).toHaveLength(0);

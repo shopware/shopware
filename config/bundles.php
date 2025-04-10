@@ -17,9 +17,11 @@ $bundles = [
     Shopware\Administration\Administration::class => ['all' => true],
     Shopware\Storefront\Storefront::class => ['all' => true],
     Shopware\Elasticsearch\Elasticsearch::class => ['all' => true],
+    Shopware\Core\Service\Service::class => ['all' => true],
 ];
 
 if (InstalledVersions::isInstalled('symfony/web-profiler-bundle')) {
     $bundles[Symfony\Bundle\WebProfilerBundle\WebProfilerBundle::class] = ['dev' => true, 'test' => true, 'phpstan_dev' => true];
 }
+
 return $bundles;

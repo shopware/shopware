@@ -8,15 +8,16 @@ const { Criteria } = Shopware.Data;
 const USER_CONFIG_KEY = 'extension.plugin_upload';
 
 /**
- * @package checkout
+ * @sw-package checkout
  * @private
  */
 export default {
     template,
 
-    compatConfig: Shopware.compatConfig,
-
-    inject: ['extensionStoreActionService', 'repositoryFactory'],
+    inject: [
+        'extensionStoreActionService',
+        'repositoryFactory',
+    ],
 
     mixins: [
         Mixin.getByName('notification'),
@@ -37,7 +38,7 @@ export default {
         },
 
         currentUser() {
-            return Shopware.State.get('session').currentUser;
+            return Shopware.Store.get('session').currentUser;
         },
 
         userConfigCriteria() {
@@ -75,41 +76,49 @@ export default {
             const formData = new FormData();
             formData.append('file', files[0]);
 
-            return this.extensionStoreActionService.upload(formData).then(() => {
-                Shopware.Service('shopwareExtensionService').updateExtensionData().then(() => {
-                    return this.createNotificationSuccess({
-                        message: this.$tc('sw-extension.my-extensions.fileUpload.messageUploadSuccess'),
+            return this.extensionStoreActionService
+                .upload(formData)
+                .then(() => {
+                    Shopware.Service('shopwareExtensionService')
+                        .updateExtensionData()
+                        .then(() => {
+                            return this.createNotificationSuccess({
+                                message: this.$tc('sw-extension.my-extensions.fileUpload.messageUploadSuccess'),
+                            });
+                        });
+                })
+                .catch((exception) => {
+                    const mappedErrors = pluginErrorHandler.mapErrors(exception.response.data.errors);
+                    mappedErrors.forEach((error) => {
+                        if (error.parameters) {
+                            this.showStoreError(error);
+                            return;
+                        }
+
+                        const message = [
+                            this.$tc(error.message),
+                            error.details,
+                        ]
+                            .filter(Boolean)
+                            .join('<br />');
+
+                        this.createNotificationError({
+                            message: message,
+                        });
                     });
-                });
-            }).catch((exception) => {
-                const mappedErrors = pluginErrorHandler.mapErrors(exception.response.data.errors);
-                mappedErrors.forEach((error) => {
-                    if (error.parameters) {
-                        this.showStoreError(error);
-                        return;
+                })
+                .finally(() => {
+                    this.isLoading = false;
+                    this.confirmModalVisible = false;
+
+                    if (this.shouldHideConfirmModal === true) {
+                        this.saveConfig(true);
                     }
-
-                    const message = [
-                        this.$tc(error.message),
-                        error.details,
-                    ].filter(Boolean).join('<br />');
-
-                    this.createNotificationError({
-                        message: message,
-                    });
                 });
-            }).finally(() => {
-                this.isLoading = false;
-                this.confirmModalVisible = false;
-
-                if (this.shouldHideConfirmModal === true) {
-                    this.saveConfig(true);
-                }
-            });
         },
 
         showStoreError(error) {
-            const docLink = this.$tc('sw-extension.errors.messageToTheShopwareDocumentation', 0, error.parameters);
+            const docLink = this.$tc('sw-extension.errors.messageToTheShopwareDocumentation', error.parameters, 0);
             this.createNotificationError({
                 message: `${error.message} ${docLink}`,
                 autoClose: false,
@@ -130,7 +139,7 @@ export default {
         },
 
         getUserConfig() {
-            return this.userConfigRepository.search(this.userConfigCriteria, Shopware.Context.api).then(response => {
+            return this.userConfigRepository.search(this.userConfigCriteria, Shopware.Context.api).then((response) => {
                 if (response.length) {
                     this.pluginUploadUserConfig = response.first();
                 } else {

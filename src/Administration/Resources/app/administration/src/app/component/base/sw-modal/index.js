@@ -5,7 +5,7 @@ const { Component } = Shopware;
 const utils = Shopware.Utils;
 
 /**
- * @package admin
+ * @sw-package framework
  *
  * @private
  * @description Modal box component which can be displayed in different variants and sizes
@@ -18,8 +18,6 @@ const utils = Shopware.Utils;
  */
 Component.register('sw-modal', {
     template,
-
-    compatConfig: Shopware.compatConfig,
 
     inheritAttrs: false,
 
@@ -48,12 +46,22 @@ Component.register('sw-modal', {
             type: String,
             required: false,
             default: 'default',
-            validValues: ['default', 'small', 'large', 'full'],
+            validValues: [
+                'default',
+                'small',
+                'large',
+                'full',
+            ],
             validator(value) {
                 if (!value.length) {
                     return true;
                 }
-                return ['default', 'small', 'large', 'full'].includes(value);
+                return [
+                    'default',
+                    'small',
+                    'large',
+                    'full',
+                ].includes(value);
             },
         },
 
@@ -100,7 +108,7 @@ Component.register('sw-modal', {
     computed: {
         modalClasses() {
             return {
-                [`sw-modal--${this.variant}`]: (this.variant && !this.size),
+                [`sw-modal--${this.variant}`]: this.variant && !this.size,
                 'sw-modal--has-sidebar': this.showHelpSidebar,
             };
         },
@@ -123,7 +131,7 @@ Component.register('sw-modal', {
         },
 
         showHelpSidebar() {
-            return Shopware.State.get('adminHelpCenter').showHelpSidebar;
+            return Shopware.Store.get('adminHelpCenter').showHelpSidebar;
         },
     },
 

@@ -8,7 +8,7 @@ use Shopware\Core\Framework\App\ShopId\ShopIdProvider;
 use Shopware\Core\Framework\Test\TestCaseBase\EnvTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
-use Shopware\Tests\Integration\Core\Framework\App\AppSystemTestBehaviour;
+use Shopware\Core\Test\AppSystemTestBehaviour;
 
 /**
  * @internal
@@ -25,8 +25,8 @@ class ShopIdProviderTest extends TestCase
 
     protected function setUp(): void
     {
-        $this->shopIdProvider = $this->getContainer()->get(ShopIdProvider::class);
-        $this->systemConfigService = $this->getContainer()->get(SystemConfigService::class);
+        $this->shopIdProvider = static::getContainer()->get(ShopIdProvider::class);
+        $this->systemConfigService = static::getContainer()->get(SystemConfigService::class);
     }
 
     public function testGetShopIdWithoutStoredShopId(): void

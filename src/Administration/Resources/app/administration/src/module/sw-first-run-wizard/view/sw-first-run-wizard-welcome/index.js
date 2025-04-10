@@ -4,13 +4,12 @@ import './sw-first-run-wizard-welcome.scss';
 const { Criteria } = Shopware.Data;
 
 /**
- * @package checkout
+ * @sw-package fundamentals@after-sales
+ *
  * @private
  */
 export default {
     template,
-
-    compatConfig: Shopware.compatConfig,
 
     inject: [
         'languagePluginService',
@@ -19,7 +18,11 @@ export default {
         'repositoryFactory',
     ],
 
-    emits: ['extension-activated', 'frw-set-title', 'buttons-update'],
+    emits: [
+        'extension-activated',
+        'frw-set-title',
+        'buttons-update',
+    ],
 
     mixins: [
         'notification',
@@ -36,6 +39,7 @@ export default {
             userProfile: {},
             userPromise: null,
             isLoading: false,
+            localeOptions: [],
         };
     },
 
@@ -49,7 +53,7 @@ export default {
         },
 
         languageId() {
-            return Shopware.State.get('session').languageId;
+            return Shopware.Store.get('session').languageId;
         },
 
         languageCriteria() {
@@ -110,7 +114,7 @@ export default {
         },
 
         updateButtons() {
-            const disabledExtensionManagement = Shopware.State.get('context').app.config.settings.disableExtensionManagement;
+            const disabledExtensionManagement = Shopware.Store.get('context').app.config.settings.disableExtensionManagement;
             const nextRoute = disabledExtensionManagement ? 'defaults' : 'data-import';
 
             const buttonConfig = [
@@ -135,7 +139,7 @@ export default {
         },
 
         getLanguagePlugins() {
-            if (Shopware.State.get('context').app.config.settings.disableExtensionManagement) {
+            if (Shopware.Store.get('context').app.config.settings.disableExtensionManagement) {
                 this.languagePlugins = [];
                 return;
             }
@@ -163,26 +167,35 @@ export default {
         },
 
         onConfirmLanguageSwitch() {
-            this.loginService.verifyUserToken(this.user.pw).then((verifiedToken) => {
-                const context = { ...Shopware.Context.api };
-                context.authToken.access = verifiedToken;
+            this.loginService
+                .verifyUserToken(this.user.pw)
+                .then((verifiedToken) => {
+                    const context = { ...Shopware.Context.api };
+                    context.authToken.access = verifiedToken;
 
-                this.userRepository.save(this.user, context)
-                    .then(async () => {
-                        await Shopware.Service('localeHelper').setLocaleWithId(this.user.localeId);
-                    })
-                    .finally(() => {
-                        this.showConfirmLanguageSwitchModal = false;
+                    this.userRepository
+                        .save(this.user, context)
+                        .then(async () => {
+                            await Shopware.Service('localeHelper').setLocaleWithId(this.user.localeId);
+                        })
+                        .finally(() => {
+                            this.showConfirmLanguageSwitchModal = false;
+                        });
+                })
+                .catch(() => {
+                    /* eslint-disable max-len */
+                    this.createNotificationError({
+                        title: this.$tc(
+                            'sw-users-permissions.users.user-detail.passwordConfirmation.notificationPasswordErrorTitle',
+                        ),
+                        message: this.$tc(
+                            'sw-users-permissions.users.user-detail.passwordConfirmation.notificationPasswordErrorMessage',
+                        ),
                     });
-            }).catch(() => {
-                /* eslint-disable max-len */
-                this.createNotificationError({
-                    title: this.$tc('sw-users-permissions.users.user-detail.passwordConfirmation.notificationPasswordErrorTitle'),
-                    message: this.$tc('sw-users-permissions.users.user-detail.passwordConfirmation.notificationPasswordErrorMessage'),
+                })
+                .finally(() => {
+                    this.confirmPassword = '';
                 });
-            }).finally(() => {
-                this.confirmPassword = '';
-            });
         },
 
         onCancelSwitch() {
@@ -194,8 +207,7 @@ export default {
                 return null;
             }
 
-            return this.languagePlugins
-                .find((p) => p.name === name);
+            return this.languagePlugins.find((p) => p.name === name);
         },
 
         getLanguageCriteria() {
@@ -218,10 +230,16 @@ export default {
         loadLanguages() {
             return this.languageRepository.search(this.languageCriteria).then((result) => {
                 this.languages = [];
+                this.localeOptions = [];
 
                 result.forEach((lang) => {
                     lang.customLabel = `${lang.locale.translated.name} (${lang.locale.translated.territory})`;
                     this.languages.push(lang);
+                    this.localeOptions.push({
+                        id: lang.locale.id,
+                        value: lang.locale.id,
+                        label: lang.customLabel,
+                    });
                 });
 
                 return this.languages;

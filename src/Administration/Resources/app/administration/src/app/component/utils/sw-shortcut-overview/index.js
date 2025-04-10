@@ -1,3 +1,7 @@
+/**
+ * @sw-package framework
+ */
+
 import template from './sw-shortcut-overview.html.twig';
 import './sw-shortcut-overview.scss';
 
@@ -9,8 +13,6 @@ const utils = Shopware.Utils;
  */
 Component.register('sw-shortcut-overview', {
     template,
-
-    compatConfig: Shopware.compatConfig,
 
     emits: [
         'shortcut-open',
@@ -156,7 +158,6 @@ Component.register('sw-shortcut-overview', {
                         content: this.$tc('sw-shortcut-overview.keyboardShortcutGoToPlugins'),
                         privilege: 'system.plugin_maintain',
                     },
-
                 ],
 
                 specialShortcuts: [

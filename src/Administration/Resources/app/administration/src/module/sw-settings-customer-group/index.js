@@ -2,12 +2,16 @@ import './acl';
 import defaultSearchConfiguration from './default-search-configuration';
 
 /**
- * @package services-settings
+ * @sw-package discovery
  */
 /* eslint-disable max-len, sw-deprecation-rules/private-feature-declarations */
 Shopware.Component.register('sw-settings-customer-group-list', () => import('./page/sw-settings-customer-group-list'));
 Shopware.Component.register('sw-settings-customer-group-detail', () => import('./page/sw-settings-customer-group-detail'));
-Shopware.Component.extend('sw-settings-customer-group-create', 'sw-settings-customer-group-detail', () => import('./page/sw-settings-customer-group-create'));
+Shopware.Component.extend(
+    'sw-settings-customer-group-create',
+    'sw-settings-customer-group-detail',
+    () => import('./page/sw-settings-customer-group-create'),
+);
 /* eslint-enable max-len, sw-deprecation-rules/private-feature-declarations */
 
 const { Module } = Shopware;
@@ -60,7 +64,7 @@ Module.register('sw-settings-customer-group', {
     },
 
     settingsItem: {
-        group: 'shop',
+        group: 'customer',
         to: 'sw.settings.customer.group.index',
         icon: 'regular-users',
         privilege: 'customer_groups.viewer',

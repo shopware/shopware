@@ -1,34 +1,38 @@
 /**
- * @package services-settings
+ * @sw-package fundamentals@framework
  */
 import { mount } from '@vue/test-utils';
 
 async function createWrapper(privileges = []) {
-    return mount(await wrapTestComponent('sw-users-permissions-role-view-detailed', {
-        sync: true,
-    }), {
-        props: {
-            role: {},
-            detailedPrivileges: [],
-        },
-        global: {
-            renderStubDefaultSlot: true,
-            stubs: {
-                'sw-alert': true,
-                'sw-users-permissions-detailed-permissions-grid': true,
-                'sw-users-permissions-detailed-additional-permissions': true,
+    return mount(
+        await wrapTestComponent('sw-users-permissions-role-view-detailed', {
+            sync: true,
+        }),
+        {
+            props: {
+                role: {},
+                detailedPrivileges: [],
             },
-            provide: {
-                acl: {
-                    can: (identifier) => {
-                        if (!identifier) { return true; }
+            global: {
+                renderStubDefaultSlot: true,
+                stubs: {
+                    'sw-users-permissions-detailed-permissions-grid': true,
+                    'sw-users-permissions-detailed-additional-permissions': true,
+                },
+                provide: {
+                    acl: {
+                        can: (identifier) => {
+                            if (!identifier) {
+                                return true;
+                            }
 
-                        return privileges.includes(identifier);
+                            return privileges.includes(identifier);
+                        },
                     },
                 },
             },
         },
-    });
+    );
 }
 
 describe('module/sw-users-permissions/view/sw-users-permissions-role-view-detailed', () => {
@@ -56,7 +60,7 @@ describe('module/sw-users-permissions/view/sw-users-permissions-role-view-detail
     it('should show an alert which contains the help text', async () => {
         const wrapper = await createWrapper();
 
-        const alert = wrapper.find('sw-alert-stub');
+        const alert = wrapper.find('[role="banner"]');
         expect(alert.text()).toBe('sw-users-permissions.roles.view.detailed.alertText');
     });
 });

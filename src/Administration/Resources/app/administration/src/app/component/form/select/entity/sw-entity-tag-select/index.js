@@ -1,3 +1,7 @@
+/**
+ * @sw-package framework
+ */
+
 const { Component } = Shopware;
 const { Criteria } = Shopware.Data;
 
@@ -20,12 +24,15 @@ Component.extend('sw-entity-tag-select', 'sw-entity-multi-select', {
             // Remove earlier "Add Tag" elements
             this.filterSearchGeneratedTags();
 
-            Promise.all([this.checkTagExists(this.searchTerm), this.$super('search', searchTerm)]).then(() => {
+            Promise.all([
+                this.checkTagExists(this.searchTerm),
+                this.$super('search', searchTerm),
+            ]).then(() => {
                 // Add the "Add Tag" Element if no tag exists
                 if (!this.tagExists) {
                     // Create dummy entity with id -1
                     const newTag = this.repository.create(this.entityCollection.context, -1);
-                    newTag.name = this.$tc('global.sw-tag-field.listItemAdd', 0, { term: this.searchTerm });
+                    newTag.name = this.$tc('global.sw-tag-field.listItemAdd', { term: this.searchTerm }, 0);
 
                     this.resultCollection.unshift(newTag);
                     // Reset active item position, so that the "Add Tag" element gets focus
@@ -50,22 +57,26 @@ Component.extend('sw-entity-tag-select', 'sw-entity-multi-select', {
             const item = this.repository.create(this.entityCollection.context);
             item.name = this.searchTerm;
             this.isLoading = true;
-            this.repository.save(item, this.entityCollection.context).then(() => {
-                this.addItem(item);
+            this.repository
+                .save(item, this.entityCollection.context)
+                .then(() => {
+                    this.addItem(item);
 
-                // Reset criteria and all parameter to get a clean new result after an item has been added
-                this.criteria.setPage(1);
-                this.criteria.setLimit(this.resultLimit);
-                this.criteria.setTerm('');
-                this.searchTerm = '';
-                this.resultCollection = null;
+                    // Reset criteria and all parameter to get a clean new result after an item has been added
+                    this.criteria.setPage(1);
+                    this.criteria.setLimit(this.resultLimit);
+                    this.criteria.setTerm('');
+                    this.searchTerm = '';
+                    this.resultCollection = null;
 
-                return this.loadData();
-            }).then(() => {
-                this.resetActiveItem();
-            }).finally(() => {
-                this.isLoading = false;
-            });
+                    return this.loadData();
+                })
+                .then(() => {
+                    this.resetActiveItem();
+                })
+                .finally(() => {
+                    this.isLoading = false;
+                });
         },
 
         checkTagExists(term) {
@@ -75,9 +86,7 @@ Component.extend('sw-entity-tag-select', 'sw-entity-multi-select', {
             }
 
             const criteria = new Criteria(1, 25);
-            criteria.addFilter(
-                Criteria.equals('name', term),
-            );
+            criteria.addFilter(Criteria.equals('name', term));
 
             return this.repository.search(criteria, this.context).then((response) => {
                 this.tagExists = response.total > 0;
@@ -85,7 +94,7 @@ Component.extend('sw-entity-tag-select', 'sw-entity-multi-select', {
         },
 
         filterSearchGeneratedTags() {
-            this.resultCollection = this.resultCollection.filter(entity => {
+            this.resultCollection = this.resultCollection.filter((entity) => {
                 return entity.id !== -1;
             });
         },

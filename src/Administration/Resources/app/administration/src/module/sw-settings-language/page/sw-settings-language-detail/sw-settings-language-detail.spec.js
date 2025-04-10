@@ -1,5 +1,5 @@
 /**
- * @package services-settings
+ * @sw-package fundamentals@discovery
  */
 import { mount } from '@vue/test-utils';
 
@@ -25,7 +25,9 @@ async function createWrapper(privileges = [], languageId = null, stubTranslation
                                         aggregations: {
                                             usedTranslationIds: {
                                                 buckets: [
-                                                    { key: '018d36e6165671b788b4811b31fdb2be' },
+                                                    {
+                                                        key: '018d36e6165671b788b4811b31fdb2be',
+                                                    },
                                                 ],
                                             },
                                         },
@@ -108,11 +110,9 @@ async function createWrapper(privileges = [], languageId = null, stubTranslation
                 `,
                 },
                 'sw-card-view': true,
-                'sw-card': true,
                 'sw-container': true,
                 'sw-language-switch': true,
                 'sw-language-info': true,
-                'sw-button': true,
                 'sw-button-process': true,
                 'sw-text-field': true,
                 'sw-entity-single-select': true,
@@ -121,10 +121,9 @@ async function createWrapper(privileges = [], languageId = null, stubTranslation
                 'sw-inheritance-switch': true,
                 'sw-highlight-text': true,
                 'sw-select-result': true,
-                'sw-alert': true,
+
                 'sw-custom-field-set-renderer': true,
                 'sw-product-variant-info': true,
-                'sw-icon': true,
                 'sw-loader': true,
                 'sw-ai-copilot-badge': true,
                 'sw-help-text': true,
@@ -147,7 +146,6 @@ async function createWrapper(privileges = [], languageId = null, stubTranslation
             'sw-popover-deprecated': await wrapTestComponent('sw-popover-deprecated', { sync: true }),
         };
     }
-
 
     return mount(await wrapTestComponent('sw-settings-language-detail', { sync: true }), options);
 }
@@ -198,18 +196,12 @@ describe('module/sw-settings-language/page/sw-settings-language-detail', () => {
         ]);
         await flushPromises();
 
-        const saveButton = wrapper.find(
-            '.sw-settings-language-detail__save-action',
-        );
-        const languageNameField = wrapper.find(
-            'sw-text-field-stub[label="sw-settings-language.detail.labelName"]',
-        );
+        const saveButton = wrapper.find('.sw-settings-language-detail__save-action');
+        const languageNameField = wrapper.find('input[aria-label="sw-settings-language.detail.labelName"]');
         const languageParentIdField = wrapper.find(
             'sw-entity-single-select-stub[label="sw-settings-language.detail.labelParent"]',
         );
-        const languageTranslationCodeIdField = wrapper.find(
-            '#iso-codes',
-        );
+        const languageTranslationCodeIdField = wrapper.find('#iso-codes');
         const languageLocaleIdField = wrapper.find(
             'sw-entity-single-select-stub[label="sw-settings-language.detail.labelLocale"]',
         );
@@ -225,40 +217,28 @@ describe('module/sw-settings-language/page/sw-settings-language-detail', () => {
         const wrapper = await createWrapper();
         await flushPromises();
 
-        const saveButton = wrapper.find(
-            '.sw-settings-language-detail__save-action',
-        );
-        const languageNameField = wrapper.find(
-            'sw-text-field-stub[label="sw-settings-language.detail.labelName"]',
-        );
+        const saveButton = wrapper.find('.sw-settings-language-detail__save-action');
+        const languageNameField = wrapper.find('input[aria-label="sw-settings-language.detail.labelName"]');
         const languageParentIdField = wrapper.find(
             'sw-entity-single-select-stub[label="sw-settings-language.detail.labelParent"]',
         );
-        const languageTranslationCodeIdField = wrapper.find(
-            '#iso-codes',
-        );
+        const languageTranslationCodeIdField = wrapper.find('#iso-codes');
         const languageLocaleIdField = wrapper.find(
             'sw-entity-single-select-stub[label="sw-settings-language.detail.labelLocale"]',
         );
 
         expect(saveButton.attributes().disabled).toBeTruthy();
-        expect(languageNameField.attributes().disabled).toBeTruthy();
+        expect(languageNameField.attributes().disabled).toBeDefined();
         expect(languageParentIdField.attributes().disabled).toBeTruthy();
         expect(languageTranslationCodeIdField.attributes().disabled).toBeTruthy();
         expect(languageLocaleIdField.attributes().disabled).toBeTruthy();
     });
 
     it('should add an asterix to used iso codes', async () => {
-        const wrapper = await createWrapper(
-            ['language.editor'],
-            Shopware.Context.api.systemLanguageId,
-            false,
-        );
+        const wrapper = await createWrapper(['language.editor'], Shopware.Context.api.systemLanguageId, false);
         await flushPromises();
 
-        const languageTranslationCodeIdField = wrapper.find(
-            '#iso-codes',
-        );
+        const languageTranslationCodeIdField = wrapper.find('#iso-codes');
 
         await languageTranslationCodeIdField.find('.sw-entity-single-select__selection').trigger('click');
         await flushPromises();

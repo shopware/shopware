@@ -1,5 +1,5 @@
 /**
- * @package admin
+ * @sw-package framework
  */
 
 const { Criteria } = Shopware.Data;
@@ -7,8 +7,8 @@ const { types } = Shopware.Utils;
 const { cloneDeep } = Shopware.Utils.object;
 
 /**
-* @module app/filter-service
-*/
+ * @module app/filter-service
+ */
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default class FilterService {
@@ -25,11 +25,11 @@ export default class FilterService {
     getStoredFilters(storeKey) {
         const criteria = this._getUserConfigCriteria(storeKey);
 
-        return this._userConfigRepository.search(criteria, Shopware.Context.api).then(response => {
+        return this._userConfigRepository.search(criteria, Shopware.Context.api).then((response) => {
             if (response.length) {
                 this._filterEntity = response.first();
             } else {
-                const currentUser = Shopware.State.get('session').currentUser;
+                const currentUser = Shopware.Store.get('session').currentUser;
 
                 this._filterEntity = this._userConfigRepository.create(Shopware.Context.api);
                 this._filterEntity.key = storeKey;
@@ -40,10 +40,9 @@ export default class FilterService {
             const queryFilterValue = this._getQueryFilterValue(storeKey);
 
             if (queryFilterValue) {
-                this._filterEntity.value = JSON.parse(decodeURIComponent(queryFilterValue));
-                this._filterEntity.value = this._filterEntity.value || {};
+                this._filterEntity.value = JSON.parse(decodeURIComponent(queryFilterValue)) || {};
             } else {
-                this._pushFiltersToUrl();
+                this._pushFiltersToUrl(true);
             }
 
             return Promise.resolve(this._filterEntity.value);
@@ -51,9 +50,9 @@ export default class FilterService {
     }
 
     getStoredCriteria(storeKey) {
-        return this.getStoredFilters(storeKey).then(response => {
+        return this.getStoredFilters(storeKey).then((response) => {
             const data = [];
-            Object.values(response).forEach(filter => {
+            Object.values(response).forEach((filter) => {
                 if (filter.criteria) {
                     data.push(...filter.criteria);
                 }
@@ -67,7 +66,7 @@ export default class FilterService {
         const filterValues = {};
         const savedCriteria = [];
 
-        Object.keys(filters).forEach(name => {
+        Object.keys(filters).forEach((name) => {
             if (filters[name].criteria) {
                 filterValues[name] = { ...filters[name] };
                 savedCriteria.push(...filterValues[name].criteria);
@@ -90,13 +89,13 @@ export default class FilterService {
 
         const mergedCriteria = cloneDeep(listCriteria);
 
-        this._storedFilters[storeKey].forEach(el1 => {
-            const match = listCriteria.filters.find(el2 => {
+        this._storedFilters[storeKey].forEach((el1) => {
+            const match = listCriteria.filters.find((el2) => {
                 if (el1.type !== 'not') {
                     return el1.field === el2.field;
                 }
 
-                return (el2.type !== 'not')
+                return el2.type !== 'not'
                     ? el1.queries[0].field === el2.field
                     : el1.queries[0].field === el2.queries[0].field;
             });
@@ -110,8 +109,8 @@ export default class FilterService {
     }
 
     _getUserConfigCriteria(storeKey) {
-        const currentUser = Shopware.State.get('session').currentUser;
-        const criteria = new Criteria(1, 25);
+        const currentUser = Shopware.Store.get('session').currentUser;
+        const criteria = new Criteria(1, 1);
 
         criteria.addFilter(Criteria.equals('key', storeKey));
         criteria.addFilter(Criteria.equals('userId', currentUser?.id));
@@ -119,7 +118,7 @@ export default class FilterService {
         return criteria;
     }
 
-    async _pushFiltersToUrl() {
+    async _pushFiltersToUrl(replaceRoute = false) {
         const urlFilterValue = types.isEmpty(this._filterEntity.value) ? null : this._filterEntity.value;
         const urlEncodedValue = encodeURIComponent(JSON.stringify(urlFilterValue));
 
@@ -143,8 +142,11 @@ export default class FilterService {
         }
 
         try {
-            await router.push(newRoute);
-            return Promise.resolve();
+            if (replaceRoute) {
+                return await router.replace(newRoute);
+            }
+
+            return await router.push(newRoute);
         } catch (error) {
             if (error?.name === 'NavigationDuplicated') {
                 return error;

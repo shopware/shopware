@@ -4,11 +4,14 @@ namespace Shopware\Tests\Integration\Core\Content\LandingPage\Repository;
 
 use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Content\Cms\CmsPageCollection;
+use Shopware\Core\Content\LandingPage\LandingPageCollection;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
+use Shopware\Core\System\SalesChannel\SalesChannelCollection;
 
 /**
  * @internal
@@ -17,32 +20,29 @@ class LandingPageRepositoryTest extends TestCase
 {
     use IntegrationTestBehaviour;
 
-    /**
-     * @var Connection
-     */
-    private $connection;
+    private Connection $connection;
 
     /**
-     * @var EntityRepository
+     * @var EntityRepository<LandingPageCollection>
      */
-    private $repository;
+    private EntityRepository $repository;
 
     /**
-     * @var EntityRepository
+     * @var EntityRepository<SalesChannelCollection>
      */
-    private $salesChannelRepo;
+    private EntityRepository $salesChannelRepo;
 
     /**
-     * @var EntityRepository
+     * @var EntityRepository<CmsPageCollection>
      */
-    private $cmsPageRepo;
+    private EntityRepository $cmsPageRepo;
 
     protected function setUp(): void
     {
-        $this->repository = $this->getContainer()->get('landing_page.repository');
-        $this->salesChannelRepo = $this->getContainer()->get('sales_channel.repository');
-        $this->cmsPageRepo = $this->getContainer()->get('cms_page.repository');
-        $this->connection = $this->getContainer()->get(Connection::class);
+        $this->repository = static::getContainer()->get('landing_page.repository');
+        $this->salesChannelRepo = static::getContainer()->get('sales_channel.repository');
+        $this->cmsPageRepo = static::getContainer()->get('cms_page.repository');
+        $this->connection = static::getContainer()->get(Connection::class);
     }
 
     public function testCreateLandingPage(): void

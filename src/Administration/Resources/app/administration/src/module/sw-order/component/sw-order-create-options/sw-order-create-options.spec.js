@@ -1,10 +1,9 @@
 import { mount } from '@vue/test-utils';
 import EntityCollection from 'src/core/data/entity-collection.data';
-import orderStore from 'src/module/sw-order/state/order.store';
 import 'src/module/sw-order/mixin/cart-notification.mixin';
 
 /**
- * @package checkout
+ * @sw-package checkout
  */
 
 const addresses = [
@@ -49,13 +48,7 @@ const customerData = {
     },
     billingAddressId: '1',
     shippingAddressId: '2',
-    addresses: new EntityCollection(
-        '/customer-address',
-        'customer-address',
-        null,
-        null,
-        [],
-    ),
+    addresses: new EntityCollection('/customer-address', 'customer-address', null, null, []),
 };
 
 const context = {
@@ -98,12 +91,14 @@ const contextResponse = {
     },
 };
 
-const contextState = {
-    namespaced: true,
-    state: { api: { languageId: '2fbb5fe2e29a4d70aa5854ce7ce3e20b', systemLanguageId: '2fbb5fe2e29a4d70aa5854ce7ce3e20b' } },
-    mutations: {
-        setLanguageId: jest.fn(),
-    },
+const contextStore = {
+    id: 'context',
+    state: () => ({
+        api: {
+            languageId: '2fbb5fe2e29a4d70aa5854ce7ce3e20b',
+            systemLanguageId: '2fbb5fe2e29a4d70aa5854ce7ce3e20b',
+        },
+    }),
 };
 
 async function createWrapper() {
@@ -138,17 +133,24 @@ async function createWrapper() {
                 'sw-select-result-list': await wrapTestComponent('sw-select-result-list', { sync: true }),
                 'sw-select-base': await wrapTestComponent('sw-select-base', { sync: true }),
                 'sw-block-field': await wrapTestComponent('sw-block-field', { sync: true }),
-                'sw-base-field': await wrapTestComponent('sw-base-field', { sync: true }),
-                'sw-order-customer-address-select': await wrapTestComponent('sw-order-customer-address-select', { sync: true }),
-                'sw-switch-field': await wrapTestComponent('sw-switch-field', { sync: true }),
-                'sw-switch-field-deprecated': await wrapTestComponent('sw-switch-field-deprecated', { sync: true }),
+                'sw-base-field': await wrapTestComponent('sw-base-field', {
+                    sync: true,
+                }),
+                'sw-order-customer-address-select': await wrapTestComponent('sw-order-customer-address-select', {
+                    sync: true,
+                }),
+
                 'sw-text-field': true,
                 'sw-entity-single-select': {
                     props: ['value'],
-                    template: '<input class="sw-entity-single-select" :value="value" @input="$emit(\'input\', $event.target.value)">',
+                    template:
+                        '<input class="sw-entity-single-select" :value="value" @input="$emit(\'input\', $event.target.value)">',
                 },
                 'sw-multi-tag-select': {
-                    props: ['value', 'validate'],
+                    props: [
+                        'value',
+                        'validate',
+                    ],
                     template: `
                         <div class="sw-multi-tag-select">
                             <ul>
@@ -163,30 +165,25 @@ async function createWrapper() {
                                 return;
                             }
 
-                            this.$emit('change', [...this.value, event.target.value]);
+                            this.$emit('change', [
+                                ...this.value,
+                                event.target.value,
+                            ]);
                         },
                     },
                 },
                 'sw-highlight-text': true,
                 'sw-loader': true,
-                'sw-icon': true,
                 'sw-field-error': true,
-                'sw-number-field': {
-                    template: `
-                        <div class="sw-number-field">
-                            <input type="number" :value="value" @input="$emit('change', Number($event.target.value))" />
-                            <slot name="suffix"></slot>
-                        </div>
-                    `,
-                    props: {
-                        value: 0,
-                    },
-                },
                 'sw-select-result': {
-                    props: ['item', 'index'],
-                    template: `<li class="sw-select-result" @click.stop="onClickResult">
-                                    <slot></slot>
-                            </li>`,
+                    props: [
+                        'item',
+                        'index',
+                    ],
+                    template: `
+                        <li class="sw-select-result" @click.stop="onClickResult">
+                            <slot></slot>
+                        </li>`,
                     methods: {
                         onClickResult() {
                             Shopware.Utils.EventBus.emit('item-select', this.item);
@@ -216,23 +213,15 @@ describe('src/module/sw-order/view/sw-order-create-options', () => {
             };
         });
 
-        Shopware.State.registerModule('swOrder', {
-            ...orderStore,
-            state: {
-                ...orderStore.state,
-                customer: {
-                    ...customerData,
-                },
-                cart,
-                context,
-            },
-        });
+        Shopware.Store.get('swOrder').setCart(cart);
+        Shopware.Store.get('swOrder').setContext(context);
+        Shopware.Store.get('swOrder').setCustomer(customerData);
 
-        if (Shopware.State.get('context')) {
-            Shopware.State.unregisterModule('context');
+        if (Shopware.Store.get('context')) {
+            Shopware.Store.unregister('context');
         }
 
-        Shopware.State.registerModule('context', contextState);
+        Shopware.Store.register(contextStore);
     });
 
     it('should show address option correctly', async () => {
@@ -244,25 +233,27 @@ describe('src/module/sw-order/view/sw-order-create-options', () => {
         await billingAddressSelect.trigger('click');
 
         expect(wrapper.find('li[selected="true"]').text()).toBe('Summerfield 27, 10332, San Francisco, California, USA');
-        expect(wrapper.find('sw-highlight-text-stub').attributes().text).toBe('Ebbinghoff 10, 48624, London, Nottingham, United Kingdom');
+        expect(wrapper.find('sw-highlight-text-stub').attributes().text).toBe(
+            'Ebbinghoff 10, 48624, London, Nottingham, United Kingdom',
+        );
     });
-
 
     it('should able to set shipping address same as billing address', async () => {
         const wrapper = await createWrapper();
         await flushPromises();
 
-        let shippingSelectionText = wrapper.find('.sw-order-create-options__shipping-address .sw-single-select__selection-text');
+        let shippingSelectionText = wrapper.find(
+            '.sw-order-create-options__shipping-address .sw-single-select__selection-text',
+        );
         expect(shippingSelectionText.text()).toBe('Ebbinghoff 10, 48624, London, Nottingham, United Kingdom');
 
-        const switchSameAddress = wrapper.find('.sw-field--switch__input input[name="sw-field--isSameAsBillingAddress"]');
+        const switchSameAddress = wrapper.find('.mt-switch input[name="sw-field--isSameAsBillingAddress"]');
         await switchSameAddress.setChecked(true);
 
         expect(wrapper.vm.context.shippingAddressId).toBe('1');
 
         shippingSelectionText = wrapper.find('.sw-order-create-options__shipping-address .sw-single-select__selection-text');
-        expect(shippingSelectionText.text())
-            .toBe('sw-order.initialModal.options.textSameAsBillingAddress');
+        expect(shippingSelectionText.text()).toBe('sw-order.initialModal.options.textSameAsBillingAddress');
 
         expect(wrapper.findComponent('.sw-order-create-options__shipping-address').vm.disabled).toBe(true);
     });
@@ -271,7 +262,7 @@ describe('src/module/sw-order/view/sw-order-create-options', () => {
         const wrapper = await createWrapper();
         await flushPromises();
 
-        const switchSameAddress = wrapper.find('.sw-field--switch__input input[name="sw-field--isSameAsBillingAddress"]');
+        const switchSameAddress = wrapper.find('.mt-switch input[name="sw-field--isSameAsBillingAddress"]');
         expect(switchSameAddress.element.checked).toBeFalsy();
 
         await switchSameAddress.setChecked(true);
@@ -291,21 +282,21 @@ describe('src/module/sw-order/view/sw-order-create-options', () => {
             },
         });
 
-        const switchSameAddress = wrapper.find('.sw-field--switch__input input[name="sw-field--isSameAsBillingAddress"]');
+        const switchSameAddress = wrapper.find('.mt-switch input[name="sw-field--isSameAsBillingAddress"]');
         expect(switchSameAddress.element.checked).toBeTruthy();
-
 
         await switchSameAddress.setChecked(false);
 
-        expect(wrapper.find('.sw-order-create-options__shipping-address')
-            .attributes('disabled')).toBeUndefined();
+        expect(wrapper.find('.sw-order-create-options__shipping-address').attributes('disabled')).toBeUndefined();
     });
 
     it('should switch on same as billing toogle when selecting billing address the same as shipping address', async () => {
         const wrapper = await createWrapper();
         await flushPromises();
 
-        let shippingSelectionText = wrapper.find('.sw-order-create-options__shipping-address .sw-single-select__selection-text');
+        let shippingSelectionText = wrapper.find(
+            '.sw-order-create-options__shipping-address .sw-single-select__selection-text',
+        );
         expect(shippingSelectionText.text()).toBe('Ebbinghoff 10, 48624, London, Nottingham, United Kingdom');
 
         const billingAddressSelect = wrapper.find('.sw-order-create-options__billing-address .sw-select__selection');
@@ -334,14 +325,14 @@ describe('src/module/sw-order/view/sw-order-create-options', () => {
     it('should able to select currency', async () => {
         const wrapper = await createWrapper();
 
-        let shippingCostField = wrapper.find('.sw-order-create-options__shipping-cost');
+        let shippingCostField = wrapper.find('.sw-order-create-options__shipping-cost .mt-field__addition:not(.is--prefix)');
         expect(shippingCostField.text()).toBe('€');
 
         const currencyInput = wrapper.findComponent('.sw-order-create-options__currency-select');
         await currencyInput.vm.$emit('update:value', 'USD');
         await flushPromises();
 
-        shippingCostField = wrapper.find('.sw-order-create-options__shipping-cost');
+        shippingCostField = wrapper.find('.sw-order-create-options__shipping-cost .mt-field__addition:not(.is--prefix)');
         expect(shippingCostField.text()).toBe('$');
     });
 
@@ -349,7 +340,7 @@ describe('src/module/sw-order/view/sw-order-create-options', () => {
         const wrapper = await createWrapper();
 
         const shippingCostField = wrapper.findComponent('.sw-order-create-options__shipping-cost');
-        await shippingCostField.vm.$emit('update:value', 100);
+        await shippingCostField.vm.$emit('update:modelValue', 100);
 
         expect(wrapper.emitted('shipping-cost-change')).toBeTruthy();
         expect(wrapper.emitted('shipping-cost-change')[0][0]).toBe(100);
@@ -362,7 +353,9 @@ describe('src/module/sw-order/view/sw-order-create-options', () => {
         await promotionField.vm.$emit('update:value', ['DISCOUNT']);
 
         expect(wrapper.emitted('promotions-change')).toBeTruthy();
-        expect(wrapper.emitted('promotions-change')[0][0]).toEqual(['DISCOUNT']);
+        expect(wrapper.emitted('promotions-change')[0][0]).toEqual([
+            'DISCOUNT',
+        ]);
     });
 
     it('should not emit promotions-change event when entering duplicated promotion code', async () => {
@@ -395,16 +388,20 @@ describe('src/module/sw-order/view/sw-order-create-options', () => {
         const shippingCostField = wrapper.find('.sw-order-create-options__shipping-cost input');
         expect(shippingCostField.element.value).toBe('0');
 
-        Shopware.Service('cartStoreService').getCart = jest.fn(() => Promise.resolve({
-            data: {
-                lineItems: [],
-                deliveries: [{
-                    shippingCosts: {
-                        totalPrice: 100,
-                    },
-                }],
-            },
-        }));
+        Shopware.Service('cartStoreService').getCart = jest.fn(() =>
+            Promise.resolve({
+                data: {
+                    lineItems: [],
+                    deliveries: [
+                        {
+                            shippingCosts: {
+                                totalPrice: 100,
+                            },
+                        },
+                    ],
+                },
+            }),
+        );
 
         const shippingMethodSelect = wrapper.findComponent('.sw-order-create-options__shipping-method');
         await shippingMethodSelect.vm.$emit('update:value', 100);
@@ -422,7 +419,7 @@ describe('src/module/sw-order/view/sw-order-create-options', () => {
             },
         });
 
-        expect(contextState.mutations.setLanguageId).not.toHaveBeenCalled();
+        expect(Shopware.Store.get('context').api.languageId).toBe(contextStore.state().api.languageId);
 
         await wrapper.setProps({
             context: {
@@ -431,6 +428,6 @@ describe('src/module/sw-order/view/sw-order-create-options', () => {
             },
         });
 
-        expect(contextState.mutations.setLanguageId).toHaveBeenCalledWith(expect.anything(), '1234');
+        expect(Shopware.Store.get('context').api.languageId).toBe('1234');
     });
 });

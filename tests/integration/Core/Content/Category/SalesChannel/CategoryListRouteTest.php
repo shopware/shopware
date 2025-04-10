@@ -9,7 +9,7 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\QueueTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\SalesChannelApiTestBehaviour;
-use Shopware\Core\Framework\Test\TestDataCollection;
+use Shopware\Core\Test\Stub\Framework\IdsCollection;
 use Symfony\Bundle\FrameworkBundle\KernelBrowser;
 
 /**
@@ -24,14 +24,14 @@ class CategoryListRouteTest extends TestCase
 
     private KernelBrowser $browser;
 
-    private TestDataCollection $ids;
+    private IdsCollection $ids;
 
     protected function setUp(): void
     {
-        $this->ids = new TestDataCollection();
-        $this->getContainer()->get(Connection::class)->executeStatement('SET FOREIGN_KEY_CHECKS = 0;');
-        $this->getContainer()->get(Connection::class)->executeStatement('DELETE FROM category');
-        $this->getContainer()->get(Connection::class)->executeStatement('SET FOREIGN_KEY_CHECKS = 1;');
+        $this->ids = new IdsCollection();
+        static::getContainer()->get(Connection::class)->executeStatement('SET FOREIGN_KEY_CHECKS = 0;');
+        static::getContainer()->get(Connection::class)->executeStatement('DELETE FROM category');
+        static::getContainer()->get(Connection::class)->executeStatement('SET FOREIGN_KEY_CHECKS = 1;');
 
         $this->createData();
 
@@ -138,7 +138,7 @@ class CategoryListRouteTest extends TestCase
             ],
         ];
 
-        $this->getContainer()->get('category.repository')
+        static::getContainer()->get('category.repository')
             ->create($data, Context::createDefaultContext());
     }
 }

@@ -7,7 +7,6 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\ImportExport\Command\ImportEntityCommand;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
@@ -17,7 +16,7 @@ use Symfony\Component\HttpFoundation\File\Exception\FileNotFoundException;
 /**
  * @internal
  */
-#[Package('services-settings')]
+#[Package('fundamentals@after-sales')]
 #[Group('slow')]
 class ImportEntityCommandTest extends TestCase
 {
@@ -33,7 +32,7 @@ class ImportEntityCommandTest extends TestCase
 
     protected function setUp(): void
     {
-        $this->importEntityCommand = $this->getContainer()->get(ImportEntityCommand::class);
+        $this->importEntityCommand = static::getContainer()->get(ImportEntityCommand::class);
     }
 
     public function testImportCustomersNoInputFile(): void
@@ -69,33 +68,7 @@ class ImportEntityCommandTest extends TestCase
         $firstId = '017de84fb11a4e318fd3231317d7def4';
         $lastId = 'fd98f6a0f00f4b05b40e63da076dfd7d';
 
-        $repository = $this->getContainer()->get('category.repository');
-        $result = $repository->searchIds(new Criteria([$firstId, $lastId]), Context::createDefaultContext());
-
-        static::assertCount(2, $result->getIds());
-    }
-
-    public function testImportWithProfile(): void
-    {
-        Feature::skipTestIfActive('v6.7.0.0', $this);
-
-        $num = 67;
-
-        $commandTester = new CommandTester($this->importEntityCommand);
-        $args = [
-            'file' => self::TEST_IMPORT_FILE_PATH,
-            'expireDate' => date('d.m.Y'),
-            'profile' => self::DEFAULT_CATEGORY_IMPORT_PROFILE,
-        ];
-        $commandTester->execute($args);
-
-        $message = $commandTester->getDisplay();
-        static::assertMatchesRegularExpression(\sprintf('/\[OK\] Successfully imported %d records in \d+ seconds/', $num), $message);
-
-        $firstId = '017de84fb11a4e318fd3231317d7def4';
-        $lastId = 'fd98f6a0f00f4b05b40e63da076dfd7d';
-
-        $repository = $this->getContainer()->get('category.repository');
+        $repository = static::getContainer()->get('category.repository');
         $result = $repository->searchIds(new Criteria([$firstId, $lastId]), Context::createDefaultContext());
 
         static::assertCount(2, $result->getIds());
@@ -119,7 +92,7 @@ class ImportEntityCommandTest extends TestCase
         $firstId = '017de84fb11a4e318fd3231317d7def4';
         $lastId = 'fd98f6a0f00f4b05b40e63da076dfd7d';
 
-        $repository = $this->getContainer()->get('category.repository');
+        $repository = static::getContainer()->get('category.repository');
         $result = $repository->searchIds(new Criteria([$firstId, $lastId]), Context::createDefaultContext());
 
         static::assertCount(2, $result->getIds());
@@ -141,7 +114,7 @@ class ImportEntityCommandTest extends TestCase
         static::assertStringContainsString('[WARNING] Not all records could be imported due to errors', $message);
         static::assertMatchesRegularExpression(\sprintf('/\[OK\] Successfully imported %d records in \d+ seconds/', $num), $message);
 
-        $repository = $this->getContainer()->get('product.repository');
+        $repository = static::getContainer()->get('product.repository');
         $result = $repository->searchIds(new Criteria(), Context::createDefaultContext());
 
         static::assertCount(8, $result->getIds());
@@ -167,7 +140,7 @@ class ImportEntityCommandTest extends TestCase
         static::assertStringContainsString(\sprintf('[ERROR] Errors on import. Rolling back transactions for %d records.', $num), $message);
         static::assertStringContainsString('Integrity constraint violation', $message);
 
-        $repository = $this->getContainer()->get('product.repository');
+        $repository = static::getContainer()->get('product.repository');
         $result = $repository->searchIds(new Criteria(), Context::createDefaultContext());
 
         static::assertCount(0, $result->getIds());

@@ -6,7 +6,10 @@ use Shopware\Core\Framework\Log\Package;
 use Twig\Extension\AbstractExtension;
 use Twig\TwigTest;
 
-#[Package('core')]
+/**
+ * @deprecated tag:v6.8.0 - class will be marked internal - reason:becomes-internal
+ */
+#[Package('framework')]
 class InstanceOfExtension extends AbstractExtension
 {
     public function getTests(): array
@@ -16,6 +19,12 @@ class InstanceOfExtension extends AbstractExtension
         ];
     }
 
+    /**
+     * @deprecated tag:v6.8.0 - arguments will be type-hinted - reason:becomes-internal
+     *
+     * @param object $var
+     * @param class-string $class
+     */
     public function isInstanceOf($var, $class): bool
     {
         return (new \ReflectionClass($class))->isInstance($var);

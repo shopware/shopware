@@ -20,10 +20,10 @@ class EntityDefinitionServiceTest extends TestCase
         $problematicEntities = [];
 
         /** @var EntityDefinitionService $entityDefinitionService */
-        $entityDefinitionService = $this->getContainer()->get(EntityDefinitionService::class);
+        $entityDefinitionService = static::getContainer()->get(EntityDefinitionService::class);
 
         /** @var UsageDataAllowListService $usageDataAllowListService */
-        $usageDataAllowListService = $this->getContainer()->get(UsageDataAllowListService::class);
+        $usageDataAllowListService = static::getContainer()->get(UsageDataAllowListService::class);
 
         foreach ($entityDefinitionService->getAllowedEntityDefinitions() as $entityDefinition) {
             $fields = $usageDataAllowListService->getFieldsToSelectFromDefinition($entityDefinition);
@@ -64,7 +64,7 @@ class EntityDefinitionServiceTest extends TestCase
         $problematicEntities = [];
 
         /** @var EntityDefinitionService $service */
-        $service = $this->getContainer()->get(EntityDefinitionService::class);
+        $service = static::getContainer()->get(EntityDefinitionService::class);
 
         foreach ($service->getAllowedEntityDefinitions() as $entityDefinition) {
             if (!$entityDefinition->hasCreatedAndUpdatedAtFields()) {

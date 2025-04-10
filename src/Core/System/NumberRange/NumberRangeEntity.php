@@ -11,61 +11,31 @@ use Shopware\Core\System\NumberRange\Aggregate\NumberRangeState\NumberRangeState
 use Shopware\Core\System\NumberRange\Aggregate\NumberRangeTranslation\NumberRangeTranslationCollection;
 use Shopware\Core\System\NumberRange\Aggregate\NumberRangeType\NumberRangeTypeEntity;
 
-#[Package('checkout')]
+#[Package('framework')]
 class NumberRangeEntity extends Entity
 {
     use EntityCustomFieldsTrait;
     use EntityIdTrait;
 
-    /**
-     * @var string|null
-     */
-    protected $typeId;
+    protected ?string $typeId = null;
 
-    /**
-     * @var bool
-     */
-    protected $global;
+    protected bool $global;
 
-    /**
-     * @var string|null
-     */
-    protected $name;
+    protected ?string $name = null;
 
-    /**
-     * @var string|null
-     */
-    protected $description;
+    protected ?string $description = null;
 
-    /**
-     * @var string|null
-     */
-    protected $pattern;
+    protected ?string $pattern = null;
 
-    /**
-     * @var int|null
-     */
-    protected $start;
+    protected ?int $start = null;
 
-    /**
-     * @var NumberRangeTypeEntity|null
-     */
-    protected $type;
+    protected ?NumberRangeTypeEntity $type = null;
 
-    /**
-     * @var NumberRangeSalesChannelCollection|null
-     */
-    protected $numberRangeSalesChannels;
+    protected ?NumberRangeSalesChannelCollection $numberRangeSalesChannels = null;
 
-    /**
-     * @var NumberRangeStateEntity|null
-     */
-    protected $state;
+    protected ?NumberRangeStateEntity $state = null;
 
-    /**
-     * @var NumberRangeTranslationCollection|null
-     */
-    protected $translations;
+    protected ?NumberRangeTranslationCollection $translations = null;
 
     public function getName(): ?string
     {

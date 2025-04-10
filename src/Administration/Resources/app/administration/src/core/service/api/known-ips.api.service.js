@@ -1,5 +1,5 @@
 /**
- * @package admin
+ * @sw-package framework
  */
 
 import ApiService from '../api.service';
@@ -25,7 +25,8 @@ class KnownIpsApiService extends ApiService {
         return this.httpClient
             .get('/_admin/known-ips', {
                 headers,
-            }).then(response => {
+            })
+            .then((response) => {
                 return response.data.ips;
             });
     }

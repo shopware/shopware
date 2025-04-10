@@ -10,30 +10,15 @@ use Shopware\Core\System\StateMachine\Aggregation\StateMachineState\StateMachine
 #[Package('checkout')]
 class StateMachineTransitionEvent extends NestedEvent
 {
-    /**
-     * @var string
-     */
-    protected $entityName;
+    protected string $entityName;
 
-    /**
-     * @var string
-     */
-    protected $entityId;
+    protected string $entityId;
 
-    /**
-     * @var StateMachineStateEntity
-     */
-    protected $fromPlace;
+    protected StateMachineStateEntity $fromPlace;
 
-    /**
-     * @var StateMachineStateEntity
-     */
-    protected $toPlace;
+    protected StateMachineStateEntity $toPlace;
 
-    /**
-     * @var Context
-     */
-    protected $context;
+    protected Context $context;
 
     public function __construct(
         string $entityName,

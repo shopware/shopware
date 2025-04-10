@@ -14,7 +14,7 @@ class ExportInvalidException extends ShopwareHttpException
     /**
      * @var ErrorMessage[]
      */
-    protected $errorMessages;
+    protected array $errorMessages;
 
     /**
      * @param Error[] $errors

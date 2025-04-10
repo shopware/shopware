@@ -16,7 +16,7 @@ class DeliveryTransformer
 {
     /**
      * @param array<string, array<string, mixed>> $lineItems
-     * @param array<string, mixed> $addresses
+     * @param array<int|string, array<string, string|array<mixed>>> $addresses
      *
      * @return array<int, array<string, mixed>>
      */
@@ -37,7 +37,7 @@ class DeliveryTransformer
 
     /**
      * @param array<string, array<string, mixed>> $lineItems
-     * @param array<string, mixed> $addresses
+     * @param array<int|string, array<string, string|array<mixed>>> $addresses
      *
      * @return array<string, mixed>
      */
@@ -57,6 +57,16 @@ class DeliveryTransformer
             $shippingAddress = AddressTransformer::transform($delivery->getLocation()->getAddress());
         }
 
+        $originalAddressId = $delivery->getExtensionOfType(
+            OrderConverter::ORIGINAL_ADDRESS_ID,
+            IdStruct::class
+        )?->getId();
+
+        $originalAddressVersionId = $delivery->getExtensionOfType(
+            OrderConverter::ORIGINAL_ADDRESS_VERSION_ID,
+            IdStruct::class
+        )?->getId();
+
         $deliveryData = [
             'id' => self::getId($delivery),
             'shippingDateEarliest' => $delivery->getDeliveryDate()->getEarliest()->format(Defaults::STORAGE_DATE_TIME_FORMAT),
@@ -68,9 +78,18 @@ class DeliveryTransformer
             'stateId' => $stateId,
         ];
 
+        if ($originalAddressId !== null && $originalAddressVersionId !== null) {
+            $deliveryData['shippingOrderAddressId'] = $originalAddressId;
+            $deliveryData['shippingOrderAddressVersionId'] = $originalAddressVersionId;
+        }
+
         $deliveryData = array_filter($deliveryData, fn ($item) => $item !== null);
 
         foreach ($delivery->getPositions() as $position) {
+            if (!isset($lineItems[$position->getIdentifier()])) {
+                continue;
+            }
+
             $deliveryData['positions'][] = [
                 'id' => self::getId($position),
                 'price' => $position->getPrice(),

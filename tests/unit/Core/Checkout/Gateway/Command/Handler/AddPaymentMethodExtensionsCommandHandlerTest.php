@@ -52,7 +52,7 @@ class AddPaymentMethodExtensionsCommandHandlerTest extends TestCase
         );
 
         $handler = new AddPaymentMethodExtensionsCommandHandler($this->createMock(ExceptionLogger::class));
-        $handler->handle($command, $response, Generator::createSalesChannelContext());
+        $handler->handle($command, $response, Generator::generateSalesChannelContext());
 
         static::assertCount(2, $response->getAvailablePaymentMethods());
 
@@ -84,7 +84,7 @@ class AddPaymentMethodExtensionsCommandHandlerTest extends TestCase
 
         $logger = $this->createMock(ExceptionLogger::class);
         $logger
-            ->expects(static::once())
+            ->expects($this->once())
             ->method('logOrThrowException')
             ->with(
                 static::callback(
@@ -98,6 +98,6 @@ class AddPaymentMethodExtensionsCommandHandlerTest extends TestCase
             );
 
         $handler = new AddPaymentMethodExtensionsCommandHandler($logger);
-        $handler->handle($command, $response, Generator::createSalesChannelContext());
+        $handler->handle($command, $response, Generator::generateSalesChannelContext());
     }
 }

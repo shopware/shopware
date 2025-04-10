@@ -11,56 +11,29 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\Country\Aggregate\CountryStateTranslation\CountryStateTranslationCollection;
 use Shopware\Core\System\Country\CountryEntity;
 
-#[Package('buyers-experience')]
+#[Package('fundamentals@discovery')]
 class CountryStateEntity extends Entity
 {
     use EntityCustomFieldsTrait;
     use EntityIdTrait;
 
-    /**
-     * @var string
-     */
-    protected $countryId;
+    protected string $countryId;
 
-    /**
-     * @var string
-     */
-    protected $shortCode;
+    protected string $shortCode;
 
-    /**
-     * @var string|null
-     */
-    protected $name;
+    protected ?string $name = null;
 
-    /**
-     * @var int
-     */
-    protected $position;
+    protected int $position;
 
-    /**
-     * @var bool
-     */
-    protected $active;
+    protected bool $active;
 
-    /**
-     * @var CountryEntity|null
-     */
-    protected $country;
+    protected ?CountryEntity $country = null;
 
-    /**
-     * @var CountryStateTranslationCollection|null
-     */
-    protected $translations;
+    protected ?CountryStateTranslationCollection $translations = null;
 
-    /**
-     * @var CustomerAddressCollection|null
-     */
-    protected $customerAddresses;
+    protected ?CustomerAddressCollection $customerAddresses = null;
 
-    /**
-     * @var OrderAddressCollection|null
-     */
-    protected $orderAddresses;
+    protected ?OrderAddressCollection $orderAddresses = null;
 
     public function getCountryId(): string
     {

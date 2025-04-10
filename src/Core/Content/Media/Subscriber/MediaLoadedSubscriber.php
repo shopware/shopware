@@ -7,12 +7,14 @@ use Shopware\Core\Content\Media\MediaEntity;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityLoadedEvent;
 use Shopware\Core\Framework\Log\Package;
 
-#[Package('buyers-experience')]
+#[Package('discovery')]
 class MediaLoadedSubscriber
 {
+    /**
+     * @param EntityLoadedEvent<MediaEntity> $event
+     */
     public function unserialize(EntityLoadedEvent $event): void
     {
-        /** @var MediaEntity $media */
         foreach ($event->getEntities() as $media) {
             if ($media->getMediaTypeRaw()) {
                 $media->setMediaType(unserialize($media->getMediaTypeRaw()));

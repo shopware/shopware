@@ -5,12 +5,12 @@ namespace Shopware\Tests\Integration\Core\Framework\Script\Api;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Test\Product\ProductBuilder;
 use Shopware\Core\Framework\Adapter\Cache\CacheInvalidator;
+use Shopware\Core\Framework\Adapter\Cache\Http\HttpCacheKeyGenerator;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\Script\Api\ScriptStoreApiRoute;
-use Shopware\Core\Framework\Test\IdsCollection;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\SalesChannelApiTestBehaviour;
-use Shopware\Tests\Integration\Core\Framework\App\AppSystemTestBehaviour;
+use Shopware\Core\Test\AppSystemTestBehaviour;
+use Shopware\Core\Test\Stub\Framework\IdsCollection;
 use Symfony\Bundle\FrameworkBundle\KernelBrowser;
 use Symfony\Component\HttpFoundation\Response;
 
@@ -45,6 +45,7 @@ class ScriptStoreApiRouteTest extends TestCase
         static::assertCount(1, $traces['store-api-simple-script::response']);
         static::assertSame('some debug information', $traces['store-api-simple-script::response'][0]['output'][0]);
 
+        static::assertIsArray($response);
         static::assertArrayHasKey('apiAlias', $response);
         static::assertArrayHasKey('foo', $response);
         static::assertEquals('bar', $response['foo']);
@@ -66,6 +67,7 @@ class ScriptStoreApiRouteTest extends TestCase
         static::assertCount(1, $traces['store-api-simple-script::response']);
         static::assertSame('some debug information', $traces['store-api-simple-script::response'][0]['output'][0]);
 
+        static::assertIsArray($response);
         static::assertArrayHasKey('apiAlias', $response);
         static::assertArrayHasKey('foo', $response);
         static::assertEquals('bar', $response['foo']);
@@ -85,7 +87,7 @@ class ScriptStoreApiRouteTest extends TestCase
             (new ProductBuilder($ids, 'p2'))->visibility($salesChannelId)->price(200)->build(),
         ];
 
-        $this->getContainer()->get('product.repository')->create($products, Context::createDefaultContext());
+        static::getContainer()->get('product.repository')->create($products, Context::createDefaultContext());
 
         $criteria = [
             'filter' => [
@@ -176,7 +178,7 @@ class ScriptStoreApiRouteTest extends TestCase
             (new ProductBuilder($ids, 'p1'))->price(100)->build(),
         ];
 
-        $this->getContainer()->get('product.repository')->create($products, Context::createDefaultContext());
+        static::getContainer()->get('product.repository')->create($products, Context::createDefaultContext());
 
         $this->browser->followRedirects(false);
         $this->browser->request('POST', '/store-api/script/redirect-response', ['productId' => $ids->get('p1')]);
@@ -203,12 +205,13 @@ class ScriptStoreApiRouteTest extends TestCase
         static::assertCount(1, $traces['store-api-cache-script::response']);
         static::assertSame('some debug information', $traces['store-api-cache-script::response'][0]['output'][0]);
 
+        static::assertIsArray($response);
         static::assertArrayHasKey('apiAlias', $response);
         static::assertArrayHasKey('foo', $response);
         static::assertEquals('bar', $response['foo']);
         static::assertSame('store_api_cache_script_response', $response['apiAlias']);
 
-        static::assertFalse($this->browser->getResponse()->headers->has(ScriptStoreApiRoute::INVALIDATION_STATES_HEADER));
+        static::assertFalse($this->browser->getResponse()->headers->has(HttpCacheKeyGenerator::INVALIDATION_STATES_HEADER));
 
         $this->browser->request('GET', '/store-api/script/cache-script?query-param=1');
         static::assertNotFalse($this->browser->getResponse()->getContent());
@@ -221,12 +224,13 @@ class ScriptStoreApiRouteTest extends TestCase
         // assert that the response was cached, and thus the script was not called again
         static::assertCount(1, $traces['store-api-cache-script::response']);
 
+        static::assertIsArray($response);
         static::assertArrayHasKey('apiAlias', $response);
         static::assertArrayHasKey('foo', $response);
         static::assertEquals('bar', $response['foo']);
         static::assertSame('store_api_cache_script_response', $response['apiAlias']);
 
-        static::assertFalse($this->browser->getResponse()->headers->has(ScriptStoreApiRoute::INVALIDATION_STATES_HEADER));
+        static::assertFalse($this->browser->getResponse()->headers->has(HttpCacheKeyGenerator::INVALIDATION_STATES_HEADER));
 
         $this->browser->request('GET', '/store-api/script/cache-script?query-param=2');
         static::assertNotFalse($this->browser->getResponse()->getContent());
@@ -239,6 +243,7 @@ class ScriptStoreApiRouteTest extends TestCase
         // assert that when the query param changes the script is executed again
         static::assertCount(2, $traces['store-api-cache-script::response']);
 
+        static::assertIsArray($response);
         static::assertArrayHasKey('apiAlias', $response);
         static::assertArrayHasKey('foo', $response);
         static::assertEquals('bar', $response['foo']);
@@ -260,6 +265,7 @@ class ScriptStoreApiRouteTest extends TestCase
         static::assertCount(1, $traces['store-api-cache-script::response']);
         static::assertSame('some debug information', $traces['store-api-cache-script::response'][0]['output'][0]);
 
+        static::assertIsArray($response);
         static::assertArrayHasKey('apiAlias', $response);
         static::assertArrayHasKey('foo', $response);
         static::assertEquals('bar', $response['foo']);
@@ -276,13 +282,14 @@ class ScriptStoreApiRouteTest extends TestCase
         // assert that the response was cached, and thus the script was not called again
         static::assertCount(1, $traces['store-api-cache-script::response']);
 
+        static::assertIsArray($response);
         static::assertArrayHasKey('apiAlias', $response);
         static::assertArrayHasKey('foo', $response);
         static::assertEquals('bar', $response['foo']);
         static::assertSame('store_api_cache_script_response', $response['apiAlias']);
 
         // invalidate the custom cache tag
-        $cacheInvalidator = $this->getContainer()->get(CacheInvalidator::class);
+        $cacheInvalidator = static::getContainer()->get(CacheInvalidator::class);
         $cacheInvalidator->invalidate(['my-custom-tag'], true);
 
         $this->browser->request('GET', '/store-api/script/cache-script');
@@ -296,6 +303,7 @@ class ScriptStoreApiRouteTest extends TestCase
         // assert that when the cache tag was invalidated the script is executed again
         static::assertCount(2, $traces['store-api-cache-script::response']);
 
+        static::assertIsArray($response);
         static::assertArrayHasKey('apiAlias', $response);
         static::assertArrayHasKey('foo', $response);
         static::assertEquals('bar', $response['foo']);
@@ -317,6 +325,7 @@ class ScriptStoreApiRouteTest extends TestCase
         static::assertCount(1, $traces['store-api-cache-script::response']);
         static::assertSame('some debug information', $traces['store-api-cache-script::response'][0]['output'][0]);
 
+        static::assertIsArray($response);
         static::assertArrayHasKey('apiAlias', $response);
         static::assertArrayHasKey('foo', $response);
         static::assertEquals('bar', $response['foo']);
@@ -333,6 +342,7 @@ class ScriptStoreApiRouteTest extends TestCase
         // assert that the response was cached, and thus the script was not called again
         static::assertCount(1, $traces['store-api-cache-script::response']);
 
+        static::assertIsArray($response);
         static::assertArrayHasKey('apiAlias', $response);
         static::assertArrayHasKey('foo', $response);
         static::assertEquals('bar', $response['foo']);
@@ -352,6 +362,7 @@ class ScriptStoreApiRouteTest extends TestCase
         // assert that when the invalidation state is present the response is not cached
         static::assertCount(2, $traces['store-api-cache-script::response']);
 
+        static::assertIsArray($response);
         static::assertArrayHasKey('apiAlias', $response);
         static::assertArrayHasKey('foo', $response);
         static::assertEquals('bar', $response['foo']);

@@ -1,19 +1,20 @@
 import template from './sw-flow-grant-download-access-modal.html.twig';
 
-const { Component, Mixin } = Shopware;
+const { Component, Mixin, Store } = Shopware;
 const { ShopwareError } = Shopware.Classes;
 const { mapState } = Component.getComponentHelper();
 
 /**
  * @private
- * @package services-settings
+ * @sw-package after-sales
  */
 export default {
     template,
 
-    compatConfig: Shopware.compatConfig,
-
-    emits: ['process-finish', 'modal-close'],
+    emits: [
+        'process-finish',
+        'modal-close',
+    ],
 
     mixins: [
         Mixin.getByName('placeholder'),
@@ -53,7 +54,13 @@ export default {
             ];
         },
 
-        ...mapState('swFlowState', ['triggerEvent', 'triggerActions']),
+        ...mapState(
+            () => Store.get('swFlow'),
+            [
+                'triggerEvent',
+                'triggerActions',
+            ],
+        ),
     },
 
     watch: {

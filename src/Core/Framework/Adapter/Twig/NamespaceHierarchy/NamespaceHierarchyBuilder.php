@@ -4,7 +4,7 @@ namespace Shopware\Core\Framework\Adapter\Twig\NamespaceHierarchy;
 
 use Shopware\Core\Framework\Log\Package;
 
-#[Package('core')]
+#[Package('framework')]
 class NamespaceHierarchyBuilder
 {
     /**
@@ -16,6 +16,9 @@ class NamespaceHierarchyBuilder
     {
     }
 
+    /**
+     * @return array<string>
+     */
     public function buildHierarchy(): array
     {
         $hierarchy = [];

@@ -16,9 +16,11 @@ use Shopware\Core\Framework\Log\Package;
  * @description This event allows interception of the collection process, where a criteria list is populated using the respective CMS resolver.
  * The resulting criteria list is then used to load CMS elements during the CMS page resolution process.
  *
+ * @codeCoverageIgnore
+ *
  * @extends Extension<array<string, CriteriaCollection>>
  */
-#[Package('buyers-experience')]
+#[Package('discovery')]
 final class CmsSlotsDataCollectExtension extends Extension
 {
     public const NAME = 'cms-slots-data.collect';

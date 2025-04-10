@@ -1,7 +1,7 @@
 import { mount } from '@vue/test-utils';
 
 /**
- * @package checkout
+ * @sw-package checkout
  */
 
 const customFields = [
@@ -47,7 +47,6 @@ const customFields = [
     },
 ];
 
-
 async function createWrapper() {
     return mount(await wrapTestComponent('sw-customer-detail-base', { sync: true }), {
         global: {
@@ -60,11 +59,10 @@ async function createWrapper() {
                         };
                     },
                 },
-
             },
 
             stubs: {
-                'sw-card': {
+                'mt-card': {
                     template: '<div><slot></slot></div>',
                 },
                 'sw-customer-card': {
@@ -84,7 +82,6 @@ async function createWrapper() {
                 'sw-skeleton': true,
                 'sw-button-process': true,
                 'sw-media-collapse': true,
-                'sw-icon': true,
                 'sw-extension-component-section': true,
                 'router-link': true,
                 'sw-inheritance-switch': true,
@@ -115,7 +112,14 @@ describe('module/sw-customer/view/sw-customer-detail-base.spec.js', () => {
 
         expect(formFields).toHaveLength(6);
 
-        const [first, second, third, fourth, fifth, sixth] = formFields;
+        const [
+            first,
+            second,
+            third,
+            fourth,
+            fifth,
+            sixth,
+        ] = formFields;
 
         expect(first.attributes('customfieldposition')).toBe('1');
         expect(second.attributes('customfieldposition')).toBe('4');

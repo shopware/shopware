@@ -28,7 +28,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\UpdatedAtField;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Struct\ArrayEntity;
 
-#[Package('core')]
+#[Package('framework')]
 abstract class EntityDefinition
 {
     protected ?CompiledFieldCollection $fields = null;
@@ -54,10 +54,7 @@ abstract class EntityDefinition
      */
     protected array $extensionFields = [];
 
-    /**
-     * @var EntityDefinition|false|null
-     */
-    private $parentDefinition = false;
+    private EntityDefinition|false|null $parentDefinition = false;
 
     private string $className;
 
@@ -106,6 +103,20 @@ abstract class EntityDefinition
                 $this->fields = null;
 
                 return;
+            }
+        }
+    }
+
+    /**
+     * @internal
+     * Intended for use only in plugin lifecycle processes. Avoid using it for other cases as it can have unintended side effects.
+     */
+    final public function removeExtensions(string $namespacePrefix): void
+    {
+        foreach ($this->extensions as $key => $extension) {
+            if (\str_starts_with($extension::class, $namespacePrefix)) {
+                unset($this->extensions[$key]);
+                $this->fields = null;
             }
         }
     }

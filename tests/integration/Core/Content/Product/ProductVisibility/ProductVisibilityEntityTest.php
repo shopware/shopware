@@ -40,15 +40,15 @@ class ProductVisibilityEntityTest extends TestCase
     private string $salesChannelId2;
 
     /**
-     * @var EntityRepository
+     * @var EntityRepository<ProductVisibilityCollection>
      */
-    private $visibilityRepository;
+    private EntityRepository $visibilityRepository;
 
     protected function setUp(): void
     {
         parent::setUp();
-        $this->productRepository = $this->getContainer()->get('product.repository');
-        $this->visibilityRepository = $this->getContainer()->get('product_visibility.repository');
+        $this->productRepository = static::getContainer()->get('product.repository');
+        $this->visibilityRepository = static::getContainer()->get('product_visibility.repository');
 
         $this->salesChannelId1 = Uuid::randomHex();
         $this->salesChannelId2 = Uuid::randomHex();
@@ -177,6 +177,6 @@ class ProductVisibilityEntityTest extends TestCase
             'customerGroupId' => TestDefaults::FALLBACK_CUSTOMER_GROUP,
         ];
 
-        $this->getContainer()->get('sales_channel.repository')->create([$data], Context::createDefaultContext());
+        static::getContainer()->get('sales_channel.repository')->create([$data], Context::createDefaultContext());
     }
 }

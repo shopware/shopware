@@ -32,7 +32,7 @@ class AggregationParserTest extends TestCase
     protected function setUp(): void
     {
         parent::setUp();
-        $this->parser = $this->getContainer()->get(AggregationParser::class);
+        $this->parser = static::getContainer()->get(AggregationParser::class);
     }
 
     public function testWithUnsupportedFormat(): void
@@ -40,7 +40,7 @@ class AggregationParserTest extends TestCase
         $this->expectException(InvalidAggregationQueryException::class);
         $criteria = new Criteria();
         $this->parser->buildAggregations(
-            $this->getContainer()->get(ProductDefinition::class),
+            static::getContainer()->get(ProductDefinition::class),
             ['aggregations' => 'foo'],
             $criteria,
             new SearchRequestException()
@@ -52,7 +52,7 @@ class AggregationParserTest extends TestCase
         $criteria = new Criteria();
         $exception = new SearchRequestException();
         $this->parser->buildAggregations(
-            $this->getContainer()->get(ProductDefinition::class),
+            static::getContainer()->get(ProductDefinition::class),
             [
                 'aggregations' => [
                     [
@@ -89,7 +89,7 @@ class AggregationParserTest extends TestCase
         $criteria = new Criteria();
         $exception = new SearchRequestException();
         $this->parser->buildAggregations(
-            $this->getContainer()->get(ProductDefinition::class),
+            static::getContainer()->get(ProductDefinition::class),
             [
                 'aggregations' => [
                     [
@@ -127,7 +127,7 @@ class AggregationParserTest extends TestCase
         $exception = new SearchRequestException();
 
         $this->parser->buildAggregations(
-            $this->getContainer()->get(ProductDefinition::class),
+            static::getContainer()->get(ProductDefinition::class),
             [
                 'aggregations' => [
                     [
@@ -179,7 +179,7 @@ class AggregationParserTest extends TestCase
         $exception = new SearchRequestException();
 
         $this->parser->buildAggregations(
-            $this->getContainer()->get(ProductDefinition::class),
+            static::getContainer()->get(ProductDefinition::class),
             [
                 'aggregations' => [
                     [
@@ -229,7 +229,7 @@ class AggregationParserTest extends TestCase
         $exception = new SearchRequestException();
 
         $this->parser->buildAggregations(
-            $this->getContainer()->get(ProductDefinition::class),
+            static::getContainer()->get(ProductDefinition::class),
             [
                 'aggregations' => [
                     [
@@ -259,7 +259,7 @@ class AggregationParserTest extends TestCase
         $exception = new SearchRequestException();
 
         $this->parser->buildAggregations(
-            $this->getContainer()->get(ProductDefinition::class),
+            static::getContainer()->get(ProductDefinition::class),
             [
                 'aggregations' => [
                     [
@@ -285,7 +285,7 @@ class AggregationParserTest extends TestCase
         $expectedRanges = [['from' => 1.0, 'to' => 2.0], ['from' => 2.0, 'to' => 3.0]];
 
         $this->parser->buildAggregations(
-            $this->getContainer()->get(ProductDefinition::class),
+            static::getContainer()->get(ProductDefinition::class),
             [
                 'aggregations' => [
                     [

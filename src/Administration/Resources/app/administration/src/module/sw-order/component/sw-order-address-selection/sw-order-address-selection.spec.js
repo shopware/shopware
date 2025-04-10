@@ -1,7 +1,7 @@
 import { mount } from '@vue/test-utils';
 
 /**
- * @package customer-order
+ * @sw-package checkout
  */
 
 const { Context } = Shopware;
@@ -16,7 +16,10 @@ async function createWrapper(propsData) {
             stubs: {
                 'sw-modal': await wrapTestComponent('sw-modal'),
                 'sw-select-result': {
-                    props: ['item', 'index'],
+                    props: [
+                        'item',
+                        'index',
+                    ],
                     template: `<li :class="componentClasses" class="sw-select-result" @click.stop="onClickResult">
                         <slot></slot></li>`,
                     methods: {
@@ -39,22 +42,21 @@ async function createWrapper(propsData) {
                 'sw-popover': await wrapTestComponent('sw-popover'),
                 'sw-popover-deprecated': await wrapTestComponent('sw-popover-deprecated', { sync: true }),
                 'sw-block-field': await wrapTestComponent('sw-block-field', { sync: true }),
-                'sw-icon': await wrapTestComponent('sw-icon', { sync: true }),
                 'sw-customer-address-form': await wrapTestComponent('sw-customer-address-form'),
                 'sw-context-menu-item': await wrapTestComponent('sw-context-menu-item', { sync: true }),
-                'sw-base-field': await wrapTestComponent('sw-base-field', { sync: true }),
+                'sw-base-field': await wrapTestComponent('sw-base-field', {
+                    sync: true,
+                }),
                 'sw-container': await wrapTestComponent('sw-container'),
                 'sw-text-field': await wrapTestComponent('sw-text-field'),
                 'sw-text-field-deprecated': await wrapTestComponent('sw-text-field-deprecated', { sync: true }),
                 'sw-entity-single-select': await wrapTestComponent('sw-entity-single-select'),
                 'sw-customer-address-form-options': await wrapTestComponent('sw-customer-address-form-options'),
-                'sw-button': true,
                 'sw-loader': true,
                 'sw-inheritance-switch': true,
                 'sw-ai-copilot-badge': true,
                 'sw-help-text': true,
                 'sw-field-error': true,
-                'sw-icon-deprecated': true,
                 'router-link': true,
                 'sw-product-variant-info': true,
                 'sw-field-copyable': true,
@@ -71,22 +73,23 @@ async function createWrapper(propsData) {
                         save: () => {
                             return Promise.resolve();
                         },
-                        get: () => Promise.resolve({
-                            id: '63e27affb5804538b5b06cb4e344b130',
-                            addresses: new EntityCollection('/customer_address', 'customer_address', Context.api, null, [
-                                {
-                                    street: 'Stehr Divide',
-                                    zipcode: '64885-2245',
-                                    city: 'Faheyshire',
-                                    id: '652e9e571cc94bd898077f256dcf629f',
-                                    country: {
-                                        translated: {
-                                            name: 'Buzbach',
+                        get: () =>
+                            Promise.resolve({
+                                id: '63e27affb5804538b5b06cb4e344b130',
+                                addresses: new EntityCollection('/customer_address', 'customer_address', Context.api, null, [
+                                    {
+                                        street: 'Stehr Divide',
+                                        zipcode: '64885-2245',
+                                        city: 'Faheyshire',
+                                        id: '652e9e571cc94bd898077f256dcf629f',
+                                        country: {
+                                            translated: {
+                                                name: 'Buzbach',
+                                            },
                                         },
                                     },
-                                },
-                            ]),
-                        }),
+                                ]),
+                            }),
                         create: () => ({
                             _isNew: true,
                         }),
@@ -103,10 +106,17 @@ async function createWrapper(propsData) {
                 street: 'Denesik Bridge',
                 zipcode: '05132',
                 city: 'Bernierstad',
+                company: 'Muster SE',
+                department: 'People & Culture',
                 id: '38e8895864a649a1b2ec806dad02ab87',
                 country: {
                     translated: {
                         name: 'Buzbach',
+                    },
+                },
+                countryState: {
+                    translated: {
+                        name: 'NRW',
                     },
                 },
             },
@@ -121,30 +131,33 @@ describe('src/module/sw-order/component/sw-order-address-selection', () => {
     let wrapper;
 
     beforeAll(() => {
-        Shopware.State.registerModule('swOrderDetail', {
-            namespaced: true,
-            state: {
+        Shopware.Store.unregister('swOrderDetail');
+        Shopware.Store.register({
+            id: 'swOrderDetail',
+            state: () => ({
                 isLoading: false,
                 isSavedSuccessful: false,
                 versionContext: {},
                 order: {
-                    addresses: [{
-                        street: 'Denesik Bridge',
-                        zipcode: '05132',
-                        city: 'Bernierstad',
-                        id: '38e8895864a649a1b2ec806dad02ab87',
-                        country: {
-                            translated: {
-                                name: 'Buzbach',
+                    addresses: [
+                        {
+                            street: 'Denesik Bridge',
+                            zipcode: '05132',
+                            city: 'Bernierstad',
+                            id: '38e8895864a649a1b2ec806dad02ab87',
+                            country: {
+                                translated: {
+                                    name: 'Buzbach',
+                                },
                             },
                         },
-                    }],
+                    ],
                     billingAddressId: '38e8895864a649a1b2ec806dad02ab87',
                     orderCustomer: {
                         customerId: '63e27affb5804538b5b06cb4e344b130',
                     },
                 },
-            },
+            }),
         });
     });
 
@@ -174,20 +187,28 @@ describe('src/module/sw-order/component/sw-order-address-selection', () => {
             street: 'Denesik Bridge',
             zipcode: '05132',
             city: 'Bernierstad',
+            company: 'Muster SE',
             id: '38e8895864a649a1b2ec806dad02ab87',
             country: {
                 translated: {
                     name: 'Buzbach',
                 },
             },
+            countryState: {
+                translated: {
+                    name: 'NRW',
+                },
+            },
+            department: 'People & Culture',
         });
     });
 
     it('should be able to change the address', async () => {
         const addressSelection = wrapper.find('.sw-order-address-selection');
 
-        expect(addressSelection.find('.sw-single-select__selection-text').text())
-            .toBe('Denesik Bridge, 05132 Bernierstad, Buzbach');
+        expect(addressSelection.find('.sw-single-select__selection-text').text()).toBe(
+            'Muster SE - People & Culture, Denesik Bridge, 05132 Bernierstad, NRW, Buzbach',
+        );
 
         await addressSelection.find('.sw-select__selection').trigger('click');
         await flushPromises();
@@ -198,12 +219,14 @@ describe('src/module/sw-order/component/sw-order-address-selection', () => {
         await flushPromises();
 
         expect(wrapper.emitted('change-address')).toBeTruthy();
-        expect(wrapper.emitted('change-address')[0]).toEqual([{
-            orderAddressId: '38e8895864a649a1b2ec806dad02ab87',
-            customerAddressId: '652e9e571cc94bd898077f256dcf629f',
-            type: 'billing',
-            edited: false,
-        }]);
+        expect(wrapper.emitted('change-address')[0]).toEqual([
+            {
+                orderAddressId: '38e8895864a649a1b2ec806dad02ab87',
+                customerAddressId: '652e9e571cc94bd898077f256dcf629f',
+                type: 'billing',
+                edited: false,
+            },
+        ]);
     });
 
     it('should be able to create new address', async () => {
@@ -218,7 +241,6 @@ describe('src/module/sw-order/component/sw-order-address-selection', () => {
 
         await newAddress.find('.sw-select-result__add-new-address').trigger('click');
         await flushPromises();
-
 
         expect(wrapper.vm.currentAddress._isNew).toBe(true);
         expect(wrapper.vm.currentAddress.customerId).toBe('63e27affb5804538b5b06cb4e344b130');
@@ -236,14 +258,15 @@ describe('src/module/sw-order/component/sw-order-address-selection', () => {
         expect(list.findAll('.sw-select-result')).toHaveLength(2);
 
         const firstSelection = list.findAll('.sw-select-result').at(0).find('.sw-order-address-selection__information');
-        expect(firstSelection.findAll('p').at(1).text()).toBe('Denesik Bridge');
-        expect(firstSelection.findAll('p').at(2).text()).toBe('05132 Bernierstad');
-        expect(firstSelection.findAll('p').at(3).text()).toBe('Buzbach');
+        expect(firstSelection.findAll('p').at(1).text()).toBe('Muster SE - People & Culture');
+        expect(firstSelection.findAll('p').at(2).text()).toBe('Denesik Bridge');
+        expect(firstSelection.findAll('p').at(3).text()).toBe('05132 Bernierstad');
+        expect(firstSelection.findAll('p').at(4).text()).toBe('Buzbach');
 
         const secondSelection = list.findAll('.sw-select-result').at(1).find('.sw-order-address-selection__information');
         expect(secondSelection.findAll('p').at(1).text()).toBe('Stehr Divide');
         expect(secondSelection.findAll('p').at(2).text()).toBe('64885-2245 Faheyshire');
-        expect(firstSelection.findAll('p').at(3).text()).toBe('Buzbach');
+        expect(secondSelection.findAll('p').at(3).text()).toBe('Buzbach');
     });
 
     it('should be able to get the options with not props', async () => {

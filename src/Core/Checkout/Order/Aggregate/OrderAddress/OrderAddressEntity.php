@@ -18,112 +18,51 @@ class OrderAddressEntity extends Entity
     use EntityCustomFieldsTrait;
     use EntityIdTrait;
 
-    /**
-     * @var string
-     */
-    protected $countryId;
+    protected string $countryId;
 
-    /**
-     * @var string|null
-     */
-    protected $countryStateId;
+    protected ?string $countryStateId = null;
 
-    /**
-     * @var string|null
-     */
-    protected $salutationId;
+    protected ?string $salutationId = null;
 
-    /**
-     * @var string
-     */
-    protected $firstName;
+    protected string $firstName;
 
-    /**
-     * @var string
-     */
-    protected $lastName;
+    protected string $lastName;
 
-    /**
-     * @var string
-     */
-    protected $street;
+    protected string $street;
 
-    protected ?string $zipcode;
+    protected ?string $zipcode = null;
 
-    /**
-     * @var string
-     */
-    protected $city;
+    protected string $city;
 
-    /**
-     * @var string|null
-     */
-    protected $company;
+    protected ?string $company = null;
 
-    /**
-     * @var string|null
-     */
-    protected $department;
+    protected ?string $department = null;
 
-    /**
-     * @var string|null
-     */
-    protected $title;
+    protected ?string $title = null;
 
-    /**
-     * @var string|null
-     */
-    protected $vatId;
+    protected ?string $vatId = null;
 
-    /**
-     * @var string|null
-     */
-    protected $phoneNumber;
+    protected ?string $phoneNumber = null;
 
-    /**
-     * @var string|null
-     */
-    protected $additionalAddressLine1;
+    protected ?string $additionalAddressLine1 = null;
 
-    /**
-     * @var string|null
-     */
-    protected $additionalAddressLine2;
+    protected ?string $additionalAddressLine2 = null;
 
-    /**
-     * @var CountryEntity|null
-     */
-    protected $country;
+    protected ?CountryEntity $country = null;
 
-    /**
-     * @var CountryStateEntity|null
-     */
-    protected $countryState;
+    protected ?CountryStateEntity $countryState = null;
 
-    /**
-     * @var OrderEntity|null
-     */
-    protected $order;
+    protected ?OrderEntity $order = null;
 
-    /**
-     * @var SalutationEntity|null
-     */
-    protected $salutation;
+    protected ?SalutationEntity $salutation = null;
 
-    /**
-     * @var OrderDeliveryCollection|null
-     */
-    protected $orderDeliveries;
+    protected ?OrderDeliveryCollection $orderDeliveries = null;
 
-    /**
-     * @var string
-     */
-    protected $orderId;
+    protected string $orderId;
 
-    /**
-     * @var string
-     */
-    protected $orderVersionId;
+    protected string $orderVersionId;
+
+    protected ?string $hash;
 
     public function getCountryId(): string
     {
@@ -343,5 +282,15 @@ class OrderAddressEntity extends Entity
     public function setOrderVersionId(string $orderVersionId): void
     {
         $this->orderVersionId = $orderVersionId;
+    }
+
+    public function getHash(): ?string
+    {
+        return $this->hash;
+    }
+
+    public function setHash(string $hash): void
+    {
+        $this->hash = $hash;
     }
 }

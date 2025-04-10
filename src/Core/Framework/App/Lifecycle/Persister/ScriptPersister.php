@@ -15,7 +15,7 @@ use Shopware\Core\Framework\Script\ScriptCollection;
 /**
  * @internal only for use by the app-system
  */
-#[Package('core')]
+#[Package('framework')]
 class ScriptPersister
 {
     /**
@@ -35,12 +35,12 @@ class ScriptPersister
         $existingScripts = $app->getScripts();
         \assert($existingScripts !== null);
 
-        $scriptPaths = $this->scriptReader->getScriptPathsForApp($app->getPath());
+        $scriptPaths = $this->scriptReader->getScriptPathsForApp($app);
 
         $upserts = [];
         foreach ($scriptPaths as $scriptPath) {
             $payload = [
-                'script' => $this->scriptReader->getScriptContent($scriptPath, $app->getPath()),
+                'script' => $this->scriptReader->getScriptContent($app, $scriptPath),
             ];
 
             $existing = $existingScripts->filterByProperty('name', $scriptPath)->first();
@@ -99,6 +99,9 @@ class ScriptPersister
         $this->scriptRepository->update($updateSet, $context);
     }
 
+    /**
+     * Refresh is only called on dev to update scripts independently of the app lifecycle for better dev experience
+     */
     public function refresh(): void
     {
         $context = Context::createDefaultContext();
@@ -106,6 +109,9 @@ class ScriptPersister
         $criteria = new Criteria();
         $criteria->setTitle('app-scripts::refresh');
         $criteria->addFilter(new EqualsFilter('active', true));
+
+        // We don't automatically update service scripts, as that would do a request to the service on every request to shopware
+        $criteria->addFilter(new EqualsFilter('selfManaged', false));
 
         /** @var array<string> $appIds */
         $appIds = $this->appRepository->searchIds($criteria, $context)->getIds();

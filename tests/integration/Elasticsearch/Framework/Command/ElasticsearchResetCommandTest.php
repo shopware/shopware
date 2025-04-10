@@ -28,9 +28,9 @@ class ElasticsearchResetCommandTest extends TestCase
 
     protected function setUp(): void
     {
-        $this->refreshIndexCommand = $this->getContainer()->get(ElasticsearchResetCommand::class);
+        $this->refreshIndexCommand = static::getContainer()->get(ElasticsearchResetCommand::class);
 
-        $this->connection = $this->getContainer()->get(Connection::class);
+        $this->connection = static::getContainer()->get(Connection::class);
     }
 
     public function testExecuteWithInputNo(): void
@@ -65,6 +65,6 @@ class ElasticsearchResetCommandTest extends TestCase
 
     protected function getDiContainer(): ContainerInterface
     {
-        return $this->getContainer();
+        return static::getContainer();
     }
 }

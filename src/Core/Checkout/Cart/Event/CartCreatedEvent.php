@@ -9,14 +9,9 @@ use Symfony\Contracts\EventDispatcher\Event;
 #[Package('checkout')]
 class CartCreatedEvent extends Event implements CartEvent
 {
-    /**
-     * @var Cart
-     */
-    protected $cart;
-
-    public function __construct(Cart $cart)
-    {
-        $this->cart = $cart;
+    public function __construct(
+        protected Cart $cart
+    ) {
     }
 
     public function getCart(): Cart

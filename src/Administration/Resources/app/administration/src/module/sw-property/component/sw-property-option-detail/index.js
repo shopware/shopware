@@ -1,5 +1,5 @@
 /*
- * @package inventory
+ * @sw-package inventory
  */
 
 import template from './sw-property-option-detail.html.twig';
@@ -11,9 +11,10 @@ const { mapPropertyErrors } = Component.getComponentHelper();
 export default {
     template,
 
-    compatConfig: Shopware.compatConfig,
-
-    inject: ['repositoryFactory', 'acl'],
+    inject: [
+        'repositoryFactory',
+        'acl',
+    ],
 
     props: {
         currentOption: {
@@ -46,10 +47,7 @@ export default {
     methods: {
         onCancel() {
             // Remove all property group options
-            Shopware.State.dispatch(
-                'error/removeApiError',
-                { expression: 'property_group_option' },
-            );
+            Shopware.Store.get('error').removeApiError('property_group_option');
 
             this.$emit('cancel-option-edit', this.currentOption);
         },

@@ -2,13 +2,14 @@
 
 namespace Shopware\Core\Profiling\Integration;
 
+use DDTrace\Contracts\Tracer;
 use DDTrace\GlobalTracer;
 use Shopware\Core\Framework\Log\Package;
 
 /**
  * @internal experimental atm
  */
-#[Package('core')]
+#[Package('framework')]
 class Datadog implements ProfilerInterface
 {
     private array $spans = [];
@@ -19,13 +20,19 @@ class Datadog implements ProfilerInterface
             return;
         }
 
+        if (!interface_exists(Tracer::class)) {
+            return;
+        }
+
         if ($category !== 'shopware') {
             $category = 'shopware.' . $category;
         }
 
         /** @see \DDTrace\Tag::SERVICE_NAME */
         $tags = array_merge(['service.name' => $category], $tags);
-        $span = GlobalTracer::get()->startActiveSpan($title, [
+        /** @var Tracer */
+        $tracer = GlobalTracer::get();
+        $span = $tracer->startActiveSpan($title, [
             'tags' => $tags,
         ]);
 

@@ -14,12 +14,11 @@ use Shopware\Core\Content\Media\Cms\AbstractDefaultMediaResolver;
 use Shopware\Core\Content\Media\MediaDefinition;
 use Shopware\Core\Content\Media\MediaEntity;
 use Shopware\Core\Content\Product\Aggregate\ProductMedia\ProductMediaCollection;
-use Shopware\Core\Content\Product\Aggregate\ProductMedia\ProductMediaEntity;
 use Shopware\Core\Content\Product\ProductEntity;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Log\Package;
 
-#[Package('buyers-experience')]
+#[Package('discovery')]
 class ImageSliderTypeDataResolver extends AbstractCmsElementResolver
 {
     /**
@@ -86,7 +85,6 @@ class ImageSliderTypeDataResolver extends AbstractCmsElementResolver
             if ($sliderItems === null || (is_countable($sliderItems) ? \count($sliderItems) : 0) < 1) {
                 return;
             }
-            $this->sortItemsByPosition($sliderItems);
 
             if ($sliderItemsConfig->getStringValue() === 'product.media') {
                 /** @var ProductEntity $productEntity */
@@ -107,15 +105,6 @@ class ImageSliderTypeDataResolver extends AbstractCmsElementResolver
                 $imageSlider->addSliderItem($imageSliderItem);
             }
         }
-    }
-
-    protected function sortItemsByPosition(ProductMediaCollection $sliderItems): void
-    {
-        if (!$sliderItems->first() || !$sliderItems->first()->has('position')) {
-            return;
-        }
-
-        $sliderItems->sort(static fn (ProductMediaEntity $a, ProductMediaEntity $b) => $a->get('position') - $b->get('position'));
     }
 
     /**

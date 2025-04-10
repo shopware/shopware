@@ -7,14 +7,14 @@ use Shopware\Core\Framework\HttpException;
 use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\HttpFoundation\Response;
 
-#[Package('buyers-experience')]
+#[Package('discovery')]
 class CmsException extends HttpException
 {
     final public const DELETION_OF_DEFAULT_CODE = 'CONTENT__DELETION_DEFAULT_CMS_PAGE';
-
     final public const OVERALL_DEFAULT_SYSTEM_CONFIG_DELETION_CODE = 'CONTENT__DELETION_OVERALL_DEFAULT_CMS_PAGE';
-
     final public const INVALID_FIELD_CONFIG_SOURCE_CODE = 'CONTENT__INVALID_FIELD_CONFIG_SOURCE';
+    final public const CMS_PAGE_NOT_FOUND = 'CONTENT__CMS_PAGE_NOT_FOUND';
+    final public const UNEXPECTED_VALUE_TYPE = 'CONTENT__CMS_UNEXPECTED_VALUE_TYPE';
 
     /**
      * @param array<string> $cmsPages
@@ -54,5 +54,32 @@ class CmsException extends HttpException
     public static function duplicateCriteriaKey(string $key): self
     {
         return new DuplicateCriteriaKeyException($key);
+    }
+
+    public static function pageNotFound(string $pageId): self
+    {
+        return new self(
+            Response::HTTP_NOT_FOUND,
+            self::CMS_PAGE_NOT_FOUND,
+            'Page with ID "{{ pageId }}" was not found.',
+            ['pageId' => $pageId]
+        );
+    }
+
+    public static function unexpectedFieldConfigValueType(
+        string $fieldConfigName,
+        string $expectedType,
+        string $givenType
+    ): self {
+        return new self(
+            Response::HTTP_INTERNAL_SERVER_ERROR,
+            self::UNEXPECTED_VALUE_TYPE,
+            'Expected to load value of "{{ fieldConfigName }}" with type "{{ expectedType }}", but value with type "{{ givenType }}" given.',
+            [
+                'fieldConfigName' => $fieldConfigName,
+                'expectedType' => $expectedType,
+                'givenType' => $givenType,
+            ]
+        );
     }
 }

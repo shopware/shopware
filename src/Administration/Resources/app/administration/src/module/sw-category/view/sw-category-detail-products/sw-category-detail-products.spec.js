@@ -1,5 +1,5 @@
 /**
- * @package inventory
+ * @sw-package discovery
  */
 import { mount } from '@vue/test-utils';
 
@@ -15,7 +15,10 @@ const categoryMock = {
 
 const productStreamMock = {
     name: 'Very cheap pc parts',
-    apiFilter: ['foo', 'bar'],
+    apiFilter: [
+        'foo',
+        'bar',
+    ],
     invalid: false,
 };
 
@@ -23,12 +26,9 @@ async function createWrapper() {
     return mount(await wrapTestComponent('sw-category-detail-products', { sync: true }), {
         global: {
             stubs: {
-                'sw-icon': true,
-                'sw-card': true,
                 'router-link': true,
                 'sw-container': true,
                 'sw-text-field': true,
-                'sw-switch-field': true,
                 'sw-single-select': true,
                 'sw-many-to-many-assignment-card': {
                     template: `
@@ -43,9 +43,6 @@ async function createWrapper() {
                 },
                 'sw-entity-single-select': {
                     template: '<div class="sw-entity-single-select"></div>',
-                },
-                'sw-alert': {
-                    template: '<div class="sw-alert"><slot></slot></div>',
                 },
                 'sw-product-variant-info': true,
                 'sw-empty-state': true,
@@ -72,22 +69,16 @@ async function createWrapper() {
 
 describe('module/sw-category/view/sw-category-detail-products.spec', () => {
     beforeEach(async () => {
-        if (Shopware.State.get('swCategoryDetail')) {
-            Shopware.State.unregisterModule('swCategoryDetail');
-        }
-
-        Shopware.State.registerModule('swCategoryDetail', {
-            namespaced: true,
-            state: {
-                category: categoryMock,
-            },
-        });
+        Shopware.Store.get('swCategoryDetail').$reset();
+        Shopware.Store.get('swCategoryDetail').category = categoryMock;
     });
 
     it('should render stream select when changing the assignment type to stream', async () => {
         const wrapper = await createWrapper();
 
-        await wrapper.getComponent('.sw-category-detail-products__product-assignment-type-select').vm.$emit('update:value', 'product_stream');
+        await wrapper
+            .getComponent('.sw-category-detail-products__product-assignment-type-select')
+            .vm.$emit('update:value', 'product_stream');
 
         // Ensure default select is replaced with stream select inside `select` slot
         expect(wrapper.find('.sw-entity-many-to-many-select').exists()).toBeFalsy();
@@ -111,13 +102,16 @@ describe('module/sw-category/view/sw-category-detail-products.spec', () => {
     it('should show message when assignment type is product stream and products are manually assigned', async () => {
         const wrapper = await createWrapper();
 
-        await wrapper.getComponent('.sw-category-detail-products__product-assignment-type-select').vm.$emit('update:value', 'product_stream');
+        await wrapper
+            .getComponent('.sw-category-detail-products__product-assignment-type-select')
+            .vm.$emit('update:value', 'product_stream');
         await wrapper.setData({
             manualAssignedProductsCount: 5,
         });
 
-        expect(wrapper.find('.sw-alert').text())
-            .toBe('sw-category.base.products.alertManualAssignedProductsOnAssignmentTypeStream');
+        expect(wrapper.find('[role="banner"]').text()).toBe(
+            'sw-category.base.products.alertManualAssignedProductsOnAssignmentTypeStream',
+        );
     });
 
     it('should have correct default assignment types', async () => {
@@ -136,10 +130,15 @@ describe('module/sw-category/view/sw-category-detail-products.spec', () => {
             manualAssignedProductsCount: 5,
         });
 
-        await wrapper.getComponent('.sw-category-detail-products__product-stream-select').vm.$emit('update:value', 'some_product_stream_id');
+        await wrapper
+            .getComponent('.sw-category-detail-products__product-stream-select')
+            .vm.$emit('update:value', 'some_product_stream_id');
         await wrapper.vm.$nextTick();
 
-        expect(wrapper.vm.productStreamFilter).toEqual(['foo', 'bar']);
+        expect(wrapper.vm.productStreamFilter).toEqual([
+            'foo',
+            'bar',
+        ]);
         expect(wrapper.vm.productStreamInvalid).toBe(false);
     });
 });

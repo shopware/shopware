@@ -1,5 +1,5 @@
 /**
- * @package buyers-experience
+ * @sw-package discovery
  */
 
 import { mount } from '@vue/test-utils';
@@ -41,12 +41,22 @@ const productsMock = [
     },
 ];
 
+let repositoryFactoryMock;
+
 async function createWrapper() {
+    repositoryFactoryMock = {
+        search: () => {
+            return Promise.resolve();
+        },
+        get: () => {
+            return Promise.resolve();
+        },
+    };
+
     return mount(await wrapTestComponent('sw-sales-channel-products-assignment-dynamic-product-groups', { sync: true }), {
         global: {
             stubs: {
-                'sw-alert': true,
-                'sw-card': {
+                'mt-card': {
                     template: '<div><slot></slot><slot name="grid"></slot></div>',
                 },
                 'sw-card-section': true,
@@ -58,14 +68,7 @@ async function createWrapper() {
             provide: {
                 repositoryFactory: {
                     create: () => {
-                        return {
-                            search: () => {
-                                return Promise.resolve();
-                            },
-                            get: () => {
-                                return Promise.resolve();
-                            },
-                        };
+                        return repositoryFactoryMock;
                     },
                 },
             },
@@ -130,9 +133,7 @@ describe('src/module/sw-sales-channel/component/sw-sales-channel-products-assign
 
         await wrapper.vm.getProductStreams();
 
-        expect(wrapper.vm.productStreams).toEqual(
-            expect.arrayContaining([]),
-        );
+        expect(wrapper.vm.productStreams).toEqual(expect.arrayContaining([]));
         expect(wrapper.vm.total).toBe(0);
 
         wrapper.vm.productStreamRepository.search.mockRestore();
@@ -208,7 +209,10 @@ describe('src/module/sw-sales-channel/component/sw-sales-channel-products-assign
 
         expect(wrapper.vm.getProductsFromProductStreams).toHaveBeenCalledTimes(1);
         expect(wrapper.emitted()['selection-change'][0]).toEqual(
-            expect.arrayContaining([productsMock, 'groupProducts']),
+            expect.arrayContaining([
+                productsMock,
+                'groupProducts',
+            ]),
         );
 
         wrapper.vm.getProductsFromProductStreams.mockRestore();
@@ -225,9 +229,7 @@ describe('src/module/sw-sales-channel/component/sw-sales-channel-products-assign
         await wrapper.vm.onSelect({ 1: productStreamsMock[0] });
 
         expect(wrapper.vm.getProductsFromProductStreams).toHaveBeenCalledTimes(1);
-        expect(wrapper.vm.createNotificationError).toHaveBeenCalledWith(
-            expect.objectContaining({ message: 'Whoops!' }),
-        );
+        expect(wrapper.vm.createNotificationError).toHaveBeenCalledWith(expect.objectContaining({ message: 'Whoops!' }));
 
         wrapper.vm.getProductsFromProductStreams.mockRestore();
         wrapper.vm.createNotificationError.mockRestore();
@@ -239,7 +241,10 @@ describe('src/module/sw-sales-channel/component/sw-sales-channel-products-assign
         wrapper.vm.onSelect({});
 
         expect(wrapper.emitted()['selection-change'][0]).toEqual(
-            expect.arrayContaining([[], 'groupProducts']),
+            expect.arrayContaining([
+                [],
+                'groupProducts',
+            ]),
         );
     });
 
@@ -269,11 +274,13 @@ describe('src/module/sw-sales-channel/component/sw-sales-channel-products-assign
             return Promise.reject(new Error('Whoops!'));
         });
 
-
-        expect((await getError(
-            wrapper.vm.getProductsFromProductStreams,
-            { 1: productStreamsMock[0] },
-        )).message).toBe('Whoops!');
+        expect(
+            (
+                await getError(wrapper.vm.getProductsFromProductStreams, {
+                    1: productStreamsMock[0],
+                })
+            ).message,
+        ).toBe('Whoops!');
 
         wrapper.vm.getProducts.mockRestore();
     });
@@ -281,7 +288,11 @@ describe('src/module/sw-sales-channel/component/sw-sales-channel-products-assign
     it('should get product stream filter successful', async () => {
         const wrapper = await createWrapper();
 
-        const productStreamFilterMock = { operator: 'OR', queries: [], type: 'multi' };
+        const productStreamFilterMock = {
+            operator: 'OR',
+            queries: [],
+            type: 'multi',
+        };
 
         wrapper.vm.productStreamRepository.get = jest.fn(() => {
             return Promise.resolve({
@@ -309,14 +320,9 @@ describe('src/module/sw-sales-channel/component/sw-sales-channel-products-assign
             throw new Error('Whoops!');
         });
 
-        expect((await getError(
-            wrapper.vm.getProductStreamFilter,
-            1,
-        )).message).toBe('Whoops!');
+        expect((await getError(wrapper.vm.getProductStreamFilter, 1)).message).toBe('Whoops!');
 
-        expect(wrapper.vm.productStreamFilter).toEqual(
-            expect.arrayContaining([]),
-        );
+        expect(wrapper.vm.productStreamFilter).toEqual(expect.arrayContaining([]));
 
         wrapper.vm.productStreamRepository.get.mockRestore();
     });
@@ -347,9 +353,7 @@ describe('src/module/sw-sales-channel/component/sw-sales-channel-products-assign
             throw new Error('Whoops!');
         });
 
-        expect((await getError(
-            wrapper.vm.getProducts,
-        )).message).toBe('Whoops!');
+        expect((await getError(wrapper.vm.getProducts)).message).toBe('Whoops!');
 
         wrapper.vm.productRepository.search.mockRestore();
     });

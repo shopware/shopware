@@ -2,15 +2,16 @@ import template from './sw-plugin-box.html.twig';
 import './sw-plugin-box.scss';
 
 /**
- * @package checkout
+ * @sw-package checkout
  */
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default {
     template,
 
-    compatConfig: Shopware.compatConfig,
-
-    inject: ['systemConfigApiService', 'repositoryFactory'],
+    inject: [
+        'systemConfigApiService',
+        'repositoryFactory',
+    ],
 
     props: {
         pluginId: {
@@ -18,7 +19,6 @@ export default {
             required: true,
         },
     },
-
 
     data() {
         return {
@@ -51,18 +51,20 @@ export default {
 
     methods: {
         createdComponent() {
-            this.pluginRepository.get(this.pluginId)
-                .then((plugin) => {
-                    this.plugin = plugin;
-                });
+            this.pluginRepository.get(this.pluginId).then((plugin) => {
+                this.plugin = plugin;
+            });
         },
 
         checkPluginConfig() {
-            this.systemConfigApiService.checkConfig(`${this.plugin.name}.config`).then((response) => {
-                this.hasPluginConfig = response;
-            }).catch(() => {
-                this.hasPluginConfig = false;
-            });
+            this.systemConfigApiService
+                .checkConfig(`${this.plugin.name}.config`)
+                .then((response) => {
+                    this.hasPluginConfig = response;
+                })
+                .catch(() => {
+                    this.hasPluginConfig = false;
+                });
         },
     },
 };

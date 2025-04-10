@@ -1,7 +1,7 @@
 import template from './sw-settings-payment-create.html.twig';
 
 /**
- * @package checkout
+ * @sw-package checkout
  */
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default {
@@ -9,8 +9,8 @@ export default {
 
     methods: {
         createdComponent() {
-            if (!Shopware.State.getters['context/isSystemDefaultLanguage']) {
-                Shopware.State.commit('context/resetLanguageToDefault');
+            if (!Shopware.Store.get('context').isSystemDefaultLanguage) {
+                Shopware.Store.get('context').resetLanguageToDefault();
             }
 
             this.paymentMethod = this.paymentMethodRepository.create();
@@ -18,7 +18,10 @@ export default {
 
         onSave() {
             this.$super('onSave').then(() => {
-                this.$router.push({ name: 'sw.settings.payment.detail', params: { id: this.paymentMethod.id } });
+                this.$router.push({
+                    name: 'sw.settings.payment.detail',
+                    params: { id: this.paymentMethod.id },
+                });
             });
         },
     },

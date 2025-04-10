@@ -4,9 +4,10 @@ namespace Shopware\Core\Framework\Routing;
 
 use Shopware\Core\Framework\HttpException;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\Routing\Exception\CustomerNotLoggedInRoutingException;
 use Symfony\Component\HttpFoundation\Response;
 
-#[Package('core')]
+#[Package('framework')]
 class RoutingException extends HttpException
 {
     public const MISSING_REQUEST_PARAMETER_CODE = 'FRAMEWORK__MISSING_REQUEST_PARAMETER';
@@ -14,6 +15,9 @@ class RoutingException extends HttpException
     public const APP_INTEGRATION_NOT_FOUND = 'FRAMEWORK__APP_INTEGRATION_NOT_FOUND';
     public const LANGUAGE_NOT_FOUND = 'FRAMEWORK__LANGUAGE_NOT_FOUND';
     public const SALES_CHANNEL_MAINTENANCE_MODE = 'FRAMEWORK__ROUTING_SALES_CHANNEL_MAINTENANCE';
+
+    public const CUSTOMER_NOT_LOGGED_IN_CODE = 'FRAMEWORK__ROUTING_CUSTOMER_NOT_LOGGED_IN';
+    public const ACCESS_DENIED_FOR_XML_HTTP_REQUEST = 'FRAMEWORK__ACCESS_DENIED_FOR_XML_HTTP_REQUEST';
 
     public static function invalidRequestParameter(string $name): self
     {
@@ -52,6 +56,24 @@ class RoutingException extends HttpException
             self::APP_INTEGRATION_NOT_FOUND,
             self::$couldNotFindMessage,
             ['entity' => 'app integration', 'field' => 'id', 'value' => $integrationId]
+        );
+    }
+
+    public static function customerNotLoggedIn(): CustomerNotLoggedInRoutingException
+    {
+        return new CustomerNotLoggedInRoutingException(
+            Response::HTTP_FORBIDDEN,
+            self::CUSTOMER_NOT_LOGGED_IN_CODE,
+            'Customer is not logged in.'
+        );
+    }
+
+    public static function accessDeniedForXmlHttpRequest(): self
+    {
+        return new self(
+            Response::HTTP_FORBIDDEN,
+            self::ACCESS_DENIED_FOR_XML_HTTP_REQUEST,
+            'PageController can\'t be requested via XmlHttpRequest.'
         );
     }
 }

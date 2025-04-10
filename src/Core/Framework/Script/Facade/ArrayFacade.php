@@ -8,7 +8,6 @@ use Shopware\Core\Framework\Log\Package;
  * The ArrayFacade acts as a wrapper around an array and allows easier manipulation of arrays inside scripts.
  * An array facade can also be accessed like a "normal" array inside twig.
  * Examples:
- * {% raw %}
  * ```twig
  * {% do array.push('test') %}
  *
@@ -20,14 +19,13 @@ use Shopware\Core\Framework\Log\Package;
  *
  * {% foreach array as key => value %}
  * ```
- * {% endraw %}
  *
  * @script-service miscellaneous
  *
  * @implements \ArrayAccess<array-key, string|int|float|array|object|bool|null>
  * @implements \IteratorAggregate<array-key, string|int|float|array|object|bool|null>
  */
-#[Package('core')]
+#[Package('framework')]
 class ArrayFacade implements \IteratorAggregate, \ArrayAccess, \Countable
 {
     private readonly ?\Closure $closure;

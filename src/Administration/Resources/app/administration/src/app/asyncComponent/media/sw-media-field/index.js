@@ -7,7 +7,7 @@ const { Criteria } = Shopware.Data;
 /**
  * @status ready
  * @description The <u>sw-media-field</u> component is used to bind your
- * @package content
+ * @sw-package discovery
  * @example-type code-only
  * @component-example
  * <sw-media-field v-model="manufacturer.mediaId"></sw-media-field>
@@ -16,9 +16,10 @@ const { Criteria } = Shopware.Data;
 export default {
     template,
 
-    compatConfig: Shopware.compatConfig,
-
-    inject: ['repositoryFactory', 'feature'],
+    inject: [
+        'repositoryFactory',
+        'feature',
+    ],
 
     emits: ['update:value'],
 
@@ -94,27 +95,23 @@ export default {
         },
 
         toggleButtonLabel() {
-            return this.showUploadField ?
-                this.$tc('global.sw-media-field.labelToggleSearchExisting') :
-                this.$tc('global.sw-media-field.labelToggleUploadNew');
+            return this.showUploadField
+                ? this.$tc('global.sw-media-field.labelToggleSearchExisting')
+                : this.$tc('global.sw-media-field.labelToggleUploadNew');
         },
 
         suggestionCriteria() {
             const criteria = new Criteria(this.page, this.limit);
 
-            criteria.addFilter(Criteria.not(
-                'AND',
-                [Criteria.equals('uploadedAt', null)],
-            ));
+            criteria.addFilter(Criteria.not('AND', [Criteria.equals('uploadedAt', null)]));
 
             if (this.searchTerm) {
-                criteria.addFilter(Criteria.multi(
-                    'OR',
-                    [
+                criteria.addFilter(
+                    Criteria.multi('OR', [
                         Criteria.contains('fileName', this.searchTerm),
                         Criteria.contains('fileExtension', this.searchTerm),
-                    ],
-                ));
+                    ]),
+                );
             }
 
             if (this.defaultFolder) {

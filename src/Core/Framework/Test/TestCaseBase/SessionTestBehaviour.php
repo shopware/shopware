@@ -27,7 +27,7 @@ trait SessionTestBehaviour
     public function getSession(): SessionInterface
     {
         /** @var SessionFactoryInterface $factory */
-        $factory = $this->getContainer()->get('session.factory');
+        $factory = static::getContainer()->get('session.factory');
 
         return $factory->createSession();
     }

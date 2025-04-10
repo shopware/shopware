@@ -31,7 +31,7 @@ class Migration1720094363AddStateForeignKeyToOrderTest extends TestCase
 
     protected function setUp(): void
     {
-        $this->connection = $this->getContainer()->get(Connection::class);
+        $this->connection = static::getContainer()->get(Connection::class);
     }
 
     public function testMigrate(): void
@@ -39,8 +39,8 @@ class Migration1720094363AddStateForeignKeyToOrderTest extends TestCase
         try {
             $this->rollback();
 
-            $initialState = $this->getContainer()->get(InitialStateIdLoader::class)->get('order.state');
-            $otherState = $this->getContainer()->get(StateMachineRegistry::class)->getStateMachine(OrderStates::STATE_MACHINE, Context::createDefaultContext())->getStates()?->filter(function (StateMachineStateEntity $state) use ($initialState) {
+            $initialState = static::getContainer()->get(InitialStateIdLoader::class)->get('order.state');
+            $otherState = static::getContainer()->get(StateMachineRegistry::class)->getStateMachine(OrderStates::STATE_MACHINE, Context::createDefaultContext())->getStates()?->filter(function (StateMachineStateEntity $state) use ($initialState) {
                 return $state->getId() !== $initialState;
             })->first()?->getId() ?? Uuid::randomHex();
             $invalidState = Uuid::randomHex();
@@ -82,7 +82,7 @@ class Migration1720094363AddStateForeignKeyToOrderTest extends TestCase
 
     private function createOrder(string $orderStateId): string
     {
-        $this->connection->executeStatement(<<<SQL
+        $this->connection->executeStatement(<<<'SQL'
             INSERT INTO `order` SET
                 id = :orderId,
                 version_id = :defaultVersion,
@@ -115,7 +115,7 @@ class Migration1720094363AddStateForeignKeyToOrderTest extends TestCase
      */
     private function getStateCount(): array
     {
-        return $this->connection->fetchAllKeyValue(<<<SQL
+        return $this->connection->fetchAllKeyValue(<<<'SQL'
             SELECT HEX(state_id), COUNT(*) as count FROM `order` GROUP BY state_id;
         SQL);
     }

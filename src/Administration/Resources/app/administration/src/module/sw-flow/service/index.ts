@@ -5,11 +5,11 @@ const { Application } = Shopware;
 
 /**
  * @private
- * @package services-settings
+ * @sw-package after-sales
  */
 declare global {
     interface ServiceContainer extends SubContainer<'service'> {
-        flowBuilderService: FlowBuilderService,
+        flowBuilderService: FlowBuilderService;
     }
 }
 

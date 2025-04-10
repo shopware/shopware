@@ -5,13 +5,11 @@ const { Context } = Shopware;
 const { Criteria } = Shopware.Data;
 
 /**
- * @package content
+ * @sw-package discovery
  */
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default {
     template,
-
-    compatConfig: Shopware.compatConfig,
 
     inject: [
         'filterItems',
@@ -95,7 +93,10 @@ export default {
             if (child.id === null) {
                 this.parentFolder = null;
             } else if (child.parentId === null) {
-                this.parentFolder = { id: null, name: this.$tc('sw-media.index.rootFolderName') };
+                this.parentFolder = {
+                    id: null,
+                    name: this.$tc('sw-media.index.rootFolderName'),
+                };
             } else {
                 this.parentFolder = await this.mediaFolderRepository.get(child.parentId, Context.api);
             }

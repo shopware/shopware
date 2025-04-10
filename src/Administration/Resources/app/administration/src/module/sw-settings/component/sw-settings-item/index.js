@@ -1,5 +1,5 @@
 /**
- * @package services-settings
+ * @sw-package framework
  */
 import template from './sw-settings-item.html.twig';
 import './sw-settings-item.scss';
@@ -7,8 +7,6 @@ import './sw-settings-item.scss';
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default {
     template,
-
-    compatConfig: Shopware.compatConfig,
 
     props: {
         label: {
@@ -26,12 +24,6 @@ export default {
             required: false,
             type: Boolean,
             default: false,
-        },
-        backgroundEnabled: {
-            required: false,
-            type: Boolean,
-            // eslint-disable-next-line vue/no-boolean-default
-            default: true,
         },
     },
 

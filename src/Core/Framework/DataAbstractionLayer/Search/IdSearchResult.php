@@ -10,7 +10,7 @@ use Shopware\Core\Framework\Struct\Struct;
 /**
  * @final
  */
-#[Package('core')]
+#[Package('framework')]
 class IdSearchResult extends Struct
 {
     use StateAwareTrait;
@@ -18,12 +18,12 @@ class IdSearchResult extends Struct
     /**
      * @var array<string, array<string, mixed>>
      */
-    protected $data;
+    protected array $data;
 
     /**
      * @var list<string>|list<array<string, string>>
      */
-    protected $ids;
+    protected array $ids;
 
     /**
      * @param array<array<string, mixed>> $data

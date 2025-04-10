@@ -10,26 +10,16 @@ use Shopware\Core\SalesChannelRequest;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\RequestStack;
 
-#[Package('storefront')]
+#[Package('framework')]
 class MaintenanceModeResolver
 {
     /**
-     * @var RequestStack
-     */
-    protected $requestStack;
-
-    /**
-     * @var CoreMaintenanceModeResolver
-     */
-    protected $maintenanceModeResolver;
-
-    /**
      * @internal
      */
-    public function __construct(RequestStack $requestStack, CoreMaintenanceModeResolver $maintenanceModeResolver)
-    {
-        $this->requestStack = $requestStack;
-        $this->maintenanceModeResolver = $maintenanceModeResolver;
+    public function __construct(
+        protected RequestStack $requestStack,
+        protected CoreMaintenanceModeResolver $maintenanceModeResolver,
+    ) {
     }
 
     /**

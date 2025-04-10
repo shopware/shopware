@@ -1,3 +1,7 @@
+/**
+ * @sw-package framework
+ */
+
 import template from './sw-date-filter.html.twig';
 import './sw-date-filter.scss';
 
@@ -9,8 +13,6 @@ const { Criteria } = Shopware.Data;
  */
 Component.register('sw-date-filter', {
     template,
-
-    compatConfig: Shopware.compatConfig,
 
     inject: ['feature'],
 
@@ -70,7 +72,14 @@ Component.register('sw-date-filter', {
 
     computed: {
         dateType() {
-            if (['time', 'date', 'datetime', 'datetime-local'].includes(this.filter.dateType)) {
+            if (
+                [
+                    'time',
+                    'date',
+                    'datetime',
+                    'datetime-local',
+                ].includes(this.filter.dateType)
+            ) {
                 return this.filter.dateType;
             }
 
@@ -160,7 +169,9 @@ Component.register('sw-date-filter', {
                 lte: to.toISOString(),
             };
 
-            const filterCriteria = [Criteria.range(this.filter.property, params)];
+            const filterCriteria = [
+                Criteria.range(this.filter.property, params),
+            ];
 
             this.dateValue = {
                 from: params.gte,
@@ -182,17 +193,10 @@ Component.register('sw-date-filter', {
 
         getPreviousQuarterDates() {
             const date = new Date();
-            const quarter = Math.floor((date.getMonth() / 3));
+            const quarter = Math.floor(date.getMonth() / 3);
 
             const startDate = new Date(date.getFullYear(), quarter * 3 - 3, 1);
-            const endDate = new Date(
-                date.getFullYear(),
-                startDate.getMonth() + 3,
-                0,
-                23,
-                59,
-                59,
-            );
+            const endDate = new Date(date.getFullYear(), startDate.getMonth() + 3, 0, 23, 59, 59);
 
             return {
                 startDate: startDate,

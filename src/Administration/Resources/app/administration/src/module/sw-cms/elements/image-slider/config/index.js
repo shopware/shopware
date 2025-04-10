@@ -2,17 +2,18 @@ import template from './sw-cms-el-config-image-slider.html.twig';
 import './sw-cms-el-config-image-slider.scss';
 
 const { Mixin } = Shopware;
-const { moveItem, object: { cloneDeep } } = Shopware.Utils;
+const {
+    moveItem,
+    object: { cloneDeep },
+} = Shopware.Utils;
 const Criteria = Shopware.Data.Criteria;
 
 /**
  * @private
- * @package buyers-experience
+ * @sw-package discovery
  */
 export default {
     template,
-
-    compatConfig: Shopware.compatConfig,
 
     inject: ['repositoryFactory'],
 
@@ -60,6 +61,73 @@ export default {
         autoplayTimeoutDefault() {
             return this.cmsService.getCmsElementConfigByName('image-slider').defaultConfig.autoplayTimeout.value;
         },
+
+        displayModeValueOptions() {
+            return [
+                {
+                    value: 'standard',
+                    label: this.$tc('sw-cms.elements.general.config.label.displayModeStandard'),
+                },
+                {
+                    value: 'contain',
+                    label: this.$tc('sw-cms.elements.general.config.label.displayModeContain'),
+                },
+                {
+                    value: 'cover',
+                    label: this.$tc('sw-cms.elements.general.config.label.displayModeCover'),
+                },
+            ];
+        },
+        verticalAlignValueOptions() {
+            return [
+                {
+                    value: 'flex-start',
+                    label: this.$tc('sw-cms.elements.general.config.label.verticalAlignTop'),
+                },
+                {
+                    value: 'center',
+                    label: this.$tc('sw-cms.elements.general.config.label.verticalAlignCenter'),
+                },
+                {
+                    value: 'flex-end',
+                    label: this.$tc('sw-cms.elements.general.config.label.verticalAlignBottom'),
+                },
+            ];
+        },
+
+        navigationArrowsValueOptions() {
+            return [
+                {
+                    value: 'none',
+                    label: this.$tc('sw-cms.elements.imageSlider.config.label.navigationPositionNone'),
+                },
+                {
+                    value: 'inside',
+                    label: this.$tc('sw-cms.elements.imageSlider.config.label.navigationPositionInside'),
+                },
+                {
+                    value: 'outside',
+                    label: this.$tc('sw-cms.elements.imageSlider.config.label.navigationPositionOutside'),
+                },
+            ];
+        },
+
+        navigationDotsValueOptions() {
+            return [
+                {
+                    value: 'none',
+                    label: this.$tc('sw-cms.elements.imageSlider.config.label.navigationPositionNone'),
+                },
+                {
+                    value: 'inside',
+                    label: this.$tc('-cms.elements.imageSlider.config.label.navigationPositionInside'),
+                },
+                {
+                    value: 'outside',
+                    label: this.$tc('sw-cms.elements.imageSlider.config.label.navigationPositionOutside'),
+                },
+            ];
+        },
     },
 
     created() {
@@ -84,9 +152,11 @@ export default {
 
                 const searchResult = await this.mediaRepository.search(criteria);
 
-                this.mediaItems = mediaIds.map((mediaId) => {
-                    return searchResult.get(mediaId);
-                }).filter((mediaItem) => mediaItem !== null);
+                this.mediaItems = mediaIds
+                    .map((mediaId) => {
+                        return searchResult.get(mediaId);
+                    })
+                    .filter((mediaItem) => mediaItem !== null);
 
                 this.element.config.sliderItems.value.forEach((item, i) => {
                     if (searchResult.get(item.mediaId) === null) {
@@ -136,17 +206,13 @@ export default {
             const key = mediaItem.id;
             const { value } = this.element.config.sliderItems;
 
-            this.element.config.sliderItems.value = value.filter(
-                (item, i) => {
-                    return (item.mediaId !== key || i !== index);
-                },
-            );
+            this.element.config.sliderItems.value = value.filter((item, i) => {
+                return item.mediaId !== key || i !== index;
+            });
 
-            this.mediaItems = this.mediaItems.filter(
-                (item, i) => {
-                    return (item.id !== key || i !== index);
-                },
-            );
+            this.mediaItems = this.mediaItems.filter((item, i) => {
+                return item.id !== key || i !== index;
+            });
 
             this.updateMediaDataValue();
             this.emitUpdateEl();
@@ -199,20 +265,12 @@ export default {
                 });
 
                 if (!this.element.data) {
-                    if (this.isCompatEnabled('INSTANCE_SET')) {
-                        this.$set(this.element, 'data', { sliderItems });
-                    } else {
-                        this.element.data = { sliderItems };
-                    }
+                    this.element.data = { sliderItems };
 
                     return;
                 }
 
-                if (this.isCompatEnabled('INSTANCE_SET')) {
-                    this.$set(this.element.data, 'sliderItems', sliderItems);
-                } else {
-                    this.element.data.sliderItems = sliderItems;
-                }
+                this.element.data.sliderItems = sliderItems;
             }
         },
 
@@ -244,6 +302,12 @@ export default {
         },
 
         emitUpdateEl() {
+            this.$emit('element-update', this.element);
+        },
+
+        onChangeIsDecorative(value) {
+            this.element.config.isDecorative.value = value;
+
             this.$emit('element-update', this.element);
         },
     },

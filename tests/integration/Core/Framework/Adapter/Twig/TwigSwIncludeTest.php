@@ -134,23 +134,23 @@ class TwigSwIncludeTest extends TestCase
         $twig = new TwigEnvironment($loader, ['cache' => false]);
 
         $kernel = $this->createMock(Kernel::class);
-        $kernel->expects(static::any())
+        $kernel->expects($this->any())
             ->method('getBundles')
             ->willReturn($bundles);
 
         $scopeDetector = $this->createMock(TemplateScopeDetector::class);
-        $scopeDetector->expects(static::any())
+        $scopeDetector->expects($this->any())
             ->method('getScopes')
             ->willReturn([TemplateScopeDetector::DEFAULT_SCOPE]);
 
         $templateFinder = new TemplateFinder(
             $twig,
             $loader,
-            $this->getContainer()->getParameter('kernel.cache_dir') . '/' . microtime(),
+            static::getContainer()->getParameter('kernel.cache_dir') . '/' . microtime(),
             new NamespaceHierarchyBuilder([
                 new BundleHierarchyBuilder(
                     $kernel,
-                    $this->getContainer()->get(Connection::class)
+                    static::getContainer()->get(Connection::class)
                 ),
             ]),
             $scopeDetector,

@@ -2,7 +2,7 @@ import template from './sw-theme-modal.html.twig';
 import './sw-theme-modal.scss';
 
 /**
- * @package buyers-experience
+ * @package discovery
  */
 
 const { Component, Mixin } = Shopware;
@@ -16,6 +16,14 @@ Component.register('sw-theme-modal', {
     mixins: [
         Mixin.getByName('listing')
     ],
+
+    props: {
+        selectedThemeId: {
+            type: String,
+            default: null,
+            required: false,
+        },
+    },
 
     data() {
         return {
@@ -35,7 +43,15 @@ Component.register('sw-theme-modal', {
         }
     },
 
+    created() {
+        this.createdComponent();
+    },
+
     methods: {
+        createdComponent() {
+            this.selected = this.selectedThemeId;
+        },
+
         getList() {
             this.isLoading = true;
             const criteria = new Criteria(this.page, this.limit);

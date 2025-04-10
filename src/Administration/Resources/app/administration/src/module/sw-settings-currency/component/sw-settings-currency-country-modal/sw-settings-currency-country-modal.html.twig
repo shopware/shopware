@@ -1,11 +1,9 @@
-<!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
 {% block sw_settings_currency_country_modal %}
 <sw-modal
     class="sw-settings-currency-country-modal"
     :title="$tc('sw-settings-currency.currency-country-modal.titleNewCurrencyCountry')"
     @modal-close="onCancel"
 >
-    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_settings_currency_country_modal_country_select %}
     <sw-entity-single-select
         v-model:value="currencyCountryRounding.countryId"
@@ -48,7 +46,6 @@
     </sw-entity-single-select>
     {% endblock %}
 
-    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_settings_currency_country_modal_price_rounding %}
     <sw-settings-price-rounding
         :item-rounding="currencyCountryRounding.itemRounding"
@@ -56,29 +53,27 @@
     />
     {% endblock %}
 
-    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_settings_currency_country_modal_footer %}
     <template #modal-footer>
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_settings_currency_country_modal_footer_cancel %}
-        <sw-button
+        <mt-button
             size="small"
+            variant="secondary"
             @click="onCancel"
         >
             {{ $tc('global.default.cancel') }}
-        </sw-button>
+        </mt-button>
         {% endblock %}
 
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_settings_currency_country_modal_footer_save %}
-        <sw-button
+        <mt-button
             variant="primary"
             size="small"
             class="sw-settings-currency-country-modal__button-save"
             @click="onSave"
         >
             {{ $tc('global.default.save') }}
-        </sw-button>
+        </mt-button>
         {% endblock %}
     </template>
     {% endblock %}

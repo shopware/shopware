@@ -1,5 +1,5 @@
 /**
- * @package services-settings
+ * @sw-package framework
  */
 import TimezoneService from './timezone.service';
 
@@ -29,11 +29,13 @@ describe('src/core/service/timezone.service.ts', () => {
             const timezoneService = new TimezoneService();
 
             const timeZoneResult = await timezoneService.loadTimezones();
-            expect(timeZoneResult.default).toEqual(expect.arrayContaining([
-                'America/New_York',
-                'Europe/Berlin',
-                'Asia/Ho_Chi_Minh',
-            ]));
+            expect(timeZoneResult.default).toEqual(
+                expect.arrayContaining([
+                    'America/New_York',
+                    'Europe/Berlin',
+                    'Asia/Ho_Chi_Minh',
+                ]),
+            );
         });
     });
 

@@ -59,7 +59,7 @@ class ImageTypeDetectorTest extends TestCase
     #[Group('needsWebserver')]
     public function testDetectAnimatedGifFromUrl(): void
     {
-        $publicPath = $this->getContainer()->getParameter('kernel.project_dir') . '/public/animate.gif';
+        $publicPath = static::getContainer()->getParameter('kernel.project_dir') . '/public/animate.gif';
         \copy(
             __DIR__ . '/../fixtures/animated.gif',
             $publicPath
@@ -116,7 +116,7 @@ class ImageTypeDetectorTest extends TestCase
     #[Group('needsWebserver')]
     public function testDetectAnimatedWebpFromUrl(): void
     {
-        $publicPath = $this->getContainer()->getParameter('kernel.project_dir') . '/public/animate.webp';
+        $publicPath = static::getContainer()->getParameter('kernel.project_dir') . '/public/animate.webp';
         \copy(
             __DIR__ . '/../fixtures/animated.webp',
             $publicPath
@@ -173,7 +173,7 @@ class ImageTypeDetectorTest extends TestCase
     #[Group('needsWebserver')]
     public function testDetectAnimatedAvifFromUrl(): void
     {
-        $publicPath = $this->getContainer()->getParameter('kernel.project_dir') . '/public/animate.avif';
+        $publicPath = static::getContainer()->getParameter('kernel.project_dir') . '/public/animate.avif';
         \copy(
             __DIR__ . '/../fixtures/animated.avif',
             $publicPath
@@ -361,7 +361,7 @@ class ImageTypeDetectorTest extends TestCase
 
     private function getImageTypeDetector(): ImageTypeDetector
     {
-        return $this->getContainer()->get(ImageTypeDetector::class);
+        return static::getContainer()->get(ImageTypeDetector::class);
     }
 
     private function createMediaFile(string $filePath): MediaFile

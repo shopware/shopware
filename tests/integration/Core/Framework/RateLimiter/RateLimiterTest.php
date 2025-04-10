@@ -19,7 +19,6 @@ use Shopware\Core\Framework\RateLimiter\RateLimiterFactory;
 use Shopware\Core\Framework\Test\RateLimiter\DisableRateLimiterCompilerPass;
 use Shopware\Core\Framework\Test\RateLimiter\RateLimiterTestTrait;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelLifecycleManager;
-use Shopware\Core\Framework\Test\TestDataCollection;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
 use Shopware\Core\System\SalesChannel\Context\AbstractSalesChannelContextFactory;
@@ -30,6 +29,7 @@ use Shopware\Core\System\User\Recovery\UserRecoveryService;
 use Shopware\Core\System\User\UserEntity;
 use Shopware\Core\Test\Integration\Traits\CustomerTestTrait;
 use Shopware\Core\Test\Integration\Traits\OrderFixture;
+use Shopware\Core\Test\Stub\Framework\IdsCollection;
 use Shopware\Core\Test\TestDefaults;
 use Symfony\Bridge\PsrHttpMessage\Factory\PsrHttpFactory;
 use Symfony\Bundle\FrameworkBundle\KernelBrowser;
@@ -52,7 +52,7 @@ class RateLimiterTest extends TestCase
 
     private Context $context;
 
-    private TestDataCollection $ids;
+    private IdsCollection $ids;
 
     private KernelBrowser $browser;
 
@@ -73,14 +73,14 @@ class RateLimiterTest extends TestCase
     protected function setUp(): void
     {
         $this->context = Context::createDefaultContext();
-        $this->ids = new TestDataCollection();
+        $this->ids = new IdsCollection();
 
         $this->browser = $this->createCustomSalesChannelBrowser([
             'id' => $this->ids->create('sales-channel'),
         ]);
         $this->assignSalesChannelContext($this->browser);
 
-        $this->salesChannelContextFactory = $this->getContainer()->get(SalesChannelContextFactory::class)->getDecorated();
+        $this->salesChannelContextFactory = static::getContainer()->get(SalesChannelContextFactory::class)->getDecorated();
 
         $this->clearCache();
     }
@@ -125,8 +125,8 @@ class RateLimiterTest extends TestCase
     public function testResetRateLimitLoginRoute(): void
     {
         $route = new LoginRoute(
-            $this->getContainer()->get(AccountService::class),
-            $this->getContainer()->get('request_stack'),
+            static::getContainer()->get(AccountService::class),
+            static::getContainer()->get('request_stack'),
             $this->mockResetLimiter([
                 RateLimiter::LOGIN_ROUTE => 1,
             ])
@@ -134,7 +134,7 @@ class RateLimiterTest extends TestCase
 
         $this->createCustomer('loginTest@example.com');
 
-        $this->getContainer()->get('request_stack')->push(new Request([
+        static::getContainer()->get('request_stack')->push(new Request([
             'email' => 'loginTest@example.com',
             'password' => 'shopware',
         ]));

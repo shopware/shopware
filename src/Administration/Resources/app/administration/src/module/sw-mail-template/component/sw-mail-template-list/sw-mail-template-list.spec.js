@@ -1,5 +1,5 @@
 /**
- * @package buyers-experience
+ * @sw-package after-sales
  */
 import { mount } from '@vue/test-utils';
 
@@ -32,7 +32,9 @@ const createWrapper = async (privileges = []) => {
                 },
                 acl: {
                     can: (identifier) => {
-                        if (!identifier) { return true; }
+                        if (!identifier) {
+                            return true;
+                        }
 
                         return privileges.includes(identifier);
                     },
@@ -48,11 +50,17 @@ const createWrapper = async (privileges = []) => {
                 },
             },
             stubs: {
-                'sw-card': {
+                'mt-card': {
                     template: '<div><slot name="grid"></slot></div>',
                 },
                 'sw-entity-listing': {
-                    props: ['items', 'allowEdit', 'allowView', 'allowDelete', 'detailRoute'],
+                    props: [
+                        'items',
+                        'allowEdit',
+                        'allowView',
+                        'allowDelete',
+                        'detailRoute',
+                    ],
                     template: `
                     <div id="mailTemplateGrid">
                         <template v-for="item in items">

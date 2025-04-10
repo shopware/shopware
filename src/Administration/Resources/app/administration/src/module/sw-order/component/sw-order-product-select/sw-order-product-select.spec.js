@@ -1,7 +1,7 @@
 import { mount } from '@vue/test-utils';
 
 /**
- * @package customer-order
+ * @sw-package checkout
  */
 
 const createWrapper = async () => {
@@ -36,7 +36,6 @@ const createWrapper = async () => {
                 'sw-select-result': true,
             },
         },
-
     });
 };
 
@@ -121,7 +120,7 @@ describe('src/module/sw-order/component/sw-order-product-select', () => {
             },
         });
 
-        const textField = wrapper.find('sw-text-field-stub');
+        const textField = wrapper.find('.mt-text-field');
 
         expect(textField.exists()).toBeTruthy();
     });
@@ -136,7 +135,7 @@ describe('src/module/sw-order/component/sw-order-product-select', () => {
             },
         });
 
-        const textField = wrapper.find('sw-text-field-stub');
+        const textField = wrapper.find('.mt-text-field');
 
         expect(textField.exists()).toBeTruthy();
     });
@@ -153,7 +152,7 @@ describe('src/module/sw-order/component/sw-order-product-select', () => {
         });
 
         const productSelect = wrapper.find('sw-entity-single-select-stub');
-        const textField = wrapper.find('sw-text-field-stub');
+        const textField = wrapper.find('.mt-text-field');
 
         expect(productSelect.exists()).toBeFalsy();
         expect(textField.exists()).toBeFalsy();
@@ -215,5 +214,12 @@ describe('src/module/sw-order/component/sw-order-product-select', () => {
         expect(criteria.filters[2].type).toBe('equals');
         expect(criteria.filters[2].field).toBe('active');
         expect(criteria.filters[2].value).toBe(true);
+    });
+
+    it('has correct criteria with total count mode is zero', async () => {
+        const wrapper = await createWrapper();
+        const criteria = wrapper.vm.productCriteria;
+
+        expect(criteria.totalCountMode).toBe(0);
     });
 });

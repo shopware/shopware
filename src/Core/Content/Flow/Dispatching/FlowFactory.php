@@ -11,13 +11,13 @@ use Shopware\Core\Framework\Log\Package;
 /**
  * @internal
  */
-#[Package('services-settings')]
+#[Package('after-sales')]
 class FlowFactory
 {
     /**
-     * @param FlowStorer[] $storer
+     * @param iterable<FlowStorer> $storer
      */
-    public function __construct(private $storer)
+    public function __construct(private iterable $storer)
     {
     }
 

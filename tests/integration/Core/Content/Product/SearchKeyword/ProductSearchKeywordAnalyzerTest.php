@@ -18,8 +18,8 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\NotFilter;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
-use Shopware\Core\Framework\Test\TestDataCollection;
 use Shopware\Core\Framework\Uuid\Uuid;
+use Shopware\Core\Test\Stub\Framework\IdsCollection;
 
 /**
  * @internal
@@ -44,7 +44,7 @@ class ProductSearchKeywordAnalyzerTest extends TestCase
 
     private Context $context;
 
-    private TestDataCollection $ids;
+    private IdsCollection $ids;
 
     private string $enSearchConfigId;
 
@@ -52,11 +52,11 @@ class ProductSearchKeywordAnalyzerTest extends TestCase
 
     protected function setUp(): void
     {
-        $this->productRepository = $this->getContainer()->get('product.repository');
-        $this->productSearchConfigRepository = $this->getContainer()->get('product_search_config.repository');
-        $this->connection = $this->getContainer()->get(Connection::class);
+        $this->productRepository = static::getContainer()->get('product.repository');
+        $this->productSearchConfigRepository = static::getContainer()->get('product_search_config.repository');
+        $this->connection = static::getContainer()->get(Connection::class);
         $this->context = Context::createDefaultContext();
-        $this->ids = new TestDataCollection();
+        $this->ids = new IdsCollection();
         $this->createDataTest();
     }
 
@@ -125,7 +125,7 @@ class ProductSearchKeywordAnalyzerTest extends TestCase
             'ignored' => 'ignored',
         ]);
 
-        $analyzer = $this->getContainer()->get(ProductSearchKeywordAnalyzer::class);
+        $analyzer = static::getContainer()->get(ProductSearchKeywordAnalyzer::class);
 
         $result = $analyzer->analyze($product, Context::createDefaultContext(), $config);
 
@@ -144,7 +144,7 @@ class ProductSearchKeywordAnalyzerTest extends TestCase
 
         $product = $this->getProduct();
         $configFields = $this->getConfigFieldsByLanguageId($this->enSearchConfigId);
-        $analyzer = $this->getContainer()->get(ProductSearchKeywordAnalyzer::class);
+        $analyzer = static::getContainer()->get(ProductSearchKeywordAnalyzer::class);
         $analyzer = $analyzer->analyze($product, $this->context, $configFields);
         $analyzerResult = $analyzer->getKeys();
         sort($analyzerResult);
@@ -222,7 +222,7 @@ class ProductSearchKeywordAnalyzerTest extends TestCase
 
         $product = $this->getProduct();
         $configFields = $this->getConfigFieldsByLanguageId($this->deSearchConfigId);
-        $analyzer = $this->getContainer()->get(ProductSearchKeywordAnalyzer::class);
+        $analyzer = static::getContainer()->get(ProductSearchKeywordAnalyzer::class);
         $analyzer = $analyzer->analyze($product, $this->context, $configFields);
         $analyzerResult = $analyzer->getKeys();
         sort($analyzerResult);

@@ -1,5 +1,5 @@
 /**
- * @package admin
+ * @sw-package framework
  */
 
 import { mount } from '@vue/test-utils';
@@ -11,7 +11,6 @@ async function createWrapper(slotsData = {}) {
     return mount(await wrapTestComponent('sw-meteor-page', { sync: true }), {
         global: {
             stubs: {
-                'sw-icon': true,
                 'sw-search-bar': true,
                 'sw-notification-center': true,
                 'sw-help-center-v2': true,
@@ -28,12 +27,13 @@ async function createWrapper(slotsData = {}) {
                 },
                 'mt-tabs': true,
                 'sw-extension-component-section': true,
+                'sw-app-topbar-button': true,
             },
             mocks: {
                 $route: {
                     meta: {
                         $module: {
-                            icon: 'default-object-plug',
+                            icon: 'regular-plug',
                             title: 'sw.example.title',
                             color: '#189EFF',
                         },
@@ -70,7 +70,9 @@ describe('src/app/component/meteor/sw-meteor-page', () => {
                     return false;
                 }
 
-                return msg.includes('Slot "page-tabs" invoked outside of the render function: this will not track dependencies used in the slot. Invoke the slot function inside the render function instead');
+                return msg.includes(
+                    'Slot "page-tabs" invoked outside of the render function: this will not track dependencies used in the slot. Invoke the slot function inside the render function instead',
+                );
             },
         });
     });
@@ -101,7 +103,7 @@ describe('src/app/component/meteor/sw-meteor-page', () => {
             hideIcon: true,
         });
 
-        const iconComponent = wrapper.find('sw-icon-stub');
+        const iconComponent = wrapper.find('.mt-icon');
         expect(iconComponent.exists()).toBe(false);
     });
 
@@ -109,12 +111,9 @@ describe('src/app/component/meteor/sw-meteor-page', () => {
         const wrapper = await createWrapper();
         await flushPromises();
 
-        const iconComponent = wrapper.find('sw-icon-stub');
-        expect(iconComponent.exists()).toBe(true);
-        expect(iconComponent.attributes()).toHaveProperty('name');
-        expect(iconComponent.attributes().name).toBe('default-object-plug');
-        expect(iconComponent.attributes()).toHaveProperty('color');
-        expect(iconComponent.attributes().color).toBe('#189EFF');
+        const iconComponent = wrapper.findComponent('.mt-icon');
+        expect(iconComponent.vm.name).toContain('regular-plug');
+        expect(iconComponent.vm.color).toBe('#189EFF');
     });
 
     [
@@ -126,7 +125,7 @@ describe('src/app/component/meteor/sw-meteor-page', () => {
         'smart-bar-description',
         'smart-bar-actions',
         'smart-bar-context-buttons',
-    ].forEach(slotName => {
+    ].forEach((slotName) => {
         it(`should render the content of the slot "${slotName}"`, async () => {
             const wrapper = await createWrapper({
                 [slotName]: '<div id="test-slot">This slot works</div>',

@@ -7,14 +7,14 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\SalesChannelApiTestBehaviour;
-use Shopware\Core\Framework\Test\TestDataCollection;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory;
+use Shopware\Core\Test\Stub\Framework\IdsCollection;
 use Symfony\Bundle\FrameworkBundle\KernelBrowser;
 
 /**
  * @internal
  */
-#[Package('services-settings')]
+#[Package('discovery')]
 #[Group('store-api')]
 class SitemapRouteTest extends TestCase
 {
@@ -23,11 +23,11 @@ class SitemapRouteTest extends TestCase
 
     private KernelBrowser $browser;
 
-    private TestDataCollection $ids;
+    private IdsCollection $ids;
 
     protected function setUp(): void
     {
-        $this->ids = new TestDataCollection();
+        $this->ids = new IdsCollection();
 
         $this->browser = $this->createCustomSalesChannelBrowser([
             'id' => $this->ids->create('sales-channel'),
@@ -36,13 +36,9 @@ class SitemapRouteTest extends TestCase
 
     public function testEmpty(): void
     {
-        $this->browser
-            ->request(
-                'POST',
-                '/store-api/sitemap',
-                [
-                ]
-            );
+        $this->browser->request('POST', '/store-api/sitemap');
+
+        static::assertNotFalse($this->browser->getResponse()->getContent());
 
         static::assertIsString($this->browser->getResponse()->getContent());
         $response = json_decode($this->browser->getResponse()->getContent(), true, 512, \JSON_THROW_ON_ERROR);
@@ -53,18 +49,14 @@ class SitemapRouteTest extends TestCase
 
     public function testSitemapListsEntries(): void
     {
-        $context = $this->getContainer()->get(SalesChannelContextFactory::class)->create('', $this->ids->get('sales-channel'));
+        $context = static::getContainer()->get(SalesChannelContextFactory::class)->create('', $this->ids->get('sales-channel'));
 
-        $fs = $this->getContainer()->get('shopware.filesystem.sitemap');
-        $fs->write('sitemap/salesChannel-' . $context->getSalesChannel()->getId() . '-' . $context->getLanguageId() . '/test.xml', 'some content');
+        $fs = static::getContainer()->get('shopware.filesystem.sitemap');
+        $fs->write('sitemap/salesChannel-' . $context->getSalesChannelId() . '-' . $context->getLanguageId() . '/test.xml', 'some content');
 
-        $this->browser
-            ->request(
-                'POST',
-                '/store-api/sitemap',
-                [
-                ]
-            );
+        $this->browser->request('POST', '/store-api/sitemap');
+
+        static::assertNotFalse($this->browser->getResponse()->getContent());
 
         static::assertIsString($this->browser->getResponse()->getContent());
         $response = json_decode($this->browser->getResponse()->getContent(), true, 512, \JSON_THROW_ON_ERROR);

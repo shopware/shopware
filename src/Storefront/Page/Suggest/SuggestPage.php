@@ -7,18 +7,15 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Storefront\Page\Page;
 
-#[Package('services-settings')]
+#[Package('discovery')]
 class SuggestPage extends Page
 {
-    /**
-     * @var string
-     */
-    protected $searchTerm;
+    protected string $searchTerm;
 
     /**
      * @var EntitySearchResult<ProductCollection>
      */
-    protected $searchResult;
+    protected EntitySearchResult $searchResult;
 
     /**
      * @return EntitySearchResult<ProductCollection>

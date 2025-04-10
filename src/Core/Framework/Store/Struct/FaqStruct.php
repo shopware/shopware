@@ -10,15 +10,9 @@ use Shopware\Core\Framework\Log\Package;
 #[Package('checkout')]
 class FaqStruct extends StoreStruct
 {
-    /**
-     * @var string
-     */
-    protected $question;
+    protected string $question;
 
-    /**
-     * @var string
-     */
-    protected $answer;
+    protected string $answer;
 
     /**
      * @return FaqStruct

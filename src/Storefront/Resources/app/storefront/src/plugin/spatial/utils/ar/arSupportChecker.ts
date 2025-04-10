@@ -1,7 +1,7 @@
 /**
  * @package innovation
  *
- * @experimental stableVersion:v6.7.0 feature:SPATIAL_BASES
+ * @experimental stableVersion:v6.8.0 feature:SPATIAL_BASES
  */
 
 /**
@@ -18,8 +18,24 @@ export async function supportsAr(): Promise<boolean> {
  * @returns {boolean}
  */
 export function supportQuickLook(): boolean {
+    // Native IOS Support (Safari)
     const a = document.createElement('a');
-    return a.relList.supports('ar');
+    if (a.relList.supports('ar')) {
+        return true;
+    }
+
+    // Other Browser support
+    const isIos = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
+    const iosVersion = navigator.userAgent.match(/OS (\d+)_(\d+)_?(\d+)?/);
+    if (!isIos || !iosVersion) { return false; }
+    if (parseInt(iosVersion[1], 10) < 12) { return false; }
+
+    // These browsers currently support AR Quick Look on iOS
+    const isChromeOrVivaldi = /CriOS/.test(navigator.userAgent);
+    const isEdge = /EdgiOS/.test(navigator.userAgent);
+    const isDuckDuckGo = /Ddg/.test(navigator.userAgent);
+
+    return isChromeOrVivaldi || isEdge || isDuckDuckGo;
 }
 
 /**
@@ -27,6 +43,20 @@ export function supportQuickLook(): boolean {
  * @returns {Promise<boolean>}
  */
 export async function supportWebXR(): Promise<boolean> {
-    if (!navigator.xr) { return false; }
-    return await navigator.xr.isSessionSupported('immersive-ar');
+    // Check if we're in a secure context (HTTPS)
+    if (!window.isSecureContext) {
+        return false;
+    }
+
+    // Check if XRSystem is available
+    if (!navigator.xr) {
+        return false;
+    }
+
+    try {
+        // Check specifically for immersive-ar support
+        return await navigator.xr.isSessionSupported('immersive-ar');
+    } catch (error) {
+        return false;
+    }
 }

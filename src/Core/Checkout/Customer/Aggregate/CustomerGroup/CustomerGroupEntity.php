@@ -10,66 +10,33 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityIdTrait;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\SalesChannelCollection;
 
-#[Package('checkout')]
+#[Package('discovery')]
 class CustomerGroupEntity extends Entity
 {
     use EntityCustomFieldsTrait;
     use EntityIdTrait;
 
-    /**
-     * @var string|null
-     */
-    protected $name;
+    protected ?string $name = null;
 
-    /**
-     * @var bool
-     */
-    protected $displayGross;
+    protected bool $displayGross;
 
-    /**
-     * @var CustomerGroupTranslationCollection|null
-     */
-    protected $translations;
+    protected ?CustomerGroupTranslationCollection $translations = null;
 
-    /**
-     * @var CustomerCollection|null
-     */
-    protected $customers;
+    protected ?CustomerCollection $customers = null;
 
-    /**
-     * @var SalesChannelCollection|null
-     */
-    protected $salesChannels;
+    protected ?SalesChannelCollection $salesChannels = null;
 
-    /**
-     * @var bool
-     */
-    protected $registrationActive;
+    protected bool $registrationActive;
 
-    /**
-     * @var string
-     */
-    protected $registrationTitle;
+    protected string $registrationTitle;
 
-    /**
-     * @var string
-     */
-    protected $registrationIntroduction;
+    protected string $registrationIntroduction;
 
-    /**
-     * @var bool
-     */
-    protected $registrationOnlyCompanyRegistration;
+    protected bool $registrationOnlyCompanyRegistration;
 
-    /**
-     * @var string
-     */
-    protected $registrationSeoMetaDescription;
+    protected string $registrationSeoMetaDescription;
 
-    /**
-     * @var SalesChannelCollection|null
-     */
-    protected $registrationSalesChannels;
+    protected ?SalesChannelCollection $registrationSalesChannels = null;
 
     public function getName(): ?string
     {

@@ -1,9 +1,7 @@
 import { mount } from '@vue/test-utils';
 
-import flowState from 'src/module/sw-flow/state/flow.state';
-
 /**
- * @package services-settings
+ * @sw-package after-sales
  */
 
 const sequences = [
@@ -36,38 +34,30 @@ const sequences = [
 ];
 
 async function createWrapper() {
-    return mount(await wrapTestComponent('sw-flow-sequence-selector', {
-        sync: true,
-    }), {
-        props: {
-            sequence: sequences[0],
-        },
+    return mount(
+        await wrapTestComponent('sw-flow-sequence-selector', {
+            sync: true,
+        }),
+        {
+            props: {
+                sequence: sequences[0],
+            },
 
-        global: {
-            stubs: {
-                'sw-button': await wrapTestComponent('sw-button'),
-                'sw-button-deprecated': await wrapTestComponent('sw-button-deprecated', { sync: true }),
-                'sw-icon': true,
-                'router-link': true,
-                'sw-loader': true,
+            global: {
+                stubs: {
+                    'router-link': true,
+                    'sw-loader': true,
+                },
             },
         },
-    });
+    );
 }
 
 describe('src/module/sw-flow/component/sw-flow-sequence-selector', () => {
     let wrapper;
 
     beforeAll(() => {
-        Shopware.State.registerModule('swFlowState', {
-            ...flowState,
-            state: {
-                flow: {
-                    eventName: '',
-                    sequences,
-                },
-            },
-        });
+        Shopware.Store.get('swFlow').setSequences(sequences);
     });
 
     beforeEach(async () => {
@@ -82,7 +72,7 @@ describe('src/module/sw-flow/component/sw-flow-sequence-selector', () => {
         const button = wrapper.find('.sw-flow-sequence-selector__add-condition');
         await button.trigger('click');
 
-        const sequencesState = Shopware.State.getters['swFlowState/sequences'];
+        const sequencesState = Shopware.Store.get('swFlow').sequences;
         const sequence = {
             ...wrapper.props().sequence,
             ruleId: '',
@@ -99,7 +89,7 @@ describe('src/module/sw-flow/component/sw-flow-sequence-selector', () => {
         const button = wrapper.find('.sw-flow-sequence-selector__add-action');
         await button.trigger('click');
 
-        const sequencesState = Shopware.State.getters['swFlowState/sequences'];
+        const sequencesState = Shopware.Store.get('swFlow').sequences;
         const sequence = {
             ...wrapper.props().sequence,
             actionName: '',
@@ -148,7 +138,6 @@ describe('src/module/sw-flow/component/sw-flow-sequence-selector', () => {
             sequence: sequences[2],
         });
 
-
         expect(helpText.text()).toBe('sw-flow.detail.sequence.selectorHelpTextFalseCondition');
     });
 
@@ -163,7 +152,7 @@ describe('src/module/sw-flow/component/sw-flow-sequence-selector', () => {
             disabled: true,
         });
 
-        expect(addCondition.classes()).toContain('sw-button--disabled');
-        expect(addAction.classes()).toContain('sw-button--disabled');
+        expect(addCondition.attributes('disabled') !== undefined).toBe(true);
+        expect(addAction.attributes('disabled') !== undefined).toBe(true);
     });
 });

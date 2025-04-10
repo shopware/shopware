@@ -10,41 +10,23 @@ use Shopware\Core\System\NumberRange\Aggregate\NumberRangeSalesChannel\NumberRan
 use Shopware\Core\System\NumberRange\Aggregate\NumberRangeTypeTranslation\NumberRangeTypeTranslationCollection;
 use Shopware\Core\System\NumberRange\NumberRangeCollection;
 
-#[Package('checkout')]
+#[Package('framework')]
 class NumberRangeTypeEntity extends Entity
 {
     use EntityCustomFieldsTrait;
     use EntityIdTrait;
 
-    /**
-     * @var string
-     */
-    protected $typeName;
+    protected string $typeName;
 
-    /**
-     * @var string
-     */
-    protected $technicalName;
+    protected string $technicalName;
 
-    /**
-     * @var bool
-     */
-    protected $global;
+    protected bool $global;
 
-    /**
-     * @var NumberRangeCollection|null
-     */
-    protected $numberRanges;
+    protected ?NumberRangeCollection $numberRanges = null;
 
-    /**
-     * @var NumberRangeSalesChannelEntity|null
-     */
-    protected $numberRangeSalesChannels;
+    protected ?NumberRangeSalesChannelEntity $numberRangeSalesChannels = null;
 
-    /**
-     * @var NumberRangeTypeTranslationCollection|null
-     */
-    protected $translations;
+    protected ?NumberRangeTypeTranslationCollection $translations = null;
 
     public function getTypeName(): string
     {

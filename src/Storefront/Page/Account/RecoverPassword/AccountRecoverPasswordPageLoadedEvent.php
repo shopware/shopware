@@ -10,10 +10,7 @@ use Symfony\Component\HttpFoundation\Request;
 #[Package('checkout')]
 class AccountRecoverPasswordPageLoadedEvent extends PageLoadedEvent
 {
-    /**
-     * @var AccountRecoverPasswordPage
-     */
-    protected $page;
+    protected AccountRecoverPasswordPage $page;
 
     public function __construct(
         AccountRecoverPasswordPage $page,

@@ -14,9 +14,11 @@ use Shopware\Core\Framework\Log\Package;
  *
  * @description This event enables interception of the resolution process, allowing the collection of CMS slot data and enrichment of slots by their respective CMS resolvers
  *
+ * @codeCoverageIgnore
+ *
  * @extends Extension<CmsSlotCollection>
  */
-#[Package('buyers-experience')]
+#[Package('discovery')]
 final class CmsSlotsDataResolveExtension extends Extension
 {
     public const NAME = 'cms-slots-data.resolve';

@@ -4,6 +4,7 @@ namespace Shopware\Storefront\Theme;
 
 use Doctrine\DBAL\Connection;
 use GuzzleHttp\Psr7\MimeType;
+use Shopware\Core\Content\Media\Aggregate\MediaFolder\MediaFolderCollection;
 use Shopware\Core\Content\Media\File\FileNameProvider;
 use Shopware\Core\Content\Media\File\FileSaver;
 use Shopware\Core\Content\Media\File\MediaFile;
@@ -11,35 +12,41 @@ use Shopware\Core\Content\Media\MediaCollection;
 use Shopware\Core\Content\Media\MediaException;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\DataAbstractionLayer\Entity;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Validation\RestrictDeleteViolationException;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
-use Shopware\Core\System\Language\LanguageEntity;
-use Shopware\Core\System\Locale\LocaleEntity;
+use Shopware\Core\System\Language\LanguageCollection;
 use Shopware\Storefront\Theme\StorefrontPluginConfiguration\AbstractStorefrontPluginConfigurationFactory;
 use Shopware\Storefront\Theme\StorefrontPluginConfiguration\StorefrontPluginConfiguration;
 use Shopware\Storefront\Theme\StorefrontPluginConfiguration\StorefrontPluginConfigurationCollection;
 
-#[Package('storefront')]
+#[Package('framework')]
 class ThemeLifecycleService
 {
     /**
+     * @param EntityRepository<ThemeCollection> $themeRepository
      * @param EntityRepository<MediaCollection> $mediaRepository
+     * @param EntityRepository<MediaFolderCollection> $mediaFolderRepository
+     * @param EntityRepository<EntityCollection<Entity>> $themeMediaRepository
+     * @param EntityRepository<LanguageCollection> $languageRepository
+     * @param EntityRepository<EntityCollection<Entity>> $themeChildRepository
      *
      * @internal
      */
     public function __construct(
-        private readonly StorefrontPluginRegistryInterface $pluginRegistry,
+        private readonly StorefrontPluginRegistry $pluginRegistry,
         private readonly EntityRepository $themeRepository,
         private readonly EntityRepository $mediaRepository,
         private readonly EntityRepository $mediaFolderRepository,
         private readonly EntityRepository $themeMediaRepository,
         private readonly FileSaver $fileSaver,
         private readonly FileNameProvider $fileNameProvider,
-        private readonly ThemeFileImporterInterface $themeFileImporter,
+        private readonly ThemeFilesystemResolver $themeFilesystemResolver,
         private readonly EntityRepository $languageRepository,
         private readonly EntityRepository $themeChildRepository,
         private readonly Connection $connection,
@@ -116,10 +123,8 @@ class ThemeLifecycleService
         $criteria->addAssociation('dependentThemes');
         $criteria->addFilter(new EqualsFilter('technicalName', $technicalName));
 
-        /** @var ThemeEntity|null $theme */
-        $theme = $this->themeRepository->search($criteria, $context)->first();
-
-        if ($theme === null) {
+        $theme = $this->themeRepository->search($criteria, $context)->getEntities()->first();
+        if (!$theme) {
             return;
         }
 
@@ -136,22 +141,21 @@ class ThemeLifecycleService
         $criteria->addFilter(new EqualsFilter('technicalName', $technicalName));
         $criteria->addAssociation('previewMedia');
 
-        $theme = $this->themeRepository->search($criteria, $context)->first();
-
-        return $theme instanceof ThemeEntity ? $theme : null;
+        return $this->themeRepository->search($criteria, $context)->getEntities()->first();
     }
 
     /**
      * @return array<string, mixed>|null
      */
-    private function createMediaStruct(string $path, string $mediaId, ?string $themeFolderId): ?array
+    private function createMediaStruct(StorefrontPluginConfiguration $pluginConfig, string $path, string $mediaId, ?string $themeFolderId): ?array
     {
-        $path = $this->themeFileImporter->getRealPath($path);
+        $fs = $this->themeFilesystemResolver->getFilesystemForStorefrontConfig($pluginConfig);
 
-        if (!$this->themeFileImporter->fileExists($path)) {
+        if (!$fs->hasFile('Resources', $path)) {
             return null;
         }
 
+        $path = $fs->path('Resources', $path);
         $pathinfo = pathinfo($path);
 
         return [
@@ -343,11 +347,12 @@ class ThemeLifecycleService
 
         $installedConfiguration = null;
         if ($theme && \is_array($theme->getThemeJson())) {
+            $fs = $this->themeFilesystemResolver->getFilesystemForStorefrontConfig($pluginConfiguration);
+
             $installedConfiguration = $this->pluginConfigurationFactory->createFromThemeJson(
                 $theme->getTechnicalName() ?? 'childTheme',
                 $theme->getThemeJson(),
-                $pluginConfiguration->getBasePath(),
-                false
+                $fs->location,
             );
         }
 
@@ -364,7 +369,7 @@ class ThemeLifecycleService
 
             $path = $pluginConfiguration->getPreviewMedia();
 
-            $mediaItem = $this->createMediaStruct($path, $mediaId, $themeFolderId);
+            $mediaItem = $this->createMediaStruct($pluginConfiguration, $path, $mediaId, $themeFolderId);
 
             if ($mediaItem) {
                 $themeData['previewMediaId'] = $mediaId;
@@ -388,7 +393,7 @@ class ThemeLifecycleService
             }
 
             if (!empty($currentMediaIds)) {
-                $currentThemeMedia = $this->mediaRepository->search(new Criteria($currentMediaIds), $context);
+                $currentThemeMedia = $this->mediaRepository->search(new Criteria($currentMediaIds), $context)->getEntities();
             }
         }
 
@@ -407,14 +412,14 @@ class ThemeLifecycleService
                     continue;
                 }
 
-                $path = $pluginConfiguration->getBasePath() . \DIRECTORY_SEPARATOR . $field['value'];
+                $path = $field['value'];
 
                 if (!\array_key_exists($path, $media)) {
                     if (
-                        $currentThemeMedia !== null
+                        $currentThemeMedia
                         && !empty($currentMediaIds)
                         && isset($currentMediaIds[$key])
-                        && $currentThemeMedia->getEntities()->get($currentMediaIds[$key])?->getFileNameIncludingExtension() === basename($path)) {
+                        && $currentThemeMedia->get($currentMediaIds[$key])?->getFileNameIncludingExtension() === basename($path)) {
                         continue;
                     }
 
@@ -425,7 +430,7 @@ class ThemeLifecycleService
                     }
 
                     $mediaId = Uuid::randomHex();
-                    $mediaItem = $this->createMediaStruct($path, $mediaId, $themeFolderId);
+                    $mediaItem = $this->createMediaStruct($pluginConfiguration, $path, $mediaId, $themeFolderId);
 
                     if (!$mediaItem) {
                         continue;
@@ -494,14 +499,14 @@ class ThemeLifecycleService
 
     private function getSystemLanguageLocale(Context $context): string
     {
-        $criteria = new Criteria();
-        $criteria->addAssociation('translationCode');
-        $criteria->addFilter(new EqualsFilter('id', Defaults::LANGUAGE_SYSTEM));
+        $criteria = (new Criteria([Defaults::LANGUAGE_SYSTEM]))
+            ->addAssociation('translationCode');
 
-        /** @var LanguageEntity $language */
-        $language = $this->languageRepository->search($criteria, $context)->first();
-        /** @var LocaleEntity $locale */
+        $language = $this->languageRepository->search($criteria, $context)->getEntities()->first();
+        \assert($language !== null);
+
         $locale = $language->getTranslationCode();
+        \assert($locale !== null);
 
         return $locale->getCode();
     }

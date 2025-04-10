@@ -7,8 +7,8 @@ export const AddPromotionCodeToCart = base.extend<{ AddPromotionCodeToCart: Task
             return async function AddPromotionCodeToCart() {
                 await ShopCustomer.expects(StorefrontCheckoutCart.headline).toBeVisible();
 
-                await StorefrontCheckoutCart.enterDiscountInput.fill(promotionCode);
-                await StorefrontCheckoutCart.enterDiscountInput.press('Enter');
+                await StorefrontCheckoutCart.enterPromoInput.fill(promotionCode);
+                await StorefrontCheckoutCart.enterPromoInput.press('Enter');
 
                 await ShopCustomer.expects(StorefrontCheckoutCart.page.getByText(promotionName)).toBeVisible();
             }

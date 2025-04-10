@@ -6,23 +6,14 @@ use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\Log\Package;
 
-#[Package('core')]
+#[Package('framework')]
 abstract class AssociationField extends Field
 {
-    /**
-     * @var string
-     */
-    protected $referenceClass;
+    protected string $referenceClass;
 
-    /**
-     * @var EntityDefinition
-     */
-    protected $referenceDefinition;
+    protected ?EntityDefinition $referenceDefinition = null;
 
-    /**
-     * @var string
-     */
-    protected $referenceField;
+    protected string $referenceField;
 
     protected bool $autoload = false;
 
@@ -45,6 +36,7 @@ abstract class AssociationField extends Field
     {
         if ($this->referenceDefinition === null) {
             $this->compileLazy();
+            \assert($this->referenceDefinition !== null);
         }
 
         return $this->referenceDefinition;

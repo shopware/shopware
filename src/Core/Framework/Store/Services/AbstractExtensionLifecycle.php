@@ -21,7 +21,7 @@ abstract class AbstractExtensionLifecycle
 
     abstract public function deactivate(string $type, string $technicalName, Context $context): void;
 
-    abstract public function remove(string $type, string $technicalName, Context $context): void;
+    abstract public function remove(string $type, string $technicalName, bool $keepUserData, Context $context): void;
 
     abstract protected function getDecorated(): AbstractExtensionLifecycle;
 }

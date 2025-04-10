@@ -2,14 +2,12 @@ import template from './sw-dashboard-index.html.twig';
 import './sw-dashboard-index.scss';
 
 /**
- * @package services-settings
+ * @sw-package after-sales
  *
  * @private
  */
 export default Shopware.Component.wrapComponentConfig({
     template,
-
-    compatConfig: Shopware.compatConfig,
 
     data() {
         return {
@@ -28,8 +26,10 @@ export default Shopware.Component.wrapComponentConfig({
             const greetingName = this.greetingName;
             const welcomeMessage = this.$tc(
                 this.cachedHeadlineGreetingKey,
+                {
+                    greetingName,
+                },
                 1,
-                { greetingName },
             );
 
             // in the headline we want to greet the user by his firstname
@@ -48,7 +48,7 @@ export default Shopware.Component.wrapComponentConfig({
         },
 
         greetingName() {
-            const { currentUser } = Shopware.State.get('session');
+            const { currentUser } = Shopware.Store.get('session');
 
             // if currentUser?.firstName returns a loose falsy value
             // like `""`, `0`, `false`, `null`, `undefined`
@@ -65,23 +65,6 @@ export default Shopware.Component.wrapComponentConfig({
 
     methods: {
         createdComponent() {
-            /* @deprecated tag:v6.7.0 - Will be removed, use API instead */
-            Shopware.ExtensionAPI.publishData({
-                id: 'sw-dashboard-detail__todayOrderData',
-                path: 'todayOrderData',
-                scope: this,
-                deprecated: true,
-                deprecationMessage: 'No replacement available, use API instead.',
-            });
-            /* @deprecated tag:v6.7.0 - Will be removed, use API instead */
-            Shopware.ExtensionAPI.publishData({
-                id: 'sw-dashboard-detail__statisticDateRanges',
-                path: 'statisticDateRanges',
-                scope: this,
-                deprecated: true,
-                deprecationMessage: 'No replacement available, use API instead.',
-            });
-
             this.cachedHeadlineGreetingKey = this.cachedHeadlineGreetingKey ?? this.getGreetingTimeKey('daytimeHeadline');
         },
 
@@ -104,12 +87,12 @@ export default Shopware.Component.wrapComponentConfig({
             // to find the right timeslot, we user array.find() which will stop after first match
             // for that reason the greetingTimes must be ordered from latest to earliest hour
             const greetingTimes = Object.keys(greetings)
-                .map(entry => parseInt(entry.replace('h', ''), 10))
+                .map((entry) => parseInt(entry.replace('h', ''), 10))
                 .sort((a, b) => a - b)
                 .reverse();
 
             /* find the current time slot */
-            const greetingTime = greetingTimes.find(time => hourNow >= time) || greetingTimes[0];
+            const greetingTime = greetingTimes.find((time) => hourNow >= time) || greetingTimes[0];
             const greetingIndex = Math.floor(Math.random() * greetings[`${greetingTime}h`].length);
 
             return `${translateKey}.${greetingTime}h[${greetingIndex}]`;
@@ -118,8 +101,9 @@ export default Shopware.Component.wrapComponentConfig({
         getGreetings(type = 'daytimeHeadline') {
             const i18nMessages = this.$i18n.messages;
 
-            const localeGreetings = i18nMessages?.[this.$i18n.locale]?.['sw-dashboard']?.introduction?.[type];
-            const fallbackGreetings = i18nMessages?.[this.$i18n.fallbackLocale]?.['sw-dashboard']?.introduction?.[type];
+            const localeGreetings = i18nMessages.value?.[this.$i18n.locale]?.['sw-dashboard']?.introduction?.[type];
+            const fallbackGreetings =
+                i18nMessages.value?.[this.$i18n.fallbackLocale.value]?.['sw-dashboard']?.introduction?.[type];
 
             return localeGreetings ?? fallbackGreetings;
         },

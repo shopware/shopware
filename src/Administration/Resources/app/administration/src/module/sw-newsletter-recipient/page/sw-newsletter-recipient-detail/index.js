@@ -2,7 +2,7 @@ import template from './sw-newsletter-recipient-detail.html.twig';
 import './sw-newsletter-recipient-detail.scss';
 
 /**
- * @package buyers-experience
+ * @sw-package after-sales
  */
 
 const { Mixin } = Shopware;
@@ -12,9 +12,11 @@ const { Criteria } = Shopware.Data;
 export default {
     template,
 
-    compatConfig: Shopware.compatConfig,
-
-    inject: ['repositoryFactory', 'acl', 'customFieldDataProviderService'],
+    inject: [
+        'repositoryFactory',
+        'acl',
+        'customFieldDataProviderService',
+    ],
 
     mixins: [
         Mixin.getByName('notification'),
@@ -79,8 +81,10 @@ export default {
                 this.createNotificationSuccess({
                     message: this.$tc(
                         'sw-newsletter-recipient.detail.messageSaveSuccess',
+                        {
+                            key: this.newsletterRecipient.email,
+                        },
                         0,
-                        { key: this.newsletterRecipient.email },
                     ),
                 });
             });

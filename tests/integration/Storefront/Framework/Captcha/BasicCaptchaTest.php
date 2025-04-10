@@ -25,10 +25,10 @@ class BasicCaptchaTest extends TestCase
 
     protected function setUp(): void
     {
-        $this->captcha = $this->getContainer()->get(BasicCaptcha::class);
+        $this->captcha = static::getContainer()->get(BasicCaptcha::class);
         $request = new Request();
         $request->setSession(new Session(new MockArraySessionStorage()));
-        $this->getContainer()->get('request_stack')->push($request);
+        static::getContainer()->get('request_stack')->push($request);
 
         $request->getSession()->set('basic_captcha_session', self::BASIC_CAPTCHA_SESSION);
     }

@@ -9,7 +9,7 @@ use Shopware\Core\System\CustomEntity\Xml\Config\ConfigXmlElement;
  */
 class TestElement extends ConfigXmlElement
 {
-    public $extensions = [];
+    public array $extensions = [];
 
     public string $testData = 'TEST_DATA';
 

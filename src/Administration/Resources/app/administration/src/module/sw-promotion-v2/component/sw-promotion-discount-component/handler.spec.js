@@ -1,5 +1,5 @@
 /**
- * @package buyers-experience
+ * @sw-package checkout
  */
 import DiscountComponentHandler from 'src/module/sw-promotion-v2/component/sw-promotion-discount-component/handler';
 import { DiscountTypes } from 'src/module/sw-promotion-v2/helper/promotion.helper';
@@ -7,7 +7,7 @@ import { DiscountTypes } from 'src/module/sw-promotion-v2/helper/promotion.helpe
 describe('module/sw-promotion-v2/component/sw-promotion-discount-component/handler.js', () => {
     it('should have a min-value function that returns 0.00', async () => {
         const cmp = new DiscountComponentHandler();
-        expect(cmp.getMinValue()).toBe(0.00);
+        expect(cmp.getMinValue()).toBe(0.0);
     });
     it('should have a max-value that return 100% for percentage types', async () => {
         const cmp = new DiscountComponentHandler();

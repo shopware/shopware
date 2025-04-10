@@ -1,4 +1,3 @@
-<!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
 {% block sw_first_run_wizard_shopware_domain %}
 <div class="sw-first-run-wizard-shopware-domain">
     <h3 class="headline">
@@ -9,49 +8,41 @@
         v-html="$tc('sw-first-run-wizard.shopwareDomain.message')"
     ></p>
 
-    <sw-switch-field
-        v-model:value="createShopDomain"
+    <mt-switch
+        v-model="createShopDomain"
         :label="$tc('sw-first-run-wizard.shopwareDomain.labelCreateDomain')"
     />
 
     <div v-if="createShopDomain">
-        <sw-text-field
-            v-model:value="newShopDomain"
+
+        <mt-text-field
+            v-model="newShopDomain"
             name="newShopDomain"
             validation="required"
             :label="'Shop domain'"
         />
-        <sw-checkbox-field
-            v-model:value="testEnvironment"
+        <mt-checkbox
+            v-model:checked="testEnvironment"
             :label="$tc('sw-first-run-wizard.shopwareDomain.testEnvironment')"
         />
     </div>
     <div v-else-if="licenceDomains.length > 0">
-        <sw-select-field
-            v-model:value="selectedShopDomain"
+        <mt-select
+            v-model="selectedShopDomain"
             label="Shop domain"
-            placeholder=""
-        >
-            <option
-                v-for="domain in licenceDomains"
-                :key="domain.domain"
-                :value="domain.domain"
-            >
-                {{ domain.domain }}
-            </option>
-        </sw-select-field>
+            :options="domainOptions"
+        />
     </div>
     <div
         v-if="domainError"
         class="sw-first-run-wizard-shopware-domain__error"
     >
-        <sw-alert
+        <mt-banner
             :title="domainError.title"
-            variant="error"
-            appearance="notification"
+            variant="critical"
         >
             {{ domainError.detail }}
-        </sw-alert>
+        </mt-banner>
     </div>
 
     <sw-loader v-if="isLoading" />

@@ -5,11 +5,12 @@ namespace Shopware\Core\Framework\DataAbstractionLayer\Doctrine;
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\Exception\RetryableException;
 use Doctrine\DBAL\Statement;
+use Shopware\Core\Framework\DataAbstractionLayer\Util\StatementHelper;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Telemetry\Metrics\MeterProvider;
-use Shopware\Core\Framework\Telemetry\Metrics\Metric\Counter;
+use Shopware\Core\Framework\Telemetry\Metrics\Metric\ConfiguredMetric;
 
-#[Package('core')]
+#[Package('framework')]
 class RetryableQuery
 {
     public function __construct(
@@ -21,9 +22,9 @@ class RetryableQuery
     /**
      * @param array<string, mixed> $params
      */
-    public function execute(array $params = []): int
+    public function execute(array $params = []): int|string
     {
-        return self::retry($this->connection, fn () => $this->query->executeStatement($params), 0);
+        return self::retry($this->connection, fn () => StatementHelper::executeStatement($this->query, $params), 0);
     }
 
     /**
@@ -57,7 +58,7 @@ class RetryableQuery
         try {
             return $closure();
         } catch (RetryableException $e) {
-            MeterProvider::meter()?->emit(new Counter('database.locked', 1, 'Number of database write locks'));
+            MeterProvider::meter()?->emit(new ConfiguredMetric('database.locks.count', 1));
             if ($connection && $connection->getTransactionNestingLevel() > 0) {
                 // If this closure was executed inside a transaction, do not retry. Remember that the whole (outermost)
                 // transaction was already rolled back by the database when any RetryableException is thrown. Rethrow

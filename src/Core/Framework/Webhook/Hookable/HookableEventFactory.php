@@ -12,7 +12,7 @@ use Shopware\Core\Framework\Webhook\Hookable;
 /**
  * @internal
  */
-#[Package('core')]
+#[Package('framework')]
 class HookableEventFactory
 {
     /**
@@ -22,6 +22,11 @@ class HookableEventFactory
         private readonly BusinessEventEncoder $eventEncoder,
         private readonly WriteResultMerger $writeResultMerger
     ) {
+    }
+
+    public static function isHookable(object $event): bool
+    {
+        return $event instanceof Hookable || $event instanceof FlowEventAware || $event instanceof EntityWrittenContainerEvent;
     }
 
     /**

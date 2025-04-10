@@ -26,7 +26,7 @@ class WriteCommandExtractorTest extends TestCase
     protected function setUp(): void
     {
         $this->stopTransactionAfter();
-        $connection = $this->getContainer()->get(Connection::class);
+        $connection = static::getContainer()->get(Connection::class);
 
         $connection->executeStatement(DefaultsDefinition::SCHEMA);
         $connection->executeStatement(DefaultsChildDefinition::SCHEMA);
@@ -35,7 +35,7 @@ class WriteCommandExtractorTest extends TestCase
         $this->startTransactionBefore();
 
         $defaultsDefinition = new DefaultsDefinition();
-        $definitions = $this->getContainer()->get(DefinitionInstanceRegistry::class);
+        $definitions = static::getContainer()->get(DefinitionInstanceRegistry::class);
         $definitions->register($defaultsDefinition);
         $definitions->register(new DefaultsChildDefinition());
         $definitions->register(new DefaultsChildTranslationDefinition());
@@ -44,7 +44,7 @@ class WriteCommandExtractorTest extends TestCase
     protected function tearDown(): void
     {
         $this->stopTransactionAfter();
-        $connection = $this->getContainer()->get(Connection::class);
+        $connection = static::getContainer()->get(Connection::class);
 
         $connection->executeStatement('DROP TABLE IF EXISTS ' . EntityDefinitionQueryHelper::escape('defaults_child_translation'));
         $connection->executeStatement('DROP TABLE IF EXISTS ' . EntityDefinitionQueryHelper::escape('defaults_child'));
@@ -56,10 +56,10 @@ class WriteCommandExtractorTest extends TestCase
     public function testWriteWithNestedDefaults(): void
     {
         $context = WriteContext::createFromContext(Context::createDefaultContext());
-        $writer = $this->getContainer()->get(EntityWriter::class);
+        $writer = static::getContainer()->get(EntityWriter::class);
 
         $id = Uuid::randomHex();
-        $defaultsDefinition = $this->getContainer()->get(DefaultsDefinition::class);
+        $defaultsDefinition = static::getContainer()->get(DefaultsDefinition::class);
         static::assertInstanceOf(DefaultsDefinition::class, $defaultsDefinition);
         $writeResults = $writer->insert($defaultsDefinition, [['id' => $id]], $context);
 

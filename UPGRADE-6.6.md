@@ -1,3 +1,402 @@
+# 6.6.9.0
+## SCSS Values will be validated and sanitized
+From now on, every scss value added by a theme will be validated when changed in the administration interface.
+The values will be sanitized when they are invalid to a standard value when they are not valid when changed before or via api.
+## Parameter names of some `\Shopware\Core\Framework\Migration\MigrationStep` methods will change
+This will only have an effect if you are using the named parameter feature of PHP with those methods.
+If you want to be forward compatible, call the methods without using named parameters.
+* Parameter name `column` of `\Shopware\Core\Framework\Migration\MigrationStep::dropColumnIfExists` will change to `columnName`
+* Parameter name `column` of `\Shopware\Core\Framework\Migration\MigrationStep::dropForeignKeyIfExists` will change to `foreignKeyName`
+* Parameter name `index` of `\Shopware\Core\Framework\Migration\MigrationStep::dropIndexIfExists` will change to `indexName`
+## Environment Configuration
+
+The web installer now supports configurable command timeouts through the environment variable `SHOPWARE_INSTALLER_TIMEOUT`. This value should be provided in seconds.
+
+### Default Behavior
+If the environment variable is not set, the installer will use the default timeout of 900 seconds (15 minutes).
+
+### Configuration Examples
+```bash
+# Set timeout to 30 minutes
+export SHOPWARE_INSTALLER_TIMEOUT=1800
+
+# Set timeout to 1 hour
+export SHOPWARE_INSTALLER_TIMEOUT=3600
+```
+
+Or in the projects' `.env.installer` file:
+
+```bash
+SHOPWARE_INSTALLER_TIMEOUT=1800
+```
+
+### Validation
+The provided timeout value must be:
+- A numeric value
+- Non-negative
+
+If these conditions are not met, the installer will fall back to the default timeout of 900 seconds.
+## Product review loading moved to core
+The logic responsible for loading product reviews was unified and moved to the core.
+* The service `\Shopware\Storefront\Page\Product\Review\ProductReviewLoader` is deprecated. Use `\Shopware\Core\Content\Product\SalesChannel\Review\AbstractProductReviewLoader` instead.
+* The event `\Shopware\Storefront\Page\Product\Review\ProductReviewsLoadedEvent` is deprecated. Use `\Shopware\Core\Content\Product\SalesChannel\Review\Event\ProductReviewsLoadedEvent` instead.
+* The hook `\Shopware\Storefront\Page\Product\Review\ProductReviewsWidgetLoadedHook` is deprecated. Use `\Shopware\Core\Content\Product\SalesChannel\Review\ProductReviewsWidgetLoadedHook` instead.
+* The struct `\Shopware\Storefront\Page\Product\Review\ReviewLoaderResult` is deprecated. Use `\Shopware\Core\Content\Product\SalesChannel\Review\ProductReviewResult` instead.
+## Native types for PHP class properties
+A "deprecation" message was added to every PHP class property without a native type.
+The native types will be added with Shopware 6.7.0.0.
+If you extend classes with such properties, you will also need to add the type accordingly during the major update.
+## New skip to content links
+The "Skip to content" link for accessibility inside `@Storefront/storefront/base.html.twig` is now inside a separate include template `@Storefront/storefront/component/skip-to-content.html.twig`.
+The new template also has additional links to skip directly to the search field and main navigation. The links can be enabled or disabled by passing boolean variables. By default, only "Skip to main content" is shown:
+
+```twig
+{% sw_include '@Storefront/storefront/component/skip-to-content.html.twig' with {
+    skipToContent: true,
+    skipToSearch: true,
+    skipToMainNav: true
+} %}
+```
+## Storefront product box accessibility: Replace duplicate links around the product image with stretched link in product name
+**Affected template: `Resources/views/storefront/component/product/card/box-standard.html.twig`**
+
+Currently, the link to the product detail page is always duplicated in the default product box because the image is wrapped with the same link.
+This is not ideal for accessibility because the link is read twice when using a screen reader. Therefore, we want to remove the link around the product image that also points to the detail page.
+To make the image still click-able the Bootstrap helper class `stretched-link` will be used on the product name link.
+
+When the `ACESSIBILITY_TWEAKS` flag is active, the product card will no longer contain a link around the product image:
+```diff
+<div class="card product-box box-standard">
+    <div class="card-body">
+        <div class="product-image-wrapper">
+-            <a href="https://shopware.local/Example-Product/SW-01931a101dcc725aa3affc0ff408ee31">
+                <img src="https://shopware.local/media/a3/22/75/1731309077/Example-Product_%283%29.webp?ts=1731309077" alt="Example-Product">
+-            </a>
+        </div>
+
+        <div class="product-info">
+            <a href="https://shopware.local/Example-Product/SW-01931a101dcc725aa3affc0ff408ee31"
++               class="product-name stretched-link"> {# <------ stretched-link is used instead #}
+                Example-Product
+            </a>
+        </div>
+    </div>
+</div>
+```
+## Required foreign key in mapping definition for many-to-many associations
+For many-to-many associations it is necessary that the mapping definition contains the foreign key fields.
+Until now there was a silent error triggered, which is now changed to a proper deprecation message. An exception will be thrown in the next major version.
+
+## App servers: New In-App Purchases feature
+In-App Purchases are a way to lock certain features behind a paywall within the same extension. 
+This is useful for developers who want to offer a free version of their extension with limited features and a paid version with more features.
+
+We've modified the requests to app servers to include a JWT token for all active In-App Purchases.
+With GET requests, the `in-app-purchases` parameter was added.
+With POST requests, the In-App-Purchases are part of the `source` object in the request body.
+
+If you use the official Shopware [Symfony App bundle](https://github.com/shopware/app-bundle-symfony) or the [App PHP SDK](https://github.com/shopware/app-php-sdk), you're app server is already set to go.
+If you use a custom signing mechanism, you need to adjust your app server to handle the new requests.
+See an example implementation in PHP [here](https://github.com/shopware/app-php-sdk/blob/main/examples/index.php).
+
+See the documentation for In-App Purchases [here](https://developer.shopware.com/docs/guides/plugins/apps/in-app-purchase/).
+
+# 6.6.8.0
+## Search server now provides OpenSearch/Elasticsearch shards and replicas
+
+Previously we had an default configuration of three shards and three replicas. With 6.7 we removed this default configuration and now the search server is responsible for providing the correct configuration.
+This allows that the indices automatically scale based on your nodes available in the cluster.
+
+You can revert to the old behavior by setting the following configuration in your `config/packages/shopware.yml`:
+
+```yaml
+elasticsearch:
+    index_settings:
+        number_of_shards: 3
+        number_of_replicas: 3
+```
+## Redis configuration
+
+Now you can define multiple redis connections in the `config/packages/shopware.yaml` file under the `shopware` section:
+```yaml
+shopware:
+    # ...
+    redis:
+        connections:
+            connection_1:
+                dsn: 'redis://host:port/database_index'
+            connection_2:
+                dsn: 'redis://host:port/database_index'
+```
+Connection names should reflect the actual connection purpose/type and be unique, for example `ephemeral`, `persistent`. Also they are used as a part of service names in the container, so they should follow the service naming conventions. After defining connections, you can reference them by name in configuration of different subsystems.
+
+### Cache invalidation
+
+Replace `shopware.cache.invalidation.delay_options.dsn` with `shopware.cache.invalidation.delay_options.connection` in the configuration files:
+
+```yaml
+shopware:
+    # ...
+    cache:
+        invalidation:
+            delay: 1
+            delay_options:
+                storage: redis
+                # dsn: 'redis://host:port/database_index' # deprecated
+                connection: 'connection_1' # new way
+```
+
+### Increment storage
+
+Replace `shopware.increment.<increment_name>.config.url` with `shopware.increment.<increment_name>.config.connection` in the configuration files:
+
+```yaml
+shopware:
+    # ...
+    increment:
+        increment_name:
+            type: 'redis'
+            config:
+                # url: 'redis://host:port/database_index' # deprecated
+                connection: 'connection_2' # new way
+```
+
+### Number ranges
+
+Replace `shopware.number_range.config.dsn` with `shopware.number_range.config.connection` in the configuration files:
+
+```yaml
+shopware:
+    # ...
+    number_range:
+        increment_storage: "redis"
+        config:
+            # dsn: 'redis://host:port/dbindex' # deprecated
+            connection: 'connection_2' # new way
+```
+
+### Cart storage
+
+Replace `cart.storage.config.dsn` with `cart.storage.config.connection` in the configuration files:
+
+```yaml
+shopware:
+    # ...
+    cart:
+        storage:
+            type: 'redis'
+            config:
+                #dsn: 'redis://host:port/dbindex' # deprecated
+                connection: 'connection_2' # new way
+```
+
+### Custom services
+
+If you have custom services that use redis connection, you have next options for the upgrade:
+
+1. Inject `Shopware\Core\Framework\Adapter\Redis\RedisConnectionProvider` and use it to get the connection by name:
+
+    ```xml
+    <service id="MyCustomService">
+        <argument type="service" id="Shopware\Core\Framework\Adapter\Redis\RedisConnectionProvider" />
+        <argument>%myservice.redis_connection_name%</argument>
+    </service>
+    ```
+
+    ```php
+    class MyCustomService
+    { 
+        public function __construct (
+            private RedisConnectionProvider $redisConnectionProvider,
+            string $connectionName,
+        ) { }
+
+        public function doSomething()
+        {
+            if ($this->redisConnectionProvider->hasConnection($this->connectionName)) {
+                $connection = $this->redisConnectionProvider->getConnection($this->connectionName);
+                // use connection
+            }
+        }
+    }
+    ```
+
+2. Use `Shopware\Core\Framework\Adapter\Redis\RedisConnectionProvider` as factory to define custom services:
+
+    ```xml
+    <service id="my.custom.redis_connection" class="Redis">
+        <factory service="Shopware\Core\Framework\Adapter\Redis\RedisConnectionProvider" method="getConnection" />
+        <argument>%myservice.redis_connection_name%</argument>
+    </service>
+
+    <service id="MyCustomService">
+        <argument type="service" id="my.custom.redis_connection" />
+    </service>
+    ```
+
+    ```php
+    class MyCustomService
+    { 
+        public function __construct (
+            private Redis $redisConnection,
+        ) { }
+
+        public function doSomething()
+        {
+            // use connection
+        }
+    }
+    ```
+    This approach is especially useful if you need multiple services to share the same connection.
+
+3. Inject connection by name directly:
+    ```xml
+    <service id="MyCustomService">
+        <argument type="service" id="shopware.redis.connection.connection_name" />
+    </service>
+    ```
+   Be cautious with this approach—if you change the Redis connection names in your configuration, it will cause container build errors.
+
+Please beware that redis connections with the **same DSNs** are shared over the system, so closing the connection in one service will affect all other services that use the same connection.
+## "adminMenu" Vuex store moved to Pinia
+
+The `adminMenu` store has been migrated from Vuex to Pinia. The store is now available as a Pinia store and can be accessed via `Shopware.Store.get('adminMenu')`.
+
+### Before:
+```js
+Shopware.State.get('adminMenu');
+```
+
+### After:
+```js
+Shopware.Store.get('adminMenu');
+```
+If you use a TLS proxy in your setup, you can now start the hot reloading with https without setting certificate files.
+
+**_Example .env file for a DDEV setup:_**
+```
+IPV4FIRST=1
+APP_ENV=dev
+ESLINT_DISABLE=true
+HOST=0.0.0.0
+STOREFRONT_ASSETS_PORT=9999
+STOREFRONT_PROXY_PORT=9998
+APP_URL=https://shopware-ddev-new.ddev.site/
+PROXY_URL=https://shopware-ddev-new.ddev.site:9998/
+```
+## Deprecation of obsolete method in DefinitionValidator
+The method `\Shopware\Core\Framework\DataAbstractionLayer\DefinitionValidator::getNotices` is deprecated and will be removed without replacement.
+It always returns an empty array, so it has no real purpose.
+
+# 6.6.7.0
+## Shortened filenames with hashes for async JS built files
+When building the Storefront JS-files for production using `composer run build:js:storefront`, the async bundle filenames no longer contain the filepath.
+Instead, only the filename is used with a chunkhash / dynamic version number. This also helps to identify which files have changed after build. Similar to the main entry file like e.g. `cms-extensions.js?1720776107`.
+
+**JS Filename before change in dist:**
+```
+└── custom/apps/
+    └── ExampleCmsExtensions/src/Resources/app/storefront/dist/storefront/js/
+        └── cms-extensions/           
+            ├── cms-extensions.js <-- The main entry pint JS-bundle
+            └── custom_plugins_CmsExtensions_src_Resources_app_storefront_src_cms-extensions-quickview.js  <-- Complete path in filename
+```
+
+**JS Filename after change in dist:**
+```
+└── custom/apps/
+    └── ExampleCmsExtensions/src/Resources/app/storefront/dist/storefront/js/
+        └── cms-extensions/           
+            ├── cms-extensions.js <-- The main entry pint JS-bundle
+            └── cms-extensions-quickview.plugin.423fc1.js <-- Filename and chunkhash
+```
+## Persistent mode for `focusHandler`
+The `window.focusHandler` now supports a persistent mode that can be used in case the current focus is lost after a page reload.
+When using methods `saveFocusStatePersistent` and `resumeFocusStatePersistent` the focus element will be saved inside the `sessionStorage` instead of the window object / memory.
+
+The persistent mode requires a key name for the `sessionStorage` as well as a unique selector as string. It is not possible to save element references into the `sessionStorage`.
+The unique selector will be used to find the DOM element during `resumeFocusStatePersistent` and re-focus it.
+```js
+// Save the current focus state
+window.focusHandler.saveFocusStatePersistent('special-form', '#unique-id-on-this-page');
+
+// Something happens and the page reloads
+window.location.reload();
+
+// Resume the focus state for the key `special-form`. The unique selector will be retrieved from the `sessionStorage` 
+window.focusHandler.resumeFocusStatePersistent('special-form');
+```
+
+By default, the storage keys are prefixed with `sw-last-focus`. The above example will save the following to the `sessionStorage`:
+
+| key                          | value                     |
+|------------------------------|---------------------------|
+| `sw-last-focus-special-form` | `#unique-id-on-this-page` |
+
+## Automatic focus for `FormAutoSubmitPlugin`
+The `FormAutoSubmitPlugin` can now try to re-focus elements after AJAX submits or full page reloads using the `window.focusHandler`.
+This works automatically for all form input elements inside an auto submit form that have a `[data-focus-id]` attribute that is unique.
+
+The automatic focus is activated by default and be modified by the new JS-plugin options:
+
+```js
+export default class FormAutoSubmitPlugin extends Plugin {
+    static options = {
+        autoFocus: true,
+        focusHandlerKey: 'form-auto-submit'
+    }
+}
+```
+
+```diff
+<form action="/example/action" data-form-auto-submit="true">
+    <!-- FormAutoSubmitPlugin will try to restore previous focus on all elements with da focus-id -->
+    <input 
+        class="form-control"
++        data-focus-id="unique-id"
+    >
+</form>
+```
+## Improved formating behaviour of the text editor
+The text editor in the administration was changed to produce paragraph `<p>` elements for new lines instead of `<div>` elements. This leads to a more consistent text formatting. You can still create `<div>` elements on purpose via using the code editor.
+
+In addition, loose text nodes will be wrapped in a paragraph `<p>` element on initializing a new line via the enter key. In the past it could happen that when starting to write in an empty text editor, that text is not wrapped in a proper section element. Now this is automatically fixed when you add a first new line to your text. From then on everything is wrapped in paragraph elements and every new line will also create a new paragraph instead of `<div>` elements.
+## Change Storefront language and currency dropdown items to buttons
+The "top-bar" dropdown items inside `views/storefront/layout/header/top-bar.html.twig` will use `<button>` elements instead of hidden `<input type="radio">` when the `ACCESSIBILITY_TWEAKS` flag is `1`.
+This will improve the keyboard navigation because the user can navigate through all options first before submitting the form.
+
+Currently, every radio input change results in a form submit and thus in a page reload. Using button elements is also more aligned with Bootstraps dropdown HTML structure: [Bootstrap dropdown documentation](https://getbootstrap.com/docs/5.3/components/dropdowns/#menu-items)
+## Change Storefront order items and cart line-items from `<div>` to `<ul>` and `<li>`:
+* We want to change several list views that are currently using generic `<div>` elements to proper `<ul>` and `<li>`. This will not only improve the semantics but also the screen reader accessibility. 
+* To avoid breaking changes in the HTML and the styling, the change to `<ul>` and `<li>` is done behind the `ACCESSIBILITY_TWEAKS` feature flag.
+* With the next major version the `<ul>` and `<li>` will become the default. In the meantime, the `<div>` elements get `role="list"` and `role="listitem"`.
+* All `<ul>` will get a Bootstrap `list-unstyled` class to avoid the list bullet points and have the same appearance as `<div>`.
+* The general HTML structure and Twig blocks remain the same.
+
+### Affected templates:
+* Account order overview
+    * `src/Storefront/Resources/views/storefront/page/account/order-history/index.html.twig`
+    * `src/Storefront/Resources/views/storefront/page/account/order-history/order-detail-document-item.html.twig`
+    * `src/Storefront/Resources/views/storefront/page/account/order-history/order-detail-document.html.twig`
+* Cart table header (Root element changed to `<li>`)
+    * `src/Storefront/Resources/views/storefront/component/checkout/cart-header.html.twig`
+* Line-items wrapper (List wrapper element changed to `<ul>`)
+    * `src/Storefront/Resources/views/storefront/page/checkout/cart/index.html.twig`
+    * `src/Storefront/Resources/views/storefront/page/checkout/confirm/index.html.twig`
+    * `src/Storefront/Resources/views/storefront/page/checkout/finish/index.html.twig`
+    * `src/Storefront/Resources/views/storefront/page/checkout/address/index.html.twig`
+    * `src/Storefront/Resources/views/storefront/page/account/order-history/order-detail-list.html.twig`
+    * `src/Storefront/Resources/views/storefront/component/checkout/offcanvas-cart.html.twig`
+* Line-items (Root element changed to `<li>`)
+    * `src/Storefront/Resources/views/storefront/component/line-item/type/product.html.twig`
+    * `src/Storefront/Resources/views/storefront/component/line-item/type/discount.html.twig`
+    * `src/Storefront/Resources/views/storefront/component/line-item/type/generic.html.twig`
+    * `src/Storefront/Resources/views/storefront/component/line-item/type/container.html.twig`
+## Correct order of app-cms blocks via xml files
+The order of app CMS blocks is now correctly applied when using XML files to define the blocks. This is achieved by using a position attribute in the JSON generated from the XML file, which reflects the order of the CMS slots within the file. Since it's not possible to determine the correct order of CMS blocks that have already been loaded into the database, this change will only affect newly loaded blocks.
+
+To ensure the correct order is applied, you should consider to reinstall apps that provide app CMS blocks.
+
 # 6.6.6.0
 ## Rework Storefront pagination to use anchor links and improve accessibility
 We want to change the Storefront pagination component (`Resources/views/storefront/component/pagination.html.twig`) to use anchor links `<a href="#"></a>` instead of radio inputs with styled labels.
@@ -469,9 +868,11 @@ shopware:
     cache:
         invalidation:
             delay_options:
-                storage: cache
+                storage: redis
                 dsn: 'redis://localhost'
 ```
+
+Since 6.6.10.0 we also have a MySQL implementation available: `\Shopware\Core\Framework\Adapter\Cache\InvalidatorStorage\MySQLInvalidatorStorage`. Use it via `mysql`
 
 # General Core Breaking Changes
 
@@ -670,7 +1071,7 @@ public function loadCombinations(string $productId, SalesChannelContext $salesCh
 
 The `loadCombinations` method has been made abstract so it must be implemented. The `SalesChannelContext` instance, contains the data which was previously in the defined on the `load` method.
 
-`$salesChannelId` can be replaced with `$salesChannelContext->getSalesChannel()->getId()`.
+`$salesChannelId` can be replaced with `$salesChannelContext->getSalesChannelId()`.
 
 `$context` can be replaced with `$salesChannelContext->getContext()`.
 
@@ -1683,9 +2084,11 @@ shopware:
     cache:
         invalidation:
             delay_options:
-                storage: cache
+                storage: redis
                 dsn: 'redis://localhost'
 ```
+
+Since 6.6.10.0 we also have a MySQL implementation available: `\Shopware\Core\Framework\Adapter\Cache\InvalidatorStorage\MySQLInvalidatorStorage`. Use it via `mysql`
 
 ## Introduced in 6.5.5.0
 ## New stock handling implementation is now the default
@@ -1720,7 +2123,7 @@ public function loadCombinations(string $productId, SalesChannelContext $salesCh
 
 The `loadCombinations` method has been made abstract so it must be implemented. The `SalesChannelContext` instance, contains the data which was previously in the defined on the `load` method. 
 
-`$salesChannelId` can be replaced with `$salesChannelContext->getSalesChannel()->getId()`.
+`$salesChannelId` can be replaced with `$salesChannelContext->getSalesChannelId()`.
 
 `$context` can be replaced with `$salesChannelContext->getContext()`.
 

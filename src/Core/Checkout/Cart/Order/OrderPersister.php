@@ -4,10 +4,10 @@ namespace Shopware\Core\Checkout\Cart\Order;
 
 use Shopware\Core\Checkout\Cart\Cart;
 use Shopware\Core\Checkout\Cart\CartException;
-use Shopware\Core\Checkout\Cart\Exception\CustomerNotLoggedInException;
+use Shopware\Core\Checkout\Cart\CartSerializationCleaner;
 use Shopware\Core\Checkout\Cart\Exception\InvalidCartException;
-use Shopware\Core\Checkout\Order\Exception\DeliveryWithoutAddressException;
-use Shopware\Core\Checkout\Order\Exception\EmptyCartException;
+use Shopware\Core\Checkout\Order\OrderCollection;
+use Shopware\Core\Checkout\Order\OrderException;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\InconsistentCriteriaIdsException;
@@ -19,17 +19,19 @@ class OrderPersister implements OrderPersisterInterface
 {
     /**
      * @internal
+     *
+     * @param EntityRepository<OrderCollection> $orderRepository
      */
     public function __construct(
         private readonly EntityRepository $orderRepository,
-        private readonly OrderConverter $converter
+        private readonly OrderConverter $converter,
+        private readonly CartSerializationCleaner $cartSerializationCleaner,
     ) {
     }
 
     /**
-     * @throws CustomerNotLoggedInException
-     * @throws DeliveryWithoutAddressException
-     * @throws EmptyCartException
+     * @throws CartException
+     * @throws OrderException
      * @throws InvalidCartException
      * @throws InconsistentCriteriaIdsException
      */
@@ -42,9 +44,13 @@ class OrderPersister implements OrderPersisterInterface
         if (!$context->getCustomer()) {
             throw CartException::customerNotLoggedIn();
         }
+
         if ($cart->getLineItems()->count() <= 0) {
-            throw new EmptyCartException();
+            throw CartException::cartEmpty();
         }
+
+        // cleanup cart before converting it to an order
+        $this->cartSerializationCleaner->cleanupCart($cart);
 
         $order = $this->converter->convertToOrder($cart, $context, new OrderConversionContext());
 

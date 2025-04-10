@@ -4,8 +4,8 @@ namespace Shopware\Core\Content\Media\MediaType;
 
 use Shopware\Core\Framework\Log\Package;
 
-#[Package('buyers-experience')]
+#[Package('discovery')]
 class BinaryType extends MediaType
 {
-    protected $name = 'BINARY';
+    protected string $name = 'BINARY';
 }

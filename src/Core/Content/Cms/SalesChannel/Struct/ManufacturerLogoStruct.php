@@ -5,13 +5,10 @@ namespace Shopware\Core\Content\Cms\SalesChannel\Struct;
 use Shopware\Core\Content\Product\Aggregate\ProductManufacturer\ProductManufacturerEntity;
 use Shopware\Core\Framework\Log\Package;
 
-#[Package('buyers-experience')]
+#[Package('discovery')]
 class ManufacturerLogoStruct extends ImageStruct
 {
-    /**
-     * @var ProductManufacturerEntity|null
-     */
-    protected $manufacturer;
+    protected ?ProductManufacturerEntity $manufacturer = null;
 
     public function getManufacturer(): ?ProductManufacturerEntity
     {

@@ -1,5 +1,5 @@
 /**
- * @package admin
+ * @sw-package framework
  */
 
 import { shallowMount, config } from '@vue/test-utils';
@@ -67,10 +67,16 @@ describe('ASYNC app/adapter/view/vue.adapter.js', () => {
             });
         }
 
-        Shopware.State.get('system').locales = ['en-GB', 'de-DE'];
+        Shopware.Store.get('system').locales = [
+            'en-GB',
+            'de-DE',
+        ];
 
-        Shopware.State.commit('setAdminLocale', {
-            locales: ['en-GB', 'de-DE'],
+        Shopware.Store.get('session').setAdminLocaleState({
+            locales: [
+                'en-GB',
+                'de-DE',
+            ],
             locale: 'en-GB',
             languageId: '12345678',
         });
@@ -97,10 +103,9 @@ describe('ASYNC app/adapter/view/vue.adapter.js', () => {
     });
 
     it('initLocales should call setLocaleFromuser', async () => {
-        application = createApplication()
-            .addFactory('locale', () => {
-                return LocaleFactory;
-            });
+        application = createApplication().addFactory('locale', () => {
+            return LocaleFactory;
+        });
 
         // create vueAdapter with custom application
         vueAdapter = new VueAdapter(application);
@@ -108,65 +113,54 @@ describe('ASYNC app/adapter/view/vue.adapter.js', () => {
         // Mock function
         vueAdapter.setLocaleFromUser = jest.fn();
 
-        vueAdapter.initLocales({
-            subscribe: () => {},
-            dispatch: () => {},
-            state: { session: { currentLocale: 'en-GB' } },
-        });
+        vueAdapter.initLocales();
+        Shopware.Store.get('session').currentLocale = 'en-GB';
 
         expect(vueAdapter.setLocaleFromUser).toHaveBeenCalled();
     });
 
-    it('setLocaleFromUser should not set the user when user does not exists', async () => {
-        vueAdapter.setLocaleFromUser({
-            state: { session: { currentUser: null } },
-        });
+    it('setLocaleFromUser should not set the user when user does not exist', async () => {
+        vueAdapter.setLocaleFromUser();
+        Shopware.Store.get('session').removeCurrentUser();
 
         expect(Shopware.Service('localeHelper').setLocaleWithId).not.toHaveBeenCalled();
     });
 
-    it('setLocaleFromUser should set the user when user does not exists', async () => {
-        vueAdapter.setLocaleFromUser({
-            state: { session: { currentUser: { localeId: '12345' } } },
-        });
+    it('setLocaleFromUser should set the user when user does not exist', async () => {
+        Shopware.Store.get('session').setCurrentUser({ localeId: '12345' });
+        vueAdapter.setLocaleFromUser();
 
         expect(Shopware.Service('localeHelper').setLocaleWithId).toHaveBeenCalled();
     });
 
     it('setLocaleFromUser should call the service with the user id from the store', async () => {
         const expectedId = '12345678';
+        Shopware.Store.get('session').setCurrentUser({ localeId: expectedId });
 
-        vueAdapter.setLocaleFromUser({
-            state: { session: { currentUser: { localeId: expectedId } } },
-        });
+        vueAdapter.setLocaleFromUser();
 
         expect(Shopware.Service('localeHelper').setLocaleWithId).toHaveBeenCalledWith(expectedId);
     });
 
     it('initLocales should watch for user changes and recall the "setLocaleWithId"', async () => {
-        application = createApplication()
-            .addFactory('locale', () => {
-                return LocaleFactory;
-            });
+        application = createApplication().addFactory('locale', () => {
+            return LocaleFactory;
+        });
 
         // Mock current user in state
-        Shopware.State.get('session').currentUser = {
+        Shopware.Store.get('session').setCurrentUser({
             localeId: 'english-id',
-        };
+        });
 
         // create vueAdapter with custom application
         vueAdapter = new VueAdapter(application);
 
-        vueAdapter.initLocales({
-            subscribe: () => {},
-            dispatch: () => {},
-            state: { session: { currentLocale: 'en-GB' } },
-        });
+        vueAdapter.initLocales();
 
         // Change the user
-        Shopware.State.get('session').currentUser = {
+        Shopware.Store.get('session').setCurrentUser({
             localeId: 'german-id',
-        };
+        });
 
         await flushPromises();
 
@@ -468,13 +462,17 @@ describe('ASYNC app/adapter/view/vue.adapter.js', () => {
                 lifecycleSpy();
             },
             methods: {
-                foo() { return 'foo'; },
+                foo() {
+                    return 'foo';
+                },
             },
         });
 
         Shopware.Mixin.register('second-mixin', {
             methods: {
-                bar() { return 'bar'; },
+                bar() {
+                    return 'bar';
+                },
             },
         });
 
@@ -487,7 +485,10 @@ describe('ASYNC app/adapter/view/vue.adapter.js', () => {
         });
 
         Shopware.Component.override('base-component', {
-            mixins: ['second-mixin', 'first-mixin'],
+            mixins: [
+                'second-mixin',
+                'first-mixin',
+            ],
         });
 
         Shopware.Component.markComponentAsSync('base-component');
@@ -507,11 +508,15 @@ describe('ASYNC app/adapter/view/vue.adapter.js', () => {
             name: 'sw-foo',
 
             render() {
-                return h('div', {
-                    class: {
-                        'sw-foo': true,
+                return h(
+                    'div',
+                    {
+                        class: {
+                            'sw-foo': true,
+                        },
                     },
-                }, ['Some text']);
+                    ['Some text'],
+                );
             },
         };
 
@@ -532,6 +537,17 @@ describe('ASYNC app/adapter/view/vue.adapter.js', () => {
                     }
 
                     return msg.includes('plugin is already installed');
+                },
+            });
+
+            global.allowedErrors.push({
+                method: 'warn',
+                msgCheck: (msg) => {
+                    if (typeof msg !== 'string') {
+                        return false;
+                    }
+
+                    return msg.includes('plugin must either be a function');
                 },
             });
         });
@@ -623,11 +639,7 @@ describe('ASYNC app/adapter/view/vue.adapter.js', () => {
             // create div with id app
             document.body.innerHTML = '<div id="app"></div>';
 
-            rootComponent = vueAdapter.init(
-                '#app',
-                router,
-                {},
-            );
+            rootComponent = vueAdapter.init('#app', router, {});
         });
 
         afterEach(() => {
@@ -640,6 +652,7 @@ describe('ASYNC app/adapter/view/vue.adapter.js', () => {
             expect(rootComponent.config.globalProperties.$router).toBeDefined();
             expect(rootComponent.config.globalProperties.$tc).toBeDefined();
             expect(rootComponent.config.globalProperties.$store).toBeDefined();
+            expect(rootComponent.config.globalProperties.$dataScope).toBeDefined();
         });
 
         it('should initialize the directives correctly', async () => {
@@ -651,18 +664,21 @@ describe('ASYNC app/adapter/view/vue.adapter.js', () => {
         });
 
         it('should have correct working createTitle method', () => {
-            const result = rootComponent.config.globalProperties.$createTitle.call({
-                $root: {
-                    $tc: (v) => rootComponent.$tc(v),
-                },
-                $route: {
-                    meta: {
-                        $module: {
-                            title: 'global.my.mock.title',
+            const result = rootComponent.config.globalProperties.$createTitle.call(
+                {
+                    $root: {
+                        $tc: (v) => rootComponent.$tc(v),
+                    },
+                    $route: {
+                        meta: {
+                            $module: {
+                                title: 'global.my.mock.title',
+                            },
                         },
                     },
                 },
-            }, 'Test');
+                'Test',
+            );
 
             expect(result).toBe('Test | Mock title | Text Shopware Admin');
         });
@@ -683,16 +699,13 @@ describe('ASYNC app/adapter/view/vue.adapter.js', () => {
                 'mt-button',
                 'mt-checkbox',
                 'mt-colorpicker',
-                'mt-datepicker',
                 'mt-email-field',
-                'mt-external-link',
                 'mt-number-field',
                 'mt-password-field',
                 'mt-select',
                 'mt-switch',
                 'mt-text-field',
                 'mt-textarea',
-                'mt-url-field',
                 'mt-icon',
                 'mt-data-table',
                 'mt-pagination',
@@ -728,13 +741,18 @@ describe('ASYNC app/adapter/view/vue.adapter.js', () => {
         it('should update the i18n global locale to update the locale in UI when the locale in the session store changes', async () => {
             const expectedLocale = 'de-DE';
 
-            Shopware.State.commit('setAdminLocale', {
-                locales: ['en-GB', 'de-DE'],
+            Shopware.Store.get('session').setAdminLocaleState({
+                locales: [
+                    'en-GB',
+                    'de-DE',
+                ],
                 locale: expectedLocale,
                 languageId: '12345678',
             });
 
-            expect(vueAdapter.i18n.global.locale).toEqual(expectedLocale);
+            await flushPromises();
+
+            expect(vueAdapter.i18n.global.locale.value).toEqual(expectedLocale);
         });
     });
 });

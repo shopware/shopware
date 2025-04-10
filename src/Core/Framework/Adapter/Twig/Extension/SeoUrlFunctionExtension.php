@@ -8,7 +8,7 @@ use Symfony\Bridge\Twig\Extension\RoutingExtension;
 use Twig\Extension\AbstractExtension;
 use Twig\TwigFunction;
 
-#[Package('core')]
+#[Package('framework')]
 class SeoUrlFunctionExtension extends AbstractExtension
 {
     /**
@@ -27,6 +27,9 @@ class SeoUrlFunctionExtension extends AbstractExtension
         ];
     }
 
+    /**
+     * @param array<string, mixed> $parameters
+     */
     public function seoUrl(string $name, array $parameters = []): string
     {
         return $this->seoUrlReplacer->generate($name, $parameters);

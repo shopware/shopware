@@ -11,64 +11,18 @@ use Shopware\Core\Framework\Util\FloatComparator;
 #[Package('checkout')]
 class CalculatedPrice extends Struct
 {
-    /**
-     * @var float
-     */
-    protected $unitPrice;
-
-    /**
-     * @var int
-     */
-    protected $quantity;
-
-    /**
-     * @var float
-     */
-    protected $totalPrice;
-
-    /**
-     * @var CalculatedTaxCollection
-     */
-    protected $calculatedTaxes;
-
-    /**
-     * @var TaxRuleCollection
-     */
-    protected $taxRules;
-
-    /**
-     * @var ReferencePrice|null
-     */
-    protected $referencePrice;
-
-    /**
-     * @var ListPrice|null
-     */
-    protected $listPrice;
-
-    /**
-     * @var RegulationPrice|null
-     */
-    protected $regulationPrice;
-
     public function __construct(
-        float $unitPrice,
-        float $totalPrice,
-        CalculatedTaxCollection $calculatedTaxes,
-        TaxRuleCollection $taxRules,
-        int $quantity = 1,
-        ?ReferencePrice $referencePrice = null,
-        ?ListPrice $listPrice = null,
-        ?RegulationPrice $regulationPrice = null
+        protected float $unitPrice,
+        protected float $totalPrice,
+        protected CalculatedTaxCollection $calculatedTaxes,
+        protected TaxRuleCollection $taxRules,
+        protected int $quantity = 1,
+        protected ?ReferencePrice $referencePrice = null,
+        protected ?ListPrice $listPrice = null,
+        protected ?RegulationPrice $regulationPrice = null
     ) {
         $this->unitPrice = FloatComparator::cast($unitPrice);
         $this->totalPrice = FloatComparator::cast($totalPrice);
-        $this->calculatedTaxes = $calculatedTaxes;
-        $this->taxRules = $taxRules;
-        $this->quantity = $quantity;
-        $this->referencePrice = $referencePrice;
-        $this->listPrice = $listPrice;
-        $this->regulationPrice = $regulationPrice;
     }
 
     public function getTotalPrice(): float

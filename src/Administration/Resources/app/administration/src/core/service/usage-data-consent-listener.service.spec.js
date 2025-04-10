@@ -1,5 +1,5 @@
 /**
- * @package data-services
+ * @sw-package data-services
  */
 import createLoginService from './login.service';
 import addUsageDataConsentListener from './usage-data-consent-listener.service';
@@ -10,7 +10,7 @@ describe('src/core/service/usage-data-consent-listener.service.ts', () => {
     let serviceContainer = null;
 
     beforeEach(() => {
-        window.localStorage.setItem('redirectFromLogin', 'true');
+        window.sessionStorage.setItem('redirectFromLogin', 'true');
 
         loginService = createLoginService({}, Shopware.Context.api);
         serviceContainer = {
@@ -28,7 +28,7 @@ describe('src/core/service/usage-data-consent-listener.service.ts', () => {
             },
         };
 
-        Shopware.State.commit('usageData/updateConsent', {
+        Shopware.Store.get('usageData').updateConsent({
             isConsentGiven: undefined,
             isBannerHidden: undefined,
         });
@@ -51,8 +51,8 @@ describe('src/core/service/usage-data-consent-listener.service.ts', () => {
 
         await flushPromises();
 
-        expect(Shopware.State.get('usageData').isConsentGiven).toBe(true);
-        expect(Shopware.State.get('usageData').isBannerHidden).toBe(false);
+        expect(Shopware.Store.get('usageData').isConsentGiven).toBe(true);
+        expect(Shopware.Store.get('usageData').isBannerHidden).toBe(false);
     });
 
     it('should reset the consent if the request fails', async () => {
@@ -64,8 +64,8 @@ describe('src/core/service/usage-data-consent-listener.service.ts', () => {
 
         await flushPromises();
 
-        expect(Shopware.State.get('usageData').isConsentGiven).toBe(false);
-        expect(Shopware.State.get('usageData').isBannerHidden).toBe(true);
+        expect(Shopware.Store.get('usageData').isConsentGiven).toBe(false);
+        expect(Shopware.Store.get('usageData').isBannerHidden).toBe(true);
     });
 
     it('should reset the consent on logout', async () => {
@@ -75,7 +75,7 @@ describe('src/core/service/usage-data-consent-listener.service.ts', () => {
 
         await flushPromises();
 
-        expect(Shopware.State.get('usageData').isConsentGiven).toBe(false);
-        expect(Shopware.State.get('usageData').isBannerHidden).toBe(true);
+        expect(Shopware.Store.get('usageData').isConsentGiven).toBe(false);
+        expect(Shopware.Store.get('usageData').isBannerHidden).toBe(true);
     });
 });

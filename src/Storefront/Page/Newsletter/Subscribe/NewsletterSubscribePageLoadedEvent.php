@@ -10,10 +10,7 @@ use Symfony\Component\HttpFoundation\Request;
 #[Package('checkout')]
 class NewsletterSubscribePageLoadedEvent extends PageLoadedEvent
 {
-    /**
-     * @var NewsletterSubscribePage
-     */
-    protected $page;
+    protected NewsletterSubscribePage $page;
 
     public function __construct(
         NewsletterSubscribePage $page,

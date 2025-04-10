@@ -6,7 +6,6 @@ use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\ParameterType;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Category\CategoryDefinition;
-use Shopware\Core\Content\Newsletter\Aggregate\NewsletterRecipient\NewsletterRecipientDefinition;
 use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Content\Test\Product\ProductBuilder;
 use Shopware\Core\Defaults;
@@ -14,7 +13,6 @@ use Shopware\Core\Framework\App\ShopId\ShopIdProvider;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldType\DateInterval;
 use Shopware\Core\Framework\Log\Package;
-use Shopware\Core\Framework\Test\IdsCollection;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\CustomField\Aggregate\CustomFieldSet\CustomFieldSetDefinition;
@@ -25,7 +23,7 @@ use Shopware\Core\System\UsageData\EntitySync\DispatchEntityMessage;
 use Shopware\Core\System\UsageData\EntitySync\DispatchEntityMessageHandler;
 use Shopware\Core\System\UsageData\EntitySync\Operation;
 use Shopware\Core\System\UsageData\Services\EntityDefinitionService;
-use Shopware\Core\Test\TestDefaults;
+use Shopware\Core\Test\Stub\Framework\IdsCollection;
 use Symfony\Component\HttpClient\MockHttpClient;
 use Symfony\Component\HttpClient\Response\MockResponse;
 use Symfony\Component\HttpFoundation\Request;
@@ -58,9 +56,9 @@ class DispatchEntityMessageHandlerTest extends TestCase
         });
 
         $this->idsCollection = new IdsCollection();
-        $this->connection = $this->getContainer()->get(Connection::class);
+        $this->connection = static::getContainer()->get(Connection::class);
 
-        $systemConfigService = $this->getContainer()->get(SystemConfigService::class);
+        $systemConfigService = static::getContainer()->get(SystemConfigService::class);
         $systemConfigService->set(ConsentService::SYSTEM_CONFIG_KEY_CONSENT_STATE, ConsentState::ACCEPTED->value);
     }
 
@@ -77,7 +75,7 @@ class DispatchEntityMessageHandlerTest extends TestCase
                 return new MockResponse($body);
             }
 
-            $shopId = $this->getContainer()->get(ShopIdProvider::class)->getShopId();
+            $shopId = static::getContainer()->get(ShopIdProvider::class)->getShopId();
             $body = gzdecode($options['body']);
             static::assertIsString($body);
 
@@ -89,6 +87,7 @@ class DispatchEntityMessageHandlerTest extends TestCase
             static::assertContains('Shopware-Shop-Id: ' . $shopId, $headers);
             static::assertContains('Content-Type: application/json', $headers);
 
+            static::assertIsArray($payload);
             static::assertArrayHasKey('operation', $payload);
             static::assertSame(Operation::CREATE->value, $payload['operation']);
 
@@ -105,7 +104,7 @@ class DispatchEntityMessageHandlerTest extends TestCase
 
             static::assertArrayHasKey('customFieldSets', $firstProduct);
             static::assertSame($firstProduct['customFieldSets'], [
-                $ids->get('test-customFieldSet-1'),
+                $ids->get('test_customFieldSet_1'),
             ]);
 
             $secondProduct = $payload['entities'][1];
@@ -118,8 +117,8 @@ class DispatchEntityMessageHandlerTest extends TestCase
 
             static::assertArrayHasKey('customFieldSets', $secondProduct);
             static::assertSame($secondProduct['customFieldSets'], [
-                $ids->get('test-customFieldSet-1'),
-                $ids->get('test-customFieldSet-2'),
+                $ids->get('test_customFieldSet_1'),
+                $ids->get('test_customFieldSet_2'),
             ]);
 
             return new MockResponse('', ['http_code' => 200]);
@@ -139,13 +138,13 @@ class DispatchEntityMessageHandlerTest extends TestCase
         // product 2 only has 1 entry
         $this->insertProductCategoryTree($ids->get('test-product-2'), $ids->get('test-category-2'));
 
-        $this->createCustomFieldSet($ids->get('test-customFieldSet-1'));
-        $this->createCustomFieldSet($ids->get('test-customFieldSet-2'));
+        $this->createCustomFieldSet($ids->get('test_customFieldSet_1'));
+        $this->createCustomFieldSet($ids->get('test_customFieldSet_2'));
 
         // product 1 only has 1 entry
-        $this->insertProductCustomFieldSet($ids->get('test-product-1'), $ids->get('test-customFieldSet-1'));
-        $this->insertProductCustomFieldSet($ids->get('test-product-2'), $ids->get('test-customFieldSet-1'));
-        $this->insertProductCustomFieldSet($ids->get('test-product-2'), $ids->get('test-customFieldSet-2'));
+        $this->insertProductCustomFieldSet($ids->get('test-product-1'), $ids->get('test_customFieldSet_1'));
+        $this->insertProductCustomFieldSet($ids->get('test-product-2'), $ids->get('test_customFieldSet_1'));
+        $this->insertProductCustomFieldSet($ids->get('test-product-2'), $ids->get('test_customFieldSet_2'));
 
         $dispatchEntityMessage = new DispatchEntityMessage(
             'product',
@@ -157,7 +156,7 @@ class DispatchEntityMessageHandlerTest extends TestCase
             ]
         );
 
-        $messageHandler = $this->getContainer()->get(DispatchEntityMessageHandler::class);
+        $messageHandler = static::getContainer()->get(DispatchEntityMessageHandler::class);
         $messageHandler($dispatchEntityMessage);
     }
 
@@ -174,7 +173,7 @@ class DispatchEntityMessageHandlerTest extends TestCase
                 return new MockResponse($body);
             }
 
-            $shopId = $this->getContainer()->get(ShopIdProvider::class)->getShopId();
+            $shopId = static::getContainer()->get(ShopIdProvider::class)->getShopId();
             $body = gzdecode($options['body']);
             static::assertIsString($body);
 
@@ -186,6 +185,7 @@ class DispatchEntityMessageHandlerTest extends TestCase
             static::assertContains('Shopware-Shop-Id: ' . $shopId, $headers);
             static::assertContains('Content-Type: application/json', $headers);
 
+            static::assertIsArray($payload);
             static::assertArrayHasKey('operation', $payload);
             static::assertSame(Operation::CREATE->value, $payload['operation']);
 
@@ -197,7 +197,7 @@ class DispatchEntityMessageHandlerTest extends TestCase
             static::assertArrayNotHasKey('productVersionId', $firstProductTranslation);
 
             static::assertArrayHasKey('productId', $firstProductTranslation);
-            static::assertSame($ids->get('test-product-1'), $firstProductTranslation['productId']);
+            static::assertSame($ids->get('test-product-3'), $firstProductTranslation['productId']);
 
             static::assertArrayHasKey('languageId', $firstProductTranslation);
             static::assertSame(Defaults::LANGUAGE_SYSTEM, $firstProductTranslation['languageId']);
@@ -207,7 +207,7 @@ class DispatchEntityMessageHandlerTest extends TestCase
             static::assertArrayNotHasKey('productVersionId', $secondProductTranslation);
 
             static::assertArrayHasKey('productId', $secondProductTranslation);
-            static::assertSame($ids->get('test-product-2'), $secondProductTranslation['productId']);
+            static::assertSame($ids->get('test-product-4'), $secondProductTranslation['productId']);
 
             static::assertArrayHasKey('languageId', $secondProductTranslation);
             static::assertSame(Defaults::LANGUAGE_SYSTEM, $secondProductTranslation['languageId']);
@@ -217,8 +217,8 @@ class DispatchEntityMessageHandlerTest extends TestCase
 
         $this->addProductDefinition();
 
-        $this->createTestProduct($ids, 'test-product-1');
-        $this->createTestProduct($ids, 'test-product-2');
+        $this->createTestProduct($ids, 'test-product-3');
+        $this->createTestProduct($ids, 'test-product-4');
 
         $dispatchEntityMessage = new DispatchEntityMessage(
             'product_translation',
@@ -226,19 +226,19 @@ class DispatchEntityMessageHandlerTest extends TestCase
             new \DateTimeImmutable(),
             [
                 [
-                    'product_id' => $ids->get('test-product-1'),
+                    'product_id' => $ids->get('test-product-3'),
                     'product_version_id' => Defaults::LIVE_VERSION,
                     'language_id' => Defaults::LANGUAGE_SYSTEM,
                 ],
                 [
-                    'product_id' => $ids->get('test-product-2'),
+                    'product_id' => $ids->get('test-product-4'),
                     'product_version_id' => Defaults::LIVE_VERSION,
                     'language_id' => Defaults::LANGUAGE_SYSTEM,
                 ],
             ]
         );
 
-        $messageHandler = $this->getContainer()->get(DispatchEntityMessageHandler::class);
+        $messageHandler = static::getContainer()->get(DispatchEntityMessageHandler::class);
         $messageHandler($dispatchEntityMessage);
     }
 
@@ -248,7 +248,7 @@ class DispatchEntityMessageHandlerTest extends TestCase
 
         $client = $this->getMockHttpClient();
         $client->setResponseFactory(function ($method, $url, $options) {
-            $shopId = $this->getContainer()->get(ShopIdProvider::class)->getShopId();
+            $shopId = static::getContainer()->get(ShopIdProvider::class)->getShopId();
             $body = gzdecode($options['body']);
             static::assertIsString($body);
 
@@ -259,6 +259,7 @@ class DispatchEntityMessageHandlerTest extends TestCase
             static::assertContains('Shopware-Shop-Id: ' . $shopId, $headers);
             static::assertContains('Content-Type: application/json', $headers);
 
+            static::assertIsArray($payload);
             static::assertArrayHasKey('operation', $payload);
             static::assertSame(Operation::UPDATE->value, $payload['operation']);
 
@@ -277,7 +278,7 @@ class DispatchEntityMessageHandlerTest extends TestCase
             ->price(100)
             ->build();
 
-        $this->getContainer()->get('product.repository')->create([$product], Context::createDefaultContext());
+        static::getContainer()->get('product.repository')->create([$product], Context::createDefaultContext());
 
         // update updated_at to be in the future
         $currentTime = new \DateTimeImmutable();
@@ -295,66 +296,7 @@ class DispatchEntityMessageHandlerTest extends TestCase
         );
 
         // message handlers are inlined
-        $messageHandler = $this->getContainer()->get(DispatchEntityMessageHandler::class);
-        $messageHandler($dispatchEntityMessage);
-    }
-
-    public function testSendsPuidEntityDataToGateway(): void
-    {
-        $ids = new IdsCollection();
-
-        $client = $this->getMockHttpClient();
-        $client->setResponseFactory(function ($method, $url, $options) use ($ids) {
-            $shopId = $this->getContainer()->get(ShopIdProvider::class)->getShopId();
-            $body = gzdecode($options['body']);
-            static::assertIsString($body);
-
-            $payload = json_decode($body, true, flags: \JSON_THROW_ON_ERROR);
-            $headers = array_values($options['headers']);
-
-            static::assertSame(Request::METHOD_POST, $method);
-            static::assertContains('Shopware-Shop-Id: ' . $shopId, $headers);
-            static::assertContains('Content-Type: application/json', $headers);
-
-            static::assertArrayHasKey('operation', $payload);
-            static::assertSame(Operation::CREATE->value, $payload['operation']);
-
-            static::assertArrayHasKey('entities', $payload);
-
-            static::assertCount(1, $payload['entities']);
-
-            $expectedPuid = self::getPuid('recipient_fist_name', 'recipient_last_name', 'puid-test@shopware-test.com');
-            $newsletterRecipient = $payload['entities'][0];
-
-            static::assertIsArray($newsletterRecipient);
-            static::assertArrayHasKey('id', $newsletterRecipient);
-            static::assertSame($ids->get('newsletter-recipient-test'), $newsletterRecipient['id']);
-            static::assertArrayHasKey('puid', $newsletterRecipient);
-            static::assertSame($expectedPuid, $newsletterRecipient['puid']);
-
-            return new MockResponse('', ['http_code' => 200]);
-        });
-
-        $this->addNewsletterRecipientDefinition();
-
-        $newsletterRecipient = $this->createTestNewsLetterRecipientData(
-            $ids->get('newsletter-recipient-test'),
-            'puid-test@shopware-test.com',
-            'recipient_fist_name',
-            'recipient_last_name',
-        );
-
-        $this->getContainer()->get('newsletter_recipient.repository')
-            ->create([$newsletterRecipient], Context::createDefaultContext());
-
-        $dispatchEntityMessage = new DispatchEntityMessage(
-            NewsletterRecipientDefinition::ENTITY_NAME,
-            Operation::CREATE,
-            new \DateTimeImmutable(),
-            [['id' => $ids->get('newsletter-recipient-test')]],
-        );
-
-        $messageHandler = $this->getContainer()->get(DispatchEntityMessageHandler::class);
+        $messageHandler = static::getContainer()->get(DispatchEntityMessageHandler::class);
         $messageHandler($dispatchEntityMessage);
     }
 
@@ -365,7 +307,7 @@ class DispatchEntityMessageHandlerTest extends TestCase
 
         $client = $this->getMockHttpClient();
         $client->setResponseFactory(function ($method, $url, $options) use ($firstEntity, $secondEntity) {
-            $shopId = $this->getContainer()->get(ShopIdProvider::class)->getShopId();
+            $shopId = static::getContainer()->get(ShopIdProvider::class)->getShopId();
             $body = gzdecode($options['body']);
             static::assertIsString($body);
 
@@ -376,6 +318,7 @@ class DispatchEntityMessageHandlerTest extends TestCase
             static::assertContains('Shopware-Shop-Id: ' . $shopId, $headers);
             static::assertContains('Content-Type: application/json', $headers);
 
+            static::assertIsArray($payload);
             static::assertArrayHasKey('operation', $payload);
             static::assertSame(Operation::DELETE->value, $payload['operation']);
 
@@ -402,22 +345,16 @@ class DispatchEntityMessageHandlerTest extends TestCase
         );
 
         // message handlers are inlined
-        $messageHandler = $this->getContainer()->get(DispatchEntityMessageHandler::class);
+        $messageHandler = static::getContainer()->get(DispatchEntityMessageHandler::class);
         $messageHandler($dispatchEntityMessage);
     }
 
     private function addProductDefinition(): void
     {
-        $entityDefinitionService = $this->getContainer()->get(EntityDefinitionService::class);
-        $entityDefinitionService->addEntityDefinition($this->getContainer()->get(ProductDefinition::class));
-        $entityDefinitionService->addEntityDefinition($this->getContainer()->get(CategoryDefinition::class));
-        $entityDefinitionService->addEntityDefinition($this->getContainer()->get(CustomFieldSetDefinition::class));
-    }
-
-    private function addNewsletterRecipientDefinition(): void
-    {
-        $entityDefinitionService = $this->getContainer()->get(EntityDefinitionService::class);
-        $entityDefinitionService->addEntityDefinition($this->getContainer()->get(NewsletterRecipientDefinition::class));
+        $entityDefinitionService = static::getContainer()->get(EntityDefinitionService::class);
+        $entityDefinitionService->addEntityDefinition(static::getContainer()->get(ProductDefinition::class));
+        $entityDefinitionService->addEntityDefinition(static::getContainer()->get(CategoryDefinition::class));
+        $entityDefinitionService->addEntityDefinition(static::getContainer()->get(CustomFieldSetDefinition::class));
     }
 
     /**
@@ -437,32 +374,6 @@ class DispatchEntityMessageHandlerTest extends TestCase
         return $data;
     }
 
-    private static function getPuid(string $name, string $lastName, string $email): string
-    {
-        return hash('sha512', \sprintf('%s%s%s', strtolower($name), strtolower($lastName), strtolower($email)));
-    }
-
-    /**
-     * @return array<string, string>
-     */
-    private function createTestNewsLetterRecipientData(
-        string $id,
-        string $email,
-        string $firstName,
-        string $lastName,
-    ): array {
-        return [
-            'id' => $id,
-            'email' => $email,
-            'firstName' => $firstName,
-            'lastName' => $lastName,
-            'status' => 'pending',
-            'hash' => 'recipient_hash',
-            'languageId' => Defaults::LANGUAGE_SYSTEM,
-            'salesChannelId' => TestDefaults::SALES_CHANNEL,
-        ];
-    }
-
     private function createTestProduct(IdsCollection $idsCollection, string $productNumber): void
     {
         $product = (new ProductBuilder($idsCollection, $productNumber))
@@ -471,12 +382,12 @@ class DispatchEntityMessageHandlerTest extends TestCase
             ->translation(Defaults::LANGUAGE_SYSTEM, 'title', 'my awesome product')
             ->build();
 
-        $this->getContainer()->get('product.repository')->create([$product], Context::createDefaultContext());
+        static::getContainer()->get('product.repository')->create([$product], Context::createDefaultContext());
     }
 
     private function createTestCategory(IdsCollection $idsCollection, string $categoryName): void
     {
-        $this->getContainer()->get('category.repository')
+        static::getContainer()->get('category.repository')
             ->create([['id' => $idsCollection->get($categoryName), 'name' => $categoryName]], Context::createDefaultContext());
     }
 
@@ -510,21 +421,24 @@ class DispatchEntityMessageHandlerTest extends TestCase
 
     private function createCustomFieldSet(string $id): void
     {
-        $repo = $this->getContainer()->get('custom_field_set.repository');
+        $repo = static::getContainer()->get('custom_field_set.repository');
+
+        $firstCustomFieldsId = Uuid::randomHex();
+        $secondCustomFieldsId = Uuid::randomHex();
 
         $attributeSet = [
             'id' => $id,
-            'name' => 'test set',
+            'name' => 'test_set',
             'config' => ['description' => 'test set'],
             'customFields' => [
                 [
-                    'id' => Uuid::randomHex(),
-                    'name' => Uuid::randomHex(),
+                    'id' => $firstCustomFieldsId,
+                    'name' => 'test_field_' . $firstCustomFieldsId,
                     'type' => 'int',
                 ],
                 [
-                    'id' => Uuid::randomHex(),
-                    'name' => Uuid::randomHex(),
+                    'id' => $secondCustomFieldsId,
+                    'name' => 'test_field_' . $secondCustomFieldsId,
                     'type' => 'string',
                 ],
             ],
@@ -542,7 +456,7 @@ class DispatchEntityMessageHandlerTest extends TestCase
 
     private function getMockHttpClient(): MockHttpClient
     {
-        $client = $this->getContainer()->get('shopware.usage_data.gateway.client');
+        $client = static::getContainer()->get('shopware.usage_data.gateway.client');
         static::assertInstanceOf(MockHttpClient::class, $client);
 
         return $client;

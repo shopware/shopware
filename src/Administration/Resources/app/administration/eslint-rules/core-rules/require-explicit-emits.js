@@ -91,7 +91,8 @@ module.exports = {
             if (parent.type === 'CallExpression' &&
                 parent.callee.type === 'MemberExpression' &&
                 (parent.callee.property.name === 'register' ||
-                    parent.callee.property.name === 'extend')) {
+                    parent.callee.property.name === 'extend' ||
+                    parent.callee.property.name === 'wrapComponentConfig')) {
                 const callExpression = parent;
 
                 // Component.register() or Component.extend()

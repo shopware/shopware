@@ -18,10 +18,7 @@ class OpenApiDefinitionSchemaBuilderTest extends TestCase
     use DataAbstractionLayerFieldTestBehaviour;
     use KernelTestBehaviour;
 
-    /**
-     * @var OpenApiDefinitionSchemaBuilder
-     */
-    private $service;
+    private OpenApiDefinitionSchemaBuilder $service;
 
     protected function setUp(): void
     {
@@ -86,5 +83,23 @@ class OpenApiDefinitionSchemaBuilderTest extends TestCase
         static::assertSame('Added since version: 6.3.9.9', $build['Since']['description']);
         static::assertArrayNotHasKey('description', $build['Since']['properties']['id']);
         static::assertArrayNotHasKey('SinceJsonApi', $build);
+    }
+
+    public function testIgnoreInOpenapiSchema(): void
+    {
+        $definition = $this->registerDefinition(SimpleDefinition::class);
+
+        $build = json_decode(json_encode(
+            $this->service->getSchemaByDefinition(
+                $definition,
+                '',
+                false,
+                false,
+                DefinitionService::TYPE_JSON
+            ),
+            \JSON_THROW_ON_ERROR
+        ), true, 512, \JSON_THROW_ON_ERROR);
+
+        static::assertArrayNotHasKey('ignoreApiAwareField', $build['Simple']['properties']);
     }
 }

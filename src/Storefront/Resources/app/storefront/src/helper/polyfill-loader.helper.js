@@ -1,5 +1,5 @@
 /**
- * @package storefront
+ * @sw-package framework
  */
 
 // polyfill only stable features - ES and web standards:, see: https://github.com/zloirock/core-js#commonjs-api

@@ -10,7 +10,7 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Symfony\Component\Routing\RouterInterface;
 
-#[Package('buyers-experience')]
+#[Package('inventory')]
 class HreflangLoader implements HreflangLoaderInterface
 {
     /**
@@ -30,7 +30,7 @@ class HreflangLoader implements HreflangLoaderInterface
             return new HreflangCollection();
         }
 
-        $domains = $this->fetchSalesChannelDomains($salesChannelContext->getSalesChannel()->getId());
+        $domains = $this->fetchSalesChannelDomains($salesChannelContext->getSalesChannelId());
 
         if ($parameter->getRoute() === 'frontend.home.page') {
             return $this->getHreflangForHomepage($domains, $salesChannelContext->getSalesChannel()->getHreflangDefaultDomainId());
@@ -39,7 +39,7 @@ class HreflangLoader implements HreflangLoaderInterface
         $pathInfo = $this->router->generate($parameter->getRoute(), $parameter->getRouteParameters(), RouterInterface::ABSOLUTE_PATH);
 
         $languageToDomainMapping = $this->getLanguageToDomainMapping($domains);
-        $seoUrls = $this->fetchSeoUrls($pathInfo, $salesChannelContext->getSalesChannel()->getId(), array_keys($languageToDomainMapping));
+        $seoUrls = $this->fetchSeoUrls($pathInfo, $salesChannelContext->getSalesChannelId(), array_keys($languageToDomainMapping));
 
         // We need at least two links
         if (\count($seoUrls) <= 1) {

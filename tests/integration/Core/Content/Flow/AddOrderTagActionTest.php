@@ -15,13 +15,13 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Log\Package;
-use Shopware\Core\Framework\Test\TestDataCollection;
 use Shopware\Core\Framework\Uuid\Uuid;
+use Shopware\Core\Test\Stub\Framework\IdsCollection;
 
 /**
  * @internal
  */
-#[Package('services-settings')]
+#[Package('after-sales')]
 class AddOrderTagActionTest extends TestCase
 {
     use OrderActionTrait;
@@ -32,13 +32,13 @@ class AddOrderTagActionTest extends TestCase
 
     protected function setUp(): void
     {
-        $this->flowRepository = $this->getContainer()->get('flow.repository');
+        $this->flowRepository = static::getContainer()->get('flow.repository');
 
-        $this->connection = $this->getContainer()->get(Connection::class);
+        $this->connection = static::getContainer()->get(Connection::class);
 
-        $this->customerRepository = $this->getContainer()->get('customer.repository');
+        $this->customerRepository = static::getContainer()->get('customer.repository');
 
-        $this->ids = new TestDataCollection();
+        $this->ids = new IdsCollection();
 
         $this->browser = $this->createCustomSalesChannelBrowser([
             'id' => $this->ids->create('sales-channel'),
@@ -221,7 +221,7 @@ class AddOrderTagActionTest extends TestCase
 
         $this->prepareProductTest();
 
-        $this->getContainer()->get('tag.repository')->create([
+        static::getContainer()->get('tag.repository')->create([
             [
                 'id' => $this->ids->create('tag_id'),
                 'name' => 'test tag',
@@ -236,14 +236,14 @@ class AddOrderTagActionTest extends TestCase
             ],
         ], Context::createDefaultContext());
 
-        $shippingMethodRepository = $this->getContainer()->get('shipping_method.repository');
+        $shippingMethodRepository = static::getContainer()->get('shipping_method.repository');
         $shippingMethodRepository->create([
             [
                 'id' => $this->ids->get('shipping-method'),
                 'name' => 'test',
                 'technicalName' => 'test',
                 'active' => true,
-                'deliveryTimeId' => $this->getContainer()->get('delivery_time.repository')->searchIds(new Criteria(), Context::createDefaultContext())->firstId(),
+                'deliveryTimeId' => static::getContainer()->get('delivery_time.repository')->searchIds(new Criteria(), Context::createDefaultContext())->firstId(),
                 'prices' => [
                     [
                         'currencyId' => Defaults::CURRENCY,

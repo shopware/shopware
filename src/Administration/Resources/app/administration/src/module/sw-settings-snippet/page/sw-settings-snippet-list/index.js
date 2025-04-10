@@ -1,17 +1,18 @@
 /**
- * @package buyers-experience
+ * @sw-package discovery
  */
 import Sanitizer from 'src/core/helper/sanitizer.helper';
 import template from './sw-settings-snippet-list.html.twig';
 import './sw-settings-snippet-list.scss';
 
-const { Mixin, Data: { Criteria } } = Shopware;
+const {
+    Mixin,
+    Data: { Criteria },
+} = Shopware;
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default {
     template,
-
-    compatConfig: Shopware.compatConfig,
 
     inject: [
         'snippetSetService',
@@ -58,13 +59,11 @@ export default {
 
     computed: {
         identifier() {
-            return this.snippetSets ? this.$tc(
-                'sw-settings-snippet.list.identifier',
-                this.snippetSets.length,
-                {
-                    setName: this.metaName,
-                },
-            ) : '';
+            return this.snippetSets
+                ? this.$tc('sw-settings-snippet.list.identifier', this.snippetSets.length, {
+                      setName: this.metaName,
+                  })
+                : '';
         },
 
         columns() {
@@ -87,9 +86,7 @@ export default {
             const criteria = new Criteria(1, 25);
 
             criteria.addFilter(Criteria.equalsAny('id', this.queryIds));
-            criteria.addSorting(
-                Criteria.sort('name', 'ASC'),
-            );
+            criteria.addSorting(Criteria.sort('name', 'ASC'));
 
             if (this.term) {
                 criteria.setTerm(this.term);
@@ -131,9 +128,7 @@ export default {
         },
 
         contextMenuEditSnippet() {
-            return this.acl.can('snippet.editor') ?
-                this.$tc('global.default.edit') :
-                this.$tc('global.default.view');
+            return this.acl.can('snippet.editor') ? this.$tc('global.default.edit') : this.$tc('global.default.view');
         },
 
         hasActiveFilters() {
@@ -191,10 +186,9 @@ export default {
         async createdComponent() {
             this.addEventListeners();
 
-            this.snippetSetRepository.search(this.snippetSetCriteria)
-                .then((sets) => {
-                    this.snippetSets = sets;
-                });
+            this.snippetSetRepository.search(this.snippetSetCriteria).then((sets) => {
+                this.snippetSets = sets;
+            });
 
             this.userService.getUser().then((response) => {
                 this.currentAuthor = `user/${response.data.username}`;
@@ -240,7 +234,9 @@ export default {
         },
 
         getUserConfig() {
-            return this.userConfigService.search(['grid.filter.setting-snippet-list']);
+            return this.userConfigService.search([
+                'grid.filter.setting-snippet-list',
+            ]);
         },
 
         saveUserConfig() {
@@ -271,14 +267,16 @@ export default {
         },
 
         getColumns() {
-            const columns = [{
-                property: 'id',
-                label: 'sw-settings-snippet.list.columnKey',
-                inlineEdit: true,
-                allowResize: true,
-                rawData: true,
-                primary: true,
-            }];
+            const columns = [
+                {
+                    property: 'id',
+                    label: 'sw-settings-snippet.list.columnKey',
+                    inlineEdit: true,
+                    allowResize: true,
+                    rawData: true,
+                    primary: true,
+                },
+            ];
 
             if (this.snippetSets) {
                 this.snippetSets.forEach((item) => {
@@ -375,23 +373,21 @@ export default {
                     snippetEntity.translationKey = snippet.translationKey;
                     snippetEntity.setId = snippet.setId;
 
-                    responses.push(
-                        this.snippetRepository.save(snippetEntity),
-                    );
+                    responses.push(this.snippetRepository.save(snippetEntity));
                 } else if (snippet.id !== null && !snippet.author.startsWith('user/')) {
-                    responses.push(
-                        this.snippetRepository.delete(snippet.id),
-                    );
+                    responses.push(this.snippetRepository.delete(snippet.id));
                 }
             });
 
-            Promise.all(responses).then(() => {
-                this.inlineSaveSuccessMessage(key);
-                this.getList();
-            }).catch(() => {
-                this.inlineSaveErrorMessage(key);
-                this.getList();
-            });
+            Promise.all(responses)
+                .then(() => {
+                    this.inlineSaveSuccessMessage(key);
+                    this.getList();
+                })
+                .catch(() => {
+                    this.inlineSaveErrorMessage(key);
+                    this.getList();
+                });
         },
 
         onInlineEditCancel(rowItems) {
@@ -410,17 +406,19 @@ export default {
             this.getList();
         },
 
-
         onSearch(term) {
             this.term = term;
             this.page = 1;
 
-            this.updateRoute({
-                term: term,
-                page: 1,
-            }, {
-                ids: this.queryIds,
-            });
+            this.updateRoute(
+                {
+                    term: term,
+                    page: 1,
+                },
+                {
+                    ids: this.queryIds,
+                },
+            );
         },
 
         backRoutingError() {
@@ -433,11 +431,7 @@ export default {
 
         inlineSaveSuccessMessage(key) {
             const titleSaveSuccess = this.$tc('global.default.success');
-            const messageSaveSuccess = this.$tc(
-                'sw-settings-snippet.list.messageSaveSuccess',
-                this.queryIdCount,
-                { key },
-            );
+            const messageSaveSuccess = this.$tc('sw-settings-snippet.list.messageSaveSuccess', this.queryIdCount, { key });
 
             this.createNotificationSuccess({
                 title: titleSaveSuccess,
@@ -447,11 +441,7 @@ export default {
 
         inlineSaveErrorMessage(key) {
             const titleSaveError = this.$tc('global.default.error');
-            const messageSaveError = this.$tc(
-                'sw-settings-snippet.list.messageSaveError',
-                this.queryIdCount,
-                { key },
-            );
+            const messageSaveError = this.$tc('sw-settings-snippet.list.messageSaveError', this.queryIdCount, { key });
 
             this.createNotificationError({
                 title: titleSaveError,
@@ -462,13 +452,14 @@ export default {
         onReset(item) {
             this.isLoading = true;
 
-            this.snippetSetRepository.search(this.snippetSetCriteria)
+            this.snippetSetRepository
+                .search(this.snippetSetCriteria)
                 .then((response) => {
                     const resetItems = [];
                     const ids = Array.isArray(this.$route.query.ids) ? this.$route.query.ids : [this.$route.query.ids];
 
                     Object.values(item).forEach((currentItem, index) => {
-                        if (!(currentItem instanceof Object) || !ids.find(id => id === currentItem.setId)) {
+                        if (!(currentItem instanceof Object) || !ids.find((id) => id === currentItem.setId)) {
                             return;
                         }
 
@@ -512,7 +503,7 @@ export default {
             const promises = [];
 
             if (this.showOnlyEdited) {
-                items = Object.values(fullSelection).filter(item => typeof item !== 'string');
+                items = Object.values(fullSelection).filter((item) => typeof item !== 'string');
             } else if (this.snippetSelection !== undefined) {
                 items = Object.values(this.snippetSelection);
             } else {
@@ -530,32 +521,33 @@ export default {
                     this.isLoading = true;
 
                     promises.push(
-                        this.snippetRepository.delete(item.id).then(() => {
-                            this.createSuccessMessage(item);
-                        }).catch(() => {
-                            this.createResetErrorNote(item);
-                        }),
+                        this.snippetRepository
+                            .delete(item.id)
+                            .then(() => {
+                                this.createSuccessMessage(item);
+                            })
+                            .catch(() => {
+                                this.createResetErrorNote(item);
+                            }),
                     );
                 });
-                Promise.all(promises).then(() => {
-                    this.isLoading = false;
-                    this.getList();
-                }).catch(() => {
-                    this.isLoading = false;
-                    this.getList();
-                });
+                Promise.all(promises)
+                    .then(() => {
+                        this.isLoading = false;
+                        this.getList();
+                    })
+                    .catch(() => {
+                        this.isLoading = false;
+                        this.getList();
+                    });
             });
         },
 
         createSuccessMessage(item) {
             const title = this.$tc('global.default.success');
-            const message = this.$tc(
-                'sw-settings-snippet.list.resetSuccessMessage',
-                !item.isCustomSnippet,
-                {
-                    key: item.value,
-                },
-            );
+            const message = this.$tc('sw-settings-snippet.list.resetSuccessMessage', !item.isCustomSnippet, {
+                key: item.value,
+            });
 
             this.createNotificationSuccess({
                 title,
@@ -565,11 +557,9 @@ export default {
 
         createResetErrorNote(item) {
             const title = this.$tc('global.default.error');
-            const message = this.$tc(
-                'sw-settings-snippet.list.resetErrorMessage',
-                item.isCustomSnippet ? 2 : 0,
-                { key: item.value },
-            );
+            const message = this.$tc('sw-settings-snippet.list.resetErrorMessage', item.isCustomSnippet ? 2 : 0, {
+                key: item.value,
+            });
 
             this.createNotificationError({
                 title,
@@ -578,7 +568,7 @@ export default {
         },
 
         onChange(field) {
-            this.$set(this.filterSettings, [field.name], field.value);
+            this.filterSettings[[field.name]] = field.value;
 
             this.page = 1;
             if (field.group === 'editedSnippets') {
@@ -632,18 +622,24 @@ export default {
             } else {
                 this.sortDirection = 'ASC';
             }
-            this.updateRoute({
-                sortDirection: this.sortDirection,
-                sortBy: column.dataIndex,
-            }, {
-                ids: this.queryIds,
-            });
+            this.updateRoute(
+                {
+                    sortDirection: this.sortDirection,
+                    sortBy: column.dataIndex,
+                },
+                {
+                    ids: this.queryIds,
+                },
+            );
         },
 
         onPageChange({ page, limit }) {
-            this.updateRoute({ page, limit }, {
-                ids: this.queryIds,
-            });
+            this.updateRoute(
+                { page, limit },
+                {
+                    ids: this.queryIds,
+                },
+            );
         },
 
         getNoPermissionsTooltip(role, showOnDisabledElements = true) {
@@ -664,11 +660,7 @@ export default {
             this.appliedAuthors = [];
 
             Object.keys(this.filterSettings).forEach((key) => {
-                if (this.isCompatEnabled('INSTANCE_SET')) {
-                    this.$set(this.filterSettings, key, false);
-                } else {
-                    this.filterSettings[key] = false;
-                }
+                this.filterSettings[key] = false;
             });
 
             this.initializeSnippetSet({});

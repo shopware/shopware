@@ -8,16 +8,21 @@ const utils = Shopware.Utils;
 
 /**
  * @private
- * @package services-settings
+ * @sw-package after-sales
  */
 export default {
     template,
 
-    compatConfig: Shopware.compatConfig,
+    inject: [
+        'mailService',
+        'entityMappingService',
+        'repositoryFactory',
+    ],
 
-    inject: ['mailService', 'entityMappingService', 'repositoryFactory'],
-
-    emits: ['modal-close', 'process-finish'],
+    emits: [
+        'modal-close',
+        'process-finish',
+    ],
 
     mixins: [
         Mixin.getByName('placeholder'),
@@ -65,7 +70,7 @@ export default {
                     return properties;
                 }
                 return completerFunction;
-            }(this.entityMappingService, this.mailTemplateType));
+            })(this.entityMappingService, this.mailTemplateType);
         },
 
         ...mapPropertyErrors('mailTemplate', [
@@ -82,8 +87,8 @@ export default {
 
     methods: {
         createdComponent() {
-            if (!Shopware.State.getters['context/isSystemDefaultLanguage']) {
-                Shopware.State.commit('context/resetLanguageToDefault');
+            if (!Shopware.Store.get('context').isSystemDefaultLanguage) {
+                Shopware.Store.get('context').resetLanguageToDefault();
             }
 
             this.mailTemplate = this.mailTemplateRepository.create(Shopware.Context.api, utils.createId());
@@ -99,25 +104,26 @@ export default {
             this.isSaveSuccessful = false;
             this.isLoading = true;
 
-            return this.mailTemplateRepository.save(this.mailTemplate).then(() => {
-                this.getMailTemplate();
-            }).catch(error => {
-                let errorMsg = '';
-                this.isLoading = false;
+            return this.mailTemplateRepository
+                .save(this.mailTemplate)
+                .then(() => {
+                    this.getMailTemplate();
+                })
+                .catch((error) => {
+                    let errorMsg = '';
+                    this.isLoading = false;
 
-                if (error.response.data.errors.length > 0) {
-                    const errorDetailMsg = error.response.data.errors[0].detail;
-                    errorMsg = `<br/> ${this.$tc('sw-mail-template.detail.textErrorMessage')}: "${errorDetailMsg}"`;
-                }
+                    if (error.response.data.errors.length > 0) {
+                        const errorDetailMsg = error.response.data.errors[0].detail;
+                        errorMsg = `<br/> ${this.$tc('sw-mail-template.detail.textErrorMessage')}: "${errorDetailMsg}"`;
+                    }
 
-                this.createNotificationError({
-                    message: this.$tc(
-                        'sw-mail-template.detail.messageSaveError',
-                        0,
-                        { subject: mailTemplateSubject },
-                    ) + errorMsg,
+                    this.createNotificationError({
+                        message:
+                            this.$tc('sw-mail-template.detail.messageSaveError', { subject: mailTemplateSubject }, 0) +
+                            errorMsg,
+                    });
                 });
-            });
         },
 
         getMailTemplateType() {
@@ -153,12 +159,15 @@ export default {
         },
 
         getMailTemplate() {
-            return this.mailTemplateRepository.get(this.mailTemplate.id, Shopware.Context.api, this.mailTemplateCriteria)
+            return this.mailTemplateRepository
+                .get(this.mailTemplate.id, Shopware.Context.api, this.mailTemplateCriteria)
                 .then((data) => {
                     this.$emit('process-finish', data);
-                }).catch(() => {
+                })
+                .catch(() => {
                     this.$emit('process-finish', null);
-                }).finally(() => {
+                })
+                .finally(() => {
                     this.isLoading = false;
                     this.onClose();
                 });

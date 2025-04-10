@@ -11,46 +11,17 @@ use Shopware\Core\Framework\Struct\Struct;
 class Filter extends Struct
 {
     /**
-     * @var string
-     */
-    protected $name;
-
-    /**
-     * @var bool
-     */
-    protected $filtered;
-
-    /**
-     * @var Aggregation[]
-     */
-    protected $aggregations;
-
-    /**
-     * @var DALFilter
-     */
-    protected $filter;
-
-    /**
-     * @var bool
-     */
-    protected $exclude;
-
-    /**
-     * @param int|float|string|bool|array|null $values
+     * @param list<Aggregation> $aggregations
+     * @param int|float|string|bool|array<mixed>|null $values
      */
     public function __construct(
-        string $name,
-        bool $filtered,
-        array $aggregations,
-        DALFilter $filter,
-        protected $values,
-        bool $exclude = true
+        protected string $name,
+        protected bool $filtered,
+        protected array $aggregations,
+        protected DALFilter $filter,
+        protected int|float|string|bool|array|null $values,
+        protected bool $exclude = true
     ) {
-        $this->name = $name;
-        $this->filtered = $filtered;
-        $this->aggregations = $aggregations;
-        $this->filter = $filter;
-        $this->exclude = $exclude;
     }
 
     public function getName(): string
@@ -64,7 +35,7 @@ class Filter extends Struct
     }
 
     /**
-     * @return Aggregation[]
+     * @return list<Aggregation>
      */
     public function getAggregations(): array
     {
@@ -77,9 +48,9 @@ class Filter extends Struct
     }
 
     /**
-     * @return int|float|string|bool|array|null
+     * @return int|float|string|bool|array<mixed>|null
      */
-    public function getValues()
+    public function getValues(): int|float|string|bool|array|null
     {
         return $this->values;
     }

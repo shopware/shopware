@@ -6,21 +6,25 @@ use Composer\IO\NullIO;
 use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\Group;
+use PHPUnit\Framework\Attributes\RunInSeparateProcess;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Api\Context\SystemSource;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Migration\MigrationCollectionLoader;
 use Shopware\Core\Framework\Plugin\Composer\CommandExecutor;
+use Shopware\Core\Framework\Plugin\Exception\PluginComposerRequireException;
 use Shopware\Core\Framework\Plugin\Exception\PluginHasActiveDependantsException;
 use Shopware\Core\Framework\Plugin\Exception\PluginNotActivatedException;
 use Shopware\Core\Framework\Plugin\Exception\PluginNotInstalledException;
 use Shopware\Core\Framework\Plugin\KernelPluginCollection;
-use Shopware\Core\Framework\Plugin\PluginCollection;
 use Shopware\Core\Framework\Plugin\PluginEntity;
+use Shopware\Core\Framework\Plugin\PluginException;
 use Shopware\Core\Framework\Plugin\PluginLifecycleService;
 use Shopware\Core\Framework\Plugin\PluginService;
 use Shopware\Core\Framework\Plugin\Requirement\Exception\RequirementStackException;
@@ -35,7 +39,6 @@ use Shopware\Core\Framework\Test\TestCaseBase\KernelLifecycleManager;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Kernel;
-use Shopware\Core\System\CustomEntity\CustomEntityLifecycleService;
 use Shopware\Core\System\CustomEntity\Schema\CustomEntityPersister;
 use Shopware\Core\System\CustomEntity\Schema\CustomEntitySchemaUpdater;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
@@ -48,7 +51,6 @@ use Symfony\Component\Filesystem\Filesystem;
  * @internal
  */
 #[Group('slow')]
-#[Group('skip-paratest')]
 class PluginLifecycleServiceTest extends TestCase
 {
     use KernelTestBehaviour;
@@ -84,12 +86,12 @@ class PluginLifecycleServiceTest extends TestCase
         // force kernel boot
         KernelLifecycleManager::bootKernel();
 
-        $this->getContainer()
+        static::getContainer()
             ->get(Connection::class)
             ->beginTransaction();
 
         $this->fixturePath = __DIR__ . '/../../../../../src/Core/Framework/Test/Plugin/_fixture/';
-        $this->container = $this->getContainer();
+        $this->container = static::getContainer();
         $this->pluginRepo = $this->container->get('plugin.repository');
         $this->pluginService = $this->createPluginService(
             $this->fixturePath . 'plugins',
@@ -119,7 +121,7 @@ class PluginLifecycleServiceTest extends TestCase
 
     protected function tearDown(): void
     {
-        $this->getContainer()
+        static::getContainer()
             ->get(Connection::class)
             ->rollBack();
 
@@ -281,7 +283,7 @@ class PluginLifecycleServiceTest extends TestCase
     {
         $assetService = $this->createMock(AssetService::class);
         $assetService
-            ->expects(static::once())
+            ->expects($this->once())
             ->method('copyAssetsFromBundle');
 
         $service = new PluginLifecycleService(
@@ -298,9 +300,9 @@ class PluginLifecycleServiceTest extends TestCase
             $this->systemConfigService,
             $this->container->get(CustomEntityPersister::class),
             $this->container->get(CustomEntitySchemaUpdater::class),
-            $this->container->get(CustomEntityLifecycleService::class),
             $this->container->get(PluginService::class),
             $this->container->get(VersionSanitizer::class),
+            $this->container->get(DefinitionInstanceRegistry::class),
         );
 
         $context = Context::createDefaultContext();
@@ -433,7 +435,6 @@ class PluginLifecycleServiceTest extends TestCase
     #[DataProvider('themeProvideData')]
     public function testThemeRemovalOnUninstall(bool $keepUserData): void
     {
-        static::markTestSkipped('This test needs the storefront bundle installed.');
         $this->addTestPluginToKernel(
             $this->fixturePath . 'plugins/SwagTestTheme',
             'SwagTestTheme'
@@ -473,10 +474,43 @@ class PluginLifecycleServiceTest extends TestCase
         ];
     }
 
+    #[RunInSeparateProcess]
+    public function testInstallationOfPluginWhichExecutesComposerCommandsWithPreviouslyInstalledPluginThatShipsVendorDirectory(): void
+    {
+        $this->addTestPluginToKernel(
+            $this->fixturePath . 'plugins/SwagTestShipsVendorDirectory',
+            'SwagTestShipsVendorDirectory'
+        );
+        $this->addTestPluginToKernel(
+            $this->fixturePath . 'plugins/SwagTestExecuteComposerCommands',
+            'SwagTestExecuteComposerCommands'
+        );
+
+        $this->pluginService->refreshPlugins($this->context, new NullIO());
+
+        $pluginWithVendor = $this->pluginService->getPluginByName('SwagTestShipsVendorDirectory', $this->context);
+        $this->pluginLifecycleService->installPlugin($pluginWithVendor, $this->context);
+
+        $pluginWithExecuteComposer = $this->pluginService->getPluginByName('SwagTestExecuteComposerCommands', $this->context);
+
+        try {
+            // Expected fail on executing the composer command, as the plugin is not in the default plugin directory and could therefore not be found
+            $this->pluginLifecycleService->installPlugin($pluginWithExecuteComposer, $this->context);
+        } catch (\Throwable $e) {
+            if (!Feature::isActive('v6.8.0.0')) {
+                static::assertInstanceOf(PluginComposerRequireException::class, $e);
+            } else {
+                static::assertInstanceOf(PluginException::class, $e);
+            }
+            static::assertStringContainsString('Your requirements could not be resolved to an installable set of packages.', $e->getMessage());
+        }
+
+        \ComposerAutoloaderInitPluginTestShipsVendorDirectory::getLoader()->unregister();
+    }
+
     private function installNotSupportedPlugin(string $name): PluginEntity
     {
-        /** @var EntityRepository<PluginCollection> $pluginRepository */
-        $pluginRepository = $this->getContainer()->get('plugin.repository');
+        $pluginRepository = static::getContainer()->get('plugin.repository');
         $criteria = new Criteria();
         $criteria->addFilter(new EqualsFilter('name', $name));
         $result = $pluginRepository->search($criteria, $this->context);
@@ -633,7 +667,7 @@ class PluginLifecycleServiceTest extends TestCase
 
         $plugin = $this->getPlugin($context);
 
-        static::expectException(PluginNotInstalledException::class);
+        $this->expectException(PluginNotInstalledException::class);
         $this->expectExceptionMessage(\sprintf('Plugin "%s" is not installed.', self::PLUGIN_NAME));
         $this->pluginLifecycleService->updatePlugin($plugin, $context);
     }
@@ -718,7 +752,7 @@ class PluginLifecycleServiceTest extends TestCase
     {
         $id = Uuid::randomHex();
 
-        $languageRepository = $this->getContainer()->get('language.repository');
+        $languageRepository = static::getContainer()->get('language.repository');
         $localeId = $this->getIsoId($iso);
         $languageRepository->create(
             [
@@ -781,9 +815,9 @@ class PluginLifecycleServiceTest extends TestCase
             $this->systemConfigService,
             $this->container->get(CustomEntityPersister::class),
             $this->container->get(CustomEntitySchemaUpdater::class),
-            $this->container->get(CustomEntityLifecycleService::class),
             $pluginService,
             $this->container->get(VersionSanitizer::class),
+            $this->container->get(DefinitionInstanceRegistry::class),
         );
     }
 

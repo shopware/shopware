@@ -13,30 +13,15 @@ class ProductVisibilityEntity extends Entity
 {
     use EntityIdTrait;
 
-    /**
-     * @var int
-     */
-    protected $visibility;
+    protected int $visibility;
 
-    /**
-     * @var string
-     */
-    protected $productId;
+    protected string $productId;
 
-    /**
-     * @var string
-     */
-    protected $salesChannelId;
+    protected string $salesChannelId;
 
-    /**
-     * @var ProductEntity|null
-     */
-    protected $product;
+    protected ?ProductEntity $product = null;
 
-    /**
-     * @var SalesChannelEntity|null
-     */
-    protected $salesChannel;
+    protected ?SalesChannelEntity $salesChannel = null;
 
     public function getVisibility(): int
     {

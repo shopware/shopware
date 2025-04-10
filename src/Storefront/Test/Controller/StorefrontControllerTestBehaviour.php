@@ -29,7 +29,7 @@ trait StorefrontControllerTestBehaviour
 
     public function getSalesChannelId(): string
     {
-        return (string) $this->getContainer()
+        return (string) static::getContainer()
             ->get(Connection::class)
             ->fetchOne(
                 'SELECT LOWER(HEX(sales_channel_id)) FROM sales_channel_domain WHERE url = :url',

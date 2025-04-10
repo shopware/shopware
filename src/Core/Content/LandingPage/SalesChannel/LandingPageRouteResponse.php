@@ -6,19 +6,12 @@ use Shopware\Core\Content\LandingPage\LandingPageEntity;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\StoreApiResponse;
 
-#[Package('buyers-experience')]
+/**
+ * @extends StoreApiResponse<LandingPageEntity>
+ */
+#[Package('discovery')]
 class LandingPageRouteResponse extends StoreApiResponse
 {
-    /**
-     * @var LandingPageEntity
-     */
-    protected $object;
-
-    public function __construct(LandingPageEntity $landingPage)
-    {
-        parent::__construct($landingPage);
-    }
-
     public function getLandingPage(): LandingPageEntity
     {
         return $this->object;

@@ -7,50 +7,26 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityCustomFieldsTrait;
 use Shopware\Core\Framework\DataAbstractionLayer\TranslationEntity;
 use Shopware\Core\Framework\Log\Package;
 
-#[Package('buyers-experience')]
+#[Package('discovery')]
 class LandingPageTranslationEntity extends TranslationEntity
 {
     use EntityCustomFieldsTrait;
 
-    /**
-     * @var string
-     */
-    protected $landingPageId;
+    protected string $landingPageId;
 
-    /**
-     * @var LandingPageEntity|null
-     */
-    protected $landingPage;
+    protected ?LandingPageEntity $landingPage = null;
 
-    /**
-     * @var string|null
-     */
-    protected $name;
+    protected ?string $name = null;
 
-    /**
-     * @var string|null
-     */
-    protected $url;
+    protected ?string $url = null;
 
-    /**
-     * @var string|null
-     */
-    protected $metaTitle;
+    protected ?string $metaTitle = null;
 
-    /**
-     * @var string|null
-     */
-    protected $metaDescription;
+    protected ?string $metaDescription = null;
 
-    /**
-     * @var string|null
-     */
-    protected $keywords;
+    protected ?string $keywords = null;
 
-    /**
-     * @var array|null
-     */
-    protected $slotConfig;
+    protected ?array $slotConfig = null;
 
     public function getLandingPageId(): string
     {

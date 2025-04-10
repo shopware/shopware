@@ -1,5 +1,5 @@
 /**
- * @package services-settings
+ * @sw-package fundamentals@framework
  */
 import { mount } from '@vue/test-utils';
 
@@ -7,24 +7,26 @@ describe('modules/sw-users-permissions/page/sw-users-permissions', () => {
     let wrapper;
 
     beforeEach(async () => {
-        wrapper = mount(await wrapTestComponent('sw-users-permissions', {
-            sync: true,
-        }), {
-            global: {
-                renderStubDefaultSlot: true,
-                stubs: {
-                    'sw-page': {
-                        template: '<div><slot name="content"></slot></div>',
+        wrapper = mount(
+            await wrapTestComponent('sw-users-permissions', {
+                sync: true,
+            }),
+            {
+                global: {
+                    renderStubDefaultSlot: true,
+                    stubs: {
+                        'sw-page': {
+                            template: '<div><slot name="content"></slot></div>',
+                        },
+                        'sw-card-view': true,
+                        'sw-users-permissions-user-listing': true,
+                        'sw-users-permissions-role-listing': true,
+                        'sw-users-permissions-configuration': true,
+                        'sw-button-process': true,
                     },
-                    'sw-card-view': true,
-                    'sw-users-permissions-user-listing': true,
-                    'sw-users-permissions-role-listing': true,
-                    'sw-users-permissions-configuration': true,
-                    'sw-icon': true,
-                    'sw-button-process': true,
                 },
             },
-        });
+        );
 
         await flushPromises();
     });

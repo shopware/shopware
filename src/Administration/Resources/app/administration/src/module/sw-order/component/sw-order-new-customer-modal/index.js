@@ -3,7 +3,7 @@ import './sw-order-new-customer-modal.scss';
 import CUSTOMER from '../../../sw-customer/constant/sw-customer.constant';
 
 /**
- * @package checkout
+ * @sw-package checkout
  */
 
 const { Mixin } = Shopware;
@@ -14,8 +14,6 @@ const { mapPageErrors } = Shopware.Component.getComponentHelper();
 export default {
     template,
 
-    compatConfig: Shopware.compatConfig,
-
     inject: [
         'repositoryFactory',
         'numberRangeService',
@@ -23,7 +21,10 @@ export default {
         'customerValidationService',
     ],
 
-    emits: ['on-select-existing-customer', 'close'],
+    emits: [
+        'on-select-existing-customer',
+        'close',
+    ],
 
     mixins: [
         Mixin.getByName('notification'),
@@ -47,7 +48,6 @@ export default {
                     'email',
                     'salesChannelId',
                     'customerNumber',
-                    'defaultPaymentMethodId',
                     'groupId',
                 ],
             },
@@ -93,6 +93,10 @@ export default {
             },
 
             set(newValue) {
+                if (newValue === this.isSameBilling) {
+                    return;
+                }
+
                 if (newValue === true) {
                     this.customer.defaultShippingAddressId = this.customer.defaultBillingAddressId;
 
@@ -115,8 +119,9 @@ export default {
         },
 
         validCompanyField() {
-            return this.customer?.accountType === CUSTOMER.ACCOUNT_TYPE_BUSINESS ?
-                this.customer?.company?.trim().length : true;
+            return this.customer?.accountType === CUSTOMER.ACCOUNT_TYPE_BUSINESS
+                ? this.customer?.company?.trim().length
+                : true;
         },
 
         languageRepository() {
@@ -128,9 +133,7 @@ export default {
             criteria.setLimit(1);
 
             if (this.customer?.salesChannelId) {
-                criteria.addFilter(
-                    Criteria.equals('salesChannelDefaultAssignments.id', this.customer.salesChannelId),
-                );
+                criteria.addFilter(Criteria.equals('salesChannelDefaultAssignments.id', this.customer.salesChannelId));
             }
 
             return criteria;
@@ -155,12 +158,11 @@ export default {
 
     watch: {
         'customer.salesChannelId'(salesChannelId) {
-            this.systemConfigApiService
-                .getValues('core.systemWideLoginRegistration').then(response => {
-                    if (response['core.systemWideLoginRegistration.isCustomerBoundToSalesChannel']) {
-                        this.customer.boundSalesChannelId = salesChannelId;
-                    }
-                });
+            this.systemConfigApiService.getValues('core.systemWideLoginRegistration').then((response) => {
+                if (response['core.systemWideLoginRegistration.isCustomerBoundToSalesChannel']) {
+                    this.customer.boundSalesChannelId = salesChannelId;
+                }
+            });
         },
 
         'customer.accountType'(value) {
@@ -168,12 +170,7 @@ export default {
                 return;
             }
 
-            Shopware.State.dispatch(
-                'error/removeApiError',
-                {
-                    expression: `customer_address.${this.billingAddress?.id}.company`,
-                },
-            );
+            Shopware.Store.get('error').removeApiError(`customer_address.${this.billingAddress?.id}.company`);
         },
     },
 
@@ -229,7 +226,8 @@ export default {
             let numberRangePromise = Promise.resolve();
             if (this.customerNumberPreview === this.customer.customerNumber) {
                 numberRangePromise = this.numberRangeService
-                    .reserve('customer', this.customer.salesChannelId).then((response) => {
+                    .reserve('customer', this.customer.salesChannelId)
+                    .then((response) => {
                         this.customerNumberPreview = response.number;
                         this.customer.customerNumber = response.number;
                     });
@@ -245,19 +243,22 @@ export default {
 
             const context = { ...Shopware.Context.api, ...{ languageId } };
 
-            return this.customerRepository.save(this.customer, context).then((response) => {
-                this.$emit('on-select-existing-customer', this.customer.id);
-                this.isLoading = false;
+            return this.customerRepository
+                .save(this.customer, context)
+                .then((response) => {
+                    this.$emit('on-select-existing-customer', this.customer.id);
+                    this.isLoading = false;
 
-                this.onClose();
+                    this.onClose();
 
-                return response;
-            }).catch(() => {
-                this.createNotificationError({
-                    message: this.$tc('sw-customer.detail.messageSaveError'),
+                    return response;
+                })
+                .catch(() => {
+                    this.createNotificationError({
+                        message: this.$tc('sw-customer.detail.messageSaveError'),
+                    });
+                    this.isLoading = false;
                 });
-                this.isLoading = false;
-            });
         },
 
         onChangeSalesChannel(salesChannelId) {
@@ -273,7 +274,7 @@ export default {
         },
 
         createErrorMessageForCompanyField() {
-            Shopware.State.dispatch('error/addApiError', {
+            Shopware.Store.get('error').addApiError({
                 expression: `customer_address.${this.billingAddress.id}.company`,
                 error: new Shopware.Classes.ShopwareError({
                     code: 'c1051bb4-d103-4f74-8988-acbcafc7fdc3',
@@ -288,22 +289,25 @@ export default {
                 return Promise.resolve({ isValid: true });
             }
 
-            return this.customerValidationService.checkCustomerEmail({
-                id,
-                email,
-                boundSalesChannelId,
-            }).then((emailIsValid) => {
-                return emailIsValid;
-            }).catch((exception) => {
-                if (!exception) {
-                    return;
-                }
+            return this.customerValidationService
+                .checkCustomerEmail({
+                    id,
+                    email,
+                    boundSalesChannelId,
+                })
+                .then((emailIsValid) => {
+                    return emailIsValid;
+                })
+                .catch((exception) => {
+                    if (!exception) {
+                        return;
+                    }
 
-                Shopware.State.dispatch('error/addApiError', {
-                    expression: `customer.${this.customer.id}.email`,
-                    error: exception?.response?.data?.errors[0],
+                    Shopware.Store.get('error').addApiError({
+                        expression: `customer.${this.customer.id}.email`,
+                        error: exception?.response?.data?.errors[0],
+                    });
                 });
-            });
         },
 
         async loadLanguage(salesChannelId) {

@@ -14,7 +14,7 @@ use Symfony\Component\HttpFoundation\ParameterBag;
 /**
  * @internal
  */
-#[Package('buyers-experience')]
+#[Package('discovery')]
 #[CoversClass(StoreApiCustomFieldMapper::class)]
 class StoreApiCustomFieldMapperTest extends TestCase
 {
@@ -74,7 +74,7 @@ class StoreApiCustomFieldMapperTest extends TestCase
     {
         $connection = $this->createMock(Connection::class);
         $connection
-            ->expects(static::exactly(2))
+            ->expects($this->exactly(2))
             ->method('fetchAllAssociative')
             ->willReturn([]);
 

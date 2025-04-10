@@ -13,7 +13,7 @@ use Symfony\Component\OptionsResolver\OptionsResolver;
 /**
  * @phpstan-type S3Config = array{bucket: string, region: string, root: string, credentials?: array{key: string, secret: string}, endpoint?: string, options: array<mixed>, use_path_style_endpoint?: bool, visibility?: string, url?: string}
  */
-#[Package('core')]
+#[Package('framework')]
 class AwsS3v3Factory implements AdapterFactoryInterface
 {
     /**
@@ -44,7 +44,7 @@ class AwsS3v3Factory implements AdapterFactoryInterface
 
         $client = new S3Client($s3Opts);
 
-        return new AsyncAwsS3Adapter($client, $options['bucket'], $options['root'], new PortableVisibilityConverter());
+        return new AsyncAwsS3WriteBatchAdapter($client, $options['bucket'], $options['root'], new PortableVisibilityConverter());
     }
 
     public function getType(): string

@@ -1,44 +1,41 @@
 /**
- * @package admin
+ * @sw-package framework
  */
 import 'src/app/mixin/notification.mixin';
 import { mount } from '@vue/test-utils';
+import { createPinia, setActivePinia } from 'pinia';
 
 async function createWrapper() {
-    return mount({
-        template: `
+    return mount(
+        {
+            template: `
             <div class="sw-mock">
               <slot></slot>
             </div>
         `,
-        mixins: [
-            Shopware.Mixin.getByName('notification'),
-        ],
-        data() {
-            return {
-                name: 'sw-mock-field',
-            };
+            mixins: [
+                Shopware.Mixin.getByName('notification'),
+            ],
+            data() {
+                return {
+                    name: 'sw-mock-field',
+                };
+            },
         },
-    }, {
-        attachTo: document.body,
-    });
+        {
+            attachTo: document.body,
+        },
+    );
 }
 
 describe('src/app/mixin/notification.mixin.ts', () => {
     let wrapper;
-    let originalDispatch;
+    let createNotificationSpy;
 
     beforeEach(async () => {
-        if (originalDispatch) {
-            Object.defineProperty(Shopware.State, 'dispatch', {
-                value: originalDispatch,
-            });
-        } else {
-            originalDispatch = Shopware.State.dispatch;
-        }
-
         wrapper = await createWrapper();
-
+        setActivePinia(createPinia());
+        createNotificationSpy = jest.spyOn(Shopware.Store.get('notification'), 'createNotification');
         await flushPromises();
     });
 
@@ -47,29 +44,21 @@ describe('src/app/mixin/notification.mixin.ts', () => {
     });
 
     it('should dispatch a notification on createNotification', () => {
-        Object.defineProperty(Shopware.State, 'dispatch', {
-            value: jest.fn(),
-        });
-
         wrapper.vm.createNotification({
             message: 'The unique message',
         });
 
-        expect(Shopware.State.dispatch).toHaveBeenCalledWith('notification/createNotification', {
+        expect(createNotificationSpy).toHaveBeenCalledWith({
             message: 'The unique message',
         });
     });
 
     it('should dispatch a notification on createNotificationSuccess', () => {
-        Object.defineProperty(Shopware.State, 'dispatch', {
-            value: jest.fn(),
-        });
-
         wrapper.vm.createNotificationSuccess({
             message: 'The unique message',
         });
 
-        expect(Shopware.State.dispatch).toHaveBeenCalledWith('notification/createNotification', {
+        expect(createNotificationSpy).toHaveBeenCalledWith({
             message: 'The unique message',
             variant: 'success',
             title: 'global.default.success',
@@ -77,15 +66,11 @@ describe('src/app/mixin/notification.mixin.ts', () => {
     });
 
     it('should dispatch a notification on createNotificationInfo', () => {
-        Object.defineProperty(Shopware.State, 'dispatch', {
-            value: jest.fn(),
-        });
-
         wrapper.vm.createNotificationInfo({
             message: 'The unique message',
         });
 
-        expect(Shopware.State.dispatch).toHaveBeenCalledWith('notification/createNotification', {
+        expect(createNotificationSpy).toHaveBeenCalledWith({
             message: 'The unique message',
             variant: 'info',
             title: 'global.default.info',
@@ -93,15 +78,11 @@ describe('src/app/mixin/notification.mixin.ts', () => {
     });
 
     it('should dispatch a notification on createNotificationWarning', () => {
-        Object.defineProperty(Shopware.State, 'dispatch', {
-            value: jest.fn(),
-        });
-
         wrapper.vm.createNotificationWarning({
             message: 'The unique message',
         });
 
-        expect(Shopware.State.dispatch).toHaveBeenCalledWith('notification/createNotification', {
+        expect(createNotificationSpy).toHaveBeenCalledWith({
             message: 'The unique message',
             variant: 'warning',
             title: 'global.default.warning',
@@ -109,15 +90,11 @@ describe('src/app/mixin/notification.mixin.ts', () => {
     });
 
     it('should dispatch a notification on createNotificationError', () => {
-        Object.defineProperty(Shopware.State, 'dispatch', {
-            value: jest.fn(),
-        });
-
         wrapper.vm.createNotificationError({
             message: 'The unique message',
         });
 
-        expect(Shopware.State.dispatch).toHaveBeenCalledWith('notification/createNotification', {
+        expect(createNotificationSpy).toHaveBeenCalledWith({
             message: 'The unique message',
             variant: 'error',
             title: 'global.default.error',
@@ -125,15 +102,11 @@ describe('src/app/mixin/notification.mixin.ts', () => {
     });
 
     it('should dispatch a notification on createSystemNotificationSuccess', () => {
-        Object.defineProperty(Shopware.State, 'dispatch', {
-            value: jest.fn(),
-        });
-
         wrapper.vm.createSystemNotificationSuccess({
             message: 'The unique message',
         });
 
-        expect(Shopware.State.dispatch).toHaveBeenCalledWith('notification/createNotification', {
+        expect(createNotificationSpy).toHaveBeenCalledWith({
             message: 'The unique message',
             variant: 'success',
             system: true,
@@ -141,15 +114,11 @@ describe('src/app/mixin/notification.mixin.ts', () => {
     });
 
     it('should dispatch a notification on createSystemNotificationInfo', () => {
-        Object.defineProperty(Shopware.State, 'dispatch', {
-            value: jest.fn(),
-        });
-
         wrapper.vm.createSystemNotificationInfo({
             message: 'The unique message',
         });
 
-        expect(Shopware.State.dispatch).toHaveBeenCalledWith('notification/createNotification', {
+        expect(createNotificationSpy).toHaveBeenCalledWith({
             message: 'The unique message',
             variant: 'info',
             system: true,
@@ -157,15 +126,11 @@ describe('src/app/mixin/notification.mixin.ts', () => {
     });
 
     it('should dispatch a notification on createSystemNotificationWarning', () => {
-        Object.defineProperty(Shopware.State, 'dispatch', {
-            value: jest.fn(),
-        });
-
         wrapper.vm.createSystemNotificationWarning({
             message: 'The unique message',
         });
 
-        expect(Shopware.State.dispatch).toHaveBeenCalledWith('notification/createNotification', {
+        expect(createNotificationSpy).toHaveBeenCalledWith({
             message: 'The unique message',
             variant: 'warning',
             system: true,
@@ -173,15 +138,11 @@ describe('src/app/mixin/notification.mixin.ts', () => {
     });
 
     it('should dispatch a notification on createSystemNotificationError', () => {
-        Object.defineProperty(Shopware.State, 'dispatch', {
-            value: jest.fn(),
-        });
-
         wrapper.vm.createSystemNotificationError({
             message: 'The unique message',
         });
 
-        expect(Shopware.State.dispatch).toHaveBeenCalledWith('notification/createNotification', {
+        expect(createNotificationSpy).toHaveBeenCalledWith({
             message: 'The unique message',
             variant: 'error',
             system: true,
@@ -189,15 +150,11 @@ describe('src/app/mixin/notification.mixin.ts', () => {
     });
 
     it('should dispatch a notification on createSystemNotification', () => {
-        Object.defineProperty(Shopware.State, 'dispatch', {
-            value: jest.fn(),
-        });
-
         wrapper.vm.createSystemNotification({
             message: 'The unique message',
         });
 
-        expect(Shopware.State.dispatch).toHaveBeenCalledWith('notification/createNotification', {
+        expect(createNotificationSpy).toHaveBeenCalledWith({
             message: 'The unique message',
             system: true,
         });

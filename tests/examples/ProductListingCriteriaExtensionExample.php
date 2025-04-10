@@ -7,16 +7,16 @@ use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
 readonly class ProductListingCriteriaExtensionExample implements EventSubscriberInterface
 {
+    public function __construct(
+        // you can inject your own services
+    ) {
+    }
+
     public static function getSubscribedEvents(): array
     {
         return [
             'product.listing.criteria.post' => 'modifyCriteria',
         ];
-    }
-
-    public function __construct(
-        // you can inject your own services
-    ) {
     }
 
     public function modifyCriteria(ProductListingCriteriaExtension $event): void

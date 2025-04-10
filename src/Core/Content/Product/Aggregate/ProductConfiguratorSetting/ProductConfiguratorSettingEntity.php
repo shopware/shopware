@@ -17,50 +17,26 @@ class ProductConfiguratorSettingEntity extends Entity
     use EntityCustomFieldsTrait;
     use EntityIdTrait;
 
-    /**
-     * @var string
-     */
-    protected $productId;
+    protected string $productId;
 
-    /**
-     * @var string
-     */
-    protected $optionId;
+    protected string $optionId;
 
-    /**
-     * @var string|null
-     */
-    protected $mediaId;
+    protected ?string $mediaId = null;
 
-    /**
-     * @var int
-     */
-    protected $position;
+    protected int $position;
 
     /**
      * @var array<Price>|null
      */
-    protected $price;
+    protected ?array $price = null;
 
-    /**
-     * @var PropertyGroupOptionEntity|null
-     */
-    protected $option;
+    protected ?PropertyGroupOptionEntity $option = null;
 
-    /**
-     * @var MediaEntity|null
-     */
-    protected $media;
+    protected ?MediaEntity $media = null;
 
-    /**
-     * @var bool
-     */
-    protected $selected = false;
+    protected bool $selected = false;
 
-    /**
-     * @var ProductEntity|null
-     */
-    protected $product;
+    protected ?ProductEntity $product = null;
 
     public function getProductId(): string
     {

@@ -1,37 +1,43 @@
 import { mount } from '@vue/test-utils';
+import { MtProgressBar } from '@shopware-ag/meteor-component-library';
 
 /**
- * @package checkout
+ * @sw-package checkout
  */
 describe('src/module/sw-extension/component/sw-ratings/sw-extension-ratings-summary', () => {
     async function createWrapper() {
-        return mount(await wrapTestComponent('sw-extension-ratings-summary', { sync: true }), {
-            global: {
-                stubs: {
-                    'sw-progress-bar': await wrapTestComponent('sw-progress-bar', { sync: true }),
-                    'sw-extension-rating-stars': true,
+        return mount(
+            await wrapTestComponent('sw-extension-ratings-summary', {
+                sync: true,
+            }),
+            {
+                global: {
+                    stubs: {
+                        'mt-progress-bar': MtProgressBar,
+                        'sw-extension-rating-stars': true,
+                    },
+                    provide: {
+                        userActivityService: {
+                            updateLastUserActivity: () => {},
+                        },
+                    },
                 },
-                provide: {
-                    userActivityService: {
-                        updateLastUserActivity: () => {},
+                props: {
+                    summary: {
+                        ratingAssignment: [
+                            { rating: 5, count: 5 },
+                            { rating: 4, count: 10 },
+                            { rating: 3, count: 2 },
+                            { rating: 2, count: 1 },
+                            { rating: 1, count: 2 },
+                        ],
+                        averageRating: 5,
+                        numberOfRatings: 20,
+                        extensions: [],
                     },
                 },
             },
-            props: {
-                summary: {
-                    ratingAssignment: [
-                        { rating: 5, count: 5 },
-                        { rating: 4, count: 10 },
-                        { rating: 3, count: 2 },
-                        { rating: 2, count: 1 },
-                        { rating: 1, count: 2 },
-                    ],
-                    averageRating: 5,
-                    numberOfRatings: 20,
-                    extensions: [],
-                },
-            },
-        });
+        );
     }
 
     it('should display amount of ratings correctly', async () => {
@@ -49,7 +55,7 @@ describe('src/module/sw-extension/component/sw-ratings/sw-extension-ratings-summ
     it('should display with of progress bars correctly', async () => {
         const wrapper = await createWrapper();
 
-        const progressBarValues = wrapper.findAll('.sw-progress-bar__value');
+        const progressBarValues = wrapper.findAll('.mt-progress-bar__fill');
 
         expect(progressBarValues.at(0).attributes('style')).toBe('width: 25%;');
         expect(progressBarValues.at(1).attributes('style')).toBe('width: 50%;');

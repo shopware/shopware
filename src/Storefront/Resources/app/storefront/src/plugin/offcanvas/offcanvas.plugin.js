@@ -1,8 +1,9 @@
-import DeviceDetection from 'src/helper/device-detection.helper';
 import NativeEventEmitter from 'src/helper/emitter.helper';
-import Iterator from 'src/helper/iterator.helper';
 
+// The bootstrap offcanvas class
 const OFF_CANVAS_CLASS = 'offcanvas';
+// Custom offcanvas class to identify offcanvas created by OffCanvasSingleton
+const OFF_CANVAS_JS_CLASS = 'js-offcanvas-singleton';
 const OFF_CANVAS_FULLWIDTH_CLASS = 'is-fullwidth';
 const OFF_CANVAS_CLOSE_TRIGGER_CLASS = 'js-offcanvas-close';
 const REMOVE_OFF_CANVAS_DELAY = 350;
@@ -10,7 +11,7 @@ const REMOVE_OFF_CANVAS_DELAY = 350;
 /**
  * OffCanvas uses Bootstraps OffCanvas JavaScript implementation
  * @see https://getbootstrap.com/docs/5.2/components/offcanvas
- * @package storefront
+ * @sw-package framework
  */
 class OffCanvasSingleton {
 
@@ -53,11 +54,11 @@ class OffCanvasSingleton {
 
         // register events again
         this._registerEvents(delay);
+        this._setAriaAttrs();
     }
 
     /**
-     * adds an additional class to the offcanvas
-     *
+     * Method to add additional class to the first OffCanvas
      * @param {string} className
      */
     setAdditionalClassName(className) {
@@ -71,7 +72,7 @@ class OffCanvasSingleton {
      * @private
      */
     getOffCanvas() {
-        return document.querySelectorAll(`.${OFF_CANVAS_CLASS}`);
+        return document.querySelectorAll(`.${OFF_CANVAS_JS_CLASS}`);
     }
 
     /**
@@ -81,7 +82,7 @@ class OffCanvasSingleton {
     close(delay) {
         const OffCanvasElements = this.getOffCanvas();
 
-        Iterator.iterate(OffCanvasElements, (offCanvas) => {
+        OffCanvasElements.forEach(offCanvas => {
             const offCanvasInstance = bootstrap.Offcanvas.getInstance(offCanvas);
             offCanvasInstance.hide();
         });
@@ -135,11 +136,11 @@ class OffCanvasSingleton {
      * @private
      */
     _registerEvents(delay) {
-        const event = (DeviceDetection.isTouchDevice()) ? 'touchend' : 'click';
+        const event = 'click';
         const offCanvasElements = this.getOffCanvas();
 
         // Ensure OffCanvas is removed from the DOM and events are published.
-        Iterator.iterate(offCanvasElements, offCanvas => {
+        offCanvasElements.forEach(offCanvas => {
             const onBsClose = () => {
                 setTimeout(() => {
                     offCanvas.remove();
@@ -159,7 +160,18 @@ class OffCanvasSingleton {
 
         window.addEventListener('popstate', this.close.bind(this, delay), { once: true });
         const closeTriggers = document.querySelectorAll(`.${OFF_CANVAS_CLOSE_TRIGGER_CLASS}`);
-        Iterator.iterate(closeTriggers, trigger => trigger.addEventListener(event, this.close.bind(this, delay)));
+        closeTriggers.forEach(trigger => trigger.addEventListener(event, this.close.bind(this, delay)));
+    }
+
+    _setAriaAttrs() {
+        const offCanvas = this.getOffCanvas()[0];
+        const headlineId = 'off-canvas-headline';
+        const headline = offCanvas.querySelector(`[data-id="${headlineId}"]`);
+
+        if (headline && !offCanvas.hasAttribute('aria-labelledby')) {
+            headline.setAttribute('id', headlineId);
+            offCanvas.setAttribute('aria-labelledby', headlineId);
+        }
     }
 
     /**
@@ -169,7 +181,7 @@ class OffCanvasSingleton {
     _removeExistingOffCanvas() {
         OffCanvasSingleton.bsOffcanvas = null;
         const offCanvasElements = this.getOffCanvas();
-        return Iterator.iterate(offCanvasElements, offCanvas => offCanvas.remove());
+        return offCanvasElements.forEach(offCanvas => offCanvas.remove());
     }
 
     /**
@@ -202,7 +214,7 @@ class OffCanvasSingleton {
      */
     _createOffCanvas(position, fullwidth, cssClass, closable) {
         const offCanvas = document.createElement('div');
-        offCanvas.classList.add(OFF_CANVAS_CLASS);
+        offCanvas.classList.add(OFF_CANVAS_CLASS, OFF_CANVAS_JS_CLASS);
         offCanvas.classList.add(this._getPositionClass(position));
         offCanvas.setAttribute('tabindex', '-1');
 

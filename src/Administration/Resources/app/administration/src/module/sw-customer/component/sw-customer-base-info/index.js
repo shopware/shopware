@@ -5,7 +5,7 @@ import errorConfig from '../../error-config.json';
 import CUSTOMER from '../../constant/sw-customer.constant';
 
 /**
- * @package checkout
+ * @sw-package checkout
  */
 
 const { Criteria } = Shopware.Data;
@@ -15,9 +15,9 @@ const { mapPropertyErrors } = Shopware.Component.getComponentHelper();
 export default {
     template,
 
-    compatConfig: Shopware.compatConfig,
-
-    inject: ['repositoryFactory', 'feature'],
+    inject: [
+        'repositoryFactory',
+    ],
 
     props: {
         customer: {
@@ -38,10 +38,6 @@ export default {
 
     data() {
         return {
-            /**
-             * @deprecated tag:v6.7.0 - will be removed, use customer.orderTotalValue instead
-             */
-            orderAmount: 0,
             orderCount: 0,
             customerLanguage: null,
             currencyCode: Shopware.Context.app.systemCurrencyISOCode,
@@ -82,10 +78,9 @@ export default {
             return criteria;
         },
 
-        ...mapPropertyErrors(
-            'customer',
-            [...errorConfig['sw.customer.detail.base'].customer],
-        ),
+        ...mapPropertyErrors('customer', [
+            ...errorConfig['sw.customer.detail.base'].customer,
+        ]),
 
         isBusinessAccountType() {
             return this.customer?.accountType === CUSTOMER.ACCOUNT_TYPE_BUSINESS;

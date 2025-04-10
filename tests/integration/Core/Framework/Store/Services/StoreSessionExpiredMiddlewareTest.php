@@ -31,7 +31,7 @@ class StoreSessionExpiredMiddlewareTest extends TestCase
         $response = new Response(200, [], '{"payload":"data"}');
 
         $middleware = new StoreSessionExpiredMiddleware(
-            $this->getContainer()->get(Connection::class),
+            static::getContainer()->get(Connection::class),
             new RequestStack()
         );
 
@@ -45,7 +45,7 @@ class StoreSessionExpiredMiddlewareTest extends TestCase
         $response = new Response(401, [], '{"payload":"data"}');
 
         $middleware = new StoreSessionExpiredMiddleware(
-            $this->getContainer()->get(Connection::class),
+            static::getContainer()->get(Connection::class),
             new RequestStack()
         );
 
@@ -60,7 +60,7 @@ class StoreSessionExpiredMiddlewareTest extends TestCase
         $response = new Response(401, [], '{"code":"ShopwarePlatformException-1"}');
 
         $middleware = new StoreSessionExpiredMiddleware(
-            $this->getContainer()->get(Connection::class),
+            static::getContainer()->get(Connection::class),
             $requestStack
         );
 
@@ -73,7 +73,7 @@ class StoreSessionExpiredMiddlewareTest extends TestCase
         $response = new Response(401, [], '{"code":"ShopwarePlatformException-1"}');
 
         /** @var EntityRepository<UserCollection> $userRepository */
-        $userRepository = $this->getContainer()->get('user.repository');
+        $userRepository = static::getContainer()->get('user.repository');
         $adminUser = $userRepository->search(new Criteria(), Context::createDefaultContext())->getEntities()->first();
         static::assertNotNull($adminUser);
         $userRepository->update([[
@@ -95,7 +95,7 @@ class StoreSessionExpiredMiddlewareTest extends TestCase
         $requestStack->push($request);
 
         $middleware = new StoreSessionExpiredMiddleware(
-            $this->getContainer()->get(Connection::class),
+            static::getContainer()->get(Connection::class),
             $requestStack
         );
 

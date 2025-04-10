@@ -24,13 +24,12 @@
 
             {% block layout_navbar_content_row_close %}
                 <div class="col-auto">
-                    <div class="navigation-flyout-close js-close-flyout-menu">
+                    <button class="navigation-flyout-close js-close-flyout-menu btn-close" aria-label="{{ 'general.closeMenu'|trans|striptags }}">
                         {% block layout_navbar_content_row_close_content %}
                             {% block layout_utilities_offcanvas_close_icon %}
-                                {% sw_icon 'x' %}
                             {% endblock %}
                         {% endblock %}
-                    </div>
+                    </button>
                 </div>
             {% endblock %}
         </div>
@@ -69,7 +68,7 @@
                                             default: '310px'
                                         },
                                         attributes: {
-                                            class: 'navigation-flyout-teaser-image',
+                                            class: 'navigation-flyout-teaser-image img-fluid',
                                             alt: (category.media.translated.alt ?: ''),
                                             title: (category.media.translated.title ?: ''),
                                             'data-object-fit': 'cover',

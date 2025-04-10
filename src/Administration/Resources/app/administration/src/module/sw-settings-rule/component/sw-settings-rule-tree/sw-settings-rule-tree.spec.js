@@ -2,7 +2,7 @@ import { mount } from '@vue/test-utils';
 import getTreeItems from 'src/app/component/tree/sw-tree/fixtures/treeItems';
 
 /**
- * @package services-settings
+ * @sw-package fundamentals@after-sales
  */
 
 const { cloneDeep } = Shopware.Utils.object;
@@ -22,27 +22,22 @@ const defaultProps = {
 };
 
 async function createWrapper(props = defaultProps) {
-    return mount(
-        await wrapTestComponent('sw-settings-rule-tree', { sync: true }),
-        {
-            props,
-            global: {
-                stubs: {
-                    'sw-tree-item': await wrapTestComponent('sw-tree-item'),
-                    'sw-icon': true,
-                    'sw-text-field': true,
-                    'sw-button': true,
-                    'sw-tree-input-field': true,
-                    'sw-checkbox-field': true,
-                    'sw-confirm-field': true,
-                    'sw-context-menu-item': true,
-                    'sw-context-button': true,
-                    'sw-vnode-renderer': true,
-                    'sw-skeleton': true,
-                },
+    return mount(await wrapTestComponent('sw-settings-rule-tree', { sync: true }), {
+        props,
+        global: {
+            stubs: {
+                'sw-tree-item': await wrapTestComponent('sw-tree-item'),
+                'sw-text-field': true,
+                'sw-tree-input-field': true,
+                'sw-checkbox-field': true,
+                'sw-confirm-field': true,
+                'sw-context-menu-item': true,
+                'sw-context-button': true,
+                'sw-vnode-renderer': true,
+                'sw-skeleton': true,
             },
         },
-    );
+    });
 }
 
 describe('src/module/sw-settings-rule/view/sw-settings-rule-tree', () => {

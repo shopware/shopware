@@ -1,5 +1,5 @@
 /**
- * @package services-settings
+ * @sw-package fundamentals@after-sales
  */
 import RuleConditionsConfigApiService from 'src/core/service/api/rule-conditions-config.api.service';
 import createLoginService from 'src/core/service/login.service';
@@ -25,24 +25,20 @@ describe('ruleConditionsConfigApiService', () => {
     it('is request send correctly', async () => {
         const { ruleConditionsConfigApiService, clientMock } = getRuleConditionsConfigApiService();
 
-        clientMock.onGet('/_info/rule-config')
-            .reply(
-                200,
-                ruleConditionsConfig,
-            );
+        clientMock.onGet('/_info/rule-config').reply(200, ruleConditionsConfig);
 
         await ruleConditionsConfigApiService.load();
 
-        expect(Shopware.State.getters['ruleConditionsConfig/getConfig']()).toEqual(ruleConditionsConfig);
+        expect(Shopware.Store.get('ruleConditionsConfig').config).toEqual(ruleConditionsConfig);
     });
 
     it('is request prevented if store has config', async () => {
         const { ruleConditionsConfigApiService } = getRuleConditionsConfigApiService();
 
-        Shopware.State.commit('ruleConditionsConfig/setConfig', { foo: 'bar' });
+        Shopware.Store.get('ruleConditionsConfig').config = { foo: 'bar' };
 
         await ruleConditionsConfigApiService.load();
 
-        expect(Shopware.State.getters['ruleConditionsConfig/getConfig']()).toEqual({ foo: 'bar' });
+        expect(Shopware.Store.get('ruleConditionsConfig').config).toEqual({ foo: 'bar' });
     });
 });

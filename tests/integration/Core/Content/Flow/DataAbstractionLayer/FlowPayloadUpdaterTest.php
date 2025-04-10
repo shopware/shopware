@@ -19,12 +19,12 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\DatabaseTransactionBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
-use Shopware\Core\Framework\Test\TestDataCollection;
+use Shopware\Core\Test\Stub\Framework\IdsCollection;
 
 /**
  * @internal
  */
-#[Package('services-settings')]
+#[Package('after-sales')]
 class FlowPayloadUpdaterTest extends TestCase
 {
     use DatabaseTransactionBehaviour;
@@ -35,13 +35,13 @@ class FlowPayloadUpdaterTest extends TestCase
      */
     private EntityRepository $flowRepository;
 
-    private TestDataCollection $ids;
+    private IdsCollection $ids;
 
     protected function setUp(): void
     {
-        $this->flowRepository = $this->getContainer()->get('flow.repository');
+        $this->flowRepository = static::getContainer()->get('flow.repository');
 
-        $this->ids = new TestDataCollection();
+        $this->ids = new IdsCollection();
     }
 
     public function testCreate(): void
@@ -148,7 +148,7 @@ class FlowPayloadUpdaterTest extends TestCase
     {
         $this->createTestData();
 
-        $flowSequenceRepository = $this->getContainer()->get('flow_sequence.repository');
+        $flowSequenceRepository = static::getContainer()->get('flow_sequence.repository');
         $flowSequenceRepository->delete([
             ['id' => $this->ids->get('flow_sequence_id2')],
             ['id' => $this->ids->get('flow_sequence_id1')],

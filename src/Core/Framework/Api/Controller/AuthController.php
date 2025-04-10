@@ -15,7 +15,7 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
 
 #[Route(defaults: ['_routeScope' => ['api']])]
-#[Package('services-settings')]
+#[Package('fundamentals@framework')]
 class AuthController extends AbstractController
 {
     /**
@@ -26,11 +26,6 @@ class AuthController extends AbstractController
         private readonly PsrHttpFactory $psrHttpFactory,
         private readonly RateLimiter $rateLimiter
     ) {
-    }
-
-    #[Route(path: '/api/oauth/authorize', name: 'api.oauth.authorize', defaults: ['auth_required' => false], methods: ['POST'])]
-    public function authorize(Request $request): void
-    {
     }
 
     #[Route(path: '/api/oauth/token', name: 'api.oauth.token', defaults: ['auth_required' => false], methods: ['POST'])]

@@ -1,47 +1,49 @@
 import { mount } from '@vue/test-utils';
 
 /**
- * @package checkout
+ * @sw-package checkout
  */
 async function createWrapper(privileges = [], additionalOptions = {}) {
-    return mount(await wrapTestComponent('sw-settings-tax-provider-detail', {
-        sync: true,
-    }), {
-        global: {
-            renderStubDefaultSlot: true,
-            provide: {
-                repositoryFactory: {
-                    create: () => ({
-                        get: () => {
-                            if (additionalOptions.hasOwnProperty('taxProvider')) {
-                                return Promise.resolve(additionalOptions.taxProvider);
+    return mount(
+        await wrapTestComponent('sw-settings-tax-provider-detail', {
+            sync: true,
+        }),
+        {
+            global: {
+                renderStubDefaultSlot: true,
+                provide: {
+                    repositoryFactory: {
+                        create: () => ({
+                            get: () => {
+                                if (additionalOptions.hasOwnProperty('taxProvider')) {
+                                    return Promise.resolve(additionalOptions.taxProvider);
+                                }
+
+                                return Promise.resolve({
+                                    active: true,
+                                    priority: 1,
+                                    availabilityRuleId: null,
+                                    translated: {
+                                        name: 'Tax provider one',
+                                    },
+                                });
+                            },
+                            save: () => Promise.resolve(),
+                        }),
+                    },
+                    acl: {
+                        can: (identifier) => {
+                            if (!identifier) {
+                                return true;
                             }
 
-                            return Promise.resolve({
-                                active: true,
-                                priority: 1,
-                                availabilityRuleId: null,
-                                translated: {
-                                    name: 'Tax provider one',
-                                },
-                            });
+                            return privileges.includes(identifier);
                         },
-                        save: () => Promise.resolve(),
-                    }),
-                },
-                acl: {
-                    can: (identifier) => {
-                        if (!identifier) {
-                            return true;
-                        }
-
-                        return privileges.includes(identifier);
                     },
                 },
-            },
-            stubs: {
-                'sw-page': {
-                    template: `
+                stubs: {
+                    'sw-page': {
+                        template: `
                     <div class="sw-page">
                         <slot name="search-bar"></slot>
                         <slot name="smart-bar-back"></slot>
@@ -54,32 +56,31 @@ async function createWrapper(privileges = [], additionalOptions = {}) {
                         <slot></slot>
                     </div>
                 `,
-                },
-                'sw-button': true,
-                'sw-button-process': true,
-                'sw-skeleton': true,
-                'sw-card': {
-                    template: '<div><slot></slot><slot name="grid"></slot></div>',
-                },
-                'sw-card-view': {
-                    template: `
+                    },
+                    'sw-button-process': true,
+                    'sw-skeleton': true,
+                    'mt-card': {
+                        template: '<div><slot></slot><slot name="grid"></slot></div>',
+                    },
+                    'sw-card-view': {
+                        template: `
                         <div class="sw-card-view">
                             <slot></slot>
                         </div>
                     `,
+                    },
+
+                    'sw-container': true,
+                    'mt-number-field': true,
+                    'sw-select-rule-create': true,
+                    'sw-extension-component-section': true,
                 },
-                'sw-alert': true,
-                'sw-container': true,
-                'sw-switch-field': true,
-                'sw-number-field': true,
-                'sw-select-rule-create': true,
-                'sw-extension-component-section': true,
+            },
+            props: {
+                taxProviderId: 'taxProviderId',
             },
         },
-        props: {
-            taxProviderId: 'taxProviderId',
-        },
-    });
+    );
 }
 
 describe('module/sw-settings-tax/page/sw-settings-tax-provider-detail', () => {
@@ -94,22 +95,20 @@ describe('module/sw-settings-tax/page/sw-settings-tax-provider-detail', () => {
         const wrapper = await createWrapper();
         await flushPromises();
 
-        const saveButton = wrapper.find(
-            '.sw-settings-tax-tax-provider-detail__save-action',
-        );
+        const saveButton = wrapper.find('.sw-settings-tax-tax-provider-detail__save-action');
 
         const taxProviderPriority = wrapper.find(
-            'sw-number-field-stub[label="sw-settings-tax.taxProviderDetail.labelPriority"]',
+            'mt-number-field-stub[label="sw-settings-tax.taxProviderDetail.labelPriority"]',
         );
         const taxProviderActive = wrapper.find(
-            'sw-switch-field-stub[label="sw-settings-tax.taxProviderDetail.labelActive"]',
+            '.mt-switch input[aria-label="sw-settings-tax.taxProviderDetail.labelActive"]',
         );
 
         const taxProviderAvailability = wrapper.find('.sw-settings-tax-tax-provider-detail__field-availability-rule');
 
         expect(saveButton.attributes().disabled).toBeTruthy();
         expect(taxProviderPriority.attributes().disabled).toBeTruthy();
-        expect(taxProviderActive.attributes().disabled).toBeTruthy();
+        expect(taxProviderActive.attributes().disabled).toBeDefined();
         expect(taxProviderAvailability.attributes().disabled).toBeTruthy();
     });
 
@@ -119,15 +118,13 @@ describe('module/sw-settings-tax/page/sw-settings-tax-provider-detail', () => {
         ]);
         await flushPromises();
 
-        const saveButton = wrapper.find(
-            '.sw-settings-tax-tax-provider-detail__save-action',
-        );
+        const saveButton = wrapper.find('.sw-settings-tax-tax-provider-detail__save-action');
 
         const taxProviderPriority = wrapper.find(
-            'sw-number-field-stub[label="sw-settings-tax.taxProviderDetail.labelPriority"]',
+            'mt-number-field-stub[label="sw-settings-tax.taxProviderDetail.labelPriority"]',
         );
         const taxProviderActive = wrapper.find(
-            'sw-switch-field-stub[label="sw-settings-tax.taxProviderDetail.labelActive"]',
+            '.mt-switch input[aria-label="sw-settings-tax.taxProviderDetail.labelActive"]',
         );
 
         const taxProviderAvailability = wrapper.find('.sw-settings-tax-tax-provider-detail__field-availability-rule');
@@ -152,30 +149,32 @@ describe('module/sw-settings-tax/page/sw-settings-tax-provider-detail', () => {
 
     it('should render sw-extension-component-section when tax provider has identifier', async () => {
         const optionalTaxProvider = {
-            taxProvider:
-                {
-                    active: true,
-                    priority: 1,
-                    availabilityRuleId: null,
-                    identifier: 'my-custom-identifier',
-                    translated: {
-                        name: 'Tax provider one',
-                    },
+            taxProvider: {
+                active: true,
+                priority: 1,
+                availabilityRuleId: null,
+                identifier: 'my-custom-identifier',
+                translated: {
+                    name: 'Tax provider one',
                 },
+            },
         };
-        const wrapper = await createWrapper([
-            'tax.editor',
-        ], optionalTaxProvider);
+        const wrapper = await createWrapper(
+            [
+                'tax.editor',
+            ],
+            optionalTaxProvider,
+        );
         await wrapper.vm.$nextTick();
 
         const extensionComponent = wrapper.find('sw-extension-component-section-stub');
 
         expect(wrapper.vm.hasIdentifier).toBeTruthy();
         expect(extensionComponent.exists()).toBeTruthy();
-        expect(extensionComponent.attributes()['position-identifier'])
-            .toBe('sw-settings-tax-tax-provider-detail-custom-my-custom-identifier');
+        expect(extensionComponent.attributes()['position-identifier']).toBe(
+            'sw-settings-tax-tax-provider-detail-custom-my-custom-identifier',
+        );
     });
-
 
     it('should handle onSave and call loadTaxProvider', async () => {
         const wrapper = await createWrapper([
@@ -198,7 +197,9 @@ describe('module/sw-settings-tax/page/sw-settings-tax-provider-detail', () => {
 
         wrapper.vm.onCancel();
 
-        expect(wrapper.vm.$router.push).toHaveBeenLastCalledWith({ name: 'sw.settings.tax.index' });
+        expect(wrapper.vm.$router.push).toHaveBeenLastCalledWith({
+            name: 'sw.settings.tax.index',
+        });
     });
 
     it('should handle onSaveRule and set availabilityRuleId', async () => {

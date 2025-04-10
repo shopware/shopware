@@ -4,9 +4,8 @@ namespace Shopware\Core\Framework\Adapter\Cache;
 
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\MessageQueue\ScheduledTask\ScheduledTask;
-use Symfony\Component\DependencyInjection\ParameterBag\ParameterBagInterface;
 
-#[Package('core')]
+#[Package('framework')]
 class InvalidateCacheTask extends ScheduledTask
 {
     public static function getTaskName(): string
@@ -16,11 +15,12 @@ class InvalidateCacheTask extends ScheduledTask
 
     public static function getDefaultInterval(): int
     {
-        return 20;
+        // Run every five minutes
+        return self::MINUTELY * 5;
     }
 
-    public static function shouldRun(ParameterBagInterface $bag): bool
+    public static function shouldRescheduleOnFailure(): bool
     {
-        return $bag->get('shopware.cache.invalidation.delay') > 0;
+        return true;
     }
 }

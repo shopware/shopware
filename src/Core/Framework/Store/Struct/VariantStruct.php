@@ -14,30 +14,15 @@ class VariantStruct extends StoreStruct
     final public const TYPE_BUY = 'buy';
     final public const TYPE_FREE = 'free';
 
-    /**
-     * @var int
-     */
-    protected $id;
+    protected int $id;
 
-    /**
-     * @var string
-     */
-    protected $type;
+    protected string $type;
 
-    /**
-     * @var float
-     */
-    protected $netPrice;
+    protected float $netPrice;
 
-    /**
-     * @var bool
-     */
-    protected $trialPhaseIncluded = false;
+    protected bool $trialPhaseIncluded = false;
 
-    /**
-     * @var DiscountCampaignStruct|null
-     */
-    protected $discountCampaign;
+    protected ?DiscountCampaignStruct $discountCampaign;
 
     /**
      * @return VariantStruct

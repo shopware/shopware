@@ -2,7 +2,7 @@ import template from './sw-settings-tax-detail.html.twig';
 import './sw-settings-tax-detail.scss';
 
 /**
- * @package checkout
+ * @sw-package checkout
  */
 
 const { Mixin } = Shopware;
@@ -12,14 +12,11 @@ const { mapPropertyErrors } = Shopware.Component.getComponentHelper();
 export default {
     template,
 
-    compatConfig: Shopware.compatConfig,
-
     inject: [
         'repositoryFactory',
         'acl',
         'customFieldDataProviderService',
         'systemConfigApiService',
-        'feature',
     ],
 
     mixins: [
@@ -73,18 +70,17 @@ export default {
             return this.repositoryFactory.create('tax');
         },
 
-        ...mapPropertyErrors('tax', ['name', 'taxRate']),
+        ...mapPropertyErrors('tax', [
+            'name',
+            'taxRate',
+        ]),
 
         isNewTax() {
-            return this.tax.isNew === 'function'
-                ? this.tax.isNew()
-                : false;
+            return this.tax.isNew === 'function' ? this.tax.isNew() : false;
         },
 
         allowSave() {
-            return this.isNewTax
-                ? this.acl.can('tax.creator')
-                : this.acl.can('tax.editor');
+            return this.isNewTax ? this.acl.can('tax.creator') : this.acl.can('tax.editor');
         },
 
         tooltipSave() {
@@ -167,27 +163,36 @@ export default {
             this.isSaveSuccessful = false;
             this.isLoading = true;
 
-            return this.taxRepository.save(this.tax).then(() => {
-                this.isSaveSuccessful = true;
-                if (!this.taxId) {
-                    this.$router.push({ name: 'sw.settings.tax.detail', params: { id: this.tax.id } });
-                }
+            return this.taxRepository
+                .save(this.tax)
+                .then(() => {
+                    this.isSaveSuccessful = true;
+                    if (!this.taxId) {
+                        this.$router.push({
+                            name: 'sw.settings.tax.detail',
+                            params: { id: this.tax.id },
+                        });
+                    }
 
-                this.taxRepository.get(this.tax.id).then((updatedTax) => {
-                    this.tax = updatedTax;
-                }).then(() => {
-                    return this.systemConfigApiService.saveValues(this.config).then(() => {
-                        this.defaultTaxRateId = this.tax.id;
-                        this.reloadDefaultTaxRate();
-                        this.isLoading = false;
+                    this.taxRepository
+                        .get(this.tax.id)
+                        .then((updatedTax) => {
+                            this.tax = updatedTax;
+                        })
+                        .then(() => {
+                            return this.systemConfigApiService.saveValues(this.config).then(() => {
+                                this.defaultTaxRateId = this.tax.id;
+                                this.reloadDefaultTaxRate();
+                                this.isLoading = false;
+                            });
+                        });
+                })
+                .catch(() => {
+                    this.createNotificationError({
+                        message: this.$tc('sw-settings-tax.detail.messageSaveError'),
                     });
+                    this.isLoading = false;
                 });
-            }).catch(() => {
-                this.createNotificationError({
-                    message: this.$tc('sw-settings-tax.detail.messageSaveError'),
-                });
-                this.isLoading = false;
-            });
         },
 
         onCancel() {
@@ -203,7 +208,7 @@ export default {
         },
 
         onChangeLanguage(languageId) {
-            Shopware.State.commit('context/setApiLanguageId', languageId);
+            Shopware.Store.get('context').api.languageId = languageId;
             this.createdComponent();
         },
 
@@ -214,7 +219,7 @@ export default {
         reloadDefaultTaxRate() {
             this.systemConfigApiService
                 .getValues('core.tax')
-                .then(response => {
+                .then((response) => {
                     this.defaultTaxRateId = response['core.tax.defaultTaxRate'] ?? null;
                 })
                 .then(() => {
@@ -232,7 +237,7 @@ export default {
         onChangeDefaultTaxRate() {
             const newDefaultTax = !this.isDefaultTaxRate ? this.taxId : '';
 
-            this.$set(this.config, 'core.tax.defaultTaxRate', newDefaultTax);
+            this.config['core.tax.defaultTaxRate'] = newDefaultTax;
             this.changeDefaultTaxRate = false;
         },
     },

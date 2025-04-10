@@ -20,7 +20,7 @@ use Shopware\Core\Framework\Uuid\Uuid;
 /**
  * @internal
  */
-#[Package('services-settings')]
+#[Package('after-sales')]
 #[CoversClass(GenerateDocumentAction::class)]
 class GenerateDocumentActionTest extends TestCase
 {
@@ -70,7 +70,7 @@ class GenerateDocumentActionTest extends TestCase
 
         $operation = new DocumentGenerateOperation($orderId, $fileType, $conf, null, $static);
 
-        $this->documentGenerator->expects(static::exactly($expected))
+        $this->documentGenerator->expects($this->exactly($expected))
             ->method('generate')
             ->with($documentType, [$orderId => $operation], Context::createDefaultContext());
 

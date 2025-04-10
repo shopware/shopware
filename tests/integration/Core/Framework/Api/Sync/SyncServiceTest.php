@@ -6,6 +6,7 @@ use Doctrine\DBAL\ArrayParameterType;
 use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Test\Product\ProductBuilder;
+use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Api\Sync\SyncBehavior;
 use Shopware\Core\Framework\Api\Sync\SyncOperation;
 use Shopware\Core\Framework\Api\Sync\SyncService;
@@ -13,12 +14,11 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenContainerEvent;
 use Shopware\Core\Framework\DataAbstractionLayer\Pricing\CashRoundingConfig;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteException;
-use Shopware\Core\Framework\Test\IdsCollection;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseHelper\CallableClass;
-use Shopware\Core\Framework\Test\TestDataCollection;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Framework\Validation\WriteConstraintViolationException;
+use Shopware\Core\Test\Stub\Framework\IdsCollection;
 
 /**
  * @internal
@@ -34,8 +34,47 @@ class SyncServiceTest extends TestCase
     protected function setUp(): void
     {
         parent::setUp();
-        $this->service = $this->getContainer()->get(SyncService::class);
-        $this->connection = $this->getContainer()->get(Connection::class);
+        $this->service = static::getContainer()->get(SyncService::class);
+        $this->connection = static::getContainer()->get(Connection::class);
+    }
+
+    public function testDeleteViaCriteria(): void
+    {
+        $ids = new IdsCollection();
+
+        $products = [
+            (new ProductBuilder($ids, 'p1'))
+                ->price(100)
+                ->category('c1')
+                ->build(),
+            (new ProductBuilder($ids, 'p2'))
+                ->price(100)
+                ->category('c2')
+                ->build(),
+        ];
+
+        static::getContainer()->get('product.repository')->create($products, Context::createDefaultContext());
+
+        $operations = [
+            new SyncOperation(
+                'delete-products',
+                'product',
+                SyncOperation::ACTION_DELETE,
+                [],
+                [['type' => 'equals', 'field' => 'categories.id', 'value' => $ids->get('c1')]]
+            ),
+        ];
+
+        $this->service->sync($operations, Context::createDefaultContext(), new SyncBehavior());
+
+        $existing = $this->connection->fetchFirstColumn(
+            'SELECT LOWER(HEX(id)) FROM product WHERE id IN (:ids)',
+            ['ids' => Uuid::fromHexToBytesList($ids->getList(['p1', 'p2']))],
+            ['ids' => ArrayParameterType::BINARY]
+        );
+
+        static::assertCount(1, $existing);
+        static::assertContains($ids->get('p2'), $existing);
     }
 
     public function testSendNoneExistingId(): void
@@ -65,7 +104,7 @@ class SyncServiceTest extends TestCase
             ->media('media-3')
             ->build();
 
-        $this->getContainer()->get('product.repository')
+        static::getContainer()->get('product.repository')
             ->create([$product], Context::createDefaultContext());
 
         $operations = [
@@ -78,7 +117,7 @@ class SyncServiceTest extends TestCase
 
     public function testSingleOperationWithDeletesAndWrites(): void
     {
-        $ids = new TestDataCollection();
+        $ids = new IdsCollection();
 
         $currency = [
             'name' => 'test',
@@ -89,7 +128,7 @@ class SyncServiceTest extends TestCase
             'shortName' => 'TEST',
         ];
 
-        $this->getContainer()->get('currency.repository')->create(
+        static::getContainer()->get('currency.repository')->create(
             [
                 array_merge($currency, ['id' => $ids->get('currency-1'), 'isoCode' => 'xx']),
                 array_merge($currency, ['id' => $ids->get('currency-2'), 'isoCode' => 'xy']),
@@ -128,20 +167,20 @@ class SyncServiceTest extends TestCase
 
         $this->service->sync($operations, Context::createDefaultContext(), new SyncBehavior());
 
-        $dispatcher = $this->getContainer()->get('event_dispatcher');
+        $dispatcher = static::getContainer()->get('event_dispatcher');
 
         $createListener = $this
             ->getMockBuilder(CallableClass::class)
             ->getMock();
 
-        $createListener->expects(static::once())
+        $createListener->expects($this->once())
             ->method('__invoke');
 
         $deleteListener = $this
             ->getMockBuilder(CallableClass::class)
             ->getMock();
 
-        $deleteListener->expects(static::exactly(3))
+        $deleteListener->expects($this->exactly(3))
             ->method('__invoke');
 
         $this->addEventListener($dispatcher, EntityWrittenContainerEvent::class, $createListener);
@@ -190,15 +229,15 @@ class SyncServiceTest extends TestCase
 
     public function testSingleOperationParameter(): void
     {
-        $ids = new TestDataCollection();
+        $ids = new IdsCollection();
 
-        $dispatcher = $this->getContainer()->get('event_dispatcher');
+        $dispatcher = static::getContainer()->get('event_dispatcher');
 
         $listener = $this
             ->getMockBuilder(CallableClass::class)
             ->getMock();
 
-        $listener->expects(static::once())
+        $listener->expects($this->once())
             ->method('__invoke');
 
         $this->addEventListener($dispatcher, EntityWrittenContainerEvent::class, $listener);
@@ -277,7 +316,7 @@ class SyncServiceTest extends TestCase
                 ->build(),
         ];
 
-        $this->getContainer()->get('product.repository')->create($products, Context::createDefaultContext());
+        static::getContainer()->get('product.repository')->create($products, Context::createDefaultContext());
 
         $operations = [
             new SyncOperation('delete-mapping', 'product_category', SyncOperation::ACTION_DELETE, [], [
@@ -318,14 +357,14 @@ class SyncServiceTest extends TestCase
                 ->build(),
         ];
 
-        $this->getContainer()->get('product.repository')->create($products, Context::createDefaultContext());
+        static::getContainer()->get('product.repository')->create($products, Context::createDefaultContext());
 
         $categories = [
             ['id' => $ids->create('c1'), 'name' => 'c1'],
             ['id' => $ids->create('c2'), 'name' => 'c2'],
         ];
 
-        $this->getContainer()->get('category.repository')->create($categories, Context::createDefaultContext());
+        static::getContainer()->get('category.repository')->create($categories, Context::createDefaultContext());
 
         $operations = [
             new SyncOperation(
@@ -355,5 +394,56 @@ class SyncServiceTest extends TestCase
         static::assertCount(2, $existing);
         static::assertContains($ids->get('c1'), $existing);
         static::assertContains($ids->get('c2'), $existing);
+    }
+
+    public function testOrderOfActionsFromDeleteInsertUpdateSameId(): void
+    {
+        $ids = new IdsCollection();
+
+        $products = [
+            (new ProductBuilder($ids, 'p1'))
+                ->price(100)
+                ->build(),
+        ];
+
+        static::getContainer()->get('product.repository')->create($products, Context::createDefaultContext());
+
+        $operations = [
+            new SyncOperation('delete', 'product', SyncOperation::ACTION_DELETE, [
+                ['id' => $ids->get('p1')],
+            ]),
+            new SyncOperation('create', 'product', SyncOperation::ACTION_UPSERT, [
+                [
+                    'id' => $ids->get('p1'),
+                    'price' => [
+                        ['currencyId' => Defaults::CURRENCY, 'gross' => 200, 'net' => 200, 'linked' => true],
+                    ],
+                    'tax' => ['id' => $ids->create('tax'), 'name' => 'test', 'taxRate' => 0],
+                    'productNumber' => 'test',
+                    'stock' => 10,
+                    'name' => 'test',
+                ],
+            ]),
+            new SyncOperation('update', 'product', SyncOperation::ACTION_UPSERT, [
+                [
+                    'id' => $ids->get('p1'),
+                    'price' => [
+                        ['currencyId' => Defaults::CURRENCY, 'gross' => 300, 'net' => 300, 'linked' => true],
+                    ],
+                ],
+            ]),
+        ];
+
+        $this->service->sync($operations, Context::createDefaultContext(), new SyncBehavior());
+
+        $productPrice = $this->connection->fetchOne(
+            'SELECT price FROM product WHERE id = :id',
+            ['id' => Uuid::fromHexToBytes($ids->get('p1'))]
+        );
+
+        static::assertIsString($productPrice);
+        $productPrice = json_decode($productPrice, true);
+        $productPrice = array_shift($productPrice);
+        static::assertEquals(300, $productPrice['gross']);
     }
 }

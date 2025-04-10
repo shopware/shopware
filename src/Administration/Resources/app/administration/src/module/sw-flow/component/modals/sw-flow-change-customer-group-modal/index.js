@@ -1,22 +1,23 @@
 import template from './sw-flow-change-customer-group-modal.html.twig';
 
-const { Component } = Shopware;
+const { Component, Store } = Shopware;
 const { Criteria } = Shopware.Data;
 const { mapState } = Component.getComponentHelper();
 const { ShopwareError } = Shopware.Classes;
 
 /**
  * @private
- * @package services-settings
+ * @sw-package after-sales
  */
 export default {
     template,
 
-    compatConfig: Shopware.compatConfig,
-
     inject: ['repositoryFactory'],
 
-    emits: ['modal-close', 'process-finish'],
+    emits: [
+        'modal-close',
+        'process-finish',
+    ],
 
     props: {
         sequence: {
@@ -44,7 +45,7 @@ export default {
             return criteria;
         },
 
-        ...mapState('swFlowState', ['customerGroups']),
+        ...mapState(() => Store.get('swFlow'), ['customerGroups']),
     },
 
     watch: {
@@ -65,7 +66,7 @@ export default {
 
             if (!this.customerGroups.length) {
                 this.customerGroupRepository.search(this.customerGroupCriteria).then((data) => {
-                    Shopware.State.commit('swFlowState/setCustomerGroups', data);
+                    Shopware.Store.get('swFlow').customerGroups = data;
                 });
             }
         },

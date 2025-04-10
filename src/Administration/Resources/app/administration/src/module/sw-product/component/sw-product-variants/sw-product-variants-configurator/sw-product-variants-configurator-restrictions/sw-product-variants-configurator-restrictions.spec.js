@@ -1,5 +1,5 @@
 /**
- * @package inventory
+ * @sw-package inventory
  */
 
 import { mount } from '@vue/test-utils';
@@ -50,13 +50,15 @@ describe('components/base/sw-product-variants-configurator-restrictions', () => 
                                 {
                                     id: 'value1',
                                     group: 'group1',
-                                    options: ['option1', 'option2'],
+                                    options: [
+                                        'option1',
+                                        'option2',
+                                    ],
                                 },
                             ],
-                            translated:
-                                {
-                                    name: 'test',
-                                },
+                            translated: {
+                                name: 'test',
+                            },
                         },
                         {
                             id: 'restriction2WithNoOptions',
@@ -67,20 +69,24 @@ describe('components/base/sw-product-variants-configurator-restrictions', () => 
                                     options: [],
                                 },
                             ],
-                            translated:
-                                {
-                                    name: 'test',
-                                },
+                            translated: {
+                                name: 'test',
+                            },
                         },
                     ],
                 },
-                selectedGroups: [{
-                    id: 'group1',
-                    options: ['option1', 'option2'],
-                    translated: {
-                        name: 'group1',
+                selectedGroups: [
+                    {
+                        id: 'group1',
+                        options: [
+                            'option1',
+                            'option2',
+                        ],
+                        translated: {
+                            name: 'group1',
+                        },
                     },
-                }],
+                ],
             },
             global: {
                 provide: {
@@ -95,11 +101,8 @@ describe('components/base/sw-product-variants-configurator-restrictions', () => 
                 stubs: {
                     'sw-simple-search-field': true,
                     'sw-loader': true,
-                    'sw-icon': true,
                     'sw-popover': await wrapTestComponent('sw-popover'),
                     'sw-popover-deprecated': await wrapTestComponent('sw-popover-deprecated', { sync: true }),
-                    'sw-button': await wrapTestComponent('sw-button'),
-                    'sw-button-deprecated': await wrapTestComponent('sw-button-deprecated'),
                     'sw-data-grid': await wrapTestComponent('sw-data-grid'),
                     'sw-context-button': await wrapTestComponent('sw-context-button'),
                     'sw-context-menu': await wrapTestComponent('sw-context-menu'),
@@ -128,6 +131,7 @@ describe('components/base/sw-product-variants-configurator-restrictions', () => 
                     'sw-ai-copilot-badge': true,
                     'sw-help-text': true,
                     'sw-field-error': true,
+                    'sw-provide': true,
                 },
             },
         });
@@ -147,7 +151,10 @@ describe('components/base/sw-product-variants-configurator-restrictions', () => 
             values: [
                 {
                     group: 'group1',
-                    options: ['option1', '45'],
+                    options: [
+                        'option1',
+                        '45',
+                    ],
                 },
             ],
         });
@@ -156,102 +163,115 @@ describe('components/base/sw-product-variants-configurator-restrictions', () => 
     it('should get options for groupId', async () => {
         const options = await wrapper.vm.getOptionsForGroupId('group1');
 
-        expect(options).toEqual([{
-            isDeleted: false,
-            option: {
-                groupId: 'group1',
-                id: 'option1',
-                name: 'Red',
-                group: {
-                    id: 'color',
-                    name: 'color',
+        expect(options).toEqual([
+            {
+                isDeleted: false,
+                option: {
+                    groupId: 'group1',
+                    id: 'option1',
+                    name: 'Red',
+                    group: {
+                        id: 'color',
+                        name: 'color',
+                    },
+                    translated: {
+                        name: 'option1',
+                    },
                 },
-                translated: {
-                    name: 'option1',
-                },
+                optionId: 'option1',
             },
-            optionId: 'option1',
-        }]);
+        ]);
 
-        expect(options).not.toEqual([{
-            isDeleted: false,
-            option: {
-                id: 'option2',
-                groupId: 'shoeSize',
-                name: '45',
-                group: {
-                    id: 'shoeSize',
+        expect(options).not.toEqual([
+            {
+                isDeleted: false,
+                option: {
+                    id: 'option2',
+                    groupId: 'shoeSize',
                     name: '45',
+                    group: {
+                        id: 'shoeSize',
+                        name: '45',
+                    },
+                    translated: {
+                        name: '45',
+                    },
                 },
-                translated: {
-                    name: '45',
-                },
+                optionId: 'option2',
             },
-            optionId: 'option2',
-        }]);
+        ]);
     });
 
     it('should test filterEmptyValues', async () => {
         await wrapper.vm.filterEmptyValues();
-        expect(wrapper.vm.product.variantRestrictions).toEqual([{
-            id: 'restriction1',
-            values: [
-                {
-                    id: 'value1',
-                    group: 'group1',
-                    options: ['option1', 'option2'],
+        expect(wrapper.vm.product.variantRestrictions).toEqual([
+            {
+                id: 'restriction1',
+                values: [
+                    {
+                        id: 'value1',
+                        group: 'group1',
+                        options: [
+                            'option1',
+                            'option2',
+                        ],
+                    },
+                ],
+                translated: {
+                    name: 'test',
                 },
-            ],
-            translated: {
-                name: 'test',
             },
-        }]);
+        ]);
     });
 
     it('should add an empty restriction combination', async () => {
-        await wrapper.find('.sw-button').trigger('click');
+        await wrapper.findByText('button', 'sw-product.variations.configuratorModal.addNewRestriction').trigger('click');
         expect(wrapper.vm.actualRestriction).toEqual({
             id: expect.any(String),
-            values: [{
-                id: expect.any(String),
-                group: 'group1',
-                options: [],
-            }],
+            values: [
+                {
+                    id: expect.any(String),
+                    group: 'group1',
+                    options: [],
+                },
+            ],
         });
     });
 
     it('should test cancelAddRestriction', async () => {
-        await wrapper.find('.sw-button').trigger('click');
+        await wrapper.findByText('button', 'sw-product.variations.configuratorModal.addNewRestriction').trigger('click');
         await flushPromises();
 
-        await wrapper.findAll('.sw-button').at(2).trigger('click');
+        await wrapper.findByText('button', 'global.default.cancel').trigger('click');
         await flushPromises();
 
         expect(wrapper.vm.actualRestriction).toEqual({});
     });
 
     it('should test method addEmptyRestriction', async () => {
-        await wrapper.find('.sw-button').trigger('click');
+        await wrapper.findByText('button', 'sw-product.variations.configuratorModal.addNewRestriction').trigger('click');
         await flushPromises();
-
-        await wrapper.find('.sw-product-variants-configurator-restrictions__button-new-restriction').trigger('click');
+        await wrapper
+            .findByText('button', 'sw-product.variations.configuratorModal.singleRestrictionSeperation')
+            .trigger('click');
         await flushPromises();
 
         expect(wrapper.vm.actualRestriction).toEqual({
             id: expect.any(String),
-            values: [{
-                id: expect.any(String),
-                group: 'group1',
-                options: [],
-            },
-            {
-                id: expect.any(String),
-                group: 'group1',
-                options: [],
-            }],
+            values: [
+                {
+                    id: expect.any(String),
+                    group: 'group1',
+                    options: [],
+                },
+                {
+                    id: expect.any(String),
+                    group: 'group1',
+                    options: [],
+                },
+            ],
         });
     });
-
 
     it('should edit a restriction combination', async () => {
         const contextButton = wrapper.find('.sw-context-button');
@@ -269,7 +289,10 @@ describe('components/base/sw-product-variants-configurator-restrictions', () => 
                 {
                     id: 'value1',
                     group: 'group1',
-                    options: ['option1', 'option2'],
+                    options: [
+                        'option1',
+                        'option2',
+                    ],
                 },
             ],
             translated: {
@@ -300,25 +323,29 @@ describe('components/base/sw-product-variants-configurator-restrictions', () => 
         await wrapper.vm.addEmptyRestrictionCombination();
         await wrapper.vm.saveAddRestriction();
 
-        expect(wrapper.vm.product.variantRestrictions).toEqual([{
-            id: expect.any(String),
-            values: [{
+        expect(wrapper.vm.product.variantRestrictions).toEqual([
+            {
                 id: expect.any(String),
-                group: 'group1',
-                options: [],
-            }],
-        }]);
+                values: [
+                    {
+                        id: expect.any(String),
+                        group: 'group1',
+                        options: [],
+                    },
+                ],
+            },
+        ]);
     });
 
     it('should save restriction', async () => {
-        await wrapper.find('.sw-button').trigger('click');
+        await wrapper.findByText('button', 'sw-product.variations.configuratorModal.addNewRestriction').trigger('click');
         await flushPromises();
 
         await wrapper.find('.sw-select-selection-list').trigger('click');
         await flushPromises();
 
         await wrapper.find('.sw-select-option--0').trigger('click');
-        await wrapper.find('.sw-button--primary').trigger('click');
+        await wrapper.findByText('button', 'sw-product.variations.configuratorModal.save').trigger('click');
 
         expect(wrapper.vm.product.variantRestrictions).toEqual([
             {

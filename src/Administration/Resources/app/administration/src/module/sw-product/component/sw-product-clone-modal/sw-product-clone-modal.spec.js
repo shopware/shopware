@@ -1,5 +1,5 @@
 /**
- * @package inventory
+ * @sw-package inventory
  */
 
 import { mount } from '@vue/test-utils';
@@ -13,9 +13,11 @@ async function createWrapper() {
             provide: {
                 repositoryFactory: {
                     create: () => ({
-                        clone: jest.fn(() => Promise.resolve({
-                            id: '1a2b3c',
-                        })),
+                        clone: jest.fn(() =>
+                            Promise.resolve({
+                                id: '1a2b3c',
+                            }),
+                        ),
                         save: () => Promise.resolve(),
                         searchIds: () => Promise.resolve({ data: { length: 0 } }),
                     }),
@@ -25,12 +27,11 @@ async function createWrapper() {
                 },
             },
             stubs: {
-                'sw-progress-bar': true,
+                'mt-progress-bar': true,
             },
         },
     });
 }
-
 
 describe('src/module/sw-product/component/sw-product-clone-modal', () => {
     /** @type Wrapper */
@@ -60,17 +61,21 @@ describe('src/module/sw-product/component/sw-product-clone-modal', () => {
             number: 250,
         });
 
-        expect(wrapper.vm.repository.clone).toHaveBeenCalledWith(undefined, {
-            cloneChildren: false,
-            overwrites: {
-                active: false,
-                mainVariantId: null,
-                name: 'shirt global.default.copy',
-                productNumber: 250,
-                variantListingConfig: {
+        expect(wrapper.vm.repository.clone).toHaveBeenCalledWith(
+            undefined,
+            {
+                cloneChildren: false,
+                overwrites: {
+                    active: false,
                     mainVariantId: null,
+                    name: 'shirt global.default.copy',
+                    productNumber: 250,
+                    variantListingConfig: {
+                        mainVariantId: null,
+                    },
                 },
             },
-        }, expect.anything());
+            expect.anything(),
+        );
     });
 });

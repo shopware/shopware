@@ -11,40 +11,19 @@ use Shopware\Core\Framework\Struct\Struct;
 #[Package('checkout')]
 class LicenseStruct extends Struct
 {
-    /**
-     * @var int
-     */
-    protected $id;
+    protected int $id;
 
-    /**
-     * @var \DateTimeImmutable
-     */
-    protected $creationDate;
+    protected \DateTimeImmutable $creationDate;
 
-    /**
-     * @var string
-     */
-    protected $variant;
+    protected string $variant;
 
-    /**
-     * @var string
-     */
-    protected $paymentText;
+    protected string $paymentText;
 
-    /**
-     * @var float
-     */
-    protected $netPrice;
+    protected float $netPrice;
 
-    /**
-     * @var \DateTimeImmutable|null null for free extensions
-     */
-    protected $nextBookingDate;
+    protected ?\DateTimeImmutable $nextBookingDate;
 
-    /**
-     * @var ExtensionStruct
-     */
-    protected $licensedExtension;
+    protected ExtensionStruct $licensedExtension;
 
     protected ?\DateTimeInterface $expirationDate = null;
 
@@ -70,6 +49,10 @@ class LicenseStruct extends Struct
 
         if (isset($data['nextBookingDate']) && \is_string($data['nextBookingDate'])) {
             $license->setNextBookingDate(new \DateTimeImmutable($data['nextBookingDate']));
+        }
+
+        if (isset($data['expirationDate']) && \is_string($data['expirationDate'])) {
+            $license->setExpirationDate(new \DateTimeImmutable($data['expirationDate']));
         }
 
         return $license;

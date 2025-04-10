@@ -23,10 +23,10 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\OrFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\PrefixFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\RangeFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\SuffixFilter;
-use Shopware\Core\Framework\Test\IdsCollection;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelLifecycleManager;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
+use Shopware\Core\Test\Stub\Framework\IdsCollection;
 
 /**
  * @internal
@@ -94,10 +94,10 @@ class JoinFilterTest extends TestCase
                 ->build(),
         ];
 
-        $this->getContainer()->get('product.repository')
+        static::getContainer()->get('product.repository')
             ->create($products, Context::createDefaultContext());
 
-        $userId = $this->getContainer()->get(Connection::class)
+        $userId = static::getContainer()->get(Connection::class)
             ->fetchOne('SELECT LOWER(HEX(id)) FROM `user`');
 
         $ids->set('user-id', $userId);
@@ -107,7 +107,7 @@ class JoinFilterTest extends TestCase
             ['id' => $ids->create('without-avatar')],
         ];
 
-        $this->getContainer()->get('media.repository')
+        static::getContainer()->get('media.repository')
             ->create($media, Context::createDefaultContext());
 
         $avatar = [
@@ -115,10 +115,10 @@ class JoinFilterTest extends TestCase
             'avatarId' => $ids->get('with-avatar'),
         ];
 
-        $this->getContainer()->get('user.repository')
+        static::getContainer()->get('user.repository')
             ->update([$avatar], Context::createDefaultContext());
 
-        $result = $this->getContainer()->get('product.repository')
+        $result = static::getContainer()->get('product.repository')
             ->searchIds(new Criteria($ids->prefixed('product-')), Context::createDefaultContext());
 
         static::assertEquals(\count($products), $result->getTotal());
@@ -134,7 +134,7 @@ class JoinFilterTest extends TestCase
             new NandFilter([new EqualsFilter('avatarUsers.id', null)])
         );
 
-        $media = $this->getContainer()->get('media.repository')
+        $media = static::getContainer()->get('media.repository')
             ->searchIds($criteria, Context::createDefaultContext());
 
         static::assertCount(1, $media->getIds());
@@ -144,7 +144,7 @@ class JoinFilterTest extends TestCase
         $criteria = new Criteria();
         $criteria->addFilter(new EqualsFilter('avatarUsers.id', null));
 
-        $media = $this->getContainer()->get('media.repository')
+        $media = static::getContainer()->get('media.repository')
             ->searchIds($criteria, Context::createDefaultContext());
 
         static::assertTrue(\count($media->getIds()) > 0);
@@ -159,7 +159,7 @@ class JoinFilterTest extends TestCase
             ])
         );
 
-        $media = $this->getContainer()->get('media.repository')
+        $media = static::getContainer()->get('media.repository')
             ->searchIds($criteria, Context::createDefaultContext());
 
         static::assertTrue(\count($media->getIds()) > 0);
@@ -171,7 +171,7 @@ class JoinFilterTest extends TestCase
             new NandFilter([new EqualsFilter('avatarUsers.id', Uuid::randomHex())])
         );
 
-        $media = $this->getContainer()->get('media.repository')
+        $media = static::getContainer()->get('media.repository')
             ->searchIds($criteria, Context::createDefaultContext());
 
         static::assertTrue(\count($media->getIds()) > 0);
@@ -193,7 +193,7 @@ class JoinFilterTest extends TestCase
 
         $criteria->setLimit(0);
 
-        $products = $this->getContainer()->get('product.repository')
+        $products = static::getContainer()->get('product.repository')
             ->search($criteria, Context::createDefaultContext());
 
         $aggregation = $products->getAggregations()->get('filters');
@@ -222,7 +222,7 @@ class JoinFilterTest extends TestCase
 
         $criteria->setLimit(0);
 
-        $products = $this->getContainer()->get('product.repository')
+        $products = static::getContainer()->get('product.repository')
             ->search($criteria, Context::createDefaultContext());
 
         $aggregation = $products->getAggregations()->get('filters');
@@ -247,7 +247,7 @@ class JoinFilterTest extends TestCase
             new EqualsAnyFilter('category.products.properties.id', [$ids->get('XL'), $ids->get('L')])
         );
 
-        $result = $this->getContainer()->get('category.repository')
+        $result = static::getContainer()->get('category.repository')
             ->searchIds($criteria, Context::createDefaultContext());
 
         static::assertEquals(2, $result->getTotal());
@@ -267,7 +267,7 @@ class JoinFilterTest extends TestCase
             new EqualsFilter('product.properties.name', 'yellow')
         );
 
-        $result = $this->getContainer()->get('product.repository')
+        $result = static::getContainer()->get('product.repository')
             ->searchIds($criteria, Context::createDefaultContext());
 
         static::assertEquals(1, $result->getTotal());
@@ -286,7 +286,7 @@ class JoinFilterTest extends TestCase
             new ContainsFilter('product.properties.name', 'yell')
         );
 
-        $result = $this->getContainer()->get('product.repository')
+        $result = static::getContainer()->get('product.repository')
             ->searchIds($criteria, Context::createDefaultContext());
 
         static::assertEquals(1, $result->getTotal());
@@ -307,7 +307,7 @@ class JoinFilterTest extends TestCase
             new PrefixFilter('product.properties.name', 'yell')
         );
 
-        $result = $this->getContainer()->get('product.repository')
+        $result = static::getContainer()->get('product.repository')
             ->searchIds($criteria, Context::createDefaultContext());
 
         static::assertEquals(1, $result->getTotal());
@@ -328,7 +328,7 @@ class JoinFilterTest extends TestCase
             new SuffixFilter('product.properties.name', 'low')
         );
 
-        $result = $this->getContainer()->get('product.repository')
+        $result = static::getContainer()->get('product.repository')
             ->searchIds($criteria, Context::createDefaultContext());
 
         static::assertEquals(1, $result->getTotal());
@@ -345,7 +345,7 @@ class JoinFilterTest extends TestCase
             new RangeFilter('category.products.stock', [RangeFilter::GTE => 5])
         );
 
-        $result = $this->getContainer()->get('category.repository')
+        $result = static::getContainer()->get('category.repository')
             ->searchIds($criteria, Context::createDefaultContext());
 
         static::assertEquals(2, $result->getTotal());
@@ -363,7 +363,7 @@ class JoinFilterTest extends TestCase
             new NandFilter([new RangeFilter('category.products.stock', [RangeFilter::GTE => 5])])
         );
 
-        $result = $this->getContainer()->get('category.repository')
+        $result = static::getContainer()->get('category.repository')
             ->searchIds($criteria, Context::createDefaultContext());
 
         static::assertEquals(1, $result->getTotal());
@@ -383,7 +383,7 @@ class JoinFilterTest extends TestCase
             ])
         );
 
-        $result = $this->getContainer()->get('product.repository')
+        $result = static::getContainer()->get('product.repository')
             ->searchIds($criteria, Context::createDefaultContext());
 
         static::assertEquals(2, $result->getTotal());
@@ -402,7 +402,7 @@ class JoinFilterTest extends TestCase
             ])
         );
 
-        $result = $this->getContainer()->get('product.repository')
+        $result = static::getContainer()->get('product.repository')
             ->searchIds($criteria, Context::createDefaultContext());
 
         static::assertEquals(2, $result->getTotal());
@@ -417,7 +417,7 @@ class JoinFilterTest extends TestCase
             ])
         );
 
-        $result = $this->getContainer()->get('product.repository')
+        $result = static::getContainer()->get('product.repository')
             ->searchIds($criteria, Context::createDefaultContext());
 
         static::assertEquals(1, $result->getTotal());
@@ -436,7 +436,7 @@ class JoinFilterTest extends TestCase
             new EqualsFilter('product.prices.ruleId', $ids->get('rule-2'))
         );
 
-        $result = $this->getContainer()->get('product.repository')
+        $result = static::getContainer()->get('product.repository')
             ->searchIds($criteria, Context::createDefaultContext());
 
         static::assertEquals(1, $result->getTotal());
@@ -456,7 +456,7 @@ class JoinFilterTest extends TestCase
             new EqualsFilter('category.products.manufacturer.name', 'manufacturer-1')
         );
 
-        $result = $this->getContainer()->get('category.repository')
+        $result = static::getContainer()->get('category.repository')
             ->searchIds($criteria, Context::createDefaultContext());
 
         static::assertEquals(2, $result->getTotal());
@@ -476,7 +476,7 @@ class JoinFilterTest extends TestCase
             new EqualsFilter('product.properties.id', $ids->get('yellow'))
         );
 
-        $result = $this->getContainer()->get('product.repository')
+        $result = static::getContainer()->get('product.repository')
             ->searchIds($criteria, Context::createDefaultContext());
 
         static::assertEquals(1, $result->getTotal());
@@ -495,7 +495,7 @@ class JoinFilterTest extends TestCase
             ])
         );
 
-        $result = $this->getContainer()->get('product.repository')
+        $result = static::getContainer()->get('product.repository')
             ->searchIds($criteria, Context::createDefaultContext());
 
         static::assertEquals(1, $result->getTotal());
@@ -515,7 +515,7 @@ class JoinFilterTest extends TestCase
             new EqualsFilter('product_manufacturer.products.stock', 10)
         );
 
-        $result = $this->getContainer()->get('product_manufacturer.repository')
+        $result = static::getContainer()->get('product_manufacturer.repository')
             ->searchIds($criteria, Context::createDefaultContext());
 
         static::assertEquals(1, $result->getTotal());
@@ -531,7 +531,7 @@ class JoinFilterTest extends TestCase
             new RangeFilter('product_manufacturer.products.stock', [RangeFilter::GT => 1])
         );
 
-        $result = $this->getContainer()->get('product_manufacturer.repository')
+        $result = static::getContainer()->get('product_manufacturer.repository')
             ->searchIds($criteria, Context::createDefaultContext());
 
         static::assertEquals(2, $result->getTotal());
@@ -550,7 +550,7 @@ class JoinFilterTest extends TestCase
             ]),
         );
 
-        $result = $this->getContainer()->get('product.repository')
+        $result = static::getContainer()->get('product.repository')
             ->searchIds($criteria, Context::createDefaultContext());
 
         static::assertEquals(2, $result->getTotal());
@@ -565,7 +565,7 @@ class JoinFilterTest extends TestCase
             new EqualsAnyFilter('product.manufacturer.id', $ids->getList(['manufacturer-1', 'manufacturer-2']))
         );
 
-        $result = $this->getContainer()->get('product.repository')
+        $result = static::getContainer()->get('product.repository')
             ->searchIds($criteria, Context::createDefaultContext());
 
         static::assertEquals(2, $result->getTotal());
@@ -584,7 +584,7 @@ class JoinFilterTest extends TestCase
             new EqualsFilter('product.properties.name', 'yellow')
         );
 
-        $result = $this->getContainer()->get('product.repository')
+        $result = static::getContainer()->get('product.repository')
             ->searchIds($criteria, Context::createDefaultContext());
 
         static::assertEquals(1, $result->getTotal());
@@ -603,7 +603,7 @@ class JoinFilterTest extends TestCase
             ])
         );
 
-        $result = Context::createDefaultContext()->enableInheritance(fn (Context $context) => $this->getContainer()->get('product.repository')
+        $result = Context::createDefaultContext()->enableInheritance(fn (Context $context) => static::getContainer()->get('product.repository')
             ->searchIds($criteria, $context));
 
         static::assertEquals(3, $result->getTotal());
@@ -622,7 +622,7 @@ class JoinFilterTest extends TestCase
             ])
         );
 
-        $result = Context::createDefaultContext()->enableInheritance(fn (Context $context) => $this->getContainer()->get('product.repository')
+        $result = Context::createDefaultContext()->enableInheritance(fn (Context $context) => static::getContainer()->get('product.repository')
             ->searchIds($criteria, $context));
 
         static::assertEquals(3, $result->getTotal());
@@ -643,7 +643,7 @@ class JoinFilterTest extends TestCase
             new EqualsFilter('product.properties.id', $ids->get('yellow'))
         );
 
-        $result = Context::createDefaultContext()->enableInheritance(fn (Context $context) => $this->getContainer()->get('product.repository')
+        $result = Context::createDefaultContext()->enableInheritance(fn (Context $context) => static::getContainer()->get('product.repository')
             ->searchIds($criteria, $context));
 
         static::assertEquals(2, $result->getTotal());
@@ -662,7 +662,7 @@ class JoinFilterTest extends TestCase
             ])
         );
 
-        $result = $this->getContainer()->get('product.repository')
+        $result = static::getContainer()->get('product.repository')
             ->searchIds($criteria, Context::createDefaultContext());
 
         static::assertEquals(2, $result->getTotal());
@@ -680,7 +680,7 @@ class JoinFilterTest extends TestCase
             ])
         );
 
-        $result = $this->getContainer()->get('product.repository')
+        $result = static::getContainer()->get('product.repository')
             ->searchIds($criteria, Context::createDefaultContext());
 
         static::assertEquals(2, $result->getTotal());
@@ -698,7 +698,7 @@ class JoinFilterTest extends TestCase
             ])
         );
 
-        $result = $this->getContainer()->get('product.repository')
+        $result = static::getContainer()->get('product.repository')
             ->searchIds($criteria, Context::createDefaultContext());
 
         static::assertEquals(2, $result->getTotal());
@@ -715,7 +715,7 @@ class JoinFilterTest extends TestCase
             new EqualsFilter('product.prices.id', null)
         );
 
-        $result = $this->getContainer()->get('product.repository')
+        $result = static::getContainer()->get('product.repository')
             ->searchIds($criteria, Context::createDefaultContext());
 
         static::assertEquals(2, $result->getTotal());
@@ -733,7 +733,7 @@ class JoinFilterTest extends TestCase
             new EqualsFilter('product.manufacturer.id', null)
         );
 
-        $result = $this->getContainer()->get('product.repository')
+        $result = static::getContainer()->get('product.repository')
             ->searchIds($criteria, Context::createDefaultContext());
 
         static::assertEquals(2, $result->getTotal());
@@ -751,7 +751,7 @@ class JoinFilterTest extends TestCase
             new EqualsFilter('product.properties.id', null)
         );
 
-        $result = $this->getContainer()->get('product.repository')
+        $result = static::getContainer()->get('product.repository')
             ->searchIds($criteria, Context::createDefaultContext());
 
         static::assertEquals(2, $result->getTotal());
@@ -767,7 +767,7 @@ class JoinFilterTest extends TestCase
         $criteria->addFilter(new EqualsFilter('unmappedField', null));
 
         static::expectException(UnmappedFieldException::class);
-        $this->getContainer()->get('product.repository')
+        static::getContainer()->get('product.repository')
             ->searchIds($criteria, Context::createDefaultContext());
     }
 }

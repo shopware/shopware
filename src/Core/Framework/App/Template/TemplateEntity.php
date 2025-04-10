@@ -10,35 +10,22 @@ use Shopware\Core\Framework\Log\Package;
 /**
  * @internal only for use by the app-system
  */
-#[Package('core')]
+#[Package('framework')]
 class TemplateEntity extends Entity
 {
     use EntityIdTrait;
 
-    /**
-     * @var string
-     */
-    protected $template;
+    protected string $template;
 
-    /**
-     * @var string
-     */
-    protected $path;
+    protected string $path;
 
-    /**
-     * @var bool
-     */
-    protected $active;
+    protected bool $active;
 
-    /**
-     * @var string
-     */
-    protected $appId;
+    protected string $appId;
 
-    /**
-     * @var AppEntity|null
-     */
-    protected $app;
+    protected ?AppEntity $app = null;
+
+    protected ?string $hash = null;
 
     public function getTemplate(): string
     {
@@ -88,5 +75,15 @@ class TemplateEntity extends Entity
     public function setApp(?AppEntity $app): void
     {
         $this->app = $app;
+    }
+
+    public function getHash(): ?string
+    {
+        return $this->hash;
+    }
+
+    public function setHash(?string $hash): void
+    {
+        $this->hash = $hash;
     }
 }

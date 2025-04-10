@@ -1,8 +1,7 @@
 import { mount } from '@vue/test-utils';
-import orderState from 'src/module/sw-order/state/order.store';
 
 /**
- * @package checkout
+ * @sw-package checkout
  */
 
 let customerData = [];
@@ -19,11 +18,18 @@ function setCustomerData(customers) {
 const customers = generateCustomers();
 
 const contextState = {
-    namespaced: true,
-    state: { api: { languageId: '2fbb5fe2e29a4d70aa5854ce7ce3e20b', systemLanguageId: '2fbb5fe2e29a4d70aa5854ce7ce3e20b' } },
-    mutations: {
+    id: 'context',
+    state: () => ({
+        api: {
+            languageId: '2fbb5fe2e29a4d70aa5854ce7ce3e20b',
+            systemLanguageId: '2fbb5fe2e29a4d70aa5854ce7ce3e20b',
+        },
+    }),
+    actions: {
         resetLanguageToDefault: jest.fn(),
-        setLanguageId: jest.fn(),
+        setApiLanguageId: jest.fn(function (newLanguageId) {
+            this.api.languageId = newLanguageId;
+        }),
     },
     getters: {
         isSystemDefaultLanguage: () => false,
@@ -40,7 +46,7 @@ function generateCustomers() {
             lastName: 'Nguyen',
             email: `quynh${i}@example.com`,
             salesChannelId: '1234',
-            customerNumber: i,
+            customerNumber: `sw${i}`,
             salesChannel: {
                 translated: {
                     name: 'Storefront',
@@ -51,6 +57,7 @@ function generateCustomers() {
                     name: 'Storefront',
                 },
             },
+            boundSalesChannelId: '1234',
         });
     }
 
@@ -61,7 +68,7 @@ async function createWrapper() {
     return mount(await wrapTestComponent('sw-order-customer-grid', { sync: true }), {
         global: {
             stubs: {
-                'sw-card': {
+                'mt-card': {
                     template: `
                         <div class="sw-card__content">
                             <slot name="toolbar"></slot>
@@ -69,8 +76,8 @@ async function createWrapper() {
                         </div>
                     `,
                 },
-                'sw-number-field': {
-                    template: '<input class="sw-number-field" type="number" v-model="value" />',
+                'mt-number-field': {
+                    template: '<input class="mt-number-field" type="number" v-model="value" />',
                     props: {
                         value: 0,
                     },
@@ -82,8 +89,12 @@ async function createWrapper() {
                     },
                 },
                 'sw-entity-listing': await wrapTestComponent('sw-entity-listing', { sync: true }),
-                'sw-data-grid': await wrapTestComponent('sw-data-grid', { sync: true }),
-                'sw-pagination': await wrapTestComponent('sw-pagination', { sync: true }),
+                'sw-data-grid': await wrapTestComponent('sw-data-grid', {
+                    sync: true,
+                }),
+                'sw-pagination': await wrapTestComponent('sw-pagination', {
+                    sync: true,
+                }),
                 'sw-product-variant-info': true,
                 'sw-data-grid-settings': true,
                 'sw-data-grid-skeleton': true,
@@ -93,15 +104,14 @@ async function createWrapper() {
                 'sw-context-menu-item': true,
                 'sw-empty-state': true,
                 'sw-card-filter': {
-                    props: ['value'],
-                    template: '<input class="sw-card-filter" :value="value" @input="$emit(\'sw-card-filter-term-change\', $event.target.value)">',
+                    data() {
+                        return { term: '' };
+                    },
+                    template:
+                        '<input class="sw-card-filter" :value="term" @input="$emit(\'sw-card-filter-term-change\', $event.target.value)">',
                 },
-                'sw-icon': true,
                 'sw-field': true,
                 'router-link': true,
-                'sw-button': {
-                    template: '<button class="sw-button" @click="$emit(\'click\', $event)"><slot></slot></button>',
-                },
                 'sw-order-new-customer-modal': true,
                 'sw-entity-single-select': await wrapTestComponent('sw-entity-single-select', { sync: true }),
                 'sw-select-base': await wrapTestComponent('sw-select-base'),
@@ -110,7 +120,10 @@ async function createWrapper() {
                 'sw-select-result-list': await wrapTestComponent('sw-select-result-list'),
                 'sw-select-selection-list': await wrapTestComponent('sw-select-selection-list'),
                 'sw-select-result': {
-                    props: ['item', 'index'],
+                    props: [
+                        'item',
+                        'index',
+                    ],
                     template: `
                         <li class="sw-select-result" @click.stop="onClickResult">
                             <slot></slot>
@@ -122,7 +135,7 @@ async function createWrapper() {
                     },
                 },
                 'sw-bulk-edit-modal': true,
-                'sw-alert': true,
+
                 'sw-data-grid-inline-edit': true,
                 'sw-data-grid-column-boolean': true,
                 'sw-select-field': true,
@@ -135,6 +148,7 @@ async function createWrapper() {
                 'sw-popover': {
                     template: '<div class="sw-popover"><slot></slot></div>',
                 },
+                'sw-provide': { template: '<slot/>', inheritAttrs: false },
             },
             provide: {
                 searchRankingService: () => {},
@@ -157,14 +171,21 @@ async function createWrapper() {
                             return Promise.resolve(customerData);
                         },
                         get: () => Promise.resolve({ ...customers[0] }),
-                        searchIds: () => Promise.resolve({
-                            data: customers.map((customer) => customer.salesChannelId),
-                        }),
+                        searchIds: () =>
+                            Promise.resolve({
+                                data: customers.map((customer) => customer.salesChannelId),
+                            }),
                     }),
                 },
             },
             mocks: {
-                $tc: (key, number, value) => {
+                $tc: (key, value) => {
+                    if (!value) {
+                        return key;
+                    }
+                    return key + JSON.stringify(value);
+                },
+                $t: (key, value) => {
                     if (!value) {
                         return key;
                     }
@@ -179,46 +200,45 @@ describe('src/module/sw-order/view/sw-order-customer-grid', () => {
     beforeAll(() => {
         Shopware.Service().register('contextStoreService', () => {
             return {
-                updateCustomerContext: () => Promise.resolve({
-                    status: 200,
-                }),
+                updateCustomerContext: () =>
+                    Promise.resolve({
+                        status: 200,
+                    }),
+                getSalesChannelContext: () =>
+                    Promise.resolve({
+                        data: {
+                            salesChannelId: '1234',
+                        },
+                    }),
             };
         });
 
         Shopware.Service().register('cartStoreService', () => {
             return {
-                getCart: () => Promise.resolve({
-                    data: {
-                        token: 'token',
-                        lineItems: [],
-                    },
-                }),
-                createCart: () => Promise.resolve({
-                    data: {
-                        token: 'token',
-                    },
-                }),
+                getCart: () =>
+                    Promise.resolve({
+                        data: {
+                            token: 'HE6KD7HOCC3TCS0AX903KCA6JHXCTXU2',
+                            lineItems: [],
+                        },
+                    }),
+                createCart: () =>
+                    Promise.resolve({
+                        data: {
+                            token: 'HE6KD7HOCC3TCS0AX903KCA6JHXCTXU2',
+                        },
+                    }),
             };
         });
 
-        Shopware.State.registerModule('swOrder', {
-            ...orderState,
-            state: {
-                cart: {
-                    token: '',
-                    lineItems: [],
-                },
-                context: {
-                    customer: {},
-                },
-            },
-        });
+        Shopware.Store.get('swOrder').setCart({ token: '', lineItems: [] });
+        Shopware.Store.get('swOrder').setContext({ customer: {} });
 
-        if (Shopware.State.get('context')) {
-            Shopware.State.unregisterModule('context');
+        if (Shopware.Store.get('context')) {
+            Shopware.Store.unregister('context');
         }
 
-        Shopware.State.registerModule('context', contextState);
+        Shopware.Store.register(contextState);
     });
 
     it('should show empty state view when there is no customer', async () => {
@@ -246,8 +266,9 @@ describe('src/module/sw-order/view/sw-order-customer-grid', () => {
         await searchField.trigger('input');
 
         emptyState = wrapper.find('sw-empty-state-stub');
-        expect(emptyState.attributes('title'))
-            .toBe('sw-order.initialModal.customerGrid.textEmptySearch{"name":"Hello World"}');
+        expect(emptyState.attributes('title')).toBe(
+            'sw-order.initialModal.customerGrid.textEmptySearch{"name":"Hello World"}',
+        );
     });
 
     it('should show customer grid', async () => {
@@ -335,10 +356,9 @@ describe('src/module/sw-order/view/sw-order-customer-grid', () => {
 
     it('should update customer context and cart after selecting a customer', async () => {
         setCustomerData(customers);
-        Shopware.State.commit('swOrder/setCartToken', 'token');
+        Shopware.Store.get('swOrder').setCartToken('1d8af3ddddbd378ba0065debd5e4e4b1');
 
         const wrapper = await createWrapper();
-        await flushPromises();
 
         wrapper.vm.customerRepository.get = jest.fn(() => Promise.resolve(customers[0]));
         const spyUpdateCustomerContext = jest.spyOn(wrapper.vm, 'updateCustomerContext');
@@ -346,6 +366,7 @@ describe('src/module/sw-order/view/sw-order-customer-grid', () => {
 
         const firstRow = wrapper.find('.sw-data-grid__body .sw-data-grid__row--0');
         await firstRow.find('.sw-field__radio-input input').setChecked(true);
+        await flushPromises();
 
         expect(spyUpdateCustomerContext).toHaveBeenCalled();
 
@@ -357,16 +378,20 @@ describe('src/module/sw-order/view/sw-order-customer-grid', () => {
     it('should check customer initially if customer exists', async () => {
         setCustomerData(customers);
 
-        Shopware.State.commit('swOrder/setCustomer', {
+        Shopware.Store.get('swOrder').setCustomer({
             ...customers[0],
         });
 
         const wrapper = await createWrapper();
+        const spyOnSearchList = jest.spyOn(wrapper.vm, 'onSearch');
 
         const firstRow = wrapper.find('.sw-data-grid__body .sw-data-grid__row--0');
         const firstRowRadioField = firstRow.find('.sw-field__radio-input input');
 
         await flushPromises();
+
+        expect(wrapper.find('.sw-card-filter').element.value).toBe('sw1');
+        expect(spyOnSearchList).toHaveBeenCalledWith('sw1');
 
         expect(firstRowRadioField.element.checked).toBeTruthy();
     });
@@ -381,7 +406,7 @@ describe('src/module/sw-order/view/sw-order-customer-grid', () => {
         const firstRow = wrapper.find('.sw-data-grid__body .sw-data-grid__row--0');
         await firstRow.find('.sw-field__radio-input input').setChecked(true);
 
-        expect(contextState.mutations.setLanguageId).toHaveBeenCalledWith(expect.anything(), '1234');
+        expect(Shopware.Store.get('context').api.languageId).toBe('1234');
     });
 
     it('should reset language to default if system language exists in customer sales channel languages', async () => {
@@ -392,7 +417,9 @@ describe('src/module/sw-order/view/sw-order-customer-grid', () => {
         ];
         setCustomerData(customers);
 
-        Shopware.State.commit('swOrder/setCartToken', 'token');
+        Shopware.Store.get('swOrder').setCartToken('HE6KD7HOCC3TCS0AX903KCA6JHXCTXU2');
+
+        const resetLanguageToDefaultSpy = jest.spyOn(Shopware.Store.get('context'), 'resetLanguageToDefault');
 
         const wrapper = await createWrapper();
         await flushPromises();
@@ -404,14 +431,14 @@ describe('src/module/sw-order/view/sw-order-customer-grid', () => {
 
         await flushPromises();
 
-        expect(contextState.mutations.resetLanguageToDefault).toHaveBeenCalled();
+        expect(resetLanguageToDefaultSpy).toHaveBeenCalled();
     });
 
     it('should set customer is null when close modal', async () => {
         customers[0].boundSalesChannelId = null;
         setCustomerData(customers);
 
-        Shopware.State.commit('swOrder/setCartToken', 'token');
+        Shopware.Store.get('swOrder').setCartToken('HE6KD7HOCC3TCS0AX903KCA6JHXCTXU2');
 
         const wrapper = await createWrapper();
         await flushPromises();
@@ -423,8 +450,7 @@ describe('src/module/sw-order/view/sw-order-customer-grid', () => {
 
         expect(wrapper.find('.sw-order-customer-grid__sales-channel-selection-modal').exists()).toBeTruthy();
 
-        const actions = wrapper.findAll('.sw-order-customer-grid__sales-channel-selection-modal .sw-button');
-        await actions.at(0).trigger('click');
+        await wrapper.findByText('button', 'global.default.cancel').trigger('click');
 
         expect(wrapper.vm.customer).toBeNull();
         expect(wrapper.find('.sw-order-customer-grid__sales-channel-selection-modal').exists()).toBeFalsy();
@@ -434,7 +460,7 @@ describe('src/module/sw-order/view/sw-order-customer-grid', () => {
         customers[0].boundSalesChannelId = null;
         setCustomerData(customers);
 
-        Shopware.State.commit('swOrder/setCartToken', 'token');
+        Shopware.Store.get('swOrder').setCartToken('HE6KD7HOCC3TCS0AX903KCA6JHXCTXU2');
 
         const wrapper = await createWrapper();
         await flushPromises();
@@ -458,10 +484,10 @@ describe('src/module/sw-order/view/sw-order-customer-grid', () => {
         await entityItem.at(0).trigger('click');
         await flushPromises();
 
-        const actions = wrapper.findAll('.sw-order-customer-grid__sales-channel-selection-modal .sw-button');
-        expect(actions.at(1).attributes().hasOwnProperty('disabled')).toBeFalsy();
+        const buttonSelect = wrapper.findByText('button', 'sw-order.initialModal.customerGrid.buttonSelectSalesChannel');
+        expect(buttonSelect.attributes('disabled')).toBeUndefined();
 
-        await actions.at(1).trigger('click');
+        await buttonSelect.trigger('click');
 
         expect(handleSelectCustomerSpy).toHaveBeenCalled();
     });
@@ -471,7 +497,7 @@ describe('src/module/sw-order/view/sw-order-customer-grid', () => {
 
         setCustomerData(customers);
 
-        Shopware.State.commit('swOrder/setCartToken', 'token');
+        Shopware.Store.get('swOrder').setCartToken('HE6KD7HOCC3TCS0AX903KCA6JHXCTXU2');
 
         const wrapper = await createWrapper();
         await flushPromises();
@@ -489,7 +515,7 @@ describe('src/module/sw-order/view/sw-order-customer-grid', () => {
         customers[0].boundSalesChannelId = '1234';
         setCustomerData(customers);
 
-        Shopware.State.commit('swOrder/setCartToken', 'token');
+        Shopware.Store.get('swOrder').setCartToken('HE6KD7HOCC3TCS0AX903KCA6JHXCTXU2');
 
         const wrapper = await createWrapper();
         await wrapper.setData({
@@ -510,7 +536,7 @@ describe('src/module/sw-order/view/sw-order-customer-grid', () => {
         customers[0].boundSalesChannelId = '1234';
         setCustomerData(customers);
 
-        Shopware.State.commit('swOrder/setCartToken', 'token');
+        Shopware.Store.get('swOrder').setCartToken('HE6KD7HOCC3TCS0AX903KCA6JHXCTXU2');
 
         const wrapper = await createWrapper();
 
@@ -530,10 +556,9 @@ describe('src/module/sw-order/view/sw-order-customer-grid', () => {
 
         expect(wrapper.find('.sw-order-customer-grid__customer-changes-modal').exists()).toBeTruthy();
 
-        const actions = wrapper.findAll('.sw-order-customer-grid__customer-changes-modal .sw-button');
-        expect(actions.at(0).attributes().hasOwnProperty('disabled')).toBeFalsy();
-
-        await actions.at(0).trigger('click');
+        const cancelButton = wrapper.findByText('button', 'global.default.cancel');
+        expect(cancelButton.attributes('disabled')).toBeUndefined();
+        await cancelButton.trigger('click');
 
         expect(wrapper.vm.customer).toEqual(wrapper.vm.customerDraft);
     });
@@ -542,7 +567,7 @@ describe('src/module/sw-order/view/sw-order-customer-grid', () => {
         customers[0].boundSalesChannelId = '1234';
         setCustomerData(customers);
 
-        Shopware.State.commit('swOrder/setCartToken', 'token');
+        Shopware.Store.get('swOrder').setCartToken('HE6KD7HOCC3TCS0AX903KCA6JHXCTXU2');
 
         const wrapper = await createWrapper();
 
@@ -562,10 +587,10 @@ describe('src/module/sw-order/view/sw-order-customer-grid', () => {
 
         expect(wrapper.find('.sw-order-customer-grid__customer-changes-modal').exists()).toBeTruthy();
 
-        const actions = wrapper.findAll('.sw-order-customer-grid__customer-changes-modal .sw-button');
-        expect(actions.at(1).attributes().hasOwnProperty('disabled')).toBeFalsy();
+        const changeCustomerButton = wrapper.findByText('button', 'sw-order.initialModal.customerGrid.buttonChangeCustomer');
+        expect(changeCustomerButton.attributes('disabled')).toBeUndefined();
 
-        await actions.at(1).trigger('click');
+        await changeCustomerButton.trigger('click');
 
         expect(handleSelectCustomerSpy).toHaveBeenCalled();
     });

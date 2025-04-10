@@ -10,98 +10,48 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityCustomFieldsTrait;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityIdTrait;
 use Shopware\Core\Framework\Log\Package;
 
-#[Package('checkout')]
+#[Package('after-sales')]
 class DocumentEntity extends Entity
 {
     use EntityCustomFieldsTrait;
     use EntityIdTrait;
 
-    /**
-     * @var string
-     */
-    protected $orderId;
+    protected string $orderId;
 
-    /**
-     * @var string
-     */
-    protected $orderVersionId;
+    protected string $orderVersionId;
 
-    /**
-     * @var string
-     */
-    protected $documentTypeId;
+    protected string $documentTypeId;
 
-    /**
-     * @var string|null
-     */
-    protected $documentMediaFileId;
+    protected ?string $documentMediaFileId = null;
 
-    /**
-     * @var string
-     */
-    protected $fileType;
-
-    /**
-     * @var OrderEntity|null
-     */
-    protected $order;
+    protected ?OrderEntity $order = null;
 
     /**
      * @var array<string, mixed>
      */
-    protected $config;
+    protected array $config;
 
-    /**
-     * @var bool
-     */
-    protected $sent;
+    protected bool $sent;
 
-    /**
-     * @var bool
-     */
-    protected $static;
+    protected bool $static;
 
-    /**
-     * @var string
-     */
-    protected $deepLinkCode;
+    protected string $deepLinkCode;
 
-    /**
-     * @var DocumentTypeEntity|null
-     */
-    protected $documentType;
+    protected ?DocumentTypeEntity $documentType = null;
 
-    /**
-     * @var string|null
-     */
-    protected $referencedDocumentId;
+    protected ?string $referencedDocumentId = null;
 
-    /**
-     * @var DocumentEntity|null
-     */
-    protected $referencedDocument;
+    protected ?DocumentEntity $referencedDocument = null;
 
-    /**
-     * @var DocumentCollection|null
-     */
-    protected $dependentDocuments;
+    protected ?DocumentCollection $dependentDocuments = null;
 
-    /**
-     * @var MediaEntity|null
-     */
-    protected $documentMediaFile;
+    protected ?MediaEntity $documentMediaFile = null;
 
-    protected ?string $documentNumber;
+    protected ?string $documentNumber = null;
 
-    public function getFileType(): string
-    {
-        return $this->fileType;
-    }
+    protected ?string $documentA11yMediaFileId = null;
 
-    public function setFileType(string $fileType): void
-    {
-        $this->fileType = $fileType;
-    }
+    protected ?MediaEntity $documentA11yMediaFile = null;
 
     public function getOrder(): ?OrderEntity
     {
@@ -257,5 +207,25 @@ class DocumentEntity extends Entity
     public function getDocumentNumber(): ?string
     {
         return $this->documentNumber;
+    }
+
+    public function getDocumentA11yMediaFileId(): ?string
+    {
+        return $this->documentA11yMediaFileId;
+    }
+
+    public function setDocumentA11yMediaFileId(?string $mediaFileId): void
+    {
+        $this->documentA11yMediaFileId = $mediaFileId;
+    }
+
+    public function getDocumentA11yMediaFile(): ?MediaEntity
+    {
+        return $this->documentA11yMediaFile;
+    }
+
+    public function setDocumentA11yMediaFile(?MediaEntity $mediaEntity): void
+    {
+        $this->documentA11yMediaFile = $mediaEntity;
     }
 }

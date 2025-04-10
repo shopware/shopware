@@ -12,12 +12,12 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\IdSearchResult;
 use Shopware\Core\Framework\Log\Package;
-use Shopware\Core\Framework\Test\IdsCollection;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\UsageData\Consent\BannerService;
 use Shopware\Core\System\User\Aggregate\UserConfig\UserConfigCollection;
 use Shopware\Core\System\User\Aggregate\UserConfig\UserConfigEntity;
 use Shopware\Core\Test\Stub\DataAbstractionLayer\StaticEntityRepository;
+use Shopware\Core\Test\Stub\Framework\IdsCollection;
 
 /**
  * @internal
@@ -162,7 +162,7 @@ class BannerServiceTest extends TestCase
             ];
         }
 
-        $userConfigRepository->expects(static::once())
+        $userConfigRepository->expects($this->once())
             ->method('upsert')
             ->with($updates, Context::createDefaultContext());
 
@@ -188,7 +188,7 @@ class BannerServiceTest extends TestCase
             ->with($criteria, $context)
             ->willReturn(new EntitySearchResult('user_config', 0, $emptyUserConfigCollection, null, $criteria, $context));
 
-        $userConfigRepository->expects(static::never())
+        $userConfigRepository->expects($this->never())
             ->method('upsert');
 
         $consentService = new BannerService(

@@ -6,7 +6,7 @@ use Shopware\Core\Framework\HttpException;
 use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\HttpFoundation\Response;
 
-#[Package('core')]
+#[Package('framework')]
 class MessageQueueException extends HttpException
 {
     public const NO_VALID_RECEIVER_NAME_PROVIDED = 'FRAMEWORK__NO_VALID_RECEIVER_NAME_PROVIDED';
@@ -54,13 +54,18 @@ class MessageQueueException extends HttpException
         );
     }
 
-    public static function queueMessageSizeExceeded(string $messageName): self
+    public static function queueMessageSizeExceeded(string $messageName, float $size): self
     {
+        $message = 'The message "{{ message }}" exceeds the 256 kB size limit with its size of {{ size }} kB.';
+
         return new self(
             Response::HTTP_REQUEST_ENTITY_TOO_LARGE,
             self::QUEUE_MESSAGE_SIZE_EXCEEDS,
-            'The message {{ message }} exceeds 256KB size limit',
-            ['message' => $messageName]
+            $message,
+            [
+                'message' => $messageName,
+                'size' => $size,
+            ]
         );
     }
 }

@@ -5,12 +5,10 @@ const utils = Shopware.Utils;
 
 /**
  * @private
- * @package buyers-experience
+ * @sw-package discovery
  */
 export default {
     template,
-
-    compatConfig: Shopware.compatConfig,
 
     mixins: [
         Mixin.getByName('placeholder'),
@@ -42,16 +40,20 @@ export default {
 
     methods: {
         createdComponent() {
-            Shopware.State.commit('adminMenu/collapseSidebar');
+            Shopware.Store.get('adminMenu').collapseSidebar();
 
-            const isSystemDefaultLanguage = Shopware.State.getters['context/isSystemDefaultLanguage'];
+            const isSystemDefaultLanguage = Shopware.Store.get('context').isSystemDefaultLanguage;
             if (!isSystemDefaultLanguage) {
-                Shopware.State.commit('context/resetLanguageToDefault');
+                Shopware.Store.get('context').resetLanguageToDefault();
                 this.$store.commit('cmsPageState/setIsSystemDefaultLanguage', isSystemDefaultLanguage);
             }
 
             this.page = this.pageRepository.create();
-            this.page.sections = [];
+            this.page.sections = new Shopware.Data.EntityCollection(
+                `/cms-page/${this.page.id}/sections`,
+                'cms_section',
+                Shopware.Context.api,
+            );
         },
 
         async onSave() {
@@ -71,20 +73,26 @@ export default {
 
             this.isLoading = true;
 
-            return this.pageRepository.save(this.page).then(() => {
-                this.isLoading = false;
-                this.isSaveSuccessful = true;
+            return this.pageRepository
+                .save(this.page)
+                .then(() => {
+                    this.isLoading = false;
+                    this.isSaveSuccessful = true;
 
-                this.$router.push({ name: 'sw.cms.detail', params: { id: this.page.id } });
-            }).catch((exception) => {
-                this.isLoading = false;
+                    this.$router.push({
+                        name: 'sw.cms.detail',
+                        params: { id: this.page.id },
+                    });
+                })
+                .catch((exception) => {
+                    this.isLoading = false;
 
-                this.createNotificationError({
-                    message: exception.message,
+                    this.createNotificationError({
+                        message: exception.message,
+                    });
+
+                    return Promise.reject(exception);
                 });
-
-                return Promise.reject(exception);
-            });
         },
 
         async assignToEntity(page) {

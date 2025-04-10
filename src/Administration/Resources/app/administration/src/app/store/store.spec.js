@@ -1,9 +1,14 @@
 /**
- * @package admin
+ * @sw-package framework
  */
 import Store from 'src/app/store/index';
+import { reactive } from 'vue';
 
 describe('src/app/store/index.ts', () => {
+    beforeAll(() => {
+        Shopware.Store.clear();
+    });
+
     it('should be a Singleton', () => {
         const aStore = Store.instance;
 
@@ -26,7 +31,10 @@ describe('src/app/store/index.ts', () => {
             id: 'bar',
         });
 
-        expect(store.list()).toStrictEqual(['foo', 'bar']);
+        expect(store.list()).toStrictEqual([
+            'foo',
+            'bar',
+        ]);
 
         store.unregister('foo');
         store.unregister('bar');
@@ -85,29 +93,52 @@ describe('src/app/store/index.ts', () => {
         }).toThrow('Store with id "foo" not found');
     });
 
-    it('should wrap a store config', () => {
+    it('should correctly unregister all stores', () => {
         const root = Store.instance;
-        const fooStore = root.wrapStoreDefinition({
+        root.register({
             id: 'foo',
-            state: () => ({
-                data: 'value',
-            }),
-            actions: {
-                setData(newData) {
-                    this.data = newData;
-                },
-            },
-            getters: {
-                reverseData: () => {
-                    return this.data.reverse();
-                },
-            },
         });
 
-        expect(fooStore).toBeDefined();
-        expect(fooStore.state).toBeInstanceOf(Function);
-        expect(fooStore.state().data).toBe('value');
-        expect(fooStore.getters.reverseData).toBeInstanceOf(Function);
-        expect(fooStore.actions.setData).toBeInstanceOf(Function);
+        root.register({
+            id: 'bar',
+        });
+
+        expect(root.list()).toStrictEqual([
+            'foo',
+            'bar',
+        ]);
+
+        root.clear();
+        expect(root.list()).toStrictEqual([]);
+    });
+
+    it('should register a store using setup function', () => {
+        const root = Store.instance;
+        const state = reactive({
+            id: 'test',
+        });
+        root.register('foo', () => state);
+
+        const store = root.get('foo');
+        expect(store).toBeDefined();
+        expect(store.id).toBe('test');
+    });
+
+    it('should throw an error when registering with invalid params', () => {
+        const root = Store.instance;
+
+        expect(() => {
+            root.register('foo');
+        }).toThrow('Invalid arguments registering a Store');
+
+        expect(() => {
+            root.register({ state: { foo: 'bar' } });
+        }).toThrow('Invalid arguments registering a Store');
+
+        expect(() => {
+            root.register(() => ({
+                state: { foo: 'bar' },
+            }));
+        }).toThrow('Invalid arguments registering a Store');
     });
 });

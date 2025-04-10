@@ -7,20 +7,14 @@ use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Storefront\Page\PageLoadedEvent;
 use Symfony\Component\HttpFoundation\Request;
 
-#[Package('storefront')]
+#[Package('framework')]
 class OffcanvasCartPageLoadedEvent extends PageLoadedEvent
 {
-    /**
-     * @var OffcanvasCartPage
-     */
-    protected $page;
-
     public function __construct(
-        OffcanvasCartPage $page,
+        protected OffcanvasCartPage $page,
         SalesChannelContext $salesChannelContext,
         Request $request
     ) {
-        $this->page = $page;
         parent::__construct($salesChannelContext, $request);
     }
 

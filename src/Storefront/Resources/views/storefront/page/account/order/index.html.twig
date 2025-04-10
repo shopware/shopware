@@ -1,10 +1,12 @@
 {% sw_extends '@Storefront/storefront/page/checkout/confirm/index.html.twig' %}
 
-{% block base_header %}
+{% block base_esi_header %}
     {% sw_include '@Storefront/storefront/page/account/order/header.html.twig' %}
 {% endblock %}
 
 {% set orderState = page.order.stateMachineState.technicalName %}
+{% set showTaxPrice = config('core.cart.columnTaxInsteadUnitPrice') %}
+{% set showSubtotal = config('core.cart.showSubtotal') %}
 
 {% block page_checkout_confirm_header %}
     {% if page.errorCode == 'CHECKOUT__CUSTOMER_CANCELED_EXTERNAL_PAYMENT' %}
@@ -30,8 +32,9 @@
 {% endblock %}
 
 {% block page_checkout_confirm_tos_control %}
-    {{ 'checkout.confirmTermsReminderText'|trans({
-        '%url%': path('frontend.cms.page', { id: config('core.basicInformation.tosPage') })
+    {{ 'checkout.confirmTermsReminderTextModal'|trans({
+        '%tosModalTagOpen%': '<button type="button" class="btn btn-link-inline" data-ajax-modal="true" data-url="' ~ path('frontend.cms.page', { id: config('core.basicInformation.tosPage') }) ~ '">',
+        '%tosModalTagClose%': '</button>'
     })|raw }}
 {% endblock %}
 
@@ -65,8 +68,9 @@
 
 {% block page_checkout_confirm_table_header %}
     {% sw_include '@Storefront/storefront/component/checkout/cart-header.html.twig' with {
-        showTaxPrice: true,
-        showRemoveColumn: false
+        showTaxPrice: showTaxPrice,
+        showRemoveColumn: false,
+        showSubtotal: showSubtotal
     } %}
 {% endblock %}
 
@@ -75,8 +79,9 @@
         {% block page_checkout_confirm_table_item %}
             {% sw_include '@Storefront/storefront/component/line-item/line-item.html.twig' with {
                 redirectTo: 'frontend.checkout.confirm.page',
-                showTaxPrice: true,
-                showRemoveButton: false
+                showTaxPrice: showTaxPrice,
+                showRemoveButton: false,
+                showSubtotal: showSubtotal
             } %}
         {% endblock %}
     {% endfor %}
@@ -120,7 +125,7 @@
                 <button type="button"
                         class="btn btn-light btn-block edit-order-cancel-order-modal-toggle-btn mt-3"
                         data-bs-toggle="modal"
-                        data-bs-target="#cancelOrderModal">
+                        data-bs-target="#cancelOrderModal-{{ page.order.id }}">
                     {{ 'account.editOrderCancelOrderButton'|trans|sw_sanitize }}
                 </button>
             {% endif %}
@@ -132,6 +137,6 @@
     </div>
 {% endblock %}
 
-{% block base_footer %}
+{% block base_esi_footer %}
     {% sw_include '@Storefront/storefront/layout/footer/footer-minimal.html.twig' %}
 {% endblock %}

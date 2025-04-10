@@ -9,7 +9,6 @@ use Shopware\Core\Framework\Store\Services\ExtensionLifecycleService;
 use Shopware\Core\Framework\Store\Struct\ExtensionStruct;
 use Shopware\Core\Framework\Update\Services\ExtensionCompatibility;
 use Shopware\Core\Framework\Update\Steps\DeactivateExtensionsStep;
-use Shopware\Core\Framework\Update\Steps\ValidResult;
 use Shopware\Core\Framework\Update\Struct\Version;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
 
@@ -60,14 +59,14 @@ class DeactivateExtensionsStepTest extends TestCase
         $systemConfigService = $this->createMock(SystemConfigService::class);
 
         $systemConfigService
-            ->expects(static::once())
+            ->expects($this->once())
             ->method('set')
             ->with(DeactivateExtensionsStep::UPDATE_DEACTIVATED_PLUGINS, [1]);
 
         $extensionLifecycleService = $this->createMock(ExtensionLifecycleService::class);
 
         $extensionLifecycleService
-            ->expects(static::once())
+            ->expects($this->once())
             ->method('deactivate')
             ->with('app', 'TestApp');
 
@@ -105,14 +104,14 @@ class DeactivateExtensionsStepTest extends TestCase
         $systemConfigService = $this->createMock(SystemConfigService::class);
 
         $systemConfigService
-            ->expects(static::once())
+            ->expects($this->once())
             ->method('set')
             ->with(DeactivateExtensionsStep::UPDATE_DEACTIVATED_PLUGINS, [1]);
 
         $extensionLifecycleService = $this->createMock(ExtensionLifecycleService::class);
 
         $extensionLifecycleService
-            ->expects(static::once())
+            ->expects($this->once())
             ->method('deactivate')
             ->with('app', 'TestApp');
 
@@ -126,8 +125,6 @@ class DeactivateExtensionsStepTest extends TestCase
         );
 
         $result = $deactivateExtensionsStep->run(0);
-
-        static::assertInstanceOf(ValidResult::class, $result);
         static::assertSame(1, $result->getOffset());
     }
 }

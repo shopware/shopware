@@ -1,36 +1,40 @@
 /**
- * @package services-settings
+ * @sw-package fundamentals@framework
  */
 import { mount } from '@vue/test-utils';
 
 async function createWrapper(privileges = []) {
-    return mount(await wrapTestComponent('sw-users-permissions-role-view-general', {
-        sync: true,
-    }), {
-        props: {
-            role: {},
-        },
-        global: {
-            renderStubDefaultSlot: true,
-            stubs: {
-                'sw-card': true,
-                'sw-textarea-field': true,
-                'sw-text-field': true,
-                'sw-number-field': true,
-                'sw-users-permissions-permissions-grid': true,
-                'sw-users-permissions-additional-permissions': true,
+    return mount(
+        await wrapTestComponent('sw-users-permissions-role-view-general', {
+            sync: true,
+        }),
+        {
+            props: {
+                role: {},
             },
-            provide: {
-                acl: {
-                    can: (identifier) => {
-                        if (!identifier) { return true; }
+            global: {
+                renderStubDefaultSlot: true,
+                stubs: {
+                    'mt-textarea': true,
+                    'sw-text-field': true,
+                    'mt-number-field': true,
+                    'sw-users-permissions-permissions-grid': true,
+                    'sw-users-permissions-additional-permissions': true,
+                },
+                provide: {
+                    acl: {
+                        can: (identifier) => {
+                            if (!identifier) {
+                                return true;
+                            }
 
-                        return privileges.includes(identifier);
+                            return privileges.includes(identifier);
+                        },
                     },
                 },
             },
         },
-    });
+    );
 }
 
 describe('module/sw-users-permissions/view/sw-users-permissions-role-view-general', () => {
@@ -42,13 +46,14 @@ describe('module/sw-users-permissions/view/sw-users-permissions-role-view-genera
     it('should disable the button and fields when no aclPrivileges exists', async () => {
         const wrapper = await createWrapper();
 
-        const fieldRoleName = wrapper.find('sw-text-field-stub[label="sw-users-permissions.roles.detail.labelName"]');
-        const fieldRoleDescription = wrapper
-            .find('sw-textarea-field-stub[label="sw-users-permissions.roles.detail.labelDescription"]');
+        const fieldRoleName = wrapper.find('input[aria-label="sw-users-permissions.roles.detail.labelName"]');
+        const fieldRoleDescription = wrapper.find(
+            'mt-textarea-stub[label="sw-users-permissions.roles.detail.labelDescription"]',
+        );
         const permissionsGrid = wrapper.find('sw-users-permissions-permissions-grid-stub');
         const additionalPermissionsGrid = wrapper.find('sw-users-permissions-additional-permissions-stub');
 
-        expect(fieldRoleName.attributes().disabled).toBe('true');
+        expect(fieldRoleName.attributes().disabled).toBeDefined();
         expect(fieldRoleDescription.attributes().disabled).toBe('true');
         expect(permissionsGrid.attributes().disabled).toBe('true');
         expect(additionalPermissionsGrid.attributes().disabled).toBe('true');
@@ -57,9 +62,10 @@ describe('module/sw-users-permissions/view/sw-users-permissions-role-view-genera
     it('should enable the button and fields when edit aclPrivileges exists', async () => {
         const wrapper = await createWrapper(['users_and_permissions.editor']);
 
-        const fieldRoleName = wrapper.find('sw-text-field-stub[label="sw-users-permissions.roles.detail.labelName"]');
-        const fieldRoleDescription = wrapper
-            .find('sw-textarea-field-stub[label="sw-users-permissions.roles.detail.labelDescription"]');
+        const fieldRoleName = wrapper.find('input[aria-label="sw-users-permissions.roles.detail.labelName"]');
+        const fieldRoleDescription = wrapper.find(
+            'mt-textarea-stub[label="sw-users-permissions.roles.detail.labelDescription"]',
+        );
         const permissionsGrid = wrapper.find('sw-users-permissions-permissions-grid-stub');
         const additionalPermissionsGrid = wrapper.find('sw-users-permissions-additional-permissions-stub');
 

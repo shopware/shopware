@@ -6,23 +6,14 @@ use Shopware\Core\Checkout\Order\OrderEntity;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Storefront\Page\Page;
 
-#[Package('storefront')]
+#[Package('framework')]
 class CheckoutFinishPage extends Page
 {
-    /**
-     * @var OrderEntity
-     */
-    protected $order;
+    protected OrderEntity $order;
 
-    /**
-     * @var bool
-     */
-    protected $changedPayment = false;
+    protected bool $changedPayment = false;
 
-    /**
-     * @var bool
-     */
-    protected $paymentFailed = false;
+    protected bool $paymentFailed = false;
 
     public function getOrder(): OrderEntity
     {

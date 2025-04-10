@@ -1,5 +1,5 @@
 /**
- * @package inventory
+ * @sw-package inventory
  */
 import { mount } from '@vue/test-utils';
 import { searchRankingPoint } from 'src/app/service/search-ranking.service';
@@ -50,14 +50,12 @@ async function createWrapper() {
                             <slot></slot>
                         </div>`,
                 },
-                'sw-button': {
-                    template: '<button class="sw-button" @click="$emit(`click`)"></button>',
-                    props: ['disabled'],
-                },
-                'sw-icon': true,
                 'sw-search-bar': true,
                 'sw-entity-listing': {
-                    props: ['items', 'allow-inline-edit'],
+                    props: [
+                        'items',
+                        'allow-inline-edit',
+                    ],
                     template: `
                         <div>
                             <template v-for="item in items">

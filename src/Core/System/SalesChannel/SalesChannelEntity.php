@@ -42,376 +42,169 @@ use Shopware\Core\System\SalesChannel\Aggregate\SalesChannelTranslation\SalesCha
 use Shopware\Core\System\SalesChannel\Aggregate\SalesChannelType\SalesChannelTypeEntity;
 use Shopware\Core\System\SystemConfig\SystemConfigCollection;
 
-#[Package('buyers-experience')]
+#[Package('discovery')]
 class SalesChannelEntity extends Entity
 {
     use EntityCustomFieldsTrait;
     use EntityIdTrait;
 
-    /**
-     * @var string
-     */
-    protected $typeId;
+    protected string $typeId;
+
+    protected string $languageId;
+
+    protected string $currencyId;
+
+    protected string $paymentMethodId;
+
+    protected string $shippingMethodId;
+
+    protected string $countryId;
+
+    protected string $navigationCategoryId;
+
+    protected string $navigationCategoryVersionId;
+
+    protected int $navigationCategoryDepth;
 
     /**
-     * @var string
+     * @var array<string, mixed>|null
      */
-    protected $languageId;
+    protected ?array $homeSlotConfig = null;
 
-    /**
-     * @var string
-     */
-    protected $currencyId;
+    protected ?string $homeCmsPageId = null;
 
-    /**
-     * @var string
-     */
-    protected $paymentMethodId;
+    protected ?string $homeCmsPageVersionId = null;
 
-    /**
-     * @var string
-     */
-    protected $shippingMethodId;
+    protected ?CmsPageEntity $homeCmsPage = null;
 
-    /**
-     * @var string
-     */
-    protected $countryId;
+    protected bool $homeEnabled;
 
-    /**
-     * @var string
-     */
-    protected $navigationCategoryId;
+    protected ?string $homeName = null;
 
-    /**
-     * @var string
-     */
-    protected $navigationCategoryVersionId;
+    protected ?string $homeMetaTitle = null;
 
-    /**
-     * @var int
-     */
-    protected $navigationCategoryDepth;
+    protected ?string $homeMetaDescription = null;
 
-    /**
-     * @var array<mixed>|null
-     */
-    protected $homeSlotConfig;
+    protected ?string $homeKeywords = null;
 
-    /**
-     * @var string|null
-     */
-    protected $homeCmsPageId;
+    protected ?string $footerCategoryId = null;
 
-    /**
-     * @var string|null
-     */
-    protected $homeCmsPageVersionId;
+    protected ?string $footerCategoryVersionId = null;
 
-    /**
-     * @var CmsPageEntity|null
-     */
-    protected $homeCmsPage;
+    protected ?string $serviceCategoryId = null;
 
-    /**
-     * @var bool
-     */
-    protected $homeEnabled;
+    protected ?string $serviceCategoryVersionId = null;
 
-    /**
-     * @var string|null
-     */
-    protected $homeName;
+    protected ?string $name = null;
 
-    /**
-     * @var string|null
-     */
-    protected $homeMetaTitle;
+    protected ?string $shortName = null;
 
-    /**
-     * @var string|null
-     */
-    protected $homeMetaDescription;
+    protected string $accessKey;
 
-    /**
-     * @var string|null
-     */
-    protected $homeKeywords;
+    protected ?CurrencyCollection $currencies = null;
 
-    /**
-     * @var string|null
-     */
-    protected $footerCategoryId;
-
-    /**
-     * @var string|null
-     */
-    protected $footerCategoryVersionId;
-
-    /**
-     * @var string|null
-     */
-    protected $serviceCategoryId;
-
-    /**
-     * @var string|null
-     */
-    protected $serviceCategoryVersionId;
-
-    /**
-     * @var string|null
-     */
-    protected $name;
-
-    /**
-     * @var string|null
-     */
-    protected $shortName;
-
-    /**
-     * @var string
-     */
-    protected $accessKey;
-
-    /**
-     * @var CurrencyCollection|null
-     */
-    protected $currencies;
-
-    /**
-     * @var LanguageCollection|null
-     */
-    protected $languages;
+    protected ?LanguageCollection $languages = null;
 
     /**
      * @var array<mixed>|null
      */
-    protected $configuration;
+    protected ?array $configuration = null;
 
-    /**
-     * @var bool
-     */
-    protected $active;
+    protected bool $active;
 
-    /**
-     * @var bool
-     */
-    protected $maintenance;
+    protected bool $maintenance;
 
     /**
      * @var array<mixed>|null
      */
-    protected $maintenanceIpWhitelist;
+    protected ?array $maintenanceIpWhitelist = null;
+
+    protected string $taxCalculationType;
+
+    protected ?SalesChannelTypeEntity $type = null;
+
+    protected ?CurrencyEntity $currency = null;
+
+    protected ?LanguageEntity $language = null;
+
+    protected ?PaymentMethodEntity $paymentMethod = null;
+
+    protected ?ShippingMethodEntity $shippingMethod = null;
+
+    protected ?CountryEntity $country = null;
+
+    protected ?OrderCollection $orders = null;
+
+    protected ?CustomerCollection $customers = null;
+
+    protected ?CountryCollection $countries = null;
+
+    protected ?PaymentMethodCollection $paymentMethods = null;
+
+    protected ?ShippingMethodCollection $shippingMethods = null;
+
+    protected ?SalesChannelTranslationCollection $translations = null;
+
+    protected ?SalesChannelDomainCollection $domains = null;
+
+    protected ?SystemConfigCollection $systemConfigs = null;
+
+    protected ?CategoryEntity $navigationCategory = null;
+
+    protected ?CategoryEntity $footerCategory = null;
+
+    protected ?CategoryEntity $serviceCategory = null;
+
+    protected ?ProductVisibilityCollection $productVisibilities = null;
+
+    protected ?string $mailHeaderFooterId = null;
+
+    protected ?NumberRangeSalesChannelCollection $numberRangeSalesChannels = null;
+
+    protected ?MailHeaderFooterEntity $mailHeaderFooter = null;
+
+    protected string $customerGroupId;
+
+    protected ?CustomerGroupEntity $customerGroup = null;
+
+    protected ?NewsletterRecipientCollection $newsletterRecipients = null;
+
+    protected ?PromotionSalesChannelCollection $promotionSalesChannels = null;
+
+    protected ?DocumentBaseConfigDefinition $documentBaseConfigSalesChannels = null;
+
+    protected ?ProductReviewCollection $productReviews = null;
+
+    protected ?SeoUrlCollection $seoUrls = null;
+
+    protected ?SeoUrlTemplateCollection $seoUrlTemplates = null;
+
+    protected ?MainCategoryCollection $mainCategories = null;
 
     /**
-     * @var string
+     * @var list<string>|null
      */
-    protected $taxCalculationType;
+    protected ?array $paymentMethodIds = null;
 
-    /**
-     * @var SalesChannelTypeEntity|null
-     */
-    protected $type;
+    protected ?ProductExportCollection $productExports = null;
 
-    /**
-     * @var CurrencyEntity|null
-     */
-    protected $currency;
+    protected bool $hreflangActive;
 
-    /**
-     * @var LanguageEntity|null
-     */
-    protected $language;
+    protected ?string $hreflangDefaultDomainId = null;
 
-    /**
-     * @var PaymentMethodEntity|null
-     */
-    protected $paymentMethod;
+    protected ?SalesChannelDomainEntity $hreflangDefaultDomain = null;
 
-    /**
-     * @var ShippingMethodEntity|null
-     */
-    protected $shippingMethod;
+    protected ?string $analyticsId = null;
 
-    /**
-     * @var CountryEntity|null
-     */
-    protected $country;
+    protected ?SalesChannelAnalyticsEntity $analytics = null;
 
-    /**
-     * @var OrderCollection|null
-     */
-    protected $orders;
+    protected ?CustomerGroupCollection $customerGroupsRegistrations = null;
 
-    /**
-     * @var CustomerCollection|null
-     */
-    protected $customers;
+    protected ?CustomerCollection $boundCustomers = null;
 
-    /**
-     * @var CountryCollection|null
-     */
-    protected $countries;
+    protected ?CustomerWishlistCollection $wishlists = null;
 
-    /**
-     * @var PaymentMethodCollection|null
-     */
-    protected $paymentMethods;
-
-    /**
-     * @var ShippingMethodCollection|null
-     */
-    protected $shippingMethods;
-
-    /**
-     * @var SalesChannelTranslationCollection|null
-     */
-    protected $translations;
-
-    /**
-     * @var SalesChannelDomainCollection|null
-     */
-    protected $domains;
-
-    /**
-     * @var SystemConfigCollection|null
-     */
-    protected $systemConfigs;
-
-    /**
-     * @var CategoryEntity|null
-     */
-    protected $navigationCategory;
-
-    /**
-     * @var CategoryEntity|null
-     */
-    protected $footerCategory;
-
-    /**
-     * @var CategoryEntity|null
-     */
-    protected $serviceCategory;
-
-    /**
-     * @var ProductVisibilityCollection|null
-     */
-    protected $productVisibilities;
-
-    /**
-     * @var string|null
-     */
-    protected $mailHeaderFooterId;
-
-    /**
-     * @var NumberRangeSalesChannelCollection|null
-     */
-    protected $numberRangeSalesChannels;
-
-    /**
-     * @var MailHeaderFooterEntity|null
-     */
-    protected $mailHeaderFooter;
-
-    /**
-     * @var string
-     */
-    protected $customerGroupId;
-
-    /**
-     * @var CustomerGroupEntity|null
-     */
-    protected $customerGroup;
-
-    /**
-     * @var NewsletterRecipientCollection|null
-     */
-    protected $newsletterRecipients;
-
-    /**
-     * @var PromotionSalesChannelCollection|null
-     */
-    protected $promotionSalesChannels;
-
-    /**
-     * @var DocumentBaseConfigDefinition|null
-     */
-    protected $documentBaseConfigSalesChannels;
-
-    /**
-     * @var ProductReviewCollection|null
-     */
-    protected $productReviews;
-
-    /**
-     * @var SeoUrlCollection|null
-     */
-    protected $seoUrls;
-
-    /**
-     * @var SeoUrlTemplateCollection|null
-     */
-    protected $seoUrlTemplates;
-
-    /**
-     * @var MainCategoryCollection|null
-     */
-    protected $mainCategories;
-
-    /**
-     * @var array<string>|null
-     */
-    protected $paymentMethodIds;
-
-    /**
-     * @var ProductExportCollection|null
-     */
-    protected $productExports;
-
-    /**
-     * @var bool
-     */
-    protected $hreflangActive;
-
-    /**
-     * @var string|null
-     */
-    protected $hreflangDefaultDomainId;
-
-    /**
-     * @var SalesChannelDomainEntity|null
-     */
-    protected $hreflangDefaultDomain;
-
-    /**
-     * @var string|null
-     */
-    protected $analyticsId;
-
-    /**
-     * @var SalesChannelAnalyticsEntity|null
-     */
-    protected $analytics;
-
-    /**
-     * @var CustomerGroupCollection|null
-     */
-    protected $customerGroupsRegistrations;
-
-    /**
-     * @var CustomerCollection|null
-     */
-    protected $boundCustomers;
-
-    /**
-     * @var CustomerWishlistCollection|null
-     */
-    protected $wishlists;
-
-    /**
-     * @var LandingPageCollection|null
-     */
-    protected $landingPages;
+    protected ?LandingPageCollection $landingPages = null;
 
     public function getMailHeaderFooter(): ?MailHeaderFooterEntity
     {
@@ -756,7 +549,7 @@ class SalesChannelEntity extends Entity
     }
 
     /**
-     * @return array<mixed>|null
+     * @return array<string, mixed>|null
      */
     public function getHomeSlotConfig(): ?array
     {
@@ -764,7 +557,7 @@ class SalesChannelEntity extends Entity
     }
 
     /**
-     * @param array<mixed>|null $homeSlotConfig
+     * @param array<string, mixed>|null $homeSlotConfig
      */
     public function setHomeSlotConfig(?array $homeSlotConfig): void
     {
@@ -992,7 +785,7 @@ class SalesChannelEntity extends Entity
     }
 
     /**
-     * @return array<string>|null
+     * @return list<string>|null
      */
     public function getPaymentMethodIds(): ?array
     {
@@ -1000,7 +793,7 @@ class SalesChannelEntity extends Entity
     }
 
     /**
-     * @param array<string> $paymentMethodIds
+     * @param list<string> $paymentMethodIds
      */
     public function setPaymentMethodIds(array $paymentMethodIds): void
     {

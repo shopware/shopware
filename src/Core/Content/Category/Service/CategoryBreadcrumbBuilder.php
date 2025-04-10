@@ -6,16 +6,17 @@ use Doctrine\DBAL\ArrayParameterType;
 use Doctrine\DBAL\Connection;
 use Shopware\Core\Content\Breadcrumb\BreadcrumbException;
 use Shopware\Core\Content\Breadcrumb\Struct\Breadcrumb;
+use Shopware\Core\Content\Breadcrumb\Struct\BreadcrumbCollection;
 use Shopware\Core\Content\Category\CategoryCollection;
 use Shopware\Core\Content\Category\CategoryDefinition;
 use Shopware\Core\Content\Category\CategoryEntity;
 use Shopware\Core\Content\Product\ProductEntity;
+use Shopware\Core\Content\Product\SalesChannel\SalesChannelProductCollection;
 use Shopware\Core\Content\Product\SalesChannel\SalesChannelProductEntity;
 use Shopware\Core\Content\Seo\MainCategory\MainCategoryEntity;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\AndFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\ContainsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsAnyFilter;
@@ -29,16 +30,14 @@ use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\System\SalesChannel\SalesChannelEntity;
 use Shopware\Storefront\Framework\Seo\SeoUrlRoute\NavigationPageSeoUrlRoute;
 
-/**
- * @experimental stableVersion:v6.7.0 feature:BREADCRUMB_STORE_API
- * related methods: getProductBreadcrumbUrls, loadProduct, getCategoryForProduct, loadCategory,
- * getCategoryBreadcrumbUrls, loadCategories, loadSeoUrls, convertCategoriesToBreadcrumbUrls, filterCategorySeoUrls
- */
-#[Package('inventory')]
+#[Package('discovery')]
 class CategoryBreadcrumbBuilder
 {
     /**
      * @internal
+     *
+     * @param EntityRepository<CategoryCollection> $categoryRepository
+     * @param SalesChannelRepository<SalesChannelProductCollection> $productRepository
      */
     public function __construct(
         private readonly EntityRepository $categoryRepository,
@@ -47,10 +46,7 @@ class CategoryBreadcrumbBuilder
     ) {
     }
 
-    /**
-     * @return array<int, Breadcrumb>
-     */
-    public function getProductBreadcrumbUrls(string $productId, string $referrerCategoryId, SalesChannelContext $salesChannelContext): array
+    public function getProductBreadcrumbUrls(string $productId, string $referrerCategoryId, SalesChannelContext $salesChannelContext): BreadcrumbCollection
     {
         $product = $this->loadProduct($productId, $salesChannelContext);
         $category = $this->getCategoryForProduct($referrerCategoryId, $product, $salesChannelContext);
@@ -65,37 +61,7 @@ class CategoryBreadcrumbBuilder
         );
     }
 
-    private function loadProduct(string $productId, SalesChannelContext $salesChannelContext): SalesChannelProductEntity
-    {
-        $criteria = new Criteria();
-        $criteria->setIds([$productId]);
-        $criteria->setTitle('breadcrumb::product::data');
-
-        $product = $this->productRepository
-            ->search($criteria, $salesChannelContext)
-            ->first();
-
-        if (!($product instanceof SalesChannelProductEntity)) {
-            throw BreadcrumbException::productNotFound($productId);
-        }
-
-        return $product;
-    }
-
-    private function getCategoryForProduct(
-        string $referrerCategoryId,
-        SalesChannelProductEntity $product,
-        SalesChannelContext $salesChannelContext
-    ): ?CategoryEntity {
-        $categoryIds = $product->getCategoryIds();
-        if ($categoryIds !== null && \in_array($referrerCategoryId, $categoryIds, true)) {
-            return $this->loadCategory($referrerCategoryId, $salesChannelContext->getContext());
-        }
-
-        return $this->getProductSeoCategory($product, $salesChannelContext);
-    }
-
-    public function loadCategory(string $categoryId, Context $context): CategoryEntity
+    public function loadCategory(string $categoryId, Context $context): ?CategoryEntity
     {
         $criteria = new Criteria([$categoryId]);
         $criteria->setTitle('breadcrumb::category::data');
@@ -105,7 +71,7 @@ class CategoryBreadcrumbBuilder
             ->get($categoryId);
 
         if (!$category instanceof CategoryEntity) {
-            throw BreadcrumbException::categoryNotFound($categoryId);
+            return null;
         }
 
         return $category;
@@ -114,7 +80,6 @@ class CategoryBreadcrumbBuilder
     public function getProductSeoCategory(ProductEntity $product, SalesChannelContext $context): ?CategoryEntity
     {
         $category = $this->getMainCategory($product, $context);
-
         if ($category !== null) {
             return $category;
         }
@@ -140,70 +105,22 @@ class CategoryBreadcrumbBuilder
 
         $criteria->addFilter($this->getSalesChannelFilter($context->getSalesChannel()));
 
-        $categories = $this->categoryRepository->search($criteria, $context->getContext());
-
+        $categories = $this->categoryRepository->search($criteria, $context->getContext())->getEntities();
         if ($categories->count() > 0) {
-            /** @var CategoryEntity|null $category */
-            $category = $categories->first();
-
-            return $category;
+            return $categories->first();
         }
 
         return null;
     }
 
-    private function getMainCategory(ProductEntity $product, SalesChannelContext $context): ?CategoryEntity
-    {
-        $criteria = new Criteria();
-        $criteria->setLimit(1);
-        $criteria->setTitle('breadcrumb-builder::main-category');
-
-        if (($product->getMainCategories() === null || $product->getMainCategories()->count() <= 0) && $product->getParentId() !== null) {
-            $criteria->addFilter($this->getMainCategoryFilter($product->getParentId(), $context));
-        } else {
-            $criteria->addFilter($this->getMainCategoryFilter($product->getId(), $context));
-        }
-
-        $categories = $this->categoryRepository->search($criteria, $context->getContext())->getEntities();
-        if ($categories->count() <= 0) {
-            return null;
-        }
-
-        $firstCategory = $categories->first();
-
-        /** @var CategoryEntity|null $entity */
-        $entity = $firstCategory instanceof MainCategoryEntity ? $firstCategory->getCategory() : $firstCategory;
-
-        return $product->getCategoryIds() !== null && $entity !== null && \in_array($entity->getId(), $product->getCategoryIds(), true) ? $entity : null;
-    }
-
-    private function getMainCategoryFilter(string $productId, SalesChannelContext $context): AndFilter
-    {
-        return new AndFilter([
-            new EqualsFilter('mainCategories.productId', $productId),
-            new EqualsFilter('mainCategories.salesChannelId', $context->getSalesChannelId()),
-            $this->getSalesChannelFilter($context->getSalesChannel()),
-        ]);
-    }
-
-    private function getSalesChannelFilter(SalesChannelEntity $salesChannel): MultiFilter
-    {
-        $ids = array_filter([
-            $salesChannel->getNavigationCategoryId(),
-            $salesChannel->getServiceCategoryId(),
-            $salesChannel->getFooterCategoryId(),
-        ]);
-
-        return new OrFilter(array_map(static fn (string $id) => new ContainsFilter('path', '|' . $id . '|'), $ids));
-    }
-
-    /**
-     * @return array<int, Breadcrumb>
-     */
-    public function getCategoryBreadcrumbUrls(CategoryEntity $category, Context $context, SalesChannelEntity $salesChannel): array
+    public function getCategoryBreadcrumbUrls(CategoryEntity $category, Context $context, SalesChannelEntity $salesChannel): BreadcrumbCollection
     {
         $seoBreadcrumb = $this->build($category, $salesChannel);
         $categoryIds = array_keys($seoBreadcrumb ?? []);
+
+        if (empty($categoryIds)) {
+            return new BreadcrumbCollection();
+        }
 
         $categories = $this->loadCategories($categoryIds, $context, $salesChannel);
         $seoUrls = $this->loadSeoUrls($categoryIds, $context, $salesChannel);
@@ -212,7 +129,7 @@ class CategoryBreadcrumbBuilder
     }
 
     /**
-     * @return array<mixed>|null
+     * @return array<string, string>|null
      */
     public function build(CategoryEntity $category, ?SalesChannelEntity $salesChannel = null, ?string $navigationCategoryId = null): ?array
     {
@@ -251,6 +168,80 @@ class CategoryBreadcrumbBuilder
         return $categoryBreadcrumb;
     }
 
+    private function loadProduct(string $productId, SalesChannelContext $salesChannelContext): SalesChannelProductEntity
+    {
+        $criteria = new Criteria();
+        $criteria->setIds([$productId]);
+        $criteria->setTitle('breadcrumb::product::data');
+
+        $product = $this->productRepository
+            ->search($criteria, $salesChannelContext)
+            ->first();
+
+        if (!($product instanceof SalesChannelProductEntity)) {
+            throw BreadcrumbException::productNotFound($productId);
+        }
+
+        return $product;
+    }
+
+    private function getCategoryForProduct(
+        string $referrerCategoryId,
+        SalesChannelProductEntity $product,
+        SalesChannelContext $salesChannelContext
+    ): ?CategoryEntity {
+        $categoryIds = $product->getCategoryIds();
+        if ($categoryIds !== null && \in_array($referrerCategoryId, $categoryIds, true)) {
+            return $this->loadCategory($referrerCategoryId, $salesChannelContext->getContext());
+        }
+
+        return $this->getProductSeoCategory($product, $salesChannelContext);
+    }
+
+    private function getMainCategory(ProductEntity $product, SalesChannelContext $context): ?CategoryEntity
+    {
+        $criteria = new Criteria();
+        $criteria->setLimit(1);
+        $criteria->setTitle('breadcrumb-builder::main-category');
+
+        if (($product->getMainCategories() === null || $product->getMainCategories()->count() <= 0) && $product->getParentId() !== null) {
+            $criteria->addFilter($this->getMainCategoryFilter($product->getParentId(), $context));
+        } else {
+            $criteria->addFilter($this->getMainCategoryFilter($product->getId(), $context));
+        }
+
+        $categories = $this->categoryRepository->search($criteria, $context->getContext())->getEntities();
+        if ($categories->count() <= 0) {
+            return null;
+        }
+
+        $firstCategory = $categories->first();
+
+        $entity = $firstCategory instanceof MainCategoryEntity ? $firstCategory->getCategory() : $firstCategory;
+
+        return $product->getCategoryIds() !== null && $entity !== null && \in_array($entity->getId(), $product->getCategoryIds(), true) ? $entity : null;
+    }
+
+    private function getMainCategoryFilter(string $productId, SalesChannelContext $context): AndFilter
+    {
+        return new AndFilter([
+            new EqualsFilter('mainCategories.productId', $productId),
+            new EqualsFilter('mainCategories.salesChannelId', $context->getSalesChannelId()),
+            $this->getSalesChannelFilter($context->getSalesChannel()),
+        ]);
+    }
+
+    private function getSalesChannelFilter(SalesChannelEntity $salesChannel): MultiFilter
+    {
+        $ids = array_filter([
+            $salesChannel->getNavigationCategoryId(),
+            $salesChannel->getServiceCategoryId(),
+            $salesChannel->getFooterCategoryId(),
+        ]);
+
+        return new OrFilter(array_map(static fn (string $id) => new ContainsFilter('path', '|' . $id . '|'), $ids));
+    }
+
     /**
      * @param array<string> $categoryIds
      */
@@ -259,10 +250,8 @@ class CategoryBreadcrumbBuilder
         $criteria = new Criteria($categoryIds);
         $criteria->setTitle('breadcrumb::categories::data');
         $criteria->addFilter($this->getSalesChannelFilter($salesChannel));
-        /** @var EntitySearchResult<CategoryCollection> $searchResult */
-        $searchResult = $this->categoryRepository->search($criteria, $context);
 
-        return $searchResult->getEntities();
+        return $this->categoryRepository->search($criteria, $context)->getEntities();
     }
 
     /**
@@ -273,12 +262,12 @@ class CategoryBreadcrumbBuilder
     private function loadSeoUrls(array $categoryIds, Context $context, SalesChannelEntity $salesChannel): array
     {
         $query = $this->connection->createQueryBuilder();
-        $query->select([
+        $query->select(
             'LOWER(HEX(id)) as id',
             'LOWER(HEX(foreign_key)) as categoryId',
             'path_info as pathInfo',
             'seo_path_info as seoPathInfo',
-        ]);
+        );
         $query->from('seo_url');
         $query->where('seo_url.is_canonical = 1');
         $query->andWhere('seo_url.route_name = :routeName');
@@ -295,10 +284,8 @@ class CategoryBreadcrumbBuilder
 
     /**
      * @param array<int, array<string, string|mixed>> $seoUrls
-     *
-     * @return array<int, Breadcrumb>
      */
-    private function convertCategoriesToBreadcrumbUrls(CategoryCollection $categories, array $seoUrls): array
+    private function convertCategoriesToBreadcrumbUrls(CategoryCollection $categories, array $seoUrls): BreadcrumbCollection
     {
         $seoBreadcrumbCollection = [];
         foreach ($categories as $category) {
@@ -332,7 +319,7 @@ class CategoryBreadcrumbBuilder
             $seoBreadcrumbCollection[$categoryId] = $categoryBreadcrumb;
         }
 
-        return array_values($seoBreadcrumbCollection);
+        return new BreadcrumbCollection(array_values($seoBreadcrumbCollection));
     }
 
     /**

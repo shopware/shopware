@@ -10,6 +10,7 @@ use Shopware\Core\Checkout\Gateway\SalesChannel\AbstractCheckoutGatewayRoute;
 use Shopware\Core\Checkout\Order\Aggregate\OrderTransaction\OrderTransactionStates;
 use Shopware\Core\Checkout\Order\OrderEntity;
 use Shopware\Core\Checkout\Order\OrderException;
+use Shopware\Core\Checkout\Order\OrderStates;
 use Shopware\Core\Checkout\Order\SalesChannel\AbstractOrderRoute;
 use Shopware\Core\Checkout\Order\SalesChannel\OrderRouteResponse;
 use Shopware\Core\Checkout\Order\SalesChannel\OrderService;
@@ -20,7 +21,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\Exception\InconsistentCriteriaI
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Routing\RoutingException;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
@@ -74,6 +74,10 @@ class AccountEditOrderPageLoader
 
         /** @var OrderEntity $order */
         $order = $orderRouteResponse->getOrders()->first();
+
+        if ($this->isOrderCancelled($order)) {
+            throw OrderException::orderCancelled($order->getId());
+        }
 
         if ($this->isOrderPaid($order)) {
             throw OrderException::orderAlreadyPaid($order->getId());
@@ -138,8 +142,8 @@ class AccountEditOrderPageLoader
 
         $criteria->getAssociation('transactions')->addSorting(new FieldSorting('createdAt'));
 
-        if ($context->getCustomer() && $context->getCustomer()->getId()) {
-            $criteria->addFilter(new EqualsFilter('order.orderCustomer.customerId', $context->getCustomer()->getId()));
+        if ($context->getCustomer()) {
+            $criteria->addFilter(new EqualsFilter('order.orderCustomer.customerId', $context->getCustomerId()));
         } elseif ($request->get('deepLinkCode')) {
             $criteria->addFilter(new EqualsFilter('deepLinkCode', $request->get('deepLinkCode')));
         } else {
@@ -152,12 +156,7 @@ class AccountEditOrderPageLoader
     private function getPaymentMethods(SalesChannelContext $context, Request $request, OrderEntity $order): PaymentMethodCollection
     {
         $routeRequest = $request->duplicate();
-        if (!Feature::isActive('v6.7.0.0')) {
-            /**
-             * @deprecated tag:v6.7.0 - onlyAvailable is no longer set in query
-             */
-            $routeRequest->query->set('onlyAvailable', '1');
-        }
+        $routeRequest->query->set('onlyAvailable', '1');
 
         $event = new PaymentMethodRouteRequestEvent($request, $routeRequest, $context);
         $this->eventDispatcher->dispatch($event);
@@ -174,6 +173,17 @@ class AccountEditOrderPageLoader
         $paymentMethods->sortPaymentMethodsByPreference($context);
 
         return $paymentMethods;
+    }
+
+    private function isOrderCancelled(OrderEntity $order): bool
+    {
+        $stateMachineState = $order->getStateMachineState();
+
+        if ($stateMachineState === null) {
+            return false;
+        }
+
+        return $stateMachineState->getTechnicalName() === OrderStates::STATE_CANCELLED;
     }
 
     private function isOrderPaid(OrderEntity $order): bool

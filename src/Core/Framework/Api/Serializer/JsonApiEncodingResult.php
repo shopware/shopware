@@ -4,38 +4,32 @@ namespace Shopware\Core\Framework\Api\Serializer;
 
 use Shopware\Core\Framework\Log\Package;
 
-#[Package('core')]
+#[Package('framework')]
 class JsonApiEncodingResult implements \JsonSerializable
 {
     /**
      * @var Record[]
      */
-    protected $data = [];
+    protected array $data = [];
 
     /**
      * @var Record[]
      */
-    protected $included = [];
+    protected array $included = [];
 
     /**
      * @var array<string, int>
      */
-    protected $keyCollection = [];
+    protected array $keyCollection = [];
 
-    /**
-     * @var bool
-     */
-    protected $single = false;
+    protected bool $single = false;
 
     /**
      * @var array<string, mixed>
      */
-    protected $metaData = [];
+    protected array $metaData = [];
 
-    /**
-     * @var string
-     */
-    protected $baseUrl;
+    protected string $baseUrl;
 
     public function __construct(string $baseUrl)
     {

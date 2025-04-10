@@ -36,7 +36,7 @@ class CartScopeDiscountPackagerTest extends TestCase
         $cart = new Cart('test');
         $cart->setLineItems(new LineItemCollection($items));
 
-        $packager = $this->getContainer()->get(CartScopeDiscountPackager::class);
+        $packager = static::getContainer()->get(CartScopeDiscountPackager::class);
 
         $context = $this->createMock(SalesChannelContext::class);
 

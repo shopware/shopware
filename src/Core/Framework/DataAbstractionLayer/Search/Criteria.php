@@ -19,7 +19,7 @@ use Shopware\Core\Framework\Util\Json;
 /**
  * @final
  */
-#[Package('core')]
+#[Package('framework')]
 class Criteria extends Struct implements \Stringable
 {
     use StateAwareTrait;
@@ -46,77 +46,59 @@ class Criteria extends Struct implements \Stringable
     /**
      * @var list<FieldSorting>
      */
-    protected $sorting = [];
+    protected array $sorting = [];
 
     /**
      * @var array<array-key, Filter>
      */
-    protected $filters = [];
+    protected array $filters = [];
 
     /**
      * @var list<Filter>
      */
-    protected $postFilters = [];
+    protected array $postFilters = [];
 
     /**
      * @var array<string, Aggregation>
      */
-    protected $aggregations = [];
+    protected array $aggregations = [];
 
     /**
      * @var list<ScoreQuery>
      */
-    protected $queries = [];
+    protected array $queries = [];
 
     /**
      * @var list<FieldGrouping>
      */
-    protected $groupFields = [];
+    protected array $groupFields = [];
 
-    /**
-     * @var int|null
-     */
-    protected $offset;
+    protected ?int $offset = null;
 
-    /**
-     * @var int|null
-     */
-    protected $limit;
+    protected ?int $limit = null;
 
-    /**
-     * @var int
-     */
-    protected $totalCountMode = self::TOTAL_COUNT_MODE_NONE;
+    protected int $totalCountMode = self::TOTAL_COUNT_MODE_NONE;
 
     /**
      * @var array<string, Criteria>
      */
-    protected $associations = [];
+    protected array $associations = [];
 
     /**
      * @var array<string>|array<int, array<string>>
      */
-    protected $ids = [];
+    protected array $ids = [];
+
+    protected bool $inherited = false;
+
+    protected ?string $term = null;
 
     /**
-     * @var bool
+     * @var array<string, list<string>>|null
      */
-    protected $inherited = false;
+    protected ?array $includes = null;
 
-    /**
-     * @var string|null
-     */
-    protected $term;
-
-    /**
-     * @var array<string, array<string, string>>|null
-     */
-    protected $includes;
-
-    /**
-     * @var string|null
-     */
-    protected $title;
+    protected ?string $title = null;
 
     /**
      * @var list<string>
@@ -543,7 +525,7 @@ class Criteria extends Struct implements \Stringable
     }
 
     /**
-     * @param array<string, array<string, string>>|null $includes
+     * @param array<string, list<string>>|null $includes
      */
     public function setIncludes(?array $includes): void
     {
@@ -551,7 +533,9 @@ class Criteria extends Struct implements \Stringable
     }
 
     /**
-     * @return array<string, array<string, string>>|null
+     * @deprecated tag:v6.8.0 - reason:return-type-change - Return type will be native
+     *
+     * @return array<string, list<string>>|null
      */
     public function getIncludes()
     {
@@ -597,9 +581,11 @@ class Criteria extends Struct implements \Stringable
         return $this->title;
     }
 
-    public function setTitle(?string $title): void
+    public function setTitle(?string $title): self
     {
         $this->title = $title;
+
+        return $this;
     }
 
     /**

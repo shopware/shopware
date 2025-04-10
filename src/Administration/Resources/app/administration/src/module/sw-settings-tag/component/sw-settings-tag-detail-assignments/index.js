@@ -1,5 +1,5 @@
 /**
- * @package inventory
+ * @sw-package inventory
  */
 import utils from 'src/core/service/util.service';
 import template from './sw-settings-tag-detail-assignments.html.twig';
@@ -12,15 +12,16 @@ const { Criteria } = Shopware.Data;
 export default {
     template,
 
-    compatConfig: Shopware.compatConfig,
-
     inheritAttrs: false,
 
     inject: [
         'repositoryFactory',
     ],
 
-    emits: ['remove-assignment', 'add-assignment'],
+    emits: [
+        'remove-assignment',
+        'add-assignment',
+    ],
 
     mixins: [
         Mixin.getByName('listing'),
@@ -87,27 +88,34 @@ export default {
         assignmentAssociations() {
             const assignmentAssociations = [];
 
-            Object.entries(this.tagDefinition.properties).forEach(([propertyName, property]) => {
-                if (property.relation === 'many_to_many') {
-                    assignmentAssociations.push({
-                        name: this.$tc(`sw-settings-tag.detail.assignments.${propertyName}`),
-                        entity: property.entity,
-                        assignment: propertyName,
-                    });
-                }
-            });
+            Object.entries(this.tagDefinition.properties).forEach(
+                ([
+                    propertyName,
+                    property,
+                ]) => {
+                    if (property.relation === 'many_to_many') {
+                        assignmentAssociations.push({
+                            name: this.$tc(`sw-settings-tag.detail.assignments.${propertyName}`),
+                            entity: property.entity,
+                            assignment: propertyName,
+                        });
+                    }
+                },
+            );
 
             return assignmentAssociations;
         },
 
         assignmentAssociationsColumns() {
-            return [{
-                property: 'name',
-                dataIndex: 'name',
-                primary: true,
-                allowResize: false,
-                sortable: false,
-            }];
+            return [
+                {
+                    property: 'name',
+                    dataIndex: 'name',
+                    primary: true,
+                    allowResize: false,
+                    sortable: false,
+                },
+            ];
         },
 
         entityRepository() {
@@ -146,10 +154,12 @@ export default {
             });
 
             if (toBeAdded.length) {
-                criteria.addFilter(Criteria.multi('OR', [
-                    Criteria.equals('tags.id', this.tag.id),
-                    Criteria.equalsAny('id', toBeAdded),
-                ]));
+                criteria.addFilter(
+                    Criteria.multi('OR', [
+                        Criteria.equals('tags.id', this.tag.id),
+                        Criteria.equalsAny('id', toBeAdded),
+                    ]),
+                );
             } else {
                 criteria.addFilter(Criteria.equals('tags.id', this.tag.id));
             }
@@ -158,50 +168,53 @@ export default {
                 return criteria;
             }
 
-            criteria.addFilter(Criteria.not('AND', [
-                Criteria.equalsAny('id', toBeDeleted),
-            ]));
+            criteria.addFilter(
+                Criteria.not('AND', [
+                    Criteria.equalsAny('id', toBeDeleted),
+                ]),
+            );
 
             return criteria;
         },
 
         entitiesColumns() {
-            return [{
-                property: 'name',
-                primary: true,
-                allowResize: false,
-                sortable: false,
-            }];
+            return [
+                {
+                    property: 'name',
+                    primary: true,
+                    allowResize: false,
+                    sortable: false,
+                },
+            ];
         },
 
         selectedAssignments() {
-            const selection = new Proxy(({ ...this.preSelected }), {
-                get(target, key) {
-                    return target[key];
+            const selection = new Proxy(
+                { ...this.preSelected },
+                {
+                    get(target, key) {
+                        return target[key];
+                    },
+                    set(target, key, value) {
+                        target[key] = value;
+                        return true;
+                    },
                 },
-                set(target, key, value) {
-                    target[key] = value;
-                    return true;
-                },
-            });
+            );
 
-            Object.values(this.toBeAdded[this.selectedAssignment]).forEach((toBeAdded) => {
-                if (this.isCompatEnabled('INSTANCE_SET')) {
-                    this.$set(selection, toBeAdded.id, toBeAdded);
-                } else {
+            if (this.toBeAdded?.[this.selectedAssignment]) {
+                Object.values(this.toBeAdded[this.selectedAssignment]).forEach((toBeAdded) => {
                     selection[toBeAdded.id] = toBeAdded;
-                }
-            });
+                });
+            }
 
-            Object.values(this.toBeDeleted[this.selectedAssignment]).forEach((toBeDeleted) => {
-                if (selection.hasOwnProperty(toBeDeleted.id)) {
-                    if (this.isCompatEnabled('INSTANCE_DELETE')) {
-                        this.$delete(selection, toBeDeleted.id);
-                    } else {
+            if (this.toBeDeleted?.[this.selectedAssignment]) {
+                Object.values(this.toBeDeleted[this.selectedAssignment]).forEach((toBeDeleted) => {
+                    if (selection.hasOwnProperty(toBeDeleted.id)) {
                         delete selection[toBeDeleted.id];
                     }
-                }
-            });
+                });
+            }
 
             return selection;
         },
@@ -235,70 +248,71 @@ export default {
             const criteria = this.entityCriteria;
 
             if (this.showSelected && this.isInheritable) {
-                return this.searchInheritedEntities(criteria).then(() => {
-                    return this.search(criteria);
-                }).catch(() => {
-                    this.isLoading = false;
-                });
+                return this.searchInheritedEntities(criteria)
+                    .then(() => {
+                        return this.search(criteria);
+                    })
+                    .catch(() => {
+                        this.isLoading = false;
+                    });
             }
 
             return this.search(criteria);
         },
 
         search(criteria) {
-            return this.entityRepository.search(criteria, {
-                ...Context.api,
-                inheritance: true,
-            }).then((items) => {
-                if (this.tag.isNew() || items.total === 0) {
-                    this.entitiesGridKey = utils.createId();
-                    this.total = items.total;
-                    this.entities = items;
-                    this.isLoading = false;
+            return this.entityRepository
+                .search(criteria, {
+                    ...Context.api,
+                    inheritance: true,
+                })
+                .then((items) => {
+                    if (this.tag.isNew() || items.total === 0) {
+                        this.entitiesGridKey = utils.createId();
+                        this.total = items.total;
+                        this.entities = items;
+                        this.isLoading = false;
 
-                    return null;
-                }
-
-                const entityIds = items.map(({ id }) => {
-                    return id;
-                });
-                const relationCriteria = new Criteria(1, this.limit);
-                relationCriteria.addFilter(Criteria.equalsAny('id', entityIds));
-                if (this.isInheritable) {
-                    this.addTagAggregations(relationCriteria, false);
-                }
-                relationCriteria.addPostFilter(Criteria.equals('tags.id', this.tag.id));
-
-                return this.entityRepository.search(relationCriteria).then((selected) => {
-                    if (this.isInheritable) {
-                        this.currentPageCountBuckets = selected.aggregations.tags.buckets;
+                        return null;
                     }
 
-                    const preSelected = {};
-                    selected.forEach((item) => {
-                        preSelected[item.id] = item;
+                    const entityIds = items.map(({ id }) => {
+                        return id;
                     });
-                    this.preSelected = preSelected;
-                    this.entitiesGridKey = utils.createId();
+                    const relationCriteria = new Criteria(1, this.limit);
+                    relationCriteria.addFilter(Criteria.equalsAny('id', entityIds));
+                    if (this.isInheritable) {
+                        this.addTagAggregations(relationCriteria, false);
+                    }
+                    relationCriteria.addPostFilter(Criteria.equals('tags.id', this.tag.id));
 
-                    this.total = items.total;
-                    this.entities = items;
+                    return this.entityRepository.search(relationCriteria).then((selected) => {
+                        if (this.isInheritable) {
+                            this.currentPageCountBuckets = selected.aggregations.tags.buckets;
+                        }
+
+                        const preSelected = {};
+                        selected.forEach((item) => {
+                            preSelected[item.id] = item;
+                        });
+                        this.preSelected = preSelected;
+                        this.entitiesGridKey = utils.createId();
+
+                        this.total = items.total;
+                        this.entities = items;
+                        this.isLoading = false;
+                    });
+                })
+                .catch(() => {
                     this.isLoading = false;
                 });
-            }).catch(() => {
-                this.isLoading = false;
-            });
         },
 
         addTagAggregations(criteria, filter = true) {
             let aggregation = Criteria.count('tags', `${this.selectedEntity}.tags.id`);
 
             if (filter) {
-                aggregation = Criteria.filter(
-                    'tags',
-                    [Criteria.equals('tags.id', this.tag.id)],
-                    aggregation,
-                );
+                aggregation = Criteria.filter('tags', [Criteria.equals('tags.id', this.tag.id)], aggregation);
 
                 criteria.addAggregation(
                     Criteria.terms(
@@ -311,15 +325,7 @@ export default {
                 );
             }
 
-            criteria.addAggregation(
-                Criteria.terms(
-                    'tags',
-                    'id',
-                    null,
-                    null,
-                    aggregation,
-                ),
-            );
+            criteria.addAggregation(Criteria.terms('tags', 'id', null, null, aggregation));
         },
 
         searchInheritedEntities(criteria) {
@@ -335,10 +341,12 @@ export default {
 
             if (toBeAdded.length) {
                 const inheritedAddedCriteria = new Criteria(1, 25);
-                inheritedAddedCriteria.addFilter(Criteria.multi('AND', [
-                    Criteria.equals('tags.id', null),
-                    Criteria.equalsAny('parentId', toBeAdded),
-                ]));
+                inheritedAddedCriteria.addFilter(
+                    Criteria.multi('AND', [
+                        Criteria.equals('tags.id', null),
+                        Criteria.equalsAny('parentId', toBeAdded),
+                    ]),
+                );
 
                 addedPromise = this.entityRepository.searchIds(inheritedAddedCriteria).then(({ data, total }) => {
                     if (total === 0) {
@@ -359,9 +367,11 @@ export default {
                 inheritedDeletedCriteria.addFilter(Criteria.equals('tags.id', null));
                 inheritedDeletedCriteria.addFilter(Criteria.equalsAny('parentId', toBeDeleted));
                 if (toBeAdded.length) {
-                    inheritedDeletedCriteria.addFilter(Criteria.not('AND', [
-                        Criteria.equalsAny('id', toBeAdded),
-                    ]));
+                    inheritedDeletedCriteria.addFilter(
+                        Criteria.not('AND', [
+                            Criteria.equalsAny('id', toBeAdded),
+                        ]),
+                    );
                 }
 
                 deletedPromise = this.entityRepository.searchIds(inheritedDeletedCriteria).then(({ data, total }) => {
@@ -369,13 +379,18 @@ export default {
                         return;
                     }
 
-                    criteria.addFilter(Criteria.not('AND', [
-                        Criteria.equalsAny('id', data),
-                    ]));
+                    criteria.addFilter(
+                        Criteria.not('AND', [
+                            Criteria.equalsAny('id', data),
+                        ]),
+                    );
                 });
             }
 
-            return Promise.all([addedPromise, deletedPromise]);
+            return Promise.all([
+                addedPromise,
+                deletedPromise,
+            ]);
         },
 
         async onTermChange(term) {
@@ -414,21 +429,13 @@ export default {
         countIncrease(propertyName) {
             if (this.counts.hasOwnProperty(propertyName)) {
                 this.counts[propertyName] += 1;
-            } else if (this.isCompatEnabled('INSTANCE_SET')) {
-                this.$set(this.counts, propertyName, 1);
-            } else {
-                this.counts[propertyName] = 1;
-            }
+            } else this.counts[propertyName] = 1;
         },
 
         countDecrease(propertyName) {
             if (this.counts.hasOwnProperty(propertyName) && this.counts[propertyName] !== 0) {
                 this.counts[propertyName] -= 1;
-            } else if (this.isCompatEnabled('INSTANCE_SET')) {
-                this.$set(this.counts, propertyName, 0);
-            } else {
-                this.counts[propertyName] = 0;
-            }
+            } else this.counts[propertyName] = 0;
 
             if (!this.showSelected) {
                 return;
@@ -447,9 +454,10 @@ export default {
             }
 
             const selfToBeDeleted = this.toBeDeleted[this.selectedAssignment].hasOwnProperty(id);
-            const hasOwnTags = this.currentPageCountBuckets.filter(({ key, tags }) => {
-                return key === id && (selfToBeDeleted ? tags.count - 1 : tags.count) > 0;
-            }).length > 0;
+            const hasOwnTags =
+                this.currentPageCountBuckets.filter(({ key, tags }) => {
+                    return key === id && (selfToBeDeleted ? tags.count - 1 : tags.count) > 0;
+                }).length > 0;
 
             if (hasOwnTags) {
                 return false;
@@ -460,9 +468,10 @@ export default {
 
         parentHasTags(id, parentId) {
             const parentToBeDeleted = this.toBeDeleted[this.selectedAssignment].hasOwnProperty(parentId);
-            const parentHasTags = this.entities.aggregations.parentTags.buckets.filter(({ key, parentTags }) => {
-                return key === id && (parentToBeDeleted ? parentTags.count - 1 : parentTags.count) > 0;
-            }).length > 0;
+            const parentHasTags =
+                this.entities.aggregations.parentTags.buckets.filter(({ key, parentTags }) => {
+                    return key === id && (parentToBeDeleted ? parentTags.count - 1 : parentTags.count) > 0;
+                }).length > 0;
 
             if (!parentHasTags) {
                 return this.toBeAdded[this.selectedAssignment].hasOwnProperty(parentId);
@@ -479,9 +488,10 @@ export default {
                 return parentToBeAdded || (this.preSelected.hasOwnProperty(parentId) && !parentToBeDeleted);
             }
 
-            const hasInheritedTag = this.entities.aggregations.tags.buckets.filter((bucket) => {
-                return bucket.key === id;
-            }).length > 0;
+            const hasInheritedTag =
+                this.entities.aggregations.tags.buckets.filter((bucket) => {
+                    return bucket.key === id;
+                }).length > 0;
 
             return (hasInheritedTag || parentToBeAdded) && !parentToBeDeleted;
         },

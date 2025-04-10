@@ -1,80 +1,82 @@
 import { mount } from '@vue/test-utils';
 
 /**
- * @package customer-order
+ * @sw-package checkout
  */
 async function createWrapper(privileges = [], additionalOptions = {}) {
-    return mount(await wrapTestComponent('sw-settings-tax-list', {
-        sync: true,
-    }), {
-        global: {
-
-            mocks: {
-                $route: {
-                    query: {
-                        page: 1,
-                        limit: 25,
+    return mount(
+        await wrapTestComponent('sw-settings-tax-list', {
+            sync: true,
+        }),
+        {
+            global: {
+                mocks: {
+                    $route: {
+                        query: {
+                            page: 1,
+                            limit: 25,
+                        },
                     },
                 },
-            },
-            provide: {
-                repositoryFactory: {
-                    create: (entity) => ({
-                        search: () => {
-                            if (entity === 'tax_provider') {
-                                if (additionalOptions.hasOwnProperty('taxProviders')) {
-                                    return Promise.resolve(additionalOptions.taxProviders);
+                provide: {
+                    repositoryFactory: {
+                        create: (entity) => ({
+                            search: () => {
+                                if (entity === 'tax_provider') {
+                                    if (additionalOptions.hasOwnProperty('taxProviders')) {
+                                        return Promise.resolve(additionalOptions.taxProviders);
+                                    }
+
+                                    return Promise.resolve([
+                                        {
+                                            translated: {
+                                                name: 'TaxProvider one',
+                                            },
+                                        },
+                                        {
+                                            translated: {
+                                                name: 'TaxProvider two',
+                                            },
+                                        },
+                                    ]);
                                 }
 
                                 return Promise.resolve([
                                     {
-                                        translated: {
-                                            name: 'TaxProvider one',
-                                        },
+                                        name: 'Standard rate',
                                     },
                                     {
-                                        translated: {
-                                            name: 'TaxProvider two',
-                                        },
+                                        name: 'Reduced rate',
                                     },
                                 ]);
+                            },
+
+                            delete: () => {
+                                return Promise.resolve();
+                            },
+                        }),
+                    },
+                    acl: {
+                        can: (identifier) => {
+                            if (!identifier) {
+                                return true;
                             }
 
-                            return Promise.resolve([
-                                {
-                                    name: 'Standard rate',
-                                },
-                                {
-                                    name: 'Reduced rate',
-                                },
-                            ]);
+                            return privileges.includes(identifier);
                         },
-
-                        delete: () => {
-                            return Promise.resolve();
-                        },
-                    }),
-                },
-                acl: {
-                    can: (identifier) => {
-                        if (!identifier) {
-                            return true;
-                        }
-
-                        return privileges.includes(identifier);
+                    },
+                    searchRankingService: {},
+                    systemConfigApiService: {
+                        getConfig: () =>
+                            Promise.resolve({
+                                'core.tax.defaultTaxRate': '',
+                            }),
+                        getValues: () => Promise.resolve('defaultTaxId'),
                     },
                 },
-                searchRankingService: {},
-                systemConfigApiService: {
-                    getConfig: () => Promise.resolve({
-                        'core.tax.defaultTaxRate': '',
-                    }),
-                    getValues: () => Promise.resolve('defaultTaxId'),
-                },
-            },
-            stubs: {
-                'sw-page': {
-                    template: `
+                stubs: {
+                    'sw-page': {
+                        template: `
                     <div class="sw-page">
                         <slot name="search-bar"></slot>
                         <slot name="smart-bar-back"></slot>
@@ -87,25 +89,24 @@ async function createWrapper(privileges = [], additionalOptions = {}) {
                         <slot></slot>
                     </div>
                 `,
-                },
-                'sw-card-view': {
-                    template: `
+                    },
+                    'sw-card-view': {
+                        template: `
                     <div class="sw-card-view">
                         <slot></slot>
                     </div>
                 `,
-                },
-                'sw-card': {
-                    template: `
-                    <div class="sw-card">
+                    },
+                    'mt-card': {
+                        template: `
+                    <div class="mt-card">
                         <slot name="grid"></slot>
                     </div>
                 `,
-                },
-                'sw-number-field': true,
-                'sw-entity-listing': {
-                    props: ['items'],
-                    template: `
+                    },
+                    'sw-entity-listing': {
+                        props: ['items'],
+                        template: `
                     <div>
                         <template v-for="item in items">
                             <slot name="actions" v-bind="{ item }"></slot>
@@ -113,28 +114,28 @@ async function createWrapper(privileges = [], additionalOptions = {}) {
                         </template>
                     </div>
                 `,
+                    },
+                    'sw-language-switch': true,
+                    'sw-context-menu-item': true,
+                    'sw-search-bar': true,
+                    'sw-modal': true,
+                    'router-link': true,
+
+                    'sw-button-process': {
+                        template: '<button @click="$emit(\'click\', $event)"><slot></slot></button>',
+                    },
+                    'sw-skeleton': true,
+                    'sw-skeleton-bar': true,
+                    'sw-settings-tax-provider-sorting-modal': true,
+                    'sw-empty-state': {
+                        template: '<div class="sw-empty-state"></div>',
+                    },
+                    'sw-checkbox-field': true,
+                    'mt-number-field': true,
                 },
-                'sw-language-switch': true,
-                'sw-context-menu-item': true,
-                'sw-search-bar': true,
-                'sw-icon': true,
-                'sw-button': true,
-                'sw-modal': true,
-                'router-link': true,
-                'sw-switch-field': true,
-                'sw-button-process': {
-                    template: '<button @click="$emit(\'click\', $event)"><slot></slot></button>',
-                },
-                'sw-skeleton': true,
-                'sw-skeleton-bar': true,
-                'sw-settings-tax-provider-sorting-modal': true,
-                'sw-empty-state': {
-                    template: '<div class="sw-empty-state"></div>',
-                },
-                'sw-checkbox-field': true,
             },
         },
-    });
+    );
 }
 
 describe('module/sw-settings-tax/page/sw-settings-tax-list', () => {
@@ -162,7 +163,7 @@ describe('module/sw-settings-tax/page/sw-settings-tax-list', () => {
 
         const addButton = wrapper.find('.sw-settings-tax-list__button-create');
 
-        expect(addButton.attributes().disabled).toBeTruthy();
+        expect(addButton.attributes('disabled')).toBeDefined();
     });
 
     it('should be able to edit a tax', async () => {
@@ -253,7 +254,6 @@ describe('module/sw-settings-tax/page/sw-settings-tax-list', () => {
         ]);
         await wrapper.vm.$nextTick();
 
-
         const changePriorityButton = wrapper.find('.sw-settings-tax-provider-list-button__change-priority');
 
         expect(wrapper.vm.showChangePriority).toBe(true);
@@ -276,9 +276,12 @@ describe('module/sw-settings-tax/page/sw-settings-tax-list', () => {
                 },
             ],
         };
-        const wrapper = await createWrapper([
-            'tax.editor',
-        ], optionalTaxProviders);
+        const wrapper = await createWrapper(
+            [
+                'tax.editor',
+            ],
+            optionalTaxProviders,
+        );
         await wrapper.vm.$nextTick();
 
         const changePriorityButton = wrapper.find('.sw-settings-tax-provider-list-button__change-priority');
@@ -293,10 +296,10 @@ describe('module/sw-settings-tax/page/sw-settings-tax-list', () => {
         await wrapper.vm.$nextTick();
 
         const taxProviderActive = wrapper.find(
-            'sw-switch-field-stub[label="sw-settings-tax.list.taxProvider.labelActive"]',
+            '.mt-switch input[aria-label="sw-settings-tax.list.taxProvider.labelActive"]',
         );
 
-        expect(taxProviderActive.attributes().disabled).toBeFalsy();
+        expect(taxProviderActive.attributes().disabled).toBeUndefined();
     });
 
     it('should not be able to change tax provider active status', async () => {
@@ -304,19 +307,22 @@ describe('module/sw-settings-tax/page/sw-settings-tax-list', () => {
         await wrapper.vm.$nextTick();
 
         const taxProviderActive = wrapper.find(
-            'sw-switch-field-stub[label="sw-settings-tax.list.taxProvider.labelActive"]',
+            '.mt-switch input[aria-label="sw-settings-tax.list.taxProvider.labelActive"]',
         );
 
-        expect(taxProviderActive.attributes().disabled).toBeTruthy();
+        expect(taxProviderActive.attributes().disabled).toBeDefined();
     });
 
     it('should render an empty state tax providers', async () => {
         const optionalTaxProviders = {
             taxProviders: [],
         };
-        const wrapper = await createWrapper([
-            'tax.editor',
-        ], optionalTaxProviders);
+        const wrapper = await createWrapper(
+            [
+                'tax.editor',
+            ],
+            optionalTaxProviders,
+        );
         await wrapper.vm.$nextTick();
 
         expect(wrapper.vm.noTaxProvidersFound).toBeTruthy();
@@ -332,7 +338,7 @@ describe('module/sw-settings-tax/page/sw-settings-tax-list', () => {
 
         const entityListing = wrapper.find('.sw-settings-tax-list-grid');
 
-        const taxRateField = entityListing.find('sw-number-field-stub');
+        const taxRateField = entityListing.find('mt-number-field-stub');
 
         expect(taxRateField.attributes('digits')).toBe('3');
     });

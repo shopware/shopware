@@ -1,32 +1,23 @@
-import type { Entity } from '@shopware-ag/meteor-admin-sdk/es/_internals/data/Entity';
 import template from './sw-order-create-initial-modal.html.twig';
 import './sw-order-create-initial-modal.scss';
 
-import type {
-    Cart,
-    LineItem,
-    SalesChannelContext,
-    ContextSwitchParameters,
-    CartDelivery,
-} from '../../order.types';
+import type { Cart, LineItem, SalesChannelContext, ContextSwitchParameters, CartDelivery } from '../../order.types';
 
 import { LineItemType } from '../../order.types';
 
-const { Component, State, Mixin, Service } = Shopware;
+const { Component, Store, Mixin, Service } = Shopware;
 
 interface PromotionCodeItem {
-    type: string,
-    referencedId: string,
+    type: string;
+    referencedId: string;
 }
 
 /**
- * @package checkout
+ * @sw-package checkout
  */
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default Component.wrapComponentConfig({
     template,
-
-    compatConfig: Shopware.compatConfig,
 
     mixins: [
         Mixin.getByName('notification'),
@@ -34,14 +25,14 @@ export default Component.wrapComponentConfig({
     ],
 
     data(): {
-        isLoading: boolean,
-        isProductGridLoading: boolean,
-        disabledAutoPromotion: boolean,
-        promotionCodes: string[],
-        productItems: LineItem[],
-        context: ContextSwitchParameters,
-        shippingCosts: number|null,
-        } {
+        isLoading: boolean;
+        isProductGridLoading: boolean;
+        disabledAutoPromotion: boolean;
+        promotionCodes: string[];
+        productItems: LineItem[];
+        context: ContextSwitchParameters;
+        shippingCosts: number | null;
+    } {
         return {
             productItems: [],
             promotionCodes: [],
@@ -66,7 +57,7 @@ export default Component.wrapComponentConfig({
         },
 
         salesChannelContext(): SalesChannelContext {
-            return State.get('swOrder').context;
+            return Store.get('swOrder').context;
         },
 
         currency(): Entity<'currency'> {
@@ -74,21 +65,20 @@ export default Component.wrapComponentConfig({
         },
 
         cart(): Cart {
-            return State.get('swOrder').cart;
+            return Store.get('swOrder').cart;
         },
 
-
-        customer(): Entity<'customer'>|null {
-            return State.get('swOrder').customer;
+        customer(): Entity<'customer'> | null {
+            return Store.get('swOrder').customer;
         },
 
         isCustomerActive(): boolean {
             // eslint-disable-next-line @typescript-eslint/no-unsafe-return,@typescript-eslint/no-unsafe-member-access
-            return State.getters['swOrder/isCustomerActive'];
+            return Store.get('swOrder').isCustomerActive;
         },
 
         promotionCodeItems(): PromotionCodeItem[] {
-            return this.promotionCodes.map(code => {
+            return this.promotionCodes.map((code) => {
                 return {
                     type: LineItemType.PROMOTION,
                     referencedId: code,
@@ -148,8 +138,7 @@ export default Component.wrapComponentConfig({
                 promises.push(this.addPromotionCodes());
             }
 
-            if (this.shippingCosts !== null
-                && this.shippingCosts !== this.cartDelivery?.shippingCosts?.totalPrice) {
+            if (this.shippingCosts !== null && this.shippingCosts !== this.cartDelivery?.shippingCosts?.totalPrice) {
                 promises.push(this.modifyShippingCost(this.shippingCosts));
             }
 
@@ -167,7 +156,7 @@ export default Component.wrapComponentConfig({
             this.isProductGridLoading = true;
 
             try {
-                await State.dispatch('swOrder/saveLineItem', {
+                await Store.get('swOrder').saveLineItem({
                     salesChannelId: this.salesChannelId,
                     contextToken: this.cart.token,
                     item,
@@ -177,12 +166,13 @@ export default Component.wrapComponentConfig({
             }
         },
 
-        addPromotionCodes(): Promise<void> {
-            // eslint-disable-next-line @typescript-eslint/no-unsafe-return
-            return State.dispatch('swOrder/saveMultipleLineItems', {
+        async addPromotionCodes(): Promise<void> {
+            if (!this.customer) return;
+
+            await Store.get('swOrder').saveMultipleLineItems({
                 salesChannelId: this.customer?.salesChannelId,
                 contextToken: this.cart.token,
-                items: this.promotionCodeItems,
+                items: this.promotionCodeItems as unknown as LineItem[],
             });
         },
 
@@ -194,7 +184,7 @@ export default Component.wrapComponentConfig({
             this.isProductGridLoading = true;
 
             try {
-                await State.dispatch('swOrder/removeLineItems', {
+                await Store.get('swOrder').removeLineItems({
                     salesChannelId: this.salesChannelId,
                     contextToken: this.cart.token,
                     lineItemKeys: lineItemKeys,
@@ -212,9 +202,8 @@ export default Component.wrapComponentConfig({
             this.shippingCosts = value;
         },
 
-        updateOrderContext(): Promise<void> {
-            // eslint-disable-next-line @typescript-eslint/no-unsafe-return
-            return State.dispatch('swOrder/updateOrderContext', {
+        async updateOrderContext(): Promise<void> {
+            await Store.get('swOrder').updateOrderContext({
                 context: this.context,
                 salesChannelId: this.salesChannelId,
                 contextToken: this.cart.token,
@@ -224,23 +213,25 @@ export default Component.wrapComponentConfig({
         disableAutoAppliedPromotions(): Promise<void> {
             const additionalParams = { salesChannelId: this.salesChannelId };
 
-            return Service('cartStoreService').disableAutomaticPromotions(this.cart.token, additionalParams)
+            return Service('cartStoreService')
+                .disableAutomaticPromotions(this.cart.token, additionalParams)
                 .then(() => {
-                    State.commit('swOrder/setDisabledAutoPromotion', true);
+                    Store.get('swOrder').setDisabledAutoPromotion(true);
                 });
         },
 
-        modifyShippingCost(amount: number): Promise<void> {
+        async modifyShippingCost(amount: number): Promise<void> {
             if (!this.cartDelivery) {
-                return Promise.resolve();
+                return;
             }
 
             const positiveAmount = Math.abs(amount);
             this.cartDelivery.shippingCosts.unitPrice = positiveAmount;
             this.cartDelivery.shippingCosts.totalPrice = positiveAmount;
 
-            // eslint-disable-next-line @typescript-eslint/no-unsafe-return
-            return State.dispatch('swOrder/modifyShippingCosts', {
+            if (!this.customer) return;
+
+            await Store.get('swOrder').modifyShippingCosts({
                 salesChannelId: this.customer?.salesChannelId,
                 contextToken: this.cart.token,
                 shippingCosts: this.cartDelivery?.shippingCosts,
@@ -248,11 +239,9 @@ export default Component.wrapComponentConfig({
         },
 
         cancelCart(): Promise<void> {
-            return State.dispatch('swOrder/cancelCart', {
+            return Store.get('swOrder').cancelCart({
                 salesChannelId: this.salesChannelId,
                 contextToken: this.cart.token,
-            }).then(() => {
-                this.$emit('modal-close');
             });
         },
     },

@@ -6,8 +6,8 @@ use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\TestCase;
-use Shopware\Core\Framework\Adapter\Cache\Http\CacheResponseSubscriber;
 use Shopware\Core\Framework\Adapter\Cache\Http\CacheStateValidator;
+use Shopware\Core\Framework\Adapter\Cache\Http\HttpCacheKeyGenerator;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 
@@ -43,7 +43,7 @@ class CacheStateValidatorTest extends TestCase
     private static function createRequest(string ...$states): Request
     {
         $request = new Request();
-        $request->cookies->set(CacheResponseSubscriber::SYSTEM_STATE_COOKIE, implode(',', $states));
+        $request->cookies->set(HttpCacheKeyGenerator::SYSTEM_STATE_COOKIE, implode(',', $states));
 
         return $request;
     }
@@ -51,7 +51,7 @@ class CacheStateValidatorTest extends TestCase
     private static function createResponse(string ...$states): Response
     {
         $response = new Response();
-        $response->headers->set(CacheResponseSubscriber::INVALIDATION_STATES_HEADER, implode(',', $states));
+        $response->headers->set(HttpCacheKeyGenerator::INVALIDATION_STATES_HEADER, implode(',', $states));
 
         return $response;
     }

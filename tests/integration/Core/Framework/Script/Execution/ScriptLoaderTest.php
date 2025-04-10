@@ -5,7 +5,7 @@ namespace Shopware\Tests\Integration\Core\Framework\Script\Execution;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Script\Execution\ScriptLoader;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
-use Shopware\Tests\Integration\Core\Framework\App\AppSystemTestBehaviour;
+use Shopware\Core\Test\AppSystemTestBehaviour;
 
 /**
  * @internal
@@ -19,7 +19,7 @@ class ScriptLoaderTest extends TestCase
     {
         $this->loadAppsFromDir(__DIR__ . '/_fixtures');
 
-        $loader = $this->getContainer()->get(ScriptLoader::class);
+        $loader = static::getContainer()->get(ScriptLoader::class);
 
         static::assertCount(
             1,
@@ -39,7 +39,7 @@ class ScriptLoaderTest extends TestCase
     {
         $this->loadAppsFromDir(__DIR__ . '/_fixtures', false);
 
-        $loader = $this->getContainer()->get(ScriptLoader::class);
+        $loader = static::getContainer()->get(ScriptLoader::class);
 
         static::assertCount(1, $loader->get('include-case'));
         static::assertFalse($loader->get('include-case')[0]->isActive());

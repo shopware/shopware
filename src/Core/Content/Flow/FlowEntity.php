@@ -10,7 +10,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityCustomFieldsTrait;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityIdTrait;
 use Shopware\Core\Framework\Log\Package;
 
-#[Package('services-settings')]
+#[Package('after-sales')]
 class FlowEntity extends Entity
 {
     use EntityCustomFieldsTrait;
@@ -32,10 +32,8 @@ class FlowEntity extends Entity
 
     /**
      * @internal
-     *
-     * @var string|Flow|null
      */
-    protected $payload;
+    protected string|Flow|null $payload = null;
 
     protected bool $invalid;
 

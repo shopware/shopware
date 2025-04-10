@@ -13,6 +13,7 @@ use Shopware\Core\Checkout\Cart\Rule\CartRuleScope;
 use Shopware\Core\Checkout\Cart\Rule\LineItemPropertyValueRule;
 use Shopware\Core\Checkout\Cart\Rule\LineItemScope;
 use Shopware\Core\Checkout\CheckoutRuleScope;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Rule\Rule;
 use Shopware\Core\Framework\Rule\RuleConfig;
 use Shopware\Core\Framework\Rule\RuleConstraints;
@@ -24,6 +25,7 @@ use Shopware\Core\System\SalesChannel\SalesChannelContext;
  */
 #[CoversClass(LineItemPropertyValueRule::class)]
 #[Group('rules')]
+#[Package('checkout')]
 class LineItemPropertyValueRuleTest extends TestCase
 {
     private LineItemPropertyValueRule $rule;

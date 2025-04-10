@@ -2,8 +2,8 @@
 
 namespace Shopware\Core\Checkout\Order;
 
-use Shopware\Core\Checkout\Customer\CustomerCollection;
 use Shopware\Core\Checkout\Order\Aggregate\OrderAddress\OrderAddressCollection;
+use Shopware\Core\Checkout\Order\Aggregate\OrderCustomer\OrderCustomerCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\Currency\CurrencyCollection;
@@ -41,9 +41,9 @@ class OrderCollection extends EntityCollection
         return $this->filter(fn (OrderEntity $order) => $order->getSalesChannelId() === $id);
     }
 
-    public function getOrderCustomers(): CustomerCollection
+    public function getOrderCustomers(): OrderCustomerCollection
     {
-        return new CustomerCollection(
+        return new OrderCustomerCollection(
             $this->fmap(fn (OrderEntity $order) => $order->getOrderCustomer())
         );
     }

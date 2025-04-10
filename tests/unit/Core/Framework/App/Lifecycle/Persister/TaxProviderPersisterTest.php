@@ -14,10 +14,10 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
 use Shopware\Core\Framework\Log\Package;
-use Shopware\Core\Framework\Test\IdsCollection;
 use Shopware\Core\System\TaxProvider\TaxProviderCollection;
 use Shopware\Core\System\TaxProvider\TaxProviderDefinition;
 use Shopware\Core\System\TaxProvider\TaxProviderEntity;
+use Shopware\Core\Test\Stub\Framework\IdsCollection;
 
 /**
  * @internal
@@ -51,11 +51,11 @@ class TaxProviderPersisterTest extends TestCase
 
         $repo = $this->createMock(EntityRepository::class);
         $repo
-            ->expects(static::once())
+            ->expects($this->once())
             ->method('search')
             ->willReturn($existing);
         $repo
-            ->expects(static::once())
+            ->expects($this->once())
             ->method('upsert')
             ->with(
                 [[
@@ -88,11 +88,11 @@ class TaxProviderPersisterTest extends TestCase
 
         $repo = $this->createMock(EntityRepository::class);
         $repo
-            ->expects(static::once())
+            ->expects($this->once())
             ->method('search')
             ->willReturn($existing);
         $repo
-            ->expects(static::once())
+            ->expects($this->once())
             ->method('upsert')
             ->with(
                 [[
@@ -119,7 +119,7 @@ class TaxProviderPersisterTest extends TestCase
 
         $repo = $this->createMock(EntityRepository::class);
         $repo
-            ->expects(static::never())
+            ->expects($this->never())
             ->method('upsert');
 
         $persister = new TaxProviderPersister($repo);
@@ -131,7 +131,7 @@ class TaxProviderPersisterTest extends TestCase
         $manifest = $this->createManifest($this->createTaxProviders([]));
 
         $repo = $this->createMock(EntityRepository::class);
-        $repo->expects(static::never())->method('upsert');
+        $repo->expects($this->never())->method('upsert');
 
         $persister = new TaxProviderPersister($repo);
         $persister->updateTaxProviders($manifest, 'foo', 'testApp', Context::createDefaultContext());

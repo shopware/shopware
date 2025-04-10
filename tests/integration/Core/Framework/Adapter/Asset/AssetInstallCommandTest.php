@@ -5,9 +5,13 @@ namespace Shopware\Tests\Integration\Core\Framework\Adapter\Asset;
 use League\Flysystem\FilesystemOperator;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Adapter\Asset\AssetInstallCommand;
+use Shopware\Core\Framework\Adapter\Cache\CacheInvalidator;
 use Shopware\Core\Framework\App\ActiveAppsLoader;
+use Shopware\Core\Framework\Plugin\KernelPluginLoader\KernelPluginLoader;
 use Shopware\Core\Framework\Plugin\Util\AssetService;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
+use Shopware\Core\Framework\Util\Filesystem;
+use Shopware\Core\Test\Stub\App\StaticSourceResolver;
 use Symfony\Component\Console\Tester\CommandTester;
 
 /**
@@ -20,7 +24,7 @@ class AssetInstallCommandTest extends TestCase
     public function testItInstallsAppAssets(): void
     {
         /** @var FilesystemOperator $filesystem */
-        $filesystem = $this->getContainer()->get('shopware.filesystem.asset');
+        $filesystem = static::getContainer()->get('shopware.filesystem.asset');
         // make sure that the dir does not exist beforehand
         $filesystem->deleteDirectory('bundles/test');
         $filesystem->delete('asset-manifest.json');
@@ -29,7 +33,7 @@ class AssetInstallCommandTest extends TestCase
         $fixturePath = \realpath($fixturePath);
         static::assertIsString($fixturePath);
 
-        $projectDir = $this->getContainer()->getParameter('kernel.project_dir');
+        $projectDir = static::getContainer()->getParameter('kernel.project_dir');
         static::assertIsString($projectDir);
 
         $relativeFixturePath = \ltrim(
@@ -38,7 +42,7 @@ class AssetInstallCommandTest extends TestCase
         );
 
         $activeAppsLoaderMock = $this->createMock(ActiveAppsLoader::class);
-        $activeAppsLoaderMock->expects(static::once())
+        $activeAppsLoaderMock->expects($this->once())
             ->method('getActiveApps')
             ->willReturn([
                 [
@@ -50,7 +54,15 @@ class AssetInstallCommandTest extends TestCase
 
         $command = new AssetInstallCommand(
             $this->getKernel(),
-            $this->getContainer()->get(AssetService::class),
+            new AssetService(
+                $filesystem,
+                static::getContainer()->get('shopware.filesystem.private'),
+                static::getContainer()->get('kernel'),
+                static::getContainer()->get(KernelPluginLoader::class),
+                static::getContainer()->get(CacheInvalidator::class),
+                new StaticSourceResolver(['test' => new Filesystem($fixturePath)]),
+                static::getContainer()->get('parameter_bag')
+            ),
             $activeAppsLoaderMock
         );
 

@@ -1,16 +1,14 @@
 import template from './sw-category-detail-base.html.twig';
 import './sw-category-detail-base.scss';
 
-const { mapState, mapPropertyErrors } = Shopware.Component.getComponentHelper();
+const { mapPropertyErrors } = Shopware.Component.getComponentHelper();
 
 /**
- * @package inventory
+ * @sw-package discovery
  */
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default {
     template,
-
-    compatConfig: Shopware.compatConfig,
 
     inject: [
         'repositoryFactory',
@@ -18,7 +16,7 @@ export default {
     ],
 
     mixins: [
-        'placeholder',
+        Shopware.Mixin.getByName('placeholder'),
     ],
 
     props: {
@@ -29,15 +27,9 @@ export default {
     },
 
     computed: {
-        ...mapState('swCategoryDetail', {
-            customFieldSetsArray: state => {
-                if (!state.customFieldSets) {
-                    return [];
-                }
-
-                return state.customFieldSets;
-            },
-        }),
+        customFieldSetsArray() {
+            return Shopware.Store.get('swCategoryDetail').customFieldSets ?? [];
+        },
 
         ...mapPropertyErrors('category', [
             'name',
@@ -77,7 +69,13 @@ export default {
         },
 
         categoryTypeHelpText() {
-            if (['page', 'folder', 'link'].includes(this.category.type)) {
+            if (
+                [
+                    'page',
+                    'folder',
+                    'link',
+                ].includes(this.category.type)
+            ) {
                 return this.$tc(`sw-category.base.general.types.helpText.${this.category.type}`);
             }
 
@@ -85,13 +83,19 @@ export default {
         },
 
         isSalesChannelEntryPoint() {
-            return this.category.navigationSalesChannels.length > 0
-                || this.category.serviceSalesChannels.length > 0
-                || this.category.footerSalesChannels.length > 0;
+            return (
+                this.category.navigationSalesChannels.length > 0 ||
+                this.category.serviceSalesChannels.length > 0 ||
+                this.category.footerSalesChannels.length > 0
+            );
         },
 
         category() {
-            return Shopware.State.get('swCategoryDetail').category;
+            return Shopware.Store.get('swCategoryDetail').category;
+        },
+
+        isCategoryColumn() {
+            return Shopware.Store.get('swCategoryDetail').isCategoryColumn;
         },
     },
 };

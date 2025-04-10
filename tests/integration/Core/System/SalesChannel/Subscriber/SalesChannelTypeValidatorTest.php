@@ -16,7 +16,7 @@ use Shopware\Core\System\SalesChannel\Exception\DefaultSalesChannelTypeCannotBeD
 /**
  * @internal
  */
-#[Package('buyers-experience')]
+#[Package('discovery')]
 class SalesChannelTypeValidatorTest extends TestCase
 {
     use SalesChannelFunctionalTestBehaviour;
@@ -24,7 +24,7 @@ class SalesChannelTypeValidatorTest extends TestCase
     #[DataProvider('listAvailable')]
     public function testCannotBeDeleted(string $id): void
     {
-        $repo = $this->getContainer()->get('sales_channel_type.repository');
+        $repo = static::getContainer()->get('sales_channel_type.repository');
 
         try {
             $repo->delete([
@@ -43,7 +43,7 @@ class SalesChannelTypeValidatorTest extends TestCase
 
     public function testDeleteOtherItem(): void
     {
-        $repo = $this->getContainer()->get('sales_channel_type.repository');
+        $repo = static::getContainer()->get('sales_channel_type.repository');
         $id = Uuid::randomHex();
         $context = Context::createDefaultContext();
 
@@ -67,7 +67,7 @@ class SalesChannelTypeValidatorTest extends TestCase
     {
         $id = $this->createSalesChannel()['id'];
 
-        $repo = $this->getContainer()->get('sales_channel.repository');
+        $repo = static::getContainer()->get('sales_channel.repository');
         $repo->delete([
             [
                 'id' => $id,

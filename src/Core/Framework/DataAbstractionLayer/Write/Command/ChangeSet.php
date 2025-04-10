@@ -5,23 +5,14 @@ namespace Shopware\Core\Framework\DataAbstractionLayer\Write\Command;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Struct\Struct;
 
-#[Package('core')]
+#[Package('framework')]
 class ChangeSet extends Struct
 {
-    /**
-     * @var array
-     */
-    protected $state = [];
+    protected array $state = [];
 
-    /**
-     * @var array
-     */
-    protected $after = [];
+    protected array $after = [];
 
-    /**
-     * @var bool
-     */
-    protected $isDelete;
+    protected bool $isDelete;
 
     public function __construct(
         array $state,

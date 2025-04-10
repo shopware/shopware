@@ -1,5 +1,5 @@
 /**
- * @package admin
+ * @sw-package framework
  */
 
 import { mount } from '@vue/test-utils';
@@ -17,13 +17,14 @@ async function createWrapper() {
         global: {
             renderStubDefaultSlot: true,
             stubs: {
-                'sw-icon': true,
                 'sw-field': true,
                 'sw-context-button': true,
                 'sw-context-menu-item': true,
                 'sw-checkbox-field': true,
                 'sw-confirm-field': true,
-                'sw-tree-item': await wrapTestComponent('sw-tree-item', { sync: true }),
+                'sw-tree-item': await wrapTestComponent('sw-tree-item', {
+                    sync: true,
+                }),
                 'sw-vnode-renderer': true,
                 'sw-skeleton': true,
             },

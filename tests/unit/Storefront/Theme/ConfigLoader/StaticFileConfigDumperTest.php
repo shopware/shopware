@@ -28,7 +28,8 @@ class StaticFileConfigDumperTest extends TestCase
         $loader = $this->createMock(DatabaseConfigLoader::class);
         $loader->method('load')->willReturn($salesChannelToTheme);
 
-        $fs = new Filesystem(new InMemoryFilesystemAdapter());
+        $privateFileSystem = new Filesystem(new InMemoryFilesystemAdapter());
+        $temporaryFileSystem = new Filesystem(new InMemoryFilesystemAdapter());
 
         $themeProvider = $this->createMock(DatabaseAvailableThemeProvider::class);
         $themeProvider->method('load')->willReturn(['test' => 'test']);
@@ -36,16 +37,35 @@ class StaticFileConfigDumperTest extends TestCase
         $dumper = new StaticFileConfigDumper(
             $loader,
             $themeProvider,
-            $fs
+            $privateFileSystem,
+            $temporaryFileSystem
         );
 
         $location = StaticFileAvailableThemeProvider::THEME_INDEX;
 
         $dumper->dumpConfig(Context::createDefaultContext());
-        static::assertEquals('{"test":"test"}', $fs->read($location));
+        static::assertEquals('{"test":"test"}', $privateFileSystem->read($location));
 
         $dumper->dumpConfigFromEvent();
-        static::assertEquals('{"test":"test"}', $fs->read($location));
+        static::assertEquals('{"test":"test"}', $privateFileSystem->read($location));
+    }
+
+    public function testDumpConfigInVar(): void
+    {
+        $privateFileSystem = new Filesystem(new InMemoryFilesystemAdapter());
+        $temporaryFileSystem = new Filesystem(new InMemoryFilesystemAdapter());
+        $dumper = new StaticFileConfigDumper(
+            $this->createMock(DatabaseConfigLoader::class),
+            $this->createMock(DatabaseAvailableThemeProvider::class),
+            $privateFileSystem,
+            $temporaryFileSystem
+        );
+
+        $location = 'theme-files.json';
+        $dump = ['test' => '123'];
+
+        $dumper->dumpConfigInVar($location, $dump);
+        static::assertJsonStringEqualsJsonString('{"test": "123"}', $temporaryFileSystem->read($location));
     }
 
     public function testgetSubscribedEvents(): void

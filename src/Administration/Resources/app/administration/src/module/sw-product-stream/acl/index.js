@@ -1,5 +1,5 @@
 /**
- * @package services-settings
+ * @sw-package inventory
  */
 Shopware.Service('privileges').addPrivilegeMappingEntry({
     category: 'permissions',
@@ -37,7 +37,10 @@ Shopware.Service('privileges').addPrivilegeMappingEntry({
         },
         creator: {
             privileges: ['product_stream:create'],
-            dependencies: ['product_stream.viewer', 'product_stream.editor'],
+            dependencies: [
+                'product_stream.viewer',
+                'product_stream.editor',
+            ],
         },
         deleter: {
             privileges: [

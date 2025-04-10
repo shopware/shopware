@@ -22,7 +22,7 @@ class SnippetFinderTest extends TestCase
     {
         $this->snippetFinder = new SnippetFinder(
             self::getKernel(),
-            $this->getContainer()->get(Connection::class)
+            static::getContainer()->get(Connection::class)
         );
     }
 

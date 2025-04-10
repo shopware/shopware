@@ -1,5 +1,5 @@
 /**
- * @package content
+ * @sw-package discovery
  */
 import { mount } from '@vue/test-utils';
 
@@ -7,52 +7,56 @@ const { Module } = Shopware;
 const ModuleFactory = Module;
 const register = ModuleFactory.register;
 
-describe('module/sw-media/components/sw-media-quickinfo-usage', () => {
-    const itemDeleteMock = (options = {}) => {
-        return {
-            getEntityName: () => { return 'media'; },
-            id: '4a12jd3kki9yyy765gkn5hdb',
-            fileName: 'demo.jpg',
-            avatarUsers: [],
-            categories: [],
-            productManufacturers: [],
-            productMedia: [],
-            mailTemplateMedia: [],
-            documentBaseConfigs: [],
-            paymentMethods: [],
-            shippingMethods: [],
-            cmsBlocks: [],
-            cmsSections: [],
-            cmsPages: [],
-            ...options,
-        };
+const itemDeleteMock = (options = {}) => {
+    return {
+        getEntityName: () => {
+            return 'media';
+        },
+        id: '4a12jd3kki9yyy765gkn5hdb',
+        fileName: 'demo.jpg',
+        avatarUsers: [],
+        categories: [],
+        productManufacturers: [],
+        productMedia: [],
+        mailTemplateMedia: [],
+        documentBaseConfigs: [],
+        paymentMethods: [],
+        shippingMethods: [],
+        cmsBlocks: [],
+        cmsSections: [],
+        cmsPages: [],
+        ...options,
     };
+};
 
-    let wrapper;
-    let moduleMock;
-    beforeEach(async () => {
-        wrapper = mount(await wrapTestComponent('sw-media-quickinfo-usage', { sync: true }), {
-            props: { item: itemDeleteMock() },
-            global: {
-                stubs: {
-                    'router-link': true,
-                    'sw-icon': true,
-                    'sw-alert': true,
-                    'sw-loader': true,
-                },
-                provide: {
-                    repositoryFactory: {
-                        create: () => {
-                            return {
-                                search: () => {
-                                    return Promise.resolve([]);
-                                },
-                            };
-                        },
+const createWrapper = async (repositoryFactoryMock) => {
+    return mount(await wrapTestComponent('sw-media-quickinfo-usage', { sync: true }), {
+        props: { item: itemDeleteMock() },
+        global: {
+            stubs: {
+                'router-link': true,
+                'sw-loader': true,
+            },
+            provide: {
+                repositoryFactory: repositoryFactoryMock ?? {
+                    create: () => {
+                        return {
+                            search: () => {
+                                return Promise.resolve([]);
+                            },
+                        };
                     },
                 },
             },
-        });
+        },
+    });
+};
+
+describe('module/sw-media/components/sw-media-quickinfo-usage', () => {
+    let wrapper;
+    let moduleMock;
+    beforeEach(async () => {
+        wrapper = await createWrapper();
 
         const modules = ModuleFactory.getModuleRegistry();
         modules.clear();
@@ -87,25 +91,50 @@ describe('module/sw-media/components/sw-media-quickinfo-usage', () => {
             },
         };
 
-        await wrapper.setProps({ item: itemDeleteMock({ productMedia: [productMediaMock] }) });
-        expect(wrapper.vm.getUsages.some(usage => usage.name === productMediaMock.product.translated.name)).toBeTruthy();
+        await wrapper.setProps({
+            item: itemDeleteMock({ productMedia: [productMediaMock] }),
+        });
+        expect(wrapper.vm.getUsages.some((usage) => usage.name === productMediaMock.product.translated.name)).toBeTruthy();
     });
 
     it('should be correct show all of media in used information', async () => {
-        wrapper.vm.productRepository.search = jest.fn(() => Promise.resolve([
-            { id: 'a', translated: { name: 'Product Media Test' } },
-        ]));
-        wrapper.vm.categoryRepository.search = jest.fn(() => Promise.resolve([
-            { id: 'b', translated: { name: 'Category Media Test' } },
-        ]));
-        wrapper.vm.landingPageRepository.search = jest.fn(() => Promise.resolve([
-            { id: 'c', translated: { name: 'Landing Page Media Test' } },
-        ]));
-        wrapper.vm.cmsPageRepository.search = jest.fn(() => Promise.resolve([
-            { id: 'd', name: 'CMS Page Media Test' },
-        ]));
+        await wrapper.unmount();
 
-        register('sw-settings-user', moduleMock);
+        wrapper = await createWrapper({
+            create: (entityName) => {
+                return {
+                    search: () => {
+                        if (entityName === 'product') {
+                            return Promise.resolve([
+                                { id: 'a', translated: { name: 'Product Media Test' } },
+                            ]);
+                        }
+
+                        if (entityName === 'category') {
+                            return Promise.resolve([
+                                { id: 'b', translated: { name: 'Category Media Test' } },
+                            ]);
+                        }
+
+                        if (entityName === 'landing_page') {
+                            return Promise.resolve([
+                                { id: 'c', translated: { name: 'Landing Page Media Test' } },
+                            ]);
+                        }
+
+                        if (entityName === 'cms_page') {
+                            return Promise.resolve([
+                                { id: 'd', name: 'CMS Page Media Test' },
+                            ]);
+                        }
+
+                        return Promise.resolve([]);
+                    },
+                };
+            },
+        });
+
+        register('sw-users-permissions', moduleMock);
         const avatarUserMock = { username: 'abc123' };
 
         register('sw-product', moduleMock);
@@ -132,15 +161,28 @@ describe('module/sw-media/components/sw-media-quickinfo-usage', () => {
         const documentBaseConfigMock = { name: 'document test' };
 
         register('sw-settings-payment', moduleMock);
-        const paymentMock = { translated: { distinguishableName: 'payment test' } };
+        const paymentMock = {
+            translated: { distinguishableName: 'payment test' },
+        };
 
         register('sw-settings-shipping', moduleMock);
         const shippingMock = { translated: { name: 'shipping test' } };
 
         register('sw-cms', moduleMock);
-        const cmsBlockMock = { section: { pageId: 'cmsBlockId', page: { translated: { name: 'cms block test' } } } };
-        const cmsSectionMock = { pageId: 'cmsSectionId', page: { translated: { name: 'cms section test' } } };
-        const cmsPageMock = { id: 'cmsPageId', translated: { name: 'cms page test' } };
+        const cmsBlockMock = {
+            section: {
+                pageId: 'cmsBlockId',
+                page: { translated: { name: 'cms block test' } },
+            },
+        };
+        const cmsSectionMock = {
+            pageId: 'cmsSectionId',
+            page: { translated: { name: 'cms section test' } },
+        };
+        const cmsPageMock = {
+            id: 'cmsPageId',
+            translated: { name: 'cms page test' },
+        };
 
         await wrapper.setProps({
             item: itemDeleteMock({

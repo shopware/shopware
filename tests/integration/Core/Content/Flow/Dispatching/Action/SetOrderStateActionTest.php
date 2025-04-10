@@ -6,41 +6,38 @@ use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\Event\CheckoutOrderPlacedEvent;
 use Shopware\Core\Checkout\Cart\Price\Struct\CalculatedPrice;
-use Shopware\Core\Checkout\Cart\Price\Struct\CartPrice;
 use Shopware\Core\Checkout\Cart\Tax\Struct\CalculatedTaxCollection;
 use Shopware\Core\Checkout\Cart\Tax\Struct\TaxRuleCollection;
+use Shopware\Core\Checkout\Order\Aggregate\OrderDelivery\OrderDeliveryEntity;
 use Shopware\Core\Checkout\Order\Aggregate\OrderDelivery\OrderDeliveryStates;
-use Shopware\Core\Checkout\Order\Aggregate\OrderTransaction\OrderTransactionStates;
 use Shopware\Core\Checkout\Order\OrderEntity;
 use Shopware\Core\Checkout\Order\OrderStates;
 use Shopware\Core\Checkout\Order\SalesChannel\OrderService;
-use Shopware\Core\Checkout\Payment\Cart\PaymentHandler\PrePayment;
 use Shopware\Core\Content\Flow\Dispatching\Action\SetOrderStateAction;
 use Shopware\Core\Content\Flow\Dispatching\FlowFactory;
-use Shopware\Core\Content\Flow\Dispatching\TransactionFailedException;
 use Shopware\Core\Content\Test\Flow\OrderActionTrait;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
-use Shopware\Core\Framework\DataAbstractionLayer\Pricing\CashRoundingConfig;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
-use Shopware\Core\Framework\Test\TestDataCollection;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\StateMachine\Loader\InitialStateIdLoader;
-use Shopware\Core\Test\TestDefaults;
+use Shopware\Core\Test\Generator;
+use Shopware\Core\Test\Stub\Framework\IdsCollection;
 
 /**
  * @internal
  */
-#[Package('services-settings')]
+#[Package('after-sales')]
 class SetOrderStateActionTest extends TestCase
 {
     use OrderActionTrait;
 
     private EntityRepository $orderRepository;
+
+    private EntityRepository $orderDeliveryRepository;
 
     private EntityRepository $flowRepository;
 
@@ -48,26 +45,27 @@ class SetOrderStateActionTest extends TestCase
 
     protected function setUp(): void
     {
-        $this->flowRepository = $this->getContainer()->get('flow.repository');
+        $this->flowRepository = static::getContainer()->get('flow.repository');
 
-        $this->connection = $this->getContainer()->get(Connection::class);
+        $this->connection = static::getContainer()->get(Connection::class);
 
-        $this->customerRepository = $this->getContainer()->get('customer.repository');
+        $this->customerRepository = static::getContainer()->get('customer.repository');
+        $this->orderDeliveryRepository = static::getContainer()->get('order_delivery.repository');
 
-        $this->ids = new TestDataCollection();
+        $this->ids = new IdsCollection();
 
         $this->browser = $this->createCustomSalesChannelBrowser([
             'id' => $this->ids->get('sales-channel'),
         ]);
 
-        $shippingMethodRepository = $this->getContainer()->get('shipping_method.repository');
+        $shippingMethodRepository = static::getContainer()->get('shipping_method.repository');
         $shippingMethodRepository->create([
             [
                 'id' => $this->ids->get('shipping-method'),
                 'name' => 'test',
                 'technicalName' => 'test',
                 'active' => true,
-                'deliveryTimeId' => $this->getContainer()->get('delivery_time.repository')->searchIds(new Criteria(), Context::createDefaultContext())->firstId(),
+                'deliveryTimeId' => static::getContainer()->get('delivery_time.repository')->searchIds(new Criteria(), Context::createDefaultContext())->firstId(),
                 'prices' => [
                     [
                         'currencyId' => Defaults::CURRENCY,
@@ -93,7 +91,7 @@ class SetOrderStateActionTest extends TestCase
             ],
         ], Context::createDefaultContext());
 
-        $this->orderRepository = $this->getContainer()->get('order.repository');
+        $this->orderRepository = static::getContainer()->get('order.repository');
 
         $this->browser->setServerParameter('HTTP_SW_CONTEXT_TOKEN', $this->ids->create('token'));
     }
@@ -140,45 +138,111 @@ class SetOrderStateActionTest extends TestCase
         static::assertNotSame($orderTransactionState, $orderTransactionStateAfterAction);
     }
 
-    public function testThrowsWhenEntityNotFoundAndInsideATransactionWithoutSavepointNesting(): void
+    public function testSetStateOnOrderDeliveryWithDiscountOnDelivery(): void
     {
-        $this->connection->executeStatement('DELETE FROM `sales_channel` WHERE id = :id', ['id' => Uuid::fromHexToBytes($this->ids->get('sales-channel'))]);
-        $this->connection->executeStatement('DELETE FROM `shipping_method` WHERE id = :id', ['id' => Uuid::fromHexToBytes($this->ids->get('shipping-method'))]);
+        $flowCreatePayload = [
+            'id' => Uuid::randomHex(),
+            'eventName' => CheckoutOrderPlacedEvent::EVENT_NAME,
+            'name' => 'Test Flow',
+            'active' => true,
+            'sequences' => [
+                [
+                    'id' => Uuid::randomHex(),
+                    'actionName' => SetOrderStateAction::getName(),
+                    'config' => [
+                        'order_delivery' => 'shipped',
+                        'force_transition' => false,
+                    ],
+                ],
+            ],
+        ];
 
-        // Because this test needs to change savepoint nesting we need to commit the current transaction, as we cannot
-        // change this property inside a running transaction.
-        $this->connection->commit();
-        $this->connection->setNestTransactionsWithSavepoints(false);
-        $this->connection->beginTransaction();
+        $this->flowRepository->create([$flowCreatePayload], Context::createDefaultContext());
+        $this->createCustomerAndLogin();
 
-        $orderId = Uuid::randomHex();
-        $context = Context::createDefaultContext();
+        $customerId = $this->ids->get('customer');
+        $orderId = $this->ids->get('order');
+        $IdForShippingCosts = Uuid::randomHex();
+        $orderDeliveries = [
+            $this->generateOrderDeliveryPayload([
+                'id' => $IdForShippingCosts,
+                'orderId' => $orderId,
+                'shippingCosts' => new CalculatedPrice(
+                    10.00,
+                    10.00,
+                    new CalculatedTaxCollection([]),
+                    new TaxRuleCollection([]),
+                ),
+            ]),
+            $this->generateOrderDeliveryPayload([
+                'orderId' => $orderId,
+                'shippingCosts' => new CalculatedPrice(
+                    -10.00,
+                    -10.00,
+                    new CalculatedTaxCollection([]),
+                    new TaxRuleCollection([]),
+                ),
+            ]),
+        ];
 
-        $orderData = $this->getOrderData($orderId, $context);
-        $orderData[0]['deliveries'] = [];
-        $this->orderRepository->create($orderData, $context);
-        $order = $this->orderRepository->search(new Criteria([$orderId]), $context)->first();
+        $context = Generator::generateSalesChannelContext();
+
+        $this->createOrder($customerId, ['deliveries' => $orderDeliveries, 'id' => $orderId]);
+        $order = $this->orderRepository->search(new Criteria([$orderId]), $context->getContext())->first();
 
         static::assertInstanceOf(OrderEntity::class, $order);
 
-        $event = new CheckoutOrderPlacedEvent($context, $order, TestDefaults::SALES_CHANNEL);
+        $event = new CheckoutOrderPlacedEvent($context, $order);
 
         $subscriber = new SetOrderStateAction(
-            $this->getContainer()->get(Connection::class),
-            $this->getContainer()->get(OrderService::class),
+            static::getContainer()->get(Connection::class),
+            static::getContainer()->get(OrderService::class),
         );
 
         /** @var FlowFactory $flowFactory */
-        $flowFactory = $this->getContainer()->get(FlowFactory::class);
+        $flowFactory = static::getContainer()->get(FlowFactory::class);
         $flow = $flowFactory->create($event);
-        $flow->setConfig(['order_delivery' => 'cancelled']);
+        $flow->setConfig(['order_delivery' => 'shipped']);
 
-        static::expectException(TransactionFailedException::class);
-        static::expectExceptionMessage('Transaction failed because an exception occurred');
+        $subscriber->handleFlow($flow);
 
-        $this->connection->transactional(function () use ($subscriber, $flow): void {
-            $subscriber->handleFlow($flow);
-        });
+        $criteria = new Criteria([$IdForShippingCosts]);
+        $criteria->addAssociation('stateMachineState');
+        $oderDeliveryForShippingCosts = $this->orderDeliveryRepository->search($criteria, $context->getContext())->first();
+
+        static::assertInstanceOf(OrderDeliveryEntity::class, $oderDeliveryForShippingCosts);
+        static::assertSame('shipped', $oderDeliveryForShippingCosts->getStateMachineState()?->getTechnicalName());
+    }
+
+    /**
+     * @param array<int|string, mixed> $payload
+     *
+     * @return array<int|string, mixed>
+     */
+    public function generateOrderDeliveryPayload(array $payload = []): array
+    {
+        $payload = array_merge(
+            [
+                'id' => $this->ids->create('delivery'),
+                'stateId' => static::getContainer()->get(InitialStateIdLoader::class)->get(OrderDeliveryStates::STATE_MACHINE),
+                'shippingMethodId' => $this->getValidShippingMethodId(),
+                'shippingCosts' => new CalculatedPrice(10, 10, new CalculatedTaxCollection(), new TaxRuleCollection()),
+                'shippingDateEarliest' => date(\DATE_ATOM),
+                'shippingDateLatest' => date(\DATE_ATOM),
+                'shippingOrderAddressId' => $this->ids->get('shipping-address'),
+                'trackingCodes' => [],
+                'positions' => [
+                    [
+                        'id' => $this->ids->create('position'),
+                        'orderLineItemId' => $this->ids->create('line-item'),
+                        'price' => new CalculatedPrice(200, 200, new CalculatedTaxCollection(), new TaxRuleCollection()),
+                    ],
+                ],
+            ],
+            $payload,
+        );
+
+        return $payload;
     }
 
     private function prepareFlowSequences(string $orderState, string $orderDeliveryState, string $orderTransactionState): void
@@ -260,150 +324,10 @@ class SetOrderStateActionTest extends TestCase
         );
     }
 
-    /**
-     * @return array<int, mixed>
-     */
-    private function getOrderData(string $orderId, Context $context): array
-    {
-        $addressId = Uuid::randomHex();
-        $countryStateId = Uuid::randomHex();
-        $salutation = $this->getValidSalutationId();
-
-        $order = [
-            [
-                'id' => $orderId,
-                'itemRounding' => json_decode(json_encode(new CashRoundingConfig(2, 0.01, true), \JSON_THROW_ON_ERROR), true, 512, \JSON_THROW_ON_ERROR),
-                'totalRounding' => json_decode(json_encode(new CashRoundingConfig(2, 0.01, true), \JSON_THROW_ON_ERROR), true, 512, \JSON_THROW_ON_ERROR),
-                'orderDateTime' => (new \DateTimeImmutable())->format(Defaults::STORAGE_DATE_TIME_FORMAT),
-                'price' => new CartPrice(10, 10, 10, new CalculatedTaxCollection(), new TaxRuleCollection(), CartPrice::TAX_STATE_NET),
-                'shippingCosts' => new CalculatedPrice(10, 10, new CalculatedTaxCollection(), new TaxRuleCollection()),
-                'stateId' => $this->getContainer()->get(InitialStateIdLoader::class)->get(OrderStates::STATE_MACHINE),
-                'paymentMethodId' => $this->getValidPaymentMethodId(),
-                'currencyId' => Defaults::CURRENCY,
-                'currencyFactor' => 1,
-                'salesChannelId' => TestDefaults::SALES_CHANNEL,
-                'orderNumber' => Uuid::randomHex(),
-                'transactions' => [
-                    [
-                        'id' => Uuid::randomHex(),
-                        'paymentMethodId' => $this->getPrePaymentMethodId(),
-                        'stateId' => $this->getStateMachineState(OrderTransactionStates::STATE_MACHINE, OrderTransactionStates::STATE_OPEN),
-                        'amount' => [
-                            'unitPrice' => 5.0,
-                            'totalPrice' => 15.0,
-                            'quantity' => 3,
-                            'calculatedTaxes' => [],
-                            'taxRules' => [],
-                        ],
-                    ],
-                ],
-                'deliveries' => [
-                    [
-                        'stateId' => $this->getContainer()->get(InitialStateIdLoader::class)->get(OrderDeliveryStates::STATE_MACHINE),
-                        'shippingMethodId' => $this->getValidShippingMethodId(),
-                        'shippingCosts' => new CalculatedPrice(10, 10, new CalculatedTaxCollection(), new TaxRuleCollection()),
-                        'shippingDateEarliest' => date(\DATE_ATOM),
-                        'shippingDateLatest' => date(\DATE_ATOM),
-                        'shippingOrderAddress' => [
-                            'salutationId' => $salutation,
-                            'firstName' => 'Floy',
-                            'lastName' => 'Glover',
-                            'zipcode' => '59438-0403',
-                            'city' => 'Stellaberg',
-                            'street' => 'street',
-                            'country' => [
-                                'name' => 'kasachstan',
-                                'id' => $this->getValidCountryId(),
-                            ],
-                        ],
-                    ],
-                ],
-                'lineItems' => [],
-                'deepLinkCode' => 'BwvdEInxOHBbwfRw6oHF1Q_orfYeo9RY',
-                'orderCustomer' => [
-                    'email' => 'test@example.com',
-                    'firstName' => 'Noe',
-                    'lastName' => 'Hill',
-                    'salutationId' => $salutation,
-                    'title' => 'Doc',
-                    'customerNumber' => 'Test',
-                    'customer' => [
-                        'email' => 'test@example.com',
-                        'firstName' => 'Noe',
-                        'lastName' => 'Hill',
-                        'salutationId' => $salutation,
-                        'title' => 'Doc',
-                        'customerNumber' => 'Test',
-                        'guest' => true,
-                        'group' => ['name' => 'testse2323'],
-                        'salesChannelId' => TestDefaults::SALES_CHANNEL,
-                        'defaultBillingAddressId' => $addressId,
-                        'defaultShippingAddressId' => $addressId,
-                        'addresses' => [
-                            [
-                                'id' => $addressId,
-                                'salutationId' => $salutation,
-                                'firstName' => 'Floy',
-                                'lastName' => 'Glover',
-                                'zipcode' => '59438-0403',
-                                'city' => 'Stellaberg',
-                                'street' => 'street',
-                                'countryStateId' => $countryStateId,
-                                'country' => [
-                                    'name' => 'kasachstan',
-                                    'id' => $this->getValidCountryId(),
-                                    'states' => [
-                                        [
-                                            'id' => $countryStateId,
-                                            'name' => 'oklahoma',
-                                            'shortCode' => 'OH',
-                                        ],
-                                    ],
-                                ],
-                            ],
-                        ],
-                    ],
-                ],
-                'billingAddressId' => $addressId,
-                'addresses' => [
-                    [
-                        'salutationId' => $salutation,
-                        'firstName' => 'Floy',
-                        'lastName' => 'Glover',
-                        'zipcode' => '59438-0403',
-                        'city' => 'Stellaberg',
-                        'street' => 'street',
-                        'countryId' => $this->getValidCountryId(),
-                        'id' => $addressId,
-                    ],
-                ],
-            ],
-        ];
-
-        if (!Feature::isActive('v6.7.0.0')) {
-            $order[0]['orderCustomer']['customer']['defaultPaymentMethodId'] = $this->getValidPaymentMethodId();
-        }
-
-        return $order;
-    }
-
-    private function getPrePaymentMethodId(): string
-    {
-        /** @var EntityRepository $repository */
-        $repository = $this->getContainer()->get('payment_method.repository');
-
-        $criteria = (new Criteria())
-            ->setLimit(1)
-            ->addFilter(new EqualsFilter('active', true))
-            ->addFilter(new EqualsFilter('handlerIdentifier', PrePayment::class));
-
-        return $repository->searchIds($criteria, Context::createDefaultContext())->firstId() ?: '';
-    }
-
     private function getStateMachineState(string $stateMachine = OrderStates::STATE_MACHINE, string $state = OrderStates::STATE_OPEN): string
     {
         /** @var EntityRepository $repository */
-        $repository = $this->getContainer()->get('state_machine_state.repository');
+        $repository = static::getContainer()->get('state_machine_state.repository');
 
         $criteria = new Criteria();
         $criteria

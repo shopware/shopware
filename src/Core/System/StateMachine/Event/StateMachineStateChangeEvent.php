@@ -16,45 +16,21 @@ class StateMachineStateChangeEvent extends Event
     final public const STATE_MACHINE_TRANSITION_SIDE_ENTER = 'state_enter';
     final public const STATE_MACHINE_TRANSITION_SIDE_LEAVE = 'state_leave';
 
-    /**
-     * @var Context
-     */
-    protected $context;
+    protected Context $context;
 
-    /**
-     * @var string
-     */
-    protected $salesChannelId;
+    protected string $salesChannelId;
 
-    /**
-     * @var StateMachineEntity
-     */
-    protected $stateMachine;
+    protected StateMachineEntity $stateMachine;
 
-    /**
-     * @var string
-     */
-    protected $transitionSide;
+    protected string $transitionSide;
 
-    /**
-     * @var string
-     */
-    protected $stateName;
+    protected string $stateName;
 
-    /**
-     * @var StateMachineStateEntity
-     */
-    protected $previousState;
+    protected StateMachineStateEntity $previousState;
 
-    /**
-     * @var StateMachineStateEntity
-     */
-    protected $nextState;
+    protected StateMachineStateEntity $nextState;
 
-    /**
-     * @var Transition
-     */
-    protected $transition;
+    protected Transition $transition;
 
     public function __construct(
         Context $context,

@@ -13,7 +13,7 @@ class MultiFilterStruct extends FilterStruct
     /**
      * @var FilterStruct[]
      */
-    protected $queries;
+    protected array $queries;
 
     protected string $operator;
 

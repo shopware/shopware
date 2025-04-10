@@ -15,6 +15,8 @@ class ProductGateway implements ProductGatewayInterface
 {
     /**
      * @internal
+     *
+     * @param SalesChannelRepository<ProductCollection> $repository
      */
     public function __construct(
         private readonly SalesChannelRepository $repository,
@@ -22,11 +24,14 @@ class ProductGateway implements ProductGatewayInterface
     ) {
     }
 
+    /**
+     * @param list<string> $ids
+     */
     public function get(array $ids, SalesChannelContext $context): ProductCollection
     {
         $criteria = new Criteria($ids);
         $criteria->setTitle('cart::products');
-        $criteria->addAssociation('cover');
+        $criteria->addAssociation('cover.media');
         $criteria->addAssociation('options.group');
         $criteria->addAssociation('featureSet');
         $criteria->addAssociation('properties.group');
@@ -35,9 +40,6 @@ class ProductGateway implements ProductGatewayInterface
             new ProductGatewayCriteriaEvent($ids, $criteria, $context)
         );
 
-        /** @var ProductCollection $result */
-        $result = $this->repository->search($criteria, $context)->getEntities();
-
-        return $result;
+        return $this->repository->search($criteria, $context)->getEntities();
     }
 }

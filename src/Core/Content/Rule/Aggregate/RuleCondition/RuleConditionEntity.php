@@ -10,61 +10,34 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityCustomFieldsTrait;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityIdTrait;
 use Shopware\Core\Framework\Log\Package;
 
-#[Package('services-settings')]
+#[Package('fundamentals@after-sales')]
 class RuleConditionEntity extends Entity implements IdAware
 {
     use EntityCustomFieldsTrait;
     use EntityIdTrait;
 
-    /**
-     * @var string
-     */
-    protected $type;
+    protected string $type;
 
-    /**
-     * @var string
-     */
-    protected $ruleId;
+    protected string $ruleId;
 
-    /**
-     * @var string|null
-     */
-    protected $scriptId;
+    protected ?string $scriptId = null;
 
-    /**
-     * @var string|null
-     */
-    protected $parentId;
+    protected ?string $parentId = null;
 
     /**
      * @var array<string, mixed>|null
      */
-    protected $value;
+    protected ?array $value = null;
 
-    /**
-     * @var RuleEntity|null
-     */
-    protected $rule;
+    protected ?RuleEntity $rule = null;
 
-    /**
-     * @var AppScriptConditionEntity|null
-     */
-    protected $appScriptCondition;
+    protected ?AppScriptConditionEntity $appScriptCondition = null;
 
-    /**
-     * @var RuleConditionCollection|null
-     */
-    protected $children;
+    protected ?RuleConditionCollection $children = null;
 
-    /**
-     * @var RuleConditionEntity|null
-     */
-    protected $parent;
+    protected ?RuleConditionEntity $parent = null;
 
-    /**
-     * @var int
-     */
-    protected $position;
+    protected int $position;
 
     public function getType(): string
     {

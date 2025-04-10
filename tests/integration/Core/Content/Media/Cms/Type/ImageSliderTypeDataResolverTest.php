@@ -319,7 +319,7 @@ class ImageSliderTypeDataResolverTest extends TestCase
     protected function getProductMediaCollection(): ProductMediaCollection
     {
         $productMedia = [];
-        for ($i = 4; $i >= 0; --$i) {
+        for ($i = 0; $i <= 4; ++$i) {
             $mediaId = 'media' . $i;
             $mediaEntity = new MediaEntity();
             $mediaEntity->setId($mediaId);
@@ -359,7 +359,7 @@ class ImageSliderTypeDataResolverTest extends TestCase
         return new EntityResolverContext(
             $this->createMock(SalesChannelContext::class),
             new Request(),
-            $this->getContainer()->get(SalesChannelProductDefinition::class),
+            static::getContainer()->get(SalesChannelProductDefinition::class),
             $product
         );
     }

@@ -25,7 +25,6 @@ if ($trustedProxies) {
 
 $request = Request::createFromGlobals();
 
-@set_time_limit(0);
 @ignore_user_abort(true);
 
 $response = $kernel->handle($request);

@@ -5,9 +5,12 @@ namespace Shopware\Core\Framework\Api\OAuth\User;
 use League\OAuth2\Server\Entities\UserEntityInterface;
 use Shopware\Core\Framework\Log\Package;
 
-#[Package('core')]
+#[Package('framework')]
 class User implements UserEntityInterface
 {
+    /**
+     * @param non-empty-string $userId
+     */
     public function __construct(private readonly string $userId)
     {
     }
@@ -15,9 +18,9 @@ class User implements UserEntityInterface
     /**
      * Return the user's identifier.
      *
-     * @return string
+     * @return non-empty-string
      */
-    public function getIdentifier()
+    public function getIdentifier(): string
     {
         return $this->userId;
     }

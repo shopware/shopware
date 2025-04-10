@@ -1,16 +1,22 @@
 /**
- * @package admin
+ * @sw-package framework
  */
 
 import LocaleHelperService from 'src/app/service/locale-helper.service';
 
 describe('app/service/locale-helper.service.js', () => {
     let localeHelperService;
+    const setAdminLocaleSpy = jest.fn();
 
     beforeEach(async () => {
         localeHelperService = new LocaleHelperService({
-            Shopware: { Context: { api: {} }, State: { dispatch: () => Promise.resolve() } },
-            localeRepository: { get: () => Promise.resolve({ code: 'abc123def456' }) },
+            Shopware: {
+                Context: { api: {} },
+                Store: { get: () => ({ setAdminLocale: setAdminLocaleSpy }) },
+            },
+            localeRepository: {
+                get: () => Promise.resolve({ code: 'abc123def456' }),
+            },
             snippetService: { getSnippets: () => Promise.resolve() },
             localeFactory: {},
         });
@@ -31,7 +37,9 @@ describe('app/service/locale-helper.service.js', () => {
 
     it('setLocaleWithId convert the locale id to code', async () => {
         localeHelperService.setLocaleWithCode = jest.fn();
-        localeHelperService._localeRepository.get = async () => ({ code: 'converted locale' });
+        localeHelperService._localeRepository.get = async () => ({
+            code: 'converted locale',
+        });
 
         await localeHelperService.setLocaleWithId('12345678');
 
@@ -59,10 +67,8 @@ describe('app/service/locale-helper.service.js', () => {
     });
 
     it('setLocaleWithCode should dispatch the admin locale', async () => {
-        localeHelperService._Shopware.State.dispatch = jest.fn();
-
         await localeHelperService.setLocaleWithCode('testCode');
 
-        expect(localeHelperService._Shopware.State.dispatch).toHaveBeenCalledWith('setAdminLocale', 'testCode');
+        expect(setAdminLocaleSpy).toHaveBeenCalledWith('testCode');
     });
 });

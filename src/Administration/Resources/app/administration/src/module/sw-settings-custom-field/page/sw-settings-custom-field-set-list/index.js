@@ -1,18 +1,23 @@
 /**
- * @package services-settings
+ * @sw-package framework
  */
 import template from './sw-settings-custom-field-set-list.html.twig';
 import './sw-settings-custom-field-set-list.scss';
 
-const { Locale, Mixin, Data: { Criteria } } = Shopware;
+const {
+    Locale,
+    Mixin,
+    Data: { Criteria },
+} = Shopware;
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default {
     template,
 
-    compatConfig: Shopware.compatConfig,
-
-    inject: ['acl', 'feature'],
+    inject: [
+        'acl',
+        'feature',
+    ],
 
     mixins: [
         Mixin.getByName('sw-inline-snippet'),
@@ -45,8 +50,10 @@ export default {
             if (this.deleteEntity) {
                 return this.$tc(
                     'sw-settings-custom-field.set.list.messageDeleteSuccess',
+                    {
+                        name: this.getInlineSnippet(this.deleteEntity.config.label) || this.deleteEntity.name,
+                    },
                     0,
-                    { name: this.getInlineSnippet(this.deleteEntity.config.label) || this.deleteEntity.name },
                 );
             }
             return '';
@@ -57,13 +64,12 @@ export default {
 
             const params = this.getMainListingParams();
 
-            criteria.addFilter(Criteria.multi(
-                'OR',
-                [
+            criteria.addFilter(
+                Criteria.multi('OR', [
                     ...this.getLocaleCriterias(params.term),
                     ...this.getTermCriteria(params.term),
-                ],
-            ));
+                ]),
+            );
 
             criteria.addFilter(Criteria.equals('appId', null));
 

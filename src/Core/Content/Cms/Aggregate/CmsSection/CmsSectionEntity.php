@@ -10,91 +10,46 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityCustomFieldsTrait;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityIdTrait;
 use Shopware\Core\Framework\Log\Package;
 
-#[Package('buyers-experience')]
+#[Package('discovery')]
 class CmsSectionEntity extends Entity
 {
     use EntityCustomFieldsTrait;
     use EntityIdTrait;
 
-    /**
-     * @var string
-     */
-    protected $type;
+    protected string $type;
 
-    /**
-     * @var CmsBlockCollection|null
-     */
-    protected $blocks;
+    protected ?CmsBlockCollection $blocks = null;
 
-    /**
-     * @var string
-     */
-    protected $pageId;
+    protected string $pageId;
 
-    /**
-     * @var CmsPageEntity|null
-     */
-    protected $page;
+    protected ?CmsPageEntity $page = null;
 
-    /**
-     * @var int
-     */
-    protected $position;
+    protected int $position;
 
-    /**
-     * @var string|null
-     */
-    protected $name;
+    protected ?string $name = null;
 
-    /**
-     * @var string|null
-     */
-    protected $sizingMode;
+    protected ?string $sizingMode = null;
 
-    /**
-     * @var string|null
-     */
-    protected $mobileBehavior;
+    protected ?string $mobileBehavior = null;
 
-    /**
-     * @var string|null
-     */
-    protected $backgroundColor;
+    protected ?string $backgroundColor = null;
 
-    /**
-     * @var string|null
-     */
-    protected $backgroundMediaId;
+    protected ?string $backgroundMediaId = null;
 
-    /**
-     * @var MediaEntity|null
-     */
-    protected $backgroundMedia;
+    protected ?MediaEntity $backgroundMedia = null;
 
-    /**
-     * @var string|null
-     */
-    protected $backgroundMediaMode;
+    protected ?string $backgroundMediaMode = null;
 
-    /**
-     * @var string|null
-     */
-    protected $cssClass;
+    protected ?string $cssClass = null;
 
-    /**
-     * @var bool
-     */
-    protected $locked;
+    protected bool $locked;
 
-    /**
-     * @var string|null
-     */
-    protected $cmsPageVersionId;
+    protected ?string $cmsPageVersionId = null;
 
     /**
      * @var array<string, bool>|null
      */
-    protected $visibility;
+    protected ?array $visibility = null;
 
     public function getType(): string
     {

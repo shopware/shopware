@@ -7,7 +7,7 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Event\NestedEvent;
 use Shopware\Core\Framework\Log\Package;
 
-#[Package('services-settings')]
+#[Package('after-sales')]
 class FlowActionCollectorEvent extends NestedEvent
 {
     public function __construct(

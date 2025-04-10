@@ -4,18 +4,23 @@ const { Component } = Shopware;
 const { createId, types } = Shopware.Utils;
 
 /**
- * @package admin
+ * @sw-package framework
  *
  * @private
  */
 Component.register('sw-admin-menu-item', {
     template,
 
-    compatConfig: Shopware.compatConfig,
+    inject: [
+        'acl',
+        'feature',
+    ],
 
-    inject: ['acl', 'feature'],
-
-    emits: ['menu-item-click', 'menu-item-enter', 'sub-menu-item-enter'],
+    emits: [
+        'menu-item-click',
+        'menu-item-enter',
+        'sub-menu-item-enter',
+    ],
 
     props: {
         entry: {
@@ -69,7 +74,7 @@ Component.register('sw-admin-menu-item', {
 
         getEntryLabel() {
             if (this.entry.label instanceof Object) {
-                return (this.entry.label.translated) ? this.entry.label.label : this.$tc(this.entry.label.label);
+                return this.entry.label.translated ? this.entry.label.label : this.$tc(this.entry.label.label);
             }
             return this.$tc(this.entry.label);
         },
@@ -102,7 +107,7 @@ Component.register('sw-admin-menu-item', {
         },
 
         children() {
-            return this.entry.children.filter(child => {
+            return this.entry.children.filter((child) => {
                 if (!child.privilege) {
                     return true;
                 }
@@ -145,7 +150,7 @@ Component.register('sw-admin-menu-item', {
             }
 
             const meta = this.$route.meta;
-            const adminMenuEntries = Shopware.State.get('adminMenu').adminModuleNavigation;
+            const adminMenuEntries = Shopware.Store.get('adminMenu').adminModuleNavigation;
             let compareTo;
 
             function findRootEntry(currentPath, foundPaths = []) {

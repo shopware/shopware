@@ -2,27 +2,23 @@
 
 namespace Shopware\Tests\Integration\Core\Content\Sitemap\Provider;
 
-use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Category\CategoryDefinition;
 use Shopware\Core\Content\Category\CategoryEntity;
 use Shopware\Core\Content\Sitemap\Provider\CategoryUrlProvider;
-use Shopware\Core\Content\Sitemap\Service\ConfigHandler;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\Dbal\Common\IteratorFactory;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\Seo\StorefrontSalesChannelTestHelper;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Storefront\Framework\Seo\SeoUrlRoute\ProductPageSeoUrlRoute;
-use Symfony\Component\Routing\RouterInterface;
 
 /**
  * @internal
  */
-#[Package('services-settings')]
+#[Package('discovery')]
 class CategoryUrlProviderTest extends TestCase
 {
     use IntegrationTestBehaviour;
@@ -32,7 +28,7 @@ class CategoryUrlProviderTest extends TestCase
 
     protected function setUp(): void
     {
-        if (!$this->getContainer()->has(ProductPageSeoUrlRoute::class)) {
+        if (!static::getContainer()->has(ProductPageSeoUrlRoute::class)) {
             static::markTestSkipped('NEXT-16799: Sitemap module has a dependency on storefront routes');
         }
 
@@ -91,13 +87,7 @@ class CategoryUrlProviderTest extends TestCase
 
     private function getCategoryUrlProvider(): CategoryUrlProvider
     {
-        return new CategoryUrlProvider(
-            $this->getContainer()->get(ConfigHandler::class),
-            $this->getContainer()->get(Connection::class),
-            $this->getContainer()->get(CategoryDefinition::class),
-            $this->getContainer()->get(IteratorFactory::class),
-            $this->getContainer()->get(RouterInterface::class),
-        );
+        return $this->getContainer()->get(CategoryUrlProvider::class);
     }
 
     private function createRootCategoryData(): string
@@ -110,14 +100,14 @@ class CategoryUrlProviderTest extends TestCase
             ],
         ];
 
-        $this->getContainer()->get('category.repository')->create($categories, Context::createDefaultContext());
+        static::getContainer()->get('category.repository')->create($categories, Context::createDefaultContext());
 
         return $id;
     }
 
     private function createCategoryTree(string $rootId): void
     {
-        $this->getContainer()->get('category.repository')->upsert([
+        static::getContainer()->get('category.repository')->upsert([
             [
                 'id' => $rootId,
                 'children' => [

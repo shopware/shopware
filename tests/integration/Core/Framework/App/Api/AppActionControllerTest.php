@@ -12,7 +12,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\Test\TestCaseBase\AdminApiTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
-use Shopware\Tests\Integration\Core\Framework\App\AppSystemTestBehaviour;
+use Shopware\Core\Test\AppSystemTestBehaviour;
 use Shopware\Tests\Integration\Core\Framework\App\GuzzleTestClientBehaviour;
 
 /**
@@ -75,7 +75,7 @@ class AppActionControllerTest extends TestCase
     public function testRunAction(): void
     {
         /** @var EntityRepository<ActionButtonCollection> $actionRepo */
-        $actionRepo = $this->getContainer()->get('app_action_button.repository');
+        $actionRepo = static::getContainer()->get('app_action_button.repository');
         $this->loadAppsFromDir(__DIR__ . '/../Manifest/_fixtures/test');
 
         $criteria = (new Criteria())
@@ -112,7 +112,7 @@ class AppActionControllerTest extends TestCase
         static::assertJson($body);
         $data = \json_decode($body, true, 512, \JSON_THROW_ON_ERROR);
 
-        $shopIdProvider = $this->getContainer()->get(ShopIdProvider::class);
+        $shopIdProvider = static::getContainer()->get(ShopIdProvider::class);
 
         $app = $action->getApp();
         static::assertNotNull($app);
@@ -121,6 +121,7 @@ class AppActionControllerTest extends TestCase
             'url' => getenv('APP_URL'),
             'appVersion' => $app->getVersion(),
             'shopId' => $shopIdProvider->getShopId(),
+            'inAppPurchases' => null,
         ];
         $expectedData = [
             'ids' => $ids,
@@ -137,7 +138,7 @@ class AppActionControllerTest extends TestCase
     public function testRunActionEmpty(): void
     {
         /** @var EntityRepository<ActionButtonCollection> $actionRepo */
-        $actionRepo = $this->getContainer()->get('app_action_button.repository');
+        $actionRepo = static::getContainer()->get('app_action_button.repository');
         $this->loadAppsFromDir(__DIR__ . '/../Manifest/_fixtures/test');
 
         $criteria = (new Criteria())
@@ -199,7 +200,7 @@ class AppActionControllerTest extends TestCase
             new EqualsFilter('view', 'list'),
         );
 
-        $actionId = $this->getContainer()
+        $actionId = static::getContainer()
             ->get('app_action_button.repository')
             ->searchIds($criteria, Context::createDefaultContext())
             ->firstId();

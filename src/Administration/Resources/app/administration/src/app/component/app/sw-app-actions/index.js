@@ -1,5 +1,5 @@
 /**
- * @package admin
+ * @sw-package framework
  */
 
 import template from './sw-app-actions.html.twig';
@@ -30,8 +30,6 @@ const IFRAME_KEY = 'app.action_button.iframe';
  */
 Component.register('sw-app-actions', {
     template,
-
-    compatConfig: Shopware.compatConfig,
 
     extensionApiDevtoolInformation: {
         property: 'ui.actionButton',
@@ -70,21 +68,21 @@ Component.register('sw-app-actions', {
         },
 
         view() {
-            const matchedRoute = this.matchedRoutes.filter((match) => {
-                return !!match?.meta?.appSystem?.view;
-            }).pop();
+            const matchedRoute = this.matchedRoutes
+                .filter((match) => {
+                    return !!match?.meta?.appSystem?.view;
+                })
+                .pop();
 
             return matchedRoute?.meta?.appSystem?.view;
         },
 
         areActionsAvailable() {
-            return !!this.actions
-                && this.actions.length > 0
-                && this.params.length > 0;
+            return !!this.actions && this.actions.length > 0 && this.params.length > 0;
         },
 
         params() {
-            return Shopware.State.get('shopwareApps').selectedIds;
+            return Shopware.Store.get('shopwareApps').selectedIds;
         },
 
         userConfigRepository() {
@@ -92,7 +90,7 @@ Component.register('sw-app-actions', {
         },
 
         currentUser() {
-            return Shopware.State.get('session').currentUser;
+            return Shopware.Store.get('session').currentUser;
         },
 
         userConfigCriteria() {
@@ -105,7 +103,7 @@ Component.register('sw-app-actions', {
         },
 
         extensionSdkButtons() {
-            return Shopware.State.get('actionButtons').buttons.filter((button) => {
+            return Shopware.Store.get('actionButtons').buttons.filter((button) => {
                 return button.entity === this.entity && button.view === this.view;
             });
         },
@@ -139,7 +137,7 @@ Component.register('sw-app-actions', {
             const { data } = await this.appActionButtonService.runAction(action.id, entityIdList);
             const { actionType, redirectUrl, status, message } = data;
 
-            this.action = this.actions.find(actionsAction => {
+            this.action = this.actions.find((actionsAction) => {
                 return actionsAction.id === action.id;
             });
 
@@ -220,7 +218,7 @@ Component.register('sw-app-actions', {
         },
 
         getUserConfig() {
-            this.userConfigRepository.search(this.userConfigCriteria, Shopware.Context.api).then(response => {
+            this.userConfigRepository.search(this.userConfigCriteria, Shopware.Context.api).then((response) => {
                 if (response.length) {
                     this.iframeUserConfig = response.first();
                 } else {

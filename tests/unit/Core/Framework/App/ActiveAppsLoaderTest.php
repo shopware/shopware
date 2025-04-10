@@ -3,11 +3,10 @@
 namespace Shopware\Tests\Unit\Core\Framework\App;
 
 use Doctrine\DBAL\Connection;
-use PHPUnit\Framework\Attributes\BackupGlobals;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\App\ActiveAppsLoader;
-use Shopware\Core\Framework\App\Lifecycle\AbstractAppLoader;
+use Shopware\Core\Framework\App\Lifecycle\AppLoader;
 use Shopware\Core\Framework\App\Manifest\Manifest;
 
 /**
@@ -20,19 +19,20 @@ class ActiveAppsLoaderTest extends TestCase
     {
         $connection = $this->createMock(Connection::class);
         $connection
-            ->expects(static::exactly(2))
+            ->expects($this->exactly(2))
             ->method('fetchAllAssociative')
             ->willReturn([
                 [
                     'name' => 'test',
                     'path' => 'test',
                     'author' => 'test',
+                    'self_managed' => 1,
                 ],
             ]);
 
         $activeAppsLoader = new ActiveAppsLoader(
             $connection,
-            $this->createMock(AbstractAppLoader::class),
+            $this->createMock(AppLoader::class),
             '/'
         );
 
@@ -41,6 +41,7 @@ class ActiveAppsLoaderTest extends TestCase
                 'name' => 'test',
                 'path' => 'test',
                 'author' => 'test',
+                'selfManaged' => true,
             ],
         ];
 
@@ -59,11 +60,11 @@ class ActiveAppsLoaderTest extends TestCase
     {
         $connection = $this->createMock(Connection::class);
         $connection
-            ->expects(static::once())
+            ->expects($this->once())
             ->method('fetchAllAssociative')
             ->willThrowException(new \Exception('test'));
 
-        $appLoader = $this->createMock(AbstractAppLoader::class);
+        $appLoader = $this->createMock(AppLoader::class);
 
         $xmlFile = __DIR__ . '/_fixtures/manifest.xml';
 
@@ -84,33 +85,10 @@ class ActiveAppsLoaderTest extends TestCase
                 'name' => 'test',
                 'path' => \basename(\dirname($xmlFile)),
                 'author' => 'shopware AG',
+                'selfManaged' => false,
             ],
         ];
 
         static::assertEquals($expected, $activeAppsLoader->getActiveApps());
-    }
-
-    #[BackupGlobals(true)]
-    public function testDisabled(): void
-    {
-        $_SERVER['DISABLE_EXTENSIONS'] = '1';
-
-        $connection = $this->createMock(Connection::class);
-        $connection
-            ->expects(static::never())
-            ->method('fetchAllAssociative');
-
-        $appLoader = $this->createMock(AbstractAppLoader::class);
-        $appLoader
-            ->expects(static::never())
-            ->method('load');
-
-        $activeAppsLoader = new ActiveAppsLoader(
-            $connection,
-            $appLoader,
-            '/'
-        );
-
-        static::assertEquals([], $activeAppsLoader->getActiveApps());
     }
 }

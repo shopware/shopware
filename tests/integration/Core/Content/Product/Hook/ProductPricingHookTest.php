@@ -16,11 +16,11 @@ use Shopware\Core\Framework\Script\Debugging\ScriptTraces;
 use Shopware\Core\Framework\Script\Execution\Script;
 use Shopware\Core\Framework\Script\Execution\ScriptExecutor;
 use Shopware\Core\Framework\Script\Execution\ScriptLoader;
-use Shopware\Core\Framework\Test\IdsCollection;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
+use Shopware\Core\Test\Stub\Framework\IdsCollection;
 use Shopware\Core\Test\TestDefaults;
 
 /**
@@ -56,17 +56,17 @@ class ProductPricingHookTest extends TestCase
                 ->build(),
         ];
 
-        $this->getContainer()->get('product.repository')->create($products, Context::createDefaultContext());
+        static::getContainer()->get('product.repository')->create($products, Context::createDefaultContext());
 
-        $salesChannelContext = $this->getContainer()->get(SalesChannelContextFactory::class)
+        $salesChannelContext = static::getContainer()->get(SalesChannelContextFactory::class)
             ->create(Uuid::randomHex(), TestDefaults::SALES_CHANNEL);
 
-        $salesChannelContext->getContext()->setRuleIds([$ids->get('rule-A')]);
+        $salesChannelContext->setRuleIds([$ids->get('rule-A')]);
 
-        $products = $this->getContainer()->get('sales_channel.product.repository')
+        $products = static::getContainer()->get('sales_channel.product.repository')
             ->search(new Criteria($ids->getList(['p1', 'p2', 'p3.1'])), $salesChannelContext);
 
-        $stubs = $this->getContainer()->get(ScriptPriceStubs::class);
+        $stubs = static::getContainer()->get(ScriptPriceStubs::class);
 
         $p1 = $products->get($ids->get('p1'));
         $p2 = $products->get($ids->get('p2'));
@@ -93,7 +93,7 @@ class ProductPricingHookTest extends TestCase
             new Script('foo', (string) \file_get_contents(__DIR__ . '/_fixtures/pricing-cases/product-pricing.twig'), new \DateTimeImmutable()),
         ]);
 
-        $executor = new ScriptExecutor($loader, $traces, $this->getContainer(), $this->getContainer()->get('twig.extension.trans'), 'v6.5.0.0');
+        $executor = new ScriptExecutor($loader, $traces, static::getContainer(), static::getContainer()->get('twig.extension.trans'), 'v6.5.0.0');
 
         $executor->execute($hook);
 

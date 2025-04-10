@@ -1,5 +1,5 @@
 /**
- * @package buyers-experience
+ * @sw-package fundamentals@discovery
  */
 import template from './sw-settings-country-state.html.twig';
 import './sw-settings-country-state.scss';
@@ -9,8 +9,6 @@ const { Mixin } = Shopware;
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default {
     template,
-
-    compatConfig: Shopware.compatConfig,
 
     inject: [
         'repositoryFactory',
@@ -74,16 +72,19 @@ export default {
         },
 
         getStateColumns() {
-            return [{
-                property: 'name',
-                label: this.$tc('sw-settings-country.detail.columnStateNameLabel'),
-                inlineEdit: 'string',
-                primary: true,
-            }, {
-                property: 'shortCode',
-                label: this.$tc('sw-settings-country.detail.columnStateShortCodeLabel'),
-                inlineEdit: 'string',
-            }];
+            return [
+                {
+                    property: 'name',
+                    label: this.$tc('sw-settings-country.detail.columnStateNameLabel'),
+                    inlineEdit: 'string',
+                    primary: true,
+                },
+                {
+                    property: 'shortCode',
+                    label: this.$tc('sw-settings-country.detail.columnStateShortCodeLabel'),
+                    inlineEdit: 'string',
+                },
+            ];
         },
 
         countryStateSelectionChanged(selection, selectionCount) {
@@ -104,7 +105,7 @@ export default {
             }
 
             if (this.country.isNew()) {
-                countryStateIds.forEach(countryStateId => {
+                countryStateIds.forEach((countryStateId) => {
                     this.country.states.remove(countryStateId);
                 });
 
@@ -114,11 +115,13 @@ export default {
 
             this.countryStateLoading = true;
 
-            return this.countryStateRepository.syncDeleted(countryStateIds, Shopware.Context.api)
+            return this.countryStateRepository
+                .syncDeleted(countryStateIds, Shopware.Context.api)
                 .then(() => {
                     this.$refs.countryStateGrid.resetSelection();
                     this.refreshCountryStateList();
-                }).finally(() => {
+                })
+                .finally(() => {
                     this.countryStateLoading = false;
                 });
         },
@@ -137,15 +140,18 @@ export default {
                 });
             }
 
-            return this.countryStateRepository.save(this.currentCountryState).then(() => {
-                this.refreshCountryStateList();
-            }).catch(errors => {
-                if (errors.response.data.errors[0].code === 'MISSING-SYSTEM-TRANSLATION') {
-                    this.createNotificationError({
-                        message: this.$tc('sw-country-state-detail.createNewStateError'),
-                    });
-                }
-            });
+            return this.countryStateRepository
+                .save(this.currentCountryState)
+                .then(() => {
+                    this.refreshCountryStateList();
+                })
+                .catch((errors) => {
+                    if (errors.response.data.errors[0].code === 'MISSING-SYSTEM-TRANSLATION') {
+                        this.createNotificationError({
+                            message: this.$tc('sw-country-state-detail.createNewStateError'),
+                        });
+                    }
+                });
         },
 
         onCancelCountryState() {

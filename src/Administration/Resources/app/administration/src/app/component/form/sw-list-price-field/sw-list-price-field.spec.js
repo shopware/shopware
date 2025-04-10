@@ -1,5 +1,5 @@
 /**
- * @package admin
+ * @sw-package framework
  */
 
 import { mount } from '@vue/test-utils';
@@ -51,7 +51,10 @@ const defaultPrice = {
 // initial component setup
 const setup = async (propOverride) => {
     const props = {
-        price: [dollarPrice, euroPrice],
+        price: [
+            dollarPrice,
+            euroPrice,
+        ],
         purchasePrices: [purchasePrices],
         taxRate,
         currency,
@@ -128,8 +131,9 @@ describe('components/form/sw-list-price-field', () => {
     it('should not display gross help text when not in vertical mode', async () => {
         const wrapper = await setup();
 
-        expect(wrapper.find('.sw-list-price-field__list-price sw-price-field-stub')
-            .attributes()['gross-help-text']).toBeUndefined();
+        expect(
+            wrapper.find('.sw-list-price-field__list-price sw-price-field-stub').attributes()['gross-help-text'],
+        ).toBeUndefined();
     });
 
     it('should display gross help text when in vertical mode', async () => {
@@ -137,8 +141,9 @@ describe('components/form/sw-list-price-field', () => {
             vertical: true,
         });
 
-        expect(wrapper.find('.sw-list-price-field__list-price sw-price-field-stub')
-            .attributes()['gross-help-text']).toBe('global.sw-list-price-field.helpTextListPriceGross');
+        expect(wrapper.find('.sw-list-price-field__list-price sw-price-field-stub').attributes()['gross-help-text']).toBe(
+            'global.sw-list-price-field.helpTextListPriceGross',
+        );
     });
 
     it('should not display gross help text when in compact mode', async () => {
@@ -147,10 +152,42 @@ describe('components/form/sw-list-price-field', () => {
             compact: true,
         });
 
-        expect(wrapper.find('.sw-list-price-field__list-price sw-price-field-stub')
-            .attributes()['gross-help-text']).toBeUndefined();
+        expect(
+            wrapper.find('.sw-list-price-field__list-price sw-price-field-stub').attributes()['gross-help-text'],
+        ).toBeUndefined();
 
-        expect(wrapper.find('.sw-list-price-field__regulation-price sw-price-field-stub')
-            .attributes()['gross-help-text']).toBeUndefined();
+        expect(
+            wrapper.find('.sw-list-price-field__regulation-price sw-price-field-stub').attributes()['gross-help-text'],
+        ).toBeUndefined();
+    });
+
+    it('should returns default regulationPrice when it does not exist', async () => {
+        const wrapper = await setup();
+        await wrapper.setData({
+            priceForCurrency: {},
+        });
+
+        expect(wrapper.vm.regulationPrice).toEqual([
+            {
+                gross: null,
+                currencyId: 'b7d2554b0ce847cd82f3ac9bd1c0dfca',
+                linked: true,
+                net: null,
+            },
+        ]);
+    });
+
+    it('should sets regulationPrice correctly', async () => {
+        const wrapper = await setup();
+        const newRegulationPrice = {
+            gross: 200,
+            currencyId: 'b7d2554b0ce847cd82f3ac9bd1c0dfca',
+            linked: true,
+            net: 186.92,
+        };
+
+        wrapper.vm.regulationPrice = newRegulationPrice;
+
+        expect(wrapper.vm.priceForCurrency.regulationPrice).toEqual(newRegulationPrice);
     });
 });

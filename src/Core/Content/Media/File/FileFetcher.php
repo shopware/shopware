@@ -4,9 +4,10 @@ namespace Shopware\Core\Content\Media\File;
 
 use Shopware\Core\Content\Media\MediaException;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\Util\Hasher;
 use Symfony\Component\HttpFoundation\Request;
 
-#[Package('buyers-experience')]
+#[Package('discovery')]
 class FileFetcher
 {
     /**
@@ -45,7 +46,8 @@ class FileFetcher
             FileInfoHelper::getMimeType($fileName, $extension),
             $extension,
             $bytesWritten,
-            hash_file('md5', $fileName) ?: null
+            // Change length of db field `media`.`file_hash` if algorithm is changed
+            Hasher::hashFile($fileName, 'md5')
         );
     }
 
@@ -84,7 +86,8 @@ class FileFetcher
             $mimeType,
             $extension,
             $writtenBytes,
-            hash_file('md5', $fileName) ?: null
+            // Change length of db field `media`.`file_hash` if algorithm is changed
+            Hasher::hashFile($fileName, 'md5')
         );
     }
 
@@ -95,14 +98,14 @@ class FileFetcher
         \assert($fh !== false);
 
         $blobSize = (int) @fwrite($fh, $blob);
-        $fileHash = $tempFile ? hash_file('md5', $tempFile) : null;
+        $fileHash = $tempFile ? Hasher::hashFile($tempFile, 'md5') : null;
 
         return new MediaFile(
             $tempFile,
             $contentType,
             $extension,
             $blobSize,
-            $fileHash ?: null
+            $fileHash
         );
     }
 

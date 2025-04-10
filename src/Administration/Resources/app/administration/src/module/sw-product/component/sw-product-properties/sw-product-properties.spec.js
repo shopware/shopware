@@ -1,10 +1,11 @@
 /**
- * @package inventory
+ * @sw-package inventory
  */
 
 import { mount } from '@vue/test-utils';
+import { nextTick } from 'vue';
 
-const { State } = Shopware;
+const { Store } = Shopware;
 
 let productPropertiesMock = [
     { id: '01', groupId: 'sizeId', name: '30' },
@@ -14,7 +15,7 @@ let productPropertiesMock = [
 ];
 
 productPropertiesMock.getIds = () => {
-    return productPropertiesMock.map(property => {
+    return productPropertiesMock.map((property) => {
         return property.id;
     });
 };
@@ -78,12 +79,23 @@ const $refsMock = {
     },
 };
 
+let repositoryFactoryCreateResult;
+
 async function createWrapper() {
+    repositoryFactoryCreateResult = {
+        search: () => {
+            return Promise.resolve({ total: 0 });
+        },
+    };
+
     return mount(await wrapTestComponent('sw-product-properties', { sync: true }), {
         global: {
             stubs: {
                 'sw-inheritance-switch': {
-                    props: ['isInherited', 'disabled'],
+                    props: [
+                        'isInherited',
+                        'disabled',
+                    ],
                     template: `
                         <div class="sw-inheritance-switch">
                             <div v-if="isInherited"
@@ -105,9 +117,9 @@ async function createWrapper() {
                     },
                 },
                 'sw-inherit-wrapper': await wrapTestComponent('sw-inherit-wrapper'),
-                'sw-card': {
+                'mt-card': {
                     template: `
-                        <div class="sw-card">
+                        <div class="mt-card">
                             <slot></slot>
                             <slot name="title"></slot>
                             <slot name="grid"></slot>
@@ -152,18 +164,12 @@ async function createWrapper() {
                 'sw-product-add-properties-modal': true,
                 'sw-loader': true,
                 'sw-simple-search-field': true,
-                'sw-button': true,
-                'sw-icon': true,
                 'sw-label': true,
                 'sw-help-text': true,
             },
             provide: {
                 repositoryFactory: {
-                    create: () => ({
-                        search: () => {
-                            return Promise.resolve({ total: 0 });
-                        },
-                    }),
+                    create: () => repositoryFactoryCreateResult,
                 },
             },
         },
@@ -172,13 +178,15 @@ async function createWrapper() {
 
 describe('src/module/sw-product/component/sw-product-properties', () => {
     beforeAll(() => {
-        State.registerModule('swProductDetail', {
-            namespaced: true,
-            state: {
-                product: productMock,
-                parentProduct: parentProductMock,
+        Store.register({
+            id: 'swProductDetail',
+            state() {
+                return {
+                    product: productMock,
+                    parentProduct: parentProductMock,
+                };
             },
-            mutations: {
+            actions: {
                 setProduct(state, newProduct) {
                     state.product = newProduct;
                 },
@@ -204,11 +212,14 @@ describe('src/module/sw-product/component/sw-product-properties', () => {
         await flushPromises();
 
         await wrapper.vm.$nextTick();
-        await State.commit('swProductDetail/setProduct', productMock);
+        Store.get('swProductDetail').product = productMock;
         await wrapper.vm.getGroupIds();
 
         expect(wrapper.vm.groupIds).toEqual(
-            expect.arrayContaining(['sizeId', 'colorId']),
+            expect.arrayContaining([
+                'sizeId',
+                'colorId',
+            ]),
         );
     });
 
@@ -218,12 +229,10 @@ describe('src/module/sw-product/component/sw-product-properties', () => {
         await flushPromises();
 
         await wrapper.vm.$nextTick();
-        await State.commit('swProductDetail/setProduct', {});
+        Store.get('swProductDetail').product = {};
         await wrapper.vm.getGroupIds();
 
-        expect(wrapper.vm.groupIds).toEqual(
-            expect.arrayContaining([]),
-        );
+        expect(wrapper.vm.groupIds).toEqual(expect.arrayContaining([]));
     });
 
     it('should get properties successful', async () => {
@@ -231,17 +240,16 @@ describe('src/module/sw-product/component/sw-product-properties', () => {
         const wrapper = await createWrapper();
         await flushPromises();
 
-        wrapper.vm.propertyGroupRepository.search = jest.fn(() => {
+        repositoryFactoryCreateResult.search = jest.fn(() => {
             return Promise.resolve(propertiesMock);
         });
 
-        await State.commit('swProductDetail/setProduct', productMock);
+        Store.get('swProductDetail').product = productMock;
+        await nextTick();
         await wrapper.vm.getGroupIds();
-        wrapper.vm.getProperties();
+        await wrapper.vm.getProperties();
 
-        expect(wrapper.vm.properties).toEqual(
-            expect.arrayContaining(propertiesMock),
-        );
+        expect(wrapper.vm.properties).toEqual(expect.arrayContaining(propertiesMock));
         wrapper.vm.propertyGroupRepository.search.mockRestore();
     });
 
@@ -254,13 +262,11 @@ describe('src/module/sw-product/component/sw-product-properties', () => {
             return Promise.reject();
         });
 
-        await State.commit('swProductDetail/setProduct', productMock);
+        Store.get('swProductDetail').product = productMock;
         await wrapper.vm.getGroupIds();
-        wrapper.vm.getProperties();
+        await wrapper.vm.getProperties();
 
-        expect(wrapper.vm.properties).toEqual(
-            expect.arrayContaining([]),
-        );
+        expect(wrapper.vm.properties).toEqual(expect.arrayContaining([]));
         wrapper.vm.propertyGroupRepository.search.mockRestore();
     });
 
@@ -273,7 +279,7 @@ describe('src/module/sw-product/component/sw-product-properties', () => {
             return Promise.reject(new Error('Whoops!'));
         });
 
-        await State.commit('swProductDetail/setProduct', productMock);
+        Store.get('swProductDetail').product = productMock;
 
         const getError = async () => {
             try {
@@ -286,9 +292,7 @@ describe('src/module/sw-product/component/sw-product-properties', () => {
         };
         expect((await getError()).message).toBe('Whoops!');
 
-        expect(wrapper.vm.properties).toEqual(
-            expect.arrayContaining([]),
-        );
+        expect(wrapper.vm.properties).toEqual(expect.arrayContaining([]));
         wrapper.vm.getProperties.mockRestore();
     });
 
@@ -301,7 +305,7 @@ describe('src/module/sw-product/component/sw-product-properties', () => {
             return Promise.resolve(propertiesMock);
         });
 
-        await State.commit('swProductDetail/setProduct', productMock);
+        Store.get('swProductDetail').product = productMock;
         await wrapper.vm.getGroupIds();
         await wrapper.vm.getProperties();
 
@@ -309,9 +313,21 @@ describe('src/module/sw-product/component/sw-product-properties', () => {
 
         expect(wrapper.vm.productProperties).toEqual(
             expect.arrayContaining([
-                expect.objectContaining({ id: '02', groupId: 'sizeId', name: '32' }),
-                expect.objectContaining({ id: '03', groupId: 'colorId', name: 'white' }),
-                expect.objectContaining({ id: '04', groupId: 'colorId', name: 'black' }),
+                expect.objectContaining({
+                    id: '02',
+                    groupId: 'sizeId',
+                    name: '32',
+                }),
+                expect.objectContaining({
+                    id: '03',
+                    groupId: 'colorId',
+                    name: 'white',
+                }),
+                expect.objectContaining({
+                    id: '04',
+                    groupId: 'colorId',
+                    name: 'black',
+                }),
             ]),
         );
         wrapper.vm.propertyGroupRepository.search.mockRestore();
@@ -327,7 +343,7 @@ describe('src/module/sw-product/component/sw-product-properties', () => {
             return Promise.resolve(propertiesMock);
         });
 
-        await State.commit('swProductDetail/setProduct', productMock);
+        Store.get('swProductDetail').product = productMock;
         await wrapper.vm.getGroupIds();
         await wrapper.vm.getProperties();
 
@@ -335,8 +351,16 @@ describe('src/module/sw-product/component/sw-product-properties', () => {
 
         expect(wrapper.vm.productProperties).toEqual(
             expect.arrayContaining([
-                expect.objectContaining({ id: '03', groupId: 'colorId', name: 'white' }),
-                expect.objectContaining({ id: '04', groupId: 'colorId', name: 'black' }),
+                expect.objectContaining({
+                    id: '03',
+                    groupId: 'colorId',
+                    name: 'white',
+                }),
+                expect.objectContaining({
+                    id: '04',
+                    groupId: 'colorId',
+                    name: 'black',
+                }),
             ]),
         );
         wrapper.vm.propertyGroupRepository.search.mockRestore();
@@ -352,7 +376,7 @@ describe('src/module/sw-product/component/sw-product-properties', () => {
             return Promise.resolve(propertiesMock);
         });
 
-        await State.commit('swProductDetail/setProduct', productMock);
+        Store.get('swProductDetail').product = productMock;
         await wrapper.vm.getGroupIds();
         await wrapper.vm.getProperties();
 
@@ -360,8 +384,16 @@ describe('src/module/sw-product/component/sw-product-properties', () => {
 
         expect(wrapper.vm.productProperties).toEqual(
             expect.arrayContaining([
-                expect.objectContaining({ id: '01', groupId: 'sizeId', name: '30' }),
-                expect.objectContaining({ id: '02', groupId: 'sizeId', name: '32' }),
+                expect.objectContaining({
+                    id: '01',
+                    groupId: 'sizeId',
+                    name: '30',
+                }),
+                expect.objectContaining({
+                    id: '02',
+                    groupId: 'sizeId',
+                    name: '32',
+                }),
             ]),
         );
         wrapper.vm.propertyGroupRepository.search.mockRestore();
@@ -423,7 +455,7 @@ describe('src/module/sw-product/component/sw-product-properties', () => {
             return Promise.resolve(propertiesMock);
         });
 
-        await State.commit('swProductDetail/setProduct', productMock);
+        Store.get('swProductDetail').product = productMock;
         await wrapper.vm.getGroupIds();
         await wrapper.vm.getProperties();
 
@@ -479,9 +511,7 @@ describe('src/module/sw-product/component/sw-product-properties', () => {
         wrapper.vm.onSaveAddPropertiesModal([]);
 
         expect(wrapper.vm.turnOffAddPropertiesModal).toHaveBeenCalledTimes(1);
-        expect(wrapper.vm.newProperties).toEqual(
-            expect.arrayContaining([]),
-        );
+        expect(wrapper.vm.newProperties).toEqual(expect.arrayContaining([]));
         wrapper.vm.turnOffAddPropertiesModal.mockRestore();
     });
 
@@ -490,11 +520,14 @@ describe('src/module/sw-product/component/sw-product-properties', () => {
         const wrapper = await createWrapper();
         await flushPromises();
 
-        await wrapper.setData({ searchTerm: 'Size', properties: propertiesMock });
+        await wrapper.setData({
+            searchTerm: 'Size',
+            properties: propertiesMock,
+        });
 
-        const createButton = wrapper.find('sw-button-stub');
+        const createButton = wrapper.findByText('button', 'sw-product.properties.buttonAddProperty');
 
-        expect(createButton.attributes().disabled).toBeUndefined();
+        expect(createButton.attributes('disabled')).toBeUndefined();
     });
 
     it('should not be able to add properties in filled state', async () => {
@@ -502,10 +535,13 @@ describe('src/module/sw-product/component/sw-product-properties', () => {
         const wrapper = await createWrapper();
         await flushPromises();
 
-        await wrapper.setData({ searchTerm: 'Size', properties: propertiesMock });
+        await wrapper.setData({
+            searchTerm: 'Size',
+            properties: propertiesMock,
+        });
 
-        const createButton = wrapper.find('sw-button-stub');
-        expect(createButton.attributes().disabled).toBe('true');
+        const createButton = wrapper.findByText('button', 'sw-product.properties.buttonAddProperty');
+        expect(createButton.attributes('disabled')).toBeDefined();
     });
 
     it('should be able to edit property', async () => {
@@ -517,7 +553,7 @@ describe('src/module/sw-product/component/sw-product-properties', () => {
             return Promise.resolve(propertiesMock);
         });
 
-        await State.commit('swProductDetail/setProduct', productMock);
+        Store.get('swProductDetail').product = productMock;
         await wrapper.vm.getGroupIds();
         await wrapper.vm.getProperties();
 
@@ -536,7 +572,7 @@ describe('src/module/sw-product/component/sw-product-properties', () => {
             return Promise.resolve(propertiesMock);
         });
 
-        await State.commit('swProductDetail/setProduct', productMock);
+        Store.get('swProductDetail').product = productMock;
         await wrapper.vm.getGroupIds();
         await wrapper.vm.getProperties();
 
@@ -555,7 +591,7 @@ describe('src/module/sw-product/component/sw-product-properties', () => {
             return Promise.resolve(propertiesMock);
         });
 
-        await State.commit('swProductDetail/setProduct', productMock);
+        Store.get('swProductDetail').product = productMock;
         await wrapper.vm.getGroupIds();
         await wrapper.vm.getProperties();
 
@@ -574,7 +610,7 @@ describe('src/module/sw-product/component/sw-product-properties', () => {
             return Promise.resolve(propertiesMock);
         });
 
-        await State.commit('swProductDetail/setProduct', productMock);
+        Store.get('swProductDetail').product = productMock;
         await wrapper.vm.getGroupIds();
         await wrapper.vm.getProperties();
 

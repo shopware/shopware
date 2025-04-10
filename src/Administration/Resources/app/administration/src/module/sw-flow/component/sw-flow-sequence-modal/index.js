@@ -2,14 +2,15 @@ import template from './sw-flow-sequence-modal.html.twig';
 
 /**
  * @private
- * @package services-settings
+ * @sw-package after-sales
  */
 export default {
     template,
 
-    compatConfig: Shopware.compatConfig,
-
-    emits: ['process-finish', 'modal-close'],
+    emits: [
+        'process-finish',
+        'modal-close',
+    ],
 
     props: {
         sequence: {

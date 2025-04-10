@@ -9,40 +9,22 @@ use Shopware\Core\System\NumberRange\Aggregate\NumberRangeType\NumberRangeTypeEn
 use Shopware\Core\System\NumberRange\NumberRangeEntity;
 use Shopware\Core\System\SalesChannel\SalesChannelEntity;
 
-#[Package('checkout')]
+#[Package('framework')]
 class NumberRangeSalesChannelEntity extends Entity
 {
     use EntityIdTrait;
 
-    /**
-     * @var string
-     */
-    protected $numberRangeId;
+    protected string $numberRangeId;
 
-    /**
-     * @var string
-     */
-    protected $salesChannelId;
+    protected string $salesChannelId;
 
-    /**
-     * @var string
-     */
-    protected $numberRangeTypeId;
+    protected string $numberRangeTypeId;
 
-    /**
-     * @var NumberRangeEntity|null
-     */
-    protected $numberRange;
+    protected ?NumberRangeEntity $numberRange = null;
 
-    /**
-     * @var SalesChannelEntity|null
-     */
-    protected $salesChannel;
+    protected ?SalesChannelEntity $salesChannel = null;
 
-    /**
-     * @var NumberRangeTypeEntity|null
-     */
-    protected $numberRangeType;
+    protected ?NumberRangeTypeEntity $numberRangeType = null;
 
     public function getNumberRangeId(): string
     {

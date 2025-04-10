@@ -17,40 +17,19 @@ class StateMachineEntity extends Entity
     use EntityCustomFieldsTrait;
     use EntityIdTrait;
 
-    /**
-     * @var string
-     */
-    protected $technicalName;
+    protected string $technicalName;
 
-    /**
-     * @var string|null
-     */
-    protected $name;
+    protected ?string $name = null;
 
-    /**
-     * @var StateMachineTransitionCollection|null
-     */
-    protected $transitions;
+    protected ?StateMachineTransitionCollection $transitions = null;
 
-    /**
-     * @var StateMachineStateCollection|null
-     */
-    protected $states;
+    protected ?StateMachineStateCollection $states = null;
 
-    /**
-     * @var string|null
-     */
-    protected $initialStateId;
+    protected ?string $initialStateId = null;
 
-    /**
-     * @var StateMachineTranslationCollection
-     */
-    protected $translations;
+    protected ?StateMachineTranslationCollection $translations = null;
 
-    /**
-     * @var StateMachineHistoryCollection|null
-     */
-    protected $historyEntries;
+    protected ?StateMachineHistoryCollection $historyEntries = null;
 
     public function getHistoryEntries(): ?StateMachineHistoryCollection
     {
@@ -123,7 +102,7 @@ class StateMachineEntity extends Entity
         $this->initialStateId = $initialStateId;
     }
 
-    public function getTranslations(): StateMachineTranslationCollection
+    public function getTranslations(): ?StateMachineTranslationCollection
     {
         return $this->translations;
     }

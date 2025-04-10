@@ -1,18 +1,21 @@
 /**
- * @package services-settings
+ * @sw-package fundamentals@framework
  */
 import { mount } from '@vue/test-utils';
 
 async function createWrapper() {
-    return mount(await wrapTestComponent('sw-users-permissions-configuration', {
-        sync: true,
-    }), {
-        global: {
-            stubs: {
-                'sw-system-config': true,
+    return mount(
+        await wrapTestComponent('sw-users-permissions-configuration', {
+            sync: true,
+        }),
+        {
+            global: {
+                stubs: {
+                    'sw-system-config': true,
+                },
             },
         },
-    });
+    );
 }
 
 describe('module/sw-users-permissions/components/sw-users-permissions-configuration', () => {

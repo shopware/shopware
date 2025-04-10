@@ -10,106 +10,52 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityCustomFieldsTrait;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityIdTrait;
 use Shopware\Core\Framework\Log\Package;
 
-#[Package('buyers-experience')]
+#[Package('discovery')]
 class CmsBlockEntity extends Entity
 {
     use EntityCustomFieldsTrait;
     use EntityIdTrait;
 
-    /**
-     * @var string
-     */
-    protected $type;
+    protected string $type;
 
-    /**
-     * @var CmsSlotCollection|null
-     */
-    protected $slots;
+    protected ?CmsSlotCollection $slots = null;
 
-    /**
-     * @var string
-     */
-    protected $sectionId;
+    protected string $sectionId;
 
-    /**
-     * @var CmsSectionEntity|null
-     */
-    protected $section;
+    protected ?CmsSectionEntity $section = null;
 
-    /**
-     * @var int
-     */
-    protected $position;
+    protected int $position;
 
-    /**
-     * @var string|null
-     */
-    protected $name;
+    protected ?string $name = null;
 
-    /**
-     * @var string|null
-     */
-    protected $sectionPosition;
+    protected ?string $sectionPosition = null;
 
-    /**
-     * @var string|null
-     */
-    protected $marginTop;
+    protected ?string $marginTop = null;
 
-    /**
-     * @var string|null
-     */
-    protected $marginBottom;
+    protected ?string $marginBottom = null;
 
-    /**
-     * @var string|null
-     */
-    protected $marginLeft;
+    protected ?string $marginLeft = null;
 
-    /**
-     * @var string|null
-     */
-    protected $marginRight;
+    protected ?string $marginRight = null;
 
-    /**
-     * @var string|null
-     */
-    protected $backgroundColor;
+    protected ?string $backgroundColor = null;
 
-    /**
-     * @var string|null
-     */
-    protected $backgroundMediaId;
+    protected ?string $backgroundMediaId = null;
 
-    /**
-     * @var MediaEntity|null
-     */
-    protected $backgroundMedia;
+    protected ?MediaEntity $backgroundMedia = null;
 
-    /**
-     * @var string|null
-     */
-    protected $backgroundMediaMode;
+    protected ?string $backgroundMediaMode = null;
 
-    /**
-     * @var string|null
-     */
-    protected $cssClass;
+    protected ?string $cssClass = null;
 
-    /**
-     * @var bool
-     */
-    protected $locked;
+    protected bool $locked;
 
-    /**
-     * @var string|null
-     */
-    protected $cmsSectionVersionId;
+    protected ?string $cmsSectionVersionId = null;
 
     /**
      * @var array<string, bool>|null
      */
-    protected $visibility;
+    protected ?array $visibility = null;
 
     public function getType(): string
     {

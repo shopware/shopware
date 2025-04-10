@@ -77,6 +77,8 @@ describe('SpatialGallerySliderViewerPlugin tests', () => {
         });
 
         jest.clearAllMocks();
+
+        jest.spyOn(SpatialObjectLoaderUtil.prototype, 'loadSingleObjectByUrl').mockReturnValue(Promise.resolve('123'));
     });
 
     test('plugin initializes', () => {
@@ -95,7 +97,6 @@ describe('SpatialGallerySliderViewerPlugin tests', () => {
 
     test('initViewer with undefined light will set it from scene', () => {
         spatialGallerySliderViewerPlugin.spatialLightCompositionUtil = undefined;
-        jest.spyOn(SpatialObjectLoaderUtil.prototype, 'loadSingleObjectByUrl').mockReturnValue(Promise.resolve('123'));
 
         spatialGallerySliderViewerPlugin.initViewer(true);
 

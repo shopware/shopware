@@ -1,5 +1,5 @@
 /**
- * @package buyers-experience
+ * @sw-package discovery
  */
 
 import template from './sw-sales-channel-detail-product-comparison.html.twig';
@@ -12,8 +12,6 @@ const { warn } = Shopware.Utils.debug;
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default {
     template,
-
-    compatConfig: Shopware.compatConfig,
 
     inject: [
         'salesChannelService',
@@ -72,10 +70,7 @@ export default {
         },
 
         domainRepository() {
-            return this.repositoryFactory.create(
-                this.salesChannel.domains.entity,
-                this.salesChannel.domains.source,
-            );
+            return this.repositoryFactory.create(this.salesChannel.domains.entity, this.salesChannel.domains.source);
         },
 
         salesChannelRepository() {
@@ -129,7 +124,8 @@ export default {
 
                     this.createNotificationSuccess(notificationValidateSuccess);
                     this.isValidateSuccessful = true;
-                }).catch((exception) => {
+                })
+                .catch((exception) => {
                     this.createNotificationError({
                         message: exception.response.data.errors[0].detail,
                     });
@@ -155,7 +151,8 @@ export default {
                     }
 
                     this.isPreviewSuccessful = true;
-                }).catch((exception) => {
+                })
+                .catch((exception) => {
                     this.createNotificationError({
                         message: exception.response.data.errors[0].detail,
                     });
@@ -170,7 +167,7 @@ export default {
 
             return function completerFunction(prefix) {
                 const entityMapping = entityMappingService.getEntityMapping(prefix, mapping);
-                return Object.keys(entityMapping).map(val => {
+                return Object.keys(entityMapping).map((val) => {
                     return { value: val };
                 });
             };

@@ -1,7 +1,7 @@
 import template from './sw-settings-customer-group-list.html.twig';
 
 /**
- * @package checkout
+ * @sw-package discovery
  */
 
 const { Mixin } = Shopware;
@@ -11,9 +11,10 @@ const { Criteria } = Shopware.Data;
 export default {
     template,
 
-    compatConfig: Shopware.compatConfig,
-
-    inject: ['repositoryFactory', 'acl'],
+    inject: [
+        'repositoryFactory',
+        'acl',
+    ],
 
     mixins: [
         Mixin.getByName('listing'),
@@ -81,34 +82,34 @@ export default {
                 criteria.resetSorting();
             }
 
-            this.customerGroupRepository.search(criteria)
-                .then((searchResult) => {
-                    this.total = searchResult.total;
-                    this.customerGroups = searchResult;
-                    this.isLoading = false;
-                });
+            this.customerGroupRepository.search(criteria).then((searchResult) => {
+                this.total = searchResult.total;
+                this.customerGroups = searchResult;
+                this.isLoading = false;
+            });
         },
 
         getColumns() {
-            return [{
-                property: 'name',
-                label: 'sw-settings-customer-group.list.columnName',
-                inlineEdit: 'string',
-                routerLink: 'sw.settings.customer.group.detail',
-                primary: true,
-            }, {
-                property: 'displayGross',
-                label: 'sw-settings-customer-group.list.columnDisplayGross',
-                inlineEdit: 'boolean',
-            }];
+            return [
+                {
+                    property: 'name',
+                    label: 'sw-settings-customer-group.list.columnName',
+                    inlineEdit: 'string',
+                    routerLink: 'sw.settings.customer.group.detail',
+                    primary: true,
+                },
+                {
+                    property: 'displayGross',
+                    label: 'sw-settings-customer-group.list.columnDisplayGross',
+                    inlineEdit: 'boolean',
+                },
+            ];
         },
 
         customerGroupCriteriaWithFilter(idsOfSelectedCustomerGroups) {
             const criteria = new Criteria(1, this.limit);
 
-            criteria.addFilter(
-                Criteria.equalsAny('id', idsOfSelectedCustomerGroups),
-            );
+            criteria.addFilter(Criteria.equalsAny('id', idsOfSelectedCustomerGroups));
 
             return criteria;
         },
@@ -133,20 +134,20 @@ export default {
                 this.createErrorNotification();
             }
 
-            this.customerGroupRepository.delete(customerGroup.id)
-                .then(() => {
-                    this.$refs.listing.resetSelection();
-                    this.$refs.listing.doSearch();
-                });
+            this.customerGroupRepository.delete(customerGroup.id).then(() => {
+                this.$refs.listing.resetSelection();
+                this.$refs.listing.doSearch();
+            });
         },
 
         deleteCustomerGroups() {
-            const selectedCustomerGroups = Object.values(this.$refs.listing.selection).map(currentProxy => {
+            const selectedCustomerGroups = Object.values(this.$refs.listing.selection).map((currentProxy) => {
                 return currentProxy.id;
             });
 
-            this.customerGroupRepository.search(this.customerGroupCriteriaWithFilter(selectedCustomerGroups))
-                .then(response => {
+            this.customerGroupRepository
+                .search(this.customerGroupCriteriaWithFilter(selectedCustomerGroups))
+                .then((response) => {
                     const hasError = response.reduce((accumulator, customerGroup) => {
                         if (accumulator) {
                             return accumulator;

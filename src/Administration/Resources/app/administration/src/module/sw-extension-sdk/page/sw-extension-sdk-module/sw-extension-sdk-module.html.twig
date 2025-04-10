@@ -1,4 +1,3 @@
-<!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
 {% block sw_extension_sdk_module %}
 <sw-page
     class="sw-extension-sdk-module"
@@ -9,7 +8,6 @@
         v-if="showSmartBar"
         #smart-bar-header
     >
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_extension_sdk_module_header %}
         <template v-if="!isLoading">
             <h2>{{ $tc(module.heading ?? '') }}</h2>
@@ -24,36 +22,34 @@
         <router-link
             :to="{ name: back }"
         >
-            <sw-icon
+            <mt-icon
                 name="regular-chevron-left"
-                small
+                size="16px"
             />
         </router-link>
     </template>
 
-    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_extension_sdk_module_smart_bar_buttons %}
     <template
         v-if="showSmartBar"
         #smart-bar-actions
     >
-        <sw-button
+        <mt-button
             v-for="button in smartBarButtons"
             :id="button.buttonId"
             :key="button.buttonId"
             :disabled="button.disabled"
             :variant="button.variant"
+            size="default"
             @click="button.onClickCallback"
         >
             {{ $tc(button.label ?? '') }}
-        </sw-button>
+        </mt-button>
     </template>
     {% endblock %}
 
     <template #content>
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_extension_sdk_module_content %}
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_extension_sdk_module_content_iframe_renderer %}
         <sw-iframe-renderer
             v-if="!isLoading"
@@ -64,19 +60,16 @@
         />
         {% endblock %}
 
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_extension_sdk_module_content_loader %}
         <sw-loader v-else-if="!timedOut" />
         {% endblock %}
 
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_extension_sdk_module_content_error_state %}
         <sw-my-apps-error-page v-if="timedOut" />
         {% endblock %}
         {% endblock %}
     </template>
 
-    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_extension_sdk_module_language_switch %}
     <template
         v-if="showSmartBar && showLanguageSwitch"

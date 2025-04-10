@@ -15,13 +15,13 @@ use Shopware\Core\Checkout\Cart\LineItem\LineItem;
 use Shopware\Core\Checkout\Cart\LineItemFactoryHandler\ProductLineItemFactory;
 use Shopware\Core\Checkout\Cart\PriceDefinitionFactory;
 use Shopware\Core\Checkout\Cart\SalesChannel\CartService;
+use Shopware\Core\Checkout\Customer\CustomerCollection;
 use Shopware\Core\Checkout\Customer\SalesChannel\AccountService;
 use Shopware\Core\Content\MailTemplate\Service\Event\MailSentEvent;
 use Shopware\Core\Content\Product\Aggregate\ProductVisibility\ProductVisibilityDefinition;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\CountryAddToSalesChannelTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
@@ -33,6 +33,7 @@ use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextService;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextServiceParameters;
+use Shopware\Core\System\SalesChannel\SalesChannelCollection;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Shopware\Core\Test\TestDefaults;
@@ -50,6 +51,9 @@ class CartServiceTest extends TestCase
     use MailTemplateTestBehaviour;
     use TaxAddToSalesChannelTestBehaviour;
 
+    /**
+     * @var EntityRepository<CustomerCollection>
+     */
     private EntityRepository $customerRepository;
 
     private AccountService $accountService;
@@ -62,9 +66,9 @@ class CartServiceTest extends TestCase
     {
         parent::setUp();
 
-        $this->connection = $this->getContainer()->get(Connection::class);
-        $this->customerRepository = $this->getContainer()->get('customer.repository');
-        $this->accountService = $this->getContainer()->get(AccountService::class);
+        $this->connection = static::getContainer()->get(Connection::class);
+        $this->customerRepository = static::getContainer()->get('customer.repository');
+        $this->accountService = static::getContainer()->get(AccountService::class);
 
         $context = Context::createDefaultContext();
         $this->productId = Uuid::randomHex();
@@ -84,18 +88,18 @@ class CartServiceTest extends TestCase
             ],
         ];
 
-        $this->getContainer()->get('product.repository')
+        static::getContainer()->get('product.repository')
             ->create([$product], $context);
     }
 
     public function testCreateNewWithEvent(): void
     {
         $caughtEvent = null;
-        $this->addEventListener($this->getContainer()->get('event_dispatcher'), CartCreatedEvent::class, static function (CartCreatedEvent $event) use (&$caughtEvent): void {
+        $this->addEventListener(static::getContainer()->get('event_dispatcher'), CartCreatedEvent::class, static function (CartCreatedEvent $event) use (&$caughtEvent): void {
             $caughtEvent = $event;
         });
 
-        $cartService = $this->getContainer()->get(CartService::class);
+        $cartService = static::getContainer()->get(CartService::class);
 
         $token = Uuid::randomHex();
         $newCart = $cartService->createNew($token);
@@ -108,14 +112,14 @@ class CartServiceTest extends TestCase
 
     public function testLineItemAddedEventFired(): void
     {
-        $dispatcher = $this->getContainer()->get('event_dispatcher');
+        $dispatcher = static::getContainer()->get('event_dispatcher');
 
         $isMerged = null;
         $this->addEventListener($dispatcher, BeforeLineItemAddedEvent::class, static function (BeforeLineItemAddedEvent $addedEvent) use (&$isMerged): void {
             $isMerged = $addedEvent->isMerged();
         });
 
-        $cartService = $this->getContainer()->get(CartService::class);
+        $cartService = static::getContainer()->get(CartService::class);
 
         $context = $this->getSalesChannelContext();
 
@@ -142,14 +146,14 @@ class CartServiceTest extends TestCase
 
     public function testAfterLineItemAddedEventFired(): void
     {
-        $dispatcher = $this->getContainer()->get('event_dispatcher');
+        $dispatcher = static::getContainer()->get('event_dispatcher');
 
         $listener = $this->getMockBuilder(CallableClass::class)->getMock();
-        $listener->expects(static::once())->method('__invoke');
+        $listener->expects($this->once())->method('__invoke');
 
         $this->addEventListener($dispatcher, AfterLineItemAddedEvent::class, $listener);
 
-        $cartService = $this->getContainer()->get(CartService::class);
+        $cartService = static::getContainer()->get(CartService::class);
 
         $context = $this->getSalesChannelContext();
 
@@ -164,14 +168,14 @@ class CartServiceTest extends TestCase
 
     public function testLineItemRemovedEventFired(): void
     {
-        $dispatcher = $this->getContainer()->get('event_dispatcher');
+        $dispatcher = static::getContainer()->get('event_dispatcher');
 
         $listener = $this->getMockBuilder(CallableClass::class)->getMock();
-        $listener->expects(static::once())->method('__invoke');
+        $listener->expects($this->once())->method('__invoke');
 
         $this->addEventListener($dispatcher, BeforeLineItemRemovedEvent::class, $listener);
 
-        $cartService = $this->getContainer()->get(CartService::class);
+        $cartService = static::getContainer()->get(CartService::class);
 
         $context = $this->getSalesChannelContext();
 
@@ -190,14 +194,14 @@ class CartServiceTest extends TestCase
 
     public function testAfterLineItemRemovedEventFired(): void
     {
-        $dispatcher = $this->getContainer()->get('event_dispatcher');
+        $dispatcher = static::getContainer()->get('event_dispatcher');
 
         $listener = $this->getMockBuilder(CallableClass::class)->getMock();
-        $listener->expects(static::once())->method('__invoke');
+        $listener->expects($this->once())->method('__invoke');
 
         $this->addEventListener($dispatcher, AfterLineItemRemovedEvent::class, $listener);
 
-        $cartService = $this->getContainer()->get(CartService::class);
+        $cartService = static::getContainer()->get(CartService::class);
 
         $context = $this->getSalesChannelContext();
 
@@ -216,14 +220,14 @@ class CartServiceTest extends TestCase
 
     public function testLineItemQuantityChangedEventFired(): void
     {
-        $dispatcher = $this->getContainer()->get('event_dispatcher');
+        $dispatcher = static::getContainer()->get('event_dispatcher');
 
         $listener = $this->getMockBuilder(CallableClass::class)->getMock();
-        $listener->expects(static::once())->method('__invoke');
+        $listener->expects($this->once())->method('__invoke');
 
         $this->addEventListener($dispatcher, BeforeLineItemQuantityChangedEvent::class, $listener);
 
-        $cartService = $this->getContainer()->get(CartService::class);
+        $cartService = static::getContainer()->get(CartService::class);
 
         $context = $this->getSalesChannelContext();
 
@@ -240,14 +244,14 @@ class CartServiceTest extends TestCase
 
     public function testAfterLineItemQuantityChangedEventFired(): void
     {
-        $dispatcher = $this->getContainer()->get('event_dispatcher');
+        $dispatcher = static::getContainer()->get('event_dispatcher');
 
         $listener = $this->getMockBuilder(CallableClass::class)->getMock();
-        $listener->expects(static::once())->method('__invoke');
+        $listener->expects($this->once())->method('__invoke');
 
         $this->addEventListener($dispatcher, AfterLineItemQuantityChangedEvent::class, $listener);
 
-        $cartService = $this->getContainer()->get(CartService::class);
+        $cartService = static::getContainer()->get(CartService::class);
 
         $context = $this->getSalesChannelContext();
 
@@ -264,7 +268,7 @@ class CartServiceTest extends TestCase
 
     public function testLineItemAddAndUpdate(): void
     {
-        $cartService = $this->getContainer()->get(CartService::class);
+        $cartService = static::getContainer()->get(CartService::class);
 
         $context = $this->getSalesChannelContext();
 
@@ -285,7 +289,7 @@ class CartServiceTest extends TestCase
             ],
         ];
 
-        $this->getContainer()->get('product.repository')
+        static::getContainer()->get('product.repository')
             ->create([$product], $context->getContext());
         $this->addTaxDataToSalesChannel($context, $product['tax']);
 
@@ -316,7 +320,7 @@ class CartServiceTest extends TestCase
 
     public function testRemoveLineItems(): void
     {
-        $cartService = $this->getContainer()->get(CartService::class);
+        $cartService = static::getContainer()->get(CartService::class);
 
         $context = $this->getSalesChannelContext();
 
@@ -343,7 +347,7 @@ class CartServiceTest extends TestCase
             ];
         }
 
-        $this->getContainer()->get('product.repository')
+        static::getContainer()->get('product.repository')
             ->create($products, $context->getContext());
 
         $lineItems = [];
@@ -372,7 +376,7 @@ class CartServiceTest extends TestCase
 
     public function testZeroPricedItemsCanBeAddedToCart(): void
     {
-        $cartService = $this->getContainer()->get(CartService::class);
+        $cartService = static::getContainer()->get(CartService::class);
 
         $context = $this->getSalesChannelContext();
 
@@ -393,7 +397,7 @@ class CartServiceTest extends TestCase
             ],
         ];
 
-        $this->getContainer()->get('product.repository')
+        static::getContainer()->get('product.repository')
             ->create([$product], $context->getContext());
         $this->addTaxDataToSalesChannel($context, $product['tax']);
 
@@ -418,14 +422,14 @@ class CartServiceTest extends TestCase
 
     public function testOrderCartSendMail(): void
     {
-        if (!$this->getContainer()->has(AccountOrderController::class)) {
+        if (!static::getContainer()->has(AccountOrderController::class)) {
             // ToDo: NEXT-16882 - Reactivate tests again
             static::markTestSkipped('Order mail tests should be fixed without storefront in NEXT-16882');
         }
 
         $context = $this->getSalesChannelContext();
 
-        $contextService = $this->getContainer()->get(SalesChannelContextService::class);
+        $contextService = static::getContainer()->get(SalesChannelContextService::class);
 
         $addressId = Uuid::randomHex();
 
@@ -440,7 +444,7 @@ class CartServiceTest extends TestCase
 
         $lineItem = (new ProductLineItemFactory(new PriceDefinitionFactory()))->create(['id' => $this->productId, 'referencedId' => $this->productId], $context);
 
-        $cartService = $this->getContainer()->get(CartService::class);
+        $cartService = static::getContainer()->get(CartService::class);
 
         $cart = $cartService->getCart($context->getToken(), $context);
 
@@ -448,12 +452,12 @@ class CartServiceTest extends TestCase
 
         $this->setDomainForSalesChannel('http://shopware.local', Defaults::LANGUAGE_SYSTEM, $context->getContext());
 
-        $systemConfigService = $this->getContainer()->get(SystemConfigService::class);
+        $systemConfigService = static::getContainer()->get(SystemConfigService::class);
 
         $systemConfigService->set('core.basicInformation.email', 'test@example.org');
 
         /** @var EventDispatcher $dispatcher */
-        $dispatcher = $this->getContainer()->get('event_dispatcher');
+        $dispatcher = static::getContainer()->get('event_dispatcher');
 
         $phpunit = $this;
         $eventDidRun = false;
@@ -473,11 +477,11 @@ class CartServiceTest extends TestCase
 
     public function testCartCreatedWithGivenToken(): void
     {
-        $salesChannelContextFactory = $this->getContainer()->get(SalesChannelContextFactory::class);
+        $salesChannelContextFactory = static::getContainer()->get(SalesChannelContextFactory::class);
         $context = $salesChannelContextFactory->create(Uuid::randomHex(), TestDefaults::SALES_CHANNEL);
 
         $token = Uuid::randomHex();
-        $cartService = $this->getContainer()->get(CartService::class);
+        $cartService = static::getContainer()->get(CartService::class);
         $cart = $cartService->getCart($token, $context);
 
         static::assertSame($token, $cart->getToken());
@@ -511,10 +515,6 @@ class CartServiceTest extends TestCase
             'customerNumber' => 'not',
         ];
 
-        if (!Feature::isActive('v6.7.0.0')) {
-            $customer['defaultPaymentMethodId'] = $this->getValidPaymentMethodId();
-        }
-
         $this->customerRepository->create([$customer], $context);
     }
 
@@ -522,14 +522,14 @@ class CartServiceTest extends TestCase
     {
         $this->addCountriesToSalesChannel();
 
-        return $this->getContainer()->get(SalesChannelContextFactory::class)
+        return static::getContainer()->get(SalesChannelContextFactory::class)
             ->create(Uuid::randomHex(), TestDefaults::SALES_CHANNEL);
     }
 
     private function setDomainForSalesChannel(string $domain, string $languageId, Context $context): void
     {
-        /** @var EntityRepository $salesChannelRepository */
-        $salesChannelRepository = $this->getContainer()->get('sales_channel.repository');
+        /** @var EntityRepository<SalesChannelCollection> $salesChannelRepository */
+        $salesChannelRepository = static::getContainer()->get('sales_channel.repository');
 
         try {
             $data = [

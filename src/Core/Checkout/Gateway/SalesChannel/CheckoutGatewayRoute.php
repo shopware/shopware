@@ -11,7 +11,6 @@ use Shopware\Core\Checkout\Payment\SalesChannel\AbstractPaymentMethodRoute;
 use Shopware\Core\Checkout\Shipping\Cart\Error\ShippingMethodBlockedError;
 use Shopware\Core\Checkout\Shipping\SalesChannel\AbstractShippingMethodRoute;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\Framework\Rule\RuleIdMatcher;
@@ -48,16 +47,7 @@ class CheckoutGatewayRoute extends AbstractCheckoutGatewayRoute
         $paymentCriteria->addAssociation('appPaymentMethod.app');
         $shippingCriteria->addAssociation('appShippingMethod.app');
 
-        if ($request->query->has('onlyAvailable') || $request->request->has('onlyAvailable')) {
-            Feature::triggerDeprecationOrThrow(
-                'v6.7.0.0',
-                'The "onlyAvailable" parameter is deprecated. The checkout gateway route will always filter payment and shipping methods based on active rules'
-            );
-        }
-
-        if (!Feature::isActive('v6.7.0.0')) {
-            $request->query->set('onlyAvailable', '1');
-        }
+        $request->query->set('onlyAvailable', '1');
 
         $result = $this->paymentMethodRoute->load($request, $context, $paymentCriteria);
         $paymentMethods = $this->ruleIdMatcher->filterCollection($result->getPaymentMethods(), $context->getRuleIds());

@@ -8,13 +8,10 @@ use Shopware\Core\Content\Cms\CmsPageEntity;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Storefront\Page\Page;
 
-#[Package('storefront')]
+#[Package('framework')]
 class NavigationPage extends Page
 {
-    /**
-     * @var CmsPageEntity|null
-     */
-    protected $cmsPage;
+    protected ?CmsPageEntity $cmsPage = null;
 
     protected ?CategoryEntity $category = null;
 

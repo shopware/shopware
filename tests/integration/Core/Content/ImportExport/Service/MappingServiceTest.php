@@ -24,7 +24,7 @@ use Symfony\Component\HttpFoundation\File\UploadedFile;
 /**
  * @internal
  */
-#[Package('services-settings')]
+#[Package('fundamentals@after-sales')]
 #[CoversClass(MappingService::class)]
 class MappingServiceTest extends TestCase
 {

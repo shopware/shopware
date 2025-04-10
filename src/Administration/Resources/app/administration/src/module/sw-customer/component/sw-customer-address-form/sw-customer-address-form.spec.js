@@ -5,7 +5,7 @@ import ShopwareError from 'src/core/data/ShopwareError';
 import CUSTOMER from '../../constant/sw-customer.constant';
 
 /**
- * @package checkout
+ * @sw-package checkout
  */
 
 async function createWrapper() {
@@ -33,20 +33,19 @@ async function createWrapper() {
             address: {
                 _isNew: true,
                 id: '1',
-                getEntityName: () => { return 'customer_address'; },
+                getEntityName: () => {
+                    return 'customer_address';
+                },
             },
         },
         global: {
             stubs: {
                 'sw-container': await wrapTestComponent('sw-container'),
-                'sw-text-field': await wrapTestComponent('sw-text-field'),
-                'sw-text-field-deprecated': await wrapTestComponent('sw-text-field-deprecated', { sync: true }),
                 'sw-contextual-field': await wrapTestComponent('sw-contextual-field'),
                 'sw-block-field': await wrapTestComponent('sw-block-field'),
                 'sw-base-field': await wrapTestComponent('sw-base-field'),
                 'sw-field-error': await wrapTestComponent('sw-field-error'),
                 'sw-entity-single-select': true,
-                'sw-icon': true,
                 'sw-inheritance-switch': true,
                 'sw-field-copyable': true,
                 'sw-ai-copilot-badge': true,
@@ -73,12 +72,14 @@ async function createWrapper() {
 
                         return {
                             search: (criteria = {}) => {
-                                const countryIdFilter = criteria?.filters.find(item => item.field === 'countryId');
+                                const countryIdFilter = criteria?.filters.find((item) => item.field === 'countryId');
 
                                 if (countryIdFilter?.value === '1') {
-                                    return Promise.resolve([{
-                                        id: 'state1',
-                                    }]);
+                                    return Promise.resolve([
+                                        {
+                                            id: 'state1',
+                                        },
+                                    ]);
                                 }
                                 return Promise.resolve([]);
                             },
@@ -94,7 +95,17 @@ describe('module/sw-customer/page/sw-customer-address-form', () => {
     it('should exclude the default salutation from selectable salutations', async () => {
         const wrapper = await createWrapper();
         const criteria = wrapper.vm.salutationCriteria;
-        const expectedCriteria = { type: 'not', operator: 'or', queries: [{ field: 'id', type: 'equals', value: 'ed643807c9f84cc8b50132ea3ccb1c3b' }] };
+        const expectedCriteria = {
+            type: 'not',
+            operator: 'or',
+            queries: [
+                {
+                    field: 'id',
+                    type: 'equals',
+                    value: 'ed643807c9f84cc8b50132ea3ccb1c3b',
+                },
+            ],
+        };
 
         expect(criteria.filters).toContainEqual(expectedCriteria);
     });
@@ -105,7 +116,9 @@ describe('module/sw-customer/page/sw-customer-address-form', () => {
         await wrapper.setProps({
             address: {
                 countryId: '2',
-                getEntityName: () => { return 'customer_address'; },
+                getEntityName: () => {
+                    return 'customer_address';
+                },
             },
         });
 
@@ -121,7 +134,9 @@ describe('module/sw-customer/page/sw-customer-address-form', () => {
         await wrapper.setProps({
             address: {
                 countryId: '1',
-                getEntityName: () => { return 'customer_address'; },
+                getEntityName: () => {
+                    return 'customer_address';
+                },
             },
         });
 
@@ -142,8 +157,7 @@ describe('module/sw-customer/page/sw-customer-address-form', () => {
 
         await flushPromises();
 
-        expect(wrapper.find('input[label="sw-customer.addressForm.labelCompany"]')
-            .attributes('required')).toBeDefined();
+        expect(wrapper.find('label[for="sw-field--address-company"]').classes('is--required')).toBeTruthy();
     });
 
     it('should not mark company as required when switching to private type', async () => {
@@ -156,8 +170,7 @@ describe('module/sw-customer/page/sw-customer-address-form', () => {
 
         await flushPromises();
 
-        expect(wrapper.find('[label="sw-customer.addressForm.labelCompany"]')
-            .attributes('required')).toBeUndefined();
+        expect(wrapper.find('label[for="sw-field--address-company"]').classes('is--required')).toBeFalsy();
     });
 
     it('should display company, department and vat fields by default when account type is empty', async () => {
@@ -169,12 +182,12 @@ describe('module/sw-customer/page/sw-customer-address-form', () => {
             address: {},
         });
 
-        expect(wrapper.find('[label="sw-customer.addressForm.labelCompany"]').exists()).toBeTruthy();
-        expect(wrapper.find('[label="sw-customer.addressForm.labelDepartment"]').exists()).toBeTruthy();
+        expect(wrapper.find('label[for="sw-field--address-company"]').exists()).toBeTruthy();
+        expect(wrapper.find('label[for="sw-field--address-department"]').exists()).toBeTruthy();
     });
 
     it('should hide the error field when a disabled field', async () => {
-        await Shopware.State.dispatch('error/addApiError', {
+        Shopware.Store.get('error').addApiError({
             expression: 'customer_address.1.firstName',
             error: new ShopwareError({
                 code: 'c1051bb4-d103-4f74-8988-acbcafc7fdc3',
@@ -189,11 +202,11 @@ describe('module/sw-customer/page/sw-customer-address-form', () => {
 
         await flushPromises();
 
-        const firstName = wrapper.findAll('.sw-field').at(3);
+        const firstName = wrapper.findAll('.mt-field').at(3);
 
         expect(wrapper.vm.disabled).toBe(false);
         expect(firstName.classes()).toContain('has--error');
-        expect(firstName.find('.sw-field__error').text()).toBe('This value should not be blank.');
+        expect(firstName.find('.mt-field__error').text()).toBe('This value should not be blank.');
 
         await wrapper.setProps({ disabled: true });
         await flushPromises();
@@ -225,10 +238,9 @@ describe('module/sw-customer/page/sw-customer-address-form', () => {
     });
 
     it('should dispatch error/removeApiError based on the configuration of the country', async () => {
-        // add mock for dispatch
-        Object.defineProperty(Shopware.State, 'dispatch', {
-            value: jest.fn(),
-        });
+        // spy for the removeApiError method
+        const errorStore = Shopware.Store.get('error');
+        jest.spyOn(errorStore, 'removeApiError');
 
         const wrapper = await createWrapper();
 
@@ -241,12 +253,7 @@ describe('module/sw-customer/page/sw-customer-address-form', () => {
 
         const address = wrapper.vm.address;
 
-        expect(Shopware.State.dispatch).toHaveBeenCalledWith('error/removeApiError', {
-            expression: `${address.getEntityName()}.${address.id}.zipcode`,
-        });
-
-        expect(Shopware.State.dispatch).toHaveBeenCalledWith('error/removeApiError', {
-            expression: `${address.getEntityName()}.${address.id}.countryStateId`,
-        });
+        expect(errorStore.removeApiError).toHaveBeenCalledWith(`${address.getEntityName()}.${address.id}.zipcode`);
+        expect(errorStore.removeApiError).toHaveBeenCalledWith(`${address.getEntityName()}.${address.id}.countryStateId`);
     });
 });

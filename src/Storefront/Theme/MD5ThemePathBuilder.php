@@ -4,17 +4,18 @@ namespace Shopware\Storefront\Theme;
 
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
+use Shopware\Core\Framework\Util\Hasher;
 
 /**
  * ThemePathBuilder that does not support seeding,
  * this should only be used in projects where recompiling the theme at runtime is not supported (e.g. PaaS) or for testing.
  */
-#[Package('storefront')]
+#[Package('framework')]
 class MD5ThemePathBuilder extends AbstractThemePathBuilder
 {
     public function assemblePath(string $salesChannelId, string $themeId): string
     {
-        return md5($themeId . $salesChannelId);
+        return Hasher::hash($themeId . $salesChannelId, 'md5');
     }
 
     public function generateNewPath(string $salesChannelId, string $themeId, string $seed): string

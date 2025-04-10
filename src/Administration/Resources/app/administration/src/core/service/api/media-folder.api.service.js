@@ -1,3 +1,7 @@
+/**
+ * @sw-package framework
+ */
+
 import ApiService from '../api.service';
 
 /**
@@ -13,16 +17,14 @@ class MediaFolderApiService extends ApiService {
 
     dissolveFolder(id) {
         const apiRoute = `/_action/${this.getApiBasePath(id)}/dissolve`;
-        return this.httpClient.post(
-            apiRoute,
-            '',
-            {
+        return this.httpClient
+            .post(apiRoute, '', {
                 params: {},
                 headers: this.getBasicHeaders(),
-            },
-        ).then((response) => {
-            return ApiService.handleResponse(response);
-        });
+            })
+            .then((response) => {
+                return ApiService.handleResponse(response);
+            });
     }
 
     moveFolder(id, targetId) {
@@ -30,16 +32,14 @@ class MediaFolderApiService extends ApiService {
             targetId = `/${targetId}`;
         }
         const apiRoute = `/_action/${this.getApiBasePath(id)}/move${targetId}`;
-        return this.httpClient.post(
-            apiRoute,
-            '',
-            {
+        return this.httpClient
+            .post(apiRoute, '', {
                 params: {},
                 headers: this.getBasicHeaders(),
-            },
-        ).then((response) => {
-            return ApiService.handleResponse(response);
-        });
+            })
+            .then((response) => {
+                return ApiService.handleResponse(response);
+            });
     }
 }
 

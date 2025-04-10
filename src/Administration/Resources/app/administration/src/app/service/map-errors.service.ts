@@ -1,5 +1,5 @@
 /**
- * @package admin
+ * @sw-package framework
  */
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
@@ -8,7 +8,10 @@ export type CamelCasePath<T extends string> = T extends `${infer A}.${infer B}${
     : Lowercase<T>;
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations, max-len
-export function mapPropertyErrors<T extends string, K extends string>(entityName: T, properties: K[] = []): Record<`${Lowercase<T>}${Capitalize<CamelCasePath<K>>}Error`, () => unknown> {
+export function mapPropertyErrors<T extends string, K extends string>(
+    entityName: T,
+    properties: K[] = [],
+): Record<`${Lowercase<T>}${Capitalize<CamelCasePath<K>>}Error`, () => unknown> {
     const computedValues: Record<string, () => unknown> = {};
 
     properties.forEach((property) => {
@@ -23,7 +26,7 @@ export function mapPropertyErrors<T extends string, K extends string>(entityName
             }
 
             // eslint-disable-next-line @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-member-access
-            return Shopware.State.getters['error/getApiError'](entity, property);
+            return Shopware.Store.get('error').getApiError(entity, property);
         };
     });
 
@@ -33,11 +36,14 @@ export function mapPropertyErrors<T extends string, K extends string>(entityName
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export function mapSystemConfigErrors(entityName: string, saleChannelId: string | null, key: string = ''): $TSFixMe {
     // eslint-disable-next-line @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-member-access
-    return Shopware.State.getters['error/getSystemConfigApiError'](entityName, saleChannelId, key);
+    return Shopware.Store.get('error').getSystemConfigApiError(entityName, saleChannelId!, key);
 }
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations, max-len
-export function mapCollectionPropertyErrors<T extends string, K extends string>(entityCollectionName: T, properties: K[] = []): Record<`${Lowercase<T>}${Capitalize<CamelCasePath<K>>}Error`, () => unknown> {
+export function mapCollectionPropertyErrors<T extends string, K extends string>(
+    entityCollectionName: T,
+    properties: K[] = [],
+): Record<`${Lowercase<T>}${Capitalize<CamelCasePath<K>>}Error`, () => unknown> {
     const computedValues: Record<string, () => unknown> = {};
 
     properties.forEach((property) => {
@@ -51,8 +57,8 @@ export function mapCollectionPropertyErrors<T extends string, K extends string>(
             }
 
             // eslint-disable-next-line max-len
-            // eslint-disable-next-line @typescript-eslint/no-unsafe-return, @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-member-access
-            return entityCollection.map((entity) => Shopware.State.getters['error/getApiError'](entity, property));
+            // eslint-disable-next-line @typescript-eslint/no-unsafe-return, @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-member-access,@typescript-eslint/no-unsafe-argument
+            return entityCollection.map((entity) => Shopware.Store.get('error').getApiError(entity, property));
         };
     });
 
@@ -60,14 +66,16 @@ export function mapCollectionPropertyErrors<T extends string, K extends string>(
 }
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations, max-len
-export function mapPageErrors<T extends string>(errorConfig: Record<T, Record<string, string[]>>): Record<`${CamelCasePath<T>}Error`, () => boolean> {
+export function mapPageErrors<T extends string>(
+    errorConfig: Record<T, Record<string, string[]>>,
+): Record<`${CamelCasePath<T>}Error`, () => boolean> {
     const map: Record<string, () => boolean> = {};
     Object.keys(errorConfig).forEach((routeName) => {
         const subjects = errorConfig[routeName as T];
         map[`${Shopware.Utils.string.camelCase(routeName)}Error`] = function getterPropertyError() {
             return Object.keys(subjects).some((entityName) => {
                 // eslint-disable-next-line @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-member-access
-                return Shopware.State.getters['error/existsErrorInProperty'](entityName, subjects[entityName]);
+                return Shopware.Store.get('error').existsErrorInProperty(entityName, subjects[entityName]);
             });
         };
     });

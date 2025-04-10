@@ -13,7 +13,7 @@ use Shopware\Core\Framework\Uuid\Uuid;
 /**
  * @internal
  */
-#[Package('services-settings')]
+#[Package('after-sales')]
 class FlowBuilderTest extends TestCase
 {
     use IntegrationTestBehaviour;
@@ -22,7 +22,7 @@ class FlowBuilderTest extends TestCase
 
     protected function setUp(): void
     {
-        $this->flowBuilder = $this->getContainer()->get(FlowBuilder::class);
+        $this->flowBuilder = static::getContainer()->get(FlowBuilder::class);
     }
 
     public function testBuildOnlyAction(): void

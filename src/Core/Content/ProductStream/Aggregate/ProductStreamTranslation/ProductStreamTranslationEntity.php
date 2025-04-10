@@ -12,25 +12,13 @@ class ProductStreamTranslationEntity extends TranslationEntity
 {
     use EntityCustomFieldsTrait;
 
-    /**
-     * @var string
-     */
-    protected $productStreamId;
+    protected string $productStreamId;
 
-    /**
-     * @var string|null
-     */
-    protected $name;
+    protected ?string $name = null;
 
-    /**
-     * @var string|null
-     */
-    protected $description;
+    protected ?string $description = null;
 
-    /**
-     * @var ProductStreamEntity|null
-     */
-    protected $productStream;
+    protected ?ProductStreamEntity $productStream = null;
 
     public function getProductStreamId(): string
     {

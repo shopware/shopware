@@ -15,7 +15,7 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Symfony\Component\HttpFoundation\Request;
 
-#[Package('buyers-experience')]
+#[Package('discovery')]
 class MediaService
 {
     /**
@@ -124,7 +124,7 @@ class MediaService
 
         return [
             'content' => $fileBlob,
-            'fileName' => $media->getFilename() . '.' . $media->getFileExtension(),
+            'fileName' => $media->getFileName() . '.' . $media->getFileExtension(),
             'mimeType' => $media->getMimeType(),
         ];
     }

@@ -13,30 +13,15 @@ class ProductCrossSellingAssignedProductsEntity extends Entity
 {
     use EntityIdTrait;
 
-    /**
-     * @var string
-     */
-    protected $crossSellingId;
+    protected string $crossSellingId;
 
-    /**
-     * @var string
-     */
-    protected $productId;
+    protected string $productId;
 
-    /**
-     * @var ProductEntity|null
-     */
-    protected $product;
+    protected ?ProductEntity $product = null;
 
-    /**
-     * @var ProductCrossSellingEntity|null
-     */
-    protected $crossSelling;
+    protected ?ProductCrossSellingEntity $crossSelling = null;
 
-    /**
-     * @var int
-     */
-    protected $position;
+    protected int $position;
 
     public function getCrossSellingId(): string
     {

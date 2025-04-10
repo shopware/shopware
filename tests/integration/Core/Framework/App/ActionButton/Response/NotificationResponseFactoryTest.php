@@ -29,7 +29,7 @@ class NotificationResponseFactoryTest extends TestCase
 
     protected function setUp(): void
     {
-        $this->factory = $this->getContainer()->get(NotificationResponseFactory::class);
+        $this->factory = static::getContainer()->get(NotificationResponseFactory::class);
         $app = new AppEntity();
         $app->setId(Uuid::randomHex());
         $app->setAppSecret('app-secret');

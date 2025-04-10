@@ -1,5 +1,5 @@
 /**
- * @package buyers-experience
+ * @sw-package discovery
  */
 import { mount } from '@vue/test-utils';
 import 'src/module/sw-cms/mixin/sw-cms-element.mixin';
@@ -22,22 +22,29 @@ async function createWrapper() {
                 'sw-container': {
                     template: '<div class="sw-container"><slot></slot></div>',
                 },
-                'sw-tabs': await wrapTestComponent('sw-tabs', { sync: true }),
+                'sw-tabs': await wrapTestComponent('sw-tabs', {
+                    sync: true,
+                }),
                 'sw-tabs-deprecated': await wrapTestComponent('sw-tabs-deprecated', { sync: true }),
-                'sw-tabs-item': await wrapTestComponent('sw-tabs-item', { sync: true }),
+                'sw-tabs-item': await wrapTestComponent('sw-tabs-item', {
+                    sync: true,
+                }),
                 'sw-cms-mapping-field': await wrapTestComponent('sw-cms-mapping-field', { sync: true }),
-                'sw-text-editor': {
-                    props: ['value'],
-                    emits: ['blur', 'update:value', 'change'],
-                    template: '<input type="text" :value="value" @blur="$emit(\'blur\', $event.target.value)" @input="$emit(\'update:value\', $event.target.value)" @change="$emit(\'change\', $event.target.value)"></input>',
+                'mt-text-editor': {
+                    props: ['modelValue'],
+                    emits: [
+                        'blur',
+                        'update:model-value',
+                        'change',
+                    ],
+                    template:
+                        '<input type="text" :value="modelValue" @blur="$emit(\'blur\', $event.target.value)" @input="$emit(\'update:model-value\', $event.target.value)" @change="$emit(\'change\', $event.target.value)"></input>',
                 },
                 'sw-select-field': true,
-                'sw-icon': true,
                 'sw-extension-component-section': true,
                 'router-link': true,
                 'sw-context-menu-item': true,
                 'sw-context-button': true,
-                'sw-alert': true,
             },
         },
         props: {

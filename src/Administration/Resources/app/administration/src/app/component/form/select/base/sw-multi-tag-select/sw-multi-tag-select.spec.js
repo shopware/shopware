@@ -1,5 +1,5 @@
 /**
- * @package admin
+ * @sw-package framework
  */
 import { mount } from '@vue/test-utils';
 
@@ -22,15 +22,11 @@ const createWrapper = async (customOptions = {}) => {
                 'sw-select-selection-list': await wrapTestComponent('sw-select-selection-list'),
                 'sw-popover': await wrapTestComponent('sw-popover'),
                 'sw-popover-deprecated': await wrapTestComponent('sw-popover-deprecated', { sync: true }),
-                'sw-icon': {
-                    template: '<div></div>',
-                },
                 'sw-loader': true,
                 'sw-inheritance-switch': true,
                 'sw-ai-copilot-badge': true,
                 'sw-help-text': true,
                 'sw-label': true,
-                'sw-button': true,
                 'mt-floating-ui': true,
             },
         },
@@ -52,8 +48,8 @@ const pressKey = async (el, key) => {
     });
 };
 
-const pressEnter = el => pressKey(el, 'Enter');
-const pressEscape = el => pressKey(el, 'Escape');
+const pressEnter = (el) => pressKey(el, 'Enter');
+const pressEscape = (el) => pressKey(el, 'Escape');
 
 describe('components/sw-multi-tag-select', () => {
     it('should open the options popover when the user click on .sw-select__selection', async () => {
@@ -74,7 +70,7 @@ describe('components/sw-multi-tag-select', () => {
         expect(focusSpy).toHaveBeenCalled();
     });
 
-    it('should show the select field\'s options popover', async () => {
+    it("should show the select field's options popover", async () => {
         const wrapper = await createWrapper();
 
         await wrapper.find(selector.multiDataSelect.container).trigger('click');
@@ -126,7 +122,7 @@ describe('components/sw-multi-tag-select', () => {
         expect(wrapper.vm.searchTerm).toBe('');
     });
 
-    it('should set inputIsValid to false, when there\'s no searchTerm given', async () => {
+    it("should set inputIsValid to false, when there's no searchTerm given", async () => {
         const value = 'a676344c-c0dd-49e5-8fbb-5f570c27762c';
 
         const wrapper = await createWrapper();
@@ -294,11 +290,23 @@ describe('components/sw-multi-tag-select', () => {
             ],
         });
 
-        multiDataSelect.vm.$emit('update:value', ['Selection1', 'Selection2', 'Selection3', 'Selection4']);
+        multiDataSelect.vm.$emit('update:value', [
+            'Selection1',
+            'Selection2',
+            'Selection3',
+            'Selection4',
+        ]);
         multiDataSelect.vm.remove({ value: 'Selection5' });
 
         expect(multiDataSelect.emitted()['update:value']).toBeTruthy();
-        expect(multiDataSelect.emitted()['update:value'][0]).toEqual([['Selection1', 'Selection2', 'Selection3', 'Selection4']]);
+        expect(multiDataSelect.emitted()['update:value'][0]).toEqual([
+            [
+                'Selection1',
+                'Selection2',
+                'Selection3',
+                'Selection4',
+            ],
+        ]);
     });
 
     it('should remove the last item', async () => {
@@ -317,7 +325,14 @@ describe('components/sw-multi-tag-select', () => {
         multiDataSelect.vm.removeLastItem();
 
         expect(multiDataSelect.emitted()['update:value']).toBeTruthy();
-        expect(multiDataSelect.emitted()['update:value'][0]).toEqual([['Selection1', 'Selection2', 'Selection3', 'Selection4']]);
+        expect(multiDataSelect.emitted()['update:value'][0]).toEqual([
+            [
+                'Selection1',
+                'Selection2',
+                'Selection3',
+                'Selection4',
+            ],
+        ]);
     });
 
     it('should expand value limit', async () => {

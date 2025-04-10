@@ -7,7 +7,7 @@ const utils = Shopware.Utils;
 const { cloneDeep } = utils.object;
 
 /**
- * @package admin
+ * @sw-package framework
  *
  * @private
  * @description
@@ -18,8 +18,6 @@ const { cloneDeep } = utils.object;
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 Component.register('sw-search-bar', {
     template,
-
-    compatConfig: Shopware.compatConfig,
 
     inject: [
         'searchService',
@@ -42,7 +40,11 @@ Component.register('sw-search-bar', {
         };
     },
 
-    emits: ['search', 'active-item-index-select', 'keyup-enter'],
+    emits: [
+        'search',
+        'active-item-index-select',
+        'keyup-enter',
+    ],
 
     shortcuts: {
         f: 'setFocus',
@@ -191,7 +193,7 @@ Component.register('sw-search-bar', {
         },
 
         currentUser() {
-            return Shopware.State.get('session').currentUser;
+            return Shopware.Store.get('session').currentUser;
         },
 
         showSearchTipForEsSearch() {
@@ -210,7 +212,7 @@ Component.register('sw-search-bar', {
 
     watch: {
         // Watch for changes in query parameters
-        '$route'(newValue) {
+        $route(newValue) {
             // Use type search again when route changes and the term is undefined
             if (this.isComponentMounted === true && newValue.query.term === undefined && this.initialSearchType) {
                 this.currentSearchType = this.initialSearchType;
@@ -262,7 +264,9 @@ Component.register('sw-search-bar', {
             }
 
             this.searchTypes = this.searchTypeService.getTypes();
-            this.typeSelectResults = Object.values(this.searchTypes).filter(searchType => !searchType.hideOnGlobalSearchBar);
+            this.typeSelectResults = Object.values(this.searchTypes).filter(
+                (searchType) => !searchType.hideOnGlobalSearchBar,
+            );
             this.registerListener();
 
             this.userSearchPreference = await this.searchRankingService.getUserSearchPreference();
@@ -278,11 +282,6 @@ Component.register('sw-search-bar', {
 
         registerListener() {
             document.addEventListener('click', this.closeOnClickOutside);
-
-            if (this.isCompatEnabled('INSTANCE_EVENT_EMITTER')) {
-                // eslint-disable-next-line vue/no-deprecated-events-api
-                this.$on('mouse-over', this.setActiveResultPosition);
-            }
         },
 
         onMouseOver(index, column) {
@@ -294,7 +293,7 @@ Component.register('sw-search-bar', {
         },
 
         unregisterActiveItemIndexSelectHandler(handler) {
-            this.activeItemIndexSelectHandler = this.activeItemIndexSelectHandler.filter(h => h !== handler);
+            this.activeItemIndexSelectHandler = this.activeItemIndexSelectHandler.filter((h) => h !== handler);
         },
 
         registerKeyupEnterHandler(handler) {
@@ -302,7 +301,7 @@ Component.register('sw-search-bar', {
         },
 
         unregisterKeyupEnterHandler(handler) {
-            this.keyupEnterHandler = this.keyupEnterHandler.filter(h => h !== handler);
+            this.keyupEnterHandler = this.keyupEnterHandler.filter((h) => h !== handler);
         },
 
         getLabelSearchType(type) {
@@ -319,7 +318,7 @@ Component.register('sw-search-bar', {
                 return this.$te(snippetKey) ? this.$tc(snippetKey) : type;
             }
 
-            if (!this.$te((`global.entities.${type}`))) {
+            if (!this.$te(`global.entities.${type}`)) {
                 return this.currentSearchType;
             }
 
@@ -359,7 +358,7 @@ Component.register('sw-search-bar', {
                 return;
             }
 
-            this.loadSearchTrends().then(response => {
+            this.loadSearchTrends().then((response) => {
                 this.resultsSearchTrends = response;
 
                 this.showResultsSearchTrends = !!response?.length;
@@ -375,11 +374,7 @@ Component.register('sw-search-bar', {
             this.isActive = true;
             this.isOffCanvasShown = false;
 
-            if (this.isCompatEnabled('INSTANCE_EVENT_EMITTER')) {
-                this.$root.$emit('toggle-offcanvas', this.isOffCanvasShown);
-            } else {
-                Shopware.Utils.EventBus.emit('sw-admin-menu/toggle-offcanvas', this.isOffCanvasShown);
-            }
+            Shopware.Utils.EventBus.emit('sw-admin-menu/toggle-offcanvas', this.isOffCanvasShown);
         },
 
         hideSearchBar() {
@@ -444,7 +439,7 @@ Component.register('sw-search-bar', {
         filterTypeSelectResults(term) {
             this.typeSelectResults = [];
 
-            Object.keys(this.searchTypes).forEach(key => {
+            Object.keys(this.searchTypes).forEach((key) => {
                 const snippet = this.$tc(`global.entities.${this.searchTypes[key].entityName}`, 2);
                 if (snippet.toLowerCase().includes(term.toLowerCase()) || term === '') {
                     this.typeSelectResults.push(this.searchTypes[key]);
@@ -468,11 +463,7 @@ Component.register('sw-search-bar', {
         toggleOffCanvas() {
             this.isOffCanvasShown = !this.isOffCanvasShown;
 
-            if (this.isCompatEnabled('INSTANCE_EVENT_EMITTER')) {
-                this.$root.$emit('toggle-offcanvas', this.isOffCanvasShown);
-            } else {
-                Shopware.Utils.EventBus.emit('sw-admin-menu/toggle-offcanvas', this.isOffCanvasShown);
-            }
+            Shopware.Utils.EventBus.emit('sw-admin-menu/toggle-offcanvas', this.isOffCanvasShown);
         },
 
         resetSearchType() {
@@ -487,25 +478,31 @@ Component.register('sw-search-bar', {
             this.$emit('search', searchTerm);
         }, 750),
 
-        doListSearchWithContainer: utils.debounce(function debouncedSearch() {
-            const searchTerm = this.searchTerm.trim();
+        doListSearchWithContainer: utils.debounce(
+            function debouncedSearch() {
+                const searchTerm = this.searchTerm.trim();
 
-            if (searchTerm && searchTerm.length > 0) {
-                this.loadTypeSearchResults(searchTerm);
-            } else {
-                this.showResultsContainer = false;
-            }
-        }, Context.app.adminEsEnable ? 30 : 750),
+                if (searchTerm && searchTerm.length > 0) {
+                    this.loadTypeSearchResults(searchTerm);
+                } else {
+                    this.showResultsContainer = false;
+                }
+            },
+            Context.app.adminEsEnable ? 30 : 750,
+        ),
 
-        doGlobalSearch: utils.debounce(function debouncedSearch() {
-            const searchTerm = this.searchTerm.trim();
-            if (searchTerm && searchTerm.length > 0) {
-                this.loadResults(searchTerm);
-            } else {
-                this.showResultsContainer = false;
-                this.showResultsSearchTrends = false;
-            }
-        }, Context.app.adminEsEnable ? 30 : 750),
+        doGlobalSearch: utils.debounce(
+            function debouncedSearch() {
+                const searchTerm = this.searchTerm.trim();
+                if (searchTerm && searchTerm.length > 0) {
+                    this.loadResults(searchTerm);
+                } else {
+                    this.showResultsContainer = false;
+                    this.showResultsSearchTrends = false;
+                }
+            },
+            Context.app.adminEsEnable ? 30 : 750,
+        ),
 
         async loadResults(searchTerm) {
             this.isLoading = true;
@@ -514,11 +511,12 @@ Component.register('sw-search-bar', {
             const entities = this.getModuleEntities(searchTerm);
 
             // eslint-disable-next-line no-unused-expressions
-            entities?.length && this.results.unshift({
-                entity: 'module',
-                total: entities.length,
-                entities,
-            });
+            entities?.length &&
+                this.results.unshift({
+                    entity: 'module',
+                    total: entities.length,
+                    entities,
+                });
 
             if (!this.userSearchPreference || Object.keys(this.userSearchPreference).length < 1) {
                 this.activeResultColumn = 0;
@@ -542,12 +540,9 @@ Component.register('sw-search-bar', {
                     names.push(key);
                 });
 
-                response = await this.searchService.elastic(
-                    searchTerm,
-                    names,
-                    this.searchLimit + 1,
-                    { 'sw-inheritance': true },
-                );
+                response = await this.searchService.elastic(searchTerm, names, this.searchLimit + 1, {
+                    'sw-inheritance': true,
+                });
             } else {
                 // Set limit as `searchLimit + 1` to check if more than `searchLimit` results are returned
                 const queries = this.searchRankingService.buildGlobalSearchQueries(
@@ -557,7 +552,9 @@ Component.register('sw-search-bar', {
                     this.searchLimit + 1,
                     0,
                 );
-                response = await this.searchService.searchQuery(queries, { 'sw-inheritance': true });
+                response = await this.searchService.searchQuery(queries, {
+                    'sw-inheritance': true,
+                });
             }
 
             const data = response.data;
@@ -566,14 +563,14 @@ Component.register('sw-search-bar', {
                 return;
             }
 
-            Object.keys(data).forEach(entity => {
+            Object.keys(data).forEach((entity) => {
                 if (data[entity].total > 0) {
                     const item = data[entity];
 
                     item.entities = Object.values(item.data).slice(0, this.searchLimit);
                     item.entity = entity;
 
-                    this.results = this.results.filter(result => entity !== result.entity);
+                    this.results = this.results.filter((result) => entity !== result.entity);
 
                     this.results = [
                         ...this.results,
@@ -607,14 +604,14 @@ Component.register('sw-search-bar', {
 
             const entityName = this.searchTypes[this.currentSearchType].entityName;
             if (this.adminEsEnable) {
-                const response = await this.searchService.elastic(
-                    searchTerm,
-                    [entityName],
-                    this.searchLimit + 1,
-                    { 'sw-inheritance': true },
-                );
+                const response = await this.searchService.elastic(searchTerm, [entityName], this.searchLimit + 1, {
+                    'sw-inheritance': true,
+                });
 
-                const data = response?.data[this.currentSearchType] ?? { total: 0, data: {} };
+                const data = response?.data[this.currentSearchType] ?? {
+                    total: 0,
+                    data: {},
+                };
 
                 entityResults.total = data.total;
                 entityResults.entities = Object.values(data.data).slice(0, this.searchLimit);
@@ -642,21 +639,19 @@ Component.register('sw-search-bar', {
                     return;
                 }
 
-                criteria = this.searchRankingService.buildSearchQueriesForEntity(
-                    searchRankingFields,
-                    searchTerm,
-                    criteria,
-                );
+                criteria = this.searchRankingService.buildSearchQueriesForEntity(searchRankingFields, searchTerm, criteria);
 
-                const response = await repository.search(criteria, { ...Shopware.Context.api, inheritance: true });
+                const response = await repository.search(criteria, {
+                    ...Shopware.Context.api,
+                    inheritance: true,
+                });
 
                 entityResults.total = response.total;
                 entityResults.entities = response.slice(0, this.searchLimit);
             }
 
-
             if (entityResults.total > 0) {
-                this.results = this.results.filter(result => this.currentSearchType !== result.entity);
+                this.results = this.results.filter((result) => this.currentSearchType !== result.entity);
 
                 this.results = [
                     ...this.results,
@@ -711,6 +706,12 @@ Component.register('sw-search-bar', {
                 index: this.activeResultIndex,
                 column: this.activeResultColumn,
             });
+            this.activeItemIndexSelectHandler.forEach((callback) =>
+                callback({
+                    index: this.activeResultIndex,
+                    column: this.activeResultColumn,
+                }),
+            );
         },
 
         navigateUpResults() {
@@ -734,7 +735,10 @@ Component.register('sw-search-bar', {
                 this.activeResultIndex -= 1;
             }
 
-            this.setActiveResultPosition({ index: this.activeResultIndex, column: this.activeResultColumn });
+            this.setActiveResultPosition({
+                index: this.activeResultIndex,
+                column: this.activeResultColumn,
+            });
             this.checkScrollPosition();
         },
 
@@ -764,7 +768,10 @@ Component.register('sw-search-bar', {
             } else {
                 this.activeResultIndex += 1;
             }
-            this.setActiveResultPosition({ index: this.activeResultIndex, column: this.activeResultColumn });
+            this.setActiveResultPosition({
+                index: this.activeResultIndex,
+                column: this.activeResultColumn,
+            });
             this.checkScrollPosition();
         },
 
@@ -788,6 +795,8 @@ Component.register('sw-search-bar', {
 
         onKeyUpEnter() {
             this.$emit('keyup-enter', this.activeResultIndex, this.activeResultColumn);
+
+            this.keyupEnterHandler.forEach((callback) => callback(this.activeResultIndex, this.activeResultColumn));
 
             if (this.showTypeSelectContainer) {
                 if (this.typeSelectResults.length > 0) {
@@ -817,10 +826,10 @@ Component.register('sw-search-bar', {
             const module = this.moduleFactory.getModuleByEntityName(entityName);
 
             if (!module) {
-                return '#AEC4DA';
+                return '#5C738A';
             }
 
-            return module.manifest.color || '#AEC4DA';
+            return module.manifest.color || '#5C738A';
         },
 
         getEntityIcon(entityName) {
@@ -830,7 +839,7 @@ Component.register('sw-search-bar', {
         },
 
         isResultEmpty() {
-            return !this.results.some(result => result.total !== 0);
+            return !this.results.some((result) => result.total !== 0);
         },
 
         onMouseEnterSearchType(index) {
@@ -845,13 +854,11 @@ Component.register('sw-search-bar', {
         },
 
         loadSalesChannelType() {
-            return new Promise(resolve => {
-                this.salesChannelTypeRepository
-                    .search(new Criteria(1, 25))
-                    .then((response) => {
-                        this.salesChannelTypes = response;
-                        resolve(response);
-                    });
+            return new Promise((resolve) => {
+                this.salesChannelTypeRepository.search(new Criteria(1, 25)).then((response) => {
+                    this.salesChannelTypes = response;
+                    resolve(response);
+                });
             });
         },
 
@@ -866,12 +873,12 @@ Component.register('sw-search-bar', {
             const moduleEntities = [];
 
             this.searchableModules.forEach((module) => {
-                const matcher = typeof module.manifest.searchMatcher === 'function'
-                    ? module.manifest.searchMatcher
-                    : this.getDefaultMatchSearchableModules;
+                const matcher =
+                    typeof module.manifest.searchMatcher === 'function'
+                        ? module.manifest.searchMatcher
+                        : this.getDefaultMatchSearchableModules;
 
-                const moduleType = this.$te((`${module.manifest.title}`))
-                    && this.$tc(`${module.manifest.title}`, 2);
+                const moduleType = this.$te(`${module.manifest.title}`) && this.$tc(`${module.manifest.title}`, 2);
 
                 if (!moduleType) {
                     return;
@@ -883,9 +890,7 @@ Component.register('sw-search-bar', {
                     return;
                 }
 
-                moduleEntities.push(
-                    ...matches.filter(item => !item.privilege || this.acl.can(item.privilege)),
-                );
+                moduleEntities.push(...matches.filter((item) => !item.privilege || this.acl.can(item.privilege)));
             });
 
             moduleEntities.push(...this.getSalesChannelTypesBySearchTerm(regex));
@@ -895,7 +900,7 @@ Component.register('sw-search-bar', {
 
         getDefaultMatchSearchableModules(regex, label, manifest) {
             const match = label.toLowerCase().match(regex);
-            const matchAddNew = (`${this.$tc('global.sw-search-bar.addNew')} ${label}`).toLowerCase().match(regex);
+            const matchAddNew = `${this.$tc('global.sw-search-bar.addNew')} ${label}`.toLowerCase().match(regex);
 
             if ((!match && !matchAddNew) || (!manifest?.routes?.index && !manifest?.routes?.list)) {
                 return false;
@@ -946,7 +951,10 @@ Component.register('sw-search-bar', {
                         color: '#14D7A5',
                         entity: 'sales_channel',
                         label: saleChannelType?.translated.name,
-                        route: { name: 'sw.sales.channel.create', params: { typeId: saleChannelType.id } },
+                        route: {
+                            name: 'sw.sales.channel.create',
+                            params: { typeId: saleChannelType.id },
+                        },
                         action: true,
                     },
                 ];
@@ -964,32 +972,34 @@ Component.register('sw-search-bar', {
         },
 
         loadSearchTrends() {
-            return Promise.all([this.getFrequentlyUsedModules(), this.getRecentlySearch()])
-                .then(response => response.filter(item => item?.total));
+            return Promise.all([
+                this.getFrequentlyUsedModules(),
+                this.getRecentlySearch(),
+            ]).then((response) => response.filter((item) => item?.total));
         },
 
         getFrequentlyUsedModules() {
             return this.userActivityApiService
                 .getIncrement({ cluster: this.currentUser.id })
-                .then(response => {
+                .then((response) => {
                     const entities = Object.keys(response);
 
                     return {
                         entity: 'frequently_used',
                         total: entities.length,
-                        entities: entities?.map(item => this.getInfoModuleFrequentlyUsed(item)),
+                        entities: entities?.map((item) => this.getInfoModuleFrequentlyUsed(item)),
                     };
                 })
                 .catch(() => {});
         },
 
         getRecentlySearch() {
-            return new Promise(resolve => {
+            return new Promise((resolve) => {
                 const items = this.recentlySearchService.get(this.currentUser.id);
 
                 const queries = {};
 
-                items.forEach(item => {
+                items.forEach((item) => {
                     if (!this.acl.can(`${item.entity}:read`)) {
                         return;
                     }
@@ -1000,7 +1010,10 @@ Component.register('sw-search-bar', {
                             : new Criteria(1, 25);
                     }
 
-                    const ids = [item.id, ...queries[item.entity].ids];
+                    const ids = [
+                        item.id,
+                        ...queries[item.entity].ids,
+                    ];
                     queries[item.entity].setIds(ids);
                 });
 
@@ -1017,7 +1030,7 @@ Component.register('sw-search-bar', {
 
                     const mapResult = [];
 
-                    items.forEach(item => {
+                    items.forEach((item) => {
                         const entities = searchResult.data[item.entity] ? searchResult.data[item.entity].data : {};
 
                         const foundEntity = entities[item.id];
@@ -1040,7 +1053,10 @@ Component.register('sw-search-bar', {
         },
 
         getInfoModuleFrequentlyUsed(key) {
-            const [moduleName, routeName] = key.split('@');
+            const [
+                moduleName,
+                routeName,
+            ] = key.split('@');
             const module = this.moduleFactory.getModuleByKey('name', moduleName);
 
             if (!module) {
@@ -1057,11 +1073,10 @@ Component.register('sw-search-bar', {
                     module.manifest,
                 );
 
-                return metadata.find(item => item.route.name === routeName);
+                return metadata.find((item) => item.route.name === routeName);
             }
 
-            const route = Object.values(routes)
-                .find(item => item.name === routeName);
+            const route = Object.values(routes).find((item) => item.name === routeName);
 
             return {
                 ...manifest,

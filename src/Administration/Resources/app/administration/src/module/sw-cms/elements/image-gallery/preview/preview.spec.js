@@ -1,18 +1,21 @@
 /**
- * @package buyers-experience
+ * @sw-package discovery
  */
 import { mount } from '@vue/test-utils';
 
 async function createWrapper() {
-    return mount(await wrapTestComponent('sw-cms-el-preview-image-gallery', {
-        sync: true,
-    }), {
-        global: {
-            stubs: {
-                'sw-cms-el-preview-image-slider': await wrapTestComponent('sw-cms-el-preview-image-slider'),
+    return mount(
+        await wrapTestComponent('sw-cms-el-preview-image-gallery', {
+            sync: true,
+        }),
+        {
+            global: {
+                stubs: {
+                    'sw-cms-el-preview-image-slider': await wrapTestComponent('sw-cms-el-preview-image-slider'),
+                },
             },
         },
-    });
+    );
 }
 
 describe('src/module/sw-cms/elements/image-gallery/preview', () => {

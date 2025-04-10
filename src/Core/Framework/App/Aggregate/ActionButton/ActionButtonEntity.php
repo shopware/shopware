@@ -11,50 +11,26 @@ use Shopware\Core\Framework\Log\Package;
 /**
  * @internal only for use by the app-system
  */
-#[Package('core')]
+#[Package('framework')]
 class ActionButtonEntity extends Entity
 {
     use EntityIdTrait;
 
-    /**
-     * @var string
-     */
-    protected $action;
+    protected string $action;
 
-    /**
-     * @var string|null
-     */
-    protected $label;
+    protected ?string $label = null;
 
-    /**
-     * @var string
-     */
-    protected $entity;
+    protected string $entity;
 
-    /**
-     * @var string
-     */
-    protected $view;
+    protected string $view;
 
-    /**
-     * @var string
-     */
-    protected $url;
+    protected string $url;
 
-    /**
-     * @var string
-     */
-    protected $appId;
+    protected string $appId;
 
-    /**
-     * @var AppEntity|null
-     */
-    protected $app;
+    protected ?AppEntity $app = null;
 
-    /**
-     * @var ActionButtonTranslationCollection|null
-     */
-    protected $translations;
+    protected ?ActionButtonTranslationCollection $translations = null;
 
     public function getAction(): string
     {

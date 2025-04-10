@@ -1,6 +1,5 @@
-
 /**
- * @package admin
+ * @sw-package framework
  */
 
 const { Filter } = Shopware;

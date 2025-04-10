@@ -29,212 +29,92 @@ class OrderEntity extends Entity
     use EntityCustomFieldsTrait;
     use EntityIdTrait;
 
-    /**
-     * @var string
-     */
-    protected $orderNumber;
+    protected ?string $orderNumber = null;
 
-    /**
-     * @var string
-     */
-    protected $currencyId;
+    protected string $currencyId;
 
-    /**
-     * @var float
-     */
-    protected $currencyFactor;
+    protected float $currencyFactor;
 
-    /**
-     * @var string
-     */
-    protected $salesChannelId;
+    protected string $salesChannelId;
 
-    /**
-     * @var string
-     */
-    protected $billingAddressId;
+    protected string $billingAddressId;
 
-    /**
-     * @var string
-     */
-    protected $billingAddressVersionId;
+    protected string $billingAddressVersionId;
 
-    /**
-     * @var \DateTimeInterface
-     */
-    protected $orderDateTime;
+    protected \DateTimeInterface $orderDateTime;
 
-    /**
-     * @var \DateTimeInterface
-     */
-    protected $orderDate;
+    protected \DateTimeInterface $orderDate;
 
-    /**
-     * @var CartPrice
-     */
-    protected $price;
+    protected CartPrice $price;
 
-    /**
-     * @var float
-     */
-    protected $amountTotal;
+    protected float $amountTotal;
 
-    /**
-     * @var float
-     */
-    protected $amountNet;
+    protected float $amountNet;
 
-    /**
-     * @var float
-     */
-    protected $positionPrice;
+    protected float $positionPrice;
 
-    /**
-     * @deprecated tag:v6.7.0 - Type will be nullable. Also, it will be natively typed to enforce strict data type checking.
-     *
-     * @var string|null
-     */
-    protected $taxStatus;
+    protected ?string $taxStatus = null;
 
-    /**
-     * @var CalculatedPrice
-     */
-    protected $shippingCosts;
+    protected CalculatedPrice $shippingCosts;
 
-    /**
-     * @var float
-     */
-    protected $shippingTotal;
+    protected float $shippingTotal;
 
-    /**
-     * @var OrderCustomerEntity|null
-     */
-    protected $orderCustomer;
+    protected ?OrderCustomerEntity $orderCustomer = null;
 
-    /**
-     * @var CurrencyEntity|null
-     */
-    protected $currency;
+    protected ?CurrencyEntity $currency = null;
 
-    /**
-     * @var string
-     */
-    protected $languageId;
+    protected string $languageId;
 
-    /**
-     * @var LanguageEntity|null
-     */
-    protected $language;
+    protected ?LanguageEntity $language = null;
 
-    /**
-     * @var SalesChannelEntity|null
-     */
-    protected $salesChannel;
+    protected ?SalesChannelEntity $salesChannel = null;
 
-    /**
-     * @var OrderAddressCollection|null
-     */
-    protected $addresses;
+    protected ?OrderAddressCollection $addresses = null;
 
-    /**
-     * @var OrderAddressEntity|null
-     */
-    protected $billingAddress;
+    protected ?OrderAddressEntity $billingAddress = null;
 
-    /**
-     * @var OrderDeliveryCollection|null
-     */
-    protected $deliveries;
+    protected ?OrderDeliveryCollection $deliveries = null;
 
-    /**
-     * @var OrderLineItemCollection|null
-     */
-    protected $lineItems;
+    protected ?OrderLineItemCollection $lineItems = null;
 
-    /**
-     * @var OrderTransactionCollection|null
-     */
-    protected $transactions;
+    protected ?OrderTransactionCollection $transactions = null;
 
-    /**
-     * @var string|null
-     */
-    protected $deepLinkCode;
+    protected ?string $deepLinkCode = null;
 
-    /**
-     * @var int
-     */
-    protected $autoIncrement;
+    protected int $autoIncrement;
 
-    /**
-     * @var StateMachineStateEntity|null
-     */
-    protected $stateMachineState;
+    protected ?StateMachineStateEntity $stateMachineState = null;
 
-    /**
-     * @var string
-     */
-    protected $stateId;
+    protected string $stateId;
 
-    /**
-     * @var DocumentCollection|null
-     */
-    protected $documents;
+    protected ?DocumentCollection $documents = null;
 
-    /**
-     * @var TagCollection|null
-     */
-    protected $tags;
+    protected ?TagCollection $tags = null;
 
-    /**
-     * @var string|null
-     */
-    protected $affiliateCode;
+    protected ?string $affiliateCode = null;
 
-    /**
-     * @var string|null
-     */
-    protected $campaignCode;
+    protected ?string $campaignCode = null;
 
-    /**
-     * @var string|null
-     */
-    protected $customerComment;
+    protected ?string $customerComment = null;
+
+    protected ?string $internalComment = null;
 
     /**
      * @var array<string>|null
      */
-    protected $ruleIds = [];
+    protected ?array $ruleIds = [];
 
-    /**
-     * @var string|null
-     */
-    protected $createdById;
+    protected ?string $createdById = null;
 
-    /**
-     * @var UserEntity|null
-     */
-    protected $createdBy;
+    protected ?UserEntity $createdBy = null;
 
-    /**
-     * @var string|null
-     */
-    protected $updatedById;
+    protected ?string $updatedById = null;
 
-    /**
-     * @var UserEntity|null
-     */
-    protected $updatedBy;
+    protected ?UserEntity $updatedBy = null;
 
-    /**
-     * @var CashRoundingConfig|null
-     */
-    protected $itemRounding;
+    protected ?CashRoundingConfig $itemRounding = null;
 
-    /**
-     * @var CashRoundingConfig|null
-     */
-    protected $totalRounding;
+    protected ?CashRoundingConfig $totalRounding = null;
 
     protected ?string $source = null;
 
@@ -323,18 +203,9 @@ class OrderEntity extends Entity
         return $this->positionPrice;
     }
 
-    /**
-     * @deprecated tag:v6.7.0 - reason:return-type-change - Will also return null
-     * return type will be ?string in v6.7.0.0
-     */
-    public function getTaxStatus(): string
+    public function getTaxStatus(): ?string
     {
-        /**
-         * @deprecated tag:v6.7.0
-         * remove the null-check
-         * return $this->taxStatus;
-         */
-        return $this->taxStatus ?? '';
+        return $this->taxStatus;
     }
 
     public function getShippingCosts(): CalculatedPrice
@@ -581,6 +452,16 @@ class OrderEntity extends Entity
     public function setCustomerComment(?string $customerComment): void
     {
         $this->customerComment = $customerComment;
+    }
+
+    public function getInternalComment(): ?string
+    {
+        return $this->internalComment;
+    }
+
+    public function setInternalComment(?string $internalComment): void
+    {
+        $this->internalComment = $internalComment;
     }
 
     public function getSource(): ?string

@@ -22,6 +22,7 @@ use Shopware\Core\Checkout\Customer\Validation\Constraint\CustomerZipCode;
 use Shopware\Core\Checkout\Order\SalesChannel\OrderService;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
+use Shopware\Core\Framework\DataAbstractionLayer\Indexing\EntityIndexerRegistry;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Validation\EntityExists;
@@ -29,6 +30,7 @@ use Shopware\Core\Framework\Event\DataMappingEvent;
 use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
+use Shopware\Core\Framework\Util\Hasher;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Framework\Validation\BuildValidationEvent;
 use Shopware\Core\Framework\Validation\DataBag\DataBag;
@@ -39,7 +41,6 @@ use Shopware\Core\Framework\Validation\DataValidator;
 use Shopware\Core\Framework\Validation\Exception\ConstraintViolationException;
 use Shopware\Core\PlatformRequest;
 use Shopware\Core\System\Country\CountryCollection;
-use Shopware\Core\System\Country\CountryEntity;
 use Shopware\Core\System\NumberRange\ValueGenerator\NumberRangeValueGeneratorInterface;
 use Shopware\Core\System\SalesChannel\Aggregate\SalesChannelDomain\SalesChannelDomainCollection;
 use Shopware\Core\System\SalesChannel\Aggregate\SalesChannelDomain\SalesChannelDomainEntity;
@@ -112,14 +113,12 @@ class RegisterRoute extends AbstractRegisterRoute
         $shipping = $data->get('shippingAddress');
 
         if ($billing instanceof DataBag) {
-            if (Feature::isActive('v6.7.0.0')) {
-                if ($billing->has('firstName') && !$data->has('firstName')) {
-                    $data->set('firstName', $billing->get('firstName'));
-                }
+            if ($billing->has('firstName') && !$data->has('firstName')) {
+                $data->set('firstName', $billing->get('firstName'));
+            }
 
-                if ($billing->has('lastName') && !$data->has('lastName')) {
-                    $data->set('lastName', $billing->get('lastName'));
-                }
+            if ($billing->has('lastName') && !$data->has('lastName')) {
+                $data->set('lastName', $billing->get('lastName'));
             }
 
             if ($data->has('title')) {
@@ -185,20 +184,15 @@ class RegisterRoute extends AbstractRegisterRoute
             return $value;
         }, $customer);
 
-        $this->customerRepository->create([$customer], $context->getContext());
+        $writeContext = clone $context->getContext();
+        $writeContext->addState(EntityIndexerRegistry::USE_INDEXING_QUEUE);
+
+        $this->customerRepository->create([$customer], $writeContext);
 
         $criteria = new Criteria([$customer['id']]);
-        $criteria->addAssociation('addresses');
-        $criteria->addAssociation('salutation');
-        $criteria->addAssociation('defaultBillingAddress.country');
-        $criteria->addAssociation('defaultBillingAddress.countryState');
-        $criteria->addAssociation('defaultBillingAddress.salutation');
-        $criteria->addAssociation('defaultShippingAddress.country');
-        $criteria->addAssociation('defaultShippingAddress.countryState');
-        $criteria->addAssociation('defaultShippingAddress.salutation');
 
-        /** @var CustomerEntity $customerEntity */
-        $customerEntity = $this->customerRepository->search($criteria, $context->getContext())->first();
+        $customerEntity = $this->customerRepository->search($criteria, $context->getContext())->getEntities()->first();
+        \assert(assertion: $customerEntity !== null);
 
         if ($customerEntity->getDoubleOptInRegistration()) {
             $this->eventDispatcher->dispatch(
@@ -229,18 +223,18 @@ class RegisterRoute extends AbstractRegisterRoute
                 'shippingAddressId' => null,
                 'domainId' => $context->getDomainId(),
             ],
-            $context->getSalesChannel()->getId(),
+            $context->getSalesChannelId(),
             $customerEntity->getId()
         );
 
         $new = $this->contextService->get(
             new SalesChannelContextServiceParameters(
-                $context->getSalesChannel()->getId(),
+                $context->getSalesChannelId(),
                 $newToken,
                 $context->getLanguageId(),
                 $context->getCurrencyId(),
                 $context->getDomainId(),
-                $context->getContext(),
+                null,
                 $customerEntity->getId()
             )
         );
@@ -396,12 +390,9 @@ class RegisterRoute extends AbstractRegisterRoute
         $birthdayMonth = $data->get('birthdayMonth');
         $birthdayYear = $data->get('birthdayYear');
 
-        if (!$birthdayDay || !$birthdayMonth || !$birthdayYear) {
+        if (!\is_numeric($birthdayDay) || !\is_numeric($birthdayMonth) || !\is_numeric($birthdayYear)) {
             return null;
         }
-        \assert(\is_numeric($birthdayDay));
-        \assert(\is_numeric($birthdayMonth));
-        \assert(\is_numeric($birthdayYear));
 
         return new \DateTime(\sprintf(
             '%d-%d-%d',
@@ -420,11 +411,11 @@ class RegisterRoute extends AbstractRegisterRoute
             'customerNumber' => $this->numberRangeValueGenerator->getValue(
                 $this->customerRepository->getDefinition()->getEntityName(),
                 $context->getContext(),
-                $context->getSalesChannel()->getId()
+                $context->getSalesChannelId()
             ),
-            'salesChannelId' => $context->getSalesChannel()->getId(),
-            'languageId' => $context->getContext()->getLanguageId(),
-            'groupId' => $context->getCurrentCustomerGroup()->getId(),
+            'salesChannelId' => $context->getSalesChannelId(),
+            'languageId' => $context->getLanguageId(),
+            'groupId' => $context->getCustomerGroupId(),
             'requestedGroupId' => $data->get('requestedGroupId', null),
             'salutationId' => $data->get('salutationId'),
             'firstName' => $data->get('firstName'),
@@ -439,10 +430,6 @@ class RegisterRoute extends AbstractRegisterRoute
             'firstLogin' => new \DateTimeImmutable(),
             'addresses' => [],
         ];
-
-        if (!Feature::isActive('v6.7.0.0')) {
-            $customer['defaultPaymentMethodId'] = $context->getPaymentMethod()->getId();
-        }
 
         if (!$isGuest) {
             $customer['password'] = $data->get('password');
@@ -479,8 +466,8 @@ class RegisterRoute extends AbstractRegisterRoute
     {
         $validation = $this->accountValidationFactory->create($context);
 
-        $criteria = new Criteria();
-        $criteria->addFilter(new EqualsFilter('registrationSalesChannels.id', $context->getSalesChannel()->getId()));
+        $criteria = (new Criteria())
+            ->addFilter(new EqualsFilter('registrationSalesChannels.id', $context->getSalesChannelId()));
 
         $validation->add('requestedGroupId', new EntityExists([
             'entity' => 'customer_group',
@@ -491,8 +478,7 @@ class RegisterRoute extends AbstractRegisterRoute
         if (!$isGuest) {
             $minLength = $this->systemConfigService->get('core.loginRegistration.passwordMinLength', $context->getSalesChannelId());
             $validation->add('password', new NotBlank(), new Length(['min' => $minLength]));
-            $options = ['context' => $context->getContext(), 'salesChannelContext' => $context];
-            $validation->add('email', new CustomerEmailUnique($options));
+            $validation->add('email', new CustomerEmailUnique(['salesChannelContext' => $context]));
         }
 
         $validationEvent = new BuildValidationEvent($validation, $data, $context->getContext());
@@ -576,13 +562,25 @@ class RegisterRoute extends AbstractRegisterRoute
 
     private function requiredVatIdField(string $countryId, SalesChannelContext $context): bool
     {
-        $country = $this->countryRepository->search(new Criteria([$countryId]), $context)->get($countryId);
+        if (!Feature::isActive('v6.8.0.0')) {
+            $country = $this->countryRepository->search(new Criteria([$countryId]), $context)->get($countryId);
 
-        if (!$country instanceof CountryEntity) {
+            if (!$country) {
+                throw CustomerException::countryNotFound($countryId);
+            }
+
+            return $country->getVatIdRequired();
+        }
+
+        $countryCriteria = (new Criteria([$countryId]))
+            ->addFields(['vatIdRequired']);
+
+        $country = $this->countryRepository->search($countryCriteria, $context)->getEntities()->first();
+        if (!$country) {
             throw CustomerException::countryNotFound($countryId);
         }
 
-        return $country->getVatIdRequired();
+        return $country->get('vatIdRequired');
     }
 
     private function getConfirmUrl(SalesChannelContext $context, CustomerEntity $customer): string
@@ -595,25 +593,23 @@ class RegisterRoute extends AbstractRegisterRoute
             $urlTemplate = '/registration/confirm?em=%%HASHEDEMAIL%%&hash=%%SUBSCRIBEHASH%%';
         }
 
-        $emailHash = hash('sha1', $customer->getEmail());
+        $emailHash = Hasher::hash($customer->getEmail(), 'sha1');
 
         $urlEvent = new CustomerConfirmRegisterUrlEvent($context, $urlTemplate, $emailHash, $customer->getHash(), $customer);
         $this->eventDispatcher->dispatch($urlEvent);
 
         return str_replace(
             ['%%HASHEDEMAIL%%', '%%SUBSCRIBEHASH%%'],
-            [$emailHash, $customer->getHash()],
+            [$emailHash, (string) $customer->getHash()],
             $urlEvent->getConfirmUrl()
         );
     }
 
     private function getDefaultSalutationId(SalesChannelContext $context): ?string
     {
-        $criteria = new Criteria();
-        $criteria->setLimit(1);
-        $criteria->addFilter(
-            new EqualsFilter('salutationKey', SalutationDefinition::NOT_SPECIFIED)
-        );
+        $criteria = (new Criteria())
+            ->setLimit(1)
+            ->addFilter(new EqualsFilter('salutationKey', SalutationDefinition::NOT_SPECIFIED));
 
         return $this->salutationRepository->searchIds($criteria, $context->getContext())->firstId();
     }

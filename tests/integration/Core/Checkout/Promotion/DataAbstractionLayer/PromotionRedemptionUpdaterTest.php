@@ -6,29 +6,35 @@ namespace Shopware\Tests\Integration\Core\Checkout\Promotion\DataAbstractionLaye
 
 use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\TestCase;
-use Shopware\Core\Checkout\Cart\Event\CheckoutOrderPlacedEvent;
 use Shopware\Core\Checkout\Cart\LineItem\LineItem;
 use Shopware\Core\Checkout\Cart\Price\Struct\CalculatedPrice;
 use Shopware\Core\Checkout\Cart\Price\Struct\CartPrice;
 use Shopware\Core\Checkout\Cart\Price\Struct\QuantityPriceDefinition;
 use Shopware\Core\Checkout\Cart\Tax\Struct\CalculatedTaxCollection;
 use Shopware\Core\Checkout\Cart\Tax\Struct\TaxRuleCollection;
+use Shopware\Core\Checkout\Customer\CustomerDefinition;
+use Shopware\Core\Checkout\Order\Aggregate\OrderLineItem\OrderLineItemDefinition;
+use Shopware\Core\Checkout\Order\OrderDefinition;
 use Shopware\Core\Checkout\Order\OrderEntity;
+use Shopware\Core\Checkout\Promotion\Aggregate\PromotionIndividualCode\PromotionIndividualCodeCollection;
 use Shopware\Core\Checkout\Promotion\DataAbstractionLayer\PromotionRedemptionUpdater;
+use Shopware\Core\Checkout\Promotion\PromotionCollection;
 use Shopware\Core\Checkout\Promotion\Subscriber\PromotionIndividualCodeRedeemer;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityWriteResult;
+use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenEvent;
 use Shopware\Core\Framework\DataAbstractionLayer\Pricing\CashRoundingConfig;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
-use Shopware\Core\Framework\Test\TestDataCollection;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\Test\Integration\Traits\CustomerTestTrait;
 use Shopware\Core\Test\Integration\Traits\Promotion\PromotionTestFixtureBehaviour;
+use Shopware\Core\Test\Stub\Framework\IdsCollection;
 use Shopware\Core\Test\TestDefaults;
 
 /**
@@ -41,7 +47,7 @@ class PromotionRedemptionUpdaterTest extends TestCase
     use IntegrationTestBehaviour;
     use PromotionTestFixtureBehaviour;
 
-    private TestDataCollection $ids;
+    private IdsCollection $ids;
 
     private Connection $connection;
 
@@ -49,8 +55,8 @@ class PromotionRedemptionUpdaterTest extends TestCase
 
     protected function setUp(): void
     {
-        $this->ids = new TestDataCollection();
-        $this->connection = $this->getContainer()->get(Connection::class);
+        $this->ids = new IdsCollection();
+        $this->connection = static::getContainer()->get(Connection::class);
         $this->salesChannelContext = $this->createSalesChannelContext();
     }
 
@@ -58,7 +64,7 @@ class PromotionRedemptionUpdaterTest extends TestCase
     {
         $this->createPromotionsAndOrder();
 
-        $updater = $this->getContainer()->get(PromotionRedemptionUpdater::class);
+        $updater = static::getContainer()->get(PromotionRedemptionUpdater::class);
         $updater->update(
             [
                 $this->ids->get('voucherA'),
@@ -71,7 +77,7 @@ class PromotionRedemptionUpdaterTest extends TestCase
         $this->assertUpdatedCounts();
     }
 
-    public function testPromotionRedemptionUpdaterUpdateViaOrderPlacedEvent(): void
+    public function testPromotionRedemptionUpdaterUpdateViaEntityWrittenEvent(): void
     {
         $this->createPromotionsAndOrder();
 
@@ -79,20 +85,19 @@ class PromotionRedemptionUpdaterTest extends TestCase
         $criteria->addAssociation('lineItems');
 
         /** @var OrderEntity|null $order */
-        $order = $this->getContainer()
+        $order = static::getContainer()
             ->get('order.repository')
             ->search($criteria, $this->salesChannelContext->getContext())
             ->first();
 
         static::assertNotNull($order);
 
-        $dispatcher = $this->getContainer()->get('event_dispatcher');
-        $dispatcher->dispatch(new CheckoutOrderPlacedEvent(
-            $this->salesChannelContext->getContext(),
-            $order,
-            $this->salesChannelContext->getSalesChannelId()
-        ));
+        $dispatcher = static::getContainer()->get('event_dispatcher');
 
+        $dispatcher->dispatch(new EntityWrittenEvent(CustomerDefinition::ENTITY_NAME, [new EntityWriteResult($this->ids->get('customer'), [], CustomerDefinition::ENTITY_NAME, EntityWriteResult::OPERATION_UPDATE)], $this->salesChannelContext->getContext()));
+        $this->assertNonUpdatedCounts();
+
+        $dispatcher->dispatch(new EntityWrittenEvent(OrderDefinition::ENTITY_NAME, [new EntityWriteResult($order->getId(), [], OrderDefinition::ENTITY_NAME, EntityWriteResult::OPERATION_UPDATE)], $this->salesChannelContext->getContext()));
         $this->assertUpdatedCounts();
     }
 
@@ -102,7 +107,7 @@ class PromotionRedemptionUpdaterTest extends TestCase
 
         $voucherA = $this->ids->get('voucherA');
 
-        $connection = $this->getContainer()->get(Connection::class);
+        $connection = static::getContainer()->get(Connection::class);
 
         // field is write protected - use plain sql here
         $connection->executeStatement(
@@ -114,21 +119,17 @@ class PromotionRedemptionUpdaterTest extends TestCase
         $criteria->addAssociation('lineItems');
 
         /** @var OrderEntity|null $order */
-        $order = $this->getContainer()
+        $order = static::getContainer()
             ->get('order.repository')
             ->search($criteria, Context::createDefaultContext())
             ->first();
 
         static::assertNotNull($order);
 
-        $event = new CheckoutOrderPlacedEvent(
-            Context::createDefaultContext(),
-            $order,
-            Defaults::SALES_CHANNEL_TYPE_STOREFRONT
-        );
+        $event = new EntityWrittenEvent(OrderDefinition::ENTITY_NAME, [new EntityWriteResult($order->getId(), [], OrderDefinition::ENTITY_NAME, EntityWriteResult::OPERATION_UPDATE)], $this->salesChannelContext->getContext());
 
-        $updater = $this->getContainer()->get(PromotionRedemptionUpdater::class);
-        $updater->orderPlaced($event);
+        $updater = static::getContainer()->get(PromotionRedemptionUpdater::class);
+        $updater->orderUpdated($event);
 
         $promotions = $connection->fetchAllAssociative(
             'SELECT `id`, `orders_per_customer_count` FROM `promotion` WHERE `id` = :id',
@@ -151,27 +152,42 @@ class PromotionRedemptionUpdaterTest extends TestCase
 
         $voucherD = $this->ids->get('voucherD');
 
-        $connection = $this->getContainer()->get(Connection::class);
+        $connection = static::getContainer()->get(Connection::class);
 
         $criteria = new Criteria([$this->ids->create('order')]);
         $criteria->addAssociation('lineItems');
 
         /** @var OrderEntity|null $order */
-        $order = $this->getContainer()
+        $order = static::getContainer()
             ->get('order.repository')
             ->search($criteria, Context::createDefaultContext())
             ->first();
 
         static::assertNotNull($order);
 
-        $event = new CheckoutOrderPlacedEvent(
-            Context::createDefaultContext(),
-            $order,
-            Defaults::SALES_CHANNEL_TYPE_STOREFRONT
-        );
+        $lineItems = $order->getLineItems();
 
-        $updater = $this->getContainer()->get(PromotionIndividualCodeRedeemer::class);
-        $updater->onOrderPlaced($event);
+        static::assertNotNull($lineItems);
+
+        $lineItem1 = $lineItems->getAt(0);
+        $lineItem2 = $lineItems->getAt(1);
+        $lineItem3 = $lineItems->getAt(2);
+        $lineItem4 = $lineItems->getAt(3);
+
+        static::assertNotNull($lineItem1);
+        static::assertNotNull($lineItem2);
+        static::assertNotNull($lineItem3);
+        static::assertNotNull($lineItem4);
+
+        $event = new EntityWrittenEvent('order_line_item', [
+            new EntityWriteResult($lineItem1->getId(), $lineItem1->jsonSerialize(), OrderLineItemDefinition::ENTITY_NAME, EntityWriteResult::OPERATION_INSERT),
+            new EntityWriteResult($lineItem2->getId(), $lineItem2->jsonSerialize(), OrderLineItemDefinition::ENTITY_NAME, EntityWriteResult::OPERATION_INSERT),
+            new EntityWriteResult($lineItem3->getId(), $lineItem3->jsonSerialize(), OrderLineItemDefinition::ENTITY_NAME, EntityWriteResult::OPERATION_INSERT),
+            new EntityWriteResult($lineItem4->getId(), $lineItem4->jsonSerialize(), OrderLineItemDefinition::ENTITY_NAME, EntityWriteResult::OPERATION_INSERT),
+        ], $this->salesChannelContext->getContext());
+
+        $updater = static::getContainer()->get(PromotionIndividualCodeRedeemer::class);
+        $updater->onOrderLineItemWritten($event);
 
         $promotionIndividualCode = $connection->fetchAllAssociative(
             'SELECT `id`, `payload` FROM `promotion_individual_code` WHERE `promotion_id` = :id',
@@ -198,11 +214,11 @@ class PromotionRedemptionUpdaterTest extends TestCase
 
     private function createPromotionsAndOrder(): void
     {
-        /** @var EntityRepository $promotionRepository */
-        $promotionRepository = $this->getContainer()->get('promotion.repository');
+        /** @var EntityRepository<PromotionCollection> $promotionRepository */
+        $promotionRepository = static::getContainer()->get('promotion.repository');
 
-        /** @var EntityRepository $promotionRepository */
-        $promotionIndividualCodeRepository = $this->getContainer()->get('promotion_individual_code.repository');
+        /** @var EntityRepository<PromotionIndividualCodeCollection> $promotionRepository */
+        $promotionIndividualCodeRepository = static::getContainer()->get('promotion_individual_code.repository');
 
         $voucherA = $this->ids->create('voucherA');
         $voucherB = $this->ids->create('voucherB');
@@ -252,6 +268,32 @@ class PromotionRedemptionUpdaterTest extends TestCase
         static::assertEquals(2, $customerCount[$this->ids->get('customer')]);
     }
 
+    private function assertNonUpdatedCounts(): void
+    {
+        $promotions = $this->connection->fetchAllAssociative('SELECT * FROM promotion;');
+
+        static::assertCount(3, $promotions);
+
+        $actualVoucherA = Uuid::fromBytesToHex($promotions[0]['id']) === $this->ids->get('voucherA') ? $promotions[0] : $promotions[1];
+        static::assertNotEmpty($actualVoucherA);
+        static::assertEquals('1', $actualVoucherA['order_count']);
+        $customerCount = json_decode((string) $actualVoucherA['orders_per_customer_count'], true, 512, \JSON_THROW_ON_ERROR);
+        static::assertEquals(1, $customerCount[$this->ids->get('customer')]);
+
+        $actualVoucherD = Uuid::fromBytesToHex($promotions[0]['id']) === $this->ids->get('voucherD') ? $promotions[0] : $promotions[1];
+        static::assertNotEmpty($actualVoucherD);
+        static::assertEquals('2', $actualVoucherD['order_count']);
+        $customerCount = json_decode((string) $actualVoucherD['orders_per_customer_count'], true, 512, \JSON_THROW_ON_ERROR);
+        static::assertEquals(2, $customerCount[$this->ids->get('customer')]);
+
+        $actualVoucherB = Uuid::fromBytesToHex($promotions[0]['id']) === $this->ids->get('voucherB') ? $promotions[0] : $promotions[1];
+        static::assertNotEmpty($actualVoucherB);
+        // VoucherB is used twice, it's mean group by works
+        static::assertEquals('2', $actualVoucherB['order_count']);
+        $customerCount = json_decode((string) $actualVoucherB['orders_per_customer_count'], true, 512, \JSON_THROW_ON_ERROR);
+        static::assertEquals(2, $customerCount[$this->ids->get('customer')]);
+    }
+
     /**
      * @param array<string, string> $customer
      *
@@ -271,7 +313,7 @@ class PromotionRedemptionUpdaterTest extends TestCase
      */
     private function createSalesChannelContext(array $options = []): SalesChannelContext
     {
-        $salesChannelContextFactory = $this->getContainer()->get(SalesChannelContextFactory::class);
+        $salesChannelContextFactory = static::getContainer()->get(SalesChannelContextFactory::class);
 
         $token = Uuid::randomHex();
 
@@ -280,7 +322,7 @@ class PromotionRedemptionUpdaterTest extends TestCase
 
     private function createOrder(string $customerId): void
     {
-        $this->getContainer()->get('order.repository')->create(
+        static::getContainer()->get('order.repository')->create(
             [[
                 'id' => $this->ids->create('order'),
                 'itemRounding' => json_decode(json_encode(new CashRoundingConfig(2, 0.01, true), \JSON_THROW_ON_ERROR), true, 512, \JSON_THROW_ON_ERROR),

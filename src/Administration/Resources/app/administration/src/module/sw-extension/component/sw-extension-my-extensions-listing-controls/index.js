@@ -2,15 +2,16 @@ import template from './sw-extension-my-extensions-listing-controls.html.twig';
 import './sw-extension-my-extensions-listing-controls.scss';
 
 /**
- * @package checkout
+ * @sw-package checkout
  * @private
  */
 export default {
     template,
 
-    compatConfig: Shopware.compatConfig,
-
-    emits: ['update:active-state', 'update:sorting-option'],
+    emits: [
+        'update:active-state',
+        'update:sorting-option',
+    ],
 
     data() {
         return {
@@ -18,16 +19,19 @@ export default {
             selectedSortingOption: 'updated-at',
             sortingOptions: [
                 {
+                    id: 1,
                     value: 'updated-at',
-                    name: this.$tc('sw-extension.my-extensions.listing.controls.filterOptions.last-updated'),
+                    label: this.$tc('sw-extension.my-extensions.listing.controls.filterOptions.last-updated'),
                 },
                 {
+                    id: 2,
                     value: 'name-asc',
-                    name: this.$tc('sw-extension.my-extensions.listing.controls.filterOptions.name-asc'),
+                    label: this.$tc('sw-extension.my-extensions.listing.controls.filterOptions.name-asc'),
                 },
                 {
+                    id: 3,
                     value: 'name-desc',
-                    name: this.$tc('sw-extension.my-extensions.listing.controls.filterOptions.name-desc'),
+                    label: this.$tc('sw-extension.my-extensions.listing.controls.filterOptions.name-desc'),
                 },
             ],
         };

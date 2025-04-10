@@ -1,16 +1,12 @@
 import template from './sw-extension-my-extensions-listing.html.twig';
 import './sw-extension-my-extensions-listing.scss';
 
-const { mapState } = Shopware.Component.getComponentHelper();
-
 /**
- * @package checkout
+ * @sw-package checkout
  * @private
  */
 export default {
     template,
-
-    compatConfig: Shopware.compatConfig,
 
     inject: ['shopwareExtensionService'],
 
@@ -22,18 +18,18 @@ export default {
     },
 
     computed: {
-        ...mapState('context', {
-            isAppUrlReachable: state => state.app.config.settings.appUrlReachable,
-        }),
+        isAppUrlReachable() {
+            return Shopware.Store.get('context').app.config.settings?.appUrlReachable;
+        },
 
         isLoading() {
-            const state = Shopware.State.get('shopwareExtensions');
+            const state = Shopware.Store.get('shopwareExtensions');
 
             return state.myExtensions.loading;
         },
 
         myExtensions() {
-            return Shopware.State.get('shopwareExtensions').myExtensions.data;
+            return Shopware.Store.get('shopwareExtensions').myExtensions.data;
         },
 
         extensionList() {
@@ -50,24 +46,21 @@ export default {
         extensionListPaginated() {
             const begin = (this.page - 1) * this.limit;
 
-            return this.extensionListSearched
-                .slice(begin, begin + this.limit);
+            return this.extensionListSearched.slice(begin, begin + this.limit);
         },
 
         extensionListSearched() {
-            return this.extensionList
-                .filter(extension => {
-                    const searchTerm = this.term && this.term.toLowerCase();
-                    if (!this.term) {
-                        return true;
-                    }
+            return this.extensionList.filter((extension) => {
+                const searchTerm = this.term && this.term.toLowerCase();
+                if (!this.term) {
+                    return true;
+                }
 
-                    const label = extension.label || '';
-                    const name = extension.name || '';
+                const label = extension.label || '';
+                const name = extension.name || '';
 
-                    return label.toLowerCase().includes(searchTerm) ||
-                        name.toLowerCase().includes(searchTerm);
-                });
+                return label.toLowerCase().includes(searchTerm) || name.toLowerCase().includes(searchTerm);
+            });
         },
 
         isAppRoute() {
@@ -126,7 +119,7 @@ export default {
         },
 
         extensionManagementDisabled() {
-            return Shopware.State.get('context').app.config.settings.disableExtensionManagement;
+            return Shopware.Store.get('context').app.config.settings.disableExtensionManagement;
         },
     },
 
@@ -193,7 +186,7 @@ export default {
         },
 
         filterExtensionsByType(extensions) {
-            return extensions.filter(extension => {
+            return extensions.filter((extension) => {
                 // app route and no theme
                 if (this.isAppRoute && !extension.isTheme) {
                     return true;
@@ -260,7 +253,7 @@ export default {
         },
 
         filterExtensionsByActiveState(extensions) {
-            return extensions.filter(extension => {
+            return extensions.filter((extension) => {
                 return extension.active;
             });
         },

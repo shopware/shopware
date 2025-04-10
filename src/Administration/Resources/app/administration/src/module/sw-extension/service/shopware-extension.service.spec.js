@@ -26,7 +26,7 @@ Shopware.Service().register('shopwareDiscountCampaignService', () => {
 });
 
 /**
- * @package checkout
+ * @sw-package checkout
  */
 describe('src/module/sw-extension/service/shopware-extension.service', () => {
     let shopwareExtensionService;
@@ -36,23 +36,18 @@ describe('src/module/sw-extension/service/shopware-extension.service', () => {
 
         initState(Shopware);
 
-        if (Shopware.State.get('extensionEntryRoutes')) {
-            Shopware.State.unregisterModule('extensionEntryRoutes');
-        }
-        Shopware.State.registerModule('extensionEntryRoutes', {
-            namespaced: true,
-            state: {
-                routes: {
-                    ExamplePlugin: {
-                        route: 'test.foo',
-                    },
-                },
+        Shopware.Store.get('extensionEntryRoutes').routes = {
+            ExamplePlugin: {
+                route: 'test.foo',
             },
-        });
+        };
     });
 
     describe('it delegates lifecycle methods', () => {
-        const mockedExtensionStoreActionService = new ExtensionStoreActionService(httpClient, Shopware.Service('loginService'));
+        const mockedExtensionStoreActionService = new ExtensionStoreActionService(
+            httpClient,
+            Shopware.Service('loginService'),
+        );
         mockedExtensionStoreActionService.getMyExtensions.mockImplementation(() => {
             return ['new extensions'];
         });
@@ -73,10 +68,8 @@ describe('src/module/sw-extension/service/shopware-extension.service', () => {
             expect(mockedExtensionStoreActionService.refresh).toHaveBeenCalledTimes(1);
             expect(mockedExtensionStoreActionService.getMyExtensions).toHaveBeenCalledTimes(1);
 
-            expect(Shopware.State.get('shopwareExtensions').myExtensions.data)
-                .toEqual(['new extensions']);
-            expect(Shopware.State.get('shopwareExtensions').myExtensions.loading)
-                .toBe(false);
+            expect(Shopware.Store.get('shopwareExtensions').myExtensions.data).toEqual(['new extensions']);
+            expect(Shopware.Store.get('shopwareExtensions').myExtensions.loading).toBe(false);
 
             expectUpdateModulesCalled();
         }
@@ -84,19 +77,48 @@ describe('src/module/sw-extension/service/shopware-extension.service', () => {
         function expectUpdateModulesCalled() {
             expect(mockedModuleService.fetchAppModules).toHaveBeenCalledTimes(1);
 
-            expect(Shopware.State.get('shopwareApps').apps).toEqual(['new app modules']);
+            expect(Shopware.Store.get('shopwareApps').apps).toEqual([
+                'new app modules',
+            ]);
         }
 
         beforeEach(() => {
-            Shopware.State.commit('shopwareExtensions/myExtensions', []);
-            Shopware.State.commit('shopwareApps/setApps', []);
+            Shopware.Store.get('shopwareExtensions').setMyExtensions([]);
+            Shopware.Store.get('shopwareApps').apps = [];
         });
 
         it.each([
-            ['installExtension', ['someExtension', 'app']],
-            ['updateExtension', ['someExtension', 'app', true]],
-            ['uninstallExtension', ['someExtension', 'app', true]],
-            ['removeExtension', ['someExtension', 'app']],
+            [
+                'installExtension',
+                [
+                    'someExtension',
+                    'app',
+                ],
+            ],
+            [
+                'updateExtension',
+                [
+                    'someExtension',
+                    'app',
+                    true,
+                ],
+            ],
+            [
+                'uninstallExtension',
+                [
+                    'someExtension',
+                    'app',
+                    true,
+                ],
+            ],
+            [
+                'removeExtension',
+                [
+                    'someExtension',
+                    'app',
+                    true,
+                ],
+            ],
         ])('delegates %s correctly', async (lifecycleMethod, parameters) => {
             await mockedShopwareExtensionService[lifecycleMethod](...parameters);
 
@@ -130,7 +152,7 @@ describe('src/module/sw-extension/service/shopware-extension.service', () => {
         const checkLoginSpy = jest.spyOn(Shopware.Service('storeService'), 'checkLogin');
 
         beforeEach(() => {
-            Shopware.State.commit('shopwareExtensions/setUserInfo', true);
+            Shopware.Store.get('shopwareExtensions').userInfo = true;
         });
 
         it.each([
@@ -141,7 +163,7 @@ describe('src/module/sw-extension/service/shopware-extension.service', () => {
 
             await shopwareExtensionService.checkLogin();
 
-            expect(Shopware.State.get('shopwareExtensions').userInfo).toStrictEqual(loginResponse.userInfo);
+            expect(Shopware.Store.get('shopwareExtensions').userInfo).toStrictEqual(loginResponse.userInfo);
         });
 
         it('sets login status to false if checkLogin request fails', async () => {
@@ -151,8 +173,8 @@ describe('src/module/sw-extension/service/shopware-extension.service', () => {
 
             await shopwareExtensionService.checkLogin();
 
-            expect(Shopware.State.get('shopwareExtensions').loginStatus).toBe(false);
-            expect(Shopware.State.get('shopwareExtensions').userInfo).toBeNull();
+            expect(Shopware.Store.get('shopwareExtensions').loginStatus).toBe(false);
+            expect(Shopware.Store.get('shopwareExtensions').userInfo).toBeNull();
         });
     });
 
@@ -176,9 +198,7 @@ describe('src/module/sw-extension/service/shopware-extension.service', () => {
                 },
             };
 
-            Shopware.Service('shopwareDiscountCampaignService')
-                .isDiscountCampaignActive
-                .mockImplementationOnce(() => false);
+            Shopware.Service('shopwareDiscountCampaignService').isDiscountCampaignActive.mockImplementationOnce(() => false);
 
             expect(shopwareExtensionService.isVariantDiscounted(variant)).toBe(false);
         });
@@ -192,26 +212,49 @@ describe('src/module/sw-extension/service/shopware-extension.service', () => {
         });
 
         it('returns false if discounted price is net price', async () => {
-            expect(shopwareExtensionService.isVariantDiscounted({
-                netPrice: 100,
-                discountCampaign: {
-                    discountedPrice: 100,
-                },
-            })).toBe(false);
+            expect(
+                shopwareExtensionService.isVariantDiscounted({
+                    netPrice: 100,
+                    discountCampaign: {
+                        discountedPrice: 100,
+                    },
+                }),
+            ).toBe(false);
         });
     });
 
     describe('orderVariantsByRecommendation', () => {
         it('orders variants by recommendation and discounting', async () => {
             const variants = [
-                { netPrice: 100, discountCampaign: { netPrice: 100 }, type: 'rent' },
-                { netPrice: 100, discountCampaign: { netPrice: 80 }, type: 'test' },
-                { netPrice: 100, discountCampaign: { netPrice: 100 }, type: 'test' },
-                { netPrice: 100, discountCampaign: { netPrice: 100 }, type: 'buy' },
-                { netPrice: 100, discountCampaign: { netPrice: 10 }, type: 'rent' },
+                {
+                    netPrice: 100,
+                    discountCampaign: { netPrice: 100 },
+                    type: 'rent',
+                },
+                {
+                    netPrice: 100,
+                    discountCampaign: { netPrice: 80 },
+                    type: 'test',
+                },
+                {
+                    netPrice: 100,
+                    discountCampaign: { netPrice: 100 },
+                    type: 'test',
+                },
+                {
+                    netPrice: 100,
+                    discountCampaign: { netPrice: 100 },
+                    type: 'buy',
+                },
+                {
+                    netPrice: 100,
+                    discountCampaign: { netPrice: 10 },
+                    type: 'rent',
+                },
             ];
 
-            shopwareExtensionService.orderVariantsByRecommendation(variants)
+            shopwareExtensionService
+                .orderVariantsByRecommendation(variants)
                 .forEach((current, currentIndex, orderedVariants) => {
                     const isCurrentDiscounted = shopwareExtensionService.isVariantDiscounted(current);
                     const currentRecommendation = shopwareExtensionService.mapVariantToRecommendation(current);
@@ -250,33 +293,48 @@ describe('src/module/sw-extension/service/shopware-extension.service', () => {
 
     describe('getPriceFromVariant', () => {
         it('returns discounted price if variant is discounted', async () => {
-            expect(shopwareExtensionService.getPriceFromVariant({
-                netPrice: 100,
-                discountCampaign: {
-                    discountedPrice: 80,
-                },
-            })).toBe(80);
+            expect(
+                shopwareExtensionService.getPriceFromVariant({
+                    netPrice: 100,
+                    discountCampaign: {
+                        discountedPrice: 80,
+                    },
+                }),
+            ).toBe(80);
         });
 
         it('returns net price if variant is not discounted', async () => {
-            Shopware.Service('shopwareDiscountCampaignService').isDiscountCampaignActive
-                .mockImplementationOnce(() => false);
+            Shopware.Service('shopwareDiscountCampaignService').isDiscountCampaignActive.mockImplementationOnce(() => false);
 
-            expect(shopwareExtensionService.getPriceFromVariant({
-                netPrice: 100,
-                discountCampaign: {
-                    discountedPrice: 80,
-                },
-            })).toBe(100);
+            expect(
+                shopwareExtensionService.getPriceFromVariant({
+                    netPrice: 100,
+                    discountCampaign: {
+                        discountedPrice: 80,
+                    },
+                }),
+            ).toBe(100);
         });
     });
 
     describe('mapVariantToRecommendation', () => {
         it.each([
-            ['free', 0],
-            ['rent', 1],
-            ['buy', 2],
-            ['test', 3],
+            [
+                'free',
+                0,
+            ],
+            [
+                'rent',
+                1,
+            ],
+            [
+                'buy',
+                2,
+            ],
+            [
+                'test',
+                3,
+            ],
         ])('maps variant %s to position %d', (type, expectedRecommendation) => {
             expect(shopwareExtensionService.mapVariantToRecommendation({ type })).toBe(expectedRecommendation);
         });
@@ -309,16 +367,15 @@ describe('src/module/sw-extension/service/shopware-extension.service', () => {
         });
 
         it('returns valid open link for app with main module', async () => {
-            Shopware.State.commit(
-                'shopwareApps/setApps',
-                appModulesFixtures,
-            );
+            Shopware.Store.get('shopwareApps').apps = appModulesFixtures;
 
-            expect(await shopwareExtensionService.getOpenLink({
-                isTheme: false,
-                type: shopwareExtensionService.EXTENSION_TYPES.APP,
-                name: 'testAppA',
-            })).toEqual({
+            expect(
+                await shopwareExtensionService.getOpenLink({
+                    isTheme: false,
+                    type: shopwareExtensionService.EXTENSION_TYPES.APP,
+                    name: 'testAppA',
+                }),
+            ).toEqual({
                 name: 'sw.extension.module',
                 params: {
                     appName: 'testAppA',
@@ -327,46 +384,48 @@ describe('src/module/sw-extension/service/shopware-extension.service', () => {
         });
 
         it('returns no open link for app without main module', async () => {
-            Shopware.State.commit(
-                'shopwareApps/setApps',
-                appModulesFixtures,
-            );
+            Shopware.Store.get('shopwareApps').apps = appModulesFixtures;
 
-            expect(await shopwareExtensionService.getOpenLink({
-                isTheme: false,
-                type: shopwareExtensionService.EXTENSION_TYPES.APP,
-                name: 'testAppB',
-            })).toBeNull();
+            expect(
+                await shopwareExtensionService.getOpenLink({
+                    isTheme: false,
+                    type: shopwareExtensionService.EXTENSION_TYPES.APP,
+                    name: 'testAppB',
+                }),
+            ).toBeNull();
         });
 
         it('returns no open link if app can not be found', async () => {
-            Shopware.State.commit(
-                'shopwareApps/setApps',
-                appModulesFixtures,
-            );
+            Shopware.Store.get('shopwareApps').apps = appModulesFixtures;
 
-            expect(await shopwareExtensionService.getOpenLink({
-                isTheme: false,
-                type: shopwareExtensionService.EXTENSION_TYPES.APP,
-                name: 'ThisAppDoesNotExist',
-            })).toBeNull();
+            expect(
+                await shopwareExtensionService.getOpenLink({
+                    isTheme: false,
+                    type: shopwareExtensionService.EXTENSION_TYPES.APP,
+                    name: 'ThisAppDoesNotExist',
+                }),
+            ).toBeNull();
         });
 
         it('returns no open link for plugins not registered', async () => {
-            expect(await shopwareExtensionService.getOpenLink({
-                isTheme: false,
-                type: shopwareExtensionService.EXTENSION_TYPES.PLUGIN,
-                name: 'SwagNoModule',
-            })).toBeNull();
+            expect(
+                await shopwareExtensionService.getOpenLink({
+                    isTheme: false,
+                    type: shopwareExtensionService.EXTENSION_TYPES.PLUGIN,
+                    name: 'SwagNoModule',
+                }),
+            ).toBeNull();
         });
 
         it('returns route for plugins registered', async () => {
-            expect(await shopwareExtensionService.getOpenLink({
-                isTheme: false,
-                type: shopwareExtensionService.EXTENSION_TYPES.PLUGIN,
-                name: 'ExamplePlugin',
-                active: true,
-            })).toEqual({
+            expect(
+                await shopwareExtensionService.getOpenLink({
+                    isTheme: false,
+                    type: shopwareExtensionService.EXTENSION_TYPES.PLUGIN,
+                    name: 'ExamplePlugin',
+                    active: true,
+                }),
+            ).toEqual({
                 label: null,
                 name: 'test.foo',
             });

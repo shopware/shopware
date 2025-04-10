@@ -5,6 +5,7 @@ namespace Shopware\Core\Framework\App\Command;
 use Shopware\Core\Framework\Adapter\Console\ShopwareStyle;
 use Shopware\Core\Framework\Api\Acl\Role\AclRoleDefinition;
 use Shopware\Core\Framework\App\AppCollection;
+use Shopware\Core\Framework\App\AppException;
 use Shopware\Core\Framework\App\Exception\UserAbortedCommandException;
 use Shopware\Core\Framework\App\Manifest\Manifest;
 use Shopware\Core\Framework\App\Manifest\Xml\Permission\Permissions;
@@ -16,7 +17,7 @@ use Shopware\Core\Framework\Log\Package;
 /**
  * @internal only for use by the app-system
  */
-#[Package('core')]
+#[Package('framework')]
 class AppPrinter
 {
     private const PRIVILEGE_TO_HUMAN_READABLE = [
@@ -119,7 +120,7 @@ class AppPrinter
             'Do you consent with data being shared or transferred to the domains listed above?',
             false
         )) {
-            throw new UserAbortedCommandException();
+            throw AppException::userAborted();
         }
     }
 

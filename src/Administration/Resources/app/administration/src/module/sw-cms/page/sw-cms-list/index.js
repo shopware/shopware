@@ -1,5 +1,5 @@
 /**
- * @package buyers-experience
+ * @sw-package discovery
  */
 import template from './sw-cms-list.html.twig';
 import './sw-cms-list.scss';
@@ -10,8 +10,6 @@ const { Criteria } = Shopware.Data;
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default {
     template,
-
-    compatConfig: Shopware.compatConfig,
 
     inject: [
         'repositoryFactory',
@@ -50,7 +48,10 @@ export default {
             showDeleteModal: false,
             defaultMediaFolderId: null,
             listMode: 'grid',
-            assignablePageTypes: ['categories', 'products'],
+            assignablePageTypes: [
+                'categories',
+                'products',
+            ],
             searchConfigEntity: 'cms_page',
             showLayoutSetAsDefaultModal: false,
             defaultCategoryId: '',
@@ -86,26 +87,24 @@ export default {
                 active: true,
             };
 
-            return this.cmsPageTypeService.getTypes().reduce((accumulator, pageType) => {
-                accumulator.push({
-                    value: pageType.name,
-                    name: this.$tc(pageType.title),
-                });
+            return this.cmsPageTypeService.getTypes().reduce(
+                (accumulator, pageType) => {
+                    accumulator.push({
+                        value: pageType.name,
+                        name: this.$tc(pageType.title),
+                    });
 
-                return accumulator;
-            }, [sortByAllPagesOption]);
+                    return accumulator;
+                },
+                [sortByAllPagesOption],
+            );
         },
 
         listCriteria() {
             const criteria = new Criteria(this.page, this.limit);
-            criteria.getAssociation('categories')
-                .addSorting(Criteria.sort('name', 'ASC'))
-                .setLimit(this.associationLimit);
-            criteria.getAssociation('products')
-                .addSorting(Criteria.sort('name', 'ASC'))
-                .setLimit(this.associationLimit);
-            criteria.addAssociation('previewMedia')
-                .addSorting(Criteria.sort(this.sortBy, this.sortDirection));
+            criteria.getAssociation('categories').addSorting(Criteria.sort('name', 'ASC')).setLimit(this.associationLimit);
+            criteria.getAssociation('products').addSorting(Criteria.sort('name', 'ASC')).setLimit(this.associationLimit);
+            criteria.addAssociation('previewMedia').addSorting(Criteria.sort(this.sortBy, this.sortDirection));
 
             if (this.term !== null) {
                 criteria.setTerm(this.term);
@@ -138,8 +137,10 @@ export default {
                 {
                     type: 'multi',
                     operator: 'OR',
-                    queries: this.assignablePageTypes.map(
-                        name => Criteria.not('OR', [Criteria.equals(`${name}.id`, null)]),
+                    queries: this.assignablePageTypes.map((name) =>
+                        Criteria.not('OR', [
+                            Criteria.equals(`${name}.id`, null),
+                        ]),
                     ),
                 },
             ];
@@ -156,7 +157,7 @@ export default {
 
     methods: {
         createdComponent() {
-            Shopware.State.commit('adminMenu/collapseSidebar');
+            Shopware.Store.get('adminMenu').collapseSidebar();
 
             if (this.acl.can('user_config:read')) {
                 this.loadGridUserSettings();
@@ -184,7 +185,7 @@ export default {
         },
 
         updateLimit() {
-            this.limit = (this.listMode === 'grid') ? this.limitDefaults.cardView : this.limitDefaults.gridView;
+            this.limit = this.listMode === 'grid' ? this.limitDefaults.cardView : this.limitDefaults.gridView;
         },
 
         saveGridUserSettings() {
@@ -218,20 +219,23 @@ export default {
                 return false;
             }
 
-            return this.pageRepository.search(criteria).then((searchResult) => {
-                this.total = searchResult.total;
-                this.pages = searchResult;
+            return this.pageRepository
+                .search(criteria)
+                .then((searchResult) => {
+                    this.total = searchResult.total;
+                    this.pages = searchResult;
 
-                if (searchResult.aggregations?.linkedLayouts) {
-                    this.linkedLayouts = searchResult.aggregations.linkedLayouts.entities;
-                }
+                    if (searchResult.aggregations?.linkedLayouts) {
+                        this.linkedLayouts = searchResult.aggregations.linkedLayouts.entities;
+                    }
 
-                this.isLoading = false;
+                    this.isLoading = false;
 
-                return this.pages;
-            }).catch(() => {
-                this.isLoading = false;
-            });
+                    return this.pages;
+                })
+                .catch(() => {
+                    this.isLoading = false;
+                });
         },
 
         /**
@@ -246,25 +250,6 @@ export default {
             });
 
             criteria.addAggregation(linkedLayoutsFilter);
-        },
-
-        /**
-         * @deprecated tag:v6.7.0 - Will be removed
-         */
-        addPageAggregations(criteria) {
-            return criteria.addAggregation(Criteria.terms(
-                'products',
-                'id',
-                null,
-                null,
-                Criteria.count('productCount', 'products.id'),
-            )).addAggregation(Criteria.terms(
-                'categories',
-                'id',
-                null,
-                null,
-                Criteria.count('categoryCount', 'categories.id'),
-            ));
         },
 
         showDefaultLayoutContextMenu(cmsPage) {
@@ -319,7 +304,7 @@ export default {
         },
 
         layoutIsLinked(pageId) {
-            return this.linkedLayouts.some(page => page.id === pageId);
+            return this.linkedLayouts.some((page) => page.id === pageId);
         },
 
         resetList() {
@@ -351,16 +336,22 @@ export default {
         },
 
         onChangeLanguage(languageId) {
-            Shopware.State.commit('context/setApiLanguageId', languageId);
+            Shopware.Store.get('context').setApiLanguageId(languageId);
             this.resetList();
         },
 
         onListItemClick(page) {
-            this.$router.push({ name: 'sw.cms.detail', params: { id: page.id } });
+            this.$router.push({
+                name: 'sw.cms.detail',
+                params: { id: page.id },
+            });
         },
 
         onSortingChanged(value) {
-            [this.sortBy, this.sortDirection] = value.split(':');
+            [
+                this.sortBy,
+                this.sortDirection,
+            ] = value.split(':');
             this.resetList();
             this.saveGridUserSettings();
         },
@@ -401,7 +392,7 @@ export default {
         },
 
         onListModeChange() {
-            this.listMode = (this.listMode === 'grid') ? 'list' : 'grid';
+            this.listMode = this.listMode === 'grid' ? 'list' : 'grid';
 
             this.updateLimit();
             this.resetList();
@@ -466,15 +457,18 @@ export default {
             }
 
             this.isLoading = true;
-            this.pageRepository.clone(page.id, behavior, Shopware.Context.api).then(() => {
-                this.resetList();
-                this.isLoading = false;
-            }).catch(() => {
-                this.isLoading = false;
-                this.createNotificationError({
-                    message: this.$tc('global.notification.unspecifiedSaveErrorMessage'),
+            this.pageRepository
+                .clone(page.id, behavior, Shopware.Context.api)
+                .then(() => {
+                    this.resetList();
+                    this.isLoading = false;
+                })
+                .catch(() => {
+                    this.isLoading = false;
+                    this.createNotificationError({
+                        message: this.$tc('global.notification.unspecifiedSaveErrorMessage'),
+                    });
                 });
-            });
         },
 
         onCloseDeleteModal() {
@@ -491,57 +485,70 @@ export default {
 
         saveCmsPage(page, context = Shopware.Context.api) {
             this.isLoading = true;
-            return this.pageRepository.save(page, context).then(() => {
-                this.isLoading = false;
-            }).catch(() => {
-                this.isLoading = false;
-            });
+            return this.pageRepository
+                .save(page, context)
+                .then(() => {
+                    this.isLoading = false;
+                })
+                .catch(() => {
+                    this.isLoading = false;
+                });
         },
 
         deleteCmsPage(page) {
             const messageDeleteError = this.$tc('sw-cms.components.cmsListItem.notificationDeleteErrorMessage');
 
             this.isLoading = true;
-            return this.pageRepository.delete(page.id).then(() => {
-                this.resetList();
-            }).catch(() => {
-                this.isLoading = false;
-                this.createNotificationError({
-                    message: messageDeleteError,
+            return this.pageRepository
+                .delete(page.id)
+                .then(() => {
+                    this.resetList();
+                })
+                .catch(() => {
+                    this.isLoading = false;
+                    this.createNotificationError({
+                        message: messageDeleteError,
+                    });
                 });
-            });
         },
 
         getColumnConfig() {
-            return [{
-                property: 'name',
-                label: this.$tc('sw-cms.list.gridHeaderName'),
-                inlineEdit: 'string',
-                primary: true,
-                sortable: false,
-            }, {
-                property: 'type',
-                label: this.$tc('sw-cms.list.gridHeaderType'),
-                sortable: false,
-            }, {
-                property: 'assignments',
-                label: this.$tc('sw-cms.list.gridHeaderAssignments'),
-                sortable: false,
-            }, {
-                property: 'assignedPages',
-                label: this.$tc('sw-cms.list.gridHeaderAssignedPages'),
-                sortable: false,
-                visible: false,
-            }, {
-                property: 'createdAt',
-                label: this.$tc('sw-cms.list.gridHeaderCreated'),
-                sortable: false,
-            }, {
-                property: 'updatedAt',
-                label: this.$tc('sw-cms.list.gridHeaderUpdated'),
-                sortable: false,
-                visible: false,
-            }];
+            return [
+                {
+                    property: 'name',
+                    label: this.$tc('sw-cms.list.gridHeaderName'),
+                    inlineEdit: 'string',
+                    primary: true,
+                    sortable: false,
+                },
+                {
+                    property: 'type',
+                    label: this.$tc('sw-cms.list.gridHeaderType'),
+                    sortable: false,
+                },
+                {
+                    property: 'assignments',
+                    label: this.$tc('sw-cms.list.gridHeaderAssignments'),
+                    sortable: false,
+                },
+                {
+                    property: 'assignedPages',
+                    label: this.$tc('sw-cms.list.gridHeaderAssignedPages'),
+                    sortable: false,
+                    visible: false,
+                },
+                {
+                    property: 'createdAt',
+                    label: this.$tc('sw-cms.list.gridHeaderCreated'),
+                    sortable: false,
+                },
+                {
+                    property: 'updatedAt',
+                    label: this.$tc('sw-cms.list.gridHeaderUpdated'),
+                    sortable: false,
+                    visible: false,
+                },
+            ];
         },
 
         deleteDisabledToolTip(page) {
@@ -561,30 +568,24 @@ export default {
         },
 
         getPageType(page) {
-            const isDefault = [this.defaultProductId, this.defaultCategoryId].includes(page.id);
+            const isDefault = [
+                this.defaultProductId,
+                this.defaultCategoryId,
+            ].includes(page.id);
             const defaultText = this.$tc('sw-cms.components.cmsListItem.defaultLayout');
             const typeLabel = this.$tc(this.cmsPageTypeService.getType(page.type)?.title);
 
             return isDefault ? `${defaultText} - ${typeLabel}` : typeLabel;
         },
 
-        /**
-         * @deprecated tag:v6.7.0 - Will be removed
-         */
         getPageCategoryCount(page) {
             return page.categories.length;
         },
 
-        /**
-         * @deprecated tag:v6.7.0 - Will be removed
-         */
         getPageProductCount(page) {
             return page.products.length;
         },
 
-        /**
-         * @deprecated tag:v6.7.0 - Will be removed
-         */
         getPageCount(page) {
             const pageCount = this.getPageCategoryCount(page) + this.getPageProductCount(page);
             return pageCount > 0 ? pageCount : '-';
@@ -624,9 +625,7 @@ export default {
         },
 
         optionContextDeleteDisabled(page) {
-            return this.getPageCategoryCount(page) > 0 ||
-                this.getPageProductCount(page) > 0 ||
-                !this.acl.can('cms.deleter');
+            return this.getPageCategoryCount(page) > 0 || this.getPageProductCount(page) > 0 || !this.acl.can('cms.deleter');
         },
     },
 };

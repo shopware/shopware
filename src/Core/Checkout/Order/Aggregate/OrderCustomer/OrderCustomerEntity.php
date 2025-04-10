@@ -16,80 +16,38 @@ class OrderCustomerEntity extends Entity
     use EntityCustomFieldsTrait;
     use EntityIdTrait;
 
-    /**
-     * @var string
-     */
-    protected $email;
+    protected string $email;
+
+    protected string $orderId;
+
+    protected ?string $salutationId = null;
+
+    protected string $firstName;
+
+    protected string $lastName;
+
+    protected ?string $title = null;
 
     /**
-     * @var string
+     * @var list<string>|null
      */
-    protected $orderId;
+    protected ?array $vatIds = null;
 
-    /**
-     * @var string|null
-     */
-    protected $salutationId;
+    protected ?string $company = null;
 
-    /**
-     * @var string
-     */
-    protected $firstName;
+    protected ?string $customerNumber = null;
 
-    /**
-     * @var string
-     */
-    protected $lastName;
+    protected ?string $customerId = null;
 
-    /**
-     * @var string|null
-     */
-    protected $title;
+    protected ?CustomerEntity $customer = null;
 
-    /**
-     * @var array|null
-     */
-    protected $vatIds;
+    protected ?SalutationEntity $salutation = null;
 
-    /**
-     * @var string|null
-     */
-    protected $company;
+    protected ?OrderEntity $order = null;
 
-    /**
-     * @var string|null
-     */
-    protected $customerNumber;
+    protected ?string $remoteAddress = null;
 
-    /**
-     * @var string|null
-     */
-    protected $customerId;
-
-    /**
-     * @var CustomerEntity|null
-     */
-    protected $customer;
-
-    /**
-     * @var SalutationEntity|null
-     */
-    protected $salutation;
-
-    /**
-     * @var OrderEntity|null
-     */
-    protected $order;
-
-    /**
-     * @var string|null
-     */
-    protected $remoteAddress;
-
-    /**
-     * @var string
-     */
-    protected $orderVersionId;
+    protected string $orderVersionId;
 
     public function getEmail(): string
     {
@@ -141,13 +99,16 @@ class OrderCustomerEntity extends Entity
         $this->title = $title;
     }
 
+    /**
+     * @return list<string>|null
+     */
     public function getVatIds(): ?array
     {
         return $this->vatIds;
     }
 
     /**
-     * @param array<string> $vatIds
+     * @param list<string> $vatIds
      */
     public function setVatIds(array $vatIds): void
     {

@@ -1,5 +1,5 @@
 /*
- * @package inventory
+ * @sw-package inventory
  */
 
 import template from './sw-product-modal-delivery.html.twig';
@@ -9,11 +9,15 @@ import './sw-product-modal-delivery.scss';
 export default {
     template,
 
-    compatConfig: Shopware.compatConfig,
+    inject: [
+        'repositoryFactory',
+        'acl',
+    ],
 
-    inject: ['repositoryFactory', 'acl'],
-
-    emits: ['modal-close', 'configuration-close'],
+    emits: [
+        'modal-close',
+        'configuration-close',
+    ],
 
     props: {
         product: {
@@ -47,15 +51,10 @@ export default {
     methods: {
         createdComponent() {
             if (!this.product.variantListingConfig) {
-                if (this.isCompatEnabled('INSTANCE_SET')) {
-                    this.$set(
-                        this.product,
-                        'variantListingConfig',
-                        { displayParent: null, configuratorGroupConfig: [], mainVariantId: null },
-                    );
-                } else {
-                    this.product.variantListingConfig = { displayParent: null, configuratorGroupConfig: [] };
-                }
+                this.product.variantListingConfig = {
+                    displayParent: null,
+                    configuratorGroupConfig: [],
+                };
             }
         },
 

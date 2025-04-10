@@ -14,11 +14,16 @@ use Shopware\Core\Framework\App\Validation\Error\MissingTranslationError;
 #[CoversClass(Metadata::class)]
 class MetadataTest extends TestCase
 {
+    private Manifest $manifest;
+
+    protected function setUp(): void
+    {
+        $this->manifest = Manifest::createFromXmlFile(__DIR__ . '/../_fixtures/test/manifest.xml');
+    }
+
     public function testFromXml(): void
     {
-        $manifest = Manifest::createFromXmlFile(__DIR__ . '/../_fixtures/test/manifest.xml');
-
-        $metaData = $manifest->getMetadata();
+        $metaData = $this->manifest->getMetadata();
         static::assertEquals('test', $metaData->getName());
         static::assertEquals('shopware AG', $metaData->getAuthor());
         static::assertEquals('(c) by shopware AG', $metaData->getCopyright());
@@ -77,9 +82,27 @@ class MetadataTest extends TestCase
 
     public function testValidateTranslationsReturnsNull(): void
     {
-        $manifest = Manifest::createFromXmlFile(__DIR__ . '/../_fixtures/test/manifest.xml');
-        $error = $manifest->getMetadata()->validateTranslations();
+        static::assertNull($this->manifest->getMetadata()->validateTranslations());
+    }
 
-        static::assertNull($error);
+    public function testSelfManagedFalseByDefault(): void
+    {
+        static::assertFalse($this->manifest->getMetadata()->isSelfManaged());
+    }
+
+    public function testSetSelfManaged(): void
+    {
+        $this->manifest->getMetadata()->setSelfManaged(true);
+
+        static::assertTrue($this->manifest->getMetadata()->isSelfManaged());
+    }
+
+    public function testSetVersion(): void
+    {
+        static::assertSame('1.0.0', $this->manifest->getMetadata()->getVersion());
+
+        $this->manifest->getMetadata()->setVersion('2.0.0');
+
+        static::assertSame('2.0.0', $this->manifest->getMetadata()->getVersion());
     }
 }

@@ -1,38 +1,34 @@
-<!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
 {% block sw_settings_country_currency_hamburger_menu %}
 <sw-context-button
     :menu-width="300"
-    :auto-close="false || undefined"
+    :auto-close="false"
     :auto-close-outside-click="true"
 >
     <template #button>
 
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_settings_country_currency_hamburger_menu_trigger %}
-        <sw-button
+        <mt-button
             class="sw-settings-country-currency-hamburger-menu__button"
             size="x-small"
             square
+            variant="secondary"
         >
 
-            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_country_currency_hamburger_menu_icon %}
-            <sw-icon
+            <mt-icon
                 name="regular-bars-s"
-                small
+                size="16px"
             />
             {% endblock %}
 
-        </sw-button>
+        </mt-button>
         {% endblock %}
 
     </template>
 
-    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_country_currency_hamburger_menu_list %}
     <div class="sw-settings-country-currency-hamburger-menu__wrapper">
 
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_country_currency_hamburger_menu_item %}
         <div
             v-for="(item) in options"
@@ -40,13 +36,12 @@
             class="sw-settings-country-currency-hamburger-menu__item"
         >
 
-            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_country_currency_hamburger_menu_item_visibility_checkbox %}
-            <sw-checkbox-field
-                v-model:value="item.checked"
+            <mt-checkbox
+                v-model:checked="item.checked"
                 :label="item.name"
                 :disabled="(item.disabled || !acl.can('country.editor')) || undefined"
-                @update:value="onCheckCurrency(item.id, item.checked)"
+                @update:checked="onCheckCurrency(item.id, item.checked)"
             />
             {% endblock %}
 
@@ -56,7 +51,6 @@
     </div>
     {% endblock %}
 
-    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_settings_country_currency_hamburger_menu_loader %}
     <sw-loader v-if="isLoading" />
     {% endblock %}

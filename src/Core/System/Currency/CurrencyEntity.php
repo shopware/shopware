@@ -15,101 +15,47 @@ use Shopware\Core\System\Currency\Aggregate\CurrencyTranslation\CurrencyTranslat
 use Shopware\Core\System\SalesChannel\Aggregate\SalesChannelDomain\SalesChannelDomainCollection;
 use Shopware\Core\System\SalesChannel\SalesChannelCollection;
 
-#[Package('buyers-experience')]
+#[Package('fundamentals@framework')]
 class CurrencyEntity extends Entity
 {
     use EntityCustomFieldsTrait;
     use EntityIdTrait;
 
-    /**
-     * @var string
-     */
-    protected $isoCode;
+    protected string $isoCode;
 
-    /**
-     * @var float
-     */
-    protected $factor;
+    protected float $factor;
 
-    /**
-     * @var string
-     */
-    protected $symbol;
+    protected string $symbol;
 
-    /**
-     * @var string|null
-     */
-    protected $shortName;
+    protected ?string $shortName = null;
 
-    /**
-     * @var string|null
-     */
-    protected $name;
+    protected ?string $name = null;
 
-    /**
-     * @var int
-     */
-    protected $position;
+    protected int $position;
 
-    /**
-     * @var CurrencyTranslationCollection|null
-     */
-    protected $translations;
+    protected ?CurrencyTranslationCollection $translations = null;
 
-    /**
-     * @var OrderCollection|null
-     */
-    protected $orders;
+    protected ?OrderCollection $orders = null;
 
-    /**
-     * @var SalesChannelCollection|null
-     */
-    protected $salesChannels;
+    protected ?SalesChannelCollection $salesChannels = null;
 
-    /**
-     * @var SalesChannelCollection|null
-     */
-    protected $salesChannelDefaultAssignments;
+    protected ?SalesChannelCollection $salesChannelDefaultAssignments = null;
 
-    /**
-     * @var SalesChannelDomainCollection|null
-     */
-    protected $salesChannelDomains;
+    protected ?SalesChannelDomainCollection $salesChannelDomains = null;
 
-    /**
-     * @var PromotionDiscountPriceCollection
-     */
-    protected $promotionDiscountPrices;
+    protected ?PromotionDiscountPriceCollection $promotionDiscountPrices = null;
 
-    /**
-     * @var bool|null
-     */
-    protected $isSystemDefault;
+    protected ?bool $isSystemDefault = null;
 
-    /**
-     * @var ProductExportCollection|null
-     */
-    protected $productExports;
+    protected ?ProductExportCollection $productExports = null;
 
-    /**
-     * @var CurrencyCountryRoundingCollection|null
-     */
-    protected $countryRoundings;
+    protected ?CurrencyCountryRoundingCollection $countryRoundings = null;
 
-    /**
-     * @var CashRoundingConfig
-     */
-    protected $itemRounding;
+    protected CashRoundingConfig $itemRounding;
 
-    /**
-     * @var CashRoundingConfig
-     */
-    protected $totalRounding;
+    protected CashRoundingConfig $totalRounding;
 
-    /**
-     * @var float|null
-     */
-    protected $taxFreeFrom;
+    protected ?float $taxFreeFrom = null;
 
     public function getIsoCode(): string
     {

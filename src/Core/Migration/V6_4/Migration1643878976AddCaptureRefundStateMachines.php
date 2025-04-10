@@ -16,7 +16,7 @@ use Shopware\Core\System\StateMachine\Aggregation\StateMachineTransition\StateMa
  *
  * @codeCoverageIgnore
  */
-#[Package('core')]
+#[Package('framework')]
 class Migration1643878976AddCaptureRefundStateMachines extends MigrationStep
 {
     use StateMachineMigrationTrait;

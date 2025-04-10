@@ -28,7 +28,6 @@ use Symfony\Component\HttpFoundation\File\UploadedFile;
  * @internal
  */
 #[Group('slow')]
-#[Group('skip-paratest')]
 class PluginManagementServiceTest extends TestCase
 {
     use KernelTestBehaviour;
@@ -50,7 +49,7 @@ class PluginManagementServiceTest extends TestCase
 
     protected function setUp(): void
     {
-        $this->filesystem = $this->getContainer()->get(Filesystem::class);
+        $this->filesystem = static::getContainer()->get(Filesystem::class);
 
         $this->cacheDir = $this->createTestCacheDirectory();
 
@@ -147,7 +146,7 @@ class PluginManagementServiceTest extends TestCase
             true,
             KernelLifecycleManager::getClassLoader(),
             new StaticKernelPluginLoader(KernelLifecycleManager::getClassLoader()),
-            $this->getContainer()->get(Connection::class)
+            static::getContainer()->get(Connection::class)
         );
         // reset kernel class for further tests
         KernelFactory::$kernelClass = $previousKernelClass;
@@ -175,7 +174,7 @@ class PluginManagementServiceTest extends TestCase
             $this->getPluginService(),
             $this->filesystem,
             $this->getCacheClearer(),
-            $this->getContainer()->get('shopware.store_download_client')
+            static::getContainer()->get('shopware.store_download_client')
         );
     }
 
@@ -183,10 +182,10 @@ class PluginManagementServiceTest extends TestCase
     {
         return $this->createPluginService(
             __DIR__ . '/_fixture/plugins',
-            $this->getContainer()->getParameter('kernel.project_dir'),
-            $this->getContainer()->get('plugin.repository'),
-            $this->getContainer()->get('language.repository'),
-            $this->getContainer()->get(PluginFinder::class)
+            static::getContainer()->getParameter('kernel.project_dir'),
+            static::getContainer()->get('plugin.repository'),
+            static::getContainer()->get('language.repository'),
+            static::getContainer()->get(PluginFinder::class)
         );
     }
 
@@ -194,14 +193,15 @@ class PluginManagementServiceTest extends TestCase
     {
         return new CacheClearer(
             [],
-            $this->getContainer()->get('cache_clearer'),
-            $this->getContainer()->get(CacheInvalidator::class),
+            static::getContainer()->get('cache_clearer'),
+            null,
+            static::getContainer()->get(CacheInvalidator::class),
             $this->filesystem,
             $this->cacheDir,
             'test',
             false,
-            $this->getContainer()->get('messenger.bus.shopware'),
-            $this->getContainer()->get('logger')
+            static::getContainer()->get('messenger.default_bus'),
+            static::getContainer()->get('logger')
         );
     }
 

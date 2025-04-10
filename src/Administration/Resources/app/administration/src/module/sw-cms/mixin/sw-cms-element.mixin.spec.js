@@ -1,5 +1,5 @@
 /**
- * @package buyers-experience
+ * @sw-package discovery
  */
 import { mount } from '@vue/test-utils';
 import { setupCmsEnvironment } from 'src/module/sw-cms/test-utils';
@@ -25,7 +25,7 @@ async function createWrapper(element = defaultElement) {
                 cmsService: Shopware.Service('cmsService'),
             },
             stubs: {
-                'sw-text-editor': true,
+                'mt-text-editor': true,
             },
         },
     });
@@ -37,51 +37,48 @@ describe('module/sw-cms/mixin/sw-cms-element.mixin.ts', () => {
         await import('src/module/sw-cms/elements/text');
     });
 
+    beforeEach(() => {
+        Shopware.Store.get('swCategoryDetail').$reset();
+    });
+
     afterEach(() => {
-        Shopware.Store.get('cmsPageState').resetCmsPageState();
+        Shopware.Store.get('cmsPage').resetCmsPageState();
     });
 
     it('initElementConfig is properly merging configs from various sources', async () => {
-        try {
-            Shopware.State.registerModule('swCategoryDetail', {
-                namespaced: true,
-                state: {
-                    category: {
-                        id: '12345',
-                        translations: [{
-                            languageId: Shopware.Context.api.systemLanguageId,
-                            name: 'Category name B',
-                            slotConfig: {
-                                'sw-cms-el-text-1234': {
-                                    overrideFromCategory: 'bar',
-                                },
-                            },
-                        }],
+        Shopware.Store.get('swCategoryDetail').category = {
+            id: '12345',
+            translations: [
+                {
+                    languageId: Shopware.Context.api.systemLanguageId,
+                    name: 'Category name B',
+                    slotConfig: {
+                        'sw-cms-el-text-1234': {
+                            overrideFromCategory: 'bar',
+                        },
                     },
                 },
-            });
+            ],
+        };
 
-            // Config structure is derived from the default config -> module/sw-cms/elements/text/index.js
-            const expectedElementConfig = {
-                content: {
-                    source: 'static',
-                    value: expect.any(String),
-                },
-                verticalAlign: {
-                    source: 'static',
-                    value: null,
-                },
-                overrideFromProp: 'foo',
-                overrideFromCategory: 'bar',
-            };
+        // Config structure is derived from the default config -> module/sw-cms/elements/text/index.js
+        const expectedElementConfig = {
+            content: {
+                source: 'static',
+                value: expect.any(String),
+            },
+            verticalAlign: {
+                source: 'static',
+                value: null,
+            },
+            overrideFromProp: 'foo',
+            overrideFromCategory: 'bar',
+        };
 
-            const wrapper = await createWrapper();
-            wrapper.vm.initElementConfig('text');
+        const wrapper = await createWrapper();
+        wrapper.vm.initElementConfig('text');
 
-            expect(wrapper.vm.element.config).toEqual(expectedElementConfig);
-        } finally {
-            Shopware.State.unregisterModule('swCategoryDetail');
-        }
+        expect(wrapper.vm.element.config).toEqual(expectedElementConfig);
     });
 
     it('initElementData is using the provided element.data as config', async () => {
@@ -114,19 +111,21 @@ describe('module/sw-cms/mixin/sw-cms-element.mixin.ts', () => {
 
     it('getDemoValue is invoking cmsService.getPropertyByMappingPath', async () => {
         const wrapper = await createWrapper();
-        const store = Shopware.Store.get('cmsPageState');
+        const store = Shopware.Store.get('cmsPage');
 
         store.currentDemoEntity = {
             id: '12345',
-            translations: [{
-                languageId: Shopware.Context.api.systemLanguageId,
-                name: 'Category name B',
-                slotConfig: {
-                    'sw-cms-el-text-1234': {
-                        content: 'Demo content',
+            translations: [
+                {
+                    languageId: Shopware.Context.api.systemLanguageId,
+                    name: 'Category name B',
+                    slotConfig: {
+                        'sw-cms-el-text-1234': {
+                            content: 'Demo content',
+                        },
                     },
                 },
-            }],
+            ],
         };
 
         expect(wrapper.vm.getDemoValue('category.translations')).toMatchObject(store.currentDemoEntity.translations);

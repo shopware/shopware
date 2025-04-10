@@ -1,5 +1,5 @@
 /**
- * @package services-settings
+ * @sw-package framework
  */
 import { mount } from '@vue/test-utils';
 
@@ -48,14 +48,16 @@ const defaultProps = {
         apiAlias: null,
         id: 'd2667dfae415440592a0944fbea2d3ce',
         customFields: [],
-        relations: [{
-            customFieldSetId: 'd2667dfae415440592a0944fbea2d3ce',
-            entityName: 'product',
-            createdAt: '2021-06-30T08:02:28.996+00:00',
-            updatedAt: null,
-            apiAlias: null,
-            id: '559b6ae735b04e199505fd4c5ac5f22c',
-        }],
+        relations: [
+            {
+                customFieldSetId: 'd2667dfae415440592a0944fbea2d3ce',
+                entityName: 'product',
+                createdAt: '2021-06-30T08:02:28.996+00:00',
+                updatedAt: null,
+                apiAlias: null,
+                id: '559b6ae735b04e199505fd4c5ac5f22c',
+            },
+        ],
         products: [],
     },
 };
@@ -72,15 +74,12 @@ async function createWrapper(props = defaultProps) {
             },
             stubs: {
                 'sw-custom-field-translated-labels': true,
-                'sw-switch-field': await wrapTestComponent('sw-switch-field'),
-                'sw-switch-field-deprecated': await wrapTestComponent('sw-switch-field-deprecated', { sync: true }),
+
                 'sw-text-field': await wrapTestComponent('sw-text-field'),
                 'sw-text-field-deprecated': await wrapTestComponent('sw-text-field-deprecated', { sync: true }),
                 'sw-base-field': await wrapTestComponent('sw-base-field'),
                 'sw-block-field': await wrapTestComponent('sw-block-field'),
                 'sw-field-error': true,
-                'sw-button': await wrapTestComponent('sw-button'),
-                'sw-button-deprecated': await wrapTestComponent('sw-button-deprecated'),
                 'sw-container': await wrapTestComponent('sw-container'),
                 'sw-contextual-field': await wrapTestComponent('sw-contextual-field'),
                 'router-link': true,
@@ -160,5 +159,21 @@ describe('src/module/sw-settings-custom-field/component/sw-custom-field-type-sel
         await flushPromises();
 
         expect(wrapper.vm.currentCustomField.config.options).toHaveLength(4);
+    });
+
+    it('should only allow valid component names', async () => {
+        const wrapper = await createWrapper({
+            ...defaultProps,
+            currentCustomField: {
+                ...currentCustomField,
+                config: {
+                    ...currentCustomField.config,
+                    componentName: 'foo',
+                },
+            },
+        });
+        await flushPromises();
+
+        expect(wrapper.vm.currentCustomField.config.componentName).toBe('sw-single-select');
     });
 });

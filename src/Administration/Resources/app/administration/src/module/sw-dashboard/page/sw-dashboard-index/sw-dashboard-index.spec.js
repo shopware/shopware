@@ -10,7 +10,6 @@ async function createWrapper(privileges = []) {
                 'sw-page': await wrapTestComponent('sw-page'),
                 'sw-card-view': await wrapTestComponent('sw-card-view'),
                 'sw-external-link': true,
-                'sw-icon': true,
                 'sw-dashboard-statistics': true,
                 'sw-usage-data-consent-banner': true,
                 'sw-help-text': true,
@@ -24,13 +23,14 @@ async function createWrapper(privileges = []) {
                 'sw-error-summary': true,
             },
             mocks: {
-                $tc: jest.fn().mockImplementation((snippetPath, number, placeholders) => {
+                $tc: jest.fn().mockImplementation((snippetPath, placeholders) => {
                     return `${snippetPathGreeting}, ${placeholders?.greetingName || ''}`;
                 }),
                 $i18n: {
                     locale: 'en-GB',
+                    fallbackLocale: { value: 'en-GB' },
                     messages: {
-                        'en-GB': dictionary,
+                        value: { 'en-GB': dictionary },
                     },
                 },
                 $route: {
@@ -42,7 +42,9 @@ async function createWrapper(privileges = []) {
             provide: {
                 acl: {
                     can: (identifier) => {
-                        if (!identifier) { return true; }
+                        if (!identifier) {
+                            return true;
+                        }
 
                         return privileges.includes(identifier);
                     },
@@ -53,26 +55,12 @@ async function createWrapper(privileges = []) {
 }
 
 /**
- * @package services-settings
+ * @sw-package after-sales
  */
 describe('module/sw-dashboard/page/sw-dashboard-index', () => {
     let wrapper;
 
     beforeAll(async () => {
-        if (Shopware.State.get('session')) {
-            Shopware.State.unregisterModule('session');
-        }
-
-        Shopware.State.registerModule('session', {
-            state: {
-                currentUser: null,
-            },
-            mutations: {
-                setCurrentUser(state, user) {
-                    state.currentUser = user;
-                },
-            },
-        });
         jest.useFakeTimers('modern');
     });
 
@@ -92,7 +80,7 @@ describe('module/sw-dashboard/page/sw-dashboard-index', () => {
         wrapper = await createWrapper();
         await flushPromises();
 
-        Shopware.State.commit('setCurrentUser', {
+        Shopware.Store.get('session').setCurrentUser({
             firstName: firstName,
         });
         await flushPromises();
@@ -104,7 +92,7 @@ describe('module/sw-dashboard/page/sw-dashboard-index', () => {
         wrapper = await createWrapper();
         await flushPromises();
 
-        Shopware.State.commit('setCurrentUser', {
+        Shopware.Store.get('session').setCurrentUser({
             username: 'username',
         });
         await flushPromises();
@@ -150,20 +138,18 @@ describe('module/sw-dashboard/page/sw-dashboard-index', () => {
             expectedTimeSlot: '23h',
         },
     ].forEach(({ dateTime, expectedTimeSlot }) => {
-        it(
-            `should return datetime aware headline for daytime: ${dateTime.getHours()}h, expected slot: ${expectedTimeSlot}`,
-            async () => {
-                wrapper = await createWrapper();
-                await flushPromises();
+        it(`should return datetime aware headline for daytime: ${dateTime.getHours()}h, expected slot: ${expectedTimeSlot}`, async () => {
+            wrapper = await createWrapper();
+            await flushPromises();
 
-                const greetingType = 'daytimeHeadline';
-                /* as of today there are 4 timeslots: 23 - 4, 5 - 10, 11 - 17, 18 - 22 */
-                /* the first param of `getGreetingTimeKey` must be ' headline' or 'welcomeText' */
-                jest.setSystemTime(dateTime);
-                expect(wrapper.vm.getGreetingTimeKey(greetingType))
-                    .toContain(`sw-dashboard.introduction.${greetingType}.${expectedTimeSlot}`);
-            },
-        );
+            const greetingType = 'daytimeHeadline';
+            /* as of today there are 4 timeslots: 23 - 4, 5 - 10, 11 - 17, 18 - 22 */
+            /* the first param of `getGreetingTimeKey` must be ' headline' or 'welcomeText' */
+            jest.setSystemTime(dateTime);
+            expect(wrapper.vm.getGreetingTimeKey(greetingType)).toContain(
+                `sw-dashboard.introduction.${greetingType}.${expectedTimeSlot}`,
+            );
+        });
     });
 
     [
@@ -204,20 +190,18 @@ describe('module/sw-dashboard/page/sw-dashboard-index', () => {
             expectedTimeSlot: '23h',
         },
     ].forEach(({ dateTime, expectedTimeSlot }) => {
-        it(
-            `should return datetime aware welcoming subline for daytime:\
-            ${dateTime.getHours()}h, expected slot: ${expectedTimeSlot}`,
-            async () => {
-                wrapper = await createWrapper();
-                await flushPromises();
+        it(`should return datetime aware welcoming subline for daytime:\
+            ${dateTime.getHours()}h, expected slot: ${expectedTimeSlot}`, async () => {
+            wrapper = await createWrapper();
+            await flushPromises();
 
-                const greetingType = 'daytimeWelcomeText';
-                /* as of today there are 4 timeslots: 23 - 4, 5 - 10, 11 - 17, 18 - 22 */
-                /* the first param of `getGreetingTimeKey` must be ' headline' or 'welcomeText' */
-                jest.setSystemTime(dateTime);
-                expect(wrapper.vm.getGreetingTimeKey(greetingType))
-                    .toContain(`sw-dashboard.introduction.${greetingType}.${expectedTimeSlot}`);
-            },
-        );
+            const greetingType = 'daytimeWelcomeText';
+            /* as of today there are 4 timeslots: 23 - 4, 5 - 10, 11 - 17, 18 - 22 */
+            /* the first param of `getGreetingTimeKey` must be ' headline' or 'welcomeText' */
+            jest.setSystemTime(dateTime);
+            expect(wrapper.vm.getGreetingTimeKey(greetingType)).toContain(
+                `sw-dashboard.introduction.${greetingType}.${expectedTimeSlot}`,
+            );
+        });
     });
 });

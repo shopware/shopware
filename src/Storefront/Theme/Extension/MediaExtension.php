@@ -11,7 +11,7 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Storefront\Theme\Aggregate\ThemeMediaDefinition;
 use Shopware\Storefront\Theme\ThemeDefinition;
 
-#[Package('storefront')]
+#[Package('framework')]
 class MediaExtension extends EntityExtension
 {
     public function extendFields(FieldCollection $collection): void
@@ -25,8 +25,8 @@ class MediaExtension extends EntityExtension
         );
     }
 
-    public function getDefinitionClass(): string
+    public function getEntityName(): string
     {
-        return MediaDefinition::class;
+        return MediaDefinition::ENTITY_NAME;
     }
 }

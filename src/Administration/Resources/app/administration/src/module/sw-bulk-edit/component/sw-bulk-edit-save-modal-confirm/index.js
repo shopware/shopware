@@ -1,5 +1,5 @@
 /**
- * @package services-settings
+ * @sw-package framework
  */
 import template from './sw-bulk-edit-save-modal-confirm.html.twig';
 import './sw-bulk-edit-save-modal-confirm.scss';
@@ -8,9 +8,10 @@ import './sw-bulk-edit-save-modal-confirm.scss';
 export default {
     template,
 
-    compatConfig: Shopware.compatConfig,
-
-    emits: ['title-set', 'buttons-update'],
+    emits: [
+        'title-set',
+        'buttons-update',
+    ],
 
     props: {
         itemTotal: {
@@ -18,26 +19,26 @@ export default {
             type: Number,
         },
         /**
-        * {
-        *     ...
-        *     orderDeliveries: {
-        *         isChanged: true,
-        *         type: 'overwrite',
-        *         value: 'cancel'
-        *     },
-        *     orderTransactions: {
-        *         isChanged: true,
-        *         type: 'overwrite',
-        *         value: 'cancel'
-        *     },
-        *     orders: {
-        *         isChanged: true,
-        *         type: 'overwrite',
-        *         value: 'cancel'
-        *     }
-        *     ...
-        * }
-        */
+         * {
+         *     ...
+         *     orderDeliveries: {
+         *         isChanged: true,
+         *         type: 'overwrite',
+         *         value: 'cancel'
+         *     },
+         *     orderTransactions: {
+         *         isChanged: true,
+         *         type: 'overwrite',
+         *         value: 'cancel'
+         *     },
+         *     orders: {
+         *         isChanged: true,
+         *         type: 'overwrite',
+         *         value: 'cancel'
+         *     }
+         *     ...
+         * }
+         */
         bulkEditData: {
             type: Object,
             required: false,
@@ -50,21 +51,29 @@ export default {
     computed: {
         isFlowTriggered: {
             get() {
-                return Shopware.State.get('swBulkEdit').isFlowTriggered;
+                return Shopware.Store.get('swBulkEdit').isFlowTriggered;
             },
             set(isFlowTriggered) {
-                Shopware.State.commit('swBulkEdit/setIsFlowTriggered', isFlowTriggered);
+                Shopware.Store.get('swBulkEdit').setIsFlowTriggered(isFlowTriggered);
             },
         },
 
         triggeredFlows() {
             const triggeredFlows = [];
 
-            Object.entries(this.bulkEditData).forEach(([key, value]) => {
-                if (key === this.$tc(`sw-bulk-edit.modal.confirm.triggeredFlows.${key}.key`) && value.isChanged === true) {
-                    triggeredFlows.push(this.$tc(`sw-bulk-edit.modal.confirm.triggeredFlows.${key}.label`));
-                }
-            });
+            Object.entries(this.bulkEditData).forEach(
+                ([
+                    key,
+                    value,
+                ]) => {
+                    if (
+                        key === this.$tc(`sw-bulk-edit.modal.confirm.triggeredFlows.${key}.key`) &&
+                        value.isChanged === true
+                    ) {
+                        triggeredFlows.push(this.$tc(`sw-bulk-edit.modal.confirm.triggeredFlows.${key}.label`));
+                    }
+                },
+            );
 
             return triggeredFlows;
         },

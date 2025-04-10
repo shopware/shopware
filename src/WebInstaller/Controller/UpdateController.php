@@ -4,6 +4,7 @@ declare(strict_types=1);
 namespace Shopware\WebInstaller\Controller;
 
 use Shopware\Core\Framework\Log\Package;
+use Shopware\WebInstaller\Services\CleanupFiles;
 use Shopware\WebInstaller\Services\FileBackup;
 use Shopware\WebInstaller\Services\FlexMigrator;
 use Shopware\WebInstaller\Services\PluginCompatibility;
@@ -20,7 +21,7 @@ use Symfony\Component\Routing\Attribute\Route;
 /**
  * @internal
  */
-#[Package('core')]
+#[Package('framework')]
 class UpdateController extends AbstractController
 {
     public function __construct(
@@ -80,13 +81,16 @@ class UpdateController extends AbstractController
         $composerJsonBackup = new FileBackup($composerJsonPath);
         $composerJsonBackup->backup();
 
+        $cleanupFiles = new CleanupFiles();
+        $cleanupFiles->cleanup($shopwarePath);
+
         $pluginCompat = new PluginCompatibility($composerJsonPath, $version);
         $pluginCompat->removeIncompatible();
 
         $this->projectComposerJsonUpdater->update($composerJsonPath, $version);
 
         return $this->streamedCommandResponseGenerator->runJSON([
-            $this->recoveryManager->getPhpBinary($request),
+            $this->recoveryManager->getPHPBinary($request),
             '-dmemory_limit=1G',
             $this->recoveryManager->getBinary(),
             'update',
@@ -116,7 +120,7 @@ class UpdateController extends AbstractController
         $this->patchSymfonyFlex($shopwarePath);
 
         return $this->streamedCommandResponseGenerator->runJSON([
-            $this->recoveryManager->getPhpBinary($request),
+            $this->recoveryManager->getPHPBinary($request),
             '-dmemory_limit=1G',
             $this->recoveryManager->getBinary(),
             '-d',
@@ -136,7 +140,7 @@ class UpdateController extends AbstractController
         $shopwarePath = $this->recoveryManager->getShopwareLocation();
 
         return $this->streamedCommandResponseGenerator->runJSON([
-            $this->recoveryManager->getPhpBinary($request),
+            $this->recoveryManager->getPHPBinary($request),
             '-dmemory_limit=1G',
             $shopwarePath . '/bin/console',
             'system:update:prepare',
@@ -150,7 +154,7 @@ class UpdateController extends AbstractController
         $shopwarePath = $this->recoveryManager->getShopwareLocation();
 
         return $this->streamedCommandResponseGenerator->runJSON([
-            $this->recoveryManager->getPhpBinary($request),
+            $this->recoveryManager->getPHPBinary($request),
             '-dmemory_limit=1G',
             $shopwarePath . '/bin/console',
             'system:update:finish',

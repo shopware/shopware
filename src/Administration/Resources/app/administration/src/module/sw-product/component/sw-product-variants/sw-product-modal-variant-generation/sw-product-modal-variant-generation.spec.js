@@ -1,211 +1,226 @@
 /**
- * @package buyers-experience
+ * @sw-package buyers-experience
  */
 import { mount } from '@vue/test-utils';
 import EntityCollection from 'src/core/data/entity-collection.data';
 
 async function createWrapper() {
-    return mount(await wrapTestComponent('sw-product-modal-variant-generation', { sync: true }), {
-        props: {
-            groups: [
-                {
-                    name: 'Test',
-                    description: null,
-                    displayType: 'text',
-                    sortingType: 'alphanumeric',
-                    filterable: true,
-                    visibleOnProductDetailPage: true,
-                    position: 1,
-                    customFields: null,
-                    createdAt: '2022-09-26T06:32:09.586+00:00',
-                    updatedAt: null,
-                    translated: {
+    return mount(
+        await wrapTestComponent('sw-product-modal-variant-generation', {
+            sync: true,
+        }),
+        {
+            props: {
+                groups: [
+                    {
                         name: 'Test',
                         description: null,
+                        displayType: 'text',
+                        sortingType: 'alphanumeric',
+                        filterable: true,
+                        visibleOnProductDetailPage: true,
                         position: 1,
-                        customFields: {},
+                        customFields: null,
+                        createdAt: '2022-09-26T06:32:09.586+00:00',
+                        updatedAt: null,
+                        translated: {
+                            name: 'Test',
+                            description: null,
+                            position: 1,
+                            customFields: {},
+                        },
+                        apiAlias: null,
+                        id: 'a63105d31de248c09726b0ad32cd5d15',
+                        options: [],
+                        translations: [],
                     },
-                    apiAlias: null,
-                    id: 'a63105d31de248c09726b0ad32cd5d15',
-                    options: [],
-                    translations: [],
-                },
-            ],
-            selectedGroups: [
-                {
-                    name: 'Test',
-                    description: null,
-                    displayType: 'text',
-                    sortingType: 'alphanumeric',
-                    filterable: true,
-                    visibleOnProductDetailPage: true,
-                    position: 1,
-                    customFields: null,
-                    createdAt: '2022-09-26T06:32:09.586+00:00',
-                    updatedAt: null,
-                    translated: {
+                ],
+                selectedGroups: [
+                    {
                         name: 'Test',
                         description: null,
+                        displayType: 'text',
+                        sortingType: 'alphanumeric',
+                        filterable: true,
+                        visibleOnProductDetailPage: true,
                         position: 1,
-                        customFields: {},
+                        customFields: null,
+                        createdAt: '2022-09-26T06:32:09.586+00:00',
+                        updatedAt: null,
+                        translated: {
+                            name: 'Test',
+                            description: null,
+                            position: 1,
+                            customFields: {},
+                        },
+                        apiAlias: null,
+                        id: 'a63105d31de248c09726b0ad32cd5d15',
+                        options: [],
+                        translations: [],
                     },
-                    apiAlias: null,
-                    id: 'a63105d31de248c09726b0ad32cd5d15',
-                    options: [],
-                    translations: [],
+                ],
+                product: {
+                    configuratorSettings: new EntityCollection(
+                        'product-configurator-settings',
+                        '/product-configurator-settings',
+                        Shopware.Context.api,
+                        null,
+                        [
+                            {
+                                versionId: '0fa91ce3e96a4bc2be4bd9ce752c3425',
+                                productId: 'e8751848318b4564a4c48bd2bba570b2',
+                                productVersionId: null,
+                                mediaId: null,
+                                optionId: 'e10fed21a07149958427cb5339ee4c31',
+                                creationState: 'is-download',
+                                price: null,
+                                position: 0,
+                                customFields: null,
+                                createdAt: '2022-09-26T06:33:59.508+00:00',
+                                updatedAt: null,
+                                apiAlias: null,
+                                id: '529991749890466e9ff44982bff96305',
+                                option: {
+                                    groupId: 'a63105d31de248c09726b0ad32cd5d15',
+                                    name: 'Tower',
+                                    position: 1,
+                                    colorHexCode: null,
+                                    mediaId: null,
+                                    customFields: null,
+                                    createdAt: '2022-09-26T06:32:18.221+00:00',
+                                    updatedAt: '2022-09-26T06:33:59.512+00:00',
+                                    translated: {
+                                        name: 'Tower',
+                                        position: 1,
+                                        customFields: {},
+                                    },
+                                    apiAlias: null,
+                                    id: 'e10fed21a07149958427cb5339ee4c31',
+                                    translations: [],
+                                    productConfiguratorSettings: [],
+                                    productProperties: [],
+                                    productOptions: [],
+                                },
+                            },
+                            {
+                                versionId: '0fa91ce3e96a4bc2be4bd9ce752c3425',
+                                productId: 'e8751848318b4564a4c48bd2bba570b2',
+                                productVersionId: null,
+                                mediaId: null,
+                                optionId: 'd6e90b99fe4842d487b53b59e50491a4',
+                                creationState: 'is-physical',
+                                price: null,
+                                position: 0,
+                                customFields: null,
+                                createdAt: '2022-09-26T06:32:43.994+00:00',
+                                updatedAt: null,
+                                apiAlias: null,
+                                id: '12bbe30fa2ef4f1d83d0899db1c6d450',
+                                option: {
+                                    groupId: 'a63105d31de248c09726b0ad32cd5d15',
+                                    name: 'HQ',
+                                    position: 1,
+                                    colorHexCode: null,
+                                    mediaId: null,
+                                    customFields: null,
+                                    createdAt: '2022-09-26T06:32:22.274+00:00',
+                                    updatedAt: null,
+                                    translated: {
+                                        name: 'HQ',
+                                        position: 1,
+                                        customFields: {},
+                                    },
+                                    apiAlias: null,
+                                    id: 'd6e90b99fe4842d487b53b59e50491a4',
+                                    translations: [],
+                                    productConfiguratorSettings: [],
+                                    productProperties: [],
+                                    productOptions: [],
+                                },
+                            },
+                            {
+                                versionId: '0fa91ce3e96a4bc2be4bd9ce752c3425',
+                                productId: 'e8751848318b4564a4c48bd2bba570b2',
+                                productVersionId: null,
+                                mediaId: null,
+                                optionId: 'd6e90b99fe4842d487b53b59e50491a3',
+                                creationState: 'is-physical',
+                                price: null,
+                                position: 0,
+                                customFields: null,
+                                createdAt: '2022-09-26T06:32:43.994+00:00',
+                                updatedAt: null,
+                                apiAlias: null,
+                                id: '12bbe30fa2ef4f1d83d0899db1c6d451',
+                                option: {
+                                    groupId: 'a63105d31de248c09726b0ad32cd5d14',
+                                    name: 'Material',
+                                    position: 1,
+                                    colorHexCode: null,
+                                    mediaId: null,
+                                    customFields: null,
+                                    createdAt: '2022-09-26T06:32:22.274+00:00',
+                                    updatedAt: null,
+                                    translated: {
+                                        name: 'Material',
+                                        position: 1,
+                                        customFields: {},
+                                    },
+                                    apiAlias: null,
+                                    id: 'd6e90b99fe4842d487b53b59e50491a3',
+                                    translations: [],
+                                    productConfiguratorSettings: [],
+                                    productProperties: [],
+                                    productOptions: [],
+                                },
+                            },
+                        ],
+                    ),
                 },
-            ],
-            product: {
-                configuratorSettings: new EntityCollection(
-                    'product-configurator-settings',
-                    '/product-configurator-settings',
-                    Shopware.Context.api,
-                    null,
-                    [
-                        {
-                            versionId: '0fa91ce3e96a4bc2be4bd9ce752c3425',
-                            productId: 'e8751848318b4564a4c48bd2bba570b2',
-                            productVersionId: null,
-                            mediaId: null,
-                            optionId: 'e10fed21a07149958427cb5339ee4c31',
-                            creationState: 'is-download',
-                            price: null,
-                            position: 0,
-                            customFields: null,
-                            createdAt: '2022-09-26T06:33:59.508+00:00',
-                            updatedAt: null,
-                            apiAlias: null,
-                            id: '529991749890466e9ff44982bff96305',
-                            option: {
-                                groupId: 'a63105d31de248c09726b0ad32cd5d15',
-                                name: 'Tower',
-                                position: 1,
-                                colorHexCode: null,
-                                mediaId: null,
-                                customFields: null,
-                                createdAt: '2022-09-26T06:32:18.221+00:00',
-                                updatedAt: '2022-09-26T06:33:59.512+00:00',
-                                translated: { name: 'Tower', position: 1, customFields: {} },
-                                apiAlias: null,
-                                id: 'e10fed21a07149958427cb5339ee4c31',
-                                translations: [],
-                                productConfiguratorSettings: [],
-                                productProperties: [],
-                                productOptions: [],
-                            },
+            },
+            global: {
+                stubs: {
+                    'sw-tabs': true,
+                    'sw-tabs-item': true,
+                    'sw-modal': await wrapTestComponent('sw-modal', {
+                        sync: true,
+                    }),
+                    'sw-product-variants-configurator-selection': true,
+                    'mt-progress-bar': true,
+                    'sw-upload-listener': true,
+                    'sw-media-compact-upload-v2': true,
+
+                    'sw-data-grid': true,
+                    'sw-card-filter': true,
+                    'sw-pagination': true,
+                    'sw-product-variants-configurator-prices': true,
+                    'sw-product-variants-configurator-restrictions': true,
+                    'sw-loader': true,
+                    'router-link': true,
+                },
+                provide: {
+                    shortcutService: {
+                        startEventListener() {},
+                        stopEventListener() {},
+                    },
+                    searchRankingService: {
+                        getSearchFieldsByEntity() {
+                            return Promise.resolve(null);
                         },
-                        {
-                            versionId: '0fa91ce3e96a4bc2be4bd9ce752c3425',
-                            productId: 'e8751848318b4564a4c48bd2bba570b2',
-                            productVersionId: null,
-                            mediaId: null,
-                            optionId: 'd6e90b99fe4842d487b53b59e50491a4',
-                            creationState: 'is-physical',
-                            price: null,
-                            position: 0,
-                            customFields: null,
-                            createdAt: '2022-09-26T06:32:43.994+00:00',
-                            updatedAt: null,
-                            apiAlias: null,
-                            id: '12bbe30fa2ef4f1d83d0899db1c6d450',
-                            option: {
-                                groupId: 'a63105d31de248c09726b0ad32cd5d15',
-                                name: 'HQ',
-                                position: 1,
-                                colorHexCode: null,
-                                mediaId: null,
-                                customFields: null,
-                                createdAt: '2022-09-26T06:32:22.274+00:00',
-                                updatedAt: null,
-                                translated: { name: 'HQ', position: 1, customFields: {} },
-                                apiAlias: null,
-                                id: 'd6e90b99fe4842d487b53b59e50491a4',
-                                translations: [],
-                                productConfiguratorSettings: [],
-                                productProperties: [],
-                                productOptions: [],
-                            },
+                        buildSearchQueriesForEntity: () => {
+                            return null;
                         },
-                        {
-                            versionId: '0fa91ce3e96a4bc2be4bd9ce752c3425',
-                            productId: 'e8751848318b4564a4c48bd2bba570b2',
-                            productVersionId: null,
-                            mediaId: null,
-                            optionId: 'd6e90b99fe4842d487b53b59e50491a3',
-                            creationState: 'is-physical',
-                            price: null,
-                            position: 0,
-                            customFields: null,
-                            createdAt: '2022-09-26T06:32:43.994+00:00',
-                            updatedAt: null,
-                            apiAlias: null,
-                            id: '12bbe30fa2ef4f1d83d0899db1c6d451',
-                            option: {
-                                groupId: 'a63105d31de248c09726b0ad32cd5d14',
-                                name: 'Material',
-                                position: 1,
-                                colorHexCode: null,
-                                mediaId: null,
-                                customFields: null,
-                                createdAt: '2022-09-26T06:32:22.274+00:00',
-                                updatedAt: null,
-                                translated: { name: 'Material', position: 1, customFields: {} },
-                                apiAlias: null,
-                                id: 'd6e90b99fe4842d487b53b59e50491a3',
-                                translations: [],
-                                productConfiguratorSettings: [],
-                                productProperties: [],
-                                productOptions: [],
-                            },
+                    },
+                    mediaService: {
+                        getDefaultFolderId: () => {
+                            return Promise.resolve('defaultFolderId');
                         },
-                    ],
-                ),
+                    },
+                    swProductDetailLoadAll: () => {},
+                },
             },
         },
-        global: {
-            stubs: {
-                'sw-tabs': true,
-                'sw-tabs-item': true,
-                'sw-button': await wrapTestComponent('sw-button', { sync: true }),
-                'sw-button-deprecated': await wrapTestComponent('sw-button-deprecated', { sync: true }),
-                'sw-modal': await wrapTestComponent('sw-modal', { sync: true }),
-                'sw-product-variants-configurator-selection': true,
-                'sw-icon': true,
-                'sw-progress-bar': true,
-                'sw-alert': true,
-                'sw-upload-listener': true,
-                'sw-media-compact-upload-v2': true,
-                'sw-switch-field': true,
-                'sw-data-grid': true,
-                'sw-card-filter': true,
-                'sw-pagination': true,
-                'sw-product-variants-configurator-prices': true,
-                'sw-product-variants-configurator-restrictions': true,
-                'sw-loader': true,
-                'router-link': true,
-            },
-            provide: {
-                shortcutService: {
-                    startEventListener() {},
-                    stopEventListener() {},
-                },
-                searchRankingService: {
-                    getSearchFieldsByEntity() {
-                        return Promise.resolve(null);
-                    },
-                    buildSearchQueriesForEntity: () => {
-                        return null;
-                    },
-                },
-                mediaService: {
-                    getDefaultFolderId: () => {
-                        return Promise.resolve('defaultFolderId');
-                    },
-                },
-                swProductDetailLoadAll: () => {},
-            },
-        },
-    });
+    );
 }
 
 describe('src/module/sw-product/component/sw-product-variants/sw-product-modal-variant-generation', () => {
@@ -224,10 +239,6 @@ describe('src/module/sw-product/component/sw-product-variants/sw-product-modal-v
                     return Promise.resolve({ data: {} });
                 },
             };
-        });
-
-        Shopware.State.registerModule('swProductDetail', {
-            namespaced: true,
         });
     });
 
@@ -336,41 +347,49 @@ describe('src/module/sw-product/component/sw-product-variants/sw-product-modal-v
                         id: '1',
                         downloads: [],
                         productStates: ['is-download'],
-                        options: [{
-                            entity: {
-                                name: 'Book type',
+                        options: [
+                            {
+                                entity: {
+                                    name: 'Book type',
+                                },
                             },
-                        }],
+                        ],
                     },
                     {
                         id: '2',
                         downloads: [],
                         productStates: ['is-download'],
-                        options: [{
-                            entity: {
-                                name: 'Book type',
+                        options: [
+                            {
+                                entity: {
+                                    name: 'Book type',
+                                },
                             },
-                        }],
+                        ],
                     },
                     {
                         id: '3',
                         downloads: [],
                         productStates: ['is-download'],
-                        options: [{
-                            entity: {
-                                name: 'Book type',
+                        options: [
+                            {
+                                entity: {
+                                    name: 'Book type',
+                                },
                             },
-                        }],
+                        ],
                     },
                     {
                         id: '4',
                         downloads: [],
                         productStates: ['is-download'],
-                        options: [{
-                            entity: {
-                                name: 'Book type',
+                        options: [
+                            {
+                                entity: {
+                                    name: 'Book type',
+                                },
                             },
-                        }],
+                        ],
                     },
                 ],
             },
@@ -386,21 +405,25 @@ describe('src/module/sw-product/component/sw-product-variants/sw-product-modal-v
                 id: '1',
                 downloads: [],
                 productStates: ['is-download'],
-                options: [{
-                    entity: {
-                        name: 'Book type',
+                options: [
+                    {
+                        entity: {
+                            name: 'Book type',
+                        },
                     },
-                }],
+                ],
             },
             {
                 id: '2',
                 downloads: [],
                 productStates: ['is-download'],
-                options: [{
-                    entity: {
-                        name: 'Book type',
+                options: [
+                    {
+                        entity: {
+                            name: 'Book type',
+                        },
                     },
-                }],
+                ],
             },
         ]);
 
@@ -414,21 +437,25 @@ describe('src/module/sw-product/component/sw-product-variants/sw-product-modal-v
                 id: '3',
                 downloads: [],
                 productStates: ['is-download'],
-                options: [{
-                    entity: {
-                        name: 'Book type',
+                options: [
+                    {
+                        entity: {
+                            name: 'Book type',
+                        },
                     },
-                }],
+                ],
             },
             {
                 id: '4',
                 downloads: [],
                 productStates: ['is-download'],
-                options: [{
-                    entity: {
-                        name: 'Book type',
+                options: [
+                    {
+                        entity: {
+                            name: 'Book type',
+                        },
                     },
-                }],
+                ],
             },
         ]);
     });
@@ -443,21 +470,25 @@ describe('src/module/sw-product/component/sw-product-variants/sw-product-modal-v
                         id: '1',
                         downloads: [],
                         productStates: ['is-download'],
-                        options: [{
-                            entity: {
-                                name: 'lel',
+                        options: [
+                            {
+                                entity: {
+                                    name: 'lel',
+                                },
                             },
-                        }],
+                        ],
                     },
                     {
                         id: '2',
                         downloads: [],
                         productStates: ['is-download'],
-                        options: [{
-                            entity: {
-                                name: 'Book type',
+                        options: [
+                            {
+                                entity: {
+                                    name: 'Book type',
+                                },
                             },
-                        }],
+                        ],
                     },
                 ],
             },
@@ -470,11 +501,13 @@ describe('src/module/sw-product/component/sw-product-variants/sw-product-modal-v
                 id: '1',
                 downloads: [],
                 productStates: ['is-download'],
-                options: [{
-                    entity: {
-                        name: 'lel',
+                options: [
+                    {
+                        entity: {
+                            name: 'lel',
+                        },
                     },
-                }],
+                ],
             },
         ]);
     });
@@ -506,20 +539,24 @@ describe('src/module/sw-product/component/sw-product-variants/sw-product-modal-v
             targetId: 'random-id',
         });
 
-        expect(wrapper.vm.downloadFilesForAllVariants).toEqual([{
-            id: 'random-id',
-            fileName: 'example',
-            fileExtension: 'jpg',
-        }]);
+        expect(wrapper.vm.downloadFilesForAllVariants).toEqual([
+            {
+                id: 'random-id',
+                fileName: 'example',
+                fileExtension: 'jpg',
+            },
+        ]);
         expect(wrapper.vm.variantGenerationQueue.createQueue).toEqual([
             {
                 id: 'random-id',
                 productStates: ['is-download'],
-                downloads: [{
-                    id: 'random-id',
-                    fileName: 'example',
-                    fileExtension: 'jpg',
-                }],
+                downloads: [
+                    {
+                        id: 'random-id',
+                        fileName: 'example',
+                        fileExtension: 'jpg',
+                    },
+                ],
                 options: [],
             },
         ]);
@@ -527,15 +564,22 @@ describe('src/module/sw-product/component/sw-product-variants/sw-product-modal-v
 
     it('should add the uploaded item', async () => {
         const wrapper = await createWrapper();
-        wrapper.vm.mediaRepository.get = jest.fn().mockResolvedValueOnce({ id: 'random-id', fileName: 'example', fileExtension: 'jpg' });
+        wrapper.vm.mediaRepository.get = jest.fn().mockResolvedValueOnce({
+            id: 'random-id',
+            fileName: 'example',
+            fileExtension: 'jpg',
+        });
 
         const item = {
             downloads: [],
         };
 
-        await wrapper.vm.successfulUpload({
-            targetId: 'random-id',
-        }, item);
+        await wrapper.vm.successfulUpload(
+            {
+                targetId: 'random-id',
+            },
+            item,
+        );
 
         expect(item).toStrictEqual({
             downloads: [
@@ -552,11 +596,13 @@ describe('src/module/sw-product/component/sw-product-variants/sw-product-modal-v
                     {
                         id: 'random-id',
                         productStates: ['is-download'],
-                        downloads: [{
-                            id: 'example-id',
-                            fileName: 'example',
-                            fileExtension: 'jpg',
-                        }],
+                        downloads: [
+                            {
+                                id: 'example-id',
+                                fileName: 'example',
+                                fileExtension: 'jpg',
+                            },
+                        ],
                         options: [],
                     },
                 ],
@@ -565,7 +611,7 @@ describe('src/module/sw-product/component/sw-product-variants/sw-product-modal-v
             showUploadModal: true,
         });
 
-        expect(wrapper.get('.sw-product-variant-generation__generate-action').classes('sw-button--disabled')).toBe(false);
+        expect(wrapper.get('.sw-product-variant-generation__generate-action').attributes('disabled')).toBeUndefined();
     });
 
     it('generate button should be disabled when not every variant has downloadable files', async () => {
@@ -585,28 +631,37 @@ describe('src/module/sw-product/component/sw-product-variants/sw-product-modal-v
             showUploadModal: true,
         });
 
-        expect(wrapper.get('.sw-product-variant-generation__generate-action').classes('sw-button--disabled')).toBe(true);
+        expect(wrapper.get('.sw-product-variant-generation__generate-action').attributes('disabled')).toBeDefined();
     });
 
     it('should generate digital variants', async () => {
         const wrapper = await createWrapper();
-        wrapper.vm.productRepository.save = jest.fn().mockReturnValueOnce(Promise.resolve({}));
+
+        await wrapper.setData({
+            productRepository: {
+                save: jest.fn().mockReturnValueOnce(Promise.resolve({})),
+            },
+        });
 
         await wrapper.setData({
             variantGenerationQueue: {
                 createQueue: [
                     {
                         id: 'random-id',
-                        downloads: [{
-                            id: 'random-id',
-                        }],
+                        downloads: [
+                            {
+                                id: 'random-id',
+                            },
+                        ],
                         productStates: ['is-download'],
                         options: [],
                     },
                 ],
-                deleteQueue: [{
-                    id: 'delete-id',
-                }],
+                deleteQueue: [
+                    {
+                        id: 'delete-id',
+                    },
+                ],
             },
         });
 
@@ -622,23 +677,29 @@ describe('src/module/sw-product/component/sw-product-variants/sw-product-modal-v
 
     it('should generate variants', async () => {
         const wrapper = await createWrapper();
-        wrapper.vm.productRepository.save = jest.fn().mockReturnValueOnce(Promise.resolve({}));
 
         await wrapper.setData({
+            productRepository: {
+                save: jest.fn().mockReturnValueOnce(Promise.resolve({})),
+            },
             variantGenerationQueue: {
                 createQueue: [
                     {
                         id: 'random-id',
-                        downloads: [{
-                            id: 'random-id',
-                        }],
+                        downloads: [
+                            {
+                                id: 'random-id',
+                            },
+                        ],
                         productStates: ['is-download'],
                         options: [],
                     },
                 ],
-                deleteQueue: [{
-                    id: 'delete-id',
-                }],
+                deleteQueue: [
+                    {
+                        id: 'delete-id',
+                    },
+                ],
             },
             variantsGenerator: {
                 generateVariants: () => Promise.resolve(),
@@ -765,9 +826,12 @@ describe('src/module/sw-product/component/sw-product-variants/sw-product-modal-v
     it('should show variant generation step without any to create', async () => {
         const wrapper = await createWrapper();
         wrapper.vm.productRepository.save = jest.fn().mockReturnValueOnce(Promise.resolve({}));
-        wrapper.vm.variantsGenerator.filterVariations = jest.fn().mockReturnValueOnce(Promise.resolve({
-            deleteQueue: [], createQueue: [],
-        }));
+        wrapper.vm.variantsGenerator.filterVariations = jest.fn().mockReturnValueOnce(
+            Promise.resolve({
+                deleteQueue: [],
+                createQueue: [],
+            }),
+        );
 
         await wrapper.vm.showNextStep();
         await flushPromises();
@@ -778,15 +842,24 @@ describe('src/module/sw-product/component/sw-product-variants/sw-product-modal-v
 
     it('should prevent uploads of duplicate files on single variants', async () => {
         const wrapper = await createWrapper();
-        wrapper.vm.mediaRepository.get = jest.fn().mockResolvedValueOnce({ id: 'random-id', fileName: 'example', fileExtension: 'jpg' });
+        wrapper.vm.mediaRepository.get = jest.fn().mockResolvedValueOnce({
+            id: 'random-id',
+            fileName: 'example',
+            fileExtension: 'jpg',
+        });
 
         const item = {
-            downloads: [{ id: 'random-id', fileName: 'example', fileExtension: 'jpg' }],
+            downloads: [
+                { id: 'random-id', fileName: 'example', fileExtension: 'jpg' },
+            ],
         };
 
-        await wrapper.vm.successfulUpload({
-            targetId: 'random-id',
-        }, item);
+        await wrapper.vm.successfulUpload(
+            {
+                targetId: 'random-id',
+            },
+            item,
+        );
 
         expect(item).toStrictEqual({
             downloads: [
@@ -819,32 +892,38 @@ describe('src/module/sw-product/component/sw-product-variants/sw-product-modal-v
             targetId: 'random-id',
         });
 
-        expect(wrapper.vm.downloadFilesForAllVariants).toEqual([{
-            id: 'random-id',
-            fileName: 'example',
-            fileExtension: 'jpg',
-        }]);
+        expect(wrapper.vm.downloadFilesForAllVariants).toEqual([
+            {
+                id: 'random-id',
+                fileName: 'example',
+                fileExtension: 'jpg',
+            },
+        ]);
     });
 
     it('should only make visible variants digital by using "make all variants digital"', async () => {
         const items = [
             {
                 id: '1',
-                options: [{
-                    entity: {
-                        name: 'test',
+                options: [
+                    {
+                        entity: {
+                            name: 'test',
+                        },
                     },
-                }],
+                ],
                 downloads: [],
                 productStates: [],
             },
             {
                 id: '2',
-                options: [{
-                    entity: {
-                        name: 'lel',
+                options: [
+                    {
+                        entity: {
+                            name: 'lel',
+                        },
                     },
-                }],
+                ],
                 downloads: [],
                 productStates: ['is-download'],
             },
@@ -880,21 +959,25 @@ describe('src/module/sw-product/component/sw-product-variants/sw-product-modal-v
         const items = [
             {
                 id: '1',
-                options: [{
-                    entity: {
-                        name: 'test',
+                options: [
+                    {
+                        entity: {
+                            name: 'test',
+                        },
                     },
-                }],
+                ],
                 downloads: [],
                 productStates: ['is-download'],
             },
             {
                 id: '2',
-                options: [{
-                    entity: {
-                        name: 'lel',
+                options: [
+                    {
+                        entity: {
+                            name: 'lel',
+                        },
                     },
-                }],
+                ],
                 downloads: [],
                 productStates: ['is-download'],
             },
@@ -911,10 +994,10 @@ describe('src/module/sw-product/component/sw-product-variants/sw-product-modal-v
                 createQueue: items,
             },
             downloadFilesForAllVariants: [file],
+            mediaRepository: {
+                get: jest.fn().mockReturnValueOnce(Promise.resolve(file)),
+            },
         });
-        wrapper.vm.mediaRepository.get = jest.fn().mockReturnValueOnce(
-            Promise.resolve(file),
-        );
 
         wrapper.vm.onTermChange('test');
         await wrapper.vm.successfulUpload({
@@ -930,11 +1013,13 @@ describe('src/module/sw-product/component/sw-product-variants/sw-product-modal-v
         const items = [
             {
                 id: '1',
-                options: [{
-                    entity: {
-                        name: 'test',
+                options: [
+                    {
+                        entity: {
+                            name: 'test',
+                        },
                     },
-                }],
+                ],
                 downloads: [],
                 productStates: [],
             },
@@ -956,5 +1041,118 @@ describe('src/module/sw-product/component/sw-product-variants/sw-product-modal-v
 
         wrapper.vm.onChangeVariantValue(true, items[0]);
         expect(wrapper.vm.variantGenerationQueue.createQueue[0].downloads).toContainEqual(file);
+    });
+
+    it('should add option count when change the isAddOnly', async () => {
+        const wrapper = await createWrapper();
+        await wrapper.setData({
+            isAddOnly: true,
+        });
+
+        const addOriginalConfiguratorSettings = jest.spyOn(wrapper.vm, 'addOriginalConfiguratorSettings');
+        await wrapper.setData({
+            isAddOnly: false,
+        });
+
+        expect(addOriginalConfiguratorSettings).toHaveBeenCalled();
+
+        const emptyConfiguratorSettings = jest.spyOn(wrapper.vm, 'emptyConfiguratorSettings');
+        await wrapper.setData({
+            isAddOnly: true,
+        });
+
+        expect(emptyConfiguratorSettings).toHaveBeenCalled();
+    });
+
+    it('should add origin configuration when cancel modal', async () => {
+        const wrapper = await createWrapper();
+
+        await wrapper.setData({
+            originalConfiguratorSettings: new EntityCollection(
+                'product-configurator-settings',
+                '/product-configurator-settings',
+                Shopware.Context.api,
+                null,
+                [
+                    {
+                        versionId: '0fa91ce3e96a4bc2be4bd9ce752c3425',
+                        productId: 'e8751848318b4564a4c48bd2bba570b2',
+                        productVersionId: null,
+                        mediaId: null,
+                        optionId: 'e10fed21a07149958427cb5339ee4c31',
+                        creationState: 'is-download',
+                        price: null,
+                        position: 0,
+                        customFields: null,
+                        createdAt: '2022-09-26T06:33:59.508+00:00',
+                        updatedAt: null,
+                        apiAlias: null,
+                        id: '529991749890466e9ff44982bff96305',
+                        option: {
+                            groupId: 'a63105d31de248c09726b0ad32cd5d15',
+                            name: 'Tower',
+                            position: 1,
+                            colorHexCode: null,
+                            mediaId: null,
+                            customFields: null,
+                            createdAt: '2022-09-26T06:32:18.221+00:00',
+                            updatedAt: '2022-09-26T06:33:59.512+00:00',
+                            translated: {
+                                name: 'Tower',
+                                position: 1,
+                                customFields: {},
+                            },
+                            apiAlias: null,
+                            id: 'e10fed21a07149958427cb5339ee4c31',
+                            translations: [],
+                            productConfiguratorSettings: [],
+                            productProperties: [],
+                            productOptions: [],
+                        },
+                    },
+                    {
+                        versionId: '0fa91ce3e96a4bc2be4bd9ce752c3425',
+                        productId: 'e8751848318b4564a4c48bd2bba570b2',
+                        productVersionId: null,
+                        mediaId: null,
+                        optionId: 'd6e90b99fe4842d487b53b59e50491a5',
+                        creationState: 'is-physical',
+                        price: null,
+                        position: 0,
+                        customFields: null,
+                        createdAt: '2022-09-26T06:32:43.994+00:00',
+                        updatedAt: null,
+                        apiAlias: null,
+                        id: '12bbe30fa2ef4f1d83d0899db1c6d450',
+                        option: {
+                            groupId: 'a63105d31de248c09726b0ad32cd5d15',
+                            name: 'HQ',
+                            position: 1,
+                            colorHexCode: null,
+                            mediaId: null,
+                            customFields: null,
+                            createdAt: '2022-09-26T06:32:22.274+00:00',
+                            updatedAt: null,
+                            translated: {
+                                name: 'HQ',
+                                position: 1,
+                                customFields: {},
+                            },
+                            apiAlias: null,
+                            id: 'd6e90b99fe4842d487b53b59e50491a4',
+                            translations: [],
+                            productConfiguratorSettings: [],
+                            productProperties: [],
+                            productOptions: [],
+                        },
+                    },
+                ],
+            ),
+        });
+
+        const removeDuplicateEntries = jest.spyOn(wrapper.vm, 'removeDuplicateEntries');
+        wrapper.vm.onModalCancel();
+
+        expect(removeDuplicateEntries).toHaveBeenCalled();
     });
 });

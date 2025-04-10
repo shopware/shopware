@@ -7,30 +7,21 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityIdTrait;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\SalesChannelEntity;
 
-#[Package('services-settings')]
+#[Package('framework')]
 class SystemConfigEntity extends Entity
 {
     use EntityIdTrait;
 
-    /**
-     * @var string
-     */
-    protected $configurationKey;
+    protected string $configurationKey;
 
     /**
-     * @var array|bool|float|int|string|null
+     * @var array<mixed>|bool|float|int|string|null
      */
-    protected $configurationValue;
+    protected array|bool|float|int|string|null $configurationValue;
 
-    /**
-     * @var string|null
-     */
-    protected $salesChannelId;
+    protected ?string $salesChannelId = null;
 
-    /**
-     * @var SalesChannelEntity|null
-     */
-    protected $salesChannel;
+    protected ?SalesChannelEntity $salesChannel = null;
 
     public function getConfigurationKey(): string
     {
@@ -43,17 +34,17 @@ class SystemConfigEntity extends Entity
     }
 
     /**
-     * @return array|bool|float|int|string|null
+     * @return array<mixed>|bool|float|int|string|null
      */
-    public function getConfigurationValue()
+    public function getConfigurationValue(): array|bool|float|int|string|null
     {
         return $this->configurationValue;
     }
 
     /**
-     * @param array|bool|float|int|string|null $configurationValue
+     * @param array<mixed>|bool|float|int|string|null $configurationValue
      */
-    public function setConfigurationValue($configurationValue): void
+    public function setConfigurationValue(array|bool|float|int|string|null $configurationValue): void
     {
         $this->configurationValue = $configurationValue;
     }

@@ -1,5 +1,5 @@
 /**
- * @package services-settings
+ * @sw-package fundamentals@framework
  */
 import { mount } from '@vue/test-utils';
 import TimezoneService from 'src/core/service/timezone.service';
@@ -7,57 +7,63 @@ import EntityCollection from 'src/core/data/entity-collection.data';
 
 let wrapper;
 
-async function createWrapper(privileges = [], options = {
-    global: {
-        stubs: {},
-    },
-}) {
-    wrapper = mount(await wrapTestComponent('sw-users-permissions-user-detail', {
-        sync: true,
-    }), {
+async function createWrapper(
+    privileges = [],
+    options = {
         global: {
-            directives: {
-                tooltip: {
-                    beforeMount(el, binding) {
-                        el.setAttribute('data-tooltip-message', binding.value.message);
-                        el.setAttribute('data-tooltip-disabled', binding.value.disabled);
-                    },
-                    mounted(el, binding) {
-                        el.setAttribute('data-tooltip-message', binding.value.message);
-                        el.setAttribute('data-tooltip-disabled', binding.value.disabled);
-                    },
-                    updated(el, binding) {
-                        el.setAttribute('data-tooltip-message', binding.value.message);
-                        el.setAttribute('data-tooltip-disabled', binding.value.disabled);
+            stubs: {},
+        },
+    },
+) {
+    wrapper = mount(
+        await wrapTestComponent('sw-users-permissions-user-detail', {
+            sync: true,
+        }),
+        {
+            global: {
+                directives: {
+                    tooltip: {
+                        beforeMount(el, binding) {
+                            el.setAttribute('data-tooltip-message', binding.value.message);
+                            el.setAttribute('data-tooltip-disabled', binding.value.disabled);
+                        },
+                        mounted(el, binding) {
+                            el.setAttribute('data-tooltip-message', binding.value.message);
+                            el.setAttribute('data-tooltip-disabled', binding.value.disabled);
+                        },
+                        updated(el, binding) {
+                            el.setAttribute('data-tooltip-message', binding.value.message);
+                            el.setAttribute('data-tooltip-disabled', binding.value.disabled);
+                        },
                     },
                 },
-            },
-            renderStubDefaultSlot: true,
-            provide: {
-                acl: {
-                    can: (identifier) => {
-                        if (!identifier) { return true; }
+                renderStubDefaultSlot: true,
+                provide: {
+                    acl: {
+                        can: (identifier) => {
+                            if (!identifier) {
+                                return true;
+                            }
 
-                        return privileges.includes(identifier);
+                            return privileges.includes(identifier);
+                        },
                     },
-                },
-                loginService: {},
-                userService: {
-                    getUser: () => Promise.resolve({ data: {} }),
-                },
-                mediaDefaultFolderService: {
-                    getDefaultFolderId: () => Promise.resolve('1234'),
-                },
-                userValidationService: {},
-                integrationService: {},
-                repositoryFactory: {
-                    create: (entityName) => {
-                        if (entityName === 'user') {
-                            return {
-                                search: () => Promise.resolve(),
-                                get: () => {
-                                    return Promise.resolve(
-                                        {
+                    loginService: {},
+                    userService: {
+                        getUser: () => Promise.resolve({ data: {} }),
+                    },
+                    mediaDefaultFolderService: {
+                        getDefaultFolderId: () => Promise.resolve('1234'),
+                    },
+                    userValidationService: {},
+                    integrationService: {},
+                    repositoryFactory: {
+                        create: (entityName) => {
+                            if (entityName === 'user') {
+                                return {
+                                    search: () => Promise.resolve(),
+                                    get: () => {
+                                        return Promise.resolve({
                                             localeId: '7dc07b43229843d387bb5f59233c2d66',
                                             username: 'admin',
                                             firstName: '',
@@ -66,112 +72,101 @@ async function createWrapper(privileges = [], options = {
                                             accessKeys: {
                                                 entity: 'product',
                                             },
-                                        },
-                                    );
-                                },
-                            };
-                        }
+                                        });
+                                    },
+                                };
+                            }
 
-                        if (entityName === 'language') {
-                            return {
-                                search: () => Promise.resolve(new EntityCollection(
-                                    '',
-                                    '',
-                                    Shopware.Context.api,
-                                    null,
-                                    [],
-                                    0,
-                                )),
-                                get: () => Promise.resolve(),
-                            };
-                        }
+                            if (entityName === 'language') {
+                                return {
+                                    search: () =>
+                                        Promise.resolve(new EntityCollection('', '', Shopware.Context.api, null, [], 0)),
+                                    get: () => Promise.resolve(),
+                                };
+                            }
 
-                        if (entityName === 'media') {
-                            return {
-                                get: () => Promise.resolve({
-                                    id: '2142',
-                                }),
-                            };
-                        }
+                            if (entityName === 'media') {
+                                return {
+                                    get: () =>
+                                        Promise.resolve({
+                                            id: '2142',
+                                        }),
+                                };
+                            }
 
-                        return {};
+                            return {};
+                        },
+                    },
+                    validationService: {},
+                },
+                mocks: {
+                    $route: {
+                        params: {
+                            id: '1a2b3c4d',
+                        },
+                    },
+                    $device: {
+                        getSystemKey: () => 'STRG',
                     },
                 },
-                validationService: {},
-            },
-            mocks: {
-                $route: {
-                    params: {
-                        id: '1a2b3c4d',
-                    },
-                },
-                $device: {
-                    getSystemKey: () => 'STRG',
-                },
-            },
-            stubs: {
-                'sw-page': {
-                    template: `
+                stubs: {
+                    'sw-page': {
+                        template: `
 <div>
     <slot name="smart-bar-actions"></slot>
     <slot name="content"></slot>
 </div>`,
-                },
-                'sw-card-view': true,
-                'sw-card': {
-                    template: `
+                    },
+                    'sw-card-view': true,
+                    'mt-card': {
+                        template: `
     <div class="sw-card-stub">
         <slot></slot>
         <slot name="grid"></slot>
     </div>
     `,
-                },
-                'sw-button-deprecated': await wrapTestComponent('sw-button-deprecated'),
-                'sw-button-process': await wrapTestComponent('sw-button-process'),
-                'sw-text-field': await wrapTestComponent('sw-text-field', {
-                    sync: true,
-                }),
-                'sw-contextual-field': await wrapTestComponent('sw-contextual-field'),
-                'sw-block-field': await wrapTestComponent('sw-block-field'),
-                'sw-base-field': await wrapTestComponent('sw-base-field'),
-                'sw-field-error': await wrapTestComponent('sw-field-error'),
-                'sw-upload-listener': true,
-                'sw-media-upload-v2': true,
-                'sw-password-field': await wrapTestComponent('sw-text-field', {
-                    sync: true,
-                }),
-                'sw-select-field': true,
-                'sw-switch-field': true,
-                'sw-entity-multi-select': true,
-                'sw-single-select': true,
-                'sw-icon': true,
-                'sw-data-grid': {
-                    props: ['dataSource'],
-                    template: `
+                    },
+                    'sw-button-process': await wrapTestComponent('sw-button-process'),
+                    'sw-text-field': await wrapTestComponent('sw-text-field', {
+                        sync: true,
+                    }),
+                    'sw-contextual-field': await wrapTestComponent('sw-contextual-field'),
+                    'sw-block-field': await wrapTestComponent('sw-block-field'),
+                    'sw-base-field': await wrapTestComponent('sw-base-field'),
+                    'sw-field-error': await wrapTestComponent('sw-field-error'),
+                    'sw-upload-listener': true,
+                    'sw-media-upload-v2': true,
+                    'sw-select-field': true,
+
+                    'sw-entity-multi-select': true,
+                    'sw-single-select': true,
+                    'sw-data-grid': {
+                        props: ['dataSource'],
+                        template: `
                         <div>
                             <template v-for="item in dataSource">
                                 <slot name="actions" v-bind="{ item }"></slot>
                             </template>
                         </div>
                     `,
+                    },
+                    'sw-context-menu-item': true,
+                    'sw-empty-state': true,
+                    'sw-skeleton': true,
+                    'sw-loader': true,
+                    'sw-verify-user-modal': true,
+                    'sw-media-modal-v2': true,
+
+                    'sw-text-field-deprecated': true,
+                    'sw-help-text': true,
+                    'sw-inheritance-switch': true,
+                    'sw-field-copyable': true,
+                    'sw-ai-copilot-badge': true,
+                    ...options.global.stubs,
                 },
-                'sw-context-menu-item': true,
-                'sw-empty-state': true,
-                'sw-skeleton': true,
-                'sw-loader': true,
-                'sw-button': true,
-                'sw-verify-user-modal': true,
-                'sw-media-modal-v2': true,
-                'sw-alert': true,
-                'sw-text-field-deprecated': true,
-                'sw-help-text': true,
-                'sw-inheritance-switch': true,
-                'sw-field-copyable': true,
-                'sw-ai-copilot-badge': true,
-                ...options.global.stubs,
             },
         },
-    });
+    );
 
     // wait until all loading promises are done
     await wrapper.vm.$nextTick();
@@ -184,10 +179,12 @@ describe('modules/sw-users-permissions/page/sw-users-permissions-user-detail', (
         Shopware.Service().register('timezoneService', () => {
             return new TimezoneService();
         });
+
+        jest.spyOn(Shopware.ExtensionAPI, 'publishData').mockImplementation(() => {});
     });
 
     beforeEach(async () => {
-        Shopware.State.get('session').languageId = '123456789';
+        Shopware.Store.get('session').languageId = '123456789';
         wrapper = await createWrapper();
     });
 
@@ -195,7 +192,7 @@ describe('modules/sw-users-permissions/page/sw-users-permissions-user-detail', (
         // Unmount need to be called here manually because the publishData cleanup does
         // not work with automatic unmount
         await wrapper.unmount();
-        Shopware.State.get('session').languageId = '';
+        Shopware.Store.get('session').languageId = '';
     });
 
     it('should be a Vue.js component', async () => {
@@ -222,13 +219,13 @@ describe('modules/sw-users-permissions/page/sw-users-permissions-user-detail', (
         expect(fieldPassword.exists()).toBeTruthy();
         expect(fieldLanguage.exists()).toBeTruthy();
 
-        expect(fieldFirstName.attributes('value')).toBe('');
-        expect(fieldLastName.attributes('value')).toBe('admin');
-        expect(fieldEmail.attributes('value')).toBe('info@shopware.com');
-        expect(fieldUsername.attributes('value')).toBe('admin');
+        expect(fieldFirstName.props('modelValue')).toBe('');
+        expect(fieldLastName.props('modelValue')).toBe('admin');
+        expect(fieldEmail.props('modelValue')).toBe('info@shopware.com');
+        expect(fieldUsername.props('modelValue')).toBe('admin');
         expect(fieldProfilePicture.attributes('value')).toBeUndefined();
         expect(fieldPassword.attributes('value')).toBeUndefined();
-        expect(fieldLanguage.attributes('value')).toBe('7dc07b43229843d387bb5f59233c2d66');
+        expect(fieldLanguage.props('modelValue')).toBe('7dc07b43229843d387bb5f59233c2d66');
     });
 
     it('should contain all fields with a given user', async () => {
@@ -260,13 +257,13 @@ describe('modules/sw-users-permissions/page/sw-users-permissions-user-detail', (
         expect(fieldPassword.exists()).toBeTruthy();
         expect(fieldLanguage.exists()).toBeTruthy();
 
-        expect(fieldFirstName.attributes('value')).toBe('Max');
-        expect(fieldLastName.attributes('value')).toBe('Mustermann');
-        expect(fieldEmail.attributes('value')).toBe('max@mustermann.com');
-        expect(fieldUsername.attributes('value')).toBe('maxmuster');
+        expect(fieldFirstName.props('modelValue')).toBe('Max');
+        expect(fieldLastName.props('modelValue')).toBe('Mustermann');
+        expect(fieldEmail.props('modelValue')).toBe('max@mustermann.com');
+        expect(fieldUsername.props('modelValue')).toBe('maxmuster');
         expect(fieldProfilePicture.attributes('value')).toBeUndefined();
         expect(fieldPassword.attributes('value')).toBeUndefined();
-        expect(fieldLanguage.attributes('value')).toBe('12345');
+        expect(fieldLanguage.props('modelValue')).toBe('12345');
     });
 
     it('should enable the tooltip warning when user is admin', async () => {
@@ -285,8 +282,9 @@ describe('modules/sw-users-permissions/page/sw-users-permissions-user-detail', (
 
         const aclRolesSelect = wrapper.find('.sw-settings-user-detail__grid-aclRoles');
 
-        expect(aclRolesSelect.attributes()['data-tooltip-message'])
-            .toBe('sw-users-permissions.users.user-detail.disabledRoleSelectWarning');
+        expect(aclRolesSelect.attributes()['data-tooltip-message']).toBe(
+            'sw-users-permissions.users.user-detail.disabledRoleSelectWarning',
+        );
 
         expect(aclRolesSelect.attributes()['data-tooltip-disabled']).toBe('false');
     });
@@ -332,18 +330,18 @@ describe('modules/sw-users-permissions/page/sw-users-permissions-user-detail', (
         const fieldEmail = wrapper.findComponent('.sw-settings-user-detail__grid-eMail');
         const fieldUsername = wrapper.findComponent('.sw-settings-user-detail__grid-username');
         const fieldProfilePicture = wrapper.findComponent('.sw-settings-user-detail__grid-profile-picture');
-        const fieldPassword = wrapper.findComponent('.sw-settings-user-detail__grid-password');
+        const fieldPassword = wrapper.findByLabel('sw-users-permissions.users.user-detail.labelPassword');
         const fieldLanguage = wrapper.findComponent('.sw-settings-user-detail__grid-language');
         const contextMenuItemEdit = wrapper.findComponent('.sw-settings-user-detail__grid-context-menu-edit');
         const contextMenuItemDelete = wrapper.findComponent('.sw-settings-user-detail__grid-context-menu-delete');
 
-        expect(fieldFirstName.attributes('disabled')).toBe('true');
-        expect(fieldLastName.attributes('disabled')).toBe('true');
-        expect(fieldEmail.attributes('disabled')).toBe('true');
-        expect(fieldUsername.attributes('disabled')).toBe('true');
+        expect(fieldFirstName.props('disabled')).toBe(true);
+        expect(fieldLastName.props('disabled')).toBe(true);
+        expect(fieldEmail.props('disabled')).toBe(true);
+        expect(fieldUsername.props('disabled')).toBe(true);
         expect(fieldProfilePicture.attributes().disabled).toBe('true');
-        expect(fieldPassword.attributes().disabled).toBe('true');
-        expect(fieldLanguage.attributes().disabled).toBe('true');
+        expect(fieldPassword.attributes('disabled')).toBeDefined();
+        expect(fieldLanguage.props().disabled).toBe(true);
         expect(contextMenuItemEdit.attributes().disabled).toBe('true');
         expect(contextMenuItemDelete.attributes().disabled).toBe('true');
     });
@@ -523,5 +521,21 @@ describe('modules/sw-users-permissions/page/sw-users-permissions-user-detail', (
         expect(wrapper.vm.mediaItem.id).toBe(mediaId);
         expect(wrapper.vm.user.avatarId).toBe(mediaId);
         expect(wrapper.vm.user.avatarMedia.id).toBe(mediaId);
+    });
+
+    it('should publish current user and editing user', async () => {
+        expect(Shopware.ExtensionAPI.publishData).toHaveBeenCalledTimes(2);
+
+        expect(Shopware.ExtensionAPI.publishData).toHaveBeenNthCalledWith(1, {
+            id: 'sw-users-permissions-user-detail__currentUser',
+            path: 'currentUser',
+            scope: expect.anything(),
+        });
+
+        expect(Shopware.ExtensionAPI.publishData).toHaveBeenNthCalledWith(2, {
+            id: 'sw-users-permissions-user-detail__user',
+            path: 'user',
+            scope: expect.anything(),
+        });
     });
 });

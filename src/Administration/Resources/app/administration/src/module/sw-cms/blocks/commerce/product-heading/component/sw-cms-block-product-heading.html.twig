@@ -1,16 +1,13 @@
-<!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
 {% block sw_cms_block_product_heading %}
 <div
     class="sw-cms-block-product-heading"
     :class="currentDeviceViewClass"
 >
     <slot name="left">
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_cms_block_product_heading_slot_left %}{% endblock %}
     </slot>
 
     <slot name="right">
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_cms_block_product_heading_slot_right %}{% endblock %}
     </slot>
 </div>

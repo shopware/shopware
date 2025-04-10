@@ -1,10 +1,8 @@
-<!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
 {% block sw_condition_and_container %}
 <div
     class="sw-condition-and-container"
     :class="containerRowClass"
 >
-    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_condition_and_container_children %}
     <template
         v-for="(child, index) in condition[childAssociationField]"
@@ -26,40 +24,42 @@
     </template>
     {% endblock %}
 
-    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_condition_and_container_actions %}
     <div class="sw-condition-and-container__actions">
-        <sw-button
+        <mt-button
             v-tooltip.bottom="getNoPermissionsTooltip('product_stream.editor')"
-            variant="ghost"
+            ghost
             size="small"
             class="sw-condition-and-container__actions--and"
             :disabled="disabled"
+            variant="secondary"
             @click="onAddPlaceholder"
         >
             {{ $tc('global.sw-condition.condition.AddAndCondition') }}
-        </sw-button>
+        </mt-button>
 
-        <sw-button
+        <mt-button
             v-tooltip.bottom="getNoPermissionsTooltip('product_stream.editor')"
-            variant="ghost"
+            ghost
             size="small"
             class="sw-condition-and-container__actions--sub"
             :disabled="disabled"
+            variant="secondary"
             @click="onAddOrContainer"
         >
             {{ $tc('global.sw-condition.condition.AddSubCondition') }}
-        </sw-button>
+        </mt-button>
 
-        <sw-button
+        <mt-button
             v-tooltip.bottom="getNoPermissionsTooltip('product_stream.editor')"
             size="small"
             class="sw-condition-and-container__actions--delete"
             :disabled="disabled"
+            variant="secondary"
             @click="onDeleteAll"
         >
             {{ $tc('global.sw-condition.condition.deleteConditions') }}
-        </sw-button>
+        </mt-button>
     </div>
     {% endblock %}
 </div>

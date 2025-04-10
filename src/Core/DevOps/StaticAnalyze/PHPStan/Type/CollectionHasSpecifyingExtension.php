@@ -18,7 +18,7 @@ use Shopware\Core\Framework\Struct\Collection;
 /**
  * @internal
  */
-#[Package('core')]
+#[Package('framework')]
 class CollectionHasSpecifyingExtension implements MethodTypeSpecifyingExtension, TypeSpecifierAwareExtension
 {
     private TypeSpecifier $typeSpecifier;
@@ -30,28 +30,36 @@ class CollectionHasSpecifyingExtension implements MethodTypeSpecifyingExtension,
 
     public function isMethodSupported(MethodReflection $methodReflection, MethodCall $node, TypeSpecifierContext $context): bool
     {
+        $declaringClass = $methodReflection->getDeclaringClass();
+
         return (
-            $methodReflection->getDeclaringClass()->getName() === Collection::class
-            || $methodReflection->getDeclaringClass()->isSubclassOf(Collection::class)
+            $declaringClass->getName() === Collection::class
+            || $declaringClass->is(Collection::class)
         )
             && $methodReflection->getName() === 'has' && !$context->null();
     }
 
-    public function specifyTypes(MethodReflection $methodReflection, MethodCall $node, Scope $scope, TypeSpecifierContext $context): SpecifiedTypes
-    {
+    public function specifyTypes(
+        MethodReflection $methodReflection,
+        MethodCall $node,
+        Scope $scope,
+        TypeSpecifierContext $context
+    ): SpecifiedTypes {
         $getExpr = new MethodCall($node->var, 'get', $node->args);
 
         $getterTypes = $this->typeSpecifier->create(
             $getExpr,
             TypeCombinator::removeNull($scope->getType($getExpr)),
-            $context
+            $context,
+            $scope
         );
 
         return $getterTypes->unionWith(
             $this->typeSpecifier->create(
                 $getExpr,
                 new NullType(),
-                $context->negate()
+                $context->negate(),
+                $scope
             )
         );
     }

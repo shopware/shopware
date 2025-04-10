@@ -25,7 +25,7 @@ use Symfony\Component\Routing\RouterInterface;
  * Do not use direct or indirect repository calls in a controller. Always use a store-api route to get or put data
  */
 #[Route(defaults: ['_routeScope' => ['storefront']])]
-#[Package('storefront')]
+#[Package('framework')]
 class ContextController extends StorefrontController
 {
     /**
@@ -70,6 +70,11 @@ class ContextController extends StorefrontController
         $params = $request->get('redirectParameters', '[]');
         if (\is_string($params)) {
             $params = json_decode($params, true);
+        }
+
+        $languageCode = $request->request->get('languageCode_' . $languageId);
+        if ($languageCode) {
+            $params['_locale'] = $languageCode;
         }
 
         $route = (string) $request->request->get('redirectTo', 'frontend.home.page');

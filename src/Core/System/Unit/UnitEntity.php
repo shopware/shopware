@@ -15,25 +15,13 @@ class UnitEntity extends Entity
     use EntityCustomFieldsTrait;
     use EntityIdTrait;
 
-    /**
-     * @var string|null
-     */
-    protected $shortCode;
+    protected ?string $shortCode = null;
 
-    /**
-     * @var string|null
-     */
-    protected $name;
+    protected ?string $name = null;
 
-    /**
-     * @var UnitTranslationCollection|null
-     */
-    protected $translations;
+    protected ?UnitTranslationCollection $translations = null;
 
-    /**
-     * @var ProductCollection|null
-     */
-    protected $products;
+    protected ?ProductCollection $products = null;
 
     public function getShortCode(): ?string
     {

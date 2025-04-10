@@ -10,15 +10,12 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\PlatformRequest;
 use Symfony\Component\HttpFoundation\Request;
 
-#[Package('core')]
+#[Package('framework')]
 class StoreApiRouteScope extends AbstractRouteScope implements SalesChannelContextRouteScopeDependant
 {
     final public const ID = DefinitionService::STORE_API;
 
-    /**
-     * @var array<string>
-     */
-    protected $allowedPaths = [DefinitionService::STORE_API];
+    protected array $allowedPaths = [DefinitionService::STORE_API];
 
     public function isAllowed(Request $request): bool
     {

@@ -1,4 +1,5 @@
 import { mount } from '@vue/test-utils';
+import findByText from '../../../../../test/_helper_/find-by-text';
 
 const uploadSpy = jest.fn(() => Promise.resolve({}));
 const updateExtensionDataSpy = jest.fn(() => Promise.resolve({}));
@@ -8,17 +9,17 @@ async function createWrapper(userConfig = {}) {
     const wrapper = mount(await wrapTestComponent('sw-extension-file-upload', { sync: true }), {
         global: {
             stubs: {
-                'sw-button': await wrapTestComponent('sw-button', { sync: true }),
-                'sw-button-deprecated': await wrapTestComponent('sw-button-deprecated', { sync: true }),
-                'sw-icon': true,
                 'sw-checkbox-field': await wrapTestComponent('sw-checkbox-field', { sync: true }),
                 'sw-checkbox-field-deprecated': await wrapTestComponent('sw-checkbox-field-deprecated', { sync: true }),
-                'sw-base-field': await wrapTestComponent('sw-base-field', { sync: true }),
+                'sw-base-field': await wrapTestComponent('sw-base-field', {
+                    sync: true,
+                }),
                 'sw-field-error': true,
                 'sw-modal': {
                     props: ['title'],
                     // eslint-disable-next-line max-len
-                    template: '<div><div class="sw-modal__title">{{ title }}</div><div class="sw-modal__body"><slot/></div><slot name="modal-footer"></slot></div>',
+                    template:
+                        '<div><div class="sw-modal__title">{{ title }}</div><div class="sw-modal__body"><slot/></div><slot name="modal-footer"></slot></div>',
                 },
                 'sw-loader': true,
                 'router-link': true,
@@ -63,7 +64,7 @@ function createFile(size = 44320, name = 'test-plugin.zip', type = 'application/
 }
 
 /**
- * @package checkout
+ * @sw-package checkout
  */
 describe('src/module/sw-extension/component/sw-extension-file-upload', () => {
     beforeAll(() => {
@@ -75,8 +76,8 @@ describe('src/module/sw-extension/component/sw-extension-file-upload', () => {
     });
 
     beforeEach(async () => {
-        Shopware.State.get('notification').notifications = {};
-        Shopware.State.get('notification').growlNotifications = {};
+        Shopware.Store.get('notification').notifications = {};
+        Shopware.Store.get('notification').growlNotifications = {};
     });
 
     it('should show warning modal and then call the file input form', async () => {
@@ -100,7 +101,7 @@ describe('src/module/sw-extension/component/sw-extension-file-upload', () => {
         // fileInput has not been clicked before
         expect(fileInput.element.click).not.toHaveBeenCalled();
 
-        const continueButton = warningModal.get('.sw-button--primary');
+        const continueButton = findByText(warningModal, 'button', 'global.default.confirm');
         await continueButton.trigger('click');
 
         // expect that the input gets clicked
@@ -157,7 +158,7 @@ describe('src/module/sw-extension/component/sw-extension-file-upload', () => {
 
         const warningModal = wrapper.get('.sw-extension-file-upload-confirm-modal');
 
-        const hideCheckbox = warningModal.get('input[type=\'checkbox\']');
+        const hideCheckbox = warningModal.get("input[type='checkbox']");
         await hideCheckbox.setChecked();
 
         await wrapper.vm.handleUpload([createFile()]);
@@ -200,19 +201,21 @@ describe('src/module/sw-extension/component/sw-extension-file-upload', () => {
         const wrapper = await createWrapper();
 
         // no growl message was thrown
-        expect(Object.keys(Shopware.State.get('notification').growlNotifications)).toHaveLength(0);
+        expect(Object.keys(Shopware.Store.get('notification').growlNotifications)).toHaveLength(0);
 
         // return an error from the upload
-        // eslint-disable-next-line prefer-promise-reject-errors
-        uploadSpy.mockImplementationOnce(() => Promise.reject({
-            response: {
-                data: {
-                    errors: [
-                        'Wrong file format',
-                    ],
+        uploadSpy.mockImplementationOnce(() =>
+            // eslint-disable-next-line prefer-promise-reject-errors
+            Promise.reject({
+                response: {
+                    data: {
+                        errors: [
+                            'Wrong file format',
+                        ],
+                    },
                 },
-            },
-        }));
+            }),
+        );
 
         // upload a wrong file
         const fileInput = wrapper.find('.sw-extension-file-upload__file-input');
@@ -225,10 +228,10 @@ describe('src/module/sw-extension/component/sw-extension-file-upload', () => {
 
         // check if error notification gets thrown
         await wrapper.vm.$nextTick();
-        const growlNotifications = Shopware.State.get('notification').growlNotifications;
+        const growlNotifications = Shopware.Store.get('notification').growlNotifications;
 
         expect(Object.keys(growlNotifications)).toHaveLength(1);
-        Object.keys(growlNotifications).forEach(key => {
+        Object.keys(growlNotifications).forEach((key) => {
             expect(growlNotifications[key]).toHaveProperty('message');
             expect(growlNotifications[key].message).toBe('sw-extension.errors.messageGenericFailure');
             expect(growlNotifications[key]).toHaveProperty('title');

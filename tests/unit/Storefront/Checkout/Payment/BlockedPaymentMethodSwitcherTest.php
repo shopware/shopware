@@ -17,6 +17,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsAnyFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\NandFilter;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\System\SalesChannel\SalesChannelEntity;
+use Shopware\Core\Test\Generator;
 use Shopware\Core\Test\TestDefaults;
 use Shopware\Storefront\Checkout\Cart\Error\PaymentMethodChangedError;
 use Shopware\Storefront\Checkout\Payment\BlockedPaymentMethodSwitcher;
@@ -192,6 +193,27 @@ class BlockedPaymentMethodSwitcherTest extends TestCase
         static::assertCount(0, $errorCollectionFiltered);
     }
 
+    public function testOnlyAvailableFlagIsSet(): void
+    {
+        $paymentMethod = $this->paymentMethodCollection->get('original-payment-method-id');
+        $errors = $this->getErrorCollection(['original-payment-method-name']);
+
+        $context = Generator::generateSalesChannelContext(paymentMethod: $paymentMethod);
+
+        $paymentMethodRoute = $this->createMock(PaymentMethodRoute::class);
+        $paymentMethodRoute
+            ->expects($this->exactly(2))
+            ->method('load')
+            ->with(
+                static::equalTo(new Request(['onlyAvailable' => true])),
+                $context,
+                static::isInstanceOf(Criteria::class)
+            );
+
+        $switcher = new BlockedPaymentMethodSwitcher($paymentMethodRoute);
+        $switcher->switch($errors, $context);
+    }
+
     public function callbackLoadPaymentMethods(Request $request, SalesChannelContext $context, Criteria $criteria): PaymentMethodRouteResponse
     {
         $searchIds = $criteria->getIds();
@@ -221,14 +243,14 @@ class BlockedPaymentMethodSwitcherTest extends TestCase
 
         $paymentMethodResponse = $this->createMock(PaymentMethodRouteResponse::class);
         $paymentMethodResponse
-            ->expects(static::once())
+            ->expects($this->once())
             ->method('getPaymentMethods')
             ->willReturn($collection);
 
         return $paymentMethodResponse;
     }
 
-    public function callbackLoadPaymentMethodsForAllBlocked(Request $request, SalesChannelContext $context, Criteria $criteria): PaymentMethodRouteResponse
+    private function callbackLoadPaymentMethodsForAllBlocked(Request $request, SalesChannelContext $context, Criteria $criteria): PaymentMethodRouteResponse
     {
         $searchIds = $criteria->getIds();
 
@@ -242,7 +264,7 @@ class BlockedPaymentMethodSwitcherTest extends TestCase
 
         $paymentMethodResponse = $this->createMock(PaymentMethodRouteResponse::class);
         $paymentMethodResponse
-            ->expects(static::once())
+            ->expects($this->once())
             ->method('getPaymentMethods')
             ->willReturn($collection);
 

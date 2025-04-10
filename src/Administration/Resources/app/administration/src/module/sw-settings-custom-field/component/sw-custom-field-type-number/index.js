@@ -1,5 +1,5 @@
 /**
- * @package services-settings
+ * @sw-package framework
  */
 import template from './sw-custom-field-type-number.html.twig';
 
@@ -15,8 +15,14 @@ export default {
                 helpText: this.$tc('sw-settings-custom-field.customField.detail.labelHelpText'),
             },
             numberTypes: [
-                { id: 'int', name: this.$tc('sw-settings-custom-field.customField.detail.labelInt') },
-                { id: 'float', name: this.$tc('sw-settings-custom-field.customField.detail.labelFloat') },
+                {
+                    id: 'int',
+                    name: this.$tc('sw-settings-custom-field.customField.detail.labelInt'),
+                },
+                {
+                    id: 'float',
+                    name: this.$tc('sw-settings-custom-field.customField.detail.labelFloat'),
+                },
             ],
         };
     },
@@ -34,7 +40,7 @@ export default {
     methods: {
         createdComponent() {
             if (!this.currentCustomField.config.numberType) {
-                this.$set(this.currentCustomField.config, 'numberType', 'int');
+                this.currentCustomField.config.numberType = 'int';
             }
         },
     },

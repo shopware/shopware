@@ -1,3 +1,7 @@
+/**
+ * @sw-package framework
+ */
+
 import template from './sw-entity-advanced-selection-modal.html.twig';
 import './sw-entity-advanced-selection-modal.scss';
 
@@ -15,8 +19,6 @@ const { Criteria } = Shopware.Data;
  */
 Component.register('sw-entity-advanced-selection-modal', {
     template,
-
-    compatConfig: Shopware.compatConfig,
 
     inject: [
         'acl',
@@ -153,9 +155,13 @@ Component.register('sw-entity-advanced-selection-modal', {
 
     computed: {
         modalTitle() {
-            return this.$tc('global.sw-entity-advanced-selection-modal.title', 1, {
-                entity: this.entityDisplayText,
-            });
+            return this.$tc(
+                'global.sw-entity-advanced-selection-modal.title',
+                {
+                    entity: this.entityDisplayText,
+                },
+                1,
+            );
         },
 
         entityRepository() {
@@ -169,11 +175,16 @@ Component.register('sw-entity-advanced-selection-modal', {
         assignmentProperties() {
             const properties = [];
 
-            Object.entries(this.entityDefinition.properties).forEach(([propertyName, property]) => {
-                if (property.relation === 'many_to_many' || property.relation === 'one_to_many') {
-                    properties.push(propertyName);
-                }
-            });
+            Object.entries(this.entityDefinition.properties).forEach(
+                ([
+                    propertyName,
+                    property,
+                ]) => {
+                    if (property.relation === 'many_to_many' || property.relation === 'one_to_many') {
+                        properties.push(propertyName);
+                    }
+                },
+            );
 
             return properties;
         },
@@ -207,7 +218,7 @@ Component.register('sw-entity-advanced-selection-modal', {
             defaultCriteria.setTerm(this.term);
 
             if (this.sortBy) {
-                this.sortBy.split(',').forEach(sortBy => {
+                this.sortBy.split(',').forEach((sortBy) => {
                     const sorting = Criteria.sort(sortBy, this.sortDirection, this.naturalSorting);
                     if (this.assignmentProperties.includes(this.sortBy)) {
                         sorting.field += '.id';
@@ -223,17 +234,17 @@ Component.register('sw-entity-advanced-selection-modal', {
             });
 
             // add custom filters which should always apply
-            this.criteriaFilters.forEach(filter => {
+            this.criteriaFilters.forEach((filter) => {
                 defaultCriteria.addFilter(filter);
             });
 
             // add selected filters
-            this.filterCriteria.forEach(filter => {
+            this.filterCriteria.forEach((filter) => {
                 defaultCriteria.addFilter(filter);
             });
 
             // add aggregations
-            this.criteriaAggregations.forEach(aggregation => {
+            this.criteriaAggregations.forEach((aggregation) => {
                 defaultCriteria.addAggregation(aggregation);
             });
 
@@ -292,16 +303,19 @@ Component.register('sw-entity-advanced-selection-modal', {
             }
             this.isLoading = true;
 
-            return this.entityRepository.search(this.entityCriteria, this.entityContext).then((items) => {
-                this.total = items.total;
-                this.entities = items;
-                this.aggregations = items.aggregations;
-                this.isLoading = false;
+            return this.entityRepository
+                .search(this.entityCriteria, this.entityContext)
+                .then((items) => {
+                    this.total = items.total;
+                    this.entities = items;
+                    this.aggregations = items.aggregations;
+                    this.isLoading = false;
 
-                return items;
-            }).catch(() => {
-                this.isLoading = false;
-            });
+                    return items;
+                })
+                .catch(() => {
+                    this.isLoading = false;
+                });
         },
 
         onSelectionChange(selection) {

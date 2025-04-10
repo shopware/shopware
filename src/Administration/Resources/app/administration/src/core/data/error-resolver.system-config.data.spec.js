@@ -1,5 +1,5 @@
 /**
- * @package services-settings
+ * @sw-package framework
  */
 import ErrorResolverSystemConfig from 'src/core/data/error-resolver.system-config.data';
 import ShopwareError from 'src/core/data/ShopwareError';
@@ -16,7 +16,7 @@ describe('src/core/data/error-resolver.system-config.data.ts', () => {
     it('should handleWriteErrors has system error', () => {
         errorResolverSystemConfig.handleWriteErrors(mock.errorWithSystemError);
 
-        const countSystemError = Shopware.State.getters['error/countSystemError']();
+        const countSystemError = Shopware.Store.get('error').countSystemError();
 
         expect(countSystemError).toBe(1);
     });
@@ -24,7 +24,11 @@ describe('src/core/data/error-resolver.system-config.data.ts', () => {
     it('should handleWriteErrors has api error', () => {
         errorResolverSystemConfig.handleWriteErrors(mock.apiErrors);
 
-        const result = Shopware.State.getters['error/getSystemConfigApiError'](ErrorResolverSystemConfig.ENTITY_NAME, null, 'dummy.key');
+        const result = Shopware.Store.get('error').getSystemConfigApiError(
+            ErrorResolverSystemConfig.ENTITY_NAME,
+            null,
+            'dummy.key',
+        );
 
         expect(result).toBeInstanceOf(ShopwareError);
     });
@@ -32,7 +36,11 @@ describe('src/core/data/error-resolver.system-config.data.ts', () => {
     it('should handleWriteErrors has api error with translations', () => {
         errorResolverSystemConfig.handleWriteErrors(mock.apiErrorsWithTranslation);
 
-        const result = Shopware.State.getters['error/getSystemConfigApiError'](ErrorResolverSystemConfig.ENTITY_NAME, null, 'dummy.key');
+        const result = Shopware.Store.get('error').getSystemConfigApiError(
+            ErrorResolverSystemConfig.ENTITY_NAME,
+            null,
+            'dummy.key',
+        );
 
         expect(result).toEqual({});
     });
@@ -42,7 +50,7 @@ describe('src/core/data/error-resolver.system-config.data.ts', () => {
 
         errorResolverSystemConfig.cleanWriteErrors();
 
-        const result = Shopware.State.getters['error/getAllApiErrors']();
+        const result = Shopware.Store.get('error').getAllApiErrors();
 
         expect(result).toEqual([]);
     });

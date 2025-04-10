@@ -1,5 +1,5 @@
 /**
- * @package buyers-experience
+ * @sw-package checkout
  */
 import { mount } from '@vue/test-utils';
 
@@ -45,7 +45,6 @@ const promotionData = {
     hasOrders: false,
 };
 
-
 async function createWrapper() {
     return mount(await wrapTestComponent('sw-promotion-v2-detail', { sync: true }), {
         global: {
@@ -56,7 +55,6 @@ async function createWrapper() {
                 'sw-search-bar': true,
                 'sw-notification-center': true,
                 'sw-language-switch': true,
-                'sw-button': true,
                 'sw-button-process': true,
                 'sw-card-view': true,
                 'sw-language-info': true,

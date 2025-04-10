@@ -37,13 +37,13 @@ use Shopware\Core\Framework\DataAbstractionLayer\Pricing\CashRoundingConfig;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
 use Shopware\Core\Framework\Log\Package;
-use Shopware\Core\Framework\Test\IdsCollection;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\Country\CountryEntity;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\System\TaxProvider\TaxProviderCollection;
 use Shopware\Core\System\TaxProvider\TaxProviderDefinition;
 use Shopware\Core\System\TaxProvider\TaxProviderEntity;
+use Shopware\Core\Test\Stub\Framework\IdsCollection;
 use Shopware\Tests\Unit\Core\Checkout\Cart\TaxProvider\_fixtures\TestConstantTaxRateProvider;
 use Shopware\Tests\Unit\Core\Checkout\Cart\TaxProvider\_fixtures\TestEmptyTaxProvider;
 use Shopware\Tests\Unit\Core\Checkout\Cart\TaxProvider\_fixtures\TestGenericExceptionTaxProvider;
@@ -153,7 +153,7 @@ class TaxProviderProcessorTest extends TestCase
 
         $testProvider = $this->createMock(TestEmptyTaxProvider::class);
         $testProvider
-            ->expects(static::once())
+            ->expects($this->once())
             ->method('provide')
             ->with($cart, $salesChannelContext)
             ->willReturn($taxProviderStruct);
@@ -196,7 +196,7 @@ class TaxProviderProcessorTest extends TestCase
 
         $adjustment = $this->createMock(TaxAdjustment::class);
         $adjustment
-            ->expects(static::never())
+            ->expects($this->never())
             ->method('adjust');
 
         $processor = new TaxProviderProcessor(
@@ -340,7 +340,7 @@ class TaxProviderProcessorTest extends TestCase
 
         $taxAdjuster = $this->createMock(TaxAdjustment::class);
         $taxAdjuster
-            ->expects(static::never())
+            ->expects($this->never())
             ->method('adjust');
 
         $processor = new TaxProviderProcessor(
@@ -397,7 +397,7 @@ class TaxProviderProcessorTest extends TestCase
 
         $logger = $this->createMock(LoggerInterface::class);
         $logger
-            ->expects(static::once())
+            ->expects($this->once())
             ->method('error')
             ->with('There were 1 errors while fetching taxes from providers: ' . \PHP_EOL . 'Tax provider \'Shopware\\Tests\\Unit\\Core\\Checkout\\Cart\\TaxProvider\\_fixtures\\TestGenericExceptionTaxProvider\' threw an exception: Test exception' . \PHP_EOL);
 
@@ -454,7 +454,7 @@ class TaxProviderProcessorTest extends TestCase
 
         $taxProviderPayloadService = $this->createMock(TaxProviderPayloadService::class);
         $taxProviderPayloadService
-            ->expects(static::once())
+            ->expects($this->once())
             ->method('request')
             ->with(
                 'https://example.com',
@@ -479,27 +479,27 @@ class TaxProviderProcessorTest extends TestCase
     {
         $repo = $this->createMock(EntityRepository::class);
         $repo
-            ->expects(static::never())
+            ->expects($this->never())
             ->method('search');
 
         $logger = $this->createMock(LoggerInterface::class);
         $logger
-            ->expects(static::never())
+            ->expects($this->never())
             ->method('error');
 
         $taxAdjuster = $this->createMock(TaxAdjustment::class);
         $taxAdjuster
-            ->expects(static::never())
+            ->expects($this->never())
             ->method('adjust');
 
         $registry = $this->createMock(TaxProviderRegistry::class);
         $registry
-            ->expects(static::never())
+            ->expects($this->never())
             ->method('get');
 
         $payloadService = $this->createMock(TaxProviderPayloadService::class);
         $payloadService
-            ->expects(static::never())
+            ->expects($this->never())
             ->method('request');
 
         $processor = new TaxProviderProcessor(

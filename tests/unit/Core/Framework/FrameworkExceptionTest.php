@@ -10,7 +10,7 @@ use Shopware\Core\Framework\Log\Package;
 /**
  * @internal
  */
-#[Package('core')]
+#[Package('framework')]
 #[CoversClass(FrameworkException::class)]
 class FrameworkExceptionTest extends TestCase
 {
@@ -20,5 +20,14 @@ class FrameworkExceptionTest extends TestCase
         static::expectExceptionMessage('Project directory "test" does not exist.');
 
         throw FrameworkException::projectDirNotExists('test');
+    }
+
+    public function testCollectionElementInvalidType(): void
+    {
+        static::expectException(FrameworkException::class);
+
+        static::expectExceptionMessage('Expected collection element of type foo got bar');
+
+        throw FrameworkException::collectionElementInvalidType('foo', 'bar');
     }
 }

@@ -2,14 +2,12 @@ import template from './sw-order-document-settings-credit-note-modal.html.twig';
 import './sw-order-document-settings-credit-note-modal.scss';
 
 /**
- * @package checkout
+ * @sw-package checkout
  */
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default {
     template,
-
-    compatConfig: Shopware.compatConfig,
 
     emits: ['loading-document'],
 
@@ -41,6 +39,24 @@ export default {
         documentPreconditionsFulfilled() {
             return this.highlightedItems.length !== 0 && this.documentConfig.custom.invoiceNumber;
         },
+
+        documentNumber: {
+            get() {
+                return String(this.documentConfig.documentNumber);
+            },
+            set(value) {
+                this.documentConfig.documentNumber = Number(value);
+            },
+        },
+
+        invoiceNumberOptions() {
+            return this.invoiceNumbers.map((item) => {
+                return {
+                    label: String(item),
+                    value: item,
+                };
+            });
+        },
     },
 
     created() {
@@ -52,10 +68,10 @@ export default {
             this.$super('createdComponent');
 
             const invoiceNumbers = this.order.documents
-                .filter(document => {
+                .filter((document) => {
                     return document.documentType.technicalName === 'invoice';
                 })
-                .map(item => {
+                .map((item) => {
                     return item.config.custom.invoiceNumber;
                 });
 
@@ -66,20 +82,18 @@ export default {
             this.$emit('loading-document');
 
             if (this.documentNumberPreview === this.documentConfig.documentNumber) {
-                this.numberRangeService.reserve(
-                    `document_${this.currentDocumentType.technicalName}`,
-                    this.order.salesChannelId,
-                    false,
-                ).then((response) => {
-                    this.documentConfig.custom.creditNoteNumber = response.number;
-                    if (response.number !== this.documentConfig.documentNumber) {
-                        this.createNotificationInfo({
-                            message: this.$tc('sw-order.documentCard.info.DOCUMENT__NUMBER_WAS_CHANGED'),
-                        });
-                    }
-                    this.documentConfig.documentNumber = response.number;
-                    this.callDocumentCreate(additionalAction);
-                });
+                this.numberRangeService
+                    .reserve(`document_${this.currentDocumentType.technicalName}`, this.order.salesChannelId, false)
+                    .then((response) => {
+                        this.documentConfig.custom.creditNoteNumber = response.number;
+                        if (response.number !== this.documentConfig.documentNumber) {
+                            this.createNotificationInfo({
+                                message: this.$tc('sw-order.documentCard.info.DOCUMENT__NUMBER_WAS_CHANGED'),
+                            });
+                        }
+                        this.documentConfig.documentNumber = response.number;
+                        this.callDocumentCreate(additionalAction);
+                    });
             } else {
                 this.documentConfig.custom.creditNoteNumber = this.documentConfig.documentNumber;
                 this.callDocumentCreate(additionalAction);

@@ -1,5 +1,5 @@
 /**
- * @package admin
+ * @sw-package framework
  */
 
 import { mount } from '@vue/test-utils';
@@ -8,14 +8,10 @@ async function createWrapper() {
     return mount(await wrapTestComponent('sw-search-preferences-modal', { sync: true }), {
         global: {
             stubs: {
-                'sw-button': await wrapTestComponent('sw-button'),
-                'sw-button-deprecated': await wrapTestComponent('sw-button-deprecated'),
                 'sw-loader': true,
                 'sw-data-grid': true,
-                'sw-icon': true,
                 'router-link': true,
                 'sw-checkbox-field': true,
-                'mt-button': true,
             },
             provide: {
                 searchPreferencesService: {
@@ -89,79 +85,87 @@ describe('src/app/component/modal/sw-search-preferences-modal', () => {
 
     it('should be able to change search preference', async () => {
         await wrapper.setData({
-            searchPreferences: [{
-                entityName: 'product',
-                _searchable: false,
-                fields: [
-                    {
-                        fieldName: 'name',
-                        _searchable: false,
-                    },
-                    {
-                        fieldName: 'productNumber',
-                        _searchable: false,
-                    },
-                ],
-            }],
+            searchPreferences: [
+                {
+                    entityName: 'product',
+                    _searchable: false,
+                    fields: [
+                        {
+                            fieldName: 'name',
+                            _searchable: false,
+                        },
+                        {
+                            fieldName: 'productNumber',
+                            _searchable: false,
+                        },
+                    ],
+                },
+            ],
         });
 
         wrapper.vm.searchPreferences[0]._searchable = true;
         wrapper.vm.onChangeSearchPreference(wrapper.vm.searchPreferences[0]);
 
         expect(wrapper.vm.searchPreferences).toEqual(
-            expect.arrayContaining([expect.objectContaining({
-                entityName: 'product',
-                _searchable: true,
-                fields: expect.arrayContaining([
-                    expect.objectContaining({
-                        fieldName: 'name',
-                        _searchable: true,
-                    }),
-                    expect.objectContaining({
-                        fieldName: 'productNumber',
-                        _searchable: true,
-                    }),
-                ]),
-            })]),
+            expect.arrayContaining([
+                expect.objectContaining({
+                    entityName: 'product',
+                    _searchable: true,
+                    fields: expect.arrayContaining([
+                        expect.objectContaining({
+                            fieldName: 'name',
+                            _searchable: true,
+                        }),
+                        expect.objectContaining({
+                            fieldName: 'productNumber',
+                            _searchable: true,
+                        }),
+                    ]),
+                }),
+            ]),
         );
     });
 
     it('should not be able to change search preference', async () => {
         await wrapper.setData({
-            searchPreferences: [{
-                entityName: 'product',
-                _searchable: false,
-                fields: [
-                    {
-                        fieldName: 'name',
-                        _searchable: true,
-                    },
-                    {
-                        fieldName: 'productNumber',
-                        _searchable: false,
-                    },
-                ],
-            }],
+            searchPreferences: [
+                {
+                    entityName: 'product',
+                    _searchable: false,
+                    fields: [
+                        {
+                            fieldName: 'name',
+                            _searchable: true,
+                        },
+                        {
+                            fieldName: 'productNumber',
+                            _searchable: false,
+                        },
+                    ],
+                },
+            ],
         });
 
         wrapper.vm.searchPreferences[0]._searchable = true;
         wrapper.vm.onChangeSearchPreference(wrapper.vm.searchPreferences[0]);
 
         expect(wrapper.vm.searchPreferences).toEqual(
-            expect.arrayContaining([expect.objectContaining({
-                entityName: 'product',
-                _searchable: true,
-                fields: expect.arrayContaining([
-                    expect.objectContaining({
-                        fieldName: 'name',
-                        _searchable: true,
-                    }),
-                    expect.objectContaining({
-                        fieldName: 'productNumber',
-                        _searchable: false,
-                    }),
-                ]),
-            })]),
+            expect.arrayContaining([
+                expect.objectContaining({
+                    entityName: 'product',
+                    _searchable: true,
+                    fields: expect.arrayContaining([
+                        expect.objectContaining({
+                            fieldName: 'name',
+                            _searchable: true,
+                        }),
+                        expect.objectContaining({
+                            fieldName: 'productNumber',
+                            _searchable: false,
+                        }),
+                    ]),
+                }),
+            ]),
         );
     });
 });

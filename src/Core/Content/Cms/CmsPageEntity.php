@@ -15,81 +15,45 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityCustomFieldsTrait;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityIdTrait;
 use Shopware\Core\Framework\Log\Package;
 
-#[Package('buyers-experience')]
+#[Package('discovery')]
 class CmsPageEntity extends Entity
 {
     use EntityCustomFieldsTrait;
     use EntityIdTrait;
 
-    /**
-     * @var string|null
-     */
-    protected $name;
+    protected ?string $name = null;
 
-    /**
-     * @var string
-     */
-    protected $type;
+    protected string $type;
 
-    /**
-     * @var string|null
-     */
-    protected $entity;
+    protected ?string $entity = null;
 
-    /**
-     * @var CmsSectionCollection|null
-     */
-    protected $sections;
+    protected ?CmsSectionCollection $sections = null;
 
     /**
      * @var EntityCollection<CmsPageTranslationEntity>|null
      */
-    protected $translations;
+    protected ?EntityCollection $translations = null;
+
+    protected ?CategoryCollection $categories = null;
+
+    protected ?ProductCollection $products = null;
+
+    protected ?string $cssClass = null;
 
     /**
-     * @var CategoryCollection|null
+     * @var array<string, array<string, mixed>>|null
      */
-    protected $categories;
+    protected ?array $config = null;
 
-    /**
-     * @var ProductCollection|null
-     */
-    protected $products;
+    protected ?string $previewMediaId = null;
 
-    /**
-     * @var string|null
-     */
-    protected $cssClass;
+    protected ?MediaEntity $previewMedia = null;
 
-    /**
-     * @var array|null
-     */
-    protected $config;
+    protected bool $locked;
 
-    /**
-     * @var string|null
-     */
-    protected $previewMediaId;
+    protected ?LandingPageCollection $landingPages = null;
 
-    /**
-     * @var MediaEntity|null
-     */
-    protected $previewMedia;
-
-    /**
-     * @var bool
-     */
-    protected $locked;
-
-    /**
-     * @var LandingPageCollection|null
-     */
-    protected $landingPages;
-
-    /**
-     * @var CmsPageCollection|null
-     */
-    protected $homeSalesChannels;
+    protected ?CmsPageCollection $homeSalesChannels = null;
 
     public function getName(): ?string
     {
@@ -177,11 +141,17 @@ class CmsPageEntity extends Entity
         $this->cssClass = $cssClass;
     }
 
+    /**
+     * @return array<string, array<string, mixed>>|null
+     */
     public function getConfig(): ?array
     {
         return $this->config;
     }
 
+    /**
+     * @param array<string, array<string, mixed>> $config
+     */
     public function setConfig(array $config): void
     {
         $this->config = $config;
@@ -244,6 +214,9 @@ class CmsPageEntity extends Entity
         $this->homeSalesChannels = $homeSalesChannels;
     }
 
+    /**
+     * @return list<CmsSlotEntity>
+     */
     public function getElementsOfType(string $type): array
     {
         $elements = [];
@@ -260,6 +233,29 @@ class CmsPageEntity extends Entity
                 if ($slot->getType() === $type) {
                     $elements[] = $slot;
                 }
+            }
+        }
+
+        return $elements;
+    }
+
+    /**
+     * @return list<CmsSlotEntity>
+     */
+    public function getAllElements(): array
+    {
+        if ($this->getSections() === null) {
+            return [];
+        }
+
+        $elements = [];
+        foreach ($this->getSections()->getBlocks() as $block) {
+            if ($block->getSlots() === null) {
+                continue;
+            }
+
+            foreach ($block->getSlots() as $slot) {
+                $elements[] = $slot;
             }
         }
 

@@ -8,9 +8,9 @@ use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Media\Infrastructure\Path\SqlMediaPathStorage;
 use Shopware\Core\Framework\DataAbstractionLayer\Doctrine\MultiInsertQueryQueue;
-use Shopware\Core\Framework\Test\IdsCollection;
 use Shopware\Core\Framework\Test\TestCaseBase\DatabaseTransactionBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
+use Shopware\Core\Test\Stub\Framework\IdsCollection;
 
 /**
  * @internal
@@ -25,7 +25,7 @@ class MediaPathStorageTest extends TestCase
     {
         $ids = new IdsCollection();
 
-        $inserts = new MultiInsertQueryQueue($this->getContainer()->get(Connection::class));
+        $inserts = new MultiInsertQueryQueue(static::getContainer()->get(Connection::class));
 
         $inserts->addInsert('media', [
             'id' => $ids->getBytes('media'),
@@ -36,13 +36,13 @@ class MediaPathStorageTest extends TestCase
 
         $inserts->execute();
 
-        $storage = new SqlMediaPathStorage($this->getContainer()->get(Connection::class));
+        $storage = new SqlMediaPathStorage(static::getContainer()->get(Connection::class));
 
         $storage->media([
             $ids->get('media') => 'test.jpg',
         ]);
 
-        $path = $this->getContainer()
+        $path = static::getContainer()
             ->get(Connection::class)
             ->fetchOne('SELECT path FROM media WHERE id = :id', ['id' => $ids->getBytes('media')]);
 
@@ -53,7 +53,7 @@ class MediaPathStorageTest extends TestCase
     {
         $ids = new IdsCollection();
 
-        $inserts = new MultiInsertQueryQueue($this->getContainer()->get(Connection::class));
+        $inserts = new MultiInsertQueryQueue(static::getContainer()->get(Connection::class));
 
         $inserts->addInsert('media', [
             'id' => $ids->getBytes('media'),
@@ -72,13 +72,13 @@ class MediaPathStorageTest extends TestCase
 
         $inserts->execute();
 
-        $storage = new SqlMediaPathStorage($this->getContainer()->get(Connection::class));
+        $storage = new SqlMediaPathStorage(static::getContainer()->get(Connection::class));
 
         $storage->thumbnails([
             $ids->get('media_thumbnail') => 'test.jpg',
         ]);
 
-        $path = $this->getContainer()
+        $path = static::getContainer()
             ->get(Connection::class)
             ->fetchOne('SELECT path FROM media_thumbnail WHERE id = :id', ['id' => $ids->getBytes('media_thumbnail')]);
 
@@ -88,12 +88,12 @@ class MediaPathStorageTest extends TestCase
     public function testEmptyParametersDoesNotTriggerDatabaseQueries(): void
     {
         $statement = $this->createMock(Statement::class);
-        $statement->expects(static::never())->method('execute');
+        $statement->expects($this->never())->method('executeStatement');
 
         $connection = $this->createMock(Connection::class);
         $connection->method('prepare')->willReturn($statement);
 
-        $storage = new SqlMediaPathStorage($this->getContainer()->get(Connection::class));
+        $storage = new SqlMediaPathStorage(static::getContainer()->get(Connection::class));
 
         $storage->media([]);
         $storage->thumbnails([]);

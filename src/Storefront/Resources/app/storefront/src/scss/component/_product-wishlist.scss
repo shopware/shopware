@@ -4,6 +4,16 @@ Product box for wishlist
 Styling for productbox component.
 */
 
+$box-standard-height-img: 200px;
+
+.product-box {
+    // Do not expand the Bootstrap `stretched-link` pseudo element over the entire product card.
+    // By giving it the image height, only the image itself is linked and the remaining content is still selectable.
+    &.box-wishlist .stretched-link::after {
+        height: calc(#{$box-standard-height-img} + var(--#{$prefix}card-spacer-y));
+    }
+}
+
 .product-wishlist {
     margin-top: 10px;
 
@@ -46,15 +56,13 @@ Styling for productbox component.
     }
 
     &-action-circle {
-        height: 40px;
-        width: 40px;
-        background: #f9f9f9;
-        border-radius: 50%;
-        border-style: none;
         position: absolute;
         bottom: 1rem;
         right: 1rem;
-        padding: 10px;
+
+        &.btn {
+            text-overflow: initial;
+        }
 
         &::before {
             content: '';
@@ -63,11 +71,6 @@ Styling for productbox component.
             height: 120%;
             left: calc(50% - 24px);
             top: calc(50% - 24px);
-        }
-
-        &:focus-visible {
-            box-shadow: $input-btn-focus-box-shadow;
-            outline: none;
         }
     }
 
@@ -79,6 +82,12 @@ Styling for productbox component.
     }
 
     &-btn {
+        --#{$prefix}btn-border-radius: 50%;
+        --#{$prefix}btn-border-width: 0;
+        --#{$prefix}btn-padding-x: 0.5rem;
+        --#{$prefix}btn-padding-y: 0.5rem;
+        --#{$prefix}btn-color: var(--#{$prefix}gray-800);
+        --#{$prefix}btn-focus-box-shadow: #{$input-btn-focus-box-shadow};
         height: 40px;
         width: 40px;
     }
@@ -86,26 +95,16 @@ Styling for productbox component.
     &-btn-remove {
         z-index: 10;
         position: absolute;
-        background: $gray-100;
-        border-radius: 50%;
-        border-style: none;
-        right: 25px;
-        top: 25px;
-        padding: 0;
-
-        &:focus {
-            outline: none;
-        }
+        right: 1.5rem;
+        top: 1.5rem;
     }
 
-    .icon-wishlist {
+    .icon-wishlist,
+    .icon-wishlist-remove {
+        color: $gray-800;
 
         svg {
             top: 0;
-        }
-
-        &-remove {
-            color: $gray-800;
         }
     }
 

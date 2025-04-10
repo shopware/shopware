@@ -7,16 +7,17 @@ const { mapPropertyErrors } = Component.getComponentHelper();
 
 /**
  * @private
- * @package content
+ * @sw-package discovery
  */
 export default {
     template,
 
-    compatConfig: Shopware.compatConfig,
-
     inject: ['repositoryFactory'],
 
-    emits: ['media-settings-modal-save', 'media-settings-modal-close'],
+    emits: [
+        'media-settings-modal-save',
+        'media-settings-modal-close',
+    ],
 
     mixins: [
         Mixin.getByName('notification'),
@@ -39,8 +40,6 @@ export default {
             modalClass: 'sw-media-modal-folder-settings--shows-overflow',
             unusedThumbnailSizes: [],
             thumbnailSizes: [],
-            // @deprecated tag:v6.7.0 - Remove the property "isEditThumbnails"
-            isEditThumbnails: false,
             parent: null,
             configuration: null,
             mediaFolderConfigurationThumbnailSizeRepository: null,
@@ -78,17 +77,7 @@ export default {
         },
 
         notEditable() {
-            return this.mediaFolder.useParentConfiguration
-                || !this.configuration.createThumbnails
-                || this.disabled;
-        },
-
-        // @deprecated tag:v6.7.0 - Remove the computed property
-        thumbnailListClass() {
-        },
-
-        // @deprecated tag:v6.7.0 - Remove the computed property
-        labelToggleButton() {
+            return this.mediaFolder.useParentConfiguration || !this.configuration.createThumbnails || this.disabled;
         },
 
         thumbnailSizeFilter() {
@@ -118,13 +107,17 @@ export default {
                 this.configuration.mediaThumbnailSizes.source,
             );
 
-            this.configuration.mediaThumbnailSizes = await this.mediaFolderConfigurationThumbnailSizeRepository
-                .search(new Criteria(1, 25), Context.api);
+            this.configuration.mediaThumbnailSizes = await this.mediaFolderConfigurationThumbnailSizeRepository.search(
+                new Criteria(1, 25),
+                Context.api,
+            );
 
             if (this.mediaFolder.parentId !== null) {
                 this.parent = await this.mediaFolderRepository.get(this.mediaFolder.parentId, Context.api);
-                this.parent.configuration = await this.mediaFolderConfigurationRepository
-                    .get(this.parent.configurationId, Context.api);
+                this.parent.configuration = await this.mediaFolderConfigurationRepository.get(
+                    this.parent.configurationId,
+                    Context.api,
+                );
             }
         },
 
@@ -135,26 +128,20 @@ export default {
         },
 
         async getUnusedThumbnailSizes() {
-            const response = await this.mediaThumbnailSizeRepository.searchIds(
-                this.unusedMediaThumbnailSizeCriteria,
-            );
+            const response = await this.mediaThumbnailSizeRepository.searchIds(this.unusedMediaThumbnailSizeCriteria);
             this.unusedThumbnailSizes = response.data;
         },
 
         async getThumbnailSizes() {
-            this.thumbnailSizes = await this.mediaThumbnailSizeRepository.search(
-                this.mediaThumbnailSizeCriteria,
-            );
+            this.thumbnailSizes = await this.mediaThumbnailSizeRepository.search(this.mediaThumbnailSizeCriteria);
 
             this.thumbnailSizes.forEach((thumbnailSize) => {
-                thumbnailSize.deletable = Boolean(this.unusedThumbnailSizes.find((unusedThumbnailSize) => {
-                    return unusedThumbnailSize === thumbnailSize.id;
-                }));
+                thumbnailSize.deletable = Boolean(
+                    this.unusedThumbnailSizes.find((unusedThumbnailSize) => {
+                        return unusedThumbnailSize === thumbnailSize.id;
+                    }),
+                );
             });
-        },
-
-        // @deprecated tag:v6.7.0 - Remove the method
-        toggleEditThumbnails() {
         },
 
         async addThumbnail({ width, height }) {
@@ -271,13 +258,12 @@ export default {
             }
 
             try {
-                await this.mediaFolderConfigurationRepository.save(this.configuration)
-                    .then(() => {
-                        // Delete the original configuration if we inherit again
-                        if (this.originalConfiguration && this.configuration.id === this.parent.configuration.id) {
-                            this.mediaFolderConfigurationRepository.delete(this.originalConfiguration.id);
-                        }
-                    });
+                await this.mediaFolderConfigurationRepository.save(this.configuration).then(() => {
+                    // Delete the original configuration if we inherit again
+                    if (this.originalConfiguration && this.configuration.id === this.parent.configuration.id) {
+                        this.mediaFolderConfigurationRepository.delete(this.originalConfiguration.id);
+                    }
+                });
 
                 if (this.mediaFolder && this.mediaFolder.getEntityName) {
                     await this.mediaFolderRepository.save(this.mediaFolder, Context.api);
@@ -285,9 +271,7 @@ export default {
 
                 this.createNotificationSuccess({
                     title: this.$root.$tc('global.default.success'),
-                    message: this.$root.$tc(
-                        'global.sw-media-modal-folder-settings.notification.success.message',
-                    ),
+                    message: this.$root.$tc('global.sw-media-modal-folder-settings.notification.success.message'),
                 });
 
                 this.$nextTick(() => {
@@ -296,28 +280,27 @@ export default {
             } catch (e) {
                 this.createNotificationError({
                     title: this.$root.$tc('global.default.error'),
-                    message: this.$root.$tc(
-                        'global.sw-media-modal-folder-settings.notification.error.message',
-                    ),
+                    message: this.$root.$tc('global.sw-media-modal-folder-settings.notification.error.message'),
                 });
             }
         },
 
         async ensureUniqueDefaultFolder(folderId, defaultFolderId) {
-            const criteria = new Criteria(1, 25)
-                .addFilter(
-                    Criteria.multi('and', [
-                        Criteria.equals('defaultFolderId', defaultFolderId),
-                        Criteria.not('or', [Criteria.equals('id', folderId)]),
-                    ]),
-                );
+            const criteria = new Criteria(1, 25).addFilter(
+                Criteria.multi('and', [
+                    Criteria.equals('defaultFolderId', defaultFolderId),
+                    Criteria.not('or', [Criteria.equals('id', folderId)]),
+                ]),
+            );
 
             const items = await this.mediaFolderRepository.search(criteria, Context.api);
 
-            await Promise.all(items.map((folder) => {
-                folder.defaultFolderId = null;
-                return this.mediaFolderRepository.save(folder, Context.api);
-            }));
+            await Promise.all(
+                items.map((folder) => {
+                    folder.defaultFolderId = null;
+                    return this.mediaFolderRepository.save(folder, Context.api);
+                }),
+            );
         },
 
         onClickCancel(originalDomEvent) {

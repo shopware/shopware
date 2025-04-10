@@ -1,17 +1,36 @@
 /**
- * @package inventory
+ * @sw-package inventory
  */
 const { Module } = Shopware;
 
 /* eslint-disable max-len, sw-deprecation-rules/private-feature-declarations */
 Shopware.Component.register('sw-settings-listing', () => import('./page/sw-settings-listing'));
 Shopware.Component.register('sw-settings-listing-option-base', () => import('./page/sw-settings-listing-option-base'));
-Shopware.Component.extend('sw-settings-listing-option-create', 'sw-settings-listing-option-base', () => import('./page/sw-settings-listing-option-create'));
-Shopware.Component.register('sw-settings-listing-default-sales-channel', () => import('./component/sw-settings-listing-default-sales-channel'));
-Shopware.Component.register('sw-settings-listing-delete-modal', () => import('./component/sw-settings-listing-delete-modal'));
-Shopware.Component.register('sw-settings-listing-option-general-info', () => import('./component/sw-settings-listing-option-general-info'));
-Shopware.Component.register('sw-settings-listing-option-criteria-grid', () => import('./component/sw-settings-listing-option-criteria-grid'));
-Shopware.Component.register('sw-settings-listing-visibility-detail', () => import('./component/sw-settings-listing-visibility-detail'));
+Shopware.Component.extend(
+    'sw-settings-listing-option-create',
+    'sw-settings-listing-option-base',
+    () => import('./page/sw-settings-listing-option-create'),
+);
+Shopware.Component.register(
+    'sw-settings-listing-default-sales-channel',
+    () => import('./component/sw-settings-listing-default-sales-channel'),
+);
+Shopware.Component.register(
+    'sw-settings-listing-delete-modal',
+    () => import('./component/sw-settings-listing-delete-modal'),
+);
+Shopware.Component.register(
+    'sw-settings-listing-option-general-info',
+    () => import('./component/sw-settings-listing-option-general-info'),
+);
+Shopware.Component.register(
+    'sw-settings-listing-option-criteria-grid',
+    () => import('./component/sw-settings-listing-option-criteria-grid'),
+);
+Shopware.Component.register(
+    'sw-settings-listing-visibility-detail',
+    () => import('./component/sw-settings-listing-visibility-detail'),
+);
 /* eslint-enable max-len, sw-deprecation-rules/private-feature-declarations */
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
@@ -57,7 +76,7 @@ Module.register('sw-settings-listing', {
     },
 
     settingsItem: {
-        group: 'shop',
+        group: 'commerce',
         to: 'sw.settings.listing.index',
         icon: 'regular-products',
         privilege: 'system.system_config',

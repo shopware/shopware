@@ -40,7 +40,7 @@ class ThemeInheritanceBuilderTest extends TestCase
 
         $this->builder = new ThemeInheritanceBuilder($this->themeRegistryMock);
 
-        $this->configFactory = $this->getContainer()->get(StorefrontPluginConfigurationFactory::class);
+        $this->configFactory = static::getContainer()->get(StorefrontPluginConfigurationFactory::class);
     }
 
     public function testInheritanceWithConfig(): void

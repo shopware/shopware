@@ -7,45 +7,24 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityCustomFieldsTrait;
 use Shopware\Core\Framework\DataAbstractionLayer\TranslationEntity;
 use Shopware\Core\Framework\Log\Package;
 
-#[Package('buyers-experience')]
+#[Package('after-sales')]
 class MailTemplateTranslationEntity extends TranslationEntity
 {
     use EntityCustomFieldsTrait;
 
-    /**
-     * @var string
-     */
-    protected $mailTemplateId;
+    protected string $mailTemplateId;
 
-    /**
-     * @var string|null
-     */
-    protected $senderName;
+    protected ?string $senderName = null;
 
-    /**
-     * @var string|null
-     */
-    protected $description;
+    protected ?string $description = null;
 
-    /**
-     * @var string|null
-     */
-    protected $subject;
+    protected ?string $subject = null;
 
-    /**
-     * @var string|null
-     */
-    protected $contentHtml;
+    protected ?string $contentHtml = null;
 
-    /**
-     * @var string|null
-     */
-    protected $contentPlain;
+    protected ?string $contentPlain = null;
 
-    /**
-     * @var MailTemplateEntity|null
-     */
-    protected $mailTemplate;
+    protected ?MailTemplateEntity $mailTemplate = null;
 
     public function getMailTemplateId(): string
     {

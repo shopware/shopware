@@ -1,41 +1,42 @@
 import { mount } from '@vue/test-utils';
 
-import flowState from 'src/module/sw-flow/state/flow.state';
 import EntityCollection from 'src/core/data/entity-collection.data';
 
 /**
- * @package services-settings
+ * @sw-package after-sales
  */
 
 async function createWrapper() {
-    return mount(await wrapTestComponent('sw-flow-sequence-action-error', {
-        sync: true,
-    }), {
-        props: {
-            sequence: {
-                id: '1',
-                actionName: null,
-                ruleId: '1111',
-                parentId: null,
-                position: 1,
-                displayGroup: 1,
+    return mount(
+        await wrapTestComponent('sw-flow-sequence-action-error', {
+            sync: true,
+        }),
+        {
+            props: {
+                sequence: {
+                    id: '1',
+                    actionName: null,
+                    ruleId: '1111',
+                    parentId: null,
+                    position: 1,
+                    displayGroup: 1,
+                },
+            },
+            global: {
+                stubs: {
+                    'sw-context-button': await wrapTestComponent('sw-context-button'),
+                    'sw-context-menu-item': await wrapTestComponent('sw-context-menu-item'),
+                    'sw-context-menu': {
+                        template: '<div><slot></slot></div>',
+                    },
+                    'sw-popover': {
+                        template: '<div><slot></slot></div>',
+                    },
+                    'router-link': true,
+                },
             },
         },
-        global: {
-            stubs: {
-                'sw-context-button': await wrapTestComponent('sw-context-button'),
-                'sw-context-menu-item': await wrapTestComponent('sw-context-menu-item'),
-                'sw-icon': true,
-                'sw-context-menu': {
-                    template: '<div><slot></slot></div>',
-                },
-                'sw-popover': {
-                    template: '<div><slot></slot></div>',
-                },
-                'router-link': true,
-            },
-        },
-    });
+    );
 }
 
 function getSequencesCollection(collection = []) {
@@ -68,15 +69,7 @@ describe('src/module/sw-flow/component/sw-flow-sequence-selector', () => {
     let wrapper;
 
     beforeAll(() => {
-        Shopware.State.registerModule('swFlowState', {
-            ...flowState,
-            state: {
-                flow: {
-                    eventName: '',
-                    sequences: getSequencesCollection([{ ...sequenceFixture }]),
-                },
-            },
-        });
+        Shopware.Store.get('swFlow').setSequences(getSequencesCollection([{ ...sequenceFixture }]));
     });
 
     it('should able to show the error content', async () => {
@@ -100,7 +93,7 @@ describe('src/module/sw-flow/component/sw-flow-sequence-selector', () => {
         await button.trigger('click');
         await flushPromises();
 
-        const sequencesState = await Shopware.State.getters['swFlowState/sequences'];
+        const sequencesState = await Shopware.Store.get('swFlow').sequences;
 
         expect(sequencesState).toHaveLength(0);
     });

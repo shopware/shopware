@@ -4,6 +4,7 @@ namespace Shopware\Core\Migration\V6_5;
 
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\Exception;
+use Doctrine\DBAL\ParameterType;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Migration\MigrationStep;
 use Shopware\Core\System\Salutation\SalutationDefinition;
@@ -44,7 +45,7 @@ class Migration1691057865UpdateSalutationDefaultForCustomer extends MigrationSte
 				LIMIT :limit
 			',
                 ['notSpecifiedId' => $notSpecifiedId, 'limit' => $limit],
-                ['limit' => \PDO::PARAM_INT]
+                ['limit' => ParameterType::INTEGER]
             );
         } while ($updatedRowCount === $limit);
     }

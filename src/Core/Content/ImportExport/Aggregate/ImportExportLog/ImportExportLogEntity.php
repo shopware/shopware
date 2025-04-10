@@ -9,7 +9,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityIdTrait;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\User\UserEntity;
 
-#[Package('services-settings')]
+#[Package('fundamentals@after-sales')]
 class ImportExportLogEntity extends Entity
 {
     use EntityIdTrait;
@@ -21,85 +21,37 @@ class ImportExportLogEntity extends Entity
 
     final public const ACTIVITY_TEMPLATE = 'template';
 
-    /**
-     * @var string
-     */
-    protected $activity;
+    protected string $activity;
 
-    /**
-     * @var string
-     */
-    protected $state;
+    protected string $state;
 
-    /**
-     * @var int
-     */
-    protected $records = 0;
+    protected int $records = 0;
 
-    /**
-     * @var string|null
-     */
-    protected $username;
+    protected ?string $username = null;
 
-    /**
-     * @var string|null
-     */
-    protected $profileName;
+    protected ?string $profileName = null;
 
-    /**
-     * @var UserEntity|null
-     */
-    protected $user;
+    protected ?UserEntity $user = null;
 
-    /**
-     * @var string|null
-     */
-    protected $userId;
+    protected ?string $userId = null;
 
-    /**
-     * @var ImportExportProfileEntity|null
-     */
-    protected $profile;
+    protected ?ImportExportProfileEntity $profile = null;
 
-    /**
-     * @var string|null
-     */
-    protected $profileId;
+    protected ?string $profileId = null;
 
-    /**
-     * @var ImportExportFileEntity|null
-     */
-    protected $file;
+    protected ?ImportExportFileEntity $file = null;
 
-    /**
-     * @var string|null
-     */
-    protected $fileId;
+    protected ?string $fileId = null;
 
-    /**
-     * @var array
-     */
-    protected $config = [];
+    protected array $config = [];
 
-    /**
-     * @var array
-     */
-    protected $result = [];
+    protected array $result = [];
 
-    /**
-     * @var string|null
-     */
-    protected $invalidRecordsLogId;
+    protected ?string $invalidRecordsLogId = null;
 
-    /**
-     * @var self|null
-     */
-    protected $invalidRecordsLog;
+    protected ?self $invalidRecordsLog = null;
 
-    /**
-     * @var self|null
-     */
-    protected $failedImportLog;
+    protected ?self $failedImportLog = null;
 
     public function getActivity(): string
     {

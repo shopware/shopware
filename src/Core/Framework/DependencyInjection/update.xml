@@ -32,6 +32,7 @@
         <service id="Shopware\Core\Framework\Update\Services\ExtensionCompatibility">
             <argument type="service" id="Shopware\Core\Framework\Store\Services\StoreClient"/>
             <argument type="service" id="Shopware\Core\Framework\Store\Services\AbstractExtensionDataProvider"/>
+            <argument type="service" id="event_dispatcher"/>
         </service>
 
         <service id="Shopware\Core\Framework\Update\Services\Filesystem"/>
@@ -50,6 +51,11 @@
 
         <service id="Shopware\Core\Framework\Update\Services\UpdateHtaccess">
             <argument>%kernel.project_dir%/public/.htaccess</argument>
+            <tag name="kernel.event_subscriber"/>
+        </service>
+
+        <service id="Shopware\Core\Framework\Update\Subscriber\UpdateSubscriber">
+            <argument type="service" id="Shopware\Core\Framework\Notification\NotificationService" />
             <tag name="kernel.event_subscriber"/>
         </service>
     </services>

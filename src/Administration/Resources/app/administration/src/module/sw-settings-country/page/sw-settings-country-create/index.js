@@ -1,5 +1,5 @@
 /**
- * @package buyers-experience
+ * @sw-package fundamentals@discovery
  */
 import template from './sw-settings-country-create.html.twig';
 
@@ -43,7 +43,10 @@ export default {
 
         saveFinish() {
             this.isSaveSuccessful = false;
-            this.$router.push({ name: 'sw.settings.country.detail', params: { id: this.country.id } });
+            this.$router.push({
+                name: 'sw.settings.country.detail',
+                params: { id: this.country.id },
+            });
         },
     },
 };

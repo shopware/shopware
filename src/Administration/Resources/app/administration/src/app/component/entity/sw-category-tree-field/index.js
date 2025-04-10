@@ -1,5 +1,5 @@
 /**
- * @package admin
+ * @sw-package framework
  */
 
 import template from './sw-category-tree-field.html.twig';
@@ -14,8 +14,6 @@ const { Criteria } = Shopware.Data;
  */
 Component.register('sw-category-tree-field', {
     template,
-
-    compatConfig: Shopware.compatConfig,
 
     inject: ['repositoryFactory'],
 
@@ -66,6 +64,11 @@ Component.register('sw-category-tree-field', {
             type: Boolean,
             required: false,
             default: false,
+        },
+
+        allowedTypes: {
+            type: Array,
+            default: null,
         },
     },
 
@@ -119,16 +122,11 @@ Component.register('sw-category-tree-field', {
                 const pathIds = item.path ? item.path.split('|').filter((pathId) => pathId.length > 0) : '';
 
                 // add parent id to accumulator
-                return [...acc, ...pathIds];
+                return [
+                    ...acc,
+                    ...pathIds,
+                ];
             }, []);
-        },
-
-        listeners() {
-            if (this.isCompatEnabled('INSTANCE_LISTENERS')) {
-                return this.$listeners;
-            }
-
-            return {};
         },
 
         pageCategoryCriteria() {
@@ -196,7 +194,7 @@ Component.register('sw-category-tree-field', {
                     }
 
                     actualElement.scrollTo({
-                        top: offsetValue - (actualElement.clientHeight / 2) - 50,
+                        top: offsetValue - actualElement.clientHeight / 2 - 50,
                         behavior: 'smooth',
                     });
                 }, 50)();
@@ -238,6 +236,8 @@ Component.register('sw-category-tree-field', {
 
             // search for categories
             return this.globalCategoryRepository.search(criteria, Shopware.Context.api).then((searchResult) => {
+                this.disableCategories(searchResult);
+
                 // when requesting root categories, replace the data
                 if (parentId === null) {
                     this.categories = searchResult;
@@ -260,6 +260,18 @@ Component.register('sw-category-tree-field', {
                 });
 
                 return Promise.resolve();
+            });
+        },
+
+        disableCategories(categories) {
+            if (!this.allowedTypes) {
+                return;
+            }
+
+            categories.forEach((category) => {
+                if (!this.allowedTypes.includes(category.type)) {
+                    category.disabled = true;
+                }
             });
         },
 
@@ -306,7 +318,7 @@ Component.register('sw-category-tree-field', {
             this.categoriesCollection.remove(item.id);
 
             if (this.pageId) {
-                const itemIndex = this.selectedCategories.findIndex(id => id === item.id);
+                const itemIndex = this.selectedCategories.findIndex((id) => id === item.id);
                 this.selectedCategories.splice(itemIndex, 1);
                 this.selectedCategoriesTotal -= 1;
             }
@@ -510,7 +522,7 @@ Component.register('sw-category-tree-field', {
                             // update the selected item
                             this.selectedTreeItem = newSelection;
                         } else {
-                            // when sibling does not exists, go to next parent sibling
+                            // when sibling does not exist, go to next parent sibling
                             const parent = this.findTreeItemVNodeById(actualSelection.item.parentId);
                             const nextParent = this.getSibling(true, parent.item);
                             if (nextParent) {
@@ -575,7 +587,7 @@ Component.register('sw-category-tree-field', {
         },
 
         changeSearchSelection(type = 'next') {
-            const typeValue = (type === 'previous') ? -1 : 1;
+            const typeValue = type === 'previous' ? -1 : 1;
 
             const actualIndex = this.searchResult.indexOf(this.searchResultFocusItem);
             const focusItem = this.searchResult[actualIndex + typeValue];

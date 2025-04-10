@@ -14,7 +14,7 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
-#[Package('buyers-experience')]
+#[Package('after-sales')]
 class NewsletterRecipientIndexer extends EntityIndexer
 {
     final public const CUSTOMER_NEWSLETTER_SALES_CHANNELS_UPDATER = 'newsletter_recipients.customer-newsletter-sales-channels';
@@ -62,6 +62,10 @@ class NewsletterRecipientIndexer extends EntityIndexer
     public function handle(EntityIndexingMessage $message): void
     {
         $ids = $message->getData();
+        if (!\is_array($ids)) {
+            return;
+        }
+
         $ids = array_unique(array_filter($ids));
 
         if (empty($ids) || !$message instanceof NewsletterRecipientIndexingMessage) {

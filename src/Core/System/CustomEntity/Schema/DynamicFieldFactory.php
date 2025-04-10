@@ -4,8 +4,6 @@ namespace Shopware\Core\System\CustomEntity\Schema;
 
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
-use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityLoadedEventFactory;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\BoolField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\DateTimeField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\EmailField;
@@ -35,11 +33,9 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\StringField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\TranslatedField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\TranslationsAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
-use Shopware\Core\Framework\DataAbstractionLayer\Read\EntityReaderInterface;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\EntityAggregatorInterface;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearcherInterface;
-use Shopware\Core\Framework\DataAbstractionLayer\VersionManager;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\System\CustomEntity\CustomEntityException;
+use Shopware\Core\System\CustomEntity\CustomEntityRegistrar;
 use Shopware\Core\System\CustomEntity\Xml\Field\AssociationField;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\DependencyInjection\Exception\ServiceNotFoundException;
@@ -50,7 +46,7 @@ use Symfony\Component\Serializer\NameConverter\CamelCaseToSnakeCaseNameConverter
  *
  * @phpstan-import-type CustomEntityField from CustomEntitySchemaUpdater
  */
-#[Package('core')]
+#[Package('framework')]
 class DynamicFieldFactory
 {
     /**
@@ -107,7 +103,7 @@ class DynamicFieldFactory
 
         $translation = DynamicTranslationEntityDefinition::create($entityName, $translated, $container);
         $container->set($translation->getEntityName(), $translation);
-        $container->set($translation->getEntityName() . '.repository', self::createRepository($container, $translation));
+        $container->set($translation->getEntityName() . '.repository', CustomEntityRegistrar::createRepository($container, $translation));
 
         $registry->register($translation, $translation->getEntityName());
 
@@ -117,19 +113,6 @@ class DynamicFieldFactory
     private static function kebabCaseToCamelCase(string $string): string
     {
         return (new CamelCaseToSnakeCaseNameConverter())->denormalize(str_replace('-', '_', $string));
-    }
-
-    private static function createRepository(ContainerInterface $container, EntityDefinition $definition): EntityRepository
-    {
-        return new EntityRepository(
-            $definition,
-            $container->get(EntityReaderInterface::class),
-            $container->get(VersionManager::class),
-            $container->get(EntitySearcherInterface::class),
-            $container->get(EntityAggregatorInterface::class),
-            $container->get('event_dispatcher'),
-            $container->get(EntityLoadedEventFactory::class)
-        );
     }
 
     /**
@@ -242,7 +225,7 @@ class DynamicFieldFactory
 
                 // register definition in container and definition registry
                 $container->set($definition->getEntityName(), $definition);
-                $container->set($definition->getEntityName() . '.repository', self::createRepository($container, $definition));
+                $container->set($definition->getEntityName() . '.repository', CustomEntityRegistrar::createRepository($container, $definition));
                 $registry->register($definition, $definition->getEntityName());
 
                 // define reverse side
@@ -442,7 +425,7 @@ class DynamicFieldFactory
             AssociationField::CASCADE => new CascadeDelete(),
             AssociationField::SET_NULL => new SetNullOnDelete(),
             AssociationField::RESTRICT => new RestrictDelete(),
-            default => throw new \RuntimeException(\sprintf('onDelete property %s are not supported on field %s', $field['onDelete'], $field['name'])),
+            default => throw CustomEntityException::unsupportedOnDeletePropertyOnField($field['onDelete'], $field['name']),
         };
     }
 

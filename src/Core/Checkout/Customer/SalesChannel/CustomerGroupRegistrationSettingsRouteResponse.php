@@ -6,19 +6,12 @@ use Shopware\Core\Checkout\Customer\Aggregate\CustomerGroup\CustomerGroupEntity;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\StoreApiResponse;
 
+/**
+ * @extends StoreApiResponse<CustomerGroupEntity>
+ */
 #[Package('checkout')]
 class CustomerGroupRegistrationSettingsRouteResponse extends StoreApiResponse
 {
-    /**
-     * @var CustomerGroupEntity
-     */
-    protected $object;
-
-    public function __construct(CustomerGroupEntity $object)
-    {
-        parent::__construct($object);
-    }
-
     public function getRegistration(): CustomerGroupEntity
     {
         return $this->object;

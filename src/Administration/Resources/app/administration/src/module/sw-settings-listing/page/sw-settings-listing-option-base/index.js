@@ -1,5 +1,5 @@
 /**
- * @package inventory
+ * @sw-package inventory
  */
 import template from './sw-settings-listing-option-base.html.twig';
 import './sw-settings-listing-option-base.scss';
@@ -12,9 +12,10 @@ const { ShopwareError } = Shopware.Classes;
 export default {
     template,
 
-    compatConfig: Shopware.compatConfig,
-
-    inject: ['repositoryFactory', 'systemConfigApiService'],
+    inject: [
+        'repositoryFactory',
+        'systemConfigApiService',
+    ],
 
     mixins: [
         Mixin.getByName('notification'),
@@ -42,9 +43,9 @@ export default {
         },
 
         smartBarHeading() {
-            return this.productSortingEntity && this.productSortingEntity.label ?
-                this.productSortingEntity.label :
-                this.$tc('sw-settings-listing.base.smartBarTitle');
+            return this.productSortingEntity && this.productSortingEntity.label
+                ? this.productSortingEntity.label
+                : this.$tc('sw-settings-listing.base.smartBarTitle');
         },
 
         isGeneralCardLoading() {
@@ -60,9 +61,11 @@ export default {
         },
 
         isSaveButtonDisabled() {
-            return !this.productSortingEntity
-                || this.productSortingEntity.fields.length <= 0
-                || this.productSortingEntity.fields.some(field => !field.field || field.field === 'customField');
+            return (
+                !this.productSortingEntity ||
+                this.productSortingEntity.fields.length <= 0 ||
+                this.productSortingEntity.fields.some((field) => !field.field || field.field === 'customField')
+            );
         },
 
         isDefaultSorting() {
@@ -86,30 +89,27 @@ export default {
         fetchProductSortingEntity() {
             const productSortingEntityId = this.getProductSortingEntityId();
 
-            this.productSortingRepository.get(
-                productSortingEntityId,
-                Shopware.Context.api,
-                this.productSortingEntityCriteria,
-            ).then(response => {
-                if (!Array.isArray(response.fields)) {
-                    response.fields = [];
-                }
+            this.productSortingRepository
+                .get(productSortingEntityId, Shopware.Context.api, this.productSortingEntityCriteria)
+                .then((response) => {
+                    if (!Array.isArray(response.fields)) {
+                        response.fields = [];
+                    }
 
-                this.productSortingEntity = response;
-            });
+                    this.productSortingEntity = response;
+                });
         },
 
         fetchCustomFields() {
-            return this.customFieldRepository.search(this.customFieldCriteria).then(response => {
+            return this.customFieldRepository.search(this.customFieldCriteria).then((response) => {
                 this.customFields = response;
             });
         },
 
         fetchDefaultSorting() {
-            this.systemConfigApiService.getValues('core.listing')
-                .then(response => {
-                    this.defaultSortingId = response['core.listing.defaultSorting'];
-                });
+            this.systemConfigApiService.getValues('core.listing').then((response) => {
+                this.defaultSortingId = response['core.listing.defaultSorting'];
+            });
         },
 
         getProductSortingEntityId() {
@@ -169,7 +169,7 @@ export default {
 
             this.transformCustomFieldCriterias();
 
-            this.productSortingEntity.fields = this.productSortingEntity.fields.filter(field => {
+            this.productSortingEntity.fields = this.productSortingEntity.fields.filter((field) => {
                 return field.field !== 'customField';
             });
 
@@ -191,7 +191,12 @@ export default {
         },
 
         getCriteriaTemplate(fieldName) {
-            return { field: fieldName, order: 'asc', priority: 1, naturalSorting: 0 };
+            return {
+                field: fieldName,
+                order: 'asc',
+                priority: 1,
+                naturalSorting: 0,
+            };
         },
 
         onDeleteCriteria(toBeRemovedItem) {
@@ -200,7 +205,7 @@ export default {
 
         onConfirmDeleteCriteria() {
             // filter out criteria
-            this.productSortingEntity.fields = this.productSortingEntity.fields.filter(currentCriteria => {
+            this.productSortingEntity.fields = this.productSortingEntity.fields.filter((currentCriteria) => {
                 return currentCriteria.field !== this.toBeDeletedCriteria.field;
             });
 
@@ -232,19 +237,19 @@ export default {
                 return;
             }
 
-            this.productSortingEntity.fields = this.productSortingEntity.fields.filter(currentCriteria => {
+            this.productSortingEntity.fields = this.productSortingEntity.fields.filter((currentCriteria) => {
                 return currentCriteria.field !== item.field;
             });
         },
 
         isCriteriaACustomField(technicalName) {
-            return this.customFields.some(currentCustomField => {
+            return this.customFields.some((currentCustomField) => {
                 return currentCustomField.name === technicalName;
             });
         },
 
         transformCustomFieldCriterias() {
-            this.productSortingEntity.fields = this.productSortingEntity.fields.map(currentField => {
+            this.productSortingEntity.fields = this.productSortingEntity.fields.map((currentField) => {
                 if (!this.isCriteriaACustomField(currentField.field)) {
                     return currentField;
                 }
@@ -260,4 +265,3 @@ export default {
         },
     },
 };
-

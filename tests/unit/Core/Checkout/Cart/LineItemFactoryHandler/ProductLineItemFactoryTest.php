@@ -38,7 +38,7 @@ class ProductLineItemFactoryTest extends TestCase
 
     public function testCreate(): void
     {
-        $context = Generator::createSalesChannelContext();
+        $context = Generator::generateSalesChannelContext();
         $context->setPermissions([ProductCartProcessor::ALLOW_PRODUCT_PRICE_OVERWRITES => true]);
 
         $data = [
@@ -69,7 +69,7 @@ class ProductLineItemFactoryTest extends TestCase
 
     public function testCreateWithPriceDefinition(): void
     {
-        $context = Generator::createSalesChannelContext();
+        $context = Generator::generateSalesChannelContext();
         $context->setPermissions([ProductCartProcessor::ALLOW_PRODUCT_PRICE_OVERWRITES => true]);
 
         $data = [
@@ -86,7 +86,7 @@ class ProductLineItemFactoryTest extends TestCase
 
         $priceDefinitionFactory = $this->createMock(PriceDefinitionFactory::class);
         $priceDefinitionFactory
-            ->expects(static::once())
+            ->expects($this->once())
             ->method('factory')
             ->with(
                 static::equalTo($context->getContext()),
@@ -115,7 +115,7 @@ class ProductLineItemFactoryTest extends TestCase
 
     public function testCreateWithoutPermission(): void
     {
-        $context = Generator::createSalesChannelContext();
+        $context = Generator::generateSalesChannelContext();
         $context->setPermissions([ProductCartProcessor::ALLOW_PRODUCT_PRICE_OVERWRITES => false]);
 
         $data = ['id' => 'test-id', 'priceDefinition' => 'foo'];
@@ -131,7 +131,7 @@ class ProductLineItemFactoryTest extends TestCase
 
     public function testUpdateWithoutPermissions(): void
     {
-        $context = Generator::createSalesChannelContext();
+        $context = Generator::generateSalesChannelContext();
         $context->setPermissions([ProductCartProcessor::ALLOW_PRODUCT_PRICE_OVERWRITES => false]);
 
         $factory = new ProductLineItemFactory($this->createMock(PriceDefinitionFactory::class));

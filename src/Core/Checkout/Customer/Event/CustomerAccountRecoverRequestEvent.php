@@ -28,39 +28,15 @@ class CustomerAccountRecoverRequestEvent extends Event implements SalesChannelAw
 {
     public const EVENT_NAME = 'customer.recovery.request';
 
-    /**
-     * @var CustomerRecoveryEntity
-     */
-    private $customerRecovery;
+    private string $shopName;
 
-    /**
-     * @var SalesChannelContext
-     */
-    private $salesChannelContext;
-
-    /**
-     * @var string
-     */
-    private $resetUrl;
-
-    /**
-     * @var string
-     */
-    private $shopName;
-
-    /**
-     * @var MailRecipientStruct
-     */
-    private $mailRecipientStruct;
+    private ?MailRecipientStruct $mailRecipientStruct = null;
 
     public function __construct(
-        SalesChannelContext $salesChannelContext,
-        CustomerRecoveryEntity $customerRecovery,
-        string $resetUrl
+        private SalesChannelContext $salesChannelContext,
+        private CustomerRecoveryEntity $customerRecovery,
+        private string $resetUrl
     ) {
-        $this->salesChannelContext = $salesChannelContext;
-        $this->customerRecovery = $customerRecovery;
-        $this->resetUrl = $resetUrl;
         $this->shopName = $salesChannelContext->getSalesChannel()->getTranslation('name');
     }
 
@@ -106,9 +82,9 @@ class CustomerAccountRecoverRequestEvent extends Event implements SalesChannelAw
 
     public function getMailStruct(): MailRecipientStruct
     {
-        if (!$this->mailRecipientStruct instanceof MailRecipientStruct) {
-            /** @var CustomerEntity $customer */
+        if (!$this->mailRecipientStruct) {
             $customer = $this->customerRecovery->getCustomer();
+            \assert($customer !== null);
 
             $this->mailRecipientStruct = new MailRecipientStruct([
                 $customer->getEmail() => $customer->getFirstName() . ' ' . $customer->getLastName(),
@@ -120,7 +96,7 @@ class CustomerAccountRecoverRequestEvent extends Event implements SalesChannelAw
 
     public function getSalesChannelId(): string
     {
-        return $this->salesChannelContext->getSalesChannel()->getId();
+        return $this->salesChannelContext->getSalesChannelId();
     }
 
     public function getResetUrl(): string

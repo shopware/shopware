@@ -5,23 +5,14 @@ namespace Shopware\Core\Content\ImportExport;
 use Shopware\Core\Framework\DataAbstractionLayer\TranslationEntity;
 use Shopware\Core\Framework\Log\Package;
 
-#[Package('services-settings')]
+#[Package('fundamentals@after-sales')]
 class ImportExportProfileTranslationEntity extends TranslationEntity
 {
-    /**
-     * @var string
-     */
-    protected $importExportProfileId;
+    protected string $importExportProfileId;
 
-    /**
-     * @var string|null
-     */
-    protected $label;
+    protected ?string $label = null;
 
-    /**
-     * @var ImportExportProfileEntity
-     */
-    protected $importExportProfile;
+    protected ImportExportProfileEntity $importExportProfile;
 
     public function getImportExportProfileId(): string
     {

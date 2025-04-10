@@ -2,11 +2,11 @@
 
 namespace Shopware\Core\Content\Cms\DataResolver;
 
-use Shopware\Core\Content\Cms\Exception\UnexpectedFieldConfigValueType;
+use Shopware\Core\Content\Cms\CmsException;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Struct\Struct;
 
-#[Package('buyers-experience')]
+#[Package('discovery')]
 class FieldConfig extends Struct
 {
     final public const SOURCE_STATIC = 'static';
@@ -14,23 +14,17 @@ class FieldConfig extends Struct
     final public const SOURCE_DEFAULT = 'default';
     final public const SOURCE_PRODUCT_STREAM = 'product_stream';
 
-    /**
-     * @var string
-     */
-    protected $name;
+    protected string $name;
+
+    protected string $source;
 
     /**
-     * @var string
-     */
-    protected $source;
-
-    /**
-     * @param array|bool|float|int|string|null $value
+     * @param array<mixed>|bool|float|int|string|null $value
      */
     public function __construct(
         string $name,
         string $source,
-        protected $value
+        protected mixed $value
     ) {
         $this->name = $name;
         $this->source = $source;
@@ -47,20 +41,23 @@ class FieldConfig extends Struct
     }
 
     /**
-     * @return array|bool|float|int|string|null
+     * @return array<mixed>|bool|float|int|string|null
      */
-    public function getValue()
+    public function getValue(): mixed
     {
         return $this->value;
     }
 
+    /**
+     * @return array<mixed>
+     */
     public function getArrayValue(): array
     {
         if (\is_array($this->value)) {
             return $this->value;
         }
 
-        throw new UnexpectedFieldConfigValueType($this->name, 'array', \gettype($this->value));
+        throw CmsException::unexpectedFieldConfigValueType($this->name, 'array', \gettype($this->value));
     }
 
     public function getStringValue(): string
@@ -69,7 +66,7 @@ class FieldConfig extends Struct
             return (string) $this->value;
         }
 
-        throw new UnexpectedFieldConfigValueType($this->name, 'string', \gettype($this->value));
+        throw CmsException::unexpectedFieldConfigValueType($this->name, 'string', \gettype($this->value));
     }
 
     public function getIntValue(): int
@@ -78,7 +75,7 @@ class FieldConfig extends Struct
             return (int) $this->value;
         }
 
-        throw new UnexpectedFieldConfigValueType($this->name, 'int', \gettype($this->value));
+        throw CmsException::unexpectedFieldConfigValueType($this->name, 'int', \gettype($this->value));
     }
 
     public function getFloatValue(): float
@@ -87,7 +84,7 @@ class FieldConfig extends Struct
             return (float) $this->value;
         }
 
-        throw new UnexpectedFieldConfigValueType($this->name, 'float', \gettype($this->value));
+        throw CmsException::unexpectedFieldConfigValueType($this->name, 'float', \gettype($this->value));
     }
 
     public function getBoolValue(): bool

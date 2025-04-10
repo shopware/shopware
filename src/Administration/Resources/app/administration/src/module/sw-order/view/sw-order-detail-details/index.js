@@ -2,20 +2,22 @@ import template from './sw-order-detail-details.html.twig';
 import './sw-order-detail-details.scss';
 
 /**
- * @package checkout
+ * @sw-package checkout
  */
 
-const { Component, State } = Shopware;
+const { Component, Store, Utils } = Shopware;
 const { Criteria } = Shopware.Data;
-const { mapGetters, mapState, mapPropertyErrors } = Component.getComponentHelper();
+const { mapPropertyErrors } = Component.getComponentHelper();
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default {
     template,
 
-    compatConfig: Shopware.compatConfig,
-
     inject: {
+        feature: {
+            from: 'feature',
+            default: null,
+        },
         swOrderDetailOnSaveAndReload: {
             from: 'swOrderDetailOnSaveAndReload',
             default: null,
@@ -50,7 +52,14 @@ export default {
         },
     },
 
-    emits: ['update-loading', 'save-and-recalculate', 'save-and-reload', 'save-edits', 'reload-entity-data', 'error'],
+    emits: [
+        'update-loading',
+        'save-and-recalculate',
+        'save-and-reload',
+        'save-edits',
+        'reload-entity-data',
+        'error',
+    ],
 
     props: {
         orderId: {
@@ -72,15 +81,13 @@ export default {
     },
 
     computed: {
-        ...mapGetters('swOrderDetail', [
-            'isLoading',
-        ]),
+        isLoading: () => Store.get('swOrderDetail').isLoading,
 
-        ...mapState('swOrderDetail', [
-            'order',
-            'versionContext',
-            'orderAddressIds',
-        ]),
+        order: () => Store.get('swOrderDetail').order,
+
+        versionContext: () => Store.get('swOrderDetail').versionContext,
+
+        orderAddressIds: () => Store.get('swOrderDetail').orderAddressIds,
 
         ...mapPropertyErrors('order', ['orderCustomer.email']),
 
@@ -90,7 +97,12 @@ export default {
 
         transaction() {
             for (let i = 0; i < this.order.transactions.length; i += 1) {
-                if (!['cancelled', 'failed'].includes(this.order.transactions[i].stateMachineState.technicalName)) {
+                if (
+                    ![
+                        'cancelled',
+                        'failed',
+                    ].includes(this.order.transactions[i].stateMachineState.technicalName)
+                ) {
                     return this.order.transactions[i];
                 }
             }
@@ -126,6 +138,7 @@ export default {
             return this.order.price.taxStatus;
         },
 
+        // @deprecated tag:v6.8.0 - Will be removed, will not be used anymore.
         currency() {
             return this.order.currency;
         },
@@ -141,15 +154,16 @@ export default {
         },
 
         selectedBillingAddressId() {
-            const currentAddress = this.orderAddressIds.find(item => item.type === 'billing');
+            const currentAddress = this.orderAddressIds.find((item) => item.type === 'billing');
             return currentAddress?.customerAddressId || this.billingAddress.id;
         },
 
         selectedShippingAddressId() {
-            const currentAddress = this.orderAddressIds.find(item => item.type === 'shipping');
+            const currentAddress = this.orderAddressIds.find((item) => item.type === 'shipping');
             return currentAddress?.customerAddressId || this.shippingAddress.id;
         },
 
+        // @deprecated tag:v6.8.0 - Will be removed, change shipping cost on order general view instead.
         shippingCosts: {
             get() {
                 return this.delivery?.shippingCosts.totalPrice || 0.0;
@@ -166,64 +180,75 @@ export default {
 
     methods: {
         createdComponent() {
-            this.$emit('update-loading', true);
-            if (this.swOrderDetailOnLoadingChange) {
-                this.swOrderDetailOnLoadingChange(true);
-            }
+            this.loadingChange(true);
 
             this.customFieldSetRepository.search(this.customFieldSetCriteria).then((result) => {
                 this.customFieldSets = result;
-                this.$emit('update-loading', false);
-                if (this.swOrderDetailOnLoadingChange) {
-                    this.swOrderDetailOnLoadingChange(false);
-                }
+                this.loadingChange(false);
             });
         },
 
-        onShippingChargeEdited(amount) {
+        // @deprecated tag:v6.8.0 - Will be removed, change shipping cost on order general view instead.
+        onShippingChargeEdited: Utils.debounce(function onShippingChargeEdited(amount) {
             this.delivery.shippingCosts.unitPrice = amount;
             this.delivery.shippingCosts.totalPrice = amount;
 
             this.saveAndRecalculate();
+        }, 800),
+
+        loadingChange(loading) {
+            if (this.swOrderDetailOnLoadingChange) {
+                this.swOrderDetailOnLoadingChange(loading);
+            } else {
+                this.$emit('update-loading', loading);
+            }
         },
 
         saveAndRecalculate() {
-            this.$emit('save-and-recalculate');
             if (this.swOrderDetailOnSaveAndRecalculate) {
                 this.swOrderDetailOnSaveAndRecalculate();
+            } else {
+                this.$emit('save-and-recalculate');
             }
         },
 
         saveAndReload() {
-            this.$emit('save-and-reload');
             if (this.swOrderDetailOnSaveAndReload) {
                 this.swOrderDetailOnSaveAndReload();
+            } else {
+                this.$emit('save-and-reload');
             }
         },
 
         onSaveEdits() {
-            this.$emit('save-edits');
             if (this.swOrderDetailOnSaveEdits) {
                 this.swOrderDetailOnSaveEdits();
+            } else {
+                this.$emit('save-edits');
             }
         },
 
         reloadEntityData() {
-            this.$emit('reload-entity-data');
             if (this.swOrderDetailOnReloadEntityData) {
                 this.swOrderDetailOnReloadEntityData();
+            } else {
+                this.$emit('reload-entity-data');
             }
         },
 
         showError(error) {
-            this.$emit('error', error);
             if (this.swOrderDetailOnError) {
                 this.swOrderDetailOnError(error);
+            } else {
+                this.$emit('error', error);
             }
         },
 
         updateLoading(loadingValue) {
-            State.commit('swOrderDetail/setLoading', ['order', loadingValue]);
+            Store.get('swOrderDetail').setLoading([
+                'order',
+                loadingValue,
+            ]);
         },
 
         validateTrackingCode(searchTerm) {
@@ -233,12 +258,12 @@ export default {
                 return false;
             }
 
-            const isExist = this.delivery?.trackingCodes?.find(code => code === trackingCode);
+            const isExist = this.delivery?.trackingCodes?.find((code) => code === trackingCode);
             return !isExist;
         },
 
         onChangeOrderAddress(value) {
-            State.commit('swOrderDetail/setOrderAddressIds', value);
+            Store.get('swOrderDetail').setOrderAddressIds(value);
         },
     },
 };

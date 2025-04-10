@@ -1,5 +1,5 @@
 /**
- * @package admin
+ * @sw-package framework
  *
  * @module core/factory/module
  */
@@ -29,17 +29,18 @@ interface SwRouteConfig {
     path: string;
     name?: string;
     component?: string | App<Element>;
-    components?: Record<string, App<Element>> | {
-        default: string
-    };
+    components?:
+        | Record<string, App<Element>>
+        | {
+              default: string;
+          };
     redirect?: RouteRecordRedirectOption;
     alias?: string | string[];
     children?: SwRouteConfig[] | Record<string, SwRouteConfig>;
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     meta?: $TSFixMe;
     beforeEnter?: NavigationGuard;
-    // eslint-disable-next-line @typescript-eslint/ban-types
-    props?: boolean | Object | RouterLinkProps;
+    props?: boolean | object | RouterLinkProps;
     caseSensitive?: boolean;
     coreRoute?: boolean;
     type?: ModuleTypes;
@@ -48,79 +49,88 @@ interface SwRouteConfig {
     isChildren?: boolean;
 }
 
-type ModuleRoutes = Map<string, SwRouteConfig>
+type ModuleRoutes = Map<string, SwRouteConfig>;
 
 interface Navigation {
-    moduleType?: ModuleTypes,
-    parent?: string,
-    id: string,
-    path?: string,
-    link?: string,
-    label?: string,
-    position?: number,
-    privilege?: string,
-    color?: string,
-    icon?: string,
+    moduleType?: ModuleTypes;
+    parent?: string;
+    id: string;
+    path?: string;
+    link?: string;
+    label?: string;
+    position?: number;
+    privilege?: string;
+    color?: string;
+    icon?: string;
 }
 
 interface SettingsItem {
-    group: 'shop' | 'system' | 'plugins',
-    to: string,
-    icon?: string,
-    iconComponent?: unknown,
-    privilege?: string,
-    id?: string,
-    name?: string,
-    label?: string,
+    group:
+        | 'general'
+        | 'localization'
+        | 'customer'
+        | 'commerce'
+        | 'content'
+        | 'automation'
+        | 'system'
+        | 'account'
+        | 'plugins';
+    to: string;
+    icon?: string;
+    iconComponent?: unknown;
+    privilege?: string;
+    id?: string;
+    name?: string;
+    label?: string;
 }
 
 /**
  * @private
  */
 export interface ModuleManifest {
-    flag?: string,
-    type: ModuleTypes,
-    routeMiddleware?: (next: () => void, currentRoute: RouteLocationNamedRaw) => void,
+    flag?: string;
+    type: ModuleTypes;
+    routeMiddleware?: (next: () => void, currentRoute: RouteLocationNamedRaw) => void;
     routes: {
-        [key: string]: SwRouteConfig
-    },
-    routePrefixName?: string,
-    routePrefixPath?: string,
-    coreRoute?: boolean,
-    navigation?: Navigation[],
-    settingsItem?: SettingsItem[] | SettingsItem,
+        [key: string]: SwRouteConfig;
+    };
+    routePrefixName?: string;
+    routePrefixPath?: string;
+    coreRoute?: boolean;
+    navigation?: Navigation[];
+    settingsItem?: SettingsItem[] | SettingsItem;
     extensionEntryRoute?: {
-        extensionName: string,
-        route: string,
-    },
-    entity?: string,
-    entityDisplayProperty?: string,
+        extensionName: string;
+        route: string;
+    };
+    entity?: string;
+    entityDisplayProperty?: string;
     snippets?: {
-        [lang: string]: unknown
-    },
-    name: string,
-    title: string,
-    display?: boolean,
-    description?: string,
-    version?: string,
-    targetVersion?: string,
-    color?: string,
-    icon?: string,
-    favicon?: string,
+        [lang: string]: unknown;
+    };
+    name: string;
+    title: string;
+    display?: boolean;
+    description?: string;
+    version?: string;
+    targetVersion?: string;
+    color?: string;
+    icon?: string;
+    favicon?: string;
     defaultSearchConfiguration?: {
-        _searchable: boolean,
+        _searchable: boolean;
         name: {
-            _searchable: boolean,
-            _score: number,
-        }
-    }
+            _searchable: boolean;
+            _score: number;
+        };
+    };
 }
 
 interface ModuleDefinition {
-    manifest: ModuleManifest,
-    navigation?: Navigation[],
-    routes: ModuleRoutes,
-    type: ModuleTypes
+    manifest: ModuleManifest;
+    navigation?: Navigation[];
+    routes: ModuleRoutes;
+    type: ModuleTypes;
 }
 
 /**
@@ -136,9 +146,7 @@ const middlewareHelper = new MiddlewareHelper();
  */
 function getModuleRegistry(): Map<string, ModuleDefinition> {
     modules.forEach((value, key) => {
-        if (hasOwnProperty(value.manifest, 'flag')
-            && !Shopware.Feature.isActive(value?.manifest?.flag ?? '')
-        ) {
+        if (hasOwnProperty(value.manifest, 'flag') && !Shopware.Feature.isActive(value?.manifest?.flag ?? '')) {
             modules.delete(key);
         }
     });
@@ -156,11 +164,7 @@ function registerModule(moduleId: string, module: ModuleManifest): false | Modul
 
     // A module should always have an unique identifier cause overloading modules can cause unexpected side effects
     if (!moduleId) {
-        warn(
-            'ModuleFactory',
-            'Module has no unique identifier "id". Abort registration.',
-            module,
-        );
+        warn('ModuleFactory', 'Module has no unique identifier "id". Abort registration.', module);
         return false;
     }
 
@@ -196,7 +200,7 @@ function registerModule(moduleId: string, module: ModuleManifest): false | Modul
 
     // Modules will be mounted using the routes definition in the manifest file. If the module doesn't contains a routes
     // definition it isn't accessible in the application.
-    if (!hasOwnProperty(module, 'routes') && !(module.routeMiddleware)) {
+    if (!hasOwnProperty(module, 'routes') && !module.routeMiddleware) {
         warn(
             'ModuleFactory',
             `Module "${moduleId}" has no configured routes or a routeMiddleware.`,
@@ -227,7 +231,6 @@ function registerModule(moduleId: string, module: ModuleManifest): false | Modul
                 route.path = `/${routePrefixPath}/${route.path}`;
             }
 
-
             // Set the type of the route e.g. "core" or "plugin"
             route.type = type;
 
@@ -247,12 +250,7 @@ function registerModule(moduleId: string, module: ModuleManifest): false | Modul
             }
 
             // Alias support
-            if (
-                route.alias
-                && typeof route.alias === 'string'
-                && route.alias.length > 0
-                && (!route.coreRoute)
-            ) {
+            if (route.alias && typeof route.alias === 'string' && route.alias.length > 0 && !route.coreRoute) {
                 const aliasPrefix = module.routePrefixPath ? module.routePrefixPath : splitModuleId.join('/');
                 route.alias = `/${aliasPrefix}/${route.alias}`;
             }
@@ -286,11 +284,7 @@ function registerModule(moduleId: string, module: ModuleManifest): false | Modul
     // Add the navigation of the module to the module definition. We'll create a menu entry later on
     if (hasOwnProperty(module, 'navigation') && module.navigation) {
         if (!types.isArray(module.navigation)) {
-            warn(
-                'ModuleFactory',
-                'The route definition has to be an array.',
-                module.navigation,
-            );
+            warn('ModuleFactory', 'The route definition has to be an array.', module.navigation);
             return false;
         }
 
@@ -317,10 +311,7 @@ function registerModule(moduleId: string, module: ModuleManifest): false | Modul
             }
 
             if (!navigationEntry.label || !navigationEntry.label.length) {
-                warn(
-                    'ModuleFactory',
-                    'The navigation entry needs a property called "label"',
-                );
+                warn('ModuleFactory', 'The navigation entry needs a property called "label"');
                 return false;
             }
 
@@ -375,22 +366,30 @@ function iterateChildRoutes(routeDefinition: SwRouteConfig): SwRouteConfig {
         return routeDefinition;
     }
 
-    routeDefinition.children = Object.entries(routeDefinitionChildren).map(([key, child]: [string, SwRouteConfig]) => {
-        if (child.path && child.path.length === 0) {
-            child.path = '';
-        } else {
-            child.path = `${routeDefinition.path}/${child.path}`;
-        }
+    routeDefinition.children = Object.entries(routeDefinitionChildren).map(
+        ([
+            key,
+            child,
+        ]: [
+            string,
+            SwRouteConfig,
+        ]) => {
+            if (child.path && child.path.length === 0) {
+                child.path = '';
+            } else {
+                child.path = `${routeDefinition.path}/${child.path}`;
+            }
 
-        child.name = `${routeDefinition.name ?? ''}.${key}`;
-        child.isChildren = true;
+            child.name = `${routeDefinition.name ?? ''}.${key}`;
+            child.isChildren = true;
 
-        if (hasOwnProperty(child, 'children') && Object.keys(child.children ?? {}).length) {
-            child = iterateChildRoutes(child);
-        }
+            if (hasOwnProperty(child, 'children') && Object.keys(child.children ?? {}).length) {
+                child = iterateChildRoutes(child);
+            }
 
-        return child;
-    });
+            return child;
+        },
+    );
 
     return routeDefinition;
 }
@@ -407,27 +406,32 @@ function createRouteComponentList(route: SwRouteConfig, moduleId: string, module
     // Remove the component cause we remapped it to the components object of the route object
     if (route.component) {
         route.components = {
-            default: (route.component as string),
+            default: route.component as string,
         };
         delete route.component;
     }
 
     const componentList: { [componentKey: string]: ComponentConfig } = {};
     const routeComponents = route.components ?? {};
-    Object.entries(routeComponents).forEach(([componentKey, component]) => {
-        // Don't register a component without a name
-        if (!component) {
-            warn(
-                'ModuleFactory',
-                `The route definition of module "${moduleId}" is not valid.
+    Object.entries(routeComponents).forEach(
+        ([
+            componentKey,
+            component,
+        ]) => {
+            // Don't register a component without a name
+            if (!component) {
+                warn(
+                    'ModuleFactory',
+                    `The route definition of module "${moduleId}" is not valid.
                     A route needs an assigned component name.`,
-            );
-            return;
-        }
+                );
+                return;
+            }
 
-        // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
-        componentList[componentKey] = component;
-    });
+            // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+            componentList[componentKey] = component;
+        },
+    );
 
     // @ts-expect-error
     route.components = componentList;
@@ -471,8 +475,10 @@ function getModuleByEntityName(entityName: string): ModuleDefinition | undefined
 /**
  * Returns a list of all module specific snippets
  */
-function getModuleSnippets(): { [lang:string]: Snippets | undefined } {
-    return Array.from(modules.values()).reduce<{ [lang:string] : Snippets | undefined }>((accumulator, module) => {
+function getModuleSnippets(): { [lang: string]: Snippets | undefined } {
+    return Array.from(modules.values()).reduce<{
+        [lang: string]: Snippets | undefined;
+    }>((accumulator, module) => {
         const manifest = module.manifest;
 
         if (!hasOwnProperty(manifest, 'snippets')) {
@@ -515,10 +521,7 @@ function addSettingsItemsToStore(moduleId: string, module: ModuleManifest): void
     }
 
     module.settingsItem.forEach((settingsItem) => {
-        if (settingsItem.group
-            && settingsItem.to
-            && (settingsItem.icon || settingsItem.iconComponent)
-        ) {
+        if (settingsItem.group && settingsItem.to && (settingsItem.icon || settingsItem.iconComponent)) {
             if (!hasOwnProperty(settingsItem, 'id') || !settingsItem.id) {
                 settingsItem.id = moduleId;
             }
@@ -531,7 +534,7 @@ function addSettingsItemsToStore(moduleId: string, module: ModuleManifest): void
                 settingsItem.label = module.title;
             }
 
-            Shopware.State.commit('settingsItems/addItem', settingsItem);
+            Shopware.Store.get('settingsItems').addItem(settingsItem);
         } else {
             warn(
                 'ModuleFactory',
@@ -543,26 +546,20 @@ function addSettingsItemsToStore(moduleId: string, module: ModuleManifest): void
     });
 }
 
-function addEntryRouteToExtensionRouteStore(config: { extensionName: string, route: string }):void {
+function addEntryRouteToExtensionRouteStore(config: { extensionName: string; route: string }): void {
     if (config.extensionName === 'string') {
-        warn(
-            'ModuleFactory',
-            'extensionEntryRoute.extensionName needs to be an string',
-        );
+        warn('ModuleFactory', 'extensionEntryRoute.extensionName needs to be an string');
 
         return;
     }
 
     if (config.route === 'string') {
-        warn(
-            'ModuleFactory',
-            'extensionEntryRoute.route needs to be an string',
-        );
+        warn('ModuleFactory', 'extensionEntryRoute.route needs to be an string');
 
         return;
     }
 
-    Shopware.State.commit('extensionEntryRoutes/addItem', config);
+    Shopware.Store.get('extensionEntryRoutes').addItem(config);
 }
 
 /**

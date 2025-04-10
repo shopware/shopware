@@ -1,3 +1,7 @@
+/**
+ * @sw-package framework
+ */
+
 import './sw-text-preview.scss';
 import template from './sw-text-preview.html.twig';
 
@@ -18,8 +22,6 @@ const lineBreak = '<br />';
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 Component.register('sw-text-preview', {
     template,
-
-    compatConfig: Shopware.compatConfig,
 
     props: {
         text: {

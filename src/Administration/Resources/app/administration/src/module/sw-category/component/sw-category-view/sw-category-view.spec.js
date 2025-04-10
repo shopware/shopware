@@ -1,5 +1,5 @@
 /**
- * @package inventory
+ * @sw-package discovery
  */
 
 import { mount } from '@vue/test-utils';
@@ -7,23 +7,15 @@ import { mount } from '@vue/test-utils';
 const categoryIdMock = 'CATEGORY_MOCK_ID';
 
 async function createWrapper(categoryType) {
-    if (Shopware.State.get('swCategoryDetail')) {
-        Shopware.State.unregisterModule('swCategoryDetail');
-    }
+    Shopware.Store.get('swCategoryDetail').$reset();
+    Shopware.Store.get('swCategoryDetail').category = {
+        id: categoryIdMock,
+    };
+    Shopware.Store.get('swCategoryDetail').isCategoryColumn = true;
 
-    Shopware.State.registerModule('swCategoryDetail', {
-        namespaced: true,
-        state: {
-            category: {
-                id: categoryIdMock,
-                isColumn: true,
-            },
-        },
-    });
-
-    Shopware.Store.unregister('cmsPageState');
+    Shopware.Store.unregister('cmsPage');
     Shopware.Store.register({
-        id: 'cmsPageState',
+        id: 'cmsPage',
         state: () => ({
             currentPage: undefined,
         }),
@@ -39,16 +31,15 @@ async function createWrapper(categoryType) {
                     template: '<div class="sw-language-info"></div>',
                     props: ['entityDescription'],
                 },
-                'sw-alert': {
-                    template: '<div class="sw-alert"><slot /></div>',
-                    props: ['variant'],
-                },
                 'sw-tabs': {
                     template: '<div class="sw-tabs"><slot /></div>',
                 },
                 'sw-tabs-item': {
                     template: '<div class="sw-tabs-item"><slot /></div>',
-                    props: ['route', 'title'],
+                    props: [
+                        'route',
+                        'title',
+                    ],
                 },
                 'router-view': {
                     template: '<div class="router-view"></div>',
@@ -58,7 +49,9 @@ async function createWrapper(categoryType) {
             mocks: {
                 placeholder: (entity, field, fallbackSnippet) => {
                     return {
-                        entity, field, fallbackSnippet,
+                        entity,
+                        field,
+                        fallbackSnippet,
                     };
                 },
             },
@@ -79,13 +72,12 @@ describe('src/module/sw-category/component/sw-category-view', () => {
         expect(wrapper.getComponent('.sw-language-info').props('entityDescription')).toStrictEqual({
             entity: {
                 id: 'CATEGORY_MOCK_ID',
-                isColumn: true,
             },
             fallbackSnippet: 'sw-manufacturer.detail.textHeadline',
             field: 'name',
         });
 
-        expect(wrapper.getComponent('.sw-alert').props('variant')).toBe('info');
+        expect(wrapper.getComponent('[role="banner"]').props('variant')).toBe('info');
         expect(wrapper.get('.swag-category-view__column-info-header').text()).toBe('sw-category.view.columnInfoHeader');
         expect(wrapper.get('.swag-category-view__column-info-content').text()).toBe('sw-category.view.columnInfo');
 

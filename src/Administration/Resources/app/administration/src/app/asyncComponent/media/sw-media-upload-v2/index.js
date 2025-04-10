@@ -11,7 +11,7 @@ const INPUT_TYPE_URL_UPLOAD = 'url-upload';
  * @status ready
  * @description The <u>sw-media-upload-v2</u> component is used wherever an upload is needed. It supports drag & drop-,
  * file- and url-upload and comes in various forms.
- * @package content
+ * @sw-package discovery
  * @example-type code-only
  * @component-example
  * <sw-media-upload-v2
@@ -25,8 +25,6 @@ const INPUT_TYPE_URL_UPLOAD = 'url-upload';
 export default {
     template,
 
-    compatConfig: Shopware.compatConfig,
-
     inject: [
         'repositoryFactory',
         'mediaService',
@@ -35,7 +33,12 @@ export default {
         'fileValidationService',
     ],
 
-    emits: ['media-drop', 'media-upload-sidebar-open', 'media-upload-remove-image', 'media-upload-add-file'],
+    emits: [
+        'media-drop',
+        'media-upload-sidebar-open',
+        'media-upload-remove-image',
+        'media-upload-add-file',
+    ],
 
     mixins: [
         Mixin.getByName('notification'),
@@ -43,7 +46,11 @@ export default {
 
     props: {
         source: {
-            type: [Object, String, File],
+            type: [
+                Object,
+                String,
+                File,
+            ],
             required: false,
             default: null,
         },
@@ -51,9 +58,17 @@ export default {
         variant: {
             type: String,
             required: false,
-            validValues: ['compact', 'regular', 'small'],
+            validValues: [
+                'compact',
+                'regular',
+                'small',
+            ],
             validator(value) {
-                return ['compact', 'regular', 'small'].includes(value);
+                return [
+                    'compact',
+                    'regular',
+                    'small',
+                ].includes(value);
             },
             default: 'regular',
         },
@@ -193,9 +208,6 @@ export default {
         },
 
         hasOpenMediaButtonListener() {
-            if (this.isCompatEnabled('INSTANCE_LISTENERS')) {
-                return Object.keys(this.$listeners).includes('mediaUploadSidebarOpen');
-            }
             return !!this.onMediaUploadSidebarOpen;
         },
 
@@ -286,7 +298,10 @@ export default {
 
         mountedComponent() {
             if (this.$refs.dropzone) {
-                ['dragover', 'drop'].forEach((event) => {
+                [
+                    'dragover',
+                    'drop',
+                ].forEach((event) => {
                     window.addEventListener(event, this.stopEventPropagation, false);
                 });
                 this.$refs.dropzone.addEventListener('drop', this.onDrop);
@@ -300,7 +315,10 @@ export default {
             this.mediaService.removeByTag(this.uploadTag);
             this.mediaService.removeListener(this.uploadTag, this.handleMediaServiceUploadEvent);
 
-            ['dragover', 'drop'].forEach((event) => {
+            [
+                'dragover',
+                'drop',
+            ].forEach((event) => {
                 window.addEventListener(event, this.stopEventPropagation, false);
             });
 
@@ -455,7 +473,10 @@ export default {
                 }
 
                 if (this.addFilesOnMultiselect) {
-                    this.preview = [...this.preview, ...newMediaFiles];
+                    this.preview = [
+                        ...this.preview,
+                        ...newMediaFiles,
+                    ];
                 } else {
                     this.preview = newMediaFiles;
                 }
@@ -468,7 +489,13 @@ export default {
                 const targetEntity = this.getMediaEntityForUpload();
                 syncEntities.push(targetEntity);
 
-                return { src: fileHandle, targetId: targetEntity.id, fileName, extension, isPrivate: targetEntity.private };
+                return {
+                    src: fileHandle,
+                    targetId: targetEntity.id,
+                    fileName,
+                    extension,
+                    isPrivate: targetEntity.private,
+                };
             });
 
             await this.mediaRepository.saveAll(syncEntities, Context.api);
@@ -499,10 +526,14 @@ export default {
             }
 
             this.createNotificationError({
-                message: this.$tc('global.sw-media-upload-v2.notification.invalidFileSize.message', 0, {
-                    name: file.name || file.fileName,
-                    limit: fileSize(this.maxFileSize),
-                }),
+                message: this.$tc(
+                    'global.sw-media-upload-v2.notification.invalidFileSize.message',
+                    {
+                        name: file.name || file.fileName,
+                        limit: fileSize(this.maxFileSize),
+                    },
+                    0,
+                ),
             });
             return false;
         },
@@ -534,10 +565,14 @@ export default {
             }
 
             this.createNotificationError({
-                message: this.$tc('global.sw-media-upload-v2.notification.invalidFileType.message', 0, {
-                    name: file.name,
-                    supportedTypes: this.extensionAccept || this.fileAccept,
-                }),
+                message: this.$tc(
+                    'global.sw-media-upload-v2.notification.invalidFileType.message',
+                    {
+                        name: file.name,
+                        supportedTypes: this.extensionAccept || this.fileAccept,
+                    },
+                    0,
+                ),
             });
 
             return false;

@@ -12,8 +12,8 @@ use Shopware\Core\Content\Media\Core\Application\MediaPathUpdater;
 use Shopware\Core\Content\Media\Core\Strategy\FilenamePathStrategy;
 use Shopware\Core\Content\Media\Core\Strategy\PlainPathStrategy;
 use Shopware\Core\Framework\DataAbstractionLayer\Doctrine\MultiInsertQueryQueue;
-use Shopware\Core\Framework\Test\IdsCollection;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
+use Shopware\Core\Test\Stub\Framework\IdsCollection;
 
 /**
  * @internal
@@ -27,7 +27,7 @@ class MediaPathUpdaterTest extends TestCase
     {
         $ids = new IdsCollection();
 
-        $inserts = new MultiInsertQueryQueue($this->getContainer()->get(Connection::class));
+        $inserts = new MultiInsertQueryQueue(static::getContainer()->get(Connection::class));
 
         $inserts->addInsert('media', [
             'id' => $ids->getBytes('media-1'),
@@ -40,13 +40,13 @@ class MediaPathUpdaterTest extends TestCase
 
         $updater = new MediaPathUpdater(
             new FilenamePathStrategy(),
-            $this->getContainer()->get(MediaLocationBuilder::class),
-            $this->getContainer()->get(MediaPathStorage::class)
+            static::getContainer()->get(MediaLocationBuilder::class),
+            static::getContainer()->get(MediaPathStorage::class)
         );
 
         $updater->updateMedia($ids->getList(['media-1']));
 
-        $paths = $this->getContainer()->get(Connection::class)
+        $paths = static::getContainer()->get(Connection::class)
             ->fetchAllKeyValue(
                 'SELECT LOWER(HEX(id)), path FROM media WHERE id IN (:ids)',
                 ['ids' => $ids->getByteList(['media-1'])],
@@ -62,7 +62,7 @@ class MediaPathUpdaterTest extends TestCase
     {
         $ids = new IdsCollection();
 
-        $inserts = new MultiInsertQueryQueue($this->getContainer()->get(Connection::class));
+        $inserts = new MultiInsertQueryQueue(static::getContainer()->get(Connection::class));
 
         $inserts->addInsert('media', [
             'id' => $ids->getBytes('media-1'),
@@ -90,13 +90,13 @@ class MediaPathUpdaterTest extends TestCase
 
         $updater = new MediaPathUpdater(
             new PlainPathStrategy(),
-            $this->getContainer()->get(MediaLocationBuilder::class),
-            $this->getContainer()->get(MediaPathStorage::class)
+            static::getContainer()->get(MediaLocationBuilder::class),
+            static::getContainer()->get(MediaPathStorage::class)
         );
 
         $updater->updateThumbnails($ids->getList(['thumbnail-1', 'thumbnail-2']));
 
-        $paths = $this->getContainer()->get(Connection::class)
+        $paths = static::getContainer()->get(Connection::class)
             ->fetchAllKeyValue(
                 'SELECT LOWER(HEX(id)), path FROM media_thumbnail WHERE id IN (:ids)',
                 ['ids' => $ids->getByteList(['thumbnail-1', 'thumbnail-2'])],

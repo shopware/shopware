@@ -2,7 +2,7 @@ import template from './sw-order-select-document-type-modal.html.twig';
 import './sw-order-select-document-type-modal.scss';
 
 /**
- * @package checkout
+ * @sw-package checkout
  */
 
 const { Criteria } = Shopware.Data;
@@ -11,14 +11,14 @@ const { Criteria } = Shopware.Data;
 export default {
     template,
 
-    compatConfig: Shopware.compatConfig,
-
     inject: [
         'repositoryFactory',
-        'feature',
     ],
 
-    emits: ['modal-close', 'update:value'],
+    emits: [
+        'modal-close',
+        'update:value',
+    ],
 
     props: {
         order: {
@@ -65,8 +65,7 @@ export default {
         },
 
         documentTypeCriteria() {
-            return (new Criteria(1, 100))
-                .addSorting(Criteria.sort('name', 'ASC'));
+            return new Criteria(1, 100).addSorting(Criteria.sort('name', 'ASC'));
         },
 
         documentCriteria() {
@@ -106,7 +105,7 @@ export default {
                     });
 
                     if (this.documentTypes.length) {
-                        this.documentType = this.documentTypes.find(documentType => !documentType.disabled).value;
+                        this.documentType = this.documentTypes.find((documentType) => !documentType.disabled).value;
                         this.onRadioFieldChange();
                     }
 
@@ -117,19 +116,10 @@ export default {
 
         documentTypeAvailable(documentType) {
             return (
-                (
-                    documentType.technicalName !== 'storno' &&
-                    documentType.technicalName !== 'credit_note'
-                ) ||
-                (
-                    (
-                        documentType.technicalName === 'storno' ||
-                        (
-                            documentType.technicalName === 'credit_note' &&
-                            this.creditItems.length !== 0
-                        )
-                    ) && this.invoiceExists
-                )
+                (documentType.technicalName !== 'storno' && documentType.technicalName !== 'credit_note') ||
+                ((documentType.technicalName === 'storno' ||
+                    (documentType.technicalName === 'credit_note' && this.creditItems.length !== 0)) &&
+                    this.invoiceExists)
             );
         },
 

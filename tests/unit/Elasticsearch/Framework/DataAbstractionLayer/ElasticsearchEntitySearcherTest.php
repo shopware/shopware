@@ -34,7 +34,7 @@ class ElasticsearchEntitySearcherTest extends TestCase
 
         $client = $this->createMock(Client::class);
         // client should not be used if limit is 0
-        $client->expects(static::never())
+        $client->expects($this->never())
             ->method('search');
 
         $helper = $this->createMock(ElasticsearchHelper::class);
@@ -76,7 +76,7 @@ class ElasticsearchEntitySearcherTest extends TestCase
 
         $client = $this->createMock(Client::class);
         // client should not be used if limit is 0
-        $client->expects(static::never())
+        $client->expects($this->never())
             ->method('search');
 
         $helper = $this->createMock(ElasticsearchHelper::class);
@@ -115,7 +115,7 @@ class ElasticsearchEntitySearcherTest extends TestCase
 
         $client = $this->createMock(Client::class);
 
-        $client->expects(static::once())
+        $client->expects($this->once())
             ->method('search')->with([
                 'index' => '',
                 'track_total_hits' => true,
@@ -163,7 +163,7 @@ class ElasticsearchEntitySearcherTest extends TestCase
 
         $client = $this->createMock(Client::class);
 
-        $client->expects(static::once())
+        $client->expects($this->once())
             ->method('search')->with([
                 'index' => '',
                 'track_total_hits' => false,
@@ -202,6 +202,56 @@ class ElasticsearchEntitySearcherTest extends TestCase
         );
     }
 
+    public function testSearchWithExplainMode(): void
+    {
+        $criteria = new Criteria();
+        $criteria->setLimit(10);
+        $criteria->setTotalCountMode(Criteria::TOTAL_COUNT_MODE_NONE);
+
+        $client = $this->createMock(Client::class);
+
+        $client->expects($this->once())
+            ->method('search')->with([
+                'index' => '',
+                'track_total_hits' => false,
+                'include_named_queries_score' => true,
+                'body' => [
+                    'timeout' => '10s',
+                    'from' => 0,
+                    'size' => 10,
+                    'explain' => true,
+                ],
+                'search_type' => 'dfs_query_then_fetch',
+            ])->willReturn([]);
+
+        $helper = $this->createMock(ElasticsearchHelper::class);
+        $helper
+            ->method('allowSearch')
+            ->willReturn(true);
+
+        $searcher = new ElasticsearchEntitySearcher(
+            $client,
+            $this->createMock(EntitySearcherInterface::class),
+            $helper,
+            $this->createMock(CriteriaParser::class),
+            $this->createMock(AbstractElasticsearchSearchHydrator::class),
+            new EventDispatcher(),
+            '10s',
+            'dfs_query_then_fetch'
+        );
+
+        $context = Context::createDefaultContext();
+        $context->addState(ElasticsearchEntitySearcher::EXPLAIN_MODE);
+
+        $criteria->addState(Criteria::STATE_ELASTICSEARCH_AWARE);
+
+        $searcher->search(
+            new ProductDefinition(),
+            $criteria,
+            $context
+        );
+    }
+
     public function testDispatchEvents(): void
     {
         $criteria = new Criteria();
@@ -212,7 +262,7 @@ class ElasticsearchEntitySearcherTest extends TestCase
 
         $client = $this->createMock(Client::class);
 
-        $client->expects(static::once())
+        $client->expects($this->once())
             ->method('search')->with([
                 'index' => '',
                 'track_total_hits' => false,
@@ -278,12 +328,12 @@ class ElasticsearchEntitySearcherTest extends TestCase
 
         $client = $this->createMock(Client::class);
         // client should not be used if limit is 0
-        $client->expects(static::once())
+        $client->expects($this->once())
             ->method('search')
             ->willThrowException(new NoNodesAvailableException());
 
         $helper = $this->createMock(ElasticsearchHelper::class);
-        $helper->expects(static::once())->method('logAndThrowException');
+        $helper->expects($this->once())->method('logAndThrowException');
         $helper->method('allowSearch')->willReturn(true);
 
         $searcher = new ElasticsearchEntitySearcher(

@@ -16,7 +16,7 @@ class DataAbstractionLayerValidateCommandTest extends TestCase
 
     public function testNoValidationErrors(): void
     {
-        $commandTester = new CommandTester($this->getContainer()->get(DataAbstractionLayerValidateCommand::class));
+        $commandTester = new CommandTester(static::getContainer()->get(DataAbstractionLayerValidateCommand::class));
         $commandTester->execute([]);
 
         static::assertEquals(

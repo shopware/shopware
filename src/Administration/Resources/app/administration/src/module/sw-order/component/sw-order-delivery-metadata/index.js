@@ -2,14 +2,12 @@ import template from './sw-order-delivery-metadata.html.twig';
 import './sw-order-delivery-metadata.scss';
 
 /**
- * @package checkout
+ * @sw-package checkout
  */
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default {
     template,
-
-    compatConfig: Shopware.compatConfig,
 
     inject: ['customSnippetApiService'],
 
@@ -63,10 +61,8 @@ export default {
 
         renderFormattingAddress() {
             this.customSnippetApiService
-                .render(
-                    this.delivery.shippingOrderAddress,
-                    this.delivery.shippingOrderAddress.country.addressFormat,
-                ).then((res) => {
+                .render(this.delivery.shippingOrderAddress, this.delivery.shippingOrderAddress.country.addressFormat)
+                .then((res) => {
                     this.formattingAddress = res.rendered;
                 });
         },

@@ -10,33 +10,18 @@ use Shopware\Core\Framework\Log\Package;
 /**
  * @extends EntitySearchResult<ProductReviewCollection>
  */
-#[Package('inventory')]
+#[Package('after-sales')]
 class ProductReviewResult extends EntitySearchResult
 {
-    /**
-     * @var string|null
-     */
-    protected $parentId;
+    protected ?string $parentId = null;
 
-    /**
-     * @var string
-     */
-    protected $productId;
+    protected string $productId;
 
-    /**
-     * @var RatingMatrix
-     */
-    protected $matrix;
+    protected RatingMatrix $matrix;
 
-    /**
-     * @var ProductReviewEntity|null
-     */
-    protected $customerReview;
+    protected ?ProductReviewEntity $customerReview = null;
 
-    /**
-     * @var int
-     */
-    protected $totalReviews;
+    protected int $totalReviewsInCurrentLanguage;
 
     public function getProductId(): string
     {
@@ -68,14 +53,14 @@ class ProductReviewResult extends EntitySearchResult
         $this->customerReview = $customerReview;
     }
 
-    public function getTotalReviews(): int
+    public function getTotalReviewsInCurrentLanguage(): int
     {
-        return $this->totalReviews;
+        return $this->totalReviewsInCurrentLanguage;
     }
 
-    public function setTotalReviews(int $totalReviews): void
+    public function setTotalReviewsInCurrentLanguage(int $totalReviewsInCurrentLanguage): void
     {
-        $this->totalReviews = $totalReviews;
+        $this->totalReviewsInCurrentLanguage = $totalReviewsInCurrentLanguage;
     }
 
     public function getParentId(): ?string

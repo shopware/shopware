@@ -1,5 +1,5 @@
 /**
- * @package services-settings
+ * @sw-package framework
  */
 import template from './sw-settings-cache-modal.twig';
 
@@ -8,8 +8,6 @@ const { Mixin } = Shopware;
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default {
     template,
-
-    compatConfig: Shopware.compatConfig,
 
     shortcuts: {
         'SYSTEMKEY+c': 'openModal',
@@ -72,15 +70,18 @@ export default {
                 message: this.$tc('sw-settings-cache.notifications.clearCache.started'),
             });
 
-            this.cacheApiService.clear().then(() => {
-                this.createNotificationSuccess({
-                    message: this.$tc('sw-settings-cache.notifications.clearCache.success'),
+            this.cacheApiService
+                .clear()
+                .then(() => {
+                    this.createNotificationSuccess({
+                        message: this.$tc('sw-settings-cache.notifications.clearCache.success'),
+                    });
+                })
+                .catch(() => {
+                    this.createNotificationError({
+                        message: this.$tc('sw-settings-cache.notifications.clearCache.error'),
+                    });
                 });
-            }).catch(() => {
-                this.createNotificationError({
-                    message: this.$tc('sw-settings-cache.notifications.clearCache.error'),
-                });
-            });
 
             this.open = false;
         },

@@ -4,6 +4,7 @@ namespace Shopware\Tests\Integration\Core\Checkout\Cart\TaxProvider;
 
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\TaxProvider\TaxProviderRegistry;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Tests\Unit\Core\Checkout\Cart\TaxProvider\_fixtures\TestConstantTaxRateProvider;
 use Shopware\Tests\Unit\Core\Checkout\Cart\TaxProvider\_fixtures\TestEmptyTaxProvider;
@@ -12,6 +13,7 @@ use Shopware\Tests\Unit\Core\Checkout\Cart\TaxProvider\_fixtures\TestGenericExce
 /**
  * @internal
  */
+#[Package('checkout')]
 class TaxProviderRegistryTest extends TestCase
 {
     use IntegrationTestBehaviour;
@@ -20,7 +22,7 @@ class TaxProviderRegistryTest extends TestCase
 
     protected function setUp(): void
     {
-        $this->taxProviderRegistry = $this->getContainer()->get(TaxProviderRegistry::class);
+        $this->taxProviderRegistry = static::getContainer()->get(TaxProviderRegistry::class);
     }
 
     public function testTestProvidersAreRegisteredByServiceContainerTag(): void

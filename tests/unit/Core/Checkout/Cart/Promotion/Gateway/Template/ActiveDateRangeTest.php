@@ -9,11 +9,13 @@ use Shopware\Core\Checkout\Promotion\Gateway\Template\ActiveDateRange;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\MultiFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\RangeFilter;
+use Shopware\Core\Framework\Log\Package;
 
 /**
  * @internal
  */
 #[CoversClass(ActiveDateRange::class)]
+#[Package('checkout')]
 class ActiveDateRangeTest extends TestCase
 {
     /**

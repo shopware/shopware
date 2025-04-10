@@ -41,13 +41,13 @@ class RequestTransformerTest extends TestCase
     protected function setUp(): void
     {
         /** @var list<string> $registeredApiPrefixes */
-        $registeredApiPrefixes = $this->getContainer()->getParameter('shopware.routing.registered_api_prefixes');
+        $registeredApiPrefixes = static::getContainer()->getParameter('shopware.routing.registered_api_prefixes');
 
         $this->requestTransformer = new RequestTransformer(
             new CoreRequestTransformer(),
-            $this->getContainer()->get(SeoResolver::class),
+            static::getContainer()->get(SeoResolver::class),
             $registeredApiPrefixes,
-            $this->getContainer()->get(DomainLoader::class)
+            static::getContainer()->get(DomainLoader::class)
         );
 
         $this->deLanguageId = $this->getDeDeLanguageId();
@@ -274,7 +274,7 @@ class RequestTransformerTest extends TestCase
 
         $this->createSalesChannels([$salesChannels]);
 
-        $con = $this->getContainer()->get(Connection::class);
+        $con = static::getContainer()->get(Connection::class);
         $con->insert(
             'seo_url',
             [
@@ -503,6 +503,6 @@ class RequestTransformerTest extends TestCase
             return array_merge_recursive($defaults, $salesChannelData);
         }, $salesChannels);
 
-        return $this->getContainer()->get('sales_channel.repository')->create($salesChannels, Context::createDefaultContext());
+        return static::getContainer()->get('sales_channel.repository')->create($salesChannels, Context::createDefaultContext());
     }
 }

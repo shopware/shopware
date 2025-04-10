@@ -9,76 +9,37 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\Language\LanguageEntity;
 use Shopware\Core\System\SalesChannel\SalesChannelEntity;
 
-#[Package('buyers-experience')]
+#[Package('inventory')]
 class SeoUrlEntity extends Entity
 {
     use EntityCustomFieldsTrait;
     use EntityIdTrait;
 
-    /**
-     * @var string|null
-     */
-    protected $salesChannelId;
+    protected ?string $salesChannelId = null;
 
-    /**
-     * @var string
-     */
-    protected $languageId;
+    protected string $languageId;
 
-    /**
-     * @var string
-     */
-    protected $routeName;
+    protected string $routeName;
 
-    /**
-     * @var string
-     */
-    protected $foreignKey;
+    protected string $foreignKey;
 
-    /**
-     * @var string
-     */
-    protected $pathInfo;
+    protected string $pathInfo;
 
-    /**
-     * @var string
-     */
-    protected $seoPathInfo;
+    protected string $seoPathInfo;
 
-    /**
-     * @var bool|null
-     */
-    protected $isCanonical;
+    protected ?bool $isCanonical = null;
 
-    /**
-     * @var bool
-     */
-    protected $isModified;
+    protected bool $isModified;
 
-    /**
-     * @var bool
-     */
-    protected $isDeleted;
+    protected bool $isDeleted;
 
-    /**
-     * @var SalesChannelEntity|null
-     */
-    protected $salesChannel;
+    protected ?SalesChannelEntity $salesChannel = null;
 
-    /**
-     * @var LanguageEntity|null
-     */
-    protected $language;
+    protected ?LanguageEntity $language = null;
 
-    /**
-     * @var string
-     */
-    protected $url;
+    protected string $url;
 
-    /**
-     * @var string|null
-     */
-    protected $error;
+    protected ?string $error = null;
 
     public function getSalesChannelId(): ?string
     {

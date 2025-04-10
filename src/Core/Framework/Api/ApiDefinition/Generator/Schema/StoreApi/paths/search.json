@@ -1,16 +1,23 @@
 {
-    "openapi": "3.0.0",
+    "openapi": "3.1.0",
     "info": [],
     "paths": {
         "/search": {
             "post": {
-                "tags": [
-                    "Product"
-                ],
+                "tags": ["Product"],
                 "summary": "Search for products",
                 "description": "Performs a search for products which can be used to display a product listing.",
                 "operationId": "searchPage",
                 "parameters": [
+                    {
+                        "name": "p",
+                        "in": "query",
+                        "description": "The page number to fetch.",
+                        "required": false,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    },
                     {
                         "name": "sw-language-id",
                         "in": "header",
@@ -22,13 +29,13 @@
                         }
                     },
                     {
-                       "description": "Instructs Shopware to try and resolve SEO URLs for the given navigation item",
-                       "in": "header",
-                       "name": "sw-include-seo-urls",
-                       "required": false,
-                       "schema": {
-                         "type": "boolean"
-                       }
+                        "description": "Instructs Shopware to try and resolve SEO URLs for the given navigation item",
+                        "in": "header",
+                        "name": "sw-include-seo-urls",
+                        "required": false,
+                        "schema": {
+                            "type": "boolean"
+                        }
                     }
                 ],
                 "requestBody": {
@@ -37,9 +44,7 @@
                             "schema": {
                                 "allOf": [
                                     {
-                                        "required": [
-                                            "search"
-                                        ],
+                                        "required": ["search"],
                                         "properties": {
                                             "search": {
                                                 "description": "Using the search parameter, the server performs a text search on all records based on their data model and weighting as defined in the entity definition using the SearchRanking flag.",

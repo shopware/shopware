@@ -3,7 +3,7 @@ import template from './sw-media-url-form.html.twig';
 /**
  * @status ready
  * @description The <u>sw-media-url-form</u> component is used to validate urls from the user.
- * @package content
+ * @sw-package discovery
  * @example-type static
  * @component-example
  * <sw-media-url-form variant="inline">
@@ -13,17 +13,24 @@ import template from './sw-media-url-form.html.twig';
 export default {
     template,
 
-    compatConfig: Shopware.compatConfig,
-
-    emits: ['media-url-form-submit', 'modal-close'],
+    emits: [
+        'media-url-form-submit',
+        'modal-close',
+    ],
 
     props: {
         variant: {
             type: String,
             required: true,
-            validValues: ['modal', 'inline'],
+            validValues: [
+                'modal',
+                'inline',
+            ],
             validator(value) {
-                return ['modal', 'inline'].includes(value);
+                return [
+                    'modal',
+                    'inline',
+                ].includes(value);
             },
             default: 'inline',
         },
@@ -70,15 +77,6 @@ export default {
 
         isValid() {
             return this.urlObject !== null && this.fileExtension;
-        },
-
-        listeners() {
-            // eslint-disable-next-line @typescript-eslint/no-unsafe-call,@typescript-eslint/no-unsafe-member-access
-            if (this.isCompatEnabled('INSTANCE_LISTENERS')) {
-                return this.$listeners;
-            }
-
-            return {};
         },
     },
 

@@ -12,7 +12,6 @@ use Shopware\Core\System\SystemConfig\Api\SystemConfigController;
 use Shopware\Core\System\SystemConfig\Service\ConfigurationService;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Shopware\Core\System\SystemConfig\Validation\SystemConfigValidator;
-use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 
@@ -213,7 +212,7 @@ class SystemConfigControllerTest extends TestCase
 
         $result = $systemConfigController->batchSaveConfiguration($request, $context);
 
-        static::assertInstanceOf(JsonResponse::class, $result);
+        static::assertSame('{}', $result->getContent());
     }
 
     public function testBatchSaveConfigurationFailure(): void
@@ -246,7 +245,7 @@ class SystemConfigControllerTest extends TestCase
     public function testInheritFlag(Request $request, bool $expectedFlag): void
     {
         $systemConfigService = static::createMock(SystemConfigService::class);
-        $systemConfigService->expects(static::once())
+        $systemConfigService->expects($this->once())
             ->method('getDomain')
             ->with('dummy domain', 'dummy sales channel', $expectedFlag);
 

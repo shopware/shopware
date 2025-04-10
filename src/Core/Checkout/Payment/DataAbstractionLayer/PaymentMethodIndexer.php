@@ -3,6 +3,7 @@
 namespace Shopware\Core\Checkout\Payment\DataAbstractionLayer;
 
 use Shopware\Core\Checkout\Payment\Event\PaymentMethodIndexerEvent;
+use Shopware\Core\Checkout\Payment\PaymentMethodCollection;
 use Shopware\Core\Checkout\Payment\PaymentMethodDefinition;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\Common\IteratorFactory;
@@ -20,6 +21,8 @@ class PaymentMethodIndexer extends EntityIndexer
 {
     /**
      * @internal
+     *
+     * @param EntityRepository<PaymentMethodCollection> $paymentMethodRepository
      */
     public function __construct(
         private readonly IteratorFactory $iteratorFactory,
@@ -64,18 +67,23 @@ class PaymentMethodIndexer extends EntityIndexer
     public function handle(EntityIndexingMessage $message): void
     {
         $ids = $message->getData();
+        if (!\is_array($ids)) {
+            return;
+        }
 
+        $ids = array_unique(array_filter($ids));
         if (empty($ids)) {
             return;
         }
 
-        // Create a new context with disabled-indexing state, because DAL is used inside to upsert payment methods.
-        $newContext = Context::createFrom($message->getContext());
-        // Apparently the new context loses the states of the old one during creation. So the old states get added back.
-        $newContext->addState(EntityIndexerRegistry::DISABLE_INDEXING, ...$message->getContext()->getStates());
-        $this->distinguishableNameGenerator->generateDistinguishablePaymentNames($newContext);
+        $context = $message->getContext();
 
-        $this->eventDispatcher->dispatch(new PaymentMethodIndexerEvent($ids, $message->getContext(), $message->getSkip()));
+        // Use 'disabled-indexing' state, because DAL is used in the NameGenerator to upsert payment methods
+        $context->state(function (Context $context): void {
+            $this->distinguishableNameGenerator->generateDistinguishablePaymentNames($context);
+        }, EntityIndexerRegistry::DISABLE_INDEXING);
+
+        $this->eventDispatcher->dispatch(new PaymentMethodIndexerEvent($ids, $context, $message->getSkip()));
     }
 
     public function getTotal(): int

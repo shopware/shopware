@@ -5,6 +5,7 @@ namespace Shopware\Tests\Integration\Storefront\Framework\App;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Api\Util\AccessKeyHelper;
+use Shopware\Core\Framework\App\AppCollection;
 use Shopware\Core\Framework\App\AppStateService;
 use Shopware\Core\Framework\App\Event\AppActivatedEvent;
 use Shopware\Core\Framework\App\Event\AppDeactivatedEvent;
@@ -14,10 +15,11 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
+use Shopware\Core\Test\AppSystemTestBehaviour;
 use Shopware\Core\Test\TestDefaults;
 use Shopware\Storefront\Theme\Exception\ThemeAssignmentException;
+use Shopware\Storefront\Theme\ThemeCollection;
 use Shopware\Storefront\Theme\ThemeService;
-use Shopware\Tests\Integration\Core\Framework\App\AppSystemTestBehaviour;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\HttpKernel\Debug\TraceableEventDispatcher;
 
@@ -29,63 +31,64 @@ class AppStateServiceThemeTest extends TestCase
     use AppSystemTestBehaviour;
     use IntegrationTestBehaviour;
 
-    private ?ThemeService $themeService;
+    private ThemeService $themeService;
 
+    /**
+     * @var EntityRepository<AppCollection>
+     */
     private EntityRepository $appRepo;
 
-    private ?EntityRepository $themeRepo;
+    /**
+     * @var EntityRepository<ThemeCollection>
+     */
+    private EntityRepository $themeRepo;
 
     private AppStateService $appStateService;
 
     private TraceableEventDispatcher $eventDispatcher;
 
+    /**
+     * @var EntityRepository<ThemeCollection>
+     */
     private EntityRepository $templateRepo;
 
     protected function setUp(): void
     {
-        $this->themeService = $this->getContainer()->get(ThemeService::class, ContainerInterface::NULL_ON_INVALID_REFERENCE);
-        $this->appRepo = $this->getContainer()->get('app.repository');
-        $this->themeRepo = $this->getContainer()->get('theme.repository', ContainerInterface::NULL_ON_INVALID_REFERENCE);
-        $this->templateRepo = $this->getContainer()->get('app_template.repository');
-        $this->appStateService = $this->getContainer()->get(AppStateService::class);
-        $this->eventDispatcher = $this->getContainer()->get('event_dispatcher');
+        $this->themeService = static::getContainer()->get(ThemeService::class, ContainerInterface::NULL_ON_INVALID_REFERENCE);
+        $this->appRepo = static::getContainer()->get('app.repository');
+        $this->themeRepo = static::getContainer()->get('theme.repository', ContainerInterface::NULL_ON_INVALID_REFERENCE);
+        $this->templateRepo = static::getContainer()->get('app_template.repository');
+        $this->appStateService = static::getContainer()->get(AppStateService::class);
+        $this->eventDispatcher = static::getContainer()->get('event_dispatcher');
     }
 
     public function testAppWithAThemeInUseCannotBeDeactivated(): void
     {
-        if (!$this->themeService) {
-            static::markTestSkipped('AppThemeServiceTest needs storefront to be installed.');
-        }
         $context = Context::createDefaultContext();
         $this->loadAppsFromDir(__DIR__ . '/../../Theme/fixtures/Apps/theme');
         $criteria = new Criteria();
         $criteria->addFilter(new EqualsFilter('technicalName', 'SwagTheme'));
-        /* @phpstan-ignore-next-line */
         $themeId = $this->themeRepo->searchIds($criteria, $context)->firstId();
+        static::assertIsString($themeId);
         $salesChannelId = $this->createSalesChannel();
 
-        /* @phpstan-ignore-next-line */
         $this->themeService->assignTheme($themeId, $salesChannelId, $context);
 
         $criteria = new Criteria();
         $criteria->addFilter(new EqualsFilter('name', 'SwagTheme'));
         $appId = $this->appRepo->searchIds($criteria, $context)->firstId();
+        static::assertIsString($appId);
 
-        static::expectException(ThemeAssignmentException::class);
-        /* @phpstan-ignore-next-line */
+        $this->expectException(ThemeAssignmentException::class);
         $this->appStateService->deactivateApp($appId, $context);
     }
 
     public function testAppWithAChildThemeInUseCannotBeDeactivated(): void
     {
-        if (!$this->themeService) {
-            static::markTestSkipped('AppThemeServiceTest needs storefront to be installed.');
-        }
         $context = Context::createDefaultContext();
         $this->loadAppsFromDir(__DIR__ . '/../../Theme/fixtures/Apps/theme');
         $criteria = new Criteria();
         $criteria->addFilter(new EqualsFilter('technicalName', 'SwagTheme'));
-        /* @phpstan-ignore-next-line */
         $themeId = $this->themeRepo->searchIds($criteria, $context)->firstId();
 
         $childId = Uuid::randomHex();
@@ -97,7 +100,6 @@ class AppStateServiceThemeTest extends TestCase
             'active' => true,
         ];
 
-        /* @phpstan-ignore-next-line */
         $this->themeRepo->upsert([[
             'id' => $themeId,
             'dependentThemes' => [$childTheme],
@@ -105,15 +107,14 @@ class AppStateServiceThemeTest extends TestCase
 
         $salesChannelId = $this->createSalesChannel();
 
-        /* @phpstan-ignore-next-line */
         $this->themeService->assignTheme($childId, $salesChannelId, $context);
 
         $criteria = new Criteria();
         $criteria->addFilter(new EqualsFilter('name', 'SwagTheme'));
-        /** @var string $appId */
         $appId = $this->appRepo->searchIds($criteria, $context)->firstId();
+        static::assertIsString($appId);
 
-        static::expectException(ThemeAssignmentException::class);
+        $this->expectException(ThemeAssignmentException::class);
         $this->appStateService->deactivateApp($appId, $context);
     }
 
@@ -124,8 +125,8 @@ class AppStateServiceThemeTest extends TestCase
 
         $criteria = new Criteria();
         $criteria->addFilter(new EqualsFilter('name', 'SwagTheme'));
-        /** @var string $appId */
         $appId = $this->appRepo->searchIds($criteria, $context)->firstId();
+        static::assertIsString($appId);
 
         $eventWasReceived = false;
         $onAppDeactivation = function (AppDeactivatedEvent $event) use (&$eventWasReceived, $appId, $context): void {
@@ -155,8 +156,8 @@ class AppStateServiceThemeTest extends TestCase
 
         $criteria = new Criteria();
         $criteria->addFilter(new EqualsFilter('name', 'SwagTheme'));
-        /** @var string $appId */
         $appId = $this->appRepo->searchIds($criteria, $context)->firstId();
+        static::assertIsString($appId);
 
         $eventWasReceived = false;
         $onAppActivation = function (AppActivatedEvent $event) use (&$eventWasReceived, $appId, $context): void {
@@ -176,11 +177,6 @@ class AppStateServiceThemeTest extends TestCase
 
         // We expect 1 storefront twig template and svg image to be stored in the DB
         $expectedTemplates = 2;
-        if (!$this->themeService) {
-            // if the storefront is not installed we only expect the storefront twig template
-            // as the assets can not be imported without parsing the theme.json file
-            $expectedTemplates = 1;
-        }
         static::assertEquals($expectedTemplates, $this->templateRepo->search($criteria, $context)->getTotal());
 
         $this->eventDispatcher->removeListener(AppActivatedEvent::class, $onAppActivation);
@@ -188,7 +184,7 @@ class AppStateServiceThemeTest extends TestCase
 
     private function createSalesChannel(): string
     {
-        $salesChannelRepository = $this->getContainer()->get('sales_channel.repository');
+        $salesChannelRepository = static::getContainer()->get('sales_channel.repository');
 
         $id = Uuid::randomHex();
         $payload = [[

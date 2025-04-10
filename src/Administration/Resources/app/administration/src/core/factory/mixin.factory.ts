@@ -1,5 +1,5 @@
 /**
- * @package admin
+ * @sw-package framework
  *
  * @module core/factory/mixin
  */
@@ -32,10 +32,7 @@ function getMixinRegistry(): Map<string, unknown> {
  * Register a new mixin
  */
 // eslint-disable-next-line max-len
-function register<T, MixinName extends keyof MixinContainer>(
-    mixinName: MixinName,
-    mixin: T,
-): T {
+function register<T, MixinName extends keyof MixinContainer>(mixinName: MixinName, mixin: T): T {
     if (mixinRegistry.has(mixinName)) {
         warn(
             'MixinFactory',

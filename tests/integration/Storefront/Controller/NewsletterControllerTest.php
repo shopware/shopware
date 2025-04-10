@@ -10,10 +10,10 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelLifecycleManager;
 use Shopware\Core\Framework\Test\TestCaseBase\SalesChannelFunctionalTestBehaviour;
+use Shopware\Core\Framework\Util\Hasher;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Shopware\Core\Test\TestDefaults;
@@ -24,7 +24,7 @@ use Symfony\Component\HttpFoundation\Response;
 /**
  * @internal
  */
-#[Package('buyers-experience')]
+#[Package('after-sales')]
 class NewsletterControllerTest extends TestCase
 {
     use SalesChannelFunctionalTestBehaviour;
@@ -54,7 +54,7 @@ class NewsletterControllerTest extends TestCase
 
         static::assertSame(200, $response->getStatusCode());
 
-        $repo = $this->getContainer()->get('newsletter_recipient.repository');
+        $repo = static::getContainer()->get('newsletter_recipient.repository');
 
         $criteria = new Criteria();
         $criteria->addFilter(new EqualsFilter('email', 'nltest@example.com'));
@@ -67,7 +67,7 @@ class NewsletterControllerTest extends TestCase
 
     public function testRegisterNewsletterForCustomerDoi(): void
     {
-        $systemConfigService = $this->getContainer()->get(SystemConfigService::class);
+        $systemConfigService = static::getContainer()->get(SystemConfigService::class);
         static::assertNotNull($systemConfigService);
         $systemConfigService->set('core.newsletter.doubleOptInRegistered', true);
 
@@ -88,7 +88,7 @@ class NewsletterControllerTest extends TestCase
 
         static::assertSame(200, $response->getStatusCode());
 
-        $repo = $this->getContainer()->get('newsletter_recipient.repository');
+        $repo = static::getContainer()->get('newsletter_recipient.repository');
 
         $criteria = new Criteria();
         $criteria->addFilter(new EqualsFilter('email', 'nltest@example.com'));
@@ -97,7 +97,7 @@ class NewsletterControllerTest extends TestCase
 
         $browser->request(
             'GET',
-            '/newsletter-subscribe?em=' . hash('sha1', 'nltest@example.com') . '&hash=' . $recipientEntry->getHash()
+            '/newsletter-subscribe?em=' . Hasher::hash('nltest@example.com', 'sha1') . '&hash=' . $recipientEntry->getHash()
         );
 
         $response = $browser->getResponse();
@@ -163,12 +163,8 @@ class NewsletterControllerTest extends TestCase
             'customerNumber' => '12345',
         ];
 
-        if (!Feature::isActive('v6.7.0.0')) {
-            $this->customerData['defaultPaymentMethodId'] = $this->getValidPaymentMethodId();
-        }
-
         /** @var EntityRepository<CustomerCollection> $repo */
-        $repo = $this->getContainer()->get('customer.repository');
+        $repo = static::getContainer()->get('customer.repository');
 
         $repo->create([$this->customerData], Context::createDefaultContext());
 

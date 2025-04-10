@@ -4,21 +4,21 @@ import './sw-settings-payment-sorting-modal.scss';
 const { Mixin } = Shopware;
 
 /**
- * @package checkout
+ * @sw-package checkout
  */
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default {
     template,
 
-    compatConfig: Shopware.compatConfig,
-
     inject: [
         'acl',
         'repositoryFactory',
-        'feature',
     ],
 
-    emits: ['modal-close', 'modal-save'],
+    emits: [
+        'modal-close',
+        'modal-save',
+    ],
 
     mixins: [Mixin.getByName('notification')],
 
@@ -65,7 +65,8 @@ export default {
                 return paymentMethod;
             });
 
-            return this.paymentMethodRepository.saveAll(this.sortedPaymentMethods, Shopware.Context.api)
+            return this.paymentMethodRepository
+                .saveAll(this.sortedPaymentMethods, Shopware.Context.api)
                 .then(() => {
                     this.isSaving = false;
                     this.$emit('modal-close');

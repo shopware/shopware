@@ -13,7 +13,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\AggregationResult\Metric
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseHelper\ReflectionHelper;
-use Shopware\Core\Framework\Test\TestDataCollection;
+use Shopware\Core\Test\Stub\Framework\IdsCollection;
 
 /**
  * @internal
@@ -29,7 +29,7 @@ class RangeAggregationTest extends TestCase
 
     protected function setUp(): void
     {
-        $this->repository = $this->getContainer()->get('product.repository');
+        $this->repository = static::getContainer()->get('product.repository');
         $this->context = Context::createDefaultContext();
     }
 
@@ -87,7 +87,7 @@ class RangeAggregationTest extends TestCase
     #[DataProvider('rangeAggregationDataProvider')]
     public function testRangeAggregation(array $rangesDefinition, array $rangesExpectedResult): void
     {
-        $ids = new TestDataCollection();
+        $ids = new IdsCollection();
 
         $data = [
             (new ProductBuilder($ids, 'a'))->price(5, 5)->build(),
@@ -102,7 +102,16 @@ class RangeAggregationTest extends TestCase
 
         $this->repository->create($data, $this->context);
 
-        $criteria = new Criteria();
+        $criteria = new Criteria([
+            $ids->get('a'),
+            $ids->get('b'),
+            $ids->get('c'),
+            $ids->get('d'),
+            $ids->get('e'),
+            $ids->get('f'),
+            $ids->get('g'),
+            $ids->get('h'),
+        ]);
         $criteria->addAggregation(
             new RangeAggregation(
                 'test-range-aggregation',

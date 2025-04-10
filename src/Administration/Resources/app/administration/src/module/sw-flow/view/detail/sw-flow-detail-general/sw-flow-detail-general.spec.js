@@ -1,60 +1,58 @@
 import { mount } from '@vue/test-utils';
+import { createPinia } from 'pinia';
 
 /**
- * @package services-settings
+ * @sw-package after-sales
  */
 
-import flowState from 'src/module/sw-flow/state/flow.state';
-
 async function createWrapper(privileges = [], query = {}) {
-    return mount(await wrapTestComponent('sw-flow-detail-general', {
-        sync: true,
-    }), {
-        global: {
-            provide: {
-                acl: {
-                    can: (identifier) => {
-                        if (!identifier) {
-                            return true;
-                        }
+    return mount(
+        await wrapTestComponent('sw-flow-detail-general', {
+            sync: true,
+        }),
+        {
+            global: {
+                plugins: [createPinia()],
+                provide: {
+                    acl: {
+                        can: (identifier) => {
+                            if (!identifier) {
+                                return true;
+                            }
 
-                        return privileges.includes(identifier);
+                            return privileges.includes(identifier);
+                        },
+                    },
+                    repositoryFactory: {
+                        create: () => ({
+                            create: () => {
+                                return Promise.resolve({});
+                            },
+                        }),
+                    },
+
+                    mocks: {
+                        $route: { params: {}, query: query },
                     },
                 },
-                repositoryFactory: {
-                    create: () => ({
-                        create: () => {
-                            return Promise.resolve({});
-                        },
-                    }),
+                stubs: {
+                    'mt-card': {
+                        template: '<div><slot></slot></div>',
+                    },
+                    'mt-text-field': true,
+                    'mt-textarea': true,
+                    'mt-number-field': true,
+                    'sw-container': {
+                        template: '<div><slot></slot></div>',
+                    },
+                    'mt-switch': true,
                 },
-
-                mocks: {
-                    $route: { params: {}, query: query },
-                },
-            },
-            stubs: {
-                'sw-number-field': true,
-                'sw-card': {
-                    template: '<div><slot></slot></div>',
-                },
-                'sw-text-field': true,
-                'sw-textarea-field': true,
-                'sw-container': {
-                    template: '<div><slot></slot></div>',
-                },
-                'sw-switch-field': true,
-                'sw-alert': true,
             },
         },
-    });
+    );
 }
 
 describe('module/sw-flow/view/detail/sw-flow-detail-general', () => {
-    beforeAll(() => {
-        Shopware.State.registerModule('swFlowState', flowState);
-    });
-
     it('should enabled element when have privilege', async () => {
         const wrapper = await createWrapper([
             'flow.editor',
@@ -68,7 +66,7 @@ describe('module/sw-flow/view/detail/sw-flow-detail-general', () => {
             '.sw-flow-detail-general__general-active',
         ];
 
-        elementClasses.forEach(element => {
+        elementClasses.forEach((element) => {
             const inputElement = wrapper.find(`${element}`);
             expect(inputElement.attributes().disabled).toBeFalsy();
         });
@@ -87,9 +85,9 @@ describe('module/sw-flow/view/detail/sw-flow-detail-general', () => {
             '.sw-flow-detail-general__general-active',
         ];
 
-        elementClasses.forEach(element => {
-            const inputElement = wrapper.find(`${element}`);
-            expect(inputElement.attributes().disabled).toBeTruthy();
+        elementClasses.forEach((element) => {
+            const inputElement = wrapper.find(element);
+            expect(inputElement.attributes('disabled')).toBeDefined();
         });
     });
 

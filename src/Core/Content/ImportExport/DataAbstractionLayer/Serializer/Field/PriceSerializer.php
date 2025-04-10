@@ -18,7 +18,7 @@ use Shopware\Core\Framework\Struct\Struct;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\Currency\CurrencyCollection;
 
-#[Package('core')]
+#[Package('fundamentals@after-sales')]
 class PriceSerializer extends FieldSerializer
 {
     /**

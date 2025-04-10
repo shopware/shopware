@@ -14,7 +14,7 @@ use Symfony\Component\Validator\Constraint;
 /**
  * @phpstan-import-type CustomFieldTypeArray from CustomFieldType
  */
-#[Package('core')]
+#[Package('framework')]
 class AppScriptConditionEntity extends Entity
 {
     use EntityIdTrait;
@@ -38,7 +38,7 @@ class AppScriptConditionEntity extends Entity
      *
      * @var string|array<string, list<Constraint>>|null
      */
-    protected $constraints;
+    protected string|array|null $constraints = null;
 
     /**
      * @var CustomFieldTypeArray|null

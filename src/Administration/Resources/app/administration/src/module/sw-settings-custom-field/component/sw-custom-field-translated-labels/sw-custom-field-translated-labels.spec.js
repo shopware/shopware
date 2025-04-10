@@ -1,7 +1,7 @@
 import { mount } from '@vue/test-utils';
 
 /**
- * @package services-settings
+ * @sw-package framework
  */
 
 const de = 'de-DE';
@@ -21,7 +21,10 @@ const intl = {
 };
 
 const defaultProps = {
-    locales: [en, de],
+    locales: [
+        en,
+        de,
+    ],
     config,
     propertyNames: {
         label1: 'label1',
@@ -31,34 +34,38 @@ const defaultProps = {
 };
 
 async function createWrapper(props = defaultProps) {
-    return mount(await wrapTestComponent('sw-custom-field-translated-labels', { sync: true }), {
-        props,
-        provide: {
-            $root: {
-                $i18n: intl,
+    return mount(
+        await wrapTestComponent('sw-custom-field-translated-labels', {
+            sync: true,
+        }),
+        {
+            props,
+            provide: {
+                $root: {
+                    $i18n: intl,
+                },
+            },
+            global: {
+                stubs: {
+                    'sw-tabs': await wrapTestComponent('sw-tabs'),
+                    'sw-tabs-deprecated': await wrapTestComponent('sw-tabs-deprecated', { sync: true }),
+                    'sw-text-field': await wrapTestComponent('sw-text-field'),
+                    'sw-text-field-deprecated': await wrapTestComponent('sw-text-field-deprecated', { sync: true }),
+                    'sw-contextual-field': await wrapTestComponent('sw-contextual-field'),
+                    'sw-block-field': await wrapTestComponent('sw-block-field'),
+                    'sw-base-field': await wrapTestComponent('sw-base-field'),
+                    'sw-field-error': await wrapTestComponent('sw-field-error'),
+                    'sw-tabs-item': await wrapTestComponent('sw-tabs-item'),
+                    'sw-ai-copilot-badge': true,
+                    'sw-field-copyable': true,
+                    'sw-inheritance-switch': true,
+                    'sw-help-text': true,
+                    'sw-extension-component-section': true,
+                    'router-link': true,
+                },
             },
         },
-        global: {
-            stubs: {
-                'sw-tabs': await wrapTestComponent('sw-tabs'),
-                'sw-tabs-deprecated': await wrapTestComponent('sw-tabs-deprecated', { sync: true }),
-                'sw-text-field': await wrapTestComponent('sw-text-field'),
-                'sw-text-field-deprecated': await wrapTestComponent('sw-text-field-deprecated', { sync: true }),
-                'sw-contextual-field': await wrapTestComponent('sw-contextual-field'),
-                'sw-block-field': await wrapTestComponent('sw-block-field'),
-                'sw-base-field': await wrapTestComponent('sw-base-field'),
-                'sw-field-error': await wrapTestComponent('sw-field-error'),
-                'sw-tabs-item': await wrapTestComponent('sw-tabs-item'),
-                'sw-ai-copilot-badge': true,
-                'sw-field-copyable': true,
-                'sw-inheritance-switch': true,
-                'sw-help-text': true,
-                'sw-icon': true,
-                'sw-extension-component-section': true,
-                'router-link': true,
-            },
-        },
-    });
+    );
 }
 
 describe('src/module/sw-settings-custom-field/component/sw-custom-field-translated-labels', () => {
@@ -70,7 +77,7 @@ describe('src/module/sw-settings-custom-field/component/sw-custom-field-translat
         await flushPromises();
 
         expect(wrapper.find('.sw-custom-field-translated-labels__single').exists()).toBe(true);
-        expect(wrapper.findAll('.sw-field')).toHaveLength(2);
+        expect(wrapper.findAll('.mt-field')).toHaveLength(2);
     });
 
     it.each([
@@ -102,11 +109,15 @@ describe('src/module/sw-settings-custom-field/component/sw-custom-field-translat
 
         expect(wrapper.findAll('.sw-custom-field-translated-labels__translated-labels-field')).toHaveLength(2);
         expect(wrapper.findAll('.sw-custom-field-translated-labels__translated-content-field')).toHaveLength(2);
-        expect(wrapper.findAll('.sw-custom-field-translated-labels__translated-content-field')[0].attributes('label')).toBe('label1 (locale.en-GB)');
+        expect(
+            wrapper.findAllComponents('.sw-custom-field-translated-labels__translated-content-field')[0].props('label'),
+        ).toBe('label1 (locale.en-GB)');
 
         await wrapper.findAll('.sw-custom-field-translated-labels__translated-labels-field')[1].trigger('click');
         expect(wrapper.findAll('.sw-custom-field-translated-labels__translated-content-field')).toHaveLength(2);
-        expect(wrapper.findAll('.sw-custom-field-translated-labels__translated-content-field')[0].attributes('label')).toBe('label1 (locale.de-DE)');
+        expect(
+            wrapper.findAllComponents('.sw-custom-field-translated-labels__translated-content-field')[0].props('label'),
+        ).toBe('label1 (locale.de-DE)');
     });
 
     it('should update multiple locales with tabs', async () => {

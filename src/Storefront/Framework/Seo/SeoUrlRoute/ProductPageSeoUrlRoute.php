@@ -14,8 +14,9 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\SalesChannelEntity;
+use Shopware\Storefront\Framework\StorefrontFrameworkException;
 
-#[Package('buyers-experience')]
+#[Package('inventory')]
 class ProductPageSeoUrlRoute implements SeoUrlRouteInterface
 {
     final public const ROUTE_NAME = 'frontend.detail.page';
@@ -42,12 +43,13 @@ class ProductPageSeoUrlRoute implements SeoUrlRouteInterface
     {
         $criteria->addFilter(new EqualsFilter('active', true));
         $criteria->addFilter(new EqualsFilter('visibilities.salesChannelId', $salesChannel->getId()));
+        $criteria->addAssociation('options.group');
     }
 
     public function getMapping(Entity $product, ?SalesChannelEntity $salesChannel): SeoUrlMapping
     {
         if (!$product instanceof ProductEntity && !$product instanceof PartialEntity) {
-            throw new \InvalidArgumentException('Expected ProductEntity');
+            throw StorefrontFrameworkException::invalidArgument('SEO URL Mapping expects argument to be a ProductEntity');
         }
 
         $categories = $product->get('mainCategories') ?? null;

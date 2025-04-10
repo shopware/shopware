@@ -13,7 +13,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\Contract\RuleIdAware;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCustomFieldsTrait;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityIdTrait;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\DeliveryTime\DeliveryTimeEntity;
 use Shopware\Core\System\SalesChannel\SalesChannelCollection;
@@ -32,107 +31,47 @@ class ShippingMethodEntity extends Entity implements IdAware, RuleIdAware
     final public const POSITION_DEFAULT = 1;
     final public const ACTIVE_DEFAULT = false;
 
-    /**
-     * @var string|null
-     */
-    protected $name;
+    protected ?string $name = null;
 
-    /**
-     * @var bool
-     */
-    protected $active;
+    protected ?bool $active = null;
 
-    /**
-     * @var int
-     */
-    protected $position;
+    protected ?int $position = null;
 
-    /**
-     * @var string|null
-     */
-    protected $description;
+    protected ?string $description = null;
 
-    /**
-     * @var string|null
-     */
-    protected $trackingUrl;
+    protected ?string $trackingUrl = null;
 
-    /**
-     * @var string
-     */
-    protected $deliveryTimeId;
+    protected string $deliveryTimeId;
 
-    /**
-     * @var DeliveryTimeEntity|null
-     */
-    protected $deliveryTime;
+    protected ?DeliveryTimeEntity $deliveryTime = null;
 
-    /**
-     * @var ShippingMethodTranslationCollection|null
-     */
-    protected $translations;
+    protected ?ShippingMethodTranslationCollection $translations = null;
 
-    /**
-     * @var OrderDeliveryCollection|null
-     */
-    protected $orderDeliveries;
+    protected ?OrderDeliveryCollection $orderDeliveries = null;
 
-    /**
-     * @var SalesChannelCollection|null
-     */
-    protected $salesChannelDefaultAssignments;
+    protected ?SalesChannelCollection $salesChannelDefaultAssignments = null;
 
-    /**
-     * @var SalesChannelCollection|null
-     */
-    protected $salesChannels;
+    protected ?SalesChannelCollection $salesChannels = null;
 
-    /**
-     * @var RuleEntity|null
-     */
-    protected $availabilityRule;
+    protected ?RuleEntity $availabilityRule = null;
 
     protected ?string $availabilityRuleId = null;
 
-    /**
-     * @var ShippingMethodPriceCollection
-     */
-    protected $prices;
+    protected ShippingMethodPriceCollection $prices;
 
-    /**
-     * @var string|null
-     */
-    protected $mediaId;
+    protected ?string $mediaId = null;
 
-    /**
-     * @var string|null
-     */
-    protected $taxId;
+    protected ?string $taxId = null;
 
-    /**
-     * @var MediaEntity|null
-     */
-    protected $media;
+    protected ?MediaEntity $media = null;
 
-    /**
-     * @var TagCollection|null
-     */
-    protected $tags;
+    protected ?TagCollection $tags = null;
 
-    /**
-     * @var string
-     */
-    protected $taxType;
+    protected string $taxType;
 
-    /**
-     * @deprecated tag:v6.7.0 - will not be nullable
-     */
-    protected ?string $technicalName = null;
+    protected string $technicalName;
 
-    /**
-     * @var TaxEntity|null
-     */
-    protected $tax;
+    protected ?TaxEntity $tax = null;
 
     protected ?AppShippingMethodEntity $appShippingMethod = null;
 
@@ -151,7 +90,7 @@ class ShippingMethodEntity extends Entity implements IdAware, RuleIdAware
         $this->name = $name;
     }
 
-    public function getActive(): bool
+    public function getActive(): ?bool
     {
         return $this->active;
     }
@@ -161,7 +100,7 @@ class ShippingMethodEntity extends Entity implements IdAware, RuleIdAware
         $this->active = $active;
     }
 
-    public function getPosition(): int
+    public function getPosition(): ?int
     {
         return $this->position;
     }
@@ -331,27 +270,13 @@ class ShippingMethodEntity extends Entity implements IdAware, RuleIdAware
         $this->taxType = $taxType;
     }
 
-    /**
-     * @deprecated tag:v6.7.0 - reason:return-type-change - return type will not be nullable
-     */
-    public function getTechnicalName(): ?string
+    public function getTechnicalName(): string
     {
-        if (!$this->technicalName) {
-            Feature::triggerDeprecationOrThrow('v6.7.0.0', 'Parameter `technical_name` will be required');
-        }
-
         return $this->technicalName;
     }
 
-    /**
-     * @deprecated tag:v6.7.0 - reason:parameter-type-change - parameter type will not be nullable
-     */
-    public function setTechnicalName(?string $technicalName): void
+    public function setTechnicalName(string $technicalName): void
     {
-        if (!$technicalName) {
-            Feature::triggerDeprecationOrThrow('v6.7.0.0', 'Parameter `technical_name` will be required');
-        }
-
         $this->technicalName = $technicalName;
     }
 

@@ -13,7 +13,7 @@ use Symfony\Component\Console\Tester\CommandTester;
 /**
  * @internal
  */
-#[Package('services-settings')]
+#[Package('framework')]
 #[CoversClass(FeatureListCommand::class)]
 class FeatureListCommandTest extends TestCase
 {

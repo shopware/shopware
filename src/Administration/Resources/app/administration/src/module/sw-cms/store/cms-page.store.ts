@@ -1,57 +1,26 @@
-// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
-export type CmsPageState = {
-    state: {
-        currentPage: null | EntitySchema.Entity<'cms_page'>,
-        currentPageType: null | string,
-        currentMappingEntity: null | string,
-        currentMappingTypes: Record<string, unknown>,
-        currentDemoEntity: unknown,
-        currentDemoProducts: unknown[],
-        pageEntityName: string,
-        defaultMediaFolderId: null | string,
-        currentCmsDeviceView: 'desktop' | 'tablet-landscape' | 'mobile' | 'form',
-        selectedSection: null | EntitySchema.Entity<'cms_section'>,
-        selectedBlock: null | EntitySchema.Entity<'cms_block'>,
-        isSystemDefaultLanguage: boolean,
-    },
-    actions: {
-        setCurrentPage: (page: EntitySchema.Entity<'cms_page'>) => void,
-        removeCurrentPage: () => void,
-        setCurrentPageType: (type: string) => void,
-        setCurrentMappingEntity: (entity: string) => void,
-        removeCurrentMappingEntity: () => void,
-        setCurrentMappingTypes: (types: Record<string, unknown>) => void,
-        removeCurrentMappingTypes: () => void,
-        setCurrentDemoEntity: (entity: unknown) => void,
-        removeCurrentDemoEntity: () => void,
-        setCurrentDemoProducts: (products: unknown[]) => void,
-        removeCurrentDemoProducts: () => void,
-        setPageEntityName: (entity: string) => void,
-        removePageEntityName: () => void,
-        setDefaultMediaFolderId: (folderId: string) => void,
-        removeDefaultMediaFolderId: () => void,
-        setCurrentCmsDeviceView: (view: CmsPageState['state']['currentCmsDeviceView']) => void,
-        removeCurrentCmsDeviceView: () => void,
-        setSelectedSection: (section: EntitySchema.Entity<'cms_section'>) => void,
-        removeSelectedSection: () => void,
-        setSelectedBlock: (block: EntitySchema.Entity<'cms_block'>) => void,
-        removeSelectedBlock: () => void,
-        setIsSystemDefaultLanguage: (isSystemDefaultLanguage: boolean) => void,
-        resetCmsPageState: () => void,
-        setSection: (section: EntitySchema.Entity<'cms_section'>) => void,
-        setBlock: (block: EntitySchema.Entity<'cms_block'>) => void,
-    },
-    getters: unknown,
-}
+type CmsPageState = {
+    currentPage: null | Entity<'cms_page'>;
+    currentPageType: null | string;
+    currentMappingEntity: null | string;
+    currentMappingTypes: Record<string, unknown>;
+    currentDemoEntity: unknown;
+    currentDemoProducts: unknown[];
+    pageEntityName: string;
+    defaultMediaFolderId: null | string;
+    currentCmsDeviceView: 'desktop' | 'tablet-landscape' | 'mobile' | 'form';
+    selectedSection: null | Entity<'cms_section'>;
+    selectedBlock: null | Entity<'cms_block'>;
+    isSystemDefaultLanguage: boolean;
+};
 
 /**
  * @private
- * @package buyers-experience
+ * @sw-package discovery
  */
-Shopware.Store.register({
-    id: 'cmsPageState',
+const cmsPageStore = Shopware.Store.register({
+    id: 'cmsPage',
 
-    state: (): CmsPageState['state'] => ({
+    state: (): CmsPageState => ({
         currentPage: null,
         currentPageType: null,
         currentMappingEntity: null,
@@ -67,7 +36,7 @@ Shopware.Store.register({
     }),
 
     actions: {
-        setCurrentPage(page: EntitySchema.Entity<'cms_page'>) {
+        setCurrentPage(page: Entity<'cms_page'>) {
             this.currentPage = page;
         },
 
@@ -127,7 +96,7 @@ Shopware.Store.register({
             this.defaultMediaFolderId = null;
         },
 
-        setCurrentCmsDeviceView(view: CmsPageState['state']['currentCmsDeviceView']) {
+        setCurrentCmsDeviceView(view: CmsPageState['currentCmsDeviceView']) {
             this.currentCmsDeviceView = view;
         },
 
@@ -135,7 +104,7 @@ Shopware.Store.register({
             this.currentCmsDeviceView = 'desktop';
         },
 
-        setSelectedSection(section: EntitySchema.Entity<'cms_section'>) {
+        setSelectedSection(section: Entity<'cms_section'>) {
             this.selectedSection = section;
         },
 
@@ -143,7 +112,7 @@ Shopware.Store.register({
             this.selectedSection = null;
         },
 
-        setSelectedBlock(block: EntitySchema.Entity<'cms_block'>) {
+        setSelectedBlock(block: Entity<'cms_block'>) {
             this.selectedBlock = block;
         },
 
@@ -163,14 +132,24 @@ Shopware.Store.register({
             this.removeCurrentDemoProducts();
         },
 
-        setSection(section: EntitySchema.Entity<'cms_section'>) {
+        setSection(section: Entity<'cms_section'>) {
             this.removeSelectedBlock();
             this.setSelectedSection(section);
         },
 
-        setBlock(block: EntitySchema.Entity<'cms_block'>) {
+        setBlock(block: Entity<'cms_block'>) {
             this.removeSelectedSection();
             this.setSelectedBlock(block);
         },
     },
 });
+
+/**
+ * @private
+ */
+export type CmsPageStore = ReturnType<typeof cmsPageStore>;
+
+/**
+ * @private
+ */
+export default cmsPageStore;

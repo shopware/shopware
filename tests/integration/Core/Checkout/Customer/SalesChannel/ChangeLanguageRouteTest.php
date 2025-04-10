@@ -8,10 +8,11 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\Routing\RoutingException;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
-use Shopware\Core\Framework\Test\TestDataCollection;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Test\Integration\Traits\CustomerTestTrait;
+use Shopware\Core\Test\Stub\Framework\IdsCollection;
 use Symfony\Bundle\FrameworkBundle\KernelBrowser;
 
 /**
@@ -26,11 +27,11 @@ class ChangeLanguageRouteTest extends TestCase
 
     private KernelBrowser $browser;
 
-    private TestDataCollection $ids;
+    private IdsCollection $ids;
 
     protected function setUp(): void
     {
-        $this->ids = new TestDataCollection();
+        $this->ids = new IdsCollection();
 
         $this->browser = $this->createCustomSalesChannelBrowser([
             'id' => $this->ids->create('sales-channel'),
@@ -51,14 +52,14 @@ class ChangeLanguageRouteTest extends TestCase
         $response = json_decode((string) $this->browser->getResponse()->getContent(), true, 512, \JSON_THROW_ON_ERROR);
 
         static::assertArrayHasKey('errors', $response);
-        static::assertSame('CHECKOUT__CUSTOMER_NOT_LOGGED_IN', $response['errors'][0]['code']);
+        static::assertSame(RoutingException::CUSTOMER_NOT_LOGGED_IN_CODE, $response['errors'][0]['code']);
     }
 
     public function testValidLanguage(): void
     {
         $languageId = $this->getDeDeLanguageId();
 
-        $this->getContainer()->get('sales_channel.repository')->update(
+        static::getContainer()->get('sales_channel.repository')->update(
             [
                 [
                     'id' => $this->ids->get('sales-channel'),
@@ -88,7 +89,7 @@ class ChangeLanguageRouteTest extends TestCase
         static::assertArrayHasKey('success', $response);
 
         /** @var Connection $connection */
-        $connection = $this->getContainer()->get(Connection::class);
+        $connection = static::getContainer()->get(Connection::class);
         $customer = $connection->fetchAllAssociative('SELECT * FROM customer WHERE id = :id', ['id' => Uuid::fromHexToBytes($id)]);
 
         static::assertEquals($languageId, Uuid::fromBytesToHex($customer[0]['language_id']));
@@ -115,7 +116,7 @@ class ChangeLanguageRouteTest extends TestCase
         static::assertEquals('The "language" entity with id "' . $languageId . '" does not exist.', $response['errors'][0]['detail']);
 
         /** @var Connection $connection */
-        $connection = $this->getContainer()->get(Connection::class);
+        $connection = static::getContainer()->get(Connection::class);
         $customer = $connection->fetchAllAssociative('SELECT * FROM customer WHERE id = :id', ['id' => Uuid::fromHexToBytes($id)]);
 
         static::assertEquals(Defaults::LANGUAGE_SYSTEM, Uuid::fromBytesToHex($customer[0]['language_id']));

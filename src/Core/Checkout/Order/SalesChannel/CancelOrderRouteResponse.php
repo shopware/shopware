@@ -6,19 +6,12 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\StoreApiResponse;
 use Shopware\Core\System\StateMachine\Aggregation\StateMachineState\StateMachineStateEntity;
 
+/**
+ * @extends StoreApiResponse<StateMachineStateEntity>
+ */
 #[Package('checkout')]
 class CancelOrderRouteResponse extends StoreApiResponse
 {
-    /**
-     * @var StateMachineStateEntity
-     */
-    protected $object;
-
-    public function __construct(StateMachineStateEntity $object)
-    {
-        parent::__construct($object);
-    }
-
     public function getState(): StateMachineStateEntity
     {
         return $this->object;

@@ -1,15 +1,13 @@
 /**
- * @package services-settings
+ * @sw-package discovery
  *
  * @private
  */
 export default {
-    compatConfig: Shopware.compatConfig,
-
     methods: {
         createdComponent() {
             this.isLoading = true;
-            Shopware.State.commit('context/resetLanguageToDefault');
+            Shopware.Store.get('context').resetLanguageToDefault();
             this.customerGroup = this.customerGroupRepository.create();
             this.isLoading = false;
         },
@@ -27,7 +25,10 @@ export default {
 
                 this.isSaveSuccessful = true;
 
-                this.$router.push({ name: 'sw.settings.customer.group.detail', params: { id: this.customerGroup.id } });
+                this.$router.push({
+                    name: 'sw.settings.customer.group.detail',
+                    params: { id: this.customerGroup.id },
+                });
             } catch (err) {
                 this.isLoading = false;
 

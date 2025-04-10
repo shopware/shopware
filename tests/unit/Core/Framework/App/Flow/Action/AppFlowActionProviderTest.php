@@ -11,11 +11,11 @@ use Shopware\Core\Content\Flow\Dispatching\FlowFactory;
 use Shopware\Core\Content\Flow\Dispatching\Storer\OrderStorer;
 use Shopware\Core\Framework\Adapter\Twig\StringTemplateRenderer;
 use Shopware\Core\Framework\App\Flow\Action\AppFlowActionProvider;
-use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
-use Shopware\Core\Framework\Test\TestDataCollection;
 use Shopware\Core\Framework\Webhook\BusinessEventEncoder;
+use Shopware\Core\Test\Generator;
+use Shopware\Core\Test\Stub\Framework\IdsCollection;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
 /**
@@ -42,27 +42,29 @@ class AppFlowActionProviderTest extends TestCase
         ];
 
         $connection = $this->createMock(Connection::class);
-        $connection->expects(static::once())
+        $connection->expects($this->once())
             ->method('fetchAssociative')
             ->willReturn(
                 ['parameters' => json_encode($params), 'headers' => json_encode($headers)]
             );
 
-        $ids = new TestDataCollection();
+        $ids = new IdsCollection();
         $order = new OrderEntity();
         $order->setId($ids->get('orderId'));
 
         $entitySearchResult = $this->createMock(EntitySearchResult::class);
-        $entitySearchResult->expects(static::once())
+        $entitySearchResult->expects($this->once())
             ->method('get')
             ->willReturn($order);
 
         $orderRepo = $this->createMock(EntityRepository::class);
-        $orderRepo->expects(static::once())
+        $orderRepo->expects($this->once())
             ->method('search')
             ->willReturn($entitySearchResult);
 
-        $awareEvent = new CheckoutOrderPlacedEvent(Context::createDefaultContext(), $order, 'testSalesChannelId');
+        $context = Generator::generateSalesChannelContext();
+
+        $awareEvent = new CheckoutOrderPlacedEvent($context, $order);
 
         $orderStorer = new OrderStorer($orderRepo, $this->createMock(EventDispatcherInterface::class));
 
@@ -70,7 +72,7 @@ class AppFlowActionProviderTest extends TestCase
         $flow->setConfig($config);
 
         $stringTemplateRender = $this->createMock(StringTemplateRenderer::class);
-        $stringTemplateRender->expects(static::exactly(6))
+        $stringTemplateRender->expects($this->exactly(6))
             ->method('render')
             ->willReturnOnConsecutiveCalls(
                 'Text 1',

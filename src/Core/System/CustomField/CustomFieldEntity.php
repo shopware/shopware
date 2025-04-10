@@ -8,52 +8,33 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityIdTrait;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\CustomField\Aggregate\CustomFieldSet\CustomFieldSetEntity;
 
-#[Package('services-settings')]
+#[Package('framework')]
 class CustomFieldEntity extends Entity
 {
     use EntityIdTrait;
 
-    /**
-     * @var string
-     */
-    protected $name;
+    protected string $name;
 
-    /**
-     * @var string
-     */
-    protected $type;
+    protected string $type;
 
     /**
      * @var array<string, mixed>|null
      */
-    protected $config;
+    protected ?array $config = null;
 
-    /**
-     * @var bool
-     */
-    protected $active;
+    protected bool $active;
 
-    /**
-     * @var string|null
-     */
-    protected $customFieldSetId;
+    protected ?string $customFieldSetId = null;
 
-    /**
-     * @var CustomFieldSetEntity|null
-     */
-    protected $customFieldSet;
+    protected ?CustomFieldSetEntity $customFieldSet = null;
 
-    /**
-     * @var ProductSearchConfigFieldCollection|null
-     */
-    protected $productSearchConfigFields;
+    protected ?ProductSearchConfigFieldCollection $productSearchConfigFields = null;
 
-    /**
-     * @var bool
-     */
-    protected $allowCustomerWrite = false;
+    protected bool $allowCustomerWrite = false;
 
     protected bool $allowCartExpose = false;
+
+    protected bool $storeApiAware = true;
 
     public function getName(): string
     {
@@ -149,5 +130,15 @@ class CustomFieldEntity extends Entity
     public function setAllowCartExpose(bool $allowCartExpose): void
     {
         $this->allowCartExpose = $allowCartExpose;
+    }
+
+    public function isStoreApiAware(): bool
+    {
+        return $this->storeApiAware;
+    }
+
+    public function setStoreApiAware(bool $storeApiAware): void
+    {
+        $this->storeApiAware = $storeApiAware;
     }
 }

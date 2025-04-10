@@ -4,7 +4,7 @@
     "definitions": {
         "root": {
             "type": "object",
-            "additionalProperties": false,
+            "additionalProperties": true,
             "properties": {
                 "parameters": {
                     "$ref": "#/definitions/parameters"
@@ -17,6 +17,9 @@
                 },
                 "elasticsearch": {
                     "$ref": "#/definitions/elasticsearch"
+                },
+                "framework": {
+                    "$ref": "#/definitions/framework"
                 }
             },
             "title": "Root"
@@ -102,6 +105,9 @@
                 "messenger": {
                     "$ref": "#/definitions/messenger"
                 },
+                "redis": {
+                    "$ref": "#/definitions/redis"
+                },
                 "usage_data": {
                   "$ref": "#/definitions/usage_data"
                 },
@@ -113,6 +119,9 @@
                 },
                 "feature_toggle": {
                     "$ref": "#/definitions/feature_toggle"
+                },
+                "product_stream": {
+                    "$ref": "#/definitions/product_stream"
                 }
             },
             "title": "Shopware"
@@ -142,12 +151,15 @@
         "usage_data": {
             "type": "object",
             "additionalProperties": false,
+            "collection_enabled": {
+                "type": "boolean"
+            },
             "properties": {
                 "gateway": {
                     "type": "object",
                     "additionalProperties": false,
                     "properties": {
-                        "enable_dispatch": {
+                        "dispatch_enabled": {
                             "type": "boolean"
                         },
                         "base_uri": {
@@ -242,6 +254,16 @@
                 }
             },
             "title": "Feature toggle"
+        },
+        "product_stream": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+                "indexing": {
+                    "type": "boolean"
+                }
+            },
+            "title": "Product Stream"
         },
         "twig": {
             "type": "object",
@@ -367,9 +389,6 @@
                 },
                 "rate_limiter": {
                     "$ref": "#/definitions/rate_limiter"
-                },
-                "jwt_key": {
-                    "$ref": "#/definitions/jwt_key"
                 }
             },
             "title": "API"
@@ -440,6 +459,24 @@
             },
             "title": "Rate limiter config"
         },
+        "redis": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+                "connections": {
+                    "type": "object",
+                    "additionalProperties": {
+                        "type": "object",
+                        "additionalProperties": false,
+                        "properties": {
+                            "dsn": {
+                                "type": "string"
+                            }
+                        }
+                    }
+                }
+            }
+        },
         "api_store": {
             "type": "object",
             "additionalProperties": false,
@@ -453,28 +490,6 @@
                 }
             },
             "title": "API store"
-        },
-        "jwt_key": {
-            "type": "object",
-            "additionalProperties": false,
-            "properties": {
-                "use_app_secret": {
-                    "type": "boolean",
-                    "default": false
-                },
-                "private_key_path": {
-                    "type": "string",
-                    "description": "Path to the private key file."
-                },
-                "private_key_passphrase": {
-                    "type": "string",
-                    "description": "Passphrase for the private key file."
-                },
-                "public_key_path": {
-                    "type": "string",
-                    "description": "Path to the public key file."
-                }
-            }
         },
         "auto_update": {
             "type": "object",
@@ -547,15 +562,19 @@
                     "properties": {
                         "storage": {
                             "type": "string",
-                            "default": "cache",
+                            "default": "mysql",
                             "enum": [
                                 "cache",
-                                "redis"
+                                "redis",
+                                "mysql"
                             ]
                         },
                         "dsn": {
                             "type": "string",
                             "default": "redis://localhost"
+                        },
+                        "connection": {
+                            "type": "string"
                         }
                     }
                 },
@@ -660,6 +679,10 @@
                             "additionalProperties": false,
                             "properties": {
                                 "dsn": {
+                                    "type": "string",
+                                    "deprecationMessage": "The `dsn` option is deprecated and will be removed in v6.7.0 Please use the `connection` option instead."
+                                },
+                                "connection": {
                                     "type": "string"
                                 }
                             }
@@ -691,6 +714,10 @@
                     "additionalProperties": false,
                     "properties": {
                         "dsn": {
+                            "type": "string",
+                            "deprecationMessage": "The `dsn` option is deprecated and will be removed in v6.7.0 Please use the `connection` option instead."
+                        },
+                        "connection": {
                             "type": "string"
                         }
                     }
@@ -929,8 +956,11 @@
                         "php",
                         "x-sendfile",
                         "x-accel"
-                    ],
-                    "type": "string"
+                    ]
+                },
+                "private_local_path_prefix": {
+                    "type": "string",
+                    "description": "Path prefix to be prepended to the path when using a local download strategy"
                 }
             },
             "title": "Filesystem"
@@ -1074,11 +1104,24 @@
                                 "additionalProperties": false,
                                 "properties": {
                                     "url": {
+                                        "type": "string",
+                                        "deprecationMessage": "The `url` option is deprecated and will be removed in v6.7.0 Please use the `connection` option instead."
+                                    },
+                                    "connection": {
                                         "type": "string"
                                     }
                                 },
-                                "required": [
-                                    "url"
+                                "oneOf": [
+                                    {
+                                        "required": [
+                                            "url"
+                                        ]
+                                    },
+                                    {
+                                        "required": [
+                                            "connection"
+                                        ]
+                                    }
                                 ]
                             }
                         },
@@ -1298,6 +1341,38 @@
                         "cert_key_path": {
                             "type": ["boolean", "string"],
                             "default": false
+                        },
+                        "sigV4": {
+                            "type": "object",
+                            "additionalProperties": false,
+                            "properties": {
+                                "enabled": {
+                                    "type": "boolean",
+                                    "default": false
+                                },
+                                "region": {
+                                    "type": ["boolean", "string"],
+                                    "default": false
+                                },
+                                "service": {
+                                    "type": ["boolean", "string"],
+                                    "default": false
+                                },
+                                "credentials_provider": {
+                                    "type": "object",
+                                    "additionalProperties": false,
+                                    "properties": {
+                                        "key_id": {
+                                            "type": ["boolean", "string"],
+                                            "default": false
+                                        },
+                                        "secret_key": {
+                                            "type": ["boolean", "string"],
+                                            "default": false
+                                        }
+                                    }
+                                }
+                            }
                         }
                     }
                 },
@@ -1334,6 +1409,87 @@
                 "dynamic_templates": {
                     "type": "array",
                     "title": "Dynamic Templates Config"
+                }
+            }
+        },
+        "framework": {
+            "type": "object",
+            "additionalProperties": true,
+            "properties": {
+                "trusted_proxies": {
+                    "type": "string",
+                    "default": "",
+                    "description": "A list of IP ranges to be considered as proxies and trust the headers",
+                    "examples": [
+                        "REMOTE_ADDR",
+                        "private_ranges",
+                        "192.0.0.1,10.0.0.0/8"
+                    ]
+                },
+                "trusted_headers": {
+                    "type": "array",
+                    "items": {
+                        "type": "string",
+                        "enum": [
+                            "x-forwarded-for",
+                            "x-forwarded-host",
+                            "x-forwarded-proto",
+                            "x-forwarded-port",
+                            "x-forwarded-prefix"
+                        ]
+                    }
+                },
+                "lock": {
+                    "type": "string",
+                    "default": "flock"
+                },
+                "session": {
+                    "type": "object",
+                    "additionalProperties": true,
+                    "properties": {
+                        "storage_factory_id": {
+                            "type": "string",
+                            "default": "session.storage.factory.native"
+                        },
+                        "handler_id": {
+                            "type": "string",
+                            "default": "",
+                            "examples": [
+                                "redis://localhost"
+                            ]
+                        },
+                        "name": {
+                            "type": "string",
+                            "default": "shop-",
+                            "description": "The cookie name of the session"
+                        },
+                        "cookie_lifetime": {
+                            "type": "integer",
+                            "default": 7200,
+                            "description": "The cookie lifetime of the session"
+                        }
+                    }
+                },
+                "cache": {
+                    "type": "object",
+                    "additionalProperties": true,
+                    "properties": {
+                        "app": {
+                            "type": "string",
+                            "default": "cache.adapter.filesystem"
+                        },
+                        "system": {
+                            "type": "string",
+                            "default": "cache.adapter.filesystem"
+                        },
+                        "default_redis_provider": {
+                            "type": "string",
+                            "default": "redis://localhost",
+                            "examples": [
+                                "redis://%env(REDIS_URL)%"
+                            ]
+                        }
+                    }
                 }
             }
         }

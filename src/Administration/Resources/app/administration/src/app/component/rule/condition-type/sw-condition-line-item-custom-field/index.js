@@ -4,9 +4,10 @@ import './sw-condition-line-item-custom-field.scss';
 const { Component, Mixin } = Shopware;
 const { mapPropertyErrors } = Component.getComponentHelper();
 const { Criteria } = Shopware.Data;
+const { Filter } = Shopware;
 
 /**
- * @package services-settings
+ * @sw-package fundamentals@after-sales
  */
 Component.extend('sw-condition-line-item-custom-field', 'sw-condition-base-line-item', {
     template,
@@ -18,7 +19,6 @@ Component.extend('sw-condition-line-item-custom-field', 'sw-condition-base-line-
     ],
 
     computed: {
-
         /**
          * Fetch custom fields that are related to the previously selected custom field set
          * @returns {Object.Criteria}
@@ -38,7 +38,10 @@ Component.extend('sw-condition-line-item-custom-field', 'sw-condition-base-line-
             },
             set(operator) {
                 this.ensureValueExist();
-                this.condition.value = { ...this.condition.value, operator };
+                this.condition.value = {
+                    ...this.condition.value,
+                    operator,
+                };
             },
         },
 
@@ -49,7 +52,10 @@ Component.extend('sw-condition-line-item-custom-field', 'sw-condition-base-line-
             },
             set(renderedField) {
                 this.ensureValueExist();
-                this.condition.value = { ...this.condition.value, renderedField };
+                this.condition.value = {
+                    ...this.condition.value,
+                    renderedField,
+                };
             },
         },
 
@@ -60,7 +66,10 @@ Component.extend('sw-condition-line-item-custom-field', 'sw-condition-base-line-
             },
             set(selectedField) {
                 this.ensureValueExist();
-                this.condition.value = { ...this.condition.value, selectedField };
+                this.condition.value = {
+                    ...this.condition.value,
+                    selectedField,
+                };
             },
         },
 
@@ -71,7 +80,10 @@ Component.extend('sw-condition-line-item-custom-field', 'sw-condition-base-line-
             },
             set(selectedFieldSet) {
                 this.ensureValueExist();
-                this.condition.value = { ...this.condition.value, selectedFieldSet };
+                this.condition.value = {
+                    ...this.condition.value,
+                    selectedFieldSet,
+                };
             },
         },
 
@@ -82,7 +94,10 @@ Component.extend('sw-condition-line-item-custom-field', 'sw-condition-base-line-
             },
             set(renderedFieldValue) {
                 this.ensureValueExist();
-                this.condition.value = { ...this.condition.value, renderedFieldValue };
+                this.condition.value = {
+                    ...this.condition.value,
+                    renderedFieldValue,
+                };
             },
         },
 
@@ -99,11 +114,17 @@ Component.extend('sw-condition-line-item-custom-field', 'sw-condition-base-line-
         ]),
 
         currentError() {
-            return this.conditionValueRenderedFieldError
-                || this.conditionValueSelectedFieldError
-                || this.conditionValueSelectedFieldSetError
-                || this.conditionValueOperatorError
-                || this.conditionValueRenderedFieldValueError;
+            return (
+                this.conditionValueRenderedFieldError ||
+                this.conditionValueSelectedFieldError ||
+                this.conditionValueSelectedFieldSetError ||
+                this.conditionValueOperatorError ||
+                this.conditionValueRenderedFieldValueError
+            );
+        },
+
+        truncateFilter() {
+            return Filter.getByName('truncate');
         },
     },
 

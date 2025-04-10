@@ -22,7 +22,7 @@ use Symfony\Contracts\Translation\TranslatorInterface;
 /**
  * @internal
  */
-#[Package('storefront')]
+#[Package('framework')]
 #[CoversClass(CartMergedSubscriber::class)]
 class CartMergedSubscriberTest extends TestCase
 {
@@ -35,7 +35,7 @@ class CartMergedSubscriberTest extends TestCase
         $requestStack->push($request);
 
         $translator = $this->createMock(TranslatorInterface::class);
-        $translator->expects(static::once())
+        $translator->expects($this->once())
             ->method('trans')
             ->with('checkout.cart-merged-hint')
             ->willReturn('checkout.cart-merged-hint');
@@ -66,7 +66,7 @@ class CartMergedSubscriberTest extends TestCase
         $requestStack->push($request);
 
         $translator = $this->createMock(TranslatorInterface::class);
-        $translator->expects(static::never())->method('trans');
+        $translator->expects($this->never())->method('trans');
 
         $subscriber = new CartMergedSubscriber($translator, $requestStack);
 
@@ -83,7 +83,7 @@ class CartMergedSubscriberTest extends TestCase
         $requestStack = new RequestStack();
 
         $translator = $this->createMock(TranslatorInterface::class);
-        $translator->expects(static::never())->method('trans');
+        $translator->expects($this->never())->method('trans');
 
         $subscriber = new CartMergedSubscriber($translator, $requestStack);
 
@@ -103,7 +103,7 @@ class CartMergedSubscriberTest extends TestCase
         $requestStack->push($request);
 
         $translator = $this->createMock(TranslatorInterface::class);
-        $translator->expects(static::never())->method('trans');
+        $translator->expects($this->never())->method('trans');
 
         $subscriber = new CartMergedSubscriber($translator, $requestStack);
 
@@ -115,7 +115,7 @@ class CartMergedSubscriberTest extends TestCase
     private function createCartMergedEvent(): CartMergedEvent
     {
         $currentContextToken = 'currentToken';
-        $currentContext = Generator::createSalesChannelContext(token: $currentContextToken);
+        $currentContext = Generator::generateSalesChannelContext(token: $currentContextToken);
 
         // Create Guest cart
         $previousCart = new Cart($currentContextToken);

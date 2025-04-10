@@ -1,17 +1,11 @@
 name: Bug report 🐛
-description: Existing feature does not behave as expected.
-labels: [Bug]
+description: Errors or flaws in the code are leading to incorrect or unexpected behavior.
+type: Bug
 body:
     - type: markdown
       attributes:
           value: |
               Thanks for taking the time to fill out this bug report!
-    - type: input
-      id: php-version
-      attributes:
-          label: PHP Version
-      validations:
-          required: true
     - type: input
       id: shopware-version
       attributes:
@@ -27,27 +21,16 @@ body:
             - Platform(Default)
             - Extension:Commercial
             - Extension:B2B-Suite
-            - Extension:CINEMA-Theme
-            - Extension:CMS-Professional
+            - Extension:CMS-Extensions
             - Extension:Custom-Products
             - Extension:DHL-App
+            - Extension:Digital-Sales-Room
             - Extension:Dynamic-Access
-            - Extension:Elle-Theme
-            - Extension:Emporium-Theme
-            - Extension:Language-Extensions
+            - Extension:Language-Pack
             - Extension:Migration-Tool
             - Extension:PayPal-Integration
             - Extension:Publisher
-            - Extension:Shape-Theme
-            - Extension:Showroom-Theme
             - Extension:Social-Shopping
-      validations:
-          required: true
-    - type: textarea
-      id: expected-behaviour
-      attributes:
-          label: Expected behaviour
-          description: What did you expect to happen?
       validations:
           required: true
     - type: textarea
@@ -55,6 +38,13 @@ body:
       attributes:
           label: Actual behaviour
           description: Please describe the issue
+      validations:
+          required: true
+    - type: textarea
+      id: expected-behaviour
+      attributes:
+          label: Expected behaviour
+          description: What did you expect to happen?
       validations:
           required: true
     - type: textarea

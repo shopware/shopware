@@ -21,24 +21,15 @@ use Symfony\Contracts\Service\ResetInterface;
 class KernelLifecycleManager
 {
     /**
-     * @var class-string<Kernel>
+     * @var class-string<Kernel>|null
      */
-    protected static $class;
+    protected static ?string $class = null;
 
-    /**
-     * @var Kernel|null
-     */
-    protected static $kernel;
+    protected static ?Kernel $kernel = null;
 
-    /**
-     * @var ClassLoader
-     */
-    protected static $classLoader;
+    protected static ?ClassLoader $classLoader = null;
 
-    /**
-     * @var Connection|null
-     */
-    protected static $connection;
+    protected static ?Connection $connection = null;
 
     public static function prepare(ClassLoader $classLoader): void
     {
@@ -47,6 +38,10 @@ class KernelLifecycleManager
 
     public static function getClassLoader(): ClassLoader
     {
+        if (self::$classLoader === null) {
+            throw new \InvalidArgumentException('No class loader set. Please call KernelLifecycleManager::prepare');
+        }
+
         return self::$classLoader;
     }
 

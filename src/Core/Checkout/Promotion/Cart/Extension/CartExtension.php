@@ -5,7 +5,7 @@ namespace Shopware\Core\Checkout\Promotion\Cart\Extension;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Struct\Struct;
 
-#[Package('buyers-experience')]
+#[Package('checkout')]
 class CartExtension extends Struct
 {
     /**
@@ -17,12 +17,12 @@ class CartExtension extends Struct
     /**
      * @var array<string>
      */
-    protected $addedCodes = [];
+    protected array $addedCodes = [];
 
     /**
      * @var array<string>
      */
-    protected $blockedPromotionIds = [];
+    protected array $blockedPromotionIds = [];
 
     public function addCode(string $code): void
     {

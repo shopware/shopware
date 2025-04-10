@@ -4,6 +4,7 @@ namespace Shopware\Core\Checkout\Promotion\DataAbstractionLayer;
 
 use Shopware\Core\Checkout\Promotion\Aggregate\PromotionIndividualCode\PromotionIndividualCodeDefinition;
 use Shopware\Core\Checkout\Promotion\Event\PromotionIndexerEvent;
+use Shopware\Core\Checkout\Promotion\PromotionCollection;
 use Shopware\Core\Checkout\Promotion\PromotionDefinition;
 use Shopware\Core\Framework\Api\Context\AdminApiSource;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\Common\IteratorFactory;
@@ -15,7 +16,7 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
-#[Package('buyers-experience')]
+#[Package('checkout')]
 class PromotionIndexer extends EntityIndexer
 {
     final public const EXCLUSION_UPDATER = 'promotion.exclusion';
@@ -23,6 +24,8 @@ class PromotionIndexer extends EntityIndexer
 
     /**
      * @internal
+     *
+     * @param EntityRepository<PromotionCollection> $repository
      */
     public function __construct(
         private readonly IteratorFactory $iteratorFactory,
@@ -72,8 +75,11 @@ class PromotionIndexer extends EntityIndexer
     public function handle(EntityIndexingMessage $message): void
     {
         $ids = $message->getData();
-        $ids = array_unique(array_filter($ids));
+        if (!\is_array($ids)) {
+            return;
+        }
 
+        $ids = array_unique(array_filter($ids));
         if (empty($ids)) {
             return;
         }

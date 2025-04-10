@@ -25,7 +25,7 @@ class TranslatedFieldSerializerTest extends TestCase
 
     protected function setUp(): void
     {
-        $serializer = $this->getContainer()->get(TranslatedFieldSerializer::class);
+        $serializer = static::getContainer()->get(TranslatedFieldSerializer::class);
         static::assertInstanceOf(TranslatedFieldSerializer::class, $serializer);
         $this->serializer = $serializer;
         $this->writeContext = WriteContext::createFromContext(Context::createDefaultContext());
@@ -90,7 +90,7 @@ class TranslatedFieldSerializerTest extends TestCase
     {
         $field = new TranslatedField('description');
         $bag = new WriteParameterBag(
-            $this->getContainer()->get(ProductDefinition::class),
+            static::getContainer()->get(ProductDefinition::class),
             $this->writeContext,
             '',
             new WriteCommandQueue()

@@ -26,9 +26,9 @@
       "indexesOnlySelectLabel": "Indexer und/oder Updater",
       "indexesSkipSelectPlaceholder": "Indexer und/oder Updater auswählen zum Überspringen",
       "indexesOnlySelectPlaceholder": "Indexer und/oder Updater auswählen",
-      "clearDataCachesHeadline": "Datencache löschen",
-      "clearDataCachesText": "Änderungen an nicht wesentlichen Shopdaten (alles, was nicht mit der Preisberechnung zusammenhängt) sind möglicherweise nicht sofort sichtbar. Lösche den Datencache, um Deine letzten Änderungen zu sehen.",
-      "clearDataCachesButton": "Datencache löschen"
+      "clearDataCachesHeadline": "Cache aktualisieren",
+      "clearDataCachesText": "Löscht selektiv nur die zwischengespeicherten Daten, die kürzlich geändert wurden. Verwende diese Option, um Änderungen an Deinen Shopdaten sofort sichtbar zu machen, ohne auf die automatische Cache-Aktualisierung warten zu müssen oder unnötigerweise alle zwischengespeicherten Daten auf einmal löschen zu müssen.",
+      "clearDataCachesButton": "Cache aktualisieren"
     },
     "notifications": {
       "clearCache": {
@@ -50,7 +50,6 @@
       "title": "Cache leeren",
       "message": "Bist Du sicher, dass Du alle Caches leeren möchtest?",
       "actions": {
-        "cancel": "Abbrechen",
         "clear": "Leeren"
       }
     }

@@ -11,7 +11,7 @@ use Symfony\Component\Validator\Constraints\NotBlank;
 use Symfony\Component\Validator\Constraints\NotNull;
 use Symfony\Component\Validator\Constraints\Type;
 
-#[Package('services-settings')]
+#[Package('fundamentals@after-sales')]
 class RuleConstraints
 {
     /**
@@ -68,6 +68,14 @@ class RuleConstraints
     public static function uuids(): array
     {
         return [new NotBlank(), new ArrayOfUuid()];
+    }
+
+    /**
+     * @return array<int, Constraint>
+     */
+    public static function date(): array
+    {
+        return [new NotBlank(), new Type('string')];
     }
 
     /**
@@ -155,7 +163,7 @@ class RuleConstraints
     /**
      * @return array<int, Constraint>
      */
-    public static function datetimeOperators(bool $emptyAllowed = true): array
+    public static function dateOperators(bool $emptyAllowed = true): array
     {
         $operators = [
             Rule::OPERATOR_NEQ,
@@ -174,5 +182,13 @@ class RuleConstraints
             new NotBlank(),
             new Choice($operators),
         ];
+    }
+
+    /**
+     * @return array<int, Constraint>
+     */
+    public static function datetimeOperators(bool $emptyAllowed = true): array
+    {
+        return self::dateOperators($emptyAllowed);
     }
 }

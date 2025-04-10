@@ -53,7 +53,6 @@
         </service>
 
         <service id="Shopware\Core\Checkout\Customer\Validation\CustomerProfileValidationFactory">
-            <argument type="service" id="Shopware\Core\System\Salutation\SalutationDefinition"/>
             <argument type="service" id="Shopware\Core\System\SystemConfig\SystemConfigService"/>
             <argument>%customer.account_types%</argument>
         </service>
@@ -93,7 +92,11 @@
         </service>
 
         <service id="Shopware\Core\Checkout\Customer\Password\LegacyPasswordVerifier">
-            <argument type="tagged" tag="shopware.legacy_encoder" />
+            <argument type="tagged_iterator" tag="shopware.legacy_encoder" />
+        </service>
+
+        <service id="Shopware\Core\Checkout\Customer\Subscriber\AddressHashSubscriber">
+            <tag name="kernel.event_subscriber"/>
         </service>
 
         <service id="Shopware\Core\Checkout\Customer\Subscriber\CustomerMetaFieldSubscriber">
@@ -113,8 +116,9 @@
         </service>
 
         <service id="Shopware\Core\Checkout\Customer\Subscriber\CustomerRemoteAddressSubscriber">
-            <argument type="service" id="customer.repository"/>
+            <argument type="service" id="Doctrine\DBAL\Connection"/>
             <argument type="service" id="request_stack"/>
+            <argument type="service" id="Shopware\Core\System\SystemConfig\SystemConfigService"/>
 
             <tag name="kernel.event_subscriber"/>
         </service>
@@ -143,6 +147,8 @@
             <argument type="service" id="Symfony\Component\EventDispatcher\EventDispatcherInterface" />
             <argument type="service" id="Shopware\Core\System\SalesChannel\Context\SalesChannelContextRestorer" />
             <argument type="service" id="Shopware\Core\Checkout\Customer\DataAbstractionLayer\CustomerIndexer" />
+            <argument type="service" id="Doctrine\DBAL\Connection"/>
+
             <tag name="kernel.event_subscriber"/>
         </service>
 
@@ -191,12 +197,6 @@
             <argument type="service" id="Shopware\Core\System\SystemConfig\SystemConfigService"/>
             <argument type="service" id="Symfony\Component\HttpFoundation\RequestStack"/>
             <argument type="service" id="shopware.rate_limiter"/>
-        </service>
-
-        <service id="Shopware\Core\Checkout\Customer\SalesChannel\ChangePaymentMethodRoute" public="true">
-            <argument type="service" id="customer.repository"/>
-            <argument type="service" id="event_dispatcher"/>
-            <argument type="service" id="payment_method.repository"/>
         </service>
 
         <service id="Shopware\Core\Checkout\Customer\SalesChannel\ChangeCustomerProfileRoute" public="true">
@@ -375,6 +375,10 @@
         <service id="Shopware\Core\Checkout\Customer\Command\DeleteUnusedGuestCustomersCommand">
             <argument type="service" id="Shopware\Core\Checkout\Customer\DeleteUnusedGuestCustomerService" />
             <tag name="console.command" />
+        </service>
+
+        <service id="Shopware\Core\Checkout\Customer\DeleteUnusedGuestCustomerTask">
+            <tag name="shopware.scheduled.task"/>
         </service>
 
         <service id="Shopware\Core\Checkout\Customer\DeleteUnusedGuestCustomerHandler">

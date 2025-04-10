@@ -16,8 +16,8 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\SalesChannelApiTestBehaviour;
-use Shopware\Core\Framework\Test\TestDataCollection;
 use Shopware\Core\Framework\Uuid\Uuid;
+use Shopware\Core\Test\Stub\Framework\IdsCollection;
 
 /**
  * @internal
@@ -32,7 +32,7 @@ class SeoUrlUpdaterTest extends TestCase
     private const PARENT = 'de-DE';
     private const CHILD = 'de-TEST';
 
-    private TestDataCollection $ids;
+    private IdsCollection $ids;
 
     /**
      * @var array<string, mixed>
@@ -48,7 +48,7 @@ class SeoUrlUpdaterTest extends TestCase
     {
         parent::setUp();
 
-        $this->ids = new TestDataCollection();
+        $this->ids = new IdsCollection();
 
         // Get language ids
         $this->ids->set(self::DEFAULT, Defaults::LANGUAGE_SYSTEM);
@@ -108,7 +108,7 @@ class SeoUrlUpdaterTest extends TestCase
     #[DataProvider('seoLanguageDataProvider')]
     public function testSeoLanguageInheritance(array $translations, string $pathInfo): void
     {
-        $this->getContainer()->get(Connection::class)->insert('seo_url_template', [
+        static::getContainer()->get(Connection::class)->insert('seo_url_template', [
             'id' => Uuid::randomBytes(),
             'route_name' => TestProductSeoUrlRoute::ROUTE_NAME,
             'entity_name' => ProductDefinition::ENTITY_NAME,
@@ -124,12 +124,12 @@ class SeoUrlUpdaterTest extends TestCase
             $productBuilder->translation($this->ids->get($translation), 'name', $translation);
         }
 
-        $this->getContainer()->get('product.repository')->create([
+        static::getContainer()->get('product.repository')->create([
             $productBuilder->build(),
         ], Context::createDefaultContext());
 
         // Manually trigger the updater, as the automatic updater triggers only for the storefront routes
-        $this->getContainer()->get(SeoUrlUpdater::class)->update(
+        static::getContainer()->get(SeoUrlUpdater::class)->update(
             TestProductSeoUrlRoute::ROUTE_NAME,
             [$this->ids->get('p1')]
         );
@@ -141,7 +141,7 @@ class SeoUrlUpdaterTest extends TestCase
         $criteria->addFilter(new EqualsFilter('salesChannelId', $this->storefrontSalesChannel['id']));
 
         /** @var SeoUrlEntity $seoUrl */
-        $seoUrl = $this->getContainer()->get('seo_url.repository')->search(
+        $seoUrl = static::getContainer()->get('seo_url.repository')->search(
             $criteria,
             Context::createDefaultContext()
         )->first();
@@ -156,7 +156,7 @@ class SeoUrlUpdaterTest extends TestCase
         $criteria = new Criteria();
         $criteria->addFilter(new EqualsFilter('routeName', TestProductSeoUrlRoute::ROUTE_NAME));
         $criteria->addFilter(new EqualsFilter('salesChannelId', $this->headlessSalesChannel['id']));
-        $seoUrl = $this->getContainer()->get('seo_url.repository')->search(
+        $seoUrl = static::getContainer()->get('seo_url.repository')->search(
             $criteria,
             Context::createDefaultContext()
         )->first();

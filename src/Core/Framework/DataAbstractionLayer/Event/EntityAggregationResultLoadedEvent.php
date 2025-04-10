@@ -9,38 +9,17 @@ use Shopware\Core\Framework\Event\GenericEvent;
 use Shopware\Core\Framework\Event\NestedEvent;
 use Shopware\Core\Framework\Log\Package;
 
-#[Package('core')]
+#[Package('framework')]
 class EntityAggregationResultLoadedEvent extends NestedEvent implements GenericEvent
 {
-    /**
-     * @var AggregationResultCollection
-     */
-    protected $result;
-
-    /**
-     * @var EntityDefinition
-     */
-    protected $definition;
-
-    /**
-     * @var string
-     */
-    protected $name;
-
-    /**
-     * @var Context
-     */
-    protected $context;
+    protected string $name;
 
     public function __construct(
-        EntityDefinition $definition,
-        AggregationResultCollection $result,
-        Context $context
+        protected EntityDefinition $definition,
+        protected AggregationResultCollection $result,
+        protected Context $context
     ) {
-        $this->result = $result;
-        $this->definition = $definition;
         $this->name = $this->definition->getEntityName() . '.aggregation.result.loaded';
-        $this->context = $context;
     }
 
     public function getName(): string

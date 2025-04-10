@@ -6,13 +6,13 @@ use Doctrine\DBAL\ArrayParameterType;
 use Doctrine\DBAL\Connection;
 use Shopware\Core\Content\Product\Events\ProductListingPreviewCriteriaEvent;
 use Shopware\Core\Content\Product\Events\ProductListingResolvePreviewEvent;
+use Shopware\Core\Content\Product\Extension\LoadPreviewExtension;
 use Shopware\Core\Content\Product\Extension\ResolveListingExtension;
 use Shopware\Core\Content\Product\Extension\ResolveListingIdsExtension;
 use Shopware\Core\Content\Product\ProductCollection;
 use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Content\Product\SalesChannel\AbstractProductCloseoutFilterFactory;
 use Shopware\Core\Content\Product\SalesChannel\ProductAvailableFilter;
-use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
@@ -91,11 +91,11 @@ class ProductListingLoader
 
         $mapping = $this->resolvePreviews($ids, $clone, $context);
 
-        $searchResult = $this->resolveData($clone, $mapping, $context);
+        $productSearchResult = $this->resolveData($clone, $mapping, $context);
 
-        $this->addExtensions($idResult, $searchResult, $mapping);
+        $this->addExtensions($idResult, $productSearchResult, $mapping);
 
-        $result = new EntitySearchResult(ProductDefinition::ENTITY_NAME, $idResult->getTotal(), $searchResult->getEntities(), $aggregations, $criteria, $context->getContext());
+        $result = new EntitySearchResult(ProductDefinition::ENTITY_NAME, $idResult->getTotal(), $productSearchResult->getEntities(), $aggregations, $criteria, $context->getContext());
         $result->addState(...$idResult->getStates());
 
         return $result;
@@ -133,20 +133,6 @@ class ProductListingLoader
                 [new EqualsFilter('displayGroup', null)]
             )
         );
-    }
-
-    private function handleAvailableStock(Criteria $criteria, SalesChannelContext $context): void
-    {
-        $salesChannelId = $context->getSalesChannel()->getId();
-
-        $hide = $this->systemConfigService->get('core.listing.hideCloseoutProductsWhenOutOfStock', $salesChannelId);
-
-        if (!$hide) {
-            return;
-        }
-
-        $closeoutFilter = $this->productCloseoutFilterFactory->create($context);
-        $criteria->addFilter($closeoutFilter);
     }
 
     /**
@@ -202,8 +188,16 @@ class ProductListingLoader
 
         // filter inactive and not available variants
         $criteria = new Criteria(array_values($mapping));
-        $criteria->addFilter(new ProductAvailableFilter($context->getSalesChannel()->getId()));
-        $this->handleAvailableStock($criteria, $context);
+        $criteria->addFilter(new ProductAvailableFilter($context->getSalesChannelId()));
+
+        if ($this->systemConfigService->getBool(
+            'core.listing.hideCloseoutProductsWhenOutOfStock',
+            $context->getSalesChannelId()
+        )) {
+            $criteria->addFilter(
+                $this->productCloseoutFilterFactory->create($context)
+            );
+        }
 
         $this->dispatcher->dispatch(
             new ProductListingPreviewCriteriaEvent($criteria, $context)
@@ -239,13 +233,13 @@ class ProductListingLoader
     }
 
     /**
-     * @param EntitySearchResult<ProductCollection> $entities
+     * @param EntitySearchResult<ProductCollection> $productSearchResult
      * @param array<string> $mapping
      */
-    private function addExtensions(IdSearchResult $ids, EntitySearchResult $entities, array $mapping): void
+    private function addExtensions(IdSearchResult $ids, EntitySearchResult $productSearchResult, array $mapping): void
     {
         foreach ($ids->getExtensions() as $name => $extension) {
-            $entities->addExtension($name, $extension);
+            $productSearchResult->addExtension($name, $extension);
         }
 
         /** @var string $id */
@@ -255,15 +249,14 @@ class ProductListingLoader
             }
 
             // current id was mapped to another variant
-            if (!$entities->has($mapping[$id])) {
+            if (!$productSearchResult->has($mapping[$id])) {
                 continue;
             }
 
-            /** @var Entity $entity */
-            $entity = $entities->get($mapping[$id]);
+            $product = $productSearchResult->get($mapping[$id]);
 
             // get access to the data of the search result
-            $entity->addExtension('search', new ArrayEntity($ids->getDataOfId($id)));
+            $product->addExtension('search', new ArrayEntity($ids->getDataOfId($id)));
         }
     }
 
@@ -271,7 +264,14 @@ class ProductListingLoader
     {
         $this->addGrouping($criteria);
 
-        $this->handleAvailableStock($criteria, $context);
+        if ($this->systemConfigService->getBool(
+            'core.listing.hideCloseoutProductsWhenOutOfStock',
+            $context->getSalesChannelId()
+        )) {
+            $criteria->addFilter(
+                $this->productCloseoutFilterFactory->create($context)
+            );
+        }
 
         return $this->productRepository->searchIds($criteria, $context);
     }
@@ -287,7 +287,11 @@ class ProductListingLoader
 
         $hasOptionFilter = $this->hasOptionFilter($criteria);
         if (!$hasOptionFilter) {
-            $mapping = $this->loadPreviews($keys, $context);
+            $mapping = $this->extensions->publish(
+                name: LoadPreviewExtension::NAME,
+                extension: new LoadPreviewExtension($keys, $context),
+                function: $this->loadPreviews(...)
+            );
         }
 
         $event = new ProductListingResolvePreviewEvent($context, $criteria, $mapping, $hasOptionFilter);

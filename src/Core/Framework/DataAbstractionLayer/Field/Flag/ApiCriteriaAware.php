@@ -10,7 +10,7 @@ use Shopware\Core\Framework\Log\Package;
  * Right now a special case for price fields because the raw prices should not be exposed but
  * the field accessor builder of this fields handles the price calculation within sql
  */
-#[Package('core')]
+#[Package('framework')]
 class ApiCriteriaAware extends Flag
 {
     public function parse(): \Generator

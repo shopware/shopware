@@ -26,7 +26,6 @@
 /devenv.* export-ignore
 /docker-compose.yml export-ignore
 /easy-coding-standard.php export-ignore
-/ecs.php export-ignore
 /intellij.yaml export-ignore
 /LICENSE export-ignore
 /phpbench.json export-ignore

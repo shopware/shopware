@@ -1,7 +1,8 @@
 /**
- * @package inventory
+ * @sw-package inventory
  */
 import { mount } from '@vue/test-utils';
+import findByText from '../../../../../test/_helper_/find-by-text';
 
 function getOptions() {
     const options = [
@@ -88,13 +89,10 @@ async function createWrapper() {
                 searchRankingService: {},
             },
             stubs: {
-                'sw-card': await wrapTestComponent('sw-card', { sync: true }),
-                'sw-card-deprecated': await wrapTestComponent('sw-card-deprecated', { sync: true }),
                 'sw-ignore-class': true,
-                'sw-container': await wrapTestComponent('sw-container', { sync: true }),
-                'sw-button': {
-                    template: '<button class="sw-button" @click="$emit(`click`)"></button>',
-                },
+                'sw-container': await wrapTestComponent('sw-container', {
+                    sync: true,
+                }),
                 'sw-simple-search-field': {
                     template: '<div></div>',
                 },
@@ -106,9 +104,6 @@ async function createWrapper() {
                     template: '<div></div>',
                 },
                 'sw-context-button': {
-                    template: '<div></div>',
-                },
-                'sw-icon': {
                     template: '<div></div>',
                 },
                 'sw-property-option-detail': await wrapTestComponent('sw-property-option-detail', { sync: true }),
@@ -123,38 +118,20 @@ async function createWrapper() {
                         </div>
                 `,
                 },
-                'sw-colorpicker': {
-                    template: `
-                    <input class="sw-colorpicker-stub"
-                        :value="value" type="color"
-                        @input="$emit(\'update:value\', $event.target.value)"/>
-                    `,
-                    props: ['value'],
-                    emits: ['update:value'],
-                },
                 'sw-upload-listener': {
                     template: '<div></div>',
                 },
                 'sw-media-compact-upload-v2': {
                     template: '<div></div>',
                 },
-                'sw-number-field': {
+                'mt-number-field': {
                     template: `
-                        <input class="sw-number-field-stub"
-                            :value="value" type="number"
-                            @input="$emit(\'update:value\', $event.target.value)"/>
+                        <input class="mt-number-field-stub"
+                            :value="modelValue" type="number"
+                            @input="$emit(\'update:modelValue\', $event.target.value)"/>
                     `,
-                    props: ['value'],
-                    emits: ['update:value'],
-                },
-                'sw-text-field': {
-                    template: `
-                        <input class="sw-text-field-stub"
-                            :value="value" type="text"
-                            @input="$emit(\'update:value\', $event.target.value)"/>
-                    `,
-                    props: ['value'],
-                    emits: ['update:value'],
+                    props: ['modelValue'],
+                    emits: ['update:modelValue'],
                 },
                 'sw-contextual-field': {
                     template: '<div></div>',
@@ -168,6 +145,7 @@ async function createWrapper() {
                 'sw-data-grid-inline-edit': true,
                 'router-link': true,
                 'sw-data-grid-skeleton': true,
+                'sw-provide': { template: `<slot/>`, inheritAttrs: false },
             },
         },
     });
@@ -191,20 +169,22 @@ describe('module/sw-property/component/sw-property-option-list', () => {
         const modal = wrapper.find('.sw-modal');
 
         // clear color value
-        await modal.get('.sw-text-field-stub').setValue('new name');
-        await modal.get('.sw-number-field-stub').setValue(0);
-        await modal.get('.sw-colorpicker-stub').setValue('#000000');
+        await modal.get('.mt-text-field input').setValue('new name');
+        await modal.get('.mt-number-field-stub').setValue(0);
+        await modal.getComponent('.mt-colorpicker').setValue('#000000');
 
-        await modal.find('button[variant="primary"]').trigger('click');
+        await findByText(modal, 'button', 'global.default.apply').trigger('click');
 
         // waiting for the modal to disappear
         await wrapper.vm.$nextTick();
 
-        expect(wrapper.vm.optionRepository.save).toHaveBeenCalledWith(expect.objectContaining({
-            name: 'new name',
-            position: '0',
-            colorHexCode: '#000000',
-        }));
+        expect(wrapper.vm.optionRepository.save).toHaveBeenCalledWith(
+            expect.objectContaining({
+                name: 'new name',
+                position: '0',
+                colorHexCode: '#000000',
+            }),
+        );
 
         expect(wrapper.find('.modal').exists()).toBe(false);
     });

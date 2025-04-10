@@ -1,14 +1,26 @@
 /**
- * @package inventory
+ * @sw-package inventory
  */
 
 import './acl';
 
 /* eslint-disable max-len, sw-deprecation-rules/private-feature-declarations */
-Shopware.Component.register('sw-settings-product-feature-sets-list', () => import('./page/sw-settings-product-feature-sets-list'));
-Shopware.Component.register('sw-settings-product-feature-sets-detail', () => import('./page/sw-settings-product-feature-sets-detail'));
-Shopware.Component.register('sw-settings-product-feature-sets-values-card', () => import('./component/sw-settings-product-feature-sets-values-card'));
-Shopware.Component.register('sw-settings-product-feature-sets-modal', () => import('./component/sw-settings-product-feature-sets-modal'));
+Shopware.Component.register(
+    'sw-settings-product-feature-sets-list',
+    () => import('./page/sw-settings-product-feature-sets-list'),
+);
+Shopware.Component.register(
+    'sw-settings-product-feature-sets-detail',
+    () => import('./page/sw-settings-product-feature-sets-detail'),
+);
+Shopware.Component.register(
+    'sw-settings-product-feature-sets-values-card',
+    () => import('./component/sw-settings-product-feature-sets-values-card'),
+);
+Shopware.Component.register(
+    'sw-settings-product-feature-sets-modal',
+    () => import('./component/sw-settings-product-feature-sets-modal'),
+);
 /* eslint-enable max-len, sw-deprecation-rules/private-feature-declarations */
 
 const { Module } = Shopware;
@@ -61,7 +73,7 @@ Module.register('sw-settings-product-feature-sets', {
     },
 
     settingsItem: {
-        group: 'shop',
+        group: 'commerce',
         to: 'sw.settings.product.feature.sets.index',
         icon: 'regular-check-square',
         privilege: 'product_feature_sets.viewer',

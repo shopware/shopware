@@ -1,5 +1,5 @@
 /**
- * @package admin
+ * @sw-package framework
  */
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
@@ -43,6 +43,6 @@ export default class MiddlewareHelper {
     go(...args) {
         // @see NEXT-15358 change _recursive_ to iterative stack processing
         // keeping function signature to stay compatible to existing code
-        this.stack.forEach(frame => frame(() => {}, ...args));
+        this.stack.forEach((frame) => frame(() => {}, ...args));
     }
 }

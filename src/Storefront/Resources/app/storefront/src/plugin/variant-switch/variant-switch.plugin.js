@@ -1,13 +1,11 @@
 /*
- * @package inventory
+ * @sw-package inventory
  */
 
 import Plugin from 'src/plugin-system/plugin.class';
 import PageLoadingIndicatorUtil from 'src/utility/loading-indicator/page-loading-indicator.util';
-import DomAccess from 'src/helper/dom-access.helper';
-import Iterator from 'src/helper/iterator.helper';
+/** @deprecated tag:v6.8.0 - HttpClient is deprecated. Use native fetch API instead. */
 import HttpClient from 'src/service/http-client.service';
-import queryString from 'query-string';
 
 /**
  * this plugin submits the variant form
@@ -21,18 +19,21 @@ export default class VariantSwitchPlugin extends Plugin {
         pageType: '',
         radioFieldSelector: '.product-detail-configurator-option-input',
         selectFieldSelector: '.product-detail-configurator-select-input',
+        focusHandlerKey: 'variant-switch',
     };
 
     init() {
+        /** @deprecated tag:v6.8.0 - HttpClient is deprecated. Use native fetch API instead. */
         this._httpClient = new HttpClient();
-        this._radioFields = DomAccess.querySelectorAll(this.el, this.options.radioFieldSelector, false);
-        this._selectFields = DomAccess.querySelectorAll(this.el, this.options.selectFieldSelector, false);
+        this._radioFields = this.el.querySelectorAll(this.options.radioFieldSelector);
+        this._selectFields = this.el.querySelectorAll(this.options.selectFieldSelector);
         this._elementId = this.options.elementId;
         this._pageType = this.options.pageType;
 
         this._ensureFormElement();
         this._preserveCurrentValues();
         this._registerEvents();
+        this._resumeFocusState();
     }
 
     /**
@@ -54,7 +55,7 @@ export default class VariantSwitchPlugin extends Plugin {
      */
     _preserveCurrentValues() {
         if (this._radioFields) {
-            Iterator.iterate(this._radioFields, field => {
+            this._radioFields.forEach(field => {
                 if (VariantSwitchPlugin._isFieldSerializable(field)) {
                     if (field.dataset) {
                         field.dataset.variantSwitchValue = field.value;
@@ -92,12 +93,13 @@ export default class VariantSwitchPlugin extends Plugin {
         };
 
         if (this._elementId && this._pageType !== 'product_detail') {
-            const url = this.options.url + '?' + queryString.stringify({ ...query, elementId: this._elementId });
+            const url = `${this.options.url}?${new URLSearchParams({...query, elementId: this._elementId}).toString()}`;
             document.$emitter.publish('updateBuyWidget', { url, elementId: this._elementId });
 
             return;
         }
 
+        this._saveFocusState(event.target);
         this._redirectToVariant(query);
     }
 
@@ -125,7 +127,7 @@ export default class VariantSwitchPlugin extends Plugin {
     _getFormValue() {
         const serialized = {};
         if (this._radioFields) {
-            Iterator.iterate(this._radioFields, field => {
+            this._radioFields.forEach(field => {
                 if (VariantSwitchPlugin._isFieldSerializable(field)) {
                     if (field.checked) {
                         serialized[field.name] = field.value;
@@ -135,7 +137,7 @@ export default class VariantSwitchPlugin extends Plugin {
         }
 
         if (this._selectFields) {
-            Iterator.iterate(this._selectFields, field => {
+            this._selectFields.forEach(field => {
                 if (VariantSwitchPlugin._isFieldSerializable(field)) {
                     const selectedOption = [...field.options].find(option => option.selected);
                     serialized[field.name] = selectedOption.value;
@@ -165,7 +167,7 @@ export default class VariantSwitchPlugin extends Plugin {
      * @private
      */
     _disableFields() {
-        Iterator.iterate(this._radioFields, field => {
+        this._radioFields.forEach(field => {
             if (field.classList) {
                 field.classList.add('disabled', 'disabled');
             }
@@ -182,11 +184,27 @@ export default class VariantSwitchPlugin extends Plugin {
     _redirectToVariant(data) {
         PageLoadingIndicatorUtil.create();
 
-        const url = this.options.url + '?' + queryString.stringify(data);
+        const url = `${this.options.url}?${new URLSearchParams(data).toString()}`;
 
-        this._httpClient.get(`${url}`, (response) => {
-            const data = JSON.parse(response);
-            window.location.replace(data.url);
-        });
+        fetch(url, {
+            headers: { 'X-Requested-With': 'XMLHttpRequest' },
+        })
+            .then(response => response.json())
+            .then(data => window.location.replace(data.url));
+    }
+
+    /**
+     * @param {HTMLInputElement} inputElement
+     * @private
+     */
+    _saveFocusState(inputElement) {
+        window.focusHandler.saveFocusStatePersistent(this.options.focusHandlerKey, `[id="${inputElement.id}"]`);
+    }
+
+    /**
+     * @private
+     */
+    _resumeFocusState() {
+        window.focusHandler.resumeFocusStatePersistent(this.options.focusHandlerKey);
     }
 }

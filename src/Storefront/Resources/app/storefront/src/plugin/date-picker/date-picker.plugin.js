@@ -1,7 +1,6 @@
 import Plugin from 'src/plugin-system/plugin.class';
 import flatpickr from 'flatpickr';
 import Locales from 'flatpickr/dist/l10n/index';
-import DomAccess from 'src/helper/dom-access.helper';
 
 /**
  * Controls the date picker component
@@ -23,7 +22,7 @@ export default class DatePickerPlugin extends Plugin {
         enableTime: true,
         noCalendar: false,
         weekNumbers: true,
-        allowInput: true,
+        allowInput: false,
         minDate: null,
         maxDate: null,
         locale: 'default',
@@ -58,7 +57,22 @@ export default class DatePickerPlugin extends Plugin {
             ...this.generateFlatpickrOptions(),
         });
 
+        this.setAttributes();
         this.registerEventListeners();
+    }
+
+    /**
+     * Set attributes for the input element
+     *
+     * @returns {void}
+     */
+    setAttributes() {
+        const label = this.el.getAttribute('aria-label');
+        const generatedInput = this.el.nextElementSibling;
+
+        if (generatedInput && label) {
+            generatedInput.setAttribute('aria-label', label);
+        }
     }
 
     /**
@@ -68,17 +82,17 @@ export default class DatePickerPlugin extends Plugin {
      */
     registerEventListeners() {
         if (this.options.selectors.openButton !== null) {
-            this.openButton = DomAccess.querySelector(document, this.options.selectors.openButton);
+            this.openButton = document.querySelector(this.options.selectors.openButton);
             this.openButton.addEventListener('click', this.onOpenButtonClick.bind(this));
         }
 
         if (this.options.selectors.closeButton !== null) {
-            this.closeButton = DomAccess.querySelector(document, this.options.selectors.closeButton);
+            this.closeButton = document.querySelector(this.options.selectors.closeButton);
             this.closeButton.addEventListener('click', this.onCloseButtonClick.bind(this));
         }
 
         if (this.options.selectors.clearButton !== null) {
-            this.clearButton = DomAccess.querySelector(document, this.options.selectors.clearButton);
+            this.clearButton = document.querySelector(this.options.selectors.clearButton);
             this.clearButton.addEventListener('click', this.onClearButtonClick.bind(this));
             this.inputElement.addEventListener('change', this.onInputChange.bind(this));
         }

@@ -1,8 +1,7 @@
 /**
- * @package services-settings
+ * @sw-package checkout
  */
 import { mount } from '@vue/test-utils';
-import swBulkEditState from 'src/module/sw-bulk-edit/state/sw-bulk-edit.state';
 
 async function createWrapper() {
     return mount(await wrapTestComponent('sw-bulk-edit-order-documents-generate-invoice', { sync: true }), {
@@ -17,11 +16,6 @@ async function createWrapper() {
 
 describe('sw-bulk-edit-order-documents-generate-invoice', () => {
     let wrapper;
-
-    beforeAll(() => {
-        Shopware.State.registerModule('swBulkEdit', swBulkEditState);
-    });
-
     beforeEach(async () => {
         wrapper = await createWrapper();
     });
@@ -31,11 +25,13 @@ describe('sw-bulk-edit-order-documents-generate-invoice', () => {
     });
 
     it('should contain a generateData as a computed property', async () => {
-        expect(wrapper.vm.generateData).toEqual(expect.objectContaining({
-            documentComment: null,
-        }));
+        expect(wrapper.vm.generateData).toEqual(
+            expect.objectContaining({
+                documentComment: null,
+            }),
+        );
 
-        Shopware.State.commit('swBulkEdit/setOrderDocumentsValue', {
+        Shopware.Store.get('swBulkEdit').setOrderDocumentsValue({
             type: 'invoice',
             value: {
                 documentDate: 'documentDate',
@@ -43,10 +39,12 @@ describe('sw-bulk-edit-order-documents-generate-invoice', () => {
             },
         });
 
-        expect(wrapper.vm.generateData).toEqual(expect.objectContaining({
-            documentDate: 'documentDate',
-            documentComment: 'documentComment',
-        }));
+        expect(wrapper.vm.generateData).toEqual(
+            expect.objectContaining({
+                documentDate: 'documentDate',
+                documentComment: 'documentComment',
+            }),
+        );
     });
 
     it('should be able to update generateData', async () => {

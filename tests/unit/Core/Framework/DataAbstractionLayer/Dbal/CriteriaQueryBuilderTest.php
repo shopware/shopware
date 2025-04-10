@@ -27,6 +27,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Parser\SqlQueryParser;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Query\ScoreQuery;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Term\EntityScoreQueryBuilder;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Term\SearchTermInterpreter;
+use Shopware\Core\Test\Stub\Doctrine\QueryBuilderDataExtractor;
 
 /**
  * @internal
@@ -53,16 +54,16 @@ class CriteriaQueryBuilderTest extends TestCase
         $parserResult = new ParseResult();
         $parserResult->addWhere('IF(`order`.`name` LIKE :param_018f75fcb173706bb1e5a16110f13c1d, \'500\', 0)');
         $parserResult->addWhere('IF(`order`.`description` LIKE :param_018f766366cf70ce8e487d3cc1b513a6, \'250\', 0)');
-        $parser->expects(static::once())->method('parseRanking')->willReturn($parserResult);
+        $parser->expects($this->once())->method('parseRanking')->willReturn($parserResult);
 
         $whereParserResult1 = new ParseResult();
         $whereParserResult2 = new ParseResult();
         $whereParserResult1->addWhere('`order`.`name` LIKE :param_018f75fcb173706bb1e5a16110f13c1d');
         $whereParserResult2->addWhere('`order`.`description` LIKE :param_018f766366cf70ce8e487d3cc1b513a6');
-        $parser->expects(static::exactly(3))->method('parse')->willReturnOnConsecutiveCalls(new ParseResult(), $whereParserResult1, $whereParserResult2);
+        $parser->expects($this->exactly(3))->method('parse')->willReturnOnConsecutiveCalls(new ParseResult(), $whereParserResult1, $whereParserResult2);
 
         $helper = $this->createMock(EntityDefinitionQueryHelper::class);
-        $helper->expects(static::once())->method('getBaseQuery')->willReturn($queryBuilder);
+        $helper->expects($this->once())->method('getBaseQuery')->willReturn($queryBuilder);
 
         $builder = new CriteriaQueryBuilder(
             $parser,
@@ -82,7 +83,7 @@ class CriteriaQueryBuilderTest extends TestCase
             CompositeExpression::and(
                 '`order`.`name` LIKE :param_018f75fcb173706bb1e5a16110f13c1d OR `order`.`description` LIKE :param_018f766366cf70ce8e487d3cc1b513a6',
             ),
-            $queryBuilder->getQueryPart('where'),
+            QueryBuilderDataExtractor::getWhere($queryBuilder),
         );
     }
 
@@ -100,7 +101,7 @@ class CriteriaQueryBuilderTest extends TestCase
         $parserResult->addWhere('IF(`order`.`name` LIKE :param_018f75fcb173706bb1e5a16110f13c1d, \'500\', 0)');
 
         $parser = $this->createMock(SqlQueryParser::class);
-        $parser->expects(static::once())->method('parseRanking')->willReturn($parserResult);
+        $parser->expects($this->once())->method('parseRanking')->willReturn($parserResult);
 
         $parser->method('parse')->willReturn(new ParseResult());
 
@@ -117,7 +118,7 @@ class CriteriaQueryBuilderTest extends TestCase
         $definition->compile($this->createMock(DefinitionInstanceRegistry::class));
         $builder->build($queryBuilder, $definition, $criteria, Context::createDefaultContext());
 
-        static::assertEmpty($queryBuilder->getQueryPart('where'));
+        static::assertNull(QueryBuilderDataExtractor::getWhere($queryBuilder));
     }
 
     private function returnMockDefinition(): EntityDefinition

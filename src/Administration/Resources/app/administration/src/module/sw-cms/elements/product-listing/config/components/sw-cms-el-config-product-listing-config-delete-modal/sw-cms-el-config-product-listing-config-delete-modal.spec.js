@@ -1,10 +1,13 @@
 /**
- * @package buyers-experience
+ * @sw-package discovery
  */
 import { mount } from '@vue/test-utils';
 import swCmsElConfigProductListingConfigDeleteModal from 'src/module/sw-cms/elements/product-listing/config/components/sw-cms-el-config-product-listing-config-delete-modal';
 
-Shopware.Component.register('sw-cms-el-config-product-listing-config-delete-modal', swCmsElConfigProductListingConfigDeleteModal);
+Shopware.Component.register(
+    'sw-cms-el-config-product-listing-config-delete-modal',
+    swCmsElConfigProductListingConfigDeleteModal,
+);
 async function createWrapper() {
     // Not found in componentregistry
     return mount(await Shopware.Component.build('sw-cms-el-config-product-listing-config-delete-modal'), {
@@ -13,9 +16,6 @@ async function createWrapper() {
             stubs: {
                 'sw-modal': {
                     template: '<div class="sw-modal"><slot name="modal-footer">Test</slot></div>',
-                },
-                'sw-button': {
-                    template: '<div class="sw-button"></div>',
                 },
             },
         },
@@ -49,7 +49,6 @@ describe('src/module/sw-cms/elements/product-listing/config/components/sw-cms-el
 
         expect(wrapper.emitted('confirm')).toBeUndefined();
         expect(wrapper.emitted('cancel')).toBeUndefined();
-
 
         wrapper.findComponent('.sw-cms-el-config-product-listing-config-delete-modal__confirm').vm.$emit('click');
 

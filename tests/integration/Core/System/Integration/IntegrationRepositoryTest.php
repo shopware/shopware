@@ -21,11 +21,11 @@ class IntegrationRepositoryTest extends TestCase
     /**
      * @var EntityRepository<IntegrationCollection>
      */
-    private $repository;
+    private EntityRepository $repository;
 
     protected function setUp(): void
     {
-        $this->repository = $this->getContainer()->get('integration.repository');
+        $this->repository = static::getContainer()->get('integration.repository');
     }
 
     public function testCreationWithAccessKeys(): void

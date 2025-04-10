@@ -1,5 +1,4 @@
 import type { AdminUiDefinition, CustomEntityDefinition } from 'src/app/service/custom-entity-definition.service';
-import type EntityCollection from 'src/core/data/entity-collection.data';
 import type CriteriaType from 'src/core/data/criteria.data';
 import type Repository from 'src/core/data/repository.data';
 
@@ -9,45 +8,43 @@ const { Criteria } = Shopware.Data;
 const types = Shopware.Utils.types;
 
 interface EntityListingColumnConfig {
-    label: string,
-    property: string,
-    routerLink: string,
-    visible: boolean,
+    label: string;
+    property: string;
+    routerLink: string;
+    visible: boolean;
 }
 
 interface ColumnSortEvent {
-    dataIndex: string,
-    naturalSorting: boolean
+    dataIndex: string;
+    naturalSorting: boolean;
 }
 
 interface RouteUpdateOptions {
-    limit?: number,
-    page?: number,
-    term?: string,
-    sortBy?: string,
-    sortDirection?: string,
-    naturalSorting?: boolean
+    limit?: number;
+    page?: number;
+    term?: string;
+    sortBy?: string;
+    sortDirection?: string;
+    naturalSorting?: boolean;
 }
 
-type SortDirectionOptions = 'ASC' | 'DESC'
+type SortDirectionOptions = 'ASC' | 'DESC';
 
 interface RouteParseOptions {
-    limit?: string,
-    page?: string,
-    term?: string,
-    sortBy?: string,
-    sortDirection?: SortDirectionOptions,
-    naturalSorting?: string
+    limit?: string;
+    page?: string;
+    term?: string;
+    sortBy?: string;
+    sortDirection?: SortDirectionOptions;
+    naturalSorting?: string;
 }
 
 /**
  * @private
- * @package content
+ * @sw-package framework
  */
 export default Shopware.Component.wrapComponentConfig({
     template,
-
-    compatConfig: Shopware.compatConfig,
 
     inject: [
         'customEntityDefinitionService',
@@ -57,7 +54,7 @@ export default Shopware.Component.wrapComponentConfig({
 
     data() {
         return {
-            customEntityInstances: null as EntityCollection<'generic_custom_entity'>|null,
+            customEntityInstances: null as EntityCollection<'generic_custom_entity'> | null,
             page: 1,
             limit: 25,
             total: 0,
@@ -95,8 +92,7 @@ export default Shopware.Component.wrapComponentConfig({
                 return null;
             }
 
-            return this.repositoryFactory
-                .create(this.customEntityDefinition.entity as 'generic_custom_entity');
+            return this.repositoryFactory.create(this.customEntityDefinition.entity as 'generic_custom_entity');
         },
 
         adminConfig(): AdminUiDefinition | undefined {
@@ -159,7 +155,7 @@ export default Shopware.Component.wrapComponentConfig({
     },
 
     watch: {
-        '$route'() {
+        $route() {
             if (types.isEmpty(this.$route.query)) {
                 this.updateRoute({});
             }
@@ -198,7 +194,7 @@ export default Shopware.Component.wrapComponentConfig({
         },
 
         onChangeLanguage(languageId: string): void {
-            Shopware.State.commit('context/setApiLanguageId', languageId);
+            Shopware.Store.get('context').setApiLanguageId(languageId);
             void this.getList();
         },
 
@@ -228,7 +224,7 @@ export default Shopware.Component.wrapComponentConfig({
                     term: updates.term || this.term,
                     sortBy: updates.sortBy || this.sortBy,
                     sortDirection: updates.sortDirection || this.sortDirection,
-                    naturalSorting: (updates.naturalSorting || this.naturalSorting) ? 'true' : 'false',
+                    naturalSorting: updates.naturalSorting || this.naturalSorting ? 'true' : 'false',
                 },
             });
         },
@@ -251,7 +247,7 @@ export default Shopware.Component.wrapComponentConfig({
             }
         },
 
-        onPageChange({ page, limit }: { page: number, limit: number }): void {
+        onPageChange({ page, limit }: { page: number; limit: number }): void {
             this.updateRoute({ page, limit });
         },
 

@@ -23,9 +23,10 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Struct\Serializer\StructNormalizer;
-use Shopware\Core\Framework\Test\IdsCollection;
+use Shopware\Core\Framework\Test\Store\StaticInAppPurchaseFactory;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\System\TaxProvider\TaxProviderDefinition;
+use Shopware\Core\Test\Stub\Framework\IdsCollection;
 use Symfony\Component\Serializer\Encoder\JsonEncoder;
 use Symfony\Component\Serializer\Serializer;
 
@@ -63,7 +64,8 @@ class TaxProviderPayloadServiceTest extends TestCase
             $definitionInstanceRegistry,
             $entityEncoder,
             $shopIdProvider,
-            'https://test-shop.com'
+            StaticInAppPurchaseFactory::createWithFeatures(),
+            'https://test-shop.com',
         );
 
         $url = 'https://example.com/provide-tax';
@@ -108,6 +110,8 @@ class TaxProviderPayloadServiceTest extends TestCase
         $payload = new TaxProviderPayload($cart, $salesChannelContext);
 
         $app = new AppEntity();
+        $app->setName('TestApp');
+        $app->setId($this->ids->get('app'));
         $app->setVersion('6.5-dev');
         $app->setAppSecret('very-secret');
 
@@ -163,6 +167,7 @@ class TaxProviderPayloadServiceTest extends TestCase
         $payload = $this->createMock(TaxProviderPayload::class);
 
         $app = new AppEntity();
+        $app->setId($this->ids->get('app'));
         $app->setVersion('6.5-dev');
         $app->setAppSecret('very-secret');
 
@@ -201,6 +206,7 @@ class TaxProviderPayloadServiceTest extends TestCase
             $definitionInstanceRegistry,
             $entityEncoder,
             $shopIdProvider,
+            StaticInAppPurchaseFactory::createWithFeatures(),
             'https://test-shop.com'
         );
 
@@ -208,6 +214,7 @@ class TaxProviderPayloadServiceTest extends TestCase
         $context = new Context(new SystemSource());
 
         $app = new AppEntity();
+        $app->setId($this->ids->get('app'));
         $app->setVersion('6.5-dev');
         $app->setName('Test app');
 

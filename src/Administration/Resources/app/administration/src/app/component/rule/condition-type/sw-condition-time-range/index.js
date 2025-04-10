@@ -6,7 +6,7 @@ const { mapPropertyErrors } = Component.getComponentHelper();
 const defaultTimeValue = '12:00';
 
 /**
- * @package services-settings
+ * @sw-package fundamentals@after-sales
  */
 Component.extend('sw-condition-time-range', 'sw-condition-base', {
     template,
@@ -16,7 +16,6 @@ Component.extend('sw-condition-time-range', 'sw-condition-base', {
             datepickerConfig: {
                 enableTime: true,
                 dateFormat: 'H:i',
-                altFormat: 'H:i',
             },
         };
     },
@@ -53,7 +52,10 @@ Component.extend('sw-condition-time-range', 'sw-condition-base', {
             },
         },
 
-        ...mapPropertyErrors('condition', ['value.fromTime', 'value.toTime']),
+        ...mapPropertyErrors('condition', [
+            'value.fromTime',
+            'value.toTime',
+        ]),
 
         currentError() {
             return this.conditionValueFromTimeError || this.conditionValueToTimeError;

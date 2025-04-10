@@ -64,7 +64,7 @@ class TaxDetector extends AbstractTaxDetector
         }
 
         if (!empty($vatPattern) && $shippingLocationCountry->getCheckVatIdPattern()) {
-            $regex = '/^' . $vatPattern . '$/i';
+            $regex = '/^' . $vatPattern . '$/';
 
             foreach ($vatIds as $vatId) {
                 if (!preg_match($regex, $vatId)) {

@@ -2,7 +2,7 @@
 import type { default as FeatureType } from 'src/core/feature';
 
 /**
- * @package admin
+ * @sw-package framework
  *
  * @module app/feature-service
  */
@@ -18,7 +18,7 @@ export default class FeatureService {
         this.Feature = Feature;
     }
 
-    isActive(flagName: string):boolean {
+    isActive(flagName: string): boolean {
         return this.Feature.isActive(flagName);
     }
 }

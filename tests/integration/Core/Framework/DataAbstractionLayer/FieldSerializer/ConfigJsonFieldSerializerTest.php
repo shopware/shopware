@@ -38,7 +38,7 @@ class ConfigJsonFieldSerializerTest extends TestCase
 
     protected function setUp(): void
     {
-        $this->serializer = $this->getContainer()->get(ConfigJsonFieldSerializer::class);
+        $this->serializer = static::getContainer()->get(ConfigJsonFieldSerializer::class);
         $this->field = new ConfigJsonField('data', 'data');
         $this->field->addFlags(new ApiAware(), new Required());
 

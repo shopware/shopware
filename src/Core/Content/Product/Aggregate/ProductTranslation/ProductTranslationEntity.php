@@ -12,65 +12,35 @@ class ProductTranslationEntity extends TranslationEntity
 {
     use EntityCustomFieldsTrait;
 
-    /**
-     * @var string
-     */
-    protected $productId;
+    protected string $productId;
+
+    protected string $productVersionId;
+
+    protected ?string $metaDescription = null;
+
+    protected ?string $name = null;
+
+    protected ?string $keywords = null;
+
+    protected ?string $description = null;
+
+    protected ?string $metaTitle = null;
+
+    protected ?string $packUnit = null;
+
+    protected ?string $packUnitPlural = null;
+
+    protected ?ProductEntity $product = null;
 
     /**
-     * @var string
+     * @var array<string, mixed>|null
      */
-    protected $productVersionId;
-
-    /**
-     * @var string|null
-     */
-    protected $metaDescription;
-
-    /**
-     * @var string|null
-     */
-    protected $name;
-
-    /**
-     * @var string|null
-     */
-    protected $keywords;
-
-    /**
-     * @var string|null
-     */
-    protected $description;
-
-    /**
-     * @var string|null
-     */
-    protected $metaTitle;
-
-    /**
-     * @var string|null
-     */
-    protected $packUnit;
-
-    /**
-     * @var string|null
-     */
-    protected $packUnitPlural;
-
-    /**
-     * @var ProductEntity|null
-     */
-    protected $product;
-
-    /**
-     * @var array|null
-     */
-    protected $slotConfig;
+    protected ?array $slotConfig = null;
 
     /**
      * @var array<string>|null
      */
-    protected $customSearchKeywords;
+    protected ?array $customSearchKeywords = null;
 
     public function getProductId(): string
     {
@@ -152,11 +122,17 @@ class ProductTranslationEntity extends TranslationEntity
         $this->product = $product;
     }
 
+    /**
+     * @return array<string, mixed>|null
+     */
     public function getSlotConfig(): ?array
     {
         return $this->slotConfig;
     }
 
+    /**
+     * @param array<string, mixed> $slotConfig
+     */
     public function setSlotConfig(array $slotConfig): void
     {
         $this->slotConfig = $slotConfig;
@@ -172,11 +148,17 @@ class ProductTranslationEntity extends TranslationEntity
         $this->metaDescription = $metaDescription;
     }
 
+    /**
+     * @return array<string>|null
+     */
     public function getCustomSearchKeywords(): ?array
     {
         return $this->customSearchKeywords;
     }
 
+    /**
+     * @param array<string>|null $customSearchKeywords
+     */
     public function setCustomSearchKeywords(?array $customSearchKeywords): void
     {
         $this->customSearchKeywords = $customSearchKeywords;

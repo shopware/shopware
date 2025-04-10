@@ -12,30 +12,15 @@ class ProductManufacturerTranslationEntity extends TranslationEntity
 {
     use EntityCustomFieldsTrait;
 
-    /**
-     * @var string
-     */
-    protected $productManufacturerId;
+    protected string $productManufacturerId;
 
-    /**
-     * @var string
-     */
-    protected $productManufacturerVersionId;
+    protected string $productManufacturerVersionId;
 
-    /**
-     * @var string|null
-     */
-    protected $name;
+    protected ?string $name = null;
 
-    /**
-     * @var string|null
-     */
-    protected $description;
+    protected ?string $description = null;
 
-    /**
-     * @var ProductManufacturerEntity|null
-     */
-    protected $productManufacturer;
+    protected ?ProductManufacturerEntity $productManufacturer = null;
 
     public function getProductManufacturerId(): string
     {

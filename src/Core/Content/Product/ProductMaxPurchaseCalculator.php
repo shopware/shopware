@@ -27,13 +27,13 @@ class ProductMaxPurchaseCalculator extends AbstractProductMaxPurchaseCalculator
     {
         $fallback = $this->systemConfigService->getInt(
             'core.cart.maxQuantity',
-            $context->getSalesChannel()->getId()
+            $context->getSalesChannelId()
         );
 
         $max = $product->get('maxPurchase') ?? $fallback;
 
-        if ($product->get('isCloseout') && $product->get('availableStock') < $max) {
-            $max = (int) $product->get('availableStock');
+        if ($product->get('isCloseout') && $product->get('stock') < $max) {
+            $max = (int) $product->get('stock');
         }
 
         $steps = $product->get('purchaseSteps') ?? 1;

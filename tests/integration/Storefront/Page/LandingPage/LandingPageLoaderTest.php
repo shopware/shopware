@@ -11,7 +11,7 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Routing\RoutingException;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
-use Shopware\Core\Framework\Test\TestDataCollection;
+use Shopware\Core\Test\Stub\Framework\IdsCollection;
 use Shopware\Storefront\Page\LandingPage\LandingPage;
 use Shopware\Storefront\Page\LandingPage\LandingPageLoadedEvent;
 use Shopware\Storefront\Page\LandingPage\LandingPageLoader;
@@ -21,13 +21,13 @@ use Symfony\Component\HttpFoundation\Request;
 /**
  * @internal
  */
-#[Package('buyers-experience')]
+#[Package('discovery')]
 class LandingPageLoaderTest extends TestCase
 {
     use IntegrationTestBehaviour;
     use StorefrontPageTestBehaviour;
 
-    private TestDataCollection $ids;
+    private IdsCollection $ids;
 
     public function testLoadWithoutId(): void
     {
@@ -39,7 +39,7 @@ class LandingPageLoaderTest extends TestCase
 
     public function testLoad(): void
     {
-        $this->ids = new TestDataCollection();
+        $this->ids = new IdsCollection();
 
         $request = new Request([], [], [
             'landingPageId' => $this->ids->get('landing-page'),
@@ -65,7 +65,7 @@ class LandingPageLoaderTest extends TestCase
 
     public function testLoadWithInactiveLandingPage(): void
     {
-        $this->ids = new TestDataCollection();
+        $this->ids = new IdsCollection();
 
         $request = new Request([], [], [
             'landingPageId' => $this->ids->create('landing-page'),
@@ -81,7 +81,7 @@ class LandingPageLoaderTest extends TestCase
 
     public function testLoadWithoutCmsPage(): void
     {
-        $this->ids = new TestDataCollection();
+        $this->ids = new IdsCollection();
 
         $request = new Request([], [], [
             'landingPageId' => $this->ids->create('landing-page'),
@@ -100,7 +100,7 @@ class LandingPageLoaderTest extends TestCase
      */
     protected function getPageLoader()
     {
-        return $this->getContainer()->get(LandingPageLoader::class);
+        return static::getContainer()->get(LandingPageLoader::class);
     }
 
     private function createData(bool $isActive = true, bool $withCmsPage = true): void
@@ -140,7 +140,7 @@ class LandingPageLoaderTest extends TestCase
             unset($data['cmsPage']);
         }
 
-        $this->getContainer()->get('landing_page.repository')
+        static::getContainer()->get('landing_page.repository')
             ->create([$data], Context::createDefaultContext());
     }
 }

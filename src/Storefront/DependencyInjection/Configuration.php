@@ -9,7 +9,7 @@ use Shopware\Storefront\Theme\SeedingThemePathBuilder;
 use Symfony\Component\Config\Definition\Builder\TreeBuilder;
 use Symfony\Component\Config\Definition\ConfigurationInterface;
 
-#[Package('storefront')]
+#[Package('framework')]
 class Configuration implements ConfigurationInterface
 {
     public function getConfigTreeBuilder(): TreeBuilder
@@ -26,7 +26,10 @@ class Configuration implements ConfigurationInterface
                         ->scalarNode('theme_path_builder_id')->defaultValue(SeedingThemePathBuilder::class)->end()
                         ->scalarNode('available_theme_provider')->defaultValue(DatabaseAvailableThemeProvider::class)->end()
                         ->integerNode('file_delete_delay')->defaultValue(900)->end()
-                        ->BooleanNode('auto_prefix_css')->defaultFalse()->end()
+                        ->arrayNode('allowed_scss_values')->performNoDeepMerging()
+                            ->scalarPrototype()->end()
+                        ->end()
+                        ->booleanNode('validate_on_compile')->defaultFalse()->end()
                     ->end()
                 ->end()
             ->end();

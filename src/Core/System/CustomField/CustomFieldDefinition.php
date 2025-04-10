@@ -18,7 +18,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\CustomField\Aggregate\CustomFieldSet\CustomFieldSetDefinition;
 
-#[Package('services-settings')]
+#[Package('framework')]
 class CustomFieldDefinition extends EntityDefinition
 {
     final public const ENTITY_NAME = 'custom_field';
@@ -48,6 +48,7 @@ class CustomFieldDefinition extends EntityDefinition
         return [
             'allowCustomerWrites' => false,
             'allowCartExpose' => false,
+            'storeApiAware' => true,
         ];
     }
 
@@ -62,6 +63,7 @@ class CustomFieldDefinition extends EntityDefinition
             new FkField('set_id', 'customFieldSetId', CustomFieldSetDefinition::class),
             new BoolField('allow_customer_write', 'allowCustomerWrite'),
             new BoolField('allow_cart_expose', 'allowCartExpose'),
+            new BoolField('store_api_aware', 'storeApiAware'),
             new ManyToOneAssociationField('customFieldSet', 'set_id', CustomFieldSetDefinition::class, 'id', false),
             (new OneToManyAssociationField('productSearchConfigFields', ProductSearchConfigFieldDefinition::class, 'custom_field_id', 'id'))->addFlags(new CascadeDelete()),
         ]);

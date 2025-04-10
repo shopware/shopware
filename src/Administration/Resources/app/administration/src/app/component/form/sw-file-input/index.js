@@ -7,7 +7,7 @@ const { fileSize } = Shopware.Utils.format;
 const utils = Shopware.Utils;
 
 /**
- * @package admin
+ * @sw-package framework
  *
  * @private
  * @description The <u>sw-file-input</u> component can be used wherever a file input is needed.
@@ -24,8 +24,6 @@ Component.register('sw-file-input', {
     template,
 
     inject: ['feature'],
-
-    compatConfig: Shopware.compatConfig,
 
     emits: ['update:value'],
 
@@ -91,7 +89,10 @@ Component.register('sw-file-input', {
     methods: {
         mountedComponent() {
             if (this.$refs.dropzone) {
-                ['dragover', 'drop'].forEach((event) => {
+                [
+                    'dragover',
+                    'drop',
+                ].forEach((event) => {
                     window.addEventListener(event, this.stopEventPropagation, false);
                 });
                 this.$refs.dropzone.addEventListener('drop', this.onDrop);
@@ -134,10 +135,14 @@ Component.register('sw-file-input', {
 
             this.createNotificationError({
                 title: this.$tc('global.default.error'),
-                message: this.$tc('global.sw-file-input.notification.invalidFileSize.message', 0, {
-                    name: file.name,
-                    limit: fileSize(this.maxFileSize),
-                }),
+                message: this.$tc(
+                    'global.sw-file-input.notification.invalidFileSize.message',
+                    {
+                        name: file.name,
+                        limit: fileSize(this.maxFileSize),
+                    },
+                    0,
+                ),
             });
             return false;
         },
@@ -149,10 +154,14 @@ Component.register('sw-file-input', {
 
             this.createNotificationError({
                 title: this.$tc('global.default.error'),
-                message: this.$tc('global.sw-file-input.notification.invalidFileType.message', 0, {
-                    name: file.name,
-                    supportedTypes: this.allowedMimeTypes.join(', '),
-                }),
+                message: this.$tc(
+                    'global.sw-file-input.notification.invalidFileType.message',
+                    {
+                        name: file.name,
+                        supportedTypes: this.allowedMimeTypes.join(', '),
+                    },
+                    0,
+                ),
             });
             return false;
         },

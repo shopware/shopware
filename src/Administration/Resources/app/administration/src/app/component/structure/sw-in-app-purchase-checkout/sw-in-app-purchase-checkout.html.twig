@@ -1,0 +1,12 @@
+{% block sw_in_app_purchase_checkout_modal %}
+<sw-modal
+    v-if="entry"
+    class="sw-in-app-purchase-checkout"
+    :title="$tc('sw-in-app-purchase-checkout.exsTitle')"
+    @modal-close="closeModal"
+>
+    <sw-extension-store-landing-page
+        :inside-modal="true"
+    />
+</sw-modal>
+{% endblock %}

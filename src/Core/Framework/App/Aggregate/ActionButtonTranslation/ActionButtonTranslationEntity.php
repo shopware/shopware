@@ -11,35 +11,20 @@ use Shopware\Core\System\Language\LanguageEntity;
 /**
  * @internal
  */
-#[Package('core')]
+#[Package('framework')]
 class ActionButtonTranslationEntity extends Entity
 {
     use EntityIdTrait;
 
-    /**
-     * @var string
-     */
-    protected $label;
+    protected string $label;
 
-    /**
-     * @var string
-     */
-    protected $appActionButtonId;
+    protected string $appActionButtonId;
 
-    /**
-     * @var string
-     */
-    protected $languageId;
+    protected string $languageId;
 
-    /**
-     * @var ActionButtonEntity|null
-     */
-    protected $appActionButton;
+    protected ?ActionButtonEntity $appActionButton = null;
 
-    /**
-     * @var LanguageEntity|null
-     */
-    protected $language;
+    protected ?LanguageEntity $language = null;
 
     public function getLabel(): ?string
     {

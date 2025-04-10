@@ -14,19 +14,21 @@ use Shopware\Storefront\Theme\StorefrontPluginConfiguration\StorefrontPluginConf
 use Shopware\Storefront\Theme\StorefrontPluginConfiguration\StorefrontPluginConfigurationCollection;
 use Shopware\Storefront\Theme\Struct\ThemeDependencies;
 
-#[Package('storefront')]
+#[Package('framework')]
 class ThemeLifecycleHandler
 {
     public const STATE_SKIP_THEME_COMPILATION = 'skip-theme-compilation';
 
     /**
      * @internal
+     *
+     * @param EntityRepository<ThemeCollection> $themeRepository
      */
     public function __construct(
         private readonly ThemeLifecycleService $themeLifecycleService,
         private readonly ThemeService $themeService,
         private readonly EntityRepository $themeRepository,
-        private readonly StorefrontPluginRegistryInterface $storefrontPluginRegistry,
+        private readonly StorefrontPluginRegistry $storefrontPluginRegistry,
         private readonly Connection $connection
     ) {
     }
@@ -74,6 +76,23 @@ class ThemeLifecycleHandler
                 $configurationCollection
             );
         }
+    }
+
+    public function deactivateTheme(StorefrontPluginConfiguration $config, Context $context): ?string
+    {
+        $themeId = null;
+        if ($config->getIsTheme()) {
+            $themeData = $this->getThemeDataByTechnicalName($config->getTechnicalName());
+            $themeId = $themeData->getId();
+
+            // throw an exception if theme is still assigned to a sales channel
+            $this->validateThemeAssignment($themeId);
+
+            // set active = false in the database to theme and all children
+            $this->changeThemeActive($themeData, false, $context);
+        }
+
+        return $themeId;
     }
 
     /**
@@ -210,22 +229,5 @@ class ThemeLifecycleHandler
             $childThemeSalesChannel,
             $salesChannels
         );
-    }
-
-    public function deactivateTheme(StorefrontPluginConfiguration $config, Context $context): ?string
-    {
-        $themeId = null;
-        if ($config->getIsTheme()) {
-            $themeData = $this->getThemeDataByTechnicalName($config->getTechnicalName());
-            $themeId = $themeData->getId();
-
-            // throw an exception if theme is still assigned to a sales channel
-            $this->validateThemeAssignment($themeId);
-
-            // set active = false in the database to theme and all children
-            $this->changeThemeActive($themeData, false, $context);
-        }
-
-        return $themeId;
     }
 }

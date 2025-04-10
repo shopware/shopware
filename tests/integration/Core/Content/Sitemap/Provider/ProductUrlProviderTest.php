@@ -29,12 +29,14 @@ use Symfony\Component\Routing\RouterInterface;
 /**
  * @internal
  */
-#[Package('services-settings')]
+#[Package('discovery')]
 class ProductUrlProviderTest extends TestCase
 {
     use AdminApiTestBehaviour;
     use IntegrationTestBehaviour;
     use StorefrontSalesChannelTestHelper;
+
+    private const CONFIG_EXCLUDE_LINKED_PRODUCTS = 'core.sitemap.excludeLinkedProducts';
 
     private const CONFIG_HIDE_AFTER_CLOSEOUT = 'core.listing.hideCloseoutProductsWhenOutOfStock';
 
@@ -48,13 +50,13 @@ class ProductUrlProviderTest extends TestCase
 
     protected function setUp(): void
     {
-        if (!$this->getContainer()->has(ProductPageSeoUrlRoute::class)) {
+        if (!static::getContainer()->has(ProductPageSeoUrlRoute::class)) {
             static::markTestSkipped('NEXT-16799: Sitemap module has a dependency on storefront routes');
         }
 
-        $this->productRepository = $this->getContainer()->get('product.repository');
-        $this->seoUrlPlaceholderHandler = $this->getContainer()->get(SeoUrlPlaceholderHandlerInterface::class);
-        $this->systemConfigService = $this->getContainer()->get(SystemConfigService::class);
+        $this->productRepository = static::getContainer()->get('product.repository');
+        $this->seoUrlPlaceholderHandler = static::getContainer()->get(SeoUrlPlaceholderHandlerInterface::class);
+        $this->systemConfigService = static::getContainer()->get(SystemConfigService::class);
 
         $this->salesChannelContext = $this->createStorefrontSalesChannelContext(Uuid::randomHex(), 'test-product-sitemap');
     }
@@ -212,15 +214,35 @@ class ProductUrlProviderTest extends TestCase
         static::assertCount(1, $urlResult->getUrls());
     }
 
+    public function testContainsHiddenProducts(): void
+    {
+        $this->systemConfigService->set(self::CONFIG_EXCLUDE_LINKED_PRODUCTS, false, $this->salesChannelContext->getSalesChannelId());
+        $this->createHiddenVisibilityProduct();
+
+        $urlResult = $this->getProductUrlProvider()->getUrls($this->salesChannelContext, 1);
+
+        static::assertCount(1, $urlResult->getUrls());
+    }
+
+    public function testContainsNoHiddenProducts(): void
+    {
+        $this->systemConfigService->set(self::CONFIG_EXCLUDE_LINKED_PRODUCTS, true, $this->salesChannelContext->getSalesChannelId());
+        $this->createHiddenVisibilityProduct();
+
+        $urlResult = $this->getProductUrlProvider()->getUrls($this->salesChannelContext, 1);
+
+        static::assertCount(0, $urlResult->getUrls());
+    }
+
     private function getProductUrlProvider(): ProductUrlProvider
     {
         return new ProductUrlProvider(
-            $this->getContainer()->get(ConfigHandler::class),
-            $this->getContainer()->get(Connection::class),
-            $this->getContainer()->get(ProductDefinition::class),
-            $this->getContainer()->get(IteratorFactory::class),
-            $this->getContainer()->get(RouterInterface::class),
-            $this->getContainer()->get(SystemConfigService::class)
+            static::getContainer()->get(ConfigHandler::class),
+            static::getContainer()->get(Connection::class),
+            static::getContainer()->get(ProductDefinition::class),
+            static::getContainer()->get(IteratorFactory::class),
+            static::getContainer()->get(RouterInterface::class),
+            static::getContainer()->get(SystemConfigService::class)
         );
     }
 
@@ -231,7 +253,7 @@ class ProductUrlProviderTest extends TestCase
     {
         $products = $this->getProductTestData();
 
-        $this->getContainer()->get('product.repository')->create($products, $this->salesChannelContext->getContext());
+        static::getContainer()->get('product.repository')->create($products, $this->salesChannelContext->getContext());
 
         return $products;
     }
@@ -311,7 +333,7 @@ class ProductUrlProviderTest extends TestCase
             'tax' => ['id' => $taxId],
             'manufacturer' => ['name' => 'test'],
             'visibilities' => [
-                ['salesChannelId' => $this->salesChannelContext->getSalesChannel()->getId(), 'visibility' => ProductVisibilityDefinition::VISIBILITY_ALL],
+                ['salesChannelId' => $this->salesChannelContext->getSalesChannelId(), 'visibility' => ProductVisibilityDefinition::VISIBILITY_ALL],
             ],
         ];
     }
@@ -331,6 +353,24 @@ class ProductUrlProviderTest extends TestCase
                 'name' => 'test 2',
                 'isCloseout' => true,
                 'stock' => 0,
+            ]),
+        ];
+        $this->productRepository->create($products, $this->salesChannelContext->getContext());
+    }
+
+    private function createHiddenVisibilityProduct(): void
+    {
+        $products = [
+            array_merge($this->getBasicProductData(), [
+                'id' => Uuid::randomHex(),
+                'productNumber' => Uuid::randomHex(),
+                'name' => 'test 1',
+                'visibilities' => [
+                    [
+                        'salesChannelId' => $this->salesChannelContext->getSalesChannelId(),
+                        'visibility' => ProductVisibilityDefinition::VISIBILITY_LINK,
+                    ],
+                ],
             ]),
         ];
         $this->productRepository->create($products, $this->salesChannelContext->getContext());

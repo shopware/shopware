@@ -16,10 +16,7 @@ class RedisInvalidatorStorageTest extends TestCase
 {
     private RedisInvalidatorStorage $storage;
 
-    /**
-     * @var \Redis
-     */
-    private $redis;
+    private \Redis $redis;
 
     protected function setUp(): void
     {

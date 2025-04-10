@@ -12,30 +12,15 @@ class ShippingMethodTranslationEntity extends TranslationEntity
 {
     use EntityCustomFieldsTrait;
 
-    /**
-     * @var string
-     */
-    protected $shippingMethodId;
+    protected string $shippingMethodId;
 
-    /**
-     * @var string|null
-     */
-    protected $name;
+    protected ?string $name = null;
 
-    /**
-     * @var string|null
-     */
-    protected $description;
+    protected ?string $description = null;
 
-    /**
-     * @var string|null
-     */
-    protected $trackingUrl;
+    protected ?string $trackingUrl = null;
 
-    /**
-     * @var ShippingMethodEntity|null
-     */
-    protected $shippingMethod;
+    protected ?ShippingMethodEntity $shippingMethod = null;
 
     public function getShippingMethodId(): string
     {

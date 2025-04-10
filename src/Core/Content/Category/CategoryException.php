@@ -9,7 +9,7 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\ShopwareHttpException;
 use Symfony\Component\HttpFoundation\Response;
 
-#[Package('inventory')]
+#[Package('discovery')]
 class CategoryException extends HttpException
 {
     public const SERVICE_CATEGORY_NOT_FOUND = 'CHECKOUT__SERVICE_CATEGORY_NOT_FOUND';

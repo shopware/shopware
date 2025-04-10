@@ -8,13 +8,8 @@ use Shopware\Core\Framework\Util\FloatComparator;
 #[Package('checkout')]
 class ReferencePrice extends ReferencePriceDefinition
 {
-    /**
-     * @var float
-     */
-    protected $price;
-
     public function __construct(
-        float $price,
+        protected float $price,
         float $purchaseUnit,
         float $referenceUnit,
         string $unitName

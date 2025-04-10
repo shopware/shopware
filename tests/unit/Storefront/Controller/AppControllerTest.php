@@ -19,19 +19,19 @@ class AppControllerTest extends TestCase
     public function testGenerate(): void
     {
         $appJWTGenerateRoute = $this->createMock(AppJWTGenerateRoute::class);
-        $appJWTGenerateRoute->expects(static::once())->method('generate')->with('test');
+        $appJWTGenerateRoute->expects($this->once())->method('generate')->with('test');
 
         $controller = new AppController($appJWTGenerateRoute);
-        $controller->generateToken('test', Generator::createSalesChannelContext());
+        $controller->generateToken('test', Generator::generateSalesChannelContext());
     }
 
     public function testGenerateFails(): void
     {
         $appJWTGenerateRoute = $this->createMock(AppJWTGenerateRoute::class);
-        $appJWTGenerateRoute->expects(static::once())->method('generate')->willThrowException(AppException::jwtGenerationRequiresCustomerLoggedIn());
+        $appJWTGenerateRoute->expects($this->once())->method('generate')->willThrowException(AppException::jwtGenerationRequiresCustomerLoggedIn());
 
         $controller = new AppController($appJWTGenerateRoute);
-        $response = $controller->generateToken('test', Generator::createSalesChannelContext());
+        $response = $controller->generateToken('test', Generator::generateSalesChannelContext());
         static::assertSame(Response::HTTP_BAD_REQUEST, $response->getStatusCode());
         $data = json_decode((string) $response->getContent(), true, 512, \JSON_THROW_ON_ERROR);
         static::assertArrayHasKey('message', $data);

@@ -16,55 +16,25 @@ class OrderDeliveryPositionEntity extends Entity
     use EntityCustomFieldsTrait;
     use EntityIdTrait;
 
-    /**
-     * @var string
-     */
-    protected $orderDeliveryId;
+    protected string $orderDeliveryId;
 
-    /**
-     * @var string
-     */
-    protected $orderLineItemId;
+    protected string $orderLineItemId;
 
-    /**
-     * @var CalculatedPrice|null
-     */
-    protected $price;
+    protected ?CalculatedPrice $price = null;
 
-    /**
-     * @var float
-     */
-    protected $unitPrice;
+    protected float $unitPrice;
 
-    /**
-     * @var float
-     */
-    protected $totalPrice;
+    protected float $totalPrice;
 
-    /**
-     * @var int
-     */
-    protected $quantity;
+    protected int $quantity;
 
-    /**
-     * @var OrderLineItemEntity|null
-     */
-    protected $orderLineItem;
+    protected ?OrderLineItemEntity $orderLineItem = null;
 
-    /**
-     * @var OrderDeliveryEntity|null
-     */
-    protected $orderDelivery;
+    protected ?OrderDeliveryEntity $orderDelivery = null;
 
-    /**
-     * @var string
-     */
-    protected $orderDeliveryVersionId;
+    protected string $orderDeliveryVersionId;
 
-    /**
-     * @var string
-     */
-    protected $orderLineItemVersionId;
+    protected string $orderLineItemVersionId;
 
     public function getOrderDeliveryId(): string
     {

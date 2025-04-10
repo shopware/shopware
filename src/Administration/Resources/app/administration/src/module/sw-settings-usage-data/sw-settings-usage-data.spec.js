@@ -1,5 +1,5 @@
 /**
- * @package services-settings
+ * @sw-package framework
  */
 
 import 'src/module/sw-settings-usage-data';

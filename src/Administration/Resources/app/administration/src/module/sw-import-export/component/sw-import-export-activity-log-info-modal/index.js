@@ -1,5 +1,5 @@
 /**
- * @package services-settings
+ * @sw-package fundamentals@after-sales
  */
 import template from './sw-import-export-activity-log-info-modal.html.twig';
 import './sw-import-export-activity-log-info-modal.scss';
@@ -12,8 +12,6 @@ const { format } = Shopware.Utils;
  */
 export default {
     template,
-
-    compatConfig: Shopware.compatConfig,
 
     inject: ['importExport'],
 

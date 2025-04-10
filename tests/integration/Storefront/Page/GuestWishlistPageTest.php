@@ -32,6 +32,6 @@ class GuestWishlistPageTest extends TestCase
 
     protected function getPageLoader(): GuestWishlistPageLoader
     {
-        return $this->getContainer()->get(GuestWishlistPageLoader::class);
+        return static::getContainer()->get(GuestWishlistPageLoader::class);
     }
 }

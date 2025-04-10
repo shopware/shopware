@@ -40,15 +40,14 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\PrefixFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Validation\ParentRelationValidator;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteException;
-use Shopware\Core\Framework\Test\IdsCollection;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\QueueTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseHelper\CallableClass;
-use Shopware\Core\Framework\Test\TestDataCollection;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Framework\Validation\WriteConstraintViolationException;
 use Shopware\Core\System\Tax\TaxDefinition;
 use Shopware\Core\System\Tax\TaxEntity;
+use Shopware\Core\Test\Stub\Framework\IdsCollection;
 use Shopware\Core\Test\TestDefaults;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
@@ -78,9 +77,9 @@ class ProductRepositoryTest extends TestCase
 
     protected function setUp(): void
     {
-        $this->repository = $this->getContainer()->get('product.repository');
-        $this->eventDispatcher = $this->getContainer()->get('event_dispatcher');
-        $this->connection = $this->getContainer()->get(Connection::class);
+        $this->repository = static::getContainer()->get('product.repository');
+        $this->eventDispatcher = static::getContainer()->get('event_dispatcher');
+        $this->connection = static::getContainer()->get(Connection::class);
         $this->context = Context::createDefaultContext();
     }
 
@@ -115,7 +114,7 @@ class ProductRepositoryTest extends TestCase
     {
         $id = Uuid::randomHex();
 
-        $this->getContainer()->get('currency.repository')->create(
+        static::getContainer()->get('currency.repository')->create(
             [
                 [
                     'id' => $id,
@@ -590,7 +589,7 @@ class ProductRepositoryTest extends TestCase
 
         // check nested events are triggered
         $listener = $this->getMockBuilder(CallableClass::class)->getMock();
-        $listener->expects(static::exactly(2))->method('__invoke');
+        $listener->expects($this->exactly(2))->method('__invoke');
         $this->eventDispatcher->addListener('product.written', $listener);
         $this->eventDispatcher->addListener('product_manufacturer.written', $listener);
 
@@ -608,7 +607,7 @@ class ProductRepositoryTest extends TestCase
 
         // validate that nested events are triggered
         $listener = $this->getMockBuilder(CallableClass::class)->getMock();
-        $listener->expects(static::exactly(2))->method('__invoke');
+        $listener->expects($this->exactly(2))->method('__invoke');
         $this->eventDispatcher->addListener('product.loaded', $listener);
         $this->eventDispatcher->addListener('product_manufacturer.loaded', $listener);
 
@@ -640,7 +639,7 @@ class ProductRepositoryTest extends TestCase
         $ruleA = Uuid::randomHex();
         $ruleB = Uuid::randomHex();
 
-        $this->getContainer()->get('rule.repository')->create([
+        static::getContainer()->get('rule.repository')->create([
             ['id' => $ruleA, 'name' => 'test', 'priority' => 1],
             ['id' => $ruleB, 'name' => 'test', 'priority' => 2],
         ], Context::createDefaultContext());
@@ -712,7 +711,7 @@ class ProductRepositoryTest extends TestCase
         $ruleA = Uuid::randomHex();
         $ruleB = Uuid::randomHex();
 
-        $this->getContainer()->get('rule.repository')->create([
+        static::getContainer()->get('rule.repository')->create([
             ['id' => $ruleA, 'name' => 'test', 'priority' => 1],
             ['id' => $ruleB, 'name' => 'test', 'priority' => 2],
         ], $context);
@@ -779,7 +778,7 @@ class ProductRepositoryTest extends TestCase
         $ruleA = Uuid::randomHex();
         $ruleB = Uuid::randomHex();
 
-        $this->getContainer()->get('rule.repository')->create([
+        static::getContainer()->get('rule.repository')->create([
             ['id' => $ruleA, 'name' => 'test', 'priority' => 1],
             ['id' => $ruleB, 'name' => 'test', 'priority' => 2],
         ], $context);
@@ -845,7 +844,7 @@ class ProductRepositoryTest extends TestCase
 
         $ruleA = Uuid::randomHex();
 
-        $this->getContainer()->get('rule.repository')->create([
+        static::getContainer()->get('rule.repository')->create([
             ['id' => $ruleA, 'name' => 'test', 'priority' => 1],
         ], Context::createDefaultContext());
 
@@ -1140,6 +1139,7 @@ class ProductRepositoryTest extends TestCase
 
         $criteria = new Criteria([$child]);
         $criteria->addAssociation('manufacturer');
+        $criteria->addAssociation('tax');
         $products = $this->repository->search($criteria, Context::createDefaultContext())->getEntities();
         static::assertTrue($products->has($child));
         $product = $products->get($child);
@@ -1242,6 +1242,7 @@ class ProductRepositoryTest extends TestCase
 
         $criteria = new Criteria([$child]);
         $criteria->addAssociation('manufacturer');
+        $criteria->addAssociation('tax');
 
         $products = $this->repository->search($criteria, Context::createDefaultContext())->getEntities();
         static::assertTrue($products->has($child));
@@ -1868,7 +1869,7 @@ class ProductRepositoryTest extends TestCase
         $criteria = new Criteria();
         $criteria->addFilter(new EqualsFilter('category.products.price', $greenPrice['gross']));
 
-        $repository = $this->getContainer()->get('category.repository');
+        $repository = static::getContainer()->get('category.repository');
         $categories = $repository->searchIds($criteria, $context);
 
         static::assertSame(1, $categories->getTotal());
@@ -1880,7 +1881,7 @@ class ProductRepositoryTest extends TestCase
             new EqualsFilter('category.products.parentId', null),
         ]));
 
-        $repository = $this->getContainer()->get('category.repository');
+        $repository = static::getContainer()->get('category.repository');
         $categories = $repository->searchIds($criteria, $context);
 
         static::assertSame(1, $categories->getTotal());
@@ -1936,7 +1937,7 @@ class ProductRepositoryTest extends TestCase
         $criteria = new Criteria();
         $criteria->addFilter(new EqualsFilter('category.products.name', 'Parent'));
 
-        $repo = $this->getContainer()->get('category.repository');
+        $repo = static::getContainer()->get('category.repository');
         $result = $repo->search($criteria, $this->context);
         static::assertCount(1, $result);
         static::assertTrue($result->has($parentId));
@@ -2005,7 +2006,7 @@ class ProductRepositoryTest extends TestCase
         $criteria = new Criteria();
         $criteria->addFilter(new EqualsFilter('product_manufacturer.products.price', $greenPrice['gross']));
 
-        $result = $this->getContainer()->get('product_manufacturer.repository')->searchIds($criteria, $context);
+        $result = static::getContainer()->get('product_manufacturer.repository')->searchIds($criteria, $context);
 
         static::assertSame(1, $result->getTotal());
         static::assertContains($manufacturerId, $result->getIds());
@@ -2034,7 +2035,7 @@ class ProductRepositoryTest extends TestCase
             ],
         ];
 
-        $repository = $this->getContainer()->get('category.repository');
+        $repository = static::getContainer()->get('category.repository');
 
         $repository->create($categories, Context::createDefaultContext());
 
@@ -2071,7 +2072,7 @@ class ProductRepositoryTest extends TestCase
             ],
         ];
 
-        $repository = $this->getContainer()->get('product_manufacturer.repository');
+        $repository = static::getContainer()->get('product_manufacturer.repository');
 
         $repository->create($manufacturers, Context::createDefaultContext());
 
@@ -2266,7 +2267,7 @@ class ProductRepositoryTest extends TestCase
 
         $cmsPageId = Uuid::randomHex();
 
-        $this->getContainer()->get('cms_page.repository')->create(
+        static::getContainer()->get('cms_page.repository')->create(
             [
                 [
                     'id' => $cmsPageId,
@@ -2304,7 +2305,7 @@ class ProductRepositoryTest extends TestCase
         $ruleA = Uuid::randomHex();
         $ruleB = Uuid::randomHex();
 
-        $this->getContainer()->get('rule.repository')->create([
+        static::getContainer()->get('rule.repository')->create([
             ['id' => $ruleA, 'name' => 'test', 'priority' => 1],
             ['id' => $ruleB, 'name' => 'test', 'priority' => 2],
         ], Context::createDefaultContext());
@@ -2510,7 +2511,7 @@ class ProductRepositoryTest extends TestCase
             'tax' => ['name' => 'tax', 'taxRate' => 15],
         ];
 
-        $ids = new TestDataCollection();
+        $ids = new IdsCollection();
 
         $data = [
             array_replace_recursive($defaults, ['id' => $ids->create('a'), 'price' => [['gross' => 99.96]], 'productNumber' => $ids->get('a')]),
@@ -2544,12 +2545,12 @@ class ProductRepositoryTest extends TestCase
 
     public function testPriceSortingWithDifferentCurrencyNoFallback(): void
     {
-        $ids = new TestDataCollection();
+        $ids = new IdsCollection();
         $isoCode = 'DEM';
         $currencyFactor = 0.5;
         $ids->create($isoCode);
 
-        $this->getContainer()->get('currency.repository')->create(
+        static::getContainer()->get('currency.repository')->create(
             [
                 [
                     'id' => $ids->get($isoCode),
@@ -2938,7 +2939,7 @@ class ProductRepositoryTest extends TestCase
     #[Group('slow')]
     public function testVariantCustomFieldInheritance(array $translations, array $expected, Context $context): void
     {
-        $ids = new TestDataCollection();
+        $ids = new IdsCollection();
 
         $products = [
             [
@@ -3267,7 +3268,7 @@ class ProductRepositoryTest extends TestCase
         $product = (new ProductBuilder($ids, 'x1'))->price(100)->category('c1')->build();
         $this->repository->upsert([$product], Context::createDefaultContext());
 
-        $event = $this->getContainer()->get('category.repository')->delete([['id' => $ids->get('c1')]], Context::createDefaultContext());
+        $event = static::getContainer()->get('category.repository')->delete([['id' => $ids->get('c1')]], Context::createDefaultContext());
 
         $expected = [
             'category.deleted' => [$ids->get('c1')],
@@ -3307,7 +3308,7 @@ class ProductRepositoryTest extends TestCase
     }
 
     /**
-     * @param non-empty-array<string> $languages
+     * @param non-empty-list<string> $languages
      */
     private static function createLanguageContext(array $languages, bool $inheritance): Context
     {
@@ -3324,7 +3325,7 @@ class ProductRepositoryTest extends TestCase
 
     private function createLanguage(string $id, ?string $parentId = Defaults::LANGUAGE_SYSTEM): void
     {
-        $languageRepository = $this->getContainer()->get('language.repository');
+        $languageRepository = static::getContainer()->get('language.repository');
 
         $languageRepository->upsert(
             [

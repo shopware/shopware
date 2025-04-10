@@ -5,12 +5,10 @@ const { Mixin, Filter } = Shopware;
 
 /**
  * @private
- * @package buyers-experience
+ * @sw-package discovery
  */
 export default {
     template,
-
-    compatConfig: Shopware.compatConfig,
 
     inject: ['feature'],
 
@@ -22,7 +20,10 @@ export default {
 
     props: {
         activeMedia: {
-            type: [Object, null],
+            type: [
+                Object,
+                null,
+            ],
             required: false,
             default: null,
         },
@@ -33,7 +34,7 @@ export default {
             columnCount: 7,
             columnWidth: 90,
             sliderPos: 0,
-            imgPath: '/administration/static/img/cms/preview_mountain_large.jpg',
+            imgPath: '/administration/administration/static/img/cms/preview_mountain_large.jpg',
             imgSrc: '',
         };
     },
@@ -71,8 +72,7 @@ export default {
         },
 
         styles() {
-            if (this.element.config.displayMode.value === 'cover' &&
-                this.element.config.minHeight.value !== 0) {
+            if (this.element.config.displayMode.value === 'cover' && this.element.config.minHeight.value !== 0) {
                 return {
                     'min-height': this.element.config.minHeight.value,
                 };

@@ -13,6 +13,7 @@ use Shopware\Core\Content\Test\Product\ProductBuilder;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Api\Acl\Role\AclRoleEntity;
 use Shopware\Core\Framework\App\AppEntity;
+use Shopware\Core\Framework\App\Source\SourceResolver;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity as DALEntity;
@@ -36,9 +37,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Pricing\PriceCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Validation\RestrictDeleteViolationException;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Struct\ArrayEntity;
-use Shopware\Core\Framework\Test\IdsCollection;
 use Shopware\Core\Framework\Test\TestCaseBase\AdminApiTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelLifecycleManager;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
@@ -63,8 +62,8 @@ use Shopware\Core\System\CustomEntity\Xml\Field\OneToOneField;
 use Shopware\Core\System\CustomEntity\Xml\Field\PriceField;
 use Shopware\Core\System\CustomEntity\Xml\Field\StringField;
 use Shopware\Core\System\CustomEntity\Xml\Field\TextField;
-use Shopware\Core\System\SystemConfig\Exception\XmlParsingException;
-use Shopware\Tests\Integration\Core\Framework\App\AppSystemTestBehaviour;
+use Shopware\Core\Test\AppSystemTestBehaviour;
+use Shopware\Core\Test\Stub\Framework\IdsCollection;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\HttpFoundation\Response;
 
@@ -92,6 +91,11 @@ class CustomEntityTest extends TestCase
         'payload' => ['foo' => 'Bar'],
         'email' => 'test@test.com',
     ];
+
+    protected function tearDown(): void
+    {
+        static::getContainer()->get(SourceResolver::class)->reset();
+    }
 
     #[AfterClass]
     public static function tearDownSomeOtherSharedFixtures(): void
@@ -133,7 +137,7 @@ class CustomEntityTest extends TestCase
 
         $ids = new IdsCollection();
 
-        $this->getContainer()->get(Connection::class)->beginTransaction();
+        static::getContainer()->get(Connection::class)->beginTransaction();
 
         $this->testStorage($container);
 
@@ -157,7 +161,7 @@ class CustomEntityTest extends TestCase
 
         $this->testAllowDisable(false);
 
-        $this->getContainer()->get(Connection::class)->rollBack();
+        static::getContainer()->get(Connection::class)->rollBack();
 
         self::cleanUp($container);
     }
@@ -166,9 +170,9 @@ class CustomEntityTest extends TestCase
     {
         $entities = CustomEntityXmlSchema::createFromXmlFile(__DIR__ . '/_fixtures/custom-entity-test/Resources/install.xml');
 
-        $this->getContainer()->get(CustomEntityPersister::class)->update($entities->toStorage());
+        static::getContainer()->get(CustomEntityPersister::class)->update($entities->toStorage());
 
-        $this->getContainer()->get(CustomEntitySchemaUpdater::class)->update();
+        static::getContainer()->get(CustomEntitySchemaUpdater::class)->update();
 
         $schema = $this->getSchema();
 
@@ -177,11 +181,11 @@ class CustomEntityTest extends TestCase
         self::assertColumns($schema, 'custom_entity_to_remove', ['id', 'created_at', 'updated_at']);
 
         $entities = CustomEntityXmlSchema::createFromXmlFile(__DIR__ . '/_fixtures/custom-entity-test/Resources/update.xml');
-        $this->getContainer()
+        static::getContainer()
             ->get(CustomEntityPersister::class)
             ->update($entities->toStorage());
 
-        $this->getContainer()
+        static::getContainer()
             ->get(CustomEntitySchemaUpdater::class)
             ->update();
 
@@ -196,18 +200,16 @@ class CustomEntityTest extends TestCase
         static::assertFalse($schema->hasTable('custom_entity_blog_product'));
         static::assertFalse($schema->hasTable('custom_entity_to_remove'));
 
-        self::cleanUp($this->getContainer());
+        self::cleanUp(static::getContainer());
     }
 
     public function testAllowDisableIsTrueIfNoRestrictDeleteIsUsed(): void
     {
         $this->loadAppsFromDir(__DIR__ . '/_fixtures/without-restrict-delete');
 
-        $container = KernelLifecycleManager::bootKernel()->getContainer();
-
         $this->testAllowDisable(true);
 
-        self::cleanUp($container);
+        self::cleanUp(static::getContainer());
     }
 
     public function testDoesNotRegisterCustomEntitiesIfAppIsInactive(): void
@@ -219,12 +221,12 @@ class CustomEntityTest extends TestCase
         static::assertFalse($schema->hasTable('custom_entity_blog_product'));
         static::assertFalse($schema->hasTable('custom_entity_to_remove'));
 
-        self::cleanUp($this->getContainer());
+        self::cleanUp(static::getContainer());
     }
 
     public function testInvalidDefaultTypesParsedCorrectly(): void
     {
-        static::expectException(Feature::isActive('v6.7.0.0') ? CustomEntityXmlParsingException::class : XmlParsingException::class);
+        static::expectException(CustomEntityXmlParsingException::class);
         CustomEntityXmlSchema::createFromXmlFile(__DIR__ . '/_fixtures/default-value/Resources/invalid-default-value-entities.xml');
     }
 
@@ -262,12 +264,12 @@ class CustomEntityTest extends TestCase
             static::assertSame($defaultValue, $entityValue);
         }
 
-        self::cleanUp($this->getContainer());
+        self::cleanUp(static::getContainer());
     }
 
     public function testPersistsCustomEntitiesIfSchemaContainsEnumColumns(): void
     {
-        $connection = $this->getContainer()->get(Connection::class);
+        $connection = static::getContainer()->get(Connection::class);
 
         $connection->executeStatement('
             CREATE TABLE test_with_enum_column (
@@ -286,7 +288,7 @@ class CustomEntityTest extends TestCase
         static::assertTrue($schema->hasTable('ce_blog_comment'));
         static::assertSame($columns, $connection->executeQuery('DESCRIBE test_with_enum_column')->fetchAllAssociative());
 
-        self::cleanUp($this->getContainer());
+        self::cleanUp(static::getContainer());
     }
 
     private function testStorage(ContainerInterface $container): void
@@ -618,11 +620,10 @@ class CustomEntityTest extends TestCase
     {
         static::assertTrue($schema->hasTable($table), \sprintf('Table %s do not exists', $table));
 
-        $existing = \array_keys($schema->getTable($table)->getColumns());
+        $table = $schema->getTable($table);
 
         foreach ($columns as $column) {
-            // strtolower required for assertContains
-            static::assertContains(\strtolower($column), $existing, 'Column ' . $column . ' not found in table ' . $table . ': ' . \print_r($existing, true));
+            static::assertTrue($table->hasColumn($column), 'Column ' . $column . ' not found in table ' . $table->getName());
         }
     }
 
@@ -681,7 +682,7 @@ class CustomEntityTest extends TestCase
 
     private function testPersist(): void
     {
-        $storage = $this->getContainer()->get(Connection::class)
+        $storage = static::getContainer()->get(Connection::class)
             ->fetchAllAssociative('SELECT * FROM custom_entity ORDER BY name DESC');
 
         static::assertCount(2, $storage);
@@ -728,11 +729,11 @@ class CustomEntityTest extends TestCase
 
         $entities = CustomEntityXmlSchema::createFromXmlFile(__DIR__ . '/_fixtures/custom-entity-test/Resources/entities.xml');
 
-        $this->getContainer()
+        static::getContainer()
             ->get(CustomEntityPersister::class)
             ->update($entities->toStorage());
 
-        $storage = $this->getContainer()->get(Connection::class)
+        $storage = static::getContainer()->get(Connection::class)
             ->fetchAllAssociative('SELECT * FROM custom_entity ORDER BY name');
 
         static::assertCount(2, $storage);
@@ -825,6 +826,8 @@ class CustomEntityTest extends TestCase
         $response = $client->getResponse();
         $body = json_decode((string) $response->getContent(), true, \JSON_THROW_ON_ERROR, \JSON_THROW_ON_ERROR);
         static::assertSame(Response::HTTP_OK, $response->getStatusCode(), print_r($body, true));
+
+        static::assertIsArray($body);
         static::assertArrayHasKey('total', $body);
         static::assertArrayHasKey('data', $body);
         static::assertArrayHasKey('aggregations', $body);
@@ -847,6 +850,8 @@ class CustomEntityTest extends TestCase
         $response = $client->getResponse();
         $body = json_decode((string) $response->getContent(), true, \JSON_THROW_ON_ERROR, \JSON_THROW_ON_ERROR);
         static::assertSame(Response::HTTP_OK, $response->getStatusCode(), print_r($body, true));
+
+        static::assertIsArray($body);
         static::assertArrayHasKey('data', $body);
         static::assertSame('update', $body['data']['title']);
         static::assertSame($ids->get('blog-1'), $body['data']['id']);
@@ -865,6 +870,8 @@ class CustomEntityTest extends TestCase
         $response = $client->getResponse();
         $body = json_decode((string) $response->getContent(), true, \JSON_THROW_ON_ERROR, \JSON_THROW_ON_ERROR);
         static::assertSame(Response::HTTP_OK, $response->getStatusCode(), print_r($body, true));
+
+        static::assertIsArray($body);
         static::assertArrayHasKey('total', $body);
         static::assertArrayHasKey('data', $body);
         static::assertArrayHasKey('aggregations', $body);
@@ -887,6 +894,8 @@ class CustomEntityTest extends TestCase
         $response = $client->getResponse();
         $body = json_decode((string) $response->getContent(), true, \JSON_THROW_ON_ERROR, \JSON_THROW_ON_ERROR);
         static::assertSame(Response::HTTP_OK, $response->getStatusCode(), print_r($body, true));
+
+        static::assertIsArray($body);
         static::assertArrayHasKey('total', $body);
         static::assertArrayHasKey('data', $body);
         static::assertCount(1, $body['data']);
@@ -932,7 +941,7 @@ class CustomEntityTest extends TestCase
         $response = \json_decode((string) $browser->getResponse()->getContent(), true, 512, \JSON_THROW_ON_ERROR);
 
         $salesChannelId = $browser->getServerParameter('test-sales-channel-id');
-        $this->getContainer()->get(Connection::class)->executeStatement('DELETE FROM sales_channel WHERE id = :id', ['id' => Uuid::fromHexToBytes($salesChannelId)]);
+        static::getContainer()->get(Connection::class)->executeStatement('DELETE FROM sales_channel WHERE id = :id', ['id' => Uuid::fromHexToBytes($salesChannelId)]);
 
         static::assertSame(Response::HTTP_OK, $browser->getResponse()->getStatusCode(), print_r($response, true));
 
@@ -1027,7 +1036,7 @@ class CustomEntityTest extends TestCase
 
     private function getSchema(): Schema
     {
-        return $this->getContainer()
+        return static::getContainer()
             ->get(Connection::class)
             ->createSchemaManager()
             ->introspectSchema();
@@ -1197,7 +1206,7 @@ class CustomEntityTest extends TestCase
         $criteria->addAssociation('aclRole');
         $criteria->addFilter(new EqualsFilter('name', 'custom-entity-test'));
 
-        $app = $this->getContainer()->get('app.repository')
+        $app = static::getContainer()->get('app.repository')
             ->search($criteria, Context::createDefaultContext())
             ->first();
 
@@ -1222,7 +1231,7 @@ class CustomEntityTest extends TestCase
 
     private function testAllowDisable(bool $expected): void
     {
-        $allowed = $this->getContainer()->get(Connection::class)
+        $allowed = static::getContainer()->get(Connection::class)
             ->fetchOne('SELECT allow_disable FROM app WHERE name = :name', ['name' => 'custom-entity-test']);
 
         static::assertSame($expected, (bool) $allowed);

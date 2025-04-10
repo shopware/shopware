@@ -16,70 +16,31 @@ class ProductCrossSellingEntity extends Entity
 {
     use EntityIdTrait;
 
-    /**
-     * @var string|null
-     */
-    protected $name;
+    protected ?string $name = null;
 
-    /**
-     * @var int
-     */
-    protected $position;
+    protected int $position;
 
-    /**
-     * @var string
-     */
-    protected $sortBy;
+    protected string $sortBy;
 
-    /**
-     * @var string
-     */
-    protected $sortDirection;
+    protected string $sortDirection;
 
-    /**
-     * @var int
-     */
-    protected $limit;
+    protected int $limit;
 
-    /**
-     * @var bool
-     */
-    protected $active;
+    protected bool $active;
 
-    /**
-     * @var string
-     */
-    protected $productId;
+    protected string $productId;
 
-    /**
-     * @var ProductEntity|null
-     */
-    protected $product;
+    protected ?ProductEntity $product = null;
 
-    /**
-     * @var string
-     */
-    protected $productStreamId;
+    protected string $productStreamId;
 
-    /**
-     * @var ProductStreamEntity|null
-     */
-    protected $productStream;
+    protected ?ProductStreamEntity $productStream = null;
 
-    /**
-     * @var string
-     */
-    protected $type;
+    protected string $type;
 
-    /**
-     * @var ProductCrossSellingAssignedProductsCollection|null
-     */
-    protected $assignedProducts;
+    protected ?ProductCrossSellingAssignedProductsCollection $assignedProducts = null;
 
-    /**
-     * @var ProductCrossSellingTranslationCollection|null
-     */
-    protected $translations;
+    protected ?ProductCrossSellingTranslationCollection $translations = null;
 
     public function getName(): ?string
     {

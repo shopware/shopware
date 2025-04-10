@@ -8,7 +8,6 @@
     "general": {
       "mainMenuItemGeneral": "Delivery times",
       "description": "Settings module for managing delivery times",
-      "buttonCancel": "Cancel",
       "buttonCreate": "Add delivery time",
       "buttonSave": "Save",
       "placeholder": "Search all delivery times..."
@@ -24,7 +23,6 @@
       "columnUnit_week": "Week",
       "columnUnit_month": "Month",
       "columnUnit_year": "Year",
-      "columnUnit_hour": "Hour",
       "errorLoad": "Unable to load the delivery times list."
     },
     "detail": {

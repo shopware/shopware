@@ -1,4 +1,8 @@
-<sw-page class="sw-extension-app-module-page">
+{% block sw_extension_app_module_page %}
+<sw-page
+    class="sw-extension-app-module-page"
+    :show-smart-bar="showSmartBar"
+>
     <template
         v-if="!suspend"
         #smart-bar-header
@@ -29,3 +33,4 @@
         </template>
     </template>
 </sw-page>
+{% endblock %}

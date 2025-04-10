@@ -12,7 +12,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\Test\TestCaseBase\AdminApiTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
-use Shopware\Tests\Integration\Core\Framework\App\AppSystemTestBehaviour;
+use Shopware\Core\Test\AppSystemTestBehaviour;
 use Symfony\Component\HttpFoundation\Response;
 
 /**
@@ -59,7 +59,7 @@ class ClientRepositoryTest extends TestCase
     private function fetchApp(string $appName): ?AppEntity
     {
         /** @var EntityRepository<AppCollection> $appRepository */
-        $appRepository = $this->getContainer()->get('app.repository');
+        $appRepository = static::getContainer()->get('app.repository');
 
         $criteria = new Criteria();
         $criteria->addFilter(new EqualsFilter('name', $appName));
@@ -70,7 +70,7 @@ class ClientRepositoryTest extends TestCase
     private function setAccessTokenForIntegration(string $integrationId, string $accessKey, string $secret): void
     {
         /** @var EntityRepository $integrationRepository */
-        $integrationRepository = $this->getContainer()->get('integration.repository');
+        $integrationRepository = static::getContainer()->get('integration.repository');
 
         $integrationRepository->update([
             [

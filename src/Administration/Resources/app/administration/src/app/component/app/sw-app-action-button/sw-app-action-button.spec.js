@@ -1,5 +1,5 @@
 /**
- * @package admin
+ * @sw-package framework
  */
 
 import { mount } from '@vue/test-utils';
@@ -14,10 +14,6 @@ async function createWrapper(action) {
                 tooltip: {},
             },
             stubs: {
-                'sw-icon': await wrapTestComponent('sw-icon'),
-                'icons-regular-external-link': {
-                    template: '<span class="sw-icon sw-icon--regular-external-link"></span>',
-                },
                 'sw-extension-icon': await wrapTestComponent('sw-extension-icon'),
             },
             provide: {
@@ -48,10 +44,12 @@ describe('sw-app-action-button', () => {
         wrapper = await createWrapper(baseAction);
 
         expect(wrapper.vm).toBeTruthy();
-        expect(wrapper.classes()).toEqual(expect.arrayContaining([
-            'sw-app-action-button',
-            'sw-context-menu-item',
-        ]));
+        expect(wrapper.classes()).toEqual(
+            expect.arrayContaining([
+                'sw-app-action-button',
+                'sw-context-menu-item',
+            ]),
+        );
     });
 
     it('is a div if action is a webaction', async () => {
@@ -64,9 +62,11 @@ describe('sw-app-action-button', () => {
         wrapper = await createWrapper(baseAction);
         await flushPromises();
 
-        expect(wrapper.classes()).toEqual(expect.arrayContaining([
-            'sw-context-menu-item--icon',
-        ]));
+        expect(wrapper.classes()).toEqual(
+            expect.arrayContaining([
+                'sw-context-menu-item--icon',
+            ]),
+        );
 
         const icon = wrapper.find('img.sw-extension-icon__icon');
 
@@ -79,9 +79,11 @@ describe('sw-app-action-button', () => {
             icon: null,
         });
 
-        expect(wrapper.classes()).toEqual(expect.not.arrayContaining([
-            'sw-context-menu-item--icon',
-        ]));
+        expect(wrapper.classes()).toEqual(
+            expect.not.arrayContaining([
+                'sw-context-menu-item--icon',
+            ]),
+        );
 
         const icon = wrapper.find('img.sw-extension-icon__icon');
         expect(icon.exists()).toBe(false);
@@ -92,6 +94,8 @@ describe('sw-app-action-button', () => {
 
         await wrapper.trigger('click');
 
-        expect(wrapper.emitted('run-app-action')[0]).toStrictEqual([baseAction]);
+        expect(wrapper.emitted('run-app-action')[0]).toStrictEqual([
+            baseAction,
+        ]);
     });
 });

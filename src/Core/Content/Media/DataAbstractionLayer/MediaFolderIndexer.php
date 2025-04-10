@@ -19,7 +19,7 @@ use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
-#[Package('buyers-experience')]
+#[Package('discovery')]
 class MediaFolderIndexer extends EntityIndexer
 {
     final public const CHILD_COUNT_UPDATER = 'media_folder.child-count';
@@ -89,11 +89,12 @@ class MediaFolderIndexer extends EntityIndexer
 
     public function handle(EntityIndexingMessage $message): void
     {
-        $context = $message->getContext();
-
         $ids = $message->getData();
-        $ids = array_filter(array_unique($ids));
+        if (!\is_array($ids)) {
+            return;
+        }
 
+        $ids = array_filter(array_unique($ids));
         if (empty($ids)) {
             return;
         }
@@ -138,7 +139,7 @@ class MediaFolderIndexer extends EntityIndexer
             $this->treeUpdater->batchUpdate(
                 $children,
                 MediaFolderDefinition::ENTITY_NAME,
-                $context,
+                $message->getContext(),
                 !$message->isFullIndexing
             );
         }

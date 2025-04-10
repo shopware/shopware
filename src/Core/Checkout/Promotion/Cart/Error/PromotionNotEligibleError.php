@@ -5,20 +5,13 @@ namespace Shopware\Core\Checkout\Promotion\Cart\Error;
 use Shopware\Core\Checkout\Cart\Error\Error;
 use Shopware\Core\Framework\Log\Package;
 
-#[Package('buyers-experience')]
+#[Package('checkout')]
 class PromotionNotEligibleError extends Error
 {
     private const KEY = 'promotion-not-eligible';
 
-    /**
-     * @var string
-     */
-    protected $name;
-
-    public function __construct(string $name)
+    public function __construct(protected string $name)
     {
-        $this->name = $name;
-
         $this->message = \sprintf('Promotion %s not eligible for cart!', $this->name);
 
         parent::__construct($this->message);

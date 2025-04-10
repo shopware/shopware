@@ -9,40 +9,25 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\Integration\IntegrationCollection;
 use Shopware\Core\System\User\UserCollection;
 
-#[Package('core')]
+#[Package('framework')]
 class AclRoleEntity extends Entity
 {
     use EntityIdTrait;
 
-    /**
-     * @var string
-     */
-    protected $name;
+    protected string $name;
+
+    protected ?string $description = null;
 
     /**
-     * @var string|null
+     * @var list<string>
      */
-    protected $description;
+    protected array $privileges = [];
 
-    /**
-     * @var array
-     */
-    protected $privileges = [];
+    protected ?UserCollection $users = null;
 
-    /**
-     * @var UserCollection|null
-     */
-    protected $users;
+    protected ?AppEntity $app = null;
 
-    /**
-     * @var AppEntity|null
-     */
-    protected $app;
-
-    /**
-     * @var IntegrationCollection|null
-     */
-    protected $integrations;
+    protected ?IntegrationCollection $integrations = null;
 
     protected ?\DateTimeInterface $deletedAt = null;
 
@@ -66,11 +51,17 @@ class AclRoleEntity extends Entity
         $this->users = $users;
     }
 
+    /**
+     * @return list<string>
+     */
     public function getPrivileges(): array
     {
         return $this->privileges;
     }
 
+    /**
+     * @param list<string> $privileges
+     */
     public function setPrivileges(array $privileges): void
     {
         $this->privileges = $privileges;

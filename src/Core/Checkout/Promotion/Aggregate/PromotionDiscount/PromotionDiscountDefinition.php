@@ -21,7 +21,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\StringField;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
 use Shopware\Core\Framework\Log\Package;
 
-#[Package('buyers-experience')]
+#[Package('checkout')]
 class PromotionDiscountDefinition extends EntityDefinition
 {
     final public const ENTITY_NAME = 'promotion_discount';
@@ -44,6 +44,13 @@ class PromotionDiscountDefinition extends EntityDefinition
     public function since(): ?string
     {
         return '6.0.0.0';
+    }
+
+    public function getDefaults(): array
+    {
+        return [
+            'considerAdvancedRules' => false,
+        ];
     }
 
     protected function getParentDefinitionClass(): ?string

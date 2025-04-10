@@ -11,40 +11,21 @@ use Shopware\Core\Framework\Struct\Struct;
 #[Package('checkout')]
 class StoreUpdateStruct extends Struct
 {
-    /**
-     * @var string
-     */
-    protected $name;
+    protected string $name;
 
-    /**
-     * @var string
-     */
-    protected $label;
+    protected string $label;
 
-    /**
-     * @var string
-     */
-    protected $iconPath;
+    protected string $iconPath;
 
-    /**
-     * @var string
-     */
-    protected $version;
+    protected string $version;
 
-    /**
-     * @var string
-     */
-    protected $changelog;
+    protected string $changelog;
 
-    /**
-     * @var \DateTimeInterface
-     */
-    protected $releaseDate;
+    protected \DateTimeInterface $releaseDate;
 
-    /**
-     * @var bool
-     */
-    protected $integrated;
+    protected bool $integrated;
+
+    protected string $inAppFeatures = '';
 
     public function getApiAlias(): string
     {
@@ -84,5 +65,15 @@ class StoreUpdateStruct extends Struct
     public function isIntegrated(): bool
     {
         return $this->integrated;
+    }
+
+    public function getInAppFeatures(): string
+    {
+        return $this->inAppFeatures;
+    }
+
+    public function setInAppFeatures(string $inAppFeatures): void
+    {
+        $this->inAppFeatures = $inAppFeatures;
     }
 }

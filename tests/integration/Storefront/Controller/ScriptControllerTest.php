@@ -9,12 +9,12 @@ use Shopware\Core\Checkout\Customer\CustomerEntity;
 use Shopware\Core\Content\Test\Product\ProductBuilder;
 use Shopware\Core\DevOps\Environment\EnvironmentHelper;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\Test\IdsCollection;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelLifecycleManager;
+use Shopware\Core\Test\AppSystemTestBehaviour;
+use Shopware\Core\Test\Stub\Framework\IdsCollection;
 use Shopware\Core\Test\TestDefaults;
 use Shopware\Storefront\Test\Controller\StorefrontControllerTestBehaviour;
-use Shopware\Tests\Integration\Core\Framework\App\AppSystemTestBehaviour;
 use Symfony\Bundle\FrameworkBundle\KernelBrowser;
 use Symfony\Component\HttpFoundation\Response;
 
@@ -199,13 +199,13 @@ class ScriptControllerTest extends TestCase
                     ->build()
             );
 
-        $salesChannelIds = $this->getContainer()->get(Connection::class)
+        $salesChannelIds = static::getContainer()->get(Connection::class)
             ->fetchFirstColumn('SELECT LOWER(HEX(id)) FROM sales_channel');
         foreach ($salesChannelIds as $salesChannelId) {
             $product1->visibility($salesChannelId);
         }
 
-        $this->getContainer()->get('product.repository')->create([
+        static::getContainer()->get('product.repository')->create([
             $product1->build(),
         ], Context::createDefaultContext());
     }

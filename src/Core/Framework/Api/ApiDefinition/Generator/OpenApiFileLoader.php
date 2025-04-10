@@ -12,7 +12,7 @@ use Symfony\Component\Finder\Finder;
  *
  * @phpstan-import-type OpenApiSpec from DefinitionService
  */
-#[Package('core')]
+#[Package('framework')]
 class OpenApiFileLoader
 {
     /**

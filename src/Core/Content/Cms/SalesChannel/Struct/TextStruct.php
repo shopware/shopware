@@ -5,13 +5,10 @@ namespace Shopware\Core\Content\Cms\SalesChannel\Struct;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Struct\Struct;
 
-#[Package('buyers-experience')]
+#[Package('discovery')]
 class TextStruct extends Struct
 {
-    /**
-     * @var string|null
-     */
-    protected $content;
+    protected ?string $content = null;
 
     public function getContent(): ?string
     {

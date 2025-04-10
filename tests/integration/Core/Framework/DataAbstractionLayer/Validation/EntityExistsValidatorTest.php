@@ -121,17 +121,17 @@ class EntityExistsValidatorTest extends TestCase
 
     protected function createRepository(): EntityRepository
     {
-        $definition = $this->getContainer()->get(LocaleDefinition::class);
+        $definition = static::getContainer()->get(LocaleDefinition::class);
         static::assertInstanceOf(LocaleDefinition::class, $definition);
 
         return new EntityRepository(
             $definition,
-            $this->getContainer()->get(EntityReaderInterface::class),
-            $this->getContainer()->get(VersionManager::class),
-            $this->getContainer()->get(EntitySearcherInterface::class),
-            $this->getContainer()->get(EntityAggregatorInterface::class),
-            $this->getContainer()->get(EventDispatcherInterface::class),
-            $this->getContainer()->get(EntityLoadedEventFactory::class)
+            static::getContainer()->get(EntityReaderInterface::class),
+            static::getContainer()->get(VersionManager::class),
+            static::getContainer()->get(EntitySearcherInterface::class),
+            static::getContainer()->get(EntityAggregatorInterface::class),
+            static::getContainer()->get(EventDispatcherInterface::class),
+            static::getContainer()->get(EntityLoadedEventFactory::class)
         );
     }
 
@@ -142,6 +142,6 @@ class EntityExistsValidatorTest extends TestCase
 
     protected function getValidatorBuilder(): ValidatorBuilder
     {
-        return $this->getContainer()->get('validator.builder');
+        return static::getContainer()->get('validator.builder');
     }
 }

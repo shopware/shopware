@@ -2,21 +2,32 @@
 
 namespace Shopware\Core\Framework\Changelog;
 
+use Shopware\Core\DevOps\Environment\EnvironmentHelper;
 use Shopware\Core\Framework\Log\Package;
+use Symfony\Component\Finder\SplFileInfo;
 
 /**
  * @internal
  */
-#[Package('core')]
+#[Package('framework')]
 class ChangelogParser
 {
-    public function parse(string $content): ChangelogDefinition
+    public const FIXES_REGEX = '(closes?|resolved?|fix(es)?):?\s+(#[0-9]+)';
+
+    public const REFERENCE_REGEX = '\((#[0-9]+)\)';
+
+    public function parse(SplFileInfo $file, string $rootDir): ChangelogDefinition
     {
-        $content = trim($content);
+        $content = trim($file->getContents());
+
+        $issue = $this->parseMetadata($content, 'issue');
+        if (!$issue || preg_match('/^NEXT-\d+$/', $issue)) {
+            $issue = $this->findIssueIdInCommit($file->getRelativePathname(), $rootDir) ?? $issue;
+        }
 
         return (new ChangelogDefinition())
             ->setTitle($this->parseMetadata($content, 'title') ?: '')
-            ->setIssue($this->parseMetadata($content, 'issue') ?: '')
+            ->setIssue($issue ?: '')
             ->setFlag($this->parseMetadata($content, 'flag'))
             ->setAuthor($this->parseMetadata($content, 'author'))
             ->setAuthorEmail($this->parseMetadata($content, 'author_email'))
@@ -27,6 +38,26 @@ class ChangelogParser
             ->setApi($this->parseSection($content, ChangelogSection::api->value))
             ->setUpgradeInformation($this->parseSection($content, ChangelogSection::upgrade->value))
             ->setNextMajorVersionChanges($this->parseSection($content, ChangelogSection::major->value));
+    }
+
+    private function findIssueIdInCommit(string $path, string $rootDir): ?string
+    {
+        if (EnvironmentHelper::getVariable('TESTS_RUNNING', false)) {
+            return null;
+        }
+
+        $cmd = 'cd ' . escapeshellarg($rootDir) . ' && git log -- ' . escapeshellarg($path);
+        $output = \shell_exec($cmd);
+
+        if ($output && preg_match_all('/' . self::FIXES_REGEX . '/i', $output, $matches)) {
+            return $matches[3][0];
+        }
+
+        if ($output && preg_match_all('/' . self::REFERENCE_REGEX . '/i', $output, $matches)) {
+            return $matches[1][0];
+        }
+
+        return null;
     }
 
     /**

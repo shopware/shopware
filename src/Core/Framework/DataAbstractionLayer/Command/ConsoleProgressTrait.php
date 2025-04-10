@@ -9,18 +9,12 @@ use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\Console\Helper\ProgressBar;
 use Symfony\Component\Console\Style\SymfonyStyle;
 
-#[Package('core')]
+#[Package('framework')]
 trait ConsoleProgressTrait
 {
-    /**
-     * @var SymfonyStyle|null
-     */
-    protected $io;
+    protected ?SymfonyStyle $io = null;
 
-    /**
-     * @var ProgressBar|null
-     */
-    protected $progress;
+    protected ?ProgressBar $progress = null;
 
     /**
      * @return array<string, string>
@@ -36,7 +30,7 @@ trait ConsoleProgressTrait
 
     public function startProgress(ProgressStartedEvent $event): void
     {
-        if (!$this->io) {
+        if ($this->io === null) {
             return;
         }
 
@@ -47,7 +41,7 @@ trait ConsoleProgressTrait
 
     public function advanceProgress(ProgressAdvancedEvent $event): void
     {
-        if (!$this->progress) {
+        if ($this->progress === null) {
             return;
         }
 
@@ -56,11 +50,11 @@ trait ConsoleProgressTrait
 
     public function finishProgress(ProgressFinishedEvent $event): void
     {
-        if (!$this->io) {
+        if ($this->io === null) {
             return;
         }
 
-        if (!$this->progress) {
+        if ($this->progress === null) {
             return;
         }
 

@@ -1,5 +1,7 @@
+import useContext from '../../app/composables/use-context';
+
 /**
- * @package admin
+ * @sw-package framework
  *
  * @private
  * @module core/factory/context
@@ -8,29 +10,35 @@
  */
 export default function createContext(context = {}) {
     const Defaults = Shopware.Defaults;
-    const isDevMode = (process.env.NODE_ENV !== 'production');
+    const isDevMode = process.env.NODE_ENV !== 'production';
     const installationPath = getInstallationPath(context, isDevMode);
     const apiPath = `${installationPath}/api`;
 
     const languageId = localStorage.getItem('sw-admin-current-language') || Defaults.systemLanguageId;
 
     // set initial context
-    Shopware.State.commit('context/setApiInstallationPath', installationPath);
-    Shopware.State.commit('context/setApiApiPath', apiPath);
-    Shopware.State.commit('context/setApiApiResourcePath', `${apiPath}`);
-    Shopware.State.commit('context/setApiAssetsPath', getAssetsPath(context.assetPath, isDevMode));
-    Shopware.State.commit('context/setApiLanguageId', languageId);
-    Shopware.State.commit('context/setApiInheritance', false);
+    const contextStore = useContext();
+    contextStore.api.installationPath = installationPath;
+    contextStore.api.apiPath = apiPath;
+    contextStore.api.apiResourcePath = `${apiPath}`;
+    contextStore.api.assetsPath = getAssetsPath(context.assetPath, isDevMode);
+    contextStore.api.languageId = languageId;
+    contextStore.api.inheritance = false;
 
     if (isDevMode) {
-        Shopware.State.commit('context/setApiSystemLanguageId', Defaults.systemLanguageId);
-        Shopware.State.commit('context/setApiLiveVersionId', Defaults.versionId);
+        contextStore.api.systemLanguageId = Defaults.systemLanguageId;
+        contextStore.api.liveVersionId = Defaults.versionId;
     }
 
     // assign unknown context information
-    Object.entries(context).forEach(([key, value]) => {
-        Shopware.State.commit('context/addApiValue', { key, value });
-    });
+    Object.entries(context).forEach(
+        ([
+            key,
+            value,
+        ]) => {
+            contextStore.addApiValue({ key, value });
+        },
+    );
 
     return Shopware.Context.api;
 }

@@ -10,7 +10,7 @@ use Shopware\Core\System\SalesChannel\SalesChannelDefinition;
 use Shopware\Storefront\Theme\Aggregate\ThemeSalesChannelDefinition;
 use Shopware\Storefront\Theme\ThemeDefinition;
 
-#[Package('storefront')]
+#[Package('framework')]
 class SalesChannelExtension extends EntityExtension
 {
     public function extendFields(FieldCollection $collection): void
@@ -20,8 +20,8 @@ class SalesChannelExtension extends EntityExtension
         );
     }
 
-    public function getDefinitionClass(): string
+    public function getEntityName(): string
     {
-        return SalesChannelDefinition::class;
+        return SalesChannelDefinition::ENTITY_NAME;
     }
 }

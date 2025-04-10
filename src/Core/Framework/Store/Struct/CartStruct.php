@@ -11,35 +11,17 @@ use Shopware\Core\Framework\Struct\Struct;
 #[Package('checkout')]
 class CartStruct extends Struct
 {
-    /**
-     * @var float
-     */
-    protected $netPrice;
+    protected float $netPrice;
 
-    /**
-     * @var float
-     */
-    protected $taxValue;
+    protected float $taxValue;
 
-    /**
-     * @var float
-     */
-    protected $taxRate;
+    protected float $taxRate;
 
-    /**
-     * @var float
-     */
-    protected $grossPrice;
+    protected float $grossPrice;
 
-    /**
-     * @var CartPositionCollection
-     */
-    protected $positions;
+    protected CartPositionCollection $positions;
 
-    /**
-     * @var array
-     */
-    protected $shop;
+    protected array $shop;
 
     public static function fromArray(array $data): CartStruct
     {

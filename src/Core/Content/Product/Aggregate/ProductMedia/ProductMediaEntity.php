@@ -16,35 +16,17 @@ class ProductMediaEntity extends Entity
     use EntityCustomFieldsTrait;
     use EntityIdTrait;
 
-    /**
-     * @var string
-     */
-    protected $productId;
+    protected string $productId;
 
-    /**
-     * @var string
-     */
-    protected $mediaId;
+    protected string $mediaId;
 
-    /**
-     * @var int
-     */
-    protected $position;
+    protected int $position;
 
-    /**
-     * @var MediaEntity|null
-     */
-    protected $media;
+    protected ?MediaEntity $media = null;
 
-    /**
-     * @var ProductEntity|null
-     */
-    protected $product;
+    protected ?ProductEntity $product = null;
 
-    /**
-     * @var ProductCollection|null
-     */
-    protected $coverProducts;
+    protected ?ProductCollection $coverProducts = null;
 
     public function getProductId(): string
     {

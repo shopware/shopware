@@ -26,7 +26,7 @@ class MediaFolderConfigurationMediaThumbnailSizeTest extends TestCase
         /**
          * @var EntityRepository<MediaFolderConfigurationCollection> $repository
          */
-        $repository = $this->getContainer()->get('media_folder_configuration.repository');
+        $repository = static::getContainer()->get('media_folder_configuration.repository');
 
         $configurationId = Uuid::randomHex();
         $sizeId = Uuid::randomHex();
@@ -64,7 +64,7 @@ class MediaFolderConfigurationMediaThumbnailSizeTest extends TestCase
         /**
          * @var EntityRepository<MediaThumbnailSizeCollection> $repository
          */
-        $repository = $this->getContainer()->get('media_thumbnail_size.repository');
+        $repository = static::getContainer()->get('media_thumbnail_size.repository');
 
         $sizeId = Uuid::randomHex();
         $confId = Uuid::randomHex();

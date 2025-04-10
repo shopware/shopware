@@ -1,5 +1,5 @@
 /**
- * @package services-settings
+ * @sw-package framework
  */
 import template from './sw-bulk-edit-save-modal-process.html.twig';
 import './sw-bulk-edit-save-modal-process.scss';
@@ -10,11 +10,13 @@ const { chunk: chunkArray } = Shopware.Utils.array;
 export default {
     template,
 
-    compatConfig: Shopware.compatConfig,
-
     inject: ['orderDocumentApiService'],
 
-    emits: ['changes-apply', 'title-set', 'buttons-update'],
+    emits: [
+        'changes-apply',
+        'title-set',
+        'buttons-update',
+    ],
 
     data() {
         return {
@@ -38,15 +40,15 @@ export default {
 
     computed: {
         selectedIds() {
-            return Shopware.State.get('shopwareApps').selectedIds;
+            return Shopware.Store.get('swBulkEdit').selectedIds;
         },
 
         documentTypes() {
-            return Shopware.State.get('swBulkEdit')?.orderDocuments?.download?.value;
+            return Shopware.Store.get('swBulkEdit')?.orderDocuments?.download?.value;
         },
 
         documentTypeConfigs() {
-            return Shopware.State.getters['swBulkEdit/documentTypeConfigs'];
+            return Shopware.Store.get('swBulkEdit').documentTypeConfigs;
         },
 
         selectedDocumentTypes() {
@@ -107,7 +109,7 @@ export default {
             const buttonConfig = [
                 {
                     key: 'cancel',
-                    label: this.$tc('sw-bulk-edit.modal.process.buttons.cancel'),
+                    label: this.$tc('global.default.cancel'),
                     position: 'left',
                     action: '',
                     disabled: false,
@@ -155,11 +157,7 @@ export default {
         async createDocument(documentType, payload) {
             if (payload.length <= this.requestsPerPayload) {
                 await this.orderDocumentApiService.generate(documentType, payload);
-                if (this.isCompatEnabled('INSTANCE_SET')) {
-                    this.$set(this.document[documentType], 'isReached', 100);
-                } else {
-                    this.document[documentType].isReached = 100;
-                }
+                this.document[documentType].isReached = 100;
 
                 return Promise.resolve();
             }
@@ -167,24 +165,15 @@ export default {
             const chunkedPayload = chunkArray(payload, this.requestsPerPayload);
             const percentages = Math.round(100 / chunkedPayload.length);
 
-            return Promise
-                .all(chunkedPayload.map(async (item) => {
+            return Promise.all(
+                chunkedPayload.map(async (item) => {
                     await this.orderDocumentApiService.generate(documentType, item);
-                    if (this.isCompatEnabled('INSTANCE_SET')) {
-                        // eslint-disable-next-line max-len
-                        this.$set(this.document[documentType], 'isReached', this.document[documentType].isReached + percentages);
-                    } else {
-                        // eslint-disable-next-line operator-assignment
-                        this.document[documentType].isReached = this.document[documentType].isReached + percentages;
-                    }
-                }))
-                .then(() => {
-                    if (this.isCompatEnabled('INSTANCE_SET')) {
-                        this.$set(this.document[documentType], 'isReached', 100);
-                    } else {
-                        this.document[documentType].isReached = 100;
-                    }
-                });
+                    // eslint-disable-next-line operator-assignment
+                    this.document[documentType].isReached = this.document[documentType].isReached + percentages;
+                }),
+            ).then(() => {
+                this.document[documentType].isReached = 100;
+            });
         },
     },
 };

@@ -45,7 +45,7 @@ use Shopware\Core\System\TaxProvider\TaxProviderDefinition;
 /**
  * @internal
  */
-#[Package('core')]
+#[Package('framework')]
 class AppDefinition extends EntityDefinition
 {
     final public const ENTITY_NAME = 'app';
@@ -75,6 +75,8 @@ class AppDefinition extends EntityDefinition
             'cookies' => [],
             'allowedHosts' => [],
             'templateLoadPriority' => 0,
+            'sourceType' => 'local',
+            'selfManaged' => false,
         ];
     }
 
@@ -107,6 +109,10 @@ class AppDefinition extends EntityDefinition
             new ListField('allowed_hosts', 'allowedHosts', StringField::class),
             new IntField('template_load_priority', 'templateLoadPriority'),
             new StringField('checkout_gateway_url', 'checkoutGatewayUrl'),
+            new StringField('in_app_purchases_gateway_url', 'inAppPurchasesGatewayUrl'),
+            new StringField('source_type', 'sourceType'),
+            new JsonField('source_config', 'sourceConfig'),
+            new BoolField('self_managed', 'selfManaged'),
 
             (new TranslationsAssociationField(AppTranslationDefinition::class, 'app_id'))->addFlags(new Required(), new CascadeDelete()),
             new TranslatedField('label'),

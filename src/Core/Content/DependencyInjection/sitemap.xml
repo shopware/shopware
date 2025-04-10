@@ -5,12 +5,13 @@
            xsi:schemaLocation="http://symfony.com/schema/dic/services http://symfony.com/schema/dic/services/services-1.0.xsd">
     <services>
         <service id="Shopware\Core\Content\Sitemap\Service\SitemapExporter">
-            <argument type="tagged" tag="shopware.sitemap_url_provider"/>
+            <argument type="tagged_iterator" tag="shopware.sitemap_url_provider"/>
             <argument type="service" id="cache.system"/>
             <argument>%shopware.sitemap.batchsize%</argument>
             <argument type="service" id="shopware.filesystem.sitemap"/>
             <argument type="service" id="Shopware\Core\Content\Sitemap\Service\SitemapHandleFactoryInterface"/>
             <argument type="service" id="event_dispatcher"/>
+            <argument type="service" id="Shopware\Core\Checkout\Cart\CartRuleLoader"/>
         </service>
 
         <service id="Shopware\Core\Content\Sitemap\Service\SitemapLister">
@@ -19,7 +20,7 @@
         </service>
 
         <service id="Shopware\Core\Content\Sitemap\Service\ConfigHandler">
-            <argument type="tagged" tag="shopware.sitemap.config_handler"/>
+            <argument type="tagged_iterator" tag="shopware.sitemap.config_handler"/>
         </service>
 
         <service id="Shopware\Core\Content\Sitemap\Service\SitemapHandleFactoryInterface" class="Shopware\Core\Content\Sitemap\Service\SitemapHandleFactory">
@@ -33,14 +34,9 @@
             <argument type="service" id="event_dispatcher"/>
         </service>
 
-        <service id="Shopware\Core\Content\Sitemap\SalesChannel\CachedSitemapRoute" decorates="Shopware\Core\Content\Sitemap\SalesChannel\SitemapRoute" decoration-priority="-1000" public="true">
-            <argument type="service" id="Shopware\Core\Content\Sitemap\SalesChannel\CachedSitemapRoute.inner"/>
-            <argument type="service" id="cache.object"/>
-            <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Cache\EntityCacheKeyGenerator"/>
-            <argument type="service" id="Shopware\Core\Framework\Adapter\Cache\CacheTracer"/>
-            <argument type="service" id="event_dispatcher"/>
-            <argument>%shopware.cache.invalidation.sitemap_route%</argument>
-            <argument type="service" id="Shopware\Core\System\SystemConfig\SystemConfigService"/>
+        <service id="Shopware\Core\Content\Sitemap\SalesChannel\SitemapFileRoute" public="true">
+            <argument type="service" id="shopware.filesystem.sitemap"/>
+            <argument type="service" id="Shopware\Core\Framework\Extensions\ExtensionDispatcher"/>
         </service>
 
         <!-- UrlProviders -->
@@ -75,6 +71,14 @@
             <tag name="shopware.sitemap_url_provider"/>
         </service>
 
+        <service id="Shopware\Core\Content\Sitemap\Provider\LandingPageUrlProvider">
+            <argument type="service" id="Shopware\Core\Content\Sitemap\Service\ConfigHandler"/>
+            <argument type="service" id="Doctrine\DBAL\Connection"/>
+            <argument type="service" id="router"/>
+
+            <tag name="shopware.sitemap_url_provider"/>
+        </service>
+
         <!-- Config Handler -->
         <service id="Shopware\Core\Content\Sitemap\ConfigHandler\File">
             <argument>%shopware.sitemap%</argument>
@@ -101,7 +105,7 @@
             <argument type="service" id="logger"/>
             <argument type="service" id="sales_channel.repository"/>
             <argument type="service" id="Shopware\Core\System\SystemConfig\SystemConfigService"/>
-            <argument type="service" id="messenger.bus.shopware"/>
+            <argument type="service" id="messenger.default_bus"/>
             <argument type="service" id="event_dispatcher"/>
 
             <tag name="messenger.message_handler"/>

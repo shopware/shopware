@@ -1,6 +1,5 @@
-<!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
 {% block sw_category_layout_card %}
-<sw-card
+<mt-card
     class="sw-category-layout-card"
     position-identifier="sw-category-layout"
     :title="$tc('sw-category.base.cms.title')"
@@ -8,7 +7,6 @@
 >
     <div class="sw-category-layout-card__base-layout">
 
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_category_detail_layout_preview %}
         <div
             class="sw-category-layout-card__preview"
@@ -25,7 +23,6 @@
         </div>
         {% endblock %}
 
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_category_detail_layout_modal %}
         <sw-cms-layout-modal
             v-if="showLayoutSelectionModal"
@@ -37,15 +34,12 @@
         />
         {% endblock %}
 
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_category_detail_layout_desc %}
         <div class="sw-category-layout-card__desc">
 
-            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_category_detail_layout_desc_info %}
             <div class="sw-category-layout-card__desc-info">
 
-                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_category_detail_layout_desc_info_headline %}
                 <div
                     class="sw-category-layout-card__desc-headline"
@@ -55,7 +49,6 @@
                 </div>
                 {% endblock %}
 
-                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_category_detail_layout_desc_info_subheadline %}
                 <div
                     class="sw-category-layout-card__desc-subheadline"
@@ -68,49 +61,48 @@
             </div>
             {% endblock %}
 
-            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_category_detail_layout_desc_actions %}
             <div class="sw-category-layout-card__desc-actions">
 
-                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_category_detail_layout_desc_actions_layout %}
-                <sw-button
+                <mt-button
                     class="sw-category-detail-layout__change-layout-action"
                     size="small"
                     :disabled="!acl.can('category.editor')"
+                    variant="secondary"
                     @click="openLayoutModal"
                 >
                     {{ cmsPage ? $tc('sw-category.base.cms.changeLayout') : $tc('sw-category.base.cms.changeLayoutEmpty') }}
-                </sw-button>
+                </mt-button>
                 {% endblock %}
 
-                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_category_detail_layout_desc_actions_designer %}
-                <sw-button
+                <mt-button
                     class="sw-category-detail-layout__open-in-pagebuilder"
                     size="small"
                     :disabled="!acl.can('category.editor')"
+                    variant="secondary"
                     @click="openInPagebuilder"
                 >
                     {{ cmsPage ? $tc('sw-category.base.cms.editInPagebuilder') : $tc('sw-category.base.cms.editInPagebuilderEmpty') }}
-                </sw-button>
+                </mt-button>
                 {% endblock %}
 
-                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_category_detail_layout_desc_actions_remove %}
-                <sw-button
+                <mt-button
                     v-if="cmsPage"
                     size="small"
                     :disabled="!acl.can('category.editor')"
                     class="sw-category-detail-layout__layout-reset"
                     square
+                    variant="secondary"
                     @click="onLayoutReset"
                 >
-                    <sw-icon
+                    <mt-icon
                         name="regular-trash"
-                        small
+                        size="16px"
                     />
-                </sw-button>
+                </mt-button>
                 {% endblock %}
 
             </div>
@@ -120,5 +112,5 @@
         {% endblock %}
 
     </div>
-</sw-card>
+</mt-card>
 {% endblock %}

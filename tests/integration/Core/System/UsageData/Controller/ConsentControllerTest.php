@@ -31,7 +31,7 @@ class ConsentControllerTest extends TestCase
         static::assertArrayHasKey('isConsentGiven', $consent);
         static::assertFalse($consent['isConsentGiven']);
 
-        $consentState = $this->getContainer()->get(SystemConfigService::class)->getString(
+        $consentState = static::getContainer()->get(SystemConfigService::class)->getString(
             ConsentService::SYSTEM_CONFIG_KEY_CONSENT_STATE
         );
         static::assertSame(ConsentState::REQUESTED->value, $consentState);
@@ -39,7 +39,7 @@ class ConsentControllerTest extends TestCase
 
     public function testConsentIsGivenIfConsentStateIsAccepted(): void
     {
-        $this->getContainer()->get(SystemConfigService::class)->set(
+        static::getContainer()->get(SystemConfigService::class)->set(
             ConsentService::SYSTEM_CONFIG_KEY_CONSENT_STATE,
             ConsentState::ACCEPTED->value
         );
@@ -55,7 +55,7 @@ class ConsentControllerTest extends TestCase
         static::assertArrayHasKey('isConsentGiven', $consent);
         static::assertTrue($consent['isConsentGiven']);
 
-        $consentState = $this->getContainer()->get(SystemConfigService::class)->getString(
+        $consentState = static::getContainer()->get(SystemConfigService::class)->getString(
             ConsentService::SYSTEM_CONFIG_KEY_CONSENT_STATE
         );
         static::assertSame(ConsentState::ACCEPTED->value, $consentState);
@@ -66,7 +66,7 @@ class ConsentControllerTest extends TestCase
         $browser = $this->getBrowser();
         $browser->request(Request::METHOD_POST, '/api/usage-data/accept-consent');
 
-        $consentState = $this->getContainer()->get(SystemConfigService::class)->getString(
+        $consentState = static::getContainer()->get(SystemConfigService::class)->getString(
             ConsentService::SYSTEM_CONFIG_KEY_CONSENT_STATE
         );
         static::assertSame(ConsentState::ACCEPTED->value, $consentState);
@@ -77,7 +77,7 @@ class ConsentControllerTest extends TestCase
         $browser = $this->getBrowser();
         $browser->request(Request::METHOD_POST, '/api/usage-data/revoke-consent');
 
-        $consentState = $this->getContainer()->get(SystemConfigService::class)->getString(
+        $consentState = static::getContainer()->get(SystemConfigService::class)->getString(
             ConsentService::SYSTEM_CONFIG_KEY_CONSENT_STATE
         );
         static::assertSame(ConsentState::REVOKED->value, $consentState);

@@ -1,5 +1,5 @@
 /**
- * @package buyers-experience
+ * @sw-package discovery
  */
 import template from './sw-sales-channel-switch.html.twig';
 
@@ -18,8 +18,6 @@ const { debug } = Shopware.Utils;
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 Component.register('sw-sales-channel-switch', {
     template,
-
-    compatConfig: Shopware.compatConfig,
 
     emits: ['change-sales-channel-id'],
 
@@ -65,10 +63,12 @@ Component.register('sw-sales-channel-switch', {
         checkAbort() {
             // Check if abort function exists und reset the select field if the change should be aborted
             if (typeof this.abortChangeFunction === 'function') {
-                if (this.abortChangeFunction({
-                    oldSalesChannelId: this.lastSalesChannelId,
-                    newSalesChannelId: this.salesChannelId,
-                })) {
+                if (
+                    this.abortChangeFunction({
+                        oldSalesChannelId: this.lastSalesChannelId,
+                        newSalesChannelId: this.salesChannelId,
+                    })
+                ) {
                     this.showUnsavedChangesModal = true;
                     this.salesChannelId = this.lastSalesChannelId;
                     this.$refs.salesChannelSelect.loadSelected();

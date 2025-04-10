@@ -9,15 +9,15 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\SalesChannelApiTestBehaviour;
-use Shopware\Core\Framework\Test\TestDataCollection;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\SalesChannel\ContextRoute;
+use Shopware\Core\Test\Stub\Framework\IdsCollection;
 use Symfony\Bundle\FrameworkBundle\KernelBrowser;
 
 /**
  * @internal
  */
-#[Package('buyers-experience')]
+#[Package('discovery')]
 #[CoversClass(ContextRoute::class)]
 #[Group('store-api')]
 class ContextRouteTest extends TestCase
@@ -27,11 +27,11 @@ class ContextRouteTest extends TestCase
 
     private KernelBrowser $browser;
 
-    private TestDataCollection $ids;
+    private IdsCollection $ids;
 
     protected function setUp(): void
     {
-        $this->ids = new TestDataCollection();
+        $this->ids = new IdsCollection();
 
         $this->browser = $this->createCustomSalesChannelBrowser([
             'id' => $this->ids->create('sales-channel'),
@@ -69,6 +69,7 @@ class ContextRouteTest extends TestCase
         static::assertArrayHasKey('salesChannel', $response);
         static::assertSame($response['salesChannel']['id'], $this->ids->get('sales-channel'));
 
+        static::assertIsArray($response);
         static::assertArrayHasKey('customer', $response);
         static::assertArrayHasKey('activeBillingAddress', $response['customer']);
         static::assertArrayHasKey('activeShippingAddress', $response['customer']);
@@ -91,7 +92,7 @@ class ContextRouteTest extends TestCase
         static::assertArrayHasKey('activeBillingAddress', $response['customer']);
 
         $newBillingAddressId = Uuid::randomHex();
-        $addressRepository = $this->getContainer()->get('customer_address.repository');
+        $addressRepository = static::getContainer()->get('customer_address.repository');
         $addressRepository->create([
             [
                 'id' => $newBillingAddressId,

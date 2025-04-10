@@ -5,15 +5,17 @@ namespace Shopware\Tests\Integration\Storefront\Theme\ConfigLoader;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Media\Core\Application\MediaPathUpdater;
+use Shopware\Core\Content\Media\MediaCollection;
 use Shopware\Core\DevOps\Environment\EnvironmentHelper;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
-use Shopware\Core\Framework\Test\IdsCollection;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
+use Shopware\Core\Test\Stub\Framework\IdsCollection;
 use Shopware\Storefront\Theme\ConfigLoader\DatabaseConfigLoader;
 use Shopware\Storefront\Theme\StorefrontPluginConfiguration\StorefrontPluginConfiguration;
 use Shopware\Storefront\Theme\StorefrontPluginConfiguration\StorefrontPluginConfigurationCollection;
 use Shopware\Storefront\Theme\StorefrontPluginRegistry;
+use Shopware\Storefront\Theme\ThemeCollection;
 
 /**
  * @internal
@@ -26,8 +28,14 @@ class DatabaseConfigLoaderTest extends TestCase
 
     private IdsCollection $ids;
 
+    /**
+     * @var EntityRepository<ThemeCollection>
+     */
     private EntityRepository $themeRepository;
 
+    /**
+     * @var EntityRepository<MediaCollection>
+     */
     private EntityRepository $mediaRepository;
 
     private MediaPathUpdater $mediaPathUpdater;
@@ -37,9 +45,9 @@ class DatabaseConfigLoaderTest extends TestCase
         parent::setUp();
         $this->ids = new IdsCollection();
 
-        $this->themeRepository = $this->getContainer()->get('theme.repository');
-        $this->mediaRepository = $this->getContainer()->get('media.repository');
-        $this->mediaPathUpdater = $this->getContainer()->get(MediaPathUpdater::class);
+        $this->themeRepository = static::getContainer()->get('theme.repository');
+        $this->mediaRepository = static::getContainer()->get('media.repository');
+        $this->mediaPathUpdater = static::getContainer()->get(MediaPathUpdater::class);
     }
 
     public function setUpMedia(): void

@@ -11,85 +11,37 @@ use Shopware\Core\Framework\Struct\Struct;
 #[Package('checkout')]
 class StorePluginStruct extends Struct
 {
-    /**
-     * @var string
-     */
-    protected $name;
+    protected string $name;
 
-    /**
-     * @var string
-     */
-    protected $label;
+    protected string $label;
 
-    /**
-     * @var string
-     */
-    protected $shortDescription;
+    protected string $shortDescription;
 
-    /**
-     * @var string|null
-     */
-    protected $iconPath;
+    protected ?string $iconPath;
 
-    /**
-     * @var string|null
-     */
-    protected $version;
+    protected ?string $version;
 
-    /**
-     * @var string|null
-     */
-    protected $description;
+    protected ?string $description;
 
-    /**
-     * @var string|null
-     */
-    protected $changelog;
+    protected ?string $changelog;
 
-    /**
-     * @var \DateTimeInterface|null
-     */
-    protected $releaseDate;
+    protected ?\DateTimeInterface $releaseDate;
 
-    /**
-     * @var bool
-     */
-    protected $installed = false;
+    protected bool $installed = false;
 
-    /**
-     * @var bool
-     */
-    protected $active = false;
+    protected bool $active = false;
 
-    /**
-     * @var string|null
-     */
-    protected $language;
+    protected ?string $language;
 
-    /**
-     * @var string|null
-     */
-    protected $region;
+    protected ?string $region;
 
-    /**
-     * @var string|null
-     */
-    protected $category;
+    protected ?string $category;
 
-    /**
-     * @var string|null
-     */
-    protected $manufacturer;
+    protected ?string $manufacturer;
 
-    /**
-     * @var int|null
-     */
-    protected $position;
+    protected ?int $position;
 
-    /**
-     * @var bool
-     */
-    protected $isCategoryLead;
+    protected bool $isCategoryLead;
 
     /**
      * @var 'plugin'|'app'

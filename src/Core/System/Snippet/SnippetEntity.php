@@ -8,46 +8,21 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityIdTrait;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\Snippet\Aggregate\SnippetSet\SnippetSetEntity;
 
-#[Package('services-settings')]
+#[Package('discovery')]
 class SnippetEntity extends Entity
 {
     use EntityCustomFieldsTrait;
     use EntityIdTrait;
 
-    /**
-     * @var string
-     *
-     * @deprecated tag:v6.7.0 - will be changed to native type
-     */
-    protected $setId;
+    protected string $setId;
 
-    /**
-     * @var string
-     *
-     * @deprecated tag:v6.7.0 - will be changed to native type
-     */
-    protected $translationKey;
+    protected string $translationKey;
 
-    /**
-     * @var string
-     *
-     * @deprecated tag:v6.7.0 - will be changed to native type
-     */
-    protected $value;
+    protected string $value;
 
-    /**
-     * @var string
-     *
-     * @deprecated tag:v6.7.0 - will be changed to native type
-     */
-    protected $author;
+    protected string $author;
 
-    /**
-     * @var SnippetSetEntity|null
-     *
-     * @deprecated tag:v6.7.0 - will be changed to native type
-     */
-    protected $set;
+    protected ?SnippetSetEntity $set = null;
 
     public function getSetId(): string
     {

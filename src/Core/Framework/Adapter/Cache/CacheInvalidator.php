@@ -5,15 +5,16 @@ namespace Shopware\Core\Framework\Adapter\Cache;
 use Psr\Cache\CacheItemPoolInterface;
 use Psr\Log\LoggerInterface;
 use Shopware\Core\Framework\Adapter\Cache\InvalidatorStorage\AbstractInvalidatorStorage;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\PlatformRequest;
 use Symfony\Component\Cache\Adapter\TagAwareAdapterInterface;
+use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
 /**
  * @final
  */
-#[Package('core')]
+#[Package('framework')]
 class CacheInvalidator
 {
     /**
@@ -22,11 +23,11 @@ class CacheInvalidator
      * @param CacheItemPoolInterface[] $adapters
      */
     public function __construct(
-        private readonly int $delay,
         private readonly array $adapters,
         private readonly AbstractInvalidatorStorage $cache,
         private readonly EventDispatcherInterface $dispatcher,
         private readonly LoggerInterface $logger,
+        private readonly RequestStack $requestStack,
         private readonly string $environment
     ) {
     }
@@ -42,29 +43,13 @@ class CacheInvalidator
             return;
         }
 
-        if (Feature::isActive('cache_rework')) {
-            $force = $force || $this->environment !== 'prod';
-
-            if ($force) {
-                $this->purge($tags);
-
-                return;
-            }
-
-            $this->cache->store($tags);
+        if ($force || $this->shouldForceInvalidate()) {
+            $this->purge($tags);
 
             return;
         }
 
-        $delay = $this->delay > 0 && !$force;
-
-        if ($delay) {
-            $this->cache->store($tags);
-
-            return;
-        }
-
-        $this->purge($tags);
+        $this->cache->store($tags);
     }
 
     /**
@@ -99,5 +84,11 @@ class CacheInvalidator
         }
 
         $this->dispatcher->dispatch(new InvalidateCacheEvent($keys));
+    }
+
+    private function shouldForceInvalidate(): bool
+    {
+        return $this->environment === 'test' // immediately invalidate in test environment, to make tests deterministic
+            || $this->requestStack->getMainRequest()?->headers->get(PlatformRequest::HEADER_FORCE_CACHE_INVALIDATE) === '1';
     }
 }

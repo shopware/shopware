@@ -6,8 +6,8 @@ use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Test\Product\ProductBuilder;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\Test\IdsCollection;
 use Shopware\Core\Framework\Test\TestCaseBase\AdminFunctionalTestBehaviour;
+use Shopware\Core\Test\Stub\Framework\IdsCollection;
 use Shopware\Core\Test\TestDefaults;
 
 /**
@@ -20,7 +20,7 @@ class AdminProductStreamControllerTest extends TestCase
 
     private IdsCollection $ids;
 
-    protected function setup(): void
+    protected function setUp(): void
     {
         $this->ids = new IdsCollection();
         $this->prepareTestData();
@@ -183,10 +183,10 @@ class AdminProductStreamControllerTest extends TestCase
                 ->build(),
         ];
 
-        $this->getContainer()->get('product.repository')
+        static::getContainer()->get('product.repository')
             ->create($products, Context::createDefaultContext());
 
-        $this->getContainer()->get('rule.repository')->upsert(
+        static::getContainer()->get('rule.repository')->upsert(
             [
                 ['id' => $this->ids->get('rule-a'), 'priority' => 1],
                 ['id' => $this->ids->get('rule-b'), 'priority' => 2],

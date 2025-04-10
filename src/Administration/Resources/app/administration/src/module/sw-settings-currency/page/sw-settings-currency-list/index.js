@@ -1,5 +1,5 @@
 /**
- * @package buyers-experience
+ * @sw-package fundamentals@framework
  */
 import template from './sw-settings-currency-list.html.twig';
 
@@ -10,9 +10,10 @@ const { Criteria } = Shopware.Data;
 export default {
     template,
 
-    compatConfig: Shopware.compatConfig,
-
-    inject: ['repositoryFactory', 'acl'],
+    inject: [
+        'repositoryFactory',
+        'acl',
+    ],
 
     mixins: [
         Mixin.getByName('listing'),
@@ -58,33 +59,38 @@ export default {
             criteria.setTerm(this.term);
             criteria.addSorting(Criteria.sort(this.sortBy, this.sortDirection, this.naturalSorting));
 
-            this.currencyRepository.search(criteria).then((items) => {
-                this.total = items.total;
-                this.currency = items;
-                this.isLoading = false;
+            this.currencyRepository
+                .search(criteria)
+                .then((items) => {
+                    this.total = items.total;
+                    this.currency = items;
+                    this.isLoading = false;
 
-                return items;
-            }).catch(() => {
-                this.isLoading = false;
-            });
+                    return items;
+                })
+                .catch(() => {
+                    this.isLoading = false;
+                });
         },
 
         onChangeLanguage(languageId) {
-            Shopware.State.commit('context/setApiLanguageId', languageId);
+            Shopware.Store.get('context').api.languageId = languageId;
             this.getList();
         },
 
         onInlineEditSave(promise, currency) {
-            promise.then(() => {
-                this.createNotificationSuccess({
-                    message: this.$tc('sw-settings-currency.detail.messageSaveSuccess', 0, { name: currency.name }),
+            promise
+                .then(() => {
+                    this.createNotificationSuccess({
+                        message: this.$tc('sw-settings-currency.detail.messageSaveSuccess', { name: currency.name }, 0),
+                    });
+                })
+                .catch(() => {
+                    this.getList();
+                    this.createNotificationError({
+                        message: this.$tc('sw-settings-currency.detail.messageSaveError'),
+                    });
                 });
-            }).catch(() => {
-                this.getList();
-                this.createNotificationError({
-                    message: this.$tc('sw-settings-currency.detail.messageSaveError'),
-                });
-            });
         },
 
         onDelete(id) {
@@ -103,29 +109,33 @@ export default {
             });
         },
 
-
         getCurrencyColumns() {
-            return [{
-                property: 'name',
-                dataIndex: 'name',
-                inlineEdit: 'string',
-                label: 'sw-settings-currency.list.columnName',
-                routerLink: 'sw.settings.currency.detail',
-                width: '250px',
-                primary: true,
-            }, {
-                property: 'shortName',
-                inlineEdit: 'string',
-                label: 'sw-settings-currency.list.columnShortName',
-            }, {
-                property: 'symbol',
-                inlineEdit: 'string',
-                label: 'sw-settings-currency.list.columnSymbol',
-            }, {
-                property: 'factor',
-                inlineEdit: 'string',
-                label: 'sw-settings-currency.list.columnFactor',
-            }];
+            return [
+                {
+                    property: 'name',
+                    dataIndex: 'name',
+                    inlineEdit: 'string',
+                    label: 'sw-settings-currency.list.columnName',
+                    routerLink: 'sw.settings.currency.detail',
+                    width: '250px',
+                    primary: true,
+                },
+                {
+                    property: 'shortName',
+                    inlineEdit: 'string',
+                    label: 'sw-settings-currency.list.columnShortName',
+                },
+                {
+                    property: 'symbol',
+                    inlineEdit: 'string',
+                    label: 'sw-settings-currency.list.columnSymbol',
+                },
+                {
+                    property: 'factor',
+                    inlineEdit: 'string',
+                    label: 'sw-settings-currency.list.columnFactor',
+                },
+            ];
         },
     },
 };

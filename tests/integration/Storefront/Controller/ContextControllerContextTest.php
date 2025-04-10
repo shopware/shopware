@@ -31,7 +31,7 @@ class ContextControllerContextTest extends TestCase
 
     protected function setUp(): void
     {
-        $this->router = $this->getContainer()->get('router');
+        $this->router = static::getContainer()->get('router');
 
         $this->languageId = Uuid::randomHex();
         $localeId = Uuid::randomHex();
@@ -39,7 +39,7 @@ class ContextControllerContextTest extends TestCase
         $this->defaultBaseUrl = $_SERVER['APP_URL'];
         $this->testBaseUrl = $_SERVER['APP_URL'] . '/tst-TST';
 
-        $this->getContainer()->get(Connection::class)->executeStatement('DELETE FROM sales_channel');
+        static::getContainer()->get(Connection::class)->executeStatement('DELETE FROM sales_channel');
 
         $domains = [
             [
@@ -55,7 +55,7 @@ class ContextControllerContextTest extends TestCase
                     'locale' => [
                         'id' => $localeId,
                         'name' => 'Test',
-                        'code' => 'x-tst-TST',
+                        'code' => 'af_ZA',
                         'territory' => 'test',
                     ],
                     'translationCodeId' => $localeId,
@@ -128,7 +128,7 @@ class ContextControllerContextTest extends TestCase
     public function testSwitchWithProductIdAndCorrectRedirectTo(): void
     {
         $this->browser->request('GET', $this->testBaseUrl);
-        static::assertSame(200, $this->browser->getResponse()->getStatusCode());
+        static::assertSame(200, $this->browser->getResponse()->getStatusCode(), $this->browser->getResponse()->getContent() ?: '');
 
         $productId = Uuid::randomHex();
 
@@ -149,7 +149,7 @@ class ContextControllerContextTest extends TestCase
         static::assertSame(200, $this->browser->getResponse()->getStatusCode());
 
         $contextSubscriber = new ContextControllerTestSubscriber();
-        $dispatcher = $this->getContainer()->get('event_dispatcher');
+        $dispatcher = static::getContainer()->get('event_dispatcher');
         $dispatcher->addSubscriber($contextSubscriber);
 
         $this->browser->request(

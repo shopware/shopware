@@ -1,5 +1,5 @@
 /**
- * @package services-settings
+ * @sw-package fundamentals@after-sales
  */
 import template from './sw-import-export-view-profiles.html.twig';
 import './sw-import-export-view-profiles.scss';
@@ -13,9 +13,11 @@ const { Criteria } = Shopware.Data;
 export default {
     template,
 
-    compatConfig: Shopware.compatConfig,
-
-    inject: ['repositoryFactory', 'importExport', 'feature'],
+    inject: [
+        'repositoryFactory',
+        'importExport',
+        'feature',
+    ],
 
     mixins: [
         Mixin.getByName('notification'),
@@ -137,11 +139,7 @@ export default {
             const profile = await this.profileRepository.get(id);
 
             if (Array.isArray(profile.config) && profile.config.length <= 0) {
-                if (this.isCompatEnabled('INSTANCE_SET')) {
-                    this.$set(profile, 'config', {});
-                } else {
-                    this.profile.config = {};
-                }
+                this.profile.config = {};
             }
 
             if (profile.config?.createEntities === undefined) {
@@ -165,28 +163,32 @@ export default {
                 },
             };
 
-            return this.profileRepository.clone(item.id, behavior, Shopware.Context.api).then((clone) => {
-                const criteria = new Criteria(1, 25);
-                criteria.setIds([clone.id]);
-                return this.profileRepository.search(criteria);
-            }).then((profiles) => {
-                const profile = profiles[0];
-                if (profile.config?.createEntities === undefined) {
-                    profile.config.createEntities = true;
-                }
-                if (profile.config?.updateEntities === undefined) {
-                    profile.config.updateEntities = true;
-                }
+            return this.profileRepository
+                .clone(item.id, behavior, Shopware.Context.api)
+                .then((clone) => {
+                    const criteria = new Criteria(1, 25);
+                    criteria.setIds([clone.id]);
+                    return this.profileRepository.search(criteria);
+                })
+                .then((profiles) => {
+                    const profile = profiles[0];
+                    if (profile.config?.createEntities === undefined) {
+                        profile.config.createEntities = true;
+                    }
+                    if (profile.config?.updateEntities === undefined) {
+                        profile.config.updateEntities = true;
+                    }
 
-                this.selectedProfile = profile;
-                this.showProfileEditModal = true;
-                return this.loadProfiles(); // refresh the list in any case (even if the modal is canceled)
-                // because the duplicate already exists.
-            }).catch(() => {
-                this.createNotificationError({
-                    message: this.$tc('global.notification.unspecifiedSaveErrorMessage'),
+                    this.selectedProfile = profile;
+                    this.showProfileEditModal = true;
+                    return this.loadProfiles(); // refresh the list in any case (even if the modal is canceled)
+                    // because the duplicate already exists.
+                })
+                .catch(() => {
+                    this.createNotificationError({
+                        message: this.$tc('global.notification.unspecifiedSaveErrorMessage'),
+                    });
                 });
-            });
         },
 
         async onDownloadTemplate(profile) {
@@ -204,19 +206,23 @@ export default {
 
         saveSelectedProfile() {
             this.isLoading = true;
-            return this.profileRepository.save(this.selectedProfile, Shopware.Context.api).then(() => {
-                this.showProfileEditModal = false;
-                this.selectedProfile = null;
-                this.onCloseNewProfileWizard();
-                this.createNotificationSuccess({
-                    message: this.$tc('sw-import-export.profile.messageSaveSuccess', 0),
+            return this.profileRepository
+                .save(this.selectedProfile, Shopware.Context.api)
+                .then(() => {
+                    this.showProfileEditModal = false;
+                    this.selectedProfile = null;
+                    this.onCloseNewProfileWizard();
+                    this.createNotificationSuccess({
+                        message: this.$tc('sw-import-export.profile.messageSaveSuccess', 0),
+                    });
+                    return this.loadProfiles();
+                })
+                .catch((exception) => {
+                    this.onError(exception);
+                })
+                .finally(() => {
+                    this.isLoading = false;
                 });
-                return this.loadProfiles();
-            }).catch((exception) => {
-                this.onError(exception);
-            }).finally(() => {
-                this.isLoading = false;
-            });
         },
 
         onError(error) {
@@ -233,9 +239,9 @@ export default {
         },
 
         getTypeLabel(isSystemDefault) {
-            return isSystemDefault ?
-                this.$tc('sw-import-export.profile.defaultTypeLabel') :
-                this.$tc('sw-import-export.profile.customTypeLabel');
+            return isSystemDefault
+                ? this.$tc('sw-import-export.profile.defaultTypeLabel')
+                : this.$tc('sw-import-export.profile.customTypeLabel');
         },
 
         onCloseNewProfileWizard() {

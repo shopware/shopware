@@ -30,8 +30,8 @@ class CategoryRepositoryTest extends TestCase
 
     protected function setUp(): void
     {
-        $this->repository = $this->getContainer()->get('category.repository');
-        $this->connection = $this->getContainer()->get(Connection::class);
+        $this->repository = static::getContainer()->get('category.repository');
+        $this->connection = static::getContainer()->get(Connection::class);
     }
 
     public function testDeleteParentCategoryDeletesSubCategories(): void

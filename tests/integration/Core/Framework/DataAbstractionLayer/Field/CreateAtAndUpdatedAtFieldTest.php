@@ -36,15 +36,15 @@ class CreateAtAndUpdatedAtFieldTest extends TestCase
     protected function setUp(): void
     {
         $definition = $this->registerDefinition(DateTimeDefinition::class);
-        $this->connection = $this->getContainer()->get(Connection::class);
+        $this->connection = static::getContainer()->get(Connection::class);
         $this->entityRepository = new EntityRepository(
             $definition,
-            $this->getContainer()->get(EntityReaderInterface::class),
-            $this->getContainer()->get(VersionManager::class),
-            $this->getContainer()->get(EntitySearcherInterface::class),
-            $this->getContainer()->get(EntityAggregatorInterface::class),
-            $this->getContainer()->get('event_dispatcher'),
-            $this->getContainer()->get(EntityLoadedEventFactory::class)
+            static::getContainer()->get(EntityReaderInterface::class),
+            static::getContainer()->get(VersionManager::class),
+            static::getContainer()->get(EntitySearcherInterface::class),
+            static::getContainer()->get(EntityAggregatorInterface::class),
+            static::getContainer()->get('event_dispatcher'),
+            static::getContainer()->get(EntityLoadedEventFactory::class)
         );
 
         $nullableTable = <<<EOF

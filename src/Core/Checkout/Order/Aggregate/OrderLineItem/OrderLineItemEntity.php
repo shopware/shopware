@@ -22,137 +22,66 @@ class OrderLineItemEntity extends Entity
     use EntityCustomFieldsTrait;
     use EntityIdTrait;
 
-    /**
-     * @var string
-     */
-    protected $orderId;
+    protected string $orderId;
 
-    /**
-     * @var string
-     */
-    protected $identifier;
+    protected string $identifier;
 
-    /**
-     * @var string|null
-     */
-    protected $referencedId;
+    protected ?string $referencedId = null;
 
-    /**
-     * @var string|null
-     */
-    protected $productId;
+    protected ?string $productId = null;
 
     /**
      * @internal
      */
     protected ?string $promotionId = null;
 
-    /**
-     * @var int
-     */
-    protected $quantity;
+    protected int $quantity;
 
-    /**
-     * @var float
-     */
-    protected $unitPrice;
+    protected float $unitPrice;
 
-    /**
-     * @var float
-     */
-    protected $totalPrice;
+    protected float $totalPrice;
 
-    /**
-     * @var string
-     */
-    protected $label;
+    protected string $label;
 
-    /**
-     * @var string|null
-     */
-    protected $description;
+    protected ?string $description = null;
 
-    /**
-     * @var bool
-     */
-    protected $good;
+    protected bool $good;
 
-    /**
-     * @var bool
-     */
-    protected $removable;
+    protected bool $removable;
 
-    /**
-     * @var string|null
-     */
-    protected $coverId;
+    protected ?string $coverId = null;
 
-    /**
-     * @var bool
-     */
-    protected $stackable;
+    protected bool $stackable;
 
-    /**
-     * @var int
-     */
-    protected $position;
+    protected int $position;
 
-    /**
-     * @var CalculatedPrice|null
-     */
-    protected $price;
+    protected ?CalculatedPrice $price = null;
 
-    /**
-     * @var PriceDefinitionInterface|null
-     */
-    protected $priceDefinition;
+    protected ?PriceDefinitionInterface $priceDefinition = null;
 
     /**
      * @var array<string>|null
      */
-    protected $payload;
+    protected ?array $payload = null;
+
+    protected ?string $parentId = null;
+
+    protected ?OrderLineItemEntity $parent = null;
+
+    protected ?string $type = null;
+
+    protected ?OrderEntity $order = null;
+
+    protected ?OrderDeliveryPositionCollection $orderDeliveryPositions = null;
+
+    protected ?MediaEntity $cover = null;
 
     /**
-     * @var string|null
-     */
-    protected $parentId;
-
-    /**
-     * @var OrderLineItemEntity|null
-     */
-    protected $parent;
-
-    /**
-     * @var string|null
-     */
-    protected $type;
-
-    /**
-     * @var OrderEntity|null
-     */
-    protected $order;
-
-    /**
-     * @var OrderDeliveryPositionCollection|null
-     */
-    protected $orderDeliveryPositions;
-
-    /**
-     * @var MediaEntity|null
-     */
-    protected $cover;
-
-    /**
-     * @var OrderLineItemCollection|null
-     *
      * @internal
      */
-    protected $children;
+    protected ?OrderLineItemCollection $children = null;
 
-    /**
-     * @var ProductEntity|null
-     */
-    protected $product;
+    protected ?ProductEntity $product = null;
 
     protected ?OrderTransactionCaptureRefundPositionCollection $orderTransactionCaptureRefundPositions = null;
 
@@ -165,20 +94,11 @@ class OrderLineItemEntity extends Entity
 
     protected ?PromotionEntity $promotion = null;
 
-    /**
-     * @var string
-     */
-    protected $orderVersionId;
+    protected string $orderVersionId;
 
-    /**
-     * @var string
-     */
-    protected $productVersionId;
+    protected string $productVersionId;
 
-    /**
-     * @var string
-     */
-    protected $parentVersionId;
+    protected string $parentVersionId;
 
     public function getOrderId(): string
     {

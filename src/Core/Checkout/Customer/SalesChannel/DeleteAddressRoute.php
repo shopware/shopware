@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Checkout\Customer\SalesChannel;
 
+use Shopware\Core\Checkout\Customer\Aggregate\CustomerAddress\CustomerAddressCollection;
 use Shopware\Core\Checkout\Customer\CustomerEntity;
 use Shopware\Core\Checkout\Customer\CustomerException;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
@@ -18,16 +19,12 @@ class DeleteAddressRoute extends AbstractDeleteAddressRoute
     use CustomerAddressValidationTrait;
 
     /**
-     * @var EntityRepository
-     */
-    private $addressRepository;
-
-    /**
+     * @param EntityRepository<CustomerAddressCollection> $addressRepository
+     *
      * @internal
      */
-    public function __construct(EntityRepository $addressRepository)
+    public function __construct(private readonly EntityRepository $addressRepository)
     {
-        $this->addressRepository = $addressRepository;
     }
 
     public function getDecorated(): AbstractDeleteAddressRoute
@@ -35,7 +32,12 @@ class DeleteAddressRoute extends AbstractDeleteAddressRoute
         throw new DecorationPatternException(self::class);
     }
 
-    #[Route(path: '/store-api/account/address/{addressId}', name: 'store-api.account.address.delete', methods: ['DELETE'], defaults: ['_loginRequired' => true, '_loginRequiredAllowGuest' => true])]
+    #[Route(
+        path: '/store-api/account/address/{addressId}',
+        name: 'store-api.account.address.delete',
+        defaults: ['_loginRequired' => true, '_loginRequiredAllowGuest' => true],
+        methods: ['DELETE']
+    )]
     public function delete(string $addressId, SalesChannelContext $context, CustomerEntity $customer): NoContentResponse
     {
         $this->validateAddress($addressId, $context, $customer);

@@ -9,31 +9,22 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Struct\ArrayStruct;
 use Shopware\Core\System\SalesChannel\StoreApiResponse;
 
+/**
+ * @extends StoreApiResponse<ArrayStruct<array{wishlist: CustomerWishlistEntity, products: EntitySearchResult<ProductCollection>}>>
+ */
 #[Package('checkout')]
 class LoadWishlistRouteResponse extends StoreApiResponse
 {
     /**
-     * @var CustomerWishlistEntity
-     */
-    protected $wishlist;
-
-    /**
-     * @var EntitySearchResult<ProductCollection>
-     */
-    protected $productListing;
-
-    /**
-     * @param EntitySearchResult<ProductCollection> $listing
+     * @param EntitySearchResult<ProductCollection> $productListing
      */
     public function __construct(
-        CustomerWishlistEntity $wishlist,
-        EntitySearchResult $listing
+        protected CustomerWishlistEntity $wishlist,
+        protected EntitySearchResult $productListing,
     ) {
-        $this->wishlist = $wishlist;
-        $this->productListing = $listing;
         parent::__construct(new ArrayStruct([
             'wishlist' => $wishlist,
-            'products' => $listing,
+            'products' => $productListing,
         ], 'wishlist_products'));
     }
 

@@ -92,6 +92,10 @@ Displays a single image or a gallery slider in a zoom modal with zoom functions.
         align-items: center;
         justify-content: center;
         align-content: center;
+        touch-action: auto !important;
+        -webkit-user-select: auto !important;
+        -webkit-touch-callout: default !important;
+        -webkit-user-drag: auto !important;
 
         > * {
             position: relative;

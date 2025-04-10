@@ -18,140 +18,67 @@ use Shopware\Core\System\User\Aggregate\UserAccessKey\UserAccessKeyCollection;
 use Shopware\Core\System\User\Aggregate\UserConfig\UserConfigCollection;
 use Shopware\Core\System\User\Aggregate\UserRecovery\UserRecoveryEntity;
 
-#[Package('services-settings')]
+#[Package('fundamentals@framework')]
 class UserEntity extends Entity
 {
     use EntityCustomFieldsTrait;
     use EntityIdTrait;
 
-    /**
-     * @var string
-     */
-    protected $localeId;
+    protected string $localeId;
 
-    /**
-     * @var string|null
-     */
-    protected $avatarId;
+    protected ?string $avatarId = null;
 
-    /**
-     * @var string
-     */
-    protected $username;
+    protected string $username;
 
     /**
      * @internal
-     *
-     * @var string
      */
-    protected $password;
+    protected string $password;
 
-    /**
-     * @var string
-     */
-    protected $firstName;
+    protected string $firstName;
 
-    /**
-     * @var string
-     */
-    protected $lastName;
+    protected string $lastName;
 
-    /**
-     * @var string|null
-     */
-    protected $title;
+    protected ?string $title = null;
 
-    /**
-     * @var string
-     */
-    protected $email;
+    protected string $email;
 
-    /**
-     * @var bool
-     */
-    protected $active;
+    protected bool $active;
 
-    /**
-     * @var bool
-     */
-    protected $admin;
+    protected bool $admin;
 
-    /**
-     * @var AclRoleCollection
-     */
-    protected $aclRoles;
+    protected ?AclRoleCollection $aclRoles = null;
 
-    /**
-     * @var LocaleEntity|null
-     */
-    protected $locale;
+    protected ?LocaleEntity $locale = null;
 
-    /**
-     * @var MediaEntity|null
-     */
-    protected $avatarMedia;
+    protected ?MediaEntity $avatarMedia = null;
 
-    /**
-     * @var MediaCollection|null
-     */
-    protected $media;
+    protected ?MediaCollection $media = null;
 
-    /**
-     * @var UserAccessKeyCollection|null
-     */
-    protected $accessKeys;
+    protected ?UserAccessKeyCollection $accessKeys = null;
 
-    /**
-     * @var UserConfigCollection|null
-     */
-    protected $configs;
+    protected ?UserConfigCollection $configs = null;
 
-    /**
-     * @var StateMachineHistoryCollection|null
-     */
-    protected $stateMachineHistoryEntries;
+    protected ?StateMachineHistoryCollection $stateMachineHistoryEntries = null;
 
-    /**
-     * @var ImportExportLogCollection|null
-     */
-    protected $importExportLogEntries;
+    protected ?ImportExportLogCollection $importExportLogEntries = null;
 
-    /**
-     * @var UserRecoveryEntity|null
-     */
-    protected $recoveryUser;
+    protected ?UserRecoveryEntity $recoveryUser = null;
 
     /**
      * @internal
-     *
-     * @var string|null
      */
-    protected $storeToken;
+    protected ?string $storeToken = null;
 
-    /**
-     * @var \DateTimeInterface|null
-     */
-    protected $lastUpdatedPasswordAt;
+    protected ?\DateTimeInterface $lastUpdatedPasswordAt = null;
 
-    /**
-     * @var OrderCollection|null
-     */
-    protected $createdOrders;
+    protected ?OrderCollection $createdOrders = null;
 
-    /**
-     * @var OrderCollection|null
-     */
-    protected $updatedOrders;
+    protected ?OrderCollection $updatedOrders = null;
 
-    /**
-     * @var CustomerCollection|null
-     */
-    protected $createdCustomers;
+    protected ?CustomerCollection $createdCustomers = null;
 
-    /**
-     * @var CustomerCollection|null
-     */
-    protected $updatedCustomers;
+    protected ?CustomerCollection $updatedCustomers = null;
 
     protected string $timeZone;
 
@@ -351,7 +278,7 @@ class UserEntity extends Entity
         $this->admin = $admin;
     }
 
-    public function getAclRoles(): AclRoleCollection
+    public function getAclRoles(): ?AclRoleCollection
     {
         return $this->aclRoles;
     }

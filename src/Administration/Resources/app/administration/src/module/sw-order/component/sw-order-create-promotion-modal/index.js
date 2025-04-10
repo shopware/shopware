@@ -3,19 +3,20 @@ import template from './sw-order-create-promotion-modal.html.twig';
 import './sw-order-create-promotion-modal.scss';
 
 /**
- * @package checkout
+ * @sw-package checkout
  */
 
-const { State, Utils, Service } = Shopware;
+const { Store, Utils, Service } = Shopware;
 const { format } = Utils;
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default {
     template,
 
-    compatConfig: Shopware.compatConfig,
-
-    emits: ['close', 'save'],
+    emits: [
+        'close',
+        'save',
+    ],
 
     props: {
         currency: {
@@ -37,7 +38,7 @@ export default {
 
     computed: {
         cart() {
-            return State.get('swOrder').cart;
+            return Store.get('swOrder').cart;
         },
 
         cartAutomaticPromotionItems() {
@@ -64,10 +65,12 @@ export default {
             this.isLoading = true;
             const additionalParams = { salesChannelId: this.salesChannelId };
 
-            Service('cartStoreService').disableAutomaticPromotions(this.cart.token, additionalParams).then(() => {
-                this.isLoading = false;
-                this.$emit('save');
-            });
+            Service('cartStoreService')
+                .disableAutomaticPromotions(this.cart.token, additionalParams)
+                .then(() => {
+                    this.isLoading = false;
+                    this.$emit('save');
+                });
         },
 
         getDescription(item) {
@@ -75,20 +78,24 @@ export default {
             const { value, discountScope, discountType, groupId } = item.payload;
             const snippet = `sw-order.createBase.textPromotionDescription.${discountScope}`;
 
-            if (discountScope === DiscountScopes.CART &&
+            if (
+                discountScope === DiscountScopes.CART &&
                 discountType === DiscountTypes.ABSOLUTE &&
-                Math.abs(totalPrice) < value) {
+                Math.abs(totalPrice) < value
+            ) {
                 return this.$tc(`${snippet}.absoluteUpto`, 0, {
                     value: format.currency(Number(value), this.currency.isoCode),
                     totalPrice: format.currency(Math.abs(totalPrice), this.currency.isoCode),
                 });
             }
 
-            const discountValue = discountType === DiscountTypes.PERCENTAGE
-                ? value
-                : format.currency(Number(value), this.currency.isoCode);
+            const discountValue =
+                discountType === DiscountTypes.PERCENTAGE ? value : format.currency(Number(value), this.currency.isoCode);
 
-            return this.$tc(`${snippet}.${discountType}`, 0, { value: discountValue, groupId });
+            return this.$tc(`${snippet}.${discountType}`, 0, {
+                value: discountValue,
+                groupId,
+            });
         },
     },
 };

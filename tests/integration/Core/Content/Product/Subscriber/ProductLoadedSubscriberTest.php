@@ -11,7 +11,6 @@ use Shopware\Core\Checkout\Cart\Price\Struct\ListPrice;
 use Shopware\Core\Content\Product\Aggregate\ProductVisibility\ProductVisibilityDefinition;
 use Shopware\Core\Content\Product\DataAbstractionLayer\CheapestPrice\CalculatedCheapestPrice;
 use Shopware\Core\Content\Product\DataAbstractionLayer\CheapestPrice\CheapestPrice;
-use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Content\Product\ProductEntity;
 use Shopware\Core\Content\Product\ProductEvents;
 use Shopware\Core\Content\Product\SalesChannel\SalesChannelProductEntity;
@@ -24,16 +23,14 @@ use Shopware\Core\Content\Test\Product\ProductBuilder;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Api\Context\SystemSource;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityLoadedEvent;
 use Shopware\Core\Framework\DataAbstractionLayer\PartialEntity;
 use Shopware\Core\Framework\DataAbstractionLayer\Pricing\CashRoundingConfig;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
-use Shopware\Core\Framework\Test\IdsCollection;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
-use Shopware\Core\Framework\Test\TestDataCollection;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory;
+use Shopware\Core\Test\Stub\Framework\IdsCollection;
 use Shopware\Core\Test\TestDefaults;
 
 /**
@@ -55,7 +52,7 @@ class ProductLoadedSubscriberTest extends TestCase
     {
         $ids = new IdsCollection();
 
-        $this->getContainer()->get('product.repository')
+        static::getContainer()->get('product.repository')
             ->create([
                 (new ProductBuilder($ids, 'p.1'))
                     ->price(130)
@@ -64,10 +61,10 @@ class ProductLoadedSubscriberTest extends TestCase
                     ->build(),
             ], Context::createDefaultContext());
 
-        $salesChannelContext = $this->getContainer()->get(SalesChannelContextFactory::class)
+        $salesChannelContext = static::getContainer()->get(SalesChannelContextFactory::class)
             ->create(Uuid::randomHex(), TestDefaults::SALES_CHANNEL);
 
-        $productEntity = $this->getContainer()
+        $productEntity = static::getContainer()
             ->get('sales_channel.product.repository')
             ->search(new Criteria([$ids->get('p.1')]), $salesChannelContext)
             ->first();
@@ -81,7 +78,7 @@ class ProductLoadedSubscriberTest extends TestCase
     {
         $ids = new IdsCollection();
 
-        $this->getContainer()->get('product.repository')
+        static::getContainer()->get('product.repository')
             ->create([
                 (new ProductBuilder($ids, 'p.1'))
                     ->price(130)
@@ -90,13 +87,13 @@ class ProductLoadedSubscriberTest extends TestCase
                     ->build(),
             ], Context::createDefaultContext());
 
-        $salesChannelContext = $this->getContainer()->get(SalesChannelContextFactory::class)
+        $salesChannelContext = static::getContainer()->get(SalesChannelContextFactory::class)
             ->create(Uuid::randomHex(), TestDefaults::SALES_CHANNEL);
 
         $criteria = new Criteria([$ids->get('p.1')]);
         $criteria->addFields(['id', 'cheapestPrice', 'taxId', 'price']);
 
-        $productEntity = $this->getContainer()
+        $productEntity = static::getContainer()
             ->get('sales_channel.product.repository')
             ->search($criteria, $salesChannelContext)
             ->first();
@@ -114,29 +111,21 @@ class ProductLoadedSubscriberTest extends TestCase
     #[DataProvider('propertyCases')]
     public function testSortProperties(array $product, array $expected, array $unexpected, Criteria $criteria): void
     {
-        $this->getContainer()->get('product.repository')
+        static::getContainer()->get('product.repository')
             ->create([$product], Context::createDefaultContext());
 
-        $salesChannelContext = $this->getContainer()->get(SalesChannelContextFactory::class)
+        $salesChannelContext = static::getContainer()->get(SalesChannelContextFactory::class)
             ->create(Uuid::randomHex(), TestDefaults::SALES_CHANNEL);
 
         $criteria->setIds([$product['id']])
             ->addAssociation('properties.group');
 
-        $productEntity = $this->getContainer()
+        $productEntity = static::getContainer()
             ->get('sales_channel.product.repository')
             ->search($criteria, $salesChannelContext)
             ->first();
 
         static::assertInstanceOf(SalesChannelProductEntity::class, $productEntity);
-
-        $subscriber = $this->getContainer()->get(ProductSubscriber::class);
-        $productLoadedEvent = new EntityLoadedEvent(
-            $this->getContainer()->get(ProductDefinition::class),
-            [$productEntity],
-            Context::createDefaultContext()
-        );
-        $subscriber->loaded($productLoadedEvent);
 
         $sortedPropertiesCollection = $productEntity->getSortedProperties();
 
@@ -173,17 +162,17 @@ class ProductLoadedSubscriberTest extends TestCase
     #[DataProvider('propertyCases')]
     public function testSortPropertiesPartial(array $product, array $expected, array $unexpected, Criteria $criteria): void
     {
-        $this->getContainer()->get('product.repository')
+        static::getContainer()->get('product.repository')
             ->create([$product], Context::createDefaultContext());
 
-        $salesChannelContext = $this->getContainer()->get(SalesChannelContextFactory::class)
+        $salesChannelContext = static::getContainer()->get(SalesChannelContextFactory::class)
             ->create(Uuid::randomHex(), TestDefaults::SALES_CHANNEL);
 
         $criteria->setIds([$product['id']])
             ->addAssociation('properties.group')
             ->addFields(['properties', 'price']);
 
-        $productEntity = $this->getContainer()
+        $productEntity = static::getContainer()
             ->get('sales_channel.product.repository')
             ->search($criteria, $salesChannelContext)
             ->first();
@@ -225,7 +214,7 @@ class ProductLoadedSubscriberTest extends TestCase
      */
     public static function propertyCases(): array
     {
-        $ids = new TestDataCollection();
+        $ids = new IdsCollection();
 
         $defaults = [
             'id' => $ids->get('product'),
@@ -371,15 +360,14 @@ class ProductLoadedSubscriberTest extends TestCase
     }
 
     /**
-     * @param non-empty-array<string> $languageChain
      * @param array<mixed> $product
      * @param array<mixed> $expected
-     * @param array<string> $languageChain
+     * @param non-empty-list<string> $languageChain
      */
     #[DataProvider('variationCases')]
     public function testVariation(array $product, array $expected, array $languageChain, Criteria $criteria, bool $sort, string $languageId): void
     {
-        $this->getContainer()
+        static::getContainer()
             ->get('language.repository')
             ->create([
                 [
@@ -399,7 +387,7 @@ class ProductLoadedSubscriberTest extends TestCase
         $productId = $product['id'];
         $context = Context::createDefaultContext();
 
-        $this->getContainer()->get('product.repository')
+        static::getContainer()->get('product.repository')
             ->create([$product], $context);
 
         $context = new Context(
@@ -411,14 +399,12 @@ class ProductLoadedSubscriberTest extends TestCase
 
         $criteria->setIds([$productId]);
 
-        $productEntity = $this->getContainer()
+        $productEntity = static::getContainer()
             ->get('product.repository')
             ->search($criteria, $context)
             ->first();
+
         static::assertInstanceOf(ProductEntity::class, $productEntity);
-        $subscriber = $this->getContainer()->get(ProductSubscriber::class);
-        $productLoadedEvent = new EntityLoadedEvent($this->getContainer()->get(ProductDefinition::class), [$productEntity], $context);
-        $subscriber->loaded($productLoadedEvent);
 
         $variation = $productEntity->getVariation();
 
@@ -435,7 +421,7 @@ class ProductLoadedSubscriberTest extends TestCase
      */
     public static function variationCases(): array
     {
-        $ids = new TestDataCollection();
+        $ids = new IdsCollection();
 
         $defaults = [
             'id' => $ids->get('product'),
@@ -1112,7 +1098,7 @@ class ProductLoadedSubscriberTest extends TestCase
         $productId = $product['id'];
         $context = Context::createDefaultContext();
 
-        $this->getContainer()->get('product.repository')
+        static::getContainer()->get('product.repository')
             ->create([$product], $context);
 
         $context = new Context(
@@ -1125,7 +1111,7 @@ class ProductLoadedSubscriberTest extends TestCase
         $criteria->setIds([$productId]);
 
         /** @var ProductEntity $productEntity */
-        $productEntity = $this->getContainer()
+        $productEntity = static::getContainer()
             ->get('product.repository')
             ->search($criteria, $context)
             ->first();
@@ -1147,7 +1133,7 @@ class ProductLoadedSubscriberTest extends TestCase
      */
     public static function optionCases(): array
     {
-        $ids = new TestDataCollection();
+        $ids = new IdsCollection();
 
         $defaults = [
             'id' => $ids->get('product'),
@@ -1226,12 +1212,12 @@ class ProductLoadedSubscriberTest extends TestCase
 
     public function testListPrices(): void
     {
-        $ids = new TestDataCollection();
+        $ids = new IdsCollection();
 
-        $taxId = $this->getContainer()->get(Connection::class)
+        $taxId = static::getContainer()->get(Connection::class)
             ->fetchOne('SELECT LOWER(HEX(id)) FROM tax LIMIT 1');
 
-        $this->getContainer()->get('currency.repository')
+        static::getContainer()->get('currency.repository')
             ->create([
                 [
                     'id' => $ids->create('currency'),
@@ -1270,7 +1256,7 @@ class ProductLoadedSubscriberTest extends TestCase
             new ListPriceTestCase(100, 90, 200, 135, 33.33, CartPrice::TAX_STATE_FREE, -67.5, 135, 202.5, Defaults::CURRENCY, $ids->get('currency')),
         ];
 
-        $context = $this->getContainer()->get(SalesChannelContextFactory::class)
+        $context = static::getContainer()->get(SalesChannelContextFactory::class)
             ->create(Uuid::randomHex(), TestDefaults::SALES_CHANNEL);
 
         foreach ($cases as $i => $case) {
@@ -1317,10 +1303,10 @@ class ProductLoadedSubscriberTest extends TestCase
                 'price' => $price,
             ]);
 
-            $this->getContainer()->get('product.repository')
+            static::getContainer()->get('product.repository')
                 ->create([$data], Context::createDefaultContext());
 
-            $product = $this->getContainer()->get('sales_channel.product.repository')
+            $product = static::getContainer()->get('sales_channel.product.repository')
                 ->search(new Criteria([$id]), $context)
                 ->get($id);
 
@@ -1338,7 +1324,7 @@ class ProductLoadedSubscriberTest extends TestCase
 
             $partialCriteria = new Criteria([$id]);
             $partialCriteria->addFields(['price', 'taxId']);
-            $product = $this->getContainer()->get('sales_channel.product.repository')
+            $product = static::getContainer()->get('sales_channel.product.repository')
                 ->search($partialCriteria, $context)
                 ->get($id);
 
@@ -1375,84 +1361,18 @@ class ProductLoadedSubscriberTest extends TestCase
  */
 class ListPriceTestCase
 {
-    /**
-     * @var float
-     */
-    public $gross;
-
-    /**
-     * @var float
-     */
-    public $net;
-
-    /**
-     * @var float
-     */
-    public $wasGross;
-
-    /**
-     * @var float
-     */
-    public $wasNet;
-
-    /**
-     * @var string
-     */
-    public $currencyId;
-
-    /**
-     * @var float
-     */
-    public $percentage;
-
-    /**
-     * @var string
-     */
-    public $taxState;
-
-    /**
-     * @var float
-     */
-    public $discount;
-
-    /**
-     * @var string
-     */
-    public $usedCurrency;
-
-    /**
-     * @var float
-     */
-    public $expectedPrice;
-
-    /**
-     * @var float
-     */
-    public $expectedWas;
-
     public function __construct(
-        float $gross,
-        float $net,
-        float $wasGross,
-        float $wasNet,
-        float $percentage,
-        string $taxState,
-        float $discount,
-        float $expectedPrice,
-        float $expectedWas,
-        string $currencyId = Defaults::CURRENCY,
-        string $usedCurrency = Defaults::CURRENCY
+        public float $gross,
+        public float $net,
+        public float $wasGross,
+        public float $wasNet,
+        public float $percentage,
+        public string $taxState,
+        public float $discount,
+        public float $expectedPrice,
+        public float $expectedWas,
+        public string $currencyId = Defaults::CURRENCY,
+        public string $usedCurrency = Defaults::CURRENCY
     ) {
-        $this->gross = $gross;
-        $this->net = $net;
-        $this->wasGross = $wasGross;
-        $this->wasNet = $wasNet;
-        $this->currencyId = $currencyId;
-        $this->percentage = $percentage;
-        $this->taxState = $taxState;
-        $this->discount = $discount;
-        $this->usedCurrency = $usedCurrency;
-        $this->expectedPrice = $expectedPrice;
-        $this->expectedWas = $expectedWas;
     }
 }

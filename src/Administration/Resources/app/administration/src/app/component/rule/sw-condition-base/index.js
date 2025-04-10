@@ -6,7 +6,7 @@ const { mapPropertyErrors } = Component.getComponentHelper();
 
 /**
  * @private
- * @package services-settings
+ * @sw-package fundamentals@after-sales
  * @description Base condition for the condition-tree. This component must be a child of sw-condition-tree.
  * @status prototype
  * @example-type code-only
@@ -15,8 +15,6 @@ const { mapPropertyErrors } = Component.getComponentHelper();
  */
 Component.register('sw-condition-base', {
     template,
-
-    compatConfig: Shopware.compatConfig,
 
     inheritAttrs: false,
 
@@ -91,15 +89,11 @@ Component.register('sw-condition-base', {
     watch: {
         value() {
             if (this.hasError) {
-                this.$store.commit('error/removeApiError', { expression: this.valueErrorPath });
+                Shopware.Store.get('error').removeApiError(this.valueErrorPath);
             }
             if (this.isEmpty && !!this.inputKey) {
-                if (this.isCompatEnabled('INSTANCE_DELETE')) {
-                    this.$delete(this.condition.value, this.inputKey);
-                } else {
-                    // eslint-disable-next-line vue/no-mutating-props
-                    delete this.condition.value[this.inputKey];
-                }
+                // eslint-disable-next-line vue/no-mutating-props
+                delete this.condition.value[this.inputKey];
             }
         },
     },

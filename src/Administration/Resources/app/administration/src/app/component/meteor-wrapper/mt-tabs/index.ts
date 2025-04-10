@@ -2,15 +2,10 @@ import { MtTabs } from '@shopware-ag/meteor-component-library';
 import type { PropType } from 'vue';
 import type { TabItem } from '@shopware-ag/meteor-component-library/dist/esm/components/navigation/mt-tabs/mt-tabs';
 import template from './mt-tabs.html.twig';
-import type { TabItemEntry } from '../../../state/tabs.store';
-
-
-// Use the compatConfig from the Shopware object and disable all compatibilities
-// eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
-MtTabs.compatConfig = Object.fromEntries(Object.keys(Shopware.compatConfig).map(key => [key, false]));
+import type { TabItemEntry } from '../../../store/tabs.store';
 
 /**
- * @package admin
+ * @sw-package framework
  *
  * @private
  * @status ready
@@ -19,8 +14,6 @@ MtTabs.compatConfig = Object.fromEntries(Object.keys(Shopware.compatConfig).map(
  */
 Shopware.Component.register('mt-tabs', {
     template,
-
-    compatConfig: Shopware.compatConfig,
 
     components: {
         // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
@@ -42,7 +35,7 @@ Shopware.Component.register('mt-tabs', {
 
     computed: {
         tabExtensions(): TabItemEntry[] {
-            return Shopware.State.get('tabs').tabItems[this.positionIdentifier] ?? [];
+            return Shopware.Store.get('tabs').tabItems[this.positionIdentifier] ?? [];
         },
 
         mergedItems(): TabItem[] {
@@ -53,21 +46,14 @@ Shopware.Component.register('mt-tabs', {
                     name: extension.componentSectionId,
                     onClick: () => {
                         // Push route to extension.componentSectionId path
-                        void this.$router.push({ path: extension.componentSectionId });
+                        void this.$router.push({
+                            path: extension.componentSectionId,
+                        });
                     },
                 })),
             ];
 
             return mergedItems;
-        },
-
-        listeners() {
-            // eslint-disable-next-line @typescript-eslint/no-unsafe-call,@typescript-eslint/no-unsafe-member-access
-            if (this.isCompatEnabled('INSTANCE_LISTENERS')) {
-                return this.$listeners;
-            }
-
-            return {};
         },
     },
 });

@@ -1,5 +1,5 @@
 /**
- * @package buyers-experience
+ * @sw-package inventory
  */
 const ApiService = Shopware.Classes.ApiService;
 
@@ -25,7 +25,9 @@ export default class LiveSearchService extends ApiService {
             ...this.getBasicHeaders(additionalHeaders),
             'sw-context-token': contextToken,
         };
-        return this.httpClient
-            .post(route, payload, { additionalParams, headers });
+        return this.httpClient.post(route, payload, {
+            additionalParams,
+            headers,
+        });
     }
 }

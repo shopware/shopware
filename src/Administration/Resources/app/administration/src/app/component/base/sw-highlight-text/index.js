@@ -4,7 +4,7 @@ import './sw-highlight-text.scss';
 const { Component, Context } = Shopware;
 
 /**
- * @package admin
+ * @sw-package framework
  *
  * @private
  * @description This component highlights text based on the searchTerm using regex
@@ -16,28 +16,20 @@ const { Component, Context } = Shopware;
 Component.register('sw-highlight-text', {
     template: '',
 
-    compatConfig: Shopware.compatConfig,
-
     render(createElement) {
         // Vue2 syntax
         if (typeof createElement === 'function') {
-            return createElement(
-                'div',
-                {
-                    class: 'sw-highlight-text',
-                    domProps: { innerHTML: this.searchAndReplace() },
-                },
-            );
+            return createElement('div', {
+                class: 'sw-highlight-text',
+                domProps: { innerHTML: this.searchAndReplace() },
+            });
         }
 
         // Vue3 syntax
-        return h(
-            'div',
-            {
-                class: 'sw-highlight-text',
-                innerHTML: this.searchAndReplace(),
-            },
-        );
+        return h('div', {
+            class: 'sw-highlight-text',
+            innerHTML: this.searchAndReplace(),
+        });
     },
 
     props: {
@@ -67,14 +59,17 @@ Component.register('sw-highlight-text', {
             const suffix = '</span>';
 
             const regExp = new RegExp(this.escapeRegExp(this.searchTerm), 'ig');
-            return this.text.replace(regExp, str => `${prefix}${str}${suffix}`);
+            return this.text.replace(regExp, (str) => `${prefix}${str}${suffix}`);
         },
 
         // Remove regex special characters from search string
         escapeRegExp(string) {
             if (Context.app.adminEsEnable) {
                 // remove simple query string syntax
-                return string.replace(/[+-.*~"|()]/g, '').replace(/ AND | and | OR | or |  +/g, ' ').replace(/[?^${}[\]\\]/g, '\\$&'); // $& means the whole matched string
+                return string
+                    .replace(/[+-.*~"|()]/g, '')
+                    .replace(/ AND | and | OR | or |  +/g, ' ')
+                    .replace(/[?^${}[\]\\]/g, '\\$&'); // $& means the whole matched string
             }
 
             return string.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'); // $& means the whole matched string

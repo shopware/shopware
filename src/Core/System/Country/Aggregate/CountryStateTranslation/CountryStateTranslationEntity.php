@@ -7,25 +7,16 @@ use Shopware\Core\Framework\DataAbstractionLayer\TranslationEntity;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\Country\Aggregate\CountryState\CountryStateEntity;
 
-#[Package('buyers-experience')]
+#[Package('fundamentals@discovery')]
 class CountryStateTranslationEntity extends TranslationEntity
 {
     use EntityCustomFieldsTrait;
 
-    /**
-     * @var string
-     */
-    protected $countryStateId;
+    protected string $countryStateId;
 
-    /**
-     * @var string|null
-     */
-    protected $name;
+    protected ?string $name = null;
 
-    /**
-     * @var CountryStateEntity|null
-     */
-    protected $countryState;
+    protected ?CountryStateEntity $countryState = null;
 
     public function getCountryStateId(): string
     {

@@ -13,20 +13,11 @@ use Symfony\Component\HttpFoundation\Request;
 #[Package('inventory')]
 class ProductListingCollectFilterEvent extends NestedEvent implements ShopwareSalesChannelEvent
 {
-    /**
-     * @var Request
-     */
-    protected $request;
+    protected Request $request;
 
-    /**
-     * @var SalesChannelContext
-     */
-    protected $context;
+    protected SalesChannelContext $context;
 
-    /**
-     * @var FilterCollection
-     */
-    protected $filters;
+    protected FilterCollection $filters;
 
     public function __construct(
         Request $request,

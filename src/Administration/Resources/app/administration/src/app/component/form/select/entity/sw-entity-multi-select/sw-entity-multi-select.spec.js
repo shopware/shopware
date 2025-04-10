@@ -1,5 +1,5 @@
 /**
- * @package admin
+ * @sw-package framework
  */
 
 import { mount } from '@vue/test-utils';
@@ -7,7 +7,11 @@ import { mount } from '@vue/test-utils';
 import EntityCollection from 'src/core/data/entity-collection.data';
 
 const fixture = [
-    { id: 'ae12b3c2-8236-4eb2-84a1-b933863a7905', name: 'first entry', variation: [{ group: 'Size', option: 'M' }] },
+    {
+        id: 'ae12b3c2-8236-4eb2-84a1-b933863a7905',
+        name: 'first entry',
+        variation: [{ group: 'Size', option: 'M' }],
+    },
 ];
 
 const propertyFixture = [
@@ -65,8 +69,6 @@ const createWrapper = async (customOptions = {}) => {
                 'sw-select-base': await wrapTestComponent('sw-select-base'),
                 'sw-block-field': await wrapTestComponent('sw-block-field'),
                 'sw-base-field': await wrapTestComponent('sw-base-field'),
-                'sw-icon': await wrapTestComponent('sw-icon'),
-                'sw-icon-deprecated': await wrapTestComponent('sw-icon-deprecated'),
                 'sw-select-selection-list': await wrapTestComponent('sw-select-selection-list'),
                 'sw-field-error': await wrapTestComponent('sw-field-error'),
                 'sw-loader': await wrapTestComponent('sw-loader'),
@@ -80,8 +82,6 @@ const createWrapper = async (customOptions = {}) => {
                 'sw-inheritance-switch': true,
                 'sw-ai-copilot-badge': true,
                 'sw-help-text': true,
-                'sw-button': true,
-                'mt-icon': true,
                 'sw-color-badge': true,
                 'mt-loader': true,
                 'sw-loader-deprecated': true,
@@ -138,7 +138,9 @@ describe('components/sw-entity-multi-select', () => {
         await swEntityMultiSelect.find('input').trigger('change');
         await flushPromises();
 
-        expect(swEntityMultiSelect.emitted('search-term-change')[0]).toEqual(['first']);
+        expect(swEntityMultiSelect.emitted('search-term-change')[0]).toEqual([
+            'first',
+        ]);
     });
 
     it('should not display variations', async () => {
@@ -161,14 +163,15 @@ describe('components/sw-entity-multi-select', () => {
         const productVariantInfo = wrapper.find('.sw-product-variant-info');
         expect(productVariantInfo.exists()).toBe(true);
 
-        expect(productVariantInfo.find('.sw-product-variant-info__product-name').text())
-            .toContain(fixture[0].name);
+        expect(productVariantInfo.find('.sw-product-variant-info__product-name').text()).toContain(fixture[0].name);
 
-        expect(productVariantInfo.find('.sw-product-variant-info__specification').text())
-            .toContain(fixture[0].variation[0].group);
+        expect(productVariantInfo.find('.sw-product-variant-info__specification').text()).toContain(
+            fixture[0].variation[0].group,
+        );
 
-        expect(productVariantInfo.find('.sw-product-variant-info__specification').text())
-            .toContain(fixture[0].variation[0].option);
+        expect(productVariantInfo.find('.sw-product-variant-info__specification').text()).toContain(
+            fixture[0].variation[0].option,
+        );
     });
 
     it('should show description line in results list', async () => {
@@ -240,7 +243,7 @@ describe('components/sw-entity-multi-select', () => {
         await swEntityMultiSelect.find('input').trigger('change');
         await flushPromises();
 
-        expect(swEntityMultiSelect.find('.sw-select-result-list__item-list li .sw-icon').exists()).toBe(true);
+        expect(swEntityMultiSelect.find('.sw-select-result-list__item-list li .mt-icon')).toBeDefined();
     });
 
     it('should be possible to clear the selection', async () => {

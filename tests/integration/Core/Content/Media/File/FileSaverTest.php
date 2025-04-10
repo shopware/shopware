@@ -23,10 +23,9 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
-use Shopware\Core\Framework\Test\IdsCollection;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
-use Symfony\Component\EventDispatcher\EventDispatcher;
+use Shopware\Core\Test\Stub\Framework\IdsCollection;
 
 /**
  * @internal
@@ -39,14 +38,17 @@ class FileSaverTest extends TestCase
     final public const TEST_IMAGE = __DIR__ . '/../fixtures/shopware-logo.png';
     final public const TEST_SCRIPT_FILE = __DIR__ . '/../fixtures/test.php';
 
+    /**
+     * @var EntityRepository<MediaCollection>
+     */
     private EntityRepository $mediaRepository;
 
     private FileSaver $fileSaver;
 
     protected function setUp(): void
     {
-        $this->mediaRepository = $this->getContainer()->get('media.repository');
-        $this->fileSaver = $this->getContainer()->get(FileSaver::class);
+        $this->mediaRepository = static::getContainer()->get('media.repository');
+        $this->fileSaver = static::getContainer()->get(FileSaver::class);
     }
 
     public function testPersistFileToMediaHappyPathForInitialUpload(): void
@@ -519,7 +521,6 @@ class FileSaverTest extends TestCase
         $this->mediaRepository->create([$data], $context);
 
         $png = $this->mediaRepository->search(new Criteria([$id]), $context)->get($id);
-
         static::assertInstanceOf(MediaEntity::class, $png);
 
         $thumbnailId = Uuid::randomHex();
@@ -535,18 +536,18 @@ class FileSaverTest extends TestCase
             ],
         ]], $context);
 
-        $this->getContainer()->get('event_dispatcher')
+        static::getContainer()->get('event_dispatcher')
             ->dispatch(new UpdateMediaPathEvent([$png->getId()]));
 
-        $this->getContainer()->get('event_dispatcher')
+        static::getContainer()->get('event_dispatcher')
             ->dispatch(new UpdateThumbnailPathEvent([$thumbnailId]));
 
-        $this->getContainer()->get(MediaIndexer::class)->handle(
-            new MediaIndexingMessage([$png->getId()], $context)
+        static::getContainer()->get(MediaIndexer::class)->handle(
+            new MediaIndexingMessage([$png->getId()])
         );
 
-        /** @var MediaEntity $png */
         $png = $this->mediaRepository->search(new Criteria([$png->getId()]), $context)->get($png->getId());
+        static::assertInstanceOf(MediaEntity::class, $png);
 
         static::assertNotNull($png->getThumbnails());
         static::assertGreaterThan(0, $png->getThumbnails()->count());
@@ -591,30 +592,29 @@ class FileSaverTest extends TestCase
         $searchResult = new EntitySearchResult('temp', 1, $collection, null, new Criteria(), $context);
 
         $repositoryMock = $this->createMock(EntityRepository::class);
-        $repositoryMock->expects(static::exactly(2))
+        $repositoryMock->expects($this->exactly(2))
             ->method('search')
             ->willReturn($searchResult);
 
-        $repositoryMock->expects(static::once())
+        $repositoryMock->expects($this->once())
             ->method('update')
             ->willThrowException(new \Exception());
 
-        /** @var list<string> $allowed */
-        $allowed = $this->getContainer()->getParameter('shopware.filesystem.allowed_extensions');
-        /** @var list<string> $allowedPrivate */
-        $allowedPrivate = $this->getContainer()->getParameter('shopware.filesystem.private_allowed_extensions');
+        $allowed = static::getContainer()->getParameter('shopware.filesystem.allowed_extensions');
+        $allowedPrivate = static::getContainer()->getParameter('shopware.filesystem.private_allowed_extensions');
+        static::assertIsList($allowedPrivate);
 
         $fileSaverWithFailingRepository = new FileSaver(
             $repositoryMock,
-            $this->getContainer()->get('shopware.filesystem.public'),
-            $this->getContainer()->get('shopware.filesystem.private'),
-            $this->getContainer()->get(ThumbnailService::class),
-            $this->getContainer()->get(MetadataLoader::class),
-            $this->getContainer()->get(TypeDetector::class),
-            $this->getContainer()->get('messenger.bus.shopware'),
-            $this->getContainer()->get('event_dispatcher'),
-            $this->getContainer()->get(MediaLocationBuilder::class),
-            $this->getContainer()->get(AbstractMediaPathStrategy::class),
+            static::getContainer()->get('shopware.filesystem.public'),
+            static::getContainer()->get('shopware.filesystem.private'),
+            static::getContainer()->get(ThumbnailService::class),
+            static::getContainer()->get(MetadataLoader::class),
+            static::getContainer()->get(TypeDetector::class),
+            static::getContainer()->get('messenger.default_bus'),
+            static::getContainer()->get('event_dispatcher'),
+            static::getContainer()->get(MediaLocationBuilder::class),
+            static::getContainer()->get(AbstractMediaPathStrategy::class),
             $allowed,
             $allowedPrivate
         );
@@ -671,8 +671,7 @@ class FileSaverTest extends TestCase
 
     public function testWhitelistEvent(): void
     {
-        /** @var EventDispatcher $dispatcher */
-        $dispatcher = $this->getContainer()->get('event_dispatcher');
+        $dispatcher = static::getContainer()->get('event_dispatcher');
 
         $eventDidRun = false;
         $listenerClosure = function () use (&$eventDidRun): void {

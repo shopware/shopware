@@ -1,5 +1,5 @@
 /**
- * @package buyers-experience
+ * @sw-package fundamentals@discovery
  */
 import template from './sw-country-state-detail.html.twig';
 
@@ -9,11 +9,12 @@ const { Mixin } = Shopware;
 export default {
     template,
 
-    compatConfig: Shopware.compatConfig,
-
     inject: ['acl'],
 
-    emits: ['attribute-edit-cancel', 'attribute-edit-save'],
+    emits: [
+        'attribute-edit-cancel',
+        'attribute-edit-save',
+    ],
 
     mixins: [
         Mixin.getByName('placeholder'),

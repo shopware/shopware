@@ -1,3 +1,7 @@
+/**
+ * @sw-package discovery
+ */
+
 import ApiService from '../api.service';
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
@@ -12,13 +16,12 @@ export default class AppCmsBlocksService extends ApiService {
      * @returns {Promise<Object>}
      */
     fetchAppBlocks() {
-        return this.httpClient.get(
-            'app-system/cms/blocks',
-            {
+        return this.httpClient
+            .get('app-system/cms/blocks', {
                 headers: this.getBasicHeaders(),
-            },
-        ).then(({ data }) => {
-            return data.blocks;
-        });
+            })
+            .then(({ data }) => {
+                return data.blocks;
+            });
     }
 }

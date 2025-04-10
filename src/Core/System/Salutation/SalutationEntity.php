@@ -13,56 +13,29 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityIdTrait;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\Salutation\Aggregate\SalutationTranslation\SalutationTranslationCollection;
 
-#[Package('buyers-experience')]
+#[Package('checkout')]
 class SalutationEntity extends Entity
 {
     use EntityCustomFieldsTrait;
     use EntityIdTrait;
 
-    /**
-     * @var string|null
-     */
-    protected $salutationKey;
+    protected ?string $salutationKey = null;
 
-    /**
-     * @var string|null
-     */
-    protected $displayName;
+    protected ?string $displayName = null;
 
-    /**
-     * @var string|null
-     */
-    protected $letterName;
+    protected ?string $letterName = null;
 
-    /**
-     * @var SalutationTranslationCollection|null
-     */
-    protected $translations;
+    protected ?SalutationTranslationCollection $translations = null;
 
-    /**
-     * @var CustomerCollection|null
-     */
-    protected $customers;
+    protected ?CustomerCollection $customers = null;
 
-    /**
-     * @var CustomerAddressCollection|null
-     */
-    protected $customerAddresses;
+    protected ?CustomerAddressCollection $customerAddresses = null;
 
-    /**
-     * @var OrderCustomerCollection|null
-     */
-    protected $orderCustomers;
+    protected ?OrderCustomerCollection $orderCustomers = null;
 
-    /**
-     * @var OrderAddressCollection|null
-     */
-    protected $orderAddresses;
+    protected ?OrderAddressCollection $orderAddresses = null;
 
-    /**
-     * @var NewsletterRecipientCollection|null
-     */
-    protected $newsletterRecipients;
+    protected ?NewsletterRecipientCollection $newsletterRecipients = null;
 
     public function getSalutationKey(): ?string
     {

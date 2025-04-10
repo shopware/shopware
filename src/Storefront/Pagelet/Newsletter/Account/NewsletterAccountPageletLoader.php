@@ -217,7 +217,7 @@ class NewsletterAccountPageletLoader
         $dataBag->set('lastName', $customer->getLastName());
         $dataBag->set(
             'zipCode',
-            $customer->getDefaultShippingAddress() ? $customer->getDefaultShippingAddress()->getZipCode() : ''
+            $customer->getDefaultShippingAddress() ? $customer->getDefaultShippingAddress()->getZipcode() : ''
         );
         $dataBag->set(
             'city',

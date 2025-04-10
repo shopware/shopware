@@ -16,13 +16,11 @@ use Shopware\Core\Content\Product\SalesChannel\Listing\Filter\RatingListingFilte
 use Shopware\Core\Content\Product\SalesChannel\Listing\Filter\ShippingFreeListingFilterHandler;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
-use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Component\HttpFoundation\Request;
 
-#[Package('buyers-experience')]
+#[Package('discovery')]
 class ProductListingCmsElementResolver extends AbstractCmsElementResolver
 {
     private const FILTER_REQUEST_PARAMS = [
@@ -115,17 +113,6 @@ class ProductListingCmsElementResolver extends AbstractCmsElementResolver
 
         if ($config && isset($config['defaultSorting']) && isset($config['defaultSorting']['value']) && $config['defaultSorting']['value']) {
             $defaultSortingValue = $config['defaultSorting']['value'];
-
-            if (!Feature::isActive('v6.7.0.0') && !Uuid::isValid($defaultSortingValue)) {
-                Feature::triggerDeprecationOrThrow(
-                    'v6.7.0.0',
-                    'The sorting key in the product listing CMS element configuration has been replaced with the sorting ID. Please use the sorting ID instead.',
-                );
-
-                $request->request->set('order', $defaultSortingValue);
-
-                return;
-            }
             $criteria = new Criteria([$defaultSortingValue]);
 
             $request->request->set('order', $this->sortingRepository->search($criteria, $context->getContext())->first()?->get('key'));
@@ -139,17 +126,6 @@ class ProductListingCmsElementResolver extends AbstractCmsElementResolver
             arsort($availableSortings, \SORT_DESC | \SORT_NUMERIC);
             $sortingId = array_key_first($availableSortings);
             if (!\is_string($sortingId)) {
-                return;
-            }
-
-            if (!Feature::isActive('v6.7.0.0') && !Uuid::isValid($sortingId)) {
-                Feature::triggerDeprecationOrThrow(
-                    'v6.7.0.0',
-                    'The sorting key in the product listing CMS element configuration has been replaced with the sorting ID. Please use the sorting ID instead.',
-                );
-
-                $request->request->set('order', $sortingId);
-
                 return;
             }
 

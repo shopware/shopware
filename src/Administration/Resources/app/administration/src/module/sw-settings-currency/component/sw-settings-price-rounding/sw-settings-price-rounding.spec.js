@@ -1,24 +1,25 @@
 /**
- * @package buyers-experience
+ * @sw-package fundamentals@framework
  */
 
 /* eslint-disable max-len */
 import { mount } from '@vue/test-utils';
 
 async function createWrapper() {
-    return mount(await wrapTestComponent('sw-settings-price-rounding', {
-        sync: true,
-    }), {
-        global: {
-            stubs: {
-                'sw-container': true,
-                'sw-switch-field': true,
-                'sw-number-field': true,
-                'sw-single-select': true,
-                'sw-alert': true,
+    return mount(
+        await wrapTestComponent('sw-settings-price-rounding', {
+            sync: true,
+        }),
+        {
+            global: {
+                stubs: {
+                    'sw-container': true,
+                    'mt-number-field': true,
+                    'sw-single-select': true,
+                },
             },
         },
-    });
+    );
 }
 
 describe('module/sw-settings-currency/component/sw-settings-price-rounding', () => {
@@ -37,7 +38,7 @@ describe('module/sw-settings-currency/component/sw-settings-price-rounding', () 
                 decimals: 2,
             },
             itemRounding: {
-                interval: 0.10,
+                interval: 0.1,
                 decimals: 1,
             },
         });
@@ -70,7 +71,7 @@ describe('module/sw-settings-currency/component/sw-settings-price-rounding', () 
                 interval: 0.01,
             },
             itemRounding: {
-                interval: 0.10,
+                interval: 0.1,
             },
         });
 
@@ -82,14 +83,13 @@ describe('module/sw-settings-currency/component/sw-settings-price-rounding', () 
 
         await wrapper.setProps({
             totalRounding: {
-                interval: 0.50,
+                interval: 0.5,
             },
             itemRounding: {
-                interval: 0.50,
+                interval: 0.5,
             },
         });
 
         expect(wrapper.find('.sw-settings-price-rounding__header-warning').exists()).toBeFalsy();
     });
 });
-

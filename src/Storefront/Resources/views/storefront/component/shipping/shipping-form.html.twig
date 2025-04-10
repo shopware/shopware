@@ -1,24 +1,28 @@
-{% block page_checkout_change_shipping_form %}
+{% block component_shipping_form %}
     {% set formAjaxSubmitOptions = {
         changeTriggerSelectors: ['.shipping-method-input']
     } %}
 
-    {% block page_checkout_change_shipping_form_element %}
+    {% block component_shipping_form_element %}
         <form id="changeShippingForm"
               name="changeShippingForm"
               action="{{ actionPath }}"
               data-form-auto-submit="true"
               data-form-auto-submit-options="{{ formAjaxSubmitOptions|json_encode }}"
               method="post">
-            {% block page_checkout_change_shipping_form_redirect %}
+            {% block component_shipping_form_redirect %}
                 <input type="hidden" name="redirectTo" value="{{ redirect }}">
                 <input type="hidden" name="redirectParameters" value="{{ redirectParameters }}">
             {% endblock %}
 
-            {% block page_checkout_change_shipping_form_fields %}
-                {% sw_include '@Storefront/storefront/component/shipping/shipping-fields.html.twig' with {
-                    visibleShippingMethodsLimit: 5
-                } %}
+            {% block component_shipping_form_list %}
+                <div class="shipping-methods">
+                    {% for shipping in page.shippingMethods %}
+                        {% block component_shipping_form_method %}
+                            {% sw_include '@Storefront/storefront/component/shipping/shipping-method.html.twig' %}
+                        {% endblock %}
+                    {% endfor %}
+                </div>
             {% endblock %}
         </form>
     {% endblock %}

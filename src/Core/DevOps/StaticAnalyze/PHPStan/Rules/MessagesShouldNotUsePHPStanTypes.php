@@ -12,6 +12,7 @@ use PHPStan\PhpDocParser\Parser\ConstExprParser;
 use PHPStan\PhpDocParser\Parser\PhpDocParser;
 use PHPStan\PhpDocParser\Parser\TokenIterator;
 use PHPStan\PhpDocParser\Parser\TypeParser;
+use PHPStan\PhpDocParser\ParserConfig;
 use PHPStan\Rules\Rule;
 use PHPStan\Rules\RuleError;
 use PHPStan\Rules\RuleErrorBuilder;
@@ -30,7 +31,7 @@ use Shopware\Core\Framework\MessageQueue\LowPriorityMessageInterface;
  *
  * @see https://github.com/symfony/symfony/pull/44451
  */
-#[Package('core')]
+#[Package('framework')]
 class MessagesShouldNotUsePHPStanTypes implements Rule
 {
     use InTestClassTrait;
@@ -72,11 +73,17 @@ class MessagesShouldNotUsePHPStanTypes implements Rule
             }
 
             if ($tag->name === '@phpstan-type') {
-                $errors[] = RuleErrorBuilder::message('Messages should not use @phpstan-type annotations')->line($classDocComment->getStartLine() + $line + 1)->build();
+                $errors[] = RuleErrorBuilder::message('Messages should not use @phpstan-type annotations')
+                    ->identifier('shopware.messagePHPStanAnnotation')
+                    ->line($classDocComment->getStartLine() + $line + 1)
+                    ->build();
             }
 
             if ($tag->name === '@phpstan-import-type') {
-                $errors[] = RuleErrorBuilder::message('Messages should not use @phpstan-import-type annotations')->line($classDocComment->getStartLine() + $line + 1)->build();
+                $errors[] = RuleErrorBuilder::message('Messages should not use @phpstan-import-type annotations')
+                    ->identifier('shopware.messagePHPStanAnnotation')
+                    ->line($classDocComment->getStartLine() + $line + 1)
+                    ->build();
             }
         }
 
@@ -85,13 +92,14 @@ class MessagesShouldNotUsePHPStanTypes implements Rule
 
     private function parsePhpDoc(string $tokens): PhpDocNode
     {
-        $lexer = new Lexer();
-        $constExprParser = new ConstExprParser();
-        $typeParser = new TypeParser($constExprParser);
-        $phpDocParser = new PhpDocParser($typeParser, $constExprParser);
+        $parserConfig = new ParserConfig([]);
+        $lexer = new Lexer($parserConfig);
+        $constExprParser = new ConstExprParser($parserConfig);
+        $typeParser = new TypeParser($parserConfig, $constExprParser);
+        $phpDocParser = new PhpDocParser($parserConfig, $typeParser, $constExprParser);
 
-        $tokens = new TokenIterator($lexer->tokenize($tokens));
+        $tokenIterator = new TokenIterator($lexer->tokenize($tokens));
 
-        return $phpDocParser->parse($tokens);
+        return $phpDocParser->parse($tokenIterator);
     }
 }

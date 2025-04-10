@@ -4,6 +4,7 @@ namespace Shopware\Core\Content\Sitemap\Provider;
 
 use Doctrine\DBAL\ArrayParameterType;
 use Doctrine\DBAL\Connection;
+use Shopware\Core\Content\Product\Aggregate\ProductVisibility\ProductVisibilityDefinition;
 use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Content\Product\ProductEntity;
 use Shopware\Core\Content\Sitemap\Service\ConfigHandler;
@@ -19,10 +20,12 @@ use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Symfony\Component\Routing\RouterInterface;
 
-#[Package('services-settings')]
+#[Package('discovery')]
 class ProductUrlProvider extends AbstractUrlProvider
 {
     final public const CHANGE_FREQ = 'hourly';
+
+    private const CONFIG_EXCLUDE_LINKED_PRODUCTS = 'core.sitemap.excludeLinkedProducts';
 
     private const CONFIG_HIDE_AFTER_CLOSEOUT = 'core.listing.hideCloseoutProductsWhenOutOfStock';
 
@@ -116,10 +119,10 @@ class ProductUrlProvider extends AbstractUrlProvider
 
         $showAfterCloseout = !$this->systemConfigService->get(self::CONFIG_HIDE_AFTER_CLOSEOUT, $context->getSalesChannelId());
 
-        $query->addSelect([
+        $query->addSelect(
             '`product`.created_at as created_at',
             '`product`.updated_at as updated_at',
-        ]);
+        );
 
         $query->leftJoin('`product`', '`product`', 'parent', '`product`.parent_id = parent.id');
         $query->innerJoin('`product`', 'product_visibility', 'visibilities', 'product.visibilities = visibilities.product_id');
@@ -144,6 +147,12 @@ class ProductUrlProvider extends AbstractUrlProvider
             $query->setParameter('productIds', Uuid::fromHexToBytesList($excludedProductIds), ArrayParameterType::BINARY);
         }
 
+        $excludeLinkedProducts = $this->systemConfigService->getBool(self::CONFIG_EXCLUDE_LINKED_PRODUCTS, $context->getSalesChannelId());
+        if ($excludeLinkedProducts) {
+            $query->andWhere('visibilities.visibility != :excludedVisibility');
+            $query->setParameter('excludedVisibility', ProductVisibilityDefinition::VISIBILITY_LINK);
+        }
+
         $query->setParameter('versionId', Uuid::fromHexToBytes(Defaults::LIVE_VERSION));
         $query->setParameter('salesChannelId', Uuid::fromHexToBytes($context->getSalesChannelId()));
 
@@ -158,7 +167,7 @@ class ProductUrlProvider extends AbstractUrlProvider
      */
     private function getExcludedProductIds(SalesChannelContext $salesChannelContext): array
     {
-        $salesChannelId = $salesChannelContext->getSalesChannel()->getId();
+        $salesChannelId = $salesChannelContext->getSalesChannelId();
 
         $excludedUrls = $this->configHandler->get(ConfigHandler::EXCLUDED_URLS_KEY);
         if (empty($excludedUrls)) {

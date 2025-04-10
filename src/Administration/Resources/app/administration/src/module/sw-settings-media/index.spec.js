@@ -1,5 +1,5 @@
 /**
- * @package inventory
+ * @sw-package inventory
  */
 import './index';
 
@@ -9,7 +9,6 @@ describe('src/module/sw-settings-media/index.js', () => {
     it('should register component', () => {
         expect(Shopware.Component.getComponentRegistry().has('sw-settings-media')).toBeTruthy();
     });
-
 
     it('should register module base information', () => {
         const module = Module.getModuleRegistry().get('sw-settings-media');
@@ -27,7 +26,7 @@ describe('src/module/sw-settings-media/index.js', () => {
             settingsItem: [
                 {
                     id: 'sw-settings-media',
-                    group: 'shop',
+                    group: 'content',
                     to: 'sw.settings.media.index',
                     icon: 'regular-image',
                     privilege: 'system.system_config',
@@ -37,6 +36,10 @@ describe('src/module/sw-settings-media/index.js', () => {
             ],
             display: true,
         });
+
+        const settingsItem = module.manifest.settingsItem[0];
+        expect(typeof settingsItem.group).toBe('string');
+        expect(settingsItem.group).toBe('content');
     });
 
     it('should register module routes', () => {

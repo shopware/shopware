@@ -1,5 +1,5 @@
 /**
- * @package admin
+ * @sw-package framework
  */
 import { mount } from '@vue/test-utils';
 
@@ -24,33 +24,46 @@ describe('src/app/component/entity/sw-bulk-edit-modal', () => {
     };
 
     const modal = async () => {
-        return mount(await wrapTestComponent('sw-bulk-edit-modal', {
-            sync: true,
-        }), {
-            props: {
-                selection: {
-                    uuid1: { id: 'uuid1', manufacturer: 'Wordify', name: 'Portia Jobson' },
-                    uuid2: { id: 'uuid2', manufacturer: 'Twitternation', name: 'Baxy Eardley' },
-                    uuid3: { id: 'uuid3', manufacturer: 'Skidoo', name: 'Arturo Staker' },
-                },
-                bulkGridEditColumns: [],
-                currencies: [],
-            },
-            global: {
-                stubs: stubs,
-                data() {
-                    return {};
-                },
-                provide: {
-                    shortcutService: {
-                        startEventListener: () => {
+        return mount(
+            await wrapTestComponent('sw-bulk-edit-modal', {
+                sync: true,
+            }),
+            {
+                props: {
+                    selection: {
+                        uuid1: {
+                            id: 'uuid1',
+                            manufacturer: 'Wordify',
+                            name: 'Portia Jobson',
                         },
-                        stopEventListener: () => {
+                        uuid2: {
+                            id: 'uuid2',
+                            manufacturer: 'Twitternation',
+                            name: 'Baxy Eardley',
+                        },
+                        uuid3: {
+                            id: 'uuid3',
+                            manufacturer: 'Skidoo',
+                            name: 'Arturo Staker',
+                        },
+                    },
+                    bulkGridEditColumns: [],
+                    currencies: [],
+                },
+                global: {
+                    stubs: stubs,
+                    data() {
+                        return {};
+                    },
+                    provide: {
+                        shortcutService: {
+                            startEventListener: () => {},
+                            stopEventListener: () => {},
                         },
                     },
                 },
             },
-        });
+        );
     };
 
     beforeAll(async () => {
@@ -61,8 +74,6 @@ describe('src/app/component/entity/sw-bulk-edit-modal', () => {
             'sw-checkbox-field': {
                 template: '<div class="sw-checkbox-field"></div>',
             },
-            'sw-icon': true,
-            'sw-button': true,
             'sw-select-field': true,
             'sw-loader': true,
             'sw-context-menu-item': true,
@@ -72,6 +83,7 @@ describe('src/app/component/entity/sw-bulk-edit-modal', () => {
             'sw-data-grid-inline-edit': true,
             'router-link': true,
             'sw-data-grid-skeleton': true,
+            'sw-provide': true,
         };
     });
 

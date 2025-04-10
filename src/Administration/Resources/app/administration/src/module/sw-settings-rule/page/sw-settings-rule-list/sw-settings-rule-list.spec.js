@@ -4,11 +4,11 @@ import FilterService from 'src/app/service/filter.service';
 const { Criteria } = Shopware.Data;
 
 /**
- * @package services-settings
+ * @sw-package fundamentals@after-sales
  */
 
 async function createWrapper(privileges = []) {
-    return mount(await wrapTestComponent('sw-settings-rule-list', { sync: true }), {
+    const wrapper = mount(await wrapTestComponent('sw-settings-rule-list', { sync: true }), {
         global: {
             stubs: {
                 'sw-page': {
@@ -18,7 +18,6 @@ async function createWrapper(privileges = []) {
         <slot name="content"></slot>
     </div>`,
                 },
-                'sw-button': true,
                 'sw-empty-state': true,
                 'sw-loader': true,
                 'sw-entity-listing': {
@@ -30,7 +29,6 @@ async function createWrapper(privileges = []) {
                 },
                 'sw-context-menu-item': await wrapTestComponent('sw-context-menu-item'),
                 'sw-search-bar': true,
-                'sw-icon': true,
                 'sw-language-switch': true,
                 'sw-label': true,
                 'sw-sidebar-item': true,
@@ -83,6 +81,18 @@ async function createWrapper(privileges = []) {
             },
         },
     });
+    await flushPromises();
+
+    const buttonAddRule = wrapper.findByText('button', 'sw-settings-rule.list.buttonAddRule');
+    const entityListing = wrapper.get('.sw-entity-listing');
+    const contextMenuItemDuplicate = wrapper.get('.sw-context-menu-item');
+
+    return {
+        wrapper,
+        buttonAddRule,
+        entityListing,
+        contextMenuItemDuplicate,
+    };
 }
 
 describe('src/module/sw-settings-rule/page/sw-settings-rule-list', () => {
@@ -94,18 +104,14 @@ describe('src/module/sw-settings-rule/page/sw-settings-rule-list', () => {
                 },
             },
             push: () => {},
+            replace: () => {},
         };
     });
 
     it('should have disabled fields', async () => {
-        const wrapper = await createWrapper();
-        await flushPromises();
+        const { buttonAddRule, entityListing, contextMenuItemDuplicate } = await createWrapper();
 
-        const buttonAddRule = wrapper.get('sw-button-stub');
-        const entityListing = wrapper.get('.sw-entity-listing');
-        const contextMenuItemDuplicate = wrapper.get('.sw-context-menu-item');
-
-        expect(buttonAddRule.attributes().disabled).toBe('true');
+        expect(buttonAddRule.attributes('disabled') !== undefined).toBe(true);
         expect(entityListing.attributes()['show-selection']).toBeUndefined();
         expect(entityListing.attributes()['allow-edit']).toBeUndefined();
         expect(entityListing.attributes()['allow-delete']).toBeUndefined();
@@ -113,16 +119,11 @@ describe('src/module/sw-settings-rule/page/sw-settings-rule-list', () => {
     });
 
     it('should have enabled fields for creator', async () => {
-        const wrapper = await createWrapper([
+        const { buttonAddRule, entityListing, contextMenuItemDuplicate } = await createWrapper([
             'rule.creator',
         ]);
-        await flushPromises();
 
-        const buttonAddRule = wrapper.find('sw-button-stub');
-        const entityListing = wrapper.find('.sw-entity-listing');
-        const contextMenuItemDuplicate = wrapper.find('.sw-context-menu-item');
-
-        expect(buttonAddRule.attributes().disabled).toBeUndefined();
+        expect(buttonAddRule.attributes('disabled')).toBeUndefined();
         expect(entityListing.attributes()['show-selection']).toBeUndefined();
         expect(entityListing.attributes()['allow-edit']).toBeUndefined();
         expect(entityListing.attributes()['allow-delete']).toBeUndefined();
@@ -130,16 +131,11 @@ describe('src/module/sw-settings-rule/page/sw-settings-rule-list', () => {
     });
 
     it('only should have enabled fields for editor', async () => {
-        const wrapper = await createWrapper([
+        const { buttonAddRule, entityListing, contextMenuItemDuplicate } = await createWrapper([
             'rule.editor',
         ]);
-        await flushPromises();
 
-        const buttonAddRule = wrapper.find('sw-button-stub');
-        const entityListing = wrapper.find('.sw-entity-listing');
-        const contextMenuItemDuplicate = wrapper.find('.sw-context-menu-item');
-
-        expect(buttonAddRule.attributes().disabled).toBe('true');
+        expect(buttonAddRule.attributes('disabled') !== undefined).toBe(true);
         expect(entityListing.attributes()['show-selection']).toBeUndefined();
         expect(entityListing.attributes()['allow-edit']).toBe('true');
         expect(entityListing.attributes()['allow-delete']).toBeUndefined();
@@ -147,16 +143,11 @@ describe('src/module/sw-settings-rule/page/sw-settings-rule-list', () => {
     });
 
     it('should have enabled fields for deleter', async () => {
-        const wrapper = await createWrapper([
+        const { buttonAddRule, entityListing, contextMenuItemDuplicate } = await createWrapper([
             'rule.deleter',
         ]);
-        await flushPromises();
 
-        const buttonAddRule = wrapper.find('sw-button-stub');
-        const entityListing = wrapper.find('.sw-entity-listing');
-        const contextMenuItemDuplicate = wrapper.find('.sw-context-menu-item');
-
-        expect(buttonAddRule.attributes().disabled).toBe('true');
+        expect(buttonAddRule.attributes('disabled') !== undefined).toBe(true);
         expect(entityListing.attributes()['show-selection']).toBe('true');
         expect(entityListing.attributes()['allow-edit']).toBeUndefined();
         expect(entityListing.attributes()['allow-delete']).toBe('true');
@@ -164,8 +155,7 @@ describe('src/module/sw-settings-rule/page/sw-settings-rule-list', () => {
     });
 
     it('should duplicate a rule and should overwrite name and createdAt values', async () => {
-        const wrapper = await createWrapper(['rule.creator']);
-        await flushPromises();
+        const { wrapper } = await createWrapper(['rule.creator']);
 
         const ruleToDuplicate = {
             id: 'ruleId',
@@ -183,15 +173,17 @@ describe('src/module/sw-settings-rule/page/sw-settings-rule-list', () => {
     });
 
     it('should get filter options for conditions', async () => {
-        const wrapper = await createWrapper(['rule.creator']);
+        const { wrapper } = await createWrapper(['rule.creator']);
         await flushPromises();
         const conditionFilterOptions = wrapper.vm.conditionFilterOptions;
 
-        expect(conditionFilterOptions).toEqual([{ label: 'bar', value: 'foo' }]);
+        expect(conditionFilterOptions).toEqual([
+            { label: 'bar', value: 'foo' },
+        ]);
     });
 
     it('should get filter options for groups', async () => {
-        const wrapper = await createWrapper(['rule.creator']);
+        const { wrapper } = await createWrapper(['rule.creator']);
         await flushPromises();
         const groupFilterOptions = wrapper.vm.groupFilterOptions;
 
@@ -199,16 +191,16 @@ describe('src/module/sw-settings-rule/page/sw-settings-rule-list', () => {
     });
 
     it('should get filter options for associations', async () => {
-        const wrapper = await createWrapper(['rule.creator']);
+        const { wrapper } = await createWrapper(['rule.creator']);
         await flushPromises();
         const associationFilterOptions = wrapper.vm.associationFilterOptions;
 
-        expect(associationFilterOptions.map(option => option.value)).toContain('productPrices');
-        expect(associationFilterOptions.map(option => option.value)).toContain('paymentMethods');
+        expect(associationFilterOptions.map((option) => option.value)).toContain('productPrices');
+        expect(associationFilterOptions.map((option) => option.value)).toContain('paymentMethods');
     });
 
     it('should get list filters', async () => {
-        const wrapper = await createWrapper(['rule.creator']);
+        const { wrapper } = await createWrapper(['rule.creator']);
         await flushPromises();
         const listFilters = wrapper.vm.listFilters;
 
@@ -218,38 +210,15 @@ describe('src/module/sw-settings-rule/page/sw-settings-rule-list', () => {
         expect(Object.keys(listFilters)).toContain('tags');
     });
 
-    it('should get counts', async () => {
-        const wrapper = await createWrapper(['rule.creator']);
-        await flushPromises();
-
-        await wrapper.setData({
-            rules: {
-                aggregations: {
-                    productPrices: {
-                        buckets: [{
-                            key: '1',
-                            productPrices: {
-                                count: 100,
-                            },
-                        }],
-                    },
-                },
-            },
-        });
-
-        expect(wrapper.vm.getCounts('productPrices', '1')).toBe(100);
-        expect(wrapper.vm.getCounts('productPrices', '2')).toBe(0);
-    });
-
     it('should return filters from filter registry', async () => {
-        const wrapper = await createWrapper();
+        const { wrapper } = await createWrapper();
         await flushPromises();
 
         expect(wrapper.vm.dateFilter).toEqual(expect.any(Function));
     });
 
     it('should consider criteria filters via updateCriteria (triggered by sw-sidebar-filter-panel)', async () => {
-        const wrapper = await createWrapper();
+        const { wrapper } = await createWrapper();
         await flushPromises();
 
         const filter = Criteria.equals('foo', 'bar');
@@ -260,7 +229,7 @@ describe('src/module/sw-settings-rule/page/sw-settings-rule-list', () => {
     });
 
     it('should return a meta title', async () => {
-        const wrapper = await createWrapper();
+        const { wrapper } = await createWrapper();
         await flushPromises();
 
         wrapper.vm.$createTitle = jest.fn(() => 'Title');
@@ -270,26 +239,8 @@ describe('src/module/sw-settings-rule/page/sw-settings-rule-list', () => {
         expect(wrapper.vm.$createTitle).toHaveBeenNthCalledWith(1);
     });
 
-    it('should consider assignmentProperties when it contains the sortBy property', async () => {
-        const wrapper = await createWrapper();
-        await flushPromises();
-
-        const assignemntProperties = wrapper.vm.assignmentProperties;
-        expect(assignemntProperties).not.toHaveLength(0);
-
-        await wrapper.setData({
-            sortBy: assignemntProperties[0],
-        });
-
-        const listCriteriaSortings = wrapper.vm.listCriteria.sortings;
-        expect(listCriteriaSortings).toHaveLength(1);
-        const sorting = listCriteriaSortings[0];
-        expect(sorting.type).toBe('count');
-        expect(sorting.field).toMatch(/\.id$/);
-    });
-
     it('should notify on inline edit save error', async () => {
-        const wrapper = await createWrapper();
+        const { wrapper } = await createWrapper();
         await flushPromises();
         wrapper.vm.createNotificationError = jest.fn();
 
@@ -301,7 +252,7 @@ describe('src/module/sw-settings-rule/page/sw-settings-rule-list', () => {
     });
 
     it('should notify on inline edit save success', async () => {
-        const wrapper = await createWrapper();
+        const { wrapper } = await createWrapper();
         await flushPromises();
         wrapper.vm.createNotificationSuccess = jest.fn();
 
@@ -316,7 +267,7 @@ describe('src/module/sw-settings-rule/page/sw-settings-rule-list', () => {
     });
 
     it('should set loading state to false on getList error', async () => {
-        const wrapper = await createWrapper();
+        const { wrapper } = await createWrapper();
         await flushPromises();
         wrapper.vm.ruleRepository.search = jest.fn();
         wrapper.vm.ruleRepository.search.mockRejectedValueOnce(false);
@@ -329,10 +280,10 @@ describe('src/module/sw-settings-rule/page/sw-settings-rule-list', () => {
     });
 
     it('should set languageId on language switch change', async () => {
-        const wrapper = await createWrapper();
+        const { wrapper } = await createWrapper();
         await flushPromises();
 
         await wrapper.vm.onChangeLanguage('foo');
-        expect(Shopware.State.get('context').api.languageId).toBe('foo');
+        expect(Shopware.Store.get('context').api.languageId).toBe('foo');
     });
 });

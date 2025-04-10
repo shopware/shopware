@@ -15,60 +15,30 @@ use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityIdTrait;
 use Shopware\Core\Framework\Log\Package;
 
-#[Package('inventory')]
+#[Package('fundamentals@framework')]
 class TagEntity extends Entity
 {
     use EntityIdTrait;
 
-    /**
-     * @var string
-     */
-    protected $name;
+    protected string $name;
 
-    /**
-     * @var ProductCollection|null
-     */
-    protected $products;
+    protected ?ProductCollection $products = null;
 
-    /**
-     * @var MediaCollection|null
-     */
-    protected $media;
+    protected ?MediaCollection $media = null;
 
-    /**
-     * @var CategoryCollection|null
-     */
-    protected $categories;
+    protected ?CategoryCollection $categories = null;
 
-    /**
-     * @var CustomerCollection|null
-     */
-    protected $customers;
+    protected ?CustomerCollection $customers = null;
 
-    /**
-     * @var OrderCollection|null
-     */
-    protected $orders;
+    protected ?OrderCollection $orders = null;
 
-    /**
-     * @var ShippingMethodCollection|null
-     */
-    protected $shippingMethods;
+    protected ?ShippingMethodCollection $shippingMethods = null;
 
-    /**
-     * @var NewsletterRecipientCollection|null
-     */
-    protected $newsletterRecipients;
+    protected ?NewsletterRecipientCollection $newsletterRecipients = null;
 
-    /**
-     * @var LandingPageCollection|null
-     */
-    protected $landingPages;
+    protected ?LandingPageCollection $landingPages = null;
 
-    /**
-     * @var RuleCollection|null
-     */
-    protected $rules;
+    protected ?RuleCollection $rules = null;
 
     public function getName(): string
     {

@@ -4,16 +4,19 @@ import './sw-data-grid-settings.scss';
 const { Component } = Shopware;
 
 /**
- * @package admin
+ * @sw-package framework
  *
  * @private
  */
 Component.register('sw-data-grid-settings', {
     template,
 
-    compatConfig: Shopware.compatConfig,
-
-    emits: ['change-compact-mode', 'change-preview-images', 'change-column-visibility', 'change-column-order'],
+    emits: [
+        'change-compact-mode',
+        'change-preview-images',
+        'change-column-visibility',
+        'change-column-order',
+    ],
 
     props: {
         columns: {
@@ -77,10 +80,12 @@ Component.register('sw-data-grid-settings', {
 
     methods: {
         onChangeCompactMode(value) {
+            this.currentCompact = value;
             this.$emit('change-compact-mode', value);
         },
 
         onChangePreviews(value) {
+            this.currentPreviews = value;
             this.$emit('change-preview-images', value);
         },
 

@@ -6,7 +6,7 @@ const { Criteria } = Shopware.Data;
 
 /**
  * @private
- * @package services-settings
+ * @sw-package fundamentals@after-sales
  * @status ready
  * @description The <u>sw-select-rule-create</u> component is used to create or select a rule.
  * @example-type code-only
@@ -22,8 +22,6 @@ Component.register('sw-select-rule-create', {
     template,
     inheritAttrs: false,
 
-    compatConfig: Shopware.compatConfig,
-
     inject: [
         'repositoryFactory',
         'feature',
@@ -33,6 +31,7 @@ Component.register('sw-select-rule-create', {
     emits: [
         'save-rule',
         'dismiss-rule',
+        'update:rules',
     ],
 
     props: {
@@ -53,8 +52,7 @@ Component.register('sw-select-rule-create', {
             required: false,
             default() {
                 const criteria = new Criteria(1, 25);
-                criteria.addSorting(Criteria.sort('name', 'ASC', false))
-                    .addAssociation('conditions');
+                criteria.addSorting(Criteria.sort('name', 'ASC', false)).addAssociation('conditions');
 
                 return criteria;
             },
@@ -135,6 +133,10 @@ Component.register('sw-select-rule-create', {
             }
         },
 
+        onUpdateCollection(collection) {
+            this.$emit('update:rules', collection);
+        },
+
         openCreateRuleModal() {
             this.showRuleModal = true;
         },
@@ -150,14 +152,10 @@ Component.register('sw-select-rule-create', {
         },
 
         isRuleRestricted(rule) {
-            const insideRestrictedRuleIds = this.restrictedRuleIds.includes(rule.id);
-
-            const isRuleRestricted = this.ruleConditionDataProviderService.isRuleRestricted(
-                rule.conditions,
-                this.ruleAwareGroupKey,
+            return (
+                this.restrictedRuleIds.includes(rule.id) ||
+                this.ruleConditionDataProviderService.isRuleRestricted(rule.conditions, this.ruleAwareGroupKey)
             );
-
-            return isRuleRestricted || insideRestrictedRuleIds;
         },
 
         getAdvancedSelectionParameters() {

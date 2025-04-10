@@ -1,15 +1,12 @@
-<!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
 {% block sw_sales_channel_detail_domains %}
-<sw-card
+<mt-card
     :title="$tc('sw-sales-channel.detail.titleDomains')"
     class="sw-sales-channel-detail-domains"
     position-identifier="sw-sales-channel-detail-domains"
 >
 
-    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_sales_channel_detail_domains_meta %}
     <div class="sw-sales-channel-detail-domains__meta">
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_sales_channel_detail_domains_headline %}
         <h4 class="sw-sales-channel-detail-domains__headline sw-sales-channel-detail-base__headline">
             <span class="sw-sales-channel-detail-domains__headline-text sw-sales-channel-detail-base__headline-text">
@@ -18,22 +15,21 @@
         </h4>
         {% endblock %}
 
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_sales_channel_detail_domains_add_button %}
-        <sw-button
+        <mt-button
             size="small"
             :disabled="disableEdit || undefined"
             class="sw-sales-channel-detail__button-domain-add"
+            variant="secondary"
             @click="onClickOpenCreateDomainModal"
         >
             {{ $tc('sw-sales-channel.detail.buttonAddDomain') }}
-        </sw-button>
+        </mt-button>
         {% endblock %}
     </div>
     {% endblock %}
 
     <template #grid>
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_sales_channel_detail_domains_grid %}
         <sw-data-grid
             ref="gridDomains"
@@ -46,10 +42,8 @@
             :sort-direction="sortDirection"
             @column-sort="sortColumns"
         >
-            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_sales_channel_detail_domains_columns_template %}
 
-            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_sales_channel_detail_domains_column_url %}
             <template
                 #column-url="{ item }"
@@ -58,7 +52,6 @@
             </template>
             {% endblock %}
 
-            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_sales_channel_detail_domains_column_language_id %}
             <template
                 #column-languageId="{ item, isInlineEdit}"
@@ -67,7 +60,6 @@
             </template>
             {% endblock %}
 
-            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_sales_channel_detail_domains_column_currency_id %}
             <template
                 #column-currencyId="{ item, isInlineEdit}"
@@ -76,7 +68,6 @@
             </template>
             {% endblock %}
 
-            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_sales_channel_detail_domains_column_snippet_set_id %}
             <template
                 #column-snippetSetId="{ item, isInlineEdit}"
@@ -85,10 +76,8 @@
             </template>
             {% endblock %}
 
-            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_sales_channel_detail_domains_column_actions %}
             <template #actions="{ item }">
-                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_sales_channel_detail_domains_column_action_domain_edit %}
                 <sw-context-menu-item
                     :disabled="disableEdit"
@@ -98,7 +87,6 @@
                 </sw-context-menu-item>
                 {% endblock %}
 
-                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_sales_channel_detail_domains_column_action_domain_delete %}
                 <sw-context-menu-item
                     :disabled="disableEdit"
@@ -115,7 +103,6 @@
     </template>
     {% endblock %}
 
-    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_sales_channel_detail_domains_create_modal %}
     <sw-modal
         v-if="currentDomain"
@@ -123,26 +110,23 @@
         @modal-close="onCloseCreateDomainModal"
     >
 
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_sales_channel_detail_domains_create_modal_content %}
         <sw-container
             columns="repeat(auto-fit, minmax(250px, 1fr))"
             gap="0px 30px"
         >
-            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_sales_channel_detail_domains_input_url %}
-            <sw-url-field
-                v-model:value="currentDomain.url"
+            <mt-url-field
+                v-model="currentDomain.url"
                 type="text"
                 omit-url-hash
                 omit-url-search
                 :label="$tc('sw-sales-channel.detail.labelInputUrl')"
                 :error="error"
-                @update:value="onInput"
+                @update:model-value="onInput"
             />
             {% endblock %}
 
-            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_sales_channel_detail_domains_input_language %}
             <sw-single-select
                 v-model:value="currentDomain.languageId"
@@ -162,7 +146,6 @@
             columns="repeat(auto-fit, minmax(250px, 1fr))"
             gap="0px 30px"
         >
-            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_sales_channel_detail_domains_input_currency %}
             <sw-single-select
                 v-model:value="currentDomain.currencyId"
@@ -171,13 +154,12 @@
                 required
                 show-clearable-button
                 :options="salesChannel.currencies"
-                label-property="name"
+                label-property="translated.name"
                 value-property="id"
                 @update:value="onCurrencySelect"
             />
             {% endblock %}
 
-            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_sales_channel_detail_domains_input_snippet_set %}
             <sw-entity-single-select
                 v-model:value="currentDomain.snippetSetId"
@@ -191,7 +173,6 @@
             {% endblock %}
         </sw-container>
 
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_sales_channel_detail_domains_hreflang %}
         <sw-radio-field
             v-model:value="currentDomain.hreflangUseOnlyLocale"
@@ -203,32 +184,30 @@
         {% endblock %}
 
         <template #modal-footer>
-            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_sales_channel_detail_domains_create_action_cancel %}
-            <sw-button
+            <mt-button
                 size="small"
+                variant="secondary"
                 @click="onCloseCreateDomainModal"
             >
-                {{ $tc('sw-sales-channel.modal.buttonCancel') }}
-            </sw-button>
+                {{ $tc('global.default.cancel') }}
+            </mt-button>
             {% endblock %}
 
-            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_sales_channel_detail_domains_create_action_create %}
-            <sw-button
+            <mt-button
                 size="small"
                 variant="primary"
                 :disabled="disabled"
                 @click="onClickAddNewDomain"
             >
                 {{ currentDomainModalButtonText }}
-            </sw-button>
+            </mt-button>
             {% endblock %}
         </template>
     </sw-modal>
     {% endblock %}
 
-    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_sales_channel_detail_domains_delete_modal %}
     <sw-modal
         v-if="deleteDomain"
@@ -237,37 +216,34 @@
         @modal-close="onCloseDeleteDomainModal"
     >
 
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_sales_channel_detail_domains_delete_modal_confirm_text %}
-        {{ $tc('sw-sales-channel.detail.textConfirmDeleteDomain', 0, { url: unicodeUriFilter(deleteDomain.url) }) }}
+        {{ $tc('sw-sales-channel.detail.textConfirmDeleteDomain', { url: unicodeUriFilter(deleteDomain.url) }, 0) }}
         {% endblock %}
 
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_sales_channel_detail_domains_delete_modal_footer %}
         <template #modal-footer>
-            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_sales_channel_detail_domains_delete_modal_abort %}
-            <sw-button
+            <mt-button
                 size="small"
+                variant="secondary"
                 @click="onCloseDeleteDomainModal"
             >
-                {{ $tc('sw-sales-channel.detail.buttonCloseDeleteDomainModal') }}
-            </sw-button>
+                {{ $tc('global.default.cancel') }}
+            </mt-button>
             {% endblock %}
 
-            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_sales_channel_detail_domains_delete_modal_confirm %}
-            <sw-button
+            <mt-button
                 size="small"
-                variant="danger"
+                variant="critical"
                 @click="onConfirmDeleteDomain(deleteDomain)"
             >
                 {{ $tc('sw-sales-channel.detail.buttonConfirmDeleteDomain') }}
-            </sw-button>
+            </mt-button>
             {% endblock %}
         </template>
         {% endblock %}
     </sw-modal>
     {% endblock %}
-</sw-card>
+</mt-card>
 {% endblock %}

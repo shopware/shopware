@@ -23,13 +23,16 @@ use Shopware\Core\Checkout\Promotion\Cart\Discount\Filter\SetGroupScopeFilter;
 use Shopware\Core\Checkout\Promotion\Cart\Error\PromotionExcludedError;
 use Shopware\Core\Checkout\Promotion\Cart\PromotionCalculator;
 use Shopware\Core\Checkout\Promotion\Cart\PromotionProcessor;
-use Shopware\Core\Framework\Test\IdsCollection;
+use Shopware\Core\Checkout\Promotion\PromotionException;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
+use Shopware\Core\Test\Stub\Framework\IdsCollection;
 
 /**
  * @internal
  */
 #[CoversClass(PromotionCalculator::class)]
+#[Package('checkout')]
 class PromotionCalculatorTest extends TestCase
 {
     private IdsCollection $ids;
@@ -53,6 +56,32 @@ class PromotionCalculatorTest extends TestCase
             $this->createMock(DiscountPackager::class),
             $this->createMock(DiscountPackager::class),
             $this->createMock(DiscountPackager::class)
+        );
+    }
+
+    public function testThrowsExceptionWhenInvalidScopeDefinition(): void
+    {
+        $this->expectExceptionObject(PromotionException::invalidScopeDefinition('invalid-scope'));
+
+        $lineItems = new LineItem($this->ids->get('line-item-1'), LineItem::PRODUCT_LINE_ITEM_TYPE);
+        $lineItems->setPriceDefinition(new AbsolutePriceDefinition(50.0));
+        $lineItems->setLabel('Product');
+
+        $discountItem = $this->getDiscountItem('first-promotion')
+            ->setPayloadValue('code', 'code-1')
+            ->setPayloadValue('exclusions', ['second-promotion'])
+            ->setPayloadValue('priority', 2)
+            ->setPayloadValue('discountScope', 'invalid-scope');
+
+        $cart = new Cart('promotion-test');
+        $cart->addLineItems(new LineItemCollection([$lineItems]));
+
+        $this->promotionCalculator->calculate(
+            new LineItemCollection([$discountItem]),
+            $cart,
+            $cart,
+            $this->createMock(SalesChannelContext::class),
+            new CartBehavior()
         );
     }
 

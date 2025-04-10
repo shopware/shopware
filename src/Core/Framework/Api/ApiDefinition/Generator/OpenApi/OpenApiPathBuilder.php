@@ -16,7 +16,7 @@ use Shopware\Core\System\SalesChannel\Entity\SalesChannelDefinitionInterface;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Serializer\NameConverter\CamelCaseToSnakeCaseNameConverter;
 
-#[Package('core')]
+#[Package('framework')]
 class OpenApiPathBuilder
 {
     private const EXPERIMENTAL_ANNOTATION_NAME = 'experimental';
@@ -49,6 +49,11 @@ class OpenApiPathBuilder
             'path' => $path . '/{id}',
         ]);
         $paths[$path . '/{id}']->get = $this->getDetailPath($definition);
+
+        $paths['/aggregate' . $path] = new PathItem([
+            'path' => '/aggregate' . $path,
+        ]);
+        $paths['/aggregate' . $path]->post = $this->getAggregatePath($definition);
 
         if (is_subclass_of($definition, SalesChannelDefinitionInterface::class)) {
             return $paths;
@@ -197,21 +202,6 @@ class OpenApiPathBuilder
             ],
             'requestBody' => [
                 'content' => [
-                    'application/vnd.api+json' => [
-                        'schema' => [
-                            'type' => 'object',
-                            'properties' => [
-                                'data' => [
-                                    '$ref' => '#/components/schemas/' . $schemaName,
-                                ],
-                                'included' => [
-                                    'type' => 'array',
-                                    'items' => ['$ref' => '#/components/schemas/resource'],
-                                    'uniqueItems' => true,
-                                ],
-                            ],
-                        ],
-                    ],
                     'application/json' => [
                         'schema' => [
                             '$ref' => '#/components/schemas/' . $schemaName,
@@ -246,21 +236,6 @@ class OpenApiPathBuilder
             'requestBody' => [
                 'description' => 'Partially update information about a ' . $this->convertToHumanReadable($definition->getEntityName()) . ' resource.',
                 'content' => [
-                    'application/vnd.api+json' => [
-                        'schema' => [
-                            'type' => 'object',
-                            'properties' => [
-                                'data' => [
-                                    '$ref' => '#/components/schemas/' . $schemaName,
-                                ],
-                                'included' => [
-                                    'type' => 'array',
-                                    'items' => ['$ref' => '#/components/schemas/resource'],
-                                    'uniqueItems' => true,
-                                ],
-                            ],
-                        ],
-                    ],
                     'application/json' => [
                         'schema' => [
                             '$ref' => '#/components/schemas/' . $schemaName,
@@ -317,14 +292,58 @@ class OpenApiPathBuilder
             'requestBody' => [
                 'required' => true,
                 'content' => [
-                    'application/vnd.api+json' => [
+                    'application/json' => [
                         'schema' => [
                             '$ref' => '#/components/schemas/Criteria',
                         ],
                     ],
+                ],
+            ],
+            'responses' => [
+                Response::HTTP_OK => $this->getListResponse($schemaName),
+                Response::HTTP_BAD_REQUEST => $this->getResponseRef((string) Response::HTTP_BAD_REQUEST),
+                Response::HTTP_UNAUTHORIZED => $this->getResponseRef((string) Response::HTTP_UNAUTHORIZED),
+            ],
+        ]);
+    }
+
+    private function getAggregatePath(EntityDefinition $definition): Post
+    {
+        $schemaName = $this->snakeCaseToCamelCase($definition->getEntityName());
+
+        $tags = [$this->convertToHumanReadable($definition->getEntityName())];
+
+        if ($experimental = $this->isExperimental($definition)) {
+            $tags[] = 'Experimental';
+        }
+
+        $since = $definition->since();
+
+        // In this version we added this aggregate api
+        if ($since === null || version_compare('6.6.10.0', $since, '>=')) {
+            $since = '6.6.10.0';
+        }
+
+        return new Post([
+            'summary' => 'Aggregate for the ' . $this->convertToHumanReadable($definition->getEntityName()) . ' resources.' . ($experimental ? ' Experimental API, not part of our backwards compatibility promise, thus this API can introduce breaking changes at any time.' : ''),
+            'description' => 'Available since: ' . $since,
+            'tags' => $tags,
+            'operationId' => 'aggregate' . $this->convertToOperationId($definition->getEntityName()),
+            'requestBody' => [
+                'required' => true,
+                'content' => [
                     'application/json' => [
                         'schema' => [
-                            '$ref' => '#/components/schemas/Criteria',
+                            'type' => 'object',
+                            'properties' => [
+                                'aggregations' => [
+                                    'type' => 'array',
+                                    'items' => [
+                                        '$ref' => '#/components/schemas/Aggregation',
+                                    ],
+                                ],
+                            ],
+                            'required' => ['aggregations'],
                         ],
                     ],
                 ],

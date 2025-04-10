@@ -1,16 +1,13 @@
+/**
+ * @sw-package framework
+ */
+
 import { mount } from '@vue/test-utils';
 
 async function createWrapper() {
-    return mount(await wrapTestComponent('sw-icon', { sync: true }), {
+    return mount(await wrapTestComponent('sw-icon-deprecated', { sync: true }), {
         props: {
             name: 'regular-circle-download',
-        },
-        global: {
-            stubs: {
-                'sw-icon-deprecated': await wrapTestComponent('sw-icon-deprecated', { sync: true }),
-                'mt-icon': true,
-                'sw-icon': true,
-            },
         },
     });
 }

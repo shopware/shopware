@@ -14,9 +14,9 @@ use Shopware\Core\Content\Media\Infrastructure\Path\MediaUrlGenerator;
 use Shopware\Core\Framework\Adapter\Filesystem\PrefixFilesystem;
 use Shopware\Core\Framework\DataAbstractionLayer\PartialEntity;
 use Shopware\Core\Framework\Extensions\ExtensionDispatcher;
-use Shopware\Core\Framework\Test\IdsCollection;
-use Shopware\Core\Framework\Test\TestCaseHelper\ReflectionHelper;
 use Symfony\Component\EventDispatcher\EventDispatcher;
+use Shopware\Core\Framework\Test\TestCaseHelper\ReflectionHelper;
+use Shopware\Core\Test\Stub\Framework\IdsCollection;
 
 /**
  * @internal
@@ -129,6 +129,30 @@ class RemoteThumbnailLoaderTest extends TestCase
             [
                 'media' => 'http://localhost:8000/foo/bar.png',
                 'thumbnails' => [],
+            ],
+        ];
+
+        yield 'Test with media path is an external url' => [
+            $ids,
+            (new PartialEntity())->assign([
+                'id' => $ids->get('media'),
+                'path' => 'https://test.com/photo/flower.jpg',
+                'mediaFolderId' => $ids->get('mediaFolderId'),
+                'updatedAt' => new \DateTimeImmutable('2000-01-01'),
+                'private' => false,
+            ]),
+            [
+                ['media_folder_id' => $ids->get('mediaFolderId'), 'width' => '200', 'height' => '200'],
+                ['media_folder_id' => $ids->get('mediaFolderId'), 'width' => '400', 'height' => '400'],
+                ['media_folder_id' => $ids->get('mediaFolderId'), 'width' => '600', 'height' => '600'],
+            ],
+            [
+                'media' => 'https://test.com/photo/flower.jpg?ts=946684800',
+                'thumbnails' => [
+                    'https://test.com/photo/flower.jpg?width=200&ts=946684800',
+                    'https://test.com/photo/flower.jpg?width=400&ts=946684800',
+                    'https://test.com/photo/flower.jpg?width=600&ts=946684800',
+                ],
             ],
         ];
     }

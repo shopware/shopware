@@ -12,34 +12,36 @@ use Shopware\Core\Content\Cms\DataResolver\ResolverContext\ResolverContext;
 use Shopware\Core\Content\Cms\SalesChannel\Struct\ProductDescriptionReviewsStruct;
 use Shopware\Core\Content\Product\Cms\ProductDescriptionReviewsCmsElementResolver;
 use Shopware\Core\Content\Product\SalesChannel\Review\AbstractProductReviewRoute;
+use Shopware\Core\Content\Product\SalesChannel\Review\ProductReviewLoader;
 use Shopware\Core\Content\Product\SalesChannel\Review\ProductReviewResult;
 use Shopware\Core\Content\Product\SalesChannel\SalesChannelProductEntity;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\Script\Execution\ScriptExecutor;
+use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Shopware\Core\Test\Generator;
+use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\HttpFoundation\Request;
 
 /**
  * @internal
  */
-#[Package('buyers-experience')]
+#[Package('discovery')]
 #[CoversClass(ProductDescriptionReviewsCmsElementResolver::class)]
 class ProductDescriptionReviewsCmsElementResolverTest extends TestCase
 {
     public function testGetType(): void
     {
-        $route = $this->createMock(AbstractProductReviewRoute::class);
-        $resolver = new ProductDescriptionReviewsCmsElementResolver($route);
+        $resolver = $this->getResolver();
 
         static::assertSame('product-description-reviews', $resolver->getType());
     }
 
     public function testEnrichSlotWithProductDescriptionReviews(): void
     {
-        $route = $this->createMock(AbstractProductReviewRoute::class);
-        $resolver = new ProductDescriptionReviewsCmsElementResolver($route);
+        $resolver = $this->getResolver();
 
-        $context = new ResolverContext(Generator::createSalesChannelContext(), new Request([
+        $context = new ResolverContext(Generator::generateSalesChannelContext(), new Request([
             'success' => true,
         ]));
 
@@ -72,15 +74,15 @@ class ProductDescriptionReviewsCmsElementResolverTest extends TestCase
 
         $reviews = $data->getReviews();
         static::assertInstanceOf(ProductReviewResult::class, $reviews);
+        static::assertSame($product, $data->getProduct());
         static::assertSame($productId, $reviews->getProductId());
     }
 
     public function testEnrichSetsEmptyDataWithoutConfig(): void
     {
-        $route = $this->createMock(AbstractProductReviewRoute::class);
-        $resolver = new ProductDescriptionReviewsCmsElementResolver($route);
+        $resolver = $this->getResolver();
 
-        $context = new ResolverContext(Generator::createSalesChannelContext(), new Request());
+        $context = new ResolverContext(Generator::generateSalesChannelContext(), new Request());
 
         $slot = new CmsSlotEntity();
         $slot->setId('slot-1');
@@ -93,5 +95,17 @@ class ProductDescriptionReviewsCmsElementResolverTest extends TestCase
         static::assertInstanceOf(ProductDescriptionReviewsStruct::class, $data);
         static::assertNull($data->getReviews());
         static::assertNull($data->getProduct());
+    }
+
+    private function getResolver(): ProductDescriptionReviewsCmsElementResolver
+    {
+        $productReviewLoader = new ProductReviewLoader(
+            $this->createMock(AbstractProductReviewRoute::class),
+            $this->createMock(SystemConfigService::class),
+            $this->createMock(EventDispatcherInterface::class)
+        );
+        $scriptExecutor = $this->createMock(ScriptExecutor::class);
+
+        return new ProductDescriptionReviewsCmsElementResolver($productReviewLoader, $scriptExecutor);
     }
 }

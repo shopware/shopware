@@ -33,7 +33,6 @@ use Shopware\Storefront\Page\Account\RecoverPassword\AccountRecoverPasswordPageL
 use Shopware\Storefront\Page\Account\RecoverPassword\AccountRecoverPasswordPageLoader;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
-use Symfony\Component\HttpKernel\Exception\UnauthorizedHttpException;
 use Symfony\Component\Routing\Attribute\Route;
 
 /**
@@ -41,7 +40,7 @@ use Symfony\Component\Routing\Attribute\Route;
  * Do not use direct or indirect repository calls in a controller. Always use a store-api route to get or put data
  */
 #[Route(defaults: ['_routeScope' => ['storefront']])]
-#[Package('storefront')]
+#[Package('framework')]
 class AuthController extends StorefrontController
 {
     /**
@@ -170,8 +169,7 @@ class AuthController extends StorefrontController
             $errorSnippet = $e->getSnippetKey();
         } catch (CustomerAuthThrottledException $e) {
             $waitTime = $e->getWaitTime();
-            // @deprecated tag:v6.7.0 - Remove catch for UnauthorizedHttpException
-        } catch (BadCredentialsException|CustomerNotFoundException|UnauthorizedHttpException) {
+        } catch (BadCredentialsException|CustomerNotFoundException) {
         } catch (PasswordPoliciesUpdatedException $e) {
             $this->addFlash(self::WARNING, $this->trans('account.passwordPoliciesUpdated'));
 
@@ -223,6 +221,11 @@ class AuthController extends StorefrontController
             $this->addFlash(self::DANGER, $this->trans('error.message-default'));
         } catch (RateLimitExceededException $e) {
             $this->addFlash(self::INFO, $this->trans('error.rateLimitExceeded', ['%seconds%' => $e->getWaitTime()]));
+        } catch (ConstraintViolationException $formViolations) {
+            return $this->forwardToRoute(
+                'frontend.account.recover.page',
+                ['formViolations' => $formViolations]
+            );
         }
 
         return $this->redirectToRoute('frontend.account.recover.page');

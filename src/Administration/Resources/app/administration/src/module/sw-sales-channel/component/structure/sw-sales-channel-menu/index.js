@@ -1,5 +1,5 @@
 /**
- * @package buyers-experience
+ * @sw-package discovery
  */
 
 import template from './sw-sales-channel-menu.html.twig';
@@ -15,9 +15,11 @@ const FlatTree = Shopware.Helper.FlatTreeHelper;
 Component.register('sw-sales-channel-menu', {
     template,
 
-    compatConfig: Shopware.compatConfig,
-
-    inject: ['repositoryFactory', 'acl', 'domainLinkService'],
+    inject: [
+        'repositoryFactory',
+        'acl',
+        'domainLinkService',
+    ],
 
     data() {
         return {
@@ -40,9 +42,18 @@ Component.register('sw-sales-channel-menu', {
             const criteria = new Criteria(1, 7);
 
             criteria.addIncludes({
-                sales_channel: ['name', 'type', 'active', 'translated', 'domains'],
+                sales_channel: [
+                    'name',
+                    'type',
+                    'active',
+                    'translated',
+                    'domains',
+                ],
                 sales_channel_type: ['iconName'],
-                sales_channel_domain: ['url', 'languageId'],
+                sales_channel_domain: [
+                    'url',
+                    'languageId',
+                ],
             });
 
             criteria.addSorting(Criteria.sort('sales_channel.name', 'ASC'));
@@ -70,7 +81,10 @@ Component.register('sw-sales-channel-menu', {
                     path: 'sw.sales.channel.detail',
                     params: { id: salesChannel.id },
                     color: '#D8DDE6',
-                    label: { label: salesChannel.translated.name, translated: true },
+                    label: {
+                        label: salesChannel.translated.name,
+                        translated: true,
+                    },
                     icon: salesChannel.type.iconName,
                     children: [],
                     domainLink: this.getDomainLink(salesChannel),
@@ -116,7 +130,6 @@ Component.register('sw-sales-channel-menu', {
         },
     },
 
-
     created() {
         this.createdComponent();
     },
@@ -135,27 +148,15 @@ Component.register('sw-sales-channel-menu', {
         },
 
         registerListener() {
-            if (this.isCompatEnabled('INSTANCE_EVENT_EMITTER')) {
-                this.$root.$on('sales-channel-change', this.loadEntityData);
-                this.$root.$on('on-change-application-language', this.loadEntityData);
-                this.$root.$on('on-add-sales-channel', this.openSalesChannelModal);
-            } else {
-                Shopware.Utils.EventBus.on('sw-sales-channel-detail-sales-channel-change', this.loadEntityData);
-                Shopware.Utils.EventBus.on('sw-language-switch-change-application-language', this.loadEntityData);
-                Shopware.Utils.EventBus.on('sw-sales-channel-detail-base-sales-channel-change', this.openSalesChannelModal);
-            }
+            Shopware.Utils.EventBus.on('sw-sales-channel-detail-sales-channel-change', this.loadEntityData);
+            Shopware.Utils.EventBus.on('sw-language-switch-change-application-language', this.loadEntityData);
+            Shopware.Utils.EventBus.on('sw-sales-channel-detail-base-sales-channel-change', this.openSalesChannelModal);
         },
 
         destroyedComponent() {
-            if (this.isCompatEnabled('INSTANCE_EVENT_EMITTER')) {
-                this.$root.$off('sales-channel-change', this.loadEntityData);
-                this.$root.$off('on-change-application-language', this.loadEntityData);
-                this.$root.$off('on-add-sales-channel', this.openSalesChannelModal);
-            } else {
-                Shopware.Utils.EventBus.off('sw-sales-channel-detail-sales-channel-change', this.loadEntityData);
-                Shopware.Utils.EventBus.off('sw-language-switch-change-application-language', this.loadEntityData);
-                Shopware.Utils.EventBus.off('sw-sales-channel-detail-base-sales-channel-change', this.openSalesChannelModal);
-            }
+            Shopware.Utils.EventBus.off('sw-sales-channel-detail-sales-channel-change', this.loadEntityData);
+            Shopware.Utils.EventBus.off('sw-language-switch-change-application-language', this.loadEntityData);
+            Shopware.Utils.EventBus.off('sw-sales-channel-detail-base-sales-channel-change', this.openSalesChannelModal);
         },
 
         getDomainLink(salesChannel) {

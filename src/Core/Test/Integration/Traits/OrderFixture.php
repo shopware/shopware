@@ -15,7 +15,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Pricing\CashRoundingConfig;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\BasicTestDataBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
@@ -24,9 +23,9 @@ use Shopware\Core\System\StateMachine\Loader\InitialStateIdLoader;
 use Shopware\Core\Test\TestDefaults;
 
 /**
- * @deprecated tag:v6.7.0 - reason:becomes-internal - Will be internal in v6.7.0
+ * @internal
  */
-#[Package('services-settings')]
+#[Package('checkout')]
 trait OrderFixture
 {
     use BasicTestDataBehaviour;
@@ -48,7 +47,7 @@ trait OrderFixture
         $deliveryId = Uuid::randomHex();
 
         /** @var EntityRepository $salesChannelRepository */
-        $salesChannelRepository = $this->getContainer()->get('sales_channel.repository');
+        $salesChannelRepository = static::getContainer()->get('sales_channel.repository');
 
         /** @var SalesChannelEntity $salesChannel */
         $salesChannel = $salesChannelRepository->search(
@@ -67,7 +66,7 @@ trait OrderFixture
                 'orderNumber' => $orderNumber,
                 'price' => new CartPrice(10, 10, 10, new CalculatedTaxCollection(), new TaxRuleCollection(), CartPrice::TAX_STATE_NET),
                 'shippingCosts' => new CalculatedPrice(10, 10, new CalculatedTaxCollection(), new TaxRuleCollection()),
-                'stateId' => $this->getContainer()->get(InitialStateIdLoader::class)->get(OrderStates::STATE_MACHINE),
+                'stateId' => static::getContainer()->get(InitialStateIdLoader::class)->get(OrderStates::STATE_MACHINE),
                 'versionId' => Defaults::LIVE_VERSION,
                 'paymentMethodId' => $paymentMethodId,
                 'currencyId' => Defaults::CURRENCY,
@@ -79,7 +78,7 @@ trait OrderFixture
                 'deliveries' => [
                     [
                         'id' => $deliveryId,
-                        'stateId' => $this->getContainer()->get(InitialStateIdLoader::class)->get(OrderDeliveryStates::STATE_MACHINE),
+                        'stateId' => static::getContainer()->get(InitialStateIdLoader::class)->get(OrderDeliveryStates::STATE_MACHINE),
                         'shippingMethodId' => $shippingMethodId,
                         'shippingCosts' => new CalculatedPrice(10, 10, new CalculatedTaxCollection(), new TaxRuleCollection()),
                         'shippingDateEarliest' => (new \DateTimeImmutable())->format(Defaults::STORAGE_DATE_FORMAT),
@@ -185,10 +184,6 @@ trait OrderFixture
                 ],
             ],
         ];
-
-        if (!Feature::isActive('v6.7.0.0')) {
-            $order[0]['orderCustomer']['customer']['defaultPaymentMethodId'] = $paymentMethodId;
-        }
 
         return $order;
     }

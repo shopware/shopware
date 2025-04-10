@@ -22,14 +22,14 @@ class SalesChannelUserConfigSubscriberTest extends TestCase
 
     public function testDeleteWillRemoveUserConfigs(): void
     {
-        $admin = TestUser::createNewTestUser($this->getContainer()->get(Connection::class), ['product:read']);
+        $admin = TestUser::createNewTestUser(static::getContainer()->get(Connection::class), ['product:read']);
         $context = Context::createDefaultContext();
 
         $salesChannelId1 = Uuid::randomHex();
         $salesChannelId2 = Uuid::randomHex();
 
         /** @var EntityRepository<UserConfigCollection> $userConfigRepository */
-        $userConfigRepository = $this->getContainer()->get('user_config.repository');
+        $userConfigRepository = static::getContainer()->get('user_config.repository');
         $userConfigId = Uuid::randomHex();
         $userConfigRepository->create([
             [
@@ -52,7 +52,7 @@ class SalesChannelUserConfigSubscriberTest extends TestCase
         $this->createSalesChannel(['id' => $salesChannelId1]);
         $this->createSalesChannel(['id' => $salesChannelId2]);
 
-        $salesChannelRepository = $this->getContainer()->get('sales_channel.repository');
+        $salesChannelRepository = static::getContainer()->get('sales_channel.repository');
         $salesChannelRepository->delete([['id' => $salesChannelId1], ['id' => $salesChannelId2]], $context);
 
         $search = $userConfigRepository->search(new Criteria([$userConfigId]), $context)

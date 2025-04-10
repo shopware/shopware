@@ -12,7 +12,7 @@ use Shopware\Core\Framework\Log\Package;
 /**
  * @internal only for use by the app-system
  */
-#[Package('core')]
+#[Package('framework')]
 class Metadata extends XmlElement
 {
     protected const REQUIRED_FIELDS = [
@@ -41,6 +41,8 @@ class Metadata extends XmlElement
     protected array $description = [];
 
     protected string $name;
+
+    protected bool $selfManaged = false;
 
     protected string $author;
 
@@ -121,6 +123,16 @@ class Metadata extends XmlElement
         return $this->name;
     }
 
+    public function isSelfManaged(): bool
+    {
+        return $this->selfManaged;
+    }
+
+    public function setSelfManaged(bool $selfManaged): void
+    {
+        $this->selfManaged = $selfManaged;
+    }
+
     public function getAuthor(): string
     {
         return $this->author;
@@ -146,6 +158,11 @@ class Metadata extends XmlElement
     public function getVersion(): string
     {
         return $this->version;
+    }
+
+    public function setVersion(string $version): void
+    {
+        $this->version = $version;
     }
 
     public function getIcon(): ?string

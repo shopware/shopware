@@ -1,19 +1,14 @@
-<!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
 {% block sw_settings_salutation_detail %}
 <sw-page class="sw-settings-salutation-detail">
 
-    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_settings_salutation_detail_search_bar %}
     <template #search-bar></template>
     {% endblock %}
 
-    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_settings_salutation_detail_smart_bar_header %}
     <template #smart-bar-header>
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_settings_salutation_detail_smart_bar_header_title %}
         <h2>
-            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_settings_salutation_detail_smart_bar_header_title_text %}
             {{ placeholder(salutation, 'salutationKey', $tc('sw-settings-salutation.detail.placeholderNewSalutation')) }}
             {% endblock %}
@@ -22,7 +17,6 @@
     </template>
     {% endblock %}
 
-    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_settings_salutation_detail_language_switch %}
     <template #language-switch>
         <sw-language-switch
@@ -32,21 +26,20 @@
     </template>
     {% endblock %}
 
-    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_settings_salutation_detail_actions %}
     <template #smart-bar-actions>
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_settings_salutation_detail_actions_cancel %}
-        <sw-button
+        <mt-button
             v-tooltip.bottom="tooltipCancel"
             class="sw-settings-salutation-detail__cancel"
+            variant="secondary"
+            size="default"
             @click="onCancel"
         >
-            {{ $tc('sw-settings-salutation.general.buttonCancel') }}
-        </sw-button>
+            {{ $tc('global.default.cancel') }}
+        </mt-button>
         {% endblock %}
 
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_settings_salutation_detail_actions_save %}
         <sw-button-process
             v-tooltip.bottom="tooltipSave"
@@ -64,31 +57,28 @@
     </template>
     {% endblock %}
 
-    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_settings_salutation_detail_cardview %}
     <template #content>
         <sw-card-view>
             <sw-skeleton v-if="isLoading" />
 
             <template v-else>
-                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_settings_salutation_detail_content_language_info %}
                 <sw-language-info :entity-description="entityDescription" />
                 {% endblock %}
 
-                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_settings_salutation_detail_content_card %}
-                <sw-card
+                <mt-card
                     position-identifier="sw-settings-salutation-detail-content"
                     :is-loading="isLoading"
                     :title="$tc('sw-settings-salutation.detail.cardTitle')"
                 >
 
                     <template v-if="salutation">
-                        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                         {% block sw_settings_salutation_detail_content_card_salutation_key %}
-                        <sw-text-field
-                            v-model:value="salutation.salutationKey"
+
+                        <mt-text-field
+                            v-model="salutation.salutationKey"
                             name="sw-field--salutation-salutationKey"
                             class="sw-settings-salutation-detail__salutation_key"
                             :label="$tc('sw-settings-salutation.detail.fieldSalutationKeyLabel')"
@@ -98,14 +88,14 @@
                             validation="required"
                             required
                             :disabled="!acl.can('salutation.editor') || undefined"
-                            @update:value="onChange"
+                            @update:model-value="onChange"
                         />
                         {% endblock %}
 
-                        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                         {% block sw_settings_salutation_detail_content_card_display_name %}
-                        <sw-text-field
-                            v-model:value="salutation.displayName"
+
+                        <mt-text-field
+                            v-model="salutation.displayName"
                             name="sw-field--salutation-displayName"
                             required
                             class="sw-settings-salutation-detail__displayName"
@@ -116,10 +106,10 @@
                         />
                         {% endblock %}
 
-                        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                         {% block sw_settings_salutation_detail_content_card_letter_name %}
-                        <sw-text-field
-                            v-model:value="salutation.letterName"
+
+                        <mt-text-field
+                            v-model="salutation.letterName"
                             name="sw-field--salutation-letterName"
                             required
                             class="sw-settings-salutation-detail__letterName"
@@ -130,12 +120,11 @@
                         />
                         {% endblock %}
                     </template>
-                </sw-card>
+                </mt-card>
                 {% endblock %}
 
-                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_settings_salutation_detail_custom_field_sets %}
-                <sw-card
+                <mt-card
                     v-if="showCustomFields"
                     position-identifier="sw-settings-salutation-detail-custom-fields"
                     :title="$tc('sw-settings-custom-field.general.mainMenuItemGeneral')"
@@ -146,7 +135,7 @@
                         :disabled="!acl.can('salutation.editor') || undefined"
                         :sets="customFieldSets"
                     />
-                </sw-card>
+                </mt-card>
                 {% endblock %}
             </template>
         </sw-card-view>

@@ -24,7 +24,7 @@ class ContextTest extends TestCase
         yield 'tpl' => ['{{ context.enableInheritance("print_r") }}'];
     }
 
-    #[DataProvider(methodName: 'twigMethodProviders')]
+    #[DataProvider('twigMethodProviders')]
     public function testCallableCannotBeCalledFromTwig(string $tpl): void
     {
         $context = Context::createDefaultContext();
@@ -33,7 +33,7 @@ class ContextTest extends TestCase
             'tpl' => $tpl,
         ]));
 
-        static::expectException(RuntimeError::class);
+        $this->expectException(RuntimeError::class);
 
         $twig->render('tpl', ['context' => $context]);
     }

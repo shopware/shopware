@@ -5,6 +5,7 @@ namespace Shopware\Core\Checkout\Cart\LineItemFactoryHandler;
 use Shopware\Core\Checkout\Cart\CartException;
 use Shopware\Core\Checkout\Cart\LineItem\LineItem;
 use Shopware\Core\Checkout\Cart\PriceDefinitionFactory;
+use Shopware\Core\Content\Media\MediaCollection;
 use Shopware\Core\Content\Product\Cart\ProductCartProcessor;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
@@ -16,6 +17,8 @@ class CreditLineItemFactory implements LineItemFactoryInterface
 {
     /**
      * @internal
+     *
+     * @param EntityRepository<MediaCollection> $mediaRepository
      */
     public function __construct(
         private readonly PriceDefinitionFactory $priceDefinitionFactory,
@@ -71,7 +74,7 @@ class CreditLineItemFactory implements LineItemFactoryInterface
         }
 
         if (isset($data['coverId'])) {
-            $cover = $this->mediaRepository->search(new Criteria([$data['coverId']]), $context->getContext())->first();
+            $cover = $this->mediaRepository->search(new Criteria([$data['coverId']]), $context->getContext())->getEntities()->first();
 
             $lineItem->setCover($cover);
         }

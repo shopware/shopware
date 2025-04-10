@@ -10,43 +10,25 @@ use Shopware\Core\Framework\DataAbstractionLayer\FieldSerializer\FieldSerializer
 use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
-#[Package('core')]
+#[Package('framework')]
 class DefinitionInstanceRegistry
 {
     /**
-     * @var ContainerInterface
-     */
-    protected $container;
-
-    /**
-     * @var array<string, string>
-     */
-    protected $repositoryMap;
-
-    /**
-     * @var array<string, string|class-string<EntityDefinition>>
-     */
-    protected $definitions;
-
-    /**
      * @var array<class-string<Entity>, EntityDefinition>|null
      */
-    protected $entityClassMapping;
+    protected ?array $entityClassMapping = null;
 
     /**
-     * @internal
-     *
-     * @param array<string, class-string<EntityDefinition>> $definitionMap array of $entityName => $definitionServiceId, e.g. 'product' => '\Shopware\Core\Content\Product\ProductDefinition'
+     * @param array<string, string|class-string<EntityDefinition>> $definitions array of $entityName => $definitionServiceId, e.g. 'product' => '\Shopware\Core\Content\Product\ProductDefinition'
      * @param array<string, string> $repositoryMap array of $entityName => $repositoryServiceId, e.g. 'product' => 'product.repository'
+     *
+     *@internal
      */
     public function __construct(
-        ContainerInterface $container,
-        array $definitionMap,
-        array $repositoryMap
+        protected ContainerInterface $container,
+        protected array $definitions,
+        protected array $repositoryMap
     ) {
-        $this->container = $container;
-        $this->definitions = $definitionMap;
-        $this->repositoryMap = $repositoryMap;
     }
 
     /**

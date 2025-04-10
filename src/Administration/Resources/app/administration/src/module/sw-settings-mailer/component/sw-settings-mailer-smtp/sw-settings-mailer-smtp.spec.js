@@ -1,45 +1,45 @@
 /**
- * @package services-settings
+ * @sw-package framework
  */
 import { mount } from '@vue/test-utils';
 
 describe('src/module/sw-settings-mailer/component/sw-settings-mailer-smtp', () => {
     const createWrapper = async (mailerSettings = {}) => {
-        return mount(await wrapTestComponent('sw-settings-mailer-smtp', {
-            sync: true,
-        }), {
-            props: {
-                mailerSettings,
-            },
-            global: {
-                renderStubDefaultSlot: true,
-                provide: {
-                    validationService: {},
+        return mount(
+            await wrapTestComponent('sw-settings-mailer-smtp', {
+                sync: true,
+            }),
+            {
+                props: {
+                    mailerSettings,
                 },
-                stubs: {
-                    'sw-text-field': await wrapTestComponent('sw-text-field'),
-                    'sw-text-field-deprecated': await wrapTestComponent('sw-text-field-deprecated', { sync: true }),
-                    'sw-number-field': await wrapTestComponent('sw-number-field'),
-                    'sw-number-field-deprecated': await wrapTestComponent('sw-number-field-deprecated', { sync: true }),
-                    'sw-contextual-field': await wrapTestComponent('sw-contextual-field'),
-                    'sw-block-field': await wrapTestComponent('sw-block-field'),
-                    'sw-base-field': await wrapTestComponent('sw-base-field'),
-                    'sw-field-error': true,
-                    'sw-single-select': true,
-                    'sw-switch-field': true,
-                    'sw-password-field': true,
-                    'sw-help-text': true,
-                    'sw-field-copyable': true,
-                    'sw-inheritance-switch': true,
-                    'sw-ai-copilot-badge': true,
-                },
-                mocks: {
-                    $tc(translationKey) {
-                        return translationKey;
+                global: {
+                    renderStubDefaultSlot: true,
+                    provide: {
+                        validationService: {},
+                    },
+                    stubs: {
+                        'sw-text-field': await wrapTestComponent('sw-text-field'),
+                        'sw-text-field-deprecated': await wrapTestComponent('sw-text-field-deprecated', { sync: true }),
+                        'sw-contextual-field': await wrapTestComponent('sw-contextual-field'),
+                        'sw-block-field': await wrapTestComponent('sw-block-field'),
+                        'sw-base-field': await wrapTestComponent('sw-base-field'),
+                        'sw-field-error': true,
+                        'sw-single-select': true,
+
+                        'sw-help-text': true,
+                        'sw-field-copyable': true,
+                        'sw-inheritance-switch': true,
+                        'sw-ai-copilot-badge': true,
+                    },
+                    mocks: {
+                        $tc(translationKey) {
+                            return translationKey;
+                        },
                     },
                 },
             },
-        });
+        );
     };
 
     it('should be a vue js component', async () => {
@@ -54,7 +54,7 @@ describe('src/module/sw-settings-mailer/component/sw-settings-mailer-smtp', () =
         });
         await flushPromises();
 
-        const host = wrapper.find('.sw-field[label="sw-settings-mailer.card-smtp.host"] input').element.value;
+        const host = wrapper.find('input[aria-label="sw-settings-mailer.card-smtp.host"]').element.value;
         expect(host).toBe('https://example.com');
     });
 
@@ -64,7 +64,7 @@ describe('src/module/sw-settings-mailer/component/sw-settings-mailer-smtp', () =
         });
         await flushPromises();
 
-        const port = wrapper.find('.sw-field[label="sw-settings-mailer.card-smtp.port"] input').element.value;
+        const port = wrapper.findByLabel('sw-settings-mailer.card-smtp.port').element.value;
         expect(port).toBe('476');
     });
 });

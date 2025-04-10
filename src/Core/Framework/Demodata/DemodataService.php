@@ -17,7 +17,7 @@ use Symfony\Component\Console\Style\SymfonyStyle;
 /**
  * @final
  */
-#[Package('core')]
+#[Package('framework')]
 class DemodataService
 {
     /**

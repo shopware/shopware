@@ -6,13 +6,11 @@ const types = Shopware.Utils.types;
 const { Criteria } = Shopware.Data;
 
 /**
- * @package buyers-experience
+ * @sw-package discovery
  */
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default {
     template,
-
-    compatConfig: Shopware.compatConfig,
 
     inject: [
         'repositoryFactory',
@@ -50,7 +48,6 @@ export default {
     },
 
     computed: {
-
         productRepository() {
             return this.repositoryFactory.create('product');
         },
@@ -106,7 +103,7 @@ export default {
             });
 
             this.mailTemplates.forEach(({ mailTemplate }) => {
-                if (!usages.some(usage => usage.link.id === mailTemplate.id)) {
+                if (!usages.some((usage) => usage.link.id === mailTemplate.id)) {
                     usages.push(this.getMailTemplateUsage(mailTemplate));
                 }
             });
@@ -172,7 +169,12 @@ export default {
         async loadSlotConfigAssociations() {
             this.isLoading = true;
 
-            const [foundInProducts, foundInLandingPages, foundInCategories, foundInCmsPages] = await Promise.all([
+            const [
+                foundInProducts,
+                foundInLandingPages,
+                foundInCategories,
+                foundInCmsPages,
+            ] = await Promise.all([
                 this.productRepository.search(this.slotConfigCriteria),
                 this.landingPageRepository.search(this.slotConfigCriteria),
                 this.categoryRepository.search(this.slotConfigCriteria),
@@ -265,7 +267,7 @@ export default {
         },
 
         isExistedCmsMedia(id) {
-            return this.layouts.some(layout => {
+            return this.layouts.some((layout) => {
                 return layout.id === id;
             });
         },
@@ -335,10 +337,10 @@ export default {
                 name: user.username,
                 tooltip: this.$tc('sw-media.sidebar.usage.tooltipFoundInUser'),
                 link: {
-                    name: 'sw.settings.user.detail',
+                    name: 'sw.users.permissions.user.detail',
                     id: user.id,
                 },
-                icon: this.getIconForModule('sw-settings-user'),
+                icon: this.getIconForModule('sw-users-permissions'),
             };
         },
 

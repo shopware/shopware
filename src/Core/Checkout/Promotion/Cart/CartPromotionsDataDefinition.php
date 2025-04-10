@@ -3,11 +3,10 @@
 namespace Shopware\Core\Checkout\Promotion\Cart;
 
 use Shopware\Core\Checkout\Promotion\PromotionEntity;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Struct\Struct;
 
-#[Package('buyers-experience')]
+#[Package('checkout')]
 class CartPromotionsDataDefinition extends Struct
 {
     /**
@@ -37,40 +36,6 @@ class CartPromotionsDataDefinition extends Struct
     }
 
     /**
-     * Gets all added automatic promotions.
-     *
-     * @deprecated tag:v6.7.0 - Will be removed without replacement as the method is not used
-     *
-     * @return array<PromotionEntity>
-     */
-    public function getAutomaticPromotions(): array
-    {
-        Feature::triggerDeprecationOrThrow(
-            'v6.7.0.0',
-            Feature::deprecatedMethodMessage(__CLASS__, __METHOD__, 'v6.7.0.0')
-        );
-
-        return $this->automaticPromotions;
-    }
-
-    /**
-     * Gets all added code promotions
-     *
-     * @deprecated tag:v6.7.0 - Will be removed without replacement as the method is not used
-     *
-     * @return array<string, array<PromotionEntity>>
-     */
-    public function getCodePromotions(): array
-    {
-        Feature::triggerDeprecationOrThrow(
-            'v6.7.0.0',
-            Feature::deprecatedMethodMessage(__CLASS__, __METHOD__, 'v6.7.0.0')
-        );
-
-        return $this->codePromotions;
-    }
-
-    /**
      * Adds the provided list of promotions to the existing list of promotions for this code.
      *
      * @param string $code the promotion code
@@ -79,12 +44,12 @@ class CartPromotionsDataDefinition extends Struct
     public function addCodePromotions(string $code, array $promotions): void
     {
         if (!\array_key_exists($code, $this->codePromotions)) {
-            $this->codePromotions[$code] = [];
+            $this->codePromotions[$code] = $promotions;
+
+            return;
         }
 
-        $existing = $this->codePromotions[$code];
-
-        $this->codePromotions[$code] = array_merge($existing, $promotions);
+        $this->codePromotions[$code] = array_merge($this->codePromotions[$code], $promotions);
     }
 
     /**

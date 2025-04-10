@@ -1,20 +1,24 @@
 import template from './sw-flow-app-action-modal.html.twig';
 import './sw-flow-app-action-modal.scss';
 
-const { Mixin, Classes: { ShopwareError } } = Shopware;
+const {
+    Mixin,
+    Classes: { ShopwareError },
+} = Shopware;
 
 /**
  * @private
- * @package services-settings
+ * @sw-package after-sales
  */
 export default {
     template,
 
-    compatConfig: Shopware.compatConfig,
-
     inject: ['acl'],
 
-    emits: ['process-finish', 'modal-close'],
+    emits: [
+        'process-finish',
+        'modal-close',
+    ],
 
     mixins: [
         Mixin.getByName('placeholder'),
@@ -46,17 +50,17 @@ export default {
         },
 
         currentLocale() {
-            return Shopware.State.get('session').currentLocale;
+            return Shopware.Store.get('session').currentLocale;
         },
 
         headline() {
-            return this.sequence?.propsAppFlowAction?.translated?.headline
-                || this.sequence?.propsAppFlowAction?.headline;
+            return this.sequence?.propsAppFlowAction?.translated?.headline || this.sequence?.propsAppFlowAction?.headline;
         },
 
         paragraph() {
-            return this.sequence?.propsAppFlowAction?.translated?.description
-                || this.sequence?.propsAppFlowAction?.description;
+            return (
+                this.sequence?.propsAppFlowAction?.translated?.description || this.sequence?.propsAppFlowAction?.description
+            );
         },
     },
 
@@ -71,11 +75,15 @@ export default {
                 return;
             }
 
-            Object.entries({ ...this.sequence.config }).forEach(([key, configValue]) => {
-                this.config[key] = (typeof configValue === 'object' && configValue.value !== undefined)
-                    ? configValue.value
-                    : configValue;
-            });
+            Object.entries({ ...this.sequence.config }).forEach(
+                ([
+                    key,
+                    configValue,
+                ]) => {
+                    this.config[key] =
+                        typeof configValue === 'object' && configValue.value !== undefined ? configValue.value : configValue;
+                },
+            );
         },
 
         onChange(event, field) {
@@ -84,7 +92,7 @@ export default {
 
         isValid() {
             this.errors = {};
-            this.fields.forEach(field => {
+            this.fields.forEach((field) => {
                 const val = this.config[field.name] ?? null;
                 this.handleValid(field, val);
             });
@@ -99,29 +107,15 @@ export default {
             }
 
             if (field.required && !value && typeof value !== 'boolean') {
-                if (this.isCompatEnabled('INSTANCE_DELETE')) {
-                    this.$delete(this.config, [field.name]);
-                } else {
-                    delete this.config[field.name];
-                }
+                delete this.config[field.name];
 
-                if (this.isCompatEnabled('INSTANCE_SET')) {
-                    this.$set(this.errors, field.name, new ShopwareError({
-                        code: 'c1051bb4-d103-4f74-8988-acbcafc7fdc3',
-                    }));
-                } else {
-                    this.errors[field.name] = new ShopwareError({
-                        code: 'c1051bb4-d103-4f74-8988-acbcafc7fdc3',
-                    });
-                }
+                this.errors[field.name] = new ShopwareError({
+                    code: 'c1051bb4-d103-4f74-8988-acbcafc7fdc3',
+                });
                 return;
             }
 
-            if (this.isCompatEnabled('INSTANCE_DELETE')) {
-                this.$delete(this.errors, [field.name]);
-            } else {
-                delete this.errors[field.name];
-            }
+            delete this.errors[field.name];
         },
 
         onSave() {
@@ -138,7 +132,7 @@ export default {
 
         buildConfig() {
             const data = {};
-            this.fields.forEach(field => {
+            this.fields.forEach((field) => {
                 if (this.config[field.name]?.length !== 0 && this.config[field.name] !== null) {
                     data[field.name] = this.config[field.name];
                 }
@@ -155,11 +149,7 @@ export default {
             this.sequence.propsAppFlowAction?.config.forEach((config) => {
                 this.config[config.name] = this.convertDefaultValue(config.type, config.defaultValue);
                 this.fields.push(config);
-                if (this.isCompatEnabled('INSTANCE_DELETE')) {
-                    this.$delete(this.errors, config.name);
-                } else {
-                    delete this.errors[config.name];
-                }
+                delete this.errors[config.name];
             });
         },
 
@@ -168,15 +158,31 @@ export default {
                 return null;
             }
 
-            if (['int', 'float'].includes(type)) {
+            if (
+                [
+                    'int',
+                    'float',
+                ].includes(type)
+            ) {
                 return parseInt(value, 10);
             }
 
-            if (['bool', 'checkbox'].includes(type)) {
+            if (
+                [
+                    'bool',
+                    'checkbox',
+                ].includes(type)
+            ) {
                 return !!value;
             }
 
-            if (['date', 'datetime', 'time'].includes(type)) {
+            if (
+                [
+                    'date',
+                    'datetime',
+                    'time',
+                ].includes(type)
+            ) {
                 return null;
             }
 
@@ -206,7 +212,12 @@ export default {
                 return config;
             }
 
-            if (['single-select', 'multi-select'].includes(field.type)) {
+            if (
+                [
+                    'single-select',
+                    'multi-select',
+                ].includes(field.type)
+            ) {
                 config.componentName = `sw-${field.type}`;
                 config.options = field.options;
             }

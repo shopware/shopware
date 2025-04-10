@@ -5,60 +5,18 @@ namespace Shopware\Core\Framework\DataAbstractionLayer\Pricing;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Struct\Struct;
 
-#[Package('core')]
+#[Package('framework')]
 class Price extends Struct
 {
-    /**
-     * @var string
-     */
-    protected $currencyId;
-
-    /**
-     * @var float
-     */
-    protected $net;
-
-    /**
-     * @var float
-     */
-    protected $gross;
-
-    /**
-     * @var bool
-     */
-    protected $linked;
-
-    /**
-     * @var Price|null
-     */
-    protected $listPrice;
-
-    /**
-     * @var array|null
-     */
-    protected $percentage;
-
-    /**
-     * @var Price|null
-     */
-    protected $regulationPrice;
-
     public function __construct(
-        string $currencyId,
-        float $net,
-        float $gross,
-        bool $linked,
-        ?Price $listPrice = null,
-        ?array $percentage = null,
-        ?Price $regulationPrice = null
+        protected string $currencyId,
+        protected float $net,
+        protected float $gross,
+        protected bool $linked,
+        protected ?Price $listPrice = null,
+        protected ?array $percentage = null,
+        protected ?Price $regulationPrice = null
     ) {
-        $this->net = $net;
-        $this->gross = $gross;
-        $this->linked = $linked;
-        $this->currencyId = $currencyId;
-        $this->listPrice = $listPrice;
-        $this->percentage = $percentage;
-        $this->regulationPrice = $regulationPrice;
     }
 
     public function getNet(): float

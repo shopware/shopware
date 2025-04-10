@@ -5,18 +5,18 @@ namespace Shopware\Core\Framework\DataAbstractionLayer\Write\Command;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\ImpossibleWriteOrderException;
-use Shopware\Core\Framework\DataAbstractionLayer\Field\Field;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\FkField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\NoConstraint;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ReferenceVersionField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\StorageAware;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\VersionField;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\Util\Hasher;
 
 /**
  * @internal
  */
-#[Package('core')]
+#[Package('framework')]
 class WriteCommandQueue
 {
     /**
@@ -41,9 +41,7 @@ class WriteCommandQueue
     {
         $decoded = self::decodeCommandPrimary($registry, $command);
 
-        $string = json_encode($decoded, \JSON_THROW_ON_ERROR);
-
-        return md5($string);
+        return Hasher::hash($decoded);
     }
 
     /**
@@ -93,14 +91,21 @@ class WriteCommandQueue
 
             foreach ($commands as $definition => $defCommands) {
                 foreach ($defCommands as $index => $command) {
+                    $key = $this->createPrimaryHash($definition, $this->getDecodedPrimaryKey($registry, $command));
+
+                    if ($command instanceof UpdateCommand && isset($mapping[$key])) {
+                        continue;
+                    }
+
                     $delay = $this->hasUnresolvedForeignKey($definition, $foreignKeys, $mapping, $command);
 
                     if ($delay) {
                         continue;
                     }
 
-                    $key = $this->createPrimaryHash($definition, $this->getDecodedPrimaryKey($registry, $command));
-                    unset($mapping[$key]);
+                    if ($command instanceof InsertCommand) {
+                        unset($mapping[$key]);
+                    }
 
                     $order[] = $command;
                     unset($commands[$definition][$index]);
@@ -151,7 +156,7 @@ class WriteCommandQueue
         }
         sort($decodedPrimaryKey);
 
-        $hash = $definition->getEntityName() . ':' . md5(json_encode($decodedPrimaryKey, \JSON_THROW_ON_ERROR));
+        $hash = $definition->getEntityName() . ':' . Hasher::hash($decodedPrimaryKey);
 
         return $this->entityCommands[$hash] ?? [];
     }

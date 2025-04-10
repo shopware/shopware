@@ -1,5 +1,5 @@
 /**
- * @package buyers-experience
+ * @sw-package inventory
  */
 import template from './sw-settings-search-live-search.html.twig';
 import './sw-settings-search-live-search.scss';
@@ -12,14 +12,15 @@ const { Criteria } = Shopware.Data;
 export default {
     template,
 
-    compatConfig: Shopware.compatConfig,
-
     inject: [
         'repositoryFactory',
         'liveSearchService',
     ],
 
-    emits: ['live-search-results-change', 'sales-channel-change'],
+    emits: [
+        'live-search-results-change',
+        'sales-channel-change',
+    ],
 
     mixins: [
         Mixin.getByName('notification'),
@@ -66,15 +67,18 @@ export default {
         },
 
         searchColumns() {
-            return [{
-                property: 'name',
-                label: this.$tc('sw-settings-search.liveSearchTab.labelName'),
-                rawData: true,
-            }, {
-                property: 'score',
-                label: this.$tc('sw-settings-search.liveSearchTab.labelScore'),
-                rawData: true,
-            }];
+            return [
+                {
+                    property: 'name',
+                    label: this.$tc('sw-settings-search.liveSearchTab.labelName'),
+                    rawData: true,
+                },
+                {
+                    property: 'score',
+                    label: this.$tc('sw-settings-search.liveSearchTab.labelScore'),
+                    rawData: true,
+                },
+            ];
         },
 
         products() {
@@ -99,27 +103,37 @@ export default {
             }
 
             this.searchInProgress = true;
-            this.liveSearchService.search({
-                salesChannelId: this.salesChannelId,
-                search: this.liveSearchTerm,
-            }, {}, {}, { 'sw-language-id': Shopware.Context.api.languageId }).then((data) => {
-                this.liveSearchResults = data.data;
-                this.searchInProgress = false;
-                this.$emit('live-search-results-change', {
-                    searchTerms: this.liveSearchTerm,
-                    searchResults: this.liveSearchResults,
-                });
-            }).catch((error) => {
-                const message = error.response.status === 500
-                    ? this.$tc('sw-settings-search.notification.notSupportedLanguageError')
-                    : error.message;
+            this.liveSearchService
+                .search(
+                    {
+                        salesChannelId: this.salesChannelId,
+                        search: this.liveSearchTerm,
+                    },
+                    {},
+                    {},
+                    { 'sw-language-id': Shopware.Context.api.languageId },
+                )
+                .then((data) => {
+                    this.liveSearchResults = data.data;
+                    this.searchInProgress = false;
+                    this.$emit('live-search-results-change', {
+                        searchTerms: this.liveSearchTerm,
+                        searchResults: this.liveSearchResults,
+                    });
+                })
+                .catch((error) => {
+                    const message =
+                        error.response.status === 500
+                            ? this.$tc('sw-settings-search.notification.notSupportedLanguageError')
+                            : error.message;
 
-                this.createNotificationError({
-                    message,
+                    this.createNotificationError({
+                        message,
+                    });
+                })
+                .finally(() => {
+                    this.searchInProgress = false;
                 });
-            }).finally(() => {
-                this.searchInProgress = false;
-            });
         },
 
         fetchSalesChannels() {

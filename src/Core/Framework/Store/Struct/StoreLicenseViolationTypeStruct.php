@@ -15,20 +15,11 @@ class StoreLicenseViolationTypeStruct extends Struct
     final public const LEVEL_WARNING = 'warning';
     final public const LEVEL_INFO = 'info';
 
-    /**
-     * @var string
-     */
-    protected $name;
+    protected string $name;
 
-    /**
-     * @var string
-     */
-    protected $label;
+    protected string $label;
 
-    /**
-     * @var string
-     */
-    protected $level;
+    protected string $level;
 
     public function getName(): string
     {

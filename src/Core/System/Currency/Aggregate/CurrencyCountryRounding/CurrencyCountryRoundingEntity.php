@@ -9,40 +9,22 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\Country\CountryEntity;
 use Shopware\Core\System\Currency\CurrencyEntity;
 
-#[Package('buyers-experience')]
+#[Package('fundamentals@framework')]
 class CurrencyCountryRoundingEntity extends Entity
 {
     use EntityIdTrait;
 
-    /**
-     * @var string
-     */
-    protected $currencyId;
+    protected string $currencyId;
 
-    /**
-     * @var string
-     */
-    protected $countryId;
+    protected string $countryId;
 
-    /**
-     * @var CashRoundingConfig
-     */
-    protected $itemRounding;
+    protected CashRoundingConfig $itemRounding;
 
-    /**
-     * @var CashRoundingConfig
-     */
-    protected $totalRounding;
+    protected CashRoundingConfig $totalRounding;
 
-    /**
-     * @var CurrencyEntity|null
-     */
-    protected $currency;
+    protected ?CurrencyEntity $currency = null;
 
-    /**
-     * @var CountryEntity|null
-     */
-    protected $country;
+    protected ?CountryEntity $country = null;
 
     public function getCurrencyId(): string
     {

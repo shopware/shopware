@@ -41,7 +41,7 @@ class FkFieldPrimarySearcherTest extends TestCase
     protected function tearDown(): void
     {
         parent::tearDown();
-        $connection = $this->getContainer()->get(Connection::class);
+        $connection = static::getContainer()->get(Connection::class);
         $connection->rollBack();
         $connection->executeStatement('DROP TABLE IF EXISTS `fk_field_primary`');
         $connection->beginTransaction();
@@ -52,7 +52,7 @@ class FkFieldPrimarySearcherTest extends TestCase
         $this->addPrimaryFkField();
 
         $definition = new FkFieldPrimaryTestDefinition();
-        $this->productRepository = $this->getContainer()->get('product.repository');
+        $this->productRepository = static::getContainer()->get('product.repository');
         $this->productId = Uuid::randomHex();
 
         $this->productRepository->create(
@@ -70,7 +70,7 @@ class FkFieldPrimarySearcherTest extends TestCase
         );
 
         /** @var EntityRepository $fkFieldPrimaryRepository */
-        $fkFieldPrimaryRepository = $this->getContainer()->get($definition->getEntityName() . '.repository');
+        $fkFieldPrimaryRepository = static::getContainer()->get($definition->getEntityName() . '.repository');
 
         $fkFieldPrimaryRepository->create(
             [
@@ -84,7 +84,7 @@ class FkFieldPrimarySearcherTest extends TestCase
 
         $criteria = new Criteria([$this->productId]);
         /** @var EntityRepository $fkFieldPrimaryRepository */
-        $fkFieldPrimaryRepository = $this->getContainer()->get('fk_field_primary.repository');
+        $fkFieldPrimaryRepository = static::getContainer()->get('fk_field_primary.repository');
         /** @var array<string, ArrayEntity> $fkFieldPrimaryTupel */
         $fkFieldPrimaryTupel = $fkFieldPrimaryRepository->search($criteria, Context::createDefaultContext())->getElements();
         static::assertArrayHasKey($this->productId, $fkFieldPrimaryTupel);
@@ -97,7 +97,7 @@ class FkFieldPrimarySearcherTest extends TestCase
         $this->addMultiPrimaryFkField();
 
         /** @var EntityRepository $multiPrimaryRepository */
-        $multiPrimaryRepository = $this->getContainer()->get('multi_fk_field_primary.repository');
+        $multiPrimaryRepository = static::getContainer()->get('multi_fk_field_primary.repository');
         $firstId = Uuid::randomHex();
         $secondId = Uuid::randomHex();
 
@@ -120,7 +120,7 @@ class FkFieldPrimarySearcherTest extends TestCase
 
     public function testSearchForTranslation(): void
     {
-        $this->productRepository = $this->getContainer()->get('product.repository');
+        $this->productRepository = static::getContainer()->get('product.repository');
         $this->productId = Uuid::randomHex();
 
         $this->productRepository->create(
@@ -139,7 +139,7 @@ class FkFieldPrimarySearcherTest extends TestCase
 
         $criteria = new Criteria([['productId' => $this->productId, 'languageId' => Defaults::LANGUAGE_SYSTEM]]);
 
-        $productTranslationRepository = $this->getContainer()->get('product_translation.repository');
+        $productTranslationRepository = static::getContainer()->get('product_translation.repository');
         /** @var ProductTranslationCollection $productTranslation */
         $productTranslation = $productTranslationRepository->search($criteria, Context::createDefaultContext());
 
@@ -150,7 +150,7 @@ class FkFieldPrimarySearcherTest extends TestCase
 
     private function addPrimaryFkField(): void
     {
-        $connection = $this->getContainer()->get(Connection::class);
+        $connection = static::getContainer()->get(Connection::class);
         $connection->rollBack();
         $connection->executeStatement('DROP TABLE IF EXISTS `fk_field_primary`');
         $connection->executeStatement('
@@ -163,20 +163,20 @@ class FkFieldPrimarySearcherTest extends TestCase
 
         $definition = new FkFieldPrimaryTestDefinition();
 
-        if (!$this->getContainer()->has($definition->getEntityName() . '.repository')) {
+        if (!static::getContainer()->has($definition->getEntityName() . '.repository')) {
             $repository = new EntityRepository(
                 $definition,
-                $this->getContainer()->get(EntityReaderInterface::class),
-                $this->getContainer()->get(VersionManager::class),
-                $this->getContainer()->get(EntitySearcherInterface::class),
-                $this->getContainer()->get(EntityAggregatorInterface::class),
-                $this->getContainer()->get('event_dispatcher'),
-                $this->getContainer()->get(EntityLoadedEventFactory::class)
+                static::getContainer()->get(EntityReaderInterface::class),
+                static::getContainer()->get(VersionManager::class),
+                static::getContainer()->get(EntitySearcherInterface::class),
+                static::getContainer()->get(EntityAggregatorInterface::class),
+                static::getContainer()->get('event_dispatcher'),
+                static::getContainer()->get(EntityLoadedEventFactory::class)
             );
 
-            $this->getContainer()->set($definition->getEntityName() . '.repository', $repository);
-            $this->getContainer()->get(DefinitionInstanceRegistry::class)->register($definition);
-            $definition->compile($this->getContainer()->get(DefinitionInstanceRegistry::class));
+            static::getContainer()->set($definition->getEntityName() . '.repository', $repository);
+            static::getContainer()->get(DefinitionInstanceRegistry::class)->register($definition);
+            $definition->compile(static::getContainer()->get(DefinitionInstanceRegistry::class));
         }
 
         $connection->beginTransaction();
@@ -184,7 +184,7 @@ class FkFieldPrimarySearcherTest extends TestCase
 
     private function addMultiPrimaryFkField(): void
     {
-        $connection = $this->getContainer()->get(Connection::class);
+        $connection = static::getContainer()->get(Connection::class);
         $connection->rollBack();
         $connection->executeStatement('DROP TABLE IF EXISTS `multi_fk_field_primary`');
         $connection->executeStatement(
@@ -200,20 +200,20 @@ class FkFieldPrimarySearcherTest extends TestCase
 
         $definition = new MultiFkFieldPrimaryTestDefinition();
 
-        if (!$this->getContainer()->has($definition->getEntityName() . '.repository')) {
+        if (!static::getContainer()->has($definition->getEntityName() . '.repository')) {
             $repository = new EntityRepository(
                 $definition,
-                $this->getContainer()->get(EntityReaderInterface::class),
-                $this->getContainer()->get(VersionManager::class),
-                $this->getContainer()->get(EntitySearcherInterface::class),
-                $this->getContainer()->get(EntityAggregatorInterface::class),
-                $this->getContainer()->get('event_dispatcher'),
-                $this->getContainer()->get(EntityLoadedEventFactory::class)
+                static::getContainer()->get(EntityReaderInterface::class),
+                static::getContainer()->get(VersionManager::class),
+                static::getContainer()->get(EntitySearcherInterface::class),
+                static::getContainer()->get(EntityAggregatorInterface::class),
+                static::getContainer()->get('event_dispatcher'),
+                static::getContainer()->get(EntityLoadedEventFactory::class)
             );
 
-            $this->getContainer()->set($definition->getEntityName() . '.repository', $repository);
-            $this->getContainer()->get(DefinitionInstanceRegistry::class)->register($definition);
-            $definition->compile($this->getContainer()->get(DefinitionInstanceRegistry::class));
+            static::getContainer()->set($definition->getEntityName() . '.repository', $repository);
+            static::getContainer()->get(DefinitionInstanceRegistry::class)->register($definition);
+            $definition->compile(static::getContainer()->get(DefinitionInstanceRegistry::class));
         }
 
         $connection->beginTransaction();

@@ -1,5 +1,5 @@
 /**
- * @package inventory
+ * @sw-package inventory
  */
 import template from './sw-settings-units.html.twig';
 import './sw-settings-units.scss';
@@ -13,9 +13,10 @@ const { Criteria } = Shopware.Data;
 export default {
     template,
 
-    compatConfig: Shopware.compatConfig,
-
-    inject: ['repositoryFactory', 'acl'],
+    inject: [
+        'repositoryFactory',
+        'acl',
+    ],
 
     mixins: [
         Mixin.getByName('notification'),
@@ -44,7 +45,10 @@ export default {
 
         unitList() {
             if (this.newUnit) {
-                return [...this.units, this.newUnit];
+                return [
+                    ...this.units,
+                    this.newUnit,
+                ];
             }
 
             return this.units;
@@ -110,32 +114,35 @@ export default {
         saveUnit(unit) {
             this.isLoading = true;
 
-            this.unitRepository.save(unit).then(() => {
-                this.isLoading = false;
+            this.unitRepository
+                .save(unit)
+                .then(() => {
+                    this.isLoading = false;
 
-                this.loadUnits();
-                this.newUnit = null;
+                    this.loadUnits();
+                    this.newUnit = null;
 
-                // throw success notification
-                const titleSaveSuccess = this.$tc('global.default.success');
-                const messageSaveSuccess = this.$tc('sw-settings-units.notification.successMessage');
+                    // throw success notification
+                    const titleSaveSuccess = this.$tc('global.default.success');
+                    const messageSaveSuccess = this.$tc('sw-settings-units.notification.successMessage');
 
-                this.createNotificationSuccess({
-                    title: titleSaveSuccess,
-                    message: messageSaveSuccess,
+                    this.createNotificationSuccess({
+                        title: titleSaveSuccess,
+                        message: messageSaveSuccess,
+                    });
+                })
+                .catch(() => {
+                    this.isLoading = false;
+
+                    // throw error notification
+                    const titleSaveError = this.$tc('global.default.error');
+                    const messageSaveError = this.$tc('sw-settings-units.notification.errorMessage');
+
+                    this.createNotificationError({
+                        title: titleSaveError,
+                        message: messageSaveError,
+                    });
                 });
-            }).catch(() => {
-                this.isLoading = false;
-
-                // throw error notification
-                const titleSaveError = this.$tc('global.default.error');
-                const messageSaveError = this.$tc('sw-settings-units.notification.errorMessage');
-
-                this.createNotificationError({
-                    title: titleSaveError,
-                    message: messageSaveError,
-                });
-            });
         },
 
         cancelUnit() {
@@ -157,14 +164,17 @@ export default {
         },
 
         unitColumns() {
-            return [{
-                property: 'name',
-                label: 'sw-settings-units.grid.columnName',
-                routerLink: 'sw.settings.units.detail',
-            }, {
-                property: 'shortCode',
-                label: 'sw-settings-units.grid.columnShortCode',
-            }];
+            return [
+                {
+                    property: 'name',
+                    label: 'sw-settings-units.grid.columnName',
+                    routerLink: 'sw.settings.units.detail',
+                },
+                {
+                    property: 'shortCode',
+                    label: 'sw-settings-units.grid.columnShortCode',
+                },
+            ];
         },
 
         onChangeLanguage() {
@@ -172,7 +182,10 @@ export default {
         },
 
         editUnit(unit) {
-            this.$router.push({ name: 'sw.settings.units.detail', params: { id: unit.id } });
+            this.$router.push({
+                name: 'sw.settings.units.detail',
+                params: { id: unit.id },
+            });
         },
     },
 };

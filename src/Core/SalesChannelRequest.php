@@ -4,7 +4,7 @@ namespace Shopware\Core;
 
 use Shopware\Core\Framework\Log\Package;
 
-#[Package('core')]
+#[Package('framework')]
 final class SalesChannelRequest
 {
     public const ATTRIBUTE_IS_SALES_CHANNEL_REQUEST = '_is_sales_channel';

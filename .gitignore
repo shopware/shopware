@@ -12,15 +12,23 @@ Thumbs.db
 
 # PhpStorm-Project
 /.idea/
+!/.idea/icon.svg
 /.fleet/
 *.http
 /.run/
+
+# VSCode-Project
+/.vscode/
+!/.vscode/settings.json
 
 # Composer
 /composer.phar
 /auth.json
 /vendor/*
 /composer.lock
+
+# Generated database schema files
+/schema
 
 # Symfony-CLI
 php.ini
@@ -75,7 +83,8 @@ app/config/parameters.yml
 
 # tooling
 /dev-ops/docker/_volumes
-/docker-compose.override.yml
+/compose.override.yml
+/compose.override.yaml
 /.psh.yml
 /dev-ops/docker/containers/*/createuser.sh
 /dev-ops/docker/containers/php7/Dockerfile
@@ -103,6 +112,7 @@ src/Core/DevOps/Locust/**/__pycache__/
 !build/artifacts/.gitkeep
 tests/integration/Core/Framework/Plugin/_fixtures/SwagFashionTheme.zip
 tests/integration/Core/Framework/Plugin/_fixtures/TestShippingApp.zip
+.jest
 ###> symfony/phpunit-bridge ###
 .phpunit
 .phpunit.result.cache
@@ -132,7 +142,6 @@ custom
 !/custom/scripts/examples
 files/*
 install.lock
-docker-compose.override.yaml
 
 vendor-bin/**/vendor
 vendor-bin/**/composer.lock
@@ -147,3 +156,6 @@ http-client.private.env.json
 # Devenv
 .devenv*
 devenv.local.nix
+
+# danger.php
+danger.phar

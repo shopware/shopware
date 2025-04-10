@@ -1,5 +1,5 @@
 /**
- * @package services-settings
+ * @sw-package fundamentals@after-sales
  */
 import template from './sw-import-export-importer.html.twig';
 import './sw-import-export-importer.scss';
@@ -13,9 +13,11 @@ const { Criteria } = Shopware.Data;
 export default {
     template,
 
-    compatConfig: Shopware.compatConfig,
-
-    inject: ['importExport', 'repositoryFactory', 'feature'],
+    inject: [
+        'importExport',
+        'repositoryFactory',
+        'feature',
+    ],
 
     emits: ['import-started'],
 
@@ -48,9 +50,7 @@ export default {
             criteria.addSorting(Criteria.sort('label'));
 
             if (this.sourceEntity.length > 0) {
-                criteria.addFilter(
-                    Criteria.equals('sourceEntity', this.sourceEntity),
-                );
+                criteria.addFilter(Criteria.equals('sourceEntity', this.sourceEntity));
             }
             criteria.addFilter(Criteria.not('AND', [Criteria.equals('type', 'export')]));
 
@@ -66,10 +66,12 @@ export default {
         },
 
         showProductVariantsInfo() {
-            return this.selectedProfile &&
+            return (
+                this.selectedProfile &&
                 this.selectedProfile.sourceEntity === 'product' &&
                 this.config &&
-                this.config.includeVariants;
+                this.config.includeVariants
+            );
         },
 
         logCriteria() {
@@ -93,23 +95,26 @@ export default {
 
             const profile = this.selectedProfileId;
 
-            this.importExport.import(profile, this.importFile, this.handleProgress, this.config, dryRun).then(() => {
-                this.importFile = null;
-            }).catch((error) => {
-                if (!error.response || !error.response.data || !error.response.data.errors) {
-                    this.createNotificationError({
-                        message: error.message,
-                    });
-                } else {
-                    error.response.data.errors.forEach((singleError) => {
+            this.importExport
+                .import(profile, this.importFile, this.handleProgress, this.config, dryRun)
+                .then(() => {
+                    this.importFile = null;
+                })
+                .catch((error) => {
+                    if (!error.response || !error.response.data || !error.response.data.errors) {
                         this.createNotificationError({
-                            message: `${singleError.code}: ${singleError.detail}`,
+                            message: error.message,
                         });
-                    });
-                }
+                    } else {
+                        error.response.data.errors.forEach((singleError) => {
+                            this.createNotificationError({
+                                message: `${singleError.code}: ${singleError.detail}`,
+                            });
+                        });
+                    }
 
-                this.isLoading = false;
-            });
+                    this.isLoading = false;
+                });
         },
 
         onStartDryRunProcess() {

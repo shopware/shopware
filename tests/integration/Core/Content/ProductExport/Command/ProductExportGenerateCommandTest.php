@@ -41,14 +41,14 @@ class ProductExportGenerateCommandTest extends TestCase
 
     protected function setUp(): void
     {
-        if (!$this->getContainer()->has(ProductPageSeoUrlRoute::class)) {
+        if (!static::getContainer()->has(ProductPageSeoUrlRoute::class)) {
             static::markTestSkipped('ProductExport tests need storefront bundle to be active');
         }
 
-        $this->repository = $this->getContainer()->get('product_export.repository');
+        $this->repository = static::getContainer()->get('product_export.repository');
         $this->context = Context::createDefaultContext();
-        $this->fileSystem = $this->getContainer()->get('shopware.filesystem.private');
-        $this->productExportGenerateCommand = $this->getContainer()->get(ProductExportGenerateCommand::class);
+        $this->fileSystem = static::getContainer()->get('shopware.filesystem.private');
+        $this->productExportGenerateCommand = static::getContainer()->get(ProductExportGenerateCommand::class);
     }
 
     public function testExecute(): void
@@ -58,21 +58,35 @@ class ProductExportGenerateCommandTest extends TestCase
         $commandTester = new CommandTester($this->productExportGenerateCommand);
         $commandTester->execute(['sales-channel-id' => $this->getSalesChannelDomain()->getSalesChannelId()]);
 
-        $filePath = \sprintf('%s/Testexport.csv', $this->getContainer()->getParameter('product_export.directory'));
+        $filePath = \sprintf('%s/Testexport.csv', static::getContainer()->getParameter('product_export.directory'));
         $fileContent = $this->fileSystem->read($filePath);
 
         $csvRows = explode(\PHP_EOL, $fileContent);
 
-        static::assertTrue($this->fileSystem->directoryExists($this->getContainer()->getParameter('product_export.directory')));
+        static::assertTrue($this->fileSystem->directoryExists(static::getContainer()->getParameter('product_export.directory')));
         static::assertTrue($this->fileSystem->fileExists($filePath));
 
         static::assertCount(4, $csvRows);
     }
 
+    public function testExecuteWithNonStorefrontSalesChannel(): void
+    {
+        $nonStorefrontSalesChannelId = $this->createSalesChannel(['typeId' => Defaults::SALES_CHANNEL_TYPE_PRODUCT_COMPARISON])['id'];
+
+        $commandTester = new CommandTester($this->productExportGenerateCommand);
+
+        static::expectException(ProductExportException::class);
+        static::expectExceptionMessage('Only sales channels from type "Storefront" can be used for exports.');
+
+        $commandTester->execute([
+            'sales-channel-id' => $nonStorefrontSalesChannelId,
+        ]);
+    }
+
     private function getSalesChannelId(): string
     {
         /** @var EntityRepository<SalesChannelCollection> $repository */
-        $repository = $this->getContainer()->get('sales_channel.repository');
+        $repository = static::getContainer()->get('sales_channel.repository');
 
         $salesChannelId = $repository->searchIds(new Criteria(), $this->context)->firstId();
 
@@ -84,7 +98,7 @@ class ProductExportGenerateCommandTest extends TestCase
     private function getSalesChannelDomain(): SalesChannelDomainEntity
     {
         /** @var EntityRepository<SalesChannelDomainCollection> $repository */
-        $repository = $this->getContainer()->get('sales_channel_domain.repository');
+        $repository = static::getContainer()->get('sales_channel_domain.repository');
 
         $criteria = new Criteria();
         $criteria->addAssociation('salesChannel');
@@ -130,7 +144,7 @@ class ProductExportGenerateCommandTest extends TestCase
 
     private function createProductStream(): void
     {
-        $connection = $this->getContainer()->get(Connection::class);
+        $connection = static::getContainer()->get(Connection::class);
 
         $randomProductIds = implode('|', \array_slice(array_column($this->createProducts(), 'id'), 0, 2));
 
@@ -160,7 +174,7 @@ class ProductExportGenerateCommandTest extends TestCase
      */
     private function createProducts(): array
     {
-        $productRepository = $this->getContainer()->get('product.repository');
+        $productRepository = static::getContainer()->get('product.repository');
         $manufacturerId = Uuid::randomHex();
         $taxId = Uuid::randomHex();
         $salesChannelId = $this->getSalesChannelDomain()->getSalesChannelId();
@@ -184,19 +198,5 @@ class ProductExportGenerateCommandTest extends TestCase
         $productRepository->create($products, $this->context);
 
         return $products;
-    }
-
-    public function testExecuteWithNonStorefrontSalesChannel(): void
-    {
-        $nonStorefrontSalesChannelId = $this->createSalesChannel(['typeId' => Defaults::SALES_CHANNEL_TYPE_PRODUCT_COMPARISON])['id'];
-
-        $commandTester = new CommandTester($this->productExportGenerateCommand);
-
-        static::expectException(ProductExportException::class);
-        static::expectExceptionMessage('Only sales channels from type "Storefront" can be used for exports.');
-
-        $commandTester->execute([
-            'sales-channel-id' => $nonStorefrontSalesChannelId,
-        ]);
     }
 }

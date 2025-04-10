@@ -2,7 +2,7 @@ import type { DiscountCampaign } from 'src/module/sw-extension/service/extension
 
 /**
  * @private
- * @package services-settings
+ * @sw-package checkout
  */
 export default class ShopwareDiscountCampaignService {
     public isDiscountCampaignActive(discountCampaign: DiscountCampaign) {
@@ -16,13 +16,12 @@ export default class ShopwareDiscountCampaignService {
             return false;
         }
 
-        if (typeof discountCampaign.endDate === 'string' &&
-            new Date(discountCampaign.endDate) < now
-        ) {
+        if (typeof discountCampaign.endDate === 'string' && new Date(discountCampaign.endDate) < now) {
             return false;
         }
 
-        if (typeof discountCampaign.discountAppliesForMonths === 'number' &&
+        if (
+            typeof discountCampaign.discountAppliesForMonths === 'number' &&
             discountCampaign.discountAppliesForMonths === 0
         ) {
             return false;
@@ -36,14 +35,16 @@ export default class ShopwareDiscountCampaignService {
         const discountDuration = discountCampaign.discountAppliesForMonths || null;
         const comparatorDuration = comparator.discountAppliesForMonths || null;
 
-        return discountCampaign.startDate === comparator.startDate &&
+        return (
+            discountCampaign.startDate === comparator.startDate &&
             discountCampaign.endDate === comparator.endDate &&
-            discountDuration === comparatorDuration;
+            discountDuration === comparatorDuration
+        );
     }
 }
 
 /**
  * @private
- * @package services-settings
+ * @sw-package checkout
  */
 export type { ShopwareDiscountCampaignService };

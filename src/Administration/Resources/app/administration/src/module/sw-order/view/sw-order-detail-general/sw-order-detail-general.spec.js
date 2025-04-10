@@ -89,6 +89,7 @@ async function createWrapper() {
                 },
                 'sw-order-general-info': true,
                 'sw-order-line-items-grid': true,
+                'sw-order-promotion-field': true,
                 'sw-order-saveable-field': await wrapTestComponent('sw-order-saveable-field', { sync: true }),
                 'sw-number-field': await wrapTestComponent('sw-number-field'),
                 'sw-number-field-deprecated': await wrapTestComponent('sw-number-field-deprecated'),

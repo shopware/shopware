@@ -12,8 +12,11 @@ namespace Shopware\Core\Content\Media\Extension;
 use Shopware\Core\Framework\Extensions\Extension;
 use Shopware\Core\Framework\Log\Package;
 
+/**
+ * @extends Extension<string>
+ */
 #[Package('discovery')]
-class ResolveRemoteThumbnailUrlExtension extends Extension
+final class ResolveRemoteThumbnailUrlExtension extends Extension
 {
     public const NAME = 'remote_thumbnail_url.resolve';
 

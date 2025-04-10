@@ -180,7 +180,7 @@ class RemoteThumbnailLoader implements ResetInterface
                 $this->pattern,
                 $mediaUpdatedAt
             ),
-            function: function ($mediaUrl, $mediaPath, $width, $height, $pattern, $mediaUpdatedAt) {
+            function: function (string $mediaUrl, string $mediaPath, string $width, string $height, string $pattern, ?\DateTimeInterface $mediaUpdatedAt) {
                 $replacements = [
                     str_starts_with($mediaPath, 'http') ? '' : $mediaUrl,
                     $mediaPath,

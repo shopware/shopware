@@ -64,8 +64,6 @@ class ThemePrepareIconsCommand extends Command
             );
         }
 
-        $this->io = new SymfonyStyle($input, $output);
-
         $this->io->writeln('Start Icon preparation');
         $svgReader = $this->getSVGReader();
         @mkdir($path . 'processed/');
@@ -180,6 +178,9 @@ class ThemePrepareIconsCommand extends Command
         return new SVGReader();
     }
 
+    /**
+     * @return array<int, SVGNode>
+     */
     private function getChildren(SVGNodeContainer $fragment): array
     {
         $children = [];

@@ -104,6 +104,8 @@ class CheckoutFinishPageLoader
 
         $criteria = (new Criteria([$orderId]))
             ->addFilter(new EqualsFilter('order.orderCustomer.customerId', $customer->getId()))
+            ->addAssociation('primaryOrderDelivery')
+            ->addAssociation('primaryOrderTransaction')
             ->addAssociation('lineItems.cover')
             ->addAssociation('transactions.paymentMethod')
             ->addAssociation('deliveries.shippingMethod')

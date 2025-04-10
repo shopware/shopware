@@ -552,6 +552,7 @@ class OrderSerializerTest extends TestCase
                 'primaryOrderDelivery' => null,
                 'primaryOrderDeliveryId' => null,
                 'primaryOrderTransaction' => null,
+                'primaryOrderTransactionId' => null,
                 'primaryOrderDeliveryVersionId' => null,
                 'primaryOrderTransactionVersionId' => null,
             ]

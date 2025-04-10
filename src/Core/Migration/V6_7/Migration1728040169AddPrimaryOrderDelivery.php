@@ -45,7 +45,7 @@ class Migration1728040169AddPrimaryOrderDelivery extends MigrationStep
                         LIMIT 1
                     )
                 SET `order`.`primary_order_delivery_id` = `primary_order_delivery`.`id`,
-                    `order`.`primary_order_delivery_version_id` = `primary_order_delivery`.`version_id` 
+                    `order`.`primary_order_delivery_version_id` = `primary_order_delivery`.`version_id`
                 WHERE `order`.`primary_order_delivery_id` IS NULL;'
             );
         }

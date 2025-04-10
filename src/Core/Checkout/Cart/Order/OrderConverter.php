@@ -295,7 +295,12 @@ class OrderConverter
         }
 
         $orderBillingAddressId = $order->getBillingAddressId();
-        $orderShippingAddressId = $order->getDeliveries()?->first()?->getShippingOrderAddressId() ?? '';
+
+        $orderShippingAddressId = $order->getPrimaryOrderDelivery()?->getShippingOrderAddressId();
+
+        if (Feature::isActive('v6.8.0.0')) {
+            $orderShippingAddressId = $order->getDeliveries()?->first()?->getShippingOrderAddressId() ?? '';
+        }
 
         $orderAddresses = $this->orderAddressRepository->search(new Criteria(\array_filter([$orderBillingAddressId, $orderShippingAddressId])), $context)->getEntities();
         $orderBillingAddress = $orderAddresses->get($orderBillingAddressId);

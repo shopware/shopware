@@ -121,11 +121,9 @@ final class DeliveryNoteRenderer extends AbstractDocumentRenderer
                         continue;
                     }
 
-                    $deliveries = null;
+                    $deliveries = $order->getPrimaryOrderDelivery();
 
                     if ($order->getDeliveries()) {
-                        $deliveries = $order->getPrimaryOrderDelivery();
-
                         if (!Feature::isActive('v6.8.0.0')) {
                             $deliveries = $order->getDeliveries()->first();
                         }

@@ -248,7 +248,7 @@ class SetPaymentOrderRoute extends AbstractSetPaymentOrderRoute
             ->addFilter(new EqualsFilter('order.orderCustomer.customerId', $customer->getId()))
             ->addAssociations([
                 'primaryOrderDelivery',
-                'primaryOrderTransaction',
+                'primaryOrderTransaction.stateMachineState',
                 'lineItems',
                 'deliveries.shippingOrderAddress',
                 'deliveries.stateMachineState',

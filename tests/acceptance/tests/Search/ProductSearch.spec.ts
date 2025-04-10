@@ -1,6 +1,6 @@
 import { test } from '@fixtures/AcceptanceTest';
 
-test('Customer is able to search products in shop', { tag: '@Search' }, async ({ 
+test('Customer is able to search products in shop', { tag: '@Search' }, async ({
     ShopCustomer,
     TestDataService,
     StorefrontHome,
@@ -11,7 +11,6 @@ test('Customer is able to search products in shop', { tag: '@Search' }, async ({
         const productNameSuffix1 = IdProvider.getIdPair().uuid;
         const productNameSuffix2 = IdProvider.getIdPair().uuid;
         const productNameSuffix3 = IdProvider.getIdPair().uuid;
-
         await TestDataService.createBasicProduct({
             name: `Bottle - ${productNameSuffix1}`,
         });
@@ -40,7 +39,6 @@ test('Customer is able to search products in shop', { tag: '@Search' }, async ({
         await test.step('Customer navigates to the results page to view all matching products', async () => {
             await StorefrontSearchSuggest.searchSuggestTotalLink.click();
             await ShopCustomer.expects(StorefrontSearchSuggest.searchHeadline).toContainText(`Bottle - ${productNameSuffix1}` + ' ' + `Bowl - ${productNameSuffix2}`);
-
             const listedItemsCount = await StorefrontSearchSuggest.productListItems.count();
             await ShopCustomer.expects(listedItemsCount).toBeGreaterThanOrEqual(2);
         });

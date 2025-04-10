@@ -32,7 +32,7 @@ class ThemeRuntimeConfigService
     public function __construct(
         private readonly ThemeFileResolver $themeFileResolver,
         private readonly StorefrontPluginRegistry $pluginRegistry,
-        private readonly ThemeService $themeService,
+        private readonly ThemeMergedConfigBuilder $mergedConfigBuilder,
         private readonly ThemeRuntimeConfigStorage $storage,
     ) {
     }
@@ -98,7 +98,7 @@ class ThemeRuntimeConfigService
         $runtimeConfig = ThemeRuntimeConfig::fromArray([
             'themeId' => $themeId,
             'technicalName' => $themeTechnicalName,
-            'resolvedConfig' => $this->themeService->getThemeConfiguration($themeId, false, $context),
+            'resolvedConfig' => $this->mergedConfigBuilder->getThemeConfiguration($themeId, false, $context),
             'viewInheritance' => $themeConfig->getViewInheritance(),
             'scriptFiles' => $resolveFiles ? $this->resolveJs($themeConfig, $configCollection) : null,
             'iconSets' => $this->prepareIconSets($themeConfig),

@@ -8,6 +8,7 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Category\CategoryDefinition;
 use Shopware\Core\Content\Category\CategoryEntity;
 use Shopware\Core\Content\Category\CategoryEvents;
+use Shopware\Core\Content\Category\Service\CategoryUrlGenerator;
 use Shopware\Core\Content\Category\Subscriber\CategorySubscriber;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityLoadedEvent;
@@ -28,7 +29,8 @@ class CategorySubscriberTest extends TestCase
     {
         $expectedEvents = [
             CategoryEvents::CATEGORY_LOADED_EVENT => 'entityLoaded',
-            'sales_channel.' . CategoryEvents::CATEGORY_LOADED_EVENT => 'entityLoaded',
+            'sales_channel.' . CategoryEvents::CATEGORY_LOADED_EVENT => [['entityLoaded'], ['addSeoLinks']],
+            'sales_channel.category.partial_loaded' => 'addSeoLinks',
         ];
 
         static::assertSame($expectedEvents, CategorySubscriber::getSubscribedEvents());
@@ -42,7 +44,7 @@ class CategorySubscriberTest extends TestCase
         ?string $cmsPageIdAfterEvent,
         ?string $salesChannelId
     ): void {
-        $categorySubscriber = new CategorySubscriber($systemConfigService);
+        $categorySubscriber = new CategorySubscriber($systemConfigService, $this->createMock(CategoryUrlGenerator::class));
 
         if ($salesChannelId) {
             $event = new SalesChannelEntityLoadedEvent(new CategoryDefinition(), [$categoryEntity], $this->getSalesChannelContext($salesChannelId));

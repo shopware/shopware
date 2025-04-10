@@ -30,8 +30,6 @@
             <argument type="service" id="Doctrine\DBAL\Connection"/>
             <argument type="service" id="sales_channel.category.repository"/>
             <argument type="service" id="event_dispatcher"/>
-            <argument type="service" id="Shopware\Core\Content\Category\Service\CategoryUrlGenerator"/>
-            <argument type="service" id="Shopware\Core\Content\Seo\SeoUrlPlaceholderHandlerInterface"/>
         </service>
 
         <service id="Shopware\Core\Content\Category\SalesChannel\TreeBuildingNavigationRoute" decorates="Shopware\Core\Content\Category\SalesChannel\NavigationRoute" decoration-priority="-2000" public="true">
@@ -89,6 +87,7 @@
 
         <service id="Shopware\Core\Content\Category\Subscriber\CategorySubscriber">
             <argument type="service" id="Shopware\Core\System\SystemConfig\SystemConfigService"/>
+            <argument type="service" id="Shopware\Core\Content\Category\Service\CategoryUrlGenerator"/>
             <tag name="kernel.event_subscriber"/>
         </service>
 

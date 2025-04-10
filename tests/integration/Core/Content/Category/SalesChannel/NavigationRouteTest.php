@@ -274,7 +274,7 @@ class NavigationRouteTest extends TestCase
 
         foreach ($response as $category) {
             if ($category['id'] === $this->ids->get('category3') && $category['linkType'] === CategoryDefinition::LINK_TYPE_LANDING_PAGE) {
-                static::assertStringContainsString('test-landing-page', $category['internalLink']);
+                static::assertStringContainsString('test-landing-page', $category['seoLink']);
             }
         }
 
@@ -289,7 +289,7 @@ class NavigationRouteTest extends TestCase
 
         foreach ($response as $category) {
             if ($category['id'] === $this->ids->get('category3') && $category['linkType'] === CategoryDefinition::LINK_TYPE_LANDING_PAGE) {
-                static::assertStringContainsString('/custom-landing-page-url', $category['internalLink']);
+                static::assertStringContainsString('/custom-landing-page-url', $category['seoLink']);
             }
         }
     }
@@ -309,7 +309,7 @@ class NavigationRouteTest extends TestCase
 
         $this->getContainer()->get('category.repository')->update([
             [
-                'id' => $this->ids->get('category4'),
+                'id' => $this->ids->get('category3'),
                 'type' => CategoryDefinition::TYPE_LINK,
                 'linkType' => CategoryDefinition::LINK_TYPE_PRODUCT,
                 'internalLink' => $productId,
@@ -319,8 +319,8 @@ class NavigationRouteTest extends TestCase
         $response = $this->requestFooterNavigationWithSeoUrls();
 
         foreach ($response as $category) {
-            if ($category['id'] === $this->ids->get('category4') && $category['linkType'] === CategoryDefinition::LINK_TYPE_PRODUCT) {
-                static::assertStringContainsString('/detail/' . $productId, $category['internalLink']);
+            if ($category['id'] === $this->ids->get('category3') && $category['linkType'] === CategoryDefinition::LINK_TYPE_PRODUCT) {
+                static::assertStringContainsString('/Test-Product/', $category['seoLink']);
             }
         }
 
@@ -334,8 +334,8 @@ class NavigationRouteTest extends TestCase
         $response = $this->requestFooterNavigationWithSeoUrls();
 
         foreach ($response as $category) {
-            if ($category['id'] === $this->ids->get('category4') && $category['linkType'] === CategoryDefinition::LINK_TYPE_PRODUCT) {
-                static::assertStringContainsString('/custom-product-url', $category['internalLink']);
+            if ($category['id'] === $this->ids->get('category3') && $category['linkType'] === CategoryDefinition::LINK_TYPE_PRODUCT) {
+                static::assertStringContainsString('/custom-product-url', $category['seoLink']);
             }
         }
     }
@@ -355,7 +355,7 @@ class NavigationRouteTest extends TestCase
 
         foreach ($response as $category) {
             if ($category['id'] === $this->ids->get('category3') && $category['linkType'] === CategoryDefinition::LINK_TYPE_CATEGORY) {
-                static::assertNotEmpty($category['internalLink']);
+                static::assertNotEmpty($category['seoLink']);
             }
         }
 
@@ -370,7 +370,7 @@ class NavigationRouteTest extends TestCase
 
         foreach ($response as $category) {
             if ($category['id'] === $this->ids->get('category3') && $category['linkType'] === CategoryDefinition::LINK_TYPE_CATEGORY) {
-                static::assertStringContainsString('/custom-category-url', $category['internalLink']);
+                static::assertStringContainsString('/custom-category-url', $category['seoLink']);
             }
         }
     }
@@ -422,7 +422,7 @@ class NavigationRouteTest extends TestCase
                 '/store-api/navigation/footer-navigation/footer-navigation',
                 [
                     'includes' => [
-                        'category' => ['id', 'name', 'type', 'linkType', 'internalLink'],
+                        'category' => ['id', 'name', 'type', 'linkType', 'seoLink'],
                     ],
                 ],
                 [],

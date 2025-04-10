@@ -5,7 +5,10 @@ namespace Shopware\Core\Content\Category\Subscriber;
 use Shopware\Core\Content\Category\CategoryDefinition;
 use Shopware\Core\Content\Category\CategoryEntity;
 use Shopware\Core\Content\Category\CategoryEvents;
+use Shopware\Core\Content\Category\SalesChannel\SalesChannelCategoryEntity;
+use Shopware\Core\Content\Category\Service\AbstractCategoryUrlGenerator;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityLoadedEvent;
+use Shopware\Core\Framework\DataAbstractionLayer\PartialEntity;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\Entity\SalesChannelEntityLoadedEvent;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
@@ -20,15 +23,18 @@ class CategorySubscriber implements EventSubscriberInterface
     /**
      * @internal
      */
-    public function __construct(private readonly SystemConfigService $systemConfigService)
-    {
+    public function __construct(
+        private readonly SystemConfigService $systemConfigService,
+        private readonly AbstractCategoryUrlGenerator $categoryUrlGenerator,
+    ) {
     }
 
     public static function getSubscribedEvents(): array
     {
         return [
             CategoryEvents::CATEGORY_LOADED_EVENT => 'entityLoaded',
-            'sales_channel.' . CategoryEvents::CATEGORY_LOADED_EVENT => 'entityLoaded',
+            'sales_channel.' . CategoryEvents::CATEGORY_LOADED_EVENT => [['entityLoaded'], ['addSeoLinks']],
+            'sales_channel.category.partial_loaded' => 'addSeoLinks',
         ];
     }
 
@@ -64,6 +70,35 @@ class CategorySubscriber implements EventSubscriberInterface
 
             // mark cms page as set in the subscriber
             $category->setCmsPageIdSwitched(true);
+        }
+    }
+
+    /**
+     * @param SalesChannelEntityLoadedEvent<SalesChannelCategoryEntity|PartialEntity> $event
+     */
+    public function addSeoLinks(SalesChannelEntityLoadedEvent $event): void
+    {
+        foreach ($event->getEntities() as $category) {
+            if ($category->get('type') !== CategoryDefinition::TYPE_LINK
+                || $category->getTranslation('linkType') === CategoryDefinition::LINK_TYPE_EXTERNAL
+                || !$category->getTranslation('internalLink')) {
+                continue;
+            }
+
+            if ($category instanceof PartialEntity) {
+                $tmpCategory = (new CategoryEntity())->assign([
+                    'id' => $category->get('id'),
+                    'type' => $category->get('type'),
+                    'linkType' => $category->getTranslation('linkType'),
+                    'internalLink' => $category->getTranslation('internalLink'),
+                ]);
+            } else {
+                $tmpCategory = $category;
+            }
+
+            $category->assign([
+                'seoLink' => $this->categoryUrlGenerator->generate($tmpCategory, $event->getSalesChannelContext()->getSalesChannel()),
+            ]);
         }
     }
 }

@@ -4,11 +4,8 @@ namespace Shopware\Core\Content\Category\SalesChannel;
 
 use Doctrine\DBAL\Connection;
 use Shopware\Core\Content\Category\CategoryCollection;
-use Shopware\Core\Content\Category\CategoryDefinition;
 use Shopware\Core\Content\Category\CategoryEntity;
 use Shopware\Core\Content\Category\CategoryException;
-use Shopware\Core\Content\Category\Service\AbstractCategoryUrlGenerator;
-use Shopware\Core\Content\Seo\SeoUrlPlaceholderHandlerInterface;
 use Shopware\Core\Framework\Adapter\Cache\Event\AddCacheTagEvent;
 use Shopware\Core\Framework\DataAbstractionLayer\Doctrine\FetchModeHelper;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Aggregation\Bucket\TermsAggregation;
@@ -43,8 +40,6 @@ class NavigationRoute extends AbstractNavigationRoute
         private readonly Connection $connection,
         private readonly SalesChannelRepository $categoryRepository,
         private readonly EventDispatcherInterface $dispatcher,
-        private readonly AbstractCategoryUrlGenerator $categoryUrlGenerator,
-        private readonly SeoUrlPlaceholderHandlerInterface $seoUrlReplacer
     ) {
     }
 
@@ -101,8 +96,6 @@ class NavigationRoute extends AbstractNavigationRoute
 
         // If the active category is part of the provided root id, we have to load the children and the parents of the active id
         $categories = $this->loadChildren($activeId, $context, $rootId, $metaInfo, $categories, clone $criteria);
-
-        $this->setSeoUrlToInternalLink($categories, $context);
 
         return new NavigationRouteResponse($categories);
     }
@@ -304,26 +297,6 @@ class NavigationRoute extends AbstractNavigationRoute
             if ($parent instanceof CategoryEntity) {
                 $parent->setVisibleChildCount($bucket->getCount());
             }
-        }
-    }
-
-    private function setSeoUrlToInternalLink(CategoryCollection $categories, SalesChannelContext $context): void
-    {
-        foreach ($categories as $category) {
-            if ($category->getType() !== CategoryDefinition::TYPE_LINK
-                || $category->getLinkType() === CategoryDefinition::LINK_TYPE_EXTERNAL
-                || !$category->getInternalLink()) {
-                continue;
-            }
-
-            $plainUrl = $this->categoryUrlGenerator->generate($category, $context->getSalesChannel());
-
-            if ($plainUrl === null) {
-                continue;
-            }
-
-            $seoUrl = $this->seoUrlReplacer->replace($plainUrl, '', $context);
-            $category->setInternalLink($seoUrl);
         }
     }
 }

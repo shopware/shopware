@@ -28,7 +28,7 @@ test('Customer is able to search products in shop', { tag: '@Search' }, async ({
         });
 
         await test.step('Customer searches for a partial term and sees multiple matching products', async () => {
-            await ShopCustomer.attemptsTo(SearchForTerm('Bo'));
+            await ShopCustomer.attemptsTo(SearchForTerm('bo'));
             const totalCount2 = await StorefrontSearchSuggest.getTotalSearchResultCount();
             await ShopCustomer.expects(totalCount2).toBeGreaterThanOrEqual(2);
         });

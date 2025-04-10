@@ -91,6 +91,8 @@ class AccountOverviewPageLoader
     {
         $criteria = (new Criteria())
             ->addSorting(new FieldSorting('orderDateTime', FieldSorting::DESCENDING))
+            ->addAssociation('primaryOrderDelivery')
+            ->addAssociation('primaryOrderTransaction')
             ->addAssociation('lineItems')
             ->addAssociation('lineItems.cover')
             ->addAssociation('lineItems.downloads.media')

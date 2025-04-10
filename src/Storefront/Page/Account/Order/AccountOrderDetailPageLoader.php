@@ -55,6 +55,8 @@ class AccountOrderDetailPageLoader
 
         $criteria = new Criteria([$orderId]);
         $criteria
+            ->addAssociation('primaryOrderDelivery')
+            ->addAssociation('primaryOrderTransaction')
             ->addAssociation('lineItems')
             ->addAssociation('orderCustomer')
             ->addAssociation('stateMachineState')

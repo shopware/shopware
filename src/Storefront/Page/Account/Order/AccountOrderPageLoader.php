@@ -121,6 +121,8 @@ class AccountOrderPageLoader
 
         $criteria = (new Criteria())
             ->addSorting(new FieldSorting('order.createdAt', FieldSorting::DESCENDING))
+            ->addAssociation('primaryOrderDelivery')
+            ->addAssociation('primaryOrderTransaction')
             ->addAssociation('transactions.paymentMethod')
             ->addAssociation('transactions.stateMachineState')
             ->addAssociation('deliveries.shippingMethod')

@@ -361,13 +361,13 @@ class RecalculationService
             ->addAssociations([
                 'primaryOrderTransaction',
                 'primaryOrderDelivery',
+                'lineItems.downloads',
                 'transactions.stateMachineState',
                 'deliveries.shippingMethod.tax',
                 'deliveries.shippingMethod.deliveryTime',
                 'deliveries.positions.orderLineItem',
                 'deliveries.shippingOrderAddress.country',
                 'deliveries.shippingOrderAddress.countryState',
-                'lineItems.downloads',
             ]);
 
         $order = $this->orderRepository->search($criteria, $context)->getEntities()->first();

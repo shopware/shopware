@@ -347,7 +347,7 @@ class NavigationRouteTest extends TestCase
                 'id' => $this->ids->get('category3'),
                 'type' => CategoryDefinition::TYPE_LINK,
                 'linkType' => CategoryDefinition::LINK_TYPE_CATEGORY,
-                'internalLink' => $this->ids->get('category'),
+                'internalLink' => $this->ids->get('category2'),
             ],
         ], Context::createDefaultContext());
 
@@ -361,9 +361,9 @@ class NavigationRouteTest extends TestCase
 
         $this->createSeoUrl(
             'frontend.navigation.page',
-            '/navigation/' . $this->ids->get('category'),
+            '/navigation/' . $this->ids->get('category2'),
             'custom-category-url',
-            $this->ids->get('category')
+            $this->ids->get('category2')
         );
 
         $response = $this->requestFooterNavigationWithSeoUrls();

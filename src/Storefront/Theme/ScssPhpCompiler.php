@@ -74,7 +74,13 @@ class ScssPhpCompiler extends AbstractScssCompiler
             $this->compiler->setImportPaths($importPaths);
         }
 
-        $css = $this->compiler->compileString($scss, $path)->getCss();
+        // If path is a valid file path and not a virtual path like 'theme-scss:'
+        if ($path !== null && !str_starts_with($path, 'theme-scss:') && file_exists($path)) {
+            $css = $this->compiler->compileFile($path)->getCss();
+        } else {
+            // For virtual paths or when no path is provided, use compileString
+            $css = $this->compiler->compileString($scss)->getCss();
+        }
 
         $this->reset(); // Reset compiler for multiple usage
 

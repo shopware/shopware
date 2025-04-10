@@ -396,6 +396,10 @@ export default {
         this.createdComponent();
     },
 
+    beforeRouteLeave() {
+        Shopware.Store.get('shopwareApps').selectedIds = [];
+    },
+
     methods: {
         createdComponent() {
             Shopware.ExtensionAPI.publishData({

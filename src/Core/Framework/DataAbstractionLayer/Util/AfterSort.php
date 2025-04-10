@@ -21,8 +21,7 @@ class AfterSort
             return $elements;
         }
 
-        // NEXT-21735 - This is covered randomly
-        // @codeCoverageIgnoreStart
+        // @codeCoverageIgnoreStart - This is covered randomly
 
         // pre-sort elements to pull elements without an after id parent to the front
         uasort($elements, function (Struct $a, Struct $b) use ($propertyName) {

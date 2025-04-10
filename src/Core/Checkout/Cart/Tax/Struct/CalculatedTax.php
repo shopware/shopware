@@ -18,7 +18,8 @@ class CalculatedTax extends Struct
     public function __construct(
         float $tax,
         float $taxRate,
-        float $price
+        float $price,
+        protected ?string $label = null,
     ) {
         $this->tax = FloatComparator::cast($tax);
         $this->taxRate = FloatComparator::cast($taxRate);
@@ -49,11 +50,17 @@ class CalculatedTax extends Struct
     {
         $this->tax = FloatComparator::cast($this->tax + $calculatedTax->getTax());
         $this->price = FloatComparator::cast($this->price + $calculatedTax->getPrice());
+        $this->label = implode(' + ', array_filter([$this->getLabel(), $calculatedTax->getLabel()])) ?: null;
     }
 
     public function setPrice(float $price): void
     {
         $this->price = FloatComparator::cast($price);
+    }
+
+    public function getLabel(): ?string
+    {
+        return $this->label;
     }
 
     public function getApiAlias(): string

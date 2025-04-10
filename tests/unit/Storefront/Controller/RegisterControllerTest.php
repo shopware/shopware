@@ -12,6 +12,7 @@ use Shopware\Core\Checkout\Customer\Aggregate\CustomerGroup\CustomerGroupEntity;
 use Shopware\Core\Checkout\Customer\SalesChannel\RegisterConfirmRoute;
 use Shopware\Core\Checkout\Customer\SalesChannel\RegisterRoute;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
+use Shopware\Core\Framework\Routing\RoutingException;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
 use Shopware\Core\Framework\Validation\DataValidationDefinition;
@@ -30,6 +31,8 @@ use Shopware\Storefront\Page\Account\Register\AccountRegisterPageLoadedHook;
 use Shopware\Storefront\Page\Checkout\Register\CheckoutRegisterPage;
 use Shopware\Storefront\Page\Checkout\Register\CheckoutRegisterPageLoadedHook;
 use Shopware\Storefront\Page\Checkout\Register\CheckoutRegisterPageLoader;
+use Shopware\Storefront\Pagelet\Footer\FooterPageletLoaderInterface;
+use Shopware\Storefront\Pagelet\Header\HeaderPageletLoaderInterface;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -81,6 +84,8 @@ class RegisterControllerTest extends TestCase
             $customerRepository,
             $this->customerGroupRegistrationPageLoader,
             $domainRepository,
+            $this->createMock(HeaderPageletLoaderInterface::class),
+            $this->createMock(FooterPageletLoaderInterface::class),
         );
     }
 
@@ -160,7 +165,7 @@ class RegisterControllerTest extends TestCase
         static::assertSame($dataBag, $this->controller->renderStorefrontParameters['data']);
         static::assertSame('frontend.account.home.page', $this->controller->renderStorefrontParameters['redirectTo'] ?? '');
         static::assertSame('frontend.account.customer-group-registration.page', $this->controller->renderStorefrontParameters['errorRoute'] ?? '');
-        static::assertSame(json_encode(['customerGroupId' => $customerGroupId]), $this->controller->renderStorefrontParameters['errorParameters'] ?? '');
+        static::assertSame(json_encode(['customerGroupId' => $customerGroupId], \JSON_THROW_ON_ERROR), $this->controller->renderStorefrontParameters['errorParameters'] ?? '');
         static::assertInstanceOf(CustomerGroupRegistrationPageLoadedHook::class, $this->controller->calledHook);
     }
 
@@ -258,8 +263,6 @@ class RegisterControllerTest extends TestCase
 
     public function testRegisterWithNoErrorRouteParam(): void
     {
-        static::expectExceptionMessage('Parameter "errorRoute" is missing.');
-
         $context = Generator::generateSalesChannelContext();
         $context->assign(['customer' => null]);
 
@@ -270,6 +273,7 @@ class RegisterControllerTest extends TestCase
             ->method('register')
             ->willThrowException(new ConstraintViolationException(new ConstraintViolationList(), []));
 
+        $this->expectExceptionObject(RoutingException::missingRequestParameter('errorRoute'));
         $this->controller->register($request, $dataBag, $context);
     }
 

@@ -84,12 +84,17 @@ Component.register('sw-cms-el-location-renderer', {
                 this.unpublishDataWithElementId();
             }
 
-            // This is just for avoiding breaking changes for older implementations.
-            // The important part is the publisher with the element id.
+            /**
+             * @deprecated tag:v6.8.0 - Will be removed
+             */
             this.unpublishData = Shopware.ExtensionAPI.publishData({
                 id: this.publishingKey,
                 path: 'element',
                 scope: this,
+                deprecated: true,
+                deprecationMessage:
+                    // eslint-disable-next-line max-len
+                    'The general cms element data set is deprecated. Please use a specific cms data set instead by provoding the element id.',
             });
 
             this.unpublishDataWithElementId = Shopware.ExtensionAPI.publishData({

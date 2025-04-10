@@ -3,10 +3,17 @@
         {% set showRemoveColumn = true %}
     {% endif %}
 
-    {% set infoColumnClass = 'col-6' %}
+    {% if showSubtotal is not defined %}
+        {% set showSubtotal = true %}
+    {% endif %}
 
+    {% set subtotalColumnSize = 2 %}
+    {% set infoColumnSize = 8 %}
+    {% if showSubtotal %}
+        {% set infoColumnSize = infoColumnSize - subtotalColumnSize %}
+    {% endif %}
     {% if showRemoveColumn %}
-        {% set infoColumnClass = 'col-5' %}
+        {% set infoColumnSize = infoColumnSize - 1 %}
     {% endif %}
 
     {% block component_checkout_cart_header_element %}
@@ -14,7 +21,7 @@
 
             <div class="row cart-header-row">
                 {% block component_checkout_cart_header_product_info %}
-                    <div class="{{ infoColumnClass }} cart-header-info">
+                    <div class="col-{{ infoColumnSize }} cart-header-info">
                         {{ 'checkout.cartHeaderInfo'|trans|sw_sanitize }}
                     </div>
                 {% endblock %}
@@ -26,15 +33,17 @@
                 {% endblock %}
 
                 {% if showTaxPrice %}
-                    <div class="col-2 cart-header-tax-price">
-                        {% if context.salesChannel.taxCalculationType == 'horizontal' %}
-                            {% if context.taxState == 'gross' %}
-                                {{ 'checkout.cartHeaderTaxIncludeVat'|trans|sw_sanitize }}
-                            {% else %}
-                                {{ 'checkout.cartHeaderTaxExcludeVat'|trans|sw_sanitize }}
+                    {% block component_checkout_cart_header_tax_price %}
+                        <div class="col-2 cart-header-tax-price">
+                            {% if context.salesChannel.taxCalculationType == 'horizontal' %}
+                                {% if context.taxState == 'gross' %}
+                                    {{ 'checkout.cartHeaderTaxIncludeVat'|trans|sw_sanitize }}
+                                {% else %}
+                                    {{ 'checkout.cartHeaderTaxExcludeVat'|trans|sw_sanitize }}
+                                {% endif %}
                             {% endif %}
-                        {% endif %}
-                    </div>
+                        </div>
+                    {% endblock %}
                 {% else %}
                     {% block component_checkout_cart_header_unit_price %}
                         <div class="col-2 cart-header-unit-price">
@@ -44,9 +53,11 @@
                 {% endif %}
 
                 {% block component_checkout_cart_header_total_price %}
-                    <div class="col-2 cart-header-total-price">
-                        {{ 'checkout.cartHeaderTotalPrice'|trans|sw_sanitize }}
-                    </div>
+                    {% if showSubtotal %}
+                        <div class="col-{{ subtotalColumnSize }} cart-header-total-price">
+                            {{ 'checkout.cartHeaderTotalPrice'|trans|sw_sanitize }}
+                        </div>
+                    {% endif %}
                 {% endblock %}
             </div>
         </li>

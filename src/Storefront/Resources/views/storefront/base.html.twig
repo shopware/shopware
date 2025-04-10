@@ -35,7 +35,9 @@
             </noscript>
         {% endblock %}
 
-        {{ render_esi(url('frontend.header')) }}
+        {% block base_esi_header %}
+            {{ render_esi(url('frontend.header')) }}
+        {% endblock %}
 
         {% block base_navigation_styling %}
             {% sw_include '@Storefront/storefront/layout/navigation/active-styling.html.twig' %}
@@ -71,7 +73,9 @@
             </main>
         {% endblock %}
 
-        {{ render_esi(url('frontend.footer')) }}
+        {% block base_esi_footer %}
+            {{ render_esi(url('frontend.footer')) }}
+        {% endblock %}
 
     {% endblock %}
 

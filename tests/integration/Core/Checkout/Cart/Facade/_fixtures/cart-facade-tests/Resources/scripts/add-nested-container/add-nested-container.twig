@@ -12,7 +12,7 @@
 {# @var container \Shopware\Core\Checkout\Cart\Facade\ContainerFacade #}
 {% do container.add(product.take(1, 'first')) %}
 {% do container.add(product.take(1, 'second')) %}
-{% do container.discount('discount', 'percentage', -10, 'Fanzy discount') %}
+{% do container.discount('discount', 'percentage', -10, 'Fancy discount') %}
 
 {% set price = services.cart.price.create({
     'default': { 'gross': -50, 'net': -50}
@@ -20,7 +20,7 @@
 
 {% do nested.add(product.take(1, 'third')) %}
 {% do nested.add(product.take(1, 'fourth')) %}
-{% do nested.discount('absolute', 'absolute', price, 'Fanzy discount') %}
+{% do nested.discount('absolute', 'absolute', price, 'Fancy discount') %}
 
 {% do container.add(nested) %}
 

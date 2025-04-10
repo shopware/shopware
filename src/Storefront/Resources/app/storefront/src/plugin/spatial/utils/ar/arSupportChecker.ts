@@ -43,6 +43,20 @@ export function supportQuickLook(): boolean {
  * @returns {Promise<boolean>}
  */
 export async function supportWebXR(): Promise<boolean> {
-    if (!navigator.xr) { return false; }
-    return await navigator.xr.isSessionSupported('immersive-ar');
+    // Check if we're in a secure context (HTTPS)
+    if (!window.isSecureContext) {
+        return false;
+    }
+
+    // Check if XRSystem is available
+    if (!navigator.xr) {
+        return false;
+    }
+
+    try {
+        // Check specifically for immersive-ar support
+        return await navigator.xr.isSessionSupported('immersive-ar');
+    } catch (error) {
+        return false;
+    }
 }

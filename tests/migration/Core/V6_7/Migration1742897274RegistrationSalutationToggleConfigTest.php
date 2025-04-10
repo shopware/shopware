@@ -29,14 +29,11 @@ class Migration1742897274RegistrationSalutationToggleConfigTest extends TestCase
         $migration->update($connection);
         $migration->update($connection);
 
-        $newConfiguration = $connection->fetchAllKeyValue(
-            'SELECT LOWER(HEX(`id`)), `configuration_value` FROM `system_config` WHERE `configuration_key` = ?',
-            ['core.loginRegistration.showSalutation']
-        );
+        $newConfiguration = $this->getConditionValues();
         $id = array_key_first($newConfiguration);
 
         static::assertCount(1, $newConfiguration);
-        static::assertEquals('{"_value": true}', $newConfiguration[$id]);
+        static::assertSame(['_value' => true], $newConfiguration[$id]);
 
         $connection->update(
             'system_config',
@@ -48,13 +45,24 @@ class Migration1742897274RegistrationSalutationToggleConfigTest extends TestCase
 
         $migration->update($connection);
 
-        $newConfiguration = $connection->fetchAllKeyValue(
-            'SELECT LOWER(HEX(`id`)), `configuration_value` FROM `system_config` WHERE `configuration_key` = ?',
-            ['core.loginRegistration.showSalutation']
-        );
+        $newConfiguration = $this->getConditionValues();
         $id = array_key_first($newConfiguration);
 
         static::assertCount(1, $newConfiguration);
-        static::assertEquals('{"_value": false}', $newConfiguration[$id]);
+        static::assertSame(['_value' => false], $newConfiguration[$id]);
+    }
+
+    /**
+     * @return mixed[]
+     */
+    private function getConditionValues(): array
+    {
+        return array_map(
+            function (string $json) { return json_decode($json, true); },
+            static::getContainer()->get(Connection::class)->fetchAllKeyValue(
+                'SELECT LOWER(HEX(`id`)), `configuration_value` FROM `system_config` WHERE `configuration_key` = ?',
+                ['core.loginRegistration.showSalutation'],
+            )
+        );
     }
 }

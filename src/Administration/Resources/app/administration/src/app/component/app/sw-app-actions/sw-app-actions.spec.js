@@ -140,19 +140,6 @@ describe('sw-app-actions', () => {
         expect(actionButtons.at(1).props('action')).toEqual(actionButtonData[1]);
     });
 
-    it('should reset the selectedIds on creation when entity exists', async () => {
-        expect(Shopware.Store.get('shopwareApps').selectedIds).toEqual([
-            expect.any(String),
-        ]);
-
-        router.push({ name: 'sw.product.detail' });
-        await flushPromises();
-
-        wrapper = await createWrapper(router);
-
-        expect(Shopware.Store.get('shopwareApps').selectedIds).toEqual([]);
-    });
-
     it('should not reset the selectedIds on creation when entity exists', async () => {
         expect(Shopware.Store.get('shopwareApps').selectedIds).toEqual([
             expect.any(String),

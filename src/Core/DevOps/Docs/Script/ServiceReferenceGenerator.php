@@ -132,7 +132,7 @@ class ServiceReferenceGenerator implements ScriptReferenceGenerator
         $reflection = new \ReflectionClass($className);
 
         if (\in_array($className, $scriptServices, true)) {
-            return \sprintf('./%s#%s', self::GROUPS[$this->getGroupForService($reflection)], strtolower($reflection->getShortName()));
+            return \sprintf('./%s#%s', \str_replace('.md', '', self::GROUPS[$this->getGroupForService($reflection)]), strtolower($reflection->getShortName()));
         }
 
         /** @var string $filename */
@@ -195,30 +195,35 @@ class ServiceReferenceGenerator implements ScriptReferenceGenerator
                 'title' => 'Data Loading',
                 'fileName' => self::GROUPS[self::GROUP_DATA_LOADING],
                 'description' => 'Here you find a complete reference of all script services that can be used to load additional data.',
+                'navPosition' => 20,
                 'services' => [],
             ],
             self::GROUP_CART_MANIPULATION => [
                 'title' => 'Cart Manipulation',
                 'fileName' => self::GROUPS[self::GROUP_CART_MANIPULATION],
                 'description' => 'Here you find a complete reference of all script services that can be used to manipulate the cart.',
+                'navPosition' => 10,
                 'services' => [],
             ],
             self::GROUP_CUSTOM_ENDPOINT => [
                 'title' => 'Custom Endpoint',
                 'fileName' => self::GROUPS[self::GROUP_CUSTOM_ENDPOINT],
                 'description' => 'Here you find a complete reference of all script services that can be used in your custom endpoints.',
+                'navPosition' => 30,
                 'services' => [],
             ],
             self::GROUP_MISCELLANEOUS => [
                 'title' => 'Miscellaneous',
                 'fileName' => self::GROUPS[self::GROUP_MISCELLANEOUS],
                 'description' => 'Here you find a complete reference of all general script services that can be used in any script.',
+                'navPosition' => 40,
                 'services' => [],
             ],
             self::GROUP_PRODUCT => [
                 'title' => 'Product',
                 'fileName' => self::GROUPS[self::GROUP_PRODUCT],
                 'description' => 'Here you find a complete reference of all script services that can be used to manipulate products.',
+                'navPosition' => 60,
                 'services' => [],
             ],
         ];

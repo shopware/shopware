@@ -12,9 +12,9 @@
 
     <mt-switch
         class="sw-order-create-options__disable-auto-promotion"
-        :checked="disabledAutoPromotion"
+        :model-value="disabledAutoPromotion"
         :label="$tc('sw-order.createBase.labelToggleAutomaticPromotions')"
-        @change="onToggleAutoPromotion"
+        @update:model-value="onToggleAutoPromotion"
     />
     {% endblock %}
 
@@ -132,6 +132,7 @@
             v-model="shippingCost"
             class="sw-order-create-options__shipping-cost"
             :label="$tc('sw-order.initialModal.options.labelShippingCosts')"
+            :step="1"
             @update:model-value="onChangeShippingCost"
         >
             <template #suffix>

@@ -196,7 +196,7 @@ class EntityReader implements EntityReaderInterface
                 continue;
             }
 
-            // many to one associations can be directly fetched in same query
+            // many-to-one associations can be directly fetched in same query
             if ($field instanceof ManyToOneAssociationField || $field instanceof OneToOneAssociationField) {
                 $reference = $field->getReferenceDefinition();
 
@@ -204,12 +204,19 @@ class EntityReader implements EntityReaderInterface
 
                 $this->queryHelper->resolveField($field, $definition, $root, $query, $context);
 
-                $alias = $root . '.' . $field->getPropertyName();
+                $fieldPropertyName = $field->getPropertyName();
+                $alias = $root . '.' . $fieldPropertyName;
 
                 $joinCriteria = null;
-                if ($criteria && $criteria->hasAssociation($field->getPropertyName())) {
-                    $joinCriteria = $criteria->getAssociation($field->getPropertyName());
+                if ($criteria && $criteria->hasAssociation($fieldPropertyName)) {
+                    $joinCriteria = $criteria->getAssociation($fieldPropertyName);
                     $basics = $this->addAssociationFieldsToCriteria($joinCriteria, $reference, $basics);
+                }
+
+                $referenceField = $reference->getFields()->getByStorageName($field->getReferenceField());
+                if ($isPartial && $referenceField && !isset($partial[$fieldPropertyName][$referenceField->getPropertyName()])) {
+                    $partial[$fieldPropertyName] = $partial[$fieldPropertyName] ?? [];
+                    $partial[$fieldPropertyName][$referenceField->getPropertyName()] = [];
                 }
 
                 $this->joinBasic($reference, $context, $alias, $query, $basics, $joinCriteria, $partial[$field->getPropertyName()] ?? []);

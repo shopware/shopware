@@ -171,7 +171,7 @@
 
                 <mt-switch
                     :label="$tc('sw-product.variations.configuratorModal.digitalVariantSwitch')"
-                    @change="onChangeAllVariantValues"
+                    @update:model-value="onChangeAllVariantValues"
                 />
                 <div class="sw-product-modal-variant-generation__upload-all">
                     <sw-upload-listener
@@ -237,8 +237,8 @@
 
                         <mt-switch
                             label="Digital"
-                            :checked="item.productStates.includes('is-download')"
-                            @change="(event) => onChangeVariantValue(event, item)"
+                            :model-value="item.productStates.includes('is-download')"
+                            @update:model-value="(event) => onChangeVariantValue(event, item)"
                         />
                         <sw-upload-listener
                             :upload-tag="item.productNumber"

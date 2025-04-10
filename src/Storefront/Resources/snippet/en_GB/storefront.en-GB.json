@@ -710,7 +710,7 @@
     "pointToQrCode": "Point the mobile device at the QR code to display the product in \"Augmented Reality\" mode",
     "arSupportInFollowingDevices": "The \"Augmented Reality experience\" is supported on the following devices:",
     "arSupportDevices": "iOS11+, Android 8.0+ with ARCore 1.9 support",
-    "arSupportMobileHint": "Your browser or device may not be supported. Please try Google Chrome or a different device.",
+    "arSupportMobileHint": "It looks like your browser isn't supported. Please try again with Safari on iOS or Google Chrome on Android.",
     "moveTheDeviceToStart": "Move the device to start",
     "tapToPlaceTheObject": "Tap to place the object",
     "openAugmentedRealityView": "Open Augmented Reality view",

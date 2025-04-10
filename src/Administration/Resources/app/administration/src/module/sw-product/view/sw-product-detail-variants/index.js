@@ -7,6 +7,7 @@ import './sw-product-detail-variants.scss';
 
 const { Criteria, EntityCollection } = Shopware.Data;
 const { uniqBy } = Shopware.Utils.array;
+const { cloneDeep } = Shopware.Utils.object;
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default {
@@ -31,6 +32,7 @@ export default {
             defaultTab: 'all',
             activeTab: 'all',
             configSettingGroups: [],
+            limit: 500,
         };
     },
 
@@ -75,6 +77,14 @@ export default {
 
         assetFilter() {
             return Shopware.Filter.getByName('asset');
+        },
+
+        groupCriteria() {
+            const criteria = new Criteria(1, this.limit);
+
+            criteria.addFields('name');
+
+            return criteria;
         },
     },
 
@@ -132,12 +142,13 @@ export default {
                 (group) => group.option.groupId,
             );
 
-            const criteria = new Criteria(1, null);
+            const criteria = cloneDeep(this.groupCriteria);
+
             if (groupIds.length) {
                 criteria.addFilter(Criteria.equalsAny('id', groupIds));
             }
 
-            this.configSettingGroups = await this.groupRepository.search(criteria);
+            this.configSettingGroups = await this.loadAllPropertyGroups(criteria);
         },
 
         loadOptions() {
@@ -158,13 +169,9 @@ export default {
 
         loadGroups() {
             return new Promise((resolve) => {
-                this.$nextTick().then(() => {
-                    const groupCriteria = new Criteria(1, null);
-
-                    this.groupRepository.search(groupCriteria).then((searchResult) => {
-                        this.groups = searchResult;
-                        resolve();
-                    });
+                this.$nextTick().then(async () => {
+                    this.groups = await this.loadAllPropertyGroups(this.groupCriteria);
+                    resolve();
                 });
             });
         },
@@ -247,6 +254,25 @@ export default {
             }
 
             this.productProperties.splice(0, this.productProperties.length, ...newProperties);
+        },
+
+        async loadAllPropertyGroups(criteria) {
+            const initialResult = await this.groupRepository.search(criteria);
+            const totalGroups = initialResult.total;
+            const limit = initialResult.length;
+
+            const totalPages = Math.ceil(totalGroups / limit);
+
+            const promises = [];
+            // eslint-disable-next-line no-plusplus
+            for (let page = 2; page <= totalPages; page++) {
+                const nextCriteria = new Criteria(page, limit);
+                promises.push(this.groupRepository.search(nextCriteria));
+            }
+
+            const results = await Promise.all(promises);
+
+            return [initialResult, ...results].flatMap((result) => result);
         },
     },
 };

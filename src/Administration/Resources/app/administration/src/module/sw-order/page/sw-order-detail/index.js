@@ -207,6 +207,7 @@ export default {
             this.nextRoute = next;
             this.isDisplayingLeavePageWarning = true;
         } else {
+            Shopware.Store.get('shopwareApps').selectedIds = [];
             next();
         }
     },
@@ -275,7 +276,10 @@ export default {
                 });
 
                 this.createNewVersionId().then(() => {
-                    Store.get('swOrderDetail').setLoading(['order', false]);
+                    Store.get('swOrderDetail').setLoading([
+                        'order',
+                        false,
+                    ]);
                 });
 
                 return;
@@ -351,7 +355,10 @@ export default {
 
         onCancelEditing() {
             this.isLoading = true;
-            Store.get('swOrderDetail').setLoading(['order', true]);
+            Store.get('swOrderDetail').setLoading([
+                'order',
+                true,
+            ]);
 
             const oldVersionContext = this.versionContext;
             Store.get('swOrderDetail').versionContext = Shopware.Context.api;
@@ -379,38 +386,55 @@ export default {
         },
 
         async onSaveAndRecalculate() {
-            Store.get('swOrderDetail').setLoading(['order', true]);
+            Store.get('swOrderDetail').setLoading([
+                'order',
+                true,
+            ]);
             this.isLoading = true;
 
             try {
                 await this.orderRepository.save(this.order, this.versionContext);
-                await this.orderService.recalculateOrder(this.orderId, this.versionContext.versionId, {}, {})
+                await this.orderService
+                    .recalculateOrder(this.orderId, this.versionContext.versionId, {}, {})
                     .then(this.handleCartErrors.bind(this));
                 await this.reloadEntityData();
             } catch (error) {
                 this.onError('error', error);
             } finally {
                 this.isLoading = false;
-                Store.get('swOrderDetail').setLoading(['order', false]);
+                Store.get('swOrderDetail').setLoading([
+                    'order',
+                    false,
+                ]);
             }
         },
 
         async onRecalculateAndReload() {
-            Store.get('swOrderDetail').setLoading(['order', true]);
+            Store.get('swOrderDetail').setLoading([
+                'order',
+                true,
+            ]);
 
             try {
-                await this.orderService.recalculateOrder(this.orderId, this.versionContext.versionId, {}, {})
+                await this.orderService
+                    .recalculateOrder(this.orderId, this.versionContext.versionId, {}, {})
                     .then(this.handleCartErrors.bind(this));
                 await this.reloadEntityData();
             } catch (error) {
                 this.onError('error', error);
             } finally {
-                Store.get('swOrderDetail').setLoading(['order', false]);
+                Store.get('swOrderDetail').setLoading([
+                    'order',
+                    false,
+                ]);
             }
         },
 
         onSaveAndReload() {
-            Store.get('swOrderDetail').setLoading(['order', true]);
+            Store.get('swOrderDetail').setLoading([
+                'order',
+                true,
+            ]);
 
             return this.orderRepository
                 .save(this.order, this.versionContext)
@@ -419,7 +443,10 @@ export default {
                     this.onError('error', error);
                 })
                 .finally(() => {
-                    Store.get('swOrderDetail').setLoading(['order', false]);
+                    Store.get('swOrderDetail').setLoading([
+                        'order',
+                        false,
+                    ]);
                 });
         },
 
@@ -460,7 +487,10 @@ export default {
         },
 
         reloadEntityData(isSaved = true) {
-            Store.get('swOrderDetail').setLoading(['order', true]);
+            Store.get('swOrderDetail').setLoading([
+                'order',
+                true,
+            ]);
 
             return this.orderRepository
                 .get(this.orderId, this.versionContext, this.orderCriteria)
@@ -472,7 +502,10 @@ export default {
                     Store.get('swOrderDetail').order = response;
                 })
                 .finally(() => {
-                    Store.get('swOrderDetail').setLoading(['order', false]);
+                    Store.get('swOrderDetail').setLoading([
+                        'order',
+                        false,
+                    ]);
                     this.isLoading = false;
                 });
         },

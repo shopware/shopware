@@ -10,6 +10,7 @@ use Shopware\Core\Checkout\Customer\Aggregate\CustomerAddress\CustomerAddressCol
 use Shopware\Core\Checkout\Customer\Aggregate\CustomerAddress\CustomerAddressEntity;
 use Shopware\Core\Checkout\Customer\CustomerCollection;
 use Shopware\Core\Checkout\Customer\CustomerEntity;
+use Shopware\Core\Checkout\Order\OrderCollection;
 use Shopware\Core\Content\Category\Aggregate\CategoryTranslation\CategoryTranslationCollection;
 use Shopware\Core\Content\Category\Aggregate\CategoryTranslation\CategoryTranslationEntity;
 use Shopware\Core\Content\Category\CategoryCollection;
@@ -47,6 +48,8 @@ use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\Language\LanguageCollection;
 use Shopware\Core\System\Language\LanguageEntity;
 use Shopware\Core\System\Tax\TaxEntity;
+use Shopware\Core\Test\Integration\Builder\Customer\CustomerBuilder;
+use Shopware\Core\Test\Integration\Builder\Order\OrderBuilder;
 use Shopware\Core\Test\Stub\Framework\IdsCollection;
 use Shopware\Core\Test\TestDefaults;
 
@@ -66,6 +69,11 @@ class EntityReaderTest extends TestCase
      * @var EntityRepository<ProductCollection>
      */
     private EntityRepository $productRepository;
+
+    /**
+     * @var EntityRepository<OrderCollection>
+     */
+    private EntityRepository $orderRepository;
 
     /**
      * @var EntityRepository<CategoryCollection>
@@ -88,6 +96,7 @@ class EntityReaderTest extends TestCase
     {
         $this->connection = static::getContainer()->get(Connection::class);
         $this->productRepository = static::getContainer()->get('product.repository');
+        $this->orderRepository = static::getContainer()->get('order.repository');
         $this->categoryRepository = static::getContainer()->get('category.repository');
         $this->languageRepository = static::getContainer()->get('language.repository');
         $this->customerRepository = static::getContainer()->get('customer.repository');
@@ -179,15 +188,13 @@ class EntityReaderTest extends TestCase
             ->visibility()
             ->manufacturer('m1');
 
-        static::getContainer()->get('product.repository')
+        $this->productRepository
             ->create([$product->build()], Context::createDefaultContext());
 
         $criteria = new Criteria([$ids->get('p1')]);
         $criteria->addFields(['id', 'productNumber', 'name', 'manufacturer.id', 'manufacturer.name']);
 
-        $values = static::getContainer()
-            ->get('product.repository')
-            ->search($criteria, Context::createDefaultContext());
+        $values = $this->productRepository->search($criteria, Context::createDefaultContext());
 
         $entity = $values->first();
 
@@ -199,6 +206,28 @@ class EntityReaderTest extends TestCase
         static::assertInstanceOf(PartialEntity::class, $entity->get('manufacturer'));
         static::assertSame($ids->get('m1'), $entity->get('manufacturer')->get('id'));
         static::assertSame('m1', $entity->get('manufacturer')->get('name'));
+    }
+
+    public function testPartialLoadingOneToOneWithReferenceFieldInOtherTable(): void
+    {
+        $ids = new IdsCollection();
+
+        $customer = (new CustomerBuilder($ids, 'customer1'));
+        $order = (new OrderBuilder($ids, 'order1'))->orderCustomer('First Name Test', 'customer1');
+
+        $this->customerRepository->create([$customer->build()], Context::createDefaultContext());
+        $this->orderRepository->create([$order->build()], Context::createDefaultContext());
+
+        $criteria = new Criteria([$ids->get('order1')]);
+        $criteria->addFields(['id', 'orderNumber', 'orderCustomer.firstName']);
+
+        $partialOrder = $this->orderRepository->search($criteria, Context::createDefaultContext())->first();
+
+        static::assertInstanceOf(PartialEntity::class, $partialOrder);
+        static::assertSame('order1', $partialOrder->get('orderNumber'));
+
+        static::assertInstanceOf(PartialEntity::class, $partialOrder->get('orderCustomer'));
+        static::assertSame('First Name Test', $partialOrder->get('orderCustomer')->get('firstName'));
     }
 
     public function testPartialLoadingOneToMany(): void

@@ -36,6 +36,7 @@ class AdapterException extends HttpException
     final public const FILESYSTEM_FACTORY_NOT_FOUND = 'FRAMEWORK__FILESYSTEM_FACTORY_NOT_FOUND';
     final public const DUPLICATE_FILESYSTEM_FACTORY = 'FRAMEWORK__DUPLICATE_FILESYSTEM_FACTORY';
     final public const OPERATOR_NOT_SUPPORTED = 'FRAMEWORK__OPERATOR_NOT_SUPPORTED';
+    final public const MISSING_REQUIRED_PARAMETER = 'FRAMEWORK__MISSING_REQUIRED_PARAMETER';
 
     /**
      * @deprecated tag:v6.8.0 - reason:return-type-change - Will return self
@@ -276,6 +277,16 @@ class AdapterException extends HttpException
             self::DUPLICATE_FILESYSTEM_FACTORY,
             'Filesystem factory for type "{{ type }}" already exists.',
             ['type' => $type]
+        );
+    }
+
+    public static function missingRequiredParameter(string $parameter): self
+    {
+        return new self(
+            Response::HTTP_INTERNAL_SERVER_ERROR,
+            self::MISSING_REQUIRED_PARAMETER,
+            'Parameter "{{ parameter }}" is required but not found in the container.',
+            ['parameter' => $parameter],
         );
     }
 }

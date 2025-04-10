@@ -428,6 +428,7 @@
             <xs:element name="promotion" type="empty" minOccurs="0"/>
             <xs:element name="product_stream" type="empty" minOccurs="0"/>
             <xs:element name="property_group" type="empty" minOccurs="0"/>
+            <xs:element name="property_group_option" type="empty" minOccurs="0"/>
             <xs:element name="product_review" type="empty" minOccurs="0"/>
             <xs:element name="event_action" type="empty" minOccurs="0"/>
             <xs:element name="country" type="empty" minOccurs="0"/>

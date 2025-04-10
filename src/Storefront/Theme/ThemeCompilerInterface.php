@@ -16,7 +16,6 @@ interface ThemeCompilerInterface
         StorefrontPluginConfiguration $themeConfig,
         StorefrontPluginConfigurationCollection $configurationCollection,
         bool $withAssets,
-        Context $context,
-        bool $skipCache = false
+        Context $context
     ): void;
 }

@@ -72,16 +72,13 @@ class ThemeService implements ResetInterface
             return;
         }
 
-        $skipCache = $context->hasState(self::STATE_SKIP_THEME_CACHE);
-
         $this->themeCompiler->compileTheme(
             $salesChannelId,
             $themeId,
             $this->configLoader->load($themeId, $context),
             $configurationCollection ?? $this->extensionRegistry->getConfigurations(),
             $withAssets,
-            $context,
-            $skipCache
+            $context
         );
     }
 

@@ -67,10 +67,10 @@ class ThemeCompiler implements ThemeCompilerInterface
         StorefrontPluginConfiguration $themeConfig,
         StorefrontPluginConfigurationCollection $configurationCollection,
         bool $withAssets,
-        Context $context,
-        bool $skipCache = false
+        Context $context
     ): void {
         try {
+            $skipCache = $context->hasState(ThemeService::STATE_SKIP_THEME_CACHE);
             $resolvedFiles = $this->themeFileResolver->resolveFiles($themeConfig, $configurationCollection, false);
 
             $styleFiles = $resolvedFiles[ThemeFileResolver::STYLE_FILES];

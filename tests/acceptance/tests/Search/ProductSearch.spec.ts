@@ -1,6 +1,6 @@
 import { test } from '@fixtures/AcceptanceTest';
 
-test('Customer is able to search products in shop', { tag: '@Search' }, async ({ 
+test('Customer is able to search products in shop', { tag: '@Search' }, async ({
     ShopCustomer,
     TestDataService,
     StorefrontHome,
@@ -8,13 +8,11 @@ test('Customer is able to search products in shop', { tag: '@Search' }, async ({
     SearchForTerm,
     IdProvider
 }) => {
-        const productNameSuffix = IdProvider.getIdPair().uuid;
-
         await TestDataService.createBasicProduct({
-            name: 'Bottle' + productNameSuffix,
+            name: 'Bottle',
         });
         await TestDataService.createBasicProduct({
-            name: 'Bowl' + productNameSuffix,
+            name: 'Bowl',
         });
 
         await test.step('Customer searches with an invalid input and sees no results', async () => {
@@ -24,20 +22,20 @@ test('Customer is able to search products in shop', { tag: '@Search' }, async ({
         });
 
         await test.step('Customer searches term and sees a single matching product', async () => {
-            await ShopCustomer.attemptsTo(SearchForTerm('Bowl' + productNameSuffix));
+            await ShopCustomer.attemptsTo(SearchForTerm('Bowl'));
             const totalCount1 = await StorefrontSearchSuggest.getTotalSearchResultCount();
             await ShopCustomer.expects(totalCount1).toBe(1);
         });
 
         await test.step('Customer searches for a partial term and sees multiple matching products', async () => {
-            await ShopCustomer.attemptsTo(SearchForTerm('Bo'));
+            await ShopCustomer.attemptsTo(SearchForTerm('bo'));
             const totalCount2 = await StorefrontSearchSuggest.getTotalSearchResultCount();
             await ShopCustomer.expects(totalCount2).toBeGreaterThanOrEqual(2);
         });
 
         await test.step('Customer navigates to the results page to view all matching products', async () => {
             await StorefrontSearchSuggest.searchSuggestTotalLink.click();
-            await ShopCustomer.expects(StorefrontSearchSuggest.searchHeadline).toContainText('Bo');
+            await ShopCustomer.expects(StorefrontSearchSuggest.searchHeadline).toContainText('bo');
 
             const listedItemsCount = await StorefrontSearchSuggest.productListItems.count();
             await ShopCustomer.expects(listedItemsCount).toBeGreaterThanOrEqual(2);

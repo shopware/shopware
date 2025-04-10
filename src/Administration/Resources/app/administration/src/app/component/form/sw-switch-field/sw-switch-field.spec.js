@@ -58,8 +58,11 @@ describe('src/app/component/base/sw-switch-field', () => {
             template: `
             <div>
                 <sw-switch-field @update:value="test" @test-event="test"></sw-switch-field>
-            </div>
+            </div>,            
         `,
+            methods: {
+                test() {}
+            }
         };
 
         const switchField = await wrapTestComponent('sw-switch-field', { sync: true });
@@ -67,10 +70,11 @@ describe('src/app/component/base/sw-switch-field', () => {
             global: {
                 stubs: {
                     'sw-switch-field': switchField,
+                    'sw-switch-field-deprecated': true,
+                    'mt-switch': true,
                 },
             }
         });
-
 
         const listeners = wrapper.findComponent(switchField).vm.listeners;
 

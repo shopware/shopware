@@ -122,8 +122,7 @@ describe('src/module/sw-order/page/sw-order-detail', () => {
         await Shopware.State.commit('swOrderDetail/setOrder', {
             orderNumber: 1,
             createdById: '2'
-        };
-        await nextTick();
+        });
 
         expect(wrapper.find('.sw-order-detail__manual-order-label').exists()).toBeTruthy();
     });

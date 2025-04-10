@@ -15,10 +15,10 @@ use Shopware\Storefront\Theme\StorefrontPluginConfiguration\StorefrontPluginConf
 use Shopware\Storefront\Theme\StorefrontPluginConfiguration\StorefrontPluginConfigurationCollection;
 use Shopware\Storefront\Theme\StorefrontPluginRegistry;
 use Shopware\Storefront\Theme\ThemeFileResolver;
+use Shopware\Storefront\Theme\ThemeMergedConfigBuilder;
 use Shopware\Storefront\Theme\ThemeRuntimeConfig;
 use Shopware\Storefront\Theme\ThemeRuntimeConfigService;
 use Shopware\Storefront\Theme\ThemeRuntimeConfigStorage;
-use Shopware\Storefront\Theme\ThemeService;
 
 /**
  * @internal
@@ -31,7 +31,7 @@ class ThemeRuntimeConfigServiceTest extends TestCase
 
     private StorefrontPluginRegistry&MockObject $pluginRegistry;
 
-    private ThemeService&MockObject $themeService;
+    private ThemeMergedConfigBuilder&MockObject $mergedConfigBuilder;
 
     private ThemeRuntimeConfigStorage&MockObject $storage;
 
@@ -41,13 +41,13 @@ class ThemeRuntimeConfigServiceTest extends TestCase
     {
         $this->themeFileResolver = $this->createMock(ThemeFileResolver::class);
         $this->pluginRegistry = $this->createMock(StorefrontPluginRegistry::class);
-        $this->themeService = $this->createMock(ThemeService::class);
+        $this->mergedConfigBuilder = $this->createMock(ThemeMergedConfigBuilder::class);
         $this->storage = $this->createMock(ThemeRuntimeConfigStorage::class);
 
         $this->service = new ThemeRuntimeConfigService(
             $this->themeFileResolver,
             $this->pluginRegistry,
-            $this->themeService,
+            $this->mergedConfigBuilder,
             $this->storage
         );
     }
@@ -150,7 +150,7 @@ class ThemeRuntimeConfigServiceTest extends TestCase
         $serviceMock->__construct(
             $this->themeFileResolver,
             $this->pluginRegistry,
-            $this->themeService,
+            $this->mergedConfigBuilder,
             $this->storage
         );
 
@@ -196,7 +196,7 @@ class ThemeRuntimeConfigServiceTest extends TestCase
             $themeConfig,
         ]);
 
-        $this->themeService
+        $this->mergedConfigBuilder
             ->expects($this->once())
             ->method('getThemeConfiguration')
             ->with($themeId, false, $context)

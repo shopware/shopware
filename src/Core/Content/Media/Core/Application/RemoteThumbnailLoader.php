@@ -19,13 +19,13 @@ use Symfony\Contracts\Service\ResetInterface;
  *
  * @final
  */
-#[Package('discovery')]
+#[Package('buyers-experience')]
 class RemoteThumbnailLoader implements ResetInterface
 {
     /**
-     * @var ?array<string, array<array{width: string, height: string}>>
+     * @var array<string, array<array{width: string, height: string}>>
      */
-    private ?array $mediaFolderThumbnailSizes = null;
+    private array $mediaFolderThumbnailSizes = [];
 
     /**
      * @internal
@@ -90,8 +90,8 @@ class RemoteThumbnailLoader implements ResetInterface
                 $thumbnail = new MediaThumbnailEntity();
                 $thumbnail->assign([
                     'id' => Uuid::randomHex(),
-                    'width' => (int) $size['width'],
-                    'height' => (int) $size['height'],
+                    'width' => $size['width'],
+                    'height' => $size['height'],
                     'url' => $url,
                 ]);
 
@@ -104,7 +104,7 @@ class RemoteThumbnailLoader implements ResetInterface
 
     public function reset(): void
     {
-        $this->mediaFolderThumbnailSizes = null;
+        $this->mediaFolderThumbnailSizes = [];
     }
 
     /**
@@ -136,7 +136,7 @@ class RemoteThumbnailLoader implements ResetInterface
      */
     private function getMediaThumbnailSizes(): array
     {
-        if ($this->mediaFolderThumbnailSizes !== null) {
+        if (!empty($this->mediaFolderThumbnailSizes)) {
             return $this->mediaFolderThumbnailSizes;
         }
 
@@ -181,21 +181,11 @@ class RemoteThumbnailLoader implements ResetInterface
                 $mediaUpdatedAt
             ),
             function: function ($mediaUrl, $mediaPath, $width, $height, $pattern, $mediaUpdatedAt) {
-                $replacements = [
-                    str_starts_with($mediaPath, 'http') ? '' : $mediaUrl,
-                    $mediaPath,
-                    $width,
-                    $height,
-                    (string) $mediaUpdatedAt?->getTimestamp() ?: '',
-                ];
-
-                $url = str_replace(
+                return str_replace(
                     ['{mediaUrl}', '{mediaPath}', '{width}', '{height}', '{mediaUpdatedAt}'],
-                    $replacements,
+                    [$mediaUrl, $mediaPath, $width, $height, $mediaUpdatedAt?->getTimestamp() ?: ''],
                     $pattern
                 );
-
-                return str_starts_with($mediaPath, 'http') ? ltrim($url, '/') : $url;
             }
         );
     }

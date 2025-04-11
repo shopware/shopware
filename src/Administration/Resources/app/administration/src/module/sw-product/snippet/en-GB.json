@@ -140,11 +140,11 @@
     },
     "packagingForm": {
       "placeholderUnit": "Select...",
-      "labelUnit": "Scale unit",
-      "referenceUnitHelpText": "Required to calculate the product's unit price. The base value to be entered depends on the selected scale unit.<br><br>Unit price = (product price * basic unit) / selling unit.<br><br>Unit price not displayed, if selling unit and basic unit have the same value.",
+      "labelUnit": "Product unit",
+      "referenceUnitHelpText": "Required to calculate the product's unit price. The base value to be entered depends on the selected product unit.<br><br>Unit price = (product price * basic unit) / selling unit.<br><br>Unit price not displayed, if selling unit and basic unit have the same value.",
       "packUnitHelpText": "Type of packing: e.g. bottle, crate, tin...",
       "packUnitPluralHelpText": "Type of packing (plural): e.g. bottles, crates, tins...",
-      "purchaseUnitHelpText": "Required to calculate the product's unit price. The value to be entered depends on the selected scale unit.<br><br>Unit price = (product price * basic unit) / selling unit.<br><br>Unit price not displayed, if selling unit and basic unit have the same value."
+      "purchaseUnitHelpText": "Required to calculate the product's unit price. The value to be entered depends on the selected product unit.<br><br>Unit price = (product price * basic unit) / selling unit.<br><br>Unit price not displayed, if selling unit and basic unit have the same value."
     },
     "detailBase": {
       "cardTitleDeliverabilityInfo": "Deliverability",

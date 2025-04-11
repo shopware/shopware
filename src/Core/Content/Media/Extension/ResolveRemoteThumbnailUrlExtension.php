@@ -8,6 +8,7 @@ use Shopware\Core\Framework\Log\Package;
 
 /**
  * @extends Extension<string>
+ *
  * @codeCoverageIgnore
  */
 #[Package('discovery')]

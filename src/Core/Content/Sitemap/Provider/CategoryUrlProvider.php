@@ -4,7 +4,6 @@ namespace Shopware\Core\Content\Sitemap\Provider;
 
 use Doctrine\DBAL\ArrayParameterType;
 use Doctrine\DBAL\Connection;
-use Shopware\Core\Content\Category\CategoryCollection;
 use Shopware\Core\Content\Category\CategoryDefinition;
 use Shopware\Core\Content\Category\CategoryEntity;
 use Shopware\Core\Content\Category\CategoryEvents;
@@ -18,7 +17,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\Doctrine\FetchModeHelper;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\Framework\Uuid\Uuid;
-use Shopware\Core\System\SalesChannel\Entity\SalesChannelRepository;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\Routing\RouterInterface;
@@ -67,9 +65,8 @@ class CategoryUrlProvider extends AbstractUrlProvider
         $nextOffset = array_pop($autoIncrementIds);
         \assert(\is_int($nextOffset) || $nextOffset === null);
 
-        $categoryIdsFetchedEvent = new SalesChannelCategoryIdsFetched(\array_column($categories, 'id'), $context);
-        $this->eventDispatcher->dispatch(
-            $categoryIdsFetchedEvent,
+        $categoryIdsFetchedEvent = $this->eventDispatcher->dispatch(
+            new SalesChannelCategoryIdsFetched(\array_column($categories, 'id'), $context),
             CategoryEvents::SALES_CHANNEL_CATEGORY_IDS_FETCHED_EVENT
         );
 

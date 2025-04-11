@@ -7,7 +7,7 @@ use Doctrine\DBAL\Connection;
 use Shopware\Core\Content\Category\CategoryDefinition;
 use Shopware\Core\Content\Category\CategoryEntity;
 use Shopware\Core\Content\Category\CategoryEvents;
-use Shopware\Core\Content\Category\Event\SalesChannelCategoryIdsFetched;
+use Shopware\Core\Content\Category\Event\SalesChannelCategoryIdsFetchedEvent;
 use Shopware\Core\Content\Sitemap\Service\ConfigHandler;
 use Shopware\Core\Content\Sitemap\Struct\Url;
 use Shopware\Core\Content\Sitemap\Struct\UrlResult;
@@ -66,7 +66,7 @@ class CategoryUrlProvider extends AbstractUrlProvider
         \assert(\is_int($nextOffset) || $nextOffset === null);
 
         $categoryIdsFetchedEvent = $this->eventDispatcher->dispatch(
-            new SalesChannelCategoryIdsFetched(\array_column($categories, 'id'), $context),
+            new SalesChannelCategoryIdsFetchedEvent(\array_column($categories, 'id'), $context),
             CategoryEvents::SALES_CHANNEL_CATEGORY_IDS_FETCHED_EVENT
         );
 

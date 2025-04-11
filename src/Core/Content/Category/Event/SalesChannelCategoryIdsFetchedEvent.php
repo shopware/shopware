@@ -15,7 +15,7 @@ use Symfony\Contracts\EventDispatcher\Event;
  * Event that is triggered when category ids are fetched for a sales channel without using the DAL.
  */
 #[Package('discovery')]
-final class SalesChannelCategoryIdsFetched extends Event implements ShopwareEvent
+final class SalesChannelCategoryIdsFetchedEvent extends Event implements ShopwareEvent
 {
     final public const NAME = 'sales_channel.category.keys.fetched';
 

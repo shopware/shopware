@@ -117,10 +117,11 @@ describe('src/module/sw-order/page/sw-order-detail', () => {
 
     it('should contain manual label', async () => {
         wrapper = await createWrapper();
-        await wrapper.setData({ identifier: '1', createdById: '2' });
+        await wrapper.setData({ identifier: '1' });
 
         Shopware.Store.get('swOrderDetail').order = {
             orderNumber: 1,
+            createdById: '2'
         };
         await nextTick();
 

@@ -18,7 +18,7 @@ The Administration can be accessed at [http://localhost:8000/admin](http://local
 To run the Administration Watcher you can use:
 
 ```bash
-docker compose run --rm -p 5773:5773 web composer watch:admin
+docker compose exec web composer watch:admin
 ```
 
 and the Watcher is available at [http://localhost:5773](http://localhost:5773).
@@ -26,7 +26,7 @@ and the Watcher is available at [http://localhost:5773](http://localhost:5773).
 To run the Storefront Watcher you can use:
 
 ```bash
-docker compose run --rm -p 9998:9998 -p 9999:9999 web composer watch:storefront
+docker compose exec web composer watch:storefront
 ```
 
 and the Watcher is available at [http://localhost:9998](http://localhost:9998).

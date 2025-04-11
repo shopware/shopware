@@ -3,6 +3,9 @@ services:
         image: ghcr.io/shopwarelabs/devcontainer/base-slim:8.3
         ports:
             - 8000:8000
+            - 5173:5173
+            - 9998:9998
+            - 9999:9999
         environment:
             HOST: '0.0.0.0'
             APP_URL: http://localhost:8000
@@ -31,8 +34,8 @@ services:
             - --default-time-zone=+00:00
             - --max_binlog_size=512M
             - --binlog_expire_logs_seconds=86400
-        tmpfs:
-            - /var/lib/mysql:uid=999,gid=999
+        volumes:
+            - db-data:/var/lib/mysql
 
     adminer:
         image: adminer
@@ -58,3 +61,6 @@ services:
             OPENSEARCH_INITIAL_ADMIN_PASSWORD: 'c3o_ZPHo!'
             discovery.type: single-node
             plugins.security.disabled: 'true'
+
+volumes:
+  db-data:

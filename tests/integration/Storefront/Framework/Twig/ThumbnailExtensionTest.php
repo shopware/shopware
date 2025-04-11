@@ -28,6 +28,7 @@ use Shopware\Storefront\Storefront;
 use Shopware\Storefront\Theme\AbstractResolvedConfigLoader;
 use Shopware\Storefront\Theme\ThemeConfigValueAccessor;
 use Shopware\Storefront\Theme\ThemeScripts;
+use Symfony\Component\Asset\Packages;
 use Twig\Environment;
 use Twig\Error\LoaderError;
 use Twig\Error\RuntimeError;
@@ -235,6 +236,8 @@ class ThumbnailExtensionTest extends TestCase
             $scopeDetector,
         );
 
+        $packages = $this->createMock(Packages::class);
+
         // Needed for the ConfigExtension, so the theme_config('breakpoint.sm') calls return the actual breakpoints.
         $templateConfigAccessor = new TemplateConfigAccessor(
             $this->createMock(SystemConfigService::class),
@@ -242,7 +245,8 @@ class ThumbnailExtensionTest extends TestCase
                 $this->createMock(AbstractResolvedConfigLoader::class),
                 $this->createMock(CacheTagCollector::class)
             ),
-            $this->createMock(ThemeScripts::class)
+            $this->createMock(ThemeScripts::class),
+            $packages,
         );
 
         $twig->addExtension(new NodeExtension($templateFinder, $scopeDetector));

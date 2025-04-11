@@ -10,6 +10,7 @@ use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Category\CategoryDefinition;
 use Shopware\Core\Content\Category\CategoryEntity;
+use Shopware\Core\Content\Category\Event\SalesChannelCategoryIdsFetchedEvent;
 use Shopware\Core\Content\Product\ProductEntity;
 use Shopware\Core\Content\Sitemap\Provider\CategoryUrlProvider;
 use Shopware\Core\Content\Sitemap\Service\ConfigHandler;
@@ -17,13 +18,10 @@ use Shopware\Core\Content\Sitemap\Struct\Url;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\Common\IterableQuery;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\Common\IteratorFactory;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\QueryBuilder;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\Framework\Uuid\Uuid;
-use Shopware\Core\System\SalesChannel\Entity\SalesChannelRepository;
+use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\Test\Generator;
 use Shopware\Core\Test\Stub\Framework\IdsCollection;
 use Shopware\Core\Test\TestDefaults;
@@ -46,6 +44,7 @@ class CategoryUrlProviderTest extends TestCase
     private readonly IteratorFactory&MockObject $iteratorFactory;
 
     private readonly RouterInterface&MockObject $router;
+
     private readonly EventDispatcher&MockObject $dispatcher;
 
     private readonly IdsCollection $ids;
@@ -53,8 +52,6 @@ class CategoryUrlProviderTest extends TestCase
     private int $categoryResultIncrement;
 
     private (QueryBuilder&MockObject)|null $queryBuilder = null;
-
-    private SalesChannelRepository&MockObject $salesChannelRepository;
 
     protected function setUp(): void
     {
@@ -64,7 +61,6 @@ class CategoryUrlProviderTest extends TestCase
         $this->iteratorFactory = $this->createMock(IteratorFactory::class);
         $this->router = $this->createMock(RouterInterface::class);
         $this->ids = new IdsCollection();
-        $this->salesChannelRepository = $this->createMock(SalesChannelRepository::class);
         $this->dispatcher = $this->createMock(EventDispatcher::class);
         $this->categoryResultIncrement = 0;
     }
@@ -98,6 +94,15 @@ class CategoryUrlProviderTest extends TestCase
         $this->initServices($queryResult);
         static::assertNotNull($this->queryBuilder);
         $context = Generator::generateSalesChannelContext();
+
+        $event = $this->createSalesChannelCategoryIdsFetchedEvent(
+            \array_column([$categoryResult1, $categoryResult2], 'id'),
+            $context
+        );
+        $this->dispatcher
+            ->expects($this->once())
+            ->method('dispatch')
+            ->willReturn($event);
 
         $provider = $this->getCategoryUrlProvider();
         $urlResult = $provider->getUrls($context, 100, 50);
@@ -171,7 +176,7 @@ class CategoryUrlProviderTest extends TestCase
         static::assertSame($andWhereConditions, $whereConditions);
     }
 
-    public function testExcludeInactiveCategories(): void
+    public function testExcludeFilteredCategories(): void
     {
         $categoryResult1 = $this->createCategoryResult();
         $categoryResult2 = $this->createCategoryResult();
@@ -189,22 +194,15 @@ class CategoryUrlProviderTest extends TestCase
         static::assertNotNull($this->queryBuilder);
         $context = Generator::generateSalesChannelContext();
 
-        $excludedEntity = new CategoryEntity();
-        $excludedEntity->setActive(false);
-        $excludedEntity->setId($this->ids->get('category-1'));
-
-        $this->salesChannelRepository->method('search')->willReturn(
-            new EntitySearchResult(
-                CategoryEntity::class,
-                1,
-                new EntityCollection([
-                    $excludedEntity,
-                ]),
-                null,
-                new Criteria(),
-                $context->getContext()
-            )
+        $event = $this->createSalesChannelCategoryIdsFetchedEvent(
+            \array_column([$categoryResult1, $categoryResult2], 'id'),
+            $context,
+            [$categoryResult1['id']]
         );
+        $this->dispatcher
+            ->expects($this->once())
+            ->method('dispatch')
+            ->willReturn($event);
 
         $provider = $this->getCategoryUrlProvider();
         $urlResult = $provider->getUrls($context, 100, 50);
@@ -218,12 +216,45 @@ class CategoryUrlProviderTest extends TestCase
         static::assertSame('category/2/detail', $url->getLoc());
     }
 
+    public function testReturnNextOffsetIfAllCategoriesFiltered(): void
+    {
+        $categoryResult1 = $this->createCategoryResult();
+        $categoryResult2 = $this->createCategoryResult();
+        $queryResult = new Result(
+            new ArrayResult(
+                array_keys($categoryResult1),
+                [
+                    array_values($categoryResult1),
+                    array_values($categoryResult2),
+                ]
+            ),
+            $this->connection
+        );
+        $this->initServices($queryResult);
+        static::assertNotNull($this->queryBuilder);
+        $context = Generator::generateSalesChannelContext();
+
+        $categoryIds = \array_column([$categoryResult1, $categoryResult2], 'id');
+        $event = $this->createSalesChannelCategoryIdsFetchedEvent($categoryIds, $context, $categoryIds);
+        $this->dispatcher
+            ->expects($this->once())
+            ->method('dispatch')
+            ->willReturn($event);
+
+        $provider = $this->getCategoryUrlProvider();
+        $urlResult = $provider->getUrls($context, 100, 50);
+
+        $urls = $urlResult->getUrls();
+        static::assertCount(0, $urls);
+        static::assertSame(2, $urlResult->getNextOffset());
+    }
+
     /**
      * @param array<array{resource: class-string, salesChannelId: string, identifier: string}>|null $excludedUrls
      */
     private function initServices(
         Result $categoryQueryResult,
-        ?array $excludedUrls = null
+        ?array $excludedUrls = null,
     ): void {
         $this->connection->method('fetchAllAssociative')->willReturn([
             [
@@ -292,5 +323,23 @@ class CategoryUrlProviderTest extends TestCase
                 'identifier' => $this->ids->get('product-3'),
             ],
         ];
+    }
+
+    /**
+     * @param list<string> $categoryIds
+     * @param list<string> $filterIds
+     */
+    private function createSalesChannelCategoryIdsFetchedEvent(
+        array $categoryIds,
+        SalesChannelContext $context,
+        array $filterIds = []
+    ): SalesChannelCategoryIdsFetchedEvent {
+        $categoryIdsFetchedEvent = new SalesChannelCategoryIdsFetchedEvent(
+            $categoryIds,
+            $context
+        );
+        \array_map(fn (string $categoryId) => $categoryIdsFetchedEvent->filterId($categoryId), $filterIds);
+
+        return $categoryIdsFetchedEvent;
     }
 }

@@ -56,4 +56,13 @@ class CategoryExceptionTest extends TestCase
         static::assertEquals(CategoryException::AFTER_CATEGORY_NOT_FOUND, $exception->getErrorCode());
         static::assertEquals('Category to insert after not found.', $exception->getMessage());
     }
+
+    public function testInvalidCategoryId(): void
+    {
+        $exception = CategoryException::invalidCategoryId('invalid-category-id');
+
+        static::assertEquals(Response::HTTP_BAD_REQUEST, $exception->getStatusCode());
+        static::assertEquals('CONTENT__CATEGORY_INVALID_ID', $exception->getErrorCode());
+        static::assertEquals('Category "invalid-category-id" is invalid.', $exception->getMessage());
+    }
 }

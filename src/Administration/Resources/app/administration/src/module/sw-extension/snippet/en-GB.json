@@ -608,7 +608,7 @@
         "tax": "Tax",
         "tax_rule": "Tax rule",
         "tax_rule_type": "Tax rule type",
-        "unit": "Scale unit",
+        "unit": "Product unit",
         "version": "Version"
       }
     },

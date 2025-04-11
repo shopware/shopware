@@ -1,0 +1,31 @@
+<h1>Product card</h1>
+
+<p>The product card displays all important product information in a small format that is used inside listings or product sliders.</p>
+
+<h2 class="fs-5">Default product card</h2>
+<p>By default, the product card renders the image, price and variant information.</p>
+
+<div class="border border-secondary-subtle p-3">
+
+<twig:swProductCard
+    mediaUrl="https://luxusbetten24.de/cdn/shop/products/designer-sofa-verila-l-mit-schlaf-und-klappfunktion-711305.jpg?v=1703264803&width=1200"
+    productName="Lux Sofa XXL"
+    price="$1599,00*"
+    :addToCart="false"
+    style="width: 350px;"
+>
+    <twig:block name="actions"><twig:swButton variant="danger">My button</twig:swButton></twig:block>
+</twig:swProductCard>
+
+</div>
+<div class="border-secondary-subtle border-bottom border-start border-end p-2 bg-light">
+    <small class="text-gray-500">Twig</small>
+</div>
+<div class="border-secondary-subtle border-bottom border-start border-end p-3 bg-light mb-5">
+<pre class="lh-lg"><code class="language-html">&#x3C;twig:swProductCard
+    mediaUrl=&#x22;https://shop-domain.com/path/to/media/&#x22;
+    productName=&#x22;Lux Sofa XXL&#x22;
+    price=&#x22;$1599,00*&#x22;
+/&#x3E;
+</code></pre>
+</div>

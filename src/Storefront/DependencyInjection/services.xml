@@ -542,5 +542,20 @@
 
             <tag name="shopware.system_check"/>
         </service>
+
+        <service id="Shopware\Storefront\Framework\Twig\Components\UxComponentHelper">
+            <argument>Resources/views/components/</argument>
+            <argument>%kernel.project_dir%</argument>
+            <argument>%kernel.bundles_metadata%</argument>
+            <argument type="service" id="twig"/>
+            <argument type="service" id="Shopware\Core\Framework\Adapter\Twig\NamespaceHierarchy\NamespaceHierarchyBuilder"/>
+            <argument type="service" id="ux.twig_component.component_factory"/>
+            <argument type="service" id="Doctrine\DBAL\Connection"/>
+        </service>
+
+        <service id="Shopware\Storefront\Twig\Components\Carousel">
+            <tag name="twig.component" />
+        </service>
+
     </services>
 </container>

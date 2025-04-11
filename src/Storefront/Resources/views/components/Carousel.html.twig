@@ -1,0 +1,34 @@
+<div id="carouselImageGallery" class="carousel slide" data-bs-ride="{% if this.autoSlide() %}carousel{% else %}{{ this.ride() }}{% endif %}">
+    {% if this.getNavigationArrows() %}
+        <div class="carousel-indicators">
+            {% for i, mediaItem in this.mediaItems %}
+                <button type="button" data-bs-target="#carouselImageGallery" data-bs-slide-to="{{ i }}" {% if i == 0 %}class="active"{% endif %} aria-current="true" aria-label="Slide {{ i }}"></button>
+            {% endfor %}
+        </div>
+    {% endif %}
+
+    <div class="carousel-inner">
+        {% for i, mediaItem in this.mediaItems %}
+            <div class="carousel-item {% if i == 0 %}active{% endif %}">
+                <img src="{{ mediaItem.url }}" class="d-block w-100" alt="{{ this.getMediaAltText(mediaItem) }}">
+                <div class="carousel-caption d-none d-md-block">
+                    <h5>{{ this.getMediaTitle(mediaItem) }}</h5>
+                    {% if this.description() %}
+                        <p>{{ this.getMediaAltText(mediaItem) }}</p>
+                    {% endif %}
+                </div>
+            </div>
+        {% endfor %}
+    </div>
+
+    {% if this.getDotsNavigation() %}
+        <button class="carousel-control-prev" type="button" data-bs-target="#carouselImageGallery" data-bs-slide="prev">
+            <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+            <span class="visually-hidden">Previous</span>
+        </button>
+        <button class="carousel-control-next" type="button" data-bs-target="#carouselImageGallery" data-bs-slide="next">
+            <span class="carousel-control-next-icon" aria-hidden="true"></span>
+            <span class="visually-hidden">Next</span>
+        </button>
+    {% endif %}
+</div>

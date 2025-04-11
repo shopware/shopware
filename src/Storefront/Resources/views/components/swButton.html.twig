@@ -1,0 +1,8 @@
+{% props
+    icon = null,
+    variant = 'primary'
+%}
+
+<button {{ attributes.defaults({class: 'btn btn-'~variant}) }}>
+    {% block content %}{% endblock %}
+</button>

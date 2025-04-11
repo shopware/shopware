@@ -41,3 +41,8 @@ shopware:
         major: false
         toggleable: true
         description: "Experimental! Contains Performance Tweaks for future changes"
+      - name: STOREFRONT_COMPONENTS
+        default: false
+        major: true
+        toggleable: true
+        description: "Enable new Storefront component system."

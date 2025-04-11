@@ -1,0 +1,44 @@
+<h1>Button</h1>
+
+<p>The button component renders a Bootstrap button and can be modified with different variants and icons.</p>
+
+<h2 class="fs-5">Default button</h2>
+<p>By default, a primary button is rendered.</p>
+
+<div class="border border-secondary-subtle p-3">
+    <twig:swButton>Primary</twig:swButton>
+</div>
+<div class="border-secondary-subtle border-bottom border-start border-end p-2 bg-light">
+    <small class="text-gray-500">Twig</small>
+</div>
+<div class="border-secondary-subtle border-bottom border-start border-end p-3 bg-light mb-5">
+<pre class="lh-lg"><code class="language-html">&#x3C;twig:swButton&#x3E;Default button&#x3C;/twig:swButton&#x3E;
+</code></pre>
+</div>
+
+<h2 class="fs-5">Variants</h2>
+<p>Different Bootstrap button variants van be passed to the <code>variant</code> prop.</p>
+<div class="border border-secondary-subtle p-3">
+    <twig:swButton>Primary</twig:swButton>
+    <twig:swButton variant="light">Light</twig:swButton>
+    <twig:swButton variant="secondary">Secondary</twig:swButton>
+    <twig:swButton variant="danger">Danger</twig:swButton>
+    <twig:swButton variant="success">Success</twig:swButton>
+    <twig:swButton variant="warning">Warning</twig:swButton>
+    <twig:swButton variant="info">Info</twig:swButton>
+    <twig:swButton variant="outline-primary">Outline primary</twig:swButton>
+</div>
+<div class="border-secondary-subtle border-bottom border-start border-end p-2 bg-light">
+    <small class="text-gray-500">Twig</small>
+</div>
+<div class="border-secondary-subtle border-bottom border-start border-end p-3 bg-light">
+<pre><code class="language-html">&#x3C;twig:swButton&#x3E;Primary&#x3C;/twig:swButton&#x3E;
+&#x3C;twig:swButton variant=&#x22;light&#x22;&#x3E;Light&#x3C;/twig:swButton&#x3E;
+&#x3C;twig:swButton variant=&#x22;secondary&#x22;&#x3E;Secondary&#x3C;/twig:swButton&#x3E;
+&#x3C;twig:swButton variant=&#x22;danger&#x22;&#x3E;Danger&#x3C;/twig:swButton&#x3E;
+&#x3C;twig:swButton variant=&#x22;success&#x22;&#x3E;Sucess&#x3C;/twig:swButton&#x3E;
+&#x3C;twig:swButton variant=&#x22;warning&#x22;&#x3E;Warning&#x3C;/twig:swButton&#x3E;
+&#x3C;twig:swButton variant=&#x22;info&#x22;&#x3E;Info&#x3C;/twig:swButton&#x3E;
+&#x3C;twig:swButton variant=&#x22;outline-primary&#x22;&#x3E;Outline primary&#x3C;/twig:swButton&#x3E;
+</code></pre>
+</div>

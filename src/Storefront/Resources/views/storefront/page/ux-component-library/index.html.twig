@@ -1,0 +1,122 @@
+{% sw_extends '@Storefront/storefront/base.html.twig' %}
+
+{% block base_head %}
+    {{ parent() }}
+    <script src="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/prism.min.js"></script>
+    <link href="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/themes/prism.min.css" rel="stylesheet">
+    <style>
+        code[class*=language-] {
+            font-family: monospace;
+        }
+
+        :not(pre)>code[class*=language-], pre[class*=language-] {
+            background: transparent;
+            padding: 0;
+        }
+    </style>
+{% endblock %}
+
+{% block base_header %}
+    {% embed '@Storefront/storefront/layout/header/header-minimal.html.twig' %}
+        {% block layout_header_minimal_contact %}{% endblock %}
+    {% endembed %}
+    <div class="bg-primary text-white pt-5 pb-5 mb-5">
+        <div class="container">
+            <h1 class="display-5 text-white">UX component library</h1>
+            <p class="mb-0">A collection of reusable e-commerce components using symfony UX components and Bootstrap</p>
+        </div>
+    </div>
+{% endblock %}
+
+{% block base_navigation %}{% endblock %}
+
+{% block base_content %}
+
+    <div class="row">
+        <div class="col-12">
+            <h2>
+                <twig:icon:icon name="dashboard" size="lg" aria-label="Components"></twig:icon:icon> Components
+            </h2>
+
+            <table>
+                <thead>
+                    <tr>
+                        <th>Component</th>
+                        <th>Base name</th>
+                        <th>Tag</th>
+                        <th>Directory</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for component in components %}
+                        <tr>
+                            <td>{{ component.name }}</td>
+                            <td>{{ component.baseName }}</td>
+                            <td>{{ component.tag }}</td>
+                            <td>{{ component.directory }}</td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <hr>
+
+    <twig:slider:slider></twig:slider:slider>
+
+    <div class="row">
+        <div class="col-2">
+            <div class="nav flex-column nav-pills me-3" id="v-pills-tab" role="tablist" aria-orientation="vertical">
+                <div class="fw-bold p-3">Components</div>
+                <a href="#alert" class="nav-link text-start">Alert</a>
+                <a href="#button" class="nav-link text-start">Button</a>
+                <a href="#card" class="nav-link text-start">Product card</a>
+            </div>
+        </div>
+        <div class="col-10">
+            <div class="tab-content" id="v-pills-tabContent">
+                <div id="alert">
+                    <h1>Alert</h1>
+                    <p>Render a alert box</p>
+
+                    <div class="border border-secondary-subtle p-3">
+
+
+                        <twig:swAlertOverride>HELLO</twig:swAlertOverride>
+
+                        {% block component %}
+                            <twig:swAlert variant="success">Success alert</twig:swAlert>
+                        {% endblock %}
+
+                        <twig:swAlert variant="info">Info alert</twig:swAlert>
+                        <twig:swAlert variant="warning">Warning alert</twig:swAlert>
+                        <twig:swAlert variant="danger">Danger alert</twig:swAlert>
+
+
+                    </div>
+                    <div class="border-secondary-subtle border-bottom border-start border-end p-2 bg-light">
+                        <small class="text-gray-500">Twig</small>
+                    </div>
+                    <div class="border-secondary-subtle border-bottom border-start border-end p-3 bg-light">
+<pre><code class="language-html">&#x3C;twig:swAlert variant=&#x22;success&#x22; size=&#x22;sm&#x22;&#x3E;Success alert&#x3C;/twig:swAlert&#x3E;
+&#x3C;twig:swAlert variant=&#x22;info&#x22; size=&#x22;sm&#x22;&#x3E;Info alert&#x3C;/twig:swAlert&#x3E;
+&#x3C;twig:swAlert variant=&#x22;warning&#x22; size=&#x22;sm&#x22;&#x3E;Warning alert&#x3C;/twig:swAlert&#x3E;
+&#x3C;twig:swAlert variant=&#x22;danger&#x22; size=&#x22;sm&#x22;&#x3E;Danger alert&#x3C;/twig:swAlert&#x3E;</code></pre>
+                </div>
+
+                <hr class="mb-5 mt-5">
+
+                <div id="button">
+                    {% sw_include '@Storefront/storefront/page/ux-component-library/examples/button.html.twig' %}
+                </div>
+
+                <hr class="mb-5 mt-5">
+
+                <div id="card">
+                    {% sw_include '@Storefront/storefront/page/ux-component-library/examples/product-card.html.twig' %}
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}

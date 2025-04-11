@@ -1,0 +1,24 @@
+{% props
+    thumbnails = false,
+    dotNavigation = false,
+%}
+
+{% set attributeDefaults = {
+    class: 'slider',
+} %}
+
+<div {{ attributes.defaults(attributeDefaults) }}>
+    <h1>I'm a slider</h1>
+
+    {% if dotNavigation %}
+        <div class="dot-navigation">
+            <h2>Dot Navigation</h2>
+        </div>
+    {% endif %}
+
+    {% if thumbnails %}
+        <div class="thumbnails">
+            <h2>Thumbnails</h2>
+        </div>
+    {% endif %}
+</div>

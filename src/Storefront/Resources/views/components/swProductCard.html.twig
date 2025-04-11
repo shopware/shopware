@@ -1,0 +1,47 @@
+{% props
+    productEntity = null,
+    productName = 'Example product',
+    productDetailRoute = '#',
+    variantInfo = [
+        { key: 'Material', value: 'Cotton' },
+        { key: 'Color', value: 'Light green' },
+        { key: 'Size', value: 'XXL' }
+    ],
+    price = '$0,00*',
+    mediaUrl = '#',
+    addToCart = true
+%}
+
+<article {{ attributes.defaults({ class: 'card border' }) }}>
+    {% block media %}
+        <img src="{{ mediaUrl }}" class="card-img-top p-3 object-fit-contain" alt="..." style="height: 220px;">
+    {% endblock %}
+
+    <div class="card-body p-3 d-flex flex-column">
+        {% block content %}
+            <h5 class="card-title border-0" style="border: 0;">
+                <a href="{{ productDetailRoute }}">{{ productName }}</a>
+            </h5>
+
+            {% if variantInfo %}
+                <dl class="d-flex gap-1">
+                    {% for variant in variantInfo %}
+                        <dt><small>{{ variant.key }}: </small></dt>
+                        <dd><small>{{ variant.value }},</small></dd>
+                    {% endfor %}
+                </dl>
+            {% endif %}
+
+            <div class="mt-auto">
+                <p class="card-text"><strong>{{ price }}</strong></p>
+                {% block actions %}
+                    {% if addToCart %}
+                        <twig:swButton variant="primary" class="w-100">Add to cart</twig:swButton>
+                    {% else %}
+                        <twig:swButton variant="outline-secondary" class="w-100">Details</twig:swButton>
+                    {% endif %}
+                {% endblock %}
+            </div>
+        {% endblock %}
+    </div>
+</article>

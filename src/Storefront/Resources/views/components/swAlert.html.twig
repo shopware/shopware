@@ -1,0 +1,25 @@
+{% props
+    variant = '',
+    size = ''
+%}
+
+{% set alert = cva({
+    base: 'alert',
+    variants: {
+        variant: {
+            warning: 'alert-warning',
+            success: 'alert-success',
+            info: 'alert-info',
+            danger: 'alert-danger',
+        },
+        size: {
+            sm: 'text-sm',
+            md: 'text-md',
+            lg: 'text-lg',
+        }
+    }
+}) %}
+
+<div role="alert" {{ attributes.defaults({ class: alert.apply({ variant, size }) }) }}>
+    {% block content %}{% endblock %}
+</div>

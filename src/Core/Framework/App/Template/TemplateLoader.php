@@ -19,6 +19,7 @@ class TemplateLoader extends AbstractTemplateLoader
     private const ALLOWED_TEMPLATE_DIRS = [
         'storefront',
         'documents',
+        'components',
     ];
 
     private const ALLOWED_FILE_EXTENSIONS = '*.twig';

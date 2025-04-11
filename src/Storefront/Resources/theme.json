@@ -19,10 +19,12 @@
         }
       }
     },
+    "@Components",
     "@Plugins"
   ],
   "script": [
     "app/storefront/dist/storefront/storefront.js",
+    "@Components",
     "@Plugins"
   ],
   "asset": [

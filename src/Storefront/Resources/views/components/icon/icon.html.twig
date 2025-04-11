@@ -1,0 +1,70 @@
+{# 
+@sw-package framework 
+
+@prop name
+@prop pack = 'default'
+@prop namespace = 'Storefront'
+@prop size = 'fluid' | 'lg' | 'sm' | 'xs' | '1x' | '2x' | '3x'
+@prop color = 'primary' | 'secondary' | 'success' | 'info' | 'warning' | 'danger' | 'light' | 'dark'
+@prop rotation = 90 | 180 | 270
+@prop flip = 'horizontal' | 'vertical' | 'both'
+#}
+
+{% props
+    name = '',
+    pack = 'default',
+    namespace = 'Storefront',
+    size = null,
+    color = null,
+    rotation = null,
+    flip = null,
+%}
+
+{% set iconVariants = cva({
+    base: 'icon icon-' ~ pack ~ ' icon-' ~ pack ~ '-' ~ name,
+    variants: {
+        size: {
+            fluid: 'icon-fluid',
+            lg: 'icon-lg',
+            sm: 'icon-sm',
+            xs: 'icon-xs',
+            '1x': 'icon-1x',
+            '2x': 'icon-2x',
+            '3x': 'icon-3x',
+        },
+        color: {
+            primary: 'icon-primary',
+            secondary: 'icon-secondary',
+            success: 'icon-success',
+            info: 'icon-info',
+            warning: 'icon-warning',
+            danger: 'icon-danger',
+            light: 'icon-light',
+            dark: 'icon-dark',
+        },
+        rotation: {
+            90: 'icon-rotate-90',
+            180: 'icon-rotate-180',
+            270: 'icon-rotate-270',
+        },
+        flip: {
+            horizontal: 'icon-flip-horizontal',
+            vertical: 'icon-flip-vertical',
+            both: 'icon-flip-both',
+        }
+    }
+}) %}
+
+{% set attributeDefaults = {
+    'aria-hidden': true,
+} %}
+
+{%- if themeIconConfig[pack] is defined -%}
+    {% set icon = source('@' ~ themeIconConfig[pack].namespace ~ '/' ~ themeIconConfig[pack].path ~'/'~ name ~ '.svg', ignore_missing = true) %}
+{%- else -%}
+    {% set icon = source('@' ~ namespace ~ '/assets/icon/'~ pack ~'/'~ name ~'.svg', ignore_missing = true) %}
+{%- endif -%}
+
+<span {{ attributes.defaults(attributeDefaults) }} class="{{ iconVariants.apply({size, color, rotation, flip}) }}">
+    {{ icon|sw_icon_cache|raw }}
+</span>

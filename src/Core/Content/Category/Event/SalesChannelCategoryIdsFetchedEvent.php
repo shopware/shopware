@@ -3,7 +3,6 @@
 namespace Shopware\Core\Content\Category\Event;
 
 use Shopware\Core\Content\Category\CategoryException;
-use Shopware\Core\Content\Category\Exception\InvalidCategoryIdException;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Event\ShopwareEvent;
 use Shopware\Core\Framework\Log\Package;

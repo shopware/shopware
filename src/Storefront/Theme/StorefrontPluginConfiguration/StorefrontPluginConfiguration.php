@@ -31,6 +31,8 @@ class StorefrontPluginConfiguration extends Struct
 
     protected FileCollection $scriptFiles;
 
+    protected FileCollection $baseStyleFiles;
+
     protected ?string $storefrontEntryFilepath = null;
 
     /**
@@ -62,6 +64,7 @@ class StorefrontPluginConfiguration extends Struct
     {
         $this->styleFiles = new FileCollection();
         $this->scriptFiles = new FileCollection();
+        $this->baseStyleFiles = new FileCollection();
     }
 
     public function getTechnicalName(): string
@@ -117,6 +120,16 @@ class StorefrontPluginConfiguration extends Struct
     public function setScriptFiles(FileCollection $scriptFiles): void
     {
         $this->scriptFiles = $scriptFiles;
+    }
+
+    public function getBaseStyleFiles(): FileCollection
+    {
+        return $this->baseStyleFiles;
+    }
+
+    public function setBaseStyleFiles(FileCollection $baseStyleFiles): void
+    {
+        $this->baseStyleFiles = $baseStyleFiles;
     }
 
     public function getStorefrontEntryFilepath(): ?string
@@ -205,7 +218,7 @@ class StorefrontPluginConfiguration extends Struct
 
     public function hasFilesToCompile(): bool
     {
-        return \count($this->getStyleFiles()) !== 0 || \count($this->getScriptFiles()) !== 0;
+        return \count($this->getStyleFiles()) !== 0 || \count($this->getScriptFiles()) !== 0 || \count($this->getBaseStyleFiles()) !== 0;
     }
 
     /**

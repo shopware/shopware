@@ -1,0 +1,64 @@
+{# ludtwig-ignore-file #}
+{# @sw-package framework #}
+{# @internal #}
+
+{% props
+    start = null,
+    span = null,
+    justify = null,
+    align = null,
+    slots = [],
+    display = {
+        xs: null,
+        sm: null,
+        md: null,
+        lg: null,
+        xl: null,
+        xxl: null,
+    },
+%}
+
+{% set displayClasses = [] %}
+{% set spanClasses = [] %}
+
+{% for breakpoint, value in display %}
+    {% if value is not null and value == false %}
+        {% set displayClasses = displayClasses|merge(["d-#{breakpoint}-hidden"]) %}
+    {% endif %}
+{% endfor %}
+
+{% if span is not null and span is iterable %}
+    {% for breakpoint, value in span %}
+        {% set spanClasses = spanClasses|merge(["span-#{breakpoint}-#{value}"]) %}
+    {% endfor %}
+{% endif %}
+
+{% set columnCVA = cva({
+    base: 'grid-column',
+    variants: {
+        align: {
+            start: 'align-start',
+            end: 'align-end',
+            center: 'align-center',
+            stretch: 'align-stretch',
+        },
+        justify: {
+            start: 'justify-start',
+            end: 'justify-end',
+            center: 'justify-center',
+            stretch: 'justify-stretch',
+        },
+    },
+}) %}
+
+{% set attributeDefaults = {
+    class: columnCVA.apply({ align, justify }) ~ ' ' ~ [...displayClasses, ...spanClasses]|join(' '),
+} %}
+
+<div {{ attributes.defaults(attributeDefaults) }}>
+    {% block content %}
+        {% for name, slot in slots %}
+            <twig:Slot :name="name"></twig:Slot>
+        {% endfor %}
+    {% endblock %}
+</div>

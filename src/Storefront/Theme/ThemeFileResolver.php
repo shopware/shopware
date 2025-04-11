@@ -2,7 +2,9 @@
 
 namespace Shopware\Storefront\Theme;
 
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Storefront\Framework\Twig\Components\TwigComponentHelper;
 use Shopware\Storefront\Theme\Exception\ThemeCompileException;
 use Shopware\Storefront\Theme\Exception\ThemeException;
 use Shopware\Storefront\Theme\StorefrontPluginConfiguration\File;
@@ -15,12 +17,15 @@ class ThemeFileResolver
 {
     final public const SCRIPT_FILES = 'script';
     final public const STYLE_FILES = 'style';
+    final public const BASE_STYLE_FILES = 'baseStyles';
 
     /**
      * @internal
      */
-    public function __construct(private readonly ThemeFilesystemResolver $themeFilesystemResolver)
-    {
+    public function __construct(
+        private readonly ThemeFilesystemResolver $themeFilesystemResolver,
+        private readonly TwigComponentHelper $twigComponentHelper
+    ) {
     }
 
     /**
@@ -42,6 +47,11 @@ class ThemeFileResolver
                 $configurationCollection,
                 $onlySourceFiles
             ),
+            self::BASE_STYLE_FILES => $this->resolveBaseStyleFiles(
+                $themeConfig,
+                $configurationCollection,
+                $onlySourceFiles
+            ),
         ];
     }
 
@@ -51,6 +61,7 @@ class ThemeFileResolver
         bool $onlySourceFiles
     ): FileCollection {
         return $this->resolve(
+            self::SCRIPT_FILES,
             $themeConfig,
             $configurationCollection,
             $onlySourceFiles,
@@ -64,10 +75,25 @@ class ThemeFileResolver
         bool $onlySourceFiles
     ): FileCollection {
         return $this->resolve(
+            self::STYLE_FILES,
             $themeConfig,
             $configurationCollection,
             $onlySourceFiles,
             fn (StorefrontPluginConfiguration $configuration) => $configuration->getStyleFiles()
+        );
+    }
+
+    public function resolveBaseStyleFiles(
+        StorefrontPluginConfiguration $themeConfig,
+        StorefrontPluginConfigurationCollection $configurationCollection,
+        bool $onlySourceFiles
+    ): FileCollection {
+        return $this->resolve(
+            self::BASE_STYLE_FILES,
+            $themeConfig,
+            $configurationCollection,
+            $onlySourceFiles,
+            fn (StorefrontPluginConfiguration $configuration) => $configuration->getBaseStyleFiles()
         );
     }
 
@@ -107,10 +133,18 @@ class ThemeFileResolver
     }
 
     /**
-     * @param callable(StorefrontPluginConfiguration, bool): FileCollection $configFileResolver
-     * @param array<int, string> $included
+     * Resolves theme files by processing both direct file paths and namespaced imports
+     *
+     * @param StorefrontPluginConfiguration $themeConfig The theme configuration to resolve files for
+     * @param StorefrontPluginConfigurationCollection $configurationCollection Collection of all available theme configurations
+     * @param bool $onlySourceFiles Whether to only include source files (true) or also compiled files (false)
+     * @param callable(StorefrontPluginConfiguration, bool): FileCollection $configFileResolver Function to get the initial file collection (either style or script files)
+     * @param array<int, string> $included List of already included files to prevent duplicates
+     *
+     * @return FileCollection Collection of resolved files
      */
     private function resolve(
+        string $fileType,
         StorefrontPluginConfiguration $themeConfig,
         StorefrontPluginConfigurationCollection $configurationCollection,
         bool $onlySourceFiles,
@@ -120,24 +154,35 @@ class ThemeFileResolver
         // convertPathsToAbsolute changes the path, this should not affect the passed configuration
         $themeConfig = clone $themeConfig;
 
+        // Get initial file collection using the provided resolver
         $files = $configFileResolver($themeConfig, $onlySourceFiles);
 
+        // Return empty collection if no files found
         if ($files->count() === 0) {
             return $files;
         }
 
+        // Convert all relative paths to absolute paths
         $this->convertPathsToAbsolute($themeConfig, $files);
 
+        // Initialize collection for resolved files
         $resolvedFiles = new FileCollection();
         $nextIncluded = $included;
+
+        // First pass: collect all namespaced imports (@) to track what needs to be included
         foreach ($files as $file) {
             $filepath = $file->getFilepath();
             if ($this->isInclude($filepath)) {
                 $nextIncluded[] = $filepath;
             }
         }
+
+        // Second pass: process each file
         foreach ($files as $file) {
             $filepath = $file->getFilepath();
+
+
+            // Handle direct file paths (not starting with @)
             if (!$this->isInclude($filepath)) {
                 if (\is_file($filepath)) {
                     $resolvedFiles->add($file);
@@ -155,20 +200,53 @@ class ThemeFileResolver
                 );
             }
 
-            // bundle or wildcard already included? skip to prevent duplicate style/script injection
+            // Skip if this namespace was already included to prevent duplicates
             if (\in_array($filepath, $included, true)) {
                 continue;
             }
             $included[] = $filepath;
+
+            // Handle @Plugins namespace - include all non-theme plugins
             if ($filepath === '@Plugins') {
                 foreach ($configurationCollection->getNoneThemes() as $plugin) {
-                    foreach ($this->resolve($plugin, $configurationCollection, $onlySourceFiles, $configFileResolver, $nextIncluded) as $item) {
+                    foreach ($this->resolve(
+                        $fileType,
+                        $plugin,
+                        $configurationCollection,
+                        $onlySourceFiles,
+                        $configFileResolver,
+                        $nextIncluded
+                    ) as $item) {
+
                         $resolvedFiles->add($item);
+                    }
+                }
+                continue;
+            }
+
+            // Handle @Components namespace - include all Twig UX components
+            if ($filepath === '@Components') {
+                if (!Feature::isActive('STOREFRONT_COMPONENTS')) {
+                    continue;
+                }
+
+                foreach ($this->twigComponentHelper->getComponents() as $component) {
+                    $componentPath = $fileType === self::SCRIPT_FILES
+                        ? $component->getScriptPath()
+                        : $component->getStylePath();
+
+                    if ($componentPath !== null) {
+                        $namespaceDir = $component->getRelativeNamespaceDirectory();
+                        // Use null for assetName if the namespace directory is empty to avoid double slashes
+                        $assetName = $namespaceDir !== '' ? $namespaceDir : null;
+                        $resolvedFiles->add(new File($componentPath, [], $assetName));
                     }
                 }
 
                 continue;
             }
+
+            // Handle @StorefrontBootstrap namespace - include base SCSS file
             if ($filepath === '@StorefrontBootstrap') {
                 $resolvedFiles->add(new File(
                     __DIR__ . '/../Resources/app/storefront/src/scss/base.scss',
@@ -177,13 +255,14 @@ class ThemeFileResolver
 
                 continue;
             }
-            // Resolve @ dependencies
+
+            // Handle other @ namespaces - resolve to specific theme/plugin
             $name = mb_substr($filepath, 1);
             $configuration = $configurationCollection->getByTechnicalName($name);
             if (!$configuration) {
                 throw ThemeException::couldNotFindThemeByName($name);
             }
-            foreach ($this->resolve($configuration, $configurationCollection, $onlySourceFiles, $configFileResolver, $nextIncluded) as $item) {
+            foreach ($this->resolve($fileType, $configuration, $configurationCollection, $onlySourceFiles, $configFileResolver, $nextIncluded) as $item) {
                 $resolvedFiles->add($item);
             }
         }

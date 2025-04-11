@@ -7,6 +7,7 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Plugin\KernelPluginLoader\KernelPluginLoader;
 use Shopware\Core\Kernel;
 use Shopware\Core\Test\Stub\App\StaticSourceResolver;
+use Shopware\Storefront\Framework\Twig\Components\TwigComponentHelper;
 use Shopware\Storefront\Theme\StorefrontPluginConfiguration\FileCollection;
 use Shopware\Storefront\Theme\StorefrontPluginConfiguration\StorefrontPluginConfigurationCollection;
 use Shopware\Storefront\Theme\StorefrontPluginConfiguration\StorefrontPluginConfigurationFactory;
@@ -19,6 +20,7 @@ use Shopware\Tests\Unit\Storefront\Theme\fixtures\ThemeWithMultiInheritance\Them
 use Shopware\Tests\Unit\Storefront\Theme\fixtures\ThemeWithStorefrontBootstrapScss\ThemeWithStorefrontBootstrapScss;
 use Shopware\Tests\Unit\Storefront\Theme\fixtures\ThemeWithStorefrontSkinScss\ThemeWithStorefrontSkinScss;
 use Symfony\Component\Filesystem\Filesystem;
+use Shopware\Storefront\Framework\Twig\Components\TwigComponentHelper;
 
 /**
  * @internal
@@ -63,7 +65,9 @@ class ThemeFileResolverTest extends TestCase
             $kernel
         );
 
-        $resolvedFiles = (new ThemeFileResolver($themeFilesystemResolver))->resolveFiles(
+        $twigComponentHelper = $this->createMock(TwigComponentHelper::class);
+
+        $resolvedFiles = (new ThemeFileResolver($themeFilesystemResolver, $twigComponentHelper))->resolveFiles(
             $config,
             $configCollection,
             false
@@ -110,7 +114,9 @@ class ThemeFileResolverTest extends TestCase
             $kernel
         );
 
-        $resolvedFiles = (new ThemeFileResolver($themeFilesystemResolver))->resolveFiles(
+        $twigComponentHelper = $this->createMock(TwigComponentHelper::class);
+
+        $resolvedFiles = (new ThemeFileResolver($themeFilesystemResolver, $twigComponentHelper))->resolveFiles(
             $config,
             $configCollection,
             false
@@ -162,7 +168,9 @@ class ThemeFileResolverTest extends TestCase
             $kernel
         );
 
-        $resolvedFiles = (new ThemeFileResolver($themeFilesystemResolver))->resolveFiles(
+        $twigComponentHelper = $this->createMock(TwigComponentHelper::class);
+
+        $resolvedFiles = (new ThemeFileResolver($themeFilesystemResolver, $twigComponentHelper))->resolveFiles(
             $config,
             $configCollection,
             false
@@ -214,7 +222,9 @@ class ThemeFileResolverTest extends TestCase
             $kernel
         );
 
-        $resolvedFiles = (new ThemeFileResolver($themeFilesystemResolver))->resolveFiles(
+        $twigComponentHelper = $this->createMock(TwigComponentHelper::class);
+
+        $resolvedFiles = (new ThemeFileResolver($themeFilesystemResolver, $twigComponentHelper))->resolveFiles(
             $config,
             $configCollection,
             false
@@ -287,7 +297,9 @@ class ThemeFileResolverTest extends TestCase
             $kernel
         );
 
-        (new ThemeFileResolver($themeFilesystemResolver))->resolveFiles(
+        $twigComponentHelper = $this->createMock(TwigComponentHelper::class);
+
+        (new ThemeFileResolver($themeFilesystemResolver, $twigComponentHelper))->resolveFiles(
             $config,
             $configCollection,
             false
@@ -299,7 +311,7 @@ class ThemeFileResolverTest extends TestCase
         $config->setScriptFiles(new FileCollection());
         $config->setStorefrontEntryFilepath(__FILE__);
 
-        (new ThemeFileResolver($themeFilesystemResolver))->resolveFiles(
+        (new ThemeFileResolver($themeFilesystemResolver, $twigComponentHelper))->resolveFiles(
             $config,
             $configCollection,
             true

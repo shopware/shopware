@@ -19,10 +19,22 @@
         }
       }
     },
+    "@Components",
+    "@Plugins"
+  ],
+  "baseStyles": [
+    {
+      "app/storefront/src/scss/base.minimal.scss": {
+        "resolve": {
+          "vendor": "app/storefront/vendor"
+        }
+      }
+    },
     "@Plugins"
   ],
   "script": [
     "app/storefront/dist/storefront/storefront.js",
+    "@Components",
     "@Plugins"
   ],
   "asset": [

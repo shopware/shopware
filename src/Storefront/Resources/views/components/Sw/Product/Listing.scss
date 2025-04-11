@@ -1,0 +1,9 @@
+.sw-product-listing__grid {
+    opacity: 1;
+    transition: all 0.2s ease-in-out;
+}
+
+.sw-product-listing__grid.is--layout-transition {
+    opacity: 0;
+    transform: translateY(10px);
+}

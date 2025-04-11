@@ -1,0 +1,23 @@
+.sw-flyout-categories {
+    list-style: none;
+    padding: 0;
+
+    &.is--level-2 {
+        margin-bottom: 1.5rem;
+    }
+
+    &.is--indent {
+        padding-left: 1rem;
+    }
+}
+
+.sw-flyout-categories__link {
+    display: block;
+    padding: 0.2rem 0;
+    text-decoration: none;
+    color: var(--bs-body-color);
+
+    &.is--level-1 {
+        font-weight: 600
+    }
+}

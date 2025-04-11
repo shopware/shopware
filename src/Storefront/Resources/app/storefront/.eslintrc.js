@@ -2,7 +2,7 @@ const isDevMode = process.env.NODE_ENV !== 'production';
 
 module.exports = {
     root: true,
-    extends: ['eslint:recommended'],
+    extends: ['eslint:recommended', 'plugin:storybook/recommended'],
     parser: '@typescript-eslint/parser',
     'env': {
         'browser': true,

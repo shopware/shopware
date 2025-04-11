@@ -71,7 +71,11 @@ shopware:
         major: true
         toggleable: true
         description: "This allows repeated calls to the /payment/finalize-transaction endpoint with the same token without throwing a 'token expired' exception."
-
+      - name: STOREFRONT_COMPONENTS
+        default: false
+        major: true
+        toggleable: true
+        description: "Enable new Storefront component system."
       - name: METEOR_TEXT_EDITOR
         default: false
         major: false

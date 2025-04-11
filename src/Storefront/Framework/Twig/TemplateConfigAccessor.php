@@ -5,8 +5,10 @@ namespace Shopware\Storefront\Framework\Twig;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
+use Shopware\Storefront\Framework\Twig\Components\TwigComponentHelper;
 use Shopware\Storefront\Theme\ThemeConfigValueAccessor;
 use Shopware\Storefront\Theme\ThemeScripts;
+use Symfony\Component\Asset\Packages;
 
 #[Package('framework')]
 class TemplateConfigAccessor
@@ -17,7 +19,9 @@ class TemplateConfigAccessor
     public function __construct(
         private readonly SystemConfigService $systemConfigService,
         private readonly ThemeConfigValueAccessor $themeConfigAccessor,
-        private readonly ThemeScripts $themeScripts
+        private readonly ThemeScripts $themeScripts,
+        private readonly Packages $packages,
+        private readonly TwigComponentHelper $twigComponentHelper
     ) {
     }
 
@@ -48,7 +52,58 @@ class TemplateConfigAccessor
      */
     public function scripts(): array
     {
-        return $this->themeScripts->getThemeScripts();
+        $scripts = [];
+
+        foreach ($this->themeScripts->getThemeScripts() as $script) {
+            if (!str_starts_with($script, 'js/components/')) {
+                $scripts[] = $script;
+            }
+        }
+
+        return $scripts;
+    }
+
+    /**
+     * @return array<string, mixed>
+     */
+    public function componentImportMap(): array
+    {
+        $componentImportMap = [];
+        $themeScripts = $this->themeScripts->getThemeScripts();
+
+        foreach ($this->twigComponentHelper->getComponents() as $component) {
+            $relativeNamespacePath = $component->getRelativeNamespacePath();
+            $scriptPath = 'js/components/' . $relativeNamespacePath . '.js';
+
+            if (!\in_array($scriptPath, $themeScripts, true)) {
+                continue;
+            }
+
+            $componentImportMap[$component->getTag()] = $this->packages->getUrl($scriptPath, 'theme');
+        }
+
+        return $componentImportMap;
+    }
+
+    /**
+     * @return string[]
+     */
+    public function componentStyles(): array
+    {
+        $styles = [];
+
+        foreach ($this->twigComponentHelper->getComponents() as $component) {
+            $relativeNamespacePath = $component->getRelativeNamespacePath();
+            $stylePath = 'css/components/' . $relativeNamespacePath . '.css';
+
+            if ($component->getStylePath() === null) {
+                continue;
+            }
+
+            $styles[] = $stylePath;
+        }
+
+        return $styles;
     }
 
     /**

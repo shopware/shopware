@@ -113,6 +113,8 @@
             <argument type="service" id="Shopware\Core\System\SystemConfig\SystemConfigService"/>
             <argument type="service" id="Shopware\Storefront\Theme\ThemeConfigValueAccessor"/>
             <argument type="service" id="Shopware\Storefront\Theme\ThemeScripts" />
+            <argument type="service" id="assets.packages" />
+            <argument type="service" id="Shopware\Storefront\Framework\Twig\Components\TwigComponentHelper" />
         </service>
 
         <service id="Shopware\Storefront\Theme\ThemeConfigValueAccessor">
@@ -566,6 +568,38 @@
         </service>
 
         <service id="Shopware\Storefront\Framework\Routing\RobotsRouteScopeWhitelist">
+            <tag name="shopware.route_scope_whitelist"/>
+        </service>
+
+        <service id="Shopware\Storefront\Framework\Twig\Components\UxComponentHelper">
+            <argument>Resources/views/components/</argument>
+            <argument>%kernel.project_dir%</argument>
+            <argument>%kernel.bundles_metadata%</argument>
+            <argument type="service" id="Shopware\Core\Framework\Adapter\Twig\NamespaceHierarchy\NamespaceHierarchyBuilder"/>
+            <argument type="service" id="ux.twig_component.component_factory"/>
+            <argument type="service" id="Doctrine\DBAL\Connection"/>
+        </service>
+
+        <service id="Shopware\Storefront\Framework\SystemCheck\Util\SalesChannelDomainProvider">
+            <argument type="service" id="Doctrine\DBAL\Connection"/>
+        </service>
+
+        <service id="Shopware\Storefront\Page\Robots\RobotsPageLoader">
+            <argument type="service" id="event_dispatcher"/>
+            <argument type="service" id="sales_channel_domain.repository"/>
+            <argument type="service" id="Shopware\Core\System\SystemConfig\SystemConfigService"/>
+        </service>
+
+        <service id="Shopware\Storefront\Framework\Twig\Components\TwigComponentRenderEventListener">
+            <argument>%kernel.environment%</argument>
+            <tag name="kernel.event_listener" />
+        </service>
+
+        <service id="Shopware\Storefront\Framework\Routing\RobotsRouteScopeWhitelist">
+            <tag name="shopware.route_scope_whitelist"/>
+        </service>
+
+        <service id="Shopware\Storefront\Framework\Routing\StorybookRouteScopeWhitelist">
             <tag name="shopware.route_scope_whitelist"/>
         </service>
     </services>

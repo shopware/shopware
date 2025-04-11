@@ -21,6 +21,7 @@ use Shopware\Core\Framework\Store\Struct\ReviewStruct;
 use Shopware\Core\Framework\Test\Store\StoreClientBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
+use Symfony\Contracts\Cache\CacheInterface;
 
 /**
  * @internal
@@ -37,9 +38,12 @@ class StoreClientTest extends TestCase
 
     private Context $storeContext;
 
+    private CacheInterface $cache;
+
     protected function setUp(): void
     {
         $this->configService = static::getContainer()->get(SystemConfigService::class);
+        $this->cache = static::getContainer()->get('cache.object');
         $this->storeClient = static::getContainer()->get(StoreClient::class);
 
         $this->setLicenseDomain('shopware-test');
@@ -136,6 +140,11 @@ class StoreClientTest extends TestCase
 
         static::assertEquals([], $updateList);
 
+        $cachedList = $this->cache->get(StoreClient::EXTENSION_LIST_CACHE, fn () => null);
+
+        static::assertIsArray($cachedList);
+        static::assertEquals([], $cachedList);
+
         $lastRequest = $this->getStoreRequestHandler()->getLastRequest();
         static::assertInstanceOf(RequestInterface::class, $lastRequest);
 
@@ -180,6 +189,14 @@ class StoreClientTest extends TestCase
         static::assertEquals('TestExtension', $updateList[0]->getName());
         static::assertEquals('1.1.0', $updateList[0]->getVersion());
         static::assertEquals('feature1,feature2', $updateList[0]->getInAppFeatures());
+
+        $cachedList = $this->cache->get(StoreClient::EXTENSION_LIST_CACHE, fn () => null);
+
+        static::assertIsArray($cachedList);
+        static::assertCount(1, $cachedList);
+        static::assertEquals('TestExtension', $cachedList[0]->getName());
+        static::assertEquals('1.1.0', $cachedList[0]->getVersion());
+        static::assertEquals('feature1,feature2', $cachedList[0]->getInAppFeatures());
 
         $lastRequest = $this->getStoreRequestHandler()->getLastRequest();
         static::assertInstanceOf(RequestInterface::class, $lastRequest);

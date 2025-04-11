@@ -170,10 +170,19 @@ class ThemeRuntimeConfigServiceTest extends TestCase
             ->with($themeId)
             ->willReturn($partialConfig);
 
+        $themeConfig = new StorefrontPluginConfiguration($technicalName);
+        $configCollection = new StorefrontPluginConfigurationCollection([
+            $themeConfig,
+        ]);
+        $this->pluginRegistry
+            ->expects($this->once())
+            ->method('getConfigurations')
+            ->willReturn($configCollection);
+
         // We only need to verify that updateRuntimeConfig is called with resolveFiles=true
         $serviceMock->expects($this->once())
             ->method('refreshRuntimeConfig')
-            ->with($themeId, $technicalName, static::isInstanceOf(Context::class), true)
+            ->with($themeId, $themeConfig, static::isInstanceOf(Context::class), true)
             ->willReturn($fullConfig);
 
         $result = $serviceMock->getResolvedRuntimeConfig($themeId);
@@ -186,7 +195,7 @@ class ThemeRuntimeConfigServiceTest extends TestCase
         $themeId = '1234567890abcdef1234567890abcdef';
         $technicalName = 'test-theme';
         $context = Context::createDefaultContext();
-        $resolveFiles = true;
+        $filesRequired = true;
 
         $themeConfig = new StorefrontPluginConfiguration($technicalName);
         $themeConfig->setViewInheritance(['parent-theme']);
@@ -225,7 +234,7 @@ class ThemeRuntimeConfigServiceTest extends TestCase
                 static::assertEquals(['js/foo/file1.js', 'js/foo/file2.js'], $config->scriptFiles);
             });
 
-        $result = $this->service->refreshRuntimeConfig($themeId, $technicalName, $context, $resolveFiles, $configCollection);
+        $result = $this->service->refreshRuntimeConfig($themeId, $themeConfig, $context, $filesRequired, $configCollection);
 
         static::assertEquals($themeId, $result->themeId);
         static::assertEquals($technicalName, $result->technicalName);
@@ -235,20 +244,98 @@ class ThemeRuntimeConfigServiceTest extends TestCase
         static::assertEquals(['iconSet1' => ['path' => 'path/to/iconSet1', 'namespace' => $technicalName]], $result->iconSets);
     }
 
-    public function testRefreshRuntimeConfigThrowsExceptionWhenThemeNotFound(): void
+    public function testGetResolvedRuntimeConfigThrowsExceptionWhenThemeNotFound(): void
     {
         $themeId = '1234567890abcdef1234567890abcdef';
         $technicalName = 'nonexistent-theme';
-        $context = Context::createDefaultContext();
-        $resolveFiles = true;
 
-        // config is missing
-        $configCollection = new StorefrontPluginConfigurationCollection();
+        $partialConfig = $this->createThemeRuntimeConfig(
+            themeId: $themeId,
+            technicalName: $technicalName,
+            scriptFiles: null
+        );
+        $this->storage
+            ->expects($this->once())
+            ->method('getById')
+            ->with($themeId)
+            ->willReturn($partialConfig);
+
+        $this->pluginRegistry
+            ->expects($this->once())
+            ->method('getConfigurations')
+            ->willReturn(new StorefrontPluginConfigurationCollection());
 
         $this->expectException(ThemeException::class);
         $this->expectExceptionMessage('Error loading theme with technical name "nonexistent-theme" from plugin registry');
 
-        $this->service->refreshRuntimeConfig($themeId, $technicalName, $context, $resolveFiles, $configCollection);
+        $this->service->getResolvedRuntimeConfig($themeId);
+    }
+
+    public function testRefreshRuntimeConfigIgnoresJsExceptionWhenFilesNotRequired(): void
+    {
+        $themeId = '1234567890abcdef1234567890abcdef';
+        $technicalName = 'test-theme';
+        $context = Context::createDefaultContext();
+        $filesRequired = false;
+
+        $themeConfig = new StorefrontPluginConfiguration($technicalName);
+        $themeConfig->setViewInheritance(['parent-theme']);
+        $themeConfig->setIconSets(['iconSet1' => 'path/to/iconSet1']);
+
+        $configCollection = new StorefrontPluginConfigurationCollection([
+            $themeConfig,
+        ]);
+
+        $this->mergedConfigBuilder
+            ->expects($this->once())
+            ->method('getThemeConfiguration')
+            ->with($themeId, false, $context)
+            ->willReturn(['key' => 'value']);
+
+        // Make resolveJs throw an exception
+        $this->themeFileResolver
+            ->expects($this->once())
+            ->method('resolveFiles')
+            ->willThrowException(ThemeException::themeCompileException($technicalName, 'Failed to resolve js files'));
+
+        $this->storage
+            ->expects($this->once())
+            ->method('save')
+            ->willReturnCallback(function ($config): void {
+                static::assertInstanceOf(ThemeRuntimeConfig::class, $config);
+                static::assertNull($config->scriptFiles);
+            });
+
+        $result = $this->service->refreshRuntimeConfig($themeId, $themeConfig, $context, $filesRequired, $configCollection);
+
+        static::assertEquals($themeId, $result->themeId);
+        static::assertNull($result->scriptFiles);
+    }
+
+    public function testRefreshRuntimeConfigPropagatesJsExceptionWhenFilesRequired(): void
+    {
+        $themeId = '1234567890abcdef1234567890abcdef';
+        $technicalName = 'test-theme';
+        $context = Context::createDefaultContext();
+        $filesRequired = true;
+
+        $themeConfig = new StorefrontPluginConfiguration($technicalName);
+        $themeConfig->setViewInheritance(['parent-theme']);
+        $themeConfig->setIconSets(['iconSet1' => 'path/to/iconSet1']);
+
+        $configCollection = new StorefrontPluginConfigurationCollection([
+            $themeConfig,
+        ]);
+
+        // Make resolveJs throw an exception
+        $exception = ThemeException::themeCompileException($technicalName, 'Failed to resolve js files');
+        $this->themeFileResolver
+            ->method('resolveFiles')
+            ->willThrowException($exception);
+
+        $this->expectExceptionObject($exception);
+
+        $this->service->refreshRuntimeConfig($themeId, $themeConfig, $context, $filesRequired, $configCollection);
     }
 
     public function testResetCaches(): void

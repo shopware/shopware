@@ -82,6 +82,7 @@
             <argument type="service" id="messenger.default_bus"/>
             <argument type="service" id="Shopware\Core\Framework\Notification\NotificationService"/>
             <argument type="service" id="Shopware\Storefront\Theme\ThemeMergedConfigBuilder"/>
+            <argument type="service" id="Shopware\Storefront\Theme\ThemeRuntimeConfigService"/>
         </service>
 
         <service id="Shopware\Storefront\Theme\ResolvedConfigLoader" lazy="true">
@@ -136,6 +137,8 @@
             <argument type="service" id="Shopware\Storefront\Theme\StorefrontPluginRegistry"/>
             <argument type="service" id="Shopware\Storefront\Theme\ThemeMergedConfigBuilder"/>
             <argument type="service" id="Shopware\Storefront\Theme\ThemeRuntimeConfigStorage"/>
+            <argument type="service" id="theme.repository"/>
+            <argument type="service" id="cache.object"/>
         </service>
 
         <service id="Shopware\Storefront\Theme\SeedingThemePathBuilder" lazy="true">
@@ -157,6 +160,7 @@
             <argument type="service" id="Shopware\Storefront\Theme\StorefrontPluginRegistry"/>
             <argument type="service" id="Shopware\Core\Framework\Notification\NotificationService"/>
             <argument type="service" id="sales_channel.repository" />
+            <argument type="service" id="Shopware\Storefront\Theme\ThemeRuntimeConfigService"/>
 
             <tag name="messenger.message_handler" />
         </service>

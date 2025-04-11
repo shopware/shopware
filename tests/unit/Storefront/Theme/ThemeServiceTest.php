@@ -32,6 +32,7 @@ use Shopware\Storefront\Theme\ThemeCollection;
 use Shopware\Storefront\Theme\ThemeCompiler;
 use Shopware\Storefront\Theme\ThemeEntity;
 use Shopware\Storefront\Theme\ThemeMergedConfigBuilder;
+use Shopware\Storefront\Theme\ThemeRuntimeConfigService;
 use Shopware\Storefront\Theme\ThemeService;
 use Symfony\Component\EventDispatcher\EventDispatcher;
 use Symfony\Component\Messenger\Envelope;
@@ -93,6 +94,7 @@ class ThemeServiceTest extends TestCase
             $this->messageBusMock,
             $this->createMock(NotificationService::class),
             $this->mergedConfigBuilderMock,
+            $this->createMock(ThemeRuntimeConfigService::class),
         );
     }
 
@@ -505,6 +507,7 @@ class ThemeServiceTest extends TestCase
             $this->messageBusMock,
             $this->createMock(NotificationService::class),
             $this->mergedConfigBuilderMock,
+            $this->createMock(ThemeRuntimeConfigService::class),
         );
 
         $this->systemConfigMock->expects($this->never())->method('get');

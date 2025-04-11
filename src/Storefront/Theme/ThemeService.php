@@ -52,6 +52,7 @@ class ThemeService implements ResetInterface
         private readonly MessageBusInterface $messageBus,
         private readonly NotificationService $notificationService,
         private readonly ThemeMergedConfigBuilder $mergedConfigBuilder,
+        private readonly ThemeRuntimeConfigService $themeRuntimeConfigService,
     ) {
     }
 
@@ -71,14 +72,27 @@ class ThemeService implements ResetInterface
 
             return;
         }
+
+        $themeConfig = $this->configLoader->load($themeId, $context);
         $this->themeCompiler->compileTheme(
             $salesChannelId,
             $themeId,
-            $this->configLoader->load($themeId, $context),
+            $themeConfig,
             $configurationCollection ?? $this->extensionRegistry->getConfigurations(),
             $withAssets,
             $context
         );
+
+        // refresh the runtime config only if not using the StaticFileConfigLoader (no database)
+        if (!$this->configLoader instanceof StaticFileConfigLoader) {
+            $this->themeRuntimeConfigService->refreshRuntimeConfig(
+                $themeId,
+                $themeConfig,
+                $context,
+                true,
+                $configurationCollection
+            );
+        }
     }
 
     /**
@@ -152,6 +166,9 @@ class ThemeService implements ResetInterface
         $this->themeRepository->update([$data], $context);
 
         if ($theme->getSalesChannels() === null) {
+            // refresh runtime config here as theme will not be compiled later
+            $this->themeRuntimeConfigService->refreshConfigValues($themeId, $context);
+
             return;
         }
 
@@ -187,6 +204,9 @@ class ThemeService implements ResetInterface
         $this->dispatcher->dispatch(new ThemeConfigResetEvent($themeId));
 
         $this->themeRepository->update([$data], $context);
+
+        // Refresh runtime config after resetting theme config
+        $this->themeRuntimeConfigService->refreshConfigValues($themeId, $context);
     }
 
     /**

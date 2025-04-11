@@ -30,6 +30,7 @@ use Shopware\Storefront\Theme\ThemeCompiler;
 use Shopware\Storefront\Theme\ThemeEntity;
 use Shopware\Storefront\Theme\ThemeLifecycleService;
 use Shopware\Storefront\Theme\ThemeMergedConfigBuilder;
+use Shopware\Storefront\Theme\ThemeRuntimeConfigService;
 use Shopware\Storefront\Theme\ThemeService;
 use Shopware\Tests\Integration\Storefront\Theme\fixtures\SimpleTheme\SimpleTheme;
 use Shopware\Tests\Integration\Storefront\Theme\fixtures\SimpleThemeConfigInheritance\SimpleThemeConfigInheritance;
@@ -677,6 +678,7 @@ class ThemeTest extends TestCase
             static::getContainer()->get('messenger.default_bus'),
             static::getContainer()->get(NotificationService::class),
             static::getContainer()->get(ThemeMergedConfigBuilder::class),
+            static::getContainer()->get(ThemeRuntimeConfigService::class),
         );
         $themeService->updateTheme(
             $childTheme->getId(),

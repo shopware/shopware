@@ -123,13 +123,13 @@ class ThemeLifecycleService
         /** @deprecated tag:v6.8.0 - Remove whole next line as $configurationCollection will become a part of method signature */
         $configurationCollection = \func_num_args() === 3 ? \func_get_arg(2) : null;
 
+        // we don't resolve files as theme can be refreshed before it's built
+        $filesRequired = false;
         if ($configurationCollection === null) {
             $configurationCollection = $this->pluginRegistry->getConfigurations();
         }
-
+        $this->runtimeConfigService->refreshRuntimeConfig($themeData['id'], $configuration, $context, $filesRequired, $configurationCollection);
         $this->runtimeConfigService->resetCaches();
-        // we don't resolve files as theme can be refreshed before it's built
-        $this->runtimeConfigService->refreshRuntimeConfig($themeData['id'], $themeData['technicalName'], $context, false, $configurationCollection);
     }
 
     public function removeTheme(string $technicalName, Context $context): void

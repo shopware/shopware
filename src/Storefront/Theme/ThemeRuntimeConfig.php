@@ -54,4 +54,30 @@ class ThemeRuntimeConfig
             $data['updatedAt'] ?? new \DateTimeImmutable(),
         );
     }
+
+    /**
+     * Creates a new ThemeRuntimeConfig with the specified fields updated.
+     * /**
+     * @param array{
+     *     themeId?: string,
+     *     technicalName?: string,
+     *     resolvedConfig?: array<string, mixed>,
+     *     viewInheritance?: array<string>,
+     *     scriptFiles?: array<string>|null,
+     *     iconSets?: array<string, array{path: string, namespace: string}>,
+     *     updatedAt?: \DateTimeInterface|null
+     * } $data
+     */
+    public function with(array $data): self
+    {
+        return new self(
+            $data['themeId'] ?? $this->themeId,
+            $data['technicalName'] ?? $this->technicalName,
+            $data['resolvedConfig'] ?? $this->resolvedConfig,
+            $data['viewInheritance'] ?? $this->viewInheritance,
+            $data['scriptFiles'] ?? $this->scriptFiles,
+            $data['iconSets'] ?? $this->iconSets,
+            $data['updatedAt'] ?? $this->updatedAt,
+        );
+    }
 }

@@ -2,6 +2,7 @@
 
 namespace Shopware\Storefront\Theme;
 
+use Shopware\Core\Framework\App\AppException;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Storefront\Theme\Exception\ThemeCompileException;
@@ -106,7 +107,7 @@ class ThemeRuntimeConfigService
         try {
             // will throw an exception if theme was not built yet
             $scriptFiles = $this->resolveJs($themeConfig, $configCollection);
-        } catch (ThemeCompileException $e) {
+        } catch (ThemeCompileException|AppException $e) {
             $filesRequired && throw $e;
         }
 

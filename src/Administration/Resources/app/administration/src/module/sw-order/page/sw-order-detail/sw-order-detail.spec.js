@@ -117,10 +117,11 @@ describe('src/module/sw-order/page/sw-order-detail', () => {
 
     it('should contain manual label', async () => {
         wrapper = await createWrapper();
-        await wrapper.setData({ identifier: '1', createdById: '2' });
+        await wrapper.setData({ identifier: '1' });
 
         await Shopware.State.commit('swOrderDetail/setOrder', {
             orderNumber: 1,
+            createdById: '2'
         });
 
         expect(wrapper.find('.sw-order-detail__manual-order-label').exists()).toBeTruthy();

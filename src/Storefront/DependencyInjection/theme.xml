@@ -65,6 +65,11 @@
             <argument type="service" id="Shopware\Storefront\Theme\ThemeRuntimeConfigService"/>
         </service>
 
+        <service id="Shopware\Storefront\Theme\ThemeMergedConfigBuilder">
+            <argument type="service" id="Shopware\Storefront\Theme\StorefrontPluginRegistry"/>
+            <argument type="service" id="theme.repository"/>
+        </service>
+
         <service id="Shopware\Storefront\Theme\ThemeService">
             <argument type="service" id="Shopware\Storefront\Theme\StorefrontPluginRegistry"/>
             <argument type="service" id="theme.repository"/>
@@ -76,6 +81,7 @@
             <argument type="service" id="Shopware\Core\System\SystemConfig\SystemConfigService"/>
             <argument type="service" id="messenger.default_bus"/>
             <argument type="service" id="Shopware\Core\Framework\Notification\NotificationService"/>
+            <argument type="service" id="Shopware\Storefront\Theme\ThemeMergedConfigBuilder"/>
         </service>
 
         <service id="Shopware\Storefront\Theme\ResolvedConfigLoader" lazy="true">
@@ -128,7 +134,7 @@
         <service id="Shopware\Storefront\Theme\ThemeRuntimeConfigService">
             <argument type="service" id="Shopware\Storefront\Theme\ThemeFileResolver"/>
             <argument type="service" id="Shopware\Storefront\Theme\StorefrontPluginRegistry"/>
-            <argument type="service" id="Shopware\Storefront\Theme\ThemeService"/>
+            <argument type="service" id="Shopware\Storefront\Theme\ThemeMergedConfigBuilder"/>
             <argument type="service" id="Shopware\Storefront\Theme\ThemeRuntimeConfigStorage"/>
         </service>
 

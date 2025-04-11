@@ -51,24 +51,40 @@ jobs:
       - name: Install Playwright Browsers
         working-directory: tests/acceptance
         run: npx playwright install --with-deps chromium
-      - name: Set up cache
-        id: cache 
-        uses: actions/cache@v4
+
+      - name: Download snapshot artifact
+        if: github.event_name == 'pull_request' || inputs.update-snapshots != 'true'
+        uses: actions/download-artifact@v4
         with:
-          key: cache/${{github.repository}}/${{github.ref}}
-          restore-keys: cache/${{github.repository}}/refs/heads/trunk
-          path: .test/**
-      - name: Initialize snapshots
-        if: ${{steps.cache.outputs.cache-hit != 'true' || inputs.update-snapshots == 'true'}}
-        run: npx playwright test --project=Visual --update-snapshots --reporter html
-      - name: Run your tests
+          name: visual-snapshots
+          path: tests/screenshots
         continue-on-error: true
-        env:
+
+      - name: Run Playwright tests
+        run: |
+          if [ "${{ github.event.inputs.update-snapshots }}" = "true" ]; then
+            echo "Running with snapshot update"
+            npx playwright test --project=Visual --update-snapshots --reporter html
+          else
+            echo "Running without snapshot update"
+            npx npx pwc --project=Visual
+            continue-on-error: true
+            env:
             CURRENTS_PROJECT_ID: ${{ secrets.CURRENTS_PROJECT_ID_VISUAL }}
             CURRENTS_RECORD_KEY: ${{ secrets.CURRENTS_RECORD_KEY }}
-        if: ${{ !contains(github.workflow_ref, 'nightly') }}
-        working-directory: tests/acceptance
-        run: npx pwc --project=Visual
+            if ${{ !contains(github.workflow_ref, 'nightly') }}
+              working-directory: tests/acceptance
+              run: npx pwc --project=Visual
+            fi
+          fi
+
+      - name: Upload updated snapshots
+        if: github.event.inputs.update-snapshots == 'true'
+        uses: actions/upload-artifact@v4
+        with: 
+          name: visual-snapshots
+          path: tests/screenshots
+
       - uses: actions/upload-artifact@v4
         if: always()
         with:

@@ -61,7 +61,6 @@ class ExtensionLifecycleServiceTest extends TestCase
         $this->themeRepository = static::getContainer()->get('theme.repository', ContainerInterface::NULL_ON_INVALID_REFERENCE);
         $this->salesChannelRepository = static::getContainer()->get('sales_channel.repository');
         $this->context = new Context(new SystemSource(), [], Defaults::CURRENCY, [Defaults::LANGUAGE_SYSTEM]);
-        $this->cache = static::getContainer()->get('cache.object');
     }
 
     protected function tearDown(): void

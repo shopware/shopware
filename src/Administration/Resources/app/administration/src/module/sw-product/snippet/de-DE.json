@@ -66,7 +66,7 @@
       "labelTaxRate": "Steuersatz",
       "labelPurchasePriceGross": "Einkaufspreis (brutto)",
       "labelPurchasePriceNet": "Einkaufspreis (netto)",
-      "labelUnit": "Maßeinheit",
+      "labelUnit": "Product unit",
       "labelPurchaseUnit": "Verkaufseinheit",
       "labelReferenceUnit": "Grundeinheit",
       "labelPackUnit": "Verpackungseinheit",
@@ -139,12 +139,12 @@
       "labelPurchaseSteps": "Staffelung"
     },
     "packagingForm": {
-      "labelUnit": "Maßeinheit",
+      "labelUnit": "Product unit",
       "placeholderUnit": "Wähle aus ...",
-      "referenceUnitHelpText": "Notwendig für die Grundpreisberechnung. Der einzugebende Grundwert ist abhängig von der gewählten Maßeinheit.<br><br>Grundpreis = (Produktpreis * Grundeinheit) / Verkaufseinheit.<br><br>Der Grundpreis wird nicht angezeigt, wenn Verkaufseinheit und Grundeinheit den gleichen Wert haben.",
+      "referenceUnitHelpText": "Notwendig für die Grundpreisberechnung. Der einzugebende Grundwert ist abhängig von der gewählten product unit.<br><br>Grundpreis = (Produktpreis * Grundeinheit) / Verkaufseinheit.<br><br>Der Grundpreis wird nicht angezeigt, wenn Verkaufseinheit und Grundeinheit den gleichen Wert haben.",
       "packUnitHelpText": "Art der Verpackung: z.B. Flasche, Kiste, Tiegel ...",
       "packUnitPluralHelpText": "Art der Verpackung (Mehrzahl): z.B. Flaschen, Kisten, Tiegel ...",
-      "purchaseUnitHelpText": "Notwendig für die Grundpreisberechnung. Der einzugebende Wert ist abhängig von der gewählten Maßeinheit.<br><br>Grundpreis = (Produktpreis * Grundeinheit) / Verkaufseinheit.<br><br>Der Grundpreis wird nicht angezeigt, wenn Verkaufseinheit und Grundeinheit den gleichen Wert haben."
+      "purchaseUnitHelpText": "Notwendig für die Grundpreisberechnung. Der einzugebende Wert ist abhängig von der gewählten product unit.<br><br>Grundpreis = (Produktpreis * Grundeinheit) / Verkaufseinheit.<br><br>Der Grundpreis wird nicht angezeigt, wenn Verkaufseinheit und Grundeinheit den gleichen Wert haben."
     },
     "detailBase": {
       "cardTitleDeliverabilityInfo": "Lieferbarkeit",

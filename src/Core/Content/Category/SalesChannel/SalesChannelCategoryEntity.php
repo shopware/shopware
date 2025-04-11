@@ -8,7 +8,7 @@ use Shopware\Core\Framework\Log\Package;
 #[Package('discovery')]
 class SalesChannelCategoryEntity extends CategoryEntity
 {
-    protected ?string $seoLink;
+    protected ?string $seoLink = null;
 
     public function getSeoLink(): ?string
     {

@@ -162,7 +162,7 @@ jobs:
         uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # 4
 
       - name: Setup PHP
-        uses: shivammathur/setup-php@6c489b2fc701c5f9ed70ccebe221b567bee578c0 # 2
+        uses: shivammathur/setup-php@9e72090525849c5e82e596468b86eb55e9cc5401 # 2
         with:
           php-version: "8.2"
 
@@ -193,16 +193,16 @@ jobs:
           fetch-depth: 2
 
       - name: Initialize CodeQL
-        uses: github/codeql-action/init@6bb031afdd8eb862ea3fc1848194185e076637e5 #  v3.28.11
+        uses: github/codeql-action/init@45775bd8235c68ba998cffa5171334d58593da47 #  v3.28.15
 
         with:
           languages: ${{ matrix.language }}
 
       - name: Autobuild
-        uses: github/codeql-action/autobuild@6bb031afdd8eb862ea3fc1848194185e076637e5 #  v3.28.11
+        uses: github/codeql-action/autobuild@45775bd8235c68ba998cffa5171334d58593da47 #  v3.28.15
 
       - name: Perform CodeQL Analysis
-        uses: github/codeql-action/analyze@6bb031afdd8eb862ea3fc1848194185e076637e5 #  v3.28.11
+        uses: github/codeql-action/analyze@45775bd8235c68ba998cffa5171334d58593da47 #  v3.28.15
 
   tested-update-versions:
     name: tested-versions
@@ -295,7 +295,7 @@ jobs:
         working-directory: old-shopware
         run: symfony server:start -d
 
-      - uses: actions/setup-node@cdca7365b2dadb8aad0a33bc7601856ffabcc48e # 4
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # 4
         with:
           node-version: 20
       - name: Install dependencies
@@ -313,7 +313,7 @@ jobs:
         working-directory: new-shopware/tests/acceptance
         run: npx playwright test --project=Update --trace=on
 
-      - uses: actions/upload-artifact@4cec3d8aa04e39d1a68397de0c4cd6fb9dce8ec1 # 4
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # 4
         if: always()
         with:
           name: playwright-report-update-${{ matrix.update.version }}

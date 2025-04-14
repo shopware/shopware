@@ -2,7 +2,7 @@
   "dockerComposeFile": "compose.yml",
   "service": "editor",
   "overrideCommand": false,
-  "forwardPorts": [8000, 8080, 8025],
+  "forwardPorts": [8000],
   "remoteUser": "www-data",
   "containerUser": "www-data",
   "containerEnv": {

@@ -199,6 +199,10 @@ $sw-login-error-animation-duration: 0.15s;
         font-size: $font-size-xs;
     }
 
+    .sw-login__remember-me {
+        margin-bottom: var(--scale-size-24);
+    }
+
     .sw-login__back-arrow {
         cursor: pointer;
     }

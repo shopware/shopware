@@ -16,7 +16,6 @@ use Shopware\Core\Checkout\Promotion\Cart\Discount\DiscountLineItem;
 use Shopware\Core\Checkout\Promotion\Cart\Discount\ScopePackager\CartScopeDiscountPackager;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
-use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
 /**
@@ -44,8 +43,9 @@ class CartScopeDiscountPackagerTest extends TestCase
         $discount = new DiscountLineItem('test', new QuantityPriceDefinition(10, new TaxRuleCollection([]), 1), [
             'discountScope' => 'scope',
             'discountType' => 'type',
-            'filter' => [],
-            'considerAdvancedRules' => '1'
+            'filter' => [
+                'considerAdvancedRules' => true
+            ],
         ], null);
 
         $packages = $packager->getMatchingItems($discount, $cart, $context);

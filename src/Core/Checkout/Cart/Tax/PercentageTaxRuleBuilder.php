@@ -35,6 +35,5 @@ class PercentageTaxRuleBuilder
         }
 
         return $rules;
-
     }
 }

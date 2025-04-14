@@ -35,6 +35,9 @@ class DiscountLineItem
         array $payload,
         private readonly ?string $code
     ) {
+        \assert(\is_string($payload['discountScope']));
+        \assert(\is_string($payload['discountType']));
+
         $this->scope = $payload['discountScope'];
         $this->type = $payload['discountType'];
         $this->payload = $payload;

@@ -9,7 +9,6 @@ use Shopware\Core\Checkout\Cart\LineItem\LineItem;
 use Shopware\Core\Checkout\Cart\LineItem\LineItemCollection;
 use Shopware\Core\Checkout\Cart\Price\Struct\FilterableInterface;
 use Shopware\Core\Checkout\Cart\Rule\LineItemScope;
-use Shopware\Core\Checkout\Promotion\Cart\CartPromotionsDataDefinition;
 use Shopware\Core\Checkout\Promotion\Cart\Discount\DiscountLineItem;
 use Shopware\Core\Checkout\Promotion\Cart\Discount\DiscountPackage;
 use Shopware\Core\Checkout\Promotion\Cart\Discount\DiscountPackageCollection;
@@ -53,7 +52,9 @@ class CartScopeDiscountPackager extends DiscountPackager
             return false;
         }
 
-        return $discount->getPayloadValue('filter')['considerAdvancedRules'] ?? false;
+        $rules = $discount->getPayloadValue('filter')['considerAdvancedRules'] ?? false;
+
+        return $rules && $discount->getFilterApplierKey() !== 'ALL';
     }
 
     private function getDiscountPackage(LineItemCollection $cartItems, bool $isAdvanceRuled): ?DiscountPackage

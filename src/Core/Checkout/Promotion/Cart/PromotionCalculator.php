@@ -8,7 +8,6 @@ use Shopware\Core\Checkout\Cart\CartException;
 use Shopware\Core\Checkout\Cart\LineItem\Group\LineItemGroupBuilder;
 use Shopware\Core\Checkout\Cart\LineItem\LineItem;
 use Shopware\Core\Checkout\Cart\LineItem\LineItemCollection;
-use Shopware\Core\Checkout\Cart\LineItem\LineItemFlatCollection;
 use Shopware\Core\Checkout\Cart\LineItem\LineItemQuantitySplitter;
 use Shopware\Core\Checkout\Cart\Price\AbsolutePriceCalculator;
 use Shopware\Core\Checkout\Cart\Price\AmountCalculator;
@@ -268,7 +267,7 @@ class PromotionCalculator
         $promotion = $this->getPromotionEntity($item->getPayloadValue('promotionId'), $calculatedCart);
         $discountEntity = $promotion?->getDiscounts()?->get($item->getId());
 
-        $shouldSplit = $discount->getScope() !== PromotionDiscountEntity::SCOPE_CART || $discountEntity?->isConsiderAdvancedRules();
+        $shouldSplit = $discount->getScope() !== PromotionDiscountEntity::SCOPE_CART || ($discountEntity?->isConsiderAdvancedRules() && $discountEntity->getApplierKey() !== 'ALL');
         $splitItems = [];
         foreach ($calculatedCart->getLineItems() as $split) {
             $split->setStackable(true);
@@ -405,15 +404,13 @@ class PromotionCalculator
     {
         // set the line item from the cart for each unit
         foreach ($result as $package) {
-            $cartItemsForUnit = new LineItemFlatCollection();
-
-            foreach ($package->getMetaData() as $item) {
+            foreach ($package->getMetaData() as $key => $item) {
                 $lineItemId = $item->getLineItemId();
 
-                $cartItemsForUnit->add($splitItems[$lineItemId]);
+                if (!$package->getCartItems()->has($key)) {
+                    $package->getCartItems()->add($splitItems[$lineItemId]);
+                }
             }
-
-            $package->setCartItems($cartItemsForUnit);
         }
 
         return $result;

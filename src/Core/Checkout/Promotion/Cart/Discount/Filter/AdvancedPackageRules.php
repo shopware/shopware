@@ -36,6 +36,7 @@ class AdvancedPackageRules extends SetGroupScopeFilter
 
                 if (!$checkedItems[$item->getLineItemId()]) {
                     $package->getMetaData()->remove($key);
+                    $package->getCartItems()->remove($key);
                 }
             }
 

@@ -6,7 +6,6 @@ use Shopware\Core\Framework\App\AppException;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Storefront\Theme\Exception\ThemeCompileException;
-use Shopware\Storefront\Theme\Exception\ThemeException;
 use Shopware\Storefront\Theme\StorefrontPluginConfiguration\StorefrontPluginConfiguration;
 use Shopware\Storefront\Theme\StorefrontPluginConfiguration\StorefrontPluginConfigurationCollection;
 
@@ -41,25 +40,17 @@ class ThemeRuntimeConfigService
 
     public function getResolvedRuntimeConfig(string $themeId): ?ThemeRuntimeConfig
     {
-        $runtimeConfig = $this->getRuntimeConfig($themeId);
+        $config = $this->getRuntimeConfig($themeId);
 
-        if ($runtimeConfig === null) {
+        if ($config === null) {
             return null;
         }
 
-        if ($runtimeConfig->scriptFiles === null) {
-            // now we need to regenerate config
-            $configCollection = $this->pluginRegistry->getConfigurations();
-            $themeConfig = $configCollection->getByTechnicalName($runtimeConfig->technicalName);
-
-            if ($themeConfig === null) {
-                throw ThemeException::errorLoadingFromPluginRegistry($runtimeConfig->technicalName);
-            }
-
-            $runtimeConfig = $this->refreshRuntimeConfig($runtimeConfig->themeId, $themeConfig, Context::createDefaultContext(), true);
+        if ($config->scriptFiles === null) {
+            $config = $this->generateRuntimeConfigById($themeId, true);
         }
 
-        return $runtimeConfig;
+        return $config;
     }
 
     public function getRuntimeConfigByName(string $technicalName): ?ThemeRuntimeConfig
@@ -69,6 +60,10 @@ class ThemeRuntimeConfigService
         }
 
         $config = $this->storage->getByName($technicalName);
+
+        if ($config === null) {
+            $config = $this->generateRuntimeConfigByName($technicalName);
+        }
 
         $this->runtimeConfigCacheByName[$technicalName] = $config;
         if ($config !== null) {
@@ -85,6 +80,10 @@ class ThemeRuntimeConfigService
         }
 
         $config = $this->storage->getById($themeId);
+
+        if ($config === null) {
+            $config = $this->generateRuntimeConfigById($themeId);
+        }
 
         $this->runtimeConfigCacheById[$themeId] = $config;
         if ($config !== null) {
@@ -223,5 +222,39 @@ class ThemeRuntimeConfigService
         $resolvedFiles = $this->themeFileResolver->resolveFiles($themeConfig, $configCollection, false);
 
         return $resolvedFiles[ThemeFileResolver::SCRIPT_FILES]->getPublicPaths('js');
+    }
+
+    private function generateRuntimeConfigById(string $themeId, bool $failOnFileResolve = false): ?ThemeRuntimeConfig
+    {
+        $technicalName = $this->storage->getThemeTechnicalName($themeId);
+        if ($technicalName === null) {
+            return null;
+        }
+
+        $configCollection = $this->pluginRegistry->getConfigurations();
+        $themeConfig = $configCollection->getByTechnicalName($technicalName);
+
+        if ($themeConfig === null) {
+            return null;
+        }
+
+        return $this->refreshRuntimeConfig($themeId, $themeConfig, Context::createDefaultContext(), $failOnFileResolve);
+    }
+
+    private function generateRuntimeConfigByName(string $technicalName): ?ThemeRuntimeConfig
+    {
+        $configCollection = $this->pluginRegistry->getConfigurations();
+        $themeConfig = $configCollection->getByTechnicalName($technicalName);
+
+        if ($themeConfig === null) {
+            return null;
+        }
+
+        $themeId = $this->storage->getThemeIdByTechnicalName($technicalName);
+        if ($themeId === null) {
+            return null;
+        }
+
+        return $this->refreshRuntimeConfig($themeId, $themeConfig, Context::createDefaultContext(), true);
     }
 }

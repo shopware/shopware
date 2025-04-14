@@ -129,6 +129,35 @@ class ThemeRuntimeConfigStorage
         return $childThemeIds;
     }
 
+    public function getThemeTechnicalName(string $themeId): ?string
+    {
+        $theme = $this->connection->fetchAssociative('
+            SELECT theme.technical_name as themeName, parentTheme.technical_name as parentThemeName
+            FROM theme
+                LEFT JOIN theme AS parentTheme ON parentTheme.id = theme.parent_theme_id
+            WHERE theme.id = :id
+        ', [
+            'id' => Uuid::fromHexToBytes($themeId),
+        ]);
+
+        if ($theme === false) {
+            return null;
+        }
+
+        return $theme['themeName'] ?? $theme['parentThemeName'] ?? null;
+    }
+
+    public function getThemeIdByTechnicalName(string $technicalName): ?string
+    {
+        $themeId = $this->connection->fetchOne('
+            SELECT LOWER(HEX(id)) FROM theme WHERE technical_name = :technicalName
+        ', [
+            'technicalName' => $technicalName,
+        ]);
+
+        return $themeId === false ? null : $themeId;
+    }
+
     /**
      * @param array<string, mixed> $record
      */

@@ -131,7 +131,7 @@ class Migration1742484083TransitionToAddressInputFieldArrangementTest extends Te
 
         static::assertEquals([
             '' => ['configuration_value' => ['_value' => 'zip-city-state'],],
-            Uuid::fromHexToBytes(TestDefaults::SALES_CHANNEL) => ['configuration_value' => ['_value' => 'zip-city-state'],],
+            Uuid::fromHexToBytes(TestDefaults::SALES_CHANNEL) => ['configuration_value' => ['_value' => 'city-zip-state'],],
         ], $newConfiguration);
     }
 }

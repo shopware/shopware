@@ -204,6 +204,14 @@ export default {
             }
         },
 
+        loadingChange(loading) {
+            if (this.swOrderDetailOnLoadingChange) {
+                this.swOrderDetailOnLoadingChange(loading);
+            } else {
+                this.$emit('update-loading', loading);
+            }
+        },
+
         saveAndRecalculate() {
             if (this.swOrderDetailOnSaveAndRecalculate) {
                 this.swOrderDetailOnSaveAndRecalculate();

@@ -15,6 +15,14 @@ Most modern IDEs have GitHub integrations that allow you to:
 - [Guide for PHPStorm](https://www.jetbrains.com/help/phpstorm/work-with-github-pull-requests.html)
 - [Guide for VS Code](https://code.visualstudio.com/docs/sourcecontrol/github)
 
+### Using GitHub CLI
+
+Install the [GitHub CLI tool](https://cli.github.com) (`gh`) and use:
+
+```bash
+gh pr checkout <PR-ID>
+```
+
 ### Using Git Commands
 
 You can directly pull external PRs with the following Git commands:
@@ -25,14 +33,6 @@ git switch <BRANCH_NAME>
 ```
 
 Replace `<PR-ID>` with the PR number and `<BRANCH_NAME>` with your desired branch name.
-
-### Using GitHub CLI
-
-Install the GitHub CLI tool (`gh`) and use:
-
-```bash
-gh pr checkout <PR-ID>
-```
 
 This allows you to check out PRs and push against them directly without configuring remotes.
 
@@ -49,7 +49,13 @@ To check if this option is enabled:
 
 If the option is not enabled, ask the contributor to enable it.
 
-### Method 1: Checked out with GitHub CLI
+### Using IDE Integration
+
+Commit your changes in your IDE and push them directly to the PR branch. 
+Most IDEs will automatically set the correct remote for you.
+See the above-mentioned links for more information on how to do this.
+
+### Checked out with GitHub CLI
 
 After checking out the PR with `gh pr checkout <PR-ID>`:
 1. Make your changes
@@ -58,7 +64,7 @@ After checking out the PR with `gh pr checkout <PR-ID>`:
 
 The GitHub CLI should automatically set the correct remote, so a simple push should work.
 
-### Method 2: Adding a Remote for the Fork
+### Adding a Remote for the Fork
 
 If you need more control or are experiencing issues with the GitHub CLI:
 

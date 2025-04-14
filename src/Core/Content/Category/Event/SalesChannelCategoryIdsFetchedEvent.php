@@ -2,7 +2,6 @@
 
 namespace Shopware\Core\Content\Category\Event;
 
-use Shopware\Core\Content\Category\CategoryException;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Event\ShopwareEvent;
 use Shopware\Core\Framework\Log\Package;
@@ -36,9 +35,8 @@ final class SalesChannelCategoryIdsFetchedEvent extends Event implements Shopwar
         private readonly SalesChannelContext $context
     ) {
         foreach ($categoryIds as $categoryId) {
-            \assert(\is_string($categoryId));
-            $uuid = $this->toHexIfBin($categoryId);
-            $this->categoryIds[$uuid] = $uuid;
+            \assert(Uuid::isValid($categoryId));
+            $this->categoryIds[$categoryId] = $categoryId;
         }
     }
 
@@ -52,7 +50,7 @@ final class SalesChannelCategoryIdsFetchedEvent extends Event implements Shopwar
 
     public function hasId(string $categoryId): bool
     {
-        return \array_key_exists($this->toHexIfBin($categoryId), $this->categoryIds);
+        return \array_key_exists($categoryId, $this->categoryIds);
     }
 
     /**
@@ -65,14 +63,14 @@ final class SalesChannelCategoryIdsFetchedEvent extends Event implements Shopwar
 
     public function filterId(string $categoryId): void
     {
-        $uuid = $this->toHexIfBin($categoryId);
-        $this->filteredIds[$uuid] = $uuid;
-        unset($this->categoryIds[$uuid]);
+        \assert(Uuid::isValid($categoryId));
+        $this->filteredIds[$categoryId] = $categoryId;
+        unset($this->categoryIds[$categoryId]);
     }
 
     public function isFiltered(string $categoryId): bool
     {
-        return \array_key_exists($this->toHexIfBin($categoryId), $this->filteredIds);
+        return \array_key_exists($categoryId, $this->filteredIds);
     }
 
     public function getSalesChannelContext(): SalesChannelContext
@@ -83,18 +81,5 @@ final class SalesChannelCategoryIdsFetchedEvent extends Event implements Shopwar
     public function getContext(): Context
     {
         return $this->context->getContext();
-    }
-
-    private function toHexIfBin(string $uuid): string
-    {
-        if (\strlen($uuid) === 16) {
-            $convertedUuid = Uuid::fromBytesToHex($uuid);
-        } elseif (Uuid::isValid($uuid)) {
-            $convertedUuid = $uuid;
-        } else {
-            throw CategoryException::invalidCategoryId($uuid);
-        }
-
-        return $convertedUuid;
     }
 }

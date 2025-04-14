@@ -181,7 +181,7 @@ class DeliveryCalculator
 
                 // no break
             default:
-                $rules = $this->percentageTaxRuleBuilder->buildSimpleRules(
+                $rules = $this->percentageTaxRuleBuilder->buildCollectionRules(
                     $calculatedLineItems->getPrices()->getCalculatedTaxes(),
                     $calculatedLineItems->getPrices()->getTotalPriceAmount(),
                 );

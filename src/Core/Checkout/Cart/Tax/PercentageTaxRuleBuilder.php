@@ -13,10 +13,10 @@ class PercentageTaxRuleBuilder
 {
     public function buildRules(CalculatedPrice $price): TaxRuleCollection
     {
-        return $this->buildSimpleRules($price->getCalculatedTaxes(), $price->getTotalPrice());
+        return $this->buildCollectionRules($price->getCalculatedTaxes(), $price->getTotalPrice());
     }
 
-    public function buildSimpleRules(CalculatedTaxCollection $taxes, float $totalPrice): TaxRuleCollection
+    public function buildCollectionRules(CalculatedTaxCollection $taxes, float $totalPrice): TaxRuleCollection
     {
         $rules = new TaxRuleCollection([]);
 

@@ -44,7 +44,7 @@ class CartScopeDiscountPackagerTest extends TestCase
             'discountScope' => 'scope',
             'discountType' => 'type',
             'filter' => [
-                'considerAdvancedRules' => true
+                'considerAdvancedRules' => true,
             ],
         ], null);
 

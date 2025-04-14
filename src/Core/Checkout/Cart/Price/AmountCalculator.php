@@ -132,7 +132,7 @@ class AmountCalculator
         }
 
         $totalAmount = $prices->getTotalPriceAmount();
-        $rules = $this->taxRuleBuilder->buildSimpleRules($prices->getCalculatedTaxes(), $totalAmount);
+        $rules = $this->taxRuleBuilder->buildCollectionRules($prices->getCalculatedTaxes(), $totalAmount);
 
         if ($context->getTaxState() === CartPrice::TAX_STATE_GROSS) {
             $taxes = $this->taxCalculator->calculateGrossTaxes($totalAmount, $rules);

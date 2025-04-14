@@ -36,7 +36,7 @@ class PercentagePriceCalculator
             $context
         );
 
-        $rules = $this->percentageTaxRuleBuilder->buildSimpleRules($prices->getCalculatedTaxes(), $totalPrice);
+        $rules = $this->percentageTaxRuleBuilder->buildCollectionRules($prices->getCalculatedTaxes(), $totalPrice);
 
         $definition = new QuantityPriceDefinition($discount, $rules, 1);
 

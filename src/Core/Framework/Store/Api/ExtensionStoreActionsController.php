@@ -44,6 +44,8 @@ class ExtensionStoreActionsController extends AbstractController
     {
         $this->pluginService->refreshPlugins($context, new NullIO());
 
+        $this->cache->delete(StoreClient::EXTENSION_LIST_CACHE);
+
         return new Response('', Response::HTTP_NO_CONTENT);
     }
 
@@ -113,8 +115,6 @@ class ExtensionStoreActionsController extends AbstractController
 
         $this->extensionLifecycleService->install($type, $technicalName, $context);
 
-        $this->cache->delete(StoreClient::EXTENSION_LIST_CACHE);
-
         return new Response('', Response::HTTP_NO_CONTENT);
     }
 
@@ -130,8 +130,6 @@ class ExtensionStoreActionsController extends AbstractController
             $context
         );
 
-        $this->cache->delete(StoreClient::EXTENSION_LIST_CACHE);
-
         return new Response('', Response::HTTP_NO_CONTENT);
     }
 
@@ -146,8 +144,6 @@ class ExtensionStoreActionsController extends AbstractController
             $request->request->getBoolean('keepUserData'),
             $context
         );
-
-        $this->cache->delete(StoreClient::EXTENSION_LIST_CACHE);
 
         return new Response('', Response::HTTP_NO_CONTENT);
     }
@@ -184,8 +180,6 @@ class ExtensionStoreActionsController extends AbstractController
         $allowNewPermissions = $request->request->getBoolean('allowNewPermissions');
 
         $this->extensionLifecycleService->update($type, $technicalName, $allowNewPermissions, $context);
-
-        $this->cache->delete(StoreClient::EXTENSION_LIST_CACHE);
 
         return new Response('', Response::HTTP_NO_CONTENT);
     }

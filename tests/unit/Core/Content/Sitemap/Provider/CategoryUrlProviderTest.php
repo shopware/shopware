@@ -121,7 +121,7 @@ class CategoryUrlProviderTest extends TestCase
         static::assertSame('category/2/detail', $url->getLoc());
     }
 
-    public function testEmptyUrlResult(): void
+    public function testGetCategoryUrlsReturnsEmptyResult(): void
     {
         $categoryRowNames = array_keys($this->createCategoryResult());
         $queryResult = new Result(
@@ -139,7 +139,7 @@ class CategoryUrlProviderTest extends TestCase
         static::assertCount(0, $urls);
     }
 
-    public function testEmptyExcludedUrls(): void
+    public function testGetCategoryUrlsHasNoRestrictiveWhereConditionsBecauseGetExcludedCategoryIdsReturnedEmptyResult(): void
     {
         $categoryRowNames = array_keys($this->createCategoryResult());
         $queryResult = new Result(

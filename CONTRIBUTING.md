@@ -14,7 +14,7 @@ If you're editor supports Devcontainer, you can open the repository directly in 
 
 After you opened the repository in a Devcontainer, you can run `composer setup` to install all dependencies. This will download all the necessary dependencies and set up the environment for development. After the setup is complete, you can access the application at [http://localhost:8000](http://localhost:8000).
 
-You can start all the Watcher processes with `composer [tool]` ([see below for a listing](#running-tools)).
+You can start all the Watcher processes with `composer [tool]` ([see below for a listing](#command-overview)).
 
 ## Local Docker Setup
 
@@ -58,7 +58,7 @@ You will need to prepend to all commands `docker compose exec web` to run the co
 docker compose exec web composer setup
 ```
 
-For all commands see [Running tools](#running-tools).
+For all commands see [Command Overview](#command-overview).
 
 
 ### Enable Profiler/Debugging for PHP
@@ -125,7 +125,7 @@ To run the Storefront Watcher you will need to set an additional `PROXY_URL` env
 docker compose run --rm -p 9998:9998 -p 9999:9999 -e PROXY_URL=http://localhost web composer watch:storefront
 ```
 
-## Running tools
+## Command Overview
 
 - `composer phpstan` to run PHPStan
 - `composer ecs-fix` to run PHP CS

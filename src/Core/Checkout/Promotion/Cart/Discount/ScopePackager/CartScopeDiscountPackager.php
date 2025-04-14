@@ -39,7 +39,7 @@ class CartScopeDiscountPackager extends DiscountPackager
             $allItems = $allItems->filter(fn (LineItem $lineItem) => $priceDefinition->getFilter()->match(new LineItemScope($lineItem, $context)));
         }
 
-        $discountPackage = $this->getDiscountPackage($allItems, $this->isAdvanceRuled($discount, $cart));
+        $discountPackage = $this->getDiscountPackage($allItems, $this->isAdvanceRuled($discount));
         if ($discountPackage === null) {
             return new DiscountPackageCollection([]);
         }
@@ -47,37 +47,13 @@ class CartScopeDiscountPackager extends DiscountPackager
         return new DiscountPackageCollection([$discountPackage]);
     }
 
-    private function isAdvanceRuled(DiscountLineItem $discount, Cart $cart): bool
+    private function isAdvanceRuled(DiscountLineItem $discount): bool
     {
-        if ($discount->hasPayloadValue('considerAdvancedRules')) {
-            return $discount->getPayloadValue('considerAdvancedRules') === '1';
-        }
-
-        try {
-            $promotionId = $discount->getPayloadValue('promotionId');
-            $discountId = $discount->getPayloadValue('discountId');
-        } catch (\Exception) {
+        if (!$discount->hasPayloadValue('filter')) {
             return false;
         }
 
-        if (!\is_string($promotionId) || !\is_string($discountId)) {
-            return false;
-        }
-
-        $promotionsData = $cart
-            ->getData()
-            ->get('promotions-code');
-
-        if (!$promotionsData instanceof CartPromotionsDataDefinition) {
-            return false;
-        }
-
-        $discountEntity = $promotionsData
-            ->findCodeById($promotionId)
-            ?->getDiscounts()
-            ?->get($discountId);
-
-        return (bool) $discountEntity?->isConsiderAdvancedRules();
+        return $discount->getPayloadValue('filter')['considerAdvancedRules'] ?? false;
     }
 
     private function getDiscountPackage(LineItemCollection $cartItems, bool $isAdvanceRuled): ?DiscountPackage

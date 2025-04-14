@@ -2,12 +2,10 @@
 
 namespace Shopware\Core\Checkout\Promotion\Cart\Discount\Filter;
 
-use Shopware\Core\Checkout\Cart\LineItem\Group\LineItemQuantityCollection;
 use Shopware\Core\Checkout\Cart\LineItem\LineItem;
 use Shopware\Core\Checkout\Cart\Price\Struct\PriceDefinitionInterface;
 use Shopware\Core\Checkout\Cart\Rule\LineItemScope;
 use Shopware\Core\Checkout\Promotion\Cart\Discount\DiscountLineItem;
-use Shopware\Core\Checkout\Promotion\Cart\Discount\DiscountPackage;
 use Shopware\Core\Checkout\Promotion\Cart\Discount\DiscountPackageCollection;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
@@ -25,30 +23,28 @@ class AdvancedPackageRules extends SetGroupScopeFilter
     public function filter(DiscountLineItem $discount, DiscountPackageCollection $packages, SalesChannelContext $context): DiscountPackageCollection
     {
         $priceDefinition = $discount->getPriceDefinition();
-        $newPackages = new DiscountPackageCollection();
 
-        foreach ($packages as $package) {
-            $foundItems = new LineItemQuantityCollection();
+        foreach ($packages as $packageKey => $package) {
             $checkedItems = [];
 
-            foreach ($package->getMetaData() as $item) {
+            foreach ($package->getMetaData() as $key => $item) {
                 if (!\array_key_exists($item->getLineItemId(), $checkedItems)) {
                     $lineItem = $package->getCartItem($item->getLineItemId());
 
                     $checkedItems[$item->getLineItemId()] = $this->isRulesFilterValid($lineItem, $priceDefinition, $context);
                 }
 
-                if ($checkedItems[$item->getLineItemId()]) {
-                    $foundItems->add($item);
+                if (!$checkedItems[$item->getLineItemId()]) {
+                    $package->getMetaData()->remove($key);
                 }
             }
 
-            if (\count($foundItems) > 0) {
-                $newPackages->add(new DiscountPackage($foundItems));
+            if ($package->getMetaData()->count() === 0) {
+                $packages->remove($packageKey);
             }
         }
 
-        return $newPackages;
+        return $packages;
     }
 
     private function isRulesFilterValid(LineItem $item, PriceDefinitionInterface $priceDefinition, SalesChannelContext $context): bool

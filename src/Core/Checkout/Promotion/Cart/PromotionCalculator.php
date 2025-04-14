@@ -268,10 +268,11 @@ class PromotionCalculator
         $promotion = $this->getPromotionEntity($item->getPayloadValue('promotionId'), $calculatedCart);
         $discountEntity = $promotion?->getDiscounts()?->get($item->getId());
 
+        $shouldSplit = $discount->getScope() !== PromotionDiscountEntity::SCOPE_CART || $discountEntity?->isConsiderAdvancedRules();
         $splitItems = [];
         foreach ($calculatedCart->getLineItems() as $split) {
             $split->setStackable(true);
-            $splitItems[$split->getId()] = $this->lineItemQuantitySplitter->split($split, $discountEntity?->isConsiderAdvancedRules() ? 1 : $split->getQuantity(), $context);
+            $splitItems[$split->getId()] = $this->lineItemQuantitySplitter->split($split, $shouldSplit ? 1 : $split->getQuantity(), $context);
         }
 
         $packages = $this->enrichPackagesWithCartData($packages, $splitItems);

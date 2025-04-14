@@ -37,7 +37,7 @@ class StoreClient
 {
     public const EXTENSION_LICENSE_IS_ALREADY_CANCELLED = 'ShopwarePlatformException-61';
     public const EXTENSION_LIST_CACHE = 'extensionListStatus';
-    public const EXTENSION_LIST_TTL = 3600; // 1 hour
+    public const EXTENSION_LIST_TTL = 7200; // 2 hours
     private const PLUGIN_LICENSE_VIOLATION_EXTENSION_KEY = 'licenseViolation';
 
     public function __construct(

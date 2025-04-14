@@ -154,4 +154,152 @@ class ThemeRuntimeConfigStorageTest extends TestCase
 
         static::assertSame($fetchOutput, $result);
     }
+
+    public function testGetCopiesIds(): void
+    {
+        $themeId = '1234567890abcdef1234567890abcdef';
+        $expectedIds = ['11111111111111111111111111111111', '22222222222222222222222222222222'];
+
+        $this->connection
+            ->expects($this->once())
+            ->method('fetchFirstColumn')
+            ->willReturn($expectedIds);
+
+        $result = $this->storage->getCopiesIds($themeId);
+
+        static::assertSame($expectedIds, $result);
+    }
+
+    public function testGetChildThemeIds(): void
+    {
+        $parentThemeId = '1234567890abcdef1234567890abcdef';
+        $childThemeIds = ['11111111111111111111111111111111', '22222222222222222222222222222222'];
+        $grandChildThemeIds = ['33333333333333333333333333333333'];
+        $emptyResult = [];
+
+        $callCount = 0;
+        $this->connection
+            ->expects($this->exactly(3))
+            ->method('fetchFirstColumn')
+            ->willReturnCallback(function (string $sql, array $params) use (&$callCount, $parentThemeId, $childThemeIds, $grandChildThemeIds, $emptyResult) {
+                $expectedSql = <<<'SQL'
+                    SELECT LOWER(HEX(id)) as id FROM theme WHERE parent_theme_id IN (:parentIds)
+                SQL;
+
+                static::assertSame($expectedSql, $sql);
+
+                switch ($callCount) {
+                    case 0:
+                        // First call: get children of parent theme
+                        static::assertSame([hex2bin($parentThemeId)], $params['parentIds']);
+                        ++$callCount;
+
+                        return $childThemeIds;
+                    case 1:
+                        // Second call: get children of child themes
+                        static::assertSame(
+                            array_map(fn ($id) => hex2bin($id), $childThemeIds),
+                            $params['parentIds']
+                        );
+                        ++$callCount;
+
+                        return $grandChildThemeIds;
+                    case 2:
+                        // Third call: get children of grandchild themes (should return empty)
+                        static::assertSame(
+                            array_map(fn ($id) => hex2bin($id), $grandChildThemeIds),
+                            $params['parentIds']
+                        );
+                        ++$callCount;
+
+                        return $emptyResult;
+                    default:
+                        throw new \RuntimeException('Unexpected call count');
+                }
+            });
+
+        $result = $this->storage->getChildThemeIds($parentThemeId);
+
+        // Verify that all child and grandchild theme IDs are included in the result
+        static::assertSame([...$childThemeIds, ...$grandChildThemeIds], $result);
+    }
+
+    public function testGetThemeTechnicalName(): void
+    {
+        $themeId = '1234567890abcdef1234567890abcdef';
+        $themeData = [
+            'themeName' => 'test-theme',
+            'parentThemeName' => 'parent-theme',
+        ];
+
+        $this->connection
+            ->expects($this->once())
+            ->method('fetchAssociative')
+            ->willReturn($themeData);
+
+        $result = $this->storage->getThemeTechnicalName($themeId);
+
+        static::assertSame($themeData['themeName'], $result);
+    }
+
+    public function testGetThemeTechnicalNameReturnsParentWhenNull(): void
+    {
+        $themeId = '1234567890abcdef1234567890abcdef';
+        $themeData = [
+            'themeName' => null,
+            'parentThemeName' => 'parent-theme',
+        ];
+
+        $this->connection
+            ->expects($this->once())
+            ->method('fetchAssociative')
+            ->willReturn($themeData);
+
+        $result = $this->storage->getThemeTechnicalName($themeId);
+
+        static::assertSame($themeData['parentThemeName'], $result);
+    }
+
+    public function testGetThemeTechnicalNameWithFalse(): void
+    {
+        $themeId = '1234567890abcdef1234567890abcdef';
+
+        $this->connection
+            ->expects($this->once())
+            ->method('fetchAssociative')
+            ->willReturn(false);
+
+        $result = $this->storage->getThemeTechnicalName($themeId);
+
+        static::assertNull($result);
+    }
+
+    public function testGetThemeIdByTechnicalName(): void
+    {
+        $technicalName = 'test-theme';
+        $themeId = '1234567890abcdef1234567890abcdef';
+
+        $this->connection
+            ->expects($this->once())
+            ->method('fetchOne')
+            ->willReturn($themeId);
+
+        $result = $this->storage->getThemeIdByTechnicalName($technicalName);
+
+        static::assertSame($themeId, $result);
+    }
+
+    public function testGetThemeIdByTechnicalNameNotFound(): void
+    {
+        $technicalName = 'nonexistent-theme';
+
+        $this->connection
+            ->expects($this->once())
+            ->method('fetchOne')
+            ->willReturn(false);
+
+        $result = $this->storage->getThemeIdByTechnicalName($technicalName);
+
+        static::assertNull($result);
+    }
 }

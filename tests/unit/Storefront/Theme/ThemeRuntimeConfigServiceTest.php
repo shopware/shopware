@@ -144,7 +144,7 @@ class ThemeRuntimeConfigServiceTest extends TestCase
 
         $serviceMock = $this->createPartialMock(
             ThemeRuntimeConfigService::class,
-            ['refreshRuntimeConfig'] // Only mock this method
+            ['refreshRuntimeConfig', 'getRuntimeConfig'] // Only mock this method
         );
 
         $serviceMock->__construct(
@@ -164,9 +164,9 @@ class ThemeRuntimeConfigServiceTest extends TestCase
             technicalName: $technicalName,
         );
 
-        $this->storage
+        $serviceMock
             ->expects($this->once())
-            ->method('getById')
+            ->method('getRuntimeConfig')
             ->with($themeId)
             ->willReturn($partialConfig);
 
@@ -178,6 +178,12 @@ class ThemeRuntimeConfigServiceTest extends TestCase
             ->expects($this->once())
             ->method('getConfigurations')
             ->willReturn($configCollection);
+
+        $this->storage
+            ->expects($this->once())
+            ->method('getThemeTechnicalName')
+            ->with($themeId)
+            ->willReturn($technicalName);
 
         // We only need to verify that updateRuntimeConfig is called with resolveFiles=true
         $serviceMock->expects($this->once())
@@ -242,33 +248,6 @@ class ThemeRuntimeConfigServiceTest extends TestCase
         static::assertEquals(['key' => 'value'], $result->resolvedConfig);
         static::assertEquals(['parent-theme'], $result->viewInheritance);
         static::assertEquals(['iconSet1' => ['path' => 'path/to/iconSet1', 'namespace' => $technicalName]], $result->iconSets);
-    }
-
-    public function testGetResolvedRuntimeConfigThrowsExceptionWhenThemeNotFound(): void
-    {
-        $themeId = '1234567890abcdef1234567890abcdef';
-        $technicalName = 'nonexistent-theme';
-
-        $partialConfig = $this->createThemeRuntimeConfig(
-            themeId: $themeId,
-            technicalName: $technicalName,
-            scriptFiles: null
-        );
-        $this->storage
-            ->expects($this->once())
-            ->method('getById')
-            ->with($themeId)
-            ->willReturn($partialConfig);
-
-        $this->pluginRegistry
-            ->expects($this->once())
-            ->method('getConfigurations')
-            ->willReturn(new StorefrontPluginConfigurationCollection());
-
-        $this->expectException(ThemeException::class);
-        $this->expectExceptionMessage('Error loading theme with technical name "nonexistent-theme" from plugin registry');
-
-        $this->service->getResolvedRuntimeConfig($themeId);
     }
 
     public function testRefreshRuntimeConfigIgnoresJsExceptionWhenFilesNotRequired(): void

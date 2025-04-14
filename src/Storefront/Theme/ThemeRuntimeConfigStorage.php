@@ -2,6 +2,7 @@
 
 namespace Shopware\Storefront\Theme;
 
+use Doctrine\DBAL\ArrayParameterType;
 use Doctrine\DBAL\Connection;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Log\Package;
@@ -91,8 +92,9 @@ class ThemeRuntimeConfigStorage
     {
         return $this->connection->fetchFirstColumn(
             <<<'SQL'
-                SELECT `technical_name`
+                SELECT DISTINCT `technical_name`
                 FROM `theme_runtime_config`
+                WHERE `technical_name` IS NOT NULL
             SQL,
         );
     }
@@ -123,15 +125,40 @@ class ThemeRuntimeConfigStorage
     {
         $processedThemeIds = [$parentThemeId];
         $childThemeIds = [];
+        $pendingParentIds = [$parentThemeId];
 
-        $this->getChildThemeIdsRecursive($parentThemeId, $processedThemeIds, $childThemeIds);
+        while (!empty($pendingParentIds)) {
+            $directChildren = $this->connection->fetchFirstColumn(
+                <<<'SQL'
+                    SELECT LOWER(HEX(id)) as id FROM theme WHERE parent_theme_id IN (:parentIds)
+                SQL,
+                ['parentIds' => array_map(fn ($id) => Uuid::fromHexToBytes($id), $pendingParentIds)],
+                [
+                    'parentIds' => ArrayParameterType::STRING,
+                ]
+            );
+
+            $pendingParentIds = [];
+            foreach ($directChildren as $childId) {
+                $childId = (string) $childId;
+
+                // Skip if we've already processed this theme (prevents infinite loops)
+                if (\in_array($childId, $processedThemeIds, true)) {
+                    continue;
+                }
+
+                $processedThemeIds[] = $childId;
+                $childThemeIds[] = $childId;
+                $pendingParentIds[] = $childId;
+            }
+        }
 
         return $childThemeIds;
     }
 
     public function getThemeTechnicalName(string $themeId): ?string
     {
-        $theme = $this->connection->fetchAssociative('
+        $names = $this->connection->fetchAssociative('
             SELECT theme.technical_name as themeName, parentTheme.technical_name as parentThemeName
             FROM theme
                 LEFT JOIN theme AS parentTheme ON parentTheme.id = theme.parent_theme_id
@@ -140,11 +167,11 @@ class ThemeRuntimeConfigStorage
             'id' => Uuid::fromHexToBytes($themeId),
         ]);
 
-        if ($theme === false) {
+        if ($names === false) {
             return null;
         }
 
-        return $theme['themeName'] ?? $theme['parentThemeName'] ?? null;
+        return $names['themeName'] ?? $names['parentThemeName'] ?? null;
     }
 
     public function getThemeIdByTechnicalName(string $technicalName): ?string
@@ -172,34 +199,5 @@ class ThemeRuntimeConfigStorage
             'iconSets' => json_decode($record['icon_sets'], true, 512, \JSON_THROW_ON_ERROR),
             'updatedAt' => \DateTime::createFromFormat(Defaults::STORAGE_DATE_TIME_FORMAT, $record['updated_at']) ?: null,
         ]);
-    }
-
-    /**
-     * @param array<string> $processedThemeIds
-     * @param array<string> $childThemeIds
-     */
-    private function getChildThemeIdsRecursive(string $parentThemeId, array &$processedThemeIds, array &$childThemeIds): void
-    {
-        $directChildren = $this->connection->fetchFirstColumn(
-            <<<'SQL'
-                SELECT LOWER(HEX(id)) as id FROM theme WHERE parent_theme_id = :parentId
-            SQL,
-            ['parentId' => Uuid::fromHexToBytes($parentThemeId)]
-        );
-
-        foreach ($directChildren as $childId) {
-            $childId = (string) $childId;
-
-            // Skip if we've already processed this theme (prevents infinite loops)
-            if (\in_array($childId, $processedThemeIds, true)) {
-                continue;
-            }
-
-            $processedThemeIds[] = $childId;
-            $childThemeIds[] = $childId;
-
-            // Recursively process child themes
-            $this->getChildThemeIdsRecursive($childId, $processedThemeIds, $childThemeIds);
-        }
     }
 }

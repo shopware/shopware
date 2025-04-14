@@ -4,6 +4,17 @@ This document outlines various approaches for working with pull requests (PRs) f
 
 ## Checking Out External Pull Requests
 
+### Using IDE Integration
+
+Most modern IDEs have GitHub integrations that allow you to:
+- Browse all PRs
+- Review PR files
+- Check out PRs with a single click
+
+#### Useful sources
+- [Guide for PHPStorm](https://www.jetbrains.com/help/phpstorm/work-with-github-pull-requests.html)
+- [Guide for VS Code](https://code.visualstudio.com/docs/sourcecontrol/github)
+
 ### Using Git Commands
 
 You can directly pull external PRs with the following Git commands:
@@ -24,13 +35,6 @@ gh pr checkout <PR-ID>
 ```
 
 This allows you to check out PRs and push against them directly without configuring remotes.
-
-### Using IDE Integration
-
-Most modern IDEs have GitHub integrations that allow you to:
-- Browse all PRs
-- Review PR files
-- Check out PRs with a single click
 
 ## Pushing Changes to External PRs
 
@@ -73,5 +77,4 @@ If you need more control or are experiencing issues with the GitHub CLI:
 
 If the contributor has not enabled "Allow edits from maintainers", ask them politely to enable this option.
 If they don't respond or refuse, you may need to create a new PR and close the old one (though this should be avoided if possible as it's less collaborative).
-In that case, make sure that you set the author of the new commits to the original contributor.
-You can use tools like `lazygit` for this.
+The new pull request will have two authors visible then, the original author and the committer.

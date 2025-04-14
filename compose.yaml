@@ -15,6 +15,9 @@ services:
             ADMIN_OPENSEARCH_URL: http://opensearch:9200
         volumes:
             - .:/var/www/html
+        depends_on:
+            database:
+                condition: service_healthy
 
     database:
         image: mariadb:latest
@@ -36,6 +39,12 @@ services:
             - --binlog_expire_logs_seconds=86400
         volumes:
             - db-data:/var/lib/mysql
+        healthcheck:
+            test: [ "CMD", "mariadb-admin" ,"ping", "-h", "localhost", "-proot" ]
+            start_interval: 3s
+            interval: 5s
+            timeout: 1s
+            retries: 10
 
     adminer:
         image: adminer

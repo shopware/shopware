@@ -1,6 +1,7 @@
 import { test } from '@fixtures/AcceptanceTest';
+import { Product } from '@shopware-ag/acceptance-test-suite';
 
-test('Product should be visible in listing and storefront search if assigned to a sales channel.', { tag: '@ProductVisibility' }, async ({
+test('Product is visible in listing and storefront search when set to "Visible".', { tag: '@Product' }, async ({
     ShopCustomer,
     TestDataService,
     StorefrontHome,
@@ -9,27 +10,34 @@ test('Product should be visible in listing and storefront search if assigned to 
     StorefrontSearchSuggest,
     IdProvider,
 }) => {
-    const product = await TestDataService.createBasicProduct({
-        name: 'Product' + await IdProvider.getIdPair().uuid,
-        visibilities: [
-            {
-                salesChannelId: DefaultSalesChannel.salesChannel.id,
-                visibility: 30,
-            },
-        ],
+    let product: Product;
+    await test.step('Create a product with "Visible" visibility in the default sales channel.', async () => {
+        product = await TestDataService.createBasicProduct({
+            name: 'Product-' + await IdProvider.getIdPair().id,
+            visibilities: [
+                {
+                    salesChannelId: DefaultSalesChannel.salesChannel.id,
+                    visibility: 30,
+                },
+            ],
+        });
     });
 
-    await ShopCustomer.goesTo(StorefrontHome.url());
-    const productLocators = await StorefrontHome.getListingItemByProductName(product.name);
-    await ShopCustomer.expects(productLocators.productName).toBeVisible();
+    await test.step('Verify the product appears in the Home category listing.', async () => {
+        await ShopCustomer.goesTo(StorefrontHome.url());
+        const productLocators = await StorefrontHome.getListingItemByProductName(product.name);
+        await ShopCustomer.expects(productLocators.productName).toBeVisible();
+    });
 
-    await ShopCustomer.attemptsTo(SearchForTerm(product.name));
-    const totalCount1 = await StorefrontSearchSuggest.getTotalSearchResultCount();
-    await ShopCustomer.expects(totalCount1).toBe(1);
+    await test.step('Verify the product appears in storefront search results.', async () => {
+        await ShopCustomer.attemptsTo(SearchForTerm(product.name));
+        const totalCount1 = await StorefrontSearchSuggest.getTotalSearchResultCount();
+        await ShopCustomer.expects(totalCount1).toBe(1);
+    });
 
 });
 
-test('Product should be visible in storefront search but not in listing if assigned to a sales channel.', { tag: '@ProductVisibility' }, async ({
+test('Product is visible in storefront search but hidden from listing when set to "Hide in listings".', { tag: '@Product' }, async ({
     ShopCustomer,
     TestDataService,
     StorefrontHome,
@@ -38,27 +46,35 @@ test('Product should be visible in storefront search but not in listing if assig
     StorefrontSearchSuggest,
     IdProvider,
 }) => {
-    const product = await TestDataService.createBasicProduct({
-        name: 'Product' + await IdProvider.getIdPair().uuid,
-        visibilities: [
-            {
-                salesChannelId: DefaultSalesChannel.salesChannel.id,
-                visibility: 20,
-            },
-        ],
+    let product: Product;
+    await test.step('Create a product with "Hide in listings" visibility in the default sales channel.', async () => {
+        product = await TestDataService.createBasicProduct({
+            name: 'Product-' + await IdProvider.getIdPair().id,
+            visibilities: [
+                {
+                    salesChannelId: DefaultSalesChannel.salesChannel.id,
+                    visibility: 20,
+                },
+            ],
+        });
     });
 
-    await ShopCustomer.goesTo(StorefrontHome.url());
-    const productLocators = await StorefrontHome.getListingItemByProductName(product.name);
-    await ShopCustomer.expects(productLocators.productName).not.toBeVisible();
+    await test.step('Verify the product does not appear in the Home category listing.', async () => {
+        await ShopCustomer.goesTo(StorefrontHome.url());
+        const productLocators = await StorefrontHome.getListingItemByProductName(product.name);
+        await ShopCustomer.expects(productLocators.productName).not.toBeVisible();
+    });
 
-    await ShopCustomer.attemptsTo(SearchForTerm(product.name));
-    const totalCount1 = await StorefrontSearchSuggest.getTotalSearchResultCount();
-    await ShopCustomer.expects(totalCount1).toBe(1);
+    await test.step('Verify the product appears in storefront search results.', async () => {
+        await ShopCustomer.attemptsTo(SearchForTerm(product.name));
+        await ShopCustomer.expects(StorefrontSearchSuggest.searchSuggestLineItemName).toContainText(product.name);
+        const totalCount1 = await StorefrontSearchSuggest.getTotalSearchResultCount();
+        await ShopCustomer.expects(totalCount1).toBe(1);
+    });
 
 });
 
-test('Product should not be visible in listing and storefront search if assigned to a sales channel.', { tag: '@ProductVisibility' }, async ({
+test('Product is hidden from both listing and storefront search when set to "Hide in listings and search".', { tag: '@Product' }, async ({
     ShopCustomer,
     TestDataService,
     StorefrontHome,
@@ -66,22 +82,34 @@ test('Product should not be visible in listing and storefront search if assigned
     SearchForTerm,
     StorefrontSearchSuggest,
     IdProvider,
+    StorefrontProductDetail,
 }) => {
-    const product = await TestDataService.createBasicProduct({
-        name: 'Product' + await IdProvider.getIdPair().uuid,
-        visibilities: [
-            {
-                salesChannelId: DefaultSalesChannel.salesChannel.id,
-                visibility: 10,
-            },
-        ],
+    let product: Product;
+    await test.step('Create a product with "Hide in listings and search" visibility in the default sales channel.', async () => {
+        product = await TestDataService.createBasicProduct({
+            name: 'Product-' + await IdProvider.getIdPair().id,
+            visibilities: [
+                {
+                    salesChannelId: DefaultSalesChannel.salesChannel.id,
+                    visibility: 10,
+                },
+            ],
+        });
     });
 
-    await ShopCustomer.goesTo(StorefrontHome.url());
-    const productLocators = await StorefrontHome.getListingItemByProductName(product.name);
-    await ShopCustomer.expects(productLocators.productName).not.toBeVisible();
+    await test.step('Verify the product does not appear in the Home category listing.', async () => {
+        await ShopCustomer.goesTo(StorefrontHome.url());
+        const productLocators = await StorefrontHome.getListingItemByProductName(product.name);
+        await ShopCustomer.expects(productLocators.productName).not.toBeVisible();
+    });
 
-    await ShopCustomer.attemptsTo(SearchForTerm(product.name));
-    await ShopCustomer.expects(StorefrontSearchSuggest.searchSuggestNoResult).toBeVisible();
+    await test.step('Verify the product does not appear in storefront search results.', async () => {
+        await ShopCustomer.attemptsTo(SearchForTerm(product.name));
+        await ShopCustomer.expects(StorefrontSearchSuggest.searchSuggestNoResult).toBeVisible();
+    });
 
+    await test.step('Verify the product can still be accessed directly via its URL.', async () => {
+        await ShopCustomer.goesTo(StorefrontProductDetail.url(product));
+        await ShopCustomer.expects(StorefrontProductDetail.page.locator('h1')).toContainText(product.name);
+    });
 });

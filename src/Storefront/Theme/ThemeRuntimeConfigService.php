@@ -97,7 +97,7 @@ class ThemeRuntimeConfigService
     /**
      * Refreshes the whole ThemeRuntimeConfig object.
      */
-    public function refreshRuntimeConfig(string $themeId, StorefrontPluginConfiguration $themeConfig, Context $context, bool $filesRequired = false, ?StorefrontPluginConfigurationCollection $configCollection = null): ThemeRuntimeConfig
+    public function refreshRuntimeConfig(string $themeId, StorefrontPluginConfiguration $themeConfig, Context $context, bool $failOnFileResolveError = false, ?StorefrontPluginConfigurationCollection $configCollection = null): ThemeRuntimeConfig
     {
         if ($configCollection === null) {
             $configCollection = $this->pluginRegistry->getConfigurations();
@@ -108,7 +108,7 @@ class ThemeRuntimeConfigService
             // will throw an exception if theme was not built yet
             $scriptFiles = $this->resolveJs($themeConfig, $configCollection);
         } catch (ThemeCompileException|AppException $e) {
-            $filesRequired && throw $e;
+            $failOnFileResolveError && throw $e;
         }
 
         $runtimeConfig = ThemeRuntimeConfig::fromArray([
@@ -122,9 +122,21 @@ class ThemeRuntimeConfigService
         ]);
 
         $this->storage->save($runtimeConfig);
-
-        // Cache the new configuration
         $this->cacheConfig($runtimeConfig);
+
+        // Handle theme copies
+        $copyIds = $this->storage->getCopiesIds($themeId);
+        foreach ($copyIds as $copyId) {
+            $copyConfig = $runtimeConfig->with([
+                'themeId' => $copyId,
+                'technicalName' => null,
+                'resolvedConfig' => $this->mergedConfigBuilder->getThemeConfiguration($copyId, false, $context),
+                'updatedAt' => new \DateTime(),
+            ]);
+
+            $this->storage->save($copyConfig);
+            $this->cacheConfig($copyConfig);
+        }
 
         return $runtimeConfig;
     }
@@ -134,20 +146,13 @@ class ThemeRuntimeConfigService
      */
     public function refreshConfigValues(string $themeId, Context $context): void
     {
-        $runtimeConfig = $this->getRuntimeConfig($themeId);
-        if ($runtimeConfig === null) {
-            return;
+        $this->updateThemeConfigValues($themeId, $context);
+
+        // Get all child themes and update their configs
+        $childThemeIds = $this->storage->getChildThemeIds($themeId);
+        foreach ($childThemeIds as $childThemeId) {
+            $this->updateThemeConfigValues($childThemeId, $context);
         }
-
-        $mergedConfig = $this->mergedConfigBuilder->getThemeConfiguration($themeId, false, $context);
-        $updatedRuntimeConfig = $runtimeConfig->with([
-            'resolvedConfig' => $mergedConfig,
-            'updatedAt' => new \DateTime(),
-        ]);
-
-        // Update and cache the updated configuration
-        $this->storage->save($updatedRuntimeConfig);
-        $this->cacheConfig($updatedRuntimeConfig);
     }
 
     public function resetCaches(): void
@@ -169,6 +174,23 @@ class ThemeRuntimeConfigService
         $this->activeThemeNamesCache = $this->storage->getActiveThemeNames();
 
         return $this->activeThemeNamesCache;
+    }
+
+    private function updateThemeConfigValues(string $themeId, Context $context): void
+    {
+        $runtimeConfig = $this->getRuntimeConfig($themeId);
+        if ($runtimeConfig === null) {
+            return;
+        }
+
+        $mergedConfig = $this->mergedConfigBuilder->getThemeConfiguration($themeId, false, $context);
+        $updatedRuntimeConfig = $runtimeConfig->with([
+            'resolvedConfig' => $mergedConfig,
+            'updatedAt' => new \DateTime(),
+        ]);
+
+        $this->storage->save($updatedRuntimeConfig);
+        $this->cacheConfig($updatedRuntimeConfig);
     }
 
     private function cacheConfig(ThemeRuntimeConfig $config): void

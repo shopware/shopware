@@ -98,6 +98,38 @@ class ThemeRuntimeConfigStorage
     }
 
     /**
+     * Returns ids of theme copies (using the same theme implementation by duplicated config) for a given theme.
+     *
+     * @return array<string>
+     */
+    public function getCopiesIds(string $themeId): array
+    {
+        return $this->connection->fetchFirstColumn(
+            <<<'SQL'
+                SELECT LOWER(HEX(`id`)) AS id
+                FROM `theme`
+                WHERE `parent_theme_id` = :themeId AND `technical_name` IS NULL
+            SQL,
+            ['themeId' => Uuid::fromHexToBytes($themeId)],
+        );
+    }
+
+    /**
+     * Returns ids of child themes and theme copies, recursively.
+     *
+     * @return array<string>
+     */
+    public function getChildThemeIds(string $parentThemeId): array
+    {
+        $processedThemeIds = [$parentThemeId];
+        $childThemeIds = [];
+
+        $this->getChildThemeIdsRecursive($parentThemeId, $processedThemeIds, $childThemeIds);
+
+        return $childThemeIds;
+    }
+
+    /**
      * @param array<string, mixed> $record
      */
     private function hydrateRecord(array $record): ThemeRuntimeConfig
@@ -111,5 +143,34 @@ class ThemeRuntimeConfigStorage
             'iconSets' => json_decode($record['icon_sets'], true, 512, \JSON_THROW_ON_ERROR),
             'updatedAt' => \DateTime::createFromFormat(Defaults::STORAGE_DATE_TIME_FORMAT, $record['updated_at']) ?: null,
         ]);
+    }
+
+    /**
+     * @param array<string> $processedThemeIds
+     * @param array<string> $childThemeIds
+     */
+    private function getChildThemeIdsRecursive(string $parentThemeId, array &$processedThemeIds, array &$childThemeIds): void
+    {
+        $directChildren = $this->connection->fetchFirstColumn(
+            <<<'SQL'
+                SELECT LOWER(HEX(id)) as id FROM theme WHERE parent_theme_id = :parentId
+            SQL,
+            ['parentId' => Uuid::fromHexToBytes($parentThemeId)]
+        );
+
+        foreach ($directChildren as $childId) {
+            $childId = (string) $childId;
+
+            // Skip if we've already processed this theme (prevents infinite loops)
+            if (\in_array($childId, $processedThemeIds, true)) {
+                continue;
+            }
+
+            $processedThemeIds[] = $childId;
+            $childThemeIds[] = $childId;
+
+            // Recursively process child themes
+            $this->getChildThemeIdsRecursive($childId, $processedThemeIds, $childThemeIds);
+        }
     }
 }

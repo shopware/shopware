@@ -22,7 +22,7 @@ class Migration1742568836CreateThemeRuntimeConfigTable extends MigrationStep
         $connection->executeStatement(<<<'SQL'
             CREATE TABLE IF NOT EXISTS `theme_runtime_config` (
                 `theme_id` BINARY(16) NOT NULL,
-                `technical_name` VARCHAR(255) NOT NULL,
+                `technical_name` VARCHAR(255) NULL,
                 `resolved_config` JSON NOT NULL,
                 `view_inheritance` JSON NOT NULL,
                 `script_files` JSON NULL,

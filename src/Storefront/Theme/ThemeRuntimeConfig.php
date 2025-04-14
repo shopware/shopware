@@ -18,7 +18,7 @@ class ThemeRuntimeConfig
 {
     public function __construct(
         public readonly string $themeId,
-        public readonly string $technicalName,
+        public readonly ?string $technicalName,
         /** @var array<string, mixed> */
         public readonly array $resolvedConfig,
         /** @var array<string> */
@@ -34,7 +34,7 @@ class ThemeRuntimeConfig
     /**
      * @param array{
      *     themeId: string,
-     *     technicalName: string,
+     *     technicalName: ?string,
      *     resolvedConfig?: array<string, mixed>,
      *     viewInheritance?: array<string>,
      *     scriptFiles?: array<string>|null,
@@ -60,7 +60,7 @@ class ThemeRuntimeConfig
      * /**
      * @param array{
      *     themeId?: string,
-     *     technicalName?: string,
+     *     technicalName?: string|null,
      *     resolvedConfig?: array<string, mixed>,
      *     viewInheritance?: array<string>,
      *     scriptFiles?: array<string>|null,
@@ -72,10 +72,10 @@ class ThemeRuntimeConfig
     {
         return new self(
             $data['themeId'] ?? $this->themeId,
-            $data['technicalName'] ?? $this->technicalName,
+            \array_key_exists('technicalName', $data) ? $data['technicalName'] : $this->technicalName,
             $data['resolvedConfig'] ?? $this->resolvedConfig,
             $data['viewInheritance'] ?? $this->viewInheritance,
-            $data['scriptFiles'] ?? $this->scriptFiles,
+            \array_key_exists('scriptFiles', $data) ? $data['scriptFiles'] : $this->scriptFiles,
             $data['iconSets'] ?? $this->iconSets,
             $data['updatedAt'] ?? $this->updatedAt,
         );

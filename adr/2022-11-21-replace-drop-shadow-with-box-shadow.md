@@ -1,6 +1,6 @@
 ---
 title: Replace drop-shadow with box-shadow
-date: 2022-21-11
+date: 2022-11-21
 area: storefront
 tags: [safari, performance, storefront]
 ---

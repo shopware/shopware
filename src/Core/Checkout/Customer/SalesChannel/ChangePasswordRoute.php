@@ -80,7 +80,7 @@ class ChangePasswordRoute extends AbstractChangePasswordRoute
 
         $definition
             ->add('newPassword', new NotBlank(), new Length(['min' => $minPasswordLength]), new EqualTo(['propertyPath' => 'newPasswordConfirm']))
-            ->add('password', new CustomerPasswordMatches(['context' => $context]));
+            ->add('password', new CustomerPasswordMatches(['salesChannelContext' => $context]));
 
         $this->dispatchValidationEvent($definition, $data, $context->getContext());
 

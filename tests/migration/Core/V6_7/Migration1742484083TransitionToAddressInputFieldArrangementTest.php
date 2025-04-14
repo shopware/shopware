@@ -125,10 +125,13 @@ class Migration1742484083TransitionToAddressInputFieldArrangementTest extends Te
             'SELECT sales_channel_id, configuration_value FROM system_config WHERE configuration_key = ?',
             [Migration1742484083TransitionToAddressInputFieldArrangement::NEW_CONFIG_KEY]
         );
+        foreach ($newConfiguration as $uuid => $c) {
+            $newConfiguration[$uuid]['configuration_value'] = json_decode($c['configuration_value'], true);
+        }
 
         static::assertEquals([
-            '' => ['configuration_value' => '{"_value": "zip-city-state"}'],
-            Uuid::fromHexToBytes(TestDefaults::SALES_CHANNEL) => ['configuration_value' => '{"_value": "city-zip-state"}'],
+            '' => ['configuration_value' => ['_value' => 'zip-city-state'],],
+            Uuid::fromHexToBytes(TestDefaults::SALES_CHANNEL) => ['configuration_value' => ['_value' => 'zip-city-state'],],
         ], $newConfiguration);
     }
 }

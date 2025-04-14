@@ -25,7 +25,7 @@
         "symfony/polyfill-php80": "*",
         "symfony/polyfill-php81": "*",
         "symfony/polyfill-php82": "*",
-        "paragonie/random_compat": "*"
+        "paragonie/random_compat": ">=2"
     },
     "support": {
         "issues": "https://github.com/shopware/shopware/issues",
@@ -312,7 +312,7 @@
         ],
         "bc-check": [
             "@php vendor-bin/roave-backward-compatibility-check/bin/verify-version.php",
-            "roave-backward-compatibility-check --install-development-dependencies --from=$(git tag -l --sort -version:refname | head -n 1)"
+            "roave-backward-compatibility-check --install-development-dependencies --from=$(git tag -l --sort -version:refname | grep \"^v$(sed -n 's/.*\"dev-trunk\": \"\\([0-9]*\\.[0-9]*\\).*\"/\\1/p' composer.json).\" | head -n 1)"
         ],
         "build:js": [
             "@build:js:admin",

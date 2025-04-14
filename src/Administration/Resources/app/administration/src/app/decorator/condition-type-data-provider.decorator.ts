@@ -56,7 +56,7 @@ Application.addServiceProviderDecorator('ruleConditionDataProviderService', (rul
     });
     ruleConditionService.addCondition('cartTaxDisplay', {
         component: 'sw-condition-generic',
-        label: 'global.sw-condition.condition.cartTaxDisplay.label',
+        label: 'global.sw-condition.condition.cartTaxDisplayRule',
         scopes: ['cart'],
         group: 'general',
     });
@@ -267,7 +267,7 @@ Application.addServiceProviderDecorator('ruleConditionDataProviderService', (rul
     });
     ruleConditionService.addCondition('cartLineItemOfType', {
         component: 'sw-condition-generic-line-item',
-        label: 'global.sw-condition.condition.lineItemOfTypeRule.label',
+        label: 'global.sw-condition.condition.lineItemOfTypeRule',
         scopes: ['lineItem'],
         group: 'item',
     });

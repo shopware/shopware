@@ -118,6 +118,7 @@ async function createWrapper(buttonConfig) {
                 'sw-field-copyable': true,
                 'mt-floating-ui': true,
                 'mt-url-field': MtUrlField,
+                'sw-app-action-button': true,
             },
         },
         props: {

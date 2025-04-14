@@ -744,7 +744,7 @@ export default {
                 paymentSettingsLink: routeData.href,
             };
 
-            return this.$tc(snippet, collection.length, data);
+            return this.$tc(snippet, data, collection.length);
         },
 
         buildDisabledShippingAlert(snippet, collection, property = 'name') {
@@ -756,7 +756,7 @@ export default {
                         : collection.last().translated[property].replaceAll('|', '&vert;'),
             };
 
-            return this.$tc(snippet, collection.length, data);
+            return this.$tc(snippet, data, collection.length);
         },
 
         buildUnservedLanguagesAlert(snippet, collection, property = 'name') {
@@ -764,7 +764,7 @@ export default {
                 list: collection.map((item) => item[property]).join(', '),
             };
 
-            return this.$tc(snippet, collection.length, data);
+            return this.$tc(snippet, data, collection.length);
         },
 
         isFavorite() {

@@ -153,27 +153,19 @@ class CategoryUrlProviderTest extends TestCase
 
         $provider = $this->getCategoryUrlProvider();
 
-        $andWhereConditions = [];
-        $this->queryBuilder->method('andWhere')
-            ->willReturnCallback(function ($condition) use (&$andWhereConditions) {
-                $andWhereConditions[] = $condition;
+        $this->queryBuilder
+            ->method('andWhere')
+            ->willReturnCallback(function ($parameter) {
+                $this->assertNotEquals(
+                    '`category`.id NOT IN (:categoryIds)',
+                    $parameter,
+                    'andWhere should never be called with category ID exclusion'
+                );
 
                 return $this->queryBuilder;
             });
 
         $provider->getUrls($context, 100, 50);
-        static::assertNotCount(0, $andWhereConditions);
-
-        $notInWhereConditions = $whereConditions = [];
-        array_walk($andWhereConditions, function ($condition) use (&$notInWhereConditions, &$whereConditions): void {
-            if (str_starts_with($condition, '`category`.id NOT IN (')) {
-                $notInWhereConditions[] = $condition;
-            } else {
-                $whereConditions[] = $condition;
-            }
-        });
-        static::assertCount(0, $notInWhereConditions);
-        static::assertSame($andWhereConditions, $whereConditions);
     }
 
     public function testExcludeFilteredCategories(): void

@@ -57,7 +57,7 @@ class CategoryExceptionTest extends TestCase
         static::assertSame('Category to insert after not found.', $exception->getMessage());
     }
 
-    public function testInvalidCategoryId(): void
+    public function testCategoryIdIsNotHex(): void
     {
         $exception = CategoryException::categoryIdIsNotValidHex('invalid-category-id');
 

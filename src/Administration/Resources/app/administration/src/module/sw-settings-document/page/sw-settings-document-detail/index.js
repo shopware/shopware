@@ -630,6 +630,10 @@ export default {
         },
 
         onAddDocumentType(type) {
+            if (!this.documentConfig.config.fileTypes) {
+                this.documentConfig.config.fileTypes = [];
+            }
+
             this.documentConfig.config.fileTypes.push(type.id);
         },
     },

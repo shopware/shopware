@@ -66,8 +66,7 @@ class CategoryUrlProvider extends AbstractUrlProvider
         \assert(\is_int($nextOffset) || $nextOffset === null);
 
         $categoryIdsFetchedEvent = $this->eventDispatcher->dispatch(
-            new SalesChannelCategoryIdsFetchedEvent(\array_column($categories, 'id'), $context),
-            CategoryEvents::SALES_CHANNEL_CATEGORY_IDS_FETCHED_EVENT
+            new SalesChannelCategoryIdsFetchedEvent(\array_column($categories, 'id'), $context)
         );
 
         if (empty($categoryIdsFetchedEvent->getIds())) {

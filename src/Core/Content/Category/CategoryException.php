@@ -2,8 +2,8 @@
 
 namespace Shopware\Core\Content\Category;
 
-use Shopware\Core\Content\Category\Exception\CategoryNotFoundException;
 use Shopware\Core\Content\Category\Exception\CategoryIdIsNotValidHexException;
+use Shopware\Core\Content\Category\Exception\CategoryNotFoundException;
 use Shopware\Core\Content\Cms\Exception\PageNotFoundException;
 use Shopware\Core\Framework\HttpException;
 use Shopware\Core\Framework\Log\Package;

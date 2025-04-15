@@ -55,6 +55,7 @@ final class SalesChannelCategoryIdsFetchedEvent extends Event implements Shopwar
     public function hasId(string $categoryId): bool
     {
         $this->checkValidCategoryIdOrThrow($categoryId);
+
         return \array_key_exists($categoryId, $this->categoryIds);
     }
 
@@ -82,6 +83,7 @@ final class SalesChannelCategoryIdsFetchedEvent extends Event implements Shopwar
     public function isFiltered(string $categoryId): bool
     {
         $this->checkValidCategoryIdOrThrow($categoryId);
+
         return \array_key_exists($categoryId, $this->filteredIds);
     }
 

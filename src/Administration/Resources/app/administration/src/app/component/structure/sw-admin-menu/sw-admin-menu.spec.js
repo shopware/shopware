@@ -52,6 +52,7 @@ async function createWrapper(options = {}) {
                 'router-link': {
                     template: '<div class="router-link"><slot /></div>',
                 },
+                'mt-link': true,
                 'mt-icon': true,
             },
             provide: {

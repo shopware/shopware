@@ -19,13 +19,12 @@ use Shopware\Storefront\Theme\StorefrontPluginRegistry;
 use Shopware\Storefront\Theme\ThemeCollection;
 use Shopware\Storefront\Theme\ThemeEntity;
 use Shopware\Storefront\Theme\ThemeMergedConfigBuilder;
-use Shopware\Storefront\Theme\ThemeService;
 use Shopware\Tests\Unit\Storefront\Theme\fixtures\ThemeFixtures;
 
 /**
  * @internal
  */
-#[CoversClass(ThemeService::class)]
+#[CoversClass(ThemeMergedConfigBuilder::class)]
 class ThemeMergedConfigBuilderTest extends TestCase
 {
     private StorefrontPluginRegistry&MockObject $storefrontPluginRegistryMock;

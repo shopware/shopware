@@ -268,7 +268,7 @@ export default {
             let i;
             for (i = 1; i <= maxCount; i += 1) {
                 appliers.push({
-                    key: i,
+                    key: i.toString(),
                     name: this.$tc('sw-promotion-v2.detail.conditions.filter.applier.SELECT', { count: i }, 0),
                 });
             }

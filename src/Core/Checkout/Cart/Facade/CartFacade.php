@@ -98,7 +98,7 @@ class CartFacade implements \Countable
      * The `errors()` method returns the current errors of the cart.
      * You can use it to add new errors or warning or to remove existing ones.
      *
-     * @return ErrorsFacade A `ErrorsFacade` containing all cart errors as a collection (may be an empty collection if there are no errors)
+     * @return ErrorsFacade A `ErrorsFacade` containing all cart errors as a collection (may be an empty collection if there are no errors).
      */
     public function errors(): ErrorsFacade
     {
@@ -108,7 +108,7 @@ class CartFacade implements \Countable
     /**
      * `states()` allows you to access the state functions of the current cart.
      *
-     * @return StatesFacade A `StatesFacade` containing all cart states as a collection (maybe an empty collection if there are no states)
+     * @return StatesFacade A `StatesFacade` containing all cart states as a collection (maybe an empty collection if there are no states).
      */
     public function states(): StatesFacade
     {

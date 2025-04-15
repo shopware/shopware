@@ -189,7 +189,7 @@ describe('src/module/sw-cms/elements/image-slider/config', () => {
 
     it('should change the isDecorative value', async () => {
         const wrapper = await createWrapper('settings');
-        const isDecorativeSwitch = wrapper.find('.sw-cms-el-config-image-slider__is-decorative input');
+        const isDecorativeSwitch = wrapper.find('.sw-cms-el-config-image-slider__settings-is-decorative input');
 
         await isDecorativeSwitch.setValue(true);
 

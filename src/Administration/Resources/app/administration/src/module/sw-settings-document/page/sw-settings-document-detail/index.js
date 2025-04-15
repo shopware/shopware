@@ -49,6 +49,7 @@ export default {
             documentConfig: {
                 config: {
                     displayAdditionalNoteDelivery: false,
+                    fileTypes: [],
                 },
             },
             documentConfigSalesChannelOptionsCollection: [],

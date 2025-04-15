@@ -4,7 +4,7 @@
 
 import { defineConfig, loadEnv } from 'vite';
 import { createHtmlPlugin } from 'vite-plugin-html';
-import { nodePolyfills } from 'vite-plugin-node-polyfills'
+import { nodePolyfills } from 'vite-plugin-node-polyfills';
 import svgLoader from 'vite-svg-loader';
 import vue from '@vitejs/plugin-vue';
 import * as path from 'path';
@@ -43,7 +43,7 @@ export default defineConfig(({ command }) => {
         console.log(colors.yellow('# Production mode activated 🚀'));
     }
 
-    // We only load extensions here to display the successfull injection
+    // We only load extensions here to display the successful injection
     const extensions = loadExtensions();
     extensions.forEach((extension) => {
         console.log(colors.green(`# Plugin "${extension.name}": Injected successfully`));

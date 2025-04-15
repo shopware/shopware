@@ -7,6 +7,7 @@ services:
             - 9998:9998
             - 9999:9999
         environment:
+            COMPOSER_ROOT_VERSION: 6.7.9999999-dev
             HOST: '0.0.0.0'
             APP_URL: http://localhost:8000
             DATABASE_URL: mysql://root:root@database/shopware
@@ -15,6 +16,9 @@ services:
             ADMIN_OPENSEARCH_URL: http://opensearch:9200
         volumes:
             - .:/var/www/html
+        depends_on:
+            database:
+                condition: service_healthy
 
     database:
         image: mariadb:latest
@@ -36,6 +40,12 @@ services:
             - --binlog_expire_logs_seconds=86400
         volumes:
             - db-data:/var/lib/mysql
+        healthcheck:
+            test: [ "CMD", "mariadb-admin" ,"ping", "-h", "localhost", "-proot" ]
+            start_interval: 3s
+            interval: 5s
+            timeout: 1s
+            retries: 10
 
     adminer:
         image: adminer

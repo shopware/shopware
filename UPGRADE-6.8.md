@@ -77,6 +77,8 @@ This method was moved to FocusHandler Helper. Use this instead.
 const lastFocusableEl = window.focusHandler.getLastFocusableElement();
 ```
 
+### Remove route `widgets.account.order.detail`
+Remove all references to `widgets.account.order.detail` and ensure that affected components handle navigation and display correctly
 
 **NOTE:** All the breaking changes described here can be already opted in by activating the `v6.8.0.0` [feature flag](https://developer.shopware.com/docs/resources/references/adr/2022-01-20-feature-flags-for-major-versions.html#activating-the-flag) on previous versions.
 

@@ -21,11 +21,6 @@ final class SalesChannelCategoryIdsFetchedEvent extends Event implements Shopwar
     /**
      * @var array<string, string>
      */
-    private array $filteredIds = [];
-
-    /**
-     * @var array<string, string>
-     */
     private array $categoryIds = [];
 
     /**
@@ -60,31 +55,12 @@ final class SalesChannelCategoryIdsFetchedEvent extends Event implements Shopwar
     }
 
     /**
-     * @return list<string>
-     */
-    public function getFilteredIds(): array
-    {
-        return \array_values($this->filteredIds);
-    }
-
-    /**
      * @param string $categoryId Category ID to remove from IDs as hex string
      */
     public function filterId(string $categoryId): void
     {
         $this->checkValidCategoryIdOrThrow($categoryId);
-        $this->filteredIds[$categoryId] = $categoryId;
         unset($this->categoryIds[$categoryId]);
-    }
-
-    /**
-     * @param string $categoryId Category ID to check for being removed from IDs as hex string
-     */
-    public function isFiltered(string $categoryId): bool
-    {
-        $this->checkValidCategoryIdOrThrow($categoryId);
-
-        return \array_key_exists($categoryId, $this->filteredIds);
     }
 
     public function getSalesChannelContext(): SalesChannelContext

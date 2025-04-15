@@ -7,12 +7,12 @@ use Shopware\Core\Framework\ShopwareHttpException;
 use Symfony\Component\HttpFoundation\Response;
 
 #[Package('discovery')]
-class InvalidCategoryIdException extends ShopwareHttpException
+class CategoryIdIsNotValidHexException extends ShopwareHttpException
 {
     public function __construct(string $categoryId)
     {
         parent::__construct(
-            'Category "{{ categoryId }}" is invalid.',
+            'Category ID "{{ categoryId }}" is not a valid hexadecimal value.',
             ['categoryId' => $categoryId]
         );
     }
@@ -24,6 +24,6 @@ class InvalidCategoryIdException extends ShopwareHttpException
 
     public function getErrorCode(): string
     {
-        return 'CONTENT__CATEGORY_INVALID_ID';
+        return 'CONTENT__CATEGORY_ID_IS_NOT_HEX';
     }
 }

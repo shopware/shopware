@@ -59,10 +59,10 @@ class CategoryExceptionTest extends TestCase
 
     public function testInvalidCategoryId(): void
     {
-        $exception = CategoryException::invalidCategoryId('invalid-category-id');
+        $exception = CategoryException::categoryIdIsNotValidHex('invalid-category-id');
 
         static::assertSame(Response::HTTP_BAD_REQUEST, $exception->getStatusCode());
-        static::assertSame('CONTENT__CATEGORY_INVALID_ID', $exception->getErrorCode());
-        static::assertSame('Category "invalid-category-id" is invalid.', $exception->getMessage());
+        static::assertSame('CONTENT__CATEGORY_ID_IS_NOT_HEX', $exception->getErrorCode());
+        static::assertSame('Category ID "invalid-category-id" is not a valid hexadecimal value.', $exception->getMessage());
     }
 }

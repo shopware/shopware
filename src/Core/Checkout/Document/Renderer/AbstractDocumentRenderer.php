@@ -5,11 +5,14 @@ namespace Shopware\Core\Checkout\Document\Renderer;
 use Doctrine\DBAL\ArrayParameterType;
 use Doctrine\DBAL\Connection;
 use Shopware\Core\Checkout\Customer\CustomerEntity;
+use Shopware\Core\Checkout\Customer\Validation\Constraint\CustomerVatIdentification;
 use Shopware\Core\Checkout\Document\Struct\DocumentGenerateOperation;
 use Shopware\Core\Checkout\Order\OrderEntity;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
+use Symfony\Component\Validator\Constraints\NotBlank;
+use Symfony\Component\Validator\Validator\ValidatorInterface;
 
 #[Package('after-sales')]
 abstract class AbstractDocumentRenderer
@@ -72,5 +75,41 @@ abstract class AbstractDocumentRenderer
         $isPartOfEu = $country->getIsEu();
 
         return $isCompanyTaxFree && $isPartOfEu;
+    }
+
+    protected function isValidVat(OrderEntity $order, ValidatorInterface $validator): bool
+    {
+        $customerType = $order->getOrderCustomer()?->getCustomer()?->getAccountType();
+        if ($customerType !== CustomerEntity::ACCOUNT_TYPE_BUSINESS) {
+            return false;
+        }
+
+        $orderDelivery = $order->getDeliveries()?->first();
+        if (!$orderDelivery) {
+            return false;
+        }
+
+        $shippingAddress = $orderDelivery->getShippingOrderAddress();
+
+        $country = $shippingAddress?->getCountry();
+        if ($country === null) {
+            return false;
+        }
+
+        if ($country->getCheckVatIdPattern() === false) {
+            return true;
+        }
+
+        $vatId = $shippingAddress->getVatId();
+        if ($vatId === null) {
+            return false;
+        }
+
+        $violations = $validator->validate([$vatId], [
+            new NotBlank(),
+            new CustomerVatIdentification(['countryId' => $country->getId()]),
+        ]);
+
+        return $violations->count() === 0;
     }
 }

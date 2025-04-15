@@ -7,6 +7,7 @@ services:
             - 9998:9998
             - 9999:9999
         environment:
+            COMPOSER_ROOT_VERSION: 6.7.9999999-dev
             HOST: '0.0.0.0'
             APP_URL: http://localhost:8000
             DATABASE_URL: mysql://root:root@database/shopware

@@ -318,11 +318,16 @@ class NavigationRouteTest extends TestCase
 
         $response = $this->requestFooterNavigationWithSeoUrls();
 
+        $found = false;
         foreach ($response as $category) {
             if ($category['id'] === $this->ids->get('category3') && $category['linkType'] === CategoryDefinition::LINK_TYPE_PRODUCT) {
                 static::assertStringContainsString('/Test-Product/', $category['seoLink']);
+                $found = true;
+                break;
             }
         }
+
+        static::assertTrue($found, 'Product SEO URL not found in response');
 
         $this->createSeoUrl(
             'frontend.detail.page',
@@ -333,11 +338,16 @@ class NavigationRouteTest extends TestCase
 
         $response = $this->requestFooterNavigationWithSeoUrls();
 
+        $found = false;
         foreach ($response as $category) {
             if ($category['id'] === $this->ids->get('category3') && $category['linkType'] === CategoryDefinition::LINK_TYPE_PRODUCT) {
                 static::assertStringContainsString('/custom-product-url', $category['seoLink']);
+                $found = true;
+                break;
             }
         }
+
+        static::assertTrue($found, 'Product SEO URL not found in response');
     }
 
     public function testCategoryInternalLinkHasSeoUrl(): void
@@ -397,8 +407,8 @@ class NavigationRouteTest extends TestCase
         ];
 
         if ($existingSeoUrls->count() > 0 && $existingSeoUrls->first() !== null) {
-            /** @var SeoUrlEntity $seoUrl */
             $seoUrl = $existingSeoUrls->first();
+            static::assertInstanceOf(SeoUrlEntity::class, $seoUrl);
             $data['id'] = $seoUrl->getId();
         } else {
             $data['id'] = Uuid::randomHex();

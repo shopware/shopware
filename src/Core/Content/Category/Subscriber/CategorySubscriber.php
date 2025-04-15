@@ -32,7 +32,7 @@ class CategorySubscriber implements EventSubscriberInterface
     {
         return [
             CategoryEvents::CATEGORY_LOADED_EVENT => 'entityLoaded',
-            'sales_channel.' . CategoryEvents::CATEGORY_LOADED_EVENT => [['entityLoaded'], ['addSeoLinks']],
+            'sales_channel.' . CategoryEvents::CATEGORY_LOADED_EVENT => 'entityLoaded',
         ];
     }
 
@@ -44,6 +44,12 @@ class CategorySubscriber implements EventSubscriberInterface
         $salesChannelId = $event instanceof SalesChannelEntityLoadedEvent ? $event->getSalesChannelContext()->getSalesChannelId() : null;
 
         foreach ($event->getEntities() as $category) {
+            if ($category instanceof SalesChannelCategoryEntity) {
+                $category->assign([
+                    'seoLink' => $this->categoryUrlGenerator->generate($category, $event->getSalesChannelContext()->getSalesChannel()),
+                ]);
+            }
+
             $categoryCmsPageId = $category->getCmsPageId();
 
             // continue if cms page is given and was not set in the subscriber
@@ -68,18 +74,6 @@ class CategorySubscriber implements EventSubscriberInterface
 
             // mark cms page as set in the subscriber
             $category->setCmsPageIdSwitched(true);
-        }
-    }
-
-    /**
-     * @param SalesChannelEntityLoadedEvent<SalesChannelCategoryEntity> $event
-     */
-    public function addSeoLinks(SalesChannelEntityLoadedEvent $event): void
-    {
-        foreach ($event->getEntities() as $category) {
-            $category->assign([
-                'seoLink' => $this->categoryUrlGenerator->generate($category, $event->getSalesChannelContext()->getSalesChannel()),
-            ]);
         }
     }
 }

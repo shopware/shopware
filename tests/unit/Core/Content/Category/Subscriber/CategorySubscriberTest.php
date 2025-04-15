@@ -29,7 +29,7 @@ class CategorySubscriberTest extends TestCase
     {
         $expectedEvents = [
             CategoryEvents::CATEGORY_LOADED_EVENT => 'entityLoaded',
-            'sales_channel.' . CategoryEvents::CATEGORY_LOADED_EVENT => [['entityLoaded'], ['addSeoLinks']],
+            'sales_channel.' . CategoryEvents::CATEGORY_LOADED_EVENT => 'entityLoaded',
         ];
 
         static::assertSame($expectedEvents, CategorySubscriber::getSubscribedEvents());

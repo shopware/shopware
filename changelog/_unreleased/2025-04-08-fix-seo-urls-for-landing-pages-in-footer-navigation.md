@@ -1,9 +1,10 @@
 ---
 title: Fix SEO URLs for landing pages in footer navigation
 issue: #3784
-author: Devin AI
-author_email: devin-ai-integration[bot]@users.noreply.github.com
-author_github: devin-ai-integration
 ---
 # Core
-* Added SEO URL generation for internal links in footer navigation in `Shopware\Core\Content\Category\SalesChannel\NavigationRoute`
+* Added SEO URL generation for internal links in `sales_channel.category` entities and used that instead of `category_url` twig function
+* Added replacing of seo URL and media URL placeholder for all store api responses
+___ 
+# Storefront
+* Deprecated `category_url` and `category_linknewtab` twig function, use `category.seoLink` or `category.shouldOpenInNewTab` instead

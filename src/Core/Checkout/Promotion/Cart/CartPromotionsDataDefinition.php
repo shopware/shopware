@@ -62,8 +62,11 @@ class CartPromotionsDataDefinition extends Struct
         }
 
         foreach ($this->codePromotions as $promotions) {
-            if (\array_key_exists($id, $promotions)) {
-                return $promotions[$id];
+            // Can't rely on the array key to be the promotion id
+            foreach ($promotions as $promotion) {
+                if ($promotion->getId() === $id) {
+                    return $promotion;
+                }
             }
         }
 

@@ -34,7 +34,7 @@ class PriceCollection extends Collection
             // logic from "rules->merge". But "merge" will create a new object each time
             foreach ($price->getTaxRules() as $taxRule) {
                 if (!$rules->exists($taxRule)) {
-                    $rules->add(clone $taxRule);
+                    $rules->add($taxRule);
                 }
             }
         }

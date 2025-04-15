@@ -109,7 +109,7 @@ export default {
 
     methods: {
         onAddSalesChannel() {
-            Shopware.Utils.EventBus.emit('sw-sales-channel-detail-base-sales-channel-change');
+            Shopware.Utils.EventBus.emit('sw-sales-channel-list-add-new-channel');
         },
 
         async getList() {

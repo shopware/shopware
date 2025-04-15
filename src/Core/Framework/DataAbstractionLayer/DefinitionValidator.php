@@ -172,7 +172,7 @@ class DefinitionValidator
             if (preg_match('/.*\\\\Tests?\\\\.*/', $definitionClass) || preg_match('/.*ComposerChild\\\\.*/', $definitionClass)) {
                 continue;
             }
-            if (\in_array($definitionClass, [AttributeEntityDefinition::class, AttributeTranslationDefinition::class, AttributeMappingDefinition::class], true)) {
+            if (\in_array($definitionClass, [AttributeTranslationDefinition::class, AttributeMappingDefinition::class], true)) {
                 continue;
             }
 
@@ -362,11 +362,11 @@ class DefinitionValidator
                 }
             }
 
-            if (!$hasGetter) {
+            if (!$hasGetter && $reflection->hasProperty($propertyName) && !$reflection->getProperty($propertyName)->isPublic()) {
                 $functionViolations[] = \sprintf('No getter function for property %s in %s', $propertyName, $struct);
             }
 
-            if (!$field->isAny([Runtime::class, Computed::class]) && !$reflection->hasMethod($setter)) {
+            if (!$field->isAny([Runtime::class, Computed::class]) && !$reflection->hasMethod($setter) && $reflection->hasProperty($propertyName) && !$reflection->getProperty($propertyName)->isPublic()) {
                 $functionViolations[] = \sprintf('No setter function for property %s in %s', $propertyName, $struct);
             }
         }
@@ -1059,6 +1059,10 @@ class DefinitionValidator
      */
     private function checkEntityNameConstant(EntityDefinition $definition): array
     {
+        if ($definition instanceof AttributeEntityDefinition) {
+            return [];
+        }
+
         $violations = [];
         $definitionClass = $definition->getClass();
         // Definition has constant ENTITY_NAME and is not empty

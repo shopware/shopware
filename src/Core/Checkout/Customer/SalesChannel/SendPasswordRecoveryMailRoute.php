@@ -76,7 +76,12 @@ class SendPasswordRecoveryMailRoute extends AbstractSendPasswordRecoveryMailRout
             $this->rateLimiter->ensureAccepted(RateLimiter::RESET_PASSWORD, strtolower($data->get('email') . '-' . $request->getClientIp()));
         }
 
-        $customer = $this->getCustomerByEmail($data->get('email'), $context);
+        try {
+            $customer = $this->getCustomerByEmail($data->get('email'), $context);
+        } catch (CustomerException) {
+            return new SuccessResponse();
+        }
+
         $customerId = $customer->getId();
 
         $customerIdCriteria = new Criteria();

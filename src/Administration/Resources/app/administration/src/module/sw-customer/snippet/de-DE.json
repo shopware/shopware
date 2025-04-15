@@ -230,8 +230,8 @@
       "placeholderCity": "Gib eine Stadt ein ...",
       "placeholderCountry": "Wähle ein Land aus ...",
       "placeholderState": "Wähle ein (Bundes-)Land aus ...",
-      "placeholderAdditionalAddressLine1": "Gib eine erste zusätzliche Adresszeile ein ...",
-      "placeholderAdditionalAddressLine2": "Gib eine zweite zusätzliche Adresszeile ein ...",
+      "placeholderAdditionalAddressLine1": "Gib eine erste Adresszeile ein ...",
+      "placeholderAdditionalAddressLine2": "Gib eine zweite Adresszeile ein ...",
       "placeholderPhoneNumber": "Gib eine Telefonnummer an ...",
       "placeholderVatId": "Gib die USt-IdNr. ein ..."
     },

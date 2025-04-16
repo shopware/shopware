@@ -11,6 +11,7 @@ use Shopware\Core\Content\Flow\Api\FlowActionCollector;
 use Shopware\Core\Framework\Api\ApiDefinition\DefinitionService;
 use Shopware\Core\Framework\Api\Controller\InfoController;
 use Shopware\Core\Framework\Api\Route\ApiRouteInfoResolver;
+use Shopware\Core\Framework\App\ShopId\ShopIdProvider;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Event\BusinessEventCollector;
 use Shopware\Core\Framework\Increment\IncrementGatewayRegistry;
@@ -42,6 +43,8 @@ class InfoControllerTest extends TestCase
 
     private InAppPurchase $inAppPurchase;
 
+    private ShopIdProvider&MockObject $shopIdProvider;
+
     public function testConfig(): void
     {
         $this->createInstance();
@@ -68,6 +71,8 @@ class InfoControllerTest extends TestCase
             )
             ->willReturn('/admin/adminextensionapipluginwithlocalentrypoint/index.html');
 
+        $this->shopIdProvider->expects($this->once())->method('getShopId')->willReturn('shop-id');
+
         $response = $this->infoController->config(Context::createDefaultContext(), Request::create('http://localhost'));
         $content = $response->getContent();
         static::assertIsString($content);
@@ -79,6 +84,8 @@ class InfoControllerTest extends TestCase
         static::assertArrayHasKey('versionRevision', $data);
         static::assertSame('PHPUnit', $data['versionRevision']);
         static::assertArrayHasKey('adminWorker', $data);
+        static::assertArrayHasKey('shopId', $data);
+        static::assertSame('shop-id', $data['shopId']);
 
         $workerConfig = $data['adminWorker'];
         static::assertArrayHasKey('enableAdminWorker', $workerConfig);
@@ -141,6 +148,7 @@ class InfoControllerTest extends TestCase
         $this->parameterBagMock = $this->createMock(ParameterBagInterface::class);
         $this->routerMock = $this->createMock(RouterInterface::class);
         $this->inAppPurchase = StaticInAppPurchaseFactory::createWithFeatures(['SwagApp' => ['SwagApp_premium']]);
+        $this->shopIdProvider = $this->createMock(ShopIdProvider::class);
 
         $this->infoController = new InfoController(
             $this->createMock(DefinitionService::class),
@@ -162,6 +170,7 @@ class InfoControllerTest extends TestCase
                 new Filesystem(),
             ),
             new Filesystem(),
+            $this->shopIdProvider,
         );
     }
 }

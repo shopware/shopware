@@ -22,9 +22,18 @@ jobs:
         with:
           script: |
             console.log(context.payload);
+
+            // get labels via api
+            const labels = await github.rest.issues.listLabelsOnIssue({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: context.payload.number,
+            });
+            console.log(labels);
+
             // Check if the issue has either a domain label or the needs-triage label
-            const hasDomainLabel = context.payload.issue.labels.some(label => label.name.startsWith('domain/') || label.name === 'needs-triage');
-            const hasNeedsTriageLabel = context.payload.issue.labels.some(label => label.name === 'needs-triage');
+            const hasDomainLabel = labels.data.some(label => label.name.startsWith('domain/') || label.name === 'needs-triage');
+            const hasNeedsTriageLabel = labels.data.some(label => label.name === 'needs-triage');
             
             const issueNumber = context.payload.number;
             // remove needs-triage label if it has a domain label

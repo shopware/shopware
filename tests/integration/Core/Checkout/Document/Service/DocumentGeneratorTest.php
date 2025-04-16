@@ -336,6 +336,7 @@ class DocumentGeneratorTest extends TestCase
 
         $criteria = new Criteria([$documentStruct->getId()]);
         $criteria->addAssociation('documentType');
+        $criteria->addAssociation('documentMediaFile');
 
         /** @var DocumentEntity $document */
         $document = $this->documentRepository

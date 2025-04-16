@@ -64,12 +64,12 @@ class ZugferdRendererTest extends TestCase
 
         $orderRepositoryMock = $this->createMock(EntityRepository::class);
         $orderRepositoryMock
-            ->expects($this->once())
+            ->expects(static::once())
             ->method('search')
             ->willReturn($orderSearchResult);
 
         $orderRepositoryMock
-            ->expects($this->once())
+            ->expects(static::once())
             ->method('createVersion')
             ->willReturn('new-order-version-id');
 

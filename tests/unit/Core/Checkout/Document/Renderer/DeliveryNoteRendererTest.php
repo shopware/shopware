@@ -10,6 +10,7 @@ use Shopware\Core\Checkout\Document\Renderer\DocumentRendererConfig;
 use Shopware\Core\Checkout\Document\Service\DocumentConfigLoader;
 use Shopware\Core\Checkout\Document\Service\DocumentFileRendererRegistry;
 use Shopware\Core\Checkout\Document\Struct\DocumentGenerateOperation;
+use Shopware\Core\Checkout\Document\Twig\DocumentTemplateRenderer;
 use Shopware\Core\Checkout\Order\OrderCollection;
 use Shopware\Core\Checkout\Order\OrderDefinition;
 use Shopware\Core\Checkout\Order\OrderEntity;
@@ -54,18 +55,18 @@ class DeliveryNoteRendererTest extends TestCase
 
         $orderRepositoryMock = $this->createMock(EntityRepository::class);
         $orderRepositoryMock
-            ->expects($this->once())
+            ->expects(static::once())
             ->method('search')
             ->willReturn($orderSearchResult);
 
         $orderRepositoryMock
-            ->expects($this->once())
+            ->expects(static::once())
             ->method('createVersion')
             ->willReturn('new-order-version-id');
 
         $connectionMock = $this->createMock(Connection::class);
         $connectionMock
-            ->expects($this->once())
+            ->expects(static::once())
             ->method('fetchAllAssociative')
             ->willReturn([
                 [
@@ -78,7 +79,9 @@ class DeliveryNoteRendererTest extends TestCase
             $orderRepositoryMock,
             $documentConfigLoaderMock,
             $this->createMock(EventDispatcherInterface::class),
+            $this->createMock(DocumentTemplateRenderer::class),
             $this->createMock(NumberRangeValueGeneratorInterface::class),
+            __DIR__,
             $connectionMock,
             $this->createMock(DocumentFileRendererRegistry::class),
         );

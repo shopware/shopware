@@ -8,6 +8,7 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Category\CategoryDefinition;
 use Shopware\Core\Content\Category\CategoryEntity;
 use Shopware\Core\Content\Category\CategoryEvents;
+use Shopware\Core\Content\Category\SalesChannel\SalesChannelCategoryEntity;
 use Shopware\Core\Content\Category\Service\CategoryUrlGenerator;
 use Shopware\Core\Content\Category\Subscriber\CategorySubscriber;
 use Shopware\Core\Framework\Context;
@@ -71,7 +72,7 @@ class CategorySubscriberTest extends TestCase
 
         yield 'It does not set cms page id if already set by the subscriber' => [
             self::getSystemConfigServiceMock(null, 'cmsPageId'),
-            self::getCategory('differentCmsPageId', true),
+            self::getCategory('differentCmsPageId', true, true),
             'differentCmsPageId',
             'differentCmsPageId',
             'salesChannelId',
@@ -95,7 +96,7 @@ class CategorySubscriberTest extends TestCase
 
         yield 'It uses salesChannel specific default' => [
             self::getSystemConfigServiceMock('salesChannelId', 'salesChannelSpecificDefault'),
-            self::getCategory(null, false),
+            self::getCategory(null, false, true),
             null,
             'salesChannelSpecificDefault',
             'salesChannelId',
@@ -121,9 +122,12 @@ class CategorySubscriberTest extends TestCase
         ]);
     }
 
-    private static function getCategory(?string $cmsPageId, bool $cmsPageIdSwitched): CategoryEntity
+    private static function getCategory(?string $cmsPageId, bool $cmsPageIdSwitched, bool $salesChannelEntity = false): CategoryEntity
     {
         $category = new CategoryEntity();
+        if ($salesChannelEntity) {
+            $category = new SalesChannelCategoryEntity();
+        }
 
         if ($cmsPageId) {
             $category->setCmsPageId($cmsPageId);

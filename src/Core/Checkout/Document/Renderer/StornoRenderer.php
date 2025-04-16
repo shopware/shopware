@@ -19,6 +19,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\System\NumberRange\ValueGenerator\NumberRangeValueGeneratorInterface;
+use Symfony\Component\Validator\Validator\ValidatorInterface;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
 #[Package('after-sales')]
@@ -39,6 +40,7 @@ final class StornoRenderer extends AbstractDocumentRenderer
         private readonly ReferenceInvoiceLoader $referenceInvoiceLoader,
         private readonly Connection $connection,
         private readonly DocumentFileRendererRegistry $fileRendererRegistry,
+        private readonly ValidatorInterface $validator,
     ) {
     }
 
@@ -128,7 +130,7 @@ final class StornoRenderer extends AbstractDocumentRenderer
                     'intraCommunityDelivery' => $this->isAllowIntraCommunityDelivery(
                         $config->jsonSerialize(),
                         $order,
-                    ),
+                    ) && $this->isValidVat($order, $this->validator),
                 ]);
 
                 if ($operation->isStatic()) {

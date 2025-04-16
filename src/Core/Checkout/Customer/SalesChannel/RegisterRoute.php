@@ -53,6 +53,7 @@ use Shopware\Core\System\SalesChannel\StoreApiCustomFieldMapper;
 use Shopware\Core\System\Salutation\SalutationCollection;
 use Shopware\Core\System\Salutation\SalutationDefinition;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
+use Symfony\Component\PasswordHasher\PasswordHasherInterface;
 use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\Validator\Constraints\Choice;
 use Symfony\Component\Validator\Constraints\Length;
@@ -477,8 +478,9 @@ class RegisterRoute extends AbstractRegisterRoute
 
         if (!$isGuest) {
             $minLength = $this->systemConfigService->get('core.loginRegistration.passwordMinLength', $context->getSalesChannelId());
-            $validation->add('password', new NotBlank(), new Length(['min' => $minLength]));
-            $validation->add('email', new CustomerEmailUnique(['salesChannelContext' => $context]));
+            $validation->add('password', new NotBlank(), new Length(['min' => $minLength, 'max' => PasswordHasherInterface::MAX_PASSWORD_LENGTH, 'maxMessage' => 'VIOLATION::PASSWORD_IS_TOO_LONG']));
+            $options = ['context' => $context->getContext(), 'salesChannelContext' => $context];
+            $validation->add('email', new CustomerEmailUnique($options));
         }
 
         $validationEvent = new BuildValidationEvent($validation, $data, $context->getContext());

@@ -5,7 +5,6 @@ namespace Shopware\Core\Framework\Store;
 use GuzzleHttp\Exception\ClientException;
 use Shopware\Core\Framework\HttpException;
 use Shopware\Core\Framework\Log\Package;
-use Shopware\Core\Framework\Plugin\Exception\PluginNotAZipFileException;
 use Shopware\Core\Framework\Store\Exception\ExtensionNotFoundException;
 use Shopware\Core\Framework\Store\Exception\ExtensionUpdateRequiresConsentAffirmationException;
 use Shopware\Core\Framework\Store\Exception\StoreApiException;
@@ -153,22 +152,5 @@ class StoreException extends HttpException
     public static function storeError(ClientException $exception): self
     {
         return new StoreApiException($exception);
-    }
-
-    /**
-     * @deprecated tag:v6.8.0 - reason:return-type-change - Will return self
-     */
-    public static function pluginNotAZipFile(string $mimeType): self|PluginNotAZipFileException
-    {
-        if (!Feature::isActive('v6.8.0.0')) {
-            return new PluginNotAZipFileException($mimeType);
-        }
-
-        return new self(
-            Response::HTTP_BAD_REQUEST,
-            self::PLUGIN_NOT_A_ZIP_FILE,
-            'Extension is not a zip file. Got "{{ mimeType }}"',
-            ['mimeType' => $mimeType]
-        );
     }
 }

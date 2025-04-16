@@ -188,18 +188,4 @@ class StoreExceptionTest extends TestCase
         static::assertSame('FRAMEWORK__STORE_INVALID_TYPE', $exception->getErrorCode());
         static::assertSame(Response::HTTP_BAD_REQUEST, $exception->getStatusCode());
     }
-
-    public function testPluginNotAZipFile(): void
-    {
-        $mimeType = 'application/json';
-        $exception = StoreException::pluginNotAZipFile($mimeType);
-
-        static::assertSame(
-            'Extension is not a zip file. Got "application/json"',
-            $exception->getMessage()
-        );
-        static::assertSame('FRAMEWORK__PLUGIN_NOT_A_ZIP_FILE', $exception->getErrorCode());
-        static::assertSame(Response::HTTP_BAD_REQUEST, $exception->getStatusCode());
-        static::assertSame(['mimeType' => $mimeType], $exception->getParameters());
-    }
 }

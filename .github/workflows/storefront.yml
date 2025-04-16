@@ -2,6 +2,11 @@ name: Storefront checks and tests
 
 on:
   pull_request:
+    types:
+      - opened
+      - synchronize
+      - reopened
+      - labeled
   merge_group:
   workflow_dispatch:
   workflow_call:
@@ -22,7 +27,7 @@ jobs:
             const hasDomainLabel = context.payload.issue.labels.some(label => label.name.startsWith('domain/') || label.name === 'needs-triage');
             const hasNeedsTriageLabel = context.payload.issue.labels.some(label => label.name === 'needs-triage');
             
-            const issueNumber = context.payload.issue?.number || context.payload.pull_request?.number;
+            const issueNumber = context.payload.number;
             // remove needs-triage label if it has a domain label
             if (hasDomainLabel && hasNeedsTriageLabel) {
               await github.rest.issues.removeLabel({

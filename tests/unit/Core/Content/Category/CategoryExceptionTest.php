@@ -56,13 +56,4 @@ class CategoryExceptionTest extends TestCase
         static::assertSame(CategoryException::AFTER_CATEGORY_NOT_FOUND, $exception->getErrorCode());
         static::assertSame('Category to insert after not found.', $exception->getMessage());
     }
-
-    public function testCategoryIdIsNotHex(): void
-    {
-        $exception = CategoryException::categoryIdIsNotValidHex('invalid-category-id');
-
-        static::assertSame(Response::HTTP_BAD_REQUEST, $exception->getStatusCode());
-        static::assertSame('CONTENT__CATEGORY_ID_IS_NOT_HEX', $exception->getErrorCode());
-        static::assertSame('Category ID "invalid-category-id" is not a valid hexadecimal value.', $exception->getMessage());
-    }
 }

@@ -2,11 +2,9 @@
 
 namespace Shopware\Core\Content\Category\Event;
 
-use Shopware\Core\Content\Category\CategoryException;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Event\ShopwareEvent;
 use Shopware\Core\Framework\Log\Package;
-use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Contracts\EventDispatcher\Event;
 
@@ -29,7 +27,6 @@ final class SalesChannelCategoryIdsFetchedEvent extends Event implements Shopwar
         private readonly SalesChannelContext $context
     ) {
         foreach ($categoryIds as $categoryId) {
-            $this->checkValidCategoryIdOrThrow($categoryId);
             $this->categoryIds[$categoryId] = $categoryId;
         }
     }
@@ -47,8 +44,6 @@ final class SalesChannelCategoryIdsFetchedEvent extends Event implements Shopwar
      */
     public function hasId(string $categoryId): bool
     {
-        $this->checkValidCategoryIdOrThrow($categoryId);
-
         return \array_key_exists($categoryId, $this->categoryIds);
     }
 
@@ -57,7 +52,6 @@ final class SalesChannelCategoryIdsFetchedEvent extends Event implements Shopwar
      */
     public function filterId(string $categoryId): void
     {
-        $this->checkValidCategoryIdOrThrow($categoryId);
         unset($this->categoryIds[$categoryId]);
     }
 
@@ -69,13 +63,5 @@ final class SalesChannelCategoryIdsFetchedEvent extends Event implements Shopwar
     public function getContext(): Context
     {
         return $this->context->getContext();
-    }
-
-    private function checkValidCategoryIdOrThrow(string $categoryId): void
-    {
-        if (Uuid::isValid($categoryId)) {
-            return;
-        }
-        throw CategoryException::categoryIdIsNotValidHex($categoryId);
     }
 }

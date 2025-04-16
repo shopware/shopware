@@ -7,6 +7,7 @@ on:
       - synchronize
       - reopened
       - labeled
+      - unlabeled
   merge_group:
   workflow_dispatch:
   workflow_call:
@@ -15,14 +16,12 @@ jobs:
 
   needs-triage:
     runs-on: ubuntu-24.04
-    if: github.event.action == 'opened' || github.event.action == 'labeled'
+    if: github.event.action == 'opened' || github.event.action == 'labeled' || github.event.action == 'labeled'
     steps:
       - uses: actions/github-script@5c56fde4671bc2d3592fb0f2c5b5bab9ddae03b1 # 7
         with:
           script: |
             console.log(context.payload);
-
-            return;
             // Check if the issue has either a domain label or the needs-triage label
             const hasDomainLabel = context.payload.issue.labels.some(label => label.name.startsWith('domain/') || label.name === 'needs-triage');
             const hasNeedsTriageLabel = context.payload.issue.labels.some(label => label.name === 'needs-triage');
@@ -30,6 +29,7 @@ jobs:
             const issueNumber = context.payload.number;
             // remove needs-triage label if it has a domain label
             if (hasDomainLabel && hasNeedsTriageLabel) {
+              console.log('remove needs-triage label');
               await github.rest.issues.removeLabel({
                 owner: context.repo.owner,
                 repo: context.repo.repo,
@@ -42,6 +42,7 @@ jobs:
 
             // if neither, add needs-triage label
             if (!hasDomainLabel && !hasNeedsTriageLabel) {
+              console.log('add needs-triage label');
               await github.rest.issues.addLabels({
                 owner: context.repo.owner,
                 repo: context.repo.repo,

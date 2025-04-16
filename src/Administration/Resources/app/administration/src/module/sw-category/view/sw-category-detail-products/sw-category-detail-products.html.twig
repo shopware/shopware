@@ -4,6 +4,7 @@
     {% block sw_category_detail_product_assignment %}
     <sw-many-to-many-assignment-card
         v-if="category.type !== 'folder'"
+        display-variants
         :title="$tc('sw-category.base.products.productAssignmentHeadline')"
         :entity-collection="category.products"
         :columns="productColumns"

@@ -427,7 +427,7 @@ PHP_EOL;
             true,
             static::getContainer()->get('event_dispatcher'),
             $this->createMock(ThemeFilesystemResolver::class),
-            ['theme' => new UrlPackage(['http://localhost'], new EmptyVersionStrategy())],
+            [],
             $this->createMock(CacheInvalidator::class),
             $this->createMock(LoggerInterface::class),
             new MD5ThemePathBuilder(),

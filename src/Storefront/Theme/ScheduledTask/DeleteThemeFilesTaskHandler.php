@@ -45,17 +45,17 @@ final class DeleteThemeFilesTaskHandler extends ScheduledTaskHandler
             }
 
             // Find the first file in the directory, as on some file systems the directory are only virtual and do not have a timestamp
-            $firstFileModified = $this->getFirstFileModified($themeDirectory);
+            $modifiedTimestampOfFirstFile = $this->getModifiedTimestampOfFirstFile($themeDirectory);
 
             // If no files are found in the directory, delete it
-            if ($firstFileModified === null) {
+            if ($modifiedTimestampOfFirstFile === null) {
                 return true;
             }
 
             // Only delete directories that were last modified more than 24 hours ago
             $twentyFourHoursAgo = (new \DateTimeImmutable())->modify('-24 hours')->getTimestamp();
 
-            return $twentyFourHoursAgo > $firstFileModified;
+            return $twentyFourHoursAgo > $modifiedTimestampOfFirstFile;
         });
 
         foreach ($themeDirectories as $themeDirectory) {
@@ -83,23 +83,23 @@ final class DeleteThemeFilesTaskHandler extends ScheduledTaskHandler
         return $themePaths;
     }
 
-    private function getFirstFileModified(StorageAttributes $themeDirectory): ?int
+    private function getModifiedTimestampOfFirstFile(StorageAttributes $themeDirectory): ?int
     {
-        $firstFileModified = null;
+        $modifiedTimestampOfFirstFile = null;
         foreach ($this->themeFileSystem->listContents($themeDirectory->path(), FilesystemReader::LIST_DEEP) as $file) {
             if (!$file->isFile()) {
                 continue;
             }
 
             $lastModified = $file->lastModified();
-            if (!$lastModified) {
+            if ($lastModified === null) {
                 continue;
             }
 
-            $firstFileModified = $lastModified;
+            $modifiedTimestampOfFirstFile = $lastModified;
             break;
         }
 
-        return $firstFileModified;
+        return $modifiedTimestampOfFirstFile;
     }
 }

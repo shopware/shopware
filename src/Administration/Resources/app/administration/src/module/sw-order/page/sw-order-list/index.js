@@ -105,7 +105,7 @@ export default {
             criteria
                 .getAssociation('transactions')
                 .addAssociation('stateMachineState')
-                .addSorting(Criteria.sort('createdAt'))
+                .addSorting(Criteria.sort('createdAt'));
 
             criteria
                 .addAssociation('primaryOrderTransaction')

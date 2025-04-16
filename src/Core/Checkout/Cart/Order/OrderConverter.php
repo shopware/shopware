@@ -145,18 +145,18 @@ class OrderConverter
                 $shippingAddresses
             );
 
-//            // In order to reference the primary order delivery we need to set ids. The primary order delivery is the
-//            // order delivery with the highest shipping costs (i.e. _not_ a shipping discount).
-//            if (!$cart->getBehavior()?->isRecalculation() && $cart->getDeliveries()->count() > 0) {
-//                usort(
-//                    $data['deliveries'],
-//                    function (array $deliveryA, array $deliveryB) {
-//                        return $deliveryB['shippingCosts']->getTotalPrice() <=> (\count($deliveryA['positions']) > 0 ? $deliveryA['positions'][0]['price']->getTotalPrice() : 0);
-//                    }
-//                );
-//                $data['deliveries'][0]['id'] ??= Uuid::randomHex();
-//                $data['primaryOrderDeliveryId'] = $data['deliveries'][0]['id'];
-//            }
+            // In order to reference the primary order delivery we need to set ids. The primary order delivery is the
+            // order delivery with the highest shipping costs (i.e. _not_ a shipping discount).
+            if (!$cart->getBehavior()?->isRecalculation() && $cart->getDeliveries()->count() > 0) {
+                usort(
+                    $data['deliveries'],
+                    function (array $deliveryA, array $deliveryB) {
+                        return $deliveryB['shippingCosts']->getTotalPrice() <=> $deliveryA['shippingCosts']->getTotalPrice();
+                    }
+                );
+                $data['deliveries'][0]['id'] ??= Uuid::randomHex();
+                $data['primaryOrderDeliveryId'] = $data['deliveries'][0]['id'];
+            }
         }
 
         if ($conversionContext->shouldIncludeBillingAddress()) {
@@ -188,11 +188,11 @@ class OrderConverter
                 $context->getContext()
             );
 
-//            if (!$cart->getBehavior()?->isRecalculation() && $cart->getTransactions()->count() > 0) {
-//                $primaryOrderTransactionId = Uuid::randomHex();
-//                $data['transactions'][0]['id'] = $primaryOrderTransactionId;
-//                $data['primaryOrderTransactionId'] = $primaryOrderTransactionId;
-//            }
+            if (!$cart->getBehavior()?->isRecalculation() && $cart->getTransactions()->count() > 0) {
+                $primaryOrderTransactionId = Uuid::randomHex();
+                $data['transactions'][0]['id'] = $primaryOrderTransactionId;
+                $data['primaryOrderTransactionId'] = $primaryOrderTransactionId;
+            }
         }
 
         $data['lineItems'] = array_values($convertedLineItems);

@@ -136,6 +136,9 @@ The `filterByActiveRules` methods in `Shopware\Core\Checkout\Payment\PaymentMeth
 Use the new `Shopware\Core\Framework\Rule\RuleIdMatcher` instead.
 It allows filtering of `RuleIdAware` objects in either arrays or collections.
 
+## Added `primaryOrderDelivery` and `primaryOrderTransaction`
+For user interfaces that display only one delivery & transaction, there is now a new reference in the order for a `primaryOrderDelivery` or `primaryOrderTransaction`. If an extension modifies or adds new deliveries or transactions, this should be taken into account. By default, the reference will behave like default Shopware behavior, meaning `delivery.first()` and `transaction.last()`.
+
 # Administration
 
 ## Removed admin notification entity + related classes

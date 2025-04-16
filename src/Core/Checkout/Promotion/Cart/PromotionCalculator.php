@@ -36,7 +36,6 @@ use Shopware\Core\Checkout\Promotion\Cart\Error\PromotionExcludedError;
 use Shopware\Core\Checkout\Promotion\Cart\Error\PromotionNotEligibleError;
 use Shopware\Core\Checkout\Promotion\Exception\DiscountCalculatorNotFoundException;
 use Shopware\Core\Checkout\Promotion\Exception\InvalidScopeDefinitionException;
-use Shopware\Core\Checkout\Promotion\PromotionEntity;
 use Shopware\Core\Checkout\Promotion\PromotionException;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
@@ -264,10 +263,7 @@ class PromotionCalculator
         // remember our initial package count
         $originalPackageCount = $packages->count();
 
-        $promotion = $this->getPromotionEntity($item->getPayloadValue('promotionId'), $calculatedCart);
-        $discountEntity = $promotion?->getDiscounts()?->get($item->getId());
-
-        $shouldSplit = $discount->getScope() !== PromotionDiscountEntity::SCOPE_CART || ($discountEntity?->isConsiderAdvancedRules() && $discountEntity->getApplierKey() !== 'ALL');
+        $shouldSplit = $discount->getScope() !== PromotionDiscountEntity::SCOPE_CART || $this->isAdvanceRuled($discount);
         $splitItems = [];
         foreach ($calculatedCart->getLineItems() as $split) {
             $split->setStackable(true);
@@ -421,16 +417,14 @@ class PromotionCalculator
         return empty($discountItem->getPayloadValue('code'));
     }
 
-    private function getPromotionEntity(string $promotionId, Cart $cart): ?PromotionEntity
+    private function isAdvanceRuled(DiscountLineItem $discount): bool
     {
-        $promotionsData = $cart
-            ->getData()
-            ->get('promotions-code');
-
-        if (!$promotionsData instanceof CartPromotionsDataDefinition) {
-            return null;
+        if (!$discount->hasPayloadValue('filter')) {
+            return false;
         }
 
-        return $promotionsData->findCodeById($promotionId);
+        $rules = $discount->getPayloadValue('filter')['considerAdvancedRules'] ?? false;
+
+        return $rules && $discount->getFilterApplierKey() !== 'ALL';
     }
 }

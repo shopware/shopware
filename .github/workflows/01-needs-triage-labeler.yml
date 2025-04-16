@@ -14,7 +14,7 @@ jobs:
         with:
           script: |
             console.debug(context.payload);
-            const issue_number = context.payload.number;
+            const issue_number = context.payload.number ?? context.payload.issue.number;
 
             // get labels via api
             const labels = await github.rest.issues.listLabelsOnIssue({

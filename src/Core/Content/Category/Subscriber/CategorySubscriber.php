@@ -44,7 +44,7 @@ class CategorySubscriber implements EventSubscriberInterface
         $salesChannelId = $event instanceof SalesChannelEntityLoadedEvent ? $event->getSalesChannelContext()->getSalesChannelId() : null;
 
         foreach ($event->getEntities() as $category) {
-            if ($category instanceof SalesChannelCategoryEntity) {
+            if ($event instanceof SalesChannelEntityLoadedEvent) {
                 $category->assign([
                     'seoLink' => $this->categoryUrlGenerator->generate($category, $event->getSalesChannelContext()->getSalesChannel()),
                 ]);

@@ -4,7 +4,7 @@
 
 import { defineConfig, loadEnv } from 'vite';
 import { createHtmlPlugin } from 'vite-plugin-html';
-import { nodePolyfills } from 'vite-plugin-node-polyfills'
+import { nodePolyfills } from 'vite-plugin-node-polyfills';
 import svgLoader from 'vite-svg-loader';
 import vue from '@vitejs/plugin-vue';
 import * as path from 'path';
@@ -15,11 +15,13 @@ import { loadExtensions } from './build/vite-plugins/utils';
 import TwigPlugin from './build/vite-plugins/twigjs-plugin';
 import AssetPlugin from './build/vite-plugins/asset-plugin';
 import AssetPathPlugin from './build/vite-plugins/asset-path-plugin';
+import AutoImport from 'unplugin-auto-import/vite';
 
 console.log(colors.yellow('# Compiling Administration with Vite configuration'));
 
 process.env = { ...process.env, ...loadEnv('', process.cwd()) };
 process.env.PROJECT_ROOT = process.env.PROJECT_ROOT || path.join(__dirname, '/../../../../../');
+console.log(colors.yellow(`# Project root: ${process.env.PROJECT_ROOT} ad APP URL: ${process.env.APP_URL}`));
 
 if (!process.env.APP_URL) {
     console.log(colors.yellowBright('APP_URL is not defined. Dev-Mode will not work.'));
@@ -82,10 +84,24 @@ export default defineConfig(({ command }) => {
                 // Twig.JS loads node modules, so we need to polyfill them
                 nodePolyfills({
                     // To add only specific polyfills, add them here. If no option is passed, adds all polyfills
-                    include: ['path', 'events'],
+                    include: [
+                        'path',
+                        'events',
+                    ],
                 }),
                 svgLoader(),
                 vue(),
+                AutoImport({
+                    imports: [
+                        // 'vue',
+                        // '@vueuse/core',
+                    ],
+                    dirs: [
+                        './src/app/component/**/*.{js,ts}',
+                    ],
+                    vueTemplate: true,
+                    dumpUnimportItems: true,
+                }),
             ];
 
             if (isDev) {

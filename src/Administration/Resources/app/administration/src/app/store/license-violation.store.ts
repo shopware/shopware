@@ -2,6 +2,7 @@
  * @sw-package framework
  * @private
  */
+console.log('LOADED FILE LICENSE VIOLATION STORE');
 const licenseViolationStore = Shopware.Store.register({
     id: 'licenseViolation',
 
@@ -16,8 +17,3 @@ const licenseViolationStore = Shopware.Store.register({
  * @private
  */
 export type LicenseViolationStore = ReturnType<typeof licenseViolationStore>;
-
-/**
- * @private
- */
-export default licenseViolationStore;

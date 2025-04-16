@@ -6,7 +6,7 @@ import 'src/app/store/extension-sdk-module.store';
 import 'src/app/store/extensions.store';
 import 'src/app/store/error.store';
 import 'src/app/store/admin-help-center.store';
-import 'src/app/store/license-violation.store';
+// import 'src/app/store/license-violation.store';
 import 'src/app/store/main-module.store';
 import 'src/app/store/marketing.store';
 import 'src/app/store/sdk-location.store';
@@ -25,7 +25,7 @@ import 'src/app/store/sw-bulk-edit.store';
  * @sw-package framework
  * @private
  */
-export default function initStore() {
+export default async function initStore() {
     const app = Shopware.Application?.view?.app;
 
     /**
@@ -35,5 +35,9 @@ export default function initStore() {
      */
     if (app) {
         app.use(Store.instance._rootState);
+
+        // const licenseViolationStore = await Shopware.Store.getAsync('licenseViolation');
+        // console.log('STORE LICENSE VIOLLARIONS', !!licenseViolationStore);
+        // console.log('STORE LICENSE VIOLLARIONS', licenseViolationStore.$state?.violations);
     }
 }

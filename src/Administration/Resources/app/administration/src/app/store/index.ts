@@ -54,7 +54,24 @@ export default class Store {
         if (!piniaStore) {
             throw new Error(`Store with id "${id}" not found`);
         }
+        return piniaStore() as PiniaRootState[Id];
+    }
 
+    public async getAsync<Id extends keyof PiniaRootState>(id: Id): Promise<PiniaRootState[Id]> {
+        let piniaStore = Store.#stores.get(id);
+        if (!piniaStore) {
+            const camelToSnakeCase = (str: string) => str.replace(/[A-Z]/g, (letter) => `-${letter.toLowerCase()}`);
+            const newId = camelToSnakeCase(id);
+
+            const importPath = `./${newId}.store.ts`;
+            console.log('reading store', importPath);
+            await import(`./${newId}.store.ts`);
+            piniaStore = Store.#stores.get(id);
+
+            if (!piniaStore) {
+                throw new Error(`Store with id "${id}" not found`);
+            }
+        }
         return piniaStore() as PiniaRootState[Id];
     }
 

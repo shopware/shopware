@@ -9,7 +9,7 @@ const { dom, types } = Shopware.Utils;
  *
  * @private
  */
-Component.register('sw-admin-menu', {
+export default {
     template,
 
     inject: [
@@ -738,4 +738,4 @@ The admin menu only supports up to three levels of nesting.`,
             return types.isEqual(entry, firstPluginEntry);
         },
     },
-});
+};

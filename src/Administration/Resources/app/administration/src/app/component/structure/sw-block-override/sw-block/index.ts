@@ -56,7 +56,7 @@ import useBlockContext from '../../../../composables/use-block-context';
  *     <div>Another block content extension</div>
  * </sw-block>
  */
-Shopware.Component.register('sw-block', {
+export default {
     props: {
         name: {
             type: String,
@@ -111,4 +111,4 @@ Shopware.Component.register('sw-block', {
     render() {
         return this.template;
     },
-});
+};

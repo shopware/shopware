@@ -1,17 +1,66 @@
-name: Add needs-triage label to new PullRequests and Issues
+name: Add or remove needs-triage label
 
 on:
   pull_request_target:
-    types: [opened]
+    types: [opened, labeled]
   issues:
-    types: [opened]
+    types: [opened, labeled]
 
 jobs:
-  label:
+  needs-triage:
     runs-on: ubuntu-24.04
     steps:
-      - uses: srvaroa/labeler@0a20eccb8c94a1ee0bed5f16859aece1c45c3e55 # 1.13.0
-        env:
-          GITHUB_TOKEN: "${{ secrets.GITHUB_TOKEN }}"
+      - uses: actions/github-script@5c56fde4671bc2d3592fb0f2c5b5bab9ddae03b1 # 7
         with:
-          config_path: .github/labeler-needs-triage.yml
+          script: |
+            console.debug(context.payload);
+            const issue_number = context.payload.number;
+
+            // get labels via api
+            const labels = await github.rest.issues.listLabelsOnIssue({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number,
+            });
+
+            if (labels.status !== 200) {
+              throw new Error(`Failed to fetch labels for issue #${issue_number}`);
+            }
+
+            console.debug(labels);
+
+            // Check if the issue has either a domain label or the needs-triage label
+            const hasDomainLabel = labels.data.some(label => label.name.startsWith('domain/') || label.name === 'needs-triage');
+            const hasNeedsTriageLabel = labels.data.some(label => label.name === 'needs-triage');
+            
+            // remove needs-triage label if it has a domain label
+            if (hasDomainLabel && hasNeedsTriageLabel) {
+              console.debug('remove needs-triage label');
+              const removeResponse = await github.rest.issues.removeLabel({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number,
+                name: "needs-triage",
+              });
+
+              if (removeResponse.status !== 200) {
+                throw new Error(`Failed to remove label needs-triage from issue #${issue_number}`);
+              }
+
+              return;
+            }
+
+            // if neither, add needs-triage label
+            if (!hasDomainLabel && !hasNeedsTriageLabel) {
+              console.debug('add needs-triage label');
+              const addResponse = await github.rest.issues.addLabels({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number,
+                labels: ["needs-triage"],
+              });
+
+              if (addResponse.status !== 200) {
+                throw new Error(`Failed to add label needs-triage to issue #${issue_number}`);
+              }
+            }

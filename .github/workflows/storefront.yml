@@ -2,205 +2,148 @@ name: Storefront checks and tests
 
 on:
   pull_request:
-    types:
-      - opened
-      - synchronize
-      - reopened
-      - labeled
-      - unlabeled
   merge_group:
   workflow_dispatch:
   workflow_call:
 
 jobs:
-
-  needs-triage:
+  lint:
     runs-on: ubuntu-24.04
-    if: github.event
+    env:
+      PUPPETEER_SKIP_CHROMIUM_DOWNLOAD: "true"
+      COMPOSER_ROOT_VERSION: 6.7.9999999-dev
+
     steps:
-      - uses: actions/github-script@5c56fde4671bc2d3592fb0f2c5b5bab9ddae03b1 # 7
+      - name: Setup Shopware
+        uses: shopware/setup-shopware@main
         with:
-          script: |
-            console.log(context.payload);
+          mysql-version: skip
+          shopware-version: ${{ github.ref }}
+          shopware-repository: ${{ github.repository }}
 
-            // get labels via api
-            const labels = await github.rest.issues.listLabelsOnIssue({
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              issue_number: context.payload.number,
-            });
-            console.log(labels);
+      - name: Cache ESLint and Stylelint
+        uses: actions/cache@d4323d4df104b026a6aa633fdb11d772146be0bf # 4
+        with:
+          path: |
+            src/Storefront/Resources/app/storefront/node_modules/.eslintcache
+            src/Storefront/Resources/app/storefront/node_modules/.stylelintcache
+          key: storefront-lint-${{ runner.os }}-6.6
 
-            // Check if the issue has either a domain label or the needs-triage label
-            const hasDomainLabel = labels.data.some(label => label.name.startsWith('domain/') || label.name === 'needs-triage');
-            const hasNeedsTriageLabel = labels.data.some(label => label.name === 'needs-triage');
-            
-            const issueNumber = context.payload.number;
-            // remove needs-triage label if it has a domain label
-            if (hasDomainLabel && hasNeedsTriageLabel) {
-              console.log('remove needs-triage label');
-              await github.rest.issues.removeLabel({
-                owner: context.repo.owner,
-                repo: context.repo.repo,
-                issue_number: context.payload.issue.number,
-                name: "needs-triage",
-              });
+      - name: Build Storefront
+        env:
+          PROJECT_ROOT: ${{ github.workspace }}
+        run: |
+          symfony console bundle:dump
+          symfony console feature:dump
+          npm --prefix src/Storefront/Resources/app/storefront ci
+          npm --prefix src/Storefront/Resources/app/storefront run production
 
-              return;
-            }
+      - name: Check Code
+        working-directory: src/Storefront/Resources/app/storefront
+        run: |
+          npm run lint:js
+          npm run lint:scss
 
-            // if neither, add needs-triage label
-            if (!hasDomainLabel && !hasNeedsTriageLabel) {
-              console.log('add needs-triage label');
-              await github.rest.issues.addLabels({
-                owner: context.repo.owner,
-                repo: context.repo.repo,
-                issue_number,
-                labels: ["needs-triage"],
-              });
-            }
-          
-            if (response.status !== 200) {
-              throw new Error(`Failed to add label ${teamLabel} to issue #${issueNumber}`);
-            }
+  twig-lint-storefront:
+    name: Twig Lint (Storefront)
+    runs-on: ubuntu-latest
 
-  # lint:
-  #   runs-on: ubuntu-24.04
-  #   env:
-  #     PUPPETEER_SKIP_CHROMIUM_DOWNLOAD: "true"
-  #     COMPOSER_ROOT_VERSION: 6.7.9999999-dev
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # 4
 
-  #   steps:
-  #     - name: Setup Shopware
-  #       uses: shopware/setup-shopware@main
-  #       with:
-  #         mysql-version: skip
-  #         shopware-version: ${{ github.ref }}
-  #         shopware-repository: ${{ github.repository }}
+      - name: Install ludtwig
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh release download --repo MalteJanz/ludtwig  --pattern '*unknown-linux-gnu.tar.gz' && tar xf *.tar.gz
+          mv ./ludtwig /usr/local/bin
 
-  #     - name: Cache ESLint and Stylelint
-  #       uses: actions/cache@d4323d4df104b026a6aa633fdb11d772146be0bf # 4
-  #       with:
-  #         path: |
-  #           src/Storefront/Resources/app/storefront/node_modules/.eslintcache
-  #           src/Storefront/Resources/app/storefront/node_modules/.stylelintcache
-  #         key: storefront-lint-${{ runner.os }}-6.6
+      - name: Run ludtwig linter
+        id: ludtwigStep
+        run: |
+          cd ./src/Storefront/Resources/views
+          ludtwig .
 
-  #     - name: Build Storefront
-  #       env:
-  #         PROJECT_ROOT: ${{ github.workspace }}
-  #       run: |
-  #         symfony console bundle:dump
-  #         symfony console feature:dump
-  #         npm --prefix src/Storefront/Resources/app/storefront ci
-  #         npm --prefix src/Storefront/Resources/app/storefront run production
+      - name: Instructions if ludtwig fails
+        if: ${{ failure() && steps.ludtwigStep.outcome == 'failure'}}
+        run: |
+          ludtwig --version
+          echo "If you want to run this locally install https://github.com/MalteJanz/ludtwig in the version above"
+          echo "And then composer run ludtwig:storefront or ludtwig:storefront:fix"
+          echo "Alternatively you also can run these in the DevEnv shell"
+          exit $status  # Fail the job if ludtwig . failed
 
-  #     - name: Check Code
-  #       working-directory: src/Storefront/Resources/app/storefront
-  #       run: |
-  #         npm run lint:js
-  #         npm run lint:scss
+  jest:
+    name: "Jest Storefront"
+    runs-on: ubuntu-24.04
+    env:
+      APP_ENV: prod
+      APP_URL: http://localhost:8000
+      APP_SECRET: def00000bb5acb32b54ff8ee130270586eec0e878f7337dc7a837acc31d3ff00f93a56b595448b4b29664847dd51991b3314ff65aeeeb761a133b0ec0e070433bff08e48
+      OPENSEARCH_URL: elasticsearch:9200
+      ADMIN_OPENSEARCH_URL: elasticsearch:9200
+      BLUE_GREEN_DEPLOYMENT: 1
+      COMPOSER_ROOT_VERSION: 6.7.9999999-dev
 
-  # twig-lint-storefront:
-  #   name: Twig Lint (Storefront)
-  #   runs-on: ubuntu-latest
+    steps:
+      - name: Setup Shopware
+        uses: shopware/setup-shopware@main
+        with:
+          mysql-version: skip
+          shopware-version: ${{ github.ref }}
+          shopware-repository: ${{ github.repository }}
 
-  #   steps:
-  #     - name: Checkout repository
-  #       uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # 4
+      - name: Run Jest Storefront
+        working-directory: src/Storefront/Resources/app/storefront
+        run: |
+          npm ci
+          npm run unit -- --silent
 
-  #     - name: Install ludtwig
-  #       env:
-  #         GH_TOKEN: ${{ github.token }}
-  #       run: |
-  #         gh release download --repo MalteJanz/ludtwig  --pattern '*unknown-linux-gnu.tar.gz' && tar xf *.tar.gz
-  #         mv ./ludtwig /usr/local/bin
+      - name: Upload coverage
+        uses: codecov/codecov-action@0565863a31f2c772f9f0395002a31e3f06189574 # 5
+        env:
+          CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
+        with:
+          files: build/artifacts/jest/cobertura-coverage.xml
+          flags: jest-storefront
 
-  #     - name: Run ludtwig linter
-  #       id: ludtwigStep
-  #       run: |
-  #         cd ./src/Storefront/Resources/views
-  #         ludtwig .
+  license-check:
+    runs-on: ubuntu-24.04
+    name: "License check"
+    env:
+      WHITELISTED_JS_PACKAGES: "abab@2.0.1;administration;taffydb@2.6.2"
+    steps:
+      - name: Checkout
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # 4
+      - uses: actions/setup-node@cdca7365b2dadb8aad0a33bc7601856ffabcc48e # 4
+        with:
+          node-version: 20
+      - name: install packages
+        working-directory: src/Storefront/Resources/app/storefront
+        run: |
+          npm ci
+      - name: Check license
+        working-directory: src/Storefront/Resources/app/storefront
+        run: |
+          npx license-checker-rseidelsohn \
+            --onlyAllow "$(tr \\n \; < ${{ github.workspace }}/.allowed-licenses)" \
+            --excludePackages "${WHITELISTED_JS_PACKAGES}" \
+            --excludePrivatePackages
 
-  #     - name: Instructions if ludtwig fails
-  #       if: ${{ failure() && steps.ludtwigStep.outcome == 'failure'}}
-  #       run: |
-  #         ludtwig --version
-  #         echo "If you want to run this locally install https://github.com/MalteJanz/ludtwig in the version above"
-  #         echo "And then composer run ludtwig:storefront or ludtwig:storefront:fix"
-  #         echo "Alternatively you also can run these in the DevEnv shell"
-  #         exit $status  # Fail the job if ludtwig . failed
+  storefront-check:
+      if: always()
+      needs:
+      - lint
+      - jest
+      - license-check
+      - twig-lint-storefront
 
-  # jest:
-  #   name: "Jest Storefront"
-  #   runs-on: ubuntu-24.04
-  #   env:
-  #     APP_ENV: prod
-  #     APP_URL: http://localhost:8000
-  #     APP_SECRET: def00000bb5acb32b54ff8ee130270586eec0e878f7337dc7a837acc31d3ff00f93a56b595448b4b29664847dd51991b3314ff65aeeeb761a133b0ec0e070433bff08e48
-  #     OPENSEARCH_URL: elasticsearch:9200
-  #     ADMIN_OPENSEARCH_URL: elasticsearch:9200
-  #     BLUE_GREEN_DEPLOYMENT: 1
-  #     COMPOSER_ROOT_VERSION: 6.7.9999999-dev
-
-  #   steps:
-  #     - name: Setup Shopware
-  #       uses: shopware/setup-shopware@main
-  #       with:
-  #         mysql-version: skip
-  #         shopware-version: ${{ github.ref }}
-  #         shopware-repository: ${{ github.repository }}
-
-  #     - name: Run Jest Storefront
-  #       working-directory: src/Storefront/Resources/app/storefront
-  #       run: |
-  #         npm ci
-  #         npm run unit -- --silent
-
-  #     - name: Upload coverage
-  #       uses: codecov/codecov-action@0565863a31f2c772f9f0395002a31e3f06189574 # 5
-  #       env:
-  #         CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
-  #       with:
-  #         files: build/artifacts/jest/cobertura-coverage.xml
-  #         flags: jest-storefront
-
-  # license-check:
-  #   runs-on: ubuntu-24.04
-  #   name: "License check"
-  #   env:
-  #     WHITELISTED_JS_PACKAGES: "abab@2.0.1;administration;taffydb@2.6.2"
-  #   steps:
-  #     - name: Checkout
-  #       uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # 4
-  #     - uses: actions/setup-node@cdca7365b2dadb8aad0a33bc7601856ffabcc48e # 4
-  #       with:
-  #         node-version: 20
-  #     - name: install packages
-  #       working-directory: src/Storefront/Resources/app/storefront
-  #       run: |
-  #         npm ci
-  #     - name: Check license
-  #       working-directory: src/Storefront/Resources/app/storefront
-  #       run: |
-  #         npx license-checker-rseidelsohn \
-  #           --onlyAllow "$(tr \\n \; < ${{ github.workspace }}/.allowed-licenses)" \
-  #           --excludePackages "${WHITELISTED_JS_PACKAGES}" \
-  #           --excludePrivatePackages
-
-  # storefront-check:
-  #     if: always()
-  #     needs:
-  #     - lint
-  #     - jest
-  #     - license-check
-  #     - twig-lint-storefront
-
-  #     runs-on: Ubuntu-latest
-  #     steps:
-  #     - name: Decide whether the needed jobs succeeded or failed
-  #       uses: re-actors/alls-green@05ac9388f0aebcb5727afa17fcccfecd6f8ec5fe # v1.2.2
-  #       with:
-  #         # allowed-failures: docs, linters
-  #         # allowed-skips: non-voting-flaky-job
-  #         jobs: ${{ toJSON(needs) }}
+      runs-on: Ubuntu-latest
+      steps:
+      - name: Decide whether the needed jobs succeeded or failed
+        uses: re-actors/alls-green@05ac9388f0aebcb5727afa17fcccfecd6f8ec5fe # v1.2.2
+        with:
+          # allowed-failures: docs, linters
+          # allowed-skips: non-voting-flaky-job
+          jobs: ${{ toJSON(needs) }}

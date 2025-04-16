@@ -16,8 +16,6 @@ use Symfony\Contracts\EventDispatcher\Event;
 #[Package('discovery')]
 final class SalesChannelCategoryIdsFetchedEvent extends Event implements ShopwareEvent
 {
-    final public const NAME = 'sales_channel.category.keys.fetched';
-
     /**
      * @var array<string, string>
      */

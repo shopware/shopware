@@ -23,29 +23,32 @@ class AdvancedPackageRules extends SetGroupScopeFilter
     public function filter(DiscountLineItem $discount, DiscountPackageCollection $packages, SalesChannelContext $context): DiscountPackageCollection
     {
         $priceDefinition = $discount->getPriceDefinition();
+        $filtered = new DiscountPackageCollection();
 
-        foreach ($packages as $packageKey => $package) {
+        foreach ($packages as $package) {
             $checkedItems = [];
+            $foundItems = clone $package;
 
-            foreach ($package->getMetaData() as $key => $item) {
-                if (!\array_key_exists($item->getLineItemId(), $checkedItems)) {
-                    $lineItem = $package->getCartItem($item->getLineItemId());
+            foreach ($foundItems->getMetaData() as $key => $item) {
+                $id = $item->getLineItemId();
+                if (!\array_key_exists($id, $checkedItems)) {
+                    $lineItem = $foundItems->getCartItem($id);
 
-                    $checkedItems[$item->getLineItemId()] = $this->isRulesFilterValid($lineItem, $priceDefinition, $context);
+                    $checkedItems[$id] = $this->isRulesFilterValid($lineItem, $priceDefinition, $context);
                 }
 
-                if (!$checkedItems[$item->getLineItemId()]) {
-                    $package->getMetaData()->remove($key);
-                    $package->getCartItems()->remove($key);
+                if (!$checkedItems[$id]) {
+                    $foundItems->getMetaData()->remove($key);
+                    $foundItems->getCartItems()->remove($key);
                 }
             }
 
-            if ($package->getMetaData()->count() === 0) {
-                $packages->remove($packageKey);
+            if ($foundItems->getMetaData()->count()) {
+                $filtered->add($foundItems);
             }
         }
 
-        return $packages;
+        return $filtered;
     }
 
     private function isRulesFilterValid(LineItem $item, PriceDefinitionInterface $priceDefinition, SalesChannelContext $context): bool

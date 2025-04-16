@@ -82,8 +82,9 @@ class CartScopeDiscountPackager extends DiscountPackager
             return null;
         }
 
-        return new DiscountPackage(
-            new LineItemQuantityCollection($discountItems)
-        );
+        $collection = new LineItemQuantityCollection();
+        $collection->assign(['elements' => $discountItems]);
+
+        return new DiscountPackage($collection);
     }
 }

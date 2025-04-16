@@ -400,13 +400,15 @@ class PromotionCalculator
     {
         // set the line item from the cart for each unit
         foreach ($result as $package) {
-            foreach ($package->getMetaData() as $key => $item) {
-                $lineItemId = $item->getLineItemId();
+            $cartItems = $package->getCartItems()->getElements();
 
-                if (!$package->getCartItems()->has($key)) {
-                    $package->getCartItems()->add($splitItems[$lineItemId]);
+            foreach ($package->getMetaData() as $key => $item) {
+                if (!\array_key_exists($key, $cartItems)) {
+                    $cartItems[$key] = $splitItems[$item->getLineItemId()];
                 }
             }
+
+            $package->getCartItems()->assign(['elements' => $cartItems]);
         }
 
         return $result;

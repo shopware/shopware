@@ -204,6 +204,7 @@ class WebhookManagerTest extends TestCase
         ], Context::createDefaultContext());
 
         $eventByEntityName = $event->getEventByEntityName('customer');
+        static::assertInstanceOf(EntityWrittenEvent::class, $eventByEntityName);
         $hookableEvent = HookableEntityWrittenEvent::fromWrittenEvent($eventByEntityName);
 
         $this->eventFactory->expects($this->once())->method('createHookablesFor')->with($event)->willReturn([$hookableEvent]);
@@ -382,7 +383,7 @@ class WebhookManagerTest extends TestCase
         ], Context::createDefaultContext());
 
         $eventByEntityName = $event->getEventByEntityName('product');
-        static::assertInstanceOf(EntityDefinition::class, $eventByEntityName);
+        static::assertInstanceOf(EntityWrittenEvent::class, $eventByEntityName);
         $hookableEvent = HookableEntityWrittenEvent::fromWrittenEvent($eventByEntityName);
 
         $this->eventFactory->expects($this->once())->method('createHookablesFor')->with($event)->willReturn([$hookableEvent]);

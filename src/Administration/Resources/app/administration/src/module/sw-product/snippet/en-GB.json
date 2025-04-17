@@ -138,6 +138,10 @@
       "labelAvailableStock": "Available stock",
       "labelPurchaseSteps": "Purchase steps"
     },
+    "measurementForm": {
+      "description": "Enter the product’s dimensions and weight as provided. They’ll be automatically converted into all supported measurement units. This information can be used for shipping cost calculations.",
+      "note": "<b>Note:</b> The units displayed to customers are determined by the settings of the assigned Sales Channels."
+    },
     "packagingForm": {
       "placeholderUnit": "Select...",
       "labelUnit": "Product unit",
@@ -168,6 +172,7 @@
       "manageStockTooltip": "If the stock is not managed, the digital product is available for an infinite amount of transactions."
     },
     "specifications": {
+      "cardTitleMeasurement": "Product measurements",
       "cardTitleMeasuresPackaging": "Measures & packaging",
       "cardTitleEssentialCharacteristics": "Essential Characteristics",
       "cardTitleCustomFields": "Custom fields",

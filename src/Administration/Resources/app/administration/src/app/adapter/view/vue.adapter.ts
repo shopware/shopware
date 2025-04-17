@@ -274,6 +274,7 @@ export default class VueAdapter extends ViewAdapter {
             'MtUrlField',
             'MtSearch',
             'MtLink',
+            'MtUnitField', // TODO: Remove this after https://github.com/shopware/meteor/pull/658 is merged
         ];
 
         meteorComponents.forEach((componentName) => {

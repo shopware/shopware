@@ -138,6 +138,10 @@
       "labelAvailableStock": "Verfügbarer Bestand",
       "labelPurchaseSteps": "Staffelung"
     },
+    "measurementForm": {
+      "description": "Enter the product’s dimensions and weight as provided. They’ll be automatically converted into all supported measurement units. This information can be used for shipping cost calculations.",
+      "note": "<b>Note:</b> The units displayed to customers are determined by the settings of the assigned Sales Channels."
+    },
     "packagingForm": {
       "labelUnit": "Product unit",
       "placeholderUnit": "Wähle aus ...",
@@ -168,6 +172,7 @@
       "manageStockTooltip": "Wenn der Lagerbestand nicht verwaltet wird, ist das digitale Produkt für eine unendliche Anzahl von Transaktionen verfügbar."
     },
     "specifications": {
+      "cardTitleMeasurement": "Product measurements",
       "cardTitleMeasuresPackaging": "Maße & Verpackung",
       "cardTitleEssentialCharacteristics": "Wesentliche Merkmale",
       "cardTitleCustomFields": "Zusatzfelder",

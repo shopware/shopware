@@ -12,6 +12,16 @@ use Shopware\Core\Framework\Log\Package;
  *
  * Most of the properties are calculated during Shopware\Storefront\Theme\ThemeLifecycleService::refreshTheme.
  * The $scriptFiles are calculated just after Shopware\Storefront\Theme\ThemeCompiler::compileTheme.
+ *
+ * @phpstan-type ThemeRuntimeConfigArray array{
+ *     themeId: string,
+ *     technicalName: ?string,
+ *     resolvedConfig?: array<string, mixed>,
+ *     viewInheritance?: array<string>,
+ *     scriptFiles?: array<string>|null,
+ *     iconSets?: array<string, array{path: string, namespace: string}>,
+ *     updatedAt?: \DateTimeInterface|null
+ * }
  */
 #[Package('framework')]
 class ThemeRuntimeConfig
@@ -32,15 +42,7 @@ class ThemeRuntimeConfig
     }
 
     /**
-     * @param array{
-     *     themeId: string,
-     *     technicalName: ?string,
-     *     resolvedConfig?: array<string, mixed>,
-     *     viewInheritance?: array<string>,
-     *     scriptFiles?: array<string>|null,
-     *     iconSets?: array<string, array{path: string, namespace: string}>,
-     *     updatedAt?: \DateTimeInterface|null
-     * } $data
+     * @param ThemeRuntimeConfigArray $data
      */
     public static function fromArray(array $data): self
     {

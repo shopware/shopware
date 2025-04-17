@@ -25,6 +25,9 @@ use Shopware\Storefront\Theme\StorefrontPluginConfiguration\AbstractStorefrontPl
 use Shopware\Storefront\Theme\StorefrontPluginConfiguration\StorefrontPluginConfiguration;
 use Shopware\Storefront\Theme\StorefrontPluginConfiguration\StorefrontPluginConfigurationCollection;
 
+/**
+ * @deprecated tag:v6.8.0 - reason:becomes-final
+ */
 #[Package('framework')]
 class ThemeLifecycleService
 {

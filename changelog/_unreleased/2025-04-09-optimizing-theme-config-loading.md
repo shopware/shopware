@@ -22,4 +22,4 @@ ___
 ___
 # Next Major Version Changes
 ## Removal of CachedResolvedConfigLoader
-* The `\Shopware\Storefront\Theme\CachedResolvedConfigLoader` will be removed.
+* The `\Shopware\Storefront\Theme\CachedResolvedConfigLoader` was removed.

@@ -96,8 +96,13 @@ class ThemeRuntimeConfigService
     /**
      * Refreshes the whole ThemeRuntimeConfig object.
      */
-    public function refreshRuntimeConfig(string $themeId, StorefrontPluginConfiguration $themeConfig, Context $context, bool $failOnFileResolveError = false, ?StorefrontPluginConfigurationCollection $configCollection = null): ThemeRuntimeConfig
-    {
+    public function refreshRuntimeConfig(
+        string $themeId,
+        StorefrontPluginConfiguration $themeConfig,
+        Context $context,
+        bool $failOnFileResolveError = false,
+        ?StorefrontPluginConfigurationCollection $configCollection = null
+    ): ThemeRuntimeConfig {
         if ($configCollection === null) {
             $configCollection = $this->pluginRegistry->getConfigurations();
         }

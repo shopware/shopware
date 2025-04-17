@@ -44,7 +44,7 @@ final class DeleteThemeFilesTaskHandler extends ScheduledTaskHandler
                 return false;
             }
 
-            // Find the first file in the directory, as on some file systems the directory are only virtual and do not have a timestamp
+            // Find the first file in the directory, as on some file systems the directories are only virtual and do not have a timestamp
             $modifiedTimestampOfFirstFile = $this->getModifiedTimestampOfFirstFile($themeDirectory);
 
             // If no files are found in the directory, delete it

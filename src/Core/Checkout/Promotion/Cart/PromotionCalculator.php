@@ -362,7 +362,7 @@ class PromotionCalculator
      */
     private function isRequirementValid(LineItem $lineItem, Cart $calculated, SalesChannelContext $context): bool
     {
-        // if we dont have any requirement, then it's obviously valid
+        // if we don't have any requirement, then it's obviously valid
         if (!$lineItem->getRequirement()) {
             return true;
         }

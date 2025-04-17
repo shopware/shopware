@@ -2,9 +2,9 @@ name: Add or remove needs-triage label
 
 on:
   pull_request_target:
-    types: [opened, labeled]
+    types: [opened, labeled, unlabeled]
   issues:
-    types: [opened, labeled]
+    types: [opened, labeled, unlabeled]
 
 jobs:
   needs-triage:

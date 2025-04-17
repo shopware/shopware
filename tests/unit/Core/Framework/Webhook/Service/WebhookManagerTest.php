@@ -22,6 +22,7 @@ use Shopware\Core\Framework\App\Hmac\RequestSigner;
 use Shopware\Core\Framework\App\Payload\AppPayloadServiceHelper;
 use Shopware\Core\Framework\App\Payload\Source;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenEvent;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Framework\Webhook\AclPrivilegeCollection;
@@ -171,7 +172,6 @@ class WebhookManagerTest extends TestCase
         $this->prepareWebhook('product.written', true, []);
 
         $this->getWebhookManager(false)->dispatch($event);
-
         $messages = $this->bus->getMessages();
         static::assertEmpty($messages);
     }
@@ -203,7 +203,6 @@ class WebhookManagerTest extends TestCase
             ],
         ], Context::createDefaultContext());
 
-        /** @var EntityWrittenEvent $eventByEntityName */
         $eventByEntityName = $event->getEventByEntityName('customer');
         $hookableEvent = HookableEntityWrittenEvent::fromWrittenEvent($eventByEntityName);
 
@@ -382,8 +381,8 @@ class WebhookManagerTest extends TestCase
             ],
         ], Context::createDefaultContext());
 
-        /** @var EntityWrittenEvent $eventByEntityName */
         $eventByEntityName = $event->getEventByEntityName('product');
+        static::assertInstanceOf(EntityDefinition::class, $eventByEntityName);
         $hookableEvent = HookableEntityWrittenEvent::fromWrittenEvent($eventByEntityName);
 
         $this->eventFactory->expects($this->once())->method('createHookablesFor')->with($event)->willReturn([$hookableEvent]);

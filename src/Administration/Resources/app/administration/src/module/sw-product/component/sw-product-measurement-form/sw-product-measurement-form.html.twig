@@ -1,0 +1,105 @@
+<div class="sw-product-measurement-form">
+    <div class="sw-product-measurement-form__description-group">
+        <p>{{ $t('sw-product.measurementForm.description') }}</p>
+        <p v-html="$t('sw-product.measurementForm.note')"></p>
+    </div>
+
+    <sw-container
+        columns="1fr 1fr"
+        gap="0 32px"
+    >
+        <sw-inherit-wrapper
+            v-model:value="product.width"
+            :has-parent="!!parentProduct.id"
+            :inherited-value="parentProduct.width"
+        >
+            <template #content="props">
+
+                <mt-unit-field
+                    allow-empty
+                    :default-unit="defaultUnit"
+                    :measurement-type="measurementType"
+                    :label="$t('sw-product.settingsForm.labelWidth')"
+                    :map-inheritance="props"
+                    :placeholder="$t('sw-product.settingsForm.placeholderWidth')"
+                    :min="0"
+                    :error="productWidthError"
+                    :disabled="props.isInherited || !allowEdit"
+                />
+
+            </template>
+        </sw-inherit-wrapper>
+
+        <sw-inherit-wrapper
+            v-model:value="product.height"
+            :has-parent="!!parentProduct.id"
+            :inherited-value="parentProduct.height"
+        >
+            <template #content="props">
+
+                <mt-unit-field
+                    allow-empty
+                    :default-unit="defaultUnit"
+                    :measurement-type="measurementType"
+                    :label="$t('sw-product.settingsForm.labelHeight')"
+                    :map-inheritance="props"
+                    :placeholder="$t('sw-product.settingsForm.placeholderHeight')"
+                    :min="0"
+                    :error="productHeightError"
+                    :disabled="props.isInherited || !allowEdit"
+                />
+
+            </template>
+        </sw-inherit-wrapper>
+    </sw-container>
+
+    <sw-container
+        columns="1fr 1fr"
+        gap="0 32px"
+    >
+        <sw-inherit-wrapper
+            v-model:value="product.length"
+            :has-parent="!!parentProduct.id"
+            :inherited-value="parentProduct.length"
+        >
+            <template #content="props">
+
+                <mt-unit-field
+                    allow-empty
+                    :default-unit="defaultUnit"
+                    :measurement-type="measurementType"
+                    :label="$t('sw-product.settingsForm.labelLength')"
+                    :map-inheritance="props"
+                    :placeholder="$t('sw-product.settingsForm.placeholderLength')"
+                    :min="0"
+                    :error="productLengthError"
+                    :disabled="props.isInherited || !allowEdit"
+                />
+
+            </template>
+        </sw-inherit-wrapper>
+
+        <sw-inherit-wrapper
+            v-model:value="product.weight"
+            :has-parent="!!parentProduct.id"
+            :inherited-value="parentProduct.weight"
+        >
+            <template #content="props">
+
+                <mt-unit-field
+                    allow-empty
+                    :default-unit="defaultUnit"
+                    :measurement-type="measurementType"
+                    :label="$t('sw-product.settingsForm.labelWeight')"
+                    :map-inheritance="props"
+                    :placeholder="$t('sw-product.settingsForm.placeholderWeight')"
+                    :min="0"
+                    :digits="3"
+                    :error="productWeightError"
+                    :disabled="props.isInherited || !allowEdit"
+                />
+
+            </template>
+        </sw-inherit-wrapper>
+    </sw-container>
+</div>

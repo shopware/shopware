@@ -30,7 +30,7 @@ use Shopware\Core\Test\Generator;
 class CartScopeDiscountPackagerTest extends TestCase
 {
     #[DataProvider('dataProvider')]
-    public function testGetMatchingItems(LineItem $matchingLineItem, bool $considerRules, LineItemQuantityCollection $quantityCollection): void
+    public function testGetMatchingItems(LineItem $matchingLineItem, array $payload, LineItemQuantityCollection $quantityCollection): void
     {
         $context = Generator::generateSalesChannelContext();
 
@@ -41,14 +41,6 @@ class CartScopeDiscountPackagerTest extends TestCase
                 (new LineItem(Uuid::randomHex(), LineItem::PRODUCT_LINE_ITEM_TYPE, Uuid::randomHex()))->setStackable(true),
             ])
         );
-
-        $payload = [
-            'discountScope' => 'foo',
-            'discountType' => 'bar',
-            'filter' => [
-                'considerAdvancedRules' => $considerRules,
-            ],
-        ];
 
         $priceDefinition = new AbsolutePriceDefinition(42, new LineItemRule(Rule::OPERATOR_EQ, [$matchingLineItem->getReferencedId() ?? '']));
         $discount = new DiscountLineItem('foo', $priceDefinition, $payload, null);
@@ -77,7 +69,13 @@ class CartScopeDiscountPackagerTest extends TestCase
 
         yield 'not consider rules' => [
             $item,
-            false,
+            [
+                'discountScope' => 'foo',
+                'discountType' => 'bar',
+                'filter' => [
+                    'considerAdvancedRules' => false,
+                ],
+            ],
             new LineItemQuantityCollection([
                 new LineItemQuantity($item->getId(), 2),
             ]),
@@ -85,10 +83,27 @@ class CartScopeDiscountPackagerTest extends TestCase
 
         yield 'consider rules' => [
             $item,
-            true,
+            [
+                'discountScope' => 'foo',
+                'discountType' => 'bar',
+                'filter' => [
+                    'considerAdvancedRules' => true,
+                ],
+            ],
             new LineItemQuantityCollection([
                 new LineItemQuantity($item->getId(), 1),
                 new LineItemQuantity($item->getId(), 1),
+            ]),
+        ];
+
+        yield 'not consider rules, no filter value' => [
+            $item,
+            [
+                'discountScope' => 'foo',
+                'discountType' => 'bar',
+            ],
+            new LineItemQuantityCollection([
+                new LineItemQuantity($item->getId(), 2),
             ]),
         ];
     }

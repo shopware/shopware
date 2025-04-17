@@ -6,6 +6,7 @@ use Doctrine\DBAL\ArrayParameterType;
 use Doctrine\DBAL\Connection;
 use Shopware\Core\Content\Category\CategoryDefinition;
 use Shopware\Core\Content\Category\CategoryEntity;
+use Shopware\Core\Content\Category\Event\SalesChannelCategoryIdsFetchedEvent;
 use Shopware\Core\Content\Sitemap\Service\ConfigHandler;
 use Shopware\Core\Content\Sitemap\Struct\Url;
 use Shopware\Core\Content\Sitemap\Struct\UrlResult;
@@ -16,6 +17,7 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
+use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\Routing\RouterInterface;
 
 #[Package('discovery')]
@@ -31,7 +33,8 @@ class CategoryUrlProvider extends AbstractUrlProvider
         private readonly Connection $connection,
         private readonly CategoryDefinition $definition,
         private readonly IteratorFactory $iteratorFactory,
-        private readonly RouterInterface $router
+        private readonly RouterInterface $router,
+        private readonly EventDispatcherInterface $eventDispatcher,
     ) {
     }
 
@@ -54,8 +57,27 @@ class CategoryUrlProvider extends AbstractUrlProvider
         }
 
         $keys = FetchModeHelper::keyPair($categories);
+        $autoIncrementIds = array_keys($keys);
 
-        $seoUrls = $this->getSeoUrls(array_values($keys), 'frontend.navigation.page', $context, $this->connection);
+        // The next offset must be taken from all results before the event can filter any ids out to prevent fetching
+        // the same ids again
+        $nextOffset = array_pop($autoIncrementIds);
+        \assert(\is_int($nextOffset) || $nextOffset === null);
+
+        $categoryIdsFetchedEvent = $this->eventDispatcher->dispatch(
+            new SalesChannelCategoryIdsFetchedEvent(\array_column($categories, 'id'), $context)
+        );
+
+        if (empty($categoryIdsFetchedEvent->getIds())) {
+            return new UrlResult([], $nextOffset);
+        }
+
+        $availableCategories = \array_filter(
+            $categories,
+            fn (array $category) => $categoryIdsFetchedEvent->hasId($category['id'])
+        );
+
+        $seoUrls = $this->getSeoUrls($categoryIdsFetchedEvent->getIds(), 'frontend.navigation.page', $context, $this->connection);
 
         /** @var array<string, array{seo_path_info: string}> $seoUrls */
         $seoUrls = FetchModeHelper::groupUnique($seoUrls);
@@ -63,7 +85,7 @@ class CategoryUrlProvider extends AbstractUrlProvider
         $urls = [];
         $url = new Url();
 
-        foreach ($categories as $category) {
+        foreach ($availableCategories as $category) {
             $lastMod = $category['updated_at'] ?: $category['created_at'];
 
             $lastMod = (new \DateTime($lastMod))->format(Defaults::STORAGE_DATE_TIME_FORMAT);
@@ -83,11 +105,6 @@ class CategoryUrlProvider extends AbstractUrlProvider
 
             $urls[] = $newUrl;
         }
-
-        $keys = array_keys($keys);
-
-        $nextOffset = array_pop($keys);
-        \assert(\is_int($nextOffset) || $nextOffset === null);
 
         return new UrlResult($urls, $nextOffset);
     }

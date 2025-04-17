@@ -690,7 +690,11 @@
         },
         "lastNameRule": "Customer surname",
         "isCompanyRule": "Commercial customer",
-        "cartTaxDisplayRule": "Tax display",
+        "cartTaxDisplay": {
+          "label": "Tax display",
+          "gross": "Gross",
+          "net": "Net"
+        },
         "isGuestRule": "Guest account",
         "isNewsletterRecipient": "Customer is newsletter recipient",
         "daysSinceLastOrderRule": "Time since last order",
@@ -712,7 +716,11 @@
         "goodsCountRule": "Total quantity of distinct products",
         "goodsPriceRule": "Subtotal of all items",
         "cartTotalPurchasePrice": "Total of all purchase prices",
-        "lineItemOfTypeRule": "Item of type",
+        "lineItemOfTypeRule": {
+          "label": "Item of type",
+          "product": "Product",
+          "discount_surcharge": "Discount / surcharge"
+        },
         "lineItemRule": "Items in cart",
         "lineItemsInCartCountRule": "Quantity of distinct items",
         "promotionsInCartCountRule": "Quantity of discounts",
@@ -791,6 +799,11 @@
         "orderTotalAmountRule": "Total value of completed (done) orders",
         "promotionValueRule": "Subtotal of all discounts",
         "promotionCodeOfType": "Promotions with code option",
+        "promotionCodeOfTypeRule": {
+          "global": "None",
+          "fixed": "Fixed",
+          "individual": "Individual"
+        },
         "promotionLineItemRule": "Promotion",
         "lineItemCustomField": {
           "field": {
@@ -813,60 +826,60 @@
       }
     },
     "sw-condition-generic": {
+      "dayOfWeek": {
         "dayOfWeek": {
-            "dayOfWeek": {
-                "options": {
-                    "1": "Monday",
-                    "2": "Tuesday",
-                    "3": "Wednesday",
-                    "4": "Thursday",
-                    "5": "Friday",
-                    "6": "Saturday",
-                    "7": "Sunday"
-                }
-            }
-        },
-        "cartLineItemOfType": {
-            "lineItemType": {
-                "options": {
-                    "product": "Product",
-                    "promotion": "Discount / surcharge"
-                }
-            }
-        },
-        "cartTaxDisplay": {
-            "taxDisplay": {
-                "options": {
-                    "gross": "Gross",
-                    "net": "Net"
-                }
-            }
-        },
-        "cartTotalPurchasePrice": {
-            "type": {
-                "options": {
-                    "gross": "Gross",
-                    "net": "Net"
-                }
-            }
-        },
-        "promotionCodeOfType": {
-            "promotionCodeType": {
-                "options": {
-                    "global": "None",
-                    "fixed": "Fixed",
-                    "individual": "Individual"
-                }
-            }
-        },
-        "cartLineItemProductStates": {
-            "productState": {
-                "options": {
-                    "is-download": "Digital",
-                    "is-physical": "Physical"
-                }
-            }
-        },
+          "options": {
+            "1": "Monday",
+            "2": "Tuesday",
+            "3": "Wednesday",
+            "4": "Thursday",
+            "5": "Friday",
+            "6": "Saturday",
+            "7": "Sunday"
+          }
+        }
+      },
+      "cartLineItemOfType": {
+        "lineItemType": {
+          "options": {
+            "product": "Product",
+            "promotion": "Discount / surcharge"
+          }
+        }
+      },
+      "cartTaxDisplay": {
+        "taxDisplay": {
+          "options": {
+            "gross": "Gross",
+            "net": "Net"
+          }
+        }
+      },
+      "cartTotalPurchasePrice": {
+        "type": {
+          "options": {
+            "gross": "Gross",
+            "net": "Net"
+          }
+        }
+      },
+      "promotionCodeOfType": {
+        "promotionCodeType": {
+          "options": {
+            "global": "None",
+            "fixed": "Fixed",
+            "individual": "Individual"
+          }
+        }
+      },
+      "cartLineItemProductStates": {
+        "productState": {
+          "options": {
+            "is-download": "Digital",
+            "is-physical": "Physical"
+          }
+        }
+      },
       "units": {
         "dimension": "mm",
         "weight": "kg",
@@ -1010,6 +1023,15 @@
       "frequently_used": "Frequently used",
       "recently_searched": "Recently searched",
       "flow_sequence": "Flow"
+    },
+    "day-of-week": {
+      "monday": "Monday",
+      "tuesday": "Tuesday",
+      "wednesday": "Wednesday",
+      "thursday": "Thursday",
+      "friday": "Friday",
+      "saturday": "Saturday",
+      "sunday": "Sunday"
     },
     "businessEvents": {
       "checkout_customer_before_login": "Customer has requested login",

@@ -1,13 +1,13 @@
 ---
-title: Remove DeleteThemeFilesMessage
+title: Remove DeleteThemeFilesMessage usage in ThemeCompiler
 issue: #7925
 author: Michael Telgmann
 author_github: @mitelg
 ---
 # Storefront
 * Added `\Shopware\Storefront\Theme\ScheduledTask\DeleteThemeFilesTask` and `\Shopware\Storefront\Theme\ScheduledTask\DeleteThemeFilesTaskHandler` to handle the deletion of unused theme files via a scheduled task.
-* Deprecated `\Shopware\Storefront\Theme\Message\DeleteThemeFilesMessage` and `\Shopware\Storefront\Theme\Message\DeleteThemeFilesHandler` as they are no longer needed.
 * Changed `\Shopware\Storefront\Theme\ThemeCompiler::compileTheme` method, so it is no longer dispatching the `\Shopware\Storefront\Theme\Message\DeleteThemeFilesMessage` message.
+* Deprecated `\Shopware\Storefront\Theme\Message\DeleteThemeFilesMessage` and `\Shopware\Storefront\Theme\Message\DeleteThemeFilesHandler` as they are no longer needed.
 
 ___
 # Upgrade Information

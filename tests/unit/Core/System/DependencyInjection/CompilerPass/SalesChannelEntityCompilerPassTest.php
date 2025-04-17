@@ -86,6 +86,7 @@ class SalesChannelEntityCompilerPassTest extends TestCase
         $attributeDefinition->addTag('shopware.entity.definition');
         $attributeDefinition->addArgument([
             'entity_name' => 'test_attribute_entity',
+            'fields' => [],
         ]);
         $container->setDefinition('test_attribute_entity.definition', $attributeDefinition);
 

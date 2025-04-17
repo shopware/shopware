@@ -35,7 +35,7 @@ class ElasticsearchCleanIndicesCommand extends Command
      */
     protected function configure(): void
     {
-        if (!Feature::isActive('v6.7.0.0')) {
+        if (!Feature::isActive('v6.8.0.0')) {
             $this
                 ->addOption('force', 'f', InputOption::VALUE_NONE, 'Do not ask for confirmation');
         }

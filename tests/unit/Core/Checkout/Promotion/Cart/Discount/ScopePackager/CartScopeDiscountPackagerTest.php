@@ -29,6 +29,9 @@ use Shopware\Core\Test\Generator;
 #[CoversClass(CartScopeDiscountPackager::class)]
 class CartScopeDiscountPackagerTest extends TestCase
 {
+    /**
+     * @param array<string, string|array<mixed>> $payload
+     */
     #[DataProvider('dataProvider')]
     public function testGetMatchingItems(LineItem $matchingLineItem, array $payload, LineItemQuantityCollection $quantityCollection): void
     {
@@ -61,7 +64,7 @@ class CartScopeDiscountPackagerTest extends TestCase
     }
 
     /**
-     * @return iterable<array{0: LineItem, 1: bool, 2: LineItemQuantityCollection}>
+     * @return iterable<array{0: LineItem, 1: array<string, string|array<mixed>>, 2: LineItemQuantityCollection}>
      */
     public static function dataProvider(): iterable
     {

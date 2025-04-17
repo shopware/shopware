@@ -82,6 +82,7 @@ class CartScopeDiscountPackager extends DiscountPackager
             return null;
         }
 
+        // assign instead of add for performance reasons
         $collection = new LineItemQuantityCollection();
         $collection->assign(['elements' => $discountItems]);
 

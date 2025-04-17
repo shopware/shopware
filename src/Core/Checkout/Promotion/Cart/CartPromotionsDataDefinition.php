@@ -53,27 +53,6 @@ class CartPromotionsDataDefinition extends Struct
     }
 
     /**
-     * Search for a promotion by id
-     */
-    public function findCodeById(string $id): ?PromotionEntity
-    {
-        if (\array_key_exists($id, $this->automaticPromotions)) {
-            return $this->automaticPromotions[$id];
-        }
-
-        foreach ($this->codePromotions as $promotions) {
-            // Can't rely on the array key to be the promotion id
-            foreach ($promotions as $promotion) {
-                if ($promotion->getId() === $id) {
-                    return $promotion;
-                }
-            }
-        }
-
-        return null;
-    }
-
-    /**
      * Gets a list of all added automatic and code promotions.
      *
      * @return list<PromotionCodeTuple>

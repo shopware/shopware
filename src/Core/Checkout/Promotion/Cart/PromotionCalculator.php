@@ -408,6 +408,7 @@ class PromotionCalculator
                 }
             }
 
+            // assign instead of add for performance reasons
             $package->getCartItems()->assign(['elements' => $cartItems]);
         }
 

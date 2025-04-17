@@ -20,6 +20,7 @@ abstract class AbstractPriceSorter implements FilterSorterInterface
 
             $metaItems = $this->_sort($metaItems, $package);
 
+            // assign instead of add for performance reasons
             $collection = new LineItemQuantityCollection();
             $collection->assign(['elements' => $metaItems]);
 

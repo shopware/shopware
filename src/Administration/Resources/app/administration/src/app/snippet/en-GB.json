@@ -1557,6 +1557,10 @@
   "sw-in-app-purchase-checkout": {
     "exsTitle": "Activate the Shopware Extension Store"
   },
+  "sidebar": {
+    "ariaLabelButtonClose": "Close sidebar",
+    "ariaLabelButtonOpen": "Open sidebar"
+  },
   "help-center": {
     "sidebar": {
       "title": "Help",

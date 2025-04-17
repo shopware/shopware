@@ -52,7 +52,7 @@ final class DeleteThemeFilesTaskHandler extends ScheduledTaskHandler
                 return true;
             }
 
-            // Only delete directories that were last modified more than 24 hours ago
+            // Only delete directories that were last modified more than 24 hours ago, as more recently compiled themes might still be referenced in cached responses
             $twentyFourHoursAgo = (new \DateTimeImmutable())->modify('-24 hours')->getTimestamp();
 
             return $twentyFourHoursAgo > $modifiedTimestampOfFirstFile;
@@ -85,7 +85,6 @@ final class DeleteThemeFilesTaskHandler extends ScheduledTaskHandler
 
     private function getModifiedTimestampOfFirstFile(StorageAttributes $themeDirectory): ?int
     {
-        $modifiedTimestampOfFirstFile = null;
         foreach ($this->themeFileSystem->listContents($themeDirectory->path(), FilesystemReader::LIST_DEEP) as $file) {
             if (!$file->isFile()) {
                 continue;
@@ -96,10 +95,9 @@ final class DeleteThemeFilesTaskHandler extends ScheduledTaskHandler
                 continue;
             }
 
-            $modifiedTimestampOfFirstFile = $lastModified;
-            break;
+            return $lastModified;
         }
 
-        return $modifiedTimestampOfFirstFile;
+        return null;
     }
 }

@@ -82,13 +82,7 @@ class CategoryUrlProviderTest extends TestCase
         $categoryResult1 = $this->createCategoryResult();
         $categoryResult2 = $this->createCategoryResult();
         $queryResult = new Result(
-            new ArrayResult(
-                array_keys($categoryResult1),
-                [
-                    array_values($categoryResult1),
-                    array_values($categoryResult2),
-                ]
-            ),
+            new ArrayResult([$categoryResult1, $categoryResult2]),
             $this->connection
         );
         $this->initServices($queryResult);
@@ -125,7 +119,7 @@ class CategoryUrlProviderTest extends TestCase
     {
         $categoryRowNames = array_keys($this->createCategoryResult());
         $queryResult = new Result(
-            new ArrayResult($categoryRowNames, []),
+            new ArrayResult([]),
             $this->connection
         );
         $this->initServices($queryResult);
@@ -141,9 +135,8 @@ class CategoryUrlProviderTest extends TestCase
 
     public function testGetCategoryUrlsHasNoRestrictiveWhereConditionsBecauseGetExcludedCategoryIdsReturnedEmptyResult(): void
     {
-        $categoryRowNames = array_keys($this->createCategoryResult());
         $queryResult = new Result(
-            new ArrayResult($categoryRowNames, []),
+            new ArrayResult([]),
             $this->connection
         );
         $this->initServices($queryResult, []);
@@ -173,13 +166,7 @@ class CategoryUrlProviderTest extends TestCase
         $categoryResult1 = $this->createCategoryResult();
         $categoryResult2 = $this->createCategoryResult();
         $queryResult = new Result(
-            new ArrayResult(
-                array_keys($categoryResult1),
-                [
-                    array_values($categoryResult1),
-                    array_values($categoryResult2),
-                ]
-            ),
+            new ArrayResult([$categoryResult1, $categoryResult2]),
             $this->connection
         );
         $this->initServices($queryResult);
@@ -213,13 +200,7 @@ class CategoryUrlProviderTest extends TestCase
         $categoryResult1 = $this->createCategoryResult();
         $categoryResult2 = $this->createCategoryResult();
         $queryResult = new Result(
-            new ArrayResult(
-                array_keys($categoryResult1),
-                [
-                    array_values($categoryResult1),
-                    array_values($categoryResult2),
-                ]
-            ),
+            new ArrayResult([$categoryResult1, $categoryResult2]),
             $this->connection
         );
         $this->initServices($queryResult);

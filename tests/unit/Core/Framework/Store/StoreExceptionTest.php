@@ -112,59 +112,6 @@ class StoreExceptionTest extends TestCase
         static::assertEquals(Response::HTTP_NOT_FOUND, $exception->getStatusCode());
     }
 
-    public function testExtensionInstallException(): void
-    {
-        $message = 'Failed to install extension due to missing dependencies';
-        $exception = StoreException::extensionInstallException($message);
-
-        static::assertSame($message, $exception->getMessage());
-        static::assertSame('FRAMEWORK__EXTENSION_INSTALL_EXCEPTION', $exception->getErrorCode());
-        static::assertSame(Response::HTTP_INTERNAL_SERVER_ERROR, $exception->getStatusCode());
-    }
-
-    public function testExtensionUpdateRequiresConsentAffirmationException(): void
-    {
-        $appName = 'TestApp';
-        $deltas = ['permissions' => ['read' => true]];
-        $exception = StoreException::extensionUpdateRequiresConsentAffirmationException($appName, $deltas);
-
-        static::assertSame(
-            'Updating app "TestApp" requires a renewed consent affirmation.',
-            $exception->getMessage()
-        );
-        static::assertSame('FRAMEWORK__EXTENSION_UPDATE_REQUIRES_CONSENT_AFFIRMATION', $exception->getErrorCode());
-        static::assertSame(Response::HTTP_INTERNAL_SERVER_ERROR, $exception->getStatusCode());
-        static::assertSame(['appName' => $appName, 'deltas' => $deltas], $exception->getParameters());
-    }
-
-    public function testExtensionNotFoundFromId(): void
-    {
-        $id = '123456';
-        $exception = StoreException::extensionNotFoundFromId($id);
-
-        static::assertSame(
-            'Could not find extension with id "123456"',
-            $exception->getMessage()
-        );
-        static::assertSame('FRAMEWORK__EXTENSION_NOT_FOUND', $exception->getErrorCode());
-        static::assertSame(Response::HTTP_NOT_FOUND, $exception->getStatusCode());
-        static::assertSame(['entity' => 'extension', 'field' => 'id', 'value' => $id], $exception->getParameters());
-    }
-
-    public function testExtensionNotFoundFromTechnicalName(): void
-    {
-        $technicalName = 'TestExtension';
-        $exception = StoreException::extensionNotFoundFromTechnicalName($technicalName);
-
-        static::assertSame(
-            'Could not find extension with technical name "TestExtension"',
-            $exception->getMessage()
-        );
-        static::assertSame('FRAMEWORK__EXTENSION_NOT_FOUND', $exception->getErrorCode());
-        static::assertSame(Response::HTTP_NOT_FOUND, $exception->getStatusCode());
-        static::assertSame(['entity' => 'extension', 'field' => 'technical name', 'value' => $technicalName], $exception->getParameters());
-    }
-
     public function testExtensionRuntimeExtensionManagementNotAllowed(): void
     {
         $exception = StoreException::extensionRuntimeExtensionManagementNotAllowed();
@@ -204,19 +151,5 @@ class StoreExceptionTest extends TestCase
         );
         static::assertSame('FRAMEWORK__STORE_INVALID_TYPE', $exception->getErrorCode());
         static::assertSame(Response::HTTP_BAD_REQUEST, $exception->getStatusCode());
-    }
-
-    public function testPluginNotAZipFile(): void
-    {
-        $mimeType = 'application/json';
-        $exception = StoreException::pluginNotAZipFile($mimeType);
-
-        static::assertSame(
-            'Extension is not a zip file. Got "application/json"',
-            $exception->getMessage()
-        );
-        static::assertSame('FRAMEWORK__PLUGIN_NOT_A_ZIP_FILE', $exception->getErrorCode());
-        static::assertSame(Response::HTTP_BAD_REQUEST, $exception->getStatusCode());
-        static::assertSame(['mimeType' => $mimeType], $exception->getParameters());
     }
 }

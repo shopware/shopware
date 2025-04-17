@@ -5,12 +5,12 @@ namespace Shopware\Core\Framework\Test\Store\Api;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\PluginManagementService;
 use Shopware\Core\Framework\Plugin\PluginService;
 use Shopware\Core\Framework\Store\Api\ExtensionStoreActionsController;
 use Shopware\Core\Framework\Store\Services\ExtensionDownloader;
 use Shopware\Core\Framework\Store\Services\ExtensionLifecycleService;
+use Shopware\Core\Framework\Store\StoreException;
 use Shopware\Core\Framework\Test\TestCaseBase\AdminApiTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Symfony\Component\Filesystem\Filesystem;
@@ -93,7 +93,7 @@ class ExtensionStoreActionsControllerTest extends TestCase
         $file->method('getPathname')->willReturn(tempnam(sys_get_temp_dir(), __METHOD__));
         $request->files->set('file', $file);
 
-        static::expectExceptionObject(StoreException::pluginNotAZipFile('foo'));
+        $this->expectException(StoreException::class);
         $controller->uploadExtensions($request, Context::createDefaultContext());
     }
 

@@ -4,15 +4,14 @@ namespace Shopware\Core\Framework\Store\Api;
 
 use Composer\IO\NullIO;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\Plugin\Exception\PluginNotAZipFileException;
 use Shopware\Core\Framework\Plugin\PluginManagementService;
 use Shopware\Core\Framework\Plugin\PluginService;
 use Shopware\Core\Framework\Routing\RoutingException;
 use Shopware\Core\Framework\Store\Services\AbstractExtensionLifecycle;
 use Shopware\Core\Framework\Store\Services\ExtensionDownloader;
 use Shopware\Core\Framework\Store\Services\StoreClient;
-use Shopware\Core\Framework\Store\StoreException;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\Filesystem\Filesystem;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
@@ -55,12 +54,7 @@ class ExtensionStoreActionsController extends AbstractController
         /** @var UploadedFile|null $file */
         $file = $request->files->get('file');
         if (!$file) {
-            if (!Feature::isActive('v6.8.0.0')) {
-                // @deprecated tag:v6.8.0 - remove this if block
-                throw RoutingException::missingRequestParameter('file'); // @phpstan-ignore shopware.domainException
-            }
-
-            throw StoreException::missingRequestParameter('file');
+            throw RoutingException::missingRequestParameter('file'); // @phpstan-ignore shopware.domainException
         }
 
         if ($file->getMimeType() !== 'application/zip') {
@@ -70,7 +64,7 @@ class ExtensionStoreActionsController extends AbstractController
                 // Do nothing because the tmp file is already deleted by os
             }
 
-            throw StoreException::pluginNotAZipFile((string) $file->getMimeType());
+            throw new PluginNotAZipFileException((string) $file->getMimeType()); // @phpstan-ignore shopware.domainException
         }
 
         try {

@@ -1,3 +1,4 @@
+import convert from 'convert-units';
 import template from './sw-bulk-edit-product.html.twig';
 import './sw-bulk-edit-product.scss';
 import '../../../sw-product/page/sw-product-detail/store';
@@ -19,6 +20,8 @@ export default {
         'feature',
         'bulkEditApiFactory',
         'repositoryFactory',
+        'systemConfigApiService',
+        'userConfigService',
     ],
 
     data() {
@@ -38,6 +41,8 @@ export default {
             rules: [],
             parentProductFrozen: null,
             isComponentMounted: true,
+            measurementUnits: [],
+            measurementSystemConfig: null,
         };
     },
 
@@ -69,7 +74,8 @@ export default {
         },
 
         selectedIds() {
-            return Shopware.Store.get('swBulkEdit').selectedIds;
+            return ['0196a0181a7e70d0a48ee5e1adb37c4f'];
+            // return Shopware.Store.get('swBulkEdit').selectedIds;
         },
 
         customFieldSetRepository() {
@@ -616,6 +622,138 @@ export default {
             ];
         },
 
+        productMeasurementFields() {
+            return [
+                {
+                    name: 'width',
+                    type: 'float',
+                    canInherit: this.isChild,
+                    config: {
+                        componentName: 'mt-unit-field',
+                        changeLabel: this.$tc('sw-bulk-edit.product.measuresAndPackaging.widthTitle.changeLabel'),
+                        placeholder: this.$tc('sw-bulk-edit.product.measuresAndPackaging.widthTitle.placeholder'),
+                        numberType: 'float',
+                        defaultUnit: this.lengthUnit,
+                        measurementType: 'length',
+                        min: 0,
+                        disabled: this.bulkEditProduct?.width?.isInherited,
+                    },
+                },
+                {
+                    name: 'height',
+                    type: 'float',
+                    canInherit: this.isChild,
+                    config: {
+                        componentName: 'mt-unit-field',
+                        changeLabel: this.$tc('sw-bulk-edit.product.measuresAndPackaging.heightTitle.changeLabel'),
+                        placeholder: this.$tc('sw-bulk-edit.product.measuresAndPackaging.heightTitle.placeholder'),
+                        numberType: 'float',
+                        defaultUnit: this.lengthUnit,
+                        measurementType: 'length',
+                        min: 0,
+                        disabled: this.bulkEditProduct?.height?.isInherited,
+                    },
+                },
+                {
+                    name: 'length',
+                    type: 'float',
+                    canInherit: this.isChild,
+                    config: {
+                        componentName: 'mt-unit-field',
+                        changeLabel: this.$tc('sw-bulk-edit.product.measuresAndPackaging.lengthTitle.changeLabel'),
+                        placeholder: this.$tc('sw-bulk-edit.product.measuresAndPackaging.lengthTitle.placeholder'),
+                        numberType: 'float',
+                        defaultUnit: this.lengthUnit,
+                        measurementType: 'length',
+                        min: 0,
+                        disabled: this.bulkEditProduct?.length?.isInherited,
+                    },
+                },
+                {
+                    name: 'weight',
+                    type: 'float',
+                    canInherit: this.isChild,
+                    config: {
+                        componentName: 'mt-unit-field',
+                        changeLabel: this.$tc('sw-bulk-edit.product.measuresAndPackaging.weightTitle.changeLabel'),
+                        placeholder: this.$tc('sw-bulk-edit.product.measuresAndPackaging.weightTitle.placeholder'),
+                        numberType: 'float',
+                        defaultUnit: this.massUnit,
+                        measurementType: 'mass',
+                        min: 0,
+                        disabled: this.bulkEditProduct?.weight?.isInherited,
+                    },
+                },
+            ]
+        },
+
+        sellingAndPackagingFields() {
+            return [
+                {
+                    name: 'purchaseUnit',
+                    type: 'float',
+                    canInherit: this.isChild,
+                    config: {
+                        componentName: 'sw-number-field',
+                        numberType: 'float',
+                        min: 0,
+                        changeLabel: this.$tc('sw-bulk-edit.product.measuresAndPackaging.sellingUnitTitle.changeLabel'),
+                        placeholder: this.$tc('sw-bulk-edit.product.measuresAndPackaging.sellingUnitTitle.placeholder'),
+                        disabled: this.bulkEditProduct?.purchaseUnit?.isInherited,
+                    },
+                },
+                {
+                    name: 'unitId',
+                    canInherit: this.isChild,
+                    config: {
+                        componentName: 'sw-entity-single-select',
+                        entity: 'unit',
+                        changeLabel: this.$tc('sw-bulk-edit.product.measuresAndPackaging.scaleUnitTitle.changeLabel'),
+                        placeholder: this.$tc('sw-bulk-edit.product.measuresAndPackaging.scaleUnitTitle.placeholder'),
+                        disabled: this.bulkEditProduct?.unitId?.isInherited,
+                    },
+                },
+                {
+                    name: 'packUnit',
+                    type: 'text',
+                    canInherit: this.isChild,
+                    config: {
+                        componentName: 'sw-field',
+                        type: 'text',
+                        changeLabel: this.$tc('sw-bulk-edit.product.measuresAndPackaging.packUnitTitle.changeLabel'),
+                        placeholder: this.$tc('sw-bulk-edit.product.measuresAndPackaging.packUnitTitle.placeholder'),
+                        disabled: this.bulkEditProduct?.packUnit?.isInherited,
+                    },
+                },
+                {
+                    name: 'packUnitPlural',
+                    type: 'text',
+                    canInherit: this.isChild,
+                    config: {
+                        componentName: 'sw-field',
+                        type: 'text',
+                        changeLabel: this.$tc('sw-bulk-edit.product.measuresAndPackaging.packUnitPluralTitle.changeLabel'),
+                        placeholder: this.$tc('sw-bulk-edit.product.measuresAndPackaging.packUnitPluralTitle.placeholder'),
+                        disabled: this.bulkEditProduct?.packUnitPlural?.isInherited,
+                    },
+                },
+                {
+                    name: 'referenceUnit',
+                    type: 'float',
+                    canInherit: this.isChild,
+                    config: {
+                        componentName: 'sw-number-field',
+                        numberType: 'float',
+                        min: 0,
+                        changeLabel: this.$tc('sw-bulk-edit.product.measuresAndPackaging.basicUnitTitle.changeLabel'),
+                        placeholder: this.$tc('sw-bulk-edit.product.measuresAndPackaging.basicUnitTitle.placeholder'),
+                        disabled: this.bulkEditProduct?.referenceUnit?.isInherited,
+                    },
+                },
+            ]
+        },
+
+        // @deprecated tag:v6.8.0 - computed will be removed
         measuresPackagingFields() {
             return [
                 {
@@ -791,6 +929,40 @@ export default {
                 return r;
             }, {});
         },
+
+        measurementDisplayUnitRepository() {
+            return this.repositoryFactory.create('measurement_display_unit');
+        },
+
+        measurementDisplayUnitCriteria() {
+            const criteria = new Criteria(1, null);
+            criteria.addFields('shortName', 'type');
+
+            criteria.addFilter(
+                Criteria.equalsAny('id', [
+                    this.measurementSystemConfig['core.measurementSystem.lengthUnitId'],
+                    this.measurementSystemConfig['core.measurementSystem.massUnitId'],
+                ]),
+            );
+
+            return criteria;
+        },
+
+        defaultUnits() {
+            return Shopware.Store.get('swProductDetail').defaultUnits
+        },
+
+        productMeasurementFieldsKey() {
+            return JSON.stringify(this.productMeasurementFields);
+        },
+
+        lengthUnit() {
+            return Shopware.Store.get('swProductDetail').lengthUnit;
+        },
+
+        massUnit() {
+            return Shopware.Store.get('swProductDetail').massUnit;
+        },
     },
 
     watch: {
@@ -802,6 +974,7 @@ export default {
             const ids = this.product?.prices?.getIds();
             ids.forEach((id) => this.product?.prices.remove(id));
         },
+
         'product.visibilities': {
             handler(productVisibilities) {
                 if (!this.isChild) {
@@ -811,6 +984,7 @@ export default {
                 this.bulkEditProduct.visibilities.value = productVisibilities;
             },
         },
+
         'bulkEditProduct.isPriceInherited.isChanged': {
             handler(isChanged) {
                 if (!this.isChild) {
@@ -823,6 +997,7 @@ export default {
                 this.bulkEditProduct.regulationPrice.isChanged = isChanged;
             },
         },
+
         'bulkEditProduct.isPriceInherited.isInherited': {
             handler(isInherited) {
                 if (!this.isChild) {
@@ -835,6 +1010,7 @@ export default {
                 this.bulkEditProduct.regulationPrice.isInherited = isInherited;
             },
         },
+
         'product.listPrice': {
             deep: true,
             handler(listPrice) {
@@ -851,6 +1027,7 @@ export default {
                 this.bulkEditProduct.price.value[0].listPrice = listPrice[0];
             },
         },
+
         'product.regulationPrice': {
             deep: true,
             handler(regulationPrice) {
@@ -867,6 +1044,13 @@ export default {
                 this.bulkEditProduct.price.value[0].regulationPrice = regulationPrice[0];
             },
         },
+
+        'lengthUnit':{
+            deep: true,
+            handler(newVal, oldVal) {
+                this.syncUnits( newVal, oldVal);
+            },
+        },
     },
 
     created() {
@@ -877,6 +1061,8 @@ export default {
         async createdComponent() {
             this.setRouteMetaModule();
             this.isLoading = true;
+
+            await this.initializeProductUnits();
 
             if (this.isChild) {
                 await this.getParentProduct();
@@ -974,7 +1160,8 @@ export default {
                 this.mediaFormFields,
                 this.labellingFormFields,
                 this.seoFormFields,
-                this.measuresPackagingFields,
+                this.productMeasurementFields,
+                this.sellingAndPackagingFields,
                 this.essentialCharacteristicsFormFields,
             ];
 
@@ -1137,6 +1324,17 @@ export default {
 
                 let bulkEditValue = this.product[key];
 
+                const measurement = this.productMeasurementFields.find(item => item.name === key);
+                if (measurement) {
+                    this.measurementUnits[key] = measurement.config.defaultUnit;
+
+                    const to = measurement.config.measurementType === 'length' ? 'mm' : 'kg';
+
+                    bulkEditValue = convert(bulkEditValue)
+                        .from(measurement.config.defaultUnit)
+                        .to(to);
+                }
+
                 if (
                     [
                         'minPurchase',
@@ -1186,6 +1384,10 @@ export default {
             if (hasRegulationPrice) {
                 this.processRegulationPrice();
             }
+
+            if (this.measurementUnits.length) {
+                this.processMeasurements()
+            }
         },
 
         processListPrice() {
@@ -1234,6 +1436,8 @@ export default {
                 .then((response) => {
                     const isSuccessful = response.every((item) => item.data);
                     this.processStatus = isSuccessful ? 'success' : 'fail';
+
+                    this.savePreferredUnitsConfig();
                 })
                 .catch(() => {
                     this.processStatus = 'fail';
@@ -1416,6 +1620,89 @@ export default {
             }
 
             parentProduct[entityName].forEach((item) => this.product[entityName].add(item));
+        },
+
+        processMeasurements() {
+            // eslint-disable-next-line no-warning-comments
+            // todo update association measurement unit
+        },
+
+        async initializeProductUnits() {
+            const store = Shopware.Store.get('swProductDetail');
+            const preferredUnits = await this.getPreferredUnitsConfig();
+            if (preferredUnits) {
+                store.setLengthUnit(preferredUnits.length);
+                store.setMassUnit(preferredUnits.mass);
+                return;
+            }
+
+            this.measurementSystemConfig = await this.getMeasurementSystemConfig();
+            if (!this.measurementSystemConfig['core.measurementSystem.lengthUnitId']
+                || !this.measurementSystemConfig['core.measurementSystem.massUnitId']) {
+                return;
+            }
+
+            const units = await this.measurementDisplayUnitRepository.search(
+                this.measurementDisplayUnitCriteria,
+            );
+
+            if (!units?.length) {
+                return;
+            }
+
+            const displayUnits = units.reduce((acc, unit) => {
+                acc[unit.type] = unit.shortName;
+                return acc;
+            }, {});
+
+            store.setLengthUnit(displayUnits.length);
+            store.setMassUnit(displayUnits.mass);
+        },
+
+        getMeasurementSystemConfig() {
+            return this.systemConfigApiService.getValues('core.measurementSystem');
+        },
+
+        async getPreferredUnitsConfig() {
+            const response = await this.userConfigService.search(['measurement.preferredUnits']);
+            return response.data['measurement.preferredUnits'];
+        },
+
+        savePreferredUnitsConfig() {
+            return this.userConfigService.upsert({
+                'measurement.preferredUnits': {
+                    'length': this.lengthUnit,
+                    'mass': this.massUnit,
+                },
+            });
+        },
+
+        // eslint-disable-next-line no-unused-vars
+        syncUnits(newUnit, oldUnit) {
+            // eslint-disable-next-line no-warning-comments
+            // todo
+            // if (newUnit === oldUnit) {
+            //     return;
+            // }
+            //
+            // const relatedKeys = ['length', 'width', 'height'];
+            //
+            // relatedKeys.forEach((key) => {
+            //     const measurement = this.productMeasurementFields.find(field => field.name === key);
+            //
+            //     const oldValue = this.bulkEditProduct[key].value;
+            //     const oldKeyUnit = measurement.config.defaultUnit;
+            //     if (oldValue != null && oldKeyUnit !== newUnit) {
+            //         try {
+            //             this.bulkEditProduct[key].value = convert(oldValue).from(oldKeyUnit).to(newUnit);
+            //         } catch (e) {
+            //             console.warn(`Could not convert ${key} from ${oldKeyUnit} to ${newUnit}`, e);
+            //         }
+            //     }
+            //
+            //     measurement.config.defaultUnit = newUnit;
+            //     Shopware.Store.get('swProductDetail').defaultUnits[key] = newUnit;
+            // });
         },
     },
 };

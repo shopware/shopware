@@ -165,6 +165,48 @@
           "placeholderSeoKeywords": "Enter keywords..."
         }
       },
+      "productMeasurement": {
+        "cardTitle": "Product Measurements",
+        "widthTitle": {
+          "changeLabel": "Change: Width",
+          "placeholder": "e.g. 500..."
+        },
+        "heightTitle": {
+          "changeLabel": "Change: Height",
+          "placeholder": "e.g. 500..."
+        },
+        "lengthTitle": {
+          "changeLabel": "Change: Length",
+          "placeholder": "e.g. 500..."
+        },
+        "weightTitle": {
+          "changeLabel": "Change:Weight",
+          "placeholder": "e.g. 5..."
+        }
+      },
+      "sellingAndPackaging": {
+        "cardTitle": "Selling & Packaging Information",
+        "sellingUnitTitle": {
+          "changeLabel": "Change: Selling unit",
+          "placeholder": "e.g 6..."
+        },
+        "productUnitTitle": {
+          "changeLabel": "Change: Product unit",
+          "placeholder": "Select product unit..."
+        },
+        "basicUnitTitle": {
+          "changeLabel": "Change: Basic unit",
+          "placeholder": "e.g 1 ..."
+        },
+        "packagingUnitTitle": {
+          "changeLabel": "Change: Packaging unit",
+          "placeholder": "e.g Bottle ..."
+        },
+        "packUnitPluralTitle": {
+          "changeLabel": "Change: Packaging unit plural",
+          "placeholder": "e.g Bottles ..."
+        }
+      },
       "measuresAndPackaging": {
         "cardTitle": "Measures & packaging",
         "widthTitle": {

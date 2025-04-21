@@ -62,6 +62,8 @@ const swProductDetail = Shopware.Store.register({
             ],
             /* Product "types" provided by the split button for creating a new product through a router parameter */
             creationStates: [] as string[],
+            lengthUnit: 'mm',
+            massUnit: 'kg',
         };
     },
 
@@ -220,6 +222,14 @@ const swProductDetail = Shopware.Store.register({
 
         setDefaultFeatureSet(newDefaultFeatureSet: EntitySchema.product_feature_set) {
             this.defaultFeatureSet = newDefaultFeatureSet;
+        },
+
+        setLengthUnit(unit: string) {
+            this.lengthUnit = unit;
+        },
+
+        setMassUnit(unit: string) {
+            this.massUnit = unit;
         },
     },
 });

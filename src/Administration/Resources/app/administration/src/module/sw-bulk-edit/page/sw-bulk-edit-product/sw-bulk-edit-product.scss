@@ -24,17 +24,17 @@
         }
     }
 
-    .sw-card .sw-card__content {
+    .mt-card .mt-card__content {
         padding: 0;
 
-        .sw-card__quick-link {
+        .mt-card__quick-link {
             text-align: right;
             display: block;
             padding-top: 14px;
             cursor: pointer;
         }
 
-        .sw-card__quick-link.is--disabled {
+        .mt-card__quick-link.is--disabled {
             cursor: default;
             pointer-events: none;
             opacity: 0.5;
@@ -55,6 +55,11 @@
 
     .sw-block-field__block {
         background: $color-white;
+    }
+
+    .mt-block-field__block {
+        background: $color-white;
+        min-height: auto;
     }
 
     .sw-product-detail-context-prices {

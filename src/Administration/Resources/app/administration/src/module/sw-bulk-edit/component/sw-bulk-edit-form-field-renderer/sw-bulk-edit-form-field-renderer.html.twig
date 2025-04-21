@@ -6,11 +6,15 @@
     v-bind="bind"
     ref="component"
     v-model:value="currentValue"
+    :model-value="currentValue"
     v-model:entity-collection="currentValue"
+    v-model:default-unit="defaultUnit"
     class="sw-form-field-renderer"
     @update:value="emitUpdate"
     @update:ids="emitUpdate"
     @update:entity-collection="emitUpdate"
+    @update:model-value="emitUpdate"
+    @update:default-unit="onUpdateUnit($event)"
 >
     {% block sw_form_field_renderer_inner %}
     {% parent %}

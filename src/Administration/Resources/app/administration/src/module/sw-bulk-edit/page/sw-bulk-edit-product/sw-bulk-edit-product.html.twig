@@ -354,20 +354,40 @@
             </mt-card>
             {% endblock %}
 
-            {% block sw_bulk_edit_product_content_meansures_packaging_card %}
+            {% block sw_bulk_edit_product_content_product_measurement %}
             <mt-card
-                class="sw-bulk-edit-product-base__measures"
-                position-identifier="sw-bulk-edit-product-measures"
-                :title="$tc('sw-bulk-edit.product.measuresAndPackaging.cardTitle')"
+                class="sw-bulk-edit-product-base__product-measurement"
+                position-identifier="sw-bulk-edit-product-measurement"
+                :title="$tc('sw-bulk-edit.product.productMeasurement.cardTitle')"
             >
                 <sw-bulk-edit-change-type-field-renderer
-                    :form-fields="measuresPackagingFields"
+                    :form-fields="productMeasurementFields"
                     :bulk-edit-data="bulkEditProduct"
                     :entity="product"
                     @inheritance-restore="onInheritanceRestore"
                     @inheritance-remove="onInheritanceRemove"
                 />
             </mt-card>
+            {% endblock %}
+
+            {% block sw_bulk_edit_product_content_selling_and_packaging %}
+            <mt-card
+                class="sw-bulk-edit-product-base__product-selling-and-packaging"
+                position-identifier="sw-bulk-edit-product-selling-and-packaging"
+                :title="$tc('sw-bulk-edit.product.sellingAndPackaging.cardTitle')"
+            >
+                <sw-bulk-edit-change-type-field-renderer
+                    :form-fields="sellingAndPackagingFields"
+                    :bulk-edit-data="bulkEditProduct"
+                    :entity="product"
+                    @inheritance-restore="onInheritanceRestore"
+                    @inheritance-remove="onInheritanceRemove"
+                />
+            </mt-card>
+            {% endblock %}
+
+            {# @deprecated tag:v6.8.0 - Block will be removed #}
+            {% block sw_bulk_edit_product_content_meansures_packaging_card %}
             {% endblock %}
 
             {% block sw_bulk_edit_product_content_essential_card %}

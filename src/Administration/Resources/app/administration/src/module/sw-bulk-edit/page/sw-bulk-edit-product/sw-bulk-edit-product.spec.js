@@ -244,6 +244,23 @@ describe('src/module/sw-bulk-edit/page/sw-bulk-edit-product', () => {
                         startEventListener: () => {},
                         stopEventListener: () => {},
                     },
+                    systemConfigApiService: {
+                        getValues: () => {},
+                    },
+                    userConfigService: {
+                        search: () => {
+                            return Promise.resolve({
+                                data: {
+                                    'measurement.preferredUnits': {
+                                        'length': 'mm',
+                                        'width': 'mm',
+                                        'height': 'mm',
+                                        'weight': 'kg',
+                                    },
+                                },
+                            })
+                        },
+                    },
                 },
             },
             props: {

@@ -1,13 +1,15 @@
 # 6.6.10.1
+
 ## Fix `ServiceNotFoundException` during platform update
 
 Updating shopware to 6.6.10.0 with the commercial plugin activated lead to `ServiceNotFoundException` being thrown until the commercial plugin was updated as well. 
 To fix the error an alias to the old service was added to ensure the commercial plugin does not error during the update process.
-## Fix `MessengerMiddlewareCompilerPass` middleware assertion
 
+## Fix `MessengerMiddlewareCompilerPass` middleware assertion
 The `MessengerMiddlewareCompilerPass` now handles cases when middlewares are not defined yet. This change ensures that the middleware is correctly registered in the application.
 
 # 6.6.10.0
+
 ## Deprecated EntityExtension::getDefinitionClass
 Since (app) custom entities and entities defined via PHP attributes do not have a definition class, the method `EntityExtension::getDefinitionClass` has been deprecated. 
 It will be replaced by `EntityExtension::getEntityName`, which needs to return the entity name. This can already be implemented now.
@@ -86,9 +88,10 @@ class MyEntityExtension extends BulkEntityExtension
     <tag name="shopware.bulk.entity.extension"/>
 </service>
 ```
-## setTwig in Storefront Controller deprecated
 
+## setTwig in Storefront Controller deprecated
 The method `Shopware\Storefront\Controller\StorefrontController::setTwig` is deprecated and will be removed in 6.7.0, you can remove the `setTwig` call from your DI config, no further change is required.
+
 ## Using external URL for media's path
 You can now store media paths as external URLs using the admin API. This allows for more flexible media management without the need to store physical files on the server.
 
@@ -108,8 +111,8 @@ Content-Type: application/json
 ```
 ## Deprecated `messenger.bus.shopware` service
 Change your usages of `messenger.bus.shopware` to `messenger.default_bus`. As long as you typed the interface `\Symfony\Component\Messenger\MessageBusInterface`, your code will work as expected.
-## Deprecated old address editor
 
+## Deprecated old address editor
 The `address-editor.plugin.js` is deprecated and will be removed in 6.7.0, extend `address-manager.plugin.js` instead.
 The `address-editor-modal.html.twig` is deprecated and will be removed in 6.7.0, extend `address-manager-modal.html.twig` instead.
 The `address-editor-modal-list.html.twig` is deprecated and will be removed in 6.7.0, extend `address-manager-modal-list.html.twig` instead.
@@ -124,8 +127,8 @@ The `\Shopware\Core\Framework\Adapter\Cache\ReverseProxy\ReverseProxyCacheCleare
 
 If you relied on the `cache:clear` command to clear your HTTP cache, you should use the `cache:clear:http` command additionally.
 However, unless you enable the `v6.7.0.0` feature flag, HTTP cache will still be cleared on `cache:clear`
-## Addition of MySQLInvalidatorStorage
 
+## Addition of MySQLInvalidatorStorage
 We added a new MySQL cache invalidator storage so you can take advantage of delayed cache invalidation without needing Redis (Redis is still preferred).
 
 ```yaml
@@ -136,6 +139,7 @@ shopware:
             delay_options:
                 storage: mysql
 ```
+
 ## Mail settings
 If you are using OAuth2 authentication for mail sending, you need to update your mail settings in the administration:
 1. Go to Setting > System > Mailer
@@ -144,6 +148,7 @@ If you are using OAuth2 authentication for mail sending, you need to update your
 4. Save the settings
 5. Test the connection
 6. Check Settings > System > Event logs for any errors
+
 ## Internalisation of StorefrontPluginRegistry & Removal of StorefrontPluginRegistryInterface
 
 The class `Shopware\Storefront\Theme\StorefrontPluginRegistry` will become internal and will no longer implement `Shopware\Storefront\Theme\StorefrontPluginRegistryInterface`.
@@ -187,8 +192,8 @@ CREATE TABLE `entity`
     `payment_provider` ENUM ('paypal', 'credit_card') NOT NULL
 )
 ```
-## New `.encode` event for store api routes
 
+## New `.encode` event for store api routes
 This new event allows you to extend the response data of store api routes on a event based approach. The event is triggered after the data has been fetched and before it is returned to the client.
 
 ```php
@@ -210,6 +215,7 @@ class MyListener
 }
 
 ```
+
 ## Storefront accessibility: Unify focus outline:
 To improve the keyboard accessibility we will unify all focus outlines to have the same appearance.
 Currently, the focus outlines are dependent on the color of the interactive element (e.g. light-green outline for green buttons).
@@ -288,12 +294,12 @@ The form validation works with an associated `data-validation` attribute on the 
 
 These validators are available by default:  
 
-| Key      | Description |
-| -------- | ------- |
-| `required` | Checks if the field is not empty. |
-| `email` | Checks the value of the field to be a valid email address. |
+| Key            | Description                                                                                                                                                                                                                                                                                                                                                                                                                                  |
+|----------------|----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| `required`     | Checks if the field is not empty.                                                                                                                                                                                                                                                                                                                                                                                                            |
+| `email`        | Checks the value of the field to be a valid email address.                                                                                                                                                                                                                                                                                                                                                                                   |
 | `conformation` | Checks if the value of a confirmation field matches the value of the original field. Make sure to use the right ID naming for the validator to work. As an example, the orginal field has the ID `email` and the confirmation field has the ID `emailConfirmation`. The `confirmation` validator should be added to the confirmation field. Note that unnecessary inputs are seen as not accessible and should be avoided wherever possible. |
-| `minLength` | Checks the value of the field for a minimum length. If available the validator will use the `minlength` attribute of the field to validate against. Otherwise, it will use the default configuration of eight characters. | 
+| `minLength`    | Checks the value of the field for a minimum length. If available the validator will use the `minlength` attribute of the field to validate against. Otherwise, it will use the default configuration of eight characters.                                                                                                                                                                                                                    | 
 
 You can add your own custom validators via the global `formValidation` class.
 
@@ -346,6 +352,7 @@ The existing forms in the Shopware Storefront are already reworked to use the de
 * Product reviews
 * Newsletter registration (CMS)
 * Contact form (CMS)
+
 ## Adjust duplicate async JS file names
 
 We have made changes to have more consistent JavaScript filenames in the storefront. If we have duplicate filenames, we will append the chunk id (numeric value, length of 5) to the filename.
@@ -363,6 +370,7 @@ Hot-Reloading: `http://localhost:9999/storefront/hot-reloading.scroll-up.plugin.
 Development: `http://localhost:8000/theme/fa1abe71af50c0c1fd964660ee680e66/js/storefront/storefront.scroll-up.plugin.2e9f58.js`  
 Production: `http://localhost:8000/theme/fa1abe71af50c0c1fd964660ee680e66/js/storefront/storefront.scroll-up.plugin.2e9f58.js`  
 Duplicate Filename: `http://localhost:8000/theme/fa1abe71af50c0c1fd964660ee680e66/js/storefront/storefront.scroll-up.plugin.45231.2e9f58.js`
+
 ## Deprecation of Twig variable
 The global `showStagingBanner` Twig variable has been deprecated. Use `shopware.showStagingBanner` instead.
 
@@ -372,8 +380,10 @@ You can already add it to your implementation to prevent breaking changes, as it
 
 ## Deprecated CSS declarations
 * Deprecated custom CSS declarations for selectors `.header-cart-total`, `.header-logo-col`, `.header-search`, `.header-logo-main-link`, `.header-logo-main` and `.header-logo-picture`  and replaced them by Bootstrap helper classes in the corresponding templates.
+
 ## App System
 Use `sw_macro_function` instead of usual `macro` in app scripts if you return values (`sw_macro_function` will be the new default in Shopware Version 6.8.0)
+
 ## Introduction of ESI for header and footer
 With the next major version the header and footer will be loaded via ESI.
 Due to this change many things were deprecated and will be removed with the next major version, as they are not needed anymore.
@@ -382,11 +392,16 @@ See the following chapter for a detailed list of deprecations.
 ### Deprecations
 * The properties `header` and `footer` and their getter and setter Methods in `\Shopware\Storefront\Framework\Twig\ErrorTemplateStruct` are deprecated and will be removed with the next major version.
 * The loading of header, footer, payment methods and shipping methods in `\Shopware\Storefront\Page\GenericPageLoader` is deprecated and will be removed with the next major version.
-Extend `\Shopware\Storefront\Pagelet\Header\HeaderPageletLoader` or `\Shopware\Storefront\Pagelet\Footer\FooterPageletLoader` instead.
+  Extend `\Shopware\Storefront\Pagelet\Header\HeaderPageletLoader` or `\Shopware\Storefront\Pagelet\Footer\FooterPageletLoader` instead.
 * The properties `header`, `footer`, `salesChannelShippingMethods` and `salesChannelPaymentMethods` and their getter and setter Methods in `\Shopware\Storefront\Page\Page` are deprecated and will be removed with the next major version.
-Extend `\Shopware\Storefront\Pagelet\Header\HeaderPagelet` or `\Shopware\Storefront\Pagelet\Footer\FooterPagelet` instead.
+  Extend `\Shopware\Storefront\Pagelet\Header\HeaderPagelet` or `\Shopware\Storefront\Pagelet\Footer\FooterPagelet` instead.
+  Use the following alternatives in templates instead:
+    * `context.currency` instead of `page.header.activeCurrency`
+    * `shopware.navigation.id` instead of `page.header.navigation.active.id`
+    * `shopware.navigation.pathIdList` instead of `page.header.navigation.active.path`
+    * `context.languageInfo` instead of `page.header.activeLanguage`
 * The property `serviceMenu` and its getter and setter Methods in `\Shopware\Storefront\Pagelet\Header\HeaderPagelet` are deprecated and will be removed with the next major version.
-Extend it via the `\Shopware\Storefront\Pagelet\Footer\FooterPagelet` instead.
+  Extend it via the `\Shopware\Storefront\Pagelet\Footer\FooterPagelet` instead.
 * The `navigationId` request parameter in `\Shopware\Storefront\Pagelet\Header\HeaderPageletLoader::load` is deprecated and will be removed with the next major version as it is not needed anymore.
 * The `setNavigation` method in `\Shopware\Storefront\Pagelet\Menu\Offcanvas\MenuOffcanvasPagelet` is deprecated and will be removed with the next major version as it is unused.
 * The option `tiggerEvent` in `OffcanvasMenuPlugin` JavaScript plugin is deprecated and will be removed with the next major version. Use `triggerEvent` instead.
@@ -409,10 +424,12 @@ Extend it via the `\Shopware\Storefront\Pagelet\Footer\FooterPagelet` instead.
 * The template variables `activeId` and `activePath` in `src/Storefront/Resources/views/storefront/layout/navbar/categories.html.twig` are deprecated and will be removed in the next major version.
 * The template variable `activePath` in `src/Storefront/Resources/views/storefront/layout/navbar/navbar.html.twig` is deprecated and will be removed in the next major version.
 * The parameter `activeResult` of `src/Storefront/Resources/views/storefront/layout/sidebar/category-navigation.html.twig` is deprecated and will be removed in the next major version.
+
 ## Rule classes becoming internal
 * Existing rule classes will be marked as internal, limiting direct usage by third parties.
 * If you currently extend any of the existing rule classes, consider migrating to a custom rule class.
 * Existing rule behavior remains unchanged, but internal implementations may evolve.
+
 ## Added `addTrailingSlash` option to the `sw-url-field` component
 This option allows you to add a trailing slash to the URL and adds it to the value if it is missing.
 The option is disabled by default.
@@ -453,15 +470,18 @@ The SalesChannelId is now available in the SystemConfigChangedHook (`app.config.
 ```
 
 # 6.6.9.0
+
 ## SCSS Values will be validated and sanitized
 From now on, every scss value added by a theme will be validated when changed in the administration interface.
 The values will be sanitized when they are invalid to a standard value when they are not valid when changed before or via api.
+
 ## Parameter names of some `\Shopware\Core\Framework\Migration\MigrationStep` methods will change
 This will only have an effect if you are using the named parameter feature of PHP with those methods.
 If you want to be forward compatible, call the methods without using named parameters.
 * Parameter name `column` of `\Shopware\Core\Framework\Migration\MigrationStep::dropColumnIfExists` will change to `columnName`
 * Parameter name `column` of `\Shopware\Core\Framework\Migration\MigrationStep::dropForeignKeyIfExists` will change to `foreignKeyName`
 * Parameter name `index` of `\Shopware\Core\Framework\Migration\MigrationStep::dropIndexIfExists` will change to `indexName`
+
 ## Environment Configuration
 
 The web installer now supports configurable command timeouts through the environment variable `SHOPWARE_INSTALLER_TIMEOUT`. This value should be provided in seconds.
@@ -490,16 +510,19 @@ The provided timeout value must be:
 - Non-negative
 
 If these conditions are not met, the installer will fall back to the default timeout of 900 seconds.
+
 ## Product review loading moved to core
 The logic responsible for loading product reviews was unified and moved to the core.
 * The service `\Shopware\Storefront\Page\Product\Review\ProductReviewLoader` is deprecated. Use `\Shopware\Core\Content\Product\SalesChannel\Review\AbstractProductReviewLoader` instead.
 * The event `\Shopware\Storefront\Page\Product\Review\ProductReviewsLoadedEvent` is deprecated. Use `\Shopware\Core\Content\Product\SalesChannel\Review\Event\ProductReviewsLoadedEvent` instead.
 * The hook `\Shopware\Storefront\Page\Product\Review\ProductReviewsWidgetLoadedHook` is deprecated. Use `\Shopware\Core\Content\Product\SalesChannel\Review\ProductReviewsWidgetLoadedHook` instead.
 * The struct `\Shopware\Storefront\Page\Product\Review\ReviewLoaderResult` is deprecated. Use `\Shopware\Core\Content\Product\SalesChannel\Review\ProductReviewResult` instead.
+
 ## Native types for PHP class properties
 A "deprecation" message was added to every PHP class property without a native type.
 The native types will be added with Shopware 6.7.0.0.
 If you extend classes with such properties, you will also need to add the type accordingly during the major update.
+
 ## New skip to content links
 The "Skip to content" link for accessibility inside `@Storefront/storefront/base.html.twig` is now inside a separate include template `@Storefront/storefront/component/skip-to-content.html.twig`.
 The new template also has additional links to skip directly to the search field and main navigation. The links can be enabled or disabled by passing boolean variables. By default, only "Skip to main content" is shown:
@@ -511,6 +534,7 @@ The new template also has additional links to skip directly to the search field 
     skipToMainNav: true
 } %}
 ```
+
 ## Storefront product box accessibility: Replace duplicate links around the product image with stretched link in product name
 **Affected template: `Resources/views/storefront/component/product/card/box-standard.html.twig`**
 

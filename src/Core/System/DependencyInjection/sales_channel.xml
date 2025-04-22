@@ -169,6 +169,8 @@
             <tag name="kernel.event_subscriber"/>
             <argument type="service" id="Shopware\Core\System\SalesChannel\Api\StructEncoder"/>
             <argument type="service" id="event_dispatcher"/>
+            <argument type="service" id="Shopware\Core\Content\Seo\SeoUrlPlaceholderHandlerInterface"/>
+            <argument type="service" id="Shopware\Core\Content\Media\MediaUrlPlaceholderHandlerInterface"/>
         </service>
 
         <service id="Shopware\Core\System\SalesChannel\Api\StructEncoder">

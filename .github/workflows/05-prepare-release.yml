@@ -7,7 +7,7 @@ on:
 jobs:
   build:
     runs-on: ubuntu-24.04
-    if: github.repository == 'shopware/shopware'
+    # if: github.repository == 'shopware/shopware'
     env:
       SHOPWARE_ADMIN_SKIP_SOURCEMAP_GENERATION: "1"
       DATABASE_URL: mysql://root:root@127.0.0.1:3306/root

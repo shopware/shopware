@@ -45,7 +45,9 @@
                                 {% block page_checkout_confirm_address_shipping_actions %}
                                     {% set addressManagerOptions = {
                                         initialTab: 'shipping',
-                                        activeShippingAddressId: shippingAddress.id
+                                        activeShippingAddressId: shippingAddress.id,
+                                        addressManagerUrl: path('frontend.account.addressmanager.get'),
+                                        addressSwitchUrl: path('frontend.account.address.switch-default'),
                                     } %}
 
                                     <div class="card-actions">
@@ -98,6 +100,8 @@
                                     {% set addressManagerOptions = {
                                         initialTab: 'billing',
                                         addressId: billingAddress.id,
+                                        addressManagerUrl: path('frontend.account.addressmanager.get'),
+                                        addressSwitchUrl: path('frontend.account.address.switch-default'),
                                     } %}
 
                                     {% block page_checkout_confirm_address_billing_actions_link %}

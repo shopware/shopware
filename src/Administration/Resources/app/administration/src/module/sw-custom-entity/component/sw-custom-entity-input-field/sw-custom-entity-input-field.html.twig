@@ -47,11 +47,11 @@
     <mt-switch
         v-else-if="type === 'boolean'"
         class="sw-custom-entity-input-field__boolean"
-        :checked="currentValue"
+        :model-value="currentValue"
         :label="label"
         :placeholder="placeholder"
         :help-text="helpText"
-        @change="onChange"
+        @update:model-value="onChange"
     />
 
     <mt-datepicker

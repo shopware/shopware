@@ -50,7 +50,7 @@ export default {
         },
 
         selectedIds() {
-            return Shopware.Store.get('shopwareApps').selectedIds;
+            return Shopware.Store.get('swBulkEdit').selectedIds;
         },
 
         downloadOrderDocuments() {

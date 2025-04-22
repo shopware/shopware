@@ -530,7 +530,8 @@ The default payment method "Direct debit" will no longer automatically change th
 The `technicalName` property will be required for payment and shipping methods in the API.
 The `technical_name` column will be made non-nullable for the `payment_method` and `shipping_method` tables in the database.
 
-Plugin developers will be required to supply a `technicalName` for their payment and shipping methods.
+Plugin developers will be required to supply a `technicalName` for their payment and shipping methods.  
+**If no technical name is specified before the migration is run, a temporary placeholder `temporary_<method-id>` will be used instead.**
 
 Merchants must review their custom created payment and shipping methods for the new `technicalName` property and update their methods through the administration accordingly.
 </details>
@@ -613,7 +614,7 @@ Merchants must review their custom created payment and shipping methods for the 
 The returned timestamp `MigrationStep::getCreationTimestamp()` method is now validated, it needs to be between `1` and `2147483647` (the `max_int` value on 32-bit systems). This ensures that the migration order is always deterministic and prevents common errors when the method returns a higher number,
 that will silently be treated as max_int, leading to multiple migrations having the same creation timestamp, thus the execution order becomes random, which might lead to hard to debug errors while executing migrations.
 ### Plugin migrations are now removed before calling `uninstall()`
-When `keepUserData` is set to false during plugin uninstall, the plugin is expected to clean up all DB tables the plugin created in the `unistall` method.
+When `keepUserData` is set to false during plugin uninstall, the plugin is expected to clean up all DB tables the plugin created in the `install` method.
 Now we are cleaning up the plugin migrations from the migration table before calling the `uninstall` method, so in case of an error, the plugin can be reinstalled and the migrations can be rerun.
 
 ## Required foreign key in mapping definition for many-to-many associations
@@ -2147,6 +2148,18 @@ After:
 <mt-switch>Hello World</mt-switch>
 ```
 
+### "mt-switch" v-model:value is deprecated
+Replace all occurrences of the "v-model:value" directive with "v-model"
+
+Before:
+```html
+<mt-switch v-model:value="myValue" />
+```
+After:
+```html
+<mt-switch v-model="myValue" />
+```
+
 ### "mt-switch" has no "noMarginTop" prop anymore
 Replace all occurrences of the "noMarginTop" prop with "removeTopMargin".
 
@@ -2491,6 +2504,21 @@ After:
 ```html
 <mt-checkbox @update:checked="updateValue" />
 ```
+
+## Migration to "mt-tooltip"
+As part of the internal refactor of the Meteor component library, all tooltips are now rendered using the new `mt-tooltip` component.
+
+### `mt-tooltip` no longer supports Vue components inside the tooltip content. Previously, it was possible to render Vue components (such as `RouterLink`) inside the tooltip text. This is no longer supported. The tooltip content must now consist only of plain strings or standard HTML elements.
+
+Before:
+```html
+<mt-switch :help-text="`This is a help text. <RouterLink to="someUrl">Link</RouterLink>`" />
+```
+After:
+```html
+<mt-switch :help-text="`This is a help text. <a href="someUrl">Link</a>`" />
+```
+
 </details>
 
 ### Deprecated admin notification entity + related classes
@@ -2518,6 +2546,11 @@ We made some changes in the Storefront, which might affect your plugins and them
   Extend `\Shopware\Storefront\Pagelet\Header\HeaderPageletLoader` or `\Shopware\Storefront\Pagelet\Footer\FooterPageletLoader` instead.
 * The properties `header`, `footer`, `salesChannelShippingMethods` and `salesChannelPaymentMethods` and their getter and setter Methods in `\Shopware\Storefront\Page\Page` were removed.
   Extend `\Shopware\Storefront\Pagelet\Header\HeaderPagelet` or `\Shopware\Storefront\Pagelet\Footer\FooterPagelet` instead.
+  Use the following alternatives in templates instead:
+    * `context.currency` instead of `page.header.activeCurrency`
+    * `shopware.navigation.id` instead of `page.header.navigation.active.id`
+    * `shopware.navigation.pathIdList` instead of `page.header.navigation.active.path`
+    * `context.languageInfo` instead of `page.header.activeLanguage`
 * The property `serviceMenu` and its getter and setter Methods in `\Shopware\Storefront\Pagelet\Header\HeaderPagelet` were removed.
   Extend it via the `\Shopware\Storefront\Pagelet\Footer\FooterPagelet` instead.
 * The `navigationId` request parameter in `\Shopware\Storefront\Pagelet\Header\HeaderPageletLoader::load` was removed.
@@ -2543,6 +2576,11 @@ We made some changes in the Storefront, which might affect your plugins and them
 * The template variables `activeId` and `activePath` in `src/Storefront/Resources/views/storefront/layout/navbar/categories.html.twig` were removed.
 * The template variable `activePath` in `src/Storefront/Resources/views/storefront/layout/navbar/navbar.html.twig` was removed.
 * The parameter `activeResult` of `src/Storefront/Resources/views/storefront/layout/sidebar/category-navigation.html.twig` was removed.
+* The global `showStagingBanner` Twig variable was removed. Use `shopware.showStagingBanner` instead.
+
+## FooterPagelet changes
+The former optional parameter `serviceMenu` of type `\Shopware\Core\Content\Category\CategoryCollection` in `\Shopware\Storefront\Pagelet\Footer\FooterPagelet` is now required.
+Make sure to pass it to the constructor.
 
 ## ThemeFileImporterInterface & ThemeFileImporter Removal
 Both `\Shopware\Storefront\Theme\ThemeFileImporterInterface` & `\Shopware\Storefront\Theme\ThemeFileImporter` are removed without replacement. These classes are already not used as of v6.6.5.0 and therefore this extension point is removed with no planned replacement.
@@ -2815,5 +2853,12 @@ The fine-grained caching mechanism for system-config, snippets and theme config 
 
 Removed `SQL_SET_DEFAULT_SESSION_VARIABLES` env variable. It has no effect anymore. 
 The previously optional performance tweaks to MySQL are now enforced on connection buildup inside the `\Shopware\Core\Framework\Adapter\Database\MySQLFactory`.
+
+## Removal of RSA JWT secrets
+
+The custom JWT secrets where removed, instead the JWTs will now be signed with the `APP_SECRET`. Therefore, please make sure that the `APP_SECRET` environment variable is at least 32 characters long. You can use the `bin/console system:generate-app-secret` command to generate a valid secret.
+
+This means the `shopware.api.jwt_key.use_app_secret` configuration is no longer available, as that is the only behavior now.
+Additionally, the `system:generate-jwt-secret` command was removed, as it is not needed anymore.
 
 </details>

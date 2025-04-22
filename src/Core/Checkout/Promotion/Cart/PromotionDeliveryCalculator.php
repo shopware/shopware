@@ -245,8 +245,7 @@ class PromotionDeliveryCalculator
                 throw PromotionException::invalidPriceDefinition((string) $discountB->getLabel(), $discountB->getReferencedId());
             }
 
-            // NEXT-21735 - This is covered randomly
-            // @codeCoverageIgnoreStart
+            // @codeCoverageIgnoreStart - This is covered randomly
             if ($priceDefA->getPrice() === $priceDefB->getPrice()) {
                 return 0;
             }

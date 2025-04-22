@@ -10,7 +10,6 @@ use Lcobucci\JWT\Validation\Constraint;
 use Lcobucci\JWT\Validation\Constraint\StrictValidAt;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
-use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Order\Aggregate\OrderTransaction\OrderTransactionEntity;
 use Shopware\Core\Checkout\Payment\Cart\Token\JWTFactoryV2;
@@ -66,10 +65,6 @@ class JWTFactoryV2Test extends TestCase
         $this->tokenFactory->parseToken($token);
     }
 
-    /**
-     * NEXT-21735 - Sometimes produces invalid base64 and returns early (but same exception)
-     */
-    #[Group('not-deterministic')]
     public function testGetTokenWithInvalidSignature(): void
     {
         $transaction = self::createTransaction();

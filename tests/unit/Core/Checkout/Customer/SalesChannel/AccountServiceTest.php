@@ -29,6 +29,7 @@ use Shopware\Core\Test\Stub\DataAbstractionLayer\StaticEntityRepository;
 use Shopware\Core\Test\TestDefaults;
 use Symfony\Component\EventDispatcher\EventDispatcher;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
+use Symfony\Component\PasswordHasher\PasswordHasherInterface;
 use Symfony\Component\Validator\ConstraintViolation;
 use Symfony\Component\Validator\ConstraintViolationList;
 
@@ -407,5 +408,21 @@ class AccountServiceTest extends TestCase
         $this->expectException(CustomerNotFoundByIdException::class);
 
         $accountService->loginById(Uuid::randomHex(), $context);
+    }
+
+    public function testPasswordTooLongThrowsBadCredentials(): void
+    {
+        $salesChannelContext = Generator::generateSalesChannelContext();
+        $accountService = new AccountService(
+            $this->createMock(EntityRepository::class),
+            $this->createMock(EventDispatcherInterface::class),
+            $this->createMock(LegacyPasswordVerifier::class),
+            $this->createMock(AbstractSwitchDefaultAddressRoute::class),
+            $this->createMock(CartRestorer::class),
+        );
+
+        static::expectException(BadCredentialsException::class);
+
+        $accountService->loginByCredentials('foo@bar.de', \str_repeat('a', PasswordHasherInterface::MAX_PASSWORD_LENGTH + 1), $salesChannelContext);
     }
 }

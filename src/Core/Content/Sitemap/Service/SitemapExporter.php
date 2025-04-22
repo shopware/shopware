@@ -133,7 +133,6 @@ class SitemapExporter implements SitemapExporterInterface
                     $arrayKey = ($urlParts['host'] ?? '') . ($urlParts['path'] ?? '');
 
                     if (\array_key_exists($arrayKey, $sitemapDomains) && $sitemapDomains[$arrayKey]['scheme'] === 'https') {
-                        // NEXT-21735 - does not execute on every test run
                         continue;
                     }
 

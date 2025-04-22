@@ -85,9 +85,15 @@ Shopware.Component.register('sw-extension-component-section', {
         },
 
         getActiveTab(componentSection: ComponentSectionEntry) {
+            /* istanbul ignore if */
+            if (!('tabs' in componentSection.props) || componentSection.props.tabs === undefined) {
+                // this case can not happen because it is checked in the template. However, ts does not know that.
+                throw new Error('Missing tabs in ComponentSection');
+            }
+
             return this.activeTabName
-                ? componentSection.props.tabs?.find((tab) => tab.name === this.activeTabName)
-                : componentSection.props.tabs?.[0];
+                ? componentSection.props.tabs.find((tab) => tab.name === this.activeTabName)
+                : componentSection.props.tabs[0];
         },
     },
 });

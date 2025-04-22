@@ -91,8 +91,23 @@ class ThemeCompilerTest extends TestCase
             $this->createMock(LoggerInterface::class),
             new MD5ThemePathBuilder(),
             static::getContainer()->get(ScssPhpCompiler::class),
-            [],
             false
+        );
+
+        $this->themeCompilerAutoPrefix = new ThemeCompiler(
+            $mockFilesystem,
+            $mockFilesystem,
+            new CopyBatchInputFactory(),
+            $themeFileResolver,
+            true,
+            $this->eventDispatcher,
+            static::getContainer()->get(ThemeFilesystemResolver::class),
+            ['theme' => new UrlPackage(['http://localhost'], new EmptyVersionStrategy())],
+            static::getContainer()->get(CacheInvalidator::class),
+            $this->createMock(LoggerInterface::class),
+            new MD5ThemePathBuilder(),
+            static::getContainer()->get(ScssPhpCompiler::class),
+            true
         );
     }
 
@@ -431,7 +446,6 @@ PHP_EOL;
             $this->createMock(LoggerInterface::class),
             new MD5ThemePathBuilder(),
             static::getContainer()->get(ScssPhpCompiler::class),
-            [],
             false
         );
 

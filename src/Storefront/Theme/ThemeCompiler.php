@@ -50,6 +50,7 @@ class ThemeCompiler implements ThemeCompilerInterface
         private readonly LoggerInterface $logger,
         private readonly AbstractThemePathBuilder $themePathBuilder,
         private readonly AbstractScssCompiler $scssCompiler,
+        private readonly bool $autoPrefix = false,
         private readonly array $customAllowedRegex = [],
         private readonly bool $validate = false
     ) {

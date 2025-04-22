@@ -55,10 +55,25 @@ Component.register('sw-cms-el-config-location-renderer', {
         createdComponent() {
             this.initElementConfig(this.elementData.name);
 
+            /**
+             * @deprecated tag:v6.8.0 - Will be removed
+             */
             Shopware.ExtensionAPI.publishData({
                 id: this.publishingKey,
                 path: 'element',
                 scope: this,
+                deprecated: true,
+                deprecationMessage:
+                    // eslint-disable-next-line max-len
+                    'The general cms element data set is deprecated. Please use a specific cms data set instead by provoding the element id.',
+                showDoubleRegistrationError: false,
+            });
+
+            Shopware.ExtensionAPI.publishData({
+                id: `${this.publishingKey}__${this.element.id}`,
+                path: 'element',
+                scope: this,
+                showDoubleRegistrationError: false,
             });
         },
 

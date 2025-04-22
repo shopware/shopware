@@ -3,6 +3,7 @@
     class="sw-extension-permissions-modal"
     :title="modalTitle"
     variant="small"
+    @modal-close="close"
 >
     {% block sw_extension_permissions_modal_content %}
     {% block sw_extension_permissions_modal_intro %}

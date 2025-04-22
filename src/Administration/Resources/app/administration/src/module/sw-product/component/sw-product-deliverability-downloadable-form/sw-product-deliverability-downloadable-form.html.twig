@@ -17,8 +17,8 @@
                 :label="$tc('sw-product.detailBase.manageStockLabel')"
                 :help-text="$tc('sw-product.detailBase.manageStockTooltip')"
                 :disabled="props.isInherited || disabled"
-                :checked="props.currentValue"
-                @change="props.updateCurrentValue"
+                :model-value="props.currentValue"
+                @update:model-value="props.updateCurrentValue"
             />
 
         </template>

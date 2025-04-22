@@ -129,7 +129,7 @@ class PromotionCalculatorTest extends TestCase
         static::assertEquals('Promotion second-promotion was excluded for cart.', $error->getMessage());
     }
 
-    public function testTest(): void
+    public function testAddDiscountWithPackages(): void
     {
         $lineItem1 = new LineItem($this->ids->get('line-item-1'), LineItem::PRODUCT_LINE_ITEM_TYPE, $this->ids->get('line-item-1'));
         $lineItem1->setPriceDefinition(new AbsolutePriceDefinition(50.0));

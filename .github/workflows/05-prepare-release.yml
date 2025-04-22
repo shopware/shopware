@@ -50,6 +50,7 @@ jobs:
           include-hidden-files: true
           path: |
             .
+            !.git/config
             .github/
             !var/cache
             !tests/

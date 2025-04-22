@@ -171,6 +171,10 @@ The `category_url` and `category_linknewtab` twig functions have been removed. T
 </a>
 ```
 
+## Removal of DeleteThemeFilesMessage and its handler
+The `\Shopware\Storefront\Theme\Message\DeleteThemeFilesMessage` and its handler `\Shopware\Storefront\Theme\Message\DeleteThemeFilesHandler` are removed.
+Unused theme files are deleted by using the `\Shopware\Storefront\Theme\ScheduledTask\DeleteThemeFilesTask` scheduled task.
+
 # App System
 
 ## Use `sw_macro_function` instead of usual `macro` in app scripts if you return values

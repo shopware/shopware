@@ -792,7 +792,6 @@ PHP_EOL,
             $this->logger,
             $this->pathBuilder,
             $this->scssPhpCompiler,
-            [],
             false
         );
     }

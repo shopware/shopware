@@ -12,6 +12,7 @@ use Psr\Log\LoggerInterface;
 use Shopware\Core\Framework\Adapter\Cache\CacheInvalidator;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\MessageQueue\ScheduledTask\ScheduledTaskCollection;
 use Shopware\Core\Framework\MessageQueue\ScheduledTask\ScheduledTaskHandler;
 use Shopware\Storefront\Theme\AbstractThemePathBuilder;
 use Symfony\Component\Messenger\Attribute\AsMessageHandler;
@@ -23,6 +24,9 @@ use Symfony\Component\Messenger\Attribute\AsMessageHandler;
 #[Package('framework')]
 final class DeleteThemeFilesTaskHandler extends ScheduledTaskHandler
 {
+    /**
+     * @param EntityRepository<ScheduledTaskCollection> $scheduledTaskRepository
+     */
     public function __construct(
         EntityRepository $scheduledTaskRepository,
         LoggerInterface $exceptionLogger,

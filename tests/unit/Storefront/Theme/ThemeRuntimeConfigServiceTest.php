@@ -89,20 +89,20 @@ class ThemeRuntimeConfigServiceTest extends TestCase
     }
 
     /**
-     * @return iterable<string, array{0: string, 1: string, 2: ?ThemeRuntimeConfig}>
+     * @return iterable<string, array{themeId: string, technicalName: string, expectedConfig: ?ThemeRuntimeConfig}>
      */
     public static function configProvider(): iterable
     {
         yield 'no record found' => [
-            '1234567890abcdef1234567890abcde1',
-            'nonexistent-theme-name',
-            null,
+            'themeId' => '1234567890abcdef1234567890abcde1',
+            'technicalName' => 'nonexistent-theme-name',
+            'expectedConfig' => null,
         ];
 
         yield 'config found' => [
-            '1234567890abcdef1234567890abcdef',
-            'test-theme',
-            self::createThemeRuntimeConfig(),
+            'themeId' => '1234567890abcdef1234567890abcdef',
+            'technicalName' => 'test-theme',
+            'expectedConfig' => self::createThemeRuntimeConfig(),
         ];
     }
 
@@ -237,17 +237,17 @@ class ThemeRuntimeConfigServiceTest extends TestCase
             ->willReturnCallback(function ($config): void {
                 static::assertInstanceOf(ThemeRuntimeConfig::class, $config);
                 static::assertNotNull($config->scriptFiles);
-                static::assertEquals(['js/foo/file1.js', 'js/foo/file2.js'], $config->scriptFiles);
+                static::assertSame(['js/foo/file1.js', 'js/foo/file2.js'], $config->scriptFiles);
             });
 
         $result = $this->service->refreshRuntimeConfig($themeId, $themeConfig, $context, $filesRequired, $configCollection);
 
-        static::assertEquals($themeId, $result->themeId);
-        static::assertEquals($technicalName, $result->technicalName);
-        static::assertEquals(['js/foo/file1.js', 'js/foo/file2.js'], $result->scriptFiles);
-        static::assertEquals(['key' => 'value'], $result->resolvedConfig);
-        static::assertEquals(['parent-theme'], $result->viewInheritance);
-        static::assertEquals(['iconSet1' => ['path' => 'path/to/iconSet1', 'namespace' => $technicalName]], $result->iconSets);
+        static::assertSame($themeId, $result->themeId);
+        static::assertSame($technicalName, $result->technicalName);
+        static::assertSame(['js/foo/file1.js', 'js/foo/file2.js'], $result->scriptFiles);
+        static::assertSame(['key' => 'value'], $result->resolvedConfig);
+        static::assertSame(['parent-theme'], $result->viewInheritance);
+        static::assertSame(['iconSet1' => ['path' => 'path/to/iconSet1', 'namespace' => $technicalName]], $result->iconSets);
     }
 
     public function testRefreshRuntimeConfigIgnoresJsExceptionWhenFilesNotRequired(): void
@@ -287,7 +287,7 @@ class ThemeRuntimeConfigServiceTest extends TestCase
 
         $result = $this->service->refreshRuntimeConfig($themeId, $themeConfig, $context, $filesRequired, $configCollection);
 
-        static::assertEquals($themeId, $result->themeId);
+        static::assertSame($themeId, $result->themeId);
         static::assertNull($result->scriptFiles);
     }
 

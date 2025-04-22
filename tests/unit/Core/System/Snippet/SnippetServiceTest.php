@@ -104,6 +104,12 @@ class SnippetServiceTest extends TestCase
             $runtimeConfigService,
         );
 
+        $snippetService = $this->createSnippetService(
+            $container,
+            $cachedThemeLoader,
+            $runtimeConfigService,
+        );
+
         $catalog = new MessageCatalogue((string) $fetchLocaleResult, ['messages' => $catalogMessages]);
 
         $snippets = $snippetService->getStorefrontSnippets($catalog, Uuid::randomHex(), $fallbackLocale, $salesChannelId);
@@ -120,15 +126,7 @@ class SnippetServiceTest extends TestCase
         $container = $this->createMock(ContainerInterface::class);
         $container->expects($this->exactly(2))->method('has')->with(StorefrontPluginRegistry::class)->willReturn(false);
 
-        $snippetService = new SnippetService(
-            $this->connection,
-            $this->snippetCollection,
-            $this->createMock(EntityRepository::class),
-            $this->createMock(EntityRepository::class),
-            $this->createMock(SnippetFilterFactory::class),
-            $container,
-            new ExtensionDispatcher(new EventDispatcher())
-        );
+        $snippetService = $this->createSnippetService($container);
 
         $snippets = $snippetService->getStorefrontSnippets($catalog, $snippetSetId, $locale);
 
@@ -143,15 +141,7 @@ class SnippetServiceTest extends TestCase
 
         $this->connection->expects($this->once())->method('fetchOne')->willReturn($snippetSetIdWithSalesChannelDomain);
 
-        $snippetService = new SnippetService(
-            $this->connection,
-            $this->snippetCollection,
-            $this->createMock(EntityRepository::class),
-            $this->createMock(EntityRepository::class),
-            $this->createMock(SnippetFilterFactory::class),
-            $this->createMock(ContainerInterface::class),
-            new ExtensionDispatcher(new EventDispatcher())
-        );
+        $snippetService = $this->createSnippetService();
 
         $snippetSetId = $snippetService->findSnippetSetId(Uuid::randomHex(), Uuid::randomHex(), 'en-GB');
 
@@ -167,15 +157,7 @@ class SnippetServiceTest extends TestCase
         $this->connection->expects($this->once())->method('fetchOne')->willReturn(null);
         $this->connection->expects($this->once())->method('fetchAllKeyValue')->willReturn($sets);
 
-        $snippetService = new SnippetService(
-            $this->connection,
-            $this->snippetCollection,
-            $this->createMock(EntityRepository::class),
-            $this->createMock(EntityRepository::class),
-            $this->createMock(SnippetFilterFactory::class),
-            $this->createMock(ContainerInterface::class),
-            new ExtensionDispatcher(new EventDispatcher())
-        );
+        $snippetService = $this->createSnippetService();
 
         $snippetSetId = $snippetService->findSnippetSetId(Uuid::randomHex(), Uuid::randomHex(), 'vi-VN');
 
@@ -330,5 +312,23 @@ class SnippetServiceTest extends TestCase
         $this->snippetCollection->add(new MockSnippetFile('storefront.en-GB', 'en-GB', '{}', true, 'Storefront'));
         $this->snippetCollection->add(new MockSnippetFile('swagtheme.de-DE', 'de-DE', '{}', true, 'SwagTheme'));
         $this->snippetCollection->add(new MockSnippetFile('swagtheme.en-GB', 'en-GB', '{}', true, 'SwagTheme'));
+    }
+
+    private function createSnippetService(
+        ?ContainerInterface $container = null,
+        ?DatabaseSalesChannelThemeLoader $themeLoader = null,
+        ?ThemeRuntimeConfigService $runtimeConfigService = null,
+    ): SnippetService {
+        return new SnippetService(
+            $this->connection,
+            $this->snippetCollection,
+            $this->createMock(EntityRepository::class),
+            $this->createMock(EntityRepository::class),
+            $this->createMock(SnippetFilterFactory::class),
+            $container ?? $this->createMock(ContainerInterface::class),
+            new ExtensionDispatcher(new EventDispatcher()),
+            $themeLoader,
+            $runtimeConfigService,
+        );
     }
 }

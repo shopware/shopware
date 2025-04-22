@@ -8,6 +8,7 @@ ___
 # Storefront
 * Added new `\Shopware\Storefront\Theme\ThemeRuntimeConfig` entity and `theme_runtime_config` table to store theme runtime configuration
 * Added `\Shopware\Storefront\Theme\ThemeRuntimeConfigService` to handle theme runtime configurations
+* Changed `\Shopware\Storefront\Theme\ThemeLifecycleService`, adding optional `$configurationCollection` parameter to the `refreshTheme` method, and deprecating class to be marked as final in the next major version.
 * Changed theme configuration loading in the code, used during storefront rendering, to use the new `\Shopware\Storefront\Theme\ThemeRuntimeConfigService`:
   * `\Shopware\Storefront\Theme\ResolvedConfigLoader`
   * `\Shopware\Storefront\Theme\ThemeScripts`
@@ -23,3 +24,7 @@ ___
 # Next Major Version Changes
 ## Removal of CachedResolvedConfigLoader
 * The `\Shopware\Storefront\Theme\CachedResolvedConfigLoader` was removed.
+
+## Changes to ThemeLifecycleService
+* The `\Shopware\Storefront\Theme\ThemeLifecycleService` became final.
+* The new optional parameter `$configurationCollection` was added to the `refreshTheme` method.

@@ -20,62 +20,53 @@ use Symfony\Component\HttpFoundation\RequestStack;
 #[CoversClass(ThemeScripts::class)]
 class ThemeScriptsTest extends TestCase
 {
+    private RequestStack $requestStack;
+
     private ThemeRuntimeConfigService&MockObject $themeRuntimeConfigService;
+
+    private ThemeScripts $themeScripts;
 
     protected function setUp(): void
     {
         parent::setUp();
         $this->themeRuntimeConfigService = $this->createMock(ThemeRuntimeConfigService::class);
+        $this->requestStack = new RequestStack();
+        $this->themeScripts = new ThemeScripts(
+            $this->requestStack,
+            $this->themeRuntimeConfigService,
+        );
     }
 
     public function testGetThemeScriptsWhenNoRequestGiven(): void
     {
-        $themeScripts = new ThemeScripts(
-            $this->createMock(RequestStack::class),
-            $this->themeRuntimeConfigService,
-        );
-
         $this->themeRuntimeConfigService->expects($this->never())->method('getResolvedRuntimeConfig');
-        static::assertEquals([], $themeScripts->getThemeScripts());
+        static::assertSame([], $this->themeScripts->getThemeScripts());
     }
 
     public function testGetThemeScriptsWhenAdminRequest(): void
     {
-        $requestStack = new RequestStack();
-        $requestStack->push(new Request());
-
-        $themeScripts = new ThemeScripts(
-            $requestStack,
-            $this->themeRuntimeConfigService,
-        );
+        $this->requestStack->push(new Request());
 
         $this->themeRuntimeConfigService->expects($this->never())->method('getResolvedRuntimeConfig');
-        static::assertEquals([], $themeScripts->getThemeScripts());
+        static::assertSame([], $this->themeScripts->getThemeScripts());
     }
 
     public function testNotExistingTheme(): void
     {
-        $requestStack = new RequestStack();
         $request = new Request();
         $request->attributes->set(SalesChannelRequest::ATTRIBUTE_THEME_NAME, 'invalid');
         $request->attributes->set(SalesChannelRequest::ATTRIBUTE_THEME_ID, 'invalid');
         $request->attributes->set(PlatformRequest::ATTRIBUTE_SALES_CHANNEL_ID, 'sales-channel-id');
         $request->attributes->set(PlatformRequest::ATTRIBUTE_SALES_CHANNEL_CONTEXT_OBJECT, Generator::generateSalesChannelContext());
-        $requestStack->push($request);
+        $this->requestStack->push($request);
 
         $this->themeRuntimeConfigService->expects($this->once())->method('getResolvedRuntimeConfig')->willReturn(null);
 
-        $themeScripts = new ThemeScripts(
-            $requestStack,
-            $this->themeRuntimeConfigService,
-        );
-
-        static::assertEquals([], $themeScripts->getThemeScripts());
+        static::assertSame([], $this->themeScripts->getThemeScripts());
     }
 
     public function testLoadPaths(): void
     {
-        $requestStack = new RequestStack();
         $request = new Request();
         $request->attributes->set(PlatformRequest::ATTRIBUTE_SALES_CHANNEL_ID, 'Storefront');
         $request->attributes->set(SalesChannelRequest::ATTRIBUTE_THEME_ID, 'Storefront');
@@ -84,7 +75,7 @@ class ThemeScriptsTest extends TestCase
         $salesChannelContext = Generator::generateSalesChannelContext();
         $request->attributes->set(PlatformRequest::ATTRIBUTE_SALES_CHANNEL_CONTEXT_OBJECT, $salesChannelContext);
 
-        $requestStack->push($request);
+        $this->requestStack->push($request);
 
         $themeRuntimeConfig = ThemeRuntimeConfig::fromArray([
             'themeId' => 'Storefront',
@@ -97,11 +88,6 @@ class ThemeScriptsTest extends TestCase
         ]);
         $this->themeRuntimeConfigService->expects($this->once())->method('getResolvedRuntimeConfig')->willReturn($themeRuntimeConfig);
 
-        $themeScripts = new ThemeScripts(
-            $requestStack,
-            $this->themeRuntimeConfigService,
-        );
-
-        static::assertEquals(['js/foo/foo.js', 'js/foo/bar.js'], $themeScripts->getThemeScripts());
+        static::assertSame(['js/foo/foo.js', 'js/foo/bar.js'], $this->themeScripts->getThemeScripts());
     }
 }

@@ -23,7 +23,6 @@ use Shopware\Core\System\Snippet\SnippetDefinition;
 use Shopware\Core\Test\AppSystemTestBehaviour;
 use Shopware\Core\Test\TestDefaults;
 use Shopware\Storefront\Theme\DatabaseSalesChannelThemeLoader;
-use Shopware\Storefront\Theme\ThemeRuntimeConfigService;
 use Shopware\Storefront\Theme\ThemeService;
 use Shopware\Tests\Integration\Core\Framework\Translation\Fixtures\UnitTest_SnippetFile;
 use Symfony\Component\HttpFoundation\Request;
@@ -312,7 +311,6 @@ class TranslatorTest extends TestCase
         $themeService = static::getContainer()->get(ThemeService::class);
         $themeRepo = static::getContainer()->get('theme.repository');
         $loader = static::getContainer()->get(DatabaseSalesChannelThemeLoader::class);
-        $runtimeConfigService = static::getContainer()->get(ThemeRuntimeConfigService::class);
 
         // Install the app
         $this->loadAppsFromDir(__DIR__ . '/Fixtures/theme');

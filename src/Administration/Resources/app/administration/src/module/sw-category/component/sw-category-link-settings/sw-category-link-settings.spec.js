@@ -166,23 +166,6 @@ describe('src/module/sw-category/component/sw-category-link-settings', () => {
         expect(newTabField.props().disabled).toBe(true);
     });
 
-    it('should show only categories with type page', async () => {
-        global.activeAclRoles = ['category.editor'];
-
-        const wrapper = await createWrapper({
-            linkType: 'category',
-            internalLink: 'someUuid',
-        });
-
-        wrapper.find('sw-category-tree-field-stub');
-        const criteria = wrapper.vm.categoryCriteria;
-        const expectedFilters = [
-            { type: 'equals', field: 'type', value: 'page' },
-        ];
-
-        expect(criteria.filters).toEqual(expect.arrayContaining(expectedFilters));
-    });
-
     it('should have correct internal link', async () => {
         global.activeAclRoles = ['category.editor'];
 

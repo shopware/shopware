@@ -32,6 +32,10 @@
     "card": {
       "buttonImitateCustomer": "Als Kunde anmelden",
       "tooltipImitateCustomerGuest": "Gastbesteller können nicht imitiert werden.",
+      "tooltipImitateCustomerInactive": "Inaktive Kunden können nicht imitiert werden.",
+      "tooltipImitateCustomerInactiveSalesChannel": "Der Verkaufskanal des Kunden ist inaktiv.",
+      "tooltipImitateCustomerNoDomain": "Der Verkaufskanal des Kunden hat keine Domain.",
+      "tooltipImitateCustomerNoStorefront": "Der Verkaufskanal des Kunden ist nicht vom Typ Storefront.",
       "placeholderTitle": "Titel",
       "placeholderFirstName": "Vorname",
       "placeholderLastName": "Nachname",
@@ -226,8 +230,8 @@
       "placeholderCity": "Gib eine Stadt ein ...",
       "placeholderCountry": "Wähle ein Land aus ...",
       "placeholderState": "Wähle ein (Bundes-)Land aus ...",
-      "placeholderAdditionalAddressLine1": "Gib eine erste zusätzliche Adresszeile ein ...",
-      "placeholderAdditionalAddressLine2": "Gib eine zweite zusätzliche Adresszeile ein ...",
+      "placeholderAdditionalAddressLine1": "Gib eine erste Adresszeile ein ...",
+      "placeholderAdditionalAddressLine2": "Gib eine zweite Adresszeile ein ...",
       "placeholderPhoneNumber": "Gib eine Telefonnummer an ...",
       "placeholderVatId": "Gib die USt-IdNr. ein ..."
     },

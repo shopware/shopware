@@ -86,7 +86,8 @@ class ChangelogProcessor
     public function getFixCommits(string $fromRef): array
     {
         $cmd = \sprintf(
-            'git log --no-merges @ %s --pretty=format:%s -i -E --grep=%s',
+            'git -C %s log --no-merges @ %s --pretty=format:%s -i -E --grep=%s',
+            escapeshellarg($this->platformRoot ?? $this->projectDir),
             escapeshellarg('^' . $fromRef),
             escapeshellarg('%h'),
             escapeshellarg(ChangelogParser::FIXES_REGEX)
@@ -96,7 +97,7 @@ class ChangelogProcessor
 
         exec($cmd, $refs);
         foreach ($refs as $ref) {
-            $body = shell_exec('git log -n1 --pretty=format:%B ' . escapeshellarg($ref));
+            $body = shell_exec('git -C ' . escapeshellarg($this->platformRoot ?? $this->projectDir) . ' log -n1 --pretty=format:%B ' . escapeshellarg($ref));
 
             if ($body && preg_match_all('/' . ChangelogParser::FIXES_REGEX . '/i', $body, $matches)) {
                 $fix = [

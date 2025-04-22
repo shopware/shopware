@@ -104,6 +104,7 @@ describe('src/module/sw-settings-rule/page/sw-settings-rule-list', () => {
                 },
             },
             push: () => {},
+            replace: () => {},
         };
     });
 

@@ -248,8 +248,10 @@ describe('src/module/sw-product/view/sw-product-detail-variants', () => {
             },
         });
         await flushPromises();
-        const criteria = new Criteria(1, null);
-        criteria.addFilter(
+        const criteria = new Criteria(1, 500);
+        criteria
+            .addFields('name')
+            .addFilter(
             Criteria.equalsAny('id', [
                 'id-1',
                 'id-2',
@@ -263,5 +265,79 @@ describe('src/module/sw-product/view/sw-product-detail-variants', () => {
                 name: 'group-1',
             },
         ]);
+    });
+
+    it('should correctly load and merge paginated results', async () => {
+        const wrapper = await createWrapper();
+        const loadGroupsSpy = jest.spyOn(wrapper.vm, 'loadGroups');
+
+        await wrapper.setData({ limit: 5 });
+
+        // Mock repository to return paginated data
+        wrapper.vm.groupRepository.search = jest
+            .fn()
+            .mockResolvedValueOnce({
+                total: 12,
+                length: 5,
+                map: (fn) => [
+                    { id: '1', name: 'group-1' },
+                    { id: '2', name: 'group-2' },
+                    { id: '3', name: 'group-3' },
+                    { id: '4', name: 'group-4' },
+                    { id: '5', name: 'group-5' },
+                ].map(fn),
+            })
+            .mockResolvedValueOnce({
+                total: 7,
+                length: 5,
+                map: (fn) => [
+                    { id: '6', name: 'group-6' },
+                    { id: '7', name: 'group-7' },
+                    { id: '8', name: 'group-8' },
+                    { id: '9', name: 'group-9' },
+                    { id: '10', name: 'group-10' },
+                ].map(fn),
+            })
+            .mockResolvedValueOnce({
+                total: 2,
+                length: 2,
+                map: (fn) => [
+                    { id: '11', name: 'group-11' },
+                    { id: '12', name: 'group-12' },
+                ].map(fn),
+            });
+
+        wrapper.vm.loadConfigSettingGroups = jest.fn();
+
+        await flushPromises();
+
+        expect(wrapper.vm.groupRepository.search).toHaveBeenCalledTimes(3);
+        expect(loadGroupsSpy).toHaveBeenCalledTimes(1);
+    });
+
+    it('should handle cases where total items are less than limit', async () => {
+        const wrapper = await createWrapper();
+        const loadGroupsSpy = jest.spyOn(wrapper.vm, 'loadGroups');
+
+        await wrapper.setData({ limit: 5 });
+
+        wrapper.vm.groupRepository.search = jest.fn().mockResolvedValueOnce({
+            total: 3,
+            length: 3,
+            map: (fn) => [
+                { id: '1', name: 'group-1' },
+                { id: '2', name: 'group-2' },
+                { id: '3', name: 'group-3' },
+            ].map(fn),
+        });
+
+        wrapper.vm.loadConfigSettingGroups = jest.fn();
+        wrapper.vm.loadGroups = jest.fn();
+
+        await flushPromises();
+
+        // Expect only one API call since everything fits in the first page
+        expect(wrapper.vm.groupRepository.search).toHaveBeenCalledTimes(1);
+        expect(loadGroupsSpy).toHaveBeenCalledTimes(1);
     });
 });

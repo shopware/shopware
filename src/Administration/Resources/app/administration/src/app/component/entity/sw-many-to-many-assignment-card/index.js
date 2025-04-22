@@ -104,6 +104,12 @@ Component.register('sw-many-to-many-assignment-card', {
             required: false,
             default: false,
         },
+
+        displayVariants: {
+            type: Boolean,
+            required: false,
+            default: false,
+        },
     },
 
     data() {
@@ -256,23 +262,28 @@ Component.register('sw-many-to-many-assignment-card', {
             });
         },
 
-        searchItems() {
-            return this.searchRepository.search(this.searchCriteria, this.context).then((result) => {
-                if (!this.localMode) {
-                    const criteria = new Criteria(1, this.searchCriteria.limit);
-                    criteria.setIds(result.getIds());
+        async searchItems() {
+            return this.searchRepository
+                .search(this.searchCriteria, {
+                    ...this.context,
+                    inheritance: this.displayVariants,
+                })
+                .then((result) => {
+                    if (!this.localMode) {
+                        const criteria = new Criteria(1, this.searchCriteria.limit);
+                        criteria.setIds(result.getIds());
 
-                    this.assignmentRepository.searchIds(criteria, this.context).then(({ data }) => {
-                        data.forEach((id) => {
-                            if (!this.isSelected({ id })) {
-                                this.selectedIds.push(id);
-                            }
+                        this.assignmentRepository.searchIds(criteria, this.context).then(({ data }) => {
+                            data.forEach((id) => {
+                                if (!this.isSelected({ id })) {
+                                    this.selectedIds.push(id);
+                                }
+                            });
                         });
-                    });
-                }
+                    }
 
-                return result;
-            });
+                    return result;
+                });
         },
 
         onItemSelect(item) {

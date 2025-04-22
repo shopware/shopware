@@ -65,6 +65,11 @@ Component.register('sw-category-tree-field', {
             required: false,
             default: false,
         },
+
+        allowedTypes: {
+            type: Array,
+            default: null,
+        },
     },
 
     data() {
@@ -231,6 +236,8 @@ Component.register('sw-category-tree-field', {
 
             // search for categories
             return this.globalCategoryRepository.search(criteria, Shopware.Context.api).then((searchResult) => {
+                this.disableCategories(searchResult);
+
                 // when requesting root categories, replace the data
                 if (parentId === null) {
                     this.categories = searchResult;
@@ -253,6 +260,18 @@ Component.register('sw-category-tree-field', {
                 });
 
                 return Promise.resolve();
+            });
+        },
+
+        disableCategories(categories) {
+            if (!this.allowedTypes) {
+                return;
+            }
+
+            categories.forEach((category) => {
+                if (!this.allowedTypes.includes(category.type)) {
+                    category.disabled = true;
+                }
             });
         },
 

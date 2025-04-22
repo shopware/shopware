@@ -10,6 +10,7 @@ const categoryData = [
         id: 'categoryId-2',
         attributes: {
             id: 'categoryId-2',
+            type: 'page',
         },
         translated: {
             name: 'categoryName-2',
@@ -20,6 +21,7 @@ const categoryData = [
         id: 'categoryId-3',
         attributes: {
             id: 'categoryId3',
+            type: 'page',
         },
         translated: {
             name: 'categoryName-3',
@@ -30,6 +32,7 @@ const categoryData = [
         id: 'categoryId-4',
         attributes: {
             id: 'categoryId-4',
+            type: 'folder',
         },
         translated: {
             name: 'categoryName-4',
@@ -66,13 +69,14 @@ responses.addResponse({
     },
 });
 
-async function createWrapper() {
+async function createWrapper(props = {}) {
     return mount(await wrapTestComponent('sw-category-tree-field', { sync: true }), {
         attachTo: document.body,
         props: {
             placeholder: 'some-placeholder',
             categoriesCollection: createCategoryCollection(),
             pageId: '123',
+            ...props,
         },
         global: {
             stubs: {
@@ -95,6 +99,12 @@ async function createWrapper() {
                 'sw-loader': true,
                 'sw-color-badge': true,
                 'mt-floating-ui': true,
+                'sw-skeleton': true,
+                'sw-vnode-renderer': true,
+                'sw-context-button': true,
+                'sw-context-menu-item': true,
+                'sw-confirm-field': true,
+                'sw-tree-input-field': true,
             },
             provide: {
                 globalCategoryRepository: {
@@ -260,5 +270,28 @@ describe('src/app/component/entity/sw-category-tree-field', () => {
         expect(wrapper.vm.selectedCategoriesItemsIds).toHaveLength(2);
         expect(wrapper.vm.selectedCategoriesItemsIds[0]).toBe('categoryId-2');
         expect(wrapper.vm.selectedCategoriesItemsIds[1]).toBe('categoryId-4');
+    });
+
+    it('should disable categories not included in allowedTypes list', async () => {
+        const wrapper = await createWrapper({
+            categoriesCollection: createCategoryCollection(categoryData),
+            allowedTypes: ['page'],
+        });
+
+        await flushPromises();
+
+        await wrapper.find('.sw-category-tree__input-field').trigger('focus');
+
+        await wrapper.vm.$nextTick();
+        await flushPromises();
+
+        const items = await wrapper.findAll('.sw-tree-item');
+        expect(items).toHaveLength(categoryData.length);
+
+        const checkboxes = await wrapper.findAll('.mt-field--checkbox');
+        const disabledCheckboxes = await wrapper.findAll('.mt-field--checkbox.is--disabled');
+
+        expect(checkboxes).toHaveLength(categoryData.length);
+        expect(disabledCheckboxes).toHaveLength(1);
     });
 });

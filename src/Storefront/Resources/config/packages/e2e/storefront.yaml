@@ -1,5 +1,6 @@
 storefront:
     theme:
+        auto_prefix_css: false
         theme_path_builder_id: Shopware\Storefront\Theme\MD5ThemePathBuilder
         allowed_scss_values: [ '^\$.*' ]
         validate_on_compile: false

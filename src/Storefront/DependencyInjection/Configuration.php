@@ -28,6 +28,7 @@ class Configuration implements ConfigurationInterface
                         ->integerNode('file_delete_delay')
                             ->setDeprecated('shopware/storefront', '6.8.0', 'The "%node%" option is deprecated and will be removed in 6.8.0 as it has no effect anymore.')
                             ->defaultValue(900)->end()
+                        ->booleanNode('auto_prefix_css')->defaultFalse()->end()
                         ->arrayNode('allowed_scss_values')->performNoDeepMerging()
                             ->scalarPrototype()->end()
                         ->end()

@@ -122,6 +122,15 @@ class ThemeCompiler implements ThemeCompilerInterface
 
         $this->themePathBuilder->saveSeed($salesChannelId, $themeId, $newThemeHash);
 
+        if (Feature::isActive('cache_rework')) {
+            $this->cacheInvalidator->invalidate([
+                CachedResolvedConfigLoader::buildName($themeId),
+            ]);
+
+            return;
+        }
+
+        // Reset cache buster state for improving performance in getMetadata
         $this->cacheInvalidator->invalidate([
             'theme-metaData',
             'theme_scripts_' . $themePrefix,

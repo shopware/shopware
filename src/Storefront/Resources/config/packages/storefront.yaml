@@ -1,4 +1,6 @@
 storefront:
     theme:
+        # @deprecated tag:v6.7.0 - The setting "auto_prefix_css" is deprecated and will be removed without replacement. Autoprefixer will be removed.
+        auto_prefix_css: false
         allowed_scss_values: [ '^\$.*' ]
         validate_on_compile: false

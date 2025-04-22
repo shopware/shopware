@@ -82,10 +82,10 @@ describe('sw-app-app-url-changed-modal', () => {
     });
 
     it('should select the first strategy by default', async () => {
-        expect(wrapper.vm.$data.selectedStrategy.name).toMatch(strategies[0].name);
-        expect(wrapper.vm.getActiveStyle(strategies[0])).toEqual({
-            'sw-app-app-url-changed-modal__content-migration-strategy--active': true,
-        });
+        const strategyButtons = wrapper.findAll('.sw-app-app-url-changed-modal__button-strategy');
+        expect(strategyButtons).toHaveLength(3);
+
+        expect(strategyButtons[0].classes('sw-app-app-url-changed-modal__button-strategy--active')).toBe(true);
     });
 
     it('emmits modal-close if modal is closed', async () => {
@@ -113,15 +113,20 @@ describe('sw-app-app-url-changed-modal', () => {
     });
 
     it('should send the selected strategy', async () => {
+        Object.defineProperty(window, 'location', {
+            value: { reload: jest.fn() },
+        });
+
         const urlResolveMock = wrapper.vm.appUrlChangeService.resolveUrlChange;
 
-        wrapper.vm.selectedStrategy = strategies[1];
+        const strategyButtons = wrapper.findAll('.sw-app-app-url-changed-modal__button-strategy');
 
-        wrapper.vm.confirm();
+        expect(strategyButtons).toHaveLength(3);
+        await strategyButtons.at(1).trigger('click');
 
-        await flushPromises();
+        await wrapper.get('.mt-button--primary').trigger('click');
 
         expect(urlResolveMock.mock.calls[0][0].name).toMatch(strategies[1].name);
-        expect(wrapper.emitted()['modal-close']).toBeTruthy();
+        expect(window.location.reload).toHaveBeenCalled();
     });
 });

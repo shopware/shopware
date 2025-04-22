@@ -974,6 +974,26 @@ class SalesChannelEntity extends Entity
         $this->serviceCategoryVersionId = $serviceCategoryVersionId;
     }
 
+    public function getDefaultMeasurementSystemId(): ?string
+    {
+        return $this->defaultMeasurementSystemId;
+    }
+
+    public function setDefaultMeasurementSystemId(?string $defaultMeasurementSystemId): void
+    {
+        $this->defaultMeasurementSystemId = $defaultMeasurementSystemId;
+    }
+
+    public function getDefaultMeasurementSystem(): ?MeasurementSystemEntity
+    {
+        return $this->defaultMeasurementSystem;
+    }
+
+    public function setDefaultMeasurementSystem(?MeasurementSystemEntity $defaultMeasurementSystem): void
+    {
+        $this->defaultMeasurementSystem = $defaultMeasurementSystem;
+    }
+
     public function getDefaultWeightUnitId(): ?string
     {
         return $this->defaultWeightUnitId;

@@ -11,18 +11,23 @@ use Shopware\Core\Framework\DataAbstractionLayer\Attribute\ForeignKey;
 use Shopware\Core\Framework\DataAbstractionLayer\Attribute\ManyToMany;
 use Shopware\Core\Framework\DataAbstractionLayer\Attribute\ManyToOne;
 use Shopware\Core\Framework\DataAbstractionLayer\Attribute\OnDelete;
+use Shopware\Core\Framework\DataAbstractionLayer\Attribute\OneToMany;
 use Shopware\Core\Framework\DataAbstractionLayer\Attribute\PrimaryKey;
 use Shopware\Core\Framework\DataAbstractionLayer\Attribute\Required;
 use Shopware\Core\Framework\DataAbstractionLayer\Attribute\Translations;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity as EntityStruct;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Struct\ArrayEntity;
+use Shopware\Core\System\SalesChannel\Aggregate\SalesChannelDomain\SalesChannelDomainDefinition;
+use Shopware\Core\System\SalesChannel\Aggregate\SalesChannelDomain\SalesChannelDomainEntity;
+use Shopware\Core\System\SalesChannel\SalesChannelDefinition;
+use Shopware\Core\System\SalesChannel\SalesChannelEntity;
 
 /**
  * @internal
  */
 #[Package('inventory')]
-#[Entity('measurement_display_unit')]
+#[Entity('measurement_display_unit', since: '6.7.0.0')]
 class MeasurementDisplayUnitEntity extends EntityStruct
 {
     #[PrimaryKey]
@@ -62,6 +67,30 @@ class MeasurementDisplayUnitEntity extends EntityStruct
      */
     #[ManyToMany(entity: ProductDefinition::ENTITY_NAME, onDelete: OnDelete::CASCADE, api: true)]
     public ?array $lengthProducts = null;
+
+    /**
+     * @var array<string, SalesChannelDomainEntity>|null
+     */
+    #[OneToMany(entity: SalesChannelDomainDefinition::ENTITY_NAME, ref: 'weight_unit_id', onDelete: OnDelete::CASCADE, api: true)]
+    public ?array $weightSalesChannelDomains = null;
+
+    /**
+     * @var array<string, SalesChannelDomainEntity>|null
+     */
+    #[OneToMany(entity: SalesChannelDomainDefinition::ENTITY_NAME, ref: 'length_unit_id', onDelete: OnDelete::CASCADE, api: true)]
+    public ?array $lengthSalesChannelDomains = null;
+
+    /**
+     * @var array<string, SalesChannelEntity>|null
+     */
+    #[OneToMany(entity: SalesChannelDefinition::ENTITY_NAME, ref: 'default_weight_unit_id', onDelete: OnDelete::CASCADE, api: true)]
+    public ?array $defaultWeightSalesChannels = null;
+
+    /**
+     * @var array<string, SalesChannelEntity>|null
+     */
+    #[OneToMany(entity: SalesChannelDefinition::ENTITY_NAME, ref: 'default_length_unit_id', onDelete: OnDelete::CASCADE, api: true)]
+    public ?array $defaultLengthSalesChannels = null;
 
     /**
      * @var array<string, ArrayEntity>|null

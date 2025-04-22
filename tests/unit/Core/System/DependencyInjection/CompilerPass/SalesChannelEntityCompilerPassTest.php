@@ -58,6 +58,67 @@ class SalesChannelEntityCompilerPassTest extends TestCase
 
         static::assertTrue($definition->getFields()->has('test'));
         static::assertInstanceOf(StringField::class, $definition->getFields()->get('test'));
+
+        $methodCalls = $container->getDefinition('sales_channel_definition.' . ProductDefinition::class)->getMethodCalls();
+        static::assertCount(2, $methodCalls);
+        static::assertEquals('addExtension', $methodCalls[1][0]);
+        static::assertInstanceOf(Definition::class, $methodCalls[1][1][0]);
+        static::assertSame(FilteredBulkEntityExtension::class, $methodCalls[1][1][0]->getClass());
+    }
+
+    public function testAttributeEntityExtensionGetsAdded(): void
+    {
+        $container = $this->getContainerBuilder();
+
+        $attributeDefinition = new Definition(AttributeEntityDefinition::class);
+        $attributeDefinition->setPublic(true);
+        $attributeDefinition->addTag('shopware.entity.definition');
+        $attributeDefinition->addArgument([
+            'entity_name' => 'test_attribute_entity',
+            'fields' => [],
+        ]);
+        $container->setDefinition('test_attribute_entity.definition', $attributeDefinition);
+
+        $extension = new Definition(AttributeEntityExtension::class);
+        $extension->setPublic(true);
+        $extension->addTag('shopware.entity.extension');
+        $container->setDefinition(AttributeEntityExtension::class, $extension);
+
+        $container->compile();
+
+        static::assertTrue($container->has('test_attribute_entity.definition'));
+        $definition = $container->get('test_attribute_entity.definition');
+        static::assertInstanceOf(AttributeEntityDefinition::class, $definition);
+
+        $definition->compile(new StaticDefinitionInstanceRegistry([], $this->createMock(ValidatorInterface::class), $this->createMock(EntityWriteGateway::class)));
+
+        static::assertTrue($definition->getFields()->has('product'));
+        static::assertInstanceOf(ManyToOneAssociationField::class, $definition->getFields()->get('product'));
+
+        $methodCalls = $container->getDefinition('sales_channel_definition.test_attribute_entity.definition')->getMethodCalls();
+
+        static::assertCount(2, $methodCalls);
+        static::assertEquals('addExtension', $methodCalls[1][0]);
+        static::assertInstanceOf(Reference::class, $methodCalls[1][1][0]);
+        static::assertSame(AttributeEntityExtension::class, (string) $methodCalls[1][1][0]);
+    }
+
+    public function testAttributeEntityExtensiondWithoutAgruments(): void
+    {
+        $container = $this->getContainerBuilder();
+
+        $attributeDefinition = new Definition(AttributeEntityDefinition::class);
+        $attributeDefinition->setPublic(true);
+        $attributeDefinition->addTag('shopware.entity.definition');
+        $container->setDefinition('test_attribute_entity.definition', $attributeDefinition);
+
+        $extension = new Definition(AttributeEntityExtension::class);
+        $extension->setPublic(true);
+        $extension->addTag('shopware.entity.extension');
+        $container->setDefinition(AttributeEntityExtension::class, $extension);
+
+        static::expectException(DefinitionNotFoundException::class);
+        $container->compile();
     }
 
     public function getContainerBuilder(): ContainerBuilder

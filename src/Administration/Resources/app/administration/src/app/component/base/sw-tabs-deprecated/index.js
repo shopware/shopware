@@ -260,7 +260,7 @@ Component.register('sw-tabs-deprecated', {
             if (
                 this.$slots.default &&
                 // Check sub child
-                this.$slots.default({ active: this.active })?.[0]?.children?.[0]?.props
+                this.$slots.default({ active: this.active })?.[0]?.children?.[0]?.props?.route
             ) {
                 this.hasRoutes = true;
             }

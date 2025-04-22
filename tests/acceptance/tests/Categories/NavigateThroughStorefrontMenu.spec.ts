@@ -15,6 +15,7 @@ test(
         const subCategory3 = await TestDataService.createCategory({ parentId: category3.id });
 
         await test.step('Verify if folder category has a sub category and the folder category in breadcrumb is a div element.', async () => {
+            
             const mainCategoryLocators = await StorefrontHome.getMenuItemByCategoryName(category1.name);
             const subCategoryLocators = await StorefrontHome.getMenuItemByCategoryName(subCategory1.name);
 

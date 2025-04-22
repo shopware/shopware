@@ -2,9 +2,9 @@ name: Add or remove needs-triage label
 
 on:
   pull_request_target:
-    types: [opened, labeled]
+    types: [opened, labeled, unlabeled]
   issues:
-    types: [opened, labeled]
+    types: [opened, labeled, unlabeled]
 
 jobs:
   needs-triage:
@@ -30,7 +30,7 @@ jobs:
             console.debug(labels);
 
             // Check if the issue has either a domain label or the needs-triage label
-            const hasDomainLabel = labels.data.some(label => label.name.startsWith('domain/') || label.name === 'needs-triage');
+            const hasDomainLabel = labels.data.some(label => label.name.startsWith('domain/'));
             const hasNeedsTriageLabel = labels.data.some(label => label.name === 'needs-triage');
             
             // remove needs-triage label if it has a domain label

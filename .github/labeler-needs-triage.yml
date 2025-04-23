@@ -1,7 +1,0 @@
-version: 1
-appendOnly: true
-labels:
-- label: "needs-triage"
-  type: "pull_request"
-- label: "needs-triage"
-  type: "issue"

@@ -39,7 +39,7 @@ class NavigationRoute extends AbstractNavigationRoute
     public function __construct(
         private readonly Connection $connection,
         private readonly SalesChannelRepository $categoryRepository,
-        private readonly EventDispatcherInterface $dispatcher
+        private readonly EventDispatcherInterface $dispatcher,
     ) {
     }
 

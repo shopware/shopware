@@ -7,10 +7,10 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Adapter\Translation\Translator;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Storefront\Framework\Routing\CachedDomainLoader;
-use Shopware\Storefront\Theme\ThemeConfigCacheInvalidator;
 use Shopware\Storefront\Theme\Event\ThemeAssignedEvent;
 use Shopware\Storefront\Theme\Event\ThemeConfigChangedEvent;
 use Shopware\Storefront\Theme\Event\ThemeConfigResetEvent;
+use Shopware\Storefront\Theme\ThemeConfigCacheInvalidator;
 
 /**
  * @internal

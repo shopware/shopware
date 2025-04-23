@@ -5,8 +5,8 @@ namespace Shopware\Tests\Unit\Storefront\Theme\Message;
 use League\Flysystem\FilesystemOperator;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
-use Shopware\Storefront\Theme\MD5ThemePathBuilder;
 use Shopware\Core\Test\Annotation\DisabledFeatures;
+use Shopware\Storefront\Theme\MD5ThemePathBuilder;
 use Shopware\Storefront\Theme\Message\DeleteThemeFilesHandler;
 use Shopware\Storefront\Theme\Message\DeleteThemeFilesMessage;
 

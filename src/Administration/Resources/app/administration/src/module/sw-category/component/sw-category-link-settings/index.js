@@ -125,9 +125,11 @@ export default {
 
         categoryLinkHelpText() {
             return this.$t('sw-category.base.link.categoryHelpText', {
-                types: this.allowedCategoryTypes.map((type) => {
-                    return this.$t(`sw-category.base.general.types.${type}`);
-                }).join(', '),
+                types: this.allowedCategoryTypes
+                    .map((type) => {
+                        return this.$t(`sw-category.base.general.types.${type}`);
+                    })
+                    .join(', '),
             });
         },
     },

@@ -25,6 +25,7 @@ import initTabs from 'src/app/init/tabs.init';
 import initCms from './cms.init';
 import initMenu from './menu-item.init';
 import initModals from './modals.init';
+import initializeSidebar from './sidebar.init';
 import initSettingItems from './settings-item.init';
 import initMainModules from './main-module.init';
 import initializeActionButtons from './action-button.init';
@@ -58,6 +59,7 @@ export default {
     menu: initMenu,
     settingItems: initSettingItems,
     modals: initModals,
+    sidebar: initializeSidebar,
     mainModules: initMainModules,
     actionButton: initializeActionButtons,
     actions: initializeActions,

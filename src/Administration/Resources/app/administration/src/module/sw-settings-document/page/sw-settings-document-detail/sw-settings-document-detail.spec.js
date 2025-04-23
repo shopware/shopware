@@ -58,7 +58,7 @@ const documentBaseConfigRepositoryMock = {
             return Promise.resolve({
                 id: id,
                 documentTypeId: 'documentTypeId',
-                config: { },
+                config: {},
             });
         }
 

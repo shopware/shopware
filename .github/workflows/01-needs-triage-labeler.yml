@@ -29,12 +29,12 @@ jobs:
 
             console.debug(labels);
 
-            // Check if the issue has either a domain label or the needs-triage label
-            const hasDomainLabel = labels.data.some(label => label.name.startsWith('domain/'));
+            // Check if the issue has either a domain/ label or a service/ label
+            const hasRequiredLabel = labels.data.some(label => label.name.startsWith('domain/') || label.name.startsWith('service/'));
             const hasNeedsTriageLabel = labels.data.some(label => label.name === 'needs-triage');
             
-            // remove needs-triage label if it has a domain label
-            if (hasDomainLabel && hasNeedsTriageLabel) {
+            // remove needs-triage label if it has the required label
+            if (hasRequiredLabel && hasNeedsTriageLabel) {
               console.debug('remove needs-triage label');
               const removeResponse = await github.rest.issues.removeLabel({
                 owner: context.repo.owner,
@@ -51,7 +51,7 @@ jobs:
             }
 
             // if neither, add needs-triage label
-            if (!hasDomainLabel && !hasNeedsTriageLabel) {
+            if (!hasRequiredLabel && !hasNeedsTriageLabel) {
               console.debug('add needs-triage label');
               const addResponse = await github.rest.issues.addLabels({
                 owner: context.repo.owner,

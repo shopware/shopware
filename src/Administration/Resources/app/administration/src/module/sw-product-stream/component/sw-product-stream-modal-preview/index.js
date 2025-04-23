@@ -291,10 +291,13 @@ export default {
 
             fields = shuffle(fields);
             const selectedFields = fields.slice(0, 2);
-            const directions = ['ASC', 'DESC'];
+            const directions = [
+                'ASC',
+                'DESC',
+            ];
             const randomDirection = directions[Math.floor(Math.random() * directions.length)];
 
-            selectedFields.forEach(field => {
+            selectedFields.forEach((field) => {
                 criteria.addSorting(Criteria.sort(field, randomDirection));
             });
         },

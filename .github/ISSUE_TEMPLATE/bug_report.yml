@@ -10,6 +10,7 @@ body:
       id: shopware-version
       attributes:
           label: Shopware Version
+          description: Please specify your Shopware version (e.g. 6.4.20.0). If you're using Shopware Cloud, simply type "cloud".
       validations:
           required: true
     - type: dropdown

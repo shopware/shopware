@@ -34,12 +34,9 @@ readonly class ThemeScripts
             return [];
         }
 
-        $themeName = $request->attributes->get(SalesChannelRequest::ATTRIBUTE_THEME_NAME)
-            ?? $request->attributes->get(SalesChannelRequest::ATTRIBUTE_THEME_BASE_NAME);
-
         $themeId = $request->attributes->get(SalesChannelRequest::ATTRIBUTE_THEME_ID);
 
-        if ($themeName === null || $themeId === null) {
+        if ($themeId === null) {
             return [];
         }
 

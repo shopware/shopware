@@ -189,6 +189,7 @@ export default defineConfig(({ command }) => {
             outDir: isProd
                 ? path.resolve(__dirname, '../../public/administration')
                 : path.resolve(process.env.PROJECT_ROOT as string, 'public/bundles/administration/administration'),
+            emptyOutDir: true,
 
             // generate .vite/manifest.json in outDir
             manifest: true,

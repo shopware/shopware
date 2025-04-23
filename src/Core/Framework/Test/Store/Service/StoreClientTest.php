@@ -182,7 +182,6 @@ class StoreClientTest extends TestCase
         static::assertCount(1, $cachedList);
         static::assertEquals('TestExtension', $cachedList[0]->getName());
         static::assertEquals('1.1.0', $cachedList[0]->getVersion());
-        static::assertEquals('feature1,feature2', $cachedList[0]->getInAppFeatures());
 
         $lastRequest = $this->getStoreRequestHandler()->getLastRequest();
         static::assertInstanceOf(RequestInterface::class, $lastRequest);

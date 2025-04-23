@@ -29,7 +29,7 @@ jobs:
 
             console.debug(labels);
 
-            // Check if the issue has either a domain label or the needs-triage label
+            // Check if the issue has either a domain/ label or a service/ label
             const hasRequiredLabel = labels.data.some(label => label.name.startsWith('domain/') || label.name.startsWith('service/'));
             const hasNeedsTriageLabel = labels.data.some(label => label.name === 'needs-triage');
             

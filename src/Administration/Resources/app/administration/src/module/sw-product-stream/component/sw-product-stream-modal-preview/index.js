@@ -275,5 +275,26 @@ export default {
         isNotEqualToAnyType(type, parentType) {
             return type === 'equalsAny' && parentType === 'not';
         },
+
+        addRandomSort(criteria) {
+            let fields = [
+                'name',
+                'createdAt',
+                'cheapestPrice',
+                'releaseDate',
+            ];
+
+            fields = shuffle(fields);
+            const selectedFields = fields.slice(0, 2);
+            const directions = [
+                'ASC',
+                'DESC',
+            ];
+            const randomDirection = directions[Math.floor(Math.random() * directions.length)];
+
+            selectedFields.forEach((field) => {
+                criteria.addSorting(Criteria.sort(field, randomDirection));
+            });
+        },
     },
 };

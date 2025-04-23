@@ -64,17 +64,22 @@ class ThemeRuntimeConfigStorageTest extends TestCase
 
     public function testGetActiveThemeNames(): void
     {
-        $config1 = $this->createThemeRuntimeConfig(['technicalName' => 'theme1']);
-        $config2 = $this->createThemeRuntimeConfig(['technicalName' => 'theme2']);
+        $namesBefore = $this->storage->getActiveThemeNames();
+        $themeName1 = 'theme1_' . Uuid::randomHex();
+        $themeName2 = 'theme2_' . Uuid::randomHex();
+
+        $config1 = $this->createThemeRuntimeConfig(['technicalName' => $themeName1]);
+        $config2 = $this->createThemeRuntimeConfig(['technicalName' => $themeName2]);
 
         $this->storage->save($config1);
         $this->storage->save($config2);
 
         $activeThemes = $this->storage->getActiveThemeNames();
+        $addedNames = array_diff($activeThemes, $namesBefore);
 
-        static::assertCount(2, $activeThemes);
-        static::assertContains('theme1', $activeThemes);
-        static::assertContains('theme2', $activeThemes);
+        static::assertCount(2, $addedNames);
+        static::assertContains($themeName1, $addedNames);
+        static::assertContains($themeName2, $addedNames);
     }
 
     public function testSaveUpdatesExistingTheme(): void

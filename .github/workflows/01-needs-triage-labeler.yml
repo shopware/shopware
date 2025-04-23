@@ -33,7 +33,7 @@ jobs:
             const hasRequiredLabel = labels.data.some(label => label.name.startsWith('domain/') || label.name.startsWith('service/'));
             const hasNeedsTriageLabel = labels.data.some(label => label.name === 'needs-triage');
             
-            // remove needs-triage label if it has a domain label
+            // remove needs-triage label if it has the required label
             if (hasRequiredLabel && hasNeedsTriageLabel) {
               console.debug('remove needs-triage label');
               const removeResponse = await github.rest.issues.removeLabel({

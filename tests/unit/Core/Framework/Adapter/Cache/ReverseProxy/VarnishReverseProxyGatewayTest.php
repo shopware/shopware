@@ -82,7 +82,7 @@ class VarnishReverseProxyGatewayTest extends TestCase
         $this->mockHandler->append($e);
 
         $logger
-            ->expects(static::once())
+            ->expects($this->once())
             ->method('critical')
             ->with('Error while flushing varnish cache', ['error' => $message, 'tags' => ['tag-1', 'tag-2']]);
 
@@ -132,7 +132,7 @@ class VarnishReverseProxyGatewayTest extends TestCase
         $this->mockHandler->append($e);
 
         $logger
-            ->expects(static::once())
+            ->expects($this->once())
             ->method('critical')
             ->with('Error while flushing varnish cache', ['error' => $message, 'urls' => ['http://localhost:8000/']]);
 

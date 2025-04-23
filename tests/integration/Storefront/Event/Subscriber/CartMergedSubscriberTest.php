@@ -39,7 +39,7 @@ class CartMergedSubscriberTest extends TestCase
         $requestStack->push($request);
 
         $translator = $this->createMock(TranslatorInterface::class);
-        $translator->expects(static::once())
+        $translator->expects($this->once())
             ->method('trans')
             ->with('checkout.cart-merged-hint')
             ->willReturn('checkout.cart-merged-hint');

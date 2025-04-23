@@ -77,12 +77,12 @@ class ProductStreamIndexerTest extends TestCase
     public function testIterate(): void
     {
         $result = $this->createMock(Result::class);
-        $result->expects(static::once())->method('fetchAllKeyValue')->willReturn([123]);
+        $result->expects($this->once())->method('fetchAllKeyValue')->willReturn([123]);
 
         $queryBuilder = $this->createMock(QueryBuilder::class);
-        $queryBuilder->expects(static::once())->method('executeQuery')->willReturn($result);
+        $queryBuilder->expects($this->once())->method('executeQuery')->willReturn($result);
 
-        $this->iteratorFactory->expects(static::once())->method('createIterator')->willReturn(new OffsetQuery($queryBuilder));
+        $this->iteratorFactory->expects($this->once())->method('createIterator')->willReturn(new OffsetQuery($queryBuilder));
 
         $message = $this->indexer->iterate(['offset' => 10]);
         static::assertInstanceOf(ProductStreamIndexingMessage::class, $message);
@@ -114,7 +114,7 @@ class ProductStreamIndexerTest extends TestCase
     public function testUpdate(): void
     {
         $event = $this->createMock(EntityWrittenContainerEvent::class);
-        $event->expects(static::once())->method('getPrimaryKeys')->willReturn([123]);
+        $event->expects($this->once())->method('getPrimaryKeys')->willReturn([123]);
 
         static::assertInstanceOf(ProductStreamIndexingMessage::class, $this->indexer->update($event));
     }
@@ -189,17 +189,17 @@ class ProductStreamIndexerTest extends TestCase
         ]);
         $serialized = \json_encode([QueryStringParser::toArray($query)]);
 
-        $this->productDefinition->expects(static::exactly(5))->method('getEntityName')->willReturn('product');
+        $this->productDefinition->expects($this->exactly(5))->method('getEntityName')->willReturn('product');
 
         $statement = $this->createMock(Statement::class);
-        $statement->expects(static::once())->method('executeStatement')->with([
+        $statement->expects($this->once())->method('executeStatement')->with([
             'serialized' => $serialized,
             'invalid' => 0,
             'id' => Uuid::fromHexToBytes($productStreamId),
         ]);
 
-        $this->connection->expects(static::once())->method('fetchAllAssociative')->willReturn($filters);
-        $this->connection->expects(static::once())->method('prepare')->willReturn($statement);
+        $this->connection->expects($this->once())->method('fetchAllAssociative')->willReturn($filters);
+        $this->connection->expects($this->once())->method('prepare')->willReturn($statement);
 
         $this->indexer->handle(new EntityIndexingMessage([$productStreamId]));
     }
@@ -207,13 +207,13 @@ class ProductStreamIndexerTest extends TestCase
     public function testGetTotal(): void
     {
         $result = $this->createMock(Result::class);
-        $result->expects(static::once())->method('fetchOne')->willReturn(1);
+        $result->expects($this->once())->method('fetchOne')->willReturn(1);
 
         $queryBuilder = $this->createMock(QueryBuilder::class);
-        $queryBuilder->expects(static::once())->method('getQueryPart')->willReturn(['id']);
-        $queryBuilder->expects(static::once())->method('executeQuery')->willReturn($result);
+        $queryBuilder->expects($this->once())->method('getQueryPart')->willReturn(['id']);
+        $queryBuilder->expects($this->once())->method('executeQuery')->willReturn($result);
 
-        $this->iteratorFactory->expects(static::once())->method('createIterator')->willReturn(new OffsetQuery($queryBuilder));
+        $this->iteratorFactory->expects($this->once())->method('createIterator')->willReturn(new OffsetQuery($queryBuilder));
 
         $total = $this->indexer->getTotal();
         static::assertEquals(1, $total);

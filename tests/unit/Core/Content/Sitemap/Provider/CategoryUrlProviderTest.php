@@ -94,7 +94,7 @@ class CategoryUrlProviderTest extends TestCase
             $context
         );
         $this->dispatcher
-            ->expects(static::once())
+            ->expects($this->once())
             ->method('dispatch')
             ->willReturn($event);
 
@@ -179,7 +179,7 @@ class CategoryUrlProviderTest extends TestCase
             [$categoryResult1['id']]
         );
         $this->dispatcher
-            ->expects(static::once())
+            ->expects($this->once())
             ->method('dispatch')
             ->willReturn($event);
 
@@ -210,7 +210,7 @@ class CategoryUrlProviderTest extends TestCase
         $categoryIds = \array_column([$categoryResult1, $categoryResult2], 'id');
         $event = $this->createSalesChannelCategoryIdsFetchedEvent($categoryIds, $context, $categoryIds);
         $this->dispatcher
-            ->expects(static::once())
+            ->expects($this->once())
             ->method('dispatch')
             ->willReturn($event);
 

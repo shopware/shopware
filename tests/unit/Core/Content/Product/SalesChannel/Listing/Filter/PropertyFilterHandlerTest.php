@@ -48,7 +48,7 @@ class PropertyFilterHandlerTest extends TestCase
         $context = $this->createMock(SalesChannelContext::class);
         $connection = $this->createMock(Connection::class);
 
-        $connection->expects(static::never())
+        $connection->expects($this->never())
             ->method('fetchAllAssociative');
 
         $handler = new PropertyListingFilterHandler(
@@ -68,7 +68,7 @@ class PropertyFilterHandlerTest extends TestCase
         $context = $this->createMock(SalesChannelContext::class);
         $connection = $this->createMock(Connection::class);
 
-        $connection->expects(static::never())
+        $connection->expects($this->never())
             ->method('fetchAllAssociative');
 
         $handler = new PropertyListingFilterHandler(
@@ -109,7 +109,7 @@ class PropertyFilterHandlerTest extends TestCase
 
         $connection = $this->createMock(Connection::class);
 
-        $connection->expects(static::once())
+        $connection->expects($this->once())
             ->method('fetchAllAssociative')
             ->willReturn($mapping);
 
@@ -175,7 +175,7 @@ class PropertyFilterHandlerTest extends TestCase
         $context = $this->createMock(SalesChannelContext::class);
         $connection = $this->createMock(Connection::class);
 
-        $connection->expects(static::never())
+        $connection->expects($this->never())
             ->method('fetchAllAssociative');
 
         $handler = new PropertyListingFilterHandler(

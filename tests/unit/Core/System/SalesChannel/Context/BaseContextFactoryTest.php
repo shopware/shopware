@@ -91,22 +91,22 @@ class BaseContextFactoryTest extends TestCase
 
         $connection = $this->createMock(Connection::class);
         $connection->method('getDatabasePlatform')->willReturn(new MySQL80Platform());
-        $connection->expects(static::once())->method('fetchAssociative')->willReturn($fetchDataResult);
+        $connection->expects($this->once())->method('fetchAssociative')->willReturn($fetchDataResult);
 
         if ($fetchDataResult === false) {
-            $connection->expects(static::never())->method('createQueryBuilder');
+            $connection->expects($this->never())->method('createQueryBuilder');
         }
 
         if ($fetchParentLanguageResult !== false) {
             $result = $this->createMock(Result::class);
-            $result->expects(static::once())->method('fetchOne')->willReturn($fetchParentLanguageResult);
-            $connection->expects(static::once())->method('executeQuery')->willReturn($result);
-            $connection->expects(static::atMost(1))->method('createQueryBuilder')->willReturn(new QueryBuilder($connection));
+            $result->expects($this->once())->method('fetchOne')->willReturn($fetchParentLanguageResult);
+            $connection->expects($this->once())->method('executeQuery')->willReturn($result);
+            $connection->expects($this->atMost(1))->method('createQueryBuilder')->willReturn(new QueryBuilder($connection));
         } else {
             $result = $this->createMock(Result::class);
-            $result->expects(static::atMost(1))->method('fetchOne')->willReturn(false);
-            $connection->expects(static::atMost(1))->method('executeQuery')->willReturn($result);
-            $connection->expects(static::atMost(1))->method('createQueryBuilder')->willReturn(new QueryBuilder($connection));
+            $result->expects($this->atMost(1))->method('fetchOne')->willReturn(false);
+            $connection->expects($this->atMost(1))->method('executeQuery')->willReturn($result);
+            $connection->expects($this->atMost(1))->method('createQueryBuilder')->willReturn(new QueryBuilder($connection));
         }
 
         $factory = new BaseContextFactory(

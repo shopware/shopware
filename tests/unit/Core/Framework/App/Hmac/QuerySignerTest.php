@@ -31,14 +31,14 @@ class QuerySignerTest extends TestCase
 
         $localeProvider = $this->createMock(LocaleProvider::class);
         $localeProvider
-            ->expects(static::once())
+            ->expects($this->once())
             ->method('getLocaleFromContext')
             ->with($context)
             ->willReturn('en-GB');
 
         $shopIdProvider = $this->createMock(ShopIdProvider::class);
         $shopIdProvider
-            ->expects(static::once())
+            ->expects($this->once())
             ->method('getShopId')
             ->willReturn('shopId');
 

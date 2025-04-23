@@ -61,7 +61,7 @@ class LineItemDownloadLoaderTest extends TestCase
         $entitySearchResult = $this->createMock(EntitySearchResult::class);
         $entitySearchResult->method('getEntities')->willReturn(new EntityCollection([$productDownload]));
         $this->productDownloadRepository
-            ->expects(static::once())
+            ->expects($this->once())
             ->method('search')
             ->willReturn($entitySearchResult);
 
@@ -92,7 +92,7 @@ class LineItemDownloadLoaderTest extends TestCase
         $entitySearchResult = $this->createMock(EntitySearchResult::class);
         $entitySearchResult->method('getEntities')->willReturn(new EntityCollection([$productDownload]));
         $this->productDownloadRepository
-            ->expects(static::once())
+            ->expects($this->once())
             ->method('search')
             ->willReturn($entitySearchResult);
 

@@ -69,7 +69,7 @@ class AsyncAwsS3WriteBatchAdapterTest extends TestCase
         $s3Client = $this->createMock(S3Client::class);
 
         $s3Client
-            ->expects(static::never())
+            ->expects($this->never())
             ->method('putObject');
 
         $adapter = new AsyncAwsS3WriteBatchAdapter($s3Client, 'test');

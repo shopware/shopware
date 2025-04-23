@@ -75,19 +75,19 @@ class StorefrontControllerTest extends TestCase
 
         $requestStack = static::createMock(RequestStack::class);
         $requestStack
-            ->expects(static::once())
+            ->expects($this->once())
             ->method('getCurrentRequest')
             ->willReturn($request);
 
         $twig = static::createMock(Environment::class);
         $twig
-            ->expects(static::once())
+            ->expects($this->once())
             ->method('render')
             ->willReturn('<html lang="en">test</html>');
 
         $seoUrlReplacer = static::createMock(SeoUrlPlaceholderHandlerInterface::class);
         $seoUrlReplacer
-            ->expects(static::once())
+            ->expects($this->once())
             ->method('replace')
             ->with('<html lang="en">test</html>', 'foo', $context)
             ->willReturn('<html lang="en">test</html>');
@@ -97,7 +97,7 @@ class StorefrontControllerTest extends TestCase
 
         $templateFinder = static::createMock(TemplateFinder::class);
         $templateFinder
-            ->expects(static::once())
+            ->expects($this->once())
             ->method('find')
             ->with('test.html.twig')
             ->willReturn('test.html.twig');
@@ -133,14 +133,14 @@ class StorefrontControllerTest extends TestCase
 
         $requestStack = static::createMock(RequestStack::class);
         $requestStack
-            ->expects(static::once())
+            ->expects($this->once())
             ->method('getCurrentRequest')
             ->willReturn($request);
 
         $exception = new SyntaxError('test');
         $twig = static::createMock(Environment::class);
         $twig
-            ->expects(static::once())
+            ->expects($this->once())
             ->method('render')
             ->willThrowException($exception);
 
@@ -148,7 +148,7 @@ class StorefrontControllerTest extends TestCase
 
         $templateFinder = static::createMock(TemplateFinder::class);
         $templateFinder
-            ->expects(static::once())
+            ->expects($this->once())
             ->method('find')
             ->with('test.html.twig')
             ->willReturn('test.html.twig');
@@ -172,7 +172,7 @@ class StorefrontControllerTest extends TestCase
     {
         $translator = static::createMock(TranslatorInterface::class);
         $translator
-            ->expects(static::once())
+            ->expects($this->once())
             ->method('trans')
             ->with('test', ['foo' => 'bar']);
 
@@ -188,7 +188,7 @@ class StorefrontControllerTest extends TestCase
     {
         $router = static::createMock(RouterInterface::class);
         $router
-            ->expects(static::once())
+            ->expects($this->once())
             ->method('generate')
             ->with('foo', ['foo' => 'bar'], UrlGeneratorInterface::ABSOLUTE_PATH)
             ->willReturn('/foo/generated');
@@ -216,7 +216,7 @@ class StorefrontControllerTest extends TestCase
     {
         $router = static::createMock(RouterInterface::class);
         $router
-            ->expects(static::once())
+            ->expects($this->once())
             ->method('generate')
             ->with('frontend.home.page', [], UrlGeneratorInterface::ABSOLUTE_PATH)
             ->willReturn('/');
@@ -244,7 +244,7 @@ class StorefrontControllerTest extends TestCase
     {
         $router = static::createMock(RouterInterface::class);
         $router
-            ->expects(static::once())
+            ->expects($this->once())
             ->method('generate')
             ->with('frontend.home.page', [], UrlGeneratorInterface::ABSOLUTE_PATH)
             ->willReturn('/');
@@ -272,7 +272,7 @@ class StorefrontControllerTest extends TestCase
     {
         $router = static::createMock(RouterInterface::class);
         $router
-            ->expects(static::once())
+            ->expects($this->once())
             ->method('generate')
             ->with('foo', ['foo' => 'bar'], Router::PATH_INFO)
             ->willReturn('/foo/generated');
@@ -340,7 +340,7 @@ class StorefrontControllerTest extends TestCase
     {
         $router = static::createMock(RouterInterface::class);
         $router
-            ->expects(static::once())
+            ->expects($this->once())
             ->method('generate')
             ->with('foo', ['foo' => 'bar'], Router::PATH_INFO)
             ->willReturn('/foo/generated');
@@ -355,7 +355,7 @@ class StorefrontControllerTest extends TestCase
             ->willReturn($requestContext);
 
         $router
-            ->expects(static::once())
+            ->expects($this->once())
             ->method('match')
             ->with('/foo/generated')
             ->willReturn(['_controller' => 'test_controller']);
@@ -372,14 +372,14 @@ class StorefrontControllerTest extends TestCase
 
         $requestTransformer = static::createMock(RequestTransformerInterface::class);
         $requestTransformer
-            ->expects(static::once())
+            ->expects($this->once())
             ->method('extractInheritableAttributes')
             ->with($request)
             ->willReturn(['foo' => 'bar']);
 
         $kernel = static::createMock(HttpKernel::class);
         $kernel
-            ->expects(static::once())
+            ->expects($this->once())
             ->method('handle')
             ->with(static::callback(
                 static function (Request $request): bool {
@@ -467,7 +467,7 @@ class StorefrontControllerTest extends TestCase
 
         $translator = static::createMock(TranslatorInterface::class);
         $translator
-            ->expects(static::once())
+            ->expects($this->once())
             ->method('trans')
             ->with('checkout.test.error.message', ['%test%' => 'error'])
             ->willReturn('A very nasty error');
@@ -501,14 +501,14 @@ class StorefrontControllerTest extends TestCase
     {
         $templateFinder = static::createMock(TemplateFinder::class);
         $templateFinder
-            ->expects(static::once())
+            ->expects($this->once())
             ->method('find')
             ->with('test.html.twig')
             ->willReturn('storefront-view.html.twig');
 
         $twig = static::createMock(Environment::class);
         $twig
-            ->expects(static::once())
+            ->expects($this->once())
             ->method('render')
             ->with('storefront-view.html.twig', ['foo' => 'bar'])
             ->willReturn('<html lang="en">test</html>');
@@ -530,7 +530,7 @@ class StorefrontControllerTest extends TestCase
 
         $executor = static::createMock(ScriptExecutor::class);
         $executor
-            ->expects(static::once())
+            ->expects($this->once())
             ->method('execute')
             ->with($hook);
 
@@ -548,13 +548,13 @@ class StorefrontControllerTest extends TestCase
 
         $dispatcher = static::createMock(EventDispatcherInterface::class);
         $dispatcher
-            ->expects(static::once())
+            ->expects($this->once())
             ->method('dispatch')
             ->with(static::equalTo($event));
 
         $router = static::createMock(RouterInterface::class);
         $router
-            ->expects(static::once())
+            ->expects($this->once())
             ->method('generate')
             ->with('test_route', ['test' => 'param'])
             ->willReturn('http://localhost/test_route');

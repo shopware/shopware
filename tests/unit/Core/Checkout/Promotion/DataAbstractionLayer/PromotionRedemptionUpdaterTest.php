@@ -59,7 +59,7 @@ class PromotionRedemptionUpdaterTest extends TestCase
 
     public function testUpdateEmptyIds(): void
     {
-        $this->connectionMock->expects(static::never())->method('fetchAllAssociative');
+        $this->connectionMock->expects($this->never())->method('fetchAllAssociative');
         $this->promotionRedemptionUpdater->update([], Context::createDefaultContext());
     }
 
@@ -73,7 +73,7 @@ class PromotionRedemptionUpdaterTest extends TestCase
         ]);
 
         $statementMock = $this->createMock(Statement::class);
-        $statementMock->expects(static::once())
+        $statementMock->expects($this->once())
             ->method('executeStatement')
             ->with(static::equalTo([
                 'id' => Uuid::fromHexToBytes($promotionId),
@@ -93,7 +93,7 @@ class PromotionRedemptionUpdaterTest extends TestCase
         $event = $this->createOrderPlacedEvent($promotionId, $customerId);
 
         $statementMock = $this->createMock(Statement::class);
-        $statementMock->expects(static::once())
+        $statementMock->expects($this->once())
             ->method('executeStatement')
             ->with(static::equalTo([
                 'id' => Uuid::fromHexToBytes($promotionId),
@@ -109,7 +109,7 @@ class PromotionRedemptionUpdaterTest extends TestCase
     {
         $event = $this->createOrderPlacedEvent(null, null);
 
-        $this->connectionMock->expects(static::never())->method('fetchAllAssociative');
+        $this->connectionMock->expects($this->never())->method('fetchAllAssociative');
         $this->promotionRedemptionUpdater->orderPlaced($event);
     }
 
@@ -135,7 +135,7 @@ class PromotionRedemptionUpdaterTest extends TestCase
         );
 
         $statementMock = $this->createMock(Statement::class);
-        $statementMock->expects(static::once())->method('executeStatement')->with([
+        $statementMock->expects($this->once())->method('executeStatement')->with([
             'id' => Uuid::fromHexToBytes($promotionId),
             'customerCount' => json_encode([$customerId => 1], \JSON_THROW_ON_ERROR),
             'count' => 1,
@@ -148,7 +148,7 @@ class PromotionRedemptionUpdaterTest extends TestCase
 
         // Expect no further update calls during orderPlaced
         $statementMock = $this->createMock(Statement::class);
-        $statementMock->expects(static::never())->method('executeStatement');
+        $statementMock->expects($this->never())->method('executeStatement');
         $this->connectionMock->method('prepare')->willReturn($statementMock);
 
         $this->promotionRedemptionUpdater->orderPlaced($event);
@@ -189,7 +189,7 @@ class PromotionRedemptionUpdaterTest extends TestCase
         );
 
         $statementMock = $this->createMock(Statement::class);
-        $statementMock->expects(static::once())
+        $statementMock->expects($this->once())
             ->method('executeStatement')
             ->with(static::equalTo([
                 'id' => Uuid::fromHexToBytes($promotionId),
@@ -198,7 +198,7 @@ class PromotionRedemptionUpdaterTest extends TestCase
             ]));
 
         $this->connectionMock->method('prepare')->willReturn($statementMock);
-        $this->connectionMock->expects(static::once())
+        $this->connectionMock->expects($this->once())
             ->method('executeStatement')
             ->with(static::equalTo('UPDATE promotion_individual_code set payload = NULL WHERE code IN (:codes)'))
             ->willReturnCallback(function ($query, $params): void {
@@ -224,7 +224,7 @@ class PromotionRedemptionUpdaterTest extends TestCase
             [$command],
         );
 
-        $this->connectionMock->expects(static::once())->method('fetchAllAssociative')->willReturn([]);
+        $this->connectionMock->expects($this->once())->method('fetchAllAssociative')->willReturn([]);
 
         $this->promotionRedemptionUpdater->beforeDeletePromotionLineItems($event);
     }
@@ -244,7 +244,7 @@ class PromotionRedemptionUpdaterTest extends TestCase
             [$command],
         );
 
-        $this->connectionMock->expects(static::never())->method('fetchAllAssociative');
+        $this->connectionMock->expects($this->never())->method('fetchAllAssociative');
         $this->promotionRedemptionUpdater->beforeDeletePromotionLineItems($event);
     }
 
@@ -263,7 +263,7 @@ class PromotionRedemptionUpdaterTest extends TestCase
             [$command],
         );
 
-        $this->connectionMock->expects(static::never())->method('fetchAllAssociative');
+        $this->connectionMock->expects($this->never())->method('fetchAllAssociative');
         $this->promotionRedemptionUpdater->beforeDeletePromotionLineItems($event);
     }
 

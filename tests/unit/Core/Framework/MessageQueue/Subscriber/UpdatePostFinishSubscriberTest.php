@@ -28,7 +28,7 @@ class UpdatePostFinishSubscriberTest extends TestCase
     public function testUpdatePostFinishEvent(): void
     {
         $registry = $this->createMock(TaskRegistry::class);
-        $registry->expects(static::once())->method('registerTasks');
+        $registry->expects($this->once())->method('registerTasks');
 
         (new UpdatePostFinishSubscriber($registry))->updatePostFinishEvent();
     }

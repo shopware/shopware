@@ -313,7 +313,7 @@ class CacheResponseSubscriberTest extends TestCase
 
         $count = $shouldBeCached ? 1 : 0;
 
-        $cartService->expects(static::exactly($count))
+        $cartService->expects($this->exactly($count))
             ->method('getCart')
             ->willReturn($cart);
 
@@ -682,7 +682,7 @@ class CacheResponseSubscriberTest extends TestCase
     ): void {
         $subscriber = new CacheResponseSubscriber(
             [],
-            $this->createStub(CartService::class),
+            static::createStub(CartService::class),
             100,
             true,
             new MaintenanceModeResolver(new EventDispatcher()),
@@ -692,7 +692,7 @@ class CacheResponseSubscriberTest extends TestCase
             new EventDispatcher()
         );
 
-        $salesChannelContext = $this->createStub(SalesChannelContext::class);
+        $salesChannelContext = static::createStub(SalesChannelContext::class);
         $salesChannelContext
             ->method('getCustomer')
             ->willReturn(new CustomerEntity());
@@ -740,7 +740,7 @@ class CacheResponseSubscriberTest extends TestCase
 
         $subscriber = new CacheResponseSubscriber(
             [],
-            $this->createStub(CartService::class),
+            static::createStub(CartService::class),
             100,
             true,
             new MaintenanceModeResolver(new EventDispatcher()),

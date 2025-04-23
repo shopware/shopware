@@ -98,6 +98,7 @@ class ThemeLifecycleHandler
 
     /**
      * @throws ThemeAssignmentException
+     * @throws ThemeException
      * @throws InconsistentCriteriaIdsException
      */
     private function validateThemeAssignment(?string $themeId): void

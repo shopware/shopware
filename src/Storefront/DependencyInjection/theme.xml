@@ -91,11 +91,11 @@
         </service>
 
         <service id="Shopware\Storefront\Theme\CachedResolvedConfigLoader">
-            <argument type="service" id="Shopware\Storefront\Theme\CachedResolvedConfigLoader.inner"/>
+            <argument type="service" id="Shopware\Storefront\Theme\ResolvedConfigLoader"/>
             <deprecated package="shopware/core" version="6.8.0">tag:v6.8.0 - The %service_id% service will be removed in v6.8.0.0 without replacement</deprecated>
         </service>
 
-        <service id="Shopware\Storefront\Theme\CachedResolvedConfigLoaderInvalidator">
+        <service id="Shopware\Storefront\Theme\ThemeConfigCacheInvalidator">
             <argument type="service" id="Shopware\Core\Framework\Adapter\Cache\CacheInvalidator"/>
 
             <tag name="kernel.event_subscriber"/>

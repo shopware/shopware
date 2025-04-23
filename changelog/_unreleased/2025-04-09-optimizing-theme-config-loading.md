@@ -14,6 +14,7 @@ ___
   * `\Shopware\Storefront\Theme\ThemeScripts`
   * `\Shopware\Storefront\Theme\ThemeInheritanceBuilder`
   * `\Shopware\Storefront\Framework\Routing\TemplateDataSubscriber`
+* Changed `\Shopware\Storefront\Theme\CachedResolvedConfigLoaderInvalidator` name to `\Shopware\Storefront\Theme\ThemeConfigCacheInvalidator`
 * Deprecated `\Shopware\Storefront\Theme\CachedResolvedConfigLoader`, as it is no longer used in the storefront
 ___
 # Upgrade Information

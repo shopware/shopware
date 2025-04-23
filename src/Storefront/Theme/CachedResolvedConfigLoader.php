@@ -47,6 +47,6 @@ class CachedResolvedConfigLoader extends AbstractResolvedConfigLoader
             Feature::deprecatedClassMessage(self::class, 'v6.8.0.0'),
         );
 
-        return CachedResolvedConfigLoaderInvalidator::buildCacheTag($themeId);
+        return ThemeConfigCacheInvalidator::buildCacheTag($themeId);
     }
 }

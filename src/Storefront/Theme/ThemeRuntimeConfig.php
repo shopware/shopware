@@ -22,6 +22,15 @@ use Shopware\Core\Framework\Log\Package;
  *     iconSets?: array<string, array{path: string, namespace: string}>,
  *     updatedAt?: \DateTimeInterface|null
  * }
+ * @phpstan-type ThemeRuntimeConfigArrayOverrides array{
+ *     themeId?: string,
+ *     technicalName?: string|null,
+ *     resolvedConfig?: array<string, mixed>,
+ *     viewInheritance?: array<string>,
+ *     scriptFiles?: array<string>|null,
+ *     iconSets?: array<string, array{path: string, namespace: string}>,
+ *     updatedAt?: \DateTimeInterface|null
+ * }
  */
 #[Package('framework')]
 class ThemeRuntimeConfig
@@ -59,16 +68,8 @@ class ThemeRuntimeConfig
 
     /**
      * Creates a new ThemeRuntimeConfig with the specified fields updated.
-     * /**
-     * @param array{
-     *     themeId?: string,
-     *     technicalName?: string|null,
-     *     resolvedConfig?: array<string, mixed>,
-     *     viewInheritance?: array<string>,
-     *     scriptFiles?: array<string>|null,
-     *     iconSets?: array<string, array{path: string, namespace: string}>,
-     *     updatedAt?: \DateTimeInterface|null
-     * } $data
+     *
+     * @param ThemeRuntimeConfigArrayOverrides $data
      */
     public function with(array $data): self
     {

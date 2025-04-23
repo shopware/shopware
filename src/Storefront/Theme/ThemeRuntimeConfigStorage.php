@@ -10,6 +10,8 @@ use Shopware\Core\Framework\Uuid\Uuid;
 
 /**
  * @internal
+ *
+ * @codeCoverageIgnore tested via an integration test
  */
 #[Package('framework')]
 class ThemeRuntimeConfigStorage

@@ -60,7 +60,7 @@ describe('src/module/sw-product/view/sw-product-detail-specifications', () => {
             isNew: () => false,
         };
         store.modeSettings = [
-            'measures_packaging',
+            'selling_packaging',
             'properties',
             'essential_characteristics',
             'custom_fields',
@@ -70,8 +70,8 @@ describe('src/module/sw-product/view/sw-product-detail-specifications', () => {
             value: {
                 settings: [
                     {
-                        key: 'measures_packaging',
-                        label: 'sw-product.specifications.cardTitleMeasuresPackaging',
+                        key: 'selling_packaging',
+                        label: 'sw-product.specifications.cardTitleSellingPackaging',
                         enabled: true,
                         name: 'specifications',
                     },
@@ -108,7 +108,7 @@ describe('src/module/sw-product/view/sw-product-detail-specifications', () => {
         expect(wrapper.vm).toBeTruthy();
     });
 
-    it('should show item fields in Measures Packaging card', async () => {
+    it('should show item fields in Selling Packaging card', async () => {
         const wrapper = await createWrapper();
 
         // expect the some item fields in Packaging is not hidden by css display none
@@ -123,7 +123,7 @@ describe('src/module/sw-product/view/sw-product-detail-specifications', () => {
         });
     });
 
-    it('should hide item fields in Measures Packaging card when advanced mode is off', async () => {
+    it('should hide item fields in Selling Packaging card when advanced mode is off', async () => {
         const wrapper = await createWrapper();
         const advancedModeSetting = Shopware.Store.get('swProductDetail').advancedModeSetting;
 
@@ -137,7 +137,9 @@ describe('src/module/sw-product/view/sw-product-detail-specifications', () => {
             },
         };
 
-        // expect the some item fields in Packaging hidden by css display none
+        await nextTick();
+
+        // expect the some item fields in Selling Packaging hidden by css display none
         packagingItemClassName.forEach((item) => {
             const inheritedField = wrapper.find('.sw-inherit-wrapper');
 
@@ -149,17 +151,17 @@ describe('src/module/sw-product/view/sw-product-detail-specifications', () => {
         });
     });
 
-    it('should hide Measures Packaging card when measures_packaging mode is unchecked', async () => {
+    it('should hide Selling Packaging card when selling_packaging mode is unchecked', async () => {
         const wrapper = await createWrapper();
         const modeSettings = Shopware.Store.get('swProductDetail').modeSettings;
 
         Shopware.Store.get('swProductDetail').modeSettings = [
-            ...modeSettings.filter((item) => item !== 'measures_packaging'),
+            ...modeSettings.filter((item) => item !== 'selling_packaging'),
         ];
 
         await nextTick();
 
-        expect(wrapper.find('.sw-product-detail-specification__measures-packaging').exists()).toBeFalsy();
+        expect(wrapper.find('.sw-product-detail-specification__selling-packaging').exists()).toBeFalsy();
     });
 
     it('should show Properties card even advanced mode is off', async () => {
@@ -331,7 +333,7 @@ describe('src/module/sw-product/view/sw-product-detail-specifications', () => {
         expect(cardStyles).toBe('display: none;');
     });
 
-    it('should show measures and packaging card when product states not includes is-download', async () => {
+    it('should show Selling Packaging card when product states not includes is-download', async () => {
         const wrapper = await createWrapper();
 
         Shopware.Store.get('swProductDetail').product = {
@@ -343,14 +345,14 @@ describe('src/module/sw-product/view/sw-product-detail-specifications', () => {
 
         await wrapper.vm.$nextTick();
 
-        const cardElement = wrapper.find('.sw-product-detail-specification__measures-packaging');
+        const cardElement = wrapper.find('.sw-product-detail-specification__selling-packaging');
         const cardStyles = cardElement.attributes('style');
         await nextTick();
 
         expect(cardStyles).not.toBe('display: none;');
     });
 
-    it('should not show measures and packaging card when product states includes is-download', async () => {
+    it('should not show Selling Packaging card when product states includes is-download', async () => {
         const wrapper = await createWrapper();
 
         Shopware.Store.get('swProductDetail').product = {
@@ -362,7 +364,7 @@ describe('src/module/sw-product/view/sw-product-detail-specifications', () => {
 
         await wrapper.vm.$nextTick();
 
-        const cardElement = wrapper.find('.sw-product-detail-specification__measures-packaging');
+        const cardElement = wrapper.find('.sw-product-detail-specification__selling-packaging');
 
         expect(cardElement.exists()).toBeFalsy();
     });

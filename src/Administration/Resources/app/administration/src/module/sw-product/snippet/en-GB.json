@@ -139,12 +139,17 @@
       "labelPurchaseSteps": "Purchase steps"
     },
     "packagingForm": {
-      "placeholderUnit": "Select...",
-      "labelUnit": "Product unit",
-      "referenceUnitHelpText": "Required to calculate the product's unit price. The base value to be entered depends on the selected product unit.<br><br>Unit price = (product price * basic unit) / selling unit.<br><br>Unit price not displayed, if selling unit and basic unit have the same value.",
-      "packUnitHelpText": "Type of packing: e.g. bottle, crate, tin...",
-      "packUnitPluralHelpText": "Type of packing (plural): e.g. bottles, crates, tins...",
-      "purchaseUnitHelpText": "Required to calculate the product's unit price. The value to be entered depends on the selected product unit.<br><br>Unit price = (product price * basic unit) / selling unit.<br><br>Unit price not displayed, if selling unit and basic unit have the same value."
+      "description": "Define how the product is sold and packaged. This information is shown to customers in the storefront.",
+      "labelProductUnit": "Product unit",
+      "placeholderSellingUnit": "e.g. 6 ...",
+      "placeholderProductUnit": "Select product unit ...",
+      "placeholderBasicUnit": "e.g. 1 ...",
+      "placeholderPackagingUnit": "e.g. Bottle ...",
+      "placeholderPackagingUnitPlural": "e.g. Bottles ...",
+      "helpTextBasicUnit": "Required to calculate the product's unit price. The base value to be entered depends on the selected product unit.<br><br>Unit price = (product price * basic unit) / selling unit.<br><br>Unit price not displayed, if selling unit and basic unit have the same value.",
+      "helpTextPackUnit": "Type of packing: e.g. bottle, crate, tin...",
+      "helpTextPackUnitPlural": "Type of packing (plural): e.g. bottles, crates, tins...",
+      "helpTextSellingUnit": "Required to calculate the product's unit price. The value to be entered depends on the selected product unit.<br><br>Unit price = (product price * basic unit) / selling unit.<br><br>Unit price not displayed, if selling unit and basic unit have the same value."
     },
     "detailBase": {
       "cardTitleDeliverabilityInfo": "Deliverability",
@@ -168,7 +173,7 @@
       "manageStockTooltip": "If the stock is not managed, the digital product is available for an infinite amount of transactions."
     },
     "specifications": {
-      "cardTitleMeasuresPackaging": "Measures & packaging",
+      "cardTitleSellingPackaging": "Selling & Packaging Information",
       "cardTitleEssentialCharacteristics": "Essential Characteristics",
       "cardTitleCustomFields": "Custom fields",
       "cardTitleProperties": "Properties",

@@ -162,6 +162,10 @@ Component.register('sw-page', {
                 'grid-row': rowNumber,
             };
         },
+
+        sidebars() {
+            return Shopware.Store.get('sidebar').sidebars;
+        },
     },
 
     created() {
@@ -232,6 +236,10 @@ Component.register('sw-page', {
             if (this.$route.meta.parentPath) {
                 this.parentRoute = this.$route.meta.parentPath;
             }
+        },
+
+        setActiveSidebar(locationId) {
+            Shopware.Store.get('sidebar').setActiveSidebar(locationId);
         },
     },
 });

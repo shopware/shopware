@@ -36,16 +36,18 @@ export default {
 
     methods: {
         saveAndReload() {
-            this.$emit('save-and-reload');
             if (this.swOrderDetailOnSaveAndReload) {
                 this.swOrderDetailOnSaveAndReload();
+            } else {
+                this.$emit('save-and-reload');
             }
         },
 
         onUpdateLoading(loading) {
-            this.$emit('update-loading', loading);
             if (this.swOrderDetailOnLoadingChange) {
                 this.swOrderDetailOnLoadingChange(loading);
+            } else {
+                this.$emit('update-loading', loading);
             }
         },
     },

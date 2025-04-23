@@ -22,7 +22,7 @@
                 <sw-tabs-item
                     v-for="tab in componentSection.props.tabs"
                     :key="tab.name"
-                    :active-tab="getActiveTab(componentSection).name"
+                    :active-tab="getActiveTab(componentSection)?.name"
                     :name="tab.name"
                 >
                     {{ $tc(tab.label ?? '') }}
@@ -32,7 +32,7 @@
 
         <sw-iframe-renderer
             v-if="componentSection.props?.tabs && getActiveTab(componentSection)"
-            :key="getActiveTab(componentSection).name"
+            :key="getActiveTab(componentSection)?.name"
             :src="componentSection.src"
             :location-id="getActiveTab(componentSection)?.locationId"
         />

@@ -273,4 +273,47 @@ describe('OffCanvas tests', () => {
             expect(document.querySelector('.offcanvas').classList.contains(position.expectedPositionClass)).toBe(true);
         });
     });
+
+    it('removes only offcanvas from the DOM created by OffCanvasSingleton and ignores other Bootstrap offcanvas', () => {
+        // Add a hard-coded Bootstrap offcanvas to the HTML which must not be removed by OffCanvasSingleton
+        document.body.innerHTML = `
+            <button class="btn btn-primary" type="button" data-bs-toggle="offcanvas" data-bs-target="#offcanvasExample" aria-controls="offcanvasExample">
+                Open Bootstrap offcanvas
+            </button>
+            
+            <div class="offcanvas offcanvas-start" tabindex="-1" id="offcanvasExample" aria-labelledby="offcanvasExampleLabel">
+                <div class="offcanvas-header">
+                    <h5 class="offcanvas-title" id="offcanvasExampleLabel">Offcanvas</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+                </div>
+                <div class="offcanvas-body">
+                    Bootstrap offcanvas
+                </div>
+            </div>
+        `;
+
+        jest.useFakeTimers();
+
+        // Open the shopware OffCanvas via OffCanvasSingleton
+        OffCanvas.open('Interesting content');
+        jest.runAllTimers();
+
+        // Ensue shopware OffCanvas was opened
+        expect(OffCanvas.exists()).toBe(true);
+        expect(document.querySelector('.js-offcanvas-singleton').classList.contains('show')).toBe(true);
+
+        // Ensure hard-coded Bootstrap offcanvas is also present in the DOM. It must not be removed by "_removeExistingOffCanvas".
+        expect(document.getElementById('offcanvasExample')).toBeTruthy();
+
+        // Close the shopware OffCanvas
+        OffCanvas.close();
+        jest.runAllTimers();
+
+        // Ensure shopware OffCanvas is no longer existing in the DOM
+        expect(document.querySelector('.js-offcanvas-singleton')).toBeFalsy();
+        expect(OffCanvas.exists()).toBe(false);
+
+        // Ensure the hard-coded Bootstrap offcanvas is still in the DOM
+        expect(document.getElementById('offcanvasExample')).toBeTruthy();
+    });
 });

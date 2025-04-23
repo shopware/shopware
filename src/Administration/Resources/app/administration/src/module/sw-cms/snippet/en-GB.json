@@ -219,7 +219,6 @@
             "horizontalAlignRight": "Right"
           },
           "helpText": {
-            "autoSlide": "Temporarily disabled due to lack of accessibility.",
             "autoplayTimeout": "The millisecond duration for how long the slide should stay still.",
             "speed": "The millisecond duration of the sliding animation.",
             "displayMode": "<strong>Original:</strong> The image is displayed in its original resolution or shrunk down to current CMS page's width.<br><br><strong>Scaled:</strong> The image is scaled to the CMS page's width without any height restrictions.<br><br><strong>Cropped:</strong> The image is scaled to the current CMS page's width. Any vertical overflow is cropped to the configured maximum height."
@@ -230,6 +229,8 @@
             "options": "Options"
           },
           "infoText": {
+            "autoSlideTitle": "Accessibility concerns",
+            "autoSlide": "Enabling this feature may make parts of your storefront inaccessible to users with disabilities. This may result in non-compliance with accessibility laws applicable in your jurisdiction (e.g., the European Accessibility Act). By proceeding, you acknowledge this risk and accept full responsibility.",
             "listingElement": "This element's product data is automatically loaded by the category associated with this layout. The content just shows a sample preview."
           }
         },
@@ -246,7 +247,8 @@
           "label": {
             "minHeight": "Minimum height",
             "minHeightHelpText": "Enter the minimum height with your desired unit. For example: 200px",
-            "isDecorative": "Mark image as decorative",
+            "isDecorative": "Mark images as decorative",
+            "isDecorativeHelpText": "When this option is enabled, the image information will not be read out by screen readers.",
             "linkNewTab": "Open link in new tab",
             "linkTo": "Link target"
           },
@@ -367,7 +369,7 @@
             "selection": "Products",
             "navigation": "Navigation",
             "border": "Border",
-            "minWidth": "Minimal width",
+            "minWidth": "Minimum width",
             "navigationArrows": "Arrow navigation",
             "navigationPositionNone": "None",
             "navigationPositionInside": "Inside",
@@ -380,7 +382,7 @@
           "placeholder": {
             "title": "Slider title",
             "selection": "Select products",
-            "minWidth": "Minimal width",
+            "minWidth": "Minimum width",
             "productStreamChoice": "Select a dynamic product group",
             "productStreamSorting": "Select a sorting..."
           },

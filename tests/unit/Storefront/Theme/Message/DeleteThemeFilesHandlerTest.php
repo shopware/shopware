@@ -6,6 +6,7 @@ use League\Flysystem\FilesystemOperator;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Adapter\Cache\CacheInvalidator;
+use Shopware\Core\Test\Annotation\DisabledFeatures;
 use Shopware\Storefront\Theme\MD5ThemePathBuilder;
 use Shopware\Storefront\Theme\Message\DeleteThemeFilesHandler;
 use Shopware\Storefront\Theme\Message\DeleteThemeFilesMessage;
@@ -16,6 +17,7 @@ use Shopware\Storefront\Theme\Message\DeleteThemeFilesMessage;
 #[CoversClass(DeleteThemeFilesHandler::class)]
 class DeleteThemeFilesHandlerTest extends TestCase
 {
+    #[DisabledFeatures(['v6.8.0.0'])]
     public function testFilesAreDeletedIfPathIsCurrentlyNotActive(): void
     {
         $currentPath = 'path';
@@ -38,6 +40,7 @@ class DeleteThemeFilesHandlerTest extends TestCase
         $handler($message);
     }
 
+    #[DisabledFeatures(['v6.8.0.0'])]
     public function testFilesAreNotDeletedIfPathIsCurrentlyActive(): void
     {
         $pathBuilder = new MD5ThemePathBuilder();

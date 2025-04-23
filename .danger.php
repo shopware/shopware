@@ -35,6 +35,11 @@ const BaseTestClasses = [
 return (new Config())
     ->useThreadOn(Config::REPORT_LEVEL_WARNING)
     ->useRule(function (Context $context): void {
+         if ($context->platform->pullRequest->getFiles()->has('.danger.php')) {
+             $context->notice('Any changes to .danger.php will not be reflected in your pull request. Commit your changes separately.');
+         }
+    })
+    ->useRule(function (Context $context): void {
         $files = $context->platform->pullRequest->getFiles();
 
         if ($files->matches('changelog/_unreleased/*.md')->count() === 0) {
@@ -373,7 +378,6 @@ return (new Config())
             $composerContent = json_decode($composerFile->getContent(), true);
             $requirements = array_merge(
                 $composerContent['require'] ?? [],
-                $composerContent['require-dev'] ?? []
             );
 
             foreach ($requirements as $package => $constraint) {

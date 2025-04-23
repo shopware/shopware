@@ -106,7 +106,6 @@ async function createWrapper() {
                 'sw-datepicker': true,
                 'sw-multi-tag-select': true,
                 'sw-textarea-field': true,
-                'sw-order-promotion-field': true,
                 'sw-extension-component-section': true,
                 'sw-custom-field-set-renderer': true,
                 'sw-order-state-history-modal': true,
@@ -227,10 +226,13 @@ describe('src/module/sw-order/view/sw-order-detail-details', () => {
     });
 
     it('should able to edit shipping cost', async () => {
+        jest.useFakeTimers();
         global.activeAclRoles = ['order.editor'];
         wrapper = await createWrapper();
         const shippingCostField = wrapper.findComponent('.sw-order-detail-details__shipping-cost');
         await shippingCostField.setValue(20);
+
+        jest.advanceTimersByTime(1000);
 
         expect(wrapper.vm.delivery.shippingCosts.unitPrice).toBe(20);
         expect(wrapper.vm.delivery.shippingCosts.totalPrice).toBe(20);

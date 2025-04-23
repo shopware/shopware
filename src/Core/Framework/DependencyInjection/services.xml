@@ -198,6 +198,7 @@ frame-ancestors 'none';
 
         <service id="Shopware\Core\Framework\Routing\CoreSubscriber">
             <argument>%shopware.security.csp_templates%</argument>
+            <argument type="service" id="Shopware\Core\Framework\Script\Execution\ScriptExecutor"/>
             <tag name="kernel.event_subscriber"/>
         </service>
 
@@ -266,6 +267,7 @@ frame-ancestors 'none';
             <argument type="service" id="snippet_set.repository"/>
             <argument type="service" id="Shopware\Core\System\Snippet\Filter\SnippetFilterFactory"/>
             <argument type="service" id="service_container" />
+            <argument type="service" id="Shopware\Core\Framework\Extensions\ExtensionDispatcher"/>
             <argument type="service" id="Shopware\Storefront\Theme\DatabaseSalesChannelThemeLoader" on-invalid="null"/>
         </service>
 

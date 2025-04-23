@@ -24,6 +24,7 @@ interface publishOptions {
     scope: scopeInterface;
     deprecated?: boolean;
     deprecationMessage?: string;
+    showDoubleRegistrationError?: boolean;
 }
 
 type dataset = {
@@ -189,7 +190,14 @@ function parsePath(path: string): ParsedPath | null {
 }
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
-export function publishData({ id, path, scope, deprecated, deprecationMessage }: publishOptions): () => void {
+export function publishData({
+    id,
+    path,
+    scope,
+    deprecated,
+    deprecationMessage,
+    showDoubleRegistrationError = true,
+}: publishOptions): () => void {
     if (unregisterPublishDataIds.includes(id)) {
         unregisterPublishDataIds = unregisterPublishDataIds.filter((value) => value !== id);
     }
@@ -197,7 +205,9 @@ export function publishData({ id, path, scope, deprecated, deprecationMessage }:
 
     // Dataset registered from different scope? Prevent update.
     if (registeredDataSet && registeredDataSet.scope !== scope?.$?.uid) {
-        console.error(`The dataset id "${id}" you tried to publish is already registered.`);
+        if (showDoubleRegistrationError) {
+            console.error(`The dataset id "${id}" you tried to publish is already registered.`);
+        }
 
         return () => {};
     }

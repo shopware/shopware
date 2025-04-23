@@ -61,6 +61,8 @@ const getBaseConfig = (extension: ExtensionDefinition, isProd = false) => {
 
         customLogger: logger,
 
+        cacheDir: path.resolve(extension.path, '..', '.tmp/vite'),
+
         plugins: [
             TwigPlugin(),
             AssetPlugin(!isDev, path.resolve(extension.basePath, 'Resources/app/administration')),

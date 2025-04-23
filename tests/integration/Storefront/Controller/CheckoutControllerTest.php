@@ -375,8 +375,7 @@ class CheckoutControllerTest extends TestCase
             [
                 new ErrorCollection(
                     [
-                        new PaymentMethodChangedError('Paid in advance', 'Direct Debit'),
-                        new PaymentMethodChangedError('Direct Debit', 'Invoice'),
+                        new PaymentMethodChangedError('Paid in advance', 'Invoice'),
                         new PaymentMethodChangedError('Invoice', 'Cash On Delivery'),
                         new PaymentMethodChangedError('Cash On Delivery', 'Paid in advance'),
                     ]

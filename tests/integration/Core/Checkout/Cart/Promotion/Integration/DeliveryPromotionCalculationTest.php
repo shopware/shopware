@@ -408,10 +408,7 @@ class DeliveryPromotionCalculationTest extends TestCase
      * @throws Exception
      * @throws CartException
      */
-    #[Group('promotions
-
-NEXT-21735 - Sometimes has a $reduceValue of 0')]
-    #[Group('not-deterministic')]
+    #[Group('promotions')]
     public function testMultipleDeliveryDiscountsWithoutFixed(): void
     {
         $productId = Uuid::randomHex();

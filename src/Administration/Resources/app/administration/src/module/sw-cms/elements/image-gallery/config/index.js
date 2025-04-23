@@ -119,7 +119,7 @@ export default {
                 },
                 {
                     value: 'inside',
-                    label: this.$tc('-cms.elements.imageSlider.config.label.navigationPositionInside'),
+                    label: this.$tc('sw-cms.elements.imageSlider.config.label.navigationPositionInside'),
                 },
                 {
                     value: 'outside',

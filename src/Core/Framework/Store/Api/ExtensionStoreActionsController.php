@@ -33,7 +33,6 @@ class ExtensionStoreActionsController extends AbstractController
         private readonly PluginService $pluginService,
         private readonly PluginManagementService $pluginManagementService,
         private readonly Filesystem $fileSystem,
-        private readonly bool $runtimeExtensionManagementAllowed,
         private readonly CacheInterface $cache,
     ) {
     }

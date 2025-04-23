@@ -190,7 +190,6 @@
             <argument type="service" id="Shopware\Core\Framework\Plugin\PluginService"/>
             <argument type="service" id="Shopware\Core\Framework\Plugin\PluginManagementService"/>
             <argument type="service" id="Symfony\Component\Filesystem\Filesystem"/>
-            <argument>%shopware.deployment.runtime_extension_management%</argument>
             <argument type="service" id="cache.object"/>
 
             <call method="setContainer">

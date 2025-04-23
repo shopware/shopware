@@ -206,7 +206,7 @@ class WebhookManagerTest extends TestCase
         static::assertInstanceOf(EntityWrittenEvent::class, $eventByEntityName);
         $hookableEvent = HookableEntityWrittenEvent::fromWrittenEvent($eventByEntityName);
 
-        $this->eventFactory->expects(static::once())->method('createHookablesFor')->with($event)->willReturn([$hookableEvent]);
+        $this->eventFactory->expects($this->once())->method('createHookablesFor')->with($event)->willReturn([$hookableEvent]);
 
         $this->prepareWebhook('customer.written', true, ['customer:read']);
 

@@ -138,7 +138,7 @@ class MailService extends AbstractMailService
         $definition->add('contentHtml', new NotBlank(), new Type('string'));
         $definition->add('contentPlain', new NotBlank(), new Type('string'));
         $definition->add('subject', new NotBlank(), new Type('string'));
-        $definition->add('senderName', new NotBlank(), new Type('string'));
+        $definition->add('senderName', new Type('string'));
 
         return $definition;
     }

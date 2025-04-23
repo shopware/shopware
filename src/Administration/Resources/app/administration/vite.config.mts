@@ -46,7 +46,11 @@ export default defineConfig(({ command }) => {
     // We only load extensions here to display the successfull injection
     const extensions = loadExtensions();
     extensions.forEach((extension) => {
-        console.log(colors.green(`# Plugin "${extension.name}": Injected successfully`));
+        if (extension.isApp) {
+            console.log(colors.green(`# App "${extension.name}": Injected successfully`));
+        } else {
+            console.log(colors.green(`# Plugin "${extension.name}": Injected successfully`));
+        }
     });
 
     // print new line

@@ -731,7 +731,7 @@ PHP_EOL;
     private function getStorefrontPluginRegistry(array $plugins): StorefrontPluginRegistryInterface
     {
         $kernel = $this->createMock(Kernel::class);
-        $kernel->expects(static::any())
+        $kernel->expects($this->any())
             ->method('getBundles')
             ->willReturn($plugins);
 

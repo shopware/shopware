@@ -73,7 +73,7 @@ class WebhookManagerTest extends TestCase
         $event2 = new class('foobar.event', ['foo' => 'bar'], ['foo' => 'bar']) extends AppFlowActionEvent {};
 
         $this->eventFactory
-            ->expects(static::exactly(2))
+            ->expects($this->exactly(2))
             ->method('createHookablesFor')
             ->willReturn([$event1], [$event2]);
 
@@ -359,7 +359,7 @@ class WebhookManagerTest extends TestCase
         $event = new AppFlowActionEvent('foobar', ['foo' => 'bar'], ['foo' => 'bar']);
 
         $this->eventFactory
-            ->expects(static::once())
+            ->expects($this->once())
             ->method('createHookablesFor')
             ->with($event)
             ->willReturn([$event]);
@@ -385,7 +385,7 @@ class WebhookManagerTest extends TestCase
         static::assertInstanceOf(EntityWrittenEvent::class, $eventByEntityName);
         $hookableEvent = HookableEntityWrittenEvent::fromWrittenEvent($eventByEntityName);
 
-        $this->eventFactory->expects(static::once())->method('createHookablesFor')->with($event)->willReturn([$hookableEvent]);
+        $this->eventFactory->expects($this->once())->method('createHookablesFor')->with($event)->willReturn([$hookableEvent]);
 
         return $event;
     }
@@ -397,7 +397,7 @@ class WebhookManagerTest extends TestCase
     {
         $webhook = $this->getWebhook($eventName, $onlyLiveVersion);
 
-        $this->webhookLoader->expects(static::once())
+        $this->webhookLoader->expects($this->once())
             ->method('getWebhooks')
             ->willReturn([$webhook]);
 
@@ -412,7 +412,7 @@ class WebhookManagerTest extends TestCase
     private function getWebhookManager(bool $isAdminWorkerEnabled): WebhookManager
     {
         $appPayloadServiceHelper = $this->createMock(AppPayloadServiceHelper::class);
-        $appPayloadServiceHelper->expects(static::any())->method('buildSource')->willReturn(new Source('https://example.com', 'foobar', '0.0.0'));
+        $appPayloadServiceHelper->expects($this->any())->method('buildSource')->willReturn(new Source('https://example.com', 'foobar', '0.0.0'));
 
         return new WebhookManager(
             $this->webhookLoader,

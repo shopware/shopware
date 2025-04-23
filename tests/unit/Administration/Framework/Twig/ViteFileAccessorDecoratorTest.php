@@ -50,7 +50,7 @@ class ViteFileAccessorDecoratorTest extends TestCase
     #[DataProvider('hasFileProvider')]
     public function testHasFile(string $configName, string $fileType, string $filePath, bool $fileExists): void
     {
-        $this->filesystemMock->expects(static::once())
+        $this->filesystemMock->expects($this->once())
             ->method('has')
             ->with($filePath)
             ->willReturn($fileExists);
@@ -62,7 +62,7 @@ class ViteFileAccessorDecoratorTest extends TestCase
     #[DataProvider('getDataProvider')]
     public function testGetData(bool $pullFromCache): void
     {
-        $this->filesystemMock->expects(static::once())
+        $this->filesystemMock->expects($this->once())
             ->method('read')
             ->with('bundles/administration/.vite/entrypoints.json')
             ->willReturn('{"entryPoints":{"administration":{"app":["app.js"]}}}');

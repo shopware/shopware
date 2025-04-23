@@ -32,7 +32,7 @@ class CustomerRemoteAddressSubscriberTest extends TestCase
     public function testNoRequestThereHappensNothing(): void
     {
         $configService = $this->createMock(SystemConfigService::class);
-        $configService->expects(static::never())->method('getBool');
+        $configService->expects($this->never())->method('getBool');
 
         $subscriber = new CustomerRemoteAddressSubscriber(
             $this->createMock(Connection::class),
@@ -46,7 +46,7 @@ class CustomerRemoteAddressSubscriberTest extends TestCase
     public function testNullIpDoesNothing(): void
     {
         $configService = $this->createMock(SystemConfigService::class);
-        $configService->expects(static::never())->method('getBool');
+        $configService->expects($this->never())->method('getBool');
 
         $requestStack = new RequestStack();
         $requestStack->push(new Request());
@@ -79,7 +79,7 @@ class CustomerRemoteAddressSubscriberTest extends TestCase
     public function testRequest(bool $anonymize, string $clientIp, string $expectedIp): void
     {
         $configService = $this->createMock(SystemConfigService::class);
-        $configService->expects(static::once())->method('getBool')->willReturn($anonymize);
+        $configService->expects($this->once())->method('getBool')->willReturn($anonymize);
 
         $requestStack = new RequestStack();
 
@@ -90,7 +90,7 @@ class CustomerRemoteAddressSubscriberTest extends TestCase
 
         $connection = $this->createMock(Connection::class);
 
-        $connection->expects(static::once())
+        $connection->expects($this->once())
             ->method('update')
             ->with(
                 'customer',

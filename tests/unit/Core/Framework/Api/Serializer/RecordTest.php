@@ -101,12 +101,12 @@ class RecordTest extends TestCase
         $entity->customer = (new CustomerEntity())->assign(['id' => 'customer-id', '_uniqueIdentifier' => 'customer-id']);
 
         $productDefinition = $this->createMock(ProductDefinition::class);
-        $productDefinition->expects(static::once())
+        $productDefinition->expects($this->once())
             ->method('getEntityName')
             ->willReturn('product');
 
         $customerDefinition = $this->createMock(CustomerDefinition::class);
-        $customerDefinition->expects(static::once())
+        $customerDefinition->expects($this->once())
             ->method('getEntityName')
             ->willReturn('customer');
 

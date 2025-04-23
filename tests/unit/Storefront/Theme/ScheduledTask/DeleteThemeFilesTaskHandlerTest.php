@@ -27,12 +27,12 @@ class DeleteThemeFilesTaskHandlerTest extends TestCase
     public function testRun(): void
     {
         $connection = $this->createMock(Connection::class);
-        $connection->expects(static::once())->method('fetchAllAssociative')->willReturn([
+        $connection->expects($this->once())->method('fetchAllAssociative')->willReturn([
             ['salesChannelId' => 'salesChannelId1', 'themeId' => 'themeId1'],
         ]);
 
         $themeFileSystem = $this->createMock(FilesystemOperator::class);
-        $themeFileSystem->expects(static::exactly(4))->method('listContents')
+        $themeFileSystem->expects($this->exactly(4))->method('listContents')
             ->willReturnMap([
                 [
                     'theme',
@@ -74,19 +74,19 @@ class DeleteThemeFilesTaskHandlerTest extends TestCase
                     ]),
                 ],
             ]);
-        $themeFileSystem->expects(static::exactly(2))->method('deleteDirectory')->willReturnMap([
+        $themeFileSystem->expects($this->exactly(2))->method('deleteDirectory')->willReturnMap([
             ['theme/unusedThemePathWithoutFiles'],
             ['theme/unusedThemePathOlderThanOneDay'],
         ]);
 
         $cacheInvalidator = $this->createMock(CacheInvalidator::class);
-        $cacheInvalidator->expects(static::exactly(2))->method('invalidate')->willReturnMap([
+        $cacheInvalidator->expects($this->exactly(2))->method('invalidate')->willReturnMap([
             [['theme_scripts_theme/unusedThemePathWithoutFiles']],
             [['theme_scripts_theme/unusedThemePathOlderThanOneDay']],
         ]);
 
         $themePathBuilder = $this->createMock(AbstractThemePathBuilder::class);
-        $themePathBuilder->expects(static::once())->method('assemblePath')->with('salesChannelId1', 'themeId1')->willReturn('usedThemePath');
+        $themePathBuilder->expects($this->once())->method('assemblePath')->with('salesChannelId1', 'themeId1')->willReturn('usedThemePath');
 
         $handler = new DeleteThemeFilesTaskHandler(
             $this->createMock(EntityRepository::class),

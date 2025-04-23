@@ -69,7 +69,7 @@ class SendPasswordRecoveryMailRouteTest extends TestCase
         $customerCollection = new CustomerCollection([$customer]);
 
         $this->customerRepository
-            ->expects(static::once())
+            ->expects($this->once())
             ->method('search')
             ->willReturn(
                 new EntitySearchResult(
@@ -83,7 +83,7 @@ class SendPasswordRecoveryMailRouteTest extends TestCase
             );
 
         $this->customerRecoveryRepository
-            ->expects(static::once())
+            ->expects($this->once())
             ->method('create')
             ->with(
                 static::callback(function (array $recoveryData): bool {
@@ -112,7 +112,7 @@ class SendPasswordRecoveryMailRouteTest extends TestCase
         $customerRecoveryCollection = new CustomerRecoveryCollection([$customerRecovery]);
 
         $this->customerRecoveryRepository
-            ->expects(static::exactly(2))
+            ->expects($this->exactly(2))
             ->method('search')
             ->willReturn(
                 new EntitySearchResult(

@@ -45,7 +45,7 @@ class AppCheckoutGatewayPayloadServiceTest extends TestCase
 
         $helper = $this->createMock(AppPayloadServiceHelper::class);
         $helper
-            ->expects(static::once())
+            ->expects($this->once())
             ->method('createRequestOptions')
             ->with($payload, $app, $context->getContext())
             ->willReturn($this->buildTestPayload($context->getContext(), $encodedPayload));
@@ -96,7 +96,7 @@ class AppCheckoutGatewayPayloadServiceTest extends TestCase
 
         $logger = $this->createMock(ExceptionLogger::class);
         $logger
-            ->expects(static::once())
+            ->expects($this->once())
             ->method('logOrThrowException')
             ->with($e);
 

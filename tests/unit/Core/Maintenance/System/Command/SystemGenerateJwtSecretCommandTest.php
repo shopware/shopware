@@ -107,7 +107,7 @@ class SystemGenerateJwtSecretCommandTest extends TestCase
 
         $generator = $this->createMock(JwtCertificateGenerator::class);
         $generator
-            ->expects(static::once())
+            ->expects($this->once())
             ->method('generate');
 
         $tester = new CommandTester(new SystemGenerateJwtSecretCommand(

@@ -56,7 +56,7 @@ class AddOrderAffiliateAndCampaignCodeActionTest extends TestCase
     #[DataProvider('actionExecutedProvider')]
     public function testActionExecuted(array $config, array $existedData, array $expected): void
     {
-        $this->connection->expects(static::once())->method('fetchAssociative')->willReturn($existedData);
+        $this->connection->expects($this->once())->method('fetchAssociative')->willReturn($existedData);
 
         $orderId = Uuid::randomHex();
         $flow = new StorableFlow('foo', Context::createDefaultContext(), [], [
@@ -66,7 +66,7 @@ class AddOrderAffiliateAndCampaignCodeActionTest extends TestCase
 
         $expected['id'] = $orderId;
 
-        $this->repository->expects(static::once())
+        $this->repository->expects($this->once())
             ->method('update')
             ->with([$expected]);
 
@@ -77,7 +77,7 @@ class AddOrderAffiliateAndCampaignCodeActionTest extends TestCase
     {
         $flow = new StorableFlow('foo', Context::createDefaultContext());
 
-        $this->repository->expects(static::never())->method('update');
+        $this->repository->expects($this->never())->method('update');
         $this->action->handleFlow($flow);
     }
 
@@ -87,7 +87,7 @@ class AddOrderAffiliateAndCampaignCodeActionTest extends TestCase
             OrderAware::ORDER_ID => Uuid::randomHex(),
         ]);
 
-        $this->repository->expects(static::never())->method('update');
+        $this->repository->expects($this->never())->method('update');
 
         $this->action->handleFlow($flow);
     }

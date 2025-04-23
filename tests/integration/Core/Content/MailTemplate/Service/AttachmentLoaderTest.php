@@ -77,7 +77,7 @@ class AttachmentLoaderTest extends TestCase
             static::markTestSkipped('deprecated tag:v6.7.0 - Will be removed as the test for the service is not used anymore because the service will be removed');
         }
 
-        $this->eventDispatcherMock->expects(static::once())->method('dispatch')->with(static::callback(static function (AttachmentLoaderCriteriaEvent $event) {
+        $this->eventDispatcherMock->expects($this->once())->method('dispatch')->with(static::callback(static function (AttachmentLoaderCriteriaEvent $event) {
             $criteria = $event->getCriteria();
 
             return $criteria->hasAssociation('documentMediaFile') && $criteria->hasAssociation('documentType');

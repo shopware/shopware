@@ -35,7 +35,6 @@ class ExtensionStoreActionsControllerTest extends TestCase
             $pluginService = $this->createMock(PluginService::class),
             $this->createMock(PluginManagementService::class),
             $this->createFileSystemMock(),
-            true,
             $this->createMock(CacheInterface::class)
         );
 
@@ -52,7 +51,6 @@ class ExtensionStoreActionsControllerTest extends TestCase
             $this->createMock(PluginService::class),
             $this->createMock(PluginManagementService::class),
             $this->createFileSystemMock(true),
-            true,
             $this->createMock(CacheInterface::class)
         );
 
@@ -83,7 +81,6 @@ class ExtensionStoreActionsControllerTest extends TestCase
             $this->createMock(PluginService::class),
             $this->createMock(PluginManagementService::class),
             $fileSystemMock,
-            true,
             $this->createMock(CacheInterface::class)
         );
 
@@ -140,7 +137,6 @@ class ExtensionStoreActionsControllerTest extends TestCase
             $this->createMock(PluginService::class),
             $pluginManagement = $this->createMock(PluginManagementService::class),
             $this->createFileSystemMock(true),
-            true,
             $this->createMock(CacheInterface::class)
         );
 
@@ -164,7 +160,6 @@ class ExtensionStoreActionsControllerTest extends TestCase
             $this->createMock(PluginService::class),
             $this->createMock(PluginManagementService::class),
             $this->createFileSystemMock(),
-            true,
             $this->createMock(CacheInterface::class)
         );
 
@@ -187,7 +182,6 @@ class ExtensionStoreActionsControllerTest extends TestCase
             $this->createMock(PluginService::class),
             $this->createMock(PluginManagementService::class),
             $this->createFileSystemMock(),
-            true,
             $this->createMock(CacheInterface::class)
         );
 
@@ -208,7 +202,6 @@ class ExtensionStoreActionsControllerTest extends TestCase
             $this->createMock(PluginService::class),
             $this->createMock(PluginManagementService::class),
             $this->createFileSystemMock(),
-            true,
             $this->createMock(CacheInterface::class)
         );
 
@@ -228,7 +221,6 @@ class ExtensionStoreActionsControllerTest extends TestCase
             $this->createMock(PluginService::class),
             $this->createMock(PluginManagementService::class),
             $this->createFileSystemMock(),
-            true,
             $this->createMock(CacheInterface::class)
         );
 
@@ -248,7 +240,6 @@ class ExtensionStoreActionsControllerTest extends TestCase
             $this->createMock(PluginService::class),
             $this->createMock(PluginManagementService::class),
             $this->createFileSystemMock(),
-            true,
             $this->createMock(CacheInterface::class)
         );
 
@@ -268,7 +259,6 @@ class ExtensionStoreActionsControllerTest extends TestCase
             $this->createMock(PluginService::class),
             $this->createMock(PluginManagementService::class),
             $this->createFileSystemMock(),
-            true,
             $this->createMock(CacheInterface::class)
         );
 
@@ -288,7 +278,6 @@ class ExtensionStoreActionsControllerTest extends TestCase
             $this->createMock(PluginService::class),
             $this->createMock(PluginManagementService::class),
             $this->createFileSystemMock(),
-            true,
             $this->createMock(CacheInterface::class)
         );
 
@@ -308,7 +297,6 @@ class ExtensionStoreActionsControllerTest extends TestCase
             $this->createMock(PluginService::class),
             $this->createMock(PluginManagementService::class),
             $this->createFileSystemMock(),
-            true,
             $this->createMock(CacheInterface::class)
         );
 
@@ -328,7 +316,6 @@ class ExtensionStoreActionsControllerTest extends TestCase
             $this->createMock(PluginService::class),
             $this->createMock(PluginManagementService::class),
             $this->createFileSystemMock(),
-            true,
             $this->createMock(CacheInterface::class)
         );
 
@@ -350,7 +337,6 @@ class ExtensionStoreActionsControllerTest extends TestCase
             $this->createMock(PluginService::class),
             $this->createMock(PluginManagementService::class),
             $this->createFileSystemMock(),
-            true,
             $this->createMock(CacheInterface::class)
         );
 
@@ -372,7 +358,6 @@ class ExtensionStoreActionsControllerTest extends TestCase
             $this->createMock(PluginService::class),
             $this->createMock(PluginManagementService::class),
             $this->createFileSystemMock(),
-            false,
             $this->createMock(CacheInterface::class)
         );
 

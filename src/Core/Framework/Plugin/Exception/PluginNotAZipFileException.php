@@ -5,7 +5,7 @@ namespace Shopware\Core\Framework\Plugin\Exception;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\ShopwareHttpException;
 
-#[Package('framework')]
+#[Package('core')]
 class PluginNotAZipFileException extends ShopwareHttpException
 {
     public function __construct(string $mimeType)

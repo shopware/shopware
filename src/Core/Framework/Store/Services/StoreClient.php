@@ -26,7 +26,6 @@ use Shopware\Core\Framework\Store\Struct\StoreLicenseViolationTypeStruct;
 use Shopware\Core\Framework\Store\Struct\StoreUpdateStruct;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Symfony\Component\HttpFoundation\Request;
-use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Contracts\Cache\CacheInterface;
 use Symfony\Contracts\Cache\ItemInterface;
 
@@ -50,7 +49,6 @@ class StoreClient
         private readonly ExtensionLoader $extensionLoader,
         protected readonly ClientInterface $client,
         private readonly InstanceService $instanceService,
-        private readonly RequestStack $requestStack,
         private readonly CacheInterface $cache,
     ) {
     }

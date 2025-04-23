@@ -19,7 +19,6 @@ $content-max-width: 960px;
     }
 
     &__welcome-message {
-        color: $color-darkgray-200;
         font-size: $font-size-xs;
         line-height: 25px;
         letter-spacing: 0.32px;
@@ -64,9 +63,9 @@ $content-max-width: 960px;
     }
 
     &__card {
-        background-color: #fff;
-        border: 1px solid $color-gray-300;
-        border-radius: $border-radius-lg;
+        background-color: var(--color-elevation-surface-raised);
+        border: 1px solid var(--color-border-primary-default);
+        border-radius: var(--border-radius-card);
         box-shadow: 0 4px 9px 0 rgba(120, 138, 155, 5%);
         padding: 21px 27px;
         margin-bottom: 32px;
@@ -75,8 +74,7 @@ $content-max-width: 960px;
         overflow-y: auto;
 
         &--dimmed {
-            border: 1px solid $color-gray-300;
-            background-color: $color-gray-50;
+            background-color: transparent;
             text-align: center;
         }
 
@@ -96,35 +94,35 @@ $content-max-width: 960px;
 
     &__card-title {
         font-size: $font-size-s;
-        color: $color-darkgray-200;
         margin-bottom: 12px;
     }
 
     &__card-text {
         font-size: $font-size-xs;
         line-height: 22px;
-        color: $color-darkgray-200;
         letter-spacing: 0.1px;
         margin: 14px 0 20px;
     }
 
     &__card-button {
         padding: 9px 24px;
-        font-weight: $font-weight-semi-bold;
-        border-radius: $border-radius-default;
-        border: 1px solid $color-gray-300;
-        background-color: $color-gray-50;
+        font-weight: var(--font-weight-semibold);
+        border-radius: var(--border-radius-button);
+        border: 1px solid var(--color-border-primary-default);
+        background-color: transparent;
         display: inline-flex;
         align-items: center;
+        font-size: var(--font-size-xs) !important;
+        text-decoration: none !important;
 
         &:link,
         &:visited,
         &:active,
         &:hover,
         &:focus {
-            color: $color-darkgray-300 !important;
+            color: var(--color-text-primary-default) !important;
             text-decoration: none;
-            font-size: $font-size-xs;
+            font-size: var(--font-size-xs);
         }
 
         .mt-icon {

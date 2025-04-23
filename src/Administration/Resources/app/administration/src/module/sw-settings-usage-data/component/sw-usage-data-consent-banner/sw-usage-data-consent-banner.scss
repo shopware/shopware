@@ -1,10 +1,10 @@
 @import "~scss/variables";
 
 .sw-usage-data-consent-banner {
-    background: $color-white;
+    background: var(--color-elevation-surface-raised);
     max-width: $content-width;
     margin: 32px auto;
-    border-radius: $border-radius-lg;
+    border-radius: var(--border-radius-card);
     box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 10%), 0 2px 1px 0 rgba(0, 0, 0, 6%), 0 1px 1px 0 rgba(0, 0, 0, 8%);
     position: relative;
 
@@ -51,11 +51,11 @@
 
     &__content {
         padding: 32px;
-        border-radius: $border-radius-lg $border-radius-lg 0 0;
+        border-radius: var(--border-radius-lg) var(--border-radius-lg) 0 0;
         overflow: hidden;
-        color: $color-darkgray-700;
-        font-weight: $font-weight-medium;
-        font-size: $font-size-xs;
+        color: var(--color-text-primary-default);
+        font-weight: var(--font-weight-medium);
+        font-size: var(--font-size-xs);
         line-height: 1.8;
         background-size: contain;
         background-position: bottom center;
@@ -69,19 +69,18 @@
             line-height: 1.4;
             letter-spacing: 0.15px;
             margin-bottom: 8px;
-            color: $color-darkgray-700;
         }
 
         &-subheadline {
             margin-bottom: 12px;
             font-weight: 700;
             line-height: 1.4;
-            color: $color-darkgray-700;
         }
 
         a {
-            font-weight: $font-weight-medium;
-            font-size: $font-size-xs;
+            font-weight: var(--font-weight-medium);
+            font-size: var(--font-size-xs);
+            line-height: var(--font-line-height-xs);
         }
 
         &-description {
@@ -99,18 +98,19 @@
                 align-items: center;
                 justify-content: center;
                 gap: 8px;
-                background-color: $color-white;
-                border: 1px solid $color-gray-300;
+                background-color: var(--color-interaction-secondary-default);
+                border: 1px solid var(--color-border-primary-default);
                 padding: 24px 8px;
-                border-radius: $border-radius-lg;
+                border-radius: var(--border-radius-lg);
                 transition: background-color 0.1s ease;
                 cursor: help;
                 list-style: none;
-                font-size: $font-size-xs;
-                font-weight: $font-weight-bold;
+                font-size: var(--font-size-xs);
+                line-height: var(--line-height-xs);
+                font-weight: var(--font-weight-medium);
 
                 &:hover {
-                    background-color: $color-gray-50;
+                    background-color: var(--color-interaction-secondary-hover);
                 }
             }
         }
@@ -157,24 +157,24 @@
         }
 
         &-details-description {
-            font-weight: $font-weight-regular;
+            font-weight: var(--font-weight-regular);
             line-height: 1.6;
-            color: $color-darkgray-200;
+            color: var(--color-text-secondary-default);
         }
     }
 
     &__footer {
         padding: 20px 32px;
         min-height: 80px;
-        background: $color-white;
-        border-top: 1px solid $color-gray-300;
+        background: var(--color-elevation-surface-raised);
+        border-top: 1px solid var(--color-border-primary-default);
         container: consent-footer / inline-size;
         display: flex;
         justify-content: space-between;
         align-items: flex-start;
         flex-wrap: wrap;
         gap: 16px;
-        border-radius: 0 0 $border-radius-lg $border-radius-lg;
+        border-radius: 0 0 var(--border-radius-card) var(--border-radius-card);
 
         &-decline-button {
             text-decoration: underline;
@@ -216,7 +216,7 @@
         &-authorization-message {
             font-size: $font-size-xxs;
             line-height: $line-height-sm;
-            color: $color-darkgray-200;
+            color: var(--color-text-secondary-default);
             text-align: right;
             max-width: 420px;
         }

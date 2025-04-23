@@ -1447,15 +1447,15 @@
       "sw-app-app-url-changed-modal": {
         "move-shop-permanently": {
           "name": "Migriere Deine Apps zur neuen Domain",
-          "description": "Verbindet Deine Apps mit der neuen Domain. Dadurch werden alle Apps für die alte Domain deaktiviert."
+          "description": "Dies ist in der Regel die richtige Option, wenn du deinen Shop dauerhaft von einer alten zu einer neuen Domain umgezogen hast. Shopware benachrichtigt die App-Server über die neue Domain (d.h. sie registrieren sich neu bei den App-Servern) und die Apps bleiben installiert. Die Shop-ID bleibt unverändert."
         },
         "reinstall-apps": {
           "name": "Installiere Deine Apps neu",
-          "description": "Verbindet Deine Apps mit der neuen und der alten Domain. Für kostenpflichtige Apps können zusätzliche Gebühren anfallen."
+          "description": "Dies ist in der Regel die richtige Option, wenn du eine Kopie deines Shops erstellt hast (z. B. eine Staging- oder Testumgebung eines Produktionsshops) und du die Apps in dieser Kopie verwenden möchtest. Shopware installiert die Apps neu und registriert sich mit der neuen Domain bei den App-Servern. Es wird eine neue Shop-ID generiert."
         },
         "uninstall-apps": {
           "name": "Deinstalliere Deine Apps",
-          "description": "Löscht alle App-Daten der neuen Domain. Die mit der alten Domain verbundenen Apps funktionieren weiterhin."
+          "description": "Dies ist normalerweise die richtige Option, wenn du eine Kopie deines Shops erstellt hast (z.B. eine Staging- oder Testumgebung eines Produktionsshops) und du die Apps in dieser Kopie nicht verwenden möchtest. Shopware löscht die Apps, ohne die App-Server zu benachrichtigen. Es wird eine neue Shop-ID generiert."
         },
         "title": "Domain-Änderung wurde festgestellt",
         "oldLabel": "Alte Domain: ",

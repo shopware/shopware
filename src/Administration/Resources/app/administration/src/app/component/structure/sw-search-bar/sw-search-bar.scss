@@ -1,8 +1,8 @@
 /* stylelint-disable max-nesting-depth */
 @import "~scss/variables";
 
-$sw-search-bar-border-color: $color-gray-300;
-$sw-search-bar-background-color: $color-white;
+$sw-search-bar-border-color: var(--color-border-primary-default);
+$sw-search-bar-background-color: var(--color-elevation-surface-default);
 $sw-search-bar-results-background-color: $color-white;
 $sw-search-bar-border-radius: $border-radius-default;
 $sw-search-bar-results-box-shadow: 0 3px 6px 0 rgba(120, 138, 155, 30%);
@@ -64,7 +64,7 @@ $sw-search-bar-types-item-border-radius: $border-radius-default;
         margin-bottom: 0;
         border: 1px solid $sw-search-bar-border-color;
         border-radius: $sw-search-bar-border-radius;
-        background-color: $color-white;
+        background-color: var(--color-elevation-surface-raised);
         padding: 9px 10px;
         position: relative;
         display: flex;
@@ -72,7 +72,7 @@ $sw-search-bar-types-item-border-radius: $border-radius-default;
         height: 50px;
 
         &.is--active {
-            border-color: $color-shopware-brand-500;
+            border-color: var(--color-border-brand-selected);
         }
 
         .sw-search-bar__field-icon {
@@ -82,7 +82,7 @@ $sw-search-bar-types-item-border-radius: $border-radius-default;
             height: 100%;
             width: 50px;
             right: 0;
-            color: $color-darkgray-200;
+            color: var(--color-icon-primary-default);
             text-align: center;
             line-height: 45px;
             background: 0 none;
@@ -166,13 +166,17 @@ $sw-search-bar-types-item-border-radius: $border-radius-default;
     }
 
     .sw-search-bar__input {
-        color: $color-darkgray-200;
+        color: var(--color-text-primary-default);
         flex-grow: 1;
         font-size: $font-size-xs;
         padding: 0 40px 0 15px;
         border: 0;
         background: none;
         outline: none;
+
+        &::placeholder {
+            color: var(--color-text-secondary-default);
+        }
     }
 
     .sw-search-bar__controls {

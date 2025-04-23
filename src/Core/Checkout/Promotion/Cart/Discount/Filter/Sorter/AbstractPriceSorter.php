@@ -45,16 +45,17 @@ abstract class AbstractPriceSorter implements FilterSorterInterface
     private function _sort(array $metaItems, DiscountPackage $package): array
     {
         $priceMap = [];
+        $cartItemPrice = [];
 
         foreach ($metaItems as $item) {
-            $price = $package->getCartItem($item->getLineItemId())->getPrice();
-
-            // use 0 as default price
-            $price = $price ? $price->getUnitPrice() : 0;
+            $itemId = $item->getLineItemId();
+            if (!isset($cartItemPrice[$itemId])) {
+                $cartItemPrice[$itemId] = (string) ($package->getCartItem($item->getLineItemId())->getPrice()?->getUnitPrice() ?? 0.0);
+            }
 
             // create grouped price map for small+faster sorting
             // floats are not allowed as array keys, so we need to cast them to string
-            $priceMap[(string) $price][] = $item;
+            $priceMap[$cartItemPrice[$itemId]][] = $item;
         }
 
         // @phpstan-ignore-next-line - phpstan do not recognize that the array key is a string

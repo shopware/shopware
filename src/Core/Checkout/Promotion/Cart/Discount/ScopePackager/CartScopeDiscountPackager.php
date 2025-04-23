@@ -60,21 +60,19 @@ class CartScopeDiscountPackager extends DiscountPackager
     private function getDiscountPackage(LineItemCollection $cartItems, bool $isAdvanceRuled): ?DiscountPackage
     {
         $discountItems = [];
+
         foreach ($cartItems as $cartLineItem) {
+            $item = new LineItemQuantity(
+                $cartLineItem->getId(),
+                $isAdvanceRuled ? 1 : $cartLineItem->getQuantity()
+            );
+
             if ($isAdvanceRuled) {
                 for ($i = 1; $i <= $cartLineItem->getQuantity(); ++$i) {
-                    $item = new LineItemQuantity(
-                        $cartLineItem->getId(),
-                        1
-                    );
-
-                    $discountItems[] = $item;
+                    $discountItems[] = clone $item;
                 }
             } else {
-                $discountItems[] = new LineItemQuantity(
-                    $cartLineItem->getId(),
-                    $cartLineItem->getQuantity()
-                );
+                $discountItems[] = $item;
             }
         }
 

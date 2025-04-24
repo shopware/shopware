@@ -4,6 +4,7 @@ namespace Shopware\Core\Checkout\Promotion\Cart\Discount;
 
 use Shopware\Core\Checkout\Cart\CartException;
 use Shopware\Core\Checkout\Cart\Price\Struct\PriceDefinitionInterface;
+use Shopware\Core\Checkout\Promotion\Cart\Discount\Filter\MaxUsage\MaxUsage;
 use Shopware\Core\Framework\Log\Package;
 
 #[Package('checkout')]
@@ -26,6 +27,8 @@ class DiscountLineItem
 
     private readonly string $filterPickerKey;
 
+    private readonly bool $considerAdvancedRules;
+
     /**
      * @param array<string, string|array<mixed>> $payload
      */
@@ -46,6 +49,7 @@ class DiscountLineItem
         $this->filterApplierKey = $payload['filter']['applierKey'] ?? '';
         $this->filterUsageKey = $payload['filter']['usageKey'] ?? '';
         $this->filterPickerKey = $payload['filter']['pickerKey'] ?? '';
+        $this->considerAdvancedRules = $payload['filter']['considerAdvancedRules'] ?? false;
     }
 
     /**
@@ -148,5 +152,15 @@ class DiscountLineItem
     public function getFilterPickerKey(): string
     {
         return $this->filterPickerKey;
+    }
+
+    public function isConsiderAdvancedRules(): bool
+    {
+        return $this->considerAdvancedRules;
+    }
+
+    public function isProductRestricted(): bool
+    {
+        return $this->considerAdvancedRules && $this->filterApplierKey !== MaxUsage::APPLIER_ALL;
     }
 }

@@ -38,23 +38,12 @@ class CartScopeDiscountPackager extends DiscountPackager
             $allItems = $allItems->filter(fn (LineItem $lineItem) => $priceDefinition->getFilter()->match(new LineItemScope($lineItem, $context)));
         }
 
-        $discountPackage = $this->getDiscountPackage($allItems, $this->isAdvanceRuled($discount));
+        $discountPackage = $this->getDiscountPackage($allItems, $discount->isProductRestricted());
         if ($discountPackage === null) {
             return new DiscountPackageCollection([]);
         }
 
         return new DiscountPackageCollection([$discountPackage]);
-    }
-
-    private function isAdvanceRuled(DiscountLineItem $discount): bool
-    {
-        if (!$discount->hasPayloadValue('filter')) {
-            return false;
-        }
-
-        $rules = $discount->getPayloadValue('filter')['considerAdvancedRules'] ?? false;
-
-        return $rules && $discount->getFilterApplierKey() !== 'ALL';
     }
 
     private function getDiscountPackage(LineItemCollection $cartItems, bool $isAdvanceRuled): ?DiscountPackage

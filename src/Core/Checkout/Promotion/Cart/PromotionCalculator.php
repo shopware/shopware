@@ -263,7 +263,7 @@ class PromotionCalculator
         // remember our initial package count
         $originalPackageCount = $packages->count();
 
-        $shouldSplit = $discount->getScope() !== PromotionDiscountEntity::SCOPE_CART || $this->isAdvanceRuled($discount);
+        $shouldSplit = $discount->getScope() !== PromotionDiscountEntity::SCOPE_CART || $discount->isProductRestricted();
         $splitItems = [];
         foreach ($calculatedCart->getLineItems() as $split) {
             $split->setStackable(true);
@@ -392,7 +392,7 @@ class PromotionCalculator
     }
 
     /**
-     * @param LineItem[] $splitItems
+     * @param array<string, LineItem> $splitItems
      *
      * @throws CartException
      */
@@ -418,16 +418,5 @@ class PromotionCalculator
     private function isAutomaticDiscount(LineItem $discountItem): bool
     {
         return empty($discountItem->getPayloadValue('code'));
-    }
-
-    private function isAdvanceRuled(DiscountLineItem $discount): bool
-    {
-        if (!$discount->hasPayloadValue('filter')) {
-            return false;
-        }
-
-        $rules = $discount->getPayloadValue('filter')['considerAdvancedRules'] ?? false;
-
-        return $rules && $discount->getFilterApplierKey() !== 'ALL';
     }
 }

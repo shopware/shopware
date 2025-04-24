@@ -28,6 +28,8 @@ export default class NavbarPlugin extends Plugin {
         const closeEvent = (DeviceDetection.isTouchDevice()) ? 'touchstart' : 'mouseleave';
         const clickEvent = (DeviceDetection.isTouchDevice()) ? 'touchstart' : 'click';
 
+        this.el.addEventListener('mouseleave', this._closeAllDropdowns.bind(this));
+
         this._topLevelLinks.forEach(el => {
             el.addEventListener(openEvent, this._toggleNavbar.bind(this, el));
             el.addEventListener(closeEvent, this._toggleNavbar.bind(this, el));
@@ -35,6 +37,7 @@ export default class NavbarPlugin extends Plugin {
                 el.addEventListener(clickEvent, this._navigateToLinkOnClick.bind(this, el));
             }
         });
+
         window.addEventListener('load', () => {
             this._setAriaCurrentPage();
         });
@@ -47,7 +50,6 @@ export default class NavbarPlugin extends Plugin {
             this._debounce(() => {
                 if (this._isMouseOver && currentDropdown?._menu && !currentDropdown._menu.classList.contains('show')) {
                     this._closeAllDropdowns();
-                    this.$emitter.publish('closeAllDropdowns');
                     currentDropdown.show();
                     this.$emitter.publish('showDropdown');
                 }
@@ -64,6 +66,8 @@ export default class NavbarPlugin extends Plugin {
                 dropdown.hide();
             }
         });
+
+        this.$emitter.publish('closeAllDropdowns');
     }
 
     /**

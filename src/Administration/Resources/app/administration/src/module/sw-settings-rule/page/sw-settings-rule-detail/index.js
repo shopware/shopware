@@ -448,6 +448,20 @@ export default {
         },
 
         onSave() {
+            const cleanConditions = (conditions) => {
+                if (!Array.isArray(conditions)) return;
+                conditions.forEach((condition) => {
+                    if (condition.value?.operator === 'empty') {
+                        condition.value = { operator: condition.value.operator };
+                    }
+                    if (condition.children && condition.children.length > 0) {
+                        cleanConditions(condition.children);
+                    }
+                });
+            };
+
+            cleanConditions(this.conditionTree);
+
             if (!this.validateRuleAwareness()) {
                 return Promise.resolve();
             }

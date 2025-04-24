@@ -172,7 +172,6 @@
             <argument type="service" id="logger"/>
             <argument type="service" id="Doctrine\DBAL\Connection"/>
             <argument type="service" id="shopware.filesystem.theme"/>
-            <argument type="service" id="Shopware\Core\Framework\Adapter\Cache\CacheInvalidator"/>
             <argument type="service" id="Shopware\Storefront\Theme\AbstractThemePathBuilder"/>
 
             <tag name="messenger.message_handler"/>

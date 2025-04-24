@@ -9,7 +9,6 @@ use League\Flysystem\FilesystemOperator;
 use League\Flysystem\FilesystemReader;
 use League\Flysystem\StorageAttributes;
 use Psr\Log\LoggerInterface;
-use Shopware\Core\Framework\Adapter\Cache\CacheInvalidator;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\MessageQueue\ScheduledTask\ScheduledTaskHandler;
@@ -28,7 +27,6 @@ final class DeleteThemeFilesTaskHandler extends ScheduledTaskHandler
         LoggerInterface $exceptionLogger,
         private readonly Connection $connection,
         private readonly FilesystemOperator $themeFileSystem,
-        private readonly CacheInvalidator $cacheInvalidator,
         private readonly AbstractThemePathBuilder $themePathBuilder,
     ) {
         parent::__construct($scheduledTaskRepository, $exceptionLogger);
@@ -61,7 +59,6 @@ final class DeleteThemeFilesTaskHandler extends ScheduledTaskHandler
         foreach ($themeDirectories as $themeDirectory) {
             $themePath = $themeDirectory->path();
             $this->themeFileSystem->deleteDirectory($themePath);
-            $this->cacheInvalidator->invalidate(['theme_scripts_' . $themePath]);
         }
     }
 

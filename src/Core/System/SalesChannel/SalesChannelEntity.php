@@ -212,9 +212,9 @@ class SalesChannelEntity extends Entity
 
     protected ?MeasurementSystemEntity $defaultMeasurementSystem = null;
 
-    protected ?string $defaultWeightUnitId = null;
+    protected ?string $defaultMassUnitId = null;
 
-    protected ?MeasurementDisplayUnitEntity $defaultWeightUnit = null;
+    protected ?MeasurementDisplayUnitEntity $defaultMassUnit = null;
 
     protected ?string $defaultLengthUnitId = null;
 
@@ -994,24 +994,24 @@ class SalesChannelEntity extends Entity
         $this->defaultMeasurementSystem = $defaultMeasurementSystem;
     }
 
-    public function getDefaultWeightUnitId(): ?string
+    public function getDefaultMassUnitId(): ?string
     {
-        return $this->defaultWeightUnitId;
+        return $this->defaultMassUnitId;
     }
 
-    public function setDefaultWeightUnitId(?string $defaultWeightUnitId): void
+    public function setDefaultMassUnitId(?string $defaultMassUnitId): void
     {
-        $this->defaultWeightUnitId = $defaultWeightUnitId;
+        $this->defaultMassUnitId = $defaultMassUnitId;
     }
 
-    public function getDefaultWeightUnit(): ?MeasurementDisplayUnitEntity
+    public function getDefaultMassUnit(): ?MeasurementDisplayUnitEntity
     {
-        return $this->defaultWeightUnit;
+        return $this->defaultMassUnit;
     }
 
-    public function setDefaultWeightUnit(?MeasurementDisplayUnitEntity $defaultWeightUnit): void
+    public function setDefaultMassUnit(?MeasurementDisplayUnitEntity $defaultMassUnit): void
     {
-        $this->defaultWeightUnit = $defaultWeightUnit;
+        $this->defaultMassUnit = $defaultMassUnit;
     }
 
     public function getDefaultLengthUnitId(): ?string

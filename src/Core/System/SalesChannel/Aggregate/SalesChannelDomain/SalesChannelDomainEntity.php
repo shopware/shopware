@@ -42,9 +42,9 @@ class SalesChannelDomainEntity extends Entity
 
     protected ?MeasurementSystemEntity $measurementSystem = null;
 
-    protected ?string $weightUnitId = null;
+    protected ?string $massUnitId = null;
 
-    protected ?MeasurementDisplayUnitEntity $weightUnit = null;
+    protected ?MeasurementDisplayUnitEntity $massUnit = null;
 
     protected ?string $lengthUnitId = null;
 
@@ -156,24 +156,24 @@ class SalesChannelDomainEntity extends Entity
         $this->measurementSystem = $measurementSystem;
     }
 
-    public function getWeightUnitId(): ?string
+    public function getMassUnitId(): ?string
     {
-        return $this->weightUnitId;
+        return $this->massUnitId;
     }
 
-    public function setWeightUnitId(?string $weightUnitId): void
+    public function setMassUnitId(?string $massUnitId): void
     {
-        $this->weightUnitId = $weightUnitId;
+        $this->massUnitId = $massUnitId;
     }
 
-    public function getWeightUnit(): ?MeasurementDisplayUnitEntity
+    public function getMassUnit(): ?MeasurementDisplayUnitEntity
     {
-        return $this->weightUnit;
+        return $this->massUnit;
     }
 
-    public function setWeightUnit(?MeasurementDisplayUnitEntity $weightUnit): void
+    public function setMassUnit(?MeasurementDisplayUnitEntity $massUnit): void
     {
-        $this->weightUnit = $weightUnit;
+        $this->massUnit = $massUnit;
     }
 
     public function getLengthUnitId(): ?string

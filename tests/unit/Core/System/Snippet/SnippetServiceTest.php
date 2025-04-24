@@ -7,19 +7,17 @@ use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
+use Psr\EventDispatcher\EventDispatcherInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\Extensions\ExtensionDispatcher;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
+use Shopware\Core\System\Snippet\Event\SnippetsThemeResolveEvent;
 use Shopware\Core\System\Snippet\Files\SnippetFileCollection;
 use Shopware\Core\System\Snippet\Filter\SnippetFilterFactory;
 use Shopware\Core\System\Snippet\SnippetException;
 use Shopware\Core\System\Snippet\SnippetService;
-use Shopware\Storefront\Theme\DatabaseSalesChannelThemeLoader;
-use Shopware\Storefront\Theme\StorefrontPluginRegistry;
-use Shopware\Storefront\Theme\ThemeRuntimeConfigService;
 use Shopware\Tests\Unit\Core\System\Snippet\Mock\MockSnippetFile;
-use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\EventDispatcher\EventDispatcher;
 use Symfony\Component\Translation\MessageCatalogue;
 
@@ -53,86 +51,35 @@ class SnippetServiceTest extends TestCase
         array $catalogMessages = [],
         ?string $fallbackLocale = null,
         ?string $salesChannelId = null,
-        bool $withThemeRegistry = true,
         ?string $usedTheme = null,
         array $databaseSnippets = []
     ): void {
-        $classExists = class_exists(StorefrontPluginRegistry::class);
-
-        if ($withThemeRegistry && !$classExists) {
-            $this->testGetStorefrontSnippetsWithoutThemeRegistry();
-
-            return;
-        }
-
         if ($expected instanceof \Throwable) {
             $this->expectException($expected::class);
         }
 
-        $container = $this->createMock(ContainerInterface::class);
-        $container->method('has')->with(StorefrontPluginRegistry::class)->willReturn($withThemeRegistry);
         $this->connection->expects($this->once())->method('fetchOne')->willReturn($fetchLocaleResult);
+        $dispatcher = new EventDispatcher();
 
-        $runtimeConfigService = $this->createMock(ThemeRuntimeConfigService::class);
-        $runtimeConfigService->method('getActiveThemeNames')->willReturn(['Storefront', 'SwagTheme']);
+        $currentThemeName = $usedTheme ?? 'Storefront';
 
-        $cachedThemeLoader = null;
-        if ($salesChannelId !== null) {
-            $expectedDB = [
-                'themeName' => $usedTheme ?? 'Storefront',
-                'parentThemeName' => null,
-                'themeId' => Uuid::randomHex(),
-            ];
-            $connectionMock = $this->createMock(Connection::class);
-            $connectionMock->expects($this->once())->method('fetchAssociative')->willReturn($expectedDB);
-            $cachedThemeLoader = new DatabaseSalesChannelThemeLoader($connectionMock);
-        }
+        $dispatcher->addListener(SnippetsThemeResolveEvent::class, static function (SnippetsThemeResolveEvent $event) use ($currentThemeName): void {
+            $activeThemeNames = ['Storefront', 'SwagTheme'];
+            $event->setUsedThemes(array_values(array_unique([$currentThemeName, 'Storefront'])));
+            $event->setUnusedThemes(array_values(array_diff($activeThemeNames, [$currentThemeName])));
+        });
 
         if ($databaseSnippets !== []) {
             $this->connection->expects($this->once())->method('fetchAllKeyValue')->willReturn($databaseSnippets);
         }
 
-        $snippetService = new SnippetService(
-            $this->connection,
-            $this->snippetCollection,
-            $this->createMock(EntityRepository::class),
-            $this->createMock(EntityRepository::class),
-            $this->createMock(SnippetFilterFactory::class),
-            $container,
-            new ExtensionDispatcher(new EventDispatcher()),
-            $cachedThemeLoader,
-            $runtimeConfigService,
-        );
-
-        $snippetService = $this->createSnippetService(
-            $container,
-            $cachedThemeLoader,
-            $runtimeConfigService,
-        );
+        $snippetService = $this->createSnippetService($dispatcher);
 
         $catalog = new MessageCatalogue((string) $fetchLocaleResult, ['messages' => $catalogMessages]);
 
         $snippets = $snippetService->getStorefrontSnippets($catalog, Uuid::randomHex(), $fallbackLocale, $salesChannelId);
 
         static::assertEquals($expected, $snippets);
-    }
-
-    public function testGetStorefrontSnippetsWithoutThemeRegistry(): void
-    {
-        $locale = 'de-DE';
-        $snippetSetId = Uuid::randomHex();
-        $catalog = new MessageCatalogue($locale, []);
-
-        $container = $this->createMock(ContainerInterface::class);
-        $container->expects($this->exactly(2))->method('has')->with(StorefrontPluginRegistry::class)->willReturn(false);
-
-        $snippetService = $this->createSnippetService($container);
-
-        $snippets = $snippetService->getStorefrontSnippets($catalog, $snippetSetId, $locale);
-
-        static::assertSame([
-            'title' => 'SwagTheme DE',
-        ], $snippets);
     }
 
     public function testFindSnippetSetIdWithSalesChannelDomain(): void
@@ -193,7 +140,6 @@ class SnippetServiceTest extends TestCase
             'catalogMessages' => [],
             'fallbackLocale' => null,
             'salesChannelId' => null,
-            'withThemeRegistry' => false,
         ];
 
         yield 'with messages from catalog' => [
@@ -254,7 +200,6 @@ class SnippetServiceTest extends TestCase
             ],
             'fallbackLocale' => 'en-GB',
             'salesChannelId' => null,
-            'withThemeRegistry' => true,
             'usedTheme' => null,
             'databaseSnippets' => [
                 'title' => 'Database title',
@@ -269,7 +214,6 @@ class SnippetServiceTest extends TestCase
             'catalogMessages' => [],
             'fallbackLocale' => 'en-GB',
             'salesChannelId' => Uuid::randomHex(),
-            'withThemeRegistry' => true,
             'usedTheme' => null,
             'databaseSnippets' => [],
         ];
@@ -282,7 +226,6 @@ class SnippetServiceTest extends TestCase
             'catalogMessages' => [],
             'fallbackLocale' => 'en-GB',
             'salesChannelId' => Uuid::randomHex(),
-            'withThemeRegistry' => true,
             'usedTheme' => 'SwagTheme',
         ];
 
@@ -298,7 +241,6 @@ class SnippetServiceTest extends TestCase
             ],
             'fallbackLocale' => 'en-GB',
             'salesChannelId' => Uuid::randomHex(),
-            'withThemeRegistry' => true,
             'usedTheme' => 'SwagTheme',
             'databaseSnippets' => [
                 'title' => 'Database title',
@@ -315,9 +257,7 @@ class SnippetServiceTest extends TestCase
     }
 
     private function createSnippetService(
-        ?ContainerInterface $container = null,
-        ?DatabaseSalesChannelThemeLoader $themeLoader = null,
-        ?ThemeRuntimeConfigService $runtimeConfigService = null,
+        ?EventDispatcherInterface $eventDispatcher = null,
     ): SnippetService {
         return new SnippetService(
             $this->connection,
@@ -325,10 +265,8 @@ class SnippetServiceTest extends TestCase
             $this->createMock(EntityRepository::class),
             $this->createMock(EntityRepository::class),
             $this->createMock(SnippetFilterFactory::class),
-            $container ?? $this->createMock(ContainerInterface::class),
             new ExtensionDispatcher(new EventDispatcher()),
-            $themeLoader,
-            $runtimeConfigService,
+            $eventDispatcher ?? new EventDispatcher(),
         );
     }
 }

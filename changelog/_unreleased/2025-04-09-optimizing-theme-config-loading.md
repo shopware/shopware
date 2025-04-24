@@ -17,6 +17,7 @@ ___
 * Changed `\Shopware\Storefront\Theme\CachedResolvedConfigLoaderInvalidator` name to `\Shopware\Storefront\Theme\ThemeConfigCacheInvalidator`
 * Deprecated `\Shopware\Storefront\Theme\CachedResolvedConfigLoader`, as it is no longer used in the storefront
 * Deprecated `\Shopware\Storefront\Theme\Exception\ThemeAssignmentException`
+* Deprecated `\Shopware\Core\System\Snippet\SnippetService::getUnusedThemes` method, replacement will not be provided.
 ___
 # Upgrade Information
 ## Theme configuration changes

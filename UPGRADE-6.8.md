@@ -137,7 +137,11 @@ Use the new `Shopware\Core\Framework\Rule\RuleIdMatcher` instead.
 It allows filtering of `RuleIdAware` objects in either arrays or collections.
 
 ## Added `primaryOrderDelivery` and `primaryOrderTransaction`
-For user interfaces that display only one delivery & transaction, there is now a new reference in the order for a `primaryOrderDelivery` or `primaryOrderTransaction`. If an extension modifies or adds new deliveries or transactions, this should be taken into account. By default, the reference will behave like default Shopware behavior, meaning `delivery.first()` and `transaction.last()`.
+Currently, there are multiple order deliveries and multiple order transactions per order. If only one, the "primary", order delivery and order transaction is displayed and used in the administration, there is now an easy way in version 6.8 using the `primaryOrderDelivery` and `primaryOrderTransaction`. All existing orders will be updated with a migration so that they also have the primary values.
+## Use `primaryOrderDelivery`
+Get the first order delivery with `primaryOrderDelivery` so you should replace methods like `deliveries.first()` or `deliveries[0]`
+## Use `primaryOrderTransaction`
+Get the latest order transaction with `primaryOrderTransaction` so you should replace methods like `transaction.last()`
 
 # Administration
 

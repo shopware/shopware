@@ -3,6 +3,8 @@
     {% if page.order %}
         {% set order = page.order %}
         {% set billingAddress = order.billingAddress %}
+        {# @deprecated tag:v6.8.0 - deliveries will be removed, use primaryOrderDelivery instead #}
+        {% set deliveries = order.deliveries.elements %}
 
         {% if feature('v6.8.0.0') %}
             {% if order.billingAddress.id != order.primaryOrderDelivery.shippingOrderAddressId %}
@@ -11,13 +13,11 @@
                 {% set shippingAddress = billingAddress %}
             {% endif %}
         {% else %}
-                {% set deliveries = order.deliveries.elements %}
-
-                {% if deliveries|length > 0 and order.billingAddress.id != deliveries|first.shippingOrderAddressId %}
-                    {% set shippingAddress = deliveries|first.shippingOrderAddress %}
-                {% else %}
-                    {% set shippingAddress = billingAddress %}
-                {% endif %}
+            {% if deliveries|length > 0 and order.billingAddress.id != deliveries|first.shippingOrderAddressId %}
+                {% set shippingAddress = deliveries|first.shippingOrderAddress %}
+            {% else %}
+                {% set shippingAddress = billingAddress %}
+            {% endif %}
         {% endif %}
 
     {% else %}

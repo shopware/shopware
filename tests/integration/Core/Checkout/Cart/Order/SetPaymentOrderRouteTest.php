@@ -74,10 +74,8 @@ class SetPaymentOrderRouteTest extends TestCase
 
         $this->setPaymentOrderRoute->setPayment($request, $context);
 
-        /**
-         * @var OrderEntity $order
-         */
         $order = $this->orderRepository->search(new Criteria(), $context->getContext())->first();
+        static::assertInstanceOf(OrderEntity::class, $order);
         static::assertNotNull($order->getPrimaryOrderTransactionId());
     }
 

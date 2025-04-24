@@ -105,8 +105,8 @@ class AccountOrderPageLoaderTest extends TestCase
         $salesChannel = $this->createSalesChannelContextWithLoggedInCustomerAndWithNavigation();
 
         $orderId = $this->placeRandomOrder($salesChannel);
-        /** @var OrderEntity $order */
         $order = $this->orderRepository->search(new Criteria([$orderId]), $salesChannel->getContext())->getEntities()->first();
+        static::assertInstanceOf(OrderEntity::class, $order);
         $deepLinkCode = $order->getDeepLinkCode();
 
         $page = $this->getPageLoader()->load(
@@ -120,9 +120,9 @@ class AccountOrderPageLoaderTest extends TestCase
             $salesChannel
         );
 
-        /** @var OrderEntity $order */
         $order = $page->getOrders()->first();
 
+        static::assertInstanceOf(OrderEntity::class, $order);
         static::assertNotNull($order->getPrimaryOrderDelivery());
         static::assertNotNull($order->getPrimaryOrderTransaction());
         static::assertNotNull($order->getPrimaryOrderTransactionId());

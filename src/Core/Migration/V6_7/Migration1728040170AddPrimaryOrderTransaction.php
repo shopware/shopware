@@ -2,7 +2,9 @@
 
 namespace Shopware\Core\Migration\V6_7;
 
+use Doctrine\DBAL\ArrayParameterType;
 use Doctrine\DBAL\Connection;
+use Doctrine\DBAL\ParameterType;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Migration\MigrationStep;
 
@@ -27,10 +29,26 @@ class Migration1728040170AddPrimaryOrderTransaction extends MigrationStep
                 'ALTER TABLE `order`
                 ADD COLUMN `primary_order_transaction_id` BINARY(16) NULL DEFAULT NULL,
                 ADD COLUMN `primary_order_transaction_version_id` BINARY(16) NULL DEFAULT NULL,
-                ADD UNIQUE INDEX `uidx.order.primary_order_transaction` (`id`, `version_id`, `primary_order_transaction_id`);'
+                ADD UNIQUE INDEX `uidx.order.primary_order_transaction` (`id`, `version_id`, `primary_order_transaction_id`),
+                ADD CONSTRAINT `fk.order.primary_order_transaction` FOREIGN KEY (`primary_order_transaction_id`)
+                    REFERENCES `order_transaction` (`id`) ON DELETE SET NULL ON UPDATE CASCADE'
             );
-            $connection->executeStatement(
-                'UPDATE `order`
+
+            $updateLimit = 1000;
+
+            do {
+                $ids = $connection->fetchFirstColumn(
+                    'SELECT `id` FROM `order` WHERE `primary_order_transaction_id` IS NULL LIMIT :limit',
+                    ['limit' => $updateLimit],
+                    ['limit' => ParameterType::INTEGER]
+                );
+
+                if (empty($ids)) {
+                    break;
+                }
+
+                $connection->executeStatement(
+                    'UPDATE `order`
                 INNER JOIN `order_transaction` as `primary_order_transaction`
                     ON `primary_order_transaction`.`order_id` = `order`.`id`
                     AND `primary_order_transaction`.`order_version_id` = `order`.`version_id`
@@ -44,8 +62,11 @@ class Migration1728040170AddPrimaryOrderTransaction extends MigrationStep
                     )
                 SET `order`.`primary_order_transaction_id` = `primary_order_transaction`.`id`,
                     `order`.`primary_order_transaction_version_id` = `primary_order_transaction`.`order_version_id`
-                WHERE `order`.`primary_order_transaction_id` IS NULL;'
-            );
+                WHERE `order`.`id` IN (:ids);',
+                    ['ids' => $ids],
+                    ['ids' => ArrayParameterType::BINARY]
+                );
+            } while (\count($ids) === $updateLimit);
         }
     }
 }

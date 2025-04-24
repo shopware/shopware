@@ -59,10 +59,8 @@ class OrderRecalculationControllerTest extends TestCase
 
         $this->context->assign(['versionId' => $versionId]);
 
-        /**
-         * @var OrderEntity $order
-         */
         $order = $this->orderRepository->search(new Criteria(), $this->context)->first();
+        static::assertInstanceOf(OrderEntity::class, $order);
 
         static::assertSame(Response::HTTP_NOT_FOUND, $browser->getResponse()->getStatusCode(), (string) $browser->getResponse()->getContent());
         static::assertSame($primaryOrderDeliveryId, $order->getPrimaryOrderDeliveryId());

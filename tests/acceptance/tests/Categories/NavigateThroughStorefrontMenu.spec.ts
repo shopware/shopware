@@ -12,7 +12,7 @@ test(
         const subCategory2 = await TestDataService.createCategory({ parentId: category2.id });
         const subCategory3 = await TestDataService.createCategory({ parentId: category3.id });
 
-        await test.step.skip('Verify if folder category has a sub category and the folder category in breadcrumb is a div element. ' + 'Blocked by https://github.com/shopware/shopware/issues/7670', async () => {
+        await test.step('Verify if folder category has a sub category and the folder category in breadcrumb is a div element.', async () => {
             
             const mainCategoryLocators = await StorefrontHome.getMenuItemByCategoryName(category1.name);
             const subCategoryLocators = await StorefrontHome.getMenuItemByCategoryName(subCategory1.name);

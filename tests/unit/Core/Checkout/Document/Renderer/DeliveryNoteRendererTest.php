@@ -55,18 +55,18 @@ class DeliveryNoteRendererTest extends TestCase
 
         $orderRepositoryMock = $this->createMock(EntityRepository::class);
         $orderRepositoryMock
-            ->expects(static::once())
+            ->expects($this->once())
             ->method('search')
             ->willReturn($orderSearchResult);
 
         $orderRepositoryMock
-            ->expects(static::once())
+            ->expects($this->once())
             ->method('createVersion')
             ->willReturn('new-order-version-id');
 
         $connectionMock = $this->createMock(Connection::class);
         $connectionMock
-            ->expects(static::once())
+            ->expects($this->once())
             ->method('fetchAllAssociative')
             ->willReturn([
                 [

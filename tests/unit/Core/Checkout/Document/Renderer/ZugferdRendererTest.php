@@ -64,24 +64,24 @@ class ZugferdRendererTest extends TestCase
 
         $orderRepositoryMock = $this->createMock(EntityRepository::class);
         $orderRepositoryMock
-            ->expects(static::once())
+            ->expects($this->once())
             ->method('search')
             ->willReturn($orderSearchResult);
 
         $orderRepositoryMock
-            ->expects(static::once())
+            ->expects($this->once())
             ->method('createVersion')
             ->willReturn('new-order-version-id');
 
         $connection = $this->createMock(Connection::class);
         $connection
-            ->expects(static::once())
+            ->expects($this->once())
             ->method('fetchAllAssociative')
             ->willReturn([['language_id' => Defaults::LANGUAGE_SYSTEM, 'ids' => self::ORDER_ID]]);
 
         $builder = $this->createMock(ZugferdBuilder::class);
         $builder
-            ->expects(static::once())
+            ->expects($this->once())
             ->method('buildDocument')
             ->willReturn('<?xml version="1.0" encoding="UTF-8"?>');
 

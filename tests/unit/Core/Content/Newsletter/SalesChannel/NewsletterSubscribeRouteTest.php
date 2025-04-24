@@ -81,7 +81,7 @@ class NewsletterSubscribeRouteTest extends TestCase
 
         $eventDispatcher = $this->createMock(EventDispatcherInterface::class);
         $eventDispatcher
-            ->expects(static::once())
+            ->expects($this->once())
             ->method('dispatch')
             ->willReturnOnConsecutiveCalls(
                 static::isInstanceOf(BuildValidationEvent::class),
@@ -132,7 +132,7 @@ class NewsletterSubscribeRouteTest extends TestCase
 
         $eventDispatcher = $this->createMock(EventDispatcherInterface::class);
         $eventDispatcher
-            ->expects(static::once())
+            ->expects($this->once())
             ->method('dispatch')
             ->willReturnOnConsecutiveCalls(
                 static::isInstanceOf(BuildValidationEvent::class),
@@ -257,7 +257,7 @@ class NewsletterSubscribeRouteTest extends TestCase
 
         $rateLimiterMock = $this->createMock(RateLimiter::class);
         $rateLimiterMock
-            ->expects(static::once())
+            ->expects($this->once())
             ->method('ensureAccepted')
             ->willReturnCallback(function (string $route, string $key): void {
                 static::assertSame($route, RateLimiter::NEWSLETTER_FORM);
@@ -297,7 +297,7 @@ class NewsletterSubscribeRouteTest extends TestCase
 
         $rateLimiterMock = $this->createMock(RateLimiter::class);
         $rateLimiterMock
-            ->expects(static::once())
+            ->expects($this->once())
             ->method('ensureAccepted')
             ->willThrowException(new RateLimitExceededException(2));
 

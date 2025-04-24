@@ -48,7 +48,7 @@ class HealthCheckControllerTest extends TestCase
         ];
 
         $result = new Result('SaleChannelReadiness', Status::OK, 'All sales channels are OK', true, $extra);
-        $systemChecker->expects(static::once())
+        $systemChecker->expects($this->once())
             ->method('check')
             ->willReturn([$result]);
 

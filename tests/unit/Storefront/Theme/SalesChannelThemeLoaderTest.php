@@ -38,7 +38,7 @@ class SalesChannelThemeLoaderTest extends TestCase
             'themeId' => Uuid::randomHex(),
         ];
 
-        $this->connection->expects(static::exactly(2))->method('fetchAssociative')->willReturnOnConsecutiveCalls($expectedTheme, []);
+        $this->connection->expects($this->exactly(2))->method('fetchAssociative')->willReturnOnConsecutiveCalls($expectedTheme, []);
         $salesChannelId = Uuid::randomHex();
 
         $actualTheme = $this->themeLoader->load($salesChannelId);
@@ -84,7 +84,7 @@ class SalesChannelThemeLoaderTest extends TestCase
             'parentThemeName' => null,
             'themeId' => Uuid::randomHex(),
         ];
-        $this->connection->expects(static::exactly(1))->method('fetchAssociative')->willReturn($expectedTheme);
+        $this->connection->expects($this->exactly(1))->method('fetchAssociative')->willReturn($expectedTheme);
 
         $salesChannelId = Uuid::randomHex();
 

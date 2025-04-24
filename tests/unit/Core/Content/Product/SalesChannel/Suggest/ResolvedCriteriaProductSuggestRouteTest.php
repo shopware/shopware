@@ -79,15 +79,15 @@ class ResolvedCriteriaProductSuggestRouteTest extends TestCase
         $criteria = new Criteria();
 
         $builder = $this->createMock(ProductSearchBuilderInterface::class);
-        $builder->expects(static::once())->method('build');
+        $builder->expects($this->once())->method('build');
 
         $dispatcher = new EventDispatcher();
         $listener = $this->createMock(CallableClass::class);
-        $listener->expects(static::exactly(1))->method('__invoke');
+        $listener->expects($this->exactly(1))->method('__invoke');
         $dispatcher->addListener(ProductSuggestCriteriaEvent::class, $listener);
 
         $resultListener = $this->createMock(CallableClass::class);
-        $resultListener->expects(static::exactly(1))->method('__invoke');
+        $resultListener->expects($this->exactly(1))->method('__invoke');
         $dispatcher->addListener(ProductSuggestResultEvent::class, $resultListener);
 
         $context = $this->createMock(SalesChannelContext::class);

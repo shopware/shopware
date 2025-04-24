@@ -429,4 +429,46 @@ return (new Config())
             }
         }
     })
+    // check for the testsuite name containing "core" as we have split the core integration tests into multiple suites
+    ->useRule(function (Context $context): void {
+        $addedTests = $context->platform->pullRequest->getFiles()
+            ->filter(fn (File $file) => in_array($file->status, [File::STATUS_ADDED, File::STATUS_MODIFIED, File::STATUS_RENAMED], true))
+            ->matches('tests/integration/Core/Framework/**/*Test.php');
+
+        if (\count($addedTests) === 0) {
+            return;
+        }
+
+        $missingDescriptions = [];
+        $descriptions = [];
+        $phpUnitConfig = __DIR__ . '/phpunit.xml.dist';
+        $dom = new DOMDocument();
+        if ($dom->load($phpUnitConfig) === false) {
+            $context->failure(sprintf('Was not able to load phpunit config file %s. Please check configuration.', $phpUnitConfig));
+            return;
+        }
+
+        $xpath = new DOMXPath($dom);
+        foreach ($xpath->query('//testsuite[contains(@name, "core")]') as $dirDomElement) {
+            $descriptions[] = $dirDomElement->nodeValue;
+        }
+
+        foreach ($addedTests as $file) {
+            $fileLocation = dirname($file->name);
+            if ($fileLocation === 'tests/integration/Core/Framework') {
+                $fileLocation = $file->name;
+            }
+
+            if (!in_array($fileLocation, $descriptions, true)) {
+                $missingDescriptions[] = $fileLocation;
+            }
+        }
+
+        if (\count($missingDescriptions) > 0) {
+            $context->failure(
+                'Please add the integration test(s) within one of the core-batch testsuite of phpunit.xml.dist: <br/><br/>'
+                . implode('<br/>', $missingDescriptions)
+            );
+        }
+    })
 ;

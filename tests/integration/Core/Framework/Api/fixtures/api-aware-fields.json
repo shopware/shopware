@@ -253,6 +253,7 @@
     "measurement_system.createdAt",
     "measurement_system.updatedAt",
     "measurement_system.translated",
+    "measurement_system.units",
     "measurement_system.salesChannelDomains",
     "measurement_system.defaultSalesChannels",
     "measurement_system_translation.name",

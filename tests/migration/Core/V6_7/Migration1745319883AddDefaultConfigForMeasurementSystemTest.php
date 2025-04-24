@@ -29,7 +29,7 @@ class Migration1745319883AddDefaultConfigForMeasurementSystemTest extends TestCa
         // Clean up any existing data for the tested keys
         $this->connection->executeStatement('DELETE FROM system_config WHERE configuration_key IN (
             "core.measurementSystem.type",
-            "core.measurementSystem.dimensionUnit",
+            "core.measurementSystem.lengthUnit",
             "core.measurementSystem.massUnit"
         )');
 
@@ -40,7 +40,7 @@ class Migration1745319883AddDefaultConfigForMeasurementSystemTest extends TestCa
     {
         // Ensure the keys do not exist before the migration
         static::assertFalse($this->configExists('core.measurementSystem.type'));
-        static::assertFalse($this->configExists('core.measurementSystem.dimensionUnit'));
+        static::assertFalse($this->configExists('core.measurementSystem.lengthUnit'));
         static::assertFalse($this->configExists('core.measurementSystem.massUnit'));
 
         // Run the migration
@@ -49,7 +49,7 @@ class Migration1745319883AddDefaultConfigForMeasurementSystemTest extends TestCa
 
         // Verify the inserted values
         $this->assertConfigValue('core.measurementSystem.type', '{"_value": "metric"}');
-        $this->assertConfigValue('core.measurementSystem.dimensionUnit', '{"_value": "mm"}');
+        $this->assertConfigValue('core.measurementSystem.lengthUnit', '{"_value": "mm"}');
         $this->assertConfigValue('core.measurementSystem.massUnit', '{"_value": "kg"}');
     }
 

@@ -1,6 +1,7 @@
 ---
 title: Create migration and DAL for measurement system
-issue: NEXT-40951
+issue: 7730
 ---
 # Core
 * Added migrations for measurement system tables
+* Added migration to add default config for measurement system

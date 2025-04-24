@@ -248,6 +248,8 @@
                             plain-appearance
                         >
 
+                            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+                            {% block sw_cms_element_product_listing_config_filter_property_grid_columns %}
                             <template #column-status="{ item, column }">
                                 {% block sw_cms_element_product_listing_config_filter_property_grid_column_status %}
 
@@ -258,6 +260,7 @@
                                 />
                             {% endblock %}
                             </template>
+                            {% endblock %}
 
                             <template #pagination>
                                 {% block sw_cms_element_product_listing_config_filter_property_grid_pagination %}

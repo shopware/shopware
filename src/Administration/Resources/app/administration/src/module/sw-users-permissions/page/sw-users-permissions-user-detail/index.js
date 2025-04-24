@@ -389,7 +389,7 @@ export default {
                 ];
             }
 
-            return Promise.all(promises).then(
+            return Promise.all(promises).then(() => {
                 this.checkEmail()
                     .then(() => {
                         if (this.isEmailAlreadyInUse) {
@@ -418,6 +418,20 @@ export default {
                         return this.userRepository
                             .save(this.user, context)
                             .then(() => {
+                                if (this.user.password) {
+                                    return this.loginService.verifyUserToken(this.user.password).then((verifiedToken) => {
+                                        Shopware.Store.get('context').api.authToken.access = verifiedToken;
+                                        const authObject = {
+                                            ...this.loginService.getBearerAuthentication(),
+                                            access: verifiedToken,
+                                        };
+
+                                        this.loginService.setBearerAuthentication(authObject);
+
+                                        return this.updateCurrentUser();
+                                    });
+                                }
+
                                 return this.updateCurrentUser();
                             })
                             .then(() => {
@@ -442,8 +456,8 @@ export default {
                     .catch(() => Promise.reject())
                     .finally(() => {
                         this.isLoading = false;
-                    }),
-            );
+                    });
+            });
         },
 
         updateCurrentUser() {

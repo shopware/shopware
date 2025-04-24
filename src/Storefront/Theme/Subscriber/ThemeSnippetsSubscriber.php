@@ -24,11 +24,11 @@ class ThemeSnippetsSubscriber implements EventSubscriberInterface
     public static function getSubscribedEvents(): array
     {
         return [
-            SnippetsThemeResolveEvent::class => 'onThemeSnippets',
+            SnippetsThemeResolveEvent::class => 'onSnippetsThemeResolve',
         ];
     }
 
-    public function onThemeSnippets(SnippetsThemeResolveEvent $event): void
+    public function onSnippetsThemeResolve(SnippetsThemeResolveEvent $event): void
     {
         $salesChannelId = $event->getSalesChannelId();
 

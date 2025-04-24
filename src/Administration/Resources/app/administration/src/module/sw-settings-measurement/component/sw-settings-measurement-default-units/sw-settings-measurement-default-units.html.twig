@@ -11,29 +11,40 @@
         columns="1fr 1fr 1fr"
         gap="0 32px"
     >
-        <sw-single-select
-            v-model:value="measurementSystemConfig.type"
-            hide-clearable-button
-            value-property="technicalName"
-            label-property="translated.name"
-            :options="measurementSystemOptions.type"
-            @update:value="onMeasurementSystemConfigTypeChange"
-        />
+        <sw-entity-single-select
+            v-model:value="measurementSystem.typeId"
+            entity="measurement_system"
+            :label="$t('sw-settings-measurement.defaultUnits.config.type')"
+            :label-callback="labelSystemCallback"
+            @update:value="onChangeMeasurementSystem"
+        >
+            <template #selection-label-property="{ item }">
+                {{ labelSystemCallback(item) }}
+            </template>
+        </sw-entity-single-select>
 
-        <sw-single-select
-            v-model:value="measurementSystemConfig.lengthUnit"
-            hide-clearable-button
-            value-property="shortName"
-            label-property="translated.name"
-            :options="measurementSystemOptions.lengthUnit"
-        />
+        <sw-entity-single-select
+            v-model:value="measurementSystem.lengthUnitId"
+            entity="measurement_display_unit"
+            :criteria="lengthUnitCriteria"
+            :label="$t('sw-settings-measurement.defaultUnits.config.lengthUnit')"
+            :label-callback="labelUnitCallback"
+        >
+            <template #selection-label-property="{ item }">
+                {{ labelUnitCallback(item) }}
+            </template>
+        </sw-entity-single-select>
 
-        <sw-single-select
-            v-model:value="measurementSystemConfig.massUnit"
-            hide-clearable-button
-            value-property="shortName"
-            label-property="translated.name"
-            :options="measurementSystemOptions.massUnit"
-        />
+        <sw-entity-single-select
+            v-model:value="measurementSystem.massUnitId"
+            entity="measurement_display_unit"
+            :criteria="massUnitCriteria"
+            :label="$t('sw-settings-measurement.defaultUnits.config.massUnit')"
+            :label-callback="labelUnitCallback"
+        >
+            <template #selection-label-property="{ item }">
+                {{ labelUnitCallback(item) }}
+            </template>
+        </sw-entity-single-select>
     </sw-container>
 </mt-card>

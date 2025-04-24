@@ -5,18 +5,18 @@
 
     <template #smart-bar-header>
         <h2>
-            {{ $tc('sw-settings.index.title') }}
+            {{ $t('sw-settings.index.title') }}
             <mt-icon
                 name="regular-chevron-right-xs"
                 size="12px"
             />
-            {{ $tc('sw-settings-measurement.general.textHeadline') }}
+            {{ $t('sw-settings-measurement.general.textHeadline') }}
         </h2>
     </template>
 
     <template #language-switch>
         <sw-language-switch
-            @on-change="() => {}"
+            @on-change="onChangeLanguage"
         />
     </template>
 
@@ -33,16 +33,17 @@
             size="default"
             @click="onSave"
         >
-            {{ $tc('global.default.save') }}
+            {{ $t('global.default.save') }}
         </mt-button>
     </template>
 
     <template #content>
         <sw-card-view>
             <sw-settings-measurement-default-units
-                :measurement-system-config="measurementSystemConfig"
-                :measurement-system-options="measurementSystemOptions"
-                @measurement-system-config-type-change="onMeasurementSystemConfigTypeChange"
+                :measurement-system="measurementSystem"
+                :length-unit-criteria="lengthUnitCriteria"
+                :mass-unit-criteria="massUnitCriteria"
+                @measurement-system-change="onChangeMeasurementSystem"
             />
         </sw-card-view>
     </template>

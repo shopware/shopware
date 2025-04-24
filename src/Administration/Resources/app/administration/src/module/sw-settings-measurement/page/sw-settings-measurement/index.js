@@ -6,18 +6,16 @@ const { Criteria } = Shopware.Data;
 /**
  * @sw-package inventory
  * @private
- * @component
- * @description
- * This component handles the measurement system settings in the administration.
- * It allows users to configure the measurement system type, dimension unit, and weight unit.
+ * @description This component handles the measurement system settings in the administration.
+ * It allows users to configure the measurement system type, length unit, and mass unit.
  */
 export default {
     template,
 
     inject: [
         'acl',
-        'repositoryFactory',
         'systemConfigApiService',
+        'repositoryFactory',
     ],
 
     mixins: [
@@ -32,78 +30,53 @@ export default {
 
     data() {
         return {
-            measurementSystemConfig: {
-                id: null,
-                type: null,
-                lengthUnit: null,
-                massUnit: null,
+            measurementSystem: {
+                typeId: null,
+                lengthUnitId: null,
+                massUnitId: null,
             },
-            measurementSystemOptions: {
-                type: [],
-                lengthUnit: [],
-                massUnit: [],
-            },
-            measurementSystems: [],
-            measurementDisplayUnits: [],
+            defaultDisplayUnits: [],
+            isLoading: false,
         };
     },
 
     computed: {
-        measurementSystemRepository() {
-            return this.repositoryFactory.create('measurement_system');
-        },
-
-        measurementDisplayUnitRepository() {
+        displayUnitRepository() {
             return this.repositoryFactory.create('measurement_display_unit');
         },
 
-        measurementSystemCriteria() {
+        lengthUnitCriteria() {
             const criteria = new Criteria(1, null);
+            criteria.addFilter(Criteria.equals('type', 'length'));
+            criteria.addFilter(Criteria.equals('measurementSystemId', this.measurementSystem.typeId));
 
             return criteria;
         },
 
-        measurementDisplayUnitCriteria() {
+        massUnitCriteria() {
             const criteria = new Criteria(1, null);
+            criteria.addFilter(Criteria.equals('type', 'mass'));
+            criteria.addFilter(Criteria.equals('measurementSystemId', this.measurementSystem.typeId));
 
             return criteria;
         },
 
-        currentMeasurementSystemConfig() {
-            return this.measurementSystems.find((measurementSystem) => {
-                return measurementSystem.technicalName === this.measurementSystemConfig.type;
+        defaultUnitCriteria() {
+            const criteria = new Criteria(1, null);
+            criteria.addFilter(Criteria.equals('default', true));
+
+            return criteria;
+        },
+
+        defaultLengthUnit() {
+            return this.defaultDisplayUnits.find((u) => {
+                return u.type === 'length' && u.measurementSystemId === this.measurementSystem.typeId;
             });
         },
 
-        currentLengthUnitOptions() {
-            return this.measurementDisplayUnits.filter((measurementDisplayUnit) => {
-                const { measurementSystemId, type } = measurementDisplayUnit;
-
-                return measurementSystemId === this.measurementSystemConfig.id && type === 'length';
-            });
-        },
-
-        currentMassUnitOptions() {
-            return this.measurementDisplayUnits.filter((measurementDisplayUnit) => {
-                const { measurementSystemId, type } = measurementDisplayUnit;
-
-                return measurementSystemId === this.measurementSystemConfig.id && type === 'weight';
-            });
-        },
-
-        currentDefaultLengthUnit() {
-            return this.measurementDisplayUnits.find((measurementDisplayUnit) => {
-                const { measurementSystemId, type, default: isDefault } = measurementDisplayUnit;
-
-                return measurementSystemId === this.measurementSystemConfig.id && type === 'length' && isDefault;
-            });
-        },
-
-        currentDefaultMassUnit() {
-            return this.measurementDisplayUnits.find((measurementDisplayUnit) => {
-                const { measurementSystemId, type, default: isDefault } = measurementDisplayUnit;
-
-                return measurementSystemId === this.measurementSystemConfig.id && type === 'weight' && isDefault;
+        defaultMassUnit() {
+            return this.defaultDisplayUnits.find((u) => {
+                return u.type === 'mass' && u.measurementSystemId === this.measurementSystem.typeId;
             });
         },
     },
@@ -114,56 +87,35 @@ export default {
 
     methods: {
         async createdComponent() {
-            await this.getMeasurementSystemConfig();
-            await this.getMeasurementSystems();
-            this.measurementSystemConfig.id = this.currentMeasurementSystemConfig.id;
+            const [measurementSystem, defaultDisplayUnits] = await Promise.all([
+                this.getMeasurementSystem(),
+                this.getDefaultDisplayUnits(),
+            ]);
 
-            await this.getMeasurementDisplayUnits();
-
-            this.measurementSystemOptions.type = this.measurementSystems;
-            this.measurementSystemOptions.lengthUnit = this.currentLengthUnitOptions;
-            this.measurementSystemOptions.massUnit = this.currentMassUnitOptions;
-
-        },
-
-        async getMeasurementSystemConfig() {
-            const response = await this.systemConfigApiService.getValues('core.measurementSystem');
-            this.measurementSystemConfig = {
-                type: response['core.measurementSystem.type'],
-                lengthUnit: response['core.measurementSystem.lengthUnit'],
-                massUnit: response['core.measurementSystem.massUnit'],
+            this.measurementSystem = {
+                typeId: measurementSystem['core.measurementSystem.typeId'],
+                lengthUnitId: measurementSystem['core.measurementSystem.lengthUnitId'],
+                massUnitId: measurementSystem['core.measurementSystem.massUnitId'],
             };
+            this.defaultDisplayUnits = defaultDisplayUnits;
         },
 
-        async getMeasurementSystems() {
-            const response = await this.measurementSystemRepository.search(this.measurementSystemCriteria);
-            this.measurementSystems = response;
+        getMeasurementSystem() {
+            return this.systemConfigApiService.getValues('core.measurementSystem');
         },
 
-        async getMeasurementDisplayUnits() {
-            const response = await this.measurementDisplayUnitRepository.search(this.measurementDisplayUnitCriteria);
-            this.measurementDisplayUnits = response;
-        },
-
-        onMeasurementSystemConfigTypeChange() {
-            this.measurementSystemConfig.id = this.currentMeasurementSystemConfig.id;
-
-            this.measurementSystemConfig.lengthUnit = this.currentDefaultLengthUnit.shortName;
-            this.measurementSystemConfig.massUnit = this.currentDefaultMassUnit.shortName;
-
-            this.measurementSystemOptions.lengthUnit = this.currentLengthUnitOptions;
-            this.measurementSystemOptions.massUnit = this.currentMassUnitOptions;
+        getDefaultDisplayUnits() {
+            return this.displayUnitRepository.search(this.defaultUnitCriteria);
         },
 
         async onSave() {
             this.isLoading = true;
             try {
                 await this.systemConfigApiService.saveValues({
-                    'core.measurementSystem.type': this.measurementSystemConfig.type,
-                    'core.measurementSystem.lengthUnit': this.measurementSystemConfig.lengthUnit,
-                    'core.measurementSystem.massUnit': this.measurementSystemConfig.massUnit,
+                    'core.measurementSystem.typeId': this.measurementSystem.typeId,
+                    'core.measurementSystem.lengthUnitId': this.measurementSystem.lengthUnitId,
+                    'core.measurementSystem.massUnitId': this.measurementSystem.massUnitId,
                 });
-
                 this.createNotificationSuccess({
                     title: 'Success',
                     message: 'Measurement system settings saved successfully',
@@ -176,6 +128,15 @@ export default {
             } finally {
                 this.isLoading = false;
             }
+        },
+
+        onChangeLanguage(languageId) {
+            Shopware.Store.get('context').setApiLanguageId(languageId);
+        },
+
+        onChangeMeasurementSystem() {
+            this.measurementSystem.lengthUnitId = this.defaultLengthUnit.id;
+            this.measurementSystem.massUnitId = this.defaultMassUnit.id;
         },
     },
 };

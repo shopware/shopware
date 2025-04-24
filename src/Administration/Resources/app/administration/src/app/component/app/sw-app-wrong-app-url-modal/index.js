@@ -39,7 +39,7 @@ Component.register('sw-app-wrong-app-url-modal', {
 
     computed: {
         isAppUrlReachable() {
-            return Shopware.Store.get('context').app.config.settings.appUrlReachable;
+            return Shopware.Store.get('context').app.config.settings?.appUrlReachable;
         },
 
         hasAppsThatRequireAppUrl() {

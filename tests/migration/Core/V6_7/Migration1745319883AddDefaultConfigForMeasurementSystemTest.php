@@ -2,11 +2,13 @@
 
 namespace Shopware\Tests\Migration\Core\V6_7;
 
+use Doctrine\DBAL\ArrayParameterType;
 use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelLifecycleManager;
+use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Migration\V6_7\Migration1745319883AddDefaultConfigForMeasurementSystem;
 
 /**
@@ -28,9 +30,9 @@ class Migration1745319883AddDefaultConfigForMeasurementSystemTest extends TestCa
 
         // Clean up any existing data for the tested keys
         $this->connection->executeStatement('DELETE FROM system_config WHERE configuration_key IN (
-            "core.measurementSystem.type",
-            "core.measurementSystem.lengthUnit",
-            "core.measurementSystem.massUnit"
+            "core.measurementSystem.typeId",
+            "core.measurementSystem.lengthUnitId",
+            "core.measurementSystem.massUnitId"
         )');
 
         $this->migration = new Migration1745319883AddDefaultConfigForMeasurementSystem();
@@ -39,18 +41,31 @@ class Migration1745319883AddDefaultConfigForMeasurementSystemTest extends TestCa
     public function testUpdate(): void
     {
         // Ensure the keys do not exist before the migration
-        static::assertFalse($this->configExists('core.measurementSystem.type'));
-        static::assertFalse($this->configExists('core.measurementSystem.lengthUnit'));
-        static::assertFalse($this->configExists('core.measurementSystem.massUnit'));
+        static::assertFalse($this->configExists('core.measurementSystem.typeId'));
+        static::assertFalse($this->configExists('core.measurementSystem.lengthUnitId'));
+        static::assertFalse($this->configExists('core.measurementSystem.massUnitId'));
 
         // Run the migration
         $this->migration->update($this->connection);
         $this->migration->update($this->connection);
 
-        // Verify the inserted values
-        $this->assertConfigValue('core.measurementSystem.type', '{"_value": "metric"}');
-        $this->assertConfigValue('core.measurementSystem.lengthUnit', '{"_value": "mm"}');
-        $this->assertConfigValue('core.measurementSystem.massUnit', '{"_value": "kg"}');
+        $metricId = $this->connection->fetchOne('SELECT id FROM `measurement_system` WHERE `technical_name` = "metric"');
+        static::assertNotFalse($metricId);
+        $this->assertConfigValue('core.measurementSystem.typeId', \sprintf('{"_value": "%s"}', Uuid::fromBytesToHex($metricId)));
+
+        $units = $this->connection->fetchAllKeyValue('SELECT id, type FROM `measurement_display_unit` WHERE short_name IN (:names)', [
+            'names' => ['mm', 'kg'],
+        ], [
+            'names' => ArrayParameterType::BINARY,
+        ]);
+        static::assertNotEmpty($units);
+
+        foreach ($units as $id => $unitType) {
+            $configKey = $unitType === 'length' ? 'core.measurementSystem.lengthUnitId' : 'core.measurementSystem.massUnitId';
+            $configValue = \sprintf('{"_value": "%s"}', Uuid::fromBytesToHex($id));
+
+            $this->assertConfigValue($configKey, $configValue);
+        }
     }
 
     private function configExists(string $key): bool

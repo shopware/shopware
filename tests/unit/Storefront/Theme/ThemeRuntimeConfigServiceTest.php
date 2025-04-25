@@ -142,42 +142,26 @@ class ThemeRuntimeConfigServiceTest extends TestCase
         $themeId = '1234567890abcdef1234567890abcdef';
         $technicalName = 'test-theme';
 
-        $serviceMock = $this->createPartialMock(
-            ThemeRuntimeConfigService::class,
-            ['refreshRuntimeConfig', 'getRuntimeConfig'] // Only mock this method
-        );
-
-        $serviceMock->__construct(
-            $this->themeFileResolver,
-            $this->pluginRegistry,
-            $this->mergedConfigBuilder,
-            $this->storage
-        );
-
         $partialConfig = $this->createThemeRuntimeConfig(
             themeId: $themeId,
             technicalName: $technicalName,
             scriptFiles: null
         );
-        $fullConfig = $this->createThemeRuntimeConfig(
-            themeId: $themeId,
-            technicalName: $technicalName,
-        );
 
-        $serviceMock
+        $this->storage
             ->expects($this->once())
-            ->method('getRuntimeConfig')
+            ->method('getById')
             ->with($themeId)
             ->willReturn($partialConfig);
 
-        $themeConfig = new StorefrontPluginConfiguration($technicalName);
-        $configCollection = new StorefrontPluginConfigurationCollection([
-            $themeConfig,
-        ]);
         $this->pluginRegistry
             ->expects($this->once())
             ->method('getConfigurations')
-            ->willReturn($configCollection);
+            ->willReturn(
+                new StorefrontPluginConfigurationCollection([
+                    new StorefrontPluginConfiguration($technicalName),
+                ])
+            );
 
         $this->storage
             ->expects($this->once())
@@ -185,15 +169,31 @@ class ThemeRuntimeConfigServiceTest extends TestCase
             ->with($themeId)
             ->willReturn($technicalName);
 
-        // We only need to verify that updateRuntimeConfig is called with resolveFiles=true
-        $serviceMock->expects($this->once())
-            ->method('refreshRuntimeConfig')
-            ->with($themeId, $themeConfig, static::isInstanceOf(Context::class), true)
-            ->willReturn($fullConfig);
+        $scriptFilesCollection = new FileCollection([
+            new File('foo/file1.js', [], 'foo'),
+            new File('foo/file2.js', [], 'foo'),
+        ]);
 
-        $result = $serviceMock->getResolvedRuntimeConfig($themeId);
+        $this->themeFileResolver
+            ->expects($this->once())
+            ->method('resolveFiles')
+            ->willReturn([
+                ThemeFileResolver::SCRIPT_FILES => $scriptFilesCollection,
+            ]);
 
-        static::assertSame($fullConfig, $result);
+        // check that we save new config with resolved js files
+        $this->storage
+            ->expects($this->once())
+            ->method('save')
+            ->with(static::callback(function (ThemeRuntimeConfig $config) {
+                return $config->scriptFiles === ['js/foo/file1.js', 'js/foo/file2.js'];
+            }));
+
+        $result = $this->service->getResolvedRuntimeConfig($themeId);
+
+        // check that updated config is returned
+        static::assertNotNull($result);
+        static::assertSame(['js/foo/file1.js', 'js/foo/file2.js'], $result->scriptFiles);
     }
 
     public function testRefreshRuntimeConfig(): void

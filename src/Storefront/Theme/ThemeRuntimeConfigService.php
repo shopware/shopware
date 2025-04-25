@@ -243,7 +243,7 @@ class ThemeRuntimeConfigService
             return null;
         }
 
-        return $this->refreshRuntimeConfig($themeId, $themeConfig, Context::createDefaultContext(), $failOnFileResolve);
+        return $this->refreshRuntimeConfig($themeId, $themeConfig, Context::createDefaultContext(), $failOnFileResolve, $configCollection);
     }
 
     private function generateRuntimeConfigByName(string $technicalName): ?ThemeRuntimeConfig
@@ -260,6 +260,6 @@ class ThemeRuntimeConfigService
             return null;
         }
 
-        return $this->refreshRuntimeConfig($themeId, $themeConfig, Context::createDefaultContext(), true);
+        return $this->refreshRuntimeConfig($themeId, $themeConfig, Context::createDefaultContext(), false, $configCollection);
     }
 }

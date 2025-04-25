@@ -124,8 +124,6 @@ export default class FormCmsHandler extends Plugin {
     }
 
     _createResponse(changeContent, content) {
-        console.log(changeContent);
-        console.log(content);
         if (changeContent) {
             if (this._confirmationText) {
                 content = this._confirmationText;

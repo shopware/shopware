@@ -41,8 +41,10 @@ export default {
             isComponentMounted: true,
             measurements: [],
             defaultUnits: {
-                mass: 'kg',
                 length: 'mm',
+                height: 'mm',
+                width: 'mm',
+                weight: 'kg',
             },
         };
     },
@@ -633,7 +635,14 @@ export default {
                         changeLabel: this.$tc('sw-bulk-edit.product.measuresAndPackaging.widthTitle.changeLabel'),
                         placeholder: this.$tc('sw-bulk-edit.product.measuresAndPackaging.widthTitle.placeholder'),
                         numberType: 'float',
-                        defaultUnit: this.defaultUnits.length,
+                        defaultUnit: (value) => {
+                            if (value) {
+                                // this.syncUnits('width', value, this.defaultUnits.width);
+                                this.defaultUnits.width = value;
+                            }
+
+                            return this.defaultUnits.width
+                        },
                         measurementType: 'length',
                         min: 0,
                         disabled: this.bulkEditProduct?.width?.isInherited,
@@ -648,7 +657,14 @@ export default {
                         changeLabel: this.$tc('sw-bulk-edit.product.measuresAndPackaging.heightTitle.changeLabel'),
                         placeholder: this.$tc('sw-bulk-edit.product.measuresAndPackaging.heightTitle.placeholder'),
                         numberType: 'float',
-                        defaultUnit: this.defaultUnits.length,
+                        defaultUnit: (value) => {
+                            if (value) {
+                                // this.syncUnits('height', value, this.defaultUnits.height);
+                                this.defaultUnits.height = value;
+                            }
+
+                            return this.defaultUnits.height
+                        },
                         measurementType: 'length',
                         min: 0,
                         disabled: this.bulkEditProduct?.height?.isInherited,
@@ -663,7 +679,14 @@ export default {
                         changeLabel: this.$tc('sw-bulk-edit.product.measuresAndPackaging.lengthTitle.changeLabel'),
                         placeholder: this.$tc('sw-bulk-edit.product.measuresAndPackaging.lengthTitle.placeholder'),
                         numberType: 'float',
-                        defaultUnit: this.defaultUnits.length,
+                        defaultUnit: (value) => {
+                            if (value) {
+                                // this.syncUnits('length', value, this.defaultUnits.length);
+                                this.defaultUnits.length = value;
+                            }
+
+                            return this.defaultUnits.length
+                        },
                         measurementType: 'length',
                         min: 0,
                         disabled: this.bulkEditProduct?.length?.isInherited,
@@ -1005,17 +1028,17 @@ export default {
                 this.bulkEditProduct.price.value[0].regulationPrice = regulationPrice[0];
             },
         },
-        // 'productMeasurementFields[0].width.config.defaultUnit': {
-        //     deep: true,
-        //     handler(width) {
-        //         console.log(width)
-        //     },
-        // },
-        productMeasurementFields: {
-            handler(newVal, oldVal) {
-                console.log('First config changed:', newVal);
-            },
-            deep: true
+
+        'defaultUnits.length'(newUnit, oldUnit) {
+            // this.syncUnits('length', newUnit, oldUnit);
+        },
+
+        'defaultUnits.width'(newUnit, oldUnit) {
+            // this.syncUnits('width', newUnit, oldUnit);
+        },
+
+        'defaultUnits.height'(newUnit, oldUnit) {
+            // this.syncUnits('height', newUnit, oldUnit);
         },
     },
 
@@ -1587,6 +1610,33 @@ export default {
         processMeasurements() {
             // eslint-disable-next-line no-warning-comments
             // todo update association measurement unit
+        },
+
+        syncUnits(changedKey, newUnit, oldUnit) {
+            if (newUnit === oldUnit) {
+                return;
+            };
+
+            const relatedKeys = ['length', 'width', 'height'].filter(key => key !== changedKey);
+
+            relatedKeys.forEach((key) => {
+                const measurement = this.productMeasurementFields.find(field => field.name === key);
+
+                const oldValue = this.bulkEditProduct[key].value;
+                const oldKeyUnit = measurement.config.defaultUnit;
+
+                if (oldValue != null && oldKeyUnit !== newUnit) {
+                    try {
+                        this.bulkEditProduct[key].value = convert(oldValue)
+                            .from(oldKeyUnit)
+                            .to(newUnit);
+                    } catch (e) {
+                        console.warn(`Could not convert ${key} from ${oldKeyUnit} to ${newUnit}`, e);
+                    }
+                }
+
+                measurement.config.defaultUnit = newUnit;
+            });
         },
     },
 };

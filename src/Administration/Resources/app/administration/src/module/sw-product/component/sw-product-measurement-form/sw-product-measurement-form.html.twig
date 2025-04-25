@@ -17,14 +17,16 @@
 
                 <mt-unit-field
                     allow-empty
-                    :default-unit="defaultUnit"
-                    :measurement-type="measurementType"
+                    v-model:default-unit="defaultUnits.width"
+                    :model-value="product.width"
+                    measurement-type="length"
                     :label="$t('sw-product.settingsForm.labelWidth')"
                     :map-inheritance="props"
                     :placeholder="$t('sw-product.settingsForm.placeholderWidth')"
                     :min="0"
                     :error="productWidthError"
                     :disabled="props.isInherited || !allowEdit"
+                    @update:model-value="props.updateCurrentValue"
                 />
 
             </template>
@@ -39,14 +41,16 @@
 
                 <mt-unit-field
                     allow-empty
-                    :default-unit="defaultUnit"
-                    :measurement-type="measurementType"
+                    :model-value="product.height"
+                    v-model:default-unit="defaultUnits.height"
+                    measurement-type="length"
                     :label="$t('sw-product.settingsForm.labelHeight')"
                     :map-inheritance="props"
                     :placeholder="$t('sw-product.settingsForm.placeholderHeight')"
                     :min="0"
                     :error="productHeightError"
                     :disabled="props.isInherited || !allowEdit"
+                    @update:model-value="props.updateCurrentValue"
                 />
 
             </template>
@@ -66,14 +70,16 @@
 
                 <mt-unit-field
                     allow-empty
-                    :default-unit="defaultUnit"
-                    :measurement-type="measurementType"
+                    :model-value="product.length"
+                    v-model:default-unit="defaultUnits.length"
+                    measurement-type="length"
                     :label="$t('sw-product.settingsForm.labelLength')"
                     :map-inheritance="props"
                     :placeholder="$t('sw-product.settingsForm.placeholderLength')"
                     :min="0"
                     :error="productLengthError"
                     :disabled="props.isInherited || !allowEdit"
+                    @update:model-value="props.updateCurrentValue"
                 />
 
             </template>
@@ -88,8 +94,9 @@
 
                 <mt-unit-field
                     allow-empty
-                    :default-unit="defaultUnit"
-                    :measurement-type="measurementType"
+                    v-model:default-unit="defaultUnits.weight"
+                    :model-value="product.weight"
+                    measurement-type="mass"
                     :label="$t('sw-product.settingsForm.labelWeight')"
                     :map-inheritance="props"
                     :placeholder="$t('sw-product.settingsForm.placeholderWeight')"
@@ -97,6 +104,7 @@
                     :digits="3"
                     :error="productWeightError"
                     :disabled="props.isInherited || !allowEdit"
+                    @update:model-value="props.updateCurrentValue"
                 />
 
             </template>

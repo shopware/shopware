@@ -15,7 +15,10 @@ export default {
 
     created() {
         const unit = this.config?.measurementType === 'length' ? 'mm' : 'kg';
-        this.defaultUnit = this.config?.defaultUnit ?? unit;
+        this.defaultUnit = typeof this.config.defaultUnit === 'function'
+            ? this.config?.defaultUnit()
+            : this.config?.defaultUnit
+            ?? unit;
     },
 
     computed: {
@@ -25,8 +28,13 @@ export default {
 
         currentUnit: {
             set(value) {
-                this.config.defaultUnit = value;
                 this.defaultUnit = value;
+                if (typeof this.config.defaultUnit === 'function') {
+                    this.config.defaultUnit(value);
+                    return;
+                }
+
+                this.config.defaultUnit = value;
             },
 
             get() {

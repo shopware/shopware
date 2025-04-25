@@ -25,7 +25,6 @@ labels:
     - label: "extension/Sales-Agent"
       body: "Extension:Sales-Agent"
     - label: "extension/Recommendations"
-
       body: "Extension:Recommendations"
     - label: "extension/Social-Shopping"
       body: "Extension:Social-Shopping"

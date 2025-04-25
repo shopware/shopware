@@ -20,7 +20,7 @@ class ThemeConfigField extends Struct
      */
     protected ?array $helpText = null;
 
-    protected string $type;
+    protected string $type = '';
 
     /**
      * @deprecated tag:v6.8.0 - Property will be typed natively as array|string

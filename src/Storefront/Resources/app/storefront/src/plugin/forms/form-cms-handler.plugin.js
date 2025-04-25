@@ -43,6 +43,11 @@ export default class FormCmsHandler extends Plugin {
     }
 
     _registerEvents() {
+        // submit is handled in basic captcha plugin, don't trigger submit twice
+        if (this._hasBasicCaptcha()) {
+            return;
+        }
+
         this.el.addEventListener('submit', this._handleSubmit.bind(this));
     }
 
@@ -69,6 +74,18 @@ export default class FormCmsHandler extends Plugin {
         } else {
             this._showValidation();
         }
+    }
+
+    /**
+     * Checks if basic captcha is enabled, then form submit is triggered over captcha plugin
+     *
+     * @return {boolean}
+     * @private
+     */
+    _hasBasicCaptcha() {
+        const captcha = this.el.querySelector('[data-basic-captcha]');
+
+        return !!captcha;
     }
 
     _showValidation() {
@@ -107,6 +124,8 @@ export default class FormCmsHandler extends Plugin {
     }
 
     _createResponse(changeContent, content) {
+        console.log(changeContent);
+        console.log(content);
         if (changeContent) {
             if (this._confirmationText) {
                 content = this._confirmationText;

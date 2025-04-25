@@ -121,7 +121,7 @@ class DocumentGeneratorTest extends TestCase
         static::assertSame($this->orderId, $document->getOrderId());
 
         static::assertNotNull($document->getDocumentType());
-        static::assertSame(Defaults::LIVE_VERSION, $document->getOrderVersionId());
+        static::assertNotSame(Defaults::LIVE_VERSION, $document->getOrderVersionId(), 'Document should refer to a versioned order');
         static::assertSame(DeliveryNoteRenderer::TYPE, $document->getDocumentType()->getTechnicalName());
         static::assertNotNull($document->getDocumentMediaFile());
         static::assertSame(PdfRenderer::FILE_EXTENSION, $document->getDocumentMediaFile()->getFileExtension());
@@ -333,7 +333,7 @@ class DocumentGeneratorTest extends TestCase
         $comment = 'this is a comment';
         $operation = new DocumentGenerateOperation($this->orderId, PdfRenderer::FILE_EXTENSION, ['documentComment' => $comment]);
 
-        $documentStruct = $this->documentGenerator->generate(DeliveryNoteRenderer::TYPE, [$this->orderId => $operation], $this->context)->getSuccess()->first();
+        $documentStruct = $this->documentGenerator->generate(InvoiceRenderer::TYPE, [$this->orderId => $operation], $this->context)->getSuccess()->first();
 
         static::assertNotNull($documentStruct);
         static::assertTrue(Uuid::isValid($documentStruct->getId()));
@@ -357,8 +357,8 @@ class DocumentGeneratorTest extends TestCase
         static::assertNotNull($config->getDocumentNumber());
 
         static::assertNotNull($document->getDocumentType());
-        static::assertSame(Defaults::LIVE_VERSION, $document->getOrderVersionId());
-        static::assertSame(DeliveryNoteRenderer::TYPE, $document->getDocumentType()->getTechnicalName());
+        static::assertNotSame(Defaults::LIVE_VERSION, $document->getOrderVersionId(), 'Document should refer to a versioned order');
+        static::assertSame(InvoiceRenderer::TYPE, $document->getDocumentType()->getTechnicalName());
         static::assertNotNull($document->getDocumentMediaFile());
         static::assertSame(PdfRenderer::FILE_EXTENSION, $document->getDocumentMediaFile()->getFileExtension());
     }

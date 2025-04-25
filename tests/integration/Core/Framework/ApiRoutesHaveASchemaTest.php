@@ -233,6 +233,8 @@ class ApiRoutesHaveASchemaTest extends TestCase
         $whitelist = [
             '/store-api/shipping-method:onlyAvailable',
             '/store-api/checkout/cart/line-item:ids',
+            '/store-api/product-listing/{categoryId}:p',
+            '/store-api/search:p',
         ];
 
         foreach ($schema as $operation) {

@@ -2504,6 +2504,21 @@ After:
 ```html
 <mt-checkbox @update:checked="updateValue" />
 ```
+
+## Migration to "mt-tooltip"
+As part of the internal refactor of the Meteor component library, all tooltips are now rendered using the new `mt-tooltip` component.
+
+### `mt-tooltip` no longer supports Vue components inside the tooltip content. Previously, it was possible to render Vue components (such as `RouterLink`) inside the tooltip text. This is no longer supported. The tooltip content must now consist only of plain strings or standard HTML elements.
+
+Before:
+```html
+<mt-switch :help-text="`This is a help text. <RouterLink to="someUrl">Link</RouterLink>`" />
+```
+After:
+```html
+<mt-switch :help-text="`This is a help text. <a href="someUrl">Link</a>`" />
+```
+
 </details>
 
 ### Deprecated admin notification entity + related classes
@@ -2531,6 +2546,11 @@ We made some changes in the Storefront, which might affect your plugins and them
   Extend `\Shopware\Storefront\Pagelet\Header\HeaderPageletLoader` or `\Shopware\Storefront\Pagelet\Footer\FooterPageletLoader` instead.
 * The properties `header`, `footer`, `salesChannelShippingMethods` and `salesChannelPaymentMethods` and their getter and setter Methods in `\Shopware\Storefront\Page\Page` were removed.
   Extend `\Shopware\Storefront\Pagelet\Header\HeaderPagelet` or `\Shopware\Storefront\Pagelet\Footer\FooterPagelet` instead.
+  Use the following alternatives in templates instead:
+    * `context.currency` instead of `page.header.activeCurrency`
+    * `shopware.navigation.id` instead of `page.header.navigation.active.id`
+    * `shopware.navigation.pathIdList` instead of `page.header.navigation.active.path`
+    * `context.languageInfo` instead of `page.header.activeLanguage`
 * The property `serviceMenu` and its getter and setter Methods in `\Shopware\Storefront\Pagelet\Header\HeaderPagelet` were removed.
   Extend it via the `\Shopware\Storefront\Pagelet\Footer\FooterPagelet` instead.
 * The `navigationId` request parameter in `\Shopware\Storefront\Pagelet\Header\HeaderPageletLoader::load` was removed.
@@ -2556,6 +2576,11 @@ We made some changes in the Storefront, which might affect your plugins and them
 * The template variables `activeId` and `activePath` in `src/Storefront/Resources/views/storefront/layout/navbar/categories.html.twig` were removed.
 * The template variable `activePath` in `src/Storefront/Resources/views/storefront/layout/navbar/navbar.html.twig` was removed.
 * The parameter `activeResult` of `src/Storefront/Resources/views/storefront/layout/sidebar/category-navigation.html.twig` was removed.
+* The global `showStagingBanner` Twig variable was removed. Use `shopware.showStagingBanner` instead.
+
+## FooterPagelet changes
+The former optional parameter `serviceMenu` of type `\Shopware\Core\Content\Category\CategoryCollection` in `\Shopware\Storefront\Pagelet\Footer\FooterPagelet` is now required.
+Make sure to pass it to the constructor.
 
 ## ThemeFileImporterInterface & ThemeFileImporter Removal
 Both `\Shopware\Storefront\Theme\ThemeFileImporterInterface` & `\Shopware\Storefront\Theme\ThemeFileImporter` are removed without replacement. These classes are already not used as of v6.6.5.0 and therefore this extension point is removed with no planned replacement.

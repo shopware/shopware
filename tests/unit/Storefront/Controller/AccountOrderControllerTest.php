@@ -60,11 +60,15 @@ class AccountOrderControllerTest extends TestCase
 
     private MockObject&AbstractHandlePaymentMethodRoute $handlePaymentRouteMock;
 
+    private MockObject&OrderService $orderServiceMock;
+
     protected function setUp(): void
     {
         $this->orderRouteMock = $this->createMock(AbstractOrderRoute::class);
         $this->accountEditOrderPageLoaderMock = $this->createMock(AccountEditOrderPageLoader::class);
         $this->handlePaymentRouteMock = $this->createMock(AbstractHandlePaymentMethodRoute::class);
+
+        $this->orderServiceMock = $this->createMock(OrderService::class);
 
         $this->controller = new AccountOrderControllerTestClass(
             $this->createMock(AccountOrderPageLoader::class),
@@ -78,7 +82,7 @@ class AccountOrderControllerTest extends TestCase
             $this->orderRouteMock,
             $this->createMock(SalesChannelContextServiceInterface::class),
             $this->createMock(SystemConfigService::class),
-            $this->createPartialMock(OrderService::class, ['__construct']),
+            $this->orderServiceMock,
             $this->createMock(HeaderPageletLoaderInterface::class),
             $this->createMock(FooterPageletLoaderInterface::class),
         );
@@ -240,6 +244,10 @@ class AccountOrderControllerTest extends TestCase
             ->method('load')
             ->with($request = new Request(), $salesChannelContext, $criteria)
             ->willReturn($accountRouteResponse);
+
+        $this->orderServiceMock
+            ->method('isPaymentChangeableByTransactionState')
+            ->willReturn(true);
 
         $this->handlePaymentRouteMock
             ->expects($this->once())

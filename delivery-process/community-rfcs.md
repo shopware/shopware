@@ -23,7 +23,7 @@ This document establishes a standardized process for submitting and reviewing Re
 - A configuration or label change that does not affect usage or expectations
 - UI tweaks not requiring UX alignment
 
-Remember that UserVoic is the place to suggest product features.
+Remember that [UserVoice](https://feedback.shopware.com) is the place to suggest product features.
 When in doubt, please open a discussion in the relevant GitHub issue or Slack channel.
 
 ## Process Overview

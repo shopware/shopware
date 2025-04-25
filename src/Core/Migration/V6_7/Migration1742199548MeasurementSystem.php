@@ -137,16 +137,16 @@ class Migration1742199548MeasurementSystem extends MigrationStep
         }
 
         $units = [
-            ['id' => Uuid::randomBytes(), 'measurement_system_id' => $metricId, 'default' => 0, 'type' => 'length', 'short_name' => 'm', 'factor' => 1, 'name_en' => 'Meter', 'name_de' => 'Zähler'],
-            ['id' => Uuid::randomBytes(), 'measurement_system_id' => $metricId, 'default' => 0, 'type' => 'length', 'short_name' => 'km', 'factor' => 1000, 'name_en' => 'Kilometer', 'name_de' => 'Kilometer'],
-            ['id' => Uuid::randomBytes(), 'measurement_system_id' => $metricId, 'default' => 0, 'type' => 'length', 'short_name' => 'dm', 'factor' => 0.1, 'name_en' => 'Decimeter', 'name_de' => 'Dezimeter'],
-            ['id' => Uuid::randomBytes(), 'measurement_system_id' => $metricId, 'default' => 0, 'type' => 'length', 'short_name' => 'cm', 'factor' => 0.01, 'name_en' => 'Centimeter', 'name_de' => 'Zentimeter'],
-            ['id' => Uuid::fromHexToBytes(Uuid::fromStringToHex('metric-mm')), 'measurement_system_id' => $metricId, 'default' => 1, 'type' => 'length', 'short_name' => 'mm', 'factor' => 0.001, 'name_en' => 'Millimeter', 'name_de' => 'Millimeter'],
+            ['id' => Uuid::randomBytes(), 'measurement_system_id' => $metricId, 'default' => 0, 'type' => 'length', 'short_name' => 'm', 'factor' => 1000, 'name_en' => 'Meter', 'name_de' => 'Zähler'],
+            ['id' => Uuid::randomBytes(), 'measurement_system_id' => $metricId, 'default' => 0, 'type' => 'length', 'short_name' => 'km', 'factor' => 1000000, 'name_en' => 'Kilometer', 'name_de' => 'Kilometer'],
+            ['id' => Uuid::randomBytes(), 'measurement_system_id' => $metricId, 'default' => 0, 'type' => 'length', 'short_name' => 'dm', 'factor' => 100, 'name_en' => 'Decimeter', 'name_de' => 'Dezimeter'],
+            ['id' => Uuid::randomBytes(), 'measurement_system_id' => $metricId, 'default' => 0, 'type' => 'length', 'short_name' => 'cm', 'factor' => 10, 'name_en' => 'Centimeter', 'name_de' => 'Zentimeter'],
+            ['id' => Uuid::fromHexToBytes(Uuid::fromStringToHex('metric-mm')), 'measurement_system_id' => $metricId, 'default' => 1, 'type' => 'length', 'short_name' => 'mm', 'factor' => 1, 'name_en' => 'Millimeter', 'name_de' => 'Millimeter'],
             ['id' => Uuid::fromHexToBytes(Uuid::fromStringToHex('metric-kg')), 'measurement_system_id' => $metricId, 'default' => 1, 'type' => 'mass', 'short_name' => 'kg', 'factor' => 1, 'name_en' => 'Kilogram', 'name_de' => 'Kilogramm'],
             ['id' => Uuid::randomBytes(), 'measurement_system_id' => $metricId, 'default' => 0, 'type' => 'mass', 'short_name' => 'g', 'factor' => 0.001, 'name_en' => 'Gram', 'name_de' => 'Gramm'],
 
-            ['id' => Uuid::randomBytes(), 'measurement_system_id' => $imperialId, 'default' => 1, 'type' => 'length', 'short_name' => 'in', 'factor' => 0.0254, 'name_en' => 'Inch', 'name_de' => 'Zoll'],
-            ['id' => Uuid::randomBytes(), 'measurement_system_id' => $imperialId, 'default' => 0, 'type' => 'length', 'short_name' => 'ft', 'factor' => 0.3048, 'name_en' => 'Foot', 'name_de' => 'Fuß'],
+            ['id' => Uuid::randomBytes(), 'measurement_system_id' => $imperialId, 'default' => 1, 'type' => 'length', 'short_name' => 'in', 'factor' => 25.4, 'name_en' => 'Inch', 'name_de' => 'Zoll'],
+            ['id' => Uuid::randomBytes(), 'measurement_system_id' => $imperialId, 'default' => 0, 'type' => 'length', 'short_name' => 'ft', 'factor' => 304.8, 'name_en' => 'Foot', 'name_de' => 'Fuß'],
             ['id' => Uuid::randomBytes(), 'measurement_system_id' => $imperialId, 'default' => 1, 'type' => 'mass', 'short_name' => 'lb', 'factor' => 0.453592, 'name_en' => 'Pound', 'name_de' => 'Pfund'],
             ['id' => Uuid::randomBytes(), 'measurement_system_id' => $imperialId, 'default' => 0, 'type' => 'mass', 'short_name' => 'oz', 'factor' => 0.0283495, 'name_en' => 'Ounce', 'name_de' => 'Unze'],
         ];

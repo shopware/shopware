@@ -19,14 +19,9 @@ class StoreException extends HttpException
     public const EXTENSION_INSTALL = 'FRAMEWORK__EXTENSION_INSTALL_EXCEPTION';
     public const EXTENSION_UPDATE_REQUIRES_CONSENT_AFFIRMATION = 'FRAMEWORK__EXTENSION_UPDATE_REQUIRES_CONSENT_AFFIRMATION';
     public const EXTENSION_NOT_FOUND = 'FRAMEWORK__EXTENSION_NOT_FOUND';
-    public const CANNOT_UPLOAD_CORRECTLY = 'FRAMEWORK__EXTENSION_CANNOT_BE_UPLOADED_CORRECTLY';
     public const EXTENSION_RUNTIME_EXTENSION_MANAGEMENT_NOT_ALLOWED = 'FRAMEWORK__EXTENSION_RUNTIME_EXTENSION_MANAGEMENT_NOT_ALLOWED';
-    public const INVALID_CONTEXT_SOURCE = 'FRAMEWORK__STORE_DATA_INVALID_CONTEXT_SOURCE';
-    public const MISSING_INTEGRATION_IN_CONTEXT_SOURCE = 'FRAMEWORK__STORE_MISSING_INTEGRATION_IN_CONTEXT_SOURCE';
     public const MISSING_REQUEST_PARAMETER_CODE = 'FRAMEWORK__STORE_MISSING_REQUEST_PARAMETER';
     public const INVALID_TYPE = 'FRAMEWORK__STORE_INVALID_TYPE';
-    public const JWKS_KEY_NOT_FOUND = 'FRAMEWORK__STORE_JWKS_NOT_FOUND';
-    public const PLUGIN_NOT_A_ZIP_FILE = 'FRAMEWORK__PLUGIN_NOT_A_ZIP_FILE';
 
     public static function cannotDeleteManaged(string $pluginName): self
     {
@@ -110,61 +105,12 @@ class StoreException extends HttpException
         );
     }
 
-    public static function couldNotUploadExtensionCorrectly(): self
-    {
-        return new self(
-            Response::HTTP_INTERNAL_SERVER_ERROR,
-            self::CANNOT_UPLOAD_CORRECTLY,
-            'Extension could not be uploaded correctly.'
-        );
-    }
-
     public static function extensionRuntimeExtensionManagementNotAllowed(): self
     {
         return new self(
             Response::HTTP_FORBIDDEN,
             self::EXTENSION_RUNTIME_EXTENSION_MANAGEMENT_NOT_ALLOWED,
             'Runtime extension management is disabled'
-        );
-    }
-
-    public static function invalidContextSource(string $expectedContextSource, string $actualContextSource): self
-    {
-        return new self(
-            Response::HTTP_INTERNAL_SERVER_ERROR,
-            self::INVALID_CONTEXT_SOURCE,
-            'Expected context source to be "{{ expectedContextSource }}" but got "{{ actualContextSource }}".',
-            [
-                'expectedContextSource' => $expectedContextSource,
-                'actualContextSource' => $actualContextSource,
-            ],
-        );
-    }
-
-    /**
-     * @deprecated tag:v6.8.0 - reason:return-type-change - Will return self
-     */
-    public static function jwksNotFound(?\Throwable $e = null): self|AppException
-    {
-        if (!Feature::isActive('v6.8.0.0')) {
-            return AppException::jwksNotFound($e);
-        }
-
-        return new self(
-            statusCode: Response::HTTP_INTERNAL_SERVER_ERROR,
-            errorCode: self::JWKS_KEY_NOT_FOUND,
-            message: 'Unable to retrieve JWKS key',
-            previous: $e
-        );
-    }
-
-    public static function missingIntegrationInContextSource(string $actualContextSource): StoreException
-    {
-        return new self(
-            Response::HTTP_INTERNAL_SERVER_ERROR,
-            self::MISSING_INTEGRATION_IN_CONTEXT_SOURCE,
-            'No integration available in context source "{{ class }}"',
-            ['class' => $actualContextSource],
         );
     }
 
@@ -185,10 +131,5 @@ class StoreException extends HttpException
             self::INVALID_TYPE,
             \sprintf('Expected collection element of type %s got %s', $expected, $actual)
         );
-    }
-
-    public static function storeError(ClientException $exception): self
-    {
-        return new StoreApiException($exception);
     }
 }

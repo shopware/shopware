@@ -35,7 +35,7 @@ class LoadProductStockSubscriberTest extends TestCase
         $stock1->addArrayExtension('extra', ['arbitrary-data1' => 'foo']);
         $stock2 = new StockData($ids->get('product-2'), 12, true);
 
-        $stockStorage->expects(static::once())
+        $stockStorage->expects($this->once())
             ->method('load')
             ->willReturn(new StockDataCollection([$stock1, $stock2]));
 
@@ -74,7 +74,7 @@ class LoadProductStockSubscriberTest extends TestCase
         $stock1->addArrayExtension('extra', ['arbitrary-data1' => 'foo']);
         $stock2 = new StockData($ids->get('product-2'), 12, true);
 
-        $stockStorage->expects(static::once())
+        $stockStorage->expects($this->once())
             ->method('load')
             ->willReturn(new StockDataCollection([$stock1, $stock2]));
 

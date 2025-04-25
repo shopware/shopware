@@ -1,11 +1,39 @@
 @import "~scss/variables";
 
 .sw-order-promotion-field {
-    .sw-order-promotion-tag-field {
-        margin-bottom: 0;
+    &__apply_auto_promotions {
+        &__title {
+            font-size: $font-size-s;
+            font-weight: $font-weight-bold;
+            color: $color-darkgray-200;
+            margin-bottom: 24px;
+        }
+
+        &__text {
+            font-size: $font-size-xs;
+            line-height: $line-height-xs;
+            color: $color-darkgray-200;
+        }
+
+        &__button {
+            width: min-content;
+            margin-top: 24px;
+        }
     }
 
-    .sw-field--switch {
-        margin-top: 9px;
+    &__updates_modal {
+        font-size: $font-size-s;
+
+        &__description {
+            margin-bottom: 12px;
+        }
+
+        &__list_item {
+            display: inline list-item;
+        }
+
+        &__list_item + &__list_title {
+            margin-top: 24px;
+        }
     }
 }

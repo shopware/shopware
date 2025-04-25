@@ -221,7 +221,7 @@ class BlockedShippingMethodSwitcherTest extends TestCase
 
         $shippingMethodResponse = $this->createMock(ShippingMethodRouteResponse::class);
         $shippingMethodResponse
-            ->expects(static::once())
+            ->expects($this->once())
             ->method('getShippingMethods')
             ->willReturn($collection);
 
@@ -242,7 +242,7 @@ class BlockedShippingMethodSwitcherTest extends TestCase
 
         $shippingMethodResponse = $this->createMock(ShippingMethodRouteResponse::class);
         $shippingMethodResponse
-            ->expects(static::once())
+            ->expects($this->once())
             ->method('getShippingMethods')
             ->willReturn($collection);
 

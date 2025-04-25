@@ -31,7 +31,7 @@ class IndexMappingUpdaterTest extends TestCase
         $client = $this->createMock(Client::class);
         $indicesNamespace = $this->createMock(IndicesNamespace::class);
         $indicesNamespace
-            ->expects(static::once())
+            ->expects($this->once())
             ->method('putMapping')
             ->with([
                 'index' => 'index',

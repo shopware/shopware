@@ -144,7 +144,7 @@ class CheckoutFinishPageLoaderTest extends TestCase
         ]);
 
         $salesChannelContext = $this->getContextWithDummyCustomer();
-        $salesChannelContext->expects(static::once())
+        $salesChannelContext->expects($this->once())
             ->method('setItemRounding')
             ->willReturnCallback(function (CashRoundingConfig $givenItemRounding) use ($itemRounding): void {
                 static::assertSame($itemRounding, $givenItemRounding);
@@ -178,7 +178,7 @@ class CheckoutFinishPageLoaderTest extends TestCase
         ]);
 
         $salesChannelContext = $this->getContextWithDummyCustomer();
-        $salesChannelContext->expects(static::once())
+        $salesChannelContext->expects($this->once())
             ->method('setTotalRounding')
             ->willReturnCallback(function (CashRoundingConfig $givenItemRounding) use ($totalRounding): void {
                 static::assertSame($totalRounding, $givenItemRounding);
@@ -303,12 +303,12 @@ class CheckoutFinishPageLoaderTest extends TestCase
         );
 
         $orderRouteResponse = $this->createMock(OrderRouteResponse::class);
-        $orderRouteResponse->expects(static::once())
+        $orderRouteResponse->expects($this->once())
             ->method('getOrders')
             ->willReturn($searchResult);
 
         $orderRoute = $this->createMock(OrderRoute::class);
-        $orderRoute->expects(static::once())
+        $orderRoute->expects($this->once())
             ->method('load')
             ->willReturn($orderRouteResponse);
 

@@ -84,7 +84,7 @@ class NotificationControllerTest extends TestCase
             $this->expectExceptionMessage('Notification throttled for ' . $exception->getWaitTime() . ' seconds.');
         }
 
-        $this->rateLimiter->expects(static::once())->method('ensureAccepted')
+        $this->rateLimiter->expects($this->once())->method('ensureAccepted')
             ->with('notification', '123')
             ->willThrowException($exception);
 
@@ -103,7 +103,7 @@ class NotificationControllerTest extends TestCase
             $this->expectExceptionMessage('Notification throttled for ' . $exception->getWaitTime() . ' seconds.');
         }
 
-        $this->rateLimiter->expects(static::once())->method('ensureAccepted')
+        $this->rateLimiter->expects($this->once())->method('ensureAccepted')
             ->with('notification', '345-')
             ->willThrowException($exception);
 
@@ -113,7 +113,7 @@ class NotificationControllerTest extends TestCase
 
     public function testSaveNotificationInvokesNotificationService(): void
     {
-        $this->notificationService->expects(static::once())->method('createNotification');
+        $this->notificationService->expects($this->once())->method('createNotification');
 
         $controller = new NotificationController($this->rateLimiter, $this->notificationService);
         $response = $controller->saveNotification(new Request([], ['status' => 'ok', 'message' => 'ok']), $this->context);
@@ -127,7 +127,7 @@ class NotificationControllerTest extends TestCase
 
     public function testFetchNotificationWhenRequestQueryHasNoLimitSet(): void
     {
-        $this->notificationService->expects(static::once())->method('getNotifications')
+        $this->notificationService->expects($this->once())->method('getNotifications')
             ->with($this->context, NotificationController::LIMIT, null);
 
         $controller = new NotificationController($this->rateLimiter, $this->notificationService);
@@ -138,7 +138,7 @@ class NotificationControllerTest extends TestCase
 
     public function testFetchNotificationWhenRequestQuerytHasLimitSet(): void
     {
-        $this->notificationService->expects(static::once())->method('getNotifications')
+        $this->notificationService->expects($this->once())->method('getNotifications')
             ->with($this->context, 100, null);
 
         $controller = new NotificationController($this->rateLimiter, $this->notificationService);
@@ -149,7 +149,7 @@ class NotificationControllerTest extends TestCase
 
     public function testFetchNotificationWhenRequestQueryHasLatestTimestamp(): void
     {
-        $this->notificationService->expects(static::once())->method('getNotifications')
+        $this->notificationService->expects($this->once())->method('getNotifications')
             ->with($this->context, NotificationController::LIMIT, '1719097358');
 
         $controller = new NotificationController($this->rateLimiter, $this->notificationService);

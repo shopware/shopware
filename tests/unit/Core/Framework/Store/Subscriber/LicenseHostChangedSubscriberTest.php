@@ -72,7 +72,7 @@ class LicenseHostChangedSubscriberTest extends TestCase
         ]);
 
         $connection = $this->createMock(Connection::class);
-        $connection->expects(static::once())->method('executeStatement')->with('UPDATE user SET store_token = NULL');
+        $connection->expects($this->once())->method('executeStatement')->with('UPDATE user SET store_token = NULL');
 
         $subscriber = new LicenseHostChangedSubscriber($config, $connection, $this->createMock(InAppPurchaseUpdater::class));
 
@@ -86,7 +86,7 @@ class LicenseHostChangedSubscriberTest extends TestCase
     public function testUpdateIapKeyOnlyUsesStoreToken(): void
     {
         $iapUpdater = $this->createMock(InAppPurchaseUpdater::class);
-        $iapUpdater->expects(static::never())->method('update');
+        $iapUpdater->expects($this->never())->method('update');
 
         $subscriber = new LicenseHostChangedSubscriber(
             new StaticSystemConfigService(),
@@ -101,7 +101,7 @@ class LicenseHostChangedSubscriberTest extends TestCase
     public function testUpdateIapKeyOnlyUsesActualToken(): void
     {
         $iapUpdater = $this->createMock(InAppPurchaseUpdater::class);
-        $iapUpdater->expects(static::never())->method('update');
+        $iapUpdater->expects($this->never())->method('update');
 
         $subscriber = new LicenseHostChangedSubscriber(
             new StaticSystemConfigService(),
@@ -116,7 +116,7 @@ class LicenseHostChangedSubscriberTest extends TestCase
     public function testUpdateIapKeyUpdatesOnStoreSecretSet(): void
     {
         $iapUpdater = $this->createMock(InAppPurchaseUpdater::class);
-        $iapUpdater->expects(static::once())->method('update');
+        $iapUpdater->expects($this->once())->method('update');
 
         $subscriber = new LicenseHostChangedSubscriber(
             new StaticSystemConfigService(),

@@ -40,7 +40,7 @@ class ThemeCompilerEnrichScssVarSubscriberTest extends TestCase
 
     public function testEnrichExtensionVarsReturnsNothingWithNoStorefrontPlugin(): void
     {
-        $this->configService->expects(static::never())->method('getResolvedConfiguration');
+        $this->configService->expects($this->never())->method('getResolvedConfiguration');
 
         $subscriber = new ThemeCompilerEnrichScssVarSubscriber($this->configService, $this->storefrontPluginRegistry);
 

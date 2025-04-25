@@ -41,6 +41,7 @@
     "/_action/media/{mediaId}/rename",
     "/_action/number-range/preview-pattern/{type}",
     "/_action/order-address/{orderAddressId}/customer-address/{customerAddressId}",
+    "/_action/order/{orderId}/applyAutomaticPromotions",
     "/_action/order/{orderId}/convert-to-cart/",
     "/_action/order/{orderId}/creditItem",
     "/_action/order/{orderId}/lineItem",

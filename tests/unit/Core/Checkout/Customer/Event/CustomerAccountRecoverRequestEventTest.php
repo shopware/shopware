@@ -24,7 +24,7 @@ class CustomerAccountRecoverRequestEventTest extends TestCase
         $salesChannel->setTranslated(['name' => 'my-shop-name']);
 
         $context = $this->createMock(SalesChannelContext::class);
-        $context->expects(static::any())->method('getSalesChannel')->willReturn($salesChannel);
+        $context->expects($this->any())->method('getSalesChannel')->willReturn($salesChannel);
 
         $event = new CustomerAccountRecoverRequestEvent(
             $context,

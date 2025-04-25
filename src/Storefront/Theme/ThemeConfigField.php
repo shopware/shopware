@@ -82,13 +82,12 @@ class ThemeConfigField extends Struct
         $this->label = $label;
     }
 
-    public function getType(): string
+    public function getType(): ?string
     {
-        \assert($this->type !== null, 'Type must be set before retrieving');
         return $this->type;
     }
 
-    public function setType(string $type): void
+    public function setType(?string $type): void
     {
         $this->type = $type;
     }

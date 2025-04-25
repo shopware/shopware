@@ -1046,4 +1046,34 @@ describe('src/module/sw-sales-channel/view/sw-sales-channel-detail-base', () => 
 
         expect(wrapper.vm.cliCommand).toBe('php bin/console product-export:generate sc-id export-id');
     });
+
+    it('should reset length and mass unit IDs if measurement system changes to a non-default', async () => {
+        const wrapper = await createWrapper();
+
+        wrapper.vm.defaultMeasurementSystemId = 'default-system';
+        wrapper.vm.defaultLengthUnitId = 'default-length';
+        wrapper.vm.defaultMassUnitId = 'default-mass';
+        wrapper.vm.salesChannel.defaultLengthUnitId = 'some-length';
+        wrapper.vm.salesChannel.defaultMassUnitId = 'some-mass';
+
+        wrapper.vm.onMeasurementSystemChange('other-system');
+
+        expect(wrapper.vm.salesChannel.defaultLengthUnitId).toBeNull();
+        expect(wrapper.vm.salesChannel.defaultMassUnitId).toBeNull();
+    });
+
+    it('should restore length and mass unit IDs if measurement system changes to the default', async () => {
+        const wrapper = await createWrapper();
+
+        wrapper.vm.defaultMeasurementSystemId = 'default-system';
+        wrapper.vm.defaultLengthUnitId = 'default-length';
+        wrapper.vm.defaultMassUnitId = 'default-mass';
+        wrapper.vm.salesChannel.defaultLengthUnitId = null;
+        wrapper.vm.salesChannel.defaultMassUnitId = null;
+
+        wrapper.vm.onMeasurementSystemChange('default-system');
+
+        expect(wrapper.vm.salesChannel.defaultLengthUnitId).toBe('default-length');
+        expect(wrapper.vm.salesChannel.defaultMassUnitId).toBe('default-mass');
+    });
 });

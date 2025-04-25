@@ -18,9 +18,20 @@ const insertIdIntoRoute = (to, from, next) => {
 export default {
     template,
 
+    inject: [
+        'systemConfigApiService',
+    ],
+
     beforeRouteEnter: insertIdIntoRoute,
 
     beforeRouteUpdate: insertIdIntoRoute,
+
+    data() {
+        return {
+            measurementSystemConfig: null,
+        };
+    },
+
 
     computed: {
         allowSaving() {
@@ -28,11 +39,31 @@ export default {
         },
     },
 
+
+    watch: {
+        'salesChannel.defaultMeasurementSystemId': {
+            handler(value) {
+                if (value !== this.measurementSystemConfig['core.measurementSystem.typeId']) {
+                    this.salesChannel.defaultLengthUnitId = null;
+                    this.salesChannel.defaultMassUnitId = null;
+                    return;
+                }
+
+                this.salesChannel.defaultLengthUnitId = this.measurementSystemConfig['core.measurementSystem.lengthUnitId'];
+                this.salesChannel.defaultMassUnitId = this.measurementSystemConfig['core.measurementSystem.massUnitId'];
+            },
+            deep: true,
+        },
+    },
+
+
     methods: {
-        createdComponent() {
+        async createdComponent() {
             if (!this.$route.params.typeId) {
                 return;
             }
+
+            await this.getMeasurementSystemConfig();
 
             if (!Shopware.Store.get('context').isSystemDefaultLanguage) {
                 Shopware.Store.get('context').resetLanguageToDefault();
@@ -41,8 +72,15 @@ export default {
             this.salesChannel = this.salesChannelRepository.create();
             this.salesChannel.typeId = this.$route.params.typeId;
             this.salesChannel.active = false;
+            this.salesChannel.defaultMeasurementSystemId = this.measurementSystemConfig['core.measurementSystem.typeId'];
+            this.salesChannel.defaultLengthUnitId = this.measurementSystemConfig['core.measurementSystem.lengthUnitId'];
+            this.salesChannel.defaultMassUnitId = this.measurementSystemConfig['core.measurementSystem.massUnitId'];
 
             this.$super('createdComponent');
+        },
+
+        async getMeasurementSystemConfig() {
+            this.measurementSystemConfig = await this.systemConfigApiService.getValues('core.measurementSystem');
         },
 
         saveFinish() {

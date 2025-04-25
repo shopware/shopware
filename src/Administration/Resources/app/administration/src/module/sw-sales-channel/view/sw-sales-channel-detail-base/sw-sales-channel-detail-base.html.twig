@@ -199,6 +199,37 @@
             property-name-in-domain="languageId"
         />
         {% endblock %}
+
+        <sw-container
+            v-if="!isProductComparison"
+            columns="1fr 1fr 1fr"
+            gap="0 30px"
+        >
+            <sw-entity-single-select
+                v-if="!isProductComparison"
+                v-model:value="salesChannel.defaultMeasurementSystemId"
+                class="sw-sales-channel-detail__select-measurement-system"
+                :label="$t('sw-sales-channel.detail.measurement.labelDefaultUnitSystem')"
+                entity="measurement_system"
+                @update:value="onMeasurementSystemChange"
+            />
+
+            <sw-entity-single-select
+                v-if="!isProductComparison"
+                v-model:value="salesChannel.defaultLengthUnitId"
+                :label="$t('sw-sales-channel.detail.measurement.labelDefaultDimensionUnit')"
+                entity="measurement_display_unit"
+                :criteria="lengthUnitCriteria"
+            />
+
+            <sw-entity-single-select
+                v-if="!isProductComparison"
+                v-model:value="salesChannel.defaultMassUnitId"
+                :label="$t('sw-sales-channel.detail.measurement.labelDefaultDimensionUnit')"
+                entity="measurement_display_unit"
+                :criteria="massUnitCriteria"
+            />
+        </sw-container>
     </mt-card>
     {% endblock %}
 

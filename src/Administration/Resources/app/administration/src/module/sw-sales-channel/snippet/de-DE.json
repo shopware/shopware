@@ -292,6 +292,11 @@
           "titleNoProductStreamsMatching": "Keine passenden dynamischen Produktgruppen gefunden.",
           "titleNoProductStreamsAvailable": "Keine dynamische Produktgruppen verfügbar."
         }
+      },
+      "measurement": {
+        "labelDefaultUnitSystem": "Standard-Einheitssystem",
+        "labelDefaultDimensionUnit": "Standard-Dimensionseinheit",
+        "labelDefaultWeightUnit": "Standard-Gewichtseinheit"
       }
     },
     "sw-sales-channel-defaults-select": {

@@ -292,6 +292,14 @@
           "titleNoProductStreamsMatching": "No matching dynamic product groups found.",
           "titleNoProductStreamsAvailable": "No dynamic product groups available."
         }
+      },
+      "measurement": {
+        "labelDefaultUnitSystem": "Default unit system",
+        "labelDefaultDimensionUnit": "Default dimension unit",
+        "labelDefaultWeightUnit": "Default weight unit",
+        "labelUnitSystem": "Unit system",
+        "labelDimensionUnit": "Dimension unit",
+        "labelWeightUnit": "Weight unit"
       }
     },
     "sw-sales-channel-defaults-select": {

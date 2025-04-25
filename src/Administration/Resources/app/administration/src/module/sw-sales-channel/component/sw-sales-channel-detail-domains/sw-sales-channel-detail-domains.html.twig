@@ -173,6 +173,34 @@
             {% endblock %}
         </sw-container>
 
+        <sw-container
+            columns="1fr 1fr 1fr"
+            gap="0px 30px"
+        >
+            <sw-entity-single-select
+                v-model:value="currentDomain.measurementSystemId"
+                entity="measurement_system"
+                :label="$t('sw-sales-channel.detail.measurement.labelUnitSystem')"
+                required
+            />
+
+            <sw-entity-single-select
+                v-model:value="currentDomain.defaultLengthUnitId"
+                entity="measurement_display_unit"
+                :label="$t('sw-sales-channel.detail.measurement.labelDimensionUnit')"
+                :criteria="lengthUnitCriteria"
+                required
+            />
+
+            <sw-entity-single-select
+                v-model:value="currentDomain.defaultWeightUnitId"
+                entity="measurement_display_unit"
+                :label="$t('sw-sales-channel.detail.measurement.labelWeightUnit')"
+                :criteria="massUnitCriteria"
+                required
+            />
+        </sw-container>
+
         {% block sw_sales_channel_detail_domains_hreflang %}
         <sw-radio-field
             v-model:value="currentDomain.hreflangUseOnlyLocale"

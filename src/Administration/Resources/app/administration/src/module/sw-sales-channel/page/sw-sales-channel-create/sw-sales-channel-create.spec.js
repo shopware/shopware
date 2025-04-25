@@ -43,6 +43,11 @@ async function createWrapper() {
                 exportTemplateService: {
                     getProductExportTemplateRegistry: () => ({}),
                 },
+                systemConfigApiService: {
+                    getValues: () => {
+                        return Promise.resolve({});
+                    },
+                },
             },
             mocks: {
                 $route: {
@@ -83,5 +88,71 @@ describe('src/module/sw-sales-channel/page/sw-sales-channel-create', () => {
         const saveButton = wrapper.getComponent('.sw-sales-channel-detail__save-action');
 
         expect(saveButton.props('disabled')).toBe(false);
+    });
+
+    it('should initialize measurement system values correctly', async () => {
+        const wrapper = await createWrapper();
+
+        const mockConfig = {
+            'core.measurementSystem.typeId': 'default-system',
+            'core.measurementSystem.lengthUnitId': 'default-length',
+            'core.measurementSystem.massUnitId': 'default-mass'
+        };
+
+        wrapper.vm.systemConfigApiService.getValues = jest.fn().mockResolvedValue(mockConfig);
+
+        wrapper.vm.$route.params.typeId = 'test-type';
+
+        await wrapper.vm.createdComponent();
+
+        expect(wrapper.vm.systemConfigApiService.getValues).toHaveBeenCalledWith('core.measurementSystem');
+
+        expect(wrapper.vm.salesChannel.defaultMeasurementSystemId).toBe('default-system');
+        expect(wrapper.vm.salesChannel.defaultLengthUnitId).toBe('default-length');
+        expect(wrapper.vm.salesChannel.defaultMassUnitId).toBe('default-mass');
+    });
+
+    it('should handle measurement system change correctly', async () => {
+        const wrapper = await createWrapper();
+
+        await wrapper.setData({
+            measurementSystemConfig: {
+                'core.measurementSystem.typeId': 'default-system',
+                'core.measurementSystem.lengthUnitId': 'default-length',
+                'core.measurementSystem.massUnitId': 'default-mass'
+            }
+        });
+
+        await wrapper.setData({
+            salesChannel: {
+                defaultMeasurementSystemId: 'default-system',
+                defaultLengthUnitId: 'default-length',
+                defaultMassUnitId: 'default-mass'
+            }
+        });
+
+        await wrapper.setData({
+            salesChannel: {
+                ...wrapper.vm.salesChannel,
+                defaultMeasurementSystemId: 'other-system'
+            }
+        });
+
+        await wrapper.vm.$nextTick();
+
+        expect(wrapper.vm.salesChannel.defaultLengthUnitId).toBe('default-length');
+        expect(wrapper.vm.salesChannel.defaultMassUnitId).toBe('default-mass');
+
+        await wrapper.setData({
+            salesChannel: {
+                ...wrapper.vm.salesChannel,
+                defaultMeasurementSystemId: 'default-system'
+            }
+        });
+
+        await wrapper.vm.$nextTick();
+
+        expect(wrapper.vm.salesChannel.defaultLengthUnitId).toBe('default-length');
+        expect(wrapper.vm.salesChannel.defaultMassUnitId).toBe('default-mass');
     });
 });

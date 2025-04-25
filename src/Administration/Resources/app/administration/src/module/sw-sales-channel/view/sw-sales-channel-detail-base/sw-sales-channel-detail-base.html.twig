@@ -199,6 +199,11 @@
             property-name-in-domain="languageId"
         />
         {% endblock %}
+
+        <sw-sales-channel-measurement
+            v-if="!isProductComparison"
+            :sales-channel="salesChannel"
+        />
     </mt-card>
     {% endblock %}
 

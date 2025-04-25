@@ -45,6 +45,9 @@ export default {
                 currencyId: null,
                 snippetSet: null,
                 snippetSetId: null,
+                measurementSystemId: null,
+                defaultLengthUnitId: null,
+                defaultWeightUnitId: null,
             },
             isLoadingDomains: false,
             deleteDomain: null,
@@ -124,6 +127,26 @@ export default {
             const domains = [...this.salesChannel.domains];
 
             return this.localSortDomains(domains);
+        },
+
+        lengthUnitCriteria() {
+            const criteria = new Criteria();
+            criteria.addFilter(Criteria.equals('type', 'length'));
+            if (this.salesChannel?.defaultMeasurementSystemId) {
+                criteria.addFilter(Criteria.equals('measurementSystem.id', this.salesChannel.defaultMeasurementSystemId));
+            }
+
+            return criteria;
+        },
+
+        massUnitCriteria() {
+            const criteria = new Criteria();
+            criteria.addFilter(Criteria.equals('type', 'mass'));
+            if (this.salesChannel?.defaultMeasurementSystemId) {
+                criteria.addFilter(Criteria.equals('measurementSystem.id', this.salesChannel.defaultMeasurementSystemId));
+            }
+
+            return criteria;
         },
     },
 
@@ -221,6 +244,9 @@ export default {
                 currencyId: domain.currencyId,
                 snippetSet: domain.snippetSet,
                 snippetSetId: domain.snippetSetId,
+                measurementSystemId: domain.measurementSystemId,
+                defaultLengthUnitId: domain.defaultLengthUnitId,
+                defaultWeightUnitId: domain.defaultWeightUnitId,
             };
         },
 
@@ -232,6 +258,9 @@ export default {
             this.currentDomain.currencyId = this.currentDomainBackup.currencyId;
             this.currentDomain.snippetSet = this.currentDomainBackup.snippetSet;
             this.currentDomain.snippetSetId = this.currentDomainBackup.snippetSetId;
+            this.currentDomain.measurementSystemId = this.currentDomainBackup.measurementSystemId;
+            this.currentDomain.defaultLengthUnitId = this.currentDomainBackup.defaultLengthUnitId;
+            this.currentDomain.defaultWeightUnitId = this.currentDomainBackup.defaultWeightUnitId;
         },
 
         setInitialCurrency(domain) {
@@ -248,6 +277,13 @@ export default {
             this.currentDomain = domain;
         },
 
+        setInitialMeasurementSystem(domain) {
+            const measurementSystem = this.salesChannel.measurementSystems.first();
+            domain.measurementSystem = measurementSystem;
+            domain.measurementSystemId = measurementSystem.id;
+            this.currentDomain = domain;
+        },
+
         onClickOpenCreateDomainModal() {
             const domain = this.domainRepository.create(Context.api);
 
@@ -259,6 +295,10 @@ export default {
 
             if (this.salesChannel.languages.length === 1) {
                 this.setInitialLanguage(domain);
+            }
+
+            if (this.salesChannel.measurementSystems.length === 1) {
+                this.setInitialMeasurementSystem(domain);
             }
 
             domain.hreflangUseOnlyLocale = false;

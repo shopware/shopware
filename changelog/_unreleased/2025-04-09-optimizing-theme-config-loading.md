@@ -3,11 +3,15 @@ title: Optimizing theme config loading
 issue: https://github.com/shopware/shopware/issues/7766
 ---
 # Core
-* Changed `\Shopware\Core\System\Snippet\SnippetService` to use `\Shopware\Storefront\Theme\ThemeRuntimeConfigService` to get information about available themes
+* Added `\Shopware\Core\System\Snippet\Event\SnippetsThemeResolveEvent` to remove dependency on `Storefront` components from `SnippetService`
+* Changed `\Shopware\Core\System\Snippet\SnippetService`:
+  * Used/non-used themes information is retrieved using `SnippetsThemeResolveEvent`
+  * Deprecated `getUnusedThemes` method, replacement will not be provided.
 ___
 # Storefront
 * Added new `\Shopware\Storefront\Theme\ThemeRuntimeConfig` entity and `theme_runtime_config` table to store theme runtime configuration
 * Added `\Shopware\Storefront\Theme\ThemeRuntimeConfigService` to handle theme runtime configurations
+* Added `\Shopware\Storefront\Theme\Subscriber\ThemeSnippetsSubscriber` to collect information about active/non-active themes for snippets functionality
 * Changed `\Shopware\Storefront\Theme\ThemeLifecycleService`, adding optional `$configurationCollection` parameter to the `refreshTheme` method
 * Deprecated `\Shopware\Storefront\Theme\ThemeLifecycleService` to be marked as final in the next major version.
 * Changed theme configuration loading in the code, used during storefront rendering, to use the new `\Shopware\Storefront\Theme\ThemeRuntimeConfigService`:
@@ -18,7 +22,6 @@ ___
 * Changed `\Shopware\Storefront\Theme\CachedResolvedConfigLoaderInvalidator` name to `\Shopware\Storefront\Theme\ThemeConfigCacheInvalidator`
 * Deprecated `\Shopware\Storefront\Theme\CachedResolvedConfigLoader`, as it is no longer used in the storefront
 * Deprecated `\Shopware\Storefront\Theme\Exception\ThemeAssignmentException`
-* Deprecated `\Shopware\Core\System\Snippet\SnippetService::getUnusedThemes` method, replacement will not be provided.
 ___
 # Upgrade Information
 

@@ -111,4 +111,45 @@ class StoreExceptionTest extends TestCase
         static::assertEquals('FRAMEWORK__EXTENSION_NOT_FOUND', $exception->getErrorCode());
         static::assertEquals(Response::HTTP_NOT_FOUND, $exception->getStatusCode());
     }
+
+    public function testExtensionRuntimeExtensionManagementNotAllowed(): void
+    {
+        $exception = StoreException::extensionRuntimeExtensionManagementNotAllowed();
+
+        static::assertSame(
+            'Runtime extension management is disabled',
+            $exception->getMessage()
+        );
+        static::assertSame('FRAMEWORK__EXTENSION_RUNTIME_EXTENSION_MANAGEMENT_NOT_ALLOWED', $exception->getErrorCode());
+        static::assertSame(Response::HTTP_FORBIDDEN, $exception->getStatusCode());
+    }
+
+    public function testMissingRequestParameter(): void
+    {
+        $parameterName = 'testParam';
+        $path = '/api/test';
+        $exception = StoreException::missingRequestParameter($parameterName, $path);
+
+        static::assertSame(
+            'Parameter "testParam" is missing.',
+            $exception->getMessage()
+        );
+        static::assertSame('FRAMEWORK__STORE_MISSING_REQUEST_PARAMETER', $exception->getErrorCode());
+        static::assertSame(Response::HTTP_BAD_REQUEST, $exception->getStatusCode());
+        static::assertSame(['parameterName' => $parameterName, 'path' => $path], $exception->getParameters());
+    }
+
+    public function testInvalidType(): void
+    {
+        $expected = 'string';
+        $actual = 'integer';
+        $exception = StoreException::invalidType($expected, $actual);
+
+        static::assertSame(
+            'Expected collection element of type string got integer',
+            $exception->getMessage()
+        );
+        static::assertSame('FRAMEWORK__STORE_INVALID_TYPE', $exception->getErrorCode());
+        static::assertSame(Response::HTTP_BAD_REQUEST, $exception->getStatusCode());
+    }
 }

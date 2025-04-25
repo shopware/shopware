@@ -19,6 +19,9 @@ class StoreException extends HttpException
     public const EXTENSION_INSTALL = 'FRAMEWORK__EXTENSION_INSTALL_EXCEPTION';
     public const EXTENSION_UPDATE_REQUIRES_CONSENT_AFFIRMATION = 'FRAMEWORK__EXTENSION_UPDATE_REQUIRES_CONSENT_AFFIRMATION';
     public const EXTENSION_NOT_FOUND = 'FRAMEWORK__EXTENSION_NOT_FOUND';
+    public const EXTENSION_RUNTIME_EXTENSION_MANAGEMENT_NOT_ALLOWED = 'FRAMEWORK__EXTENSION_RUNTIME_EXTENSION_MANAGEMENT_NOT_ALLOWED';
+    public const MISSING_REQUEST_PARAMETER_CODE = 'FRAMEWORK__STORE_MISSING_REQUEST_PARAMETER';
+    public const INVALID_TYPE = 'FRAMEWORK__STORE_INVALID_TYPE';
 
     public static function cannotDeleteManaged(string $pluginName): self
     {
@@ -99,6 +102,34 @@ class StoreException extends HttpException
             self::EXTENSION_NOT_FOUND,
             self::$couldNotFindMessage,
             ['entity' => 'extension', 'field' => 'technical name', 'value' => $technicalName]
+        );
+    }
+
+    public static function extensionRuntimeExtensionManagementNotAllowed(): self
+    {
+        return new self(
+            Response::HTTP_FORBIDDEN,
+            self::EXTENSION_RUNTIME_EXTENSION_MANAGEMENT_NOT_ALLOWED,
+            'Runtime extension management is disabled'
+        );
+    }
+
+    public static function missingRequestParameter(string $name, string $path = ''): self
+    {
+        return new self(
+            Response::HTTP_BAD_REQUEST,
+            self::MISSING_REQUEST_PARAMETER_CODE,
+            'Parameter "{{ parameterName }}" is missing.',
+            ['parameterName' => $name, 'path' => $path]
+        );
+    }
+
+    public static function invalidType(string $expected, string $actual): self
+    {
+        return new self(
+            Response::HTTP_BAD_REQUEST,
+            self::INVALID_TYPE,
+            \sprintf('Expected collection element of type %s got %s', $expected, $actual)
         );
     }
 }

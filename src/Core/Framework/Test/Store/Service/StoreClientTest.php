@@ -5,6 +5,7 @@ namespace Shopware\Core\Framework\Test\Store\Service;
 use GuzzleHttp\Exception\ConnectException;
 use GuzzleHttp\Psr7\Query;
 use GuzzleHttp\Psr7\Response;
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Psr\Http\Message\RequestInterface;
 use Shopware\Core\Framework\Api\Context\AdminApiSource;
@@ -16,11 +17,13 @@ use Shopware\Core\Framework\Store\Struct\ExtensionStruct;
 use Shopware\Core\Framework\Test\Store\StoreClientBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
+use Symfony\Contracts\Cache\CacheInterface;
 
 /**
  * @internal
  */
-#[Package('services-settings')]
+#[Package('checkout')]
+#[CoversClass(StoreClient::class)]
 class StoreClientTest extends TestCase
 {
     use IntegrationTestBehaviour;
@@ -32,10 +35,13 @@ class StoreClientTest extends TestCase
 
     private Context $storeContext;
 
+    private CacheInterface $cache;
+
     protected function setUp(): void
     {
-        $this->configService = $this->getContainer()->get(SystemConfigService::class);
-        $this->storeClient = $this->getContainer()->get(StoreClient::class);
+        $this->configService = static::getContainer()->get(SystemConfigService::class);
+        $this->cache = static::getContainer()->get('cache.object');
+        $this->storeClient = static::getContainer()->get(StoreClient::class);
 
         $this->setLicenseDomain('shopware-test');
 
@@ -123,7 +129,12 @@ class StoreClientTest extends TestCase
 
         static::assertEquals([], $updateList);
 
-        $lastRequest = $this->getRequestHandler()->getLastRequest();
+        $cachedList = $this->cache->get(StoreClient::EXTENSION_LIST_CACHE, fn () => null);
+
+        static::assertIsArray($cachedList);
+        static::assertEquals([], $cachedList);
+
+        $lastRequest = $this->getStoreRequestHandler()->getLastRequest();
         static::assertInstanceOf(RequestInterface::class, $lastRequest);
 
         static::assertEquals(
@@ -165,7 +176,14 @@ class StoreClientTest extends TestCase
         static::assertEquals('TestExtension', $updateList[0]->getName());
         static::assertEquals('1.1.0', $updateList[0]->getVersion());
 
-        $lastRequest = $this->getRequestHandler()->getLastRequest();
+        $cachedList = $this->cache->get(StoreClient::EXTENSION_LIST_CACHE, fn () => null);
+
+        static::assertIsArray($cachedList);
+        static::assertCount(1, $cachedList);
+        static::assertEquals('TestExtension', $cachedList[0]->getName());
+        static::assertEquals('1.1.0', $cachedList[0]->getVersion());
+
+        $lastRequest = $this->getStoreRequestHandler()->getLastRequest();
         static::assertInstanceOf(RequestInterface::class, $lastRequest);
 
         static::assertFalse($lastRequest->hasHeader('X-Shopware-Platform-Token'));

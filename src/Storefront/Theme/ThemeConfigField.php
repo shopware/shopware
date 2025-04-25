@@ -20,7 +20,7 @@ class ThemeConfigField extends Struct
      */
     protected ?array $helpText = null;
 
-    protected string $type = '';
+    protected ?string $type;
 
     /**
      * @deprecated tag:v6.8.0 - Property will be typed natively as array|string
@@ -84,6 +84,7 @@ class ThemeConfigField extends Struct
 
     public function getType(): string
     {
+        \assert($this->type !== null, 'Type must be set before retrieving');
         return $this->type;
     }
 

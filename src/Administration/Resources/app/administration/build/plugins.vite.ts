@@ -25,7 +25,12 @@ import AssetPlugin from './vite-plugins/asset-plugin';
 import AssetPathPlugin from './vite-plugins/asset-path-plugin';
 import ExternalsPlugin from './vite-plugins/externals-plugin';
 import OverrideComponentRegisterPlugin from './vite-plugins/override-component-register';
-import { loadExtensions, findAvailablePorts } from './vite-plugins/utils';
+import {
+    loadExtensions,
+    findAvailablePorts,
+    isInsideDockerContainer,
+    getContainerIP
+} from './vite-plugins/utils';
 import type { ExtensionDefinition } from './vite-plugins/utils';
 import injectHtml from './vite-plugins/inject-html';
 
@@ -34,6 +39,7 @@ const isDev = VITE_MODE === 'development';
 
 // This env variable is provided by the symfony recipes
 const hasAdminRootEnv = !!process.env.ADMIN_ROOT;
+const host = process.env.VITE_HOST || (isInsideDockerContainer() ? getContainerIP() : undefined) || 'localhost';
 
 const extensionEntries = loadExtensions();
 
@@ -186,13 +192,13 @@ const main = async () => {
             }
 
             if (extension.isApp) {
-                swPluginDevJsonData[extension.technicalName].html = `http://localhost:${availablePorts[index]}/index.html`;
+                swPluginDevJsonData[extension.technicalName].html = `http://${host}:${availablePorts[index]}/index.html`;
             }
 
             if (extension.isPlugin) {
-                swPluginDevJsonData[extension.technicalName].js = `http://localhost:${availablePorts[index]}/${fileName}`;
+                swPluginDevJsonData[extension.technicalName].js = `http://${host}:${availablePorts[index]}/${fileName}`;
                 swPluginDevJsonData[extension.technicalName].hmrSrc =
-                    `http://localhost:${availablePorts[index]}/@vite/client`;
+                    `http://${host}:${availablePorts[index]}/@vite/client`;
             }
         });
 
@@ -213,7 +219,11 @@ const main = async () => {
                 // For apps
                 server = await createServer({
                     root: extension.path,
-                    server: { port },
+                    server: {
+                        port,
+                        host,
+                        cors: true,
+                    },
                 });
 
                 extensionInfoDebug(colors.green(`# App "${extension.name}": Injected successfully`));
@@ -221,7 +231,11 @@ const main = async () => {
                 // For plugins
                 server = await createServer({
                     ...getBaseConfig(extension),
-                    server: { port },
+                    server: {
+                        port,
+                        host,
+                        cors: true,
+                    },
                 });
 
                 extensionInfoDebug(colors.green(`# Plugin "${extension.name}": Injected successfully`));

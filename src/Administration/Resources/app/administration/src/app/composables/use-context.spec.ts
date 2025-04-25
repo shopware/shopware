@@ -21,6 +21,7 @@ describe('use-context', () => {
                     version: null,
                     versionRevision: null,
                     inAppPurchases: {},
+                    shopId: null,
                 },
                 environment: null,
                 fallbackLocale: null,

@@ -95,6 +95,10 @@ jobs:
         with:
           node-version: 20
 
+      - name: Refresh Package List
+        shell: bash
+        run: sudo apt-get update --allow-releaseinfo-change
+
       - name: Install dependencies
         working-directory: tests/acceptance
         run: npm ci
@@ -348,9 +352,14 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: 20
+
       - name: Install dependencies
         working-directory: new-shopware/tests/acceptance
         run: npm ci
+
+      - name: Refresh Package List
+        run: sudo apt-get update --allow-releaseinfo-change
+
       - name: Install Playwright Browsers
         working-directory: new-shopware/tests/acceptance
         run: npx playwright install --with-deps chromium

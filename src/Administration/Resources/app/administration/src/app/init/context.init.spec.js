@@ -11,6 +11,7 @@ import {
     getAppInformation,
     getUserInformation,
     getUserTimezone,
+    getShopId,
 } from '@shopware-ag/meteor-admin-sdk/es/context';
 import { getId } from '@shopware-ag/meteor-admin-sdk/es/window';
 
@@ -227,5 +228,15 @@ describe('src/app/init/context.init.ts', () => {
 
         expect(Shopware.Store.get('context').windowId).not.toBeNull();
         expect(windowId).toBe(Shopware.Store.get('context').app.windowId);
+    });
+
+    it('should return correct shopId', async () => {
+        expect(Shopware.Store.get('context').app.config.shopId).toBeNull();
+
+        expect(await getShopId()).toBeNull();
+
+        Shopware.Store.get('context').app.config.shopId = 'shop-id';
+
+        expect(await getShopId()).toBe('shop-id');
     });
 });

@@ -7,6 +7,12 @@ import EntityCollection from 'src/core/data/entity-collection.data';
 
 let wrapper;
 
+const mockedLoginService = {
+    verifyUserToken: jest.fn(() => Promise.resolve('verifiedToken')),
+    getBearerAuthentication: jest.fn(),
+    setBearerAuthentication: jest.fn(),
+};
+
 async function createWrapper(
     privileges = [],
     options = {
@@ -48,14 +54,16 @@ async function createWrapper(
                             return privileges.includes(identifier);
                         },
                     },
-                    loginService: {},
+                    loginService: mockedLoginService,
                     userService: {
                         getUser: () => Promise.resolve({ data: {} }),
                     },
                     mediaDefaultFolderService: {
                         getDefaultFolderId: () => Promise.resolve('1234'),
                     },
-                    userValidationService: {},
+                    userValidationService: {
+                        checkUserEmail: () => Promise.resolve({ emailIsUnique: true }),
+                    },
                     integrationService: {},
                     repositoryFactory: {
                         create: (entityName) => {
@@ -74,6 +82,7 @@ async function createWrapper(
                                             },
                                         });
                                     },
+                                    save: () => Promise.resolve(),
                                 };
                             }
 
@@ -537,5 +546,26 @@ describe('modules/sw-users-permissions/page/sw-users-permissions-user-detail', (
             path: 'user',
             scope: expect.anything(),
         });
+    });
+
+    it('should update the auth token if user password is changed', async () => {
+        Shopware.Application.$container.resetProviders();
+        Shopware.Application.addServiceProvider('localeHelper', () => ({ setLocaleWithId: () => Promise.resolve() }));
+        wrapper.vm.user.password = 'newPassword';
+        await wrapper.vm.saveUser();
+        await flushPromises();
+
+        expect(mockedLoginService.verifyUserToken).toHaveBeenCalledWith('newPassword');
+        expect(mockedLoginService.setBearerAuthentication).toHaveBeenCalledWith({ access: 'verifiedToken' });
+    });
+
+    it('should not update the auth token if user password is not changed', async () => {
+        Shopware.Application.$container.resetProviders();
+        Shopware.Application.addServiceProvider('localeHelper', () => ({ setLocaleWithId: () => Promise.resolve() }));
+        await wrapper.vm.saveUser();
+        await flushPromises();
+
+        expect(mockedLoginService.verifyUserToken).not.toHaveBeenCalled();
+        expect(mockedLoginService.setBearerAuthentication).not.toHaveBeenCalled();
     });
 });

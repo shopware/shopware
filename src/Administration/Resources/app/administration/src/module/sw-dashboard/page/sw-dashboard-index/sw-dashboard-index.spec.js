@@ -21,6 +21,8 @@ async function createWrapper(privileges = []) {
                 'router-link': true,
                 'sw-app-actions': true,
                 'sw-error-summary': true,
+                'sw-context-menu-item': true,
+                'sw-context-button': true,
             },
             mocks: {
                 $tc: jest.fn().mockImplementation((snippetPath, placeholders) => {

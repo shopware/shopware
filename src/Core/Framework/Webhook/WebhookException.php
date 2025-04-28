@@ -53,7 +53,7 @@ class WebhookException extends HttpException
         }
 
         return new self(
-            Response::HTTP_BAD_REQUEST,
+            Response::HTTP_INTERNAL_SERVER_ERROR,
             self::INVALID_DATA_MAPPING,
             'Invalid available DataMapping, could not get property "{{ propertyName }}" on instance of {{ class }}',
             ['propertyName' => $propertyName, 'class' => $className]
@@ -70,7 +70,7 @@ class WebhookException extends HttpException
         }
 
         return new self(
-            Response::HTTP_BAD_REQUEST,
+            Response::HTTP_INTERNAL_SERVER_ERROR,
             self::UNKNOWN_DATA_TYPE,
             'Unknown EventDataType: {{ type }}',
             ['type' => $type]

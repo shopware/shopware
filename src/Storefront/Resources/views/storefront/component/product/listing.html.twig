@@ -39,11 +39,19 @@
                                 {% endblock %}
                             </div>
 
-                            <div class="col-md-auto">
+                            <div class="col-md-auto d-flex gap-3">
                                 {% block element_product_listing_sorting %}
                                     {% sw_include '@Storefront/storefront/component/sorting.html.twig' with {
                                         current: searchResult.sorting,
                                         sortings: searchResult.availableSortings
+                                    } %}
+                                {% endblock %}
+
+                                {% block element_product_listing_limit %}
+                                    {# TODO: Show/hide config + limits config? #}
+                                    {% sw_include '@Storefront/storefront/component/listing/limit.html.twig' with {
+                                        current: slot.data.listing.limit,
+                                        limits: ['6', '12', '24', '36', '48', '96']
                                     } %}
                                 {% endblock %}
                             </div>

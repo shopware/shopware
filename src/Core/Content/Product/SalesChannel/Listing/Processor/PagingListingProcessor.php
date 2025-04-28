@@ -27,7 +27,7 @@ class PagingListingProcessor extends AbstractListingProcessor
 
     public function prepare(Request $request, Criteria $criteria, SalesChannelContext $context): void
     {
-        $limit = $this->getLimit($criteria, $context);
+        $limit = $this->getLimit($criteria, $context, $request);
 
         $page = $this->getPage($request);
         if ($page !== null) {
@@ -48,12 +48,22 @@ class PagingListingProcessor extends AbstractListingProcessor
             $result->setPage($page);
         }
 
-        $limit = $result->getCriteria()->getLimit() ?? $this->getLimit($result->getCriteria(), $context);
+        $limit = $result->getCriteria()->getLimit() ?? $this->getLimit($result->getCriteria(), $context, $request);
         $result->setLimit($limit);
     }
 
-    private function getLimit(Criteria $criteria, SalesChannelContext $context): int
+    private function getLimit(Criteria $criteria, SalesChannelContext $context, Request $request): int
     {
+        /** TODO: Do we need a sort of mechanism to only allow certain values like 6, 12 ,24, 48, 96 etc
+         * otherwise visitors can manipulate the limit which can lead to performance issues because first hit is not cached
+         * currently capped to 96
+         * also ignore this if feature is disabled in config
+         **/
+        $limit = $request->query->has('limit') ? $request->query->getInt('limit') : null;
+        if ($limit !== null && $limit > 0 && $limit <= 96) {
+            return $limit;
+        }
+
         if ($criteria->getLimit() !== null && $criteria->getLimit() > 0) {
             return $criteria->getLimit();
         }

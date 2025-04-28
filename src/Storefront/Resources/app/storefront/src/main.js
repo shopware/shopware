@@ -93,6 +93,7 @@ PluginManager.register('FilterPropertySelect', () => import('src/plugin/listing/
 PluginManager.register('FilterRatingSelect', () => import('src/plugin/listing/filter-rating-select.plugin'), '[data-filter-rating-select]');
 PluginManager.register('ListingPagination', () => import('src/plugin/listing/listing-pagination.plugin'), '[data-listing-pagination]');
 PluginManager.register('ListingSorting', () => import('src/plugin/listing/listing-sorting.plugin'), '[data-listing-sorting]');
+PluginManager.register('ListingLimit', () => import('src/plugin/listing/listing-limit.plugin'), '[data-listing-limit]');
 PluginManager.register('CrossSelling', () => import('src/plugin/cross-selling/cross-selling.plugin'), '[data-cross-selling]');
 PluginManager.register('DatePicker', () => import('src/plugin/date-picker/date-picker.plugin'), '[data-date-picker]'); // Not used in core, but implemented for plugins
 PluginManager.register('FormCmsHandler', () => import('src/plugin/forms/form-cms-handler.plugin'), '.cms-element-form form');

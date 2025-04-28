@@ -54,6 +54,7 @@
     "maintenanceModeDescription": "Wir aktualisieren derzeit die Inhalte dieser Seite. Bitte schauen Sie später wieder vorbei.",
     "stagingModeDescription": "Der Shop befindet sich im Staging-Modus.",
     "sortingLabel": "Sortierung",
+    "limitLabel": "Produkte pro Seite",
     "next": "Nächstes",
     "previous": "Vorheriges",
     "formSubmit": "Absenden",

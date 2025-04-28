@@ -1,3 +1,22 @@
+# 6.6.10.4
+## Pinning promotions in administration
+When an _existing_ order is changed in administration, the promotions are pinned.
+No changes will be made to the promotions, other than recalculating the price, unless done manually.
+This means that when changing the order:
+* No promotions are _automatically_ added
+* No promotions are _automatically_ removed
+* Disabled promotions are kept and recalculated correctly
+* Adding promotion codes works as expected
+
+In addition, the switch for toggling automatic promotions is replaced by a button.
+The button will reapply _automatic_ promotions by:
+* Removing _automatic_ promotions whose conditions aren't met anymore
+* Adding _automatic_ promotions whose conditions apply to the order
+## Deprecation of DeleteThemeFilesMessage and its handler
+The `\Shopware\Storefront\Theme\Message\DeleteThemeFilesMessage` and its handler `\Shopware\Storefront\Theme\Message\DeleteThemeFilesHandler` are deprecated.
+They are no longer used by the core and will be removed in the next major version.
+Unused theme files are now deleted by using the `\Shopware\Storefront\Theme\ScheduledTask\DeleteThemeFilesTask` scheduled task.
+
 # 6.6.10.1
 
 ## Fix `ServiceNotFoundException` during platform update

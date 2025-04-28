@@ -407,8 +407,7 @@ describe('form-validation', () => {
         formValidation.validateField(field);
 
         // Should use the override, not the default "Input should not be empty."
-        expect(feedback.innerHTML).toBe(
-            `<div class="${formValidation.config.invalidFeedbackClass}">Username cannot be blank!</div>`
-        );
+        expect(feedback.textContent).toBe('Username cannot be blank!');
+        expect(field.classList).toContain(formValidation.config.invalidClass);
     });
 });

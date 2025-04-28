@@ -29,14 +29,3 @@ ___
 * Theme configuration used during storefront rendering is now stored in a `theme_runtime_config` table and regenerated on the refresh stage of theme lifecycle.
 * The `\Shopware\Storefront\Theme\CachedResolvedConfigLoader` is now deprecated and will be removed in the next major version. Please update the code that directly uses it to use the `\Shopware\Storefront\Theme\ResolvedConfigLoader` instead.
 * The `\Shopware\Storefront\Theme\Exception\ThemeAssignmentException` is now deprecated and will be removed in the next major version. Please use `\Shopware\Storefront\Theme\Exception\ThemeException::themeAssignmentException`.
-___
-# Next Major Version Changes
-## Removal of CachedResolvedConfigLoader
-* The `\Shopware\Storefront\Theme\CachedResolvedConfigLoader` was removed.
-
-## Removal of ThemeAssignmentException
-* The `\Shopware\Storefront\Theme\Exception\ThemeAssignmentException` was removed.
-
-## Changes to ThemeLifecycleService
-* The `\Shopware\Storefront\Theme\ThemeLifecycleService` is now final.
-* The new optional parameter `$configurationCollection` was added to the `refreshTheme` method.

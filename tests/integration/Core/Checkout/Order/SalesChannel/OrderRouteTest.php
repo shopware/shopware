@@ -199,8 +199,8 @@ class OrderRouteTest extends TestCase
                 \array_merge(
                     $this->requestCriteriaBuilder->toArray($criteria),
                     [
-                        'email' => 'test@example.com',
-                        'zipcode' => '59438-0403',
+                        'email' => 'Test@Example.com', // Uppercase to test case insensitiv check
+                        'zipcode' => 'ab438-0403',
                     ]
                 )
             );
@@ -243,8 +243,8 @@ class OrderRouteTest extends TestCase
                 \array_merge(
                     $this->requestCriteriaBuilder->toArray($criteria),
                     [
-                        'email' => 'test@example.com',
-                        'zipcode' => '59438-0403',
+                        'email' => 'Test@Example.com',
+                        'zipcode' => 'ab438-0403',
                     ]
                 )
             );
@@ -642,7 +642,7 @@ class OrderRouteTest extends TestCase
                             'salutationId' => $salutation,
                             'firstName' => 'Floy',
                             'lastName' => 'Glover',
-                            'zipcode' => '59438-0403',
+                            'zipcode' => 'AB438-0403',
                             'city' => 'Stellaberg',
                             'street' => 'street',
                             'country' => [
@@ -707,7 +707,7 @@ class OrderRouteTest extends TestCase
                         'salutationId' => $salutation,
                         'firstName' => 'Floy',
                         'lastName' => 'Glover',
-                        'zipcode' => '59438-0403',
+                        'zipcode' => 'AB438-0403',
                         'city' => 'Stellaberg',
                         'street' => 'street',
                         'countryId' => $this->getValidCountryId(),

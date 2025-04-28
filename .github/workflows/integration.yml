@@ -298,9 +298,14 @@ jobs:
       - uses: actions/setup-node@cdca7365b2dadb8aad0a33bc7601856ffabcc48e # 4
         with:
           node-version: 20
+
       - name: Install dependencies
         working-directory: new-shopware/tests/acceptance
         run: npm ci
+
+      - name: Refresh Package List
+        run: sudo apt-get update --allow-releaseinfo-change
+
       - name: Install Playwright Browsers
         working-directory: new-shopware/tests/acceptance
         run: npx playwright install --with-deps chromium

@@ -48,7 +48,7 @@ class BusinessEventEncoder
     {
         foreach ($data as $key => $property) {
             if (!$property instanceof Entity) {
-                $data[$key] = $stored[$key];
+                $data[$key] = $stored[$key] ?? $property;
 
                 continue;
             }

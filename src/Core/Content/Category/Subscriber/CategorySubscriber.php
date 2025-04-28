@@ -5,6 +5,7 @@ namespace Shopware\Core\Content\Category\Subscriber;
 use Shopware\Core\Content\Category\CategoryDefinition;
 use Shopware\Core\Content\Category\CategoryEntity;
 use Shopware\Core\Content\Category\CategoryEvents;
+use Shopware\Core\Content\Category\Service\AbstractCategoryUrlGenerator;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityLoadedEvent;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\Entity\SalesChannelEntityLoadedEvent;
@@ -20,8 +21,10 @@ class CategorySubscriber implements EventSubscriberInterface
     /**
      * @internal
      */
-    public function __construct(private readonly SystemConfigService $systemConfigService)
-    {
+    public function __construct(
+        private readonly SystemConfigService $systemConfigService,
+        private readonly AbstractCategoryUrlGenerator $categoryUrlGenerator,
+    ) {
     }
 
     public static function getSubscribedEvents(): array
@@ -40,6 +43,12 @@ class CategorySubscriber implements EventSubscriberInterface
         $salesChannelId = $event instanceof SalesChannelEntityLoadedEvent ? $event->getSalesChannelContext()->getSalesChannelId() : null;
 
         foreach ($event->getEntities() as $category) {
+            if ($event instanceof SalesChannelEntityLoadedEvent) {
+                $category->assign([
+                    'seoLink' => $this->categoryUrlGenerator->generate($category, $event->getSalesChannelContext()->getSalesChannel()),
+                ]);
+            }
+
             $categoryCmsPageId = $category->getCmsPageId();
 
             // continue if cms page is given and was not set in the subscriber

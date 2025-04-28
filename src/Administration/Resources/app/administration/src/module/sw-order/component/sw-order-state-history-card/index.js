@@ -2,6 +2,8 @@ import template from './sw-order-state-history-card.html.twig';
 
 /**
  * @sw-package checkout
+ *
+ * @deprecated tag:v6.8.0 - will be removed, no usages found
  */
 
 const { Mixin } = Shopware;

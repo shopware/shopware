@@ -42,7 +42,6 @@ async function createWrapper(customPropsData = {}) {
                 },
                 provide: {
                     repositoryFactory: {},
-
                 },
             },
         },

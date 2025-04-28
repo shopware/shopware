@@ -121,7 +121,7 @@ describe('src/module/sw-order/page/sw-order-detail', () => {
 
         Shopware.Store.get('swOrderDetail').order = {
             orderNumber: 1,
-            createdById: '2'
+            createdById: '2',
         };
         await nextTick();
 

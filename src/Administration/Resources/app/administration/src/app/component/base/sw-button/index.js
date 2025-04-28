@@ -24,7 +24,8 @@ Component.register('sw-button', {
     },
 
     methods: {
-        onClick() {
+        onClick(event) {
+            event.stopImmediatePropagation();
             // Important: Do not emit the click event again, it is already emitted by the button
 
             // Check if deprecated routerLink is used

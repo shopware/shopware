@@ -1,0 +1,19 @@
+{
+    "sw-settings-measurement": {
+        "general": {
+            "mainMenuItemGeneral": "Measurement system",
+            "description": "Change measurement here.",
+            "textHeadline": "Measurement system"
+        },
+        "defaultUnits": {
+            "title": "Default units",
+            "description": "Set the default units for how measurements are displayed in the administration. What customers see is defined by the settings of the Sales Channels.",
+            "system": "system",
+            "config": {
+                "type": "Unit system",
+                "lengthUnit": "Dimension unit",
+                "massUnit": "Weight unit"
+            }
+        }
+    }
+}

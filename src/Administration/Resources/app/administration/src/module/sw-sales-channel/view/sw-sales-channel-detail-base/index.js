@@ -509,26 +509,6 @@ export default {
                 };
             });
         },
-
-        lengthUnitCriteria() {
-            const criteria = new Criteria();
-            criteria.addFilter(Criteria.equals('type', 'length'));
-            if (this.salesChannel?.defaultMeasurementSystemId) {
-                criteria.addFilter(Criteria.equals('measurementSystem.id', this.salesChannel?.defaultMeasurementSystemId));
-            }
-
-            return criteria;
-        },
-
-        massUnitCriteria() {
-            const criteria = new Criteria();
-            criteria.addFilter(Criteria.equals('type', 'mass'));
-            if (this.salesChannel?.defaultMeasurementSystemId) {
-                criteria.addFilter(Criteria.equals('measurementSystem.id', this.salesChannel?.defaultMeasurementSystemId));
-            }
-
-            return criteria;
-        },
     },
 
     watch: {
@@ -800,17 +780,6 @@ export default {
 
         validateMaintenanceIpCidr(term) {
             return utils.string.isValidIp(term) || utils.string.isValidCidr(term);
-        },
-
-        onMeasurementSystemChange(value) {
-            if (value !== this.defaultMeasurementSystemId) {
-                this.salesChannel.defaultLengthUnitId = null;
-                this.salesChannel.defaultMassUnitId = null;
-                return;
-            }
-
-            this.salesChannel.defaultLengthUnitId = this.defaultLengthUnitId;
-            this.salesChannel.defaultMassUnitId = this.defaultMassUnitId;
         },
     },
 };

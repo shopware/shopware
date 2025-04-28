@@ -21,17 +21,11 @@ export default {
             type: Boolean,
             required: true,
         },
-    },
 
-    data() {
-        return {
-            defaultUnits: {
-                length: 'mm',
-                height: 'mm',
-                width: 'mm',
-                weight: 'kg',
-            },
-        };
+        defaultUnits: {
+            type: Object,
+            required: true,
+        },
     },
 
     watch: {

@@ -1,0 +1,28 @@
+<sw-container
+    columns="1fr 1fr 1fr"
+    gap="0 30px"
+>
+    <sw-entity-single-select
+        v-model:value="measurementSystemId"
+        class="sw-sales-channel-detail__select-measurement-system"
+        :label="$t('sw-sales-channel.detail.measurement.labelDefaultUnitSystem')"
+        entity="measurement_system"
+        ref="measurementSystemSelect"
+        :criteria="measurementSystemCriteria"
+        @update:value="onMeasurementSystemChange"
+    />
+
+    <sw-entity-single-select
+        v-model:value="lengthUnitId"
+        :label="$t('sw-sales-channel.detail.measurement.labelDefaultDimensionUnit')"
+        entity="measurement_display_unit"
+        :criteria="lengthUnitCriteria"
+    />
+
+    <sw-entity-single-select
+        v-model:value="massUnitId"
+        :label="$t('sw-sales-channel.detail.measurement.labelDefaultDimensionUnit')"
+        entity="measurement_display_unit"
+        :criteria="massUnitCriteria"
+    />
+</sw-container>

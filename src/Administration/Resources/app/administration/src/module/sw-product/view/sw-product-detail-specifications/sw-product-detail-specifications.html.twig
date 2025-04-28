@@ -15,6 +15,7 @@
         {% block sw_product_detail_specifications_measurement_content %}
         <sw-product-measurement-form
             :allow-edit="acl.can('product.editor')"
+            :default-units="defaultUnits"
         />
         {% endblock %}
     </mt-card>

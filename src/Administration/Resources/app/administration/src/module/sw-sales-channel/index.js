@@ -57,7 +57,10 @@ Shopware.Component.register(
     'sw-sales-channel-products-assignment-modal',
     () => import('./component/sw-sales-channel-products-assignment-modal'),
 );
-/* eslint-enable max-len, sw-deprecation-rules/private-feature-declarations */
+Shopware.Component.register(
+    'sw-sales-channel-measurement-units',
+    () => import('./component/sw-sales-channel-measurement-units'),
+);
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 Module.register('sw-sales-channel', {

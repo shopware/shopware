@@ -173,6 +173,12 @@
             {% endblock %}
         </sw-container>
 
+        <sw-sales-channel-measurement-units
+            :sales-channel="salesChannel"
+            :domain="currentDomain"
+        >
+
+        </sw-sales-channel-measurement-units>
         {% block sw_sales_channel_detail_domains_hreflang %}
         <sw-radio-field
             v-model:value="currentDomain.hreflangUseOnlyLocale"

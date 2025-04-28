@@ -20,6 +20,8 @@ export default {
         'feature',
         'bulkEditApiFactory',
         'repositoryFactory',
+        'systemConfigApiService',
+        'userConfigService',
     ],
 
     data() {
@@ -40,6 +42,7 @@ export default {
             parentProductFrozen: null,
             isComponentMounted: true,
             measurements: [],
+            measurementSystemConfig: null,
             defaultUnits: {
                 length: 'mm',
                 height: 'mm',
@@ -635,14 +638,7 @@ export default {
                         changeLabel: this.$tc('sw-bulk-edit.product.measuresAndPackaging.widthTitle.changeLabel'),
                         placeholder: this.$tc('sw-bulk-edit.product.measuresAndPackaging.widthTitle.placeholder'),
                         numberType: 'float',
-                        defaultUnit: (value) => {
-                            if (value) {
-                                // this.syncUnits('width', value, this.defaultUnits.width);
-                                this.defaultUnits.width = value;
-                            }
-
-                            return this.defaultUnits.width
-                        },
+                        defaultUnit: this.defaultUnits.width,
                         measurementType: 'length',
                         min: 0,
                         disabled: this.bulkEditProduct?.width?.isInherited,
@@ -657,14 +653,7 @@ export default {
                         changeLabel: this.$tc('sw-bulk-edit.product.measuresAndPackaging.heightTitle.changeLabel'),
                         placeholder: this.$tc('sw-bulk-edit.product.measuresAndPackaging.heightTitle.placeholder'),
                         numberType: 'float',
-                        defaultUnit: (value) => {
-                            if (value) {
-                                // this.syncUnits('height', value, this.defaultUnits.height);
-                                this.defaultUnits.height = value;
-                            }
-
-                            return this.defaultUnits.height
-                        },
+                        defaultUnit: this.defaultUnits.height,
                         measurementType: 'length',
                         min: 0,
                         disabled: this.bulkEditProduct?.height?.isInherited,
@@ -679,14 +668,7 @@ export default {
                         changeLabel: this.$tc('sw-bulk-edit.product.measuresAndPackaging.lengthTitle.changeLabel'),
                         placeholder: this.$tc('sw-bulk-edit.product.measuresAndPackaging.lengthTitle.placeholder'),
                         numberType: 'float',
-                        defaultUnit: (value) => {
-                            if (value) {
-                                // this.syncUnits('length', value, this.defaultUnits.length);
-                                this.defaultUnits.length = value;
-                            }
-
-                            return this.defaultUnits.length
-                        },
+                        defaultUnit: this.defaultUnits.length,
                         measurementType: 'length',
                         min: 0,
                         disabled: this.bulkEditProduct?.length?.isInherited,
@@ -701,7 +683,7 @@ export default {
                         changeLabel: this.$tc('sw-bulk-edit.product.measuresAndPackaging.weightTitle.changeLabel'),
                         placeholder: this.$tc('sw-bulk-edit.product.measuresAndPackaging.weightTitle.placeholder'),
                         numberType: 'float',
-                        defaultUnit: this.defaultUnits.mass,
+                        defaultUnit: this.defaultUnits.weight,
                         measurementType: 'mass',
                         min: 0,
                         disabled: this.bulkEditProduct?.weight?.isInherited,
@@ -952,6 +934,26 @@ export default {
                 return r;
             }, {});
         },
+
+
+        measurementDisplayUnitRepository() {
+            return this.repositoryFactory.create('measurement_display_unit');
+        },
+
+        measurementDisplayUnitCriteria() {
+            const criteria = new Criteria();
+
+            const measurementSystemDisplayIds = [
+                this.measurementSystemConfig?.['core.measurementSystem.massUnitId'],
+                this.measurementSystemConfig?.['core.measurementSystem.lengthUnitId'],
+            ].filter(id => id != null);
+
+            if (measurementSystemDisplayIds.length) {
+                criteria.setIds(measurementSystemDisplayIds);
+            }
+
+            return criteria;
+        },
     },
 
     watch: {
@@ -1054,6 +1056,8 @@ export default {
             if (this.isChild) {
                 await this.getParentProduct();
             }
+
+            await this.setMeasurementSystemDefaultUnits();
 
             const promises = [
                 this.loadCurrencies(),
@@ -1311,15 +1315,12 @@ export default {
 
                 let bulkEditValue = this.product[key];
 
-                const measurement = this.productMeasurementFields.find(item => item.name === key);
-                if (measurement) {
-                    this.measurements[key] = measurement.config.defaultUnit;
-
-                    const to = measurement.config.measurementType === 'length' ? 'mm' : 'kg';
+                if (['width', 'length', 'height'].includes(key)) {
+                    this.measurements[key] = this.defaultUnits[key];
 
                     bulkEditValue = convert(bulkEditValue)
-                        .from(measurement.config.defaultUnit)
-                        .to(to);
+                        .from(this.defaultUnits[key])
+                        .to('mm');
                 }
 
                 if (
@@ -1615,7 +1616,7 @@ export default {
         syncUnits(changedKey, newUnit, oldUnit) {
             if (newUnit === oldUnit) {
                 return;
-            };
+            }
 
             const relatedKeys = ['length', 'width', 'height'].filter(key => key !== changedKey);
 
@@ -1637,6 +1638,44 @@ export default {
 
                 measurement.config.defaultUnit = newUnit;
             });
+        },
+
+        async setMeasurementSystemDefaultUnits() {
+            const productMeasurementDefaultUnits = await this.userConfigService.search(['product.measurement.units']);
+            if (productMeasurementDefaultUnits.data?.['product.measurement.units']) {
+                this.defaultUnits = productMeasurementDefaultUnits.data['product.measurement.units'];
+                return;
+            }
+
+            this.measurementSystemConfig = await this.getMeasurementSystemConfig();
+            if (!this.measurementSystemConfig) {
+                return;
+            }
+
+            const measurementSystemDefaultUnits = await this.measurementDisplayUnitRepository.search(
+                this.measurementDisplayUnitCriteria,
+            );
+
+            if (!measurementSystemDefaultUnits) {
+                return;
+            }
+
+            const mass = measurementSystemDefaultUnits.find(item => item.type === 'mass')?.shortName
+                ?? 'kg';
+
+            const length = measurementSystemDefaultUnits.find(item => item.type === 'length')?.shortName
+                ?? 'mm';
+
+            this.defaultUnits = {
+                length: length,
+                width: length,
+                height: length,
+                weight: mass,
+            };
+        },
+
+        getMeasurementSystemConfig() {
+            return this.systemConfigApiService.getValues('core.measurementSystem');
         },
     },
 };

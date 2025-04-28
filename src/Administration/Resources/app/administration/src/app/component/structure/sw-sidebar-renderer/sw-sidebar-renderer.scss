@@ -1,0 +1,58 @@
+.sw-sidebar-renderer {
+    width: 480px;
+    flex-direction: column;
+    border-left: 1px solid var(--color-border-primary-default);
+    background: var(--color-elevation-surface-raised);
+
+    iframe {
+        width: 100%;
+        height: 100%;
+        border: none;
+    }
+
+    &__header {
+        display: flex;
+
+        // This value seems odd but is caused by the header of the page. 80px container plus 1px border seperator.
+        height: 81px;
+        padding: 0 24px;
+        justify-content: space-between;
+        align-items: center;
+        gap: 16px;
+        flex-shrink: 0;
+        align-self: stretch;
+        border-bottom: 1px solid var(--color-border-primary-default);
+        background: var(--color-elevation-surface-raised);
+    }
+
+    .sw-iframe-renderer {
+        height: 100%;
+    }
+
+    &__content {
+        height: 100%;
+    }
+
+    &__button-close {
+        width: 40px;
+        height: 40px;
+        border-radius: var(--border-radius-button);
+        transition: background-color 0.2s ease-in-out;
+
+        &:hover {
+            background: var(--color-interaction-secondary-hover);
+        }
+
+        &-active {
+            background: var(--color-interaction-secondary-hover);
+        }
+    }
+
+    &__close-icon {
+        cursor: pointer;
+    }
+
+    &__title {
+        margin: 0;
+    }
+}

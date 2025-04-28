@@ -24,8 +24,7 @@ Component.register('sw-app-wrong-app-url-modal', {
             wasModalAlreadyShown: !!localStorage.getItem(STORAGE_KEY_WAS_WRONG_APP_MODAL_SHOWN),
             notification: {
                 title: this.$tc('sw-app.component.sw-app-wrong-app-url-modal.title'),
-                message: `${this.$tc('sw-app.component.sw-app-wrong-app-url-modal.explanation')}<br>
-                     ${this.$tc('sw-app.component.sw-app-wrong-app-url-modal.textGetSupport')}`,
+                message: this.$tc('sw-app.component.sw-app-wrong-app-url-modal.explanation'),
                 actions: [
                     {
                         label: this.$tc('sw-app.component.sw-app-wrong-app-url-modal.labelLearnMoreButton'),

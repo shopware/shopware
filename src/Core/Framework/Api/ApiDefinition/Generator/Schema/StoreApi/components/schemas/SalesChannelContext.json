@@ -118,6 +118,49 @@
                             }
                         }
                     },
+                    "itemRounding": {
+                        "type": "object",
+                        "properties": {
+                            "decimals": {
+                                "type": "integer",
+                                "format": "int32"
+                            },
+                            "interval": {
+                                "type": "number",
+                                "format": "float"
+                            },
+                            "roundForNet": {
+                                "type": "boolean"
+                            }
+                        }
+                    },
+                    "totalRounding": {
+                        "type": "object",
+                        "properties": {
+                            "decimals": {
+                                "type": "integer",
+                                "format": "int32"
+                            },
+                            "interval": {
+                                "type": "number",
+                                "format": "float"
+                            },
+                            "roundForNet": {
+                                "type": "boolean"
+                            }
+                        }
+                    },
+                    "languageInfo": {
+                        "type": "object",
+                        "properties": {
+                            "name": {
+                                "type": "string"
+                            },
+                            "localeCode": {
+                                "type": "string"
+                            }
+                        }
+                    },
                     "apiAlias": {
                         "type": "string",
                         "enum": ["sales_channel_context"]

@@ -192,16 +192,19 @@ class OrderRouteTest extends TestCase
         $criteria = new Criteria([$this->orderId]);
         $criteria->addFilter(new EqualsFilter('deepLinkCode', $this->deepLinkCode));
 
+        // Upper and loser case to test case insensitiv check
+        $parameter = [
+            'email' => 'Test@Example.com',
+            'zipcode' => 'ab438-0403',
+        ];
+
         $this->browser
             ->request(
                 'GET',
                 '/store-api/order',
                 \array_merge(
                     $this->requestCriteriaBuilder->toArray($criteria),
-                    [
-                        'email' => 'Test@Example.com', // Uppercase to test case insensitiv check
-                        'zipcode' => 'ab438-0403',
-                    ]
+                    $parameter
                 )
             );
 

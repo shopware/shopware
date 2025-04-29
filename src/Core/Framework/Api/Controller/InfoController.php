@@ -56,7 +56,7 @@ class InfoController extends AbstractController
         private readonly SystemConfigService $systemConfigService,
         private readonly ApiRouteInfoResolver $apiRouteInfoResolver,
         private readonly InAppPurchase $inAppPurchase,
-        private readonly ViteFileAccessorDecorator $viteFileAccessorDecorator,
+        private readonly ?ViteFileAccessorDecorator $viteFileAccessorDecorator,
         private readonly Filesystem $filesystem,
     ) {
     }
@@ -236,6 +236,11 @@ class InfoController extends AbstractController
 
         foreach ($this->kernel->getBundles() as $bundle) {
             if (!$bundle instanceof Bundle) {
+                continue;
+            }
+
+            if (!$this->viteFileAccessorDecorator) {
+                // Admin bundle is not there, admin assets are not available
                 continue;
             }
 

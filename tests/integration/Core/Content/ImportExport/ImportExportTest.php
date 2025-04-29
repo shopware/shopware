@@ -1159,6 +1159,9 @@ SWTEST;1;' . $productName . ';9.35;10;0c17372fe6aa46059a97fc28b40f46c4;7;7%%;%s'
                 'currencyId' => Defaults::CURRENCY,
                 'snippetSetId' => $this->getSnippetSetIdForLocale('en-GB'),
                 'url' => 'http://localhost.test/a',
+                'measurementSystemId' => Uuid::fromStringToHex('metric'),
+                'lengthUnitId' => Uuid::fromStringToHex('metric-mm'),
+                'massUnitId' => Uuid::fromStringToHex('metric-kg'),
             ]],
         ]);
 

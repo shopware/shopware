@@ -1,6 +1,5 @@
 import { test } from '@fixtures/AcceptanceTest';
 import { FlowConfig } from '@shopware-ag/acceptance-test-suite';
-import { satisfies } from 'compare-versions';
 
 test('As an admin user, I want to create a new flow', { tag: '@Flow' }, async ({
     ShopAdmin,
@@ -9,10 +8,8 @@ test('As an admin user, I want to create a new flow', { tag: '@Flow' }, async ({
     IdProvider,
     TestDataService,
     CreateFlow,
-    InstanceMeta,
 
 }) => {
-    test.skip(satisfies(InstanceMeta.version, '>=6.7'), 'Skipped due to missing status messages bug. Unskip after NEXT-40788 is resolved.');
 
     const uniqueId = IdProvider.getIdPair().uuid;
     const tagName= (`Test tag - ${uniqueId}`);

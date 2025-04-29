@@ -92,9 +92,9 @@ class OrderRouteTest extends TestCase
             $eventDispatcher,
         );
 
-        /** @var OrderEntity $responseOrder */
         $responseOrder = $route->load(new Request(), $context, new Criteria())->getOrders()->first();
 
+        self::assertNotNull($responseOrder);
         static::assertSame($order->getId(), $responseOrder->getId());
     }
 
@@ -173,9 +173,9 @@ class OrderRouteTest extends TestCase
         $request->attributes->set('email', $mail);
         $request->attributes->set('zipcode', $postalCode);
 
-        /** @var OrderEntity $responseOrder */
         $responseOrder = $route->load($request, $context, $criteria)->getOrders()->first();
 
+        self::assertNotNull($responseOrder);
         static::assertSame($order->getId(), $responseOrder->getId());
     }
 

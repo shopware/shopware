@@ -58,7 +58,14 @@
                         }
                     },
                     "customer": {
-                        "$ref": "#/components/schemas/Customer"
+                        "oneOf": [
+                            {
+                                "type": "null"
+                            },
+                            {
+                                "$ref": "#/components/schemas/Customer"
+                            }
+                        ]
                     },
                     "paymentMethod": {
                         "$ref": "#/components/schemas/PaymentMethod"
@@ -110,7 +117,16 @@
                                 "type": "string"
                             },
                             "source": {
-                                "type": "string"
+                                "type": "object",
+                                "properties": {
+                                    "type": {
+                                        "type": "string"
+                                    },
+                                    "enum": [
+                                        "sales-channel",
+                                        "shop-api"
+                                    ]
+                                }
                             },
                             "taxState": {
                                 "type": "string"
@@ -122,12 +138,19 @@
                     },
                     "itemRounding": {
                         "type": "object",
-                        "required": ["decimals", "interval", "roundForNet", "apiAlias"]
+                        "required": [
+                            "decimals",
+                            "interval",
+                            "roundForNet",
+                            "apiAlias"
+                        ],
                         "properties": {
-                          "apiAlias": {
-                              "type": "string",
-                              "enum": ["shopware_core_framework_data_abstraction_layer_pricing_cash_rounding_config"]
-                          }
+                            "apiAlias": {
+                                "type": "string",
+                                "enum": [
+                                    "shopware_core_framework_data_abstraction_layer_pricing_cash_rounding_config"
+                                ]
+                            },
                             "decimals": {
                                 "type": "integer",
                                 "format": "int32"
@@ -143,12 +166,19 @@
                     },
                     "totalRounding": {
                         "type": "object",
-                         "required": ["decimals", "interval", "roundForNet", "apiAlias"]
+                        "required": [
+                            "decimals",
+                            "interval",
+                            "roundForNet",
+                            "apiAlias"
+                        ],
                         "properties": {
-                          "apiAlias": {
-                              "type": "string",
-                              "enum": ["shopware_core_framework_data_abstraction_layer_pricing_cash_rounding_config"]
-                          }
+                            "apiAlias": {
+                                "type": "string",
+                                "enum": [
+                                    "shopware_core_framework_data_abstraction_layer_pricing_cash_rounding_config"
+                                ]
+                            },
                             "decimals": {
                                 "type": "integer",
                                 "format": "int32"
@@ -165,9 +195,9 @@
                     "languageInfo": {
                         "type": "object",
                         "required": [
-                                "localeCode",
-                                "name"
-                            ],
+                            "localeCode",
+                            "name"
+                        ],
                         "properties": {
                             "name": {
                                 "type": "string"

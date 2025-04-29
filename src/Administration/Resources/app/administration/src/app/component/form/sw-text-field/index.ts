@@ -8,6 +8,8 @@ const { Component } = Shopware;
  * @private
  * @status ready
  * @description Wrapper component for sw-text-field and mt-text-field. Autoswitches between the two components.
+ *
+ * @deprecated tag:v6.8.0 - Will be removed, use mt-text-field instead.
  */
 Component.register('sw-text-field', {
     template,
@@ -23,6 +25,12 @@ Component.register('sw-text-field', {
             type: String,
             required: false,
             default: null,
+        },
+
+        deprecated: {
+            type: Boolean,
+            required: false,
+            default: false,
         },
     },
 

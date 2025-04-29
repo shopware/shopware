@@ -134,13 +134,13 @@
                                         "type": "string"
                                     }
                                 }
+                            },
+                            "taxState": {
+                                "type": "string"
+                            },
+                            "useCache": {
+                                "type": "boolean"
                             }
-                        },
-                        "taxState": {
-                            "type": "string"
-                        },
-                        "useCache": {
-                            "type": "boolean"
                         }
                     },
                     "itemRounding": {
@@ -213,13 +213,13 @@
                                 "type": "string"
                             }
                         }
+                    },
+                    "apiAlias": {
+                        "type": "string",
+                        "enum": [
+                            "sales_channel_context"
+                        ]
                     }
-                },
-                "apiAlias": {
-                    "type": "string",
-                    "enum": [
-                        "sales_channel_context"
-                    ]
                 },
                 "required": [
                     "salesChannel",

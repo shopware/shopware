@@ -1,6 +1,27 @@
 # Changelog
 This is the official changelog index of Shopware 6. Here you find a registry of all Shopware 6 releases with a reference to the detailed changelog of each version. If you want to know more about how the changelog is created have a look [here](/adr/workflow/2020-08-03-implement-New-Changelog.md).
 
+## 6.7.0.0-rc3
+*  [#4450 - OffCanvasSingleton does not remove hard-coded offcanvas from DOM](./changelog/release-6-7-0-0/2025-04-04-offcanvassingleton-does-not-remove-hard-coded-offcanvas-from-dom.md)
+*  [#5263 - Improve variants can be assigned to a category](./changelog/release-6-7-0-0/2025-04-04-improve-variants-can-t-be-assigned-to-a-category.md) ([Le Nguyen](https://github.com/nguyenquocdaile))
+*  [#7056 - Fix adjacent form fields on narrow viewports](./changelog/release-6-7-0-0/2025-04-08-fix-mobile-form-field-layouts.md)
+*  [#7346 - sw_icon variable icon name](./changelog/release-6-7-0-0/2025-04-08-sw-icon-variable-icon-name.md) ([Rune Laenen](https://github.com/runelaenen))
+*  [#7925 - Remove DeleteThemeFilesMessage usage in ThemeCompiler](./changelog/release-6-7-0-0/2025-04-16-remove-deletethemefilesmessage.md)
+*  [#8190 - Fix missing currency text in offcanvas currency selection](./changelog/release-6-7-0-0/2025-04-07-fix-currency-sleection-in-offcanvas.md)
+*  [#8318 - Prevent imitating as customer when not possible](./changelog/release-6-7-0-0/2025-02-15-prevent-imitating-when-not-possible.md) ([Melvin Achterhuis](https://github.com/MelvinAchterhuis))
+*  [#8321 - Fix nested line items](./changelog/release-6-7-0-0/2025-04-07-fix-nested-line-items.md)
+*  [#8333 - Fixed calls to update extensions](./changelog/release-6-7-0-0/2025-04-11-fix-calls-to-update-store.md)
+*  [#8399 - Show navigation arrows of product cross selling sliders (again)](./changelog/release-6-7-0-0/2025-04-04-show-navigation-arrows-of-product-cross-selling-sliders-again.md) ([Max](https://github.com/aragon999))
+*  [#8423 - Fix override paging listing page parameter](./changelog/release-6-7-0-0/2025-04-07-fix-override-paging-listing-page-parameter.md) ([Benjamin Wittwer](https://github.com/akf-bw))
+*  [#8675 - New event for fetched category ids](./changelog/release-6-7-0-0/2025-04-11-new-event-for-fetched-category-ids.md)
+*  [#8782 - Disable Prefix Search for Synonyms to Prevent Irrelevant Results](./changelog/release-6-7-0-0/2025-03-13-disable-prefix-search-for-synonyms-to-prevent-irrelevant-results.md)
+*  [#8840 - fix: Added missing class 'js-search-form' header search input element](./changelog/release-6-7-0-0/2025-04-03-add-missing-js-class-to-header-search.md) ([Marvin Rewer](https://github.com/marvn-r3))
+*  [5328 - Fix DAL inherited to-many field reads with limits](./changelog/release-6-7-0-0/2025-04-17-fix-dal-inherited-to-many.md)
+*  [7858 - Fix webhook dispatching for not versioned events](./changelog/release-6-7-0-0/2025-04-17-fix-webhook-dispatching-for-not-versioned-events.md)
+*  [8293 - Make search parameter optional in search api](./changelog/release-6-7-0-0/2025-04-15-make-search-parameter-optional-in-search-api.md)
+*  [https://github.com/shopware/shopware/issues/7958 - Fix admin order shipping cost input behaviour](./changelog/release-6-7-0-0/2025-04-02-fix-admin-order-shipping-cost-input-behaviour.md)
+*  [https://github.com/shopware/shopware/issues/8494 - Changed ThemeConfigField::$type property type](./changelog/release-6-7-0-0/2025-04-25-changed-themeconfigfield-type-property-type.md)
+
 ## 6.7.0.0-rc2
 *  [#4654 - Fix HTML quirks mode in the Storefront](./changelog/release-6-7-0-0/2025-03-25-Fix-html-quirks-mode.md)
 *  [#5900 - Only add gtag consent mode if Google Analytics is enabled](./changelog/release-6-7-0-0/2024-12-18-only-add-gtag-consent-mode-if-google-analytics-is-enabled.md) ([Max](https://github.com/aragon999))

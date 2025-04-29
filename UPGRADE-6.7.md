@@ -2615,6 +2615,11 @@ We made some changes in the Storefront, which might affect your plugins and them
 <details>
   <summary>Detailed Changes</summary>
 
+## Deprecation of DeleteThemeFilesMessage and its handler
+The `\Shopware\Storefront\Theme\Message\DeleteThemeFilesMessage` and its handler `\Shopware\Storefront\Theme\Message\DeleteThemeFilesHandler` are deprecated.
+They are no longer used by the core and will be removed in the next major version.
+Unused theme files are now deleted by using the `\Shopware\Storefront\Theme\ScheduledTask\DeleteThemeFilesTask` scheduled task.
+
 ## Additions due to the introduction of ESI for header and footer
 The former optional parameter `serviceMenu` of type `\Shopware\Core\Content\Category\CategoryCollection` in `\Shopware\Storefront\Pagelet\Footer\FooterPagelet` is now required.
 Make sure to pass it to the constructor.

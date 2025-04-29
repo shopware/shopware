@@ -117,16 +117,24 @@
                                 "type": "string"
                             },
                             "source": {
-                                "type": "object",
-                                "properties": {
-                                    "type": {
-                                        "type": "string"
-                                    },
-                                    "enum": [
-                                        "sales-channel",
-                                        "shop-api"
-                                    ]
-                                }
+          "type": "object",
+          "required": [
+            "salesChannelId",
+            "type"
+          ],
+          "properties": {
+            "type": {
+              "type": "string",
+              "enum": [
+                "sales-channel",
+                "shop-api"
+              ]
+            },
+            "salesChannelId": {
+              "type": "string"
+            }
+          }
+        }
                             },
                             "taxState": {
                                 "type": "string"

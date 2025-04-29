@@ -3,7 +3,7 @@
     gap="0 30px"
 >
     <sw-entity-single-select
-        v-model:value="measurementSystemId"
+        v-model:value="salesChannel.measurementSystemId"
         class="sw-sales-channel-detail__select-measurement-system"
         :label="$t('sw-sales-channel.detail.measurement.labelDefaultUnitSystem')"
         entity="measurement_system"
@@ -13,7 +13,7 @@
     />
 
     <sw-entity-single-select
-        v-model:value="lengthUnitId"
+        v-model:value="salesChannel.lengthUnitId"
         :label="$t('sw-sales-channel.detail.measurement.labelDefaultDimensionUnit')"
         entity="measurement_display_unit"
         :criteria="lengthUnitCriteria"
@@ -24,7 +24,7 @@
     </sw-entity-single-select>
 
     <sw-entity-single-select
-        v-model:value="massUnitId"
+        v-model:value="salesChannel.massUnitId"
         :label="$t('sw-sales-channel.detail.measurement.labelDefaultDimensionUnit')"
         entity="measurement_display_unit"
         :criteria="massUnitCriteria"

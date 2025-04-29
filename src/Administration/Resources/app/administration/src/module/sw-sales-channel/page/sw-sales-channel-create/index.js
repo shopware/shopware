@@ -18,9 +18,17 @@ const insertIdIntoRoute = (to, from, next) => {
 export default {
     template,
 
+    inject: ['systemConfigApiService'],
+
     beforeRouteEnter: insertIdIntoRoute,
 
     beforeRouteUpdate: insertIdIntoRoute,
+
+    data() {
+        return {
+            measurementSystemConfig: [],
+        }
+    },
 
     computed: {
         allowSaving() {
@@ -38,12 +46,15 @@ export default {
                 Shopware.Store.get('context').resetLanguageToDefault();
             }
 
+            await this.getMeasurementSystemConfig();
+
             this.salesChannel = this.salesChannelRepository.create();
             this.salesChannel.typeId = this.$route.params.typeId;
             this.salesChannel.active = false;
-            this.salesChannel.defaultMeasurementSystemId = null;
-            this.salesChannel.defaultLengthUnitId = null;
-            this.salesChannel.defaultMassUnitId = null;
+
+            this.salesChannel.measurementSystemId = this.measurementSystemConfig['core.measurementSystem.typeId'];
+            this.salesChannel.lengthUnitId = this.measurementSystemConfig['core.measurementSystem.lengthUnitId'];
+            this.salesChannel.massUnitId = this.measurementSystemConfig['core.measurementSystem.massUnitId'];
 
             this.$super('createdComponent');
         },
@@ -58,6 +69,10 @@ export default {
 
         onSave() {
             this.$super('onSave');
+        },
+
+        async getMeasurementSystemConfig() {
+            this.measurementSystemConfig = await this.systemConfigApiService.getValues('core.measurementSystem');
         },
     },
 };

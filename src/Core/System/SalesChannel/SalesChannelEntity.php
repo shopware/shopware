@@ -208,17 +208,17 @@ class SalesChannelEntity extends Entity
 
     protected ?LandingPageCollection $landingPages = null;
 
-    protected ?string $defaultMeasurementSystemId = null;
+    protected ?string $measurementSystemId = null;
 
-    protected ?MeasurementSystemEntity $defaultMeasurementSystem = null;
+    protected ?MeasurementSystemEntity $measurementSystem = null;
 
-    protected ?string $defaultMassUnitId = null;
+    protected ?string $massUnitId = null;
 
-    protected ?MeasurementDisplayUnitEntity $defaultMassUnit = null;
+    protected ?MeasurementDisplayUnitEntity $massUnit = null;
 
-    protected ?string $defaultLengthUnitId = null;
+    protected ?string $lengthUnitId = null;
 
-    protected ?MeasurementDisplayUnitEntity $defaultLengthUnit = null;
+    protected ?MeasurementDisplayUnitEntity $lengthUnit = null;
 
     public function getMailHeaderFooter(): ?MailHeaderFooterEntity
     {
@@ -974,63 +974,63 @@ class SalesChannelEntity extends Entity
         $this->serviceCategoryVersionId = $serviceCategoryVersionId;
     }
 
-    public function getDefaultMeasurementSystemId(): ?string
+    public function getMeasurementSystemId(): ?string
     {
-        return $this->defaultMeasurementSystemId;
+        return $this->measurementSystemId;
     }
 
-    public function setDefaultMeasurementSystemId(?string $defaultMeasurementSystemId): void
+    public function setMeasurementSystemId(?string $defaultMeasurementSystemId): void
     {
-        $this->defaultMeasurementSystemId = $defaultMeasurementSystemId;
+        $this->measurementSystemId = $defaultMeasurementSystemId;
     }
 
-    public function getDefaultMeasurementSystem(): ?MeasurementSystemEntity
+    public function getMeasurementSystem(): ?MeasurementSystemEntity
     {
-        return $this->defaultMeasurementSystem;
+        return $this->measurementSystem;
     }
 
-    public function setDefaultMeasurementSystem(?MeasurementSystemEntity $defaultMeasurementSystem): void
+    public function setMeasurementSystem(?MeasurementSystemEntity $defaultMeasurementSystem): void
     {
-        $this->defaultMeasurementSystem = $defaultMeasurementSystem;
+        $this->measurementSystem = $defaultMeasurementSystem;
     }
 
-    public function getDefaultMassUnitId(): ?string
+    public function getMassUnitId(): ?string
     {
-        return $this->defaultMassUnitId;
+        return $this->massUnitId;
     }
 
-    public function setDefaultMassUnitId(?string $defaultMassUnitId): void
+    public function setMassUnitId(?string $defaultMassUnitId): void
     {
-        $this->defaultMassUnitId = $defaultMassUnitId;
+        $this->massUnitId = $defaultMassUnitId;
     }
 
-    public function getDefaultMassUnit(): ?MeasurementDisplayUnitEntity
+    public function getMassUnit(): ?MeasurementDisplayUnitEntity
     {
-        return $this->defaultMassUnit;
+        return $this->massUnit;
     }
 
-    public function setDefaultMassUnit(?MeasurementDisplayUnitEntity $defaultMassUnit): void
+    public function setMassUnit(?MeasurementDisplayUnitEntity $defaultMassUnit): void
     {
-        $this->defaultMassUnit = $defaultMassUnit;
+        $this->massUnit = $defaultMassUnit;
     }
 
-    public function getDefaultLengthUnitId(): ?string
+    public function getLengthUnitId(): ?string
     {
-        return $this->defaultLengthUnitId;
+        return $this->lengthUnitId;
     }
 
-    public function setDefaultLengthUnitId(?string $defaultLengthUnitId): void
+    public function setLengthUnitId(?string $defaultLengthUnitId): void
     {
-        $this->defaultLengthUnitId = $defaultLengthUnitId;
+        $this->lengthUnitId = $defaultLengthUnitId;
     }
 
-    public function getDefaultLengthUnit(): ?MeasurementDisplayUnitEntity
+    public function getLengthUnit(): ?MeasurementDisplayUnitEntity
     {
-        return $this->defaultLengthUnit;
+        return $this->lengthUnit;
     }
 
-    public function setDefaultLengthUnit(?MeasurementDisplayUnitEntity $defaultLengthUnit): void
+    public function setLengthUnit(?MeasurementDisplayUnitEntity $defaultLengthUnit): void
     {
-        $this->defaultLengthUnit = $defaultLengthUnit;
+        $this->lengthUnit = $defaultLengthUnit;
     }
 }

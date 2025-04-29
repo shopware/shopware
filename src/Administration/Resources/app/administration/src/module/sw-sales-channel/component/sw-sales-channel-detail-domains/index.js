@@ -262,7 +262,10 @@ export default {
             }
 
             domain.hreflangUseOnlyLocale = false;
-
+            domain.measurementSystemId = this.salesChannel.measurementSystemId;
+            domain.lengthUnitId = this.salesChannel.lengthUnitId;
+            domain.massUnitId = this.salesChannel.massUnitId;
+            
             this.currentDomain = domain;
             this.isEditingDomain = false;
         },
@@ -291,6 +294,7 @@ export default {
 
         onClickEditDomain(domain) {
             this.currentDomain = domain;
+
             this.setCurrentDomainBackup(this.currentDomain);
             this.isEditingDomain = true;
         },

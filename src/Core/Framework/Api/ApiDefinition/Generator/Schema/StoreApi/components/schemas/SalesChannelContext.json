@@ -122,6 +122,7 @@
                     },
                     "itemRounding": {
                         "type": "object",
+                        "required": ["decimals", "interval", "roundForNet", "apiAlias"]
                         "properties": {
                             "decimals": {
                                 "type": "integer",

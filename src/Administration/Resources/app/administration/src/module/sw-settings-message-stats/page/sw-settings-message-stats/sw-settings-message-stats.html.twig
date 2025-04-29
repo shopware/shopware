@@ -61,26 +61,35 @@
                         columns="1fr 1fr 1fr"
                         gap="32px"
                     >
-                        <mt-card-section>
-                            <h4>{{ $tc('sw-settings-message-stats.general.totalMessages') }}</h4>
+                        <div>
+                            <h4>
+                                {{ $tc('sw-settings-message-stats.general.totalMessages') }}
+                                <sw-help-text :text="$tc('sw-settings-message-stats.general.totalMessagesHelp')" />
+                            </h4>
                             <p class="sw-settings-message-stats__value">
                                 {{ stats.totalMessagesProcessed }}
                             </p>
-                        </mt-card-section>
+                        </div>
 
-                        <mt-card-section>
-                            <h4>{{ $tc('sw-settings-message-stats.general.averageTime') }}</h4>
+                        <div>
+                            <h4>
+                                {{ $tc('sw-settings-message-stats.general.averageTime') }}
+                                <sw-help-text :text="$tc('sw-settings-message-stats.general.averageTimeHelp')" />
+                            </h4>
                             <p class="sw-settings-message-stats__value">
                                 {{ stats.averageTimeInQueue }}
                             </p>
-                        </mt-card-section>
+                        </div>
 
-                        <mt-card-section>
-                            <h4>{{ $tc('sw-settings-message-stats.general.processingWindow') }}</h4>
+                        <div>
+                            <h4>
+                                {{ $tc('sw-settings-message-stats.general.processingWindow') }}
+                                <sw-help-text :text="$tc('sw-settings-message-stats.general.processingWindowHelp')" />
+                            </h4>
                             <p class="sw-settings-message-stats__value">
                                 {{ formattedProcessedSince }}
                             </p>
-                        </mt-card-section>
+                        </div>
                     </sw-container>
                 </mt-card>
 
@@ -89,6 +98,9 @@
                     :title="$tc('sw-settings-message-stats.general.messageTypes')"
                     :is-loading="isLoading"
                 >
+                    <template #headerRight>
+                        <sw-help-text :text="$tc('sw-settings-message-stats.general.messageTypesHelp')" />
+                    </template>
                     <sw-data-grid
                         :data-source="stats.messageTypeStats"
                         :columns="columns"

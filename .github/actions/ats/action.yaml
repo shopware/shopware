@@ -127,6 +127,10 @@ runs:
       working-directory: ${{ inputs.directory }}
       run: npm ci
 
+    - name: Refresh Package List
+      shell: bash
+      run: sudo apt-get update --allow-releaseinfo-change
+
     - name: Install Playwright Browsers
       shell: bash
       working-directory: ${{ inputs.directory }}

@@ -161,7 +161,7 @@
         "league/flysystem-google-cloud-storage": "^3.10.3",
         "nikic/php-parser": "^5.4.0",
         "opis/json-schema": "^2.3.0",
-        "phpunit/phpunit": "^11.5.11",
+        "phpunit/phpunit": "^11.5.17",
         "smalot/pdfparser": "^2.2.2",
         "symfony/browser-kit": "~7.2.0",
         "symfony/phpunit-bridge": "~7.2.0",

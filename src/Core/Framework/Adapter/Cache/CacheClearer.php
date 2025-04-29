@@ -45,6 +45,10 @@ class CacheClearer
             $adapter->clear();
         }
 
+        if ($clearHttp) {
+            $this->reverseProxyCache?->banAll();
+        }
+
         try {
             $this->invalidator->invalidateExpired();
         } catch (\Throwable $e) {
@@ -68,10 +72,6 @@ class CacheClearer
         $this->cleanupUrlGeneratorCacheFiles();
 
         $this->cleanupOldContainerCacheDirectories();
-
-        if ($clearHttp) {
-            $this->reverseProxyCache?->banAll();
-        }
     }
 
     public function clearContainerCache(): void

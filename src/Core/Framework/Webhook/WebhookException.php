@@ -2,7 +2,6 @@
 
 namespace Shopware\Core\Framework\Webhook;
 
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\HttpException;
 use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\HttpFoundation\Response;

@@ -4,7 +4,6 @@ namespace Shopware\Tests\Unit\Core\Framework\Webhook;
 
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Webhook\WebhookException;
 use Symfony\Component\HttpFoundation\Response;

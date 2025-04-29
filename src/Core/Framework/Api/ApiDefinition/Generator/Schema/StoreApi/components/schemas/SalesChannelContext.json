@@ -68,7 +68,9 @@
                         "properties": {
                             "apiAlias": {
                                 "type": "string",
-                                "enum": ["cart_delivery_shipping_location"]
+                                "enum": [
+                                    "cart_delivery_shipping_location"
+                                ]
                             },
                             "country": {
                                 "$ref": "#/components/schemas/Country"
@@ -163,10 +165,18 @@
                     },
                     "apiAlias": {
                         "type": "string",
-                        "enum": ["sales_channel_context"]
+                        "enum": [
+                            "sales_channel_context"
+                        ]
                     }
                 },
-                "required": ["salesChannel", "apiAlias"]
+                "required": [
+                    "salesChannel",
+                    "apiAlias",
+                    "itemRounding",
+                    "totalRounding",
+                    "languageInfo"
+                ]
             }
         }
     }

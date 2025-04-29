@@ -58,14 +58,6 @@ class OrderPersister implements OrderPersisterInterface
             $this->orderRepository->create([$order], $context);
         });
 
-        $this->orderRepository->update([
-            [
-                'id' => $order['id'],
-                'primaryOrderTransactionId' => $order['transactions'][0]['id'] ?? null,
-                'primaryOrderDeliveryId' => $order['deliveries'][0]['id'] ?? null,
-            ],
-        ], $context->getContext());
-
         return $order['id'];
     }
 }

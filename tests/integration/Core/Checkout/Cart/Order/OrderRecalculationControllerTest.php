@@ -75,9 +75,6 @@ class OrderRecalculationControllerTest extends TestCase
         $orderData['orderCustomer']['orderVersionId'] = $versionId;
         $orderData['lineItems'][0]['id'] = Uuid::randomHex();
 
-        $orderData['primaryOrderDeliveryId'] = $primaryOrderDeliveryId;
-        $orderData['primaryOrderTransactionId'] = $primaryTransactionId;
-
         $orderData['deliveries'] = [
             $this->getDeliveryData($orderData, $primaryOrderDeliveryId, 20),
             $this->getDeliveryData($orderData, Uuid::randomHex(), 10),
@@ -89,6 +86,15 @@ class OrderRecalculationControllerTest extends TestCase
         ];
 
         $this->orderRepository->create([$orderData], $this->context);
+
+        $this->orderRepository->update([
+            [
+                'id' => $orderId,
+                'versionId' => $versionId,
+                'primaryOrderTransactionId' => $primaryTransactionId,
+                'primaryOrderDeliveryId' => $primaryOrderDeliveryId,
+            ],
+        ], $this->context);
     }
 
     /**

@@ -45,16 +45,14 @@ class OrderConverterTest extends TestCase
 
     public function testConvertToOrderAndSetPrimary(): void
     {
-        $primaryOrderDeliveryId = Uuid::randomHex();
-        $cart = $this->getCart($primaryOrderDeliveryId);
+        $cartToken = Uuid::randomHex();
+        $cart = $this->getCart($cartToken);
         $context = Generator::generateSalesChannelContext(customer: $this->getCustomer());
 
         $convertedOrder = $this->orderConverter->convertToOrder($cart, $context, new OrderConversionContext());
 
-        static::assertArrayHasKey('primaryOrderDeliveryId', $convertedOrder);
-        static::assertArrayHasKey('primaryOrderTransactionId', $convertedOrder);
-        static::assertSame($primaryOrderDeliveryId, $convertedOrder['primaryOrderDeliveryId']);
-        static::assertNotNull($convertedOrder['primaryOrderTransactionId']);
+        static::assertSame($convertedOrder['deliveries'][0]['id'], $cartToken);
+        static::assertNotNull($convertedOrder['transactions'][0]['id']);
     }
 
     private function getCustomer(): CustomerEntity

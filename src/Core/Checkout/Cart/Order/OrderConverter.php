@@ -155,6 +155,7 @@ class OrderConverter
                     }
                 );
                 $data['deliveries'][0]['id'] ??= Uuid::randomHex();
+                $data['primaryOrderDeliveryId'] = $data['deliveries'][0]['id'];
             }
         }
 
@@ -188,7 +189,8 @@ class OrderConverter
             );
 
             if (!$cart->getBehavior()?->isRecalculation() && $cart->getTransactions()->count() > 0) {
-                $data['transactions'][0]['id'] = Uuid::randomHex();
+                $data['transactions'][0]['id'] ??= Uuid::randomHex();
+                $data['primaryOrderTransactionId'] = $data['transactions'][0]['id'];
             }
         }
 

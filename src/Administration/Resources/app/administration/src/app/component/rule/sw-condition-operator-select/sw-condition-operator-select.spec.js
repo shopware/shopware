@@ -38,4 +38,22 @@ describe('src/app/component/rule/sw-condition-operator-select', () => {
 
         expect(singleSelect.attributes().disabled).toBe('true');
     });
+
+    it('emits only operator when changed to empty operator', async () => {
+        const wrapper = await createWrapper({
+            condition: {
+                value: {
+                    operator: 'empty',
+                    value: "Test"
+                },
+            },
+            operators: [{ value: '>=', label: 'Greater than or equal' }],
+        });
+
+        await wrapper.vm.changeOperator('empty');
+
+        expect(wrapper.emitted('change')).toEqual([
+            [{ value: { operator: 'empty' } }]
+        ]);
+    });
 });

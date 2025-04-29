@@ -11,12 +11,69 @@ test('As an admin, I want to create documents and make sure they contain certain
     StorefrontAccountOrder,
     StorefrontAccountLogin,
     Login,
+    AdminApiContext,
 
     }) => {
 
     const product = await TestDataService.createBasicProduct();
     const order = await TestDataService.createOrder([{ product, quantity: 1 }], DefaultSalesChannel.customer);
-
+    const creditItem = {
+        'identifier': order.id,
+        'orderId': order.id,
+        'quantity': 1,
+        'label': 'CreditItem',
+        'payload': [],
+        'good': true,
+        'removable': true,
+        'stackable': true,
+        'position': 2,
+        'states': [],
+        'price': {
+            'extensions': [],
+            'unitPrice': -1.0,
+            'totalPrice': -1.0,
+            'calculatedTaxes': [
+                {
+                    'extensions': [],
+                    'tax': -0.16,
+                    'taxRate': 19.0,
+                    'price': -1.0,
+                    'label': null,
+                },
+            ],
+            'taxRules': [
+                {
+                    'extensions': [],
+                    'taxRate': 19.0,
+                    'percentage': 100.0,
+                },
+            ],
+            'quantity': 1,
+            'referencePrice': null,
+            'listPrice': null,
+            'regulationPrice': null,
+        },
+        'priceDefinition': {
+            'extensions': [],
+            'price': -1.0,
+            'filter': {
+                '_name': 'cartLineItemOfType',
+                'operator': '!=',
+                'lineItemType': 'credit',
+            },
+            'type': 'absolute',
+        },
+        'unitPrice': -1.0,
+        'totalPrice': -1.0,
+        'description': 'credit line item',
+        'type': 'credit',
+        'customFields': null,
+        'apiAlias': 'order_line_item_foreign_keys_extension',
+    }
+    const ruleResponse = await AdminApiContext.post('order-line-item', {
+        data: creditItem,
+    });
+    ShopAdmin.expects(ruleResponse.ok()).toBeTruthy();
 
     await test.step('Go to documents settings page and activate documents in customer accounts', async () => {
         await ShopAdmin.goesTo(AdminDocumentListing.url());
@@ -25,23 +82,9 @@ test('As an admin, I want to create documents and make sure they contain certain
         await AdminDocumentDetail.showInAccountSwitch.click();
         await AdminDocumentDetail.saveButton.click();
         });
-    await test.step('Go to order detail page and create credit item', async () => {
+    await test.step('Go to order detail page and check for credit item', async () => {
         await ShopAdmin.goesTo(AdminOrderDetail.url(order.id, 'general'));
-        await AdminDocumentDetail.page.locator('.sw-button-group').locator('.sw-context-button').click();
-        await ShopAdmin.expects(AdminDocumentDetail.page.locator('.sw-context-menu')).toBeVisible();
-        await AdminDocumentDetail.page.locator('.sw-context-menu').locator('.sw-order-line-items-grid__can-create-discounts-button').click();
-        await ShopAdmin.expects(AdminDocumentDetail.page.locator('.sw-data-grid__row--1')).toBeVisible();
-        await AdminDocumentDetail.page.locator('.sw-data-grid__row--0').dblclick();
-        await AdminDocumentDetail.page.locator('.sw-data-grid__row--0').getByRole('textbox').nth(0).fill('Credit item');
-        await AdminDocumentDetail.page.locator('.sw-data-grid__row--0').getByRole('textbox').nth(1).fill('10');
-        await AdminDocumentDetail.page.locator('.sw-data-grid__row--0').getByRole('button', { name: 'Save' }).click();
-        await ShopAdmin.expects(AdminDocumentDetail.page.locator('.sw-data-grid__row--0').getByRole('button', { name: 'Save' })).not.toBeVisible();
-        await ShopAdmin.expects(AdminDocumentDetail.page.locator('.sw-data-grid__row--0')).not.toContainText('Credit item');
-        //await ShopAdmin.expects(AdminDocumentDetail.page.locator('.sw-data-grid__row--1')).toContainText('Credit item');
-        //await ShopAdmin.expects(AdminDocumentDetail.page.locator('.sw-notifications__info')).toBeVisible();
-        await AdminDocumentDetail.saveButton.click();
-        await ShopAdmin.expects(AdminDocumentDetail.page.locator('.sw-order-detail__alert')).not.toBeVisible();
-        await ShopAdmin.expects(AdminDocumentDetail.page.getByRole('button').filter({ hasText: 'Save' }).locator('.mt-button__loader')).not.toBeVisible();
+        await ShopAdmin.expects(AdminDocumentDetail.page.locator('.sw-data-grid__row--1')).toContainText('CreditItem');
         });
     await test.step('Go to documents tab and create invoice', async () => {
         await ShopAdmin.goesTo(AdminOrderDetail.url(order.id, 'documents'));

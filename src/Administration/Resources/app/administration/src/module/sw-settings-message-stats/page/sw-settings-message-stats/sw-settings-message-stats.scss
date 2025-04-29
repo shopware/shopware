@@ -1,0 +1,54 @@
+@import "~scss/variables";
+
+.sw-settings-message-stats {
+    &__stats-grid {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        grid-gap: 32px;
+        margin-bottom: 24px;
+
+        @media screen and (max-width: 780px) {
+            grid-template-columns: repeat(2, 1fr);
+            grid-gap: 16px;
+        }
+
+        @media screen and (max-width: 500px) {
+            grid-template-columns: 1fr;
+            grid-gap: 12px;
+        }
+    }
+
+    &__stat-item {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        background-color: $color-white;
+        border: 1px solid $color-gray-300;
+        padding: 24px 8px;
+        border-radius: $border-radius-lg;
+        transition: background-color 0.1s ease;
+        cursor: help;
+
+        &:hover {
+            background-color: $color-gray-50;
+        }
+    }
+
+    &__stat-header {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        margin-bottom: 8px;
+        font-size: $font-size-xs;
+        font-weight: $font-weight-bold;
+        color: $color-darkgray-700;
+    }
+
+    &__value {
+        font-size: $font-size-s;
+        font-weight: $font-weight-bold;
+        color: $color-darkgray-700;
+        margin: 0;
+    }
+}

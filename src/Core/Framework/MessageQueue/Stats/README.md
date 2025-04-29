@@ -168,11 +168,11 @@ The statistics are automatically collected for all messages processed through th
      - [x] Key metrics cards
      - [x] Message types table
      - [x] Add banner with explanation
-     - [ ] Remember banner closed state so it's not shown after page reload
-     - [ ] Add better styling and icons
-     - [ ] Add tooltips for metrics
+     - [x] Remember banner closed state so it's not shown after page reload
+     - [x] Add better styling and icons
+     - [x] Add tooltips for metrics
      - [x] Add refresh button
-     - [ ] Add loader
+     - [x] Add loader
      - [ ] Add empty page state
    - [ ] Add dynamic loading of stats (fetch API)
    - [ ] Add auto-refresh functionality (optional)

@@ -57,40 +57,58 @@
                     :title="$tc('sw-settings-message-stats.general.statsCardTitle')"
                     :is-loading="isLoading"
                 >
-                    <sw-container
-                        columns="1fr 1fr 1fr"
-                        gap="32px"
-                    >
-                        <div>
-                            <h4>
+                    <div class="sw-settings-message-stats__stats-grid">
+                        <div
+                            class="sw-settings-message-stats__stat-item"
+                            v-tooltip="{
+                                message: $tc('sw-settings-message-stats.general.totalMessagesHelp'),
+                                width: 400,
+                            }"
+                        >
+                            <div class="sw-settings-message-stats__stat-header">
+                                <mt-icon name="regular-analytics" />
                                 {{ $tc('sw-settings-message-stats.general.totalMessages') }}
-                                <sw-help-text :text="$tc('sw-settings-message-stats.general.totalMessagesHelp')" />
-                            </h4>
+                                <mt-icon name="solid-question-circle" size="16" color="#189eff" />
+                            </div>
                             <p class="sw-settings-message-stats__value">
                                 {{ stats.totalMessagesProcessed }}
                             </p>
                         </div>
 
-                        <div>
-                            <h4>
+                        <div
+                            class="sw-settings-message-stats__stat-item"
+                            v-tooltip="{
+                                message: $tc('sw-settings-message-stats.general.averageTimeHelp'),
+                                width: 400,
+                            }"
+                        >
+                            <div class="sw-settings-message-stats__stat-header">
+                                <mt-icon name="regular-clock" />
                                 {{ $tc('sw-settings-message-stats.general.averageTime') }}
-                                <sw-help-text :text="$tc('sw-settings-message-stats.general.averageTimeHelp')" />
-                            </h4>
+                                <mt-icon name="solid-question-circle" size="16" color="#189eff" />
+                            </div>
                             <p class="sw-settings-message-stats__value">
                                 {{ stats.averageTimeInQueue }}
                             </p>
                         </div>
 
-                        <div>
-                            <h4>
+                        <div
+                            class="sw-settings-message-stats__stat-item"
+                            v-tooltip="{
+                                message: $tc('sw-settings-message-stats.general.processingWindowHelp'),
+                                width: 400,
+                            }"
+                        >
+                            <div class="sw-settings-message-stats__stat-header">
+                                <mt-icon name="regular-calendar" />
                                 {{ $tc('sw-settings-message-stats.general.processingWindow') }}
-                                <sw-help-text :text="$tc('sw-settings-message-stats.general.processingWindowHelp')" />
-                            </h4>
+                                <mt-icon name="solid-question-circle" size="16" color="#189eff" />
+                            </div>
                             <p class="sw-settings-message-stats__value">
                                 {{ formattedProcessedSince }}
                             </p>
                         </div>
-                    </sw-container>
+                    </div>
                 </mt-card>
 
                 <mt-card

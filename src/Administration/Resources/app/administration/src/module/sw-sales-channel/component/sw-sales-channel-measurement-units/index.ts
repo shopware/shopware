@@ -179,5 +179,16 @@ export default Shopware.Component.wrapComponentConfig({
         async getMeasurementSystemConfig() {
             this.measurementSystemConfig = await this.systemConfigApiService.getValues('core.measurementSystem');
         },
+
+        labelUnitCallback(item) {
+            if (!item) {
+                return '';
+            }
+
+            const name = item.translated?.name || item.name;
+            const shortName = item.shortName || item.name;
+
+            return `${name} (${shortName})`.trim();
+        },
     },
 });

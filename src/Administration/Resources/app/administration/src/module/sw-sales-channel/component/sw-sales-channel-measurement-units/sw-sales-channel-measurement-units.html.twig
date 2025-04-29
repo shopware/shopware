@@ -17,12 +17,20 @@
         :label="$t('sw-sales-channel.detail.measurement.labelDefaultDimensionUnit')"
         entity="measurement_display_unit"
         :criteria="lengthUnitCriteria"
-    />
+    >
+        <template #selection-label-property="{ item }">
+            {{ labelUnitCallback(item) }}
+        </template>
+    </sw-entity-single-select>
 
     <sw-entity-single-select
         v-model:value="massUnitId"
         :label="$t('sw-sales-channel.detail.measurement.labelDefaultDimensionUnit')"
         entity="measurement_display_unit"
         :criteria="massUnitCriteria"
-    />
+    >
+        <template #selection-label-property="{ item }">
+            {{ labelUnitCallback(item) }}
+        </template>
+    </sw-entity-single-select>
 </sw-container>

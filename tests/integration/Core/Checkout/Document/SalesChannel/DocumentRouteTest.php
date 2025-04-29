@@ -21,6 +21,7 @@ use Shopware\Core\Content\Test\Flow\OrderActionTrait;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\HttpException;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\ShopwareHttpException;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Test\Integration\Traits\CustomerTestTrait;
@@ -108,7 +109,7 @@ class DocumentRouteTest extends TestCase
                 $salesChannelContext,
                 $deepLinkCode
             );
-        } catch (HttpException $e) {
+        } catch (ShopwareHttpException $e) {
             if (!$expectedException) {
                 throw $e;
             }
@@ -166,28 +167,26 @@ class DocumentRouteTest extends TestCase
             'withValidDeepLinkCode' => true,
         ];
 
-        // fix with #8371
-        // yield 'guest without request params' => [
-        //     'orderCustomerId' => 'guest',
-        //     'loggedInCustomerId' => null,
-        //     'requestParameters' => [],
-        //     'withValidDeepLinkCode' => true,
-        //     'expectedException' => GuestNotAuthenticatedException::class,
-        //     'expectedErrorCode' => OrderException::CHECKOUT_GUEST_NOT_AUTHENTICATED,
-        // ];
+        yield 'guest without request params' => [
+            'orderCustomerId' => 'guest',
+            'loggedInCustomerId' => null,
+            'requestParameters' => [],
+            'withValidDeepLinkCode' => true,
+            'expectedException' => GuestNotAuthenticatedException::class,
+            'expectedErrorCode' => OrderException::CHECKOUT_GUEST_NOT_AUTHENTICATED,
+        ];
 
-        // fix with #8371
-        // yield 'guest with invalid request params' => [
-        //     'orderCustomerId' => 'guest',
-        //     'loggedInCustomerId' => null,
-        //     'requestParameters' => [
-        //         'email' => 'invalid',
-        //         'zipcode' => 'invalid',
-        //     ],
-        //     'withValidDeepLinkCode' => true,
-        //     'expectedException' => WrongGuestCredentialsException::class,
-        //     'expectedErrorCode' => OrderException::CHECKOUT_GUEST_WRONG_CREDENTIALS,
-        // ];
+        yield 'guest with invalid request params' => [
+            'orderCustomerId' => 'guest',
+            'loggedInCustomerId' => null,
+            'requestParameters' => [
+                'email' => 'invalid',
+                'zipcode' => 'invalid',
+            ],
+            'withValidDeepLinkCode' => true,
+            'expectedException' => WrongGuestCredentialsException::class,
+            'expectedErrorCode' => OrderException::CHECKOUT_GUEST_WRONG_CREDENTIALS,
+        ];
 
         yield 'guest with correct request params and without deep link code' => [
             'orderCustomerId' => 'guest',
@@ -247,15 +246,14 @@ class DocumentRouteTest extends TestCase
             'expectedErrorCode' => CartException::CUSTOMER_NOT_LOGGED_IN_CODE,
         ];
 
-        // fix with #8371
-        // yield 'order by guest but logged in customer with valid deep link code' => [
-        //     'orderCustomerId' => 'guest',
-        //     'loggedInCustomerId' => 'customer',
-        //     'requestParameters' => [],
-        //     'withValidDeepLinkCode' => true,
-        //     'expectedException' => GuestNotAuthenticatedException::class,
-        //     'expectedErrorCode' => OrderException::CHECKOUT_GUEST_NOT_AUTHENTICATED,
-        // ];
+        yield 'order by guest but logged in customer with valid deep link code' => [
+            'orderCustomerId' => 'guest',
+            'loggedInCustomerId' => 'customer',
+            'requestParameters' => [],
+            'withValidDeepLinkCode' => true,
+            'expectedException' => GuestNotAuthenticatedException::class,
+            'expectedErrorCode' => OrderException::CHECKOUT_GUEST_NOT_AUTHENTICATED,
+        ];
 
         yield 'order by guest but logged in customer with valid deep link code with correct request params' => [
             'orderCustomerId' => 'guest',

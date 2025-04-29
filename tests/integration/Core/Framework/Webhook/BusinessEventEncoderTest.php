@@ -73,43 +73,13 @@ class BusinessEventEncoderTest extends TestCase
 
     public function testInvalidAvailableData(): void
     {
-        if (!Feature::isActive('v6.8.0.0')) {
-            static::expectException(\RuntimeException::class);
-            $this->businessEventEncoder->encode(new InvalidAvailableDataBusinessEvent());
-
-            return;
-        }
-
-        try {
-            $this->businessEventEncoder->encode(new InvalidAvailableDataBusinessEvent());
-        } catch (WebhookException $exception) {
-            static::assertSame('Invalid available DataMapping, could not get property "invalid" on instance of Shopware\Core\Framework\Test\Webhook\_fixtures\BusinessEvents\InvalidAvailableDataBusinessEvent', $exception->getMessage());
-            static::assertSame(WebhookException::INVALID_DATA_MAPPING, $exception->getErrorCode());
-
-            return;
-        }
-
-        static::fail('Exception should have been thrown');
+        static::expectException(\RuntimeException::class);
+        $this->businessEventEncoder->encode(new InvalidAvailableDataBusinessEvent());
     }
 
     public function testEncodeWithInvalidObjectOrData(): void
     {
-        if (!Feature::isActive('v6.8.0.0')) {
-            static::expectException(\RuntimeException::class);
-            $this->businessEventEncoder->encode(new InvalidAvailableDataBusinessEvent());
-
-            return;
-        }
-
-        try {
-            $this->businessEventEncoder->encode(new InvalidTypeBusinessEvent());
-        } catch (WebhookException $exception) {
-            static::assertSame('Unknown EventDataType: invalid', $exception->getMessage());
-            static::assertSame(WebhookException::UNKNOWN_DATA_TYPE, $exception->getErrorCode());
-
-            return;
-        }
-
-        static::fail('Exception should have been thrown');
+        static::expectException(\RuntimeException::class);
+        $this->businessEventEncoder->encode(new InvalidAvailableDataBusinessEvent());
     }
 }

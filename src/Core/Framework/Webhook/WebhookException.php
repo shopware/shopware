@@ -37,43 +37,19 @@ class WebhookException extends HttpException
         );
     }
 
-    /**
-     * @deprecated tag:v6.8.0 - reason:return-type-change - Will return self
-     */
-    public static function invalidDataMapping(string $propertyName, string $className): self|\RuntimeException
+    public static function invalidDataMapping(string $propertyName, string $className): \RuntimeException
     {
-        if (!Feature::isActive('v6.8.0.0')) {
-            return new \RuntimeException(
-                \sprintf(
-                    'Invalid available DataMapping, could not get property "%s" on instance of %s',
-                    $propertyName,
-                    $className
-                )
-            );
-        }
-
-        return new self(
-            Response::HTTP_INTERNAL_SERVER_ERROR,
-            self::INVALID_DATA_MAPPING,
-            'Invalid available DataMapping, could not get property "{{ propertyName }}" on instance of {{ class }}',
-            ['propertyName' => $propertyName, 'class' => $className]
+        return new \RuntimeException(
+            \sprintf(
+                'Invalid available DataMapping, could not get property "%s" on instance of %s',
+                $propertyName,
+                $className
+            )
         );
     }
 
-    /**
-     * @deprecated tag:v6.8.0 - reason:return-type-change - Will return self
-     */
-    public static function unknownEventDataType(string $type): self|\RuntimeException
+    public static function unknownEventDataType(string $type): \RuntimeException
     {
-        if (!Feature::isActive('v6.8.0.0')) {
-            return new \RuntimeException('Unknown EventDataType: ' . $type);
-        }
-
-        return new self(
-            Response::HTTP_INTERNAL_SERVER_ERROR,
-            self::UNKNOWN_DATA_TYPE,
-            'Unknown EventDataType: {{ type }}',
-            ['type' => $type]
-        );
+        return new \RuntimeException('Unknown EventDataType: ' . $type);
     }
 }

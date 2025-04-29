@@ -36,31 +36,13 @@ class WebhookExceptionTest extends TestCase
     {
         $exception = WebhookException::invalidDataMapping('propertyName', 'classString');
 
-        if (!Feature::isActive('v6.8.0.0')) {
-            static::assertSame('Invalid available DataMapping, could not get property "propertyName" on instance of classString', $exception->getMessage());
-
-            return;
-        }
-
-        static::assertInstanceOf(WebhookException::class, $exception);
         static::assertSame('Invalid available DataMapping, could not get property "propertyName" on instance of classString', $exception->getMessage());
-        static::assertEquals('FRAMEWORK__WEBHOOK_INVALID_DATA_MAPPING', $exception->getErrorCode());
-        static::assertEquals(Response::HTTP_INTERNAL_SERVER_ERROR, $exception->getStatusCode());
     }
 
     public function testUnknownEventDataType(): void
     {
         $exception = WebhookException::unknownEventDataType('invalidType');
 
-        if (!Feature::isActive('v6.8.0.0')) {
-            static::assertSame('Unknown EventDataType: invalidType', $exception->getMessage());
-
-            return;
-        }
-
-        static::assertInstanceOf(WebhookException::class, $exception);
         static::assertSame('Unknown EventDataType: invalidType', $exception->getMessage());
-        static::assertEquals('FRAMEWORK__WEBHOOK_UNKNOWN_DATA_TYPE', $exception->getErrorCode());
-        static::assertEquals(Response::HTTP_INTERNAL_SERVER_ERROR, $exception->getStatusCode());
     }
 }

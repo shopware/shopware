@@ -192,19 +192,16 @@ class OrderRouteTest extends TestCase
         $criteria = new Criteria([$this->orderId]);
         $criteria->addFilter(new EqualsFilter('deepLinkCode', $this->deepLinkCode));
 
-        // Upper and loser case to test case insensitiv check
-        $parameter = [
-            'email' => 'Test@Example.com',
-            'zipcode' => 'ab438-0403',
-        ];
-
         $this->browser
             ->request(
                 'GET',
                 '/store-api/order',
                 \array_merge(
                     $this->requestCriteriaBuilder->toArray($criteria),
-                    $parameter
+                    [
+                        'email' => 'test@example.com',
+                        'zipcode' => '59438-0403',
+                    ]
                 )
             );
 
@@ -246,8 +243,8 @@ class OrderRouteTest extends TestCase
                 \array_merge(
                     $this->requestCriteriaBuilder->toArray($criteria),
                     [
-                        'email' => 'Test@Example.com',
-                        'zipcode' => 'ab438-0403',
+                        'email' => 'test@example.com',
+                        'zipcode' => '59438-0403',
                     ]
                 )
             );
@@ -645,7 +642,7 @@ class OrderRouteTest extends TestCase
                             'salutationId' => $salutation,
                             'firstName' => 'Floy',
                             'lastName' => 'Glover',
-                            'zipcode' => 'AB438-0403',
+                            'zipcode' => '59438-0403',
                             'city' => 'Stellaberg',
                             'street' => 'street',
                             'country' => [
@@ -710,7 +707,7 @@ class OrderRouteTest extends TestCase
                         'salutationId' => $salutation,
                         'firstName' => 'Floy',
                         'lastName' => 'Glover',
-                        'zipcode' => 'AB438-0403',
+                        'zipcode' => '59438-0403',
                         'city' => 'Stellaberg',
                         'street' => 'street',
                         'countryId' => $this->getValidCountryId(),

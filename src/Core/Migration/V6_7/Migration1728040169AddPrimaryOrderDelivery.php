@@ -30,8 +30,8 @@ class Migration1728040169AddPrimaryOrderDelivery extends MigrationStep
                 ADD COLUMN `primary_order_delivery_id` BINARY(16) NULL DEFAULT NULL,
                 ADD COLUMN `primary_order_delivery_version_id` BINARY(16) NULL DEFAULT NULL,
                 ADD UNIQUE INDEX `uidx.order.primary_order_delivery` (`id`, `version_id`, `primary_order_delivery_id`),
-                ADD CONSTRAINT `fk.order.primary_order_delivery` FOREIGN KEY (`primary_order_delivery_id`)
-                    REFERENCES `order_delivery` (`id`) ON DELETE SET NULL ON UPDATE CASCADE'
+                ADD CONSTRAINT `fk.order.primary_order_delivery` FOREIGN KEY (`primary_order_delivery_id`, `primary_order_delivery_version_id`)
+                    REFERENCES `order_delivery` (`id`, `version_id`) ON DELETE SET NULL ON UPDATE CASCADE'
             );
 
             $updateLimit = 1000;

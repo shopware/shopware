@@ -30,8 +30,8 @@ class Migration1728040170AddPrimaryOrderTransaction extends MigrationStep
                 ADD COLUMN `primary_order_transaction_id` BINARY(16) NULL DEFAULT NULL,
                 ADD COLUMN `primary_order_transaction_version_id` BINARY(16) NULL DEFAULT NULL,
                 ADD UNIQUE INDEX `uidx.order.primary_order_transaction` (`id`, `version_id`, `primary_order_transaction_id`),
-                ADD CONSTRAINT `fk.order.primary_order_transaction` FOREIGN KEY (`primary_order_transaction_id`)
-                    REFERENCES `order_transaction` (`id`) ON DELETE SET NULL ON UPDATE CASCADE'
+                ADD CONSTRAINT `fk.order.primary_order_transaction` FOREIGN KEY (`primary_order_transaction_id`, `primary_order_transaction_version_id`)
+                    REFERENCES `order_transaction` (`id`, `version_id`) ON DELETE SET NULL ON UPDATE CASCADE'
             );
 
             $updateLimit = 1000;

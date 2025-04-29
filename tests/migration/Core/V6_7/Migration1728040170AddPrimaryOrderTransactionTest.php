@@ -123,8 +123,8 @@ class Migration1728040170AddPrimaryOrderTransactionTest extends TestCase
 
     private function rollback(): void
     {
-        $this->connection->executeStatement('ALTER TABLE `order` DROP INDEX `uidx.order.primary_order_transaction`');
-        $this->connection->executeStatement('ALTER TABLE `order` DROP FOREIGN KEY `fk.order.primary_order_transaction`');
+        $this->dropIndexIfExists($this->connection, 'order', 'uidx.order.primary_order_transaction');
+        $this->dropForeignKeyIfExists($this->connection, 'order', 'fk.order.primary_order_transaction');
 
         if ($this->columnExists($this->connection, 'order', 'primary_order_transaction_id')) {
             $this->connection->executeStatement('ALTER TABLE `order` DROP COLUMN `primary_order_transaction_id`');
@@ -132,6 +132,26 @@ class Migration1728040170AddPrimaryOrderTransactionTest extends TestCase
 
         if ($this->columnExists($this->connection, 'order', 'primary_order_transaction_version_id')) {
             $this->connection->executeStatement('ALTER TABLE `order` DROP COLUMN `primary_order_transaction_version_id`');
+        }
+    }
+
+    private function dropIndexIfExists(Connection $connection, string $table, string $indexName): void
+    {
+        $sql = \sprintf('ALTER TABLE `%s` DROP INDEX `%s`', $table, $indexName);
+
+        try {
+            $connection->executeStatement($sql);
+        } catch (\Throwable $e) {
+        }
+    }
+
+    private function dropForeignKeyIfExists(Connection $connection, string $table, string $indexName): void
+    {
+        $sql = \sprintf('ALTER TABLE `%s` DROP FOREIGN KEY `%s`', $table, $indexName);
+
+        try {
+            $connection->executeStatement($sql);
+        } catch (\Throwable $e) {
         }
     }
 }

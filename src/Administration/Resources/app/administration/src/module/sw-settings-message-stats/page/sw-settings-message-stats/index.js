@@ -16,7 +16,7 @@ Component.register('sw-settings-message-stats', {
         return {
             isLoading: false,
             stats: null,
-            isBannerHidden: false,
+            bannerHidden: localStorage.getItem('sw-message-stats-banner-hidden') === 'true',
             columns: [
                 {
                     property: 'type',
@@ -54,6 +54,10 @@ Component.register('sw-settings-message-stats', {
                 second: 'numeric',
             });
         },
+
+        isBannerHidden() {
+            return this.bannerHidden;
+        },
     },
 
     created() {
@@ -66,14 +70,17 @@ Component.register('sw-settings-message-stats', {
         },
 
         onCloseBanner() {
-            this.isBannerHidden = true;
+            localStorage.setItem('sw-message-stats-banner-hidden', 'true');
+            this.bannerHidden = true;
         },
 
         async loadStats() {
             this.isLoading = true;
             try {
                 // Simulate API call
-                await new Promise(resolve => setTimeout(resolve, 1000));
+                await new Promise((resolve) => {
+                    setTimeout(resolve, 1000);
+                });
                 this.stats = {
                     totalMessagesProcessed: 0,
                     averageTimeInQueue: 0,

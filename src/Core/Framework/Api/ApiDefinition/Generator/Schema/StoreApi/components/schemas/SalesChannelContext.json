@@ -117,119 +117,119 @@
                                 "type": "string"
                             },
                             "source": {
-          "type": "object",
-          "required": [
-            "salesChannelId",
-            "type"
-          ],
-          "properties": {
-            "type": {
-              "type": "string",
-              "enum": [
-                "sales-channel",
-                "shop-api"
-              ]
-            },
-            "salesChannelId": {
-              "type": "string"
-            }
-          }
-        }
-                            },
-                            "taxState": {
-                                "type": "string"
-                            },
-                            "useCache": {
-                                "type": "boolean"
+                                "type": "object",
+                                "required": [
+                                    "salesChannelId",
+                                    "type"
+                                ],
+                                "properties": {
+                                    "type": {
+                                        "type": "string",
+                                        "enum": [
+                                            "sales-channel",
+                                            "shop-api"
+                                        ]
+                                    },
+                                    "salesChannelId": {
+                                        "type": "string"
+                                    }
+                                }
                             }
+                        },
+                        "taxState": {
+                            "type": "string"
+                        },
+                        "useCache": {
+                            "type": "boolean"
                         }
-                    },
-                    "itemRounding": {
-                        "type": "object",
-                        "required": [
-                            "decimals",
-                            "interval",
-                            "roundForNet",
-                            "apiAlias"
-                        ],
-                        "properties": {
-                            "apiAlias": {
-                                "type": "string",
-                                "enum": [
-                                    "shopware_core_framework_data_abstraction_layer_pricing_cash_rounding_config"
-                                ]
-                            },
-                            "decimals": {
-                                "type": "integer",
-                                "format": "int32"
-                            },
-                            "interval": {
-                                "type": "number",
-                                "format": "float"
-                            },
-                            "roundForNet": {
-                                "type": "boolean"
-                            }
-                        }
-                    },
-                    "totalRounding": {
-                        "type": "object",
-                        "required": [
-                            "decimals",
-                            "interval",
-                            "roundForNet",
-                            "apiAlias"
-                        ],
-                        "properties": {
-                            "apiAlias": {
-                                "type": "string",
-                                "enum": [
-                                    "shopware_core_framework_data_abstraction_layer_pricing_cash_rounding_config"
-                                ]
-                            },
-                            "decimals": {
-                                "type": "integer",
-                                "format": "int32"
-                            },
-                            "interval": {
-                                "type": "number",
-                                "format": "float"
-                            },
-                            "roundForNet": {
-                                "type": "boolean"
-                            }
-                        }
-                    },
-                    "languageInfo": {
-                        "type": "object",
-                        "required": [
-                            "localeCode",
-                            "name"
-                        ],
-                        "properties": {
-                            "name": {
-                                "type": "string"
-                            },
-                            "localeCode": {
-                                "type": "string"
-                            }
-                        }
-                    },
-                    "apiAlias": {
-                        "type": "string",
-                        "enum": [
-                            "sales_channel_context"
-                        ]
                     }
                 },
-                "required": [
-                    "salesChannel",
-                    "apiAlias",
-                    "itemRounding",
-                    "totalRounding",
-                    "languageInfo"
-                ]
-            }
+                "itemRounding": {
+                    "type": "object",
+                    "required": [
+                        "decimals",
+                        "interval",
+                        "roundForNet",
+                        "apiAlias"
+                    ],
+                    "properties": {
+                        "apiAlias": {
+                            "type": "string",
+                            "enum": [
+                                "shopware_core_framework_data_abstraction_layer_pricing_cash_rounding_config"
+                            ]
+                        },
+                        "decimals": {
+                            "type": "integer",
+                            "format": "int32"
+                        },
+                        "interval": {
+                            "type": "number",
+                            "format": "float"
+                        },
+                        "roundForNet": {
+                            "type": "boolean"
+                        }
+                    }
+                },
+                "totalRounding": {
+                    "type": "object",
+                    "required": [
+                        "decimals",
+                        "interval",
+                        "roundForNet",
+                        "apiAlias"
+                    ],
+                    "properties": {
+                        "apiAlias": {
+                            "type": "string",
+                            "enum": [
+                                "shopware_core_framework_data_abstraction_layer_pricing_cash_rounding_config"
+                            ]
+                        },
+                        "decimals": {
+                            "type": "integer",
+                            "format": "int32"
+                        },
+                        "interval": {
+                            "type": "number",
+                            "format": "float"
+                        },
+                        "roundForNet": {
+                            "type": "boolean"
+                        }
+                    }
+                },
+                "languageInfo": {
+                    "type": "object",
+                    "required": [
+                        "localeCode",
+                        "name"
+                    ],
+                    "properties": {
+                        "name": {
+                            "type": "string"
+                        },
+                        "localeCode": {
+                            "type": "string"
+                        }
+                    }
+                },
+                "apiAlias": {
+                    "type": "string",
+                    "enum": [
+                        "sales_channel_context"
+                    ]
+                }
+            },
+            "required": [
+                "salesChannel",
+                "apiAlias",
+                "itemRounding",
+                "totalRounding",
+                "languageInfo"
+            ]
         }
     }
+}
 }

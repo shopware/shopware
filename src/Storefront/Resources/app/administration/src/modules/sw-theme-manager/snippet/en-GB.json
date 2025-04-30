@@ -71,13 +71,16 @@
           "label": "Media",
           "default": {
             "sw-logo-desktop": {
-              "label": "Desktop"
+              "label": "Desktop",
+              "helpText": "Displayed on viewports above 991px and as a fallback on smaller viewports, if no other logo is set."
             },
             "sw-logo-tablet": {
-              "label": "Tablet"
+              "label": "Tablet",
+              "helpText": "Displayed on viewports between 767px and 991px."
             },
             "sw-logo-mobile": {
-              "label": "Mobile"
+              "label": "Mobile",
+              "helpText": "Displayed on viewports up to 767px."
             },
             "sw-logo-share": {
               "label": "App & share icon"
@@ -130,7 +133,6 @@
       "textRenameInfo": "Enter a new name for the theme.",
       "labelRenameThemeName": "New theme name",
       "placeholderRenameThemeName": "Enter name",
-      "buttonRenameTheme": "Save",
       "modalTitleReset": "Reset theme",
       "modalTextResetInfo": "Are you sure you want to reset the theme to the default settings?",
       "modalTextResetAssigned": "This will change the appearance of your shop.",

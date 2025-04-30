@@ -28,11 +28,15 @@ class ThemeEntity extends Entity
 
     /**
      * @var array<string, mixed>|null
+     *
+     * @deprecated tag:v6.8.0 - Will be removed. Use helpText label keys from structured fields instead
      */
     protected ?array $labels = null;
 
     /**
      * @var array<string, string>|null
+     *
+     * @deprecated tag:v6.8.0 - Will be removed. Use helpText snippet keys from structured fields instead
      */
     protected ?array $helpTexts = null;
 
@@ -114,7 +118,7 @@ class ThemeEntity extends Entity
      */
     public function getLabels(): ?array
     {
-        Feature::triggerDeprecationOrThrow('v6.8.0.0', Feature::deprecatedClassMessage(self::class, 'v6.8.0.0'));
+        Feature::triggerDeprecationOrThrow('v6.8.0.0', Feature::deprecatedMethodMessage(__CLASS__, __METHOD__, 'v6.8.0.0', 'ThemeConfigField::getLabelSnippetKey'));
 
         return $this->labels;
     }
@@ -126,24 +130,32 @@ class ThemeEntity extends Entity
      */
     public function setLabels(?array $labels): void
     {
-        Feature::triggerDeprecationOrThrow('v6.8.0.0', Feature::deprecatedClassMessage(self::class, 'v6.8.0.0'));
+        Feature::triggerDeprecationOrThrow('v6.8.0.0', Feature::deprecatedMethodMessage(__CLASS__, __METHOD__, 'v6.8.0.0'));
 
         $this->labels = $labels;
     }
 
     /**
      * @return array<string, string>|null
+     *
+     * @deprecated tag:v6.8.0 - Will be removed. Use helpText snippet keys from structured fields instead
      */
     public function getHelpTexts(): ?array
     {
+        Feature::triggerDeprecationOrThrow('v6.8.0.0', Feature::deprecatedMethodMessage(__CLASS__, __METHOD__, 'v6.8.0.0', 'ThemeConfigField::getHelpTextSnippetKey'));
+
         return $this->helpTexts;
     }
 
     /**
      * @param array<string, string>|null $helpTexts
+     *
+     * @deprecated tag:v6.8.0 - Will be removed. Use helpText snippet keys from structured fields instead
      */
     public function setHelpTexts(?array $helpTexts): void
     {
+        Feature::triggerDeprecationOrThrow('v6.8.0.0', Feature::deprecatedMethodMessage(__CLASS__, __METHOD__, 'v6.8.0.0'));
+
         $this->helpTexts = $helpTexts;
     }
 

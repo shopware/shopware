@@ -179,34 +179,32 @@ The old classes are removed:
 
 ## Removed theme.json translations
 
-We removed `label` and `helpText` properties of `theme.json` to use the snippet system of the administration instead.
+We removed properties `label` and `helpText` properties of `theme.json`, which were deprecated in 6.7, to use the snippet system of the administration instead.
 
-The snippet keys to be used constructed as follows. The mentioned `themeName` implies the `technicalName` property of the theme in camel case:
-* Tab:
-  * `sw-theme.<technicalName>.<tabName>.label`
-    * e.g.: `sw-theme.swag-shape-theme.colorTab.label`
-  * `sw-theme.<technicalName>.<tabName>.helpText`
-    * e.g.: `sw-theme.swag-shape-theme.colorTab.helpText`
-* Block:
-  * `sw-theme.<technicalName>.<tabName>.<blockName>.label`
-    * e.g.: `sw-theme.swag-shape-theme.colorTab.primaryColorsBlock.label`
-  * `sw-theme.<technicalName>.<tabName>.<blockName>.helpText`
-    * e.g.: `sw-theme.swag-shape-theme.colorTab.primaryColorsBlock.helpText`
-* Section:
-  * `sw-theme.<technicalName>.<tabName>.<blockName>.<sectionName>.label`
-    * e.g.: `sw-theme.swag-shape-theme.colorTab.primaryColorsBlock.homeSection.label`
-  * `sw-theme.<technicalName>.<tabName>.<blockName>.<sectionName>.helpText`
-    * e.g.: `sw-theme.swag-shape-theme.colorTab.primaryColorsBlock.homeSection.helpText`
+A constructed snippet key was introduced in Shopware 6.7 and will now be required.
+This affects `label` and `helpText` properties in the `theme.json`, which are used in the theme manager.
+The snippet keys to be used are constructed as follows.
+The mentioned `themeName` implies the `technicalName` property of the theme in kebab case.
+Also, please notice that unnamed tabs, blocks or sections will be accessible via `default`.
+
+Examples:
+* Tab: `sw-theme.<technicalName>.<tabName>.label`
+  * e.g.: `sw-theme.swag-shape-theme.colorTab.label`
+* Block: `sw-theme.<technicalName>.<tabName>.<blockName>.label`
+  * e.g.: `sw-theme.swag-shape-theme.colorTab.primaryColorsBlock.label`
+* Section: `sw-theme.<technicalName>.<tabName>.<blockName>.<sectionName>.label`
+  * e.g.: `sw-theme.swag-shape-theme.colorTab.primaryColorsBlock.homeSection.label`
 * Field:
   * `sw-theme.<technicalName>.<tabName>.<blockName>.<sectionName>.<fieldName>.label`
     * e.g.: `sw-theme.swag-shape-theme.colorTab.primaryColorsBlock.homeSection.sw-color-primary-dark.label`
   * `sw-theme.<technicalName>.<tabName>.<blockName>.<sectionName>.<fieldName>.helpText`
     * e.g.: `sw-theme.swag-shape-theme.colorTab.primaryColorsBlock.homeSection.sw-color-primary-dark.helpText`
-* Options:
-  * `sw-theme.<technicalName>.<tabName>.<blockName>.<sectionName>.<fieldName>.<index>.label`
-    * e.g.: `sw-theme.swag-shape-theme.colorTab.primaryColorsBlock.homeSection.sw-color-primary-dark.0.label`
-  * `sw-theme.<technicalName>.<tabName>.<blockName>.<sectionName>.<fieldName>.<index>.helpText`
-    * e.g.: `sw-theme.swag-shape-theme.colorTab.primaryColorsBlock.homeSection.sw-color-primary-dark.0.helpText`
+* Options: `sw-theme.<technicalName>.<tabName>.<blockName>.<sectionName>.<fieldName>.<index>.label`
+  * e.g.: `sw-theme.swag-shape-theme.colorTab.primaryColorsBlock.homeSection.sw-color-primary-dark.0.label`
+
+## ThemeEntity::label & ThemeEntity::helpText removal
+
+Both deprecated fields `label` & `helpText` of `Shopware\Storefront\Theme\ThemeEntity` are removed. Please use the snippet keys to be found in `\Shopware\Storefront\Theme\ThemeService::getThemeConfigurationStructuredFields` instead.
 
 ## Removed `category_url` and `category_linknewtab` twig functions
 
@@ -220,10 +218,6 @@ The `category_url` and `category_linknewtab` twig functions have been removed. T
 +   {% if item.shouldOpenInNewTab %}target="_blank"{% endif %}
 </a>
 ```
-
-## ThemeEntity::label & ThemeEntity::helpText removal
-
-Both deprecated fields `label` & `helpText` of `Shopware\Storefront\Theme\ThemeEntity` are removed. Please use the snippet keys to be found in `\Shopware\Storefront\Theme\ThemeService::getThemeConfigurationStructuredFields` instead.
 
 ## Removal of DeleteThemeFilesMessage and its handler
 The `\Shopware\Storefront\Theme\Message\DeleteThemeFilesMessage` and its handler `\Shopware\Storefront\Theme\Message\DeleteThemeFilesHandler` are removed.

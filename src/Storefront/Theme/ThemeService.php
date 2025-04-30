@@ -26,6 +26,8 @@ use Symfony\Component\Messenger\MessageBusInterface;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 use Symfony\Contracts\Service\ResetInterface;
 
+use function Symfony\Component\String\u;
+
 #[Package('framework')]
 class ThemeService implements ResetInterface
 {
@@ -286,7 +288,7 @@ class ThemeService implements ResetInterface
     public function getThemeConfigurationStructuredFields(string $themeId, bool $translate, Context $context): array
     {
         $themeConfig = $this->getThemeConfiguration($themeId, $translate, $context);
-        $themeTechnicalName = $themeConfig['themeTechnicalName'];
+        $themeTechnicalName = (string) $themeConfig['themeTechnicalName'];
         $mergedFieldConfig = $themeConfig['fields'];
 
         $translations = [];
@@ -299,64 +301,15 @@ class ThemeService implements ResetInterface
 
         foreach ($mergedFieldConfig as $fieldName => $fieldConfig) {
             $tab = $this->getTab($fieldConfig);
-            $tabLabel = $this->getTabLabel($tab, $translations);
-            $tabSnippetKey = $this->buildSnippetKey($themeTechnicalName, $tab);
-
             $block = $this->getBlock($fieldConfig);
-            $blockLabel = $this->getBlockLabel($block, $translations);
-            $blockSnippetKey = $this->buildSnippetKey($themeTechnicalName, $tab, $block);
-
             $section = $this->getSection($fieldConfig);
-            $sectionLabel = $this->getSectionLabel($section, $translations);
-            $sectionSnippetKey = $this->buildSnippetKey($themeTechnicalName, $tab, $block, $section);
 
-            // set default tab
-            $outputStructure['tabs']['default']['label'] = '';
+            $outputStructure = $this->addTranslations($outputStructure, $themeTechnicalName, $tab, $block, $section, $translations);
 
-            // set labels
-            $outputStructure['tabs'][$tab]['label'] = $tabLabel;
-            $outputStructure['tabs'][$tab]['labelSnippetKey'] = $tabSnippetKey;
-            $outputStructure['tabs'][$tab]['blocks'][$block]['label'] = $blockLabel;
-            $outputStructure['tabs'][$tab]['blocks'][$block]['labelSnippetKey'] = $blockSnippetKey;
-            $outputStructure['tabs'][$tab]['blocks'][$block]['sections'][$section]['label'] = $sectionLabel;
-            $outputStructure['tabs'][$tab]['blocks'][$block]['sections'][$section]['labelSnippetKey'] = $sectionSnippetKey;
+            $custom = $this->buildCustom($fieldConfig['custom'], $themeTechnicalName, $tab, $block, $section, $fieldName);
 
-            $custom = $fieldConfig['custom'] ?? null;
-
-            if ($custom && \is_array($custom['options'])) {
-                $options = [];
-                foreach ($custom['options'] as $optionIndex => $option) {
-                    $options[] = [
-                        ...$option,
-                        'labelSnippetKey' => $this->buildSnippetKey(
-                            $themeTechnicalName,
-                            $tab,
-                            $block,
-                            $section,
-                            $fieldName,
-                            (string) $optionIndex
-                        ),
-                    ];
-                }
-
-                $custom['options'] = $options;
-            }
-
-            // add fields to sections
-            $outputStructure['tabs'][$tab]['blocks'][$block]['sections'][$section]['fields'][$fieldName] = [
-                'label' => $fieldConfig['label'],
-                'labelSnippetKey' => $this->buildSnippetKey(
-                    $themeTechnicalName,
-                    $tab,
-                    $block,
-                    $section,
-                    $fieldName
-                ),
-                'helpText' => $fieldConfig['helpText'] ?? null,
-                'type' => $fieldConfig['type'] ?? null,
-                'custom' => $custom,
-                'fullWidth' => $fieldConfig['fullWidth'],
-            ];
+            $outputStructure['tabs'][$tab]['blocks'][$block]['sections'][$section]['fields'][$fieldName] =
+                $this->buildField($fieldConfig, $custom, $themeTechnicalName, $tab, $block, $section, $fieldName);
         }
 
         return $outputStructure;
@@ -394,16 +347,37 @@ class ThemeService implements ResetInterface
         $this->notified = false;
     }
 
-    private function toKebabCase(string $themeName): string
+    /**
+     * @param array<string, mixed> $fieldConfig
+     * @param array<string, mixed>|null $custom
+     *
+     * @return array<string, mixed>
+     */
+    private function buildField(array $fieldConfig, ?array $custom, string $themeTechnicalName, string $tab, string $block, string $section, string $fieldName): array
     {
-        // Camel case to kebab case
-        $themeName = (string) preg_replace('/([a-z])([A-Z])/', '$1-$2', $themeName);
-
-        // Strip special characters
-        $themeName = (string) preg_replace('/[^a-zA-Z0-9\s-]/', '', $themeName);
-        $themeName = (string) preg_replace('/\s+/', '-', $themeName);
-
-        return strtolower(trim($themeName, '-'));
+        return [
+            'label' => $fieldConfig['label'],
+            'labelSnippetKey' => $this->buildSnippetKey(
+                $themeTechnicalName,
+                false,
+                $tab,
+                $block,
+                $section,
+                $fieldName,
+            ),
+            'helpText' => $fieldConfig['helpText'] ?? null,
+            'helpTextSnippetKey' => $this->buildSnippetKey(
+                $themeTechnicalName,
+                true,
+                $tab,
+                $block,
+                $section,
+                $fieldName,
+            ),
+            'type' => $fieldConfig['type'] ?? null,
+            'custom' => $custom,
+            'fullWidth' => $fieldConfig['fullWidth'],
+        ];
     }
 
     private function handleAsync(
@@ -565,8 +539,6 @@ class ThemeService implements ResetInterface
 
     /**
      * @param array<string, mixed> $translations
-     *
-     * @deprecated tag:v6.8.0 - Using translations from `theme.json` will be removed, use `buildSnippetKey` instead
      */
     private function getTabLabel(string $tabName, array $translations): string
     {
@@ -579,8 +551,6 @@ class ThemeService implements ResetInterface
 
     /**
      * @param array<string, mixed> $translations
-     *
-     * @deprecated tag:v6.8.0 - Using translations from `theme.json` will be removed, use `buildSnippetKey` instead
      */
     private function getBlockLabel(string $blockName, array $translations): string
     {
@@ -593,8 +563,6 @@ class ThemeService implements ResetInterface
 
     /**
      * @param array<string, mixed> $translations
-     *
-     * @deprecated tag:v6.8.0 - Using translations from `theme.json` will be removed, use `buildSnippetKey` instead
      */
     private function getSectionLabel(string $sectionName, array $translations): string
     {
@@ -690,16 +658,75 @@ class ThemeService implements ResetInterface
         return $this->configService->get(self::CONFIG_THEME_COMPILE_ASYNC) && !$context->hasState(self::STATE_NO_QUEUE);
     }
 
-    private function buildSnippetKey(string $themeTechnicalName, string ...$parts): string
+    private function buildSnippetKey(string $themeTechnicalName, bool $isHelpText, string ...$parts): string
     {
         return implode(
             '.',
             [
                 'sw-theme',
-                $this->toKebabCase($themeTechnicalName),
+                u($themeTechnicalName)->kebab(),
                 ...$parts,
-                'label',
+                $isHelpText ? 'helpText' : 'label',
             ],
         );
+    }
+
+    /**
+     * @param array<string,mixed>|null $custom
+     * @param string $themeTechnicalName
+     *
+     * @return ?array<string, mixed>
+     */
+    private function buildCustom(?array $custom, mixed $themeTechnicalName, string $tab, string $block, string $section, string $fieldName): ?array
+    {
+        $custom = $custom ?? null;
+
+        if ($custom && \is_array($custom['options'])) {
+            foreach ($custom['options'] as $optionIndex => &$option) {
+                $option['labelSnippetKey'] = $this->buildSnippetKey(
+                    $themeTechnicalName,
+                    false,
+                    $tab,
+                    $block,
+                    $section,
+                    $fieldName,
+                    (string) $optionIndex,
+                );
+            }
+            unset($option);
+        }
+
+        return $custom;
+    }
+
+    /**
+     * @param array<string, mixed> $outputStructure
+     * @param array<string, mixed> $translations
+     *
+     * @return array<string, mixed>
+     */
+    private function addTranslations(array $outputStructure, string $themeTechnicalName, string $tab, string $block, string $section, array $translations): array
+    {
+        $tabLabel = $this->getTabLabel($tab, $translations);
+        $tabSnippetKey = $this->buildSnippetKey($themeTechnicalName, false, $tab);
+
+        $blockLabel = $this->getBlockLabel($block, $translations);
+        $blockSnippetKey = $this->buildSnippetKey($themeTechnicalName, false, $tab, $block);
+
+        $sectionLabel = $this->getSectionLabel($section, $translations);
+        $sectionSnippetKey = $this->buildSnippetKey($themeTechnicalName, false, $tab, $block, $section);
+
+        // set default tab
+        $outputStructure['tabs']['default']['label'] = '';
+
+        // set labels
+        $outputStructure['tabs'][$tab]['label'] = $tabLabel;
+        $outputStructure['tabs'][$tab]['labelSnippetKey'] = $tabSnippetKey;
+        $outputStructure['tabs'][$tab]['blocks'][$block]['label'] = $blockLabel;
+        $outputStructure['tabs'][$tab]['blocks'][$block]['labelSnippetKey'] = $blockSnippetKey;
+        $outputStructure['tabs'][$tab]['blocks'][$block]['sections'][$section]['label'] = $sectionLabel;
+        $outputStructure['tabs'][$tab]['blocks'][$block]['sections'][$section]['labelSnippetKey'] = $sectionSnippetKey;
+
+        return $outputStructure;
     }
 }

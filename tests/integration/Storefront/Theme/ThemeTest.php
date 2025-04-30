@@ -40,6 +40,8 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Bundle\BundleInterface;
 use Symfony\Component\HttpKernel\KernelInterface;
 
+use function Symfony\Component\String\u;
+
 /**
  * @internal
  */
@@ -183,16 +185,15 @@ class ThemeTest extends TestCase
         $criteria = new Criteria();
         $criteria->addFilter(new EqualsFilter('name', $name));
 
-        /** @var ThemeEntity $childTheme */
         $childTheme = $this->themeRepository->search($criteria, $this->context)->getEntities()->first();
-        static::assertNotNull($childTheme);
+        static::assertInstanceOf(ThemeEntity::class, $childTheme);
 
         $childThemeFields = $this->themeService->getThemeConfigurationStructuredFields($childTheme->getId(), true, $this->context);
 
-        /** @var string $technicalName */
         $technicalName = $childTheme->getTechnicalName();
+        static::assertIsString($technicalName);
         static::assertSame(
-            implode('.', ['sw-theme', $this->toKebabCase($technicalName), 'default.themeColors.default.sw-color-brand-primary.label']),
+            implode('.', ['sw-theme', u($technicalName)->kebab(), 'default.themeColors.default.sw-color-brand-primary.label']),
             $childThemeFields['tabs']['default']['blocks']['themeColors']['sections']['default']['fields']['sw-color-brand-primary']['labelSnippetKey']
         );
     }
@@ -239,11 +240,12 @@ class ThemeTest extends TestCase
         $childTheme = $this->themeRepository->search($criteria, $this->context)->getEntities()->first();
         static::assertNotNull($childTheme);
 
-        /** @var string $technicalName */
         $technicalName = $childTheme->getTechnicalName();
+        static::assertIsString($technicalName);
+
         $childThemeFields = $this->themeService->getThemeConfigurationStructuredFields($childTheme->getId(), true, $this->context);
         static::assertSame(
-            implode('.', ['sw-theme', $this->toKebabCase($technicalName), 'default.themeColors.default.sw-color-brand-primary.label']),
+            implode('.', ['sw-theme', u($technicalName)->kebab(), 'default.themeColors.default.sw-color-brand-primary.label']),
             $childThemeFields['tabs']['default']['blocks']['themeColors']['sections']['default']['fields']['sw-color-brand-primary']['labelSnippetKey']
         );
     }
@@ -1027,17 +1029,5 @@ class ThemeTest extends TestCase
                 ],
             ],
         ];
-    }
-
-    private function toKebabCase(string $themeName): string
-    {
-        // Camel case to kebab case
-        $themeName = (string) preg_replace('/([a-z])([A-Z])/', '$1-$2', $themeName);
-
-        // Strip special characters
-        $themeName = (string) preg_replace('/[^a-zA-Z0-9\s-]/', '', $themeName);
-        $themeName = (string) preg_replace('/\s+/', '-', $themeName);
-
-        return strtolower(trim($themeName, '-'));
     }
 }

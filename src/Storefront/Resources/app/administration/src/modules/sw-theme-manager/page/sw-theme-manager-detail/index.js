@@ -657,14 +657,27 @@ Component.register('sw-theme-manager-detail', {
         },
 
         /**
-         * @deprecated tag:v6.8.0 - Theme config labels will be removed entirely, use `this.$t` instead
+         * @deprecated tag:v6.8.0 - Theme config labels will be removed entirely, use `this.$t` instead.
          */
         getSnippet(key, fallback = '') {
-            if (this.$te(key)) {
+            if (this.$t(key) !== key) {
                 return this.$t(key);
             }
 
             console.warn(`[DEPRECATED] v6.8.0 - Theme config labels will be removed entirely, use snippet translation for key "${key}" instead.`);
+
+            return fallback;
+        },
+
+        /**
+         * @deprecated tag:v6.8.0 - `fallback` will be removed and return `null` instead, since theme config helpTexts will be removed entirely.
+         */
+        getHelpText(key, fallback = null) {
+            if (this.$t(key) !== key) {
+                return this.$t(key);
+            }
+
+            console.warn(`[DEPRECATED] v6.8.0 - Theme config helpTexts will be removed entirely, use snippet translation for key "${key}" instead.`);
 
             return fallback;
         },

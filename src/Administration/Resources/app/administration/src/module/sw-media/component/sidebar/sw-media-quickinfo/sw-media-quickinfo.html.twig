@@ -152,12 +152,15 @@
                 <template #content="props">
 
                     <mt-switch
-                        :map-inheritance="props"
+                        :is-inheritance-field="props.isInheritField"
+                        :is-inherited="props.isInherited"
                         :help-text="buildAugmentedRealityTooltip('sw-media.sidebar.actions.arHelpText')"
                         :label="$tc('sw-media.sidebar.actions.ar')"
                         :disabled="props.isInherited || !editable"
                         :model-value="props.currentValue"
                         class="sw-media-sidebar__quickactions-switch ar-ready-toggle"
+                        @inheritance-restore="props.restoreInheritance"
+                        @inheritance-remove="props.removeInheritance"
                         @update:model-value="props.updateCurrentValue"
                     />
                 </template>

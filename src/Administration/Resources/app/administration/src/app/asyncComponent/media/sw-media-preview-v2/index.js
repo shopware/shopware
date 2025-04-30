@@ -44,7 +44,7 @@ export default {
         'audio/wav',
     ],
 
-    placeholderThumbnailsBasePath: '/administration/static/img/media-preview/',
+    placeholderThumbnailsBasePath: '/administration/administration/static/img/media-preview/',
 
     placeHolderThumbnails: {
         application: {

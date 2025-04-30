@@ -803,6 +803,7 @@
  "sw_cms_element_product_listing_config_filter_properties_wrapper",
  "sw_cms_element_product_listing_config_filter_property_grid",
  "sw_cms_element_product_listing_config_filter_property_grid_column_status",
+ "sw_cms_element_product_listing_config_filter_property_grid_columns",
  "sw_cms_element_product_listing_config_filter_property_grid_pagination",
  "sw_cms_element_product_listing_config_filter_property_search",
  "sw_cms_element_product_listing_config_filter_spacer",

@@ -8,6 +8,8 @@ const { Component } = Shopware;
  * @private
  * @status ready
  * @description Wrapper component for sw-email-field and mt-email-field. Autoswitches between the two components.
+ *
+ * @deprecated tag:v6.8.0 - Will be removed, use mt-email-field instead.
  */
 Component.register('sw-email-field', {
     template,
@@ -23,6 +25,12 @@ Component.register('sw-email-field', {
             type: String,
             required: false,
             default: null,
+        },
+
+        deprecated: {
+            type: Boolean,
+            required: false,
+            default: false,
         },
     },
 

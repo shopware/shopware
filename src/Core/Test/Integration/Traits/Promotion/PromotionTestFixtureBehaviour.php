@@ -17,6 +17,8 @@ use Shopware\Core\Test\TestDefaults;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
 /**
+ * @codeCoverageIgnore
+ *
  * @internal
  */
 #[Package('checkout')]

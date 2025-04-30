@@ -58,7 +58,7 @@ class SerializerRegistry
             }
         }
 
-        throw ImportExportException::serializerNotFound(Field::class);
+        throw ImportExportException::serializerNotFound($field::class);
     }
 
     /**

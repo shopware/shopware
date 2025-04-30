@@ -26,6 +26,8 @@ use Shopware\Core\Test\Stub\Framework\IdsCollection;
 use Shopware\Core\Test\TestDefaults;
 
 /**
+ * @codeCoverageIgnore
+ *
  * @internal
  */
 trait TestShortHands

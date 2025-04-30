@@ -59,7 +59,7 @@ class MessageQueueStatsSubscriberTest extends TestCase
 
         $this->handleCommonExpectations($envelope, false);
 
-        $this->statsService->expects(static::once())
+        $this->statsService->expects($this->once())
             ->method('registerMessage')
             ->with($envelope);
 

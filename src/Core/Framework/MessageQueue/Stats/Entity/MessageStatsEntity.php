@@ -5,7 +5,7 @@ namespace Shopware\Core\Framework\MessageQueue\Stats\Entity;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Struct\Struct;
 
-#[Package('core')]
+#[Package('framework')]
 class MessageStatsEntity extends Struct
 {
     protected int $totalMessagesProcessed;

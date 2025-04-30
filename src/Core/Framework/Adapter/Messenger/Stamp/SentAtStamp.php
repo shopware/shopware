@@ -5,7 +5,7 @@ namespace Shopware\Core\Framework\Adapter\Messenger\Stamp;
 use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\Messenger\Stamp\StampInterface;
 
-#[Package('core')]
+#[Package('framework')]
 readonly class SentAtStamp implements StampInterface
 {
     private \DateTimeInterface $sentAt;

@@ -695,6 +695,7 @@ class InfoControllerTest extends TestCase
         static::assertJson($content);
         $stats = json_decode($content, true, 512, \JSON_THROW_ON_ERROR);
 
+        static::assertIsArray($stats);
         static::assertArrayHasKey('totalMessagesProcessed', $stats);
         static::assertGreaterThanOrEqual(2, $stats['totalMessagesProcessed']);
         static::assertArrayHasKey('processedSince', $stats);

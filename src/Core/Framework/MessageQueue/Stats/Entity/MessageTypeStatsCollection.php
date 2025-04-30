@@ -8,7 +8,7 @@ use Shopware\Core\Framework\Struct\Collection;
 /**
  * @extends Collection<MessageTypeStatsEntity>
  */
-#[Package('core')]
+#[Package('framework')]
 class MessageTypeStatsCollection extends Collection
 {
     protected function getExpectedClass(): ?string

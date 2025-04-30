@@ -13,7 +13,7 @@ use Shopware\Core\Framework\MessageQueue\Stats\Entity\MessageTypeStatsEntity;
 /**
  * @internal
  */
-#[Package('core')]
+#[Package('framework')]
 class MySQLStatsRepository extends AbstractStatsRepository
 {
     private const MESSAGE_TYPES_LIMIT = 100;

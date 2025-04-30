@@ -15,7 +15,7 @@ use Symfony\Component\Messenger\Stamp\SentStamp;
 /**
  * @internal
  */
-#[Package('core')]
+#[Package('framework')]
 #[CoversClass(QueuedTimeMiddleware::class)]
 class QueuedTimeMiddlewareTest extends TestCase
 {
@@ -54,12 +54,12 @@ class QueuedTimeMiddlewareTest extends TestCase
         $stack = $this->createMock(StackInterface::class);
         $middlewareMock = $this->createMock(MiddlewareInterface::class);
 
-        $stack->expects(static::once())
+        $stack->expects($this->once())
             ->method('next')
             ->willReturn($middlewareMock);
 
         // checking if middleware mock will be called with proper envelope
-        $middlewareMock->expects(static::once())
+        $middlewareMock->expects($this->once())
             ->method('handle')
             ->willReturnArgument(0);
 

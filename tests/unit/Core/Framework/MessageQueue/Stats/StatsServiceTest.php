@@ -17,7 +17,7 @@ use Symfony\Component\Messenger\Envelope;
 /**
  * @internal
  */
-#[Package('core')]
+#[Package('framework')]
 #[CoversClass(StatsService::class)]
 class StatsServiceTest extends TestCase
 {
@@ -36,7 +36,7 @@ class StatsServiceTest extends TestCase
         );
 
         $repositoryMock = $this->createMock(MySQLStatsRepository::class);
-        $repositoryMock->expects(static::once())
+        $repositoryMock->expects($this->once())
             ->method('getStats')
             ->willReturn($returnVal);
         $service = new StatsService($repositoryMock);
@@ -48,7 +48,7 @@ class StatsServiceTest extends TestCase
     public function testRegisterMessageWithoutStamp(): void
     {
         $repository = $this->createMock(MySQLStatsRepository::class);
-        $repository->expects(static::never())
+        $repository->expects($this->never())
             ->method('updateMessageStats');
 
         $service = new StatsService($repository);
@@ -65,7 +65,7 @@ class StatsServiceTest extends TestCase
 
         $repository = $this->createMock(MySQLStatsRepository::class);
 
-        $repository->expects(static::once())
+        $repository->expects($this->once())
             ->method('updateMessageStats')
             ->with(
                 'stdClass',

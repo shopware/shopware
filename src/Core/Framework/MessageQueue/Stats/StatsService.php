@@ -10,7 +10,7 @@ use Symfony\Component\Messenger\Envelope;
 /**
  * @internal
  */
-#[Package('core')]
+#[Package('framework')]
 class StatsService
 {
     public function __construct(

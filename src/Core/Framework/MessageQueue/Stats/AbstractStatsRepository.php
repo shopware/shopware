@@ -8,7 +8,7 @@ use Shopware\Core\Framework\MessageQueue\Stats\Entity\MessageStatsEntity;
 /**
  * @internal
  */
-#[Package('core')]
+#[Package('framework')]
 abstract class AbstractStatsRepository
 {
     public function __construct(protected int $timeSpan)

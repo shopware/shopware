@@ -12,6 +12,8 @@ use Shopware\Core\Framework\MessageQueue\Stats\Entity\MessageTypeStatsEntity;
 
 /**
  * @internal
+ *
+ * @codeCoverageIgnore tested via an integration test
  */
 #[Package('framework')]
 class MySQLStatsRepository extends AbstractStatsRepository

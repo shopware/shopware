@@ -4,13 +4,11 @@
 import template from './sw-settings-message-stats.html.twig';
 import './sw-settings-message-stats.scss';
 
-const { Component } = Shopware;
-
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
-Component.register('sw-settings-message-stats', {
+export default {
     template,
 
-    inject: ['repositoryFactory'],
+    inject: ['repositoryFactory', 'messageStatsService'],
 
     data() {
         return {
@@ -77,36 +75,7 @@ Component.register('sw-settings-message-stats', {
         async loadStats() {
             this.isLoading = true;
             try {
-                // Simulate API call
-                await new Promise((resolve) => {
-                    setTimeout(resolve, 1000);
-                });
-                this.stats = {
-                    totalMessagesProcessed: 0,
-                    averageTimeInQueue: 0,
-                    processedSince: '2025-04-15T15:08:42.000+00:00',
-                    messageTypeStats: [],
-                };
-                this.stats = {
-                    totalMessagesProcessed: 127,
-                    averageTimeInQueue: 11.17,
-                    processedSince: '2025-04-15T15:08:42.000+00:00',
-                    messageTypeStats: [
-                        {
-                            type: 'InvalidateCacheTask',
-                            count: 123,
-                        },
-                        {
-                            type: 'CreateAliasTask',
-                            count: 45,
-                        },
-                        {
-                            type: 'ProductExportGenerateTask',
-                            count: 67,
-                        },
-                    ],
-                };
-
+                this.stats = await this.messageStatsService.getStats();
             } catch (error) {
                 this.createNotificationError({
                     title: this.$tc('sw-settings-message-stats.general.errorTitle'),
@@ -117,4 +86,4 @@ Component.register('sw-settings-message-stats', {
             }
         },
     },
-});
+};

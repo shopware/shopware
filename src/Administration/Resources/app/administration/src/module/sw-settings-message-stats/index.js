@@ -1,11 +1,13 @@
 /**
  * @sw-package framework
  */
-import './page/sw-settings-message-stats';
+import './init/services.init';
 
 const { Module } = Shopware;
 
-// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
+/* eslint-disable max-len, sw-deprecation-rules/private-feature-declarations */
+Shopware.Component.register('sw-settings-message-stats', () => import('./page/sw-settings-message-stats/index'));
+
 Module.register('sw-settings-message-stats', {
     type: 'core',
     name: 'settings-message-stats',

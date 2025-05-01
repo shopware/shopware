@@ -16,7 +16,10 @@
     }
 
     &__state-container > * {
-        margin-top: auto;
+        &:not(:first-child) {
+            margin-top: 1.5rem;
+            align-self: center;
+        }
     }
 
     &__state-history-text {

@@ -23,12 +23,8 @@
         color: $color-gray-500;
     }
 
-    &__state-history-text,
     &__state-history-button {
         margin-bottom: 6px;
-    }
-
-    &__state-history-button {
         text-align: right;
     }
 }

@@ -8,7 +8,7 @@ import './sw-settings-message-stats.scss';
 export default {
     template,
 
-    inject: ['repositoryFactory', 'messageStatsService'],
+    inject: ['messageStatsService'],
 
     data() {
         return {

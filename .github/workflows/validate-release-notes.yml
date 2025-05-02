@@ -24,6 +24,6 @@ jobs:
           PR="${{ github.repository }} #${{ github.event.pull_request.number }}"
           
           # Run the validate:release-notes command with the PR number
-          claude -p "/project:validate:release-notes $PR_NUMBER"
+          claude -p "/project:validate:release-notes ${{ PR  }}"
         env:
           ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}

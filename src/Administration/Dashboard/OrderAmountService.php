@@ -43,7 +43,7 @@ class OrderAmountService
             'DATE_FORMAT(' . $accessor . ', \'%Y-%m-%d\') as `date`',
             'COUNT(`order`.id) as `count`',
             'SUM(
-                `order`.amount_total / IFNULL(`order`.currency_factor, currency.factor)
+                `order`.amount_total * IFNULL(`order`.currency_factor, currency.factor)
             ) as `amount`',
         );
 

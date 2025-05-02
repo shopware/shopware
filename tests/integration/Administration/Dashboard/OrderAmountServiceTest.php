@@ -145,7 +145,7 @@ class OrderAmountServiceTest extends TestCase
                 self::order(2, '2021-01-01', 19.99, OrderTransactionStates::STATE_PAID),
             ],
             'expected' => [
-                ['date' => '2021-01-01', 'amount' => 10.00, 'count' => 1],
+                ['date' => '2021-01-01', 'amount' => 39.98, 'count' => 1],
             ],
             'since' => '2021-01-01',
             'paid' => true,
@@ -163,10 +163,10 @@ class OrderAmountServiceTest extends TestCase
         yield 'Multiple orders, transaction paid, filter paid, currency factor, within since range' => [
             'orders' => [
                 self::order(2, '2021-01-01', 20.00, OrderTransactionStates::STATE_PAID),
-                self::order(2, '2021-01-01', 100.00, OrderTransactionStates::STATE_PAID),
+                self::order(0.5, '2021-01-01', 100.00, OrderTransactionStates::STATE_PAID),
             ],
             'expected' => [
-                ['date' => '2021-01-01', 'amount' => 60.00, 'count' => 2],
+                ['date' => '2021-01-01', 'amount' => 90.00, 'count' => 2],
             ],
             'since' => '2021-01-01',
             'paid' => true,
@@ -184,12 +184,12 @@ class OrderAmountServiceTest extends TestCase
 
         yield 'Multiple orders, transaction paid, filter paid, currency factor, within since range, different dates' => [
             'orders' => [
-                self::order(2, '2021-01-01', 19.99, OrderTransactionStates::STATE_PAID),
+                self::order(0.5, '2021-01-01', 19.99, OrderTransactionStates::STATE_PAID),
                 self::order(2, '2021-01-02', 19.99, OrderTransactionStates::STATE_PAID),
             ],
             'expected' => [
                 ['date' => '2021-01-01', 'amount' => 10.00, 'count' => 1],
-                ['date' => '2021-01-02', 'amount' => 10.00, 'count' => 1],
+                ['date' => '2021-01-02', 'amount' => 39.98, 'count' => 1],
             ],
             'since' => '2021-01-01',
             'paid' => true,
@@ -207,8 +207,8 @@ class OrderAmountServiceTest extends TestCase
 
         yield 'Multiple orders, transaction paid, filter paid, currency factor, within since range, different dates, different states' => [
             'orders' => [
-                self::order(2, '2021-01-01', 19.99, OrderTransactionStates::STATE_PAID),
-                self::order(2, '2021-01-02', 19.99, OrderTransactionStates::STATE_OPEN),
+                self::order(0.5, '2021-01-01', 19.99, OrderTransactionStates::STATE_PAID),
+                self::order(0.5, '2021-01-02', 19.99, OrderTransactionStates::STATE_OPEN),
             ],
             'expected' => [
                 ['date' => '2021-01-01', 'amount' => 10.00, 'count' => 1],
@@ -233,8 +233,8 @@ class OrderAmountServiceTest extends TestCase
                 self::order(3, '2021-01-02', 30.99, OrderTransactionStates::STATE_PAID),
             ],
             'expected' => [
-                ['date' => '2021-01-01', 'amount' => 10.00, 'count' => 1],
-                ['date' => '2021-01-02', 'amount' => 10.33, 'count' => 1],
+                ['date' => '2021-01-01', 'amount' => 39.98, 'count' => 1],
+                ['date' => '2021-01-02', 'amount' => 92.97, 'count' => 1],
             ],
             'since' => '2021-01-01',
             'paid' => true,
@@ -261,8 +261,8 @@ class OrderAmountServiceTest extends TestCase
                 self::order(1, '2021-01-02', 20.00, OrderTransactionStates::STATE_PAID),
             ],
             'expected' => [
-                ['date' => '2021-01-01', 'amount' => 30.00, 'count' => 2],
-                ['date' => '2021-01-02', 'amount' => 50.00, 'count' => 3],
+                ['date' => '2021-01-01', 'amount' => 110.00, 'count' => 2],
+                ['date' => '2021-01-02', 'amount' => 80.00, 'count' => 3],
             ],
             'since' => '2021-01-01',
             'paid' => true,
@@ -272,7 +272,7 @@ class OrderAmountServiceTest extends TestCase
     /**
      * @return array<string, mixed>
      */
-    private static function order(int $currencyFactor, string $date, float $price, string $stateId): array
+    private static function order(float $currencyFactor, string $date, float $price, string $stateId): array
     {
         return [
             'id' => Uuid::randomBytes(),

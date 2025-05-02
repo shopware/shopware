@@ -50,8 +50,7 @@ class CartLoadRouteTest extends TestCase
 
         $cartLoadRoute = new CartLoadRoute(
             $cartService,
-            $this->createMock(TaxProviderProcessor::class),
-
+            $this->createMock(TaxProviderProcessor::class)
         );
 
         static::assertSame($calculatedCart, $cartLoadRoute->load(new Request(), $salesChannelContext)->getCart());

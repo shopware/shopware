@@ -122,9 +122,9 @@ class ConnectionProfilerTest extends TestCase
         static::assertInstanceOf(ConnectionProfiler::class, $c);
 
         $collectedQueries = $c->getQueries();
+        $collectedQueries = $collectedQueries['default'][0];
 
-        // @phpstan-ignore-next-line
-        $collectedParam = $collectedQueries['default'][0]['params'][0];
+        $collectedParam = $collectedQueries['params']->offsetGet(0);
         if ($collectedParam instanceof Data) {
             $out = fopen('php://memory', 'r+');
             \assert(\is_resource($out));
@@ -138,8 +138,8 @@ class ConnectionProfilerTest extends TestCase
             static::assertEquals($expected, $collectedParam);
         }
 
-        static::assertTrue($collectedQueries['default'][0]['explainable']);
-        static::assertTrue($collectedQueries['default'][0]['runnable']);
+        static::assertTrue($collectedQueries['explainable']);
+        static::assertTrue($collectedQueries['runnable']);
     }
 
     /**
@@ -192,9 +192,9 @@ class ConnectionProfilerTest extends TestCase
         static::assertInstanceOf(ConnectionProfiler::class, $c);
 
         $collectedQueries = $c->getQueries();
+        $collectedQueries = $collectedQueries['default'][0];
 
-        // @phpstan-ignore-next-line
-        $collectedParam = $collectedQueries['default'][0]['params'][0];
+        $collectedParam = $collectedQueries['params']->offsetGet(0);
         if ($collectedParam instanceof Data) {
             $out = fopen('php://memory', 'r+');
             \assert(\is_resource($out));
@@ -208,8 +208,8 @@ class ConnectionProfilerTest extends TestCase
             static::assertEquals($expected, $collectedParam);
         }
 
-        static::assertTrue($collectedQueries['default'][0]['explainable']);
-        static::assertTrue($collectedQueries['default'][0]['runnable']);
+        static::assertTrue($collectedQueries['explainable']);
+        static::assertTrue($collectedQueries['runnable']);
     }
 
     /**

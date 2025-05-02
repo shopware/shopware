@@ -488,7 +488,7 @@ class ThemeTest extends TestCase
     public function testCompileTheme(): void
     {
         static::markTestSkipped('theme compile is not possible cause app.js does not exist');
-        $criteria = new Criteria(); /** @phpstan-ignore-line  */
+        $criteria = new Criteria();
         $criteria->addFilter(new EqualsFilter('technicalName', StorefrontPluginRegistry::BASE_THEME_NAME));
 
         $baseTheme = $this->themeRepository->search($criteria, $this->context)->getEntities()->first();

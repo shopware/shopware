@@ -37,12 +37,15 @@
                 <mt-switch
                     name="sw-field--product-is-closeout"
                     :error="productIsCloseoutError"
-                    :map-inheritance="props"
+                    :is-inheritance-field="props.isInheritField"
+                    :is-inherited="props.isInherited"
                     :label="$tc('sw-product.settingsForm.labelIsCloseout')"
                     :help-text="$tc('sw-product.settingsForm.isCloseoutHelpText')"
                     :disabled="props.isInherited || !allowEdit"
                     :model-value="props.currentValue"
                     @update:model-value="props.updateCurrentValue"
+                    @inheritance-restore="props.restoreInheritance"
+                    @inheritance-remove="props.removeInheritance"
                 />
 
             </template>
@@ -92,7 +95,8 @@
 
                 <mt-number-field
                     name="sw-field--product-restock-time"
-                    :map-inheritance="props"
+                    :is-inheritance-field="props.isInheritField"
+                    :is-inherited="props.isInherited"
                     number-type="int"
                     allow-empty
                     :min="0"
@@ -102,6 +106,8 @@
                     :model-value="props.currentValue"
                     :error="productRestockTimeError"
                     @update:model-value="props.updateCurrentValue"
+                    @inheritance-restore="props.restoreInheritance"
+                    @inheritance-remove="props.removeInheritance"
                 />
 
             </template>
@@ -119,12 +125,15 @@
             <template #content="props">
 
                 <mt-switch
-                    :map-inheritance="props"
+                    :is-inheritance-field="props.isInheritField"
+                    :is-inherited="props.isInherited"
                     :error="productShippingFreeError"
                     :label="$tc('sw-product.settingsForm.labelShippingFree')"
                     :disabled="props.isInherited || !allowEdit"
                     :model-value="props.currentValue"
                     @update:model-value="props.updateCurrentValue"
+                    @inheritance-restore="props.restoreInheritance"
+                    @inheritance-remove="props.removeInheritance"
                 />
 
             </template>
@@ -147,7 +156,8 @@
             <template #content="props">
 
                 <mt-number-field
-                    :map-inheritance="props"
+                    :is-inheritance-field="props.isInheritField"
+                    :is-inherited="props.isInherited"
                     number-type="int"
                     :min="1"
                     :error="productMinPurchaseError"
@@ -156,6 +166,8 @@
                     :disabled="props.isInherited || !allowEdit"
                     :model-value="props.currentValue"
                     @update:model-value="props.updateCurrentValue"
+                    @inheritance-restore="props.restoreInheritance"
+                    @inheritance-remove="props.removeInheritance"
                 />
 
             </template>
@@ -173,7 +185,8 @@
             <template #content="props">
 
                 <mt-number-field
-                    :map-inheritance="props"
+                    :is-inheritance-field="props.isInheritField"
+                    :is-inherited="props.isInherited"
                     number-type="int"
                     :min="1"
                     :error="productPurchaseStepsError"
@@ -182,6 +195,8 @@
                     :disabled="props.isInherited || !allowEdit"
                     :model-value="props.currentValue"
                     @update:model-value="props.updateCurrentValue"
+                    @inheritance-restore="props.restoreInheritance"
+                    @inheritance-remove="props.removeInheritance"
                 />
             </template>
         </sw-inherit-wrapper>
@@ -198,7 +213,8 @@
             <template #content="props">
 
                 <mt-number-field
-                    :map-inheritance="props"
+                    :is-inheritance-field="props.isInheritField"
+                    :is-inherited="props.isInherited"
                     number-type="int"
                     :allow-empty="true"
                     :min="0"
@@ -208,6 +224,8 @@
                     :disabled="props.isInherited || !allowEdit"
                     :model-value="props.currentValue"
                     @update:model-value="props.updateCurrentValue"
+                    @inheritance-restore="props.restoreInheritance"
+                    @inheritance-remove="props.removeInheritance"
                 />
             </template>
         </sw-inherit-wrapper>

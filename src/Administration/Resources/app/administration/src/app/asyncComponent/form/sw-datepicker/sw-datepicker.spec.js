@@ -9,6 +9,7 @@ async function createWrapper(additionalOptions = {}) {
         global: {
             stubs: {
                 'mt-datepicker': true,
+                'sw-datepicker-deprecated': true,
             },
         },
         props: {},

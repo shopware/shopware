@@ -1,294 +1,294 @@
-# name: PHP checks
-#
-# on:
-#   pull_request:
-#   merge_group:
-#   workflow_dispatch:
-#   workflow_call:
-#
-# env:
-#   COMPOSER_ROOT_VERSION: 6.7.9999999-dev
-#
-# jobs:
-#   lint:
-#     runs-on: ubuntu-24.04
-#     name: "PHP lint"
-#     steps:
-#       - name: Checkout
-#         uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # 4
-#
-#       - name: Setup PHP
-#         uses: shivammathur/setup-php@6c489b2fc701c5f9ed70ccebe221b567bee578c0 # 2
-#         with:
-#           php-version: 8.2
-#           extensions: ""
-#           tools: symfony-cli
-#
-#       - name: Debug
-#         run: |
-#           cat composer.json
-#           composer validate --no-check-publish --no-check-lock
-#
-#       - uses: ramsey/composer-install@a2636af0004d1c0499ffca16ac0b4cc94df70565 # 3.1.0
-#         with:
-#           custom-cache-key: ${{ runner.os }}-setup-shopware-composer-8.2-${{ hashFiles('composer.json', 'custom/plugins/**/composer.json') }}
-#           working-directory: ""
-#
-#       - name: Setup Shopware
-#         uses: shopware/setup-shopware@main
-#         with:
-#           shopware-version: ${{ github.ref }}
-#           shopware-repository: ${{ github.repository }}
-#
-#       - name: Cache CS Fixer
-#         uses: actions/cache@d4323d4df104b026a6aa633fdb11d772146be0bf # 4
-#         with:
-#           path: ./var/cache/cs_fixer
-#           key: ${{ runner.os }}-cs-fixer-${{ hashFiles('composer.json') }}
-#           restore-keys: |
-#             ${{ runner.os }}-cs-fixer-
-#
-#       - name: Code Style
-#         run: composer run ecs
-#
-#       - name: Lint Changelogs
-#         run: composer run lint:changelog
-#
-#       - name: Lint Snippets
-#         run: composer run lint:snippets
-#
-#   phpstan:
-#     runs-on: ubuntu-24.04
-#     name: "PHPStan"
-#     steps:
-#       - name: Setup Shopware
-#         uses: shopware/setup-shopware@main
-#         with:
-#           shopware-version: ${{ github.ref }}
-#           shopware-repository: ${{ github.repository }}
-#
-#       - name: Generate Schema
-#         run: composer run framework:schema:dump
-#
-#       - name: "Restore result cache"
-#         uses: actions/cache/restore@d4323d4df104b026a6aa633fdb11d772146be0bf # v4.2.2
-#         with:
-#           path: var/cache/phpstan
-#           key: "phpstan-result-cache-${{ github.run_id }}"
-#           restore-keys: |
-#             phpstan-result-cache-
-#
-#       - name: PHPStan
-#         run: composer run phpstan -- --error-format=table --no-progress
-#
-#       - name: "Save result cache"
-#         uses: actions/cache/save@d4323d4df104b026a6aa633fdb11d772146be0bf # v4.2.2
-#         if: always()
-#         with:
-#           path: var/cache/phpstan
-#           key: "phpstan-result-cache-${{ github.run_id }}"
-#
-#   bc-checker:
-#     runs-on: ubuntu-24.04
-#     name: "BC check"
-#     steps:
-#       - name: Clone shopware
-#         uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # 4
-#         with:
-#           fetch-depth: "0"
-#           fetch-tags: "1"
-#
-#       - name: Setup PHP
-#         uses: shivammathur/setup-php@6c489b2fc701c5f9ed70ccebe221b567bee578c0 # 2
-#         with:
-#           php-version: "8.2"
-#
-#       - name: Install Dependencies
-#         run: |
-#           composer install
-#       - name: Prepare repo
-#         run: |
-#           set -e
-#           git remote add bc-checker-upstream https://github.com/shopware/platform.git
-#           git fetch bc-checker-upstream
-#       - name: BC Checker lastest tag
-#         if: github.event_name != 'pull_request'
-#         run: composer run bc-check
-#       - name: BC Checker PR
-#         if: github.event_name == 'pull_request' && !contains(github.base_ref, '/feature/')
-#         run: composer run bc-check -- --from="origin/${{ github.base_ref }}"
-#
-#   openapi-lint:
-#     runs-on: ubuntu-24.04
-#     env:
-#       APP_ENV: test
-#       APP_URL: http://localhost:8000
-#       APP_SECRET: def00000bb5acb32b54ff8ee130270586eec0e878f7337dc7a837acc31d3ff00f93a56b595448b4b29664847dd51991b3314ff65aeeeb761a133b0ec0e070433bff08e48
-#       DATABASE_HOST: "127.0.0.1"
-#     steps:
-#       - name: Setup Shopware
-#         uses: shopware/setup-shopware@main
-#         with:
-#           install: true
-#           shopware-version: ${{ github.ref }}
-#           shopware-repository: ${{ github.repository }}
-#
-#       - name: Prepare schema lint
-#         env:
-#           NPM_CONFIG_PREFIX: ${{ github.workspace }}/var/cache/npm
-#         run: |
-#           echo "PATH=${{ env.NPM_CONFIG_PREFIX }}/bin:$PATH" >> $GITHUB_ENV
-#           curl localhost:8000/
-#           npm i -g @redocly/cli@1.32.1 @shopware/api-gen
-#           export STOREFRONT_ID=$(bin/console sales-channel:list --output json | jq -r '.[] | select(.name == "Storefront") | .id')
-#           export OPENAPI_ACCESS_KEY=$(mysql -u root -h 127.0.0.1 shopware -se "SELECT access_key FROM sales_channel WHERE id = UNHEX(\"${STOREFRONT_ID}\")";)
-#           echo -e "OPENAPI_JSON_URL=http://localhost:8000\nSHOPWARE_ADMIN_USERNAME=admin\nSHOPWARE_ADMIN_PASSWORD=shopware\nOPENAPI_ACCESS_KEY=${OPENAPI_ACCESS_KEY}" > .env
-#           cat .env
-#
-#       - name: Generate OpenApi StoreAPI schema
-#         run: |
-#           api-gen loadSchema --apiType=store && api-gen generate --apiType=store
-#
-#       - name: Upload OpenApi StoreAPI schema
-#         uses: actions/upload-artifact@4cec3d8aa04e39d1a68397de0c4cd6fb9dce8ec1 # 4.6.1
-#         with:
-#           name: storeApiSchema.json
-#           path: ./api-types/storeApiSchema.json
-#           retention-days: 1
-#
-#       - name: Lint OpenApi StoreAPI schema
-#         run: |
-#           redocly lint --skip-rule operation-4xx-response --skip-rule no-server-example.com --skip-rule no-unused-components ./api-types/storeApiSchema.json
-#
-#       - name: Generate & Lint OpenApi API schema
-#         run: |
-#           api-gen loadSchema --apiType=admin && api-gen generate --apiType=admin
-#           redocly lint --skip-rule operation-4xx-response --skip-rule no-server-example.com --skip-rule no-unused-components ./api-types/adminApiSchema.json
-#
-#       - name: Upload OpenApi AdminAPI schema
-#         uses: actions/upload-artifact@4cec3d8aa04e39d1a68397de0c4cd6fb9dce8ec1 # 4.6.1
-#         with:
-#           name: adminApiSchema.json
-#           path: ./api-types/adminApiSchema.json
-#           retention-days: 1
-#
-#       - name: Lint OpenApi AdminAPI schema
-#         run: |
-#           redocly lint --skip-rule operation-4xx-response --skip-rule no-server-example.com --skip-rule no-unused-components ./api-types/adminApiSchema.json
-#
-#   phpunit:
-#     name: "PHPUnit for ${{ matrix.suite }}"
-#     runs-on: ubuntu-24.04
-#     strategy:
-#       fail-fast: false
-#       matrix:
-#         suite:
-#           - unit
-#           - migration
-#     env:
-#       APP_ENV: test
-#       DATABASE_URL: mysql://root@127.0.0.1:3306/root
-#       APP_URL: http://localhost:8000
-#       APP_SECRET: def00000bb5acb32b54ff8ee130270586eec0e878f7337dc7a837acc31d3ff00f93a56b595448b4b29664847dd51991b3314ff65aeeeb761a133b0ec0e070433bff08e48
-#       OPENSEARCH_URL: 127.0.0.1:9200
-#       ADMIN_OPENSEARCH_URL: 127.0.0.1:9200
-#       BLUE_GREEN_DEPLOYMENT: 1
-#       PUPPETEER_SKIP_CHROMIUM_DOWNLOAD: "true"
-#
-#     services:
-#       elasticsearch:
-#         image: ${{ matrix.suite == 'integration' && 'opensearchproject/opensearch:1' || 'alpine' }}
-#         env:
-#           discovery.type: single-node
-#           plugins.security.disabled: "true"
-#         ports:
-#           - "9200:9200"
-#
-#     steps:
-#       - name: Setup Shopware
-#         uses: shopware/setup-shopware@main
-#         with:
-#           php-version: 8.4
-#           shopware-version: ${{ github.ref }}
-#           shopware-repository: ${{ github.repository }}
-#
-#       - name: Start Webserver
-#         run: symfony server:start -d
-#
-#       - name: Migration test suite setup
-#         if: ${{ matrix.suite == 'migration' }}
-#         run: |
-#           sed -i -e 's|<directory suffix=".php">src</directory>|<directory suffix=".php">src/Core/Migration</directory>|' phpunit.xml.dist
-#           echo "FEATURE_ALL=major" >> $GITHUB_ENV
-#
-#       - name: Install Shopware
-#         run: php src/Core/TestBootstrap.php
-#
-#       - name: Run PHPUnit with coverage
-#         run: php -d memory_limit=-1 vendor/bin/phpunit --testsuite "${{ matrix.suite }}" --coverage-cobertura coverage.xml --log-junit junit.xml
-#
-#       - name: Upload coverage
-#         uses: codecov/codecov-action@0565863a31f2c772f9f0395002a31e3f06189574 # 5
-#         env:
-#           CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
-#         with:
-#           files: coverage.xml
-#           flags: phpunit-${{ matrix.suite }}
-#
-#       - name: Upload test results to Codecov
-#         if: ${{ !cancelled() }}
-#         uses: codecov/test-results-action@f2dba722c67b86c6caa034178c6e4d35335f6706 # 1
-#         with:
-#           token: ${{ secrets.CODECOV_TOKEN }}
-#
-#   license-check:
-#     runs-on: ubuntu-24.04
-#     name: "PHP license check"
-#     steps:
-#       - name: Setup Shopware
-#         uses: shopware/setup-shopware@main
-#         with:
-#           shopware-version: ${{ github.ref }}
-#           shopware-repository: ${{ github.repository }}
-#       - name: Check license
-#         run: vendor/bin/composer-license-checker check $(xargs -n1 echo -a < .allowed-licenses)
-#
-#   composer-audit:
-#     runs-on: ubuntu-24.04
-#     name: "composer audit"
-#     steps:
-#       - name: Clone shopware
-#         uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # 4
-#
-#       - name: Setup PHP
-#         uses: shivammathur/setup-php@6c489b2fc701c5f9ed70ccebe221b567bee578c0 # 2
-#         with:
-#           php-version: "8.2"
-#
-#       - name: Install Dependencies
-#         run: |
-#           composer install
-#
-#       - name: Composer audit
-#         run: |
-#           composer audit
-#
-#   php-check:
-#     if: always()
-#     needs:
-#       - lint
-#       - phpstan
-#       - openapi-lint
-#       - phpunit
-#       - license-check
-#       - composer-audit
-#       - bc-checker
-#
-#     runs-on: Ubuntu-latest
-#     steps:
-#       - name: Decide whether the needed jobs succeeded or failed
-#         uses: re-actors/alls-green@05ac9388f0aebcb5727afa17fcccfecd6f8ec5fe # v1.2.2
-#         with:
-#           # allowed-failures: docs, linters
-#           # allowed-skips: non-voting-flaky-job
-#           jobs: ${{ toJSON(needs) }}
+name: PHP checks
+
+on:
+  pull_request:
+  merge_group:
+  workflow_dispatch:
+  workflow_call:
+
+env:
+  COMPOSER_ROOT_VERSION: 6.7.9999999-dev
+
+jobs:
+  lint:
+    runs-on: ubuntu-24.04
+    name: "PHP lint"
+    steps:
+      - name: Checkout
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # 4
+
+      - name: Setup PHP
+        uses: shivammathur/setup-php@6c489b2fc701c5f9ed70ccebe221b567bee578c0 # 2
+        with:
+          php-version: 8.2
+          extensions: ""
+          tools: symfony-cli
+
+      - name: Debug
+        run: |
+          cat composer.json
+          composer validate --no-check-publish --no-check-lock
+
+      - uses: ramsey/composer-install@a2636af0004d1c0499ffca16ac0b4cc94df70565 # 3.1.0
+        with:
+          custom-cache-key: ${{ runner.os }}-setup-shopware-composer-8.2-${{ hashFiles('composer.json', 'custom/plugins/**/composer.json') }}
+          working-directory: ""
+
+      - name: Setup Shopware
+        uses: shopware/setup-shopware@main
+        with:
+          shopware-version: ${{ github.ref }}
+          shopware-repository: ${{ github.repository }}
+
+      - name: Cache CS Fixer
+        uses: actions/cache@d4323d4df104b026a6aa633fdb11d772146be0bf # 4
+        with:
+          path: ./var/cache/cs_fixer
+          key: ${{ runner.os }}-cs-fixer-${{ hashFiles('composer.json') }}
+          restore-keys: |
+            ${{ runner.os }}-cs-fixer-
+
+      - name: Code Style
+        run: composer run ecs
+
+      - name: Lint Changelogs
+        run: composer run lint:changelog
+
+      - name: Lint Snippets
+        run: composer run lint:snippets
+
+  phpstan:
+    runs-on: ubuntu-24.04
+    name: "PHPStan"
+    steps:
+      - name: Setup Shopware
+        uses: shopware/setup-shopware@main
+        with:
+          shopware-version: ${{ github.ref }}
+          shopware-repository: ${{ github.repository }}
+
+      - name: Generate Schema
+        run: composer run framework:schema:dump
+
+      - name: "Restore result cache"
+        uses: actions/cache/restore@d4323d4df104b026a6aa633fdb11d772146be0bf # v4.2.2
+        with:
+          path: var/cache/phpstan
+          key: "phpstan-result-cache-${{ github.run_id }}"
+          restore-keys: |
+            phpstan-result-cache-
+
+      - name: PHPStan
+        run: composer run phpstan -- --error-format=table --no-progress
+
+      - name: "Save result cache"
+        uses: actions/cache/save@d4323d4df104b026a6aa633fdb11d772146be0bf # v4.2.2
+        if: always()
+        with:
+          path: var/cache/phpstan
+          key: "phpstan-result-cache-${{ github.run_id }}"
+
+  bc-checker:
+    runs-on: ubuntu-24.04
+    name: "BC check"
+    steps:
+      - name: Clone shopware
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # 4
+        with:
+          fetch-depth: "0"
+          fetch-tags: "1"
+
+      - name: Setup PHP
+        uses: shivammathur/setup-php@6c489b2fc701c5f9ed70ccebe221b567bee578c0 # 2
+        with:
+          php-version: "8.2"
+
+      - name: Install Dependencies
+        run: |
+          composer install
+      - name: Prepare repo
+        run: |
+          set -e
+          git remote add bc-checker-upstream https://github.com/shopware/platform.git
+          git fetch bc-checker-upstream
+      - name: BC Checker lastest tag
+        if: github.event_name != 'pull_request'
+        run: composer run bc-check
+      - name: BC Checker PR
+        if: github.event_name == 'pull_request' && !contains(github.base_ref, '/feature/')
+        run: composer run bc-check -- --from="origin/${{ github.base_ref }}"
+
+  openapi-lint:
+    runs-on: ubuntu-24.04
+    env:
+      APP_ENV: test
+      APP_URL: http://localhost:8000
+      APP_SECRET: def00000bb5acb32b54ff8ee130270586eec0e878f7337dc7a837acc31d3ff00f93a56b595448b4b29664847dd51991b3314ff65aeeeb761a133b0ec0e070433bff08e48
+      DATABASE_HOST: "127.0.0.1"
+    steps:
+      - name: Setup Shopware
+        uses: shopware/setup-shopware@main
+        with:
+          install: true
+          shopware-version: ${{ github.ref }}
+          shopware-repository: ${{ github.repository }}
+
+      - name: Prepare schema lint
+        env:
+          NPM_CONFIG_PREFIX: ${{ github.workspace }}/var/cache/npm
+        run: |
+          echo "PATH=${{ env.NPM_CONFIG_PREFIX }}/bin:$PATH" >> $GITHUB_ENV
+          curl localhost:8000/
+          npm i -g @redocly/cli@1.32.1 @shopware/api-gen
+          export STOREFRONT_ID=$(bin/console sales-channel:list --output json | jq -r '.[] | select(.name == "Storefront") | .id')
+          export OPENAPI_ACCESS_KEY=$(mysql -u root -h 127.0.0.1 shopware -se "SELECT access_key FROM sales_channel WHERE id = UNHEX(\"${STOREFRONT_ID}\")";)
+          echo -e "OPENAPI_JSON_URL=http://localhost:8000\nSHOPWARE_ADMIN_USERNAME=admin\nSHOPWARE_ADMIN_PASSWORD=shopware\nOPENAPI_ACCESS_KEY=${OPENAPI_ACCESS_KEY}" > .env
+          cat .env
+
+      - name: Generate OpenApi StoreAPI schema
+        run: |
+          api-gen loadSchema --apiType=store && api-gen generate --apiType=store
+
+      - name: Upload OpenApi StoreAPI schema
+        uses: actions/upload-artifact@4cec3d8aa04e39d1a68397de0c4cd6fb9dce8ec1 # 4.6.1
+        with:
+          name: storeApiSchema.json
+          path: ./api-types/storeApiSchema.json
+          retention-days: 1
+
+      - name: Lint OpenApi StoreAPI schema
+        run: |
+          redocly lint --skip-rule operation-4xx-response --skip-rule no-server-example.com --skip-rule no-unused-components ./api-types/storeApiSchema.json
+
+      - name: Generate & Lint OpenApi API schema
+        run: |
+          api-gen loadSchema --apiType=admin && api-gen generate --apiType=admin
+          redocly lint --skip-rule operation-4xx-response --skip-rule no-server-example.com --skip-rule no-unused-components ./api-types/adminApiSchema.json
+
+      - name: Upload OpenApi AdminAPI schema
+        uses: actions/upload-artifact@4cec3d8aa04e39d1a68397de0c4cd6fb9dce8ec1 # 4.6.1
+        with:
+          name: adminApiSchema.json
+          path: ./api-types/adminApiSchema.json
+          retention-days: 1
+
+      - name: Lint OpenApi AdminAPI schema
+        run: |
+          redocly lint --skip-rule operation-4xx-response --skip-rule no-server-example.com --skip-rule no-unused-components ./api-types/adminApiSchema.json
+
+  phpunit:
+    name: "PHPUnit for ${{ matrix.suite }}"
+    runs-on: ubuntu-24.04
+    strategy:
+      fail-fast: false
+      matrix:
+        suite:
+          - unit
+          - migration
+    env:
+      APP_ENV: test
+      DATABASE_URL: mysql://root@127.0.0.1:3306/root
+      APP_URL: http://localhost:8000
+      APP_SECRET: def00000bb5acb32b54ff8ee130270586eec0e878f7337dc7a837acc31d3ff00f93a56b595448b4b29664847dd51991b3314ff65aeeeb761a133b0ec0e070433bff08e48
+      OPENSEARCH_URL: 127.0.0.1:9200
+      ADMIN_OPENSEARCH_URL: 127.0.0.1:9200
+      BLUE_GREEN_DEPLOYMENT: 1
+      PUPPETEER_SKIP_CHROMIUM_DOWNLOAD: "true"
+
+    services:
+      elasticsearch:
+        image: ${{ matrix.suite == 'integration' && 'opensearchproject/opensearch:1' || 'alpine' }}
+        env:
+          discovery.type: single-node
+          plugins.security.disabled: "true"
+        ports:
+          - "9200:9200"
+
+    steps:
+      - name: Setup Shopware
+        uses: shopware/setup-shopware@main
+        with:
+          php-version: 8.4
+          shopware-version: ${{ github.ref }}
+          shopware-repository: ${{ github.repository }}
+
+      - name: Start Webserver
+        run: symfony server:start -d
+
+      - name: Migration test suite setup
+        if: ${{ matrix.suite == 'migration' }}
+        run: |
+          sed -i -e 's|<directory suffix=".php">src</directory>|<directory suffix=".php">src/Core/Migration</directory>|' phpunit.xml.dist
+          echo "FEATURE_ALL=major" >> $GITHUB_ENV
+
+      - name: Install Shopware
+        run: php src/Core/TestBootstrap.php
+
+      - name: Run PHPUnit with coverage
+        run: php -d memory_limit=-1 vendor/bin/phpunit --testsuite "${{ matrix.suite }}" --coverage-cobertura coverage.xml --log-junit junit.xml
+
+      - name: Upload coverage
+        uses: codecov/codecov-action@0565863a31f2c772f9f0395002a31e3f06189574 # 5
+        env:
+          CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
+        with:
+          files: coverage.xml
+          flags: phpunit-${{ matrix.suite }}
+
+      - name: Upload test results to Codecov
+        if: ${{ !cancelled() }}
+        uses: codecov/test-results-action@f2dba722c67b86c6caa034178c6e4d35335f6706 # 1
+        with:
+          token: ${{ secrets.CODECOV_TOKEN }}
+
+  license-check:
+    runs-on: ubuntu-24.04
+    name: "PHP license check"
+    steps:
+      - name: Setup Shopware
+        uses: shopware/setup-shopware@main
+        with:
+          shopware-version: ${{ github.ref }}
+          shopware-repository: ${{ github.repository }}
+      - name: Check license
+        run: vendor/bin/composer-license-checker check $(xargs -n1 echo -a < .allowed-licenses)
+
+  composer-audit:
+    runs-on: ubuntu-24.04
+    name: "composer audit"
+    steps:
+      - name: Clone shopware
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # 4
+
+      - name: Setup PHP
+        uses: shivammathur/setup-php@6c489b2fc701c5f9ed70ccebe221b567bee578c0 # 2
+        with:
+          php-version: "8.2"
+
+      - name: Install Dependencies
+        run: |
+          composer install
+
+      - name: Composer audit
+        run: |
+          composer audit
+
+  php-check:
+    if: always()
+    needs:
+      - lint
+      - phpstan
+      - openapi-lint
+      - phpunit
+      - license-check
+      - composer-audit
+      - bc-checker
+
+    runs-on: Ubuntu-latest
+    steps:
+      - name: Decide whether the needed jobs succeeded or failed
+        uses: re-actors/alls-green@05ac9388f0aebcb5727afa17fcccfecd6f8ec5fe # v1.2.2
+        with:
+          # allowed-failures: docs, linters
+          # allowed-skips: non-voting-flaky-job
+          jobs: ${{ toJSON(needs) }}

@@ -4,10 +4,16 @@
             margin: 0 2px;
 
             .sw-label {
-                margin: 0;
-                height: 24px;
-                line-height: 22px;
-                min-width: 0;
+                height: 32px;
+                padding: 8px 12px;
+            }
+        }
+
+        &__input-wrapper {
+            align-self: center;
+
+            input {
+                padding-bottom: 0;
             }
         }
 

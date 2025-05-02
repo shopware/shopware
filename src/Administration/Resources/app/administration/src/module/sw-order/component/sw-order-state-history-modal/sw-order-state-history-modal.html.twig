@@ -29,7 +29,15 @@
 
         {% block sw_order_state_history_modal_content_columns_user %}
         <template #column-user="{ item }">
-            {{ item.user?.username ?? $tc('sw-order.stateHistoryModal.labelSystemUser') }}
+            <template v-if="item.user">
+                {{ item.user.username }}
+            </template>
+            <template v-else-if="item.integration">
+                {{ item.integration.label }} ({{ $t('sw-order.stateHistoryModal.labelIntegration') }})
+            </template>
+            <template v-else>
+                {{ $t('sw-order.stateHistoryModal.labelSystemUser') }}
+            </template>
         </template>
         {% endblock %}
 

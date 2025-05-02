@@ -18,6 +18,9 @@ interface StateMachineHistoryData {
     user?: {
         username: string;
     };
+    integration?: {
+        label: string;
+    };
     entity: string;
     referencedId?: string;
 }
@@ -103,6 +106,7 @@ export default Component.wrapComponentConfig({
             criteria.addAssociation('fromStateMachineState');
             criteria.addAssociation('toStateMachineState');
             criteria.addAssociation('user');
+            criteria.addAssociation('integration');
             criteria.addSorting({
                 field: 'state_machine_history.createdAt',
                 order: 'ASC',
@@ -259,6 +263,7 @@ export default Component.wrapComponentConfig({
                 delivery: states.order_delivery,
                 createdAt: 'orderDateTime' in entry ? entry.orderDateTime : entry.createdAt,
                 user: 'user' in entry ? entry.user : undefined,
+                integration: 'integration' in entry ? entry.integration : undefined,
                 entity: 'entityName' in entry ? entry.entityName : entry.getEntityName(),
                 referencedId: 'referencedId' in entry ? entry.referencedId : entry.id,
             };

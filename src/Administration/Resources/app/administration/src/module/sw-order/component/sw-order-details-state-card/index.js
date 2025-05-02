@@ -102,6 +102,7 @@ export default {
             criteria.addFilter(Criteria.equals('referencedId', this.entity.id));
             criteria.addFilter(Criteria.equals('entityName', this.entityName));
             criteria.addAssociation('user');
+            criteria.addAssociation('integration');
             criteria.addSorting({ field: 'createdAt', order: 'DESC' });
 
             return criteria;

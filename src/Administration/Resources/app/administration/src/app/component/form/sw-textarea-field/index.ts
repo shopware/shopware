@@ -30,6 +30,12 @@ Component.register('sw-textarea-field', {
             required: false,
             default: undefined,
         },
+
+        deprecated: {
+            type: Boolean,
+            required: false,
+            default: false,
+        },
     },
 
     computed: {

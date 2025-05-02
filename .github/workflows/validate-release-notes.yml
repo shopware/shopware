@@ -21,6 +21,6 @@ jobs:
       - name: Validate Release Notes
         run: |
           # Run the validate:release-notes command with the PR number
-          claude -p "/project:validate:release-notes ${{ github.repository }} #${{ github.event.pull_request.number }}"
+          claude -p "/project:validate:release-notes ${{ github.repository }} #${{ github.event.pull_request.number }}" --allowedTools "Bash(gh label list git),mcp__github__get_issue,mcp__github__get_issue_comments,mcp__github__update_issue,mcp__github__search_issues,mcp__github__list_issues"
         env:
           ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}

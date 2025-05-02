@@ -546,7 +546,10 @@ class ThemeTest extends TestCase
                     return $value === $_expectedTheme;
                 }),
                 new Callback(static function (StorefrontPluginConfiguration $value) use (&$_expectedColor): bool {
-                    return $value->getThemeConfig()['fields']['sw-color-brand-primary']['value'] === $_expectedColor; /** @phpstan-ignore-line  */
+                    static::assertIsArray($value->getThemeConfig());
+                    static::assertArrayHasKey('fields', $value->getThemeConfig());
+
+                    return $value->getThemeConfig()['fields']['sw-color-brand-primary']['value'] === $_expectedColor;
                 })
             );
 
@@ -646,9 +649,12 @@ class ThemeTest extends TestCase
                 return $this->kernel->getCharset();
             }
 
-            public function __call($name, $arguments) /* @phpstan-ignore-line */
+            /**
+             * @param array<mixed> $arguments
+             */
+            public function __call(string $name, array $arguments): mixed
             {
-                return $this->kernel->$name(...\func_get_args()); /* @phpstan-ignore-line */
+                return $this->kernel->$name(...\func_get_args()); /** @phpstan-ignore symplify.noDynamicName */
             }
         };
 

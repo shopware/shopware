@@ -51,7 +51,7 @@ class MappingCollectionTest extends TestCase
     public function testInvalidElement(): void
     {
         $this->expectExceptionMessage('Expected collection element of type Shopware\Core\Content\ImportExport\Processing\Mapping\Mapping got Shopware\Core\Framework\Struct\ArrayEntity');
-        /** @phpstan-ignore-next-line intentionally wrong parameter provided */
+        /** @phpstan-ignore-next-line argument.type (for test purpose) */
         new MappingCollection([new ArrayEntity()]);
     }
 

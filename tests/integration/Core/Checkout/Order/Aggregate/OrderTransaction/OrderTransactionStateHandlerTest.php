@@ -130,7 +130,7 @@ class OrderTransactionStateHandlerTest extends TestCase
         $transactionId = $this->createOrderTransaction($orderId, $context);
 
         foreach ($path as $action => $destinationState) {
-            $this->orderTransactionStateHelper->$action($transactionId, $context); /* @phpstan-ignore-line */
+            $this->orderTransactionStateHelper->$action($transactionId, $context); /* @phpstan-ignore-line symplify.noDynamicName (data provider defined) */
 
             $criteria = new Criteria([$transactionId]);
             $criteria->addAssociation('stateMachineState');

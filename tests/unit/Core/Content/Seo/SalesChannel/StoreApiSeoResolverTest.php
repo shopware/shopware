@@ -97,7 +97,7 @@ class StoreApiSeoResolverTest extends TestCase
 
     public function testRequestHeaderDoesNotIncludeSeoUrls(): void
     {
-        // @phpstan-ignore-next-line > Ignore PHPStan error, to be able to assert that this method has not been called
+        /** @phpstan-ignore-next-line shopware.mockingSimpleObjects (for test purpose) */
         $attributes = $this->createMock(ParameterBag::class);
         $attributes
             ->expects($this->never())

@@ -67,7 +67,7 @@ class SalesChannelRepositoryFacadeTest extends TestCase
             new Script('test', '', new \DateTimeImmutable())
         );
 
-        $result = $facade->$method('product', $criteria); /* @phpstan-ignore-line */
+        $result = $facade->$method('product', $criteria); /* @phpstan-ignore-line symplify.noDynamicName (data provider defined) */
 
         $expectation($result);
     }

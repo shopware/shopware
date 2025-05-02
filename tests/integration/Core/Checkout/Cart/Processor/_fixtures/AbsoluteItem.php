@@ -13,7 +13,7 @@ use Shopware\Core\Framework\Uuid\Uuid;
 /**
  * @internal
  *
- * @phpstan-ignore-next-line
+ * @phpstan-ignore-next-line class.extendsFinalByPhpDoc
  */
 #[Package('checkout')]
 class AbsoluteItem extends LineItem

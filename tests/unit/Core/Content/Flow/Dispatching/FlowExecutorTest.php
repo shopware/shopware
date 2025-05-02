@@ -678,7 +678,7 @@ class FlowExecutorTest extends TestCase
 
             public function handleFlow(StorableFlow $flow): void
             {
-                /** @phpstan-ignore-next-line  */
+                /** @phpstan-ignore-next-line shopware.domainException */
                 throw new \Exception('broken');
             }
 

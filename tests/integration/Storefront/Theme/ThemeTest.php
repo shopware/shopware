@@ -487,7 +487,6 @@ class ThemeTest extends TestCase
 
     public function testCompileTheme(): void
     {
-        static::markTestSkipped('theme compile is not possible cause app.js does not exist');
         $criteria = new Criteria();
         $criteria->addFilter(new EqualsFilter('technicalName', StorefrontPluginRegistry::BASE_THEME_NAME));
 
@@ -647,14 +646,6 @@ class ThemeTest extends TestCase
             public function getCharset(): string
             {
                 return $this->kernel->getCharset();
-            }
-
-            /**
-             * @param array<mixed> $arguments
-             */
-            public function __call(string $name, array $arguments): mixed
-            {
-                return $this->kernel->$name(...\func_get_args()); /** @phpstan-ignore symplify.noDynamicName */
             }
         };
 

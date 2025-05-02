@@ -31,20 +31,37 @@ Developers should manually edit the RELEASE_INFO.md and UPGRADE.md files directl
 A simple rule of thumb:
 
 - Use `RELEASE_INFO.md` for:
-  - Features, API updates, improvements, and non-breaking changes.
-  - Example: "Added a new admin UI filter for orders."
+  * New or major reworked user facing features
+  * improvements / new developer features 
+    This does include:
+    - Added extension points
+    - new/changed best practices / guidelines
+    - Quality of life improvements for other developers
+
+    This does not include:
+    - Refactorings of internal code
+    - “under the hood” improvements that are backwards compatible
+
+  * deprecations we made
+  * everything else we changed that developers should be aware of
+  * Critical bugs (not every bug, therefore we have the complete changelog, but critical ones, esp when we do a patch release because of them should be documented)
+  * The release notes should describe why we made a change and why external developers should care; it is not about what you changed.
+  * Use the RELEASE_INFO file for the version where we made the change, e.g. for a change that is released with 6.7.1.0 put the release notes under the 6.7.1.0 section of the RELEASE_INFO-6.7.md file.
 
 - Use `UPGRADE.md` for:
   - Breaking changes, migration steps, and required developer actions.
-  - Example: "Deprecated sw-popover, use mt-floating-ui instead."
+  - for every entry include:
+    * What we changed
+    * Why we changed it, the benefit of the change
+    * Why and when externals need to care
+    * How they can/need to adjust
+  - Use the UPGRADE.md file for the version where the breaking change will happen, e.g for a change that is added in 6.7.1.0, that will lead to a break in 6.8.0.0 use the UPGRADE-6.8.md file.
  
 When a deprecation is introduced (e.g., in a minor release), document the alternative and the timeline in RELEASE_INFO.md. When the breaking change takes effect (e.g., in a major release), document it in UPGRADE.md with full migration steps.
 
 ## Content Structure
 
-All documented changes should follow this structured format:
-
-1. `RELEASE_INFO.md` (Developer-Facing Changes)
+All documented changes should follow this structured format, that is similiar for RELEASE_INFO.md and UPGRADE.md:
 
 ```
 # Features
@@ -63,22 +80,7 @@ For changes in the app system.
 For config and infrastructure related changes.
 ```
 
-2. `UPGRADE.md` (Breaking Changes & Migration Guides)
-
-Each entry should include:
-
-```
-Changes [A] due to [B], so that [C].
-Required Actions: [D].
-```
-
-- Example:
-```
-Changes sw-popover due to UI consistency, so that extensions follow a unified component model.
-Required Actions: Replace sw-popover with mt-floating-ui.
-```
-
-## Markdown Formatting Guidelines
+## Markdown Formatting Guidelines/
 
 To maintain a consistent structure and reduce merge conflicts, follow these formatting rules when updating RELEASE_INFO.md and UPGRADE.md:
 
@@ -89,66 +91,46 @@ To maintain a consistent structure and reduce merge conflicts, follow these form
 ```
 ## Features
 
-- Added support for XYZ functionality.
+### New Feature
+...
 
 ## API
 
-- Introduced new API endpoint for retrieving order statuses.
+### New API endpoint for retrieving order statuses
+...
 ```
 2. Headings Must Have a Blank Line Above and Below
 Example:
 ```
 ## Storefront
 
-- Improved checkout performance.
+### Improved checkout performance
+...
 ```
-3. Use Bullet Points (-) for Entries
-- All changes should be written in a bullet list format.
+3. Use sub-headings per topic
 Example:
 ```
-- Fixed an issue where tax calculations were incorrect in certain cases.
+## Features
+
+### New Payment Method
+Added new payment method for credit cards.
 ```
-4. Use Consistent Sentence Structure
-- Start with a verb and describe what was added, changed, or removed.
-- ✅ Correct:
-```- Added a new admin UI filter for orders.
-- Fixed an issue where the tax rate was miscalculated.
-- Deprecated the `sw-popover` component in favor of `mt-floating-ui`.
+
+4. Add example code where it makes sense
+Example:
 ```
-- ❌ Incorrect:
+## API
+### New API endpoint for retrieving order statuses
+Added `GET /api/orders/status` to fetch order statuses.
+Example usage:
+GET /api/orders/status?status=shipped
 ```
-- New admin UI filter for orders.
-- Tax rate miscalculation fix.
-- The `sw-popover` component has been deprecated.
-```
+
 5. Code Formatting
 - Use backticks () for inline code and commands.
 - Example:
 ```
-- Deprecated `sw-popover`, use `mt-floating-ui` instead.
-```
-### Example of a Well-Formatted Entry
-```
-## Features
-
-- Added support for multi-warehouse inventory tracking.
-
-## API
-
-- Introduced `GET /api/v1/orders/status` for fetching order statuses.
-
-## Core
-
-- Refactored product import logic to improve performance.
-
-## UPGRADE.md
-
-### Breaking Changes
-
-- **What changed**: Deprecated `sw-popover`, use `mt-floating-ui` instead.
-- **Why**: Improved UI consistency.
-- **Impact**: Affects custom admin extensions using `sw-popover`.
-- **Required Actions**: Replace `sw-popover` with `mt-floating-ui`.
+Deprecated `sw-popover`, use `mt-floating-ui` instead.
 ```
 
 ## How This is Made Consistent

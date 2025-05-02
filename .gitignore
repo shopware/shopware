@@ -162,3 +162,5 @@ danger.phar
 
 # Vite deps
 **/.tmp/vite/*
+
+**/.claude/settings.local.json

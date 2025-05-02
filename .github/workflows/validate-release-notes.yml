@@ -1,0 +1,30 @@
+name: Validate Release Notes
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened, ready_for_review]
+
+jobs:
+  validate_release_notes:
+    runs-on: ubuntu-latest
+    if: github.event.pull_request.draft == false
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Install Claude CLI
+        run: |
+          curl -L https://anthropic.app/claude/cli/latest | sh
+          echo "$HOME/.claude/bin" >> $GITHUB_PATH
+
+      - name: Validate Release Notes
+        run: |
+          # Get PR number from GitHub context
+          PR_NUMBER="${{ github.event.pull_request.number }}"
+          
+          # Run the validate:release-notes command with the PR number
+          claude -p "/project:validate:release-notes $PR_NUMBER"
+        env:
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}

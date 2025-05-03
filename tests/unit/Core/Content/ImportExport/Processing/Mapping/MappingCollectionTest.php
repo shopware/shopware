@@ -107,7 +107,7 @@ class MappingCollectionTest extends TestCase
         $this->expectException(\InvalidArgumentException::class);
         $this->expectExceptionMessage('key is required in mapping');
 
-        /** @phpstan-ignore-next-line intentionally wrong array provided */
+        /** @phpstan-ignore-next-line argument.type (for test purpose) */
         MappingCollection::fromIterable([$mappingFoo]);
     }
 

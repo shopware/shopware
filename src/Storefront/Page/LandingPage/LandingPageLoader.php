@@ -2,8 +2,10 @@
 
 namespace Shopware\Storefront\Page\LandingPage;
 
+use Shopware\Core\Content\Cms\Exception\PageNotFoundException;
 use Shopware\Core\Content\LandingPage\LandingPageException;
 use Shopware\Core\Content\LandingPage\SalesChannel\AbstractLandingPageRoute;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Routing\RoutingException;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
@@ -38,6 +40,11 @@ class LandingPageLoader
         $landingPage = $this->landingPageRoute->load($landingPageId, $request, $context)->getLandingPage();
 
         if ($landingPage->getCmsPage() === null) {
+            // @deprecated tag:v6.8.0 - remove this if block
+            if (!Feature::isActive('v6.8.0.0')) {
+                throw new PageNotFoundException($landingPageId); // @phpstan-ignore shopware.domainException
+            }
+
             throw LandingPageException::notFound($landingPageId);
         }
 

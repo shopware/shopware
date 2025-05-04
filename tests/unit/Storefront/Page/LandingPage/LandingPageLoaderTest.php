@@ -11,11 +11,13 @@ use Shopware\Core\Content\Cms\Aggregate\CmsSection\CmsSectionEntity;
 use Shopware\Core\Content\Cms\Aggregate\CmsSlot\CmsSlotCollection;
 use Shopware\Core\Content\Cms\Aggregate\CmsSlot\CmsSlotEntity;
 use Shopware\Core\Content\Cms\CmsPageEntity;
+use Shopware\Core\Content\Cms\Exception\PageNotFoundException;
 use Shopware\Core\Content\LandingPage\LandingPageEntity;
 use Shopware\Core\Content\LandingPage\LandingPageException;
 use Shopware\Core\Content\LandingPage\SalesChannel\LandingPageRoute;
 use Shopware\Core\Content\LandingPage\SalesChannel\LandingPageRouteResponse;
 use Shopware\Core\Content\Product\SalesChannel\SalesChannelProductEntity;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Routing\RoutingException;
 use Shopware\Core\Framework\Uuid\Uuid;
@@ -68,7 +70,14 @@ class LandingPageLoaderTest extends TestCase
         $request = new Request([], [], ['landingPageId' => $landingPageId]);
         $salesChannelContext = $this->getSalesChannelContext();
 
-        static::expectExceptionObject(LandingPageException::notFound($landingPageId));
+        $expectedException = LandingPageException::notFound($landingPageId);
+
+        // @deprecated tag:v6.8.0 - remove this if block
+        if (!Feature::isActive('v6.8.0.0')) {
+            $expectedException = new PageNotFoundException($landingPageId);
+        }
+
+        static::expectExceptionObject($expectedException);
         $landingPageLoader->load($request, $salesChannelContext);
     }
 

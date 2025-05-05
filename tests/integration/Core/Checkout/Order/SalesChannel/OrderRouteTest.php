@@ -526,6 +526,9 @@ class OrderRouteTest extends TestCase
                     'currencyId' => Defaults::CURRENCY,
                     'snippetSetId' => $this->getSnippetSetIdForLocale('en-GB'),
                     'url' => 'http://foo.de',
+                    'measurementSystemId' => Uuid::fromStringToHex('metric'),
+                    'lengthUnitId' => Uuid::fromStringToHex('metric-mm'),
+                    'massUnitId' => Uuid::fromStringToHex('metric-kg'),
                 ],
             ],
         ]);

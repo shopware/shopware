@@ -113,6 +113,7 @@ $sw-pagination-border-radius: $border-radius-default;
             .mt-block-field__block {
                 max-width: 96px;
                 max-height: 36px;
+                min-height: auto;
             }
 
             .mt-select-selection-list--single {

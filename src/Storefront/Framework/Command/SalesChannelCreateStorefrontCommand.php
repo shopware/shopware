@@ -8,6 +8,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Maintenance\SalesChannel\Command\SalesChannelCreateCommand;
 use Shopware\Core\Maintenance\SalesChannel\Service\SalesChannelCreator;
 use Shopware\Core\System\Snippet\Aggregate\SnippetSet\SnippetSetCollection;
@@ -67,6 +68,9 @@ class SalesChannelCreateStorefrontCommand extends SalesChannelCreateCommand
                     'languageId' => $input->getOption('languageId'),
                     'snippetSetId' => $snippetSet,
                     'currencyId' => $input->getOption('currencyId'),
+                    'measurementSystemId' => Uuid::fromStringToHex('metric'),
+                    'lengthUnitId' => Uuid::fromStringToHex('metric-mm'),
+                    'massUnitId' => Uuid::fromStringToHex('metric-kg'),
                 ],
             ],
             'navigationCategoryDepth' => 3,

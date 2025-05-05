@@ -73,14 +73,25 @@ test('As an admin, I want to create documents and make sure they contain certain
         await ShopAdmin.goesTo(AdminDocumentListing.url());
         await AdminDocumentListing.invoiceLink.click();
         await ShopAdmin.expects(AdminDocumentDetail.page.getByText('Document type Invoice')).toBeVisible();
-        await AdminDocumentDetail.showInAccountSwitch.click();
-        await AdminDocumentDetail.saveButton.click();
+        await AdminDocumentDetail.showInAccountSwitch.check();
         });
+
     await test.step('Go to order detail page and check for credit item', async () => {
         await ShopAdmin.goesTo(AdminOrderDetail.url(order.id, 'general'));
         await ShopAdmin.expects(AdminDocumentDetail.page.locator('.sw-data-grid__row--1')).toContainText('CreditItem');
         });
+
     await test.step('Go to documents tab and send invoice', async () => {
+        await AdminDocumentDetail.page.addStyleTag({
+            content: `
+            .sf-toolbar {
+            width: 0 !important;
+            height: 0 !important;
+            display: none !important;
+            pointer-events: none !important;
+            }
+            `.trim(),
+        });
         await ShopAdmin.goesTo(AdminOrderDetail.url(order.id, 'documents'));
         await ShopAdmin.expects(AdminOrderDetail.page.locator('.sw-data-grid__table')).toContainText('Invoice');
         await AdminOrderDetail.page.getByLabel('Open actions menu').click();
@@ -88,12 +99,17 @@ test('As an admin, I want to create documents and make sure they contain certain
         await AdminOrderDetail.page.locator('.sw-context-menu').getByText('Send document').click();
         await ShopAdmin.expects(AdminOrderDetail.page.locator('.sw-order-send-document-modal')).toBeVisible();
         await AdminOrderDetail.page.getByRole('button').getByText('Send document').click();
+        await ShopAdmin.expects(AdminOrderDetail.page.getByTestId('mt-icon__regular-checkmark-xs')).toBeVisible();
         });
+
     await test.step('Go to customer account in Storefront and check the order document', async () => {
         await ShopCustomer.goesTo(StorefrontAccountLogin.url());
         await ShopCustomer.attemptsTo(Login());
         await ShopCustomer.goesTo(StorefrontAccountOrder.url());
-
-
+        await ShopCustomer.expects(StorefrontAccountOrder.orderExpandButton).toBeVisible();
+        await StorefrontAccountOrder.orderExpandButton.click();
+        await ShopCustomer.expects(StorefrontAccountOrder.page.locator('.document-detail-content-header')).toBeVisible();
+        await StorefrontAccountOrder.page.getByRole('link', { name: '.html' }).click();
+        await ShopCustomer.expects(StorefrontAccountOrder.page.locator('.line-item:has-text("CreditItem")')).toContainText('-€1.00');
     });
 });

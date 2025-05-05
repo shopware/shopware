@@ -66,15 +66,15 @@ class MySQLStatsRepositoryTest extends TestCase
 
         $stats = $repository->getStats();
 
-        static::assertEquals(2, $stats->getTotalMessagesProcessed());
-        static::assertEquals($now, $stats->getProcessedSince());
-        static::assertEquals(5.5, $stats->getAverageTimeInQueue());
-        static::assertCount(1, $stats->getMessageTypeStats());
+        static::assertEquals(2, $stats->totalMessagesProcessed);
+        static::assertEquals($now, $stats->processedSince);
+        static::assertEquals(5.5, $stats->averageTimeInQueue);
+        static::assertCount(1, $stats->messageTypeStats);
 
-        $typeStats = $stats->getMessageTypeStats()->first();
+        $typeStats = $stats->messageTypeStats->first();
         static::assertNotNull($typeStats);
-        static::assertEquals('test', $typeStats->getType());
-        static::assertEquals(2, $typeStats->getCount());
+        static::assertEquals('test', $typeStats->type);
+        static::assertEquals(2, $typeStats->count);
     }
 
     private function countRecords(\DateTimeInterface $newerThan): int

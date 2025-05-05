@@ -8,23 +8,9 @@ use Shopware\Core\Framework\Struct\Struct;
 #[Package('framework')]
 class MessageTypeStatsEntity extends Struct
 {
-    protected string $type;
-
-    protected int $count;
-
-    public function __construct(string $type, int $count)
-    {
-        $this->type = $type;
-        $this->count = $count;
-    }
-
-    public function getType(): string
-    {
-        return $this->type;
-    }
-
-    public function getCount(): int
-    {
-        return $this->count;
+    public function __construct(
+        public readonly string $type,
+        public readonly int $count,
+    ) {
     }
 }

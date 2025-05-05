@@ -67,7 +67,7 @@ class MySQLStatsRepository extends AbstractStatsRepository
         $recentMessageTypes = $query->executeQuery()->fetchAllAssociative();
 
         foreach ($recentMessageTypes as $row) {
-            $stats->getMessageTypeStats()->add(new MessageTypeStatsEntity(
+            $stats->messageTypeStats->add(new MessageTypeStatsEntity(
                 type: $row['name'],
                 count: (int) $row['count'],
             ));

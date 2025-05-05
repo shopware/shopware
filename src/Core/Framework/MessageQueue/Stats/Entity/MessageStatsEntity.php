@@ -8,43 +8,11 @@ use Shopware\Core\Framework\Struct\Struct;
 #[Package('framework')]
 class MessageStatsEntity extends Struct
 {
-    protected int $totalMessagesProcessed;
-
-    protected \DateTimeInterface $processedSince;
-
-    protected float $averageTimeInQueue;
-
-    protected MessageTypeStatsCollection $messageTypeStats;
-
     public function __construct(
-        int $totalMessagesProcessed,
-        \DateTimeInterface $processedSince,
-        float $averageTimeInQueue,
-        MessageTypeStatsCollection $messageTypeStats
+        public readonly int $totalMessagesProcessed,
+        public readonly \DateTimeInterface $processedSince,
+        public readonly float $averageTimeInQueue,
+        public readonly MessageTypeStatsCollection $messageTypeStats,
     ) {
-        $this->totalMessagesProcessed = $totalMessagesProcessed;
-        $this->processedSince = $processedSince;
-        $this->averageTimeInQueue = $averageTimeInQueue;
-        $this->messageTypeStats = $messageTypeStats;
-    }
-
-    public function getTotalMessagesProcessed(): int
-    {
-        return $this->totalMessagesProcessed;
-    }
-
-    public function getProcessedSince(): \DateTimeInterface
-    {
-        return $this->processedSince;
-    }
-
-    public function getAverageTimeInQueue(): float
-    {
-        return $this->averageTimeInQueue;
-    }
-
-    public function getMessageTypeStats(): MessageTypeStatsCollection
-    {
-        return $this->messageTypeStats;
     }
 }

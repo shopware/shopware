@@ -38,15 +38,15 @@ class SalesChannelDomainEntity extends Entity
 
     protected ?LanguageEntity $language = null;
 
-    protected ?string $measurementSystemId = null;
+    protected string $measurementSystemId;
+
+    protected string $massUnitId;
+
+    protected string $lengthUnitId;
 
     protected ?MeasurementSystemEntity $measurementSystem = null;
 
-    protected ?string $massUnitId = null;
-
     protected ?MeasurementDisplayUnitEntity $massUnit = null;
-
-    protected ?string $lengthUnitId = null;
 
     protected ?MeasurementDisplayUnitEntity $lengthUnit = null;
 
@@ -136,12 +136,12 @@ class SalesChannelDomainEntity extends Entity
         $this->snippetSetId = $snippetSetId;
     }
 
-    public function getMeasurementSystemId(): ?string
+    public function getMeasurementSystemId(): string
     {
         return $this->measurementSystemId;
     }
 
-    public function setMeasurementSystemId(?string $measurementSystemId): void
+    public function setMeasurementSystemId(string $measurementSystemId): void
     {
         $this->measurementSystemId = $measurementSystemId;
     }
@@ -156,12 +156,12 @@ class SalesChannelDomainEntity extends Entity
         $this->measurementSystem = $measurementSystem;
     }
 
-    public function getMassUnitId(): ?string
+    public function getMassUnitId(): string
     {
         return $this->massUnitId;
     }
 
-    public function setMassUnitId(?string $massUnitId): void
+    public function setMassUnitId(string $massUnitId): void
     {
         $this->massUnitId = $massUnitId;
     }
@@ -176,12 +176,12 @@ class SalesChannelDomainEntity extends Entity
         $this->massUnit = $massUnit;
     }
 
-    public function getLengthUnitId(): ?string
+    public function getLengthUnitId(): string
     {
         return $this->lengthUnitId;
     }
 
-    public function setLengthUnitId(?string $lengthUnitId): void
+    public function setLengthUnitId(string $lengthUnitId): void
     {
         $this->lengthUnitId = $lengthUnitId;
     }

@@ -224,12 +224,18 @@ class ThemeDumpCommandTest extends TestCase
                         'currencyId' => Defaults::CURRENCY,
                         'snippetSetId' => $this->getSnippetSetIdForLocale('en-GB'),
                         'url' => 'http://localhost/1/' . $themeId,
+                        'measurementSystemId' => Uuid::fromStringToHex('metric'),
+                        'lengthUnitId' => Uuid::fromStringToHex('metric-mm'),
+                        'massUnitId' => Uuid::fromStringToHex('metric-kg'),
                     ],
                     [
                         'languageId' => Defaults::LANGUAGE_SYSTEM,
                         'currencyId' => Defaults::CURRENCY,
                         'snippetSetId' => $this->getSnippetSetIdForLocale('en-GB'),
                         'url' => 'http://localhost/2/' . $themeId,
+                        'measurementSystemId' => Uuid::fromStringToHex('metric'),
+                        'lengthUnitId' => Uuid::fromStringToHex('metric-mm'),
+                        'massUnitId' => Uuid::fromStringToHex('metric-kg'),
                     ],
                 ],
             ]);

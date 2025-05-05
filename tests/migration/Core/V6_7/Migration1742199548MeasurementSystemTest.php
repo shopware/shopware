@@ -29,9 +29,9 @@ class Migration1742199548MeasurementSystemTest extends TestCase
                 'fk.sales_channel_domain.length_unit_id',
             ],
             'sales_channel' => [
-                'fk.sales_channel.default_measurement_system_id',
-                'fk.sales_channel.default_mass_unit_id',
-                'fk.sales_channel.default_length_unit_id',
+                'fk.sales_channel.measurement_system_id',
+                'fk.sales_channel.mass_unit_id',
+                'fk.sales_channel.length_unit_id',
             ],
         ];
 
@@ -50,7 +50,7 @@ class Migration1742199548MeasurementSystemTest extends TestCase
 
         $columns = [
             'sales_channel_domain' => ['measurement_system_id', 'mass_unit_id', 'length_unit_id'],
-            'sales_channel' => ['default_measurement_system_id', 'default_mass_unit_id', 'default_length_unit_id'],
+            'sales_channel' => ['measurement_system_id', 'mass_unit_id', 'length_unit_id'],
         ];
 
         foreach ($columns as $table => $cols) {

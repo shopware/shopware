@@ -210,9 +210,9 @@ class Migration1742199548MeasurementSystem extends MigrationStep
     private function addSalesChannelColumns(Connection $connection): void
     {
         if (
-            $this->columnExists($connection, 'sales_channel', 'default_measurement_system_id')
-            || $this->columnExists($connection, 'sales_channel', 'default_mass_unit_id')
-            || $this->columnExists($connection, 'sales_channel', 'default_length_unit_id')
+            $this->columnExists($connection, 'sales_channel', 'measurement_system_id')
+            || $this->columnExists($connection, 'sales_channel', 'mass_unit_id')
+            || $this->columnExists($connection, 'sales_channel', 'length_unit_id')
         ) {
             return;
         }
@@ -223,12 +223,12 @@ class Migration1742199548MeasurementSystem extends MigrationStep
 
         $connection->executeStatement('
             ALTER TABLE `sales_channel`
-            ADD COLUMN `default_measurement_system_id` BINARY(16) NOT NULL DEFAULT \'' . $metricId . '\',
-            ADD COLUMN `default_mass_unit_id` BINARY(16) NOT NULL DEFAULT \'' . $massUnitId . '\',
-            ADD COLUMN `default_length_unit_id` BINARY(16) NOT NULL DEFAULT \'' . $lengthUnitId . '\',
-                ADD CONSTRAINT `fk.sales_channel.default_measurement_system_id` FOREIGN KEY (`default_measurement_system_id`) REFERENCES `measurement_system` (`id`) ON DELETE RESTRICT ON UPDATE CASCADE,
-            ADD CONSTRAINT `fk.sales_channel.default_mass_unit_id` FOREIGN KEY (`default_mass_unit_id`) REFERENCES `measurement_display_unit` (`id`) ON DELETE RESTRICT ON UPDATE CASCADE,
-            ADD CONSTRAINT `fk.sales_channel.default_length_unit_id` FOREIGN KEY (`default_length_unit_id`) REFERENCES `measurement_display_unit` (`id`) ON DELETE RESTRICT ON UPDATE CASCADE;
+            ADD COLUMN `measurement_system_id` BINARY(16) NOT NULL DEFAULT \'' . $metricId . '\',
+            ADD COLUMN `mass_unit_id` BINARY(16) NOT NULL DEFAULT \'' . $massUnitId . '\',
+            ADD COLUMN `length_unit_id` BINARY(16) NOT NULL DEFAULT \'' . $lengthUnitId . '\',
+                ADD CONSTRAINT `fk.sales_channel.measurement_system_id` FOREIGN KEY (`measurement_system_id`) REFERENCES `measurement_system` (`id`) ON DELETE RESTRICT ON UPDATE CASCADE,
+            ADD CONSTRAINT `fk.sales_channel.mass_unit_id` FOREIGN KEY (`mass_unit_id`) REFERENCES `measurement_display_unit` (`id`) ON DELETE RESTRICT ON UPDATE CASCADE,
+            ADD CONSTRAINT `fk.sales_channel.length_unit_id` FOREIGN KEY (`length_unit_id`) REFERENCES `measurement_display_unit` (`id`) ON DELETE RESTRICT ON UPDATE CASCADE;
         ');
     }
 }

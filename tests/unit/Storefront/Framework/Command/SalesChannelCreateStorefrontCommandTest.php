@@ -10,6 +10,7 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\IdSearchResult;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Maintenance\SalesChannel\Service\SalesChannelCreator;
 use Shopware\Core\System\Snippet\Aggregate\SnippetSet\SnippetSetCollection;
 use Shopware\Core\Test\Stub\DataAbstractionLayer\StaticEntityRepository;
@@ -72,6 +73,9 @@ class SalesChannelCreateStorefrontCommandTest extends TestCase
                             'languageId' => 'languageId',
                             'snippetSetId' => $foundSnippetSetId,
                             'currencyId' => 'currencyId',
+                            'measurementSystemId' => Uuid::fromStringToHex('metric'),
+                            'lengthUnitId' => Uuid::fromStringToHex('metric-mm'),
+                            'massUnitId' => Uuid::fromStringToHex('metric-kg'),
                         ],
                     ],
                     'navigationCategoryDepth' => 3,

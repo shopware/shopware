@@ -470,6 +470,9 @@ class RequestTransformerTest extends TestCase
                 'shippingMethods' => [['id' => $this->getValidShippingMethodId()]],
                 'countries' => [['id' => $this->getValidCountryId()]],
                 'customerGroupId' => TestDefaults::FALLBACK_CUSTOMER_GROUP,
+                'measurementSystemId' => Uuid::fromStringToHex('metric'),
+                'lengthUnitId' => Uuid::fromStringToHex('metric-mm'),
+                'massUnitId' => Uuid::fromStringToHex('metric-kg'),
             ];
 
             foreach ($salesChannelData['languages'] as &$language) {
@@ -483,6 +486,12 @@ class RequestTransformerTest extends TestCase
             }
 
             foreach ($salesChannelData['domains'] as &$domain) {
+                $domain = array_merge([
+                    'measurementSystemId' => Uuid::fromStringToHex('metric'),
+                    'lengthUnitId' => Uuid::fromStringToHex('metric-mm'),
+                    'massUnitId' => Uuid::fromStringToHex('metric-kg'),
+                ], $domain);
+
                 if ($domain['languageId'] === self::LOCALE_DE_DE_ISO) {
                     $domain['languageId'] = $this->deLanguageId;
                 }

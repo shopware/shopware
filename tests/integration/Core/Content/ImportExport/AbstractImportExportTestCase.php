@@ -351,6 +351,9 @@ abstract class AbstractImportExportTestCase extends TestCase
                 'currencyId' => Defaults::CURRENCY,
                 'snippetSetId' => $this->getSnippetSetIdForLocale('en-GB'),
                 'url' => 'http://localhost.test/a',
+                'measurementSystemId' => Uuid::fromStringToHex('metric'),
+                'lengthUnitId' => Uuid::fromStringToHex('metric-mm'),
+                'massUnitId' => Uuid::fromStringToHex('metric-kg'),
             ]],
         ]);
         $scB = $this->createSalesChannel([
@@ -359,6 +362,9 @@ abstract class AbstractImportExportTestCase extends TestCase
                 'currencyId' => Defaults::CURRENCY,
                 'snippetSetId' => $this->getSnippetSetIdForLocale('en-GB'),
                 'url' => 'http://localhost.test/b',
+                'measurementSystemId' => Uuid::fromStringToHex('metric'),
+                'lengthUnitId' => Uuid::fromStringToHex('metric-mm'),
+                'massUnitId' => Uuid::fromStringToHex('metric-kg'),
             ]],
         ]);
         $scC = $this->createSalesChannel([
@@ -367,6 +373,9 @@ abstract class AbstractImportExportTestCase extends TestCase
                 'currencyId' => Defaults::CURRENCY,
                 'snippetSetId' => $this->getSnippetSetIdForLocale('en-GB'),
                 'url' => 'http://localhost.test/c',
+                'measurementSystemId' => Uuid::fromStringToHex('metric'),
+                'lengthUnitId' => Uuid::fromStringToHex('metric-mm'),
+                'massUnitId' => Uuid::fromStringToHex('metric-kg'),
             ]],
         ]);
 

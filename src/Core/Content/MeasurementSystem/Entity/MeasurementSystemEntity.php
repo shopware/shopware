@@ -49,8 +49,8 @@ class MeasurementSystemEntity extends EntityStruct
     /**
      * @var array<string, SalesChannelEntity>|null
      */
-    #[OneToMany(entity: SalesChannelDefinition::ENTITY_NAME, ref: 'default_measurement_system_id', onDelete: OnDelete::CASCADE, api: true)]
-    public ?array $defaultSalesChannels = null;
+    #[OneToMany(entity: SalesChannelDefinition::ENTITY_NAME, ref: 'measurement_system_id', onDelete: OnDelete::CASCADE, api: true)]
+    public ?array $salesChannels = null;
 
     /**
      * @var array<string, ArrayEntity>|null

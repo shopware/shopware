@@ -168,7 +168,15 @@ class HeaderPageletLoaderTest extends TestCase
         $domains = [];
 
         foreach ($languages as $language) {
-            $domains[] = ['url' => 'http://test.com/' . $language['id'], 'currencyId' => Defaults::CURRENCY, 'languageId' => $language['id'], 'snippetSetId' => $snippetSetId];
+            $domains[] = [
+                'url' => 'http://test.com/' . $language['id'],
+                'currencyId' => Defaults::CURRENCY,
+                'languageId' => $language['id'],
+                'snippetSetId' => $snippetSetId,
+                'measurementSystemId' => Uuid::fromStringToHex('metric'),
+                'lengthUnitId' => Uuid::fromStringToHex('metric-mm'),
+                'massUnitId' => Uuid::fromStringToHex('metric-kg'),
+            ];
         }
 
         return $domains;

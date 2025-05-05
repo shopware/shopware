@@ -1,5 +1,5 @@
 /**
- * @sw-package discovery
+ * @sw-package inventory
  */
 
 import template from './sw-sales-channel-measurement.html.twig';
@@ -15,6 +15,21 @@ export default Shopware.Component.wrapComponentConfig({
             type: Object,
             required: true,
         },
+
+        labelUnitSystem: {
+            type: String,
+            required: false,
+        },
+
+        labelLengthUnit: {
+            type: String,
+            required: false,
+        },
+
+        labelWeightUnit: {
+            type: String,
+            required: false,
+        },
     },
 
     emits: [
@@ -23,24 +38,23 @@ export default Shopware.Component.wrapComponentConfig({
 
     data() {
         return {
-            measurementSystemConfig: null,
+            measurementSystem: null,
             defaultMeasurementSystem: null,
-        }
+        };
     },
 
     computed: {
         measurementSystemCriteria() {
-            const criteria = new Criteria();
+            const criteria = new Criteria(1, null);
             criteria.addAssociation('units');
 
-            criteria.getAssociation('units')
-                .addFilter(Criteria.equals('default', true));
+            criteria.getAssociation('units').addFilter(Criteria.equals('default', true));
 
             return criteria;
         },
 
         lengthUnitCriteria() {
-            const criteria = new Criteria();
+            const criteria = new Criteria(1, null);
             criteria.addFilter(Criteria.equals('type', 'length'));
             if (this.salesChannel?.measurementSystemId) {
                 criteria.addFilter(Criteria.equals('measurementSystem.id', this.salesChannel.measurementSystemId));
@@ -50,7 +64,7 @@ export default Shopware.Component.wrapComponentConfig({
         },
 
         massUnitCriteria() {
-            const criteria = new Criteria();
+            const criteria = new Criteria(1, null);
             criteria.addFilter(Criteria.equals('type', 'mass'));
             if (this.salesChannel.measurementSystemId) {
                 criteria.addFilter(Criteria.equals('measurementSystem.id', this.salesChannel.measurementSystemId));
@@ -58,28 +72,42 @@ export default Shopware.Component.wrapComponentConfig({
 
             return criteria;
         },
+
+        unitSystemLabel() {
+            return this.labelUnitSystem || this.$t('sw-sales-channel.detail.measurementSystem.labelUnitSystem');
+        },
+
+        dimensionUnitLabel() {
+            return this.labelLengthUnit || this.$t('sw-sales-channel.detail.measurementSystem.labelLengthUnit');
+        },
+
+        weightUnitLabel() {
+            return this.labelWeightUnit || this.$t('sw-sales-channel.detail.measurementSystem.labelWeightUnit');
+        },
     },
 
     created() {
-        this.defaultMeasurementSystem = {
-            measurementSystemId: this.salesChannel.measurementSystemId,
-            lengthUnitId: this.salesChannel.lengthUnitId,
-            massUnitId: this.salesChannel.massUnitId,
-        };
+        this.createdComponent();
     },
 
     methods: {
+        createdComponent() {
+            this.defaultMeasurementSystem = {
+                measurementSystemId: this.salesChannel.measurementSystemId,
+                lengthUnitId: this.salesChannel.lengthUnitId,
+                massUnitId: this.salesChannel.massUnitId,
+            };
+        },
+
         onMeasurementSystemChange(measurementSystemId) {
             const measurementSystemSelect = this.$refs.measurementSystemSelect;
 
-            const measurementSystem =
-                measurementSystemSelect.results.get(measurementSystemId);
+            const measurementSystem = measurementSystemSelect?.results?.get(measurementSystemId);
 
-            this.$emit(
-                'measurement-system-change',
-                measurementSystemId,
-                measurementSystem,
-            );
+            this.$emit('measurement-system-change', measurementSystemId, measurementSystem);
+
+            // Update the measurementSystem property on the sales channel
+            this.salesChannel.measurementSystem = measurementSystem;
 
             if (measurementSystemId === this.defaultMeasurementSystem.measurementSystemId) {
                 this.salesChannel.lengthUnitId = this.defaultMeasurementSystem.lengthUnitId;
@@ -88,16 +116,12 @@ export default Shopware.Component.wrapComponentConfig({
                 return;
             }
 
-            this.salesChannel.lengthUnitId = measurementSystem?.units?.filter(
-                (unit) => unit.type === 'length',
-            ).first()?.id;
+            this.salesChannel.lengthUnitId = measurementSystem?.units?.filter((unit) => unit.type === 'length').first()?.id;
 
-            this.salesChannel.massUnitId = measurementSystem?.units?.filter(
-                (unit) => unit.type === 'mass',
-            ).first()?.id;
+            this.salesChannel.massUnitId = measurementSystem?.units?.filter((unit) => unit.type === 'mass').first()?.id;
         },
 
-        labelUnitCallback(item) {
+        formatUnitLabel(item) {
             if (!item) {
                 return '';
             }

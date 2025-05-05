@@ -45,6 +45,7 @@ export default {
                 currencyId: null,
                 snippetSet: null,
                 snippetSetId: null,
+                measurementSystem: null,
                 measurementSystemId: null,
                 lengthUnitId: null,
                 massUnitId: null,
@@ -118,6 +119,7 @@ export default {
                 !this.currentDomain.snippetSetId ||
                 !this.currentDomain.url ||
                 !this.currentDomain.languageId ||
+                !this.currentDomain.measurementSystemId ||
                 this.disableEdit ||
                 this.error !== null
             );
@@ -127,26 +129,6 @@ export default {
             const domains = [...this.salesChannel.domains];
 
             return this.localSortDomains(domains);
-        },
-
-        lengthUnitCriteria() {
-            const criteria = new Criteria();
-            criteria.addFilter(Criteria.equals('type', 'length'));
-            if (this.salesChannel?.defaultMeasurementSystemId) {
-                criteria.addFilter(Criteria.equals('measurementSystem.id', this.salesChannel.defaultMeasurementSystemId));
-            }
-
-            return criteria;
-        },
-
-        massUnitCriteria() {
-            const criteria = new Criteria();
-            criteria.addFilter(Criteria.equals('type', 'mass'));
-            if (this.salesChannel?.defaultMeasurementSystemId) {
-                criteria.addFilter(Criteria.equals('measurementSystem.id', this.salesChannel.defaultMeasurementSystemId));
-            }
-
-            return criteria;
         },
     },
 
@@ -244,6 +226,7 @@ export default {
                 currencyId: domain.currencyId,
                 snippetSet: domain.snippetSet,
                 snippetSetId: domain.snippetSetId,
+                measurementSystem: domain.measurementSystem,
                 measurementSystemId: domain.measurementSystemId,
                 lengthUnitId: domain.lengthUnitId,
                 massUnitId: domain.massUnitId,
@@ -258,6 +241,7 @@ export default {
             this.currentDomain.currencyId = this.currentDomainBackup.currencyId;
             this.currentDomain.snippetSet = this.currentDomainBackup.snippetSet;
             this.currentDomain.snippetSetId = this.currentDomainBackup.snippetSetId;
+            this.currentDomain.measurementSystem = this.currentDomainBackup.measurementSystem;
             this.currentDomain.measurementSystemId = this.currentDomainBackup.measurementSystemId;
             this.currentDomain.lengthUnitId = this.currentDomainBackup.lengthUnitId;
             this.currentDomain.massUnitId = this.currentDomainBackup.massUnitId;
@@ -277,13 +261,6 @@ export default {
             this.currentDomain = domain;
         },
 
-        setInitialMeasurement(domain) {
-            const measurementSystem = this.salesChannel.measurementSystems.first();
-            domain.measurementSystem = measurementSystem;
-            domain.measurementSystemId = measurementSystem.id;
-            this.currentDomain = domain;
-        },
-
         onClickOpenCreateDomainModal() {
             const domain = this.domainRepository.create(Context.api);
 
@@ -297,11 +274,11 @@ export default {
                 this.setInitialLanguage(domain);
             }
 
-            if (this.salesChannel.measurementSystems.length === 1) {
-                this.setInitialMeasurementSystem(domain);
-            }
-
             domain.hreflangUseOnlyLocale = false;
+            domain.measurementSystem = this.salesChannel.measurementSystem;
+            domain.measurementSystemId = this.salesChannel.measurementSystemId;
+            domain.lengthUnitId = this.salesChannel.lengthUnitId;
+            domain.massUnitId = this.salesChannel.massUnitId;
 
             this.currentDomain = domain;
             this.isEditingDomain = false;
@@ -417,6 +394,13 @@ export default {
                     property: 'currencyId',
                     dataIndex: 'currencyId',
                     label: this.$t('sw-sales-channel.detail.columnDomainCurrency'),
+                    allowResize: false,
+                    inlineEdit: false,
+                },
+                {
+                    property: 'measurementSystemId',
+                    dataIndex: 'measurementSystemId',
+                    label: this.$t('sw-sales-channel.detail.columnDomainUnitSystem'),
                     allowResize: false,
                     inlineEdit: false,
                 },

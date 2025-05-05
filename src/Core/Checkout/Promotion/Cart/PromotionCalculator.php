@@ -37,6 +37,7 @@ use Shopware\Core\Checkout\Promotion\Cart\Error\PromotionNotEligibleError;
 use Shopware\Core\Checkout\Promotion\Exception\DiscountCalculatorNotFoundException;
 use Shopware\Core\Checkout\Promotion\Exception\InvalidScopeDefinitionException;
 use Shopware\Core\Checkout\Promotion\PromotionException;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
@@ -264,6 +265,10 @@ class PromotionCalculator
         $originalPackageCount = $packages->count();
 
         $shouldSplit = $discount->getScope() !== PromotionDiscountEntity::SCOPE_CART || $discount->isProductRestricted();
+        if (!Feature::isActive('v6.8.0.0')) {
+            $shouldSplit = true;
+        }
+
         $splitItems = [];
         foreach ($calculatedCart->getLineItems() as $split) {
             $split->setStackable(true);

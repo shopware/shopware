@@ -25,26 +25,26 @@ class CartLoadRouteTest extends TestCase
 
         $cartService = $this->createMock(CartService::class);
         $cartService
-            ->expects(static::once())
+            ->expects($this->once())
             ->method('getCart')
-            ->with('test', $this->isInstanceOf(SalesChannelContext::class))
+            ->with('test', static::isInstanceOf(SalesChannelContext::class))
             ->willThrowException(new CartTokenNotFoundException(404, 'CART_NOT_FOUND', 'cart not found'));
 
         $cartService
-            ->expects(static::once())
+            ->expects($this->once())
             ->method('createNew')
             ->with('test')
             ->willReturn($newCart);
 
         $cartService
-            ->expects(static::once())
+            ->expects($this->once())
             ->method('recalculate')
-            ->with($newCart, $this->isInstanceOf(SalesChannelContext::class))
+            ->with($newCart, static::isInstanceOf(SalesChannelContext::class))
             ->willReturn($calculatedCart);
 
         $salesChannelContext = $this->createMock(SalesChannelContext::class);
         $salesChannelContext
-            ->expects(static::once())
+            ->expects($this->once())
             ->method('getToken')
             ->willReturn('test');
 

@@ -13,7 +13,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\Attribute\ManyToOne;
 use Shopware\Core\Framework\DataAbstractionLayer\Attribute\OnDelete;
 use Shopware\Core\Framework\DataAbstractionLayer\Attribute\OneToMany;
 use Shopware\Core\Framework\DataAbstractionLayer\Attribute\PrimaryKey;
-use Shopware\Core\Framework\DataAbstractionLayer\Attribute\Required;
 use Shopware\Core\Framework\DataAbstractionLayer\Attribute\Translations;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity as EntityStruct;
 use Shopware\Core\Framework\Log\Package;
@@ -34,7 +33,6 @@ class MeasurementDisplayUnitEntity extends EntityStruct
     #[Field(type: FieldType::UUID, api: true)]
     public string $id;
 
-    #[Required]
     #[ForeignKey(entity: 'measurement_system', api: true)]
     public string $measurementSystemId;
 
@@ -83,14 +81,14 @@ class MeasurementDisplayUnitEntity extends EntityStruct
     /**
      * @var array<string, SalesChannelEntity>|null
      */
-    #[OneToMany(entity: SalesChannelDefinition::ENTITY_NAME, ref: 'default_mass_unit_id', onDelete: OnDelete::CASCADE, api: true)]
-    public ?array $defaultMassSalesChannels = null;
+    #[OneToMany(entity: SalesChannelDefinition::ENTITY_NAME, ref: 'mass_unit_id', onDelete: OnDelete::CASCADE, api: true)]
+    public ?array $massSalesChannels = null;
 
     /**
      * @var array<string, SalesChannelEntity>|null
      */
-    #[OneToMany(entity: SalesChannelDefinition::ENTITY_NAME, ref: 'default_length_unit_id', onDelete: OnDelete::CASCADE, api: true)]
-    public ?array $defaultLengthSalesChannels = null;
+    #[OneToMany(entity: SalesChannelDefinition::ENTITY_NAME, ref: 'length_unit_id', onDelete: OnDelete::CASCADE, api: true)]
+    public ?array $lengthSalesChannels = null;
 
     /**
      * @var array<string, ArrayEntity>|null

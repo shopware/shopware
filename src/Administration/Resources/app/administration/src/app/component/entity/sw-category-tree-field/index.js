@@ -353,7 +353,7 @@ Component.register('sw-category-tree-field', {
         },
 
         getBreadcrumb(item) {
-            if (item.breadcrumb) {
+            if (item.breadcrumb && item.breadcrumb.length > 1) {
                 return item.breadcrumb.join(' / ');
             }
             return item.translated?.name || item.name;

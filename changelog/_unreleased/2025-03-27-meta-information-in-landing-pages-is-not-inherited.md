@@ -7,3 +7,4 @@ author_github: @Songworks
 ---
 # Storefront
 * Changed `LandingPageLoader` to retrieve meta information (metaTitle, metaDescription & keywords) through translations, for proper language inheritance
+* Deprecates `PageNotFoundException` in `LandingPageLoader` for v6.8.0, in favour of `LandingPageException::notFound`

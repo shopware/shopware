@@ -1,5 +1,6 @@
 {% block sw_colorpicker %}
 <mt-colorpicker
+    v-if="!deprecated"
     v-bind="$attrs"
     :model-value="currentValue"
     @update:model-value="currentValue = $event"
@@ -20,3 +21,22 @@
 
 {% block sw_colorpicker_deprecated %}
 {% endblock %}
+
+{# Deprecated component #}
+<sw-colorpicker-deprecated
+    v-else
+    v-bind="$attrs"
+    :value="value"
+>
+    <template
+        v-for="(index, name) in getSlots()"
+        #[name]="data"
+    >
+        <slot
+            :name="name"
+            v-bind="data"
+        >
+        </slot>
+    </template>
+    <slot></slot>
+</sw-colorpicker-deprecated>

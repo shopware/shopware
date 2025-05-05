@@ -46,8 +46,8 @@ export default {
                 snippetSet: null,
                 snippetSetId: null,
                 measurementSystemId: null,
-                defaultLengthUnitId: null,
-                defaultWeightUnitId: null,
+                lengthUnitId: null,
+                massUnitId: null,
             },
             isLoadingDomains: false,
             deleteDomain: null,
@@ -245,8 +245,8 @@ export default {
                 snippetSet: domain.snippetSet,
                 snippetSetId: domain.snippetSetId,
                 measurementSystemId: domain.measurementSystemId,
-                defaultLengthUnitId: domain.defaultLengthUnitId,
-                defaultWeightUnitId: domain.defaultWeightUnitId,
+                lengthUnitId: domain.lengthUnitId,
+                massUnitId: domain.massUnitId,
             };
         },
 
@@ -259,8 +259,8 @@ export default {
             this.currentDomain.snippetSet = this.currentDomainBackup.snippetSet;
             this.currentDomain.snippetSetId = this.currentDomainBackup.snippetSetId;
             this.currentDomain.measurementSystemId = this.currentDomainBackup.measurementSystemId;
-            this.currentDomain.defaultLengthUnitId = this.currentDomainBackup.defaultLengthUnitId;
-            this.currentDomain.defaultWeightUnitId = this.currentDomainBackup.defaultWeightUnitId;
+            this.currentDomain.lengthUnitId = this.currentDomainBackup.lengthUnitId;
+            this.currentDomain.massUnitId = this.currentDomainBackup.massUnitId;
         },
 
         setInitialCurrency(domain) {
@@ -277,7 +277,7 @@ export default {
             this.currentDomain = domain;
         },
 
-        setInitialMeasurementSystem(domain) {
+        setInitialMeasurement(domain) {
             const measurementSystem = this.salesChannel.measurementSystems.first();
             domain.measurementSystem = measurementSystem;
             domain.measurementSystemId = measurementSystem.id;

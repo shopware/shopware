@@ -171,8 +171,7 @@ class PromotionCollector implements CartDataCollectorInterface
             // addition notifications are handled as usual in the PromotionCalculator
             if ($behavior->isRecalculation()) {
                 $oldPromotions = $original->getLineItems()
-                    ->filterType(PromotionProcessor::LINE_ITEM_TYPE)
-                    ->filter(static fn (LineItem $item) => !$item->getReferencedId())
+                    ->filter(static fn (LineItem $item) => $item->getType() === PromotionProcessor::LINE_ITEM_TYPE && !$item->getReferencedId())
                     ->getElements();
                 $newPromotions = $discountLineItems->filter(static fn (LineItem $item) => !$item->getReferencedId())->getElements();
 

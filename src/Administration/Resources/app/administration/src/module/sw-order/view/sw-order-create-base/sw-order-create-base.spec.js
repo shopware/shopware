@@ -49,6 +49,7 @@ async function createWrapper() {
                 'sw-error-summary': true,
                 'sw-loader': true,
                 'router-link': true,
+                'sw-number-field-deprecated': true,
             },
             provide: {
                 repositoryFactory: {

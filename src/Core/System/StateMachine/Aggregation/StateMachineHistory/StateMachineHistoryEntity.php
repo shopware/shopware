@@ -32,7 +32,7 @@ class StateMachineHistoryEntity extends Entity
 
     protected ?StateMachineStateEntity $toStateMachineState = null;
 
-    protected ?string $userId;
+    protected ?string $userId = null;
 
     protected ?UserEntity $user = null;
 

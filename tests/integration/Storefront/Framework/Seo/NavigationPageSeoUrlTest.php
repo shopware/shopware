@@ -382,12 +382,18 @@ class NavigationPageSeoUrlTest extends TestCase
             'shippingMethods' => [['id' => $this->getValidShippingMethodId()]],
             'countries' => [['id' => $this->getValidCountryId()]],
             'customerGroupId' => TestDefaults::FALLBACK_CUSTOMER_GROUP,
+            'measurementSystemId' => Uuid::fromStringToHex('metric'),
+            'lengthUnitId' => Uuid::fromStringToHex('metric-mm'),
+            'massUnitId' => Uuid::fromStringToHex('metric-kg'),
             'domains' => [
                 [
                     'languageId' => Defaults::LANGUAGE_SYSTEM,
                     'snippetSetId' => $this->getSnippetSetIdForLocale('en-GB'),
                     'currencyId' => Defaults::CURRENCY,
                     'url' => 'http://test.de',
+                    'measurementSystemId' => Uuid::fromStringToHex('metric'),
+                    'lengthUnitId' => Uuid::fromStringToHex('metric-mm'),
+                    'massUnitId' => Uuid::fromStringToHex('metric-kg'),
                 ],
             ],
         ];

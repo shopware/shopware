@@ -54,7 +54,11 @@ describe('BasicCaptchaPlugin tests', () => {
 
         expect(fakeInput).toBeDefined();
         expect(fakeInput.required).toBe(true);
-        expect(fakeInput.classList).toContain('visually-hidden');
+        expect(fakeInput.value).toBe('');
+        expect(fakeInput.type).toBe('text');
+        expect(fakeInput.style.display).toBe('none');
+        expect(fakeInput.tabIndex).toBe(-1);
+        expect(fakeInput.ariaHidden).toBe('true');
     });
 
     test('Captcha should be updated if reload button is clicked', () => {

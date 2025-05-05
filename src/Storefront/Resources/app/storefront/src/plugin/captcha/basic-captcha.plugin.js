@@ -46,7 +46,13 @@ export default class BasicCaptchaPlugin extends Plugin {
         this.fakeInput.id = 'shopware_basic_captcha_check';
         this.fakeInput.name = 'shopware_basic_captcha_check';
         this.fakeInput.required = true;
-        this.fakeInput.classList.add('visually-hidden');
+        this.fakeInput.style.display = 'none';
+        this.fakeInput.tabIndex = -1;
+        this.fakeInput.ariaHidden = 'true';
+        this.fakeInput.value = null;
+
+        // Compatibility with the form validation helper and the form handler plugin.
+        this.fakeInput.setAttribute('data-validate-hidden', 'true');
 
         this.el.appendChild(this.fakeInput);
     }

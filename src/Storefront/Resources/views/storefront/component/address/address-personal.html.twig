@@ -150,8 +150,6 @@
                     {% set violationPath = "/#{prefix}/firstName" %}
                 {% elseif formViolations.getViolations("/firstName") is not empty and prefix === 'address' %}
                     {% set violationPath = "/firstName" %}
-                {% else %}
-                    {% set requiredMessage = "error.VIOLATION::IS_BLANK_ERROR"|trans({ '%field%': "account.personalFirstNameLabel"|trans|sw_sanitize }) %}
                 {% endif %}
 
                 {% sw_include '@Storefront/storefront/component/form/form-input.html.twig' with {
@@ -175,8 +173,6 @@
                     {% set violationPath = "/#{prefix}/lastName" %}
                 {% elseif formViolations.getViolations("/lastName") is not empty and prefix === 'address' %}
                     {% set violationPath = "/lastName" %}
-                {% else %}
-                    {% set requiredMessage = "error.VIOLATION::IS_BLANK_ERROR"|trans({ '%field%': "account.personalLastNameLabel"|trans|sw_sanitize }) %}
                 {% endif %}
 
                 {% sw_include '@Storefront/storefront/component/form/form-input.html.twig' with {
@@ -201,8 +197,6 @@
                         {% block component_address_personal_company_name %}
                             {% if formViolations.getViolations("/company") is not empty %}
                                 {% set violationPath = "/company" %}
-                            {% else %}
-                                {% set requiredMessage = "error.VIOLATION::IS_BLANK_ERROR"|trans({ '%field%': "address.companyNameLabel"|trans|sw_sanitize }) %}
                             {% endif %}
 
                             {# This is only rendered on the customer profile edit page. #}

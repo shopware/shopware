@@ -10,8 +10,6 @@
                             {% set violationPath = '/company' %}
                         {% elseif formViolations.getViolations("/#{prefix}/company") is not empty %}
                             {% set violationPath = "/#{prefix}/company" %}
-                        {% else %}
-                            {% set requiredMessage = 'error.VIOLATION::IS_BLANK_ERROR'|trans({ '%field%': 'address.companyNameLabel'|trans|sw_sanitize }) %}
                         {% endif %}
 
                         {% sw_include '@Storefront/storefront/component/form/form-input.html.twig' with {

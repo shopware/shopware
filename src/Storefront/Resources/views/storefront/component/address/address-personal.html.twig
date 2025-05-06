@@ -106,7 +106,7 @@
                             {% endfor %}
                         {% endset %}
 
-                        {% block component_address_personal_fields_salutation %}
+                        {% block component_address_personal_fields_salutation_select %}
                             {% sw_include '@Storefront/storefront/component/form/form-select.html.twig' with {
                                 label: 'account.personalSalutationLabel'|trans|sw_sanitize,
                                 id: idPrefix ~ prefix ~ 'personalSalutation',

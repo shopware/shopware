@@ -40,6 +40,12 @@ Component.register('sw-select-base', {
             required: false,
             default: false,
         },
+
+        size: {
+            type: String,
+            required: false,
+            default: 'default',
+        },
     },
 
     data() {

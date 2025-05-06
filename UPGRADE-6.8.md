@@ -77,6 +77,9 @@ This method was moved to FocusHandler Helper. Use this instead.
 const lastFocusableEl = window.focusHandler.getLastFocusableElement();
 ```
 
+### Remove route `widgets.account.order.detail`
+Remove all references to `widgets.account.order.detail` and ensure that affected components handle navigation and display correctly
+
 ### Removed `@Storefront/storefront/component/checkout/cart-alerts.html.twig`
 Remove all references to `@Storefront/storefront/component/checkout/cart-alerts.html.twig` and use `@Storefront/storefront/utilities/alert.html.twig` instead.
 

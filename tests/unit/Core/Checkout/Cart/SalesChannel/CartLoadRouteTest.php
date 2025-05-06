@@ -27,7 +27,7 @@ class CartLoadRouteTest extends TestCase
         $cartService
             ->expects($this->once())
             ->method('getCart')
-            ->with('test', static::isInstanceOf(SalesChannelContext::class))
+            ->with('test')
             ->willThrowException(new CartTokenNotFoundException(404, 'CART_NOT_FOUND', 'cart not found'));
 
         $cartService

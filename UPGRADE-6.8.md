@@ -80,6 +80,9 @@ const lastFocusableEl = window.focusHandler.getLastFocusableElement();
 ### Remove route `widgets.account.order.detail`
 Remove all references to `widgets.account.order.detail` and ensure that affected components handle navigation and display correctly
 
+### Removed `@Storefront/storefront/component/checkout/cart-alerts.html.twig`
+Remove all references to `@Storefront/storefront/component/checkout/cart-alerts.html.twig` and use `@Storefront/storefront/utilities/alert.html.twig` instead.
+
 **NOTE:** All the breaking changes described here can be already opted in by activating the `v6.8.0.0` [feature flag](https://developer.shopware.com/docs/resources/references/adr/2022-01-20-feature-flags-for-major-versions.html#activating-the-flag) on previous versions.
 
 # Changed Functionality
@@ -160,6 +163,23 @@ The old classes are removed:
 
 # Storefront
 
+## Removed `category_url` and `category_linknewtab` twig functions
+
+The `category_url` and `category_linknewtab` twig functions have been removed. The data is now directly available in the category entities, therefore use `category.seoLink` or `category.shouldOpenInNewTab` instead.
+
+```diff
+<a class="link"
+-   href="{{ category_url(item) }}"
++   href="{{ item.seoLink }}"
+-   {% if category_linknewtab(item) %}target="_blank"{% endif %}
++   {% if item.shouldOpenInNewTab %}target="_blank"{% endif %}
+</a>
+```
+
+## Removal of DeleteThemeFilesMessage and its handler
+The `\Shopware\Storefront\Theme\Message\DeleteThemeFilesMessage` and its handler `\Shopware\Storefront\Theme\Message\DeleteThemeFilesHandler` are removed.
+Unused theme files are deleted by using the `\Shopware\Storefront\Theme\ScheduledTask\DeleteThemeFilesTask` scheduled task.
+
 # App System
 
 ## Use `sw_macro_function` instead of usual `macro` in app scripts if you return values
@@ -184,6 +204,10 @@ Use the `sw_macro_function` instead, which is available since v6.6.10.0.
 
 {% set mediaEntity = mediaRepository.getById(myMediaId) %}
 ```
+
+## CountryStateController supports only GET
+
+The `CountryStateController` route `/country/country-state-data` now supports only GET methods. This change improves compatibility with HTTP caching and aligns with the best practices for data retrieval routes.
 
 # Hosting & Configuration
 

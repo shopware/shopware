@@ -86,6 +86,12 @@ Component.register('sw-select-rule-create', {
                 return '';
             },
         },
+
+        size: {
+            type: String,
+            required: false,
+            default: 'default',
+        },
     },
 
     data() {

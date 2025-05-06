@@ -8,6 +8,8 @@ const { Component } = Shopware;
  * @private
  * @status ready
  * @description Wrapper component for sw-switch-field and mt-switch. Autoswitches between the two components.
+ *
+ * @deprecated tag:v6.8.0 - Will be removed, use mt-switch instead.
  */
 Component.register('sw-switch-field', {
     template,
@@ -23,6 +25,12 @@ Component.register('sw-switch-field', {
         checked: {
             type: Boolean,
             required: false,
+        },
+
+        deprecated: {
+            type: Boolean,
+            required: false,
+            default: false,
         },
     },
 

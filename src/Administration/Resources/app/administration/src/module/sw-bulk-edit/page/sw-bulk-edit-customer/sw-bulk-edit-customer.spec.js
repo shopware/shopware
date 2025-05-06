@@ -71,6 +71,7 @@ describe('src/module/sw-bulk-edit/page/sw-bulk-edit-customer', () => {
                     'sw-ignore-class': true,
                     'sw-entity-tag-select': true,
                     'sw-error-summary': true,
+                    'sw-context-menu-item': true,
                     'sw-bulk-edit-save-modal-error': await wrapTestComponent('sw-bulk-edit-save-modal-error', {
                         sync: true,
                     }),

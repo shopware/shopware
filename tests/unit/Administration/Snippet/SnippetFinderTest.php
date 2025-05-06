@@ -86,6 +86,7 @@ class SnippetFinderTest extends TestCase
         static::assertEquals([
             'activePlugin' => 'successfully loaded',
             'existingBundle' => 'successfully loaded as well',
+            'activeMeteorApp' => 'Snippet',
         ], $actualSnippets);
     }
 

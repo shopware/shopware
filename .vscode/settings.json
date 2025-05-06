@@ -11,5 +11,16 @@
     "tests/integration/Storefront/Theme/ThemeTest.php": [
       "PHP2408"
     ]
+  },
+  "search.exclude": {
+    "**/node_modules": true,
+    "**/bower_components": true,
+    "**/*.code-search": true,
+    "var/**": true,
+    "public/theme/**": true,
+    "src/Storefront/Resources/app/storefront/dist/**": true,
+    "tests/acceptance/test-results/**": true,
+    "src/Administration/Resources/public/**": true,
+    "src/Administration/Resources/app/administration/.jestcache/**": true,
   }
 }

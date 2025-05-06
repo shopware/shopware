@@ -139,7 +139,7 @@ export default class NavbarPlugin extends Plugin {
      * @return {void} Does not return a value.
      */
     _restoreFocusAfterBtnClose(event) {
-        if (event.relatedTarget) {
+        if (event.relatedTarget || event.target.matches(this.options.topLevelLinksSelector)) {
             return;
         }
 

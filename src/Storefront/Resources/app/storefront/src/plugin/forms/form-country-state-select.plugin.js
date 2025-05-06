@@ -98,11 +98,7 @@ export default class CountryStateSelectPlugin extends Plugin {
     }
 
     requestStateData(countryId, countryStateId = null, stateRequired = false) {
-        const payload = JSON.stringify({ countryId });
-
-        fetch(window.router['frontend.country.country-data'], {
-            method: 'POST',
-            body: payload,
+        fetch(`${window.router['frontend.country.country-data']}?countryId=${encodeURIComponent(countryId)}`, {
             headers: {
                 'X-Requested-With': 'XMLHttpRequest',
                 'Content-Type': 'application/json',

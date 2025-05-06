@@ -67,7 +67,7 @@ jobs:
             npx playwright test --project=Visual --update-snapshots --reporter html
           else
             echo "Running without snapshot update"
-            npx npx pwc --key @CURRENTS_RECORD_KEY --project-id @CURRENTS_PROJECT_ID  --project=Visual
+            npx pwc --key @CURRENTS_RECORD_KEY --project-id @CURRENTS_PROJECT_ID  --project=Visual
             if ${{ !contains(github.workflow_ref, 'nightly') }}
               working-directory: tests/acceptance
               run: npx pwc --project=Visual

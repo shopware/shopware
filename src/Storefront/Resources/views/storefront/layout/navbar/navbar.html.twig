@@ -1,10 +1,15 @@
 {% block layout_navbar %}
     <div class="container">
+        {% set navbarOptions = {
+            activeRootId: shopware.navigation.pathIdList[0],
+        } %}
+
         <nav class="navbar navbar-expand-lg main-navigation-menu"
              id="main-navigation-menu"
              itemscope="itemscope"
              itemtype="https://schema.org/SiteNavigationElement"
              data-navbar="true"
+             data-navbar-options="{{ navbarOptions|json_encode }}"
              aria-label="{{ 'header.navigationAriaLabel'|trans|striptags }}">
             <div class="collapse navbar-collapse" id="main_nav">
                 <ul class="navbar-nav main-navigation-menu-list flex-wrap">

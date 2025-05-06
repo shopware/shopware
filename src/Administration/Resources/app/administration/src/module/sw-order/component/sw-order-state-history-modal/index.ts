@@ -295,5 +295,17 @@ export default Component.wrapComponentConfig({
 
             return String(idx >= 0 ? idx + 1 : '');
         },
+
+        getStateChangeAuthor(item: StateMachineHistoryData): string {
+            if(item.user) {
+                return item.user.username;
+            }
+            if (item.integration) {
+                const integrationLabel = item.integration.label;
+                return `${integrationLabel} (${this.$t('sw-order.stateHistoryModal.labelIntegration')})`
+            }
+
+            return this.$t('sw-order.stateHistoryModal.labelSystemUser');
+        },
     },
 });

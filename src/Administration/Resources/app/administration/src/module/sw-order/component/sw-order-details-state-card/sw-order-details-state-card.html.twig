@@ -46,15 +46,7 @@
                         <sw-time-ago :date="lastStateChange.createdAt" />
                     </template>
                     <template #author>
-                        <template v-if="lastStateChange.user">
-                            {{ lastStateChange.user.firstName + ' ' + lastStateChange.user.lastName }}
-                        </template>
-                        <template v-else-if="lastStateChange.integration">
-                            {{ lastStateChange.integration.label }} ({{ $t('sw-order.stateCard.labelIntegration') }})
-                        </template>
-                        <template v-else>
-                            {{ $t('sw-order.stateCard.labelSystemUser') }}
-                        </template>
+                        {{ lastChangeAuthorLabel }}
                     </template>
                 </i18n-t>
             </div>

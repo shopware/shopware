@@ -15,6 +15,10 @@ export default class NavbarPlugin extends Plugin {
          * Class to select the current page to add aria label current page to it.
          */
         ariaCurrentPageSelector: '.nav-item-{id}-link',
+
+        activeCLass: 'active',
+        activeRootCLass: 'active-root',
+        activeRootId: '',
     };
 
     init() {
@@ -119,10 +123,18 @@ export default class NavbarPlugin extends Plugin {
      */
     _setAriaCurrentPage() {
         if (!window.activeNavigationId) { return; }
-        const selector = this.options.ariaCurrentPageSelector.replace('{id}', window.activeNavigationId);
-        const activeNavItem = this.el.querySelector(selector);
+        const navItemselector = this.options.ariaCurrentPageSelector.replace('{id}', window.activeNavigationId);
+        const rootNavItemSelector = this.options.ariaCurrentPageSelector.replace('{id}', this.options.activeRootId);
+        const activeNavItem = this.el.querySelector(navItemselector);
+        const activeRootNavItem = this.el.querySelector(rootNavItemSelector)
+        
         if (activeNavItem) {
             activeNavItem.setAttribute('aria-current', 'page');
+            activeNavItem.classList.add(this.options.activeCLass);
+        }
+
+        if (activeRootNavItem) {
+            activeRootNavItem.classList.add(this.options.activeRootCLass);
         }
     }
 }

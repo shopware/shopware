@@ -56,3 +56,4 @@ After that you can use this data to customize the header template:
 
     {{ parent() }}
 {% endblock %}
+```

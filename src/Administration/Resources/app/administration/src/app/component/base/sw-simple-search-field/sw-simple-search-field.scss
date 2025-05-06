@@ -6,6 +6,10 @@
 
     .mt-field.sw-simple-search-field__input {
         margin-bottom: 0;
+
+        .mt-block-field__block {
+            min-height: auto;
+        }
     }
 
     .sw-simple-search-field__input.mt-field--small .mt-block-field__block {

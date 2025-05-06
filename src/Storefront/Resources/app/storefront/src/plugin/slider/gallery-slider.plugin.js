@@ -270,10 +270,22 @@ export default class GallerySliderPlugin extends BaseSliderPlugin {
             return;
         }
 
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                entry.target._js_thumbnail_is_intersecting = entry.isIntersecting;
+            });
+        }, {
+            root: null,
+            rootMargin: '0px',
+            threshold: 1,
+        });
+
+        [...thumbnailSlideInfo.slideItems].forEach(target => observer.observe(target));
+
         this._slider.events.on('indexChanged', () => {
             const currentIndex = this.getCurrentSliderIndex();
 
-            if (thumbnailSlideInfo.slideItems[currentIndex].getAttribute('aria-hidden')) {
+            if (!thumbnailSlideInfo.slideItems[currentIndex]._js_thumbnail_is_intersecting) {
                 this._thumbnailSlider.goTo(currentIndex - 1);
             }
         });

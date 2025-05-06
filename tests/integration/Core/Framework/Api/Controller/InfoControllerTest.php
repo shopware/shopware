@@ -18,6 +18,7 @@ use Shopware\Core\DevOps\Environment\EnvironmentHelper;
 use Shopware\Core\Framework\Api\ApiDefinition\DefinitionService;
 use Shopware\Core\Framework\Api\Controller\InfoController;
 use Shopware\Core\Framework\Api\Route\ApiRouteInfoResolver;
+use Shopware\Core\Framework\App\ShopId\ShopIdProvider;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Event\A11yRenderedDocumentAware;
 use Shopware\Core\Framework\Event\BusinessEventCollector;
@@ -60,6 +61,9 @@ class InfoControllerTest extends TestCase
 
     public function testGetConfig(): void
     {
+        $shopIdProvider = static::getContainer()->get(ShopIdProvider::class);
+        $shopId = $shopIdProvider->getShopId();
+
         $expected = [
             'version' => '6.7.9999999.9999999-dev',
             'versionRevision' => str_repeat('0', 32),
@@ -119,6 +123,7 @@ class InfoControllerTest extends TestCase
                 'disableExtensionManagement' => false,
             ],
             'inAppPurchases' => [],
+            'shopId' => $shopId,
         ];
 
         $url = '/api/_info/config';
@@ -407,6 +412,7 @@ class InfoControllerTest extends TestCase
                 new Filesystem(),
             ),
             new Filesystem(),
+            static::getContainer()->get(ShopIdProvider::class),
         );
 
         $infoController->setContainer($this->createMock(Container::class));
@@ -477,6 +483,7 @@ class InfoControllerTest extends TestCase
                 new Filesystem(),
             ),
             new Filesystem(),
+            static::getContainer()->get(ShopIdProvider::class),
         );
 
         $infoController->setContainer($this->createMock(Container::class));

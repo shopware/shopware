@@ -129,14 +129,14 @@ class DeliveryNoteRendererTest extends TestCase
         ];
     }
 
-    public function testNotCreatingNewOrderVersionId(): void
+    public function testCreatingNewOrderVersionId(): void
     {
         $cart = $this->generateDemoCart(1);
         $orderId = $this->persistCart($cart);
 
         $operationDelivery = new DocumentGenerateOperation($orderId);
 
-        static::assertEquals($operationDelivery->getOrderVersionId(), Defaults::LIVE_VERSION);
+        static::assertSame($operationDelivery->getOrderVersionId(), Defaults::LIVE_VERSION);
 
         $this->deliveryNoteRenderer->render(
             [$orderId => $operationDelivery],
@@ -144,6 +144,6 @@ class DeliveryNoteRendererTest extends TestCase
             new DocumentRendererConfig()
         );
 
-        static::assertEquals($operationDelivery->getOrderVersionId(), Defaults::LIVE_VERSION);
+        static::assertNotSame($operationDelivery->getOrderVersionId(), Defaults::LIVE_VERSION);
     }
 }

@@ -7,7 +7,7 @@ $sw-select-focus-transition: all ease-in-out 0.2s;
 
     .sw-block-field__block {
         transition: $sw-select-focus-transition;
-        background-color: $color-white;
+        background-color: var(--color-elevation-surface-raised);
         position: relative;
         overflow: visible;
     }
@@ -18,7 +18,7 @@ $sw-select-focus-transition: all ease-in-out 0.2s;
         border: none;
         font-size: $font-size-xs;
         line-height: 22px;
-        color: $color-darkgray-200;
+        color: var(--color-text-primary-default);
         outline: none;
         -webkit-appearance: none;
         -moz-appearance: none;
@@ -51,7 +51,7 @@ $sw-select-focus-transition: all ease-in-out 0.2s;
     .sw-select__select-indicator-hitbox {
         background-color: transparent;
         border: 0 solid transparent;
-        color: $color-darkgray-200;
+        color: var(--color-icon-primary-default);
         padding: 0 4px;
         cursor: pointer;
 
@@ -108,15 +108,15 @@ $sw-select-focus-transition: all ease-in-out 0.2s;
 
     &.is--disabled {
         .sw-block-field__block {
-            background-color: $color-gray-100;
+            background-color: var(--color-background-primary-disabled);
         }
 
         .sw-label {
-            background-color: $color-gray-100;
+            background-color: var(--color-background-primary-disabled);
         }
 
         input {
-            background-color: $color-gray-100;
+            background-color: var(--color-background-primary-disabled);
         }
     }
 }

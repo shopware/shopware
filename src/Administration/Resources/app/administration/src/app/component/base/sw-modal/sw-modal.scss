@@ -31,9 +31,9 @@ $sw-modal-transition-timing-function: cubic-bezier(0.68, -0.55, 0.26, 1.55);
     .sw-modal__dialog {
         @include drop-shadow-default;
 
-        background-color: $color-white;
+        background-color: var(--color-elevation-surface-raised);
         border-radius: $border-radius-lg;
-        color: $color-darkgray-200;
+        color: var(--color-text-primary-default);
         max-height: calc(100vh - #{$sw-modal-gap});
         min-height: 200px;
         width: 100%;
@@ -90,7 +90,7 @@ $sw-modal-transition-timing-function: cubic-bezier(0.68, -0.55, 0.26, 1.55);
     }
 
     .sw-modal__header {
-        border-bottom: 1px solid $color-gray-300;
+        border-bottom: 1px solid var(--color-border-primary-default);
         display: flex;
         flex-shrink: 0;
         flex-direction: row;
@@ -107,7 +107,7 @@ $sw-modal-transition-timing-function: cubic-bezier(0.68, -0.55, 0.26, 1.55);
 
     .sw-modal__title {
         margin: 0;
-        color: $color-darkgray-300;
+        color: var(--color-text-primary-default);
         font-size: $font-size-m;
         font-weight: $font-weight-semi-bold;
         white-space: nowrap;
@@ -117,7 +117,7 @@ $sw-modal-transition-timing-function: cubic-bezier(0.68, -0.55, 0.26, 1.55);
 
     .sw-modal__subtitle {
         margin: 0;
-        color: $color-darkgray-50;
+        color: var(--color-text-primary-default);
         font-size: $font-size-xs;
         font-weight: $font-weight-regular;
         line-height: $line-height-xs;
@@ -130,7 +130,7 @@ $sw-modal-transition-timing-function: cubic-bezier(0.68, -0.55, 0.26, 1.55);
         position: absolute;
         right: 24px;
         background: 0 none;
-        color: $color-darkgray-100;
+        color: var(--color-icon-secondary-default);
         cursor: pointer;
         outline: none;
         flex-shrink: 0;
@@ -141,12 +141,12 @@ $sw-modal-transition-timing-function: cubic-bezier(0.68, -0.55, 0.26, 1.55);
         width: 40px;
 
         &:hover {
-            color: $color-darkgray-200;
+            color: var(--color-icon-primary-default);
         }
 
         &:focus {
-            background-color: $color-gray-200;
-            color: $color-darkgray-200;
+            background-color: var(--color-background-primary-default);
+            color: var(--color-icon-primary-default);
         }
 
         .mt-icon {
@@ -175,7 +175,7 @@ $sw-modal-transition-timing-function: cubic-bezier(0.68, -0.55, 0.26, 1.55);
 
     .sw-modal__footer {
         border-radius: 0 0 $border-radius-lg $border-radius-lg;
-        background-color: $color-gray-100;
+        border-top: 1px solid var(--color-border-primary-default);
         display: grid;
         grid-auto-columns: min-content;
         grid-auto-flow: column;

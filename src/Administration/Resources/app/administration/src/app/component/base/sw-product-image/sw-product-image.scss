@@ -3,10 +3,10 @@
 .sw-product-image {
     position: relative;
     border-radius: $border-radius-default;
-    border: 2px solid $color-gray-300;
+    border: 2px solid var(--color-border-primary-default);
 
     &.is--placeholder {
-        border: 2px dashed $color-gray-300;
+        border: 2px dashed var(--color-border-primary-default);
         display: flex;
         align-items: center;
         justify-content: center;
@@ -87,7 +87,7 @@
     }
 
     .sw-product-image__placeholder-icon {
-        color: $color-gray-300;
+        color: var(--color-icon-primary-default);
     }
 
     &::after {
@@ -98,7 +98,7 @@
 
     &.is--cover {
         border-radius: $border-radius-default;
-        border: 2px solid $color-shopware-brand-500;
+        border: 2px solid var(--color-border-brand-selected);
     }
 
     // @experimental stableVersion:v6.8.0 feature:SPATIAL_BASES

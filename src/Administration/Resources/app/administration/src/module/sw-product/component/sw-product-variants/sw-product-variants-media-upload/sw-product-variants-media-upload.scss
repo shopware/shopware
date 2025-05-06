@@ -45,7 +45,7 @@ $sw-product-variants-media-upload-preview-cover-border: #d8d8d8;
         min-height: 0;
         padding: 7px;
         width: 330px;
-        background: $color-gray-50;
+        background: var(--color-background-primary-disabled);
 
         .sw-product-variants-media-upload__images {
             display: flex;
@@ -75,7 +75,7 @@ $sw-product-variants-media-upload-preview-cover-border: #d8d8d8;
         &.is--cover {
             width: 36px;
             height: 36px;
-            border: 1px solid $color-shopware-brand-500;
+            border: 1px solid var(--color-border-brand-selected);
         }
     }
 
@@ -133,7 +133,7 @@ $sw-product-variants-media-upload-preview-cover-border: #d8d8d8;
                 background-color: unset;
 
                 &.is--cover {
-                    border: 1px solid $color-shopware-brand-500;
+                    border: 1px solid var(--color-border-brand-selected);
                 }
 
                 .sw-media-preview-v2__item {
@@ -156,7 +156,7 @@ $sw-product-variants-media-upload-preview-cover-border: #d8d8d8;
         visibility: hidden;
 
         .mt-icon {
-            color: $color-white;
+            color: var(--color-icon-primary-default);
             height: 100%;
         }
     }

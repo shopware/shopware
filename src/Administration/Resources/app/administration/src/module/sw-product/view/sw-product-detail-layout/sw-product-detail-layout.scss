@@ -7,7 +7,7 @@
     }
 
     &__content-info {
-        color: $color-gray-500;
+        color: var(--color-text-primary-default);
         font-size: $font-size-xs;
     }
 }

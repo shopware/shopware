@@ -4,7 +4,7 @@
     .sw-media-upload-v2__dropzone {
         min-height: unset;
         padding: 6px;
-        background-color: $color-gray-50;
+        background-color: var(--color-elevation-surface-raised);
     }
 
     .sw-media-upload-v2__button {

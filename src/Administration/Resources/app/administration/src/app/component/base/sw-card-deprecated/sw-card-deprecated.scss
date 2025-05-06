@@ -117,18 +117,18 @@
 
     .sw-card__title,
     .sw-card__subtitle {
-        color: $color-darkgray-200;
+        color: var(--color-text-primary-default);
     }
 
     .sw-card__title {
-        color: $color-darkgray-300;
+        color: var(--color-text-primary-default);
         font-size: $font-size-m;
         font-weight: $font-weight-semi-bold;
         line-height: $line-height-xs;
     }
 
     .sw-card__subtitle {
-        color: $color-darkgray-50;
+        color: var(--color-text-secondary-default);
         font-size: $font-size-xs;
         line-height: $line-height-xs;
     }

@@ -34,7 +34,7 @@
 
     .sw-notification-center__content {
         .sw-notification-center__header {
-            border-bottom: 1px solid $color-gray-300;
+            border-bottom: 1px solid var(--color-border-primary-default);
             padding: 20px 24px 16px;
             display: flex;
             justify-content: space-between;

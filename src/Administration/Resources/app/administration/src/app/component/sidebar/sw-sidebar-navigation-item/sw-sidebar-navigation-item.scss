@@ -1,9 +1,9 @@
 @import "~scss/variables";
 
-$sw-sidebar-navigation-item-icon-color: $color-darkgray-200;
-$sw-sidebar-navigation-item-icon-color-active: $color-shopware-brand-500;
-$sw-sidebar-navigation-item-hover-color-background: $color-shopware-brand-50;
-$sw-sidebar-navigation-item-active-color-background: $color-shopware-brand-50;
+$sw-sidebar-navigation-item-icon-color: var(--color-icon-primary-default);
+$sw-sidebar-navigation-item-icon-color-active: var(--color-icon-brand-default);
+$sw-sidebar-navigation-item-hover-color-background: var(--color-background-brand-default);
+$sw-sidebar-navigation-item-active-color-background: var(--color-background-brand-default);
 $sw-sidebar-navigation-item-size: 64px;
 $sw-sidebar-navigation-item-badge-color-info: $color-shopware-brand-500;
 $sw-sidebar-navigation-item-badge-color-warning: $color-pumpkin-spice-500;

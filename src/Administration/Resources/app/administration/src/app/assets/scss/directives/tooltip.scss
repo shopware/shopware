@@ -4,8 +4,7 @@ $sw-tooltip-z-index: $z-index-tooltip;
 $sw-tooltip-color-background: var(--color-elevation-surface-floating);
 $sw-tooltip-color: var(--color-text-inverse-default);
 $sw-tooltip-border-radius: var(--border-radius-overlay);
-$sw-tooltip-color-light: $color-darkgray-200;
-$sw-tooltip-border-color-light: $color-gray-300;
+$sw-tooltip-color-light: var(--color-elevation-surface-floating);
 
 .sw-tooltip {
     position: absolute;
@@ -63,7 +62,6 @@ $sw-tooltip-border-color-light: $color-gray-300;
         height: auto !important;
         padding: 5px 10px;
         background: $sw-tooltip-color;
-        border: 1px solid $sw-tooltip-border-color-light;
         box-shadow: 0 3px 6px 0 rgba(120, 138, 155, 50%);
         border-radius: 4px;
 

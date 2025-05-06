@@ -3,7 +3,7 @@
 
 $sw-search-bar-border-color: var(--color-border-primary-default);
 $sw-search-bar-background-color: var(--color-elevation-surface-default);
-$sw-search-bar-results-background-color: $color-white;
+$sw-search-bar-results-background-color: var(--color-elevation-surface-overlay);
 $sw-search-bar-border-radius: $border-radius-default;
 $sw-search-bar-results-box-shadow: 0 3px 6px 0 rgba(120, 138, 155, 30%);
 $sw-search-bar-results-z-index: 800;
@@ -151,13 +151,14 @@ $sw-search-bar-types-item-border-radius: $border-radius-default;
     &__header {
         display: flex;
         justify-content: space-between;
-        background-color: $color-gray-50;
+        align-items: center;
+        background-color: var(--color-background-primary-disabled);
         padding: 10px 24px;
     }
 
     &__header-title {
         font-size: $font-size-xs;
-        color: $color-darkgray-200;
+        color: var(--color-text-primary-default);
         font-weight: $font-weight-semi-bold;
     }
 
@@ -190,7 +191,7 @@ $sw-search-bar-types-item-border-radius: $border-radius-default;
     .sw-search-bar__results-column-header {
         margin-bottom: 10px;
         font-size: $font-size-xs;
-        color: $color-darkgray-200;
+        color: var(--color-text-primary-default);
 
         .mt-icon {
             margin-right: 5px;
@@ -250,7 +251,7 @@ $sw-search-bar-types-item-border-radius: $border-radius-default;
             .sw-search-bar__shortcut-tip {
                 line-height: 22px;
                 font-size: $font-size-xxs;
-                color: $color-darkgray-200;
+                color: var(--color-text-primary-default);
                 margin: 0;
 
                 span {
@@ -270,7 +271,7 @@ $sw-search-bar-types-item-border-radius: $border-radius-default;
             .sw-search-bar__results-column-header {
                 display: flex;
                 justify-content: space-between;
-                background-color: #f9fafb;
+                background-color: var(--color-background-primary-disabled);
                 padding: 10px 24px;
                 margin: 0;
             }
@@ -342,7 +343,7 @@ $sw-search-bar-types-item-border-radius: $border-radius-default;
                 &:hover {
                     border-radius: unset;
                     border: none;
-                    background-color: lighten($color-shopware-brand-500, 40%);
+                    background-color: var(--color-inter);
 
                     .sw-search-bar__type {
                         &-item-name,
@@ -400,12 +401,12 @@ $sw-search-bar-types-item-border-radius: $border-radius-default;
 
     &__shortcut-tip {
         font-size: $font-size-xs;
-        color: lighten($color-darkgray-200, 25%);
+        color: var(--color-text-primary-default);
         margin: 20px 3px 0;
     }
 
     &__results-empty-text {
-        color: $color-darkgray-200;
+        color: var(--color-text-primary-default);
         font-size: $font-size-s;
         font-weight: $font-weight-semi-bold;
         letter-spacing: 0.09px;

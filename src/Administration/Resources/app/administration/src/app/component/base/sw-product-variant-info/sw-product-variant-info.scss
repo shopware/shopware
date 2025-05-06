@@ -6,9 +6,10 @@
     text-overflow: ellipsis;
     display: block;
     padding-right: 1em;
+    color: var(--color-text-primary-default);
 
     .sw-product-variant-info__specification {
-        color: $color-gray-600;
+        color: var(--color-text-secondary-default);
     }
 
     .sw-highlight-text {

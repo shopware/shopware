@@ -43,7 +43,7 @@ describe('src/app/component/rule/sw-condition-operator-select', () => {
         const wrapper = await createWrapper({
             condition: {
                 value: {
-                    operator: 'empty',
+                    operator: '>=',
                     value: "Test"
                 },
             },
@@ -56,4 +56,32 @@ describe('src/app/component/rule/sw-condition-operator-select', () => {
             [{ value: { operator: 'empty' } }]
         ]);
     });
+    it('preserves all condition properties when changed to a non-empty operator', async () => {
+        const wrapper = await createWrapper({
+            condition: {
+                value: {
+                    operator: '==',
+                    amount: 5,
+                    value: 'Test',
+                },
+            },
+            operators: [
+                { value: '==', label: 'Equals' },
+                { value: '>=', label: 'Greater than or equal' },
+            ],
+        });
+
+        await wrapper.vm.changeOperator('>=');
+
+        expect(wrapper.emitted('change')).toEqual([
+            [{
+                value: {
+                    operator: '>=',
+                    amount: 5,
+                    value: 'Test',
+                },
+            }]
+        ]);
+    });
+
 });

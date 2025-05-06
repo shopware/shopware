@@ -15,7 +15,7 @@
 {% endblock %}
 
 {% block base_body %}
-    <body class="{% block base_body_classes %}is-ctl-{% if controllerName is not empty %}{{ controllerName|lower }}{% endif %} is-act-{% if controllerAction is not empty %}{{ controllerAction|lower }}{% endif %}{% endblock %}">
+    <body class="{% block base_body_classes %}is-active-route-{% if activeRoute is not empty %}{{ activeRoute|replace({'%this%': ".", '%that%': "-"}) }}{% endif %}{% endblock %}">
 
     {% block base_body_skip_to_content %}
         {% sw_include '@Storefront/storefront/component/skip-to-content.html.twig' with {

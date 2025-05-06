@@ -11,8 +11,11 @@
     cursor: pointer;
 }
 
-.is-ctl-checkout,
-.is-act-checkoutregisterpage {
+.is-active-route-frontend-checkout-cart-page,
+.is-active-route-frontend-checkout-confirm-page,
+.is-active-route-frontend-checkout-finish-page,
+.is-active-route-frontend-checkout-info,
+.is-active-route-frontend-cart-offcanvas {
     .footer-minimal {
         .footer-service-menu-list {
             display: block;

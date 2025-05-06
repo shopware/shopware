@@ -2,8 +2,8 @@ import AnalyticsEvent from 'src/plugin/google-analytics/analytics-event';
 
 export default class ViewSearchResults extends AnalyticsEvent
 {
-    supports(controllerName, actionName) {
-        return controllerName === 'search' && actionName === 'search';
+    supports(activeRoute) {
+        return activeRoute === 'frontend.search.page';
     }
 
     execute() {

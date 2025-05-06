@@ -2,8 +2,8 @@ import AnalyticsEvent from 'src/plugin/google-analytics/analytics-event';
 
 export default class ViewItemEvent extends AnalyticsEvent
 {
-    supports(controllerName, actionName) {
-        return controllerName === 'product' && actionName === 'index';
+    supports(activeRoute) {
+        return activeRoute === 'frontend.detail.page';
     }
 
     execute() {

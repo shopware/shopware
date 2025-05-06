@@ -2,8 +2,8 @@ import AnalyticsEvent from 'src/plugin/google-analytics/analytics-event';
 
 export default class AddToCartByNumberEvent extends AnalyticsEvent
 {
-    supports(controllerName, actionName) {
-        return controllerName === 'checkout' && actionName === 'cartpage';
+    supports(activeRoute) {
+        return activeRoute === 'frontend.checkout.cart.page';
     }
 
     execute() {

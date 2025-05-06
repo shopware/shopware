@@ -42,8 +42,6 @@ class TemplateDataExtension extends AbstractExtension implements GlobalsInterfac
             return [];
         }
 
-        [$controllerName, $controllerAction] = $this->getControllerInfo($request);
-
         $themeId = $request->attributes->get(SalesChannelRequest::ATTRIBUTE_THEME_ID);
 
         $activeNavigationId = (string) $request->get('navigationId', $context->getSalesChannel()->getNavigationCategoryId());
@@ -61,31 +59,10 @@ class TemplateDataExtension extends AbstractExtension implements GlobalsInterfac
                 'showStagingBanner' => $this->showStagingBanner,
             ],
             'themeId' => $themeId, /** Not used in Twig template directly, but in @see \Shopware\Storefront\Framework\Twig\Extension\ConfigExtension::getThemeId */
-            'controllerName' => $controllerName,
-            'controllerAction' => $controllerAction,
             'context' => $context,
             'activeRoute' => $request->attributes->get('_route'),
             'formViolations' => $request->attributes->get('formViolations'),
         ];
-    }
-
-    /**
-     * @return array{0: string, 1: string}
-     */
-    private function getControllerInfo(Request $request): array
-    {
-        $controller = $request->attributes->getString('_controller');
-        if ($controller === '') {
-            return ['', ''];
-        }
-
-        $matches = [];
-        preg_match('/Controller\\\\(\w+)Controller::?(\w+)$/', $controller, $matches);
-        if ($matches) {
-            return [$matches[1], $matches[2]];
-        }
-
-        return ['', ''];
     }
 
     private function minSearchLength(SalesChannelContext $context): int

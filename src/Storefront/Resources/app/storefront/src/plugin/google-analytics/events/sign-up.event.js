@@ -2,8 +2,8 @@ import EventAwareAnalyticsEvent from 'src/plugin/google-analytics/event-aware-an
 
 export default class SignUpEvent extends EventAwareAnalyticsEvent
 {
-    supports(controllerName, actionName) {
-        return (controllerName === 'auth' && actionName === 'loginpage') || (controllerName === 'register' && actionName === 'checkoutregisterpage');
+    supports(activeRoute) {
+        return (activeRoute === 'frontend.account.login.page') || (activeRoute === 'frontend.checkout.register.page');
     }
 
     /**

@@ -8,8 +8,7 @@
                 {% block component_head_analytics_gtag_config %}
                     window.gtagActive = true;
                     window.gtagURL = '{{ trackingUrl }}{{ trackingId }}';
-                    window.controllerName = '{{ controllerName|lower }}';
-                    window.actionName = '{{ controllerAction|lower }}';
+                    window.activeRoute = '{{ activeRoute}}';
                     window.trackOrders = '{{ storefrontAnalytics.isTrackOrders() }}';
                     window.gtagTrackingId = '{{ trackingId }}';
                     window.dataLayer = window.dataLayer || [];

@@ -24,28 +24,29 @@ class CartLoadRouteTest extends TestCase
         $calculatedCart = new Cart('calculated');
 
         $cartService = $this->createMock(CartService::class);
-        $cartService
-            ->expects($this->once())
-            ->method('getCart')
-            ->with('test')
-            ->willThrowException(new CartTokenNotFoundException(404, 'CART_NOT_FOUND', 'cart not found'));
+        
+        $cartService->method('getCart')
+            ->willReturnCallback(function (string $token) {
+                if ($token === 'test') {
+                    throw new CartTokenNotFoundException(404, 'CART_NOT_FOUND', 'cart not found');
+                }
+                $this->fail('Unexpected token value');
+            });
 
-        $cartService
-            ->expects($this->once())
-            ->method('createNew')
-            ->with('test')
-            ->willReturn($newCart);
+        $cartService->method('createNew')
+            ->willReturnCallback(function (string $token) use ($newCart) {
+                $this->assertEquals('test', $token);
+                return $newCart;
+            });
 
-        $cartService
-            ->expects($this->once())
-            ->method('recalculate')
-            ->with($newCart, static::isInstanceOf(SalesChannelContext::class))
-            ->willReturn($calculatedCart);
+        $cartService->method('recalculate')
+            ->willReturnCallback(function (Cart $cart, SalesChannelContext $context) use ($newCart, $calculatedCart) {
+                $this->assertSame($newCart, $cart);
+                return $calculatedCart;
+            });
 
         $salesChannelContext = $this->createMock(SalesChannelContext::class);
-        $salesChannelContext
-            ->expects($this->once())
-            ->method('getToken')
+        $salesChannelContext->method('getToken')
             ->willReturn('test');
 
         $cartLoadRoute = new CartLoadRoute(

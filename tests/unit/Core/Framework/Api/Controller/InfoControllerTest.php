@@ -6,8 +6,8 @@ use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
-use Shopware\Administration\Framework\Twig\ViteFileAccessorDecorator;
 use Shopware\Core\Content\Flow\Api\FlowActionCollector;
+use Shopware\Core\Framework\Adapter\Twig\EntrypointAccessorInterface;
 use Shopware\Core\Framework\Api\ApiDefinition\DefinitionService;
 use Shopware\Core\Framework\Api\Controller\InfoController;
 use Shopware\Core\Framework\Api\Route\ApiRouteInfoResolver;
@@ -23,7 +23,6 @@ use Shopware\Core\Framework\Test\Store\StaticInAppPurchaseFactory;
 use Shopware\Core\Maintenance\System\Service\AppUrlVerifier;
 use Shopware\Core\Test\Stub\Symfony\StubKernel;
 use Shopware\Core\Test\Stub\SystemConfigService\StaticSystemConfigService;
-use Symfony\Component\Asset\UrlPackage;
 use Symfony\Component\DependencyInjection\ParameterBag\ParameterBagInterface;
 use Symfony\Component\Filesystem\Filesystem;
 use Symfony\Component\HttpFoundation\Request;
@@ -183,12 +182,7 @@ class InfoControllerTest extends TestCase
             new StaticSystemConfigService(),
             $this->createMock(ApiRouteInfoResolver::class),
             $this->inAppPurchase,
-            new ViteFileAccessorDecorator(
-                [],
-                $this->createMock(UrlPackage::class),
-                $kernel,
-                new Filesystem(),
-            ),
+            $this->createMock(EntrypointAccessorInterface::class),
             new Filesystem(),
             $this->shopIdProvider,
         );

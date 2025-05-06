@@ -174,5 +174,8 @@
             <argument type="service" id="kernel"/>
             <argument type="service" id="filesystem"/>
         </service>
+
+        <service id="Shopware\Core\Framework\Adapter\Twig\EntrypointAccessorInterface"
+            alias="Shopware\Administration\Framework\Twig\ViteFileAccessorDecorator"/>
     </services>
 </container>

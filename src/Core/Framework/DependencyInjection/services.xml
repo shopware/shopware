@@ -333,6 +333,10 @@ frame-ancestors 'none';
         </service>
 
         <!-- Twig -->
+        <service id="Shopware\Core\Framework\Adapter\Twig\EntrypointAccessorInterface"
+            class="Shopware\Core\Framework\Adapter\Twig\EntrypointAccessorDummy">
+        </service>
+
         <service id="Shopware\Core\Framework\Adapter\Twig\TemplateFinder" public="true">
             <argument type="service" id="twig"/>
             <argument type="service" id="twig.loader"/>

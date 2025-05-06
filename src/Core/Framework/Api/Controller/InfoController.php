@@ -3,8 +3,8 @@
 namespace Shopware\Core\Framework\Api\Controller;
 
 use Doctrine\DBAL\Connection;
-use Shopware\Administration\Framework\Twig\ViteFileAccessorDecorator;
 use Shopware\Core\Content\Flow\Api\FlowActionCollector;
+use Shopware\Core\Framework\Adapter\Twig\EntrypointAccessorInterface;
 use Shopware\Core\Framework\Api\ApiDefinition\DefinitionService;
 use Shopware\Core\Framework\Api\ApiDefinition\Generator\EntitySchemaGenerator;
 use Shopware\Core\Framework\Api\ApiDefinition\Generator\OpenApi3Generator;
@@ -58,7 +58,7 @@ class InfoController extends AbstractController
         private readonly SystemConfigService $systemConfigService,
         private readonly ApiRouteInfoResolver $apiRouteInfoResolver,
         private readonly InAppPurchase $inAppPurchase,
-        private readonly ?ViteFileAccessorDecorator $viteFileAccessorDecorator,
+        private readonly EntrypointAccessorInterface $entrypointAccessor,
         private readonly Filesystem $filesystem,
         private readonly ShopIdProvider $shopIdProvider,
     ) {
@@ -243,12 +243,7 @@ class InfoController extends AbstractController
                 continue;
             }
 
-            if (!$this->viteFileAccessorDecorator) {
-                // Admin bundle is not there, admin assets are not available
-                continue;
-            }
-
-            $viteEntryPoints = $this->viteFileAccessorDecorator->getBundleData($bundle);
+            $viteEntryPoints = $this->entrypointAccessor->getBundleData($bundle);
 
             $technicalBundleName = $this->getTechnicalBundleName($bundle);
             $styles = $viteEntryPoints['entryPoints'][$technicalBundleName]['css'] ?? [];

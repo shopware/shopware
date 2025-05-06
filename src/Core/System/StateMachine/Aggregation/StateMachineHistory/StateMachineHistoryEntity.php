@@ -32,7 +32,7 @@ class StateMachineHistoryEntity extends Entity
 
     protected ?StateMachineStateEntity $toStateMachineState = null;
 
-    protected string $userId;
+    protected ?string $userId = null;
 
     protected ?UserEntity $user = null;
 
@@ -133,12 +133,12 @@ class StateMachineHistoryEntity extends Entity
         $this->toStateMachineState = $toStateMachineState;
     }
 
-    public function getUserId(): string
+    public function getUserId(): ?string
     {
         return $this->userId;
     }
 
-    public function setUserId(string $userId): void
+    public function setUserId(?string $userId): void
     {
         $this->userId = $userId;
     }

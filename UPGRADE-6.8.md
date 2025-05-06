@@ -202,6 +202,10 @@ Use the `sw_macro_function` instead, which is available since v6.6.10.0.
 {% set mediaEntity = mediaRepository.getById(myMediaId) %}
 ```
 
+## CountryStateController supports only GET
+
+The `CountryStateController` route `/country/country-state-data` now supports only GET methods. This change improves compatibility with HTTP caching and aligns with the best practices for data retrieval routes.
+
 # Hosting & Configuration
 
 ## Removed Store-API Route caching configuration

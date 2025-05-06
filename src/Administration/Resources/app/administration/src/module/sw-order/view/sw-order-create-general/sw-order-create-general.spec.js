@@ -27,6 +27,7 @@ async function createWrapper() {
                 'sw-order-line-items-grid-sales-channel': true,
                 'sw-extension-component-section': true,
                 'sw-order-create-general-info': true,
+                'sw-number-field-deprecated': true,
             },
         },
     });

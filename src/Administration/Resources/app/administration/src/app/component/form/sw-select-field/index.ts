@@ -7,7 +7,9 @@ const { Component } = Shopware;
  *
  * @private
  * @status ready
- * @description Wrapper component for sw-select-field and mt-select-field. Autoswitches between the two components.
+ * @description Wrapper component for sw-select-field and mt-select. Autoswitches between the two components.
+ *
+ * @deprecated tag:v6.8.0 - Will be removed, use mt-select instead.
  */
 Component.register('sw-select-field', {
     template,
@@ -16,6 +18,12 @@ Component.register('sw-select-field', {
         options: {
             type: Array,
             required: false,
+        },
+
+        deprecated: {
+            type: Boolean,
+            required: false,
+            default: false,
         },
     },
 });

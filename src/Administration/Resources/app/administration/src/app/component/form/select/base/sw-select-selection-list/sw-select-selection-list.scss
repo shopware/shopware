@@ -34,9 +34,8 @@
     }
 
     .sw-select-selection-list__input {
-        position: absolute;
+        float: right;
         display: inline-block;
-        min-width: 200px;
         padding: 12px 16px 12px 8px;
 
         &::placeholder {

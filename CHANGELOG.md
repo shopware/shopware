@@ -53,6 +53,7 @@ This is the official changelog index of Shopware 6. Here you find a registry of 
 *  [https://github.com/shopware/shopware/issues/6969 - Add file type to download and open e-invoices](./changelog/release-6-6-10-4/2025-02-24-fix-add-file-type-to-download-open-e-invoice.md)
 *  [https://github.com/shopware/shopware/issues/7228 - Added missing rule filter for shipping price matrix](./changelog/release-6-6-10-4/2025-03-11-added-missing-rule-filter-for-shipping-price-matrix.md)
 *  [https://github.com/shopware/shopware/issues/7350 - Show new customer address after saving admin modal](./changelog/release-6-6-10-4/2025-03-14-fix-show-new-customer-address-after-saving-modal.md)
+*  [#8895 - Fix local mode of `sw-one-to-many-grid`](./changelog/release-6-6-10-4/2025-04-24-fix-local-mode-of-sw-one-to-many-grid.md) ([Max](https://github.com/aragon999))
 
 ## 6.6.10.3
 *  [ANA-217 - Add shopware.usage_data.collection_enabled config to improve usage of shopware.usage_data.gateway.dispatch_enabled](./changelog/release-6-6-10-3/2025-02-28-add-shopware-usage-data-collection-enabled-config-to-improve-usage-of-shopware-usage-data-gateway-dispatch-enabled.md)

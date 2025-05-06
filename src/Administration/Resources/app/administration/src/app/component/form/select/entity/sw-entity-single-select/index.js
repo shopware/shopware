@@ -167,6 +167,11 @@ Component.register('sw-entity-single-select', {
             required: false,
             default: undefined,
         },
+        size: {
+            type: String,
+            required: false,
+            default: 'default',
+        },
     },
 
     data() {

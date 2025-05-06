@@ -135,8 +135,8 @@ export default class NavbarPlugin extends Plugin {
      * Restores focus to the main-navigation link related to the currently active dropdown navigation.
      * The focus state is lost when closing the dropdown via button using a keyboard.
      *
-     * @param {FocusEvent} event - The event object triggered by the close button interaction.
-     * @return {void} Does not return a value.
+     * @param {FocusEvent} event
+     * @return {void}
      */
     _restoreFocusAfterBtnClose(event) {
         if (event.relatedTarget || event.target.matches(this.options.topLevelLinksSelector)) {

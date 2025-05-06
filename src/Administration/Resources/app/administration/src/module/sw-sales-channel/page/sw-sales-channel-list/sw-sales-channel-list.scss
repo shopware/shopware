@@ -5,11 +5,7 @@
         }
     }
 
-    .favorite-switch .sw-field--switch__input {
-        padding: 0;
-
-        .sw-field__switch-state {
-            position: relative;
-        }
+    .favorite-switch {
+        margin: 0;
     }
 }

@@ -8,6 +8,8 @@ const { Component } = Shopware;
  * @private
  * @status ready
  * @description Wrapper component for sw-colorpicker and mt-colorpicker. Autoswitches between the two components.
+ *
+ * @deprecated tag:v6.8.0 - Will be removed, use mt-colorpicker instead.
  */
 Component.register('sw-colorpicker', {
     template,
@@ -29,6 +31,12 @@ Component.register('sw-colorpicker', {
             type: Number,
             required: false,
             default: undefined,
+        },
+
+        deprecated: {
+            type: Boolean,
+            required: false,
+            default: false,
         },
     },
 

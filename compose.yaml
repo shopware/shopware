@@ -11,7 +11,7 @@ services:
             HOST: '0.0.0.0'
             APP_URL: http://localhost:8000
             DATABASE_URL: mysql://root:root@database/shopware
-            MAILER_DSN: smtp://smtp:1025
+            MAILER_DSN: smtp://mailer:1025
             OPENSEARCH_URL: http://opensearch:9200
             ADMIN_OPENSEARCH_URL: http://opensearch:9200
         volumes:

@@ -12,6 +12,7 @@ use Shopware\Core\Content\Category\Tree\Tree;
 use Shopware\Core\Content\Category\Tree\TreeItem;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\Currency\CurrencyCollection;
 use Shopware\Core\System\Currency\CurrencyEntity;
@@ -77,8 +78,10 @@ class HeaderPageletLoaderTest extends TestCase
         $headerPageletLoader = new HeaderPageletLoader($eventDispatcher, $currencyRoute, $languageRoute, $navigationLoader);
         $header = $headerPageletLoader->load(new Request(), $salesChannelContext);
 
-        static::assertSame($salesChannelContext->getLanguageId(), $header->getActiveLanguage()->getId());
-        static::assertSame($salesChannelContext->getCurrencyId(), $header->getActiveCurrency()->getId());
+        if (!Feature::isActive('v6.8.0.0')) {
+            static::assertSame($salesChannelContext->getLanguageId(), $header->getActiveLanguage()->getId());
+            static::assertSame($salesChannelContext->getCurrencyId(), $header->getActiveCurrency()->getId());
+        }
 
         $navigation = $header->getNavigation();
         static::assertNotNull($navigation);

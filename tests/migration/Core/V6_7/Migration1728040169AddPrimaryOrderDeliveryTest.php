@@ -127,7 +127,6 @@ class Migration1728040169AddPrimaryOrderDeliveryTest extends TestCase
     private function rollback(): void
     {
         $this->dropIndexIfExists($this->connection, 'order', 'uidx.order.primary_order_delivery');
-        $this->dropForeignKeyIfExists($this->connection, 'order', 'fk.order.primary_order_delivery');
 
         if ($this->columnExists($this->connection, 'order', 'primary_order_delivery_id')) {
             $this->connection->executeStatement('ALTER TABLE `order` DROP COLUMN `primary_order_delivery_id`');
@@ -141,16 +140,6 @@ class Migration1728040169AddPrimaryOrderDeliveryTest extends TestCase
     private function dropIndexIfExists(Connection $connection, string $table, string $indexName): void
     {
         $sql = \sprintf('ALTER TABLE `%s` DROP INDEX `%s`', $table, $indexName);
-
-        try {
-            $connection->executeStatement($sql);
-        } catch (\Throwable $e) {
-        }
-    }
-
-    private function dropForeignKeyIfExists(Connection $connection, string $table, string $indexName): void
-    {
-        $sql = \sprintf('ALTER TABLE `%s` DROP FOREIGN KEY `%s`', $table, $indexName);
 
         try {
             $connection->executeStatement($sql);

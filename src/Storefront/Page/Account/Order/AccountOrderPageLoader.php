@@ -126,6 +126,7 @@ class AccountOrderPageLoader
             ->addAssociation('primaryOrderTransaction.stateMachineState')
             ->addAssociation('primaryOrderDelivery.shippingMethod')
             ->addAssociation('primaryOrderDelivery.stateMachineState')
+            ->addAssociation('deliveries.shippingMethod')
             ->addAssociation('orderCustomer.customer')
             ->addAssociation('lineItems')
             ->addAssociation('lineItems.cover')
@@ -144,8 +145,7 @@ class AccountOrderPageLoader
             $criteria
                 ->addAssociation('transactions.paymentMethod')
                 ->addAssociation('transactions.stateMachineState')
-                ->addAssociation('deliveries.stateMachineState')
-                ->addAssociation('deliveries.shippingMethod');
+                ->addAssociation('deliveries.stateMachineState');
 
             $criteria
                 ->getAssociation('transactions')

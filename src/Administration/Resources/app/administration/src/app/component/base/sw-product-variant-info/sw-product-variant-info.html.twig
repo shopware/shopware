@@ -22,6 +22,7 @@
 
         {% block sw_product_variant_info_options %}
         <template v-if="variations && variations.length > 0">
+            <br>
             <span
                 v-for="(variation, index) in variations"
                 :key="variation.group"

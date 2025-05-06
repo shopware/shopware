@@ -4,9 +4,14 @@ namespace Shopware\Core\Framework\DataAbstractionLayer\Doctrine;
 
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\Exception\RetryableException;
+use Doctrine\DBAL\Driver\Exception as TheDriverException;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Telemetry\Metrics\MeterProvider;
 use Shopware\Core\Framework\Telemetry\Metrics\Metric\ConfiguredMetric;
+use Doctrine\DBAL\Exception\DeadlockException;
+use Doctrine\DBAL\Exception\ForeignKeyConstraintViolationException;
+use Doctrine\DBAL\Exception\TransactionRolledBack;
+use Doctrine\DBAL\Exception\UniqueConstraintViolationException;
 
 #[Package('framework')]
 class RetryableTransaction
@@ -39,17 +44,17 @@ class RetryableTransaction
         ++$counter;
 
         try {
-            return $connection->transactional($closure);
+            return self::transactional($connection, $closure);
         } catch (RetryableException $retryableException) {
             MeterProvider::meter()?->emit(new ConfiguredMetric('database.locks.count', 1));
-            if ($connection->getTransactionNestingLevel() > 0) {
-                // If this RetryableTransaction was executed inside another transaction, do not retry this nested
-                // transaction. Remember that the whole (outermost) transaction was already rolled back by the database
-                // when any RetryableException is thrown.
-                // Rethrow the exception here so only the outermost transaction is retried which in turn includes this
-                // nested transaction.
-                throw $retryableException;
-            }
+//            if ($connection->getTransactionNestingLevel() > 0) {
+//                // If this RetryableTransaction was executed inside another transaction, do not retry this nested
+//                // transaction. Remember that the whole (outermost) transaction was already rolled back by the database
+//                // when any RetryableException is thrown.
+//                // Rethrow the exception here so only the outermost transaction is retried which in turn includes this
+//                // nested transaction.
+//                throw $retryableException;
+//            }
 
             if ($counter > 10) {
                 throw $retryableException;
@@ -59,6 +64,67 @@ class RetryableTransaction
             usleep(random_int(10, 20));
 
             return self::retry($connection, $closure, $counter);
+        }
+    }
+
+    /**
+     * @param Connection $connection
+     * @param \Closure $closure
+     * @return mixed
+     * @throws \Doctrine\DBAL\Exception
+     */
+    private static function transactional(Connection $connection, \Closure $closure): mixed
+    {
+        $connection->beginTransaction();
+
+        $shouldRollback = false;
+        try {
+            $res = $closure($connection);
+        } catch (\Throwable $e) {
+            $shouldRollback = self::shouldRollback($e);
+            if (!$shouldRollback) {
+                self::decreaseTransactionNestingLevel($connection);
+            }
+            throw $e;
+        } finally {
+            if ($shouldRollback) {
+                $connection->rollBack();
+            }
+        }
+
+        $shouldRollback = false;
+        try {
+            $connection->commit();
+        } catch (TheDriverException $e) {
+            $shouldRollback = self::shouldRollback($e);
+            if (!$shouldRollback) {
+                self::decreaseTransactionNestingLevel($connection);
+            }
+            throw $e;
+        } finally {
+            if ($shouldRollback) {
+                $connection->rollBack();
+            }
+        }
+        return $res;
+    }
+
+    private static function shouldRollback(\Throwable $e): bool {
+        return ! (
+            $e instanceof TransactionRolledBack
+            || $e instanceof UniqueConstraintViolationException
+            || $e instanceof ForeignKeyConstraintViolationException
+            || $e instanceof DeadlockException
+        );
+    }
+
+    private static function decreaseTransactionNestingLevel(Connection $connection): void
+    {
+        $reflectionProperty = new \ReflectionProperty(Connection::class, 'transactionNestingLevel');
+        $reflectionProperty->setAccessible(true);
+        $currentLevel = $reflectionProperty->getValue($connection);
+        if ($currentLevel > 0) {
+            $reflectionProperty->setValue($connection, $currentLevel - 1);
         }
     }
 }

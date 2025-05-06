@@ -170,7 +170,9 @@ class PromotionCollector implements CartDataCollectorInterface
             // when being in a recalculation, having notifications about the removal of automatic promotion is desired
             // addition notifications are handled as usual in the PromotionCalculator
             if ($behavior->isRecalculation()) {
-                $oldPromotions = $original->getLineItems()->filter(static fn (LineItem $item) => !$item->getReferencedId())->getElements();
+                $oldPromotions = $original->getLineItems()
+                    ->filter(static fn (LineItem $item) => $item->getType() === PromotionProcessor::LINE_ITEM_TYPE && !$item->getReferencedId())
+                    ->getElements();
                 $newPromotions = $discountLineItems->filter(static fn (LineItem $item) => !$item->getReferencedId())->getElements();
 
                 foreach (\array_diff_key($oldPromotions, $newPromotions) as $removedPromotion) {

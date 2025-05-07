@@ -67,7 +67,7 @@ class SwMacroFunctionTokenParser extends AbstractTokenParser
     {
         $arguments = new ArrayExpression([], $this->parser->getCurrentToken()->getLine());
         $stream = $this->parser->getStream();
-        $stream->expect(Token::PUNCTUATION_TYPE, '(', 'A list of arguments must begin with an opening parenthesis');
+        $stream->expect(Token::OPERATOR_TYPE, '(', 'A list of arguments must begin with an opening parenthesis');
         while (!$stream->test(Token::PUNCTUATION_TYPE, ')')) {
             if (\count($arguments)) {
                 $stream->expect(Token::PUNCTUATION_TYPE, ',', 'Arguments must be separated by a comma');

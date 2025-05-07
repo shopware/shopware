@@ -51,7 +51,7 @@ const mockCustomFields = new EntityCollection(
 
 async function createWrapper() {
     return mount(
-        await wrapTestComponent('sw-condition-order-custom-field', {
+        await wrapTestComponent('sw-condition-customer-custom-field', {
             sync: true,
         }),
         {
@@ -124,7 +124,7 @@ async function createWrapper() {
     );
 }
 
-describe('components/rule/condition-type/sw-condition-order-custom-field', () => {
+describe('components/rule/condition-type/sw-condition-customer-custom-field', () => {
     let wrapper;
 
     beforeEach(async () => {
@@ -226,7 +226,7 @@ describe('components/rule/condition-type/sw-condition-order-custom-field', () =>
     });
 
     it('should truncate custom field description', async () => {
-        mockCustomFields.at(0).customFieldSet.config.label = 'Order migration custom fields (attributes)';
+        mockCustomFields.at(0).customFieldSet.config.label = 'Customer migration custom fields (attributes)';
 
         const testWrapper = await createWrapper();
         await flushPromises();

@@ -17,12 +17,14 @@ use Shopware\Core\Checkout\Customer\SalesChannel\AbstractLogoutRoute;
 use Shopware\Core\Checkout\Customer\SalesChannel\AbstractResetPasswordRoute;
 use Shopware\Core\Checkout\Customer\SalesChannel\AbstractSendPasswordRecoveryMailRoute;
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\InconsistentCriteriaIdsException;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\RateLimiter\Exception\RateLimitExceededException;
 use Shopware\Core\Framework\Routing\RoutingException;
 use Shopware\Core\Framework\Validation\DataBag\DataBag;
 use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
 use Shopware\Core\Framework\Validation\Exception\ConstraintViolationException;
+use Shopware\Core\PlatformRequest;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Storefront\Checkout\Cart\SalesChannel\StorefrontCartFacade;
 use Shopware\Storefront\Framework\Routing\RequestTransformer;
@@ -61,6 +63,12 @@ class AuthController extends StorefrontController
     #[Route(path: '/account/login', name: 'frontend.account.login.page', defaults: ['_noStore' => true], methods: ['GET'])]
     public function loginPage(Request $request, RequestDataBag $data, SalesChannelContext $context): Response
     {
+        // Add '_httpCache' => true, to defaults in Route and remove _noStore
+        if (Feature::isActive('PERFORMANCE_TWEAKS') || Feature::isActive('v6.8.0.0')) {
+            $request->attributes->set(PlatformRequest::ATTRIBUTE_HTTP_CACHE, true);
+            $request->attributes->remove(PlatformRequest::ATTRIBUTE_NO_STORE);
+        }
+
         /** @var string $redirect */
         $redirect = $request->get('redirectTo', 'frontend.account.home.page');
 
@@ -191,6 +199,12 @@ class AuthController extends StorefrontController
     #[Route(path: '/account/recover', name: 'frontend.account.recover.page', methods: ['GET'])]
     public function recoverAccountForm(Request $request, SalesChannelContext $context): Response
     {
+        // Add '_httpCache' => true, to defaults in Route
+        if (Feature::isActive('PERFORMANCE_TWEAKS') || Feature::isActive('v6.8.0.0')) {
+            $request->attributes->set(PlatformRequest::ATTRIBUTE_HTTP_CACHE, true);
+            $request->attributes->remove(PlatformRequest::ATTRIBUTE_NO_STORE);
+        }
+
         $page = $this->loginPageLoader->load($request, $context);
 
         return $this->renderStorefront('@Storefront/storefront/page/account/profile/recover-password.html.twig', [

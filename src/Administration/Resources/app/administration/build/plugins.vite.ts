@@ -167,6 +167,8 @@ const getBaseConfig = (extension: ExtensionDefinition, isProd = false) => {
 
 // Main function to handle both dev and build modes
 const main = async () => {
+    let hasFailedBuilds = false;
+
     if (isDev) {
         const availablePorts = await findAvailablePorts(5333, extensionEntries.length);
 
@@ -226,7 +228,7 @@ const main = async () => {
                     },
                 });
 
-                extensionInfoDebug(colors.green(`# App "${extension.name}": Injected successfully`));
+                console.log(colors.green(`# App "${extension.name}": Injected successfully`));
             } else {
                 // For plugins
                 server = await createServer({
@@ -238,7 +240,7 @@ const main = async () => {
                     },
                 });
 
-                extensionInfoDebug(colors.green(`# Plugin "${extension.name}": Injected successfully`));
+                console.log(colors.green(`# Plugin "${extension.name}": Injected successfully`));
             }
 
             await server.listen();
@@ -247,35 +249,45 @@ const main = async () => {
     } else {
         // Build mode
         for (const extension of extensionEntries) {
-            const extensionInfoDebug = debug(`vite:${extension.isPlugin ? 'plugin' : 'app'}:${extension.technicalName}`);
-
-            if (extension.isApp) {
-                extensionInfoDebug(colors.green(`# Building app "${extension.name}"`));
-                // For apps
-                await build({
-                    root: extension.path,
-                    base: '',
-                    build: {
-                        outDir: path.resolve(extension.basePath, 'Resources/public/meteor-app'),
-                    },
-                    plugins: [
-                        injectHtml([
-                            {
-                                tag: 'base',
-                                attrs: {
-                                    href: '__$ASSET_BASE_PATH$__',
+            try {
+                if (extension.isApp) {
+                    console.log(colors.green(`# Building app "${extension.name}"`));
+                    // For apps
+                    await build({
+                        root: extension.path,
+                        base: '',
+                        build: {
+                            outDir: path.resolve(extension.basePath, 'Resources/public/meteor-app'),
+                        },
+                        plugins: [
+                            injectHtml([
+                                {
+                                    tag: 'base',
+                                    attrs: {
+                                        href: '__$ASSET_BASE_PATH$__',
+                                    },
+                                    injectTo: 'head-prepend',
                                 },
-                                injectTo: 'head-prepend',
-                            },
-                        ]),
-                    ],
-                });
-            } else {
-                extensionInfoDebug(colors.green(`# Building plugin "${extension.name}"`));
-                // For plugins
-                await build(getBaseConfig(extension));
+                            ]),
+                        ],
+                    });
+                } else {
+                    console.log(colors.green(`# Building plugin "${extension.name}"`));
+                    // For plugins
+                    await build(getBaseConfig(extension));
+                }
+            } catch (error) {
+                hasFailedBuilds = true;
+                // @ts-expect-error
+                console.error(colors.red(`# Failed to build ${extension.isPlugin ? 'plugin' : 'app'} "${extension.name}": ${error?.message}`));
             }
         }
+    }
+
+    // Exit with code 1 if any builds failed
+    if (hasFailedBuilds) {
+        console.error(colors.red('One or more builds failed. Check the logs above for details.'));
+        process.exit(1);
     }
 };
 

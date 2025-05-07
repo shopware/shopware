@@ -26,6 +26,7 @@ class RegisterCustomerCommandHandler extends AbstractContextGatewayCommandHandle
      */
     public function handle(AbstractContextGatewayCommand $command, SalesChannelContext $context, array &$parameters): void
     {
+        /** @var array<string, mixed> $data */
         $data = $command->data;
         $data['billing'] = new DataBag($data['billingAddress']);
 

@@ -101,7 +101,7 @@ class AppContextGatewayTest extends TestCase
 
     public function testContextGatewayCanLoginCustomer(): void
     {
-        $this->createCustomer('customer@example.com');
+        $this->createCustomerByEmail('customer@example.com');
 
         $commands = [
             [
@@ -277,7 +277,7 @@ class AppContextGatewayTest extends TestCase
             ]], Context::createDefaultContext());
     }
 
-    private function createCustomer(?string $email = null): void
+    private function createCustomerByEmail(?string $email = null): void
     {
         $customer = [
             'id' => $this->ids->create('customer'),

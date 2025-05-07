@@ -265,7 +265,7 @@ class PromotionCalculator
         $originalPackageCount = $packages->count();
 
         $shouldSplit = $discount->getScope() !== PromotionDiscountEntity::SCOPE_CART || $discount->isProductRestricted();
-        if (!Feature::isActive('CART_PERFORMANCE_IMPROVEMENT')) {
+        if (!Feature::isActive('PERFORMANCE_TWEAKS')) {
             $shouldSplit = true;
         }
 

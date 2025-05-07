@@ -41,8 +41,3 @@ shopware:
         major: false
         toggleable: true
         description: "Experimental! Contains Performance Tweaks for future changes"
-      - name: CART_PERFORMANCE_IMPROVEMENT
-        default: false
-        major: true
-        toggleable: true
-        description: "Will improve the calculation of the cart"

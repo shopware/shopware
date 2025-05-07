@@ -6,7 +6,7 @@ flag: CART_PERFORMANCE_IMPROVEMENT
 # Core
 * Changed `getTotalPriceAmount` and `getUnitPriceAmount` method visibilities to public in `\Shopware\Core\Checkout\Cart\Price\Struct\PriceCollection`
 * Added new `buildCollectionRules` method in `\Shopware\Core\Checkout\Cart\Tax\PercentageTaxRuleBuilder`. With it, a `\Shopware\Core\Checkout\Cart\Tax\CalculatedPrice` is no longer needed, just the total price and a `\Shopware\Core\Checkout\Cart\Tax\Struct\CalculatedTaxCollection`.
-* Changed `getMatchingItems` in `\Shopware\Core\Checkout\Promotion\Cart\Discount\ScopePackager\CartScopeDiscountPackager`. Will only split items by quantity, if discount value `considerAdvancedRules` is `true` and `applierKey` is not "ALL". Only available with enabled feature flag "CART_PERFORMANCE_IMPROVEMENT" in `.env` file 
+* Changed `getMatchingItems` in `\Shopware\Core\Checkout\Promotion\Cart\Discount\ScopePackager\CartScopeDiscountPackager`. Will only split items by quantity, if discount value `considerAdvancedRules` is `true` and `applierKey` is not "ALL". Only available with enabled feature flag "PERFORMANCE_TWEAKS" in `.env` file 
 ___
 # Upgrade Information
 ## New public methods for performance improvements

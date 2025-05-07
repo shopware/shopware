@@ -174,7 +174,7 @@ class MailService extends AbstractMailService
             }
         }
         $mailOptions = ['subject'];
-        if (is_string($data['senderName'])) {
+        if (\is_string($data['senderName'])) {
             $mailOptions[] = 'senderName';
         }
         foreach ($mailOptions as $renderDataIndex) {

@@ -166,8 +166,9 @@ EOF;
     {
         $ids = new IdsCollection();
 
-        /** @var EntityRepository $userRepo */
         $userRepo = self::getContainer()->get('user.repository');
+        static::assertInstanceOf(EntityRepository::class, $userRepo);
+
         $userId = $userRepo->searchIds((new Criteria())->setLimit(1), Context::createDefaultContext())->firstId();
 
         $integration = [
@@ -210,8 +211,8 @@ EOF;
         ]);
 
         static::assertNotFalse($historyData);
-        static::assertEquals($ids->get('integration-1'), $historyData['integration_id']);
-        static::assertEquals($userId, $historyData['user_id']);
+        static::assertSame($ids->get('integration-1'), $historyData['integration_id']);
+        static::assertSame($userId, $historyData['user_id']);
     }
 
     private function createOrderWithPartiallyReturnedDeliveryState(): string

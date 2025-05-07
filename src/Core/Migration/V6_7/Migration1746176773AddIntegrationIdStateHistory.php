@@ -11,7 +11,7 @@ use Shopware\Core\Framework\Migration\MigrationStep;
 /**
  * @internal
  */
-#[Package('framework')]
+#[Package('checkout')]
 class Migration1746176773AddIntegrationIdStateHistory extends MigrationStep
 {
     public function getCreationTimestamp(): int
@@ -25,9 +25,5 @@ class Migration1746176773AddIntegrationIdStateHistory extends MigrationStep
         if ($columnAdded) {
             $connection->executeStatement('ALTER TABLE `state_machine_history` ADD CONSTRAINT `fk.state_machine_history.integration_id` FOREIGN KEY (`integration_id`) REFERENCES `integration` (`id`) ON DELETE NO ACTION ON UPDATE CASCADE');
         }
-    }
-
-    public function updateDestructive(Connection $connection): void
-    {
     }
 }

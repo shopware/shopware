@@ -32,7 +32,7 @@ final class EmbedTokenParser extends AbstractTokenParser
     {
         $stream = $this->parser->getStream();
         /** @var ConstantExpression|NameExpression $parent */
-        $parent = $this->parser->getExpressionParser()->parseExpression();
+        $parent = $this->parser->parseExpression();
 
         // sw-fix-start
         $templateName = $parent->getAttribute('value');
@@ -102,7 +102,7 @@ final class EmbedTokenParser extends AbstractTokenParser
         $variables = null;
 
         if ($stream->nextIf(Token::NAME_TYPE, 'with')) {
-            $variables = $this->parser->getExpressionParser()->parseExpression();
+            $variables = $this->parser->parseExpression();
         }
 
         $only = false;

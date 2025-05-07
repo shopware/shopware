@@ -19,7 +19,7 @@ final class ReturnNodeTokenParser extends AbstractTokenParser
         $nodes = [];
 
         if (!$stream->test(Token::BLOCK_END_TYPE)) {
-            $nodes['expr'] = $this->parser->getExpressionParser()->parseExpression();
+            $nodes['expr'] = $this->parser->parseExpression();
         }
 
         $stream->expect(Token::BLOCK_END_TYPE);

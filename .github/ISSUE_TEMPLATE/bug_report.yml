@@ -19,19 +19,21 @@ body:
           label: Affected area / extension
           description: In which area or extension of the product does the behavior occur?
           options:
-            - Platform(Default)
-            - Extension:Commercial
-            - Extension:B2B-Suite
-            - Extension:CMS-Extensions
-            - Extension:Custom-Products
-            - Extension:DHL-App
-            - Extension:Digital-Sales-Room
-            - Extension:Dynamic-Access
-            - Extension:Language-Pack
-            - Extension:Migration-Tool
-            - Extension:PayPal-Integration
-            - Extension:Publisher
-            - Extension:Social-Shopping
+              - Platform(Default)
+              - Extension:Commercial
+              - Extension:B2B-Suite
+              - Extension:CMS-Extensions
+              - Extension:Custom-Products
+              - Extension:DHL-App
+              - Extension:Digital-Sales-Room
+              - Extension:Dynamic-Access
+              - Extension:Language-Pack
+              - Extension:Migration-Tool
+              - Extension:PayPal-Integration
+              - Extension:Publisher
+              - Extension:Sales-Agent
+              - Extension:Recommendations
+              - Extension:Social-Shopping
       validations:
           required: true
     - type: textarea

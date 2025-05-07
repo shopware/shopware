@@ -98,6 +98,12 @@
     .sw-media-compact-upload-v2__browse-icon {
         width: 14px;
         height: 14px;
+
+        &.mt-icon > svg {
+            // Important is needed because the selector to be override is a id selector
+            width: 100% !important;
+            height: 100% !important;
+        }
     }
 
     .sw-media-compact-upload-v2__label {

@@ -5,6 +5,7 @@
     flex-wrap: wrap;
     list-style: none;
     width: calc(100% - 30px);
+    overflow: hidden;
 
     .sw-select-selection-list__item-holder {
         max-width: 220px;
@@ -29,11 +30,12 @@
 
     .sw-select-selection-list__input-wrapper {
         flex: 1 1 0;
+        position: relative;
     }
 
     .sw-select-selection-list__input {
+        float: right;
         display: inline-block;
-        min-width: 200px;
         padding: 12px 16px 12px 8px;
 
         &::placeholder {

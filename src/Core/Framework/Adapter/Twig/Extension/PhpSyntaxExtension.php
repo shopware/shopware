@@ -25,7 +25,7 @@ use Squirrel\TwigPhpSyntax\Test\TrueTest;
 use Squirrel\TwigPhpSyntax\TokenParser\BreakTokenParser;
 use Squirrel\TwigPhpSyntax\TokenParser\ContinueTokenParser;
 use Squirrel\TwigPhpSyntax\TokenParser\ForeachTokenParser;
-use Twig\ExpressionParser\Prefix\UnaryOperatorExpressionParser;
+use Twig\ExpressionParser\Infix\BinaryOperatorExpressionParser;
 use Twig\Extension\AbstractExtension;
 use Twig\Node\Expression\Binary\AndBinary;
 use Twig\Node\Expression\Binary\OrBinary;
@@ -168,18 +168,24 @@ class PhpSyntaxExtension extends AbstractExtension
         ];
     }
 
+    /**
+     * @return list<array<string, array<string, string|int>>>
+     */
     public function getOperators(): array
     {
-        return [[], []];
+        return [
+            [],
+            [],
+        ];
     }
 
     public function getExpressionParsers(): array
     {
         return [
-            new UnaryOperatorExpressionParser(OrBinary::class, '||', 10),
-            new UnaryOperatorExpressionParser(AndBinary::class, '&&', 15),
-            new UnaryOperatorExpressionParser(SameAsBinary::class, '===', 20),
-            new UnaryOperatorExpressionParser(NotSameAsBinary::class, '!==', 20),
+            new BinaryOperatorExpressionParser(OrBinary::class, '||', 10),
+            new BinaryOperatorExpressionParser(AndBinary::class, '&&', 15),
+            new BinaryOperatorExpressionParser(SameAsBinary::class, '===', 20),
+            new BinaryOperatorExpressionParser(NotSameAsBinary::class, '!==', 20),
         ];
     }
 

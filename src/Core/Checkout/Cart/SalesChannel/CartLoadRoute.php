@@ -2,6 +2,8 @@
 
 namespace Shopware\Core\Checkout\Cart\SalesChannel;
 
+use Shopware\Core\Checkout\Cart\AbstractCartPersister;
+use Shopware\Core\Checkout\Cart\CartFactory;
 use Shopware\Core\Checkout\Cart\Exception\CartTokenNotFoundException;
 use Shopware\Core\Checkout\Cart\TaxProvider\TaxProviderProcessor;
 use Shopware\Core\Framework\Log\Package;
@@ -18,6 +20,7 @@ class CartLoadRoute extends AbstractCartLoadRoute
      * @internal
      */
     public function __construct(
+        private readonly AbstractCartPersister $persister,
         private readonly CartService $cartService,
         private readonly TaxProviderProcessor $taxProviderProcessor
     ) {
@@ -35,7 +38,7 @@ class CartLoadRoute extends AbstractCartLoadRoute
         $taxed = $request->get('taxed', false);
 
         try {
-            $cart = $this->cartService->getCart($token, $context);
+            $cart = $this->persister->load($token, $context);
         } catch (CartTokenNotFoundException) {
             $cart = $this->cartService->createNew($token);
         }

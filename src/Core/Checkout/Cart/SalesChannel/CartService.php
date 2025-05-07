@@ -76,6 +76,21 @@ class CartService implements ResetInterface
         return $this->cart[$cart->getToken()] = $cart;
     }
 
+    public function load(
+        string $token,
+        SalesChannelContext $context,
+        bool $caching = true,
+        bool $taxed = false
+    ): Cart {
+        if ($caching && isset($this->cart[$token])) {
+            return $this->cart[$token];
+        }
+
+        $cart = $this->persister->load($token, $context);
+
+        return $this->cart[$cart->getToken()] = $cart;
+    }
+
     /**
      * @param LineItem|LineItem[] $items
      *

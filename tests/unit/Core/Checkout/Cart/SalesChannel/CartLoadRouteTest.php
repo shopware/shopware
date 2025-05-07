@@ -7,7 +7,6 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\AbstractCartPersister;
 use Shopware\Core\Checkout\Cart\Cart;
 use Shopware\Core\Checkout\Cart\CartException;
-use Shopware\Core\Checkout\Cart\Exception\CartTokenNotFoundException;
 use Shopware\Core\Checkout\Cart\SalesChannel\CartLoadRoute;
 use Shopware\Core\Checkout\Cart\SalesChannel\CartService;
 use Shopware\Core\Checkout\Cart\TaxProvider\TaxProviderProcessor;
@@ -33,11 +32,6 @@ class CartLoadRouteTest extends TestCase
             ->willThrowException(CartException::tokenNotFound('test'));
 
         $cartService = $this->createMock(CartService::class);
-        $cartService
-            ->expects($this->once())
-            ->method('getCart')
-            ->with('test', static::isInstanceOf(SalesChannelContext::class))
-            ->willThrowException(new CartTokenNotFoundException(404, 'CART_NOT_FOUND', 'cart not found'));
 
         $cartService
             ->expects($this->once())

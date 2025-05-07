@@ -179,6 +179,9 @@ class PhpSyntaxExtension extends AbstractExtension
         ];
     }
 
+    /**
+     * @return list<BinaryOperatorExpressionParser>
+     */
     public function getExpressionParsers(): array
     {
         return [

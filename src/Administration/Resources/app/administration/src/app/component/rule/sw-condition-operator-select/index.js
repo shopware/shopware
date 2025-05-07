@@ -9,7 +9,7 @@ const { Component } = Shopware;
  */
 Component.register('sw-condition-operator-select', {
     template: template,
-
+    emits: ['change'],
     props: {
         operators: {
             type: Array,
@@ -68,7 +68,16 @@ Component.register('sw-condition-operator-select', {
 
     methods: {
         changeOperator(event) {
-            this.operator = event;
+            this.condition.value = {
+                ...(this.condition.value ?? {}),
+                operator: event,
+            };
+
+            if (event === 'empty') {
+                this.condition.value = { operator: 'empty' };
+            }
+
+            this.$emit('change', this.condition);
         },
     },
 });

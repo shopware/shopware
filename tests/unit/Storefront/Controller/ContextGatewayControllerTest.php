@@ -60,7 +60,7 @@ class ContextGatewayControllerTest extends TestCase
         static::assertEquals('newHatoken', $newResponse->getToken());
     }
 
-    public function testGatewayWithException(): void
+    public function testGatewayWithGenericException(): void
     {
         $context = Generator::generateSalesChannelContext(token: 'hatoken');
         $cart = new Cart('hatoken');
@@ -78,7 +78,45 @@ class ContextGatewayControllerTest extends TestCase
             ->expects($this->once())
             ->method('load')
             ->with($request, $cart, $context)
-            ->willThrowException(ContextGatewayException::emptyAppResponse('test_app'));
+            ->willThrowException(ContextGatewayException::emptyAppResponse('FOO'));
+
+        $container = $this->createStubContainerWithFlashBag();
+
+        $controller = new ContextGatewayController($route, $cartService);
+        $controller->setContainer($container);
+
+        $newResponse = $controller->gateway($request, $context);
+
+        static::assertInstanceOf(JsonResponse::class, $newResponse);
+        static::assertEquals(Response::HTTP_BAD_REQUEST, $newResponse->getStatusCode());
+
+        /** @var FlashBagAwareSessionInterface $session */
+        $session = $container->get('request_stack')->getSession();
+        $flashBag = $session->getFlashBag();
+        $errors = $flashBag->get('danger');
+
+        static::assertCount(0, $errors);
+    }
+
+    public function testGatewayWithCustomerException(): void
+    {
+        $context = Generator::generateSalesChannelContext(token: 'hatoken');
+        $cart = new Cart('hatoken');
+        $request = new Request(request: ['foo' => 'bar', 'bat' => 'baz']);
+
+        $cartService = $this->createMock(CartService::class);
+        $cartService
+            ->expects($this->once())
+            ->method('getCart')
+            ->with('hatoken', $context)
+            ->willReturn($cart);
+
+        $route = $this->createMock(AbstractContextGatewayRoute::class);
+        $route
+            ->expects($this->once())
+            ->method('load')
+            ->with($request, $cart, $context)
+            ->willThrowException(ContextGatewayException::customerMessage('FOO'));
 
         $container = $this->createStubContainerWithFlashBag();
 
@@ -99,7 +137,7 @@ class ContextGatewayControllerTest extends TestCase
 
         $error = $errors[0];
 
-        static::assertSame('App "test_app" did not provide context gateway response', $error);
+        static::assertSame('FOO', $error);
     }
 
     private function createStubContainerWithFlashBag(): ContainerInterface

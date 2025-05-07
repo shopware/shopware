@@ -38,9 +38,7 @@ class AppContextGateway
     public function process(ContextGatewayPayloadStruct $payload): ContextTokenResponse
     {
         if (!$payload->getData()->get('appName')) {
-            $this->logger->logOrThrowException(ContextGatewayException::payloadInvalid('\'appName\' not found in payload'));
-
-            return new ContextTokenResponse($payload->getContext()->getToken());
+            throw ContextGatewayException::payloadInvalid('\'appName\' not found in payload');
         }
 
         $appName = $payload->getData()->get('appName');
@@ -53,9 +51,7 @@ class AppContextGateway
         $appResponse = $this->payloadService->request($checkoutGatewayUrl, $appPayload, $app);
 
         if (!$appResponse) {
-            $this->logger->logOrThrowException(ContextGatewayException::emptyAppResponse($app->getName()));
-
-            return new ContextTokenResponse($payload->getContext()->getToken());
+            throw ContextGatewayException::emptyAppResponse($app->getName());
         }
 
         $commands = $this->collectCommandsFromAppResponse($appResponse);

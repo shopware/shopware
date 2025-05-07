@@ -5,6 +5,7 @@ namespace Shopware\Tests\Unit\Core\Framework\Gateway\Context\Command;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Gateway\Context\Command\AbstractContextGatewayCommand;
+use Shopware\Core\Framework\Gateway\Context\Command\ChangePaymentMethodCommand;
 use Shopware\Core\Framework\Gateway\Context\Command\ContextGatewayCommandCollection;
 use Shopware\Core\Framework\Gateway\Context\Command\LoginCustomerCommand;
 use Shopware\Core\Framework\Gateway\Context\Command\RegisterCustomerCommand;
@@ -17,28 +18,38 @@ use Shopware\Core\Framework\Log\Package;
 #[CoversClass(ContextGatewayCommandCollection::class)]
 class ContextGatewayCommandCollectionTest extends TestCase
 {
-    public function testGetRegisterCommand(): void
+    public function testGetTokenCommandWithRegister(): void
     {
         $commands = new ContextGatewayCommandCollection();
         $commands->add(self::getCommand(RegisterCustomerCommand::class, ['data' => ['foo' => 'bar']]));
         $commands->add(self::getCommand(RegisterCustomerCommand::class, ['data' => ['wow' => 'ser']]));
 
-        $registerCommand = $commands->getRegisterCommand();
+        $registerCommand = $commands->getTokenCommand();
 
         static::assertNotNull($registerCommand);
         static::assertSame(['foo' => 'bar'], $registerCommand->data);
     }
 
-    public function testGetLoginCommand(): void
+    public function testGetTokenCommandWithLogin(): void
     {
         $commands = new ContextGatewayCommandCollection();
         $commands->add(self::getCommand(LoginCustomerCommand::class, ['customerEmail' => 'foo@bar.com']));
         $commands->add(self::getCommand(LoginCustomerCommand::class, ['customerEmail' => 'wow@ser.com']));
 
-        $loginCommand = $commands->getLoginCommand();
+        $loginCommand = $commands->getTokenCommand();
 
         static::assertNotNull($loginCommand);
         static::assertSame('foo@bar.com', $loginCommand->customerEmail);
+    }
+
+    public function testGetTokenCommandWithNull(): void
+    {
+        $commands = new ContextGatewayCommandCollection();
+        $commands->add(self::getCommand(ChangePaymentMethodCommand::class, ['technicalName' => 'test_payment']));
+
+        $tokenCommand = $commands->getTokenCommand();
+
+        static::assertNull($tokenCommand);
     }
 
     /**

@@ -11,18 +11,10 @@ use Shopware\Core\Framework\Struct\Collection;
 #[Package('framework')]
 class ContextGatewayCommandCollection extends Collection
 {
-    public function getRegisterCommand(): ?RegisterCustomerCommand
+    public function getTokenCommand(): LoginCustomerCommand|RegisterCustomerCommand|null
     {
-        /** @var RegisterCustomerCommand|null $command */
-        $command = $this->filter(static fn (AbstractContextGatewayCommand $command) => $command instanceof RegisterCustomerCommand)->first();
-
-        return $command;
-    }
-
-    public function getLoginCommand(): ?LoginCustomerCommand
-    {
-        /** @var LoginCustomerCommand|null $command */
-        $command = $this->filter(static fn (AbstractContextGatewayCommand $command) => $command instanceof LoginCustomerCommand)->first();
+        /** @var LoginCustomerCommand|RegisterCustomerCommand|null $command */
+        $command = $this->filter(static fn (AbstractContextGatewayCommand $command) => $command instanceof LoginCustomerCommand || $command instanceof RegisterCustomerCommand)->first();
 
         return $command;
     }

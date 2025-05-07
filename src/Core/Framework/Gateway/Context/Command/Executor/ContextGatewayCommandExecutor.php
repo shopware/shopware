@@ -39,24 +39,12 @@ class ContextGatewayCommandExecutor
 
         $parameters = [];
 
-        if ($register = $commands->getRegisterCommand()) {
-            $this->registry->get(RegisterCustomerCommand::COMMAND_KEY)->handle($register, $context, $parameters);
-
-            /** @var CustomerResponse $response */
-            $response = $parameters['customerResponse'];
-            unset($parameters['customerResponse']);
-
-            $token = $response->headers->get(PlatformRequest::HEADER_CONTEXT_TOKEN);
-        }
-
-        if ($login = $commands->getLoginCommand()) {
-            $this->registry->get(LoginCustomerCommand::COMMAND_KEY)->handle($login, $context, $parameters);
+        if ($tokenCommand = $commands->getTokenCommand()) {
+            $this->registry->get($tokenCommand::COMMAND_KEY)->handle($tokenCommand, $context, $parameters);
 
             $token = $parameters['token'];
             unset($parameters['token']);
-        }
 
-        if (isset($token)) {
             $contextParameters = new SalesChannelContextServiceParameters($context->getSalesChannelId(), $token);
             $context = $this->salesChannelContextService->get($contextParameters);
         }

@@ -2,6 +2,8 @@
 
 namespace Shopware\Core\Framework\Gateway\Context;
 
+use GuzzleHttp\Exception\GuzzleException;
+use GuzzleHttp\Exception\RequestException;
 use Shopware\Core\Framework\HttpException;
 use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\HttpFoundation\Response;
@@ -14,6 +16,8 @@ class ContextGatewayException extends HttpException
     public const HANDLER_NOT_FOUND_CODE = 'CONTEXT_GATEWAY__HANDLER_NOT_FOUND';
     public const HANDLER_EXCEPTION = 'CONTEXT_GATEWAY__HANDLER_EXCEPTION';
     public const COMMAND_VALIDATION_FAILED = 'CONTEXT_GATEWAY__COMMAND_VALIDATION_FAILED';
+    public const REQUEST_FAILED = 'CONTEXT_GATEWAY__REQUEST_FAILED';
+    public const CUSTOMER_MESSAGE = 'CONTEXT_GATEWAY__CUSTOMER_MESSAGE';
 
     public static function emptyAppResponse(string $appName): self
     {
@@ -74,6 +78,26 @@ class ContextGatewayException extends HttpException
             self::COMMAND_VALIDATION_FAILED,
             $message,
             $parameters
+        );
+    }
+
+    public static function requestFailed(RequestException $previous): self
+    {
+        return new self(
+            $previous->getResponse()?->getStatusCode() ?? Response::HTTP_BAD_REQUEST,
+            self::REQUEST_FAILED,
+            'Request to app failed',
+            [],
+            $previous
+        );
+    }
+
+    public static function customerMessage(string $message): self
+    {
+        return new self(
+            Response::HTTP_UNPROCESSABLE_ENTITY,
+            self::CUSTOMER_MESSAGE,
+            $message
         );
     }
 }

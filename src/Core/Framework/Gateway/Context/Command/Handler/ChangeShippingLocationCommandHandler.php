@@ -9,7 +9,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\OrFilter;
 use Shopware\Core\Framework\Gateway\Context\Command\AbstractContextGatewayCommand;
 use Shopware\Core\Framework\Gateway\Context\Command\ChangeShippingLocationCommand;
 use Shopware\Core\Framework\Gateway\Context\ContextGatewayException;
-use Shopware\Core\Framework\Log\ExceptionLogger;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
@@ -22,7 +21,6 @@ class ChangeShippingLocationCommandHandler extends AbstractContextGatewayCommand
     public function __construct(
         private readonly EntityRepository $countryRepository,
         private readonly EntityRepository $countryStateRepository,
-        private readonly ExceptionLogger $exceptionLogger,
     ) {
     }
 
@@ -45,9 +43,7 @@ class ChangeShippingLocationCommandHandler extends AbstractContextGatewayCommand
             $countryId = $this->countryRepository->searchIds($criteria, $context->getContext())->firstId();
 
             if ($countryId === null) {
-                $this->exceptionLogger->logOrThrowException(ContextGatewayException::handlerException('Country with iso code {{ isoCode }} not found', ['isoCode' => $command->countryIso]));
-
-                return;
+                throw ContextGatewayException::handlerException('Country with iso code {{ isoCode }} not found', ['isoCode' => $command->countryIso]);
             }
 
             $parameters['countryId'] = $countryId;
@@ -60,9 +56,7 @@ class ChangeShippingLocationCommandHandler extends AbstractContextGatewayCommand
             $stateId = $this->countryStateRepository->searchIds($criteria, $context->getContext())->firstId();
 
             if ($stateId === null) {
-                $this->exceptionLogger->logOrThrowException(ContextGatewayException::handlerException('Country state with short code {{ shortCode }} not found', ['shortCode' => $command->countryStateIso]));
-
-                return;
+                throw ContextGatewayException::handlerException('Country state with short code {{ shortCode }} not found', ['shortCode' => $command->countryStateIso]);
             }
 
             $parameters['countryStateId'] = $stateId;

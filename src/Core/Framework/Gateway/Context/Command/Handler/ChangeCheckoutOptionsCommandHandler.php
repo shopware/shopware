@@ -9,7 +9,6 @@ use Shopware\Core\Framework\Gateway\Context\Command\AbstractContextGatewayComman
 use Shopware\Core\Framework\Gateway\Context\Command\ChangePaymentMethodCommand;
 use Shopware\Core\Framework\Gateway\Context\Command\ChangeShippingMethodCommand;
 use Shopware\Core\Framework\Gateway\Context\ContextGatewayException;
-use Shopware\Core\Framework\Log\ExceptionLogger;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
@@ -22,7 +21,6 @@ class ChangeCheckoutOptionsCommandHandler extends AbstractContextGatewayCommandH
     public function __construct(
         private readonly EntityRepository $paymentMethodRepository,
         private readonly EntityRepository $shippingMethodRepository,
-        private readonly ExceptionLogger $exceptionLogger,
     ) {
     }
 
@@ -40,9 +38,7 @@ class ChangeCheckoutOptionsCommandHandler extends AbstractContextGatewayCommandH
             $shippingMethodId = $this->shippingMethodRepository->searchIds($criteria, $context->getContext())->firstId();
 
             if ($shippingMethodId === null) {
-                $this->exceptionLogger->logOrThrowException(ContextGatewayException::handlerException('Shipping method with technical name {{ technicalName }} not found', ['technicalName' => $technicalName]));
-
-                return;
+                throw ContextGatewayException::handlerException('Shipping method with technical name {{ technicalName }} not found', ['technicalName' => $technicalName]);
             }
 
             $parameters['shippingMethodId'] = $shippingMethodId;
@@ -52,9 +48,7 @@ class ChangeCheckoutOptionsCommandHandler extends AbstractContextGatewayCommandH
             $paymentMethodId = $this->paymentMethodRepository->searchIds($criteria, $context->getContext())->firstId();
 
             if ($paymentMethodId === null) {
-                $this->exceptionLogger->logOrThrowException(ContextGatewayException::handlerException('Payment method with technical name {{ technicalName }} not found', ['technicalName' => $technicalName]));
-
-                return;
+                throw ContextGatewayException::handlerException('Payment method with technical name {{ technicalName }} not found', ['technicalName' => $technicalName]);
             }
 
             $parameters['paymentMethodId'] = $paymentMethodId;

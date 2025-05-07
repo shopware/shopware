@@ -52,7 +52,7 @@ class ContextGatewayCommandValidatorTest extends TestCase
 
     public function testValidateWithMultipleRegisterCommands(): void
     {
-        $expectedException = ContextGatewayException::commandValidationFailed('Only one register command is allowed');
+        $expectedException = ContextGatewayException::commandValidationFailed('Only one register or login command is allowed');
 
         $logger = $this->createMock(ExceptionLogger::class);
         $logger
@@ -71,7 +71,7 @@ class ContextGatewayCommandValidatorTest extends TestCase
 
     public function testValidateWithMultipleLoginCommands(): void
     {
-        $expectedException = ContextGatewayException::commandValidationFailed('Only one login command is allowed');
+        $expectedException = ContextGatewayException::commandValidationFailed('Only one register or login command is allowed');
 
         $logger = $this->createMock(ExceptionLogger::class);
         $logger
@@ -90,7 +90,7 @@ class ContextGatewayCommandValidatorTest extends TestCase
 
     public function testValidateWithLoginAndRegisterCommands(): void
     {
-        $expectedException = ContextGatewayException::commandValidationFailed('Register and login commands cannot be used together');
+        $expectedException = ContextGatewayException::commandValidationFailed('Only one register or login command is allowed');
 
         $logger = $this->createMock(ExceptionLogger::class);
         $logger

@@ -24,24 +24,10 @@ class ContextGatewayCommandValidator
 
     public function validate(ContextGatewayCommandCollection $commands, SalesChannelContext $context): void
     {
-        $registerCommands = $commands->filter(static fn (AbstractContextGatewayCommand $command) => $command instanceof RegisterCustomerCommand);
+        $registerCommands = $commands->filter(static fn (AbstractContextGatewayCommand $command) => $command instanceof RegisterCustomerCommand || $command instanceof LoginCustomerCommand);
 
         if ($registerCommands->count() > 1) {
-            $this->logger->logOrThrowException(ContextGatewayException::commandValidationFailed('Only one register command is allowed'));
-
-            return;
-        }
-
-        $loginCommands = $commands->filter(static fn (AbstractContextGatewayCommand $command) => $command instanceof LoginCustomerCommand);
-
-        if ($loginCommands->count() > 1) {
-            $this->logger->logOrThrowException(ContextGatewayException::commandValidationFailed('Only one login command is allowed'));
-
-            return;
-        }
-
-        if ($registerCommands->count() > 0 && $loginCommands->count() > 0) {
-            $this->logger->logOrThrowException(ContextGatewayException::commandValidationFailed('Register and login commands cannot be used together'));
+            $this->logger->logOrThrowException(ContextGatewayException::commandValidationFailed('Only one register or login command is allowed'));
 
             return;
         }

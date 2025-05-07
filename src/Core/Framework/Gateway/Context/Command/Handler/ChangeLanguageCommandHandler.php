@@ -20,7 +20,6 @@ class ChangeLanguageCommandHandler extends AbstractContextGatewayCommandHandler
      */
     public function __construct(
         private readonly EntityRepository $languageRepository,
-        private readonly ExceptionLogger $exceptionLogger,
     ) {
     }
 
@@ -35,9 +34,7 @@ class ChangeLanguageCommandHandler extends AbstractContextGatewayCommandHandler
         $languageId = $this->languageRepository->searchIds($criteria, $context->getContext())->firstId();
 
         if ($languageId === null) {
-            $this->exceptionLogger->logOrThrowException(ContextGatewayException::handlerException('Language with iso code {{ isoCode }} not found', ['isoCode' => $command->iso]));
-
-            return;
+            throw ContextGatewayException::handlerException('Language with iso code {{ isoCode }} not found', ['isoCode' => $command->iso]);
         }
 
         $parameters['languageId'] = $languageId;

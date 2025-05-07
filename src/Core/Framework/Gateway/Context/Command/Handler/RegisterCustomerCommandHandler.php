@@ -8,6 +8,7 @@ use Shopware\Core\Framework\Gateway\Context\Command\RegisterCustomerCommand;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Validation\DataBag\DataBag;
 use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
+use Shopware\Core\PlatformRequest;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
 #[Package('framework')]
@@ -30,17 +31,18 @@ class RegisterCustomerCommandHandler extends AbstractContextGatewayCommandHandle
         $data = $command->data;
         $data['billing'] = new DataBag($data['billingAddress']);
 
-        if (\array_key_exists('shippingAddress', $data)) {
+        if (\array_key_exists('shippingAddress', $data) && \is_array($data['shippingAddress'])) {
             $data['shipping'] = new DataBag($data['shippingAddress']);
         }
 
-        if (\array_key_exists('vatIds', $data)) {
+        if (\array_key_exists('vatIds', $data) && \is_array($data['vatIds'])) {
             $data['vatIds'] = new DataBag($data['vatIds']);
         }
 
         $data = new RequestDataBag($data);
+        $response = $this->registerRoute->register($data, $context);
 
-        $parameters['customerResponse'] = $this->registerRoute->register($data, $context);
+        $parameters['token'] = $response->headers->get(PlatformRequest::HEADER_CONTEXT_TOKEN);
     }
 
     public static function supportedCommands(): array

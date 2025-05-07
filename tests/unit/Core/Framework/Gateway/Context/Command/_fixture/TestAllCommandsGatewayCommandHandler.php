@@ -34,10 +34,7 @@ class TestAllCommandsGatewayCommandHandler extends AbstractContextGatewayCommand
     public function handle(AbstractContextGatewayCommand $command, SalesChannelContext $context, array &$parameters): void
     {
         if ($command instanceof RegisterCustomerCommand) {
-            $response = new CustomerResponse((new CustomerEntity())->assign($command->data));
-            $response->headers->set(PlatformRequest::HEADER_CONTEXT_TOKEN, 'hatoken');
-
-            $parameters['customerResponse'] = $response;
+            $parameters['token'] = 'hatoken';
 
             return;
         }

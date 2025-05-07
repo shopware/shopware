@@ -20,7 +20,6 @@ class ChangeCurrencyCommandHandler extends AbstractContextGatewayCommandHandler
      */
     public function __construct(
         private readonly EntityRepository $currencyRepository,
-        private readonly ExceptionLogger $exceptionLogger,
     ) {
     }
 
@@ -35,9 +34,7 @@ class ChangeCurrencyCommandHandler extends AbstractContextGatewayCommandHandler
         $currencyId = $this->currencyRepository->searchIds($criteria, $context->getContext())->firstId();
 
         if ($currencyId === null) {
-            $this->exceptionLogger->logOrThrowException(ContextGatewayException::handlerException('Currency with iso code {{ isoCode }} not found', ['isoCode' => $command->iso]));
-
-            return;
+            throw ContextGatewayException::handlerException('Currency with iso code {{ isoCode }} not found', ['isoCode' => $command->iso]);
         }
 
         $parameters['currencyId'] = $currencyId;

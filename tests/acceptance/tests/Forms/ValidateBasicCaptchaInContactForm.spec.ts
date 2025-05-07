@@ -34,16 +34,12 @@ test(
         });
 
         await test.step('Send and validate the unaccomplished contact form.', async () => {
-            const contactFormPromise = StorefrontContactForm.page.waitForResponse(
-                `${process.env['APP_URL'] + 'test-' + DefaultSalesChannel.salesChannel.id}/form/contact`
-            );
             await StorefrontContactForm.submitButton.click();
-            const contactFormResponse = await contactFormPromise;
-            expect(contactFormResponse.ok()).toBeTruthy();
+
+            await StorefrontContactForm.page.waitForResponse(resp => resp.url().includes('basic-captcha-validate'));
 
             await ShopCustomer.expects(StorefrontContactForm.basicCaptchaInput).toHaveCSS('border-color', 'rgb(194, 0, 23)');
-            await ShopCustomer.expects(StorefrontContactForm.formAlert).toBeVisible();
-            await ShopCustomer.expects(StorefrontContactForm.formAlert).toContainText('Incorrect input. Please try again.');
+            await ShopCustomer.expects(StorefrontContactForm.basicCaptchaInput).toHaveAccessibleDescription('Incorrect input. Please try again.');
         });
     }
 );

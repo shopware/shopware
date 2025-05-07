@@ -1,6 +1,6 @@
 ---
 title: Remove global controllerName and controllerAction variables from templates
-issue: 8285
+issue: 39807
 author: Martin Bens
 author_email: m.bens@shopware.com
 author_github: @spigandromeda

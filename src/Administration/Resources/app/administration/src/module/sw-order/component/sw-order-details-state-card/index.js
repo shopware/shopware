@@ -143,6 +143,7 @@ export default {
 
             return `sw-order-details-state-${this.position}`;
         },
+        
         lastChangeAuthorLabel() {
             if(this.lastStateChange?.user) {
                 return `${this.lastStateChange.user.firstName  } ${  this.lastStateChange.user.lastName}`;

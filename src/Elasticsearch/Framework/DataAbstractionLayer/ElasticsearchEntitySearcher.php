@@ -74,6 +74,7 @@ class ElasticsearchEntitySearcher implements EntitySearcherInterface
 
             if ($context->hasState(self::EXPLAIN_MODE)) {
                 $params['include_named_queries_score'] = true;
+                $params['track_scores'] = true;
             }
 
             $result = $this->client->search($params);

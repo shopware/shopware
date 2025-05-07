@@ -215,7 +215,7 @@
                         :columns="currencyCountryColumns"
                         identifier="sw-settings-currency-detail-currency-country-list"
                         :repository="currencyCountryRoundingRepository"
-                        @item-deleted="loadCurrencyCountryRoundings"
+                        @delete-item-finish="loadCurrencyCountryRoundings"
                         @items-delete-finish="loadCurrencyCountryRoundings"
                     >
                         {% block sw_settings_currency_detail_content_card_country_price_rounding_listing_country_column %}

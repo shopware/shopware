@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Content\Newsletter\SalesChannel;
 
+use Shopware\Core\Checkout\Customer\CustomerCollection;
 use Shopware\Core\Checkout\Customer\Service\EmailIdnConverter;
 use Shopware\Core\Content\Newsletter\Aggregate\NewsletterRecipient\NewsletterRecipientDefinition;
 use Shopware\Core\Content\Newsletter\Aggregate\NewsletterRecipient\NewsletterRecipientEntity;
@@ -76,6 +77,8 @@ class NewsletterSubscribeRoute extends AbstractNewsletterSubscribeRoute
 
     /**
      * @internal
+     *
+     * @param EntityRepository<CustomerCollection> $customerRepository
      */
     public function __construct(
         private readonly EntityRepository $newsletterRecipientRepository,
@@ -84,7 +87,8 @@ class NewsletterSubscribeRoute extends AbstractNewsletterSubscribeRoute
         private readonly SystemConfigService $systemConfigService,
         private readonly RateLimiter $rateLimiter,
         private readonly RequestStack $requestStack,
-        private readonly StoreApiCustomFieldMapper $customFieldMapper
+        private readonly StoreApiCustomFieldMapper $customFieldMapper,
+        private readonly EntityRepository $customerRepository,
     ) {
     }
 
@@ -158,8 +162,9 @@ class NewsletterSubscribeRoute extends AbstractNewsletterSubscribeRoute
         $this->newsletterRecipientRepository->upsert([$data], $context->getContext());
 
         $recipient = $this->getNewsletterRecipient('email', $data['email'], $context);
+        $recipientEmail = $recipient->getEmail();
 
-        if (!$this->isNewsletterDoi($context)) {
+        if (!$this->isNewsletterDoi($context, $recipientEmail)) {
             $event = new NewsletterConfirmEvent($context->getContext(), $recipient, $context->getSalesChannelId());
             $this->eventDispatcher->dispatch($event);
 
@@ -175,20 +180,53 @@ class NewsletterSubscribeRoute extends AbstractNewsletterSubscribeRoute
         return new NoContentResponse();
     }
 
-    private function isNewsletterDoi(SalesChannelContext $context): bool
+    /**
+     * Determines if double opt-in (DOI) is required for newsletter subscription.
+     *
+     * For guest users: use general DOI setting
+     * For logged-in users:
+     * If DOI for registered customers is enabled: always require DOI
+     * If DOI for registered customers is disabled and general DOI is disabled: never require DOI
+     * If DOI for registered customers is disabled and general DOI is enabled: require DOI if the recipient email is different from the customer's email
+     */
+    private function isNewsletterDoi(SalesChannelContext $context, ?string $recipientEmail): bool
     {
-        if ($context->getCustomerId() === null) {
-            return $this->systemConfigService->getBool('core.newsletter.doubleOptIn', $context->getSalesChannelId());
+        $salesChannelId = $context->getSalesChannelId();
+        $customerId = $context->getCustomerId();
+        $isDoubleOptIn = $this->systemConfigService->getBool('core.newsletter.doubleOptIn', $salesChannelId);
+        $isDoubleOptInRegistered = $this->systemConfigService->getBool('core.newsletter.doubleOptInRegistered', $salesChannelId);
+
+        if ($customerId === null) {
+            return $isDoubleOptIn;
         }
 
-        return $this->systemConfigService->getBool('core.newsletter.doubleOptInRegistered', $context->getSalesChannelId());
+        if ($isDoubleOptInRegistered) {
+            return true;
+        }
+
+        if (!$isDoubleOptIn) {
+            return false;
+        }
+
+        $customerEmail = $this->getCustomerEmail($context, $customerId);
+
+        return $customerEmail !== $recipientEmail;
+    }
+
+    private function getCustomerEmail(SalesChannelContext $context, string $customerId): ?string
+    {
+        $criteria = new Criteria([$customerId]);
+
+        $customer = $this->customerRepository->search($criteria, $context->getContext())->getEntities()->first();
+
+        return $customer?->getEmail();
     }
 
     private function getOptInValidator(DataBag $dataBag, SalesChannelContext $context, bool $validateStorefrontUrl): DataValidationDefinition
     {
         $definition = new DataValidationDefinition('newsletter_recipient.create');
         $definition->add('email', new NotBlank(), new Email())
-            ->add('option', new NotBlank(), new Choice(array_keys($this->getOptionSelection($context))));
+            ->add('option', new NotBlank(), new Choice(array_keys($this->getOptionSelection($context, $dataBag->get('email')))));
 
         if (!empty($dataBag->get('firstName'))) {
             $definition->add('firstName', new NotBlank(), new Regex([
@@ -227,7 +265,7 @@ class NewsletterSubscribeRoute extends AbstractNewsletterSubscribeRoute
         $data['id'] = $id ?: Uuid::randomHex();
         $data['languageId'] = $context->getLanguageId();
         $data['salesChannelId'] = $context->getSalesChannelId();
-        $data['status'] = $this->getOptionSelection($context)[$data['option']];
+        $data['status'] = $this->getOptionSelection($context, $data['email'])[$data['option']];
         $data['hash'] = Uuid::randomHex();
 
         return $data;
@@ -252,11 +290,11 @@ class NewsletterSubscribeRoute extends AbstractNewsletterSubscribeRoute
     /**
      * @return array<string, string>
      */
-    private function getOptionSelection(SalesChannelContext $context): array
+    private function getOptionSelection(SalesChannelContext $context, ?string $recipientEmail): array
     {
         return [
-            self::OPTION_DIRECT => $this->isNewsletterDoi($context) ? self::STATUS_NOT_SET : self::STATUS_DIRECT,
-            self::OPTION_SUBSCRIBE => $this->isNewsletterDoi($context) ? self::STATUS_NOT_SET : self::STATUS_DIRECT,
+            self::OPTION_DIRECT => $this->isNewsletterDoi($context, $recipientEmail) ? self::STATUS_NOT_SET : self::STATUS_DIRECT,
+            self::OPTION_SUBSCRIBE => $this->isNewsletterDoi($context, $recipientEmail) ? self::STATUS_NOT_SET : self::STATUS_DIRECT,
             self::OPTION_CONFIRM_SUBSCRIBE => self::STATUS_OPT_IN,
             self::OPTION_UNSUBSCRIBE => self::STATUS_OPT_OUT,
         ];

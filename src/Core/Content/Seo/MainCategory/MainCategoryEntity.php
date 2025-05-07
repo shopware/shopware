@@ -22,7 +22,7 @@ class MainCategoryEntity extends Entity
 
     protected string $categoryVersionId;
 
-    protected CategoryEntity $category;
+    protected ?CategoryEntity $category = null;
 
     protected string $productId;
 
@@ -60,8 +60,15 @@ class MainCategoryEntity extends Entity
         $this->categoryId = $categoryId;
     }
 
+    /**
+     * @deprecated tag:v6.8.0 - reason:return-type-change - return type will be nullable and condition will be removed
+     */
     public function getCategory(): CategoryEntity
     {
+        if ($this->category === null) {
+            return new CategoryEntity();
+        }
+
         return $this->category;
     }
 

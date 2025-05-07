@@ -14,6 +14,14 @@ const { Component } = Shopware;
 Component.register('sw-card', {
     template,
 
+    props: {
+        deprecated: {
+            type: Boolean,
+            required: false,
+            default: false,
+        },
+    },
+
     methods: {
         getSlots() {
             // eslint-disable-next-line @typescript-eslint/no-unsafe-call,@typescript-eslint/no-unsafe-member-access

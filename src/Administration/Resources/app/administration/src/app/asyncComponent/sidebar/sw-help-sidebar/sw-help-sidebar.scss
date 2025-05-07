@@ -13,7 +13,7 @@
     &__container {
         display: flex;
         flex-direction: column;
-        width: 400px;
+        width: 480px;
         max-width: 100%;
         height: 100%;
         margin-left: auto;
@@ -29,7 +29,7 @@
         @include flex-centering-vertical;
 
         justify-content: space-between;
-        height: 64px;
+        height: 81px;
         padding: 0 24px;
         border-bottom: 1px solid $color-gray-300;
     }

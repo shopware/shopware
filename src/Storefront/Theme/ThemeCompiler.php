@@ -18,7 +18,6 @@ use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Storefront\Event\ThemeCompilerConcatenatedStylesEvent;
 use Shopware\Storefront\Theme\Event\ThemeCompilerEnrichScssVariablesEvent;
 use Shopware\Storefront\Theme\Exception\ThemeException;
-use Shopware\Storefront\Theme\Message\DeleteThemeFilesMessage;
 use Shopware\Storefront\Theme\StorefrontPluginConfiguration\File;
 use Shopware\Storefront\Theme\StorefrontPluginConfiguration\FileCollection;
 use Shopware\Storefront\Theme\StorefrontPluginConfiguration\StorefrontPluginConfiguration;
@@ -28,8 +27,6 @@ use Symfony\Component\Asset\Package as AssetPackage;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\Finder\Exception\DirectoryNotFoundException;
 use Symfony\Component\Finder\Finder;
-use Symfony\Component\Messenger\MessageBusInterface;
-use Symfony\Component\Messenger\Stamp\DelayStamp;
 
 #[Package('framework')]
 class ThemeCompiler implements ThemeCompilerInterface
@@ -53,8 +50,6 @@ class ThemeCompiler implements ThemeCompilerInterface
         private readonly LoggerInterface $logger,
         private readonly AbstractThemePathBuilder $themePathBuilder,
         private readonly AbstractScssCompiler $scssCompiler,
-        private readonly MessageBusInterface $messageBus,
-        private readonly int $themeFileDeleteDelay,
         private readonly array $customAllowedRegex = [],
         private readonly bool $validate = false
     ) {
@@ -126,22 +121,6 @@ class ThemeCompiler implements ThemeCompilerInterface
         CopyBatch::copy($this->filesystem, ...$assets, ...$scriptFiles);
 
         $this->themePathBuilder->saveSeed($salesChannelId, $themeId, $newThemeHash);
-
-        // only delete the old directory if the `themePathBuilder` actually returned a new path and supports seeding
-        if ($themePrefix !== $oldThemePrefix) {
-            $stamps = [];
-
-            if ($this->themeFileDeleteDelay > 0) {
-                // also delete with a delay, so that the old theme is still available for a while in case some CDN delivers stale content
-                // delay is configured in seconds, symfony expects milliseconds
-                $stamps[] = new DelayStamp($this->themeFileDeleteDelay * 1000);
-            }
-
-            $this->messageBus->dispatch(
-                new DeleteThemeFilesMessage($oldThemePrefix, $salesChannelId, $themeId),
-                $stamps
-            );
-        }
 
         $this->cacheInvalidator->invalidate([
             CachedResolvedConfigLoader::buildName($themeId),

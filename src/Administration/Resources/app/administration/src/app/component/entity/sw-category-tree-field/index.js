@@ -180,6 +180,7 @@ Component.register('sw-category-tree-field', {
                 utils.debounce(() => {
                     const newElement = this.findTreeItemVNodeById(newValue.id).$el;
 
+                    if (!newElement) return;
                     let offsetValue = 0;
                     let foundTreeRoot = false;
                     let actualElement = newElement;
@@ -687,11 +688,13 @@ Component.register('sw-category-tree-field', {
             let foundInChildren = false;
 
             // recursion to find vnode
-            for (let i = 0; i < children.length; i += 1) {
-                foundInChildren = this.findTreeItemVNodeById(itemId, children[i].$children);
-                // stop when found in children
-                if (foundInChildren) {
-                    break;
+            if (children) {
+                for (let i = 0; i < children.length; i += 1) {
+                    foundInChildren = this.findTreeItemVNodeById(itemId, children[i].$children);
+                    // stop when found in children
+                    if (foundInChildren) {
+                        break;
+                    }
                 }
             }
 

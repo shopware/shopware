@@ -29,46 +29,46 @@
         {% endblock %}
 
         {% block sw_app_app_url_changed_modal_content_strategies %}
-        <div
-            v-for="(strategy, index) in strategies"
-            :key="`content-strategies-${index}`"
-            class="sw-app-app-url-changed-modal__content-choices"
-        >
-            <mt-button
-                class="sw-app-app-url-changed-modal__content-migration-strategy"
-                :class="getActiveStyle(strategy)"
-                block
-                variant="secondary"
-                @click="setSelectedStrategy(strategy)"
+        <div class="sw-app-app-url-changed-modal__content-choices">
+            <template
+                v-for="(strategy, index) in strategies"
+                :key="`content-strategies-${index}`"
             >
+                <mt-button
+                    class="sw-app-app-url-changed-modal__button-strategy"
+                    :class="getActiveStyle(strategy)"
+                    variant="secondary"
+                    @click="setSelectedStrategy(strategy)"
+                >
+                    <div class="sw-app-app-url-changed-modal__content-migration-strategy">
+                        <template v-if="isSelected(strategy)">
+                            <mt-icon
+                                size="1rem"
+                                color="var(--color-icon-brand-default)"
+                                name="regular-circle-xxs"
+                            />
+                            <mt-icon
+                                size="1rem"
+                                color="var(--color-elevation-surface-raised)"
+                                name="regular-circle"
+                            />
+                        </template>
+                        <mt-icon
+                            v-else
+                            size="1rem"
+                            name="regular-circle"
+                        />
 
-                <template v-if="isSelected(strategy)">
-                    <mt-icon
-                        class="sw-app-app-url-changed-modal__migration-button-center"
-                        size="16px"
-                        color="#ffffff"
-                        name="regular-circle"
-                    />
-                    <mt-icon
-                        size="16px"
-                        color="#189eff"
-                        name="regular-circle-xxs"
-                    />
-                </template>
-                <mt-icon
-                    v-else
-                    size="16px"
-                    name="regular-circle"
-                />
+                        <span class="sw-app-app-url-changed-modal__content-choices-label">
+                            {{ getStrategyLabel(strategy) }}
+                        </span>
 
-                <span class="sw-app-app-url-changed-modal__content-choices-label">
-                    {{ getStrategyLabel(strategy) }}
-                </span>
-
-                <span class="sw-app-app-url-changed-modal__content-choices-description">
-                    {{ getStrategyDescription(strategy) }}
-                </span>
-            </mt-button>
+                        <span class="sw-app-app-url-changed-modal__content-choices-description">
+                            {{ getStrategyDescription(strategy) }}
+                        </span>
+                    </div>
+                </mt-button>
+            </template>
         </div>
         {% endblock %}
         {% endblock %}

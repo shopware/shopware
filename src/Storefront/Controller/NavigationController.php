@@ -72,23 +72,29 @@ class NavigationController extends StorefrontController
         return $response;
     }
 
-    #[Route(path: '/header', name: 'frontend.header', defaults: ['_httpCache' => true, '_esi' => true], methods: ['GET'])]
+    #[Route(path: '/header', name: 'frontend.header', defaults: ['XmlHttpRequest' => true, '_httpCache' => true, '_esi' => true], methods: ['GET'])]
     public function header(Request $request, SalesChannelContext $context): Response
     {
         $header = $this->headerLoader->load($request, $context);
 
         $this->hook(new HeaderPageletLoadedHook($header, $context));
 
-        return $this->renderStorefront('@Storefront/storefront/layout/header.html.twig', ['header' => $header]);
+        return $this->renderStorefront('@Storefront/storefront/layout/header.html.twig', [
+            'header' => $header,
+            'headerParameters' => $request->get('headerParameters') ?? [],
+        ]);
     }
 
-    #[Route(path: '/footer', name: 'frontend.footer', defaults: ['_httpCache' => true, '_esi' => true], methods: ['GET'])]
+    #[Route(path: '/footer', name: 'frontend.footer', defaults: ['XmlHttpRequest' => true, '_httpCache' => true, '_esi' => true], methods: ['GET'])]
     public function footer(Request $request, SalesChannelContext $context): Response
     {
         $footer = $this->footerLoader->load($request, $context);
 
         $this->hook(new FooterPageletLoadedHook($footer, $context));
 
-        return $this->renderStorefront('@Storefront/storefront/layout/footer.html.twig', ['footer' => $footer]);
+        return $this->renderStorefront('@Storefront/storefront/layout/footer.html.twig', [
+            'footer' => $footer,
+            'footerParameters' => $request->get('footerParameters') ?? [],
+        ]);
     }
 }

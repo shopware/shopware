@@ -8,7 +8,6 @@ use Shopware\Core\Framework\Adapter\Translation\AbstractTranslator;
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\InconsistentCriteriaIdsException;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Log\Package;
-use Shopware\Core\Framework\Routing\RoutingException;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Storefront\Page\GenericPageLoaderInterface;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
@@ -34,14 +33,9 @@ class SearchPageLoader
     /**
      * @throws CategoryNotFoundException
      * @throws InconsistentCriteriaIdsException
-     * @throws RoutingException
      */
     public function load(Request $request, SalesChannelContext $salesChannelContext): SearchPage
     {
-        if (!$request->query->has('search')) {
-            throw RoutingException::missingRequestParameter('search');
-        }
-
         $page = $this->genericLoader->load($request, $salesChannelContext);
         $page = SearchPage::createFrom($page);
         $this->setMetaInformation($page);
@@ -56,7 +50,7 @@ class SearchPageLoader
         $page->setListing($result);
 
         $page->setSearchTerm(
-            (string) $request->query->get('search')
+            $request->query->getString('search')
         );
 
         $this->eventDispatcher->dispatch(

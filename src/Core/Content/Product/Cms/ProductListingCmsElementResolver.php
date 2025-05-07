@@ -18,6 +18,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
+use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Symfony\Component\HttpFoundation\Request;
 
 #[Package('discovery')]
@@ -36,7 +37,8 @@ class ProductListingCmsElementResolver extends AbstractCmsElementResolver
      */
     public function __construct(
         private readonly AbstractProductListingRoute $listingRoute,
-        private readonly EntityRepository $sortingRepository
+        private readonly EntityRepository $sortingRepository,
+        private readonly SystemConfigService $systemConfigService,
     ) {
     }
 
@@ -64,6 +66,8 @@ class ProductListingCmsElementResolver extends AbstractCmsElementResolver
             $this->restrictSortings($request, $slot);
             $this->addDefaultSorting($request, $slot, $context);
         }
+
+        $this->addListingLimits($slot, $context);
 
         $navigationId = $this->getNavigationId($request, $context);
 
@@ -167,5 +171,24 @@ class ProductListingCmsElementResolver extends AbstractCmsElementResolver
         foreach (self::FILTER_REQUEST_PARAMS as $filterParam) {
             $request->request->set($filterParam, \in_array($filterParam, $enabledFilters, true));
         }
+    }
+
+    private function addListingLimits(CmsSlotEntity $slot, SalesChannelContext $context): void
+    {
+        $salesChannelId = $context->getSalesChannelId();
+        $elementLimits = $slot->getConfig()['limits']['value'] ?? null;
+        $systemLimits = $this->systemConfigService->get('core.listing.limits', $salesChannelId);
+        if (!$elementLimits && !$systemLimits) {
+            return;
+        }
+
+
+        $limits = explode('|', $elementLimits ?? $systemLimits ?? '');
+        $limits[] = $this->systemConfigService->getInt('core.listing.productsPerPage', $salesChannelId);
+
+        $limits = array_values(array_unique(array_map('intval', $limits)));
+        sort($limits, \SORT_NUMERIC);
+
+        $slot->setConfig(['limits' => ['value' => $limits]]);
     }
 }

@@ -54,13 +54,9 @@ class PagingListingProcessor extends AbstractListingProcessor
 
     private function getLimit(Criteria $criteria, SalesChannelContext $context, Request $request): int
     {
-        /** TODO: Do we need a sort of mechanism to only allow certain values like 6, 12 ,24, 48, 96 etc
-         * otherwise visitors can manipulate the limit which can lead to performance issues because first hit is not cached
-         * currently capped to 96
-         * also ignore this if feature is disabled in config
-         **/
+        /* TODO: Check if request limit is in system or element config */
         $limit = $request->query->has('limit') ? $request->query->getInt('limit') : null;
-        if ($limit !== null && $limit > 0 && $limit <= 96) {
+        if ($limit !== null && $limit > 0) {
             return $limit;
         }
 

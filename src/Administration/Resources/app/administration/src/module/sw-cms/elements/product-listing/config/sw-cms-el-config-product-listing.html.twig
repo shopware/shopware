@@ -29,6 +29,14 @@
             >
                 {{ $tc('sw-cms.elements.productListing.config.tab.filter') }}
             </sw-tabs-item>
+
+            <sw-tabs-item
+                class="sw-cms-el-config-product-listing__tab-pagination"
+                name="pagination"
+                :active-tab="active"
+            >
+                {{ $tc('sw-cms.elements.productListing.config.tab.pagination') }}
+            </sw-tabs-item>
         </template>
 
         <template
@@ -296,6 +304,14 @@
                     {% endblock %}
                 </div>
                 {% endblock %}
+            </template>
+
+            <template v-if="active === 'pagination'">
+                <mt-text-field
+                    v-model="element.config.limits.value"
+                    :label="$tc('sw-cms.elements.productListing.config.pagination.labelLimits')"
+                    :helpText="$tc('sw-cms.elements.productListing.config.pagination.helpTextLimits')"
+                />
             </template>
         </template>
     </sw-tabs>

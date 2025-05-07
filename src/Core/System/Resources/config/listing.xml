@@ -72,5 +72,13 @@
             <helpText lang="de-DE">Die Anzahl der Produkte die auf einer Suchseite oder in einer Produktliste je Seite in der Storefront angezeigt werden.</helpText>
             <min>1</min>
         </input-field>
+
+        <input-field type="text">
+            <name>limits</name>
+            <label>Limits in listing</label>
+            <label lang="de-DE">Limits in listing</label>
+            <helpText>Limiter for products per page in listing, divided by pipe, for example `6|12|18|24|48`</helpText>
+            <helpText lang="de-DE">Begrenzer für Produkte pro Seite in der Auflistung, geteilt durch Pipe, zum Beispiel `6|12|18|24|48`</helpText>
+        </input-field>
     </card>
 </config>

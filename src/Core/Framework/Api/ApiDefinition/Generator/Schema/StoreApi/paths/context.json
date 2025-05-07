@@ -98,6 +98,26 @@
                     }
                 ]
             }
+        },
+        "/context/gateway": {
+            "get": {
+                "tags": [
+                    "Gateway"
+                ],
+                "summary": "Call the context gateway",
+                "description": "Call the context gateway, which is used to manipulate certain aspects of context (e.g. selected payment methods, register customer, etc.).",
+                "operationId": "contextGateway",
+                "responses": {
+                    "200": {
+                        "$ref": "#/components/responses/ContextTokenResponse"
+                    }
+                },
+                "security": [
+                    {
+                        "ApiKey": []
+                    }
+                ]
+            }
         }
     }
 }

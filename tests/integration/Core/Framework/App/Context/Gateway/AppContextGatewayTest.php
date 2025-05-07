@@ -83,11 +83,12 @@ class AppContextGatewayTest extends TestCase
 
         $response = $this->browser->getResponse();
 
+        static::assertNotFalse($response->getContent());
         static::assertSame(200, $response->getStatusCode());
 
         $response = \json_decode($response->getContent(), true, flags: \JSON_THROW_ON_ERROR);
 
-        static::assertNotFalse($response);
+        static::assertIsArray($response);
 
         static::assertArrayHasKey('context', $response);
         static::assertArrayHasKey('currencyId', $response['context']);
@@ -123,11 +124,12 @@ class AppContextGatewayTest extends TestCase
 
         $response = $this->browser->getResponse();
 
+        static::assertNotFalse($response->getContent());
         static::assertSame(200, $response->getStatusCode());
 
         $response = \json_decode($response->getContent(), true, flags: \JSON_THROW_ON_ERROR);
 
-        static::assertNotFalse($response);
+        static::assertIsArray($response);
 
         static::assertArrayHasKey('customer', $response);
         static::assertArrayHasKey('email', $response['customer']);
@@ -185,10 +187,11 @@ class AppContextGatewayTest extends TestCase
         $response = $this->browser->getResponse();
 
         static::assertSame(200, $response->getStatusCode());
+        static::assertNotFalse($response->getContent());
 
         $response = \json_decode($response->getContent(), true, flags: \JSON_THROW_ON_ERROR);
 
-        static::assertNotFalse($response);
+        static::assertIsArray($response);
 
         static::assertArrayHasKey('customer', $response);
         static::assertArrayHasKey('email', $response['customer']);

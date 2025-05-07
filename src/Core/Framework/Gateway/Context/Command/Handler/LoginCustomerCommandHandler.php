@@ -11,6 +11,9 @@ use Shopware\Core\System\SalesChannel\SalesChannelContext;
 #[Package('framework')]
 class LoginCustomerCommandHandler extends AbstractContextGatewayCommandHandler
 {
+    /**
+     * @internal
+     */
     public function __construct(
         private readonly AccountService $accountService,
     ) {

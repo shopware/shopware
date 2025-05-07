@@ -29,11 +29,11 @@ class RegisterCustomerCommandHandler extends AbstractContextGatewayCommandHandle
         $data = $command->data;
         $data['billing'] = new DataBag($data['billingAddress']);
 
-        if (isset($data['shippingAddress'])) {
+        if (\array_key_exists('shippingAddress', $data)) {
             $data['shipping'] = new DataBag($data['shippingAddress']);
         }
 
-        if (isset($data['vatIds'])) {
+        if (\array_key_exists('vatIds', $data)) {
             $data['vatIds'] = new DataBag($data['vatIds']);
         }
 

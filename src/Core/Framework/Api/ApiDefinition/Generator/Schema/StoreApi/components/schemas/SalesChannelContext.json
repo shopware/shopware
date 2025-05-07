@@ -58,7 +58,14 @@
                         }
                     },
                     "customer": {
-                        "$ref": "#/components/schemas/Customer"
+                        "oneOf": [
+                            {
+                                "type": "null"
+                            },
+                            {
+                                "$ref": "#/components/schemas/Customer"
+                            }
+                        ]
                     },
                     "paymentMethod": {
                         "$ref": "#/components/schemas/PaymentMethod"
@@ -68,7 +75,9 @@
                         "properties": {
                             "apiAlias": {
                                 "type": "string",
-                                "enum": ["cart_delivery_shipping_location"]
+                                "enum": [
+                                    "cart_delivery_shipping_location"
+                                ]
                             },
                             "country": {
                                 "$ref": "#/components/schemas/Country"
@@ -108,7 +117,23 @@
                                 "type": "string"
                             },
                             "source": {
-                                "type": "string"
+                                "type": "object",
+                                "required": [
+                                    "salesChannelId",
+                                    "type"
+                                ],
+                                "properties": {
+                                    "type": {
+                                        "type": "string",
+                                        "enum": [
+                                            "sales-channel",
+                                            "shop-api"
+                                        ]
+                                    },
+                                    "salesChannelId": {
+                                        "type": "string"
+                                    }
+                                }
                             },
                             "taxState": {
                                 "type": "string"
@@ -118,12 +143,91 @@
                             }
                         }
                     },
+                    "itemRounding": {
+                        "type": "object",
+                        "required": [
+                            "decimals",
+                            "interval",
+                            "roundForNet",
+                            "apiAlias"
+                        ],
+                        "properties": {
+                            "apiAlias": {
+                                "type": "string",
+                                "enum": [
+                                    "shopware_core_framework_data_abstraction_layer_pricing_cash_rounding_config"
+                                ]
+                            },
+                            "decimals": {
+                                "type": "integer",
+                                "format": "int32"
+                            },
+                            "interval": {
+                                "type": "number",
+                                "format": "float"
+                            },
+                            "roundForNet": {
+                                "type": "boolean"
+                            }
+                        }
+                    },
+                    "totalRounding": {
+                        "type": "object",
+                        "required": [
+                            "decimals",
+                            "interval",
+                            "roundForNet",
+                            "apiAlias"
+                        ],
+                        "properties": {
+                            "apiAlias": {
+                                "type": "string",
+                                "enum": [
+                                    "shopware_core_framework_data_abstraction_layer_pricing_cash_rounding_config"
+                                ]
+                            },
+                            "decimals": {
+                                "type": "integer",
+                                "format": "int32"
+                            },
+                            "interval": {
+                                "type": "number",
+                                "format": "float"
+                            },
+                            "roundForNet": {
+                                "type": "boolean"
+                            }
+                        }
+                    },
+                    "languageInfo": {
+                        "type": "object",
+                        "required": [
+                            "localeCode",
+                            "name"
+                        ],
+                        "properties": {
+                            "name": {
+                                "type": "string"
+                            },
+                            "localeCode": {
+                                "type": "string"
+                            }
+                        }
+                    },
                     "apiAlias": {
                         "type": "string",
-                        "enum": ["sales_channel_context"]
+                        "enum": [
+                            "sales_channel_context"
+                        ]
                     }
                 },
-                "required": ["salesChannel", "apiAlias"]
+                "required": [
+                    "salesChannel",
+                    "apiAlias",
+                    "itemRounding",
+                    "totalRounding",
+                    "languageInfo"
+                ]
             }
         }
     }

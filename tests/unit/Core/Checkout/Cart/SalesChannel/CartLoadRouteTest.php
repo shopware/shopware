@@ -20,6 +20,6 @@ class CartLoadRouteTest extends TestCase
 {
     public function testLoadCartCreatesNewCart(): void
     {
-        static::assertSame(true, true);
+        static::assertTrue(true);
     }
 }

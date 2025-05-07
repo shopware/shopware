@@ -25,6 +25,7 @@ use Squirrel\TwigPhpSyntax\Test\TrueTest;
 use Squirrel\TwigPhpSyntax\TokenParser\BreakTokenParser;
 use Squirrel\TwigPhpSyntax\TokenParser\ContinueTokenParser;
 use Squirrel\TwigPhpSyntax\TokenParser\ForeachTokenParser;
+use Twig\ExpressionParser\Prefix\UnaryOperatorExpressionParser;
 use Twig\Extension\AbstractExtension;
 use Twig\Node\Expression\Binary\AndBinary;
 use Twig\Node\Expression\Binary\OrBinary;
@@ -167,24 +168,13 @@ class PhpSyntaxExtension extends AbstractExtension
         ];
     }
 
-    /**
-     * @return list<array<string, array<string, string|int>>>
-     */
-    public function getOperators(): array
+    public function getExpressionParsers(): array
     {
         return [
-            [
-            ],
-            [
-                // instead of "or" the PHP operator "||" does the same
-                '||' => ['precedence' => 10, 'class' => OrBinary::class, 'associativity' => 1],
-                // instead of "and" the PHP operator "&&" does the same
-                '&&' => ['precedence' => 15, 'class' => AndBinary::class, 'associativity' => 1],
-                // instead of "is same as(expression)" it becomes "=== expression"
-                '===' => ['precedence' => 20, 'class' => SameAsBinary::class, 'associativity' => 1],
-                // instead of "is not same as(expression)" it becomes "!== expression"
-                '!==' => ['precedence' => 20, 'class' => NotSameAsBinary::class, 'associativity' => 1],
-            ],
+            new UnaryOperatorExpressionParser(OrBinary::class, '||', 10),
+            new UnaryOperatorExpressionParser(AndBinary::class, '&&', 15),
+            new UnaryOperatorExpressionParser(SameAsBinary::class, '===', 20),
+            new UnaryOperatorExpressionParser(NotSameAsBinary::class, '!==', 20),
         ];
     }
 

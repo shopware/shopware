@@ -160,7 +160,7 @@ class SeoUrlGenerator
         ]));
 
         try {
-            $this->twig->loadTemplate($this->twig->getTemplateClass($templateName), $templateName);
+            $this->twig->load($templateName);
         } catch (SyntaxError $syntaxError) {
             $this->logger->warning('Error initializing SEO URL template', [
                 'exception' => $syntaxError,

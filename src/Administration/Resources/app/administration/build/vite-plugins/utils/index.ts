@@ -195,7 +195,7 @@ export function loadExtensions(): ExtensionDefinition[] {
                     isPlugin: true,
                     isApp: false,
                     technicalName: technicalName,
-                    technicalFolderName: technicalName.replace(/(-)/g, '').toLowerCase(),
+                    technicalFolderName: name.replace(/(-)/g, '').toLowerCase(),
                     basePath: path.resolve(process.env.PROJECT_ROOT as string, definition.basePath),
                     path: path.resolve(
                         process.env.PROJECT_ROOT as string,

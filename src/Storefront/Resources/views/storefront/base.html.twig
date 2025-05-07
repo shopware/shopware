@@ -36,7 +36,7 @@
         {% endblock %}
 
         {% block base_esi_header %}
-            {{ render_esi(url('frontend.header')) }}
+            {{ render_esi(url('frontend.header', { headerParameters: headerParameters })) }}
         {% endblock %}
 
         {% block base_navigation_styling %}
@@ -74,7 +74,7 @@
         {% endblock %}
 
         {% block base_esi_footer %}
-            {{ render_esi(url('frontend.footer')) }}
+            {{ render_esi(url('frontend.footer', { footerParameters: footerParameters })) }}
         {% endblock %}
 
     {% endblock %}

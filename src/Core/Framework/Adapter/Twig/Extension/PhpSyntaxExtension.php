@@ -168,6 +168,11 @@ class PhpSyntaxExtension extends AbstractExtension
         ];
     }
 
+    public function getOperators(): array
+    {
+        return [[], []];
+    }
+
     public function getExpressionParsers(): array
     {
         return [

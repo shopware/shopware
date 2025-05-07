@@ -143,14 +143,14 @@ export default {
 
             return `sw-order-details-state-${this.position}`;
         },
-        
+
         lastChangeAuthorLabel() {
-            if(this.lastStateChange?.user) {
-                return `${this.lastStateChange.user.firstName  } ${  this.lastStateChange.user.lastName}`;
+            if (this.lastStateChange?.user) {
+                return `${this.lastStateChange.user.firstName} ${this.lastStateChange.user.lastName}`;
             }
             if (this.lastStateChange?.integration) {
                 const integrationLabel = this.lastStateChange.integration.label;
-                return `${integrationLabel} (${this.$t('sw-order.stateCard.labelIntegration')})`
+                return `${integrationLabel} (${this.$t('sw-order.stateCard.labelIntegration')})`;
             }
 
             return this.$t('sw-order.stateCard.labelSystemUser');

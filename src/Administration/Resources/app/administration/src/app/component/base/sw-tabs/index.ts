@@ -2,8 +2,6 @@ import type { PropType } from 'vue';
 import type { TabItem } from '@shopware-ag/meteor-component-library/dist/esm/components/navigation/mt-tabs/mt-tabs';
 import template from './sw-tabs.html.twig';
 
-const { Component } = Shopware;
-
 /**
  * @sw-package framework
  *
@@ -11,7 +9,7 @@ const { Component } = Shopware;
  * @status ready
  * @description Wrapper component for sw-tabs and mt-tabs. Autoswitches between the two components.
  */
-Component.register('sw-tabs', {
+export default Shopware.Component.wrapComponentConfig({
     template,
 
     props: {

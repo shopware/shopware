@@ -5,12 +5,10 @@
 import template from './sw-app-app-url-changed-modal.html.twig';
 import './sw-app-app-url-changed-modal.scss';
 
-const { Component } = Shopware;
-
 /**
  * @private
  */
-Component.register('sw-app-app-url-changed-modal', {
+export default {
     template,
 
     inject: ['appUrlChangeService'],
@@ -93,4 +91,4 @@ Component.register('sw-app-app-url-changed-modal', {
             }
         },
     },
-});
+};

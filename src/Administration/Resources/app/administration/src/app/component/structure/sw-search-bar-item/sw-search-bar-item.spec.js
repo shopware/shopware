@@ -50,7 +50,7 @@ describe('src/app/component/structure/sw-search-bar-item', () => {
     let spyRecentlySearchServiceAdd;
 
     async function createWrapper(props) {
-        swSearchBarItemComponent = await Shopware.Component.build('sw-search-bar-item');
+        swSearchBarItemComponent = await wrapTestComponent('sw-search-bar-item', { sync: true });
         spyOnClickSearchResult = jest.spyOn(swSearchBarItemComponent.methods, 'onClickSearchResult');
         jest.spyOn(swSearchBarItemComponent.methods, 'registerEvents').mockImplementation(() => {});
         jest.spyOn(swSearchBarItemComponent.methods, 'removeEvents').mockImplementation(() => {});
@@ -79,7 +79,7 @@ describe('src/app/component/structure/sw-search-bar-item', () => {
     }
 
     beforeAll(async () => {
-        swSearchBarItemComponent = await Shopware.Component.build('sw-search-bar-item');
+        swSearchBarItemComponent = await wrapTestComponent('sw-search-bar-item', { sync: true });
         recentlySearchService = new RecentlySearchService();
         spyOnClickSearchResult = jest.spyOn(swSearchBarItemComponent.methods, 'onClickSearchResult');
         spyRecentlySearchServiceAdd = jest.spyOn(recentlySearchService, 'add');

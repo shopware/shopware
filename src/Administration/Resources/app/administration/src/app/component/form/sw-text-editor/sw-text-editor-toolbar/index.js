@@ -1,7 +1,7 @@
 import template from './sw-text-editor-toolbar.html.twig';
 import './sw-text-editor-toolbar.scss';
 
-const { Component, Utils } = Shopware;
+const { Utils } = Shopware;
 
 /**
  * @sw-package framework
@@ -9,7 +9,7 @@ const { Component, Utils } = Shopware;
  *
  * @private
  */
-Component.register('sw-text-editor-toolbar', {
+export default {
     template,
 
     emits: [
@@ -478,4 +478,4 @@ Component.register('sw-text-editor-toolbar', {
             button.expanded = !button.expanded;
         },
     },
-});
+};

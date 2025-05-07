@@ -1,7 +1,7 @@
 import template from './sw-colorpicker.html.twig';
 import './sw-colorpicker.scss';
 
-const { Component, Mixin } = Shopware;
+const { Mixin } = Shopware;
 const debounce = Shopware.Utils.debounce;
 
 /**
@@ -22,7 +22,7 @@ const debounce = Shopware.Utils.debounce;
  *      zIndex="100">
  * </sw-colorpicker>
  */
-Component.register('sw-colorpicker-deprecated', {
+export default {
     template,
 
     inject: ['feature'],
@@ -783,4 +783,4 @@ Component.register('sw-colorpicker-deprecated', {
             return Number(Number(num).toFixed(digits));
         },
     },
-});
+};

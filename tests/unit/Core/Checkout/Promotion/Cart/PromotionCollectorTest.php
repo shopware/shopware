@@ -92,6 +92,23 @@ class PromotionCollectorTest extends TestCase
         static::assertNull($promotionLast->getExtension(OrderConverter::ORIGINAL_ID));
     }
 
+    public function testCollectWithCreditLineItemInRecalculation(): void
+    {
+        $discountId = Uuid::randomHex();
+        $promotionId = Uuid::randomHex();
+
+        $cart = $this->prepareCart([$discountId], $promotionId);
+
+        $creditLineItem = new LineItem(Uuid::randomHex(), LineItem::CREDIT_LINE_ITEM_TYPE);
+        $cart->add($creditLineItem);
+
+        $cartDataCollection = new CartDataCollection();
+
+        $this->promotionCollector->collect($cartDataCollection, $cart, $this->context, new CartBehavior(isRecalculation: true));
+
+        static::assertEmpty($cart->getErrors()->getElements());
+    }
+
     public function testPromotionWithInvalidOrderCount(): void
     {
         $cart = $this->prepareCart([Uuid::randomHex(), Uuid::randomHex()], Uuid::randomHex(), 2, 1);

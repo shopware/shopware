@@ -45,6 +45,8 @@ export default class GoogleAnalyticsPlugin extends Plugin
         gtag('js', new Date());
         gtag('config', window.gtagTrackingId, window.gtagConfig);
 
+        this.controllerName = window.controllerName;
+        this.actionName = window.actionName;
         this.activeRoute = window.activeRoute;
         this.events = [];
 
@@ -75,7 +77,7 @@ export default class GoogleAnalyticsPlugin extends Plugin
 
     handleEvents() {
         this.events.forEach(event => {
-            if (!event.supports(this.activeRoute)) {
+            if (!event.supports(this.controllerName, this.actionName, this.activeRoute)) {
                 return;
             }
 

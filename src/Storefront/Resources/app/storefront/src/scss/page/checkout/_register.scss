@@ -1,3 +1,4 @@
+.is-act-checkoutregisterpage, // @deprecated tag:v6.8.0 - Will be removed, use active route class instead (see class selectors here).
 .is-active-route-frontend-checkout-register-page {
     .checkout {
         padding-top: 70px;
@@ -19,6 +20,7 @@
 }
 
 @include media-breakpoint-up(lg) {
+    .is-act-checkoutregisterpage, // @deprecated tag:v6.8.0 - Will be removed, use active route class instead (see class selectors here).
     .is-active-route-frontend-checkout-register-page {
         .checkout {
             .checkout-main {

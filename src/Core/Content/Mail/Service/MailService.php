@@ -124,8 +124,11 @@ class MailService extends AbstractMailService
 
         try {
             $data['subject'] = $this->templateRenderer->render($template, $templateData, $context, false);
-            $template = $data['senderName'];
-            $data['senderName'] = $this->templateRenderer->render($template, $templateData, $context, false);
+            if (\is_string($data['senderName'])) {
+                $template = $data['senderName'];
+                $data['senderName'] = $this->templateRenderer->render($template, $templateData, $context, false);
+            }
+
             foreach ($contents as $index => $template) {
                 $contents[$index] = $this->templateRenderer->render($template, $templateData, $context, $index !== 'text/plain');
             }
@@ -153,26 +156,7 @@ class MailService extends AbstractMailService
             $this->templateRenderer->disableTestMode();
         }
 
-        $this->eventDispatcher->dispatch(new MailSentEvent(
-            $data['subject'],
-            $data['recipients'],
-            ['text/html' => $mail->getHtmlBody(), 'text/plain' => $mail->getTextBody()],
-            $context,
-            $templateData['eventName'] ?? null,
-        ));
-
-        return $mail;
-    }
-
-    private function getValidationDefinition(Context $context): DataValidationDefinition
-    {
-        $definition = new DataValidationDefinition('mail_service.send');
-
-        $definition->add('recipients', new NotBlank(), new Type('array'));
-        $definition->add('salesChannelId', new EntityExists(['entity' => SalesChannelDefinition::ENTITY_NAME, 'context' => $context]));
-        $definition->add('contentHtml', new NotBlank(), new Type('string'));
-        $definition->add('contentPlain', new NotBlank(), new Type('string'));
-        $definition->add('subject', new NotBlank(), new Type('string'));
+        $mediaUrls = $this->getMediaUrls($data, $context);
 
         $binAttachments = $data['binAttachments'] ?? null;
 
@@ -204,28 +188,13 @@ class MailService extends AbstractMailService
 
             return null;
         }
-        $mailOptions = ['subject'];
-        if (\is_string($data['senderName'])) {
-            $mailOptions[] = 'senderName';
-        }
-        foreach ($mailOptions as $renderDataIndex) {
-            try {
-                $data[$renderDataIndex] = $this->templateRenderer->render($data[$renderDataIndex], $templateData, $context, false);
-            } catch (\Throwable $e) {
-                $this->mailError(
-                    \sprintf(
-                        'Could not render Mail-%s with error message: %s',
-                        ucfirst($renderDataIndex),
-                        $e->getMessage(),
-                    ),
-                    $context,
-                    $templateData,
-                    $data[$renderDataIndex],
-                    $e,
-                    Level::Warning,
-                );
 
-                return null;
+        if (isset($data['attachments'])) {
+            foreach ($data['attachments'] as $attachment) {
+                if (!$attachment instanceof DataPart) {
+                    continue;
+                }
+                $mail->addPart($attachment);
             }
         }
 
@@ -323,7 +292,6 @@ class MailService extends AbstractMailService
         $definition->add('contentHtml', new NotBlank());
         $definition->add('contentPlain', new NotBlank());
         $definition->add('subject', new NotBlank());
-        $definition->add('senderName', new NotBlank());
 
         return $definition;
     }

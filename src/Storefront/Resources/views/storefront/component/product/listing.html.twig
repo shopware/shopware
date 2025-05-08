@@ -48,14 +48,10 @@
                                 {% endblock %}
 
                                 {% block element_product_listing_limit %}
-                                    {% set currentLimit = slot.data.listing.limit %}
-                                    {% set limits = slot.config.limits.value %}
-                                    {% if limits|length > 1 %}
-                                        {% sw_include '@Storefront/storefront/component/listing/limit.html.twig' with {
-                                            current: currentLimit,
-                                            limits: limits
-                                        } %}
-                                    {% endif %}
+                                    {% sw_include '@Storefront/storefront/component/listing/limit.html.twig' with {
+                                        current: slot.data.listing.limit,
+                                        limits:  slot.config.limits.value
+                                    } %}
                                 {% endblock %}
                             </div>
                         </div>

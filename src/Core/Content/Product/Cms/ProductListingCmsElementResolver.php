@@ -182,13 +182,17 @@ class ProductListingCmsElementResolver extends AbstractCmsElementResolver
             return;
         }
 
-
+        // Create an array based on element config or system config and merge default products per page
         $limits = explode('|', $elementLimits ?? $systemLimits ?? '');
         $limits[] = $this->systemConfigService->getInt('core.listing.productsPerPage', $salesChannelId);
 
+        // Remove duplicates and filter out invalid values
         $limits = array_values(array_unique(array_map('intval', $limits)));
-        sort($limits, \SORT_NUMERIC);
+        $limits = array_filter($limits, static function ($limit) {
+            return $limit > 0;
+        });
 
+        sort($limits, \SORT_NUMERIC);
         $slot->setConfig(['limits' => ['value' => $limits]]);
     }
 }

@@ -2,14 +2,16 @@
 
 {% set config = { limit: current } %}
 
-<div class="limit"
-     data-listing-limit="true"
-     data-listing-limit-options="{{ config|json_encode }}">
-    <select class="form-select w-auto" aria-label="{{ "general.limitLabel"|trans|sw_sanitize }}">
-        {% for limit in limits %}
-            <option value="{{ limit }}"
-                    {% if limit == current %}selected{% endif %}
-            >{{ limit }}</option>
-        {% endfor %}
-    </select>
-</div>
+{% if limits|length > 1 %}
+    <div class="limit"
+         data-listing-limit="true"
+         data-listing-limit-options="{{ config|json_encode }}">
+        <select class="form-select w-auto" aria-label="{{ "general.limitLabel"|trans|sw_sanitize }}">
+            {% for limit in limits %}
+                <option value="{{ limit }}"
+                        {% if limit == current %}selected{% endif %}
+                >{{ limit }}</option>
+            {% endfor %}
+        </select>
+    </div>
+{% endif %}

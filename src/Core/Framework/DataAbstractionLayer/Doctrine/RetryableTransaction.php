@@ -3,15 +3,14 @@
 namespace Shopware\Core\Framework\DataAbstractionLayer\Doctrine;
 
 use Doctrine\DBAL\Connection;
+use Doctrine\DBAL\Exception\DeadlockException;
+use Doctrine\DBAL\Exception\DriverException;
+use Doctrine\DBAL\Exception\LockWaitTimeoutException;
 use Doctrine\DBAL\Exception\RetryableException;
-use Doctrine\DBAL\Driver\Exception as TheDriverException;
+use Doctrine\DBAL\Exception\TransactionRolledBack;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Telemetry\Metrics\MeterProvider;
 use Shopware\Core\Framework\Telemetry\Metrics\Metric\ConfiguredMetric;
-use Doctrine\DBAL\Exception\DeadlockException;
-use Doctrine\DBAL\Exception\ForeignKeyConstraintViolationException;
-use Doctrine\DBAL\Exception\TransactionRolledBack;
-use Doctrine\DBAL\Exception\UniqueConstraintViolationException;
 
 #[Package('framework')]
 class RetryableTransaction
@@ -29,7 +28,7 @@ class RetryableTransaction
      */
     public static function retryable(Connection $connection, \Closure $closure)
     {
-        return self::retry($connection, $closure, 0);
+        return self::retry($connection, $closure, 0, $connection->getTransactionNestingLevel());
     }
 
     /**
@@ -39,92 +38,64 @@ class RetryableTransaction
      *
      * @return TReturn
      */
-    private static function retry(Connection $connection, \Closure $closure, int $counter)
+    private static function retry(Connection $connection, \Closure $closure, int $counter, int $transactionNestingLevel)
     {
         ++$counter;
-
         try {
-            return self::transactional($connection, $closure);
-        } catch (RetryableException $retryableException) {
-            MeterProvider::meter()?->emit(new ConfiguredMetric('database.locks.count', 1));
-//            if ($connection->getTransactionNestingLevel() > 0) {
-//                // If this RetryableTransaction was executed inside another transaction, do not retry this nested
-//                // transaction. Remember that the whole (outermost) transaction was already rolled back by the database
-//                // when any RetryableException is thrown.
-//                // Rethrow the exception here so only the outermost transaction is retried which in turn includes this
-//                // nested transaction.
-//                throw $retryableException;
-//            }
+            return $connection->transactional($closure);
+        } catch (\Throwable $e) {
+            if ($transactionNestingLevel > 0) {
+                // If this RetryableTransaction was executed inside another transaction, do not retry this nested
+                // transaction. Remember that the whole (outermost) transaction was already rolled back by the database
+                // when any RetryableException is thrown.
+                // Rethrow the exception here so only the outermost transaction is retried which in turn includes this
+                // nested transaction.
+                throw $e;
+            }
 
-            if ($counter > 10) {
-                throw $retryableException;
+            // after failure and rollback in transactional we need to make sure the nesting level
+            // is correct (see https://github.com/doctrine/dbal/issues/6651) and transaction is rolled back
+            // it's safe to assume that correct nesting level is 0, as we check for transaction nesting level
+            // in condition above
+            self::fixConnection($connection);
+
+            $deadlockRelatedException = self::deadlockRelatedException($e);
+
+            if ($deadlockRelatedException) {
+                MeterProvider::meter()?->emit(new ConfiguredMetric('database.locks.count', 1));
+            }
+
+            if ($counter > 10 || !$deadlockRelatedException) {
+                throw $e;
             }
 
             // Randomize sleep to prevent same execution delay for multiple statements
             usleep(random_int(10, 20));
 
-            return self::retry($connection, $closure, $counter);
+            return self::retry($connection, $closure, $counter, $transactionNestingLevel);
         }
     }
 
-    /**
-     * @param Connection $connection
-     * @param \Closure $closure
-     * @return mixed
-     * @throws \Doctrine\DBAL\Exception
-     */
-    private static function transactional(Connection $connection, \Closure $closure): mixed
+    private static function deadlockRelatedException(\Throwable $e): bool
     {
-        $connection->beginTransaction();
-
-        $shouldRollback = false;
-        try {
-            $res = $closure($connection);
-        } catch (\Throwable $e) {
-            $shouldRollback = self::shouldRollback($e);
-            if (!$shouldRollback) {
-                self::decreaseTransactionNestingLevel($connection);
-            }
-            throw $e;
-        } finally {
-            if ($shouldRollback) {
-                $connection->rollBack();
-            }
-        }
-
-        $shouldRollback = false;
-        try {
-            $connection->commit();
-        } catch (TheDriverException $e) {
-            $shouldRollback = self::shouldRollback($e);
-            if (!$shouldRollback) {
-                self::decreaseTransactionNestingLevel($connection);
-            }
-            throw $e;
-        } finally {
-            if ($shouldRollback) {
-                $connection->rollBack();
-            }
-        }
-        return $res;
-    }
-
-    private static function shouldRollback(\Throwable $e): bool {
-        return ! (
+        return
             $e instanceof TransactionRolledBack
-            || $e instanceof UniqueConstraintViolationException
-            || $e instanceof ForeignKeyConstraintViolationException
             || $e instanceof DeadlockException
-        );
+            || $e instanceof LockWaitTimeoutException
+            // caused by the https://github.com/doctrine/dbal/issues/6651
+            || ($e instanceof DriverException && preg_match('/SAVEPOINT [^\s]+ does not exist/', $e->getMessage()))
+        ;
     }
 
-    private static function decreaseTransactionNestingLevel(Connection $connection): void
+    private static function fixConnection(Connection $connection): void
     {
-        $reflectionProperty = new \ReflectionProperty(Connection::class, 'transactionNestingLevel');
-        $reflectionProperty->setAccessible(true);
-        $currentLevel = $reflectionProperty->getValue($connection);
-        if ($currentLevel > 0) {
-            $reflectionProperty->setValue($connection, $currentLevel - 1);
+        if ($connection->getTransactionNestingLevel() > 0) {
+            $reflectionProperty = new \ReflectionProperty(Connection::class, 'transactionNestingLevel');
+            $reflectionProperty->setAccessible(true);
+            $reflectionProperty->setValue($connection, 1);
+            // it could happen that transaction was already rolled back in the transactional method.
+            // if case reported - need to catch specific exception
+            $connection->rollBack();
         }
     }
 }

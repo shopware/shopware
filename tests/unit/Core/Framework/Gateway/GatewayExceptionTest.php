@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Tests\Unit\Core\Framework\Gateway\Context;
+namespace Shopware\Tests\Unit\Core\Framework\Gateway;
 
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
@@ -12,7 +12,7 @@ use Shopware\Core\Framework\Log\Package;
  */
 #[Package('framework')]
 #[CoversClass(GatewayException::class)]
-class ContextGatewayExceptionTest extends TestCase
+class GatewayExceptionTest extends TestCase
 {
     public function testCanBeThrown(): void
     {
@@ -80,5 +80,14 @@ class ContextGatewayExceptionTest extends TestCase
         static::assertSame('test', $exception->getMessage());
         static::assertSame('CONTEXT_GATEWAY__COMMAND_VALIDATION_FAILED', $exception->getErrorCode());
         static::assertSame(['foo' => 'bar'], $exception->getParameters());
+    }
+
+    public function testCustomerMessage(): void
+    {
+        $exception = GatewayException::customerMessage('test');
+
+        static::assertSame('test', $exception->getMessage());
+        static::assertSame('CONTEXT_GATEWAY__CUSTOMER_MESSAGE', $exception->getErrorCode());
+        static::assertSame([], $exception->getParameters());
     }
 }

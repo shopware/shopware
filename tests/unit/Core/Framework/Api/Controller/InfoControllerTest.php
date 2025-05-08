@@ -11,6 +11,8 @@ use Shopware\Core\Content\Flow\Api\FlowActionCollector;
 use Shopware\Core\Framework\Api\ApiDefinition\DefinitionService;
 use Shopware\Core\Framework\Api\Controller\InfoController;
 use Shopware\Core\Framework\Api\Route\ApiRouteInfoResolver;
+use Shopware\Core\Framework\App\Exception\AppUrlChangeDetectedException;
+use Shopware\Core\Framework\App\ShopId\ShopIdProvider;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Event\BusinessEventCollector;
 use Shopware\Core\Framework\Increment\IncrementGatewayRegistry;
@@ -42,31 +44,13 @@ class InfoControllerTest extends TestCase
 
     private InAppPurchase $inAppPurchase;
 
+    private ShopIdProvider&MockObject $shopIdProvider;
+
     public function testConfig(): void
     {
         $this->createInstance();
 
-        $this->parameterBagMock->method('get')
-            ->willReturnMap([
-                ['shopware.html_sanitizer.enabled', true],
-                ['shopware.filesystem.private_allowed_extensions', false],
-                ['shopware.admin_worker.transports', ['slow']],
-                ['shopware.admin_worker.enable_notification_worker', true],
-                ['shopware.admin_worker.enable_queue_stats_worker', true],
-                ['shopware.admin_worker.enable_admin_worker', true],
-                ['kernel.shopware_version', '6.6.9999999-dev'],
-                ['kernel.shopware_version_revision', 'PHPUnit'],
-                ['shopware.media.enable_url_upload_feature', true],
-            ]);
-
-        $this->routerMock->method('generate')
-            ->with(
-                'administration.plugin.index',
-                [
-                    'pluginName' => 'adminextensionapipluginwithlocalentrypoint',
-                ]
-            )
-            ->willReturn('/admin/adminextensionapipluginwithlocalentrypoint/index.html');
+        $this->shopIdProvider->expects($this->once())->method('getShopId')->willReturn('shop-id');
 
         $response = $this->infoController->config(Context::createDefaultContext(), Request::create('http://localhost'));
         $content = $response->getContent();
@@ -79,6 +63,8 @@ class InfoControllerTest extends TestCase
         static::assertArrayHasKey('versionRevision', $data);
         static::assertSame('PHPUnit', $data['versionRevision']);
         static::assertArrayHasKey('adminWorker', $data);
+        static::assertArrayHasKey('shopId', $data);
+        static::assertSame('shop-id', $data['shopId']);
 
         $workerConfig = $data['adminWorker'];
         static::assertArrayHasKey('enableAdminWorker', $workerConfig);
@@ -132,6 +118,25 @@ class InfoControllerTest extends TestCase
         static::assertSame(['SwagApp_premium'], $inAppPurchases['SwagApp']);
     }
 
+    public function testReturnsCurrentShopIdIfAppUrlChangeIsDetected(): void
+    {
+        $this->createInstance();
+
+        $this->shopIdProvider
+            ->expects($this->once())
+            ->method('getShopId')
+            ->willThrowException(new AppUrlChangeDetectedException('http://localhost', 'http://globalhost', 'current-shop-id'));
+
+        $response = $this->infoController->config(Context::createDefaultContext(), Request::create('http://localhost'));
+
+        $content = $response->getContent();
+        static::assertIsString($content);
+
+        $data = json_decode($content, true);
+        static::assertArrayHasKey('shopId', $data);
+        static::assertSame('current-shop-id', $data['shopId']);
+    }
+
     private function createInstance(): void
     {
         $kernel = new StubKernel([
@@ -141,6 +146,29 @@ class InfoControllerTest extends TestCase
         $this->parameterBagMock = $this->createMock(ParameterBagInterface::class);
         $this->routerMock = $this->createMock(RouterInterface::class);
         $this->inAppPurchase = StaticInAppPurchaseFactory::createWithFeatures(['SwagApp' => ['SwagApp_premium']]);
+        $this->shopIdProvider = $this->createMock(ShopIdProvider::class);
+
+        $this->parameterBagMock->method('get')
+            ->willReturnMap([
+                ['shopware.html_sanitizer.enabled', true],
+                ['shopware.filesystem.private_allowed_extensions', false],
+                ['shopware.admin_worker.transports', ['slow']],
+                ['shopware.admin_worker.enable_notification_worker', true],
+                ['shopware.admin_worker.enable_queue_stats_worker', true],
+                ['shopware.admin_worker.enable_admin_worker', true],
+                ['kernel.shopware_version', '6.6.9999999-dev'],
+                ['kernel.shopware_version_revision', 'PHPUnit'],
+                ['shopware.media.enable_url_upload_feature', true],
+            ]);
+
+        $this->routerMock->method('generate')
+            ->with(
+                'administration.plugin.index',
+                [
+                    'pluginName' => 'adminextensionapipluginwithlocalentrypoint',
+                ]
+            )
+            ->willReturn('/admin/adminextensionapipluginwithlocalentrypoint/index.html');
 
         $this->infoController = new InfoController(
             $this->createMock(DefinitionService::class),
@@ -162,6 +190,7 @@ class InfoControllerTest extends TestCase
                 new Filesystem(),
             ),
             new Filesystem(),
+            $this->shopIdProvider,
         );
     }
 }

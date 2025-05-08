@@ -19,6 +19,8 @@
 
         &.is--placeholder {
             color: var(--color-text-secondary-default);
+            white-space: nowrap;
+            overflow: hidden;
         }
     }
 

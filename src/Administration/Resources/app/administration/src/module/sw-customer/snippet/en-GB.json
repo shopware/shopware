@@ -193,7 +193,8 @@
       "emptyTitle": "No orders yet",
       "emptySearchTitle": "No search result",
       "emptySubline": "Manage your customers' orders here",
-      "buttonCreateOrder": "Add order"
+      "buttonCreateOrder": "Add order",
+      "ordersTitle": "Orders"
     },
     "imitateCustomerModal": {
       "modalTitle": "Log in as {firstname} {lastname}",

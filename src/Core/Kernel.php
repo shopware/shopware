@@ -20,6 +20,7 @@ use Symfony\Bundle\FrameworkBundle\Kernel\MicroKernelTrait;
 use Symfony\Component\Config\ConfigCache;
 use Symfony\Component\Config\Loader\LoaderInterface;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
+use Symfony\Component\Filesystem\Filesystem;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Bundle\Bundle;
@@ -339,24 +340,36 @@ class Kernel extends HttpKernel
     {
         parent::dumpContainer($cache, $container, $class, $baseClass);
         $cacheDir = $container->getParameter('kernel.cache_dir');
-        $cacheName = basename($cacheDir);
-        $fileName = substr(basename($cache->getPath()), 0, -3) . 'preload.php';
 
-        file_put_contents(\dirname($cacheDir) . '/CACHEDIR.TAG', 'Signature: 8a477f597d28d172789f06886806bc55');
+        // Do not dump the preload file if the cache dir is a warmup dir.
+        // See https://github.com/symfony/symfony/blob/v7.2.6/src/Symfony/Bundle/FrameworkBundle/Command/CacheClearCommand.php#L115-L117
+        if (str_ends_with($cacheDir, '_')) {
+            return;
+        }
 
-        $preloadFile = \dirname($cacheDir) . '/opcache-preload.php';
+        $fileSystem = new Filesystem();
 
-        $loader = <<<PHP
+        $rootCacheDir = \dirname($cacheDir);
+        $fileSystem->dumpFile($rootCacheDir . \DIRECTORY_SEPARATOR . 'CACHEDIR.TAG', 'Signature: 8a477f597d28d172789f06886806bc55');
+
+        $preloadFileName = $rootCacheDir . \DIRECTORY_SEPARATOR . 'opcache-preload.php';
+        $cacheDirectoryName = basename($cacheDir);
+        $containerPreloadFileName = $container->getParameter('kernel.container_class') . '.preload.php';
+
+        $preloadFileContent = <<<PHP
 <?php
 
 require_once __DIR__ . '/#CACHE_PATH#';
 PHP;
 
-        file_put_contents($preloadFile, str_replace(
-            ['#CACHE_PATH#'],
-            [$cacheName . '/' . $fileName],
-            $loader
-        ));
+        $fileSystem->dumpFile(
+            $preloadFileName,
+            str_replace(
+                '#CACHE_PATH#',
+                $cacheDirectoryName . \DIRECTORY_SEPARATOR . $containerPreloadFileName,
+                $preloadFileContent,
+            )
+        );
     }
 
     private function addApiRoutes(RoutingConfigurator $routes): void

@@ -171,10 +171,7 @@ $sw-tree-item-color-text: $color-darkgray-200;
         }
 
         .icon--regular-chevron-right-xxs {
-            padding-top: 6px;
-            padding-right: 7px;
-            padding-bottom: 8px;
-            padding-left: 9px;
+            padding: 6px 7px 8px 9px;
         }
     }
 
@@ -319,6 +316,14 @@ $sw-tree-item-color-text: $color-darkgray-200;
 
         .sw-tree-item__children {
             display: none;
+        }
+
+        .icon--regular-chevron-down-xxs {
+            padding: 7px;
+        }
+
+        .icon--regular-chevron-right-xxs {
+            padding: 6px 7px 8px 9px;
         }
     }
 

@@ -35,7 +35,7 @@ use Symfony\Component\Validator\Constraints\Type;
 /**
  * @internal
  */
-#[Package('services-settings')]
+#[Package('fundamentals@after-sales')]
 #[CoversClass(CartShippingCostRule::class)]
 #[Group('rules')]
 class CartShippingCostRuleTest extends TestCase

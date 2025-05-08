@@ -1,8 +1,8 @@
 /**
- * @package admin
+ * @sw-package framework
  */
 
-import { initializeUserNotifications } from 'src/app/state/notification.store';
+import { initializeUserNotifications } from 'src/app/store/notification.store';
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default function initializeUserContext() {
@@ -18,19 +18,23 @@ export default function initializeUserContext() {
             return;
         }
 
-        userService.getUser().then((response) => {
-            // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access,@typescript-eslint/no-unsafe-assignment
-            const data = response?.data;
-            // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
-            delete data.password;
+        userService
+            .getUser()
+            .then((response) => {
+                // eslint-disable-next-line max-len
+                // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access,@typescript-eslint/no-unsafe-assignment
+                const data = response?.data;
+                // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
+                delete data.password;
 
-            Shopware.State.commit('setCurrentUser', data);
-            initializeUserNotifications();
-            resolve();
-        }).catch(() => {
-            // An error occurred which means the user isn't logged in so get rid of the information in local storage
-            loginService.logout();
-            resolve();
-        });
+                Shopware.Store.get('session').setCurrentUser(data as EntitySchema.user);
+                initializeUserNotifications();
+                resolve();
+            })
+            .catch(() => {
+                // An error occurred which means the user isn't logged in so get rid of the information in local storage
+                loginService.logout();
+                resolve();
+            });
     });
 }

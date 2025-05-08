@@ -6,13 +6,10 @@ use Shopware\Core\Content\Product\ProductCollection;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Struct\Struct;
 
-#[Package('buyers-experience')]
+#[Package('discovery')]
 class ProductSliderStruct extends Struct
 {
-    /**
-     * @var ProductCollection|null
-     */
-    protected $products;
+    protected ?ProductCollection $products = null;
 
     protected ?string $streamId = null;
 

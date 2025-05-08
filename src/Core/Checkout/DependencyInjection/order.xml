@@ -71,6 +71,7 @@
         <service id="Shopware\Core\Checkout\Cart\Order\OrderPersister">
             <argument type="service" id="order.repository"/>
             <argument type="service" id="Shopware\Core\Checkout\Cart\Order\OrderConverter"/>
+            <argument type="service" id="Shopware\Core\Checkout\Cart\CartSerializationCleaner"/>
         </service>
 
         <service id="Shopware\Core\Checkout\Cart\Order\LineItemDownloadLoader">
@@ -82,7 +83,6 @@
             <argument type="service" id="Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory"/>
             <argument type="service" id="event_dispatcher"/>
             <argument type="service" id="Shopware\Core\System\NumberRange\ValueGenerator\NumberRangeValueGeneratorInterface"/>
-            <argument type="service" id="Shopware\Core\Checkout\Order\OrderDefinition"/>
             <argument type="service" id="order_address.repository"/>
             <argument type="service" id="Shopware\Core\System\StateMachine\Loader\InitialStateIdLoader"/>
             <argument type="service" id="Shopware\Core\Checkout\Cart\Order\LineItemDownloadLoader"/>
@@ -99,6 +99,13 @@
 
         <service id="Shopware\Core\Checkout\Order\Aggregate\OrderTransactionCaptureRefund\OrderTransactionCaptureRefundStateHandler">
             <argument type="service" id="Shopware\Core\System\StateMachine\StateMachineRegistry"/>
+        </service>
+
+        <service id="Shopware\Core\Checkout\Order\OrderAddressService">
+            <argument type="service" id="order.repository"/>
+            <argument type="service" id="order_address.repository"/>
+            <argument type="service" id="customer_address.repository"/>
+            <argument type="service" id="order_delivery.repository"/>
         </service>
 
         <!-- controller -->
@@ -126,11 +133,11 @@
         <service id="Shopware\Core\Checkout\Order\SalesChannel\SetPaymentOrderRoute" public="true">
             <argument type="service" id="Shopware\Core\Checkout\Order\SalesChannel\OrderService"/>
             <argument type="service" id="order.repository"/>
-            <argument type="service" id="Shopware\Core\Checkout\Payment\SalesChannel\PaymentMethodRoute"/>
             <argument type="service" id="Shopware\Core\Checkout\Cart\Order\OrderConverter"/>
             <argument type="service" id="Shopware\Core\Checkout\Cart\CartRuleLoader"/>
             <argument type="service" id="event_dispatcher"/>
             <argument type="service" id="Shopware\Core\System\StateMachine\Loader\InitialStateIdLoader"/>
+            <argument type="service" id="Shopware\Core\Checkout\Gateway\SalesChannel\CheckoutGatewayRoute"/>
         </service>
 
         <!-- events -->
@@ -147,13 +154,6 @@
         <service id="Shopware\Core\Checkout\Order\Subscriber\OrderSalutationSubscriber">
             <argument type="service" id="Doctrine\DBAL\Connection"/>
             <tag name="kernel.event_subscriber"/>
-        </service>
-
-        <service id="Shopware\Core\Checkout\Order\OrderAddressService">
-            <argument type="service" id="order.repository"/>
-            <argument type="service" id="order_address.repository"/>
-            <argument type="service" id="customer_address.repository"/>
-            <argument type="service" id="order_delivery.repository"/>
         </service>
     </services>
 </container>

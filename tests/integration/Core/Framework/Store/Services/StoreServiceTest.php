@@ -25,7 +25,7 @@ class StoreServiceTest extends TestCase
 
     protected function setUp(): void
     {
-        $this->storeService = $this->getContainer()->get(StoreService::class);
+        $this->storeService = static::getContainer()->get(StoreService::class);
     }
 
     public function testUpdateStoreToken(): void

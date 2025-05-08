@@ -14,8 +14,6 @@ use Shopware\Core\Checkout\Promotion\Cart\PromotionCollector;
 use Shopware\Core\Content\Product\Cart\ProductCartProcessor;
 use Shopware\Core\Framework\Api\ApiException;
 use Shopware\Core\Framework\Api\Context\AdminApiSource;
-use Shopware\Core\Framework\Api\Context\Exception\InvalidContextSourceException;
-use Shopware\Core\Framework\Api\Controller\Exception\ExpectedUserHttpException;
 use Shopware\Core\Framework\Api\Exception\InvalidSalesChannelIdException;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
@@ -24,7 +22,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Validation\EntityExists;
 use Shopware\Core\Framework\Log\Package;
-use Shopware\Core\Framework\Routing\SalesChannelRequestContextResolver;
 use Shopware\Core\Framework\Util\Random;
 use Shopware\Core\Framework\Validation\BuildValidationEvent;
 use Shopware\Core\Framework\Validation\Constraint\Uuid;
@@ -56,7 +53,7 @@ use Symfony\Component\Validator\Constraints\NotBlank;
 use Symfony\Component\Validator\Constraints\Type;
 
 #[Route(defaults: ['_routeScope' => ['api']])]
-#[Package('core')]
+#[Package('framework')]
 class SalesChannelProxyController extends AbstractController
 {
     private const CUSTOMER_ID = SalesChannelContextService::CUSTOMER_ID;
@@ -77,7 +74,6 @@ class SalesChannelProxyController extends AbstractController
         private readonly EntityRepository $salesChannelRepository,
         protected DataValidator $validator,
         protected SalesChannelContextPersister $contextPersister,
-        private readonly SalesChannelRequestContextResolver $requestContextResolver,
         private readonly SalesChannelContextServiceInterface $contextService,
         private readonly EventDispatcherInterface $eventDispatcher,
         private readonly ApiOrderCartService $adminOrderCartService,
@@ -93,7 +89,7 @@ class SalesChannelProxyController extends AbstractController
     {
         $salesChannel = $this->fetchSalesChannel($salesChannelId, $context);
 
-        $salesChannelApiRequest = $this->setUpSalesChannelApiRequest($_path, $salesChannelId, $request, $salesChannel);
+        $salesChannelApiRequest = $this->setUpSalesChannelApiRequest($_path, $salesChannelId, $request, $salesChannel, $context);
 
         return $this->wrapInSalesChannelApiRoute($salesChannelApiRequest, fn (): Response => $this->kernel->handle($salesChannelApiRequest, HttpKernelInterface::SUB_REQUEST));
     }
@@ -107,12 +103,17 @@ class SalesChannelProxyController extends AbstractController
 
         $cart = $this->cartService->getCart($salesChannelContext->getToken(), $salesChannelContext);
 
-        $order = $this->orderRoute->order($cart, $salesChannelContext, $data, $request)->getOrder();
+        $order = $this->orderRoute->order($cart, $salesChannelContext, $data)->getOrder();
 
         return new JsonResponse($order);
     }
 
-    #[Route(path: '/api/_proxy/switch-customer', name: 'api.proxy.switch-customer', methods: ['PATCH'], defaults: ['_acl' => ['api_proxy_switch-customer']])]
+    #[Route(
+        path: '/api/_proxy/switch-customer',
+        name: 'api.proxy.switch-customer',
+        defaults: ['_acl' => ['api_proxy_switch-customer']],
+        methods: ['PATCH']
+    )]
     public function assignCustomer(Request $request, Context $context): Response
     {
         if (!$request->request->has(self::SALES_CHANNEL_ID)) {
@@ -143,19 +144,24 @@ class SalesChannelProxyController extends AbstractController
         return $response;
     }
 
-    #[Route(path: '/api/_proxy/generate-imitate-customer-token', name: 'api.proxy.generate-imitate-customer-token', methods: ['POST'], defaults: ['_acl' => ['api_proxy_imitate-customer']])]
+    #[Route(
+        path: '/api/_proxy/generate-imitate-customer-token',
+        name: 'api.proxy.generate-imitate-customer-token',
+        defaults: ['_acl' => ['api_proxy_imitate-customer']],
+        methods: ['POST']
+    )]
     public function generateImitateCustomerToken(RequestDataBag $data, Context $context): JsonResponse
     {
         $this->validateImitateCustomerDataFields($data, $context);
 
         $source = $context->getSource();
         if (!$source instanceof AdminApiSource) {
-            throw new InvalidContextSourceException(AdminApiSource::class, $source::class);
+            throw ApiException::invalidAdminSource($source::class);
         }
 
         $userId = $source->getUserId();
         if (!$userId) {
-            throw new ExpectedUserHttpException();
+            throw ApiException::userNotLoggedIn();
         }
 
         $salesChannelId = $data->getString(self::SALES_CHANNEL_ID);
@@ -235,7 +241,7 @@ class SalesChannelProxyController extends AbstractController
         }
     }
 
-    private function setUpSalesChannelApiRequest(string $path, string $salesChannelId, Request $request, SalesChannelEntity $salesChannel): Request
+    private function setUpSalesChannelApiRequest(string $path, string $salesChannelId, Request $request, SalesChannelEntity $salesChannel, Context $context): Request
     {
         $contextToken = $this->getContextToken($request);
 
@@ -246,11 +252,10 @@ class SalesChannelProxyController extends AbstractController
         $subrequest->headers->set(PlatformRequest::HEADER_CONTEXT_TOKEN, $contextToken);
         $subrequest->attributes->set(PlatformRequest::ATTRIBUTE_OAUTH_CLIENT_ID, $salesChannel->getAccessKey());
 
-        $this->requestContextResolver->handleSalesChannelContext(
-            $subrequest,
-            $salesChannelId,
-            $contextToken
-        );
+        $salesChannelContext = $this->fetchSalesChannelContext($salesChannelId, $subrequest, $context);
+
+        $subrequest->attributes->set(PlatformRequest::ATTRIBUTE_SALES_CHANNEL_CONTEXT_OBJECT, $salesChannelContext);
+        $subrequest->attributes->set(PlatformRequest::ATTRIBUTE_CONTEXT_OBJECT, $salesChannelContext->getContext());
 
         return $subrequest;
     }
@@ -335,7 +340,7 @@ class SalesChannelProxyController extends AbstractController
     {
         $contextToken = $this->getContextToken($request);
 
-        $salesChannelContext = $this->contextService->get(
+        return $this->contextService->get(
             new SalesChannelContextServiceParameters(
                 $salesChannelId,
                 $contextToken,
@@ -345,8 +350,6 @@ class SalesChannelProxyController extends AbstractController
                 $originalContext
             )
         );
-
-        return $salesChannelContext;
     }
 
     private function updateCustomerToContext(string $customerId, SalesChannelContext $context): void
@@ -371,7 +374,7 @@ class SalesChannelProxyController extends AbstractController
         $isSwitchNewCustomer = true;
         if ($context->getCustomer()) {
             // Check if customer switch to another customer or not
-            $isSwitchNewCustomer = $context->getCustomer()->getId() !== $parameters[self::CUSTOMER_ID];
+            $isSwitchNewCustomer = $context->getCustomerId() !== $parameters[self::CUSTOMER_ID];
         }
 
         if (!$isSwitchNewCustomer) {
@@ -389,7 +392,7 @@ class SalesChannelProxyController extends AbstractController
                 'languageId' => null,
                 'currencyId' => null,
             ],
-            $context->getSalesChannel()->getId()
+            $context->getSalesChannelId()
         );
         $event = new SalesChannelContextSwitchEvent($context, $data);
         $this->eventDispatcher->dispatch($event);

@@ -34,7 +34,7 @@ class Migration1715081559AdjustSentMailActionOnReviewSentTest extends TestCase
     #[DataProvider('flowSequences')]
     public function testMigration(?string $actionName, ?string $config, ?array $expectedConfig): void
     {
-        $connection = $this->getContainer()->get(Connection::class);
+        $connection = static::getContainer()->get(Connection::class);
         $flowSequenceId = Uuid::randomBytes();
         $flow_id = $this->getFlowId($connection);
 

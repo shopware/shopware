@@ -3,34 +3,28 @@
 namespace Shopware\Core\Framework\DataAbstractionLayer;
 
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\Exception\ParentAssociationCanNotBeFetched;
-use Shopware\Core\Framework\DataAbstractionLayer\Exception\CanNotFindParentStorageFieldException;
-use Shopware\Core\Framework\DataAbstractionLayer\Exception\DecodeByHydratorException;
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\DefinitionNotFoundException;
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\EntityRepositoryNotFoundException;
-use Shopware\Core\Framework\DataAbstractionLayer\Exception\InternalFieldAccessNotAllowedException;
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\InvalidAggregationQueryException;
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\InvalidFilterQueryException;
-use Shopware\Core\Framework\DataAbstractionLayer\Exception\InvalidParentAssociationException;
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\InvalidRangeFilterParamException;
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\InvalidSortQueryException;
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\MissingSystemTranslationException;
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\MissingTranslationLanguageException;
-use Shopware\Core\Framework\DataAbstractionLayer\Exception\ParentFieldForeignKeyConstraintMissingException;
-use Shopware\Core\Framework\DataAbstractionLayer\Exception\ParentFieldNotFoundException;
-use Shopware\Core\Framework\DataAbstractionLayer\Exception\PrimaryKeyNotProvidedException;
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\PropertyNotFoundException;
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\UnsupportedCommandTypeException;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Field;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Aggregation\Bucket\DateHistogramAggregation;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Command\WriteCommand;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\FieldException\ExpectedArrayException;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\HttpException;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\Script\Execution\Hook;
 use Shopware\Core\Framework\Validation\WriteConstraintViolationException;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\Validator\ConstraintViolationList;
 
-#[Package('core')]
+#[Package('framework')]
 class DataAbstractionLayerException extends HttpException
 {
     public const INVALID_FIELD_SERIALIZER_CODE = 'FRAMEWORK__INVALID_FIELD_SERIALIZER';
@@ -45,7 +39,6 @@ class DataAbstractionLayerException extends HttpException
     public const VERSION_NOT_EXISTS = 'FRAMEWORK__VERSION_NOT_EXISTS';
     public const MIGRATION_STUB_NOT_FOUND = 'FRAMEWORK__MIGRATION_STUB_NOT_FOUND';
     public const MIGRATION_DIRECTORY_NOT_FOUND = 'FRAMEWORK__MIGRATION_DIRECTORY_NOT_FOUND';
-    public const DATABASE_PLATFORM_INVALID = 'FRAMEWORK__DATABASE_PLATFORM_INVALID';
     public const FIELD_TYPE_NOT_FOUND = 'FRAMEWORK__FIELD_TYPE_NOT_FOUND';
     public const PLUGIN_NOT_FOUND = 'FRAMEWORK__PLUGIN_NOT_FOUND';
     public const INVALID_FILTER_QUERY = 'FRAMEWORK__INVALID_FILTER_QUERY';
@@ -61,6 +54,7 @@ class DataAbstractionLayerException extends HttpException
     public const DECODE_HANDLED_BY_HYDRATOR = 'FRAMEWORK__DECODE_HANDLED_BY_HYDRATOR';
     public const ATTRIBUTE_NOT_FOUND = 'FRAMEWORK__ATTRIBUTE_NOT_FOUND';
     public const EXPECTED_ARRAY_WITH_TYPE = 'FRAMEWORK__EXPECTED_ARRAY_WITH_TYPE';
+    public const EXPECTED_FIELD_VALUE_TYPE_WITH_VALUE = 'FRAMEWORK__EXPECTED_FIELD_VALUE_TYPE_WITH_VALUE';
     public const INVALID_AGGREGATION_NAME = 'FRAMEWORK__INVALID_AGGREGATION_NAME';
     public const MISSING_FIELD_VALUE = 'FRAMEWORK__MISSING_FIELD_VALUE';
     public const NOT_CUSTOM_FIELDS_SUPPORT = 'FRAMEWORK__NOT_CUSTOM_FIELDS_SUPPORT';
@@ -69,17 +63,24 @@ class DataAbstractionLayerException extends HttpException
     public const NOT_AN_INSTANCE_OF_ENTITY_COLLECTION = 'FRAMEWORK__NOT_AN_INSTANCE_OF_ENTITY_COLLECTION';
     public const REFERENCE_FIELD_NOT_FOUND = 'FRAMEWORK__REFERENCE_FIELD_NOT_FOUND';
     public const NO_ID_FOR_ASSOCIATION = 'FRAMEWORK__NO_ID_FOR_ASSOCIATION';
+    public const MISSING_ASSOCIATION = 'FRAMEWORK__MISSING_ASSOCIATION';
     public const NO_INVERSE_ASSOCIATION_FOUND = 'FRAMEWORK__NO_INVERSE_ASSOCIATION_FOUND';
     public const NOT_SUPPORTED_FIELD_FOR_AGGREGATION = 'FRAMEWORK__NOT_SUPPORTED_FIELD_FOR_AGGREGATION';
     public const INVALID_DATE_FORMAT = 'FRAMEWORK__INVALID_DATE_FORMAT';
     public const INVALID_DATE_HISTOGRAM_INTERVAL = 'FRAMEWORK__INVALID_DATE_HISTOGRAM_INTERVAL';
     public const INVALID_TIMEZONE = 'FRAMEWORK__INVALID_TIMEZONE';
+    public const INVALID_ENUM_FIELD = 'FRAMEWORK__INVALID_ENUM_FIELD';
     public const CANNOT_FIND_PARENT_STORAGE_FIELD = 'FRAMEWORK__CAN_NOT_FIND_PARENT_STORAGE_FIELD';
     public const INVALID_PARENT_ASSOCIATION_EXCEPTION = 'FRAMEWORK__INVALID_PARENT_ASSOCIATION_EXCEPTION';
     public const PARENT_FIELD_KEY_CONSTRAINT_MISSING = 'FRAMEWORK__PARENT_FIELD_KEY_CONSTRAINT_MISSING';
     public const PARENT_FIELD_NOT_FOUND_EXCEPTION = 'FRAMEWORK__PARENT_FIELD_NOT_FOUND_EXCEPTION';
     public const PRIMARY_KEY_NOT_PROVIDED = 'FRAMEWORK__PRIMARY_KEY_NOT_PROVIDED';
     public const NO_GENERATOR_FOR_FIELD_TYPE = 'FRAMEWORK__NO_GENERATOR_FOR_FIELD_TYPE';
+    public const FOREIGN_KEY_NOT_FOUND_IN_DEFINITION = 'FRAMEWORK__FOREIGN_KEY_NOT_FOUND_IN_DEFINITION';
+    public const INVALID_CHUNK_SIZE = 'FRAMEWORK__INVALID_CHUNK_SIZE';
+    public const HOOK_INJECTION_EXCEPTION = 'FRAMEWORK__HOOK_INJECTION_EXCEPTION';
+    public const FRAMEWORK_DEPRECATED_DEFINITION_CALL = 'FRAMEWORK__DEPRECATED_DEFINITION_CALL';
+    public const UNSUPPORTED_QUERY_FILTER = 'FRAMEWORK__UNSUPPORTED_QUERY_FILTER';
 
     public static function invalidSerializerField(string $expectedClass, Field $field): self
     {
@@ -247,15 +248,6 @@ class DataAbstractionLayerException extends HttpException
         );
     }
 
-    public static function databasePlatformInvalid(): self
-    {
-        return new self(
-            Response::HTTP_INTERNAL_SERVER_ERROR,
-            self::DATABASE_PLATFORM_INVALID,
-            'Database platform can not be detected'
-        );
-    }
-
     public static function fieldHasNoType(string $fieldName): self
     {
         return new self(
@@ -330,22 +322,10 @@ class DataAbstractionLayerException extends HttpException
     }
 
     /**
-     * @deprecated tag:v6.7.0 - reason:return-type-change - Will only return `self` in the future
-     *
      * @param class-string $definitionClass
      */
-    public static function fkFieldByStorageNameNotFound(string $definitionClass, string $storageName): self|\RuntimeException
+    public static function fkFieldByStorageNameNotFound(string $definitionClass, string $storageName): self
     {
-        if (!Feature::isActive('v6.7.0.0')) {
-            return new \RuntimeException(
-                \sprintf(
-                    'Could not find FK field "%s" from definition "%s"',
-                    $storageName,
-                    $definitionClass,
-                )
-            );
-        }
-
         return new self(
             Response::HTTP_INTERNAL_SERVER_ERROR,
             self::REFERENCE_FIELD_BY_STORAGE_NAME_NOT_FOUND,
@@ -355,22 +335,10 @@ class DataAbstractionLayerException extends HttpException
     }
 
     /**
-     * @deprecated tag:v6.7.0 - reason:return-type-change - Will only return `self` in the future
-     *
      * @param class-string $definitionClass
      */
-    public static function languageFieldByStorageNameNotFound(string $definitionClass, string $storageName): self|\RuntimeException
+    public static function languageFieldByStorageNameNotFound(string $definitionClass, string $storageName): self
     {
-        if (!Feature::isActive('v6.7.0.0')) {
-            return new \RuntimeException(
-                \sprintf(
-                    'Could not find language field "%s" in definition "%s"',
-                    $storageName,
-                    $definitionClass
-                )
-            );
-        }
-
         return new self(
             Response::HTTP_INTERNAL_SERVER_ERROR,
             self::REFERENCE_FIELD_BY_STORAGE_NAME_NOT_FOUND,
@@ -403,15 +371,8 @@ class DataAbstractionLayerException extends HttpException
         );
     }
 
-    /**
-     * @deprecated tag:v6.7.0 - reason:return-type-change - Will only return `self` in the future
-     */
-    public static function decodeHandledByHydrator(Field $field): self|DecodeByHydratorException
+    public static function decodeHandledByHydrator(Field $field): self
     {
-        if (!Feature::isActive('v6.7.0.0')) {
-            return new DecodeByHydratorException($field);
-        }
-
         return new self(
             Response::HTTP_BAD_REQUEST,
             self::DECODE_HANDLED_BY_HYDRATOR,
@@ -421,20 +382,10 @@ class DataAbstractionLayerException extends HttpException
     }
 
     /**
-     * @deprecated tag:v6.7.0 - reason:return-type-change - Will only return `self` in the future
-     *
      * @param class-string $definitionClass
      */
-    public static function definitionFieldDoesNotExist(string $definitionClass, string $field): self|\RuntimeException
+    public static function definitionFieldDoesNotExist(string $definitionClass, string $field): self
     {
-        if (!Feature::isActive('v6.7.0.0')) {
-            return new \RuntimeException(\sprintf(
-                'Could not find reference field "%s" from definition "%s"',
-                $field,
-                $definitionClass
-            ));
-        }
-
         return self::referenceFieldByStorageNameNotFound($definitionClass, $field);
     }
 
@@ -465,6 +416,19 @@ class DataAbstractionLayerException extends HttpException
             self::EXPECTED_ARRAY_WITH_TYPE,
             \sprintf('Expected data at %s to be of the type array, %s given', $path, $type),
             ['path' => $path, 'type' => $type]
+        );
+    }
+
+    public static function expectedFieldValueOfTypeWithValue(
+        Field $field,
+        string $expectedType,
+        string $actualValue
+    ): self {
+        return new self(
+            Response::HTTP_BAD_REQUEST,
+            self::EXPECTED_FIELD_VALUE_TYPE_WITH_VALUE,
+            'Expected value of {{ fieldClass }} to be of type "{{ expectedType }}", got "{{ actualValue }}".',
+            ['fieldClass' => $field::class, 'expectedType' => $expectedType, 'actualValue' => $actualValue]
         );
     }
 
@@ -536,16 +500,8 @@ class DataAbstractionLayerException extends HttpException
         );
     }
 
-    /**
-     * @deprecated tag:v6.7.0 - reason:return-type-change - Will only return `self` in the future
-     * @deprecated tag:v6.7.0 - Parameter `entity` will be removed
-     */
-    public static function internalFieldAccessNotAllowed(string $property, string $entityClassName, object $entity): self|InternalFieldAccessNotAllowedException
+    public static function internalFieldAccessNotAllowed(string $property, string $entityClassName): self
     {
-        if (!Feature::isActive('v6.7.0.0')) {
-            return new InternalFieldAccessNotAllowedException($property, $entity);
-        }
-
         return new self(
             Response::HTTP_INTERNAL_SERVER_ERROR,
             self::INTERNAL_FIELD_ACCESS_NOT_ALLOWED,
@@ -554,15 +510,8 @@ class DataAbstractionLayerException extends HttpException
         );
     }
 
-    /**
-     * @deprecated tag:v6.7.0 - reason:return-type-change - Will only return `self` in the future
-     */
-    public static function propertyNotFound(string $property, string $entityClassName): self|\InvalidArgumentException
+    public static function propertyNotFound(string $property, string $entityClassName): self
     {
-        if (!Feature::isActive('v6.7.0.0')) {
-            return new \InvalidArgumentException(\sprintf('Property %s do not exist in class %s', $property, $entityClassName));
-        }
-
         return new PropertyNotFoundException($property, $entityClassName);
     }
 
@@ -571,15 +520,8 @@ class DataAbstractionLayerException extends HttpException
         return new UnsupportedCommandTypeException($command);
     }
 
-    /**
-     * @deprecated tag:v6.7.0 - reason:return-type-change - Will only return `self` in the future
-     */
-    public static function parentFieldNotFound(EntityDefinition $definition): self|ParentFieldNotFoundException
+    public static function parentFieldNotFound(EntityDefinition $definition): self
     {
-        if (!Feature::isActive('v6.7.0.0')) {
-            return new ParentFieldNotFoundException($definition);
-        }
-
         return new self(
             Response::HTTP_INTERNAL_SERVER_ERROR,
             self::PARENT_FIELD_NOT_FOUND_EXCEPTION,
@@ -588,15 +530,8 @@ class DataAbstractionLayerException extends HttpException
         );
     }
 
-    /**
-     * @deprecated tag:v6.7.0 - reason:return-type-change - Will only return `self` in the future
-     */
-    public static function invalidParentAssociation(EntityDefinition $definition, Field $parentField): self|InvalidParentAssociationException
+    public static function invalidParentAssociation(EntityDefinition $definition, Field $parentField): self
     {
-        if (!Feature::isActive('v6.7.0.0')) {
-            return new InvalidParentAssociationException($definition, $parentField);
-        }
-
         return new self(
             Response::HTTP_INTERNAL_SERVER_ERROR,
             self::INVALID_PARENT_ASSOCIATION_EXCEPTION,
@@ -605,15 +540,8 @@ class DataAbstractionLayerException extends HttpException
         );
     }
 
-    /**
-     * @deprecated tag:v6.7.0 - reason:return-type-change - Will only return `self` in the future
-     */
-    public static function cannotFindParentStorageField(EntityDefinition $definition): self|CanNotFindParentStorageFieldException
+    public static function cannotFindParentStorageField(EntityDefinition $definition): self
     {
-        if (!Feature::isActive('v6.7.0.0')) {
-            return new CanNotFindParentStorageFieldException($definition);
-        }
-
         return new self(
             Response::HTTP_INTERNAL_SERVER_ERROR,
             self::CANNOT_FIND_PARENT_STORAGE_FIELD,
@@ -622,15 +550,8 @@ class DataAbstractionLayerException extends HttpException
         );
     }
 
-    /**
-     * @deprecated tag:v6.7.0 - reason:return-type-change - Will only return `self` in the future
-     */
-    public static function parentFieldForeignKeyConstraintMissing(EntityDefinition $definition, Field $parentField): self|ParentFieldForeignKeyConstraintMissingException
+    public static function parentFieldForeignKeyConstraintMissing(EntityDefinition $definition, Field $parentField): self
     {
-        if (!Feature::isActive('v6.7.0.0')) {
-            return new ParentFieldForeignKeyConstraintMissingException($definition, $parentField);
-        }
-
         return new self(
             Response::HTTP_INTERNAL_SERVER_ERROR,
             self::PARENT_FIELD_KEY_CONSTRAINT_MISSING,
@@ -643,15 +564,8 @@ class DataAbstractionLayerException extends HttpException
         );
     }
 
-    /**
-     * @deprecated tag:v6.7.0 - reason:return-type-change - Will only return `self` in the future
-     */
-    public static function primaryKeyNotProvided(EntityDefinition $definition, Field $field): self|PrimaryKeyNotProvidedException
+    public static function primaryKeyNotProvided(EntityDefinition $definition, Field $field): self
     {
-        if (!Feature::isActive('v6.7.0.0')) {
-            return new PrimaryKeyNotProvidedException($definition, $field);
-        }
-
         return new self(
             Response::HTTP_INTERNAL_SERVER_ERROR,
             self::PRIMARY_KEY_NOT_PROVIDED,
@@ -686,6 +600,16 @@ class DataAbstractionLayerException extends HttpException
             Response::HTTP_INTERNAL_SERVER_ERROR,
             self::NO_ID_FOR_ASSOCIATION,
             'Paginated to-many associations must have an ID field. No ID field found for association {{ entityName }}.{{ propertyName }}',
+            ['entityName' => $entityName, 'propertyName' => $propertyName]
+        );
+    }
+
+    public static function missingAssociation(string $entityName, string $propertyName): self
+    {
+        return new self(
+            Response::HTTP_INTERNAL_SERVER_ERROR,
+            self::MISSING_ASSOCIATION,
+            'Can not find association by property name {{ propertyName }} in entity {{ entityName }}',
             ['entityName' => $entityName, 'propertyName' => $propertyName]
         );
     }
@@ -746,7 +670,17 @@ class DataAbstractionLayerException extends HttpException
         );
     }
 
-    public static function invalidWriteConstraintViolation(\Symfony\Component\Validator\ConstraintViolationList $violationList, string $getPath): WriteConstraintViolationException
+    public static function invalidEnumField(string $field, string $actualType): self
+    {
+        return new self(
+            Response::HTTP_INTERNAL_SERVER_ERROR,
+            self::INVALID_ENUM_FIELD,
+            'Expected "{{ field }}" to be a BackedEnum. Got "{{ actualType }}" instead.',
+            ['field' => $field, 'actualType' => $actualType]
+        );
+    }
+
+    public static function invalidWriteConstraintViolation(ConstraintViolationList $violationList, string $getPath): WriteConstraintViolationException
     {
         return new WriteConstraintViolationException($violationList, $getPath);
     }
@@ -759,5 +693,55 @@ class DataAbstractionLayerException extends HttpException
     public static function entityRepositoryNotFound(string $entity): EntityRepositoryNotFoundException
     {
         return new EntityRepositoryNotFoundException($entity);
+    }
+
+    public static function foreignKeyNotFoundInDefinition(string $association, string $entityDefinition): self
+    {
+        return new self(
+            Response::HTTP_INTERNAL_SERVER_ERROR,
+            self::FOREIGN_KEY_NOT_FOUND_IN_DEFINITION,
+            'Foreign key for association "{{ association }}" not found. Please add one to "{{ entityDefinition }}"',
+            ['association' => $association, 'entityDefinition' => $entityDefinition]
+        );
+    }
+
+    public static function invalidChunkSize(int $size): self
+    {
+        return new self(
+            Response::HTTP_INTERNAL_SERVER_ERROR,
+            self::INVALID_CHUNK_SIZE,
+            'Parameter $chunkSize needs to be a positive integer starting with 1, "{{ size }}" given',
+            ['size' => $size]
+        );
+    }
+
+    public static function unsupportedQueryFilter(string $query): self
+    {
+        return new self(
+            Response::HTTP_INTERNAL_SERVER_ERROR,
+            self::UNSUPPORTED_QUERY_FILTER,
+            'Unsupported query {{ query }}',
+            ['query' => $query]
+        );
+    }
+
+    public static function versionFieldNotFound(string $field): self
+    {
+        return new self(
+            Response::HTTP_INTERNAL_SERVER_ERROR,
+            self::FIELD_NOT_FOUND,
+            'Field "{{ field }}" is missing a reference version field',
+            ['field' => $field]
+        );
+    }
+
+    public static function hookInjectionException(Hook $hook, string $class, string $required): self
+    {
+        return new self(
+            Response::HTTP_INTERNAL_SERVER_ERROR,
+            self::HOOK_INJECTION_EXCEPTION,
+            'Class {{ class }} is only executable in combination with hooks that implement the {{ required }} interface. Hook {{ hook }} does not implement this interface',
+            ['class' => $class, 'required' => $required, 'hook' => $hook]
+        );
     }
 }

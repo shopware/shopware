@@ -6,7 +6,7 @@ const { debounce, get } = Shopware.Utils;
 const { Criteria, EntityCollection } = Shopware.Data;
 
 /**
- * @package admin
+ * @sw-package framework
  *
  * @private
  * @status ready
@@ -21,8 +21,6 @@ const { Criteria, EntityCollection } = Shopware.Data;
  */
 Component.register('sw-many-to-many-assignment-card', {
     template,
-
-    compatConfig: Shopware.compatConfig,
 
     inheritAttrs: false,
 
@@ -106,6 +104,12 @@ Component.register('sw-many-to-many-assignment-card', {
             required: false,
             default: false,
         },
+
+        displayVariants: {
+            type: Boolean,
+            required: false,
+            default: false,
+        },
     },
 
     data() {
@@ -133,26 +137,29 @@ Component.register('sw-many-to-many-assignment-card', {
         },
 
         assignmentRepository() {
-            return this.repositoryFactory.create(
-                this.entityCollection.entity,
-                this.entityCollection.source,
-            );
+            return this.repositoryFactory.create(this.entityCollection.entity, this.entityCollection.source);
         },
 
         searchRepository() {
-            return this.repositoryFactory.create(
-                this.entityCollection.entity,
-            );
+            return this.repositoryFactory.create(this.entityCollection.entity);
         },
 
         page: {
-            get() { return this.gridCriteria.page; },
-            set(page) { this.gridCriteria.page = page; },
+            get() {
+                return this.gridCriteria.page;
+            },
+            set(page) {
+                this.gridCriteria.page = page;
+            },
         },
 
         limit: {
-            get() { return this.gridCriteria.limit; },
-            set(limit) { this.gridCriteria.page = limit; },
+            get() {
+                return this.gridCriteria.limit;
+            },
+            set(limit) {
+                this.gridCriteria.page = limit;
+            },
         },
 
         total() {
@@ -165,15 +172,6 @@ Component.register('sw-many-to-many-assignment-card', {
 
         originalFilters() {
             return this.criteria.filters;
-        },
-
-        listeners() {
-            // eslint-disable-next-line @typescript-eslint/no-unsafe-call,@typescript-eslint/no-unsafe-member-access
-            if (this.isCompatEnabled('INSTANCE_LISTENERS')) {
-                return this.$listeners;
-            }
-
-            return {};
         },
     },
 
@@ -264,23 +262,28 @@ Component.register('sw-many-to-many-assignment-card', {
             });
         },
 
-        searchItems() {
-            return this.searchRepository.search(this.searchCriteria, this.context).then((result) => {
-                if (!this.localMode) {
-                    const criteria = new Criteria(1, this.searchCriteria.limit);
-                    criteria.setIds(result.getIds());
+        async searchItems() {
+            return this.searchRepository
+                .search(this.searchCriteria, {
+                    ...this.context,
+                    inheritance: this.displayVariants,
+                })
+                .then((result) => {
+                    if (!this.localMode) {
+                        const criteria = new Criteria(1, this.searchCriteria.limit);
+                        criteria.setIds(result.getIds());
 
-                    this.assignmentRepository.searchIds(criteria, this.context).then(({ data }) => {
-                        data.forEach((id) => {
-                            if (!this.isSelected({ id })) {
-                                this.selectedIds.push(id);
-                            }
+                        this.assignmentRepository.searchIds(criteria, this.context).then(({ data }) => {
+                            data.forEach((id) => {
+                                if (!this.isSelected({ id })) {
+                                    this.selectedIds.push(id);
+                                }
+                            });
                         });
-                    });
-                }
+                    }
 
-                return result;
-            });
+                    return result;
+                });
         },
 
         onItemSelect(item) {
@@ -389,10 +392,7 @@ Component.register('sw-many-to-many-assignment-card', {
 
                 criteria.filters = [
                     ...this.criteria.filters,
-                    Criteria.multi(
-                        'OR',
-                        containsFilter,
-                    ),
+                    Criteria.multi('OR', containsFilter),
                 ];
                 criteria.term = null;
             }

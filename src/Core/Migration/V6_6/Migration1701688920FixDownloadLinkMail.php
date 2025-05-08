@@ -12,7 +12,7 @@ use Shopware\Core\Migration\Traits\UpdateMailTrait;
 /**
  * @internal
  */
-#[Package('core')]
+#[Package('framework')]
 class Migration1701688920FixDownloadLinkMail extends MigrationStep
 {
     use UpdateMailTrait;

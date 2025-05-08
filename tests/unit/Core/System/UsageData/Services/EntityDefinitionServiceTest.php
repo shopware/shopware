@@ -3,7 +3,6 @@
 namespace Shopware\Tests\Unit\Core\System\UsageData\Services;
 
 use PHPUnit\Framework\Attributes\CoversClass;
-use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Customer\CustomerDefinition;
 use Shopware\Core\Content\Category\CategoryDefinition;
@@ -99,46 +98,6 @@ class EntityDefinitionServiceTest extends TestCase
         static::assertCount(1, $result);
         static::assertInstanceOf(ManyToManyIdField::class, $result[0]['idField']);
         static::assertSame('EntityWithManyToManyWithIdFieldAssociationName', $result[0]['idField']->getAssociationName());
-    }
-
-    #[DataProvider('provideEntityDefinitions')]
-    public function testNewsletterRecipientDefinitionIsPuidEntity(
-        EntityDefinition $entityDefinition,
-        bool $isPuidEntity,
-        string $errorMessage,
-    ): void {
-        new StaticDefinitionInstanceRegistry(
-            [$entityDefinition],
-            $this->createMock(ValidatorInterface::class),
-            $this->createMock(EntityWriteGatewayInterface::class)
-        );
-
-        $service = new EntityDefinitionService([$entityDefinition], new UsageDataAllowListService());
-
-        static::assertSame($isPuidEntity, $service->isPuidEntity($entityDefinition), $errorMessage);
-    }
-
-    /**
-     * @return list<array{EntityDefinition, bool}>
-     */
-    public static function provideEntityDefinitions(): array
-    {
-        $dataset = [
-            ProductDefinition::class => false,
-            NewsletterRecipientDefinition::class => true,
-            CustomerDefinition::class => true,
-        ];
-
-        $result = [];
-        foreach ($dataset as $class => $isPuid) {
-            $result[] = [
-                new $class(),
-                $isPuid,
-                \sprintf('Entity "%s" should %sbe a PUID entity', $class, $isPuid ? '' : 'not '),
-            ];
-        }
-
-        return $result;
     }
 
     private function initDefinitions(): void

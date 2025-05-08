@@ -5,16 +5,18 @@ const { Component } = Shopware;
 const { hasOwnProperty } = Shopware.Utils.object;
 
 /**
- * @package admin
+ * @sw-package framework
  *
  * @private
  */
 Component.register('sw-desktop', {
     template,
 
-    compatConfig: Shopware.compatConfig,
-
-    inject: ['feature', 'appUrlChangeService', 'userActivityApiService'],
+    inject: [
+        'feature',
+        'appUrlChangeService',
+        'userActivityApiService',
+    ],
 
     data() {
         return {
@@ -32,11 +34,11 @@ Component.register('sw-desktop', {
         },
 
         currentUser() {
-            return Shopware.State.get('session').currentUser;
+            return Shopware.Store.get('session').currentUser;
         },
 
         isStaging() {
-            return Shopware.State.get('context').app.config.settings.enableStagingMode === true;
+            return Shopware.Store.get('context').app.config.settings.enableStagingMode === true;
         },
     },
 
@@ -76,7 +78,7 @@ Component.register('sw-desktop', {
         },
 
         updateShowUrlChangedModal() {
-            if (!Shopware.State.get('context').app.config.settings.appsRequireAppUrl) {
+            if (!Shopware.Store.get('context').app.config.settings.appsRequireAppUrl) {
                 this.urlDiff = null;
                 return;
             }
@@ -115,7 +117,7 @@ Component.register('sw-desktop', {
 
             const { name, icon, color, entity, routes, title } = $module;
 
-            if (!this.$te((title)) || !routes?.index) {
+            if (!this.$te(title) || !routes?.index) {
                 return false;
             }
 
@@ -129,10 +131,7 @@ Component.register('sw-desktop', {
                 };
             }
 
-            if (
-                routes?.index?.name === routeName ||
-                routes.index?.children?.some(child => child.name === routeName)
-            ) {
+            if (routes?.index?.name === routeName || routes.index?.children?.some((child) => child.name === routeName)) {
                 const { components, children, meta, props, ...route } = routes.index;
                 return {
                     name,
@@ -145,10 +144,7 @@ Component.register('sw-desktop', {
                 };
             }
 
-            if (
-                routes?.create?.name === routeName ||
-                routes.create?.children?.some(child => child.name === routeName)
-            ) {
+            if (routes?.create?.name === routeName || routes.create?.children?.some((child) => child.name === routeName)) {
                 const { components, children, meta, props, ...route } = routes.create;
                 return {
                     name,
@@ -179,8 +175,7 @@ Component.register('sw-desktop', {
             );
 
             return metadata.find(
-                item => item.route.name === routeName ||
-                    item.route?.children?.some(child => child.name === routeName),
+                (item) => item.route.name === routeName || item.route?.children?.some((child) => child.name === routeName),
             );
         },
     },

@@ -1,0 +1,45 @@
+{% sw_extends '@Storefront/storefront/component/address/addresses-base.html.twig' %}
+
+{% if changeShipping %}
+    {% set type = 'shipping' %}
+    {% set activeAddressId = context.customer.activeShippingAddress.id %}
+    {% set defaultAddressId = context.customer.defaultShippingAddress.id %}
+{% else %}
+    {% set type = 'billing' %}
+    {% set activeAddressId = context.customer.activeBillingAddress.id %}
+    {% set defaultAddressId = context.customer.defaultBillingAddress.id %}
+{% endif %}
+
+{% block address_base_default_address_item %}
+    {% for address in  page.addresses %}
+        {% if address.id == activeAddressId %}
+            {% sw_include '@Storefront/storefront/component/address/address-manager-item.html.twig' with {
+                type,
+                activeAddressId,
+                defaultAddressId,
+                address
+            } %}
+        {% endif %}
+    {% endfor %}
+{% endblock %}
+
+{% block address_base_list_create_address %}
+    <button
+        class="address-manager-modal-address-form btn-outline-primary btn flex-shrink-0 btn-icon-hover-white"
+        data-address-type="{{ type }}"
+    >
+        {% sw_icon 'plus' style {size: 's', pack: 'solid'} %}
+        {{ 'account.addressCreateBtn'|trans|sw_sanitize }}
+    </button>
+{% endblock %}
+
+{% block address_base_list_address_item %}
+    {% if activeAddressId !== address.id %}
+        {% sw_include '@Storefront/storefront/component/address/address-manager-item.html.twig' with {
+            type,
+            activeAddressId,
+            defaultAddressId,
+            address
+        } %}
+    {% endif %}
+{% endblock %}

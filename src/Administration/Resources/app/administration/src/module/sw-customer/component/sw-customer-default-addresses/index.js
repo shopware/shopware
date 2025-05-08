@@ -2,14 +2,12 @@ import template from './sw-customer-default-addresses.html.twig';
 import './sw-customer-default-addresses.scss';
 
 /**
- * @package checkout
+ * @sw-package checkout
  */
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default {
     template,
-
-    compatConfig: Shopware.compatConfig,
 
     inject: ['customSnippetApiService'],
 
@@ -78,18 +76,14 @@ export default {
 
         renderFormattingAddress() {
             this.customSnippetApiService
-                .render(
-                    this.customer.defaultShippingAddress,
-                    this.customer.defaultShippingAddress.country?.addressFormat,
-                ).then((res) => {
+                .render(this.customer.defaultShippingAddress, this.customer.defaultShippingAddress.country?.addressFormat)
+                .then((res) => {
                     this.formattingShippingAddress = res.rendered;
                 });
 
             this.customSnippetApiService
-                .render(
-                    this.customer.defaultBillingAddress,
-                    this.customer.defaultBillingAddress.country?.addressFormat,
-                ).then((res) => {
+                .render(this.customer.defaultBillingAddress, this.customer.defaultBillingAddress.country?.addressFormat)
+                .then((res) => {
                     this.formattingBillingAddress = res.rendered;
                 });
         },

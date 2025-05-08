@@ -2,20 +2,20 @@
 
 namespace Shopware\Core\Framework\Webhook\Subscriber;
 
+use Doctrine\DBAL\Connection;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Framework\Webhook\EventLog\WebhookEventLogDefinition;
 use Shopware\Core\Framework\Webhook\Message\WebhookEventMessage;
-use Shopware\Core\Framework\Webhook\WebhookEntity;
+use Shopware\Core\Framework\Webhook\Service\RelatedWebhooks;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use Symfony\Component\Messenger\Event\WorkerMessageFailedEvent;
 
 /**
  * @internal
  */
-#[Package('core')]
+#[Package('framework')]
 class RetryWebhookMessageFailedSubscriber implements EventSubscriberInterface
 {
     private const MAX_WEBHOOK_ERROR_COUNT = 10;
@@ -24,8 +24,8 @@ class RetryWebhookMessageFailedSubscriber implements EventSubscriberInterface
      * @internal
      */
     public function __construct(
-        private readonly EntityRepository $webhookRepository,
-        private readonly EntityRepository $webhookEventLogRepository
+        private readonly Connection $connection,
+        private readonly RelatedWebhooks $relatedWebhooks
     ) {
     }
 
@@ -52,37 +52,33 @@ class RetryWebhookMessageFailedSubscriber implements EventSubscriberInterface
 
         $context = Context::createDefaultContext();
 
-        $this->markWebhookEventFailed($webhookEventLogId, $context);
+        $this->connection->executeStatement('UPDATE webhook_event_log SET delivery_status = :status WHERE id = :id', [
+            'status' => WebhookEventLogDefinition::STATUS_FAILED,
+            'id' => Uuid::fromHexToBytes($webhookEventLogId),
+        ]);
 
-        /** @var WebhookEntity|null $webhook */
-        $webhook = $this->webhookRepository
-            ->search(new Criteria([$webhookId]), $context)
-            ->get($webhookId);
+        $rows = $this->connection->fetchAllAssociative(
+            'SELECT active, error_count FROM webhook WHERE id = :id',
+            ['id' => $webhookId]
+        );
 
-        if ($webhook === null || !$webhook->isActive()) {
+        /** @var array{active: int, error_count: int} $webhook */
+        $webhook = current($rows);
+
+        if (!\is_array($webhook) || !$webhook['active']) {
             return;
         }
 
-        $webhookErrorCount = $webhook->getErrorCount() + 1;
-        $params = [
-            'id' => $webhook->getId(),
-            'errorCount' => $webhookErrorCount,
-        ];
+        $webhookErrorCount = $webhook['error_count'] + 1;
+        $params = ['error_count' => $webhookErrorCount];
 
         if ($webhookErrorCount >= self::MAX_WEBHOOK_ERROR_COUNT) {
             $params = array_merge($params, [
-                'errorCount' => 0,
+                'error_count' => 0,
                 'active' => false,
             ]);
         }
 
-        $this->webhookRepository->update([$params], $context);
-    }
-
-    private function markWebhookEventFailed(string $id, Context $context): void
-    {
-        $this->webhookEventLogRepository->update([
-            ['id' => $id, 'deliveryStatus' => WebhookEventLogDefinition::STATUS_FAILED],
-        ], $context);
+        $this->relatedWebhooks->updateRelated($webhookId, $params, $context);
     }
 }

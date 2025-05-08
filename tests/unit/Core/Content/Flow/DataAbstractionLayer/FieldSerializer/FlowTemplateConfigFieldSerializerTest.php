@@ -24,7 +24,7 @@ use Symfony\Component\Validator\Validation;
 /**
  * @internal
  */
-#[Package('services-settings')]
+#[Package('after-sales')]
 #[CoversClass(FlowTemplateConfigFieldSerializer::class)]
 class FlowTemplateConfigFieldSerializerTest extends TestCase
 {

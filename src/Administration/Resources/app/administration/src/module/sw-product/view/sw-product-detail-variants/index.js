@@ -1,20 +1,22 @@
 /*
- * @package inventory
+ * @sw-package inventory
  */
 
 import template from './sw-product-detail-variants.html.twig';
 import './sw-product-detail-variants.scss';
 
 const { Criteria, EntityCollection } = Shopware.Data;
-const { mapState, mapGetters } = Shopware.Component.getComponentHelper();
+const { uniqBy } = Shopware.Utils.array;
+const { cloneDeep } = Shopware.Utils.object;
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default {
     template,
 
-    compatConfig: Shopware.compatConfig,
-
-    inject: ['repositoryFactory', 'acl'],
+    inject: [
+        'repositoryFactory',
+        'acl',
+    ],
 
     data() {
         return {
@@ -29,22 +31,27 @@ export default {
             showAddPropertiesModal: false,
             defaultTab: 'all',
             activeTab: 'all',
+            configSettingGroups: [],
+            limit: 500,
         };
     },
 
     computed: {
-        ...mapState('swProductDetail', [
-            'product',
-            'variants',
-        ]),
+        product() {
+            return Shopware.Store.get('swProductDetail').product;
+        },
 
-        ...mapState('context', {
-            contextLanguageId: state => state.api.languageId,
-        }),
+        variants() {
+            return Shopware.Store.get('swProductDetail').variants;
+        },
 
-        ...mapGetters('swProductDetail', {
-            isStoreLoading: 'isLoading',
-        }),
+        isStoreLoading() {
+            return Shopware.Store.get('swProductDetail').isLoading;
+        },
+
+        contextLanguageId() {
+            return Shopware.Store.get('context').api.languageId;
+        },
 
         productRepository() {
             return this.repositoryFactory.create('product');
@@ -64,31 +71,20 @@ export default {
                 : this.product.properties;
         },
 
-        selectedGroups() {
-            if (!this.productEntity.configuratorSettings) {
-                return [];
-            }
-
-            // get groups for selected options
-            const groupIds = this.productEntity.configuratorSettings.reduce((result, element) => {
-                if (result.indexOf(element.option.groupId) < 0) {
-                    result.push(element.option.groupId);
-                }
-
-                return result;
-            }, []);
-
-            return this.groups.filter((group) => {
-                return groupIds.indexOf(group.id) >= 0;
-            });
-        },
-
         currentProductStates() {
             return this.activeTab.split(',');
         },
 
         assetFilter() {
             return Shopware.Filter.getByName('asset');
+        },
+
+        groupCriteria() {
+            const criteria = new Criteria(1, this.limit);
+
+            criteria.addFields('name');
+
+            return criteria;
         },
     },
 
@@ -134,8 +130,25 @@ export default {
                 this.loadOptions()
                     .then(() => {
                         return this.loadGroups();
+                    })
+                    .then(() => {
+                        return this.loadConfigSettingGroups();
                     });
             }
+        },
+
+        async loadConfigSettingGroups() {
+            const groupIds = uniqBy(this.productEntity.configuratorSettings, 'option.groupId').map(
+                (group) => group.option.groupId,
+            );
+
+            const criteria = cloneDeep(this.groupCriteria);
+
+            if (groupIds.length) {
+                criteria.addFilter(Criteria.equalsAny('id', groupIds));
+            }
+
+            this.configSettingGroups = await this.loadAllPropertyGroups(criteria);
         },
 
         loadOptions() {
@@ -156,13 +169,9 @@ export default {
 
         loadGroups() {
             return new Promise((resolve) => {
-                this.$nextTick().then(() => {
-                    const groupCriteria = new Criteria(1, null);
-
-                    this.groupRepository.search(groupCriteria).then((searchResult) => {
-                        this.groups = searchResult;
-                        resolve();
-                    });
+                this.$nextTick().then(async () => {
+                    this.groups = await this.loadAllPropertyGroups(this.groupCriteria);
+                    resolve();
                 });
             });
         },
@@ -233,7 +242,6 @@ export default {
             );
         },
 
-
         onCancelAddPropertiesModal() {
             this.closeAddPropertiesModal();
         },
@@ -246,6 +254,28 @@ export default {
             }
 
             this.productProperties.splice(0, this.productProperties.length, ...newProperties);
+        },
+
+        async loadAllPropertyGroups(criteria) {
+            const initialResult = await this.groupRepository.search(criteria);
+            const totalGroups = initialResult.total;
+            const limit = initialResult.length;
+
+            const totalPages = Math.ceil(totalGroups / limit);
+
+            const promises = [];
+            // eslint-disable-next-line no-plusplus
+            for (let page = 2; page <= totalPages; page++) {
+                const nextCriteria = new Criteria(page, limit);
+                promises.push(this.groupRepository.search(nextCriteria));
+            }
+
+            const results = await Promise.all(promises);
+
+            return [
+                initialResult,
+                ...results,
+            ].flatMap((result) => result);
         },
     },
 };

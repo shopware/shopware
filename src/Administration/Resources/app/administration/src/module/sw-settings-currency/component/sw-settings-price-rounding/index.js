@@ -1,5 +1,5 @@
 /**
- * @package buyers-experience
+ * @sw-package fundamentals@framework
  */
 import template from './sw-settings-price-rounding.html.twig';
 import './sw-settings-price-rounding.scss';
@@ -7,8 +7,6 @@ import './sw-settings-price-rounding.scss';
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default {
     template,
-
-    compatConfig: Shopware.compatConfig,
 
     props: {
         itemRounding: {
@@ -31,10 +29,13 @@ export default {
     data() {
         return {
             intervalOptions: [
-                { label: this.$tc('sw-settings-currency.price-rounding.labelIntervalNone'), value: 0.01 },
+                {
+                    label: this.$tc('sw-settings-currency.price-rounding.labelIntervalNone'),
+                    value: 0.01,
+                },
                 { label: '0.05', value: 0.05 },
-                { label: '0.10', value: 0.10 },
-                { label: '0.50', value: 0.50 },
+                { label: '0.10', value: 0.1 },
+                { label: '0.50', value: 0.5 },
                 { label: '1.00', value: 1 },
             ],
         };
@@ -48,8 +49,7 @@ export default {
             return this.totalRounding.decimals > 2;
         },
         showHeaderInfo() {
-            return this.totalRounding.interval !== 0.01
-                || this.itemRounding.decimals !== this.totalRounding.decimals;
+            return this.totalRounding.interval !== 0.01 || this.itemRounding.decimals !== this.totalRounding.decimals;
         },
         showHeaderWarning() {
             return this.totalRounding.interval !== this.itemRounding.interval;
@@ -62,7 +62,13 @@ export default {
          * @param {string} type - Either be itemRounding or totalRounding
          */
         onChangeDecimals(decimals, type) {
-            if (decimals <= 2 || !['itemRounding', 'totalRounding'].includes(type)) {
+            if (
+                decimals <= 2 ||
+                ![
+                    'itemRounding',
+                    'totalRounding',
+                ].includes(type)
+            ) {
                 return;
             }
 

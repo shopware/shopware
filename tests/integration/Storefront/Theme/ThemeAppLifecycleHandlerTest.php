@@ -12,8 +12,8 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
+use Shopware\Core\Test\AppSystemTestBehaviour;
 use Shopware\Storefront\Theme\ThemeCollection;
-use Shopware\Tests\Integration\Core\Framework\App\AppSystemTestBehaviour;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
 /**
@@ -33,8 +33,8 @@ class ThemeAppLifecycleHandlerTest extends TestCase
 
     protected function setUp(): void
     {
-        $this->eventDispatcher = $this->getContainer()->get('event_dispatcher');
-        $this->themeRepository = $this->getContainer()->get('theme.repository');
+        $this->eventDispatcher = static::getContainer()->get('event_dispatcher');
+        $this->themeRepository = static::getContainer()->get('theme.repository');
     }
 
     public function testHandleInstall(): void
@@ -62,7 +62,7 @@ class ThemeAppLifecycleHandlerTest extends TestCase
                     'active' => false,
                     'name' => 'SwagTheme',
                     'path' => str_replace(
-                        $this->getContainer()->getParameter('kernel.project_dir') . '/',
+                        static::getContainer()->getParameter('kernel.project_dir') . '/',
                         '',
                         $manifest->getPath()
                     ),

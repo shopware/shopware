@@ -15,22 +15,22 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsAnyFilter;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
-use Shopware\Core\Framework\Test\TestDataCollection;
 use Shopware\Core\Test\Generator;
+use Shopware\Core\Test\Stub\Framework\IdsCollection;
 use Symfony\Component\HttpFoundation\Request;
 
 /**
  * @internal
  */
-#[Package('buyers-experience')]
+#[Package('discovery')]
 #[CoversClass(CmsRoute::class)]
 class CmsRouteTest extends TestCase
 {
-    private TestDataCollection $ids;
+    private IdsCollection $ids;
 
     protected function setUp(): void
     {
-        $this->ids = new TestDataCollection();
+        $this->ids = new IdsCollection();
     }
 
     public function testGetDecorated(): void
@@ -56,7 +56,7 @@ class CmsRouteTest extends TestCase
 
         $searchResult = $this->getSearchResult($expectedCmsPage);
         $criteria = $this->getExpectedCriteria($request->get('slots'));
-        $context = Generator::createSalesChannelContext();
+        $context = Generator::generateSalesChannelContext();
 
         $pageLoader = $this->createMock(SalesChannelCmsPageLoaderInterface::class);
         $pageLoader
@@ -87,7 +87,7 @@ class CmsRouteTest extends TestCase
 
         $searchResult = $this->getSearchResult($expectedCmsPage);
         $criteria = $this->getExpectedCriteria($expectedSlots);
-        $context = Generator::createSalesChannelContext();
+        $context = Generator::generateSalesChannelContext();
 
         $pageLoader = $this->createMock(SalesChannelCmsPageLoaderInterface::class);
         $pageLoader
@@ -109,7 +109,7 @@ class CmsRouteTest extends TestCase
 
         $searchResult = $this->getSearchResult($expectedCmsPage);
         $criteria = new Criteria([$this->ids->get('cms-page')]);
-        $context = Generator::createSalesChannelContext();
+        $context = Generator::generateSalesChannelContext();
 
         $pageLoader = $this->createMock(SalesChannelCmsPageLoaderInterface::class);
         $pageLoader
@@ -132,7 +132,7 @@ class CmsRouteTest extends TestCase
         $searchResult = $this->getSearchResult();
 
         $criteria = new Criteria([$this->ids->get('cms-page')]);
-        $context = Generator::createSalesChannelContext();
+        $context = Generator::generateSalesChannelContext();
 
         $pageLoader = $this->createMock(SalesChannelCmsPageLoaderInterface::class);
         $pageLoader
@@ -172,8 +172,7 @@ class CmsRouteTest extends TestCase
             ->willReturn((bool) $cmsPage);
 
         $searchResult
-            ->method('get')
-            ->with($this->ids->get('cms-page'))
+            ->method('first')
             ->willReturn($cmsPage);
 
         return $searchResult;

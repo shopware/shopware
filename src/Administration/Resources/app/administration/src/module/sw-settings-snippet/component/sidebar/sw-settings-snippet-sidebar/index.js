@@ -1,5 +1,5 @@
 /**
- * @package buyers-experience
+ * @sw-package discovery
  */
 import template from './sw-settings-snippet-sidebar.html.twig';
 import './sw-settings-snippet-sidebar.scss';
@@ -8,9 +8,13 @@ import './sw-settings-snippet-sidebar.scss';
 export default {
     template,
 
-    compatConfig: Shopware.compatConfig,
-
-    emits: ['sw-sidebar-close', 'sw-sidebar-open', 'change', 'sw-sidebar-collaps-refresh-grid', 'sidebar-reset-all'],
+    emits: [
+        'sw-sidebar-close',
+        'sw-sidebar-open',
+        'change',
+        'sw-sidebar-collaps-refresh-grid',
+        'sidebar-reset-all',
+    ],
 
     props: {
         filterItems: {

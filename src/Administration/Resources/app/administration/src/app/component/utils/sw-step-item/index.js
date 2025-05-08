@@ -1,3 +1,7 @@
+/**
+ * @sw-package framework
+ */
+
 import template from './sw-step-item.html.twig';
 import './sw-step-item.scss';
 
@@ -15,8 +19,6 @@ const { Component } = Shopware;
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 Component.register('sw-step-item', {
     template,
-
-    compatConfig: Shopware.compatConfig,
 
     inject: [
         'feature',
@@ -78,7 +80,14 @@ Component.register('sw-step-item', {
         },
 
         setVariant(variant) {
-            if (!['disabled', 'info', 'error', 'success'].includes(variant)) {
+            if (
+                ![
+                    'disabled',
+                    'info',
+                    'error',
+                    'success',
+                ].includes(variant)
+            ) {
                 return;
             }
 

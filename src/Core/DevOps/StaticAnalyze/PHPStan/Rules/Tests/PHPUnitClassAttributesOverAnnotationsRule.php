@@ -14,7 +14,7 @@ use Shopware\Core\Framework\Log\Package;
  *
  * @internal
  */
-#[Package('core')]
+#[Package('framework')]
 class PHPUnitClassAttributesOverAnnotationsRule implements Rule
 {
     public function getNodeType(): string
@@ -58,7 +58,11 @@ class PHPUnitClassAttributesOverAnnotationsRule implements Rule
         $pattern = '/@(' . implode('|', $annotations) . ')\s+([^\s]+)/';
 
         if (preg_match($pattern, $docComment->getText(), $matches)) {
-            return [RuleErrorBuilder::message('Please use phpunit attribute instead of annotation for: ' . $matches[1])->identifier('shopware.phpunitAttributes')->build()];
+            return [
+                RuleErrorBuilder::message('Please use PHPUnit attribute instead of annotation for: ' . $matches[1])
+                    ->identifier('shopware.phpunitAttributes')
+                    ->build(),
+            ];
         }
 
         return [];

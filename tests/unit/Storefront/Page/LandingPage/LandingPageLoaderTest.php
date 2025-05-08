@@ -4,11 +4,6 @@ namespace Shopware\Tests\Unit\Storefront\Page\LandingPage;
 
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
-use Shopware\Core\Checkout\Cart\Delivery\Struct\ShippingLocation;
-use Shopware\Core\Checkout\Customer\Aggregate\CustomerGroup\CustomerGroupEntity;
-use Shopware\Core\Checkout\Customer\CustomerEntity;
-use Shopware\Core\Checkout\Payment\PaymentMethodEntity;
-use Shopware\Core\Checkout\Shipping\ShippingMethodEntity;
 use Shopware\Core\Content\Cms\Aggregate\CmsBlock\CmsBlockCollection;
 use Shopware\Core\Content\Cms\Aggregate\CmsBlock\CmsBlockEntity;
 use Shopware\Core\Content\Cms\Aggregate\CmsSection\CmsSectionCollection;
@@ -18,35 +13,34 @@ use Shopware\Core\Content\Cms\Aggregate\CmsSlot\CmsSlotEntity;
 use Shopware\Core\Content\Cms\CmsPageEntity;
 use Shopware\Core\Content\Cms\Exception\PageNotFoundException;
 use Shopware\Core\Content\LandingPage\LandingPageEntity;
+use Shopware\Core\Content\LandingPage\LandingPageException;
 use Shopware\Core\Content\LandingPage\SalesChannel\LandingPageRoute;
 use Shopware\Core\Content\LandingPage\SalesChannel\LandingPageRouteResponse;
 use Shopware\Core\Content\Product\SalesChannel\SalesChannelProductEntity;
-use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\Pricing\CashRoundingConfig;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Routing\RoutingException;
 use Shopware\Core\Framework\Uuid\Uuid;
-use Shopware\Core\System\Country\CountryEntity;
-use Shopware\Core\System\Currency\CurrencyEntity;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\System\SalesChannel\SalesChannelEntity;
-use Shopware\Core\System\Tax\TaxCollection;
+use Shopware\Core\Test\Generator;
 use Shopware\Storefront\Page\GenericPageLoader;
 use Shopware\Storefront\Page\LandingPage\LandingPageLoader;
+use Shopware\Storefront\Page\MetaInformation;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\HttpFoundation\Request;
 
 /**
  * @internal
  */
-#[Package('buyers-experience')]
+#[Package('discovery')]
 #[CoversClass(LandingPageLoader::class)]
 class LandingPageLoaderTest extends TestCase
 {
     public function testNoLandingPageIdException(): void
     {
         $landingPageRouteMock = $this->createMock(LandingPageRoute::class);
-        $landingPageRouteMock->expects(static::never())->method('load');
+        $landingPageRouteMock->expects($this->never())->method('load');
 
         $landingPageLoader = new LandingPageLoader(
             $this->createMock(GenericPageLoader::class),
@@ -64,7 +58,7 @@ class LandingPageLoaderTest extends TestCase
     public function testNoLandingPageException(): void
     {
         $landingPageRouteMock = $this->createMock(LandingPageRoute::class);
-        $landingPageRouteMock->expects(static::once())->method('load');
+        $landingPageRouteMock->expects($this->once())->method('load');
 
         $landingPageLoader = new LandingPageLoader(
             $this->createMock(GenericPageLoader::class),
@@ -76,7 +70,14 @@ class LandingPageLoaderTest extends TestCase
         $request = new Request([], [], ['landingPageId' => $landingPageId]);
         $salesChannelContext = $this->getSalesChannelContext();
 
-        static::expectExceptionObject(new PageNotFoundException($landingPageId));
+        $expectedException = LandingPageException::notFound($landingPageId);
+
+        // @deprecated tag:v6.8.0 - remove this if block
+        if (!Feature::isActive('v6.8.0.0')) {
+            $expectedException = new PageNotFoundException($landingPageId);
+        }
+
+        static::expectExceptionObject($expectedException);
         $landingPageLoader->load($request, $salesChannelContext);
     }
 
@@ -97,7 +98,64 @@ class LandingPageLoaderTest extends TestCase
         /** @phpstan-ignore-next-line */
         $cmsPageLoaded = $page->getLandingPage()->getCmsPage();
 
-        static::assertEquals($cmsPage, $cmsPageLoaded);
+        static::assertSame($cmsPage, $cmsPageLoaded);
+    }
+
+    public function testItLoadsProperPageMetaInformation(): void
+    {
+        $landingPageId = Uuid::randomHex();
+        $request = new Request([], [], ['landingPageId' => $landingPageId]);
+        $salesChannelContext = $this->getSalesChannelContext();
+
+        $translated = [
+            'name' => 'TEST_NAME',
+            'metaTitle' => 'TEST_META_TITLE',
+            'metaDescription' => 'TEST_META_DESCRIPTION',
+            'keywords' => 'TEST_KEYWORDS',
+        ];
+
+        $expected = [
+            'metaTitle' => $translated['metaTitle'],
+            'metaDescription' => $translated['metaDescription'],
+            'metaKeywords' => $translated['keywords'],
+        ];
+
+        $landingPageLoader = $this->getLandingPageLoaderWithTranslated($landingPageId, $translated, $request, $salesChannelContext);
+
+        $page = $landingPageLoader->load($request, $salesChannelContext);
+        $metaInformation = $page->getMetaInformation();
+
+        static::assertInstanceOf(MetaInformation::class, $metaInformation);
+        static::assertSame($metaInformation->getMetaTitle(), $expected['metaTitle']);
+        static::assertSame($metaInformation->getMetaDescription(), $expected['metaDescription']);
+        static::assertSame($metaInformation->getMetaKeywords(), $expected['metaKeywords']);
+    }
+
+    public function testItLoadsProperPageMetaInformationWithNameOnly(): void
+    {
+        $landingPageId = Uuid::randomHex();
+        $request = new Request([], [], ['landingPageId' => $landingPageId]);
+        $salesChannelContext = $this->getSalesChannelContext();
+
+        $translated = [
+            'name' => 'TEST_NAME',
+        ];
+
+        $expected = [
+            'metaTitle' => $translated['name'],
+            'metaDescription' => '',
+            'metaKeywords' => '',
+        ];
+
+        $landingPageLoader = $this->getLandingPageLoaderWithTranslated($landingPageId, $translated, $request, $salesChannelContext);
+
+        $page = $landingPageLoader->load($request, $salesChannelContext);
+        $metaInformation = $page->getMetaInformation();
+
+        static::assertInstanceOf(MetaInformation::class, $metaInformation);
+        static::assertSame($metaInformation->getMetaTitle(), $expected['metaTitle']);
+        static::assertSame($metaInformation->getMetaDescription(), $expected['metaDescription']);
+        static::assertSame($metaInformation->getMetaKeywords(), $expected['metaKeywords']);
     }
 
     private function getLandingPageLoaderWithProduct(string $landingPageId, CmsPageEntity $cmsPage, Request $request, SalesChannelContext $salesChannelContext): LandingPageLoader
@@ -105,6 +163,34 @@ class LandingPageLoaderTest extends TestCase
         $landingPage = new LandingPageEntity();
         $landingPage->setId($landingPageId);
         $landingPage->setCmsPage($cmsPage);
+
+        $landingPageRouteMock = $this->createMock(LandingPageRoute::class);
+        $landingPageRouteMock
+            ->method('load')
+            ->with($landingPageId, $request, $salesChannelContext)
+            ->willReturn(new LandingPageRouteResponse($landingPage));
+
+        return new LandingPageLoader(
+            $this->createMock(GenericPageLoader::class),
+            $landingPageRouteMock,
+            $this->createMock(EventDispatcherInterface::class)
+        );
+    }
+
+    /**
+     * @param array<string> $translated
+     */
+    private function getLandingPageLoaderWithTranslated(string $landingPageId, array $translated, Request $request, SalesChannelContext $salesChannelContext): LandingPageLoader
+    {
+        $productId = Uuid::randomHex();
+        $product = $this->getProduct($productId);
+        $cmsPage = $this->getCmsPage($product);
+
+        $landingPage = new LandingPageEntity();
+        $landingPage->setId($landingPageId);
+        $landingPage->setCmsPage($cmsPage);
+        $landingPage->setTranslated($translated);
+        $landingPage->setName('INCORRECT_NAME');
 
         $landingPageRouteMock = $this->createMock(LandingPageRoute::class);
         $landingPageRouteMock
@@ -132,21 +218,8 @@ class LandingPageLoaderTest extends TestCase
         $salesChannelEntity = new SalesChannelEntity();
         $salesChannelEntity->setId('salesChannelId');
 
-        return new SalesChannelContext(
-            Context::createDefaultContext(),
-            'foo',
-            'bar',
-            $salesChannelEntity,
-            new CurrencyEntity(),
-            new CustomerGroupEntity(),
-            new TaxCollection(),
-            new PaymentMethodEntity(),
-            new ShippingMethodEntity(),
-            new ShippingLocation(new CountryEntity(), null, null),
-            new CustomerEntity(),
-            new CashRoundingConfig(2, 0.01, true),
-            new CashRoundingConfig(2, 0.01, true),
-            []
+        return Generator::generateSalesChannelContext(
+            salesChannel: $salesChannelEntity,
         );
     }
 

@@ -23,7 +23,7 @@ use Symfony\Component\Validator\ConstraintViolationList;
 /**
  * @internal
  */
-#[Package('core')]
+#[Package('fundamentals@discovery')]
 class LanguageValidator implements EventSubscriberInterface
 {
     final public const VIOLATION_PARENT_HAS_PARENT = 'parent_has_parent_violation';

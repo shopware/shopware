@@ -15,6 +15,7 @@ use Shopware\Core\Checkout\Cart\Tax\Struct\CalculatedTax;
 use Shopware\Core\Checkout\Cart\Tax\Struct\CalculatedTaxCollection;
 use Shopware\Core\Checkout\Cart\Tax\Struct\TaxRule;
 use Shopware\Core\Checkout\Cart\Tax\Struct\TaxRuleCollection;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory;
@@ -25,6 +26,7 @@ use Shopware\Core\Test\TestDefaults;
 /**
  * @internal
  */
+#[Package('checkout')]
 class TaxCalculationTypeTest extends TestCase
 {
     use IntegrationTestBehaviour;
@@ -39,14 +41,14 @@ class TaxCalculationTypeTest extends TestCase
         CalculatedTaxCollection $vertical,
         bool $useNet = false
     ): void {
-        $context = $this->getContainer()
+        $context = static::getContainer()
             ->get(SalesChannelContextFactory::class)
             ->create(Uuid::randomHex(), TestDefaults::SALES_CHANNEL);
 
         $taxState = $useNet ? CartPrice::TAX_STATE_NET : CartPrice::TAX_STATE_GROSS;
         $context->setTaxState($taxState);
 
-        $calculator = $this->getContainer()->get(AmountCalculator::class);
+        $calculator = static::getContainer()->get(AmountCalculator::class);
         $cart = $this->createCart($items, $context);
 
         $context->getSalesChannel()->setTaxCalculationType(SalesChannelDefinition::CALCULATION_TYPE_HORIZONTAL);
@@ -160,7 +162,7 @@ class TaxCalculationTypeTest extends TestCase
      */
     private function createCart(array $items, SalesChannelContext $context): Cart
     {
-        $cart = $this->getContainer()
+        $cart = static::getContainer()
             ->get(CartService::class)
             ->getCart(Uuid::randomHex(), $context);
 
@@ -171,7 +173,7 @@ class TaxCalculationTypeTest extends TestCase
 
             $lineItem->setPriceDefinition($definition);
 
-            $price = $this->getContainer()
+            $price = static::getContainer()
                 ->get(QuantityPriceCalculator::class)
                 ->calculate($definition, $context);
 
@@ -187,22 +189,14 @@ class TaxCalculationTypeTest extends TestCase
 /**
  * @internal
  */
+#[Package('checkout')]
 class ItemBlueprint
 {
-    /**
-     * @var int
-     */
-    public $quantity;
+    public int $quantity;
 
-    /**
-     * @var float
-     */
-    public $price;
+    public float $price;
 
-    /**
-     * @var int
-     */
-    public $taxRate;
+    public int $taxRate;
 
     public function __construct(
         float $price,

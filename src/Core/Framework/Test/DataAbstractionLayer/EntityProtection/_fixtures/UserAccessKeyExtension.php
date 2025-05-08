@@ -14,17 +14,14 @@ use Shopware\Core\System\User\Aggregate\UserAccessKey\UserAccessKeyDefinition;
  */
 class UserAccessKeyExtension extends EntityExtension
 {
-    /**
-     * {@inheritdoc}
-     */
-    public function getDefinitionClass(): string
-    {
-        return UserAccessKeyDefinition::class;
-    }
-
     public function extendProtections(EntityProtectionCollection $protections): void
     {
         $protections->add(new ReadProtection(Context::SYSTEM_SCOPE, Context::USER_SCOPE));
         $protections->add(new WriteProtection(Context::SYSTEM_SCOPE, Context::USER_SCOPE));
+    }
+
+    public function getEntityName(): string
+    {
+        return UserAccessKeyDefinition::ENTITY_NAME;
     }
 }

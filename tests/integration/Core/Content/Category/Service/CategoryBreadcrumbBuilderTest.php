@@ -21,17 +21,17 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\AdminApiTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\SalesChannelApiTestBehaviour;
-use Shopware\Core\Framework\Test\TestDataCollection;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\Context\AbstractSalesChannelContextFactory;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
+use Shopware\Core\Test\Stub\Framework\IdsCollection;
 use Symfony\Bundle\FrameworkBundle\KernelBrowser;
 
 /**
  * @internal
  */
-#[Package('inventory')]
+#[Package('discovery')]
 class CategoryBreadcrumbBuilderTest extends TestCase
 {
     use AdminApiTestBehaviour;
@@ -42,7 +42,7 @@ class CategoryBreadcrumbBuilderTest extends TestCase
 
     private SalesChannelContext $salesChannelContext;
 
-    private TestDataCollection $ids;
+    private IdsCollection $ids;
 
     private string $deLanguageId;
 
@@ -56,9 +56,9 @@ class CategoryBreadcrumbBuilderTest extends TestCase
 
     protected function setUp(): void
     {
-        $this->ids = new TestDataCollection();
+        $this->ids = new IdsCollection();
         $this->deLanguageId = $this->getDeDeLanguageId();
-        $this->breadcrumbBuilder = $this->getContainer()->get(CategoryBreadcrumbBuilder::class);
+        $this->breadcrumbBuilder = static::getContainer()->get(CategoryBreadcrumbBuilder::class);
 
         $this->browser = $this->createCustomSalesChannelBrowser([
             'id' => $this->ids->create('sales-channel'),
@@ -69,10 +69,10 @@ class CategoryBreadcrumbBuilderTest extends TestCase
 
         $this->assignSalesChannelContext($this->browser);
 
-        $this->categoryRepository = $this->getContainer()->get('category.repository');
-        $this->productRepository = $this->getContainer()->get('product.repository');
+        $this->categoryRepository = static::getContainer()->get('category.repository');
+        $this->productRepository = static::getContainer()->get('product.repository');
 
-        $this->contextFactory = $this->getContainer()->get(SalesChannelContextFactory::class);
+        $this->contextFactory = static::getContainer()->get(SalesChannelContextFactory::class);
         $this->salesChannelContext = $this->contextFactory->create('', $this->ids->get('sales-channel'));
     }
 
@@ -212,7 +212,7 @@ class CategoryBreadcrumbBuilderTest extends TestCase
             $productData[0]['mainCategories'][] = [
                 'categoryId' => $this->ids->get('navigation-a-1'),
                 'id' => Uuid::randomHex(),
-                'salesChannelId' => $this->salesChannelContext->getSalesChannel()->getId(),
+                'salesChannelId' => $this->salesChannelContext->getSalesChannelId(),
             ];
         }
 
@@ -583,7 +583,7 @@ class CategoryBreadcrumbBuilderTest extends TestCase
             ],
         ];
 
-        $this->getContainer()->get('category.repository')->create($data, Context::createDefaultContext());
+        static::getContainer()->get('category.repository')->create($data, Context::createDefaultContext());
 
         return $this->ids->get($key);
     }
@@ -646,7 +646,7 @@ class CategoryBreadcrumbBuilderTest extends TestCase
             ],
         ];
 
-        $productStreamsRepository = $this->getContainer()->get('product_stream.repository');
+        $productStreamsRepository = static::getContainer()->get('product_stream.repository');
         $productStreamsRepository->create([$stream], $this->salesChannelContext->getContext());
     }
 
@@ -660,14 +660,14 @@ class CategoryBreadcrumbBuilderTest extends TestCase
             'name' => 'Home',
         ];
 
-        $this->getContainer()->get('category.repository')->create([$data], Context::createDefaultContext());
+        static::getContainer()->get('category.repository')->create([$data], Context::createDefaultContext());
 
         return $this->ids->get('category_stream_id_1');
     }
 
     private function updateProductStream(string $productId, string $streamId): void
     {
-        $connection = $this->getContainer()->get(Connection::class);
+        $connection = static::getContainer()->get(Connection::class);
         $connection->executeStatement(
             'UPDATE `product` SET `stream_ids` = :streamIds WHERE `id` = :id',
             [

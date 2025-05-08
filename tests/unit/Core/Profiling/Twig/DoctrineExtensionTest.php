@@ -110,7 +110,7 @@ class DoctrineExtensionTest extends TestCase
         $extension = new DoctrineExtension();
         static::assertSame(
             1,
-            substr_count($extension->formatSQL('CREATE DATABASE 📚;', true), '<pre class=')
+            substr_count($extension->formatSql('CREATE DATABASE 📚;', true), '<pre class=')
         );
     }
 }

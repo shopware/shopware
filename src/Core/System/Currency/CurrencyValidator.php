@@ -15,7 +15,7 @@ use Symfony\Component\Validator\ConstraintViolationList;
 /**
  * @internal
  */
-#[Package('core')]
+#[Package('fundamentals@framework')]
 class CurrencyValidator implements EventSubscriberInterface
 {
     final public const VIOLATION_DELETE_DEFAULT_CURRENCY = 'delete_default_currency_violation';

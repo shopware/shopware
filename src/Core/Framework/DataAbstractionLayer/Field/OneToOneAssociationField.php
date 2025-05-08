@@ -6,15 +6,12 @@ use Shopware\Core\Framework\DataAbstractionLayer\Dbal\FieldResolver\ManyToOneAss
 use Shopware\Core\Framework\DataAbstractionLayer\FieldSerializer\OneToOneAssociationFieldSerializer;
 use Shopware\Core\Framework\Log\Package;
 
-#[Package('core')]
+#[Package('framework')]
 class OneToOneAssociationField extends AssociationField
 {
     final public const PRIORITY = 80;
 
-    /**
-     * @var string
-     */
-    protected $storageName;
+    protected string $storageName;
 
     public function __construct(
         string $propertyName,

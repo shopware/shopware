@@ -6,19 +6,12 @@ use Shopware\Core\Checkout\Customer\CustomerEntity;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\StoreApiResponse;
 
+/**
+ * @extends StoreApiResponse<CustomerEntity>
+ */
 #[Package('checkout')]
 class CustomerResponse extends StoreApiResponse
 {
-    /**
-     * @var CustomerEntity
-     */
-    protected $object;
-
-    public function __construct(CustomerEntity $object)
-    {
-        parent::__construct($object);
-    }
-
     public function getCustomer(): CustomerEntity
     {
         return $this->object;

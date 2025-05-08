@@ -10,6 +10,7 @@ use Shopware\Core\Framework\Api\Context\SystemSource;
 use Shopware\Core\Framework\App\AppCollection;
 use Shopware\Core\Framework\App\Lifecycle\AbstractAppLifecycle;
 use Shopware\Core\Framework\App\Lifecycle\AppLifecycle;
+use Shopware\Core\Framework\App\Lifecycle\Parameters\AppInstallParameters;
 use Shopware\Core\Framework\App\Manifest\Manifest;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
@@ -35,13 +36,13 @@ class AppLifecycleSubscriberTest extends TestCase
 
     protected function setUp(): void
     {
-        $this->appRepository = $this->getContainer()->get('app.repository');
+        $this->appRepository = static::getContainer()->get('app.repository');
 
-        $userId = $this->getContainer()->get('user.repository')->searchIds(new Criteria(), Context::createDefaultContext())->firstId();
+        $userId = static::getContainer()->get('user.repository')->searchIds(new Criteria(), Context::createDefaultContext())->firstId();
         $source = new AdminApiSource($userId);
         $source->setIsAdmin(true);
 
-        $this->appLifecycle = $this->getContainer()->get(AppLifecycle::class);
+        $this->appLifecycle = static::getContainer()->get(AppLifecycle::class);
         $this->context = new Context(new SystemSource(), [], Defaults::CURRENCY, [Defaults::LANGUAGE_SYSTEM]);
     }
 
@@ -49,7 +50,7 @@ class AppLifecycleSubscriberTest extends TestCase
     public function testThemeRemovalOnDelete(bool $keepUserData): void
     {
         $manifest = Manifest::createFromXmlFile(__DIR__ . '/../fixtures/Apps/theme/manifest.xml');
-        $this->appLifecycle->install($manifest, true, $this->context);
+        $this->appLifecycle->install($manifest, new AppInstallParameters(), $this->context);
 
         $apps = $this->appRepository->search(new Criteria(), $this->context)->getEntities();
         static::assertCount(1, $apps);
@@ -60,7 +61,7 @@ class AppLifecycleSubscriberTest extends TestCase
             'roleId' => $apps->first()->getAclRoleId(),
         ];
 
-        $themeRepo = $this->getContainer()->get('theme.repository');
+        $themeRepo = static::getContainer()->get('theme.repository');
 
         $criteria = new Criteria();
         $criteria->addFilter(new EqualsFilter('technicalName', $app['name']));

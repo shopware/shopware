@@ -1,24 +1,26 @@
 /**
- * @package buyers-experience
+ * @sw-package discovery
  */
 import { mount } from '@vue/test-utils';
 import 'src/module/sw-cms/mixin/sw-cms-state.mixin';
 
 async function createWrapper() {
-    return mount(await wrapTestComponent('sw-cms-stage-add-section', {
-        sync: true,
-    }), {
-        props: {},
-        global: {
-            stubs: {
-                'sw-icon': true,
-                'sw-cms-stage-section-selection': true,
-            },
-            provide: {
-                cmsService: {},
+    return mount(
+        await wrapTestComponent('sw-cms-stage-add-section', {
+            sync: true,
+        }),
+        {
+            props: {},
+            global: {
+                stubs: {
+                    'sw-cms-stage-section-selection': true,
+                },
+                provide: {
+                    cmsService: {},
+                },
             },
         },
-    });
+    );
 }
 
 describe('module/sw-cms/component/sw-cms-stage-add-section', () => {

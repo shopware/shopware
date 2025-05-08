@@ -18,7 +18,7 @@ use Shopware\Core\Framework\Log\Package;
 /**
  * @internal
  */
-#[Package('core')]
+#[Package('framework')]
 class BusinessEventEncoder
 {
     /**
@@ -48,7 +48,7 @@ class BusinessEventEncoder
     {
         foreach ($data as $key => $property) {
             if (!$property instanceof Entity) {
-                $data[$key] = $stored[$key];
+                $data[$key] = $stored[$key] ?? $property;
 
                 continue;
             }
@@ -111,7 +111,7 @@ class BusinessEventEncoder
             case ArrayType::TYPE:
                 return $this->encodeArray($dataType, $property);
             default:
-                throw new \RuntimeException('Unknown EventDataType: ' . $dataType['type']);
+                throw WebhookException::unknownEventDataType($dataType['type']);
         }
     }
 
@@ -123,12 +123,12 @@ class BusinessEventEncoder
     private function getProperty(string $propertyName, $object)
     {
         if (\is_object($object)) {
-            $getter = 'get' . ucfirst($propertyName);
+            $getter = 'get' . $propertyName;
             if (method_exists($object, $getter)) {
                 return $object->$getter(); /* @phpstan-ignore-line */
             }
 
-            $isser = 'is' . ucfirst($propertyName);
+            $isser = 'is' . $propertyName;
             if (method_exists($object, $isser)) {
                 return $object->$isser(); /* @phpstan-ignore-line */
             }
@@ -138,13 +138,7 @@ class BusinessEventEncoder
             return $object[$propertyName];
         }
 
-        throw new \RuntimeException(
-            \sprintf(
-                'Invalid available DataMapping, could not get property "%s" on instance of %s',
-                $propertyName,
-                \is_object($object) ? $object::class : 'array'
-            )
-        );
+        throw WebhookException::invalidDataMapping($propertyName, \is_object($object) ? $object::class : 'array');
     }
 
     /**

@@ -8,45 +8,24 @@ use Shopware\Core\Framework\DataAbstractionLayer\Version\Aggregate\VersionCommit
 use Shopware\Core\Framework\DataAbstractionLayer\Version\VersionEntity;
 use Shopware\Core\Framework\Log\Package;
 
-#[Package('core')]
+#[Package('framework')]
 class VersionCommitEntity extends Entity
 {
     use EntityIdTrait;
 
-    /**
-     * @var int
-     */
-    protected $autoIncrement;
+    protected int $autoIncrement;
 
-    /**
-     * @var string|null
-     */
-    protected $message;
+    protected ?string $message = null;
 
-    /**
-     * @var string|null
-     */
-    protected $userId;
+    protected ?string $userId = null;
 
-    /**
-     * @var string|null
-     */
-    protected $integrationId;
+    protected ?string $integrationId = null;
 
-    /**
-     * @var VersionCommitDataCollection
-     */
-    protected $data;
+    protected VersionCommitDataCollection $data;
 
-    /**
-     * @var bool
-     */
-    protected $isMerge;
+    protected bool $isMerge;
 
-    /**
-     * @var VersionEntity|null
-     */
-    protected $version;
+    protected ?VersionEntity $version = null;
 
     public function getAutoIncrement(): int
     {

@@ -7,60 +7,30 @@ namespace Shopware\Storefront\Test\Framework\Routing\Helper;
  */
 class ExpectedRequest
 {
-    /**
-     * @var string
-     */
-    public $url;
+    public string $url;
 
-    /**
-     * @var string|null
-     */
-    public $baseUrl;
+    public ?string $baseUrl = null;
 
-    /**
-     * @var string|null
-     */
-    public $domainId;
+    public ?string $domainId = null;
 
-    /**
-     * @var string|null
-     */
-    public $salesChannelId;
+    public ?string $salesChannelId = null;
 
-    /**
-     * @var bool|null
-     */
-    public $isStorefrontRequest;
+    public ?bool $isStorefrontRequest = null;
 
-    /**
-     * @var string|null
-     */
-    public $locale;
+    public ?string $locale = null;
 
-    /**
-     * @var string|null
-     */
-    public $currency;
+    public ?string $currency = null;
 
-    /**
-     * @var string|null
-     */
-    public $languageCode;
+    public ?string $languageCode = null;
 
-    /**
-     * @var string|null
-     */
-    public $snippetLanguageCode;
+    public ?string $snippetLanguageCode = null;
 
     /**
      * @var class-string<\Throwable>|null
      */
-    public $exception;
+    public ?string $exception = null;
 
-    /**
-     * @var string|null
-     */
-    public $resolvedUrl;
+    public ?string $resolvedUrl = null;
 
     /**
      * @param class-string<\Throwable>|null $exception

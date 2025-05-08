@@ -1,3 +1,7 @@
+/**
+ * @sw-package framework
+ */
+
 import Plugin from 'src/plugin-system/plugin.class';
 import CookieStorage from 'src/helper/storage/cookie-storage.helper';
 import Debouncer from 'src/helper/debouncer.helper';

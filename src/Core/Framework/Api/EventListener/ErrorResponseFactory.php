@@ -14,7 +14,7 @@ use Symfony\Component\HttpKernel\Exception\HttpException;
  *
  * @phpstan-import-type ErrorData from ShopwareHttpException as ShopwareExceptionData
  */
-#[Package('core')]
+#[Package('framework')]
 class ErrorResponseFactory
 {
     public function getResponseFromException(\Throwable $exception, bool $debug = false): Response
@@ -117,8 +117,7 @@ class ErrorResponseFactory
                 $array[$key] = $this->convert($value);
             }
 
-            // NEXT-21735 - This is covered randomly
-            // @codeCoverageIgnoreStart
+            // @codeCoverageIgnoreStart - This is covered randomly
             if (\is_string($value)) {
                 $encodings = mb_detect_order();
                 if (!ctype_print($value) && mb_strlen($value) === 16) {

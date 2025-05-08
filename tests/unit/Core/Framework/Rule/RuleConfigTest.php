@@ -11,7 +11,7 @@ use Shopware\Core\Framework\Rule\RuleConfig;
 /**
  * @internal
  */
-#[Package('services-settings')]
+#[Package('fundamentals@after-sales')]
 #[CoversClass(RuleConfig::class)]
 #[Group('rules')]
 class RuleConfigTest extends TestCase
@@ -78,5 +78,37 @@ class RuleConfigTest extends TestCase
         static::assertEquals('foo', $field['name']);
         static::assertEquals('float', $field['type']);
         static::assertEquals(5, $field['config']['digits']);
+    }
+
+    public function testDateFieldConfig(): void
+    {
+        $ruleConfig = new RuleConfig();
+
+        $ruleConfig->dateField('foo', [
+            'someConfig' => 'bar',
+        ]);
+
+        $field = $ruleConfig->getField('foo');
+
+        static::assertNotNull($field);
+        static::assertEquals('foo', $field['name']);
+        static::assertEquals('date', $field['type']);
+        static::assertEquals('bar', $field['config']['someConfig']);
+    }
+
+    public function testDateTimeFieldConfig(): void
+    {
+        $ruleConfig = new RuleConfig();
+
+        $ruleConfig->dateTimeField('foo', [
+            'someConfig' => 'bar',
+        ]);
+
+        $field = $ruleConfig->getField('foo');
+
+        static::assertNotNull($field);
+        static::assertEquals('foo', $field['name']);
+        static::assertEquals('datetime', $field['type']);
+        static::assertEquals('bar', $field['config']['someConfig']);
     }
 }

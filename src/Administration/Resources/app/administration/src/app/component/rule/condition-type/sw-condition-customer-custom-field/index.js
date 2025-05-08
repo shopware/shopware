@@ -1,13 +1,13 @@
 import template from './sw-condition-customer-custom-field.html.twig';
 import './sw-condition-customer-custom-field.scss';
 
-const { Component, Mixin } = Shopware;
+const { Component, Filter, Mixin } = Shopware;
 const { mapPropertyErrors } = Component.getComponentHelper();
 const { Criteria } = Shopware.Data;
 
 /**
  * @public
- * @package services-settings
+ * @sw-package fundamentals@after-sales
  * @description Customer custom item for the condition-tree. This component must be a child of sw-condition-tree.
  * @status prototype
  * @example-type code-only
@@ -17,14 +17,16 @@ const { Criteria } = Shopware.Data;
 Component.extend('sw-condition-customer-custom-field', 'sw-condition-base', {
     template,
 
-    inject: ['repositoryFactory', 'feature'],
+    inject: [
+        'repositoryFactory',
+        'feature',
+    ],
 
     mixins: [
         Mixin.getByName('sw-inline-snippet'),
     ],
 
     computed: {
-
         /**
          * Fetch custom fields that are related to the previously selected custom field set
          * @returns {Object.Criteria}
@@ -55,7 +57,10 @@ Component.extend('sw-condition-customer-custom-field', 'sw-condition-base', {
             },
             set(renderedField) {
                 this.ensureValueExist();
-                this.condition.value = { ...this.condition.value, renderedField };
+                this.condition.value = {
+                    ...this.condition.value,
+                    renderedField,
+                };
             },
         },
 
@@ -66,7 +71,10 @@ Component.extend('sw-condition-customer-custom-field', 'sw-condition-base', {
             },
             set(selectedField) {
                 this.ensureValueExist();
-                this.condition.value = { ...this.condition.value, selectedField };
+                this.condition.value = {
+                    ...this.condition.value,
+                    selectedField,
+                };
             },
         },
 
@@ -77,7 +85,10 @@ Component.extend('sw-condition-customer-custom-field', 'sw-condition-base', {
             },
             set(selectedFieldSet) {
                 this.ensureValueExist();
-                this.condition.value = { ...this.condition.value, selectedFieldSet };
+                this.condition.value = {
+                    ...this.condition.value,
+                    selectedFieldSet,
+                };
             },
         },
 
@@ -88,7 +99,10 @@ Component.extend('sw-condition-customer-custom-field', 'sw-condition-base', {
             },
             set(renderedFieldValue) {
                 this.ensureValueExist();
-                this.condition.value = { ...this.condition.value, renderedFieldValue };
+                this.condition.value = {
+                    ...this.condition.value,
+                    renderedFieldValue,
+                };
             },
         },
 
@@ -105,15 +119,24 @@ Component.extend('sw-condition-customer-custom-field', 'sw-condition-base', {
         ]),
 
         currentError() {
-            return this.conditionValueRenderedFieldError
-                || this.conditionValueSelectedFieldError
-                || this.conditionValueSelectedFieldSetError
-                || this.conditionValueOperatorError
-                || this.conditionValueRenderedFieldValueError;
+            return (
+                this.conditionValueRenderedFieldError ||
+                this.conditionValueSelectedFieldError ||
+                this.conditionValueSelectedFieldSetError ||
+                this.conditionValueOperatorError ||
+                this.conditionValueRenderedFieldValueError
+            );
+        },
+
+        truncateFilter() {
+            return Filter.getByName('truncate');
         },
     },
 
     methods: {
+        getFieldDescription(item) {
+            return this.getInlineSnippet(item.customFieldSet.config.label) || item.customFieldSet.name;
+        },
 
         /**
          * Clear any further field's values if no custom field has been selected

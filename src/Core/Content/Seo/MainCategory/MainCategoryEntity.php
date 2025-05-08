@@ -9,50 +9,26 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityIdTrait;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\SalesChannelEntity;
 
-#[Package('buyers-experience')]
+#[Package('inventory')]
 class MainCategoryEntity extends Entity
 {
     use EntityIdTrait;
 
-    /**
-     * @var string
-     */
-    protected $salesChannelId;
+    protected string $salesChannelId;
 
-    /**
-     * @var SalesChannelEntity|null
-     */
-    protected $salesChannel;
+    protected ?SalesChannelEntity $salesChannel = null;
 
-    /**
-     * @var string
-     */
-    protected $categoryId;
+    protected string $categoryId;
 
-    /**
-     * @var string
-     */
-    protected $categoryVersionId;
+    protected string $categoryVersionId;
 
-    /**
-     * @var CategoryEntity
-     */
-    protected $category;
+    protected ?CategoryEntity $category = null;
 
-    /**
-     * @var string
-     */
-    protected $productId;
+    protected string $productId;
 
-    /**
-     * @var string
-     */
-    protected $productVersionId;
+    protected string $productVersionId;
 
-    /**
-     * @var ProductEntity|null
-     */
-    protected $product;
+    protected ?ProductEntity $product = null;
 
     public function getSalesChannelId(): string
     {
@@ -84,8 +60,15 @@ class MainCategoryEntity extends Entity
         $this->categoryId = $categoryId;
     }
 
+    /**
+     * @deprecated tag:v6.8.0 - reason:return-type-change - return type will be nullable and condition will be removed
+     */
     public function getCategory(): CategoryEntity
     {
+        if ($this->category === null) {
+            return new CategoryEntity();
+        }
+
         return $this->category;
     }
 

@@ -1,37 +1,32 @@
-<!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
 {% block sw_product_settings_form %}
 <div class="sw-product-settings-form">
-    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_product_settings_form_content %}
     <sw-container
         columns="1fr 1fr 1fr"
         gap="0px 30px"
     >
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_product_settings_form_release_date_field %}
         <sw-inherit-wrapper
             v-model:value="product.releaseDate"
             :has-parent="!!parentProduct.id"
             :inherited-value="parentProduct.releaseDate"
+            :label="$tc('sw-product.settingsForm.labelReleaseDate')"
         >
             <template #content="props">
 
-                <sw-datepicker
-                    :map-inheritance="props"
+                <mt-datepicker
                     date-type="datetime"
                     :disabled="props.isInherited || !allowEdit"
                     :error="productReleaseDateError"
-                    :label="$tc('sw-product.settingsForm.labelReleaseDate')"
                     :placeholder="$tc('sw-product.settingsForm.placeholderReleaseDate')"
-                    :value="props.currentValue"
-                    @update:value="props.updateCurrentValue"
+                    :model-value="props.currentValue"
+                    @update:model-value="props.updateCurrentValue"
                 />
 
             </template>
         </sw-inherit-wrapper>
         {% endblock %}
 
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_product_settings_form_ean_field %}
         <sw-inherit-wrapper
             v-model:value="product.ean"
@@ -40,21 +35,23 @@
         >
             <template #content="props">
 
-                <sw-text-field
-                    :map-inheritance="props"
+                <mt-text-field
+                    :is-inheritance-field="props.isInheritField"
+                    :is-inherited="props.isInherited"
                     :error="productEanError"
                     :label="$tc('sw-product.settingsForm.labelEan')"
                     :placeholder="$tc('sw-product.settingsForm.placeholderEan')"
                     :disabled="props.isInherited || !allowEdit"
-                    :value="props.currentValue"
-                    @update:value="props.updateCurrentValue"
+                    :model-value="props.currentValue"
+                    @update:model-value="props.updateCurrentValue"
+                    @inheritance-restore="props.restoreInheritance"
+                    @inheritance-remove="props.removeInheritance"
                 />
 
             </template>
         </sw-inherit-wrapper>
         {% endblock %}
 
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_product_settings_form_manufacturer_number_field %}
         <sw-inherit-wrapper
             v-model:value="product.manufacturerNumber"
@@ -63,14 +60,17 @@
         >
             <template #content="props">
 
-                <sw-text-field
-                    :map-inheritance="props"
+                <mt-text-field
+                    :is-inheritance-field="props.isInheritField"
+                    :is-inherited="props.isInherited"
                     :error="productManufacturerNumberError"
                     :label="$tc('sw-product.settingsForm.labelManufacturerNumber')"
                     :placeholder="$tc('sw-product.settingsForm.placeholderManufacturerNumber')"
                     :disabled="props.isInherited || !allowEdit"
-                    :value="props.currentValue"
-                    @update:value="props.updateCurrentValue"
+                    :model-value="props.currentValue"
+                    @update:model-value="props.updateCurrentValue"
+                    @inheritance-restore="props.restoreInheritance"
+                    @inheritance-remove="props.removeInheritance"
                 />
 
             </template>

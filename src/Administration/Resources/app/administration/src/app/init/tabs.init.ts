@@ -1,5 +1,5 @@
 /**
- * @package admin
+ * @sw-package framework
  */
 
 // eslint-disable-next-line import/no-named-default
@@ -10,7 +10,7 @@ import type { Router, RouteRecordRaw } from 'vue-router';
  */
 export default function initializeTabs(): void {
     Shopware.ExtensionAPI.handle('uiTabsAddTabItem', async (componentConfig) => {
-        Shopware.State.commit('tabs/addTabItem', componentConfig);
+        Shopware.Store.get('tabs').addTabItem(componentConfig);
 
         // Reload current route if it does not exist
         const router = Shopware.Application.view?.router as Router;
@@ -33,8 +33,11 @@ export default function initializeTabs(): void {
             }
 
             // Get all tab routes
-            const tabRoutes = Object.values(Shopware.State.get('tabs').tabItems).reduce<string[]>((acc, tabItems) => {
-                acc = [...acc, ...tabItems.map((tabItem) => tabItem.componentSectionId)];
+            const tabRoutes = Object.values(Shopware.Store.get('tabs').tabItems).reduce<string[]>((acc, tabItems) => {
+                acc = [
+                    ...acc,
+                    ...tabItems.map((tabItem) => tabItem.componentSectionId),
+                ];
                 return acc;
             }, []);
 
@@ -53,7 +56,6 @@ export default function initializeTabs(): void {
                 return;
             }
 
-
             // Get the parent route
             const parentPath = to.fullPath.replace(matchingTabRoute, '');
             const parentRoute = router.resolve(parentPath);
@@ -67,9 +69,11 @@ export default function initializeTabs(): void {
 
             // Get the $module information from parent and add it to the new route in meta
             // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access,@typescript-eslint/no-unsafe-call
-            const moduleInfo = Shopware?.Application?.$container?.container?.init?.router?.getModuleInfo?.(parentRoute) as {
-                manifest: Record<string, unknown>;
-            }|undefined;
+            const moduleInfo = Shopware?.Application?.$container?.container?.init?.router?.getModuleInfo?.(parentRoute) as
+                | {
+                      manifest: Record<string, unknown>;
+                  }
+                | undefined;
 
             // Create a new route for the tab
             const newRoute: RouteRecordRaw = {

@@ -4,6 +4,7 @@ namespace Shopware\Core\Checkout\Cart\Rule;
 
 use Shopware\Core\Checkout\Cart\LineItem\LineItem;
 use Shopware\Core\Checkout\Cart\LineItem\LineItemCollection;
+use Shopware\Core\Checkout\Cart\Price\Struct\QuantityPriceDefinition;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Rule\Container\FilterRule;
 use Shopware\Core\Framework\Rule\Exception\UnsupportedOperatorException;
@@ -11,7 +12,10 @@ use Shopware\Core\Framework\Rule\RuleComparison;
 use Shopware\Core\Framework\Rule\RuleConstraints;
 use Shopware\Core\Framework\Rule\RuleScope;
 
-#[Package('services-settings')]
+/**
+ * @final
+ */
+#[Package('fundamentals@after-sales')]
 class LineItemGoodsTotalRule extends FilterRule
 {
     final public const RULE_NAME = 'cartLineItemGoodsTotal';
@@ -34,6 +38,23 @@ class LineItemGoodsTotalRule extends FilterRule
      */
     public function match(RuleScope $scope): bool
     {
+        if ($scope instanceof LineItemScope) {
+            $lineItem = $scope->getLineItem()->isGood() ? $scope->getLineItem() : null;
+
+            if ($lineItem === null) {
+                return false;
+            }
+
+            if ($this->filter !== null && !$this->filter->match($scope)) {
+                return false;
+            }
+
+            $quantityDefinition = $lineItem->getPriceDefinition();
+            $total = $quantityDefinition instanceof QuantityPriceDefinition ? $quantityDefinition->getQuantity() : $lineItem->getQuantity();
+
+            return RuleComparison::numeric($total, $this->count, $this->operator);
+        }
+
         if (!$scope instanceof CartRuleScope) {
             return false;
         }

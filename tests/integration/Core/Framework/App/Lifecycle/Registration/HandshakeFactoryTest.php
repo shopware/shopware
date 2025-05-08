@@ -14,7 +14,7 @@ use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Kernel;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
-use Shopware\Tests\Integration\Core\Framework\App\AppSystemTestBehaviour;
+use Shopware\Core\Test\AppSystemTestBehaviour;
 
 /**
  * @internal
@@ -32,8 +32,8 @@ class HandshakeFactoryTest extends TestCase
 
         $factory = new HandshakeFactory(
             $shopUrl,
-            $this->getContainer()->get(ShopIdProvider::class),
-            $this->getContainer()->get(StoreClient::class),
+            static::getContainer()->get(ShopIdProvider::class),
+            static::getContainer()->get(StoreClient::class),
             Kernel::SHOPWARE_FALLBACK_VERSION
         );
 
@@ -49,7 +49,7 @@ class HandshakeFactoryTest extends TestCase
 
         $shopUrl = 'test.shop.com';
 
-        $systemConfigService = $this->getContainer()->get(SystemConfigService::class);
+        $systemConfigService = static::getContainer()->get(SystemConfigService::class);
         $systemConfigService->set(ShopIdProvider::SHOP_ID_SYSTEM_CONFIG_KEY, [
             'app_url' => 'https://test.com',
             'value' => Uuid::randomHex(),
@@ -57,8 +57,8 @@ class HandshakeFactoryTest extends TestCase
 
         $factory = new HandshakeFactory(
             $shopUrl,
-            $this->getContainer()->get(ShopIdProvider::class),
-            $this->getContainer()->get(StoreClient::class),
+            static::getContainer()->get(ShopIdProvider::class),
+            static::getContainer()->get(StoreClient::class),
             Kernel::SHOPWARE_FALLBACK_VERSION
         );
 
@@ -74,8 +74,8 @@ class HandshakeFactoryTest extends TestCase
 
         $factory = new HandshakeFactory(
             $shopUrl,
-            $this->getContainer()->get(ShopIdProvider::class),
-            $this->getContainer()->get(StoreClient::class),
+            static::getContainer()->get(ShopIdProvider::class),
+            static::getContainer()->get(StoreClient::class),
             Kernel::SHOPWARE_FALLBACK_VERSION
         );
 

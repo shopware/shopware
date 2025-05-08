@@ -21,6 +21,7 @@ use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelLifecycleManager;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\SalesChannelCollection;
+use Shopware\Core\Test\Annotation\DisabledFeatures;
 use Shopware\Core\Test\Integration\Traits\OrderFixture;
 use Shopware\Core\Test\TestDefaults;
 use Shopware\Storefront\Event\RouteRequest\OrderRouteRequestEvent;
@@ -51,9 +52,13 @@ class AccountOrderControllerTest extends TestCase
     protected function setUp(): void
     {
         $this->addCountriesToSalesChannel();
-        $this->salesChannelRepository = $this->getContainer()->get('sales_channel.repository');
+        $this->salesChannelRepository = static::getContainer()->get('sales_channel.repository');
     }
 
+    /**
+     * @deprecated tag:v6.8.0 - Will be removed without replacement
+     */
+    #[DisabledFeatures(['v6.8.0.0'])]
     public function testAjaxOrderDetail(): void
     {
         $context = Context::createDefaultContext();
@@ -80,11 +85,11 @@ class AccountOrderControllerTest extends TestCase
         $orderData[0]['lineItems'][0]['identifier'] = $productId;
         $orderData[0]['lineItems'][0]['productId'] = $productId;
 
-        $orderRepo = $this->getContainer()->get('order.repository');
+        $orderRepo = static::getContainer()->get('order.repository');
         $orderRepo->create($orderData, $context);
 
         $this->addEventListener(
-            $this->getContainer()->get('event_dispatcher'),
+            static::getContainer()->get('event_dispatcher'),
             StorefrontRenderEvent::class,
             function (StorefrontRenderEvent $event): void {
                 $data = $event->getParameters();
@@ -102,13 +107,13 @@ class AccountOrderControllerTest extends TestCase
 
         $browser->request('GET', $_SERVER['APP_URL'] . '/widgets/account/order/detail/' . $orderId);
 
-        $eventDispatcher = $this->getContainer()->get('event_dispatcher');
+        $eventDispatcher = static::getContainer()->get('event_dispatcher');
         $eventDispatcher->addListener(OrderRouteRequestEvent::class, static function (OrderRouteRequestEvent $event): void {
             $event->getCriteria()->addAssociation('lineItems.product');
         });
 
         $this->addEventListener(
-            $this->getContainer()->get('event_dispatcher'),
+            static::getContainer()->get('event_dispatcher'),
             StorefrontRenderEvent::class,
             function (StorefrontRenderEvent $event): void {
                 $data = $event->getParameters();
@@ -153,13 +158,13 @@ class AccountOrderControllerTest extends TestCase
         $orderData[0]['lineItems'][0]['identifier'] = $productId;
         $orderData[0]['lineItems'][0]['productId'] = $productId;
 
-        $orderRepo = $this->getContainer()->get('order.repository');
+        $orderRepo = static::getContainer()->get('order.repository');
         $orderRepo->create($orderData, $context);
 
         $browser->followRedirects();
 
         $this->addEventListener(
-            $this->getContainer()->get('event_dispatcher'),
+            static::getContainer()->get('event_dispatcher'),
             StorefrontRenderEvent::class,
             function (StorefrontRenderEvent $event): void {
                 $data = $event->getParameters();
@@ -212,7 +217,7 @@ class AccountOrderControllerTest extends TestCase
         $orderData[0]['lineItems'][0]['identifier'] = $productId;
         $orderData[0]['lineItems'][0]['productId'] = $productId;
 
-        $orderRepo = $this->getContainer()->get('order.repository');
+        $orderRepo = static::getContainer()->get('order.repository');
         $orderRepo->create($orderData, $context);
 
         // Change default SalesChannel ShippingMethod to another than the ordered one
@@ -225,7 +230,7 @@ class AccountOrderControllerTest extends TestCase
             ]),
             new EqualsFilter('active', true)
         );
-        $differentShippingMethodId = $this->getContainer()->get('shipping_method.repository')->searchIds($criteria, $context)->firstId();
+        $differentShippingMethodId = static::getContainer()->get('shipping_method.repository')->searchIds($criteria, $context)->firstId();
         static::assertNotNull($differentShippingMethodId);
         static::assertNotSame($orderShippingMethodId, $differentShippingMethodId);
         $this->salesChannelRepository->update([
@@ -247,7 +252,7 @@ class AccountOrderControllerTest extends TestCase
         $browser->followRedirects();
 
         $this->addEventListener(
-            $this->getContainer()->get('event_dispatcher'),
+            static::getContainer()->get('event_dispatcher'),
             StorefrontRenderEvent::class,
             function (StorefrontRenderEvent $event) use ($differentShippingMethodId): void {
                 static::assertSame($differentShippingMethodId, $event->getSalesChannelContext()->getShippingMethod()->getId());
@@ -263,7 +268,7 @@ class AccountOrderControllerTest extends TestCase
         );
 
         $this->addEventListener(
-            $this->getContainer()->get('event_dispatcher'),
+            static::getContainer()->get('event_dispatcher'),
             StorefrontRenderEvent::class,
             function (StorefrontRenderEvent $event) use ($orderShippingMethodId): void {
                 static::assertSame($orderShippingMethodId, $event->getSalesChannelContext()->getShippingMethod()->getId());
@@ -293,7 +298,7 @@ class AccountOrderControllerTest extends TestCase
 
         static::assertSame(Response::HTTP_OK, $response->getStatusCode());
 
-        $traces = $this->getContainer()->get(ScriptTraces::class)->getTraces();
+        $traces = static::getContainer()->get(ScriptTraces::class)->getTraces();
 
         static::assertArrayHasKey(AccountOrderPageLoadedHook::HOOK_NAME, $traces);
     }
@@ -308,7 +313,7 @@ class AccountOrderControllerTest extends TestCase
         $orderData[0]['orderCustomer']['customer']['id'] = $customer->getId();
         $orderData[0]['orderCustomer']['customer']['guest'] = false;
 
-        $orderRepo = $this->getContainer()->get('order.repository');
+        $orderRepo = static::getContainer()->get('order.repository');
         $orderRepo->create($orderData, $context);
 
         $browser = $this->login($customer->getEmail());
@@ -321,13 +326,18 @@ class AccountOrderControllerTest extends TestCase
 
         static::assertSame(Response::HTTP_OK, $response->getStatusCode());
 
-        $traces = $this->getContainer()->get(ScriptTraces::class)->getTraces();
+        $traces = static::getContainer()->get(ScriptTraces::class)->getTraces();
 
         static::assertArrayHasKey(AccountOrderPageLoadedHook::HOOK_NAME, $traces);
     }
 
+    /**
+     * @deprecated tag:v6.8.0 - Will be removed without replacement
+     */
     public function testAccountOrderDetailPageLoadedScriptsAreExecuted(): void
     {
+        Feature::skipTestIfActive('v6.8.0.0', $this);
+
         $context = Context::createDefaultContext();
         $customer = $this->createCustomer($context);
 
@@ -346,9 +356,8 @@ class AccountOrderControllerTest extends TestCase
         static::assertNotNull($salesChannel);
         $orderData[0]['salesChannelId'] = $salesChannel->getId();
 
-        $orderRepo = $this->getContainer()->get('order.repository');
+        $orderRepo = static::getContainer()->get('order.repository');
         $orderRepo->create($orderData, $context);
-
         $browser = $this->login($customer->getEmail());
         $browser->request(
             'GET',
@@ -358,7 +367,7 @@ class AccountOrderControllerTest extends TestCase
 
         static::assertSame(Response::HTTP_OK, $response->getStatusCode());
 
-        $traces = $this->getContainer()->get(ScriptTraces::class)->getTraces();
+        $traces = static::getContainer()->get(ScriptTraces::class)->getTraces();
 
         static::assertArrayHasKey(AccountOrderDetailPageLoadedHook::HOOK_NAME, $traces);
     }
@@ -383,7 +392,7 @@ class AccountOrderControllerTest extends TestCase
         static::assertNotNull($salesChannel);
         $orderData[0]['salesChannelId'] = $salesChannel->getId();
 
-        $orderRepo = $this->getContainer()->get('order.repository');
+        $orderRepo = static::getContainer()->get('order.repository');
         $orderRepo->create($orderData, $context);
 
         $browser = $this->login($customer->getEmail());
@@ -397,7 +406,7 @@ class AccountOrderControllerTest extends TestCase
 
         static::assertSame(Response::HTTP_OK, $response->getStatusCode(), $url . $response->getContent());
 
-        $traces = $this->getContainer()->get(ScriptTraces::class)->getTraces();
+        $traces = static::getContainer()->get(ScriptTraces::class)->getTraces();
 
         static::assertArrayHasKey(AccountEditOrderPageLoadedHook::HOOK_NAME, $traces);
     }
@@ -449,12 +458,8 @@ class AccountOrderControllerTest extends TestCase
             'customerNumber' => '12345',
         ];
 
-        if (!Feature::isActive('v6.7.0.0')) {
-            $customer['defaultPaymentMethodId'] = $this->getValidPaymentMethodId();
-        }
-
         /** @var EntityRepository<CustomerCollection> $repo */
-        $repo = $this->getContainer()->get('customer.repository');
+        $repo = static::getContainer()->get('customer.repository');
         $repo->create([$customer], $context);
 
         /** @var CustomerEntity|null $customer */
@@ -483,7 +488,7 @@ class AccountOrderControllerTest extends TestCase
                 ['salesChannelId' => TestDefaults::SALES_CHANNEL, 'visibility' => ProductVisibilityDefinition::VISIBILITY_ALL],
             ],
         ];
-        $this->getContainer()->get('product.repository')->create([$data], $context);
+        static::getContainer()->get('product.repository')->create([$data], $context);
 
         return $productId;
     }

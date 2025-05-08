@@ -4,7 +4,6 @@ namespace Shopware\Core\Checkout\Payment;
 
 use Shopware\Core\Checkout\Payment\Cart\PaymentHandler\AbstractPaymentHandler;
 use Shopware\Core\Checkout\Payment\Cart\PaymentHandler\PaymentHandlerType;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\HttpException;
 use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\HttpFoundation\Response;
@@ -36,6 +35,7 @@ class PaymentException extends HttpException
     final public const PAYMENT_REFUND_UNKNOWN_HANDLER_ERROR = 'CHECKOUT__REFUND_UNKNOWN_HANDLER_ERROR';
     final public const PAYMENT_VALIDATE_PREPARED_ERROR = 'CHECKOUT__VALIDATE_PREPARED_PAYMENT_ERROR';
     final public const PAYMENT_METHOD_DUPLICATE_TECHNICAL_NAME = 'CHECKOUT__DUPLICATE_PAYMENT_METHOD_TECHNICAL_NAME';
+    final public const MISSING_REQUEST_PARAMETER_CODE = 'CHECKOUT__MISSING_REQUEST_PARAMETER';
 
     public static function asyncFinalizeInterrupted(string $orderTransactionId, string $errorMessage, ?\Throwable $e = null): self
     {
@@ -307,33 +307,13 @@ class PaymentException extends HttpException
         );
     }
 
-    /**
-     * @deprecated tag:v6.7.0 - will be removed
-     */
-    public function getRefundId(): string
+    public static function missingRequestParameter(string $name): self
     {
-        Feature::triggerDeprecationOrThrow('v6.7.0.0', 'Use getParameter directly');
-
-        return $this->getParameter('refundId') ?? '';
-    }
-
-    /**
-     * @deprecated tag:v6.7.0 - will be removed
-     */
-    public function getOrderTransactionId(): ?string
-    {
-        Feature::triggerDeprecationOrThrow('v6.7.0.0', 'Use getParameter directly');
-
-        return $this->getParameter('orderTransactionId');
-    }
-
-    /**
-     * @deprecated tag:v6.7.0 - will be removed
-     */
-    public function getOrderId(): ?string
-    {
-        Feature::triggerDeprecationOrThrow('v6.7.0.0', 'Use getParameter directly');
-
-        return $this->getParameter('orderId');
+        return new self(
+            Response::HTTP_BAD_REQUEST,
+            self::MISSING_REQUEST_PARAMETER_CODE,
+            'Parameter "{{ parameterName }}" is missing.',
+            ['parameterName' => $name]
+        );
     }
 }

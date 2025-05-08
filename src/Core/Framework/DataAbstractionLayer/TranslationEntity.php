@@ -5,18 +5,12 @@ namespace Shopware\Core\Framework\DataAbstractionLayer;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\Language\LanguageEntity;
 
-#[Package('core')]
+#[Package('framework')]
 class TranslationEntity extends Entity
 {
-    /**
-     * @var string
-     */
-    protected $languageId;
+    protected string $languageId;
 
-    /**
-     * @var LanguageEntity|null
-     */
-    protected $language;
+    protected ?LanguageEntity $language = null;
 
     public function getLanguageId(): string
     {

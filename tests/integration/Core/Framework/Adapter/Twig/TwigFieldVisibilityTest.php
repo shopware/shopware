@@ -5,16 +5,19 @@ namespace Shopware\Tests\Integration\Core\Framework\Adapter\Twig;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Adapter\Twig\Extension\PhpSyntaxExtension;
 use Shopware\Core\Framework\Adapter\Twig\TwigEnvironment;
+use Shopware\Core\Framework\Api\Acl\AclCriteriaValidator;
+use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\DataAbstractionLayerException;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
-use Shopware\Core\Framework\DataAbstractionLayer\Exception\InternalFieldAccessNotAllowedException;
+use Shopware\Core\Framework\DataAbstractionLayer\Facade\RepositoryFacade;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Field;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\ApiAware;
 use Shopware\Core\Framework\DataAbstractionLayer\PartialEntity;
-use Shopware\Core\Framework\Feature;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\RequestCriteriaBuilder;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
+use Shopware\Core\Framework\Uuid\Uuid;
 use Twig\Environment;
 use Twig\Error\RuntimeError;
 use Twig\Loader\ArrayLoader;
@@ -41,6 +44,24 @@ class TwigFieldVisibilityTest extends TestCase
         }
     }
 
+    public function testRepositoryAccessIsStillAllowed(): void
+    {
+        // Reading media entity calls subscriber that accesses internal field on the entity,
+        // that should still be allowed
+        $twig = new TwigEnvironment(new ArrayLoader([
+            'repository-access.twig' => file_get_contents(__DIR__ . '/fixtures/FieldVisibilityCases/repository-access.twig'),
+        ]));
+
+        $result = $twig->render('repository-access.twig', ['repository' => new RepositoryFacade(
+            static::getContainer()->get(DefinitionInstanceRegistry::class),
+            static::getContainer()->get(RequestCriteriaBuilder::class),
+            static::getContainer()->get(AclCriteriaValidator::class),
+            Context::createDefaultContext()
+        )]);
+
+        static::assertTrue(Uuid::isValid(trim($result)));
+    }
+
     private function testAccessibilityForField(EntityDefinition $definition, string $propertyName, string $entityClass): void
     {
         $entity = new $entityClass();
@@ -50,10 +71,10 @@ class TwigFieldVisibilityTest extends TestCase
         $twig = $this->initTwig($propertyName);
 
         $result = $twig->render('json-encode.twig', ['object' => $entity]);
-        static::assertStringNotContainsString('password', $result);
+        static::assertStringNotContainsString($propertyName, $result);
 
         $result = $twig->render('get-vars.twig', ['object' => $entity]);
-        static::assertStringNotContainsString('password', $result);
+        static::assertStringNotContainsString($propertyName, $result);
 
         $innerException = null;
 
@@ -62,11 +83,7 @@ class TwigFieldVisibilityTest extends TestCase
         } catch (RuntimeError $e) {
             $innerException = $e->getPrevious();
         }
-        if (Feature::isActive('v6.7.0.0')) {
-            static::assertInstanceOf(DataAbstractionLayerException::class, $innerException);
-        } else {
-            static::assertInstanceOf(InternalFieldAccessNotAllowedException::class, $innerException);
-        }
+        static::assertInstanceOf(DataAbstractionLayerException::class, $innerException);
         static::assertSame(
             \sprintf(
                 'Access to property "%s" not allowed on entity "%s".',
@@ -85,34 +102,22 @@ class TwigFieldVisibilityTest extends TestCase
         }
 
         // When the entity class don't have an explicit getter the magic methods will be called. As the isset/exists method returns false for protected fields the getter will not be called
-        if (\method_exists($entity, 'get' . \ucfirst($propertyName))) {
-            if (Feature::isActive('v6.7.0.0')) {
-                static::assertInstanceOf(
-                    DataAbstractionLayerException::class,
-                    $innerException,
-                    \sprintf(
-                        'It was possible to call getter for property %s on entity %s, but the property is not ApiAware, therefore access to that property in twig contexts is prohibited, please ensure to call the `$this->checkIfPropertyAccessIsAllowed("propertyName")` in the getter of that property.',
-                        $propertyName,
-                        $entity::class
-                    )
-                );
-            } else {
-                static::assertInstanceOf(
-                    InternalFieldAccessNotAllowedException::class,
-                    $innerException,
-                    \sprintf(
-                        'It was possible to call getter for property %s on entity %s, but the property is not ApiAware, therefore access to that property in twig contexts is prohibited, please ensure to call the `$this->checkIfPropertyAccessIsAllowed("propertyName")` in the getter of that property.',
-                        $propertyName,
-                        $entity::class
-                    )
-                );
-            }
+        if (\method_exists($entity, 'get' . $propertyName)) {
+            static::assertInstanceOf(
+                DataAbstractionLayerException::class,
+                $innerException,
+                \sprintf(
+                    'It was possible to call getter for property %s on entity %s, but the property is not ApiAware, therefore access to that property in twig contexts is prohibited, please ensure to call the `$this->checkIfPropertyAccessIsAllowed("propertyName")` in the getter of that property.',
+                    $propertyName,
+                    $entity::class
+                )
+            );
             static::assertSame(
                 \sprintf('Access to property "%s" not allowed on entity "%s".', $propertyName, $entity::class),
                 $innerException->getMessage()
             );
         } else {
-            static::assertStringNotContainsString('password', $result);
+            static::assertStringNotContainsString($propertyName, $result);
         }
 
         $innerException = null;
@@ -124,40 +129,29 @@ class TwigFieldVisibilityTest extends TestCase
         }
 
         // When the entity class don't have an explicit getter the magic methods will be called. As the isset/exists method returns false for protected fields the getter will not be called
-        if (\method_exists($entity, 'get' . \ucfirst($propertyName))) {
-            if (Feature::isActive('v6.7.0.0')) {
-                static::assertInstanceOf(
-                    DataAbstractionLayerException::class,
-                    $innerException,
-                    \sprintf(
-                        'It was possible to call getter for property %s on entity %s, but the property is not ApiAware, therefore access to that property in twig contexts is prohibited, please ensure to call the `$this->checkIfPropertyAccessIsAllowed("propertyName")` in the getter of that property.',
-                        $propertyName,
-                        $entity::class
-                    )
-                );
-            } else {
-                static::assertInstanceOf(
-                    InternalFieldAccessNotAllowedException::class,
-                    $innerException,
-                    \sprintf(
-                        'It was possible to call getter for property %s on entity %s, but the property is not ApiAware, therefore access to that property in twig contexts is prohibited, please ensure to call the `$this->checkIfPropertyAccessIsAllowed("propertyName")` in the getter of that property.',
-                        $propertyName,
-                        $entity::class
-                    )
-                );
-            }
+        if (\method_exists($entity, 'get' . $propertyName)) {
+            static::assertInstanceOf(
+                DataAbstractionLayerException::class,
+                $innerException,
+                \sprintf(
+                    'It was possible to call getter for property %s on entity %s, but the property is not ApiAware, therefore access to that property in twig contexts is prohibited, please ensure to call the `$this->checkIfPropertyAccessIsAllowed("propertyName")` in the getter of that property.',
+                    $propertyName,
+                    $entity::class
+                )
+            );
+
             static::assertSame(
                 \sprintf('Access to property "%s" not allowed on entity "%s".', $propertyName, $entity::class),
                 $innerException->getMessage()
             );
         } else {
-            static::assertStringNotContainsString('password', $result);
+            static::assertStringNotContainsString($propertyName, $result);
         }
     }
 
     private function initTwig(string $propertyName): Environment
     {
-        $propertyGetter = 'get' . \ucfirst($propertyName);
+        $propertyGetter = 'get' . $propertyName;
 
         $implicitReplace = file_get_contents(__DIR__ . '/fixtures/FieldVisibilityCases/implicit-get.twig');
         $explicitReplace = file_get_contents(__DIR__ . '/fixtures/FieldVisibilityCases/explicit-get.twig');

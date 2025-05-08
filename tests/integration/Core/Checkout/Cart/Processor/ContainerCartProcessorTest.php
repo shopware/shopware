@@ -36,9 +36,9 @@ class ContainerCartProcessorTest extends TestCase
     #[DataProvider('calculationProvider')]
     public function testCalculation(LineItem $item, ?CalculatedPrice $expected): void
     {
-        $processor = $this->getContainer()->get(ContainerCartProcessor::class);
+        $processor = static::getContainer()->get(ContainerCartProcessor::class);
 
-        $context = $this->getContainer()->get(SalesChannelContextFactory::class)
+        $context = static::getContainer()->get(SalesChannelContextFactory::class)
             ->create(Uuid::randomHex(), TestDefaults::SALES_CHANNEL);
 
         $cart = new Cart('test');

@@ -8,7 +8,7 @@ use Shopware\Core\Framework\Log\Package;
 /**
  * @extends EntityCollection<CountryEntity>
  */
-#[Package('core')]
+#[Package('fundamentals@discovery')]
 class CountryCollection extends EntityCollection
 {
     public function sortCountryAndStates(): void

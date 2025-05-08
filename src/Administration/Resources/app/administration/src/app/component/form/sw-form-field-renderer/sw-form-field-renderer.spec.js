@@ -1,43 +1,50 @@
 /**
- * @package admin
+ * @sw-package framework
  */
 
 import { mount } from '@vue/test-utils';
 import ShopwareError from 'src/core/data/ShopwareError';
 
 async function createWrapper(additionalOptions = {}) {
-    return mount(await wrapTestComponent('sw-form-field-renderer', {
-        sync: true,
-    }), {
-        props: {
-            config: { name: 'field2', type: 'text', config: { label: 'field2Label' } },
-            value: 'data value',
-        },
-        global: {
-            stubs: {
-                'sw-text-field': {
-                    template: '<div class="sw-text-field"><slot name="label"></slot><slot></slot></div>',
+    return mount(
+        await wrapTestComponent('sw-form-field-renderer', {
+            sync: true,
+        }),
+        {
+            props: {
+                config: {
+                    name: 'field2',
+                    type: 'text',
+                    config: { label: 'field2Label' },
                 },
-                'sw-contextual-field': true,
-                'sw-block-field': true,
-                'sw-base-field': true,
-                'sw-field-error': true,
+                value: 'data value',
             },
-            provide: {
-                validationService: {},
-                repositoryFactory: {
-                    create() {
-                        return {
-                            get() {
-                                return Promise.resolve({});
-                            },
-                        };
+            global: {
+                stubs: {
+                    'sw-text-field-deprecated': {
+                        template: '<div class="sw-text-field"><slot name="label"></slot><slot></slot></div>',
+                    },
+                    'sw-contextual-field': true,
+                    'sw-block-field': true,
+                    'sw-base-field': true,
+                    'sw-field-error': true,
+                },
+                provide: {
+                    validationService: {},
+                    repositoryFactory: {
+                        create() {
+                            return {
+                                get() {
+                                    return Promise.resolve({});
+                                },
+                            };
+                        },
                     },
                 },
             },
+            ...additionalOptions,
         },
-        ...additionalOptions,
-    });
+    );
 }
 
 describe('components/form/sw-form-field-renderer', () => {
@@ -74,12 +81,41 @@ describe('components/form/sw-form-field-renderer', () => {
     it('should has props error', async () => {
         const wrapper = await createWrapper({
             propsData: {
-                config: { name: 'field2', type: 'text', config: { label: 'field2Label' } },
+                config: {
+                    name: 'field2',
+                    type: 'text',
+                    config: { label: 'field2Label' },
+                },
                 value: 'data value',
                 error: new ShopwareError({ code: 'dummyCode' }),
             },
         });
 
         expect(wrapper.props().error).toBeInstanceOf(ShopwareError);
+    });
+
+    it('should init the current value when type is price without emit the update event', async () => {
+        const wrapper = await createWrapper({
+            props: {
+                type: 'price',
+                config: {
+                    customFieldType: 'price',
+                },
+                value: undefined,
+            },
+        });
+
+        expect(wrapper.vm.currentValue).toStrictEqual(
+            expect.arrayContaining([
+                expect.objectContaining({
+                    currencyId: null,
+                    gross: null,
+                    net: null,
+                    linked: true,
+                }),
+            ]),
+        );
+
+        expect(wrapper.emitted('update:value')).toBeUndefined();
     });
 });

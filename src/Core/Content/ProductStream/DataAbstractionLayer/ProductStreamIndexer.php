@@ -35,7 +35,7 @@ class ProductStreamIndexer extends EntityIndexer
         private readonly EntityRepository $repository,
         private readonly SerializerInterface $serializer,
         private readonly ProductDefinition $productDefinition,
-        private readonly EventDispatcherInterface $eventDispatcher
+        private readonly EventDispatcherInterface $eventDispatcher,
     ) {
     }
 
@@ -74,6 +74,9 @@ class ProductStreamIndexer extends EntityIndexer
     public function handle(EntityIndexingMessage $message): void
     {
         $ids = $message->getData();
+        if (!\is_array($ids)) {
+            return;
+        }
 
         $ids = array_unique(array_filter($ids));
         if (empty($ids)) {
@@ -158,7 +161,7 @@ class ProductStreamIndexer extends EntityIndexer
      *
      * @return list<array<string, mixed>>
      */
-    private function buildNested(array $entities, ?string $parentId): array
+    private function buildNested(array $entities, ?string $parentId, ?string $parentType = null): array
     {
         $nested = [];
         foreach ($entities as $entity) {
@@ -175,11 +178,11 @@ class ProductStreamIndexer extends EntityIndexer
             }
 
             if ($this->isMultiFilter($entity['type'])) {
-                $entity['queries'] = $this->buildNested($entities, $entity['id']);
+                $entity['queries'] = $this->buildNested($entities, $entity['id'], $entity['type']);
             }
 
             if ($this->isIdFilter($entity['field'])) {
-                $entity = $this->wrapIdFilter($entity);
+                $entity = $this->wrapIdFilter($entity, $parentType);
             }
 
             $nested[] = $entity;
@@ -198,16 +201,23 @@ class ProductStreamIndexer extends EntityIndexer
         return $field === 'id' || $field === $this->productDefinition->getEntityName() . '.id';
     }
 
+    private function isNotEqualToAnyType(string $type, ?string $parentType): bool
+    {
+        return $type === 'equalsAny' && $parentType === 'not';
+    }
+
     /**
      * @param array<string, mixed> $originalQuery
      *
      * @return array<string, mixed>
      */
-    private function wrapIdFilter(array $originalQuery): array
+    private function wrapIdFilter(array $originalQuery, ?string $parentType): array
     {
+        $operator = $this->isNotEqualToAnyType($originalQuery['type'], $parentType) ? 'AND' : 'OR';
+
         return [
             'type' => 'multi',
-            'operator' => 'OR',
+            'operator' => $operator,
             'queries' => [$originalQuery, array_merge($originalQuery, ['field' => 'parentId'])],
         ];
     }

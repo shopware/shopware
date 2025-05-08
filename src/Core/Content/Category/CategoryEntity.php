@@ -16,7 +16,7 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\SalesChannelCollection;
 use Shopware\Core\System\Tag\TagCollection;
 
-#[Package('inventory')]
+#[Package('discovery')]
 class CategoryEntity extends Entity
 {
     use EntityCustomFieldsTrait;
@@ -24,210 +24,93 @@ class CategoryEntity extends Entity
 
     protected ?string $afterCategoryId = null;
 
-    /**
-     * @var string|null
-     */
-    protected $parentId;
+    protected ?string $parentId = null;
 
-    /**
-     * @var int
-     */
-    protected $autoIncrement;
+    protected int $autoIncrement;
 
-    /**
-     * @var string|null
-     */
-    protected $mediaId;
+    protected ?string $mediaId = null;
 
-    /**
-     * @var string|null
-     */
-    protected $name;
+    protected ?string $name = null;
 
     /**
      * @var array<mixed>|null
      */
-    protected $breadcrumb;
+    protected ?array $breadcrumb = null;
 
-    /**
-     * @var string|null
-     */
-    protected $path;
+    protected ?string $path = null;
 
-    /**
-     * @var int
-     */
-    protected $level;
+    protected int $level;
 
-    /**
-     * @var bool
-     */
-    protected $active;
+    protected bool $active;
 
-    /**
-     * @var int
-     */
-    protected $childCount;
+    protected int $childCount;
 
-    /**
-     * @var int
-     */
-    protected $visibleChildCount = 0;
+    protected int $visibleChildCount = 0;
 
-    /**
-     * @var bool
-     */
-    protected $displayNestedProducts;
+    protected bool $displayNestedProducts;
 
-    /**
-     * @var CategoryEntity|null
-     */
-    protected $parent;
+    protected ?CategoryEntity $parent = null;
 
-    /**
-     * @var CategoryCollection|null
-     */
-    protected $children;
+    protected ?CategoryCollection $children = null;
 
-    /**
-     * @var CategoryTranslationCollection|null
-     */
-    protected $translations;
+    protected ?CategoryTranslationCollection $translations = null;
 
-    /**
-     * @var MediaEntity|null
-     */
-    protected $media;
+    protected ?MediaEntity $media = null;
 
-    /**
-     * @var ProductCollection|null
-     */
-    protected $products;
+    protected ?ProductCollection $products = null;
 
-    /**
-     * @var ProductCollection|null
-     */
-    protected $nestedProducts;
+    protected ?ProductCollection $nestedProducts = null;
 
-    /**
-     * @var TagCollection|null
-     */
-    protected $tags;
+    protected ?TagCollection $tags = null;
 
-    /**
-     * @var string|null
-     */
-    protected $cmsPageId;
+    protected ?string $cmsPageId = null;
 
-    /**
-     * @var bool
-     */
-    protected $cmsPageIdSwitched = false;
+    protected bool $cmsPageIdSwitched = false;
 
-    /**
-     * @var CmsPageEntity|null
-     */
-    protected $cmsPage;
+    protected ?CmsPageEntity $cmsPage = null;
 
-    /**
-     * @var string|null
-     */
-    protected $productStreamId;
+    protected ?string $productStreamId = null;
 
-    /**
-     * @var ProductStreamEntity|null
-     */
-    protected $productStream;
+    protected ?ProductStreamEntity $productStream = null;
 
     /**
      * @var array<mixed>|null
      */
-    protected $slotConfig;
+    protected ?array $slotConfig = null;
 
-    /**
-     * @var SalesChannelCollection|null
-     */
-    protected $navigationSalesChannels;
+    protected ?SalesChannelCollection $navigationSalesChannels = null;
 
-    /**
-     * @var SalesChannelCollection|null
-     */
-    protected $footerSalesChannels;
+    protected ?SalesChannelCollection $footerSalesChannels = null;
 
-    /**
-     * @var SalesChannelCollection|null
-     */
-    protected $serviceSalesChannels;
+    protected ?SalesChannelCollection $serviceSalesChannels = null;
 
-    /**
-     * @var string|null
-     */
-    protected $linkType;
+    protected ?string $linkType = null;
 
-    /**
-     * @var bool|null
-     */
-    protected $linkNewTab;
+    protected ?bool $linkNewTab = null;
 
-    /**
-     * @var string|null
-     */
-    protected $internalLink;
+    protected ?string $internalLink = null;
 
-    /**
-     * @var string|null
-     */
-    protected $externalLink;
+    protected ?string $externalLink = null;
 
-    /**
-     * @var bool
-     */
-    protected $visible;
+    protected bool $visible;
 
-    /**
-     * @var string
-     */
-    protected $type;
+    protected string $type;
 
-    /**
-     * @var string
-     */
-    protected $productAssignmentType;
+    protected string $productAssignmentType;
 
-    /**
-     * @var string|null
-     */
-    protected $description;
+    protected ?string $description = null;
 
-    /**
-     * @var string|null
-     */
-    protected $metaTitle;
+    protected ?string $metaTitle = null;
 
-    /**
-     * @var string|null
-     */
-    protected $metaDescription;
+    protected ?string $metaDescription = null;
 
-    /**
-     * @var string|null
-     */
-    protected $keywords;
+    protected ?string $keywords = null;
 
-    /**
-     * @var MainCategoryCollection|null
-     */
-    protected $mainCategories;
+    protected ?MainCategoryCollection $mainCategories = null;
 
-    /**
-     * @var SeoUrlCollection|null
-     */
-    protected $seoUrls;
+    protected ?SeoUrlCollection $seoUrls = null;
 
-    /**
-     * @var ?string
-     */
-    protected $customEntityTypeId;
+    protected ?string $customEntityTypeId = null;
 
     public function getParentId(): ?string
     {
@@ -523,6 +406,11 @@ class CategoryEntity extends Entity
     public function setLinkNewTab(?bool $linkNewTab): void
     {
         $this->linkNewTab = $linkNewTab;
+    }
+
+    public function shouldOpenInNewTab(): bool
+    {
+        return $this->type === CategoryDefinition::TYPE_LINK && $this->getTranslation('linkNewTab');
     }
 
     public function getInternalLink(): ?string

@@ -2,17 +2,19 @@ import './sw-first-run-wizard-mailer-smtp.scss';
 import template from './sw-first-run-wizard-mailer-smtp.html.twig';
 
 /**
- * @package checkout
+ * @sw-package fundamentals@after-sales
  */
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default {
     template,
 
-    compatConfig: Shopware.compatConfig,
-
     inject: ['systemConfigApiService'],
 
-    emits: ['buttons-update', 'frw-set-title', 'frw-redirect'],
+    emits: [
+        'buttons-update',
+        'frw-set-title',
+        'frw-redirect',
+    ],
 
     data() {
         return {
@@ -24,7 +26,6 @@ export default {
                 'core.mailerSettings.username': null,
                 'core.mailerSettings.password': null,
                 'core.mailerSettings.encryption': 'null',
-                'core.mailerSettings.authenticationMethod': 'null',
                 'core.mailerSettings.senderAddress': null,
                 'core.mailerSettings.deliveryAddress': null,
                 'core.mailerSettings.disableDelivery': false,
@@ -34,7 +35,7 @@ export default {
 
     computed: {
         nextAction() {
-            if (Shopware.State.get('context').app.config.settings.disableExtensionManagement) {
+            if (Shopware.Store.get('context').app.config.settings.disableExtensionManagement) {
                 return 'sw.first.run.wizard.index.shopware.account';
             }
 
@@ -47,7 +48,7 @@ export default {
                     key: 'back',
                     label: this.$tc('sw-first-run-wizard.general.buttonBack'),
                     position: 'left',
-                    variant: null,
+                    variant: 'secondary',
                     action: 'sw.first.run.wizard.index.mailer.selection',
                     disabled: false,
                 },
@@ -55,7 +56,7 @@ export default {
                     key: 'configure-later',
                     label: this.$tc('sw-first-run-wizard.general.buttonConfigureLater'),
                     position: 'right',
-                    variant: null,
+                    variant: 'secondary',
                     action: this.nextAction,
                     disabled: false,
                 },
@@ -119,12 +120,15 @@ export default {
         saveMailerSettings() {
             this.isLoading = true;
 
-            return this.systemConfigApiService.saveValues(this.mailerSettings).then(() => {
-                this.$emit('frw-redirect', this.nextAction);
-                this.isLoading = false;
-            }).catch(() => {
-                this.isLoading = false;
-            });
+            return this.systemConfigApiService
+                .saveValues(this.mailerSettings)
+                .then(() => {
+                    this.$emit('frw-redirect', this.nextAction);
+                    this.isLoading = false;
+                })
+                .catch(() => {
+                    this.isLoading = false;
+                });
         },
     },
 };

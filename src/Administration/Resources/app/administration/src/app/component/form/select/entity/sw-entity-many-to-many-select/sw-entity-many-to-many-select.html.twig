@@ -1,4 +1,3 @@
-<!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
 {% block sw_entity_many_to_many_select %}
 <sw-select-base
     ref="selectBase"
@@ -7,16 +6,11 @@
     v-bind="$attrs"
     @select-expanded="onSelectExpanded"
     @select-collapsed="onSelectCollapsed"
-    v-on="listeners"
 >
-    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_entity_many_to_many_select_base %}
-    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_entity_many_to_many_select_base_selection %}
     <template #sw-select-selection="{ identification, error, disabled, size, expand, collapse }">
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_entity_many_to_many_select_base_selection_slot %}
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_entity_many_to_many_select_advanced_selection_modal %}
         <component
             :is="advancedSelectionComponent"
@@ -39,9 +33,7 @@
             @item-remove="remove"
             @search-term-change="onSearchTermChange"
         >
-            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_entity_many_to_many_select_base_selection_list %}
-            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_entity_many_to_many_select_base_selection_list_label %}
             <template #label-property="{ item, index, labelProperty, valueProperty }">
                 <slot
@@ -58,26 +50,21 @@
     </template>
     {% endblock %}
 
-    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_entity_many_to_many_select_base_results %}
     <template #results-list>
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_entity_many_to_many_select_base_results_slot %}
         <sw-select-result-list
             ref="swSelectResultList"
             :options="resultCollection"
             :is-loading="isLoading"
-            :empty-message="$tc('global.sw-entity-many-to-many-select.messageNoResults', 0, { term: searchTerm })"
+            :empty-message="$tc('global.sw-entity-many-to-many-select.messageNoResults', { term: searchTerm }, 0)"
             :focus-el="$refs.selectionList.getFocusEl()"
             @paginate="paginateResult"
             @item-select="addItem"
         >
-            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_entity_many_to_many_select_base_results_list %}
-            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_entity_many_to_many_select_base_results_list_before %}
             <template #before-item-list>
-                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_entity_many_to_many_select_base_results_list_before_advanced_selection %}
                 <!-- eslint-disable-next-line vuejs-accessibility/click-events-have-key-events, vuejs-accessibility/no-static-element-interactions -->
                 <div
@@ -89,14 +76,12 @@
                 </div>
                 {% endblock %}
 
-                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_entity_single_select_base_results_list_before_slot %}
                 <slot name="before-item-list"></slot>
                 {% endblock %}
             </template>
             {% endblock %}
 
-            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_entity_many_to_many_select_base_results_list_result %}
             <template #result-item="{ item, index }">
                 <slot
@@ -108,7 +93,6 @@
                         v-bind="{ item, index }"
                         @item-select="addItem"
                     >
-                        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                         {% block sw_entity_many_to_many_select_base_results_list_result_label %}
                         <slot
                             name="result-label-property"
@@ -129,7 +113,6 @@
             </template>
             {% endblock %}
 
-            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_entity_many_to_many_select_base_results_list_after %}
             <template #after-item-list>
                 <slot name="after-item-list"></slot>

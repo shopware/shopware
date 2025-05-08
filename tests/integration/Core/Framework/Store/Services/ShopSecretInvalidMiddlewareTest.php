@@ -25,8 +25,8 @@ class ShopSecretInvalidMiddlewareTest extends TestCase
 
     protected function setUp(): void
     {
-        $this->connection = $this->getContainer()->get(Connection::class);
-        $this->systemConfigService = $this->getContainer()->get(SystemConfigService::class);
+        $this->connection = static::getContainer()->get(Connection::class);
+        $this->systemConfigService = static::getContainer()->get(SystemConfigService::class);
     }
 
     public function testKeepsStoreTokensAndReturnsResponse(): void

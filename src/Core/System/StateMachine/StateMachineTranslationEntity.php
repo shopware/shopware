@@ -11,20 +11,11 @@ class StateMachineTranslationEntity extends TranslationEntity
 {
     use EntityCustomFieldsTrait;
 
-    /**
-     * @var string|null
-     */
-    protected $name;
+    protected ?string $name = null;
 
-    /**
-     * @var string
-     */
-    protected $stateMachineId;
+    protected string $stateMachineId;
 
-    /**
-     * @var StateMachineEntity|null
-     */
-    protected $stateMachine;
+    protected ?StateMachineEntity $stateMachine = null;
 
     public function getName(): ?string
     {

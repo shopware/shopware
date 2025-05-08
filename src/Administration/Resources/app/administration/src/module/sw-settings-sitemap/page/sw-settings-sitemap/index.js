@@ -1,5 +1,5 @@
 /**
- * @package services-settings
+ * @sw-package discovery
  */
 
 import template from './sw-settings-sitemap.html.twig';
@@ -9,8 +9,6 @@ const { Mixin } = Shopware;
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default {
     template,
-
-    compatConfig: Shopware.compatConfig,
 
     mixins: [
         Mixin.getByName('notification'),
@@ -38,15 +36,18 @@ export default {
             this.isSaveSuccessful = false;
             this.isLoading = true;
 
-            this.$refs.systemConfig.saveAll().then(() => {
-                this.isLoading = false;
-                this.isSaveSuccessful = true;
-            }).catch((err) => {
-                this.isLoading = false;
-                this.createNotificationError({
-                    message: err,
+            this.$refs.systemConfig
+                .saveAll()
+                .then(() => {
+                    this.isLoading = false;
+                    this.isSaveSuccessful = true;
+                })
+                .catch((err) => {
+                    this.isLoading = false;
+                    this.createNotificationError({
+                        message: err,
+                    });
                 });
-            });
         },
 
         onLoadingChanged(loading) {

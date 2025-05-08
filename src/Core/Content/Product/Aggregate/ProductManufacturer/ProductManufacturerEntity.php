@@ -16,40 +16,19 @@ class ProductManufacturerEntity extends Entity
     use EntityCustomFieldsTrait;
     use EntityIdTrait;
 
-    /**
-     * @var string|null
-     */
-    protected $mediaId;
+    protected ?string $mediaId = null;
 
-    /**
-     * @var string|null
-     */
-    protected $name;
+    protected ?string $name = null;
 
-    /**
-     * @var string|null
-     */
-    protected $link;
+    protected ?string $link = null;
 
-    /**
-     * @var string|null
-     */
-    protected $description;
+    protected ?string $description = null;
 
-    /**
-     * @var MediaEntity|null
-     */
-    protected $media;
+    protected ?MediaEntity $media = null;
 
-    /**
-     * @var ProductManufacturerTranslationCollection|null
-     */
-    protected $translations;
+    protected ?ProductManufacturerTranslationCollection $translations = null;
 
-    /**
-     * @var ProductCollection|null
-     */
-    protected $products;
+    protected ?ProductCollection $products = null;
 
     public function getMediaId(): ?string
     {

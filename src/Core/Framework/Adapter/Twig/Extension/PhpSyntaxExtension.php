@@ -2,10 +2,14 @@
 
 namespace Shopware\Core\Framework\Adapter\Twig\Extension;
 
+use Shopware\Core\Framework\Adapter\AdapterException;
+use Shopware\Core\Framework\Adapter\Twig\TokenParser\MacroOverrideTokenParserMacro;
 use Shopware\Core\Framework\Adapter\Twig\TokenParser\ReturnNodeTokenParser;
+use Shopware\Core\Framework\Adapter\Twig\TokenParser\SwMacroFunctionTokenParser;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldVisibility;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Script\Facade\ArrayFacade;
+use Shopware\Core\Framework\Util\Hasher;
 use Squirrel\TwigPhpSyntax\Operator\NotSameAsBinary;
 use Squirrel\TwigPhpSyntax\Operator\SameAsBinary;
 use Squirrel\TwigPhpSyntax\Test\ArrayTest;
@@ -29,7 +33,7 @@ use Twig\TwigFilter;
 use Twig\TwigFunction;
 use Twig\TwigTest;
 
-#[Package('core')]
+#[Package('framework')]
 class PhpSyntaxExtension extends AbstractExtension
 {
     public function getTokenParsers(): array
@@ -39,6 +43,8 @@ class PhpSyntaxExtension extends AbstractExtension
             new BreakTokenParser(),
             new ContinueTokenParser(),
             new ReturnNodeTokenParser(),
+            new SwMacroFunctionTokenParser(),
+            new MacroOverrideTokenParserMacro(), /** @deprecated tag:v6.8.0 - Will be removed use `sw_macro_function` instead of macro in app scripts */
         ];
     }
 
@@ -105,12 +111,12 @@ class PhpSyntaxExtension extends AbstractExtension
                 }
 
                 if (!\is_string($var)) {
-                    throw new \InvalidArgumentException(
+                    throw AdapterException::invalidArgument(
                         \sprintf('The md5 filter expects a string or array as input, %s given', $var::class)
                     );
                 }
 
-                return md5($var);
+                return Hasher::hash($var, 'md5');
             }),
         ];
     }
@@ -195,8 +201,8 @@ class PhpSyntaxExtension extends AbstractExtension
         }
 
         if (!\is_scalar($var) && $var !== null) {
-            throw new \InvalidArgumentException(
-                'Non-scalar value given to intval/floatval/strval/boolval filter'
+            throw AdapterException::invalidArgument(
+                \sprintf('Non-scalar value given to intval/floatval/strval/boolval filter, %s given', $var::class)
             );
         }
 

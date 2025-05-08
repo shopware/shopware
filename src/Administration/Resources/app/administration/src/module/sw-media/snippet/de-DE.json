@@ -92,14 +92,12 @@
       "titleModal": "Medien auswählen",
       "labelTabItemLibrary": "Bibliothek",
       "labelTabItemUpload": "Dateien hochladen",
-      "labelButtonCancel": "Abbrechen",
       "labelButtonSaveSelection": "Medien hinzufügen"
     },
     "sw-media-modal-v2": {
       "titleModal": "Medien auswählen",
       "labelTabItemLibrary": "Bibliothek",
       "labelTabItemUpload": "Dateien hochladen",
-      "labelButtonCancel": "Abbrechen",
       "labelButtonSaveSelection": "Medien hinzufügen"
     }
   },

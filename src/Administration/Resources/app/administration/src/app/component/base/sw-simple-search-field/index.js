@@ -4,7 +4,7 @@ import './sw-simple-search-field.scss';
 const { Component, Utils } = Shopware;
 
 /**
- * @package admin
+ * @sw-package framework
  *
  * @private
  * @description a search field with delayed update
@@ -22,8 +22,6 @@ Component.register('sw-simple-search-field', {
     template,
     inheritAttrs: false,
 
-    compatConfig: Shopware.compatConfig,
-
     emits: [
         'update:value',
         'search-term-change',
@@ -34,12 +32,20 @@ Component.register('sw-simple-search-field', {
             type: String,
             required: false,
             default: 'default',
-            validValues: ['default', 'inverted', 'form'],
+            validValues: [
+                'default',
+                'inverted',
+                'form',
+            ],
             validator(value) {
                 if (!value.length) {
                     return true;
                 }
-                return ['default', 'inverted', 'form'].includes(value);
+                return [
+                    'default',
+                    'inverted',
+                    'form',
+                ].includes(value);
             },
         },
 
@@ -47,6 +53,12 @@ Component.register('sw-simple-search-field', {
             type: String,
             default: null,
             required: false,
+        },
+
+        size: {
+            type: String,
+            required: false,
+            default: 'default',
         },
 
         delay: {
@@ -79,15 +91,6 @@ Component.register('sw-simple-search-field', {
 
         placeholder() {
             return this.$attrs.placeholder || this.$tc('global.sw-simple-search-field.defaultPlaceholder');
-        },
-
-        listeners() {
-            // eslint-disable-next-line @typescript-eslint/no-unsafe-call,@typescript-eslint/no-unsafe-member-access
-            if (this.isCompatEnabled('INSTANCE_LISTENERS')) {
-                return this.$listeners;
-            }
-
-            return {};
         },
     },
 

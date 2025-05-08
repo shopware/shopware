@@ -12,6 +12,7 @@ use Shopware\Core\Framework\Api\Context\AdminApiSource;
 use Shopware\Core\Framework\Api\Util\AccessKeyHelper;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Test\TestCaseHelper\TestBrowser;
+use Shopware\Core\Framework\Util\Hasher;
 use Shopware\Core\Framework\Uuid\Exception\InvalidUuidException;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\PlatformRequest;
@@ -104,7 +105,7 @@ trait AdminApiTestBehaviour
         TestCase::assertSame(
             Response::HTTP_OK,
             $browser->getResponse()->getStatusCode(),
-            'Entity does not exists but should do. Response: ' . $browser->getResponse()->getContent()
+            'Entity does not exist but should do. Response: ' . $browser->getResponse()->getContent()
         );
     }
 
@@ -146,7 +147,7 @@ trait AdminApiTestBehaviour
         if ($aclPermissions !== null) {
             $aclRoleId = Uuid::randomBytes();
             $user['admin'] = 0;
-            $user['email'] = md5(json_encode($aclPermissions, \JSON_THROW_ON_ERROR)) . '@example.com';
+            $user['email'] = Hasher::hash($aclPermissions) . '@example.com';
             $aclRole = [
                 'id' => $aclRoleId,
                 'name' => 'testPermissions',
@@ -177,7 +178,7 @@ trait AdminApiTestBehaviour
         ];
 
         if (!empty($scopes)) {
-            $authPayload['scope'] = $scopes;
+            $authPayload['scope'] = implode(' ', $scopes);
         }
 
         $browser->request('POST', '/api/oauth/token', $authPayload, [], [], json_encode($authPayload, \JSON_THROW_ON_ERROR));

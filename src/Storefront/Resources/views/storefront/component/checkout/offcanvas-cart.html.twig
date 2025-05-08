@@ -20,9 +20,12 @@
 
         <div class="offcanvas-cart">
             {% block component_offcanvas_cart_header %}
-                <div class="row align-items-center h4 offcanvas-cart-header">
+                <div class="row align-items-center offcanvas-cart-header">
+
                     <div class="col">
-                        {{ 'checkout.cartHeader'|trans|sw_sanitize }}
+                        <h4 data-id="off-canvas-headline">
+                            {{- 'checkout.cartHeader'|trans|sw_sanitize -}}
+                        </h4>
                     </div>
 
                     {% set checkoutItemCounter = page.cart.lineItems|length %}
@@ -30,8 +33,8 @@
                     {% block component_offcanvas_cart_header_item_counter %}
                         {% if isCartNotEmpty %}
                             <div class="col-auto">
-                                <small class="offcanvas-cart-header-count">
-                                    {{ 'checkout.itemCounter'|trans({'%count%': checkoutItemCounter})|sw_sanitize }}
+                                <small class="offcanvas-cart-header-count h4">
+                                    {{- 'checkout.itemCounter'|trans({'%count%': checkoutItemCounter})|sw_sanitize -}}
                                 </small>
                             </div>
                         {% endif %}
@@ -52,7 +55,7 @@
 
             {% if isCartNotEmpty %}
                 {% block component_offcanvas_cart_items %}
-                    <div class="offcanvas-cart-items">
+                    <ul class="offcanvas-cart-items list-unstyled">
                         {% for lineItem in page.cart.lineItems %}
                             {% block component_offcanvas_cart_item %}
                                 {% sw_include '@Storefront/storefront/component/line-item/line-item.html.twig' with {
@@ -61,7 +64,7 @@
                                 } %}
                             {% endblock %}
                         {% endfor %}
-                    </div>
+                    </ul>
                 {% endblock %}
             {% else %}
                 {% block component_offcanvas_cart_empty %}
@@ -93,29 +96,31 @@
                                                    value="frontend.cart.offcanvas">
                                         {% endblock %}
 
+                                        {% block component_offcanvas_cart_actions_promotion_label %}
+                                            <label class="mb-1" for="addPromotionOffcanvasCartInput">
+                                                {{ 'checkout.addPromotionLabel'|trans|sw_sanitize }}
+                                            </label>
+                                        {% endblock %}
+
                                         {% block component_offcanvas_cart_actions_promotion_input_group %}
                                             <div class="input-group">
-                                                {% block component_offcanvas_cart_actions_promotion_label %}
-                                                    <label class="visually-hidden" for="addPromotionOffcanvasCartInput">
-                                                        {{ 'checkout.addPromotionLabel'|trans|sw_sanitize }}
-                                                    </label>
-                                                {% endblock %}
-
                                                 {% block component_offcanvas_cart_actions_promotion_input %}
                                                     <input type="text"
                                                            name="code"
                                                            class="form-control"
-                                                           id="addPromotionOffcanvasCartInput"
                                                            placeholder="{{ 'checkout.addPromotionPlaceholder'|trans|striptags }}"
+                                                           id="addPromotionOffcanvasCartInput"
                                                            aria-label="{{ 'checkout.addPromotionLabel'|trans|striptags }}"
                                                            aria-describedby="addPromotionOffcanvasCart"
-                                                           required="required">
+                                                           required="required"
+                                                           aria-invalid="false">
                                                 {% endblock %}
 
                                                 {% block component_offcanvas_cart_actions_promotion_submit %}
-                                                    <button class="btn btn-secondary"
+                                                    <button class="btn btn-outline-secondary offcanvas-cart-promotion-button"
                                                             type="submit"
-                                                            id="addPromotionOffcanvasCart">
+                                                            id="addPromotionOffcanvasCart"
+                                                            aria-labelledby="addPromotionOffcanvasCartInput">
                                                         {% sw_icon 'checkmark' %}
                                                     </button>
                                                 {% endblock %}

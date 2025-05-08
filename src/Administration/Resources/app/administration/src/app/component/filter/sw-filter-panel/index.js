@@ -1,3 +1,7 @@
+/**
+ * @sw-package framework
+ */
+
 import template from './sw-filter-panel.html.twig';
 import './sw-filter-panel.scss';
 
@@ -8,8 +12,6 @@ const { Component } = Shopware;
  */
 Component.register('sw-filter-panel', {
     template,
-
-    compatConfig: Shopware.compatConfig,
 
     inject: ['repositoryFactory'],
 
@@ -44,7 +46,7 @@ Component.register('sw-filter-panel', {
         criteria() {
             const filters = [];
 
-            Object.values(this.activeFilters).forEach(activeFilter => {
+            Object.values(this.activeFilters).forEach((activeFilter) => {
                 filters.push(...activeFilter);
             });
 
@@ -63,7 +65,7 @@ Component.register('sw-filter-panel', {
             const savedFilters = { ...this.storedFilters };
             const filters = [];
 
-            this.filters.forEach(el => {
+            this.filters.forEach((el) => {
                 const filter = { ...el };
 
                 filter.value = savedFilters[filter.name] ? savedFilters[filter.name].value : null;
@@ -80,16 +82,18 @@ Component.register('sw-filter-panel', {
         criteria: {
             handler() {
                 if (this.filterChanged) {
-                    Shopware.Service('filterService').saveFilters(this.storeKey, this.storedFilters).then(response => {
-                        this.storedFilters = response;
-                        this.$emit('criteria-changed', this.criteria);
-                    });
+                    Shopware.Service('filterService')
+                        .saveFilters(this.storeKey, this.storedFilters)
+                        .then((response) => {
+                            this.storedFilters = response;
+                            this.$emit('criteria-changed', this.criteria);
+                        });
                 }
             },
             deep: true,
         },
 
-        '$route'() {
+        $route() {
             this.filterChanged = false;
             this.createdComponent();
         },
@@ -101,40 +105,30 @@ Component.register('sw-filter-panel', {
 
     methods: {
         createdComponent() {
-            Shopware.Service('filterService').getStoredFilters(this.storeKey).then(filters => {
-                this.activeFilters = {};
-                this.storedFilters = filters;
+            Shopware.Service('filterService')
+                .getStoredFilters(this.storeKey)
+                .then((filters) => {
+                    this.activeFilters = {};
+                    this.storedFilters = filters;
 
-                this.listFilters.forEach(filter => {
-                    const criteria = filters[filter.name] ? filters[filter.name].criteria : null;
-                    if (criteria) {
-                        if (this.isCompatEnabled('INSTANCE_SET')) {
-                            this.$set(this.activeFilters, filter.name, criteria);
-                        } else {
+                    this.listFilters.forEach((filter) => {
+                        const criteria = filters[filter.name] ? filters[filter.name].criteria : null;
+                        if (criteria) {
                             this.activeFilters[filter.name] = criteria;
                         }
-                    }
+                    });
                 });
-            });
         },
 
         updateFilter(name, filter, value) {
             this.filterChanged = true;
-            if (this.isCompatEnabled('INSTANCE_SET')) {
-                this.$set(this.activeFilters, name, filter);
-            } else {
-                this.activeFilters[name] = filter;
-            }
+            this.activeFilters[name] = filter;
             this.storedFilters[name] = { value: value, criteria: filter };
         },
 
         resetFilter(name) {
             this.filterChanged = true;
-            if (this.isCompatEnabled('INSTANCE_DELETE')) {
-                this.$delete(this.activeFilters, name);
-            } else {
-                delete this.activeFilters[name];
-            }
+            delete this.activeFilters[name];
             this.storedFilters[name] = { value: null, criteria: null };
         },
 
@@ -142,7 +136,7 @@ Component.register('sw-filter-panel', {
             this.filterChanged = true;
             this.activeFilters = {};
 
-            Object.values(this.storedFilters).forEach(el => {
+            Object.values(this.storedFilters).forEach((el) => {
                 el.value = null;
                 el.criteria = null;
             });

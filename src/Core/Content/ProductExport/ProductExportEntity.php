@@ -20,120 +20,51 @@ class ProductExportEntity extends Entity
     final public const FILE_FORMAT_CSV = 'csv';
     final public const FILE_FORMAT_XML = 'xml';
 
-    /**
-     * @var string
-     */
-    protected $productStreamId;
+    protected string $productStreamId;
 
-    /**
-     * @var string
-     */
-    protected $storefrontSalesChannelId;
+    protected string $storefrontSalesChannelId;
 
-    /**
-     * @var string
-     */
-    protected $salesChannelId;
+    protected string $salesChannelId;
 
-    /**
-     * @var string
-     */
-    protected $salesChannelDomainId;
+    protected string $salesChannelDomainId;
 
-    /**
-     * @var string
-     */
-    protected $currencyId;
+    protected string $currencyId;
 
-    /**
-     * @var string
-     */
-    protected $fileName;
+    protected string $fileName;
 
-    /**
-     * @var string
-     */
-    protected $accessKey;
+    protected string $accessKey;
 
-    /**
-     * @var string
-     */
-    protected $encoding;
+    protected string $encoding;
 
-    /**
-     * @var string
-     */
-    protected $fileFormat;
+    protected string $fileFormat;
 
-    /**
-     * @var ProductStreamEntity
-     */
-    protected $productStream;
+    protected ?ProductStreamEntity $productStream = null;
 
-    /**
-     * @var SalesChannelEntity
-     */
-    protected $storefrontSalesChannel;
+    protected ?SalesChannelEntity $storefrontSalesChannel = null;
 
-    /**
-     * @var SalesChannelEntity
-     */
-    protected $salesChannel;
+    protected ?SalesChannelEntity $salesChannel = null;
 
-    /**
-     * @var SalesChannelDomainEntity
-     */
-    protected $salesChannelDomain;
+    protected ?SalesChannelDomainEntity $salesChannelDomain = null;
 
-    /**
-     * @var CurrencyEntity
-     */
-    protected $currency;
+    protected ?CurrencyEntity $currency = null;
 
-    /**
-     * @var bool
-     */
-    protected $includeVariants;
+    protected bool $includeVariants;
 
-    /**
-     * @var bool
-     */
-    protected $generateByCronjob;
+    protected bool $generateByCronjob;
 
-    /**
-     * @var \DateTimeInterface|null
-     */
-    protected $generatedAt;
+    protected ?\DateTimeInterface $generatedAt = null;
 
-    /**
-     * @var int
-     */
-    protected $interval;
+    protected int $interval;
 
-    /**
-     * @var string|null
-     */
-    protected $headerTemplate;
+    protected ?string $headerTemplate = null;
 
-    /**
-     * @var string|null
-     */
-    protected $bodyTemplate;
+    protected ?string $bodyTemplate = null;
 
-    /**
-     * @var string|null
-     */
-    protected $footerTemplate;
+    protected ?string $footerTemplate = null;
 
-    /**
-     * @var bool|null
-     */
-    protected $pausedSchedule;
+    protected ?bool $pausedSchedule = null;
 
-    /**
-     * @var bool
-     */
-    protected $isRunning;
+    protected bool $isRunning;
 
     public function getProductStreamId(): string
     {
@@ -225,7 +156,7 @@ class ProductExportEntity extends Entity
         $this->fileFormat = $fileFormat;
     }
 
-    public function getProductStream(): ProductStreamEntity
+    public function getProductStream(): ?ProductStreamEntity
     {
         return $this->productStream;
     }
@@ -235,7 +166,7 @@ class ProductExportEntity extends Entity
         $this->productStream = $productStream;
     }
 
-    public function getStorefrontSalesChannel(): SalesChannelEntity
+    public function getStorefrontSalesChannel(): ?SalesChannelEntity
     {
         return $this->storefrontSalesChannel;
     }
@@ -245,7 +176,7 @@ class ProductExportEntity extends Entity
         $this->storefrontSalesChannel = $storefrontSalesChannel;
     }
 
-    public function getSalesChannel(): SalesChannelEntity
+    public function getSalesChannel(): ?SalesChannelEntity
     {
         return $this->salesChannel;
     }
@@ -255,7 +186,7 @@ class ProductExportEntity extends Entity
         $this->salesChannel = $salesChannel;
     }
 
-    public function getSalesChannelDomain(): SalesChannelDomainEntity
+    public function getSalesChannelDomain(): ?SalesChannelDomainEntity
     {
         return $this->salesChannelDomain;
     }
@@ -265,7 +196,7 @@ class ProductExportEntity extends Entity
         $this->salesChannelDomain = $salesChannelDomain;
     }
 
-    public function getCurrency(): CurrencyEntity
+    public function getCurrency(): ?CurrencyEntity
     {
         return $this->currency;
     }

@@ -1,28 +1,22 @@
-<!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
 {% block sw_grid_column %}
 <div
     class="sw-grid-column sw-grid__cell"
     :class="'sw-grid-column--' + align"
-    v-on="listeners"
 >
-    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_grid_column_content %}
     <div
         class="sw-grid__cell-content"
         :class="{ 'is--truncate': truncate }"
     >
         <slot>
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_grid_column_slot_default %}{% endblock %}
         </slot>
     </div>
     {% endblock %}
 
-    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_grid_column_editing %}
     <div class="sw-grid__cell-inline-editing">
         <slot name="inline-edit">
-            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_grid_column_slot_inline_edit %}{% endblock %}
         </slot>
     </div>

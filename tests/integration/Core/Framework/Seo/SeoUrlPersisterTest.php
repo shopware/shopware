@@ -55,13 +55,13 @@ class SeoUrlPersisterTest extends TestCase
 
     protected function setUp(): void
     {
-        $this->seoUrlRepository = $this->getContainer()->get('seo_url.repository');
-        $this->seoUrlPersister = $this->getContainer()->get(SeoUrlPersister::class);
-        $this->categoryRepository = $this->getContainer()->get('category.repository');
-        $this->seoUrlGenerator = $this->getContainer()->get(SeoUrlGenerator::class);
-        $this->salesChannelRepository = $this->getContainer()->get('sales_channel.repository');
+        $this->seoUrlRepository = static::getContainer()->get('seo_url.repository');
+        $this->seoUrlPersister = static::getContainer()->get(SeoUrlPersister::class);
+        $this->categoryRepository = static::getContainer()->get('category.repository');
+        $this->seoUrlGenerator = static::getContainer()->get(SeoUrlGenerator::class);
+        $this->salesChannelRepository = static::getContainer()->get('sales_channel.repository');
 
-        $connection = $this->getContainer()->get(Connection::class);
+        $connection = static::getContainer()->get(Connection::class);
         $connection->executeStatement('DELETE FROM `sales_channel`');
         $connection->executeStatement('DELETE FROM `seo_url`');
 
@@ -485,7 +485,7 @@ class SeoUrlPersisterTest extends TestCase
             static::markTestSkipped('Sales channel with type of storefront is required');
         }
 
-        $navigation = $this->getContainer()->get(TestNavigationSeoUrlRoute::class);
+        $navigation = static::getContainer()->get(TestNavigationSeoUrlRoute::class);
         static::assertInstanceOf(SeoUrlRouteInterface::class, $navigation);
 
         return $this->seoUrlGenerator->generate(

@@ -13,15 +13,18 @@ use Shopware\Core\Framework\Rule\RuleConstraints;
 use Shopware\Core\Framework\Rule\RuleScope;
 use Shopware\Core\System\Tax\TaxDefinition;
 
-#[Package('services-settings')]
+/**
+ * @final
+ */
+#[Package('fundamentals@after-sales')]
 class LineItemTaxationRule extends Rule
 {
     final public const RULE_NAME = 'cartLineItemTaxation';
 
     /**
-     * @internal
-     *
      * @param list<string> $taxIds
+     *
+     * @internal
      */
     public function __construct(
         protected string $operator = self::OPERATOR_EQ,

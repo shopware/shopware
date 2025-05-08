@@ -8,43 +8,37 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Struct\Struct;
 
-#[Package('core')]
+#[Package('framework')]
 class Record implements \JsonSerializable
 {
-    /**
-     * @var string
-     */
-    protected $id;
+    protected string $id;
 
-    /**
-     * @var string
-     */
-    protected $type;
+    protected string $type;
 
     /**
      * @var array<string, mixed|null>
      */
-    protected $attributes = [];
+    protected array $attributes = [];
 
     /**
      * @var array<string, mixed|null>
      */
-    protected $extensions = [];
+    protected array $extensions = [];
 
     /**
      * @var array<string, mixed|null>
      */
-    protected $links = [];
+    protected array $links = [];
 
     /**
      * @var array<string, mixed|null>
      */
-    protected $relationships = [];
+    protected array $relationships = [];
 
     /**
      * @var array<string, mixed|null>
      */
-    protected $meta;
+    protected array $meta = [];
 
     public function __construct(
         string $id = '',

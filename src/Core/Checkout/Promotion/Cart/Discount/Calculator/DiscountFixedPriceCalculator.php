@@ -10,11 +10,11 @@ use Shopware\Core\Checkout\Promotion\Cart\Discount\Composition\DiscountCompositi
 use Shopware\Core\Checkout\Promotion\Cart\Discount\DiscountCalculatorResult;
 use Shopware\Core\Checkout\Promotion\Cart\Discount\DiscountLineItem;
 use Shopware\Core\Checkout\Promotion\Cart\Discount\DiscountPackageCollection;
-use Shopware\Core\Checkout\Promotion\Exception\InvalidPriceDefinitionException;
+use Shopware\Core\Checkout\Promotion\PromotionException;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
-#[Package('buyers-experience')]
+#[Package('checkout')]
 class DiscountFixedPriceCalculator
 {
     public function __construct(private readonly AbsolutePriceCalculator $absolutePriceCalculator)
@@ -22,7 +22,7 @@ class DiscountFixedPriceCalculator
     }
 
     /**
-     * @throws InvalidPriceDefinitionException
+     * @throws PromotionException
      * @throws CartException
      */
     public function calculate(DiscountLineItem $discount, DiscountPackageCollection $packages, SalesChannelContext $context): DiscountCalculatorResult
@@ -30,7 +30,7 @@ class DiscountFixedPriceCalculator
         $priceDefinition = $discount->getPriceDefinition();
 
         if (!$priceDefinition instanceof AbsolutePriceDefinition) {
-            throw new InvalidPriceDefinitionException($discount->getLabel(), $discount->getCode());
+            throw PromotionException::invalidPriceDefinition($discount->getLabel(), $discount->getCode());
         }
 
         $fixedTotalPrice = abs($priceDefinition->getPrice());
@@ -64,7 +64,7 @@ class DiscountFixedPriceCalculator
     }
 
     /**
-     * @return array<DiscountCompositionItem>
+     * @return list<DiscountCompositionItem>
      */
     private function getCompositionItems(float $discountValue, DiscountPackageCollection $packages, PriceCollection $affectedPrices): array
     {

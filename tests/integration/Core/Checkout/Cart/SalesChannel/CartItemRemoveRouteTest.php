@@ -4,18 +4,21 @@ namespace Shopware\Tests\Integration\Core\Checkout\Cart\SalesChannel;
 
 use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Checkout\Cart\CartException;
 use Shopware\Core\Content\Product\Aggregate\ProductVisibility\ProductVisibilityDefinition;
 use Shopware\Core\Content\Product\Cart\ProductCartProcessor;
+use Shopware\Core\Content\Product\ProductCollection;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\SalesChannelApiTestBehaviour;
-use Shopware\Core\Framework\Test\TestDataCollection;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextPersister;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextService;
+use Shopware\Core\Test\Stub\Framework\IdsCollection;
 use Symfony\Bundle\FrameworkBundle\KernelBrowser;
+use Symfony\Component\HttpFoundation\Response;
 
 /**
  * @internal
@@ -30,20 +33,23 @@ class CartItemRemoveRouteTest extends TestCase
 
     private KernelBrowser $browser;
 
-    private TestDataCollection $ids;
+    private IdsCollection $ids;
 
+    /**
+     * @var EntityRepository<ProductCollection>
+     */
     private EntityRepository $productRepository;
 
     protected function setUp(): void
     {
-        $this->ids = new TestDataCollection();
+        $this->ids = new IdsCollection();
 
         $this->browser = $this->createCustomSalesChannelBrowser([
             'id' => $this->ids->create('sales-channel'),
         ]);
 
         $this->browser->setServerParameter('HTTP_SW_CONTEXT_TOKEN', $this->ids->create('token'));
-        $this->productRepository = $this->getContainer()->get('product.repository');
+        $this->productRepository = static::getContainer()->get('product.repository');
 
         $this->createTestData();
     }
@@ -211,6 +217,56 @@ class CartItemRemoveRouteTest extends TestCase
         static::assertSame(0, $response['price']['totalPrice']);
     }
 
+    public function testRemoveWithoutIds(): void
+    {
+        $this->browser
+            ->request(
+                'POST',
+                '/store-api/checkout/cart/line-item',
+                [],
+                [],
+                ['CONTENT_TYPE' => 'application/json'],
+                (string) json_encode([
+                    'items' => [
+                        [
+                            'id' => $this->ids->get('p1'),
+                            'type' => 'product',
+                            'referencedId' => $this->ids->get('p1'),
+                        ],
+                    ],
+                ])
+            );
+
+        static::assertSame(200, $this->browser->getResponse()->getStatusCode());
+
+        $response = json_decode((string) $this->browser->getResponse()->getContent(), true, 512, \JSON_THROW_ON_ERROR);
+
+        static::assertSame('cart', $response['apiAlias']);
+        static::assertSame(10, $response['price']['totalPrice']);
+        static::assertCount(1, $response['lineItems']);
+
+        // Remove
+        $this->browser
+            ->request(
+                'POST',
+                '/store-api/checkout/cart/line-item/delete',
+                [],
+                [],
+                ['CONTENT_TYPE' => 'application/json'],
+                (string) json_encode([
+                    'ids' => [
+                        null,
+                    ],
+                ])
+            );
+
+        static::assertSame(Response::HTTP_NOT_FOUND, $this->browser->getResponse()->getStatusCode());
+
+        $response = json_decode((string) $this->browser->getResponse()->getContent(), true, 512, \JSON_THROW_ON_ERROR);
+
+        static::assertSame(CartException::CART_LINE_ITEM_NOT_FOUND_CODE, $response['errors'][0]['code']);
+    }
+
     private function createTestData(): void
     {
         $this->productRepository->create([
@@ -233,10 +289,10 @@ class CartItemRemoveRouteTest extends TestCase
     private function enableAdminAccess(): void
     {
         $token = $this->browser->getServerParameter('HTTP_SW_CONTEXT_TOKEN');
-        $payload = $this->getContainer()->get(SalesChannelContextPersister::class)->load($token, $this->ids->get('sales-channel'));
+        $payload = static::getContainer()->get(SalesChannelContextPersister::class)->load($token, $this->ids->get('sales-channel'));
 
         $payload[SalesChannelContextService::PERMISSIONS] = [ProductCartProcessor::ALLOW_PRODUCT_PRICE_OVERWRITES => true];
 
-        $this->getContainer()->get(SalesChannelContextPersister::class)->save($token, $payload, $this->ids->get('sales-channel'));
+        static::getContainer()->get(SalesChannelContextPersister::class)->save($token, $payload, $this->ids->get('sales-channel'));
     }
 }

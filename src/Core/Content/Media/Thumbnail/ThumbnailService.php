@@ -5,7 +5,7 @@ namespace Shopware\Core\Content\Media\Thumbnail;
 use Doctrine\DBAL\ArrayParameterType;
 use Doctrine\DBAL\Connection;
 use League\Flysystem\FilesystemOperator;
-use Shopware\Core\Content\Media\Aggregate\MediaFolder\MediaFolderEntity;
+use Shopware\Core\Content\Media\Aggregate\MediaFolder\MediaFolderCollection;
 use Shopware\Core\Content\Media\Aggregate\MediaFolderConfiguration\MediaFolderConfigurationEntity;
 use Shopware\Core\Content\Media\Aggregate\MediaThumbnail\MediaThumbnailCollection;
 use Shopware\Core\Content\Media\Aggregate\MediaThumbnail\MediaThumbnailEntity;
@@ -32,11 +32,14 @@ use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 /**
  * @phpstan-type ImageSize array{width: int<1, max>, height: int<1, max>}
  */
-#[Package('buyers-experience')]
+#[Package('discovery')]
 class ThumbnailService
 {
     /**
      * @internal
+     *
+     * @param EntityRepository<MediaThumbnailCollection> $thumbnailRepository
+     * @param EntityRepository<MediaFolderCollection> $mediaFolderRepository
      */
     public function __construct(
         private readonly EntityRepository $thumbnailRepository,
@@ -143,8 +146,6 @@ class ThumbnailService
             return 0;
         }
 
-        $strict = \func_get_args()[2] ?? false;
-
         if ($config->getMediaThumbnailSizes() === null) {
             return 0;
         }
@@ -199,7 +200,7 @@ class ThumbnailService
     }
 
     /**
-     * @return array<array{id:string, mediaId:string, width:int, height:int}>
+     * @return list<array{id:string, mediaId:string, width:int, height:int}>
      */
     private function generateAndSave(MediaEntity $media, MediaFolderConfigurationEntity $config, Context $context, ?MediaThumbnailSizeCollection $sizes): array
     {
@@ -302,8 +303,11 @@ class ThumbnailService
         $criteria = new Criteria([$mediaFolderId]);
         $criteria->addAssociation('configuration.mediaThumbnailSizes');
 
-        /** @var MediaFolderEntity $folder */
-        $folder = $this->mediaFolderRepository->search($criteria, $context)->get($mediaFolderId);
+        $folder = $this->mediaFolderRepository->search($criteria, $context)->getEntities()->get($mediaFolderId);
+        if ($folder === null) {
+            return;
+        }
+
         $media->setMediaFolder($folder);
     }
 
@@ -311,7 +315,6 @@ class ThumbnailService
     {
         $filePath = $media->getPath();
 
-        /** @var string $file */
         $file = $this->getFileSystem($media)->read($filePath);
         $image = @imagecreatefromstring($file);
         if ($image === false) {
@@ -319,8 +322,8 @@ class ThumbnailService
         }
 
         if (\function_exists('exif_read_data')) {
-            /** @var resource $stream */
             $stream = fopen('php://memory', 'r+');
+            \assert(\is_resource($stream));
 
             try {
                 // use in-memory stream to read the EXIF-metadata,

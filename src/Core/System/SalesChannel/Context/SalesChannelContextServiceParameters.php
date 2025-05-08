@@ -6,55 +6,19 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Struct\Struct;
 
-#[Package('core')]
+#[Package('framework')]
 class SalesChannelContextServiceParameters extends Struct
 {
-    /**
-     * @var string
-     */
-    protected $salesChannelId;
-
-    /**
-     * @var string
-     */
-    protected $token;
-
-    /**
-     * @var string|null
-     */
-    protected $languageId;
-
-    /**
-     * @var string|null
-     */
-    protected $currencyId;
-
-    /**
-     * @var string|null
-     */
-    protected $domainId;
-
-    /**
-     * @var Context|null
-     */
-    protected $originalContext;
-
     public function __construct(
-        string $salesChannelId,
-        string $token,
-        ?string $languageId = null,
-        ?string $currencyId = null,
-        ?string $domainId = null,
-        ?Context $originalContext = null,
+        protected string $salesChannelId,
+        protected string $token,
+        protected ?string $languageId = null,
+        protected ?string $currencyId = null,
+        protected ?string $domainId = null,
+        protected ?Context $originalContext = null,
         protected ?string $customerId = null,
         protected ?string $imitatingUserId = null
     ) {
-        $this->salesChannelId = $salesChannelId;
-        $this->token = $token;
-        $this->languageId = $languageId;
-        $this->currencyId = $currencyId;
-        $this->domainId = $domainId;
-        $this->originalContext = $originalContext;
     }
 
     public function getSalesChannelId(): string

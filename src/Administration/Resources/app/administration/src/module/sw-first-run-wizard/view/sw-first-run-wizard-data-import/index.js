@@ -4,20 +4,23 @@ import './sw-first-run-wizard-data-import.scss';
 const { Criteria } = Shopware.Data;
 
 /**
- * @package checkout
+ * @sw-package fundamentals@after-sales
+ *
  * @private
  */
 export default {
     template,
-
-    compatConfig: Shopware.compatConfig,
 
     inject: [
         'extensionStoreActionService',
         'repositoryFactory',
     ],
 
-    emits: ['buttons-update', 'frw-set-title', 'extension-activated'],
+    emits: [
+        'buttons-update',
+        'frw-set-title',
+        'extension-activated',
+    ],
 
     data() {
         return {
@@ -73,7 +76,6 @@ export default {
         },
     },
 
-
     created() {
         this.createdComponent();
     },
@@ -102,7 +104,8 @@ export default {
             this.isInstallingPlugin = true;
             this.installationError = false;
 
-            return this.extensionStoreActionService.downloadExtension(plugin.name)
+            return this.extensionStoreActionService
+                .downloadExtension(plugin.name)
                 .then(() => {
                     return this.extensionStoreActionService.installExtension(plugin.name, 'plugin');
                 })
@@ -129,40 +132,41 @@ export default {
         },
 
         getInstalledPlugins() {
-            const pluginNames = Object.values(this.plugins).map(plugin => plugin.name);
+            const pluginNames = Object.values(this.plugins).map((plugin) => plugin.name);
             const pluginCriteria = new Criteria(1, 5);
 
-            pluginCriteria
-                .addFilter(
-                    Criteria.equalsAny('plugin.name', pluginNames),
-                );
+            pluginCriteria.addFilter(Criteria.equalsAny('plugin.name', pluginNames));
 
-            this.pluginRepository.search(pluginCriteria)
-                .then((result) => {
-                    if (result.total < 1) {
+            this.pluginRepository.search(pluginCriteria).then((result) => {
+                if (result.total < 1) {
+                    return;
+                }
+
+                result.forEach((plugin) => {
+                    if (!plugin.active || plugin.installedAt === null) {
                         return;
                     }
 
-                    result.forEach((plugin) => {
-                        if (!plugin.active || plugin.installedAt === null) {
-                            return;
-                        }
+                    const key = this.findPluginKeyByName(plugin.name);
 
-                        const key = this.findPluginKeyByName(plugin.name);
-
-                        this.plugins[key].isInstalled = true;
-                    });
+                    this.plugins[key].isInstalled = true;
                 });
+            });
         },
 
         findPluginKeyByName(name) {
-            const [pluginKey] = Object.entries(this.plugins).find(([key, state]) => {
-                if (state.name === name) {
-                    return key;
-                }
+            const [pluginKey] = Object.entries(this.plugins).find(
+                ([
+                    key,
+                    state,
+                ]) => {
+                    if (state.name === name) {
+                        return key;
+                    }
 
-                return '';
-            });
+                    return '';
+                },
+            );
 
             return pluginKey;
         },

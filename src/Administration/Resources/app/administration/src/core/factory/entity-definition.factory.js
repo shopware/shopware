@@ -1,5 +1,5 @@
 /**
- * @package admin
+ * @sw-package framework
  */
 
 import EntityDefinition, { getScalarTypes, getJsonTypes } from 'src/core/data/entity-definition.data';

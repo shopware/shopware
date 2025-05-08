@@ -25,7 +25,7 @@ use Shopware\Core\Checkout\Promotion\Cart\Discount\Calculator\DiscountAbsoluteCa
 use Shopware\Core\Checkout\Promotion\Cart\Discount\DiscountLineItem;
 use Shopware\Core\Checkout\Promotion\Cart\Discount\DiscountPackage;
 use Shopware\Core\Checkout\Promotion\Cart\Discount\DiscountPackageCollection;
-use Shopware\Core\Checkout\Promotion\Exception\InvalidPriceDefinitionException;
+use Shopware\Core\Checkout\Promotion\PromotionException;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Test\Generator;
@@ -33,14 +33,14 @@ use Shopware\Core\Test\Generator;
 /**
  * @internal
  */
-#[Package('buyers-experience')]
+#[Package('checkout')]
 #[CoversClass(DiscountAbsoluteCalculator::class)]
 class DiscountAbsoluteCalculatorTest extends TestCase
 {
     #[DataProvider('priceProvider')]
     public function testCalculate(float $discountIn, float $packageSum, float $discountOut): void
     {
-        $context = Generator::createSalesChannelContext();
+        $context = Generator::generateSalesChannelContext();
 
         $rounding = new CashRounding();
 
@@ -77,7 +77,7 @@ class DiscountAbsoluteCalculatorTest extends TestCase
 
     public function testInvalidPriceDefinitionThrow(): void
     {
-        $context = Generator::createSalesChannelContext();
+        $context = Generator::generateSalesChannelContext();
 
         $rounding = new CashRounding();
 
@@ -96,7 +96,7 @@ class DiscountAbsoluteCalculatorTest extends TestCase
         $priceDefinition = new PercentagePriceDefinition(23.5);
         $discount = new DiscountLineItem('foo', $priceDefinition, ['discountScope' => 'foo', 'discountType' => 'bar'], null);
 
-        static::expectException(InvalidPriceDefinitionException::class);
+        static::expectException(PromotionException::class);
 
         $discountCalculator->calculate($discount, new DiscountPackageCollection(), $context);
     }

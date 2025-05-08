@@ -8,6 +8,7 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\Cart;
 use Shopware\Core\Checkout\Cart\CartBehavior;
 use Shopware\Core\Checkout\Cart\CartException;
+use Shopware\Core\Checkout\Cart\CartSerializationCleaner;
 use Shopware\Core\Checkout\Cart\LineItem\LineItem;
 use Shopware\Core\Checkout\Cart\Order\OrderConverter;
 use Shopware\Core\Checkout\Cart\Order\OrderPersister;
@@ -26,6 +27,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory;
@@ -36,6 +38,7 @@ use Shopware\Core\Test\TestDefaults;
 /**
  * @internal
  */
+#[Package('checkout')]
 class OrderPersisterTest extends TestCase
 {
     use IntegrationTestBehaviour;
@@ -46,11 +49,14 @@ class OrderPersisterTest extends TestCase
 
     private OrderConverter $orderConverter;
 
+    private CartSerializationCleaner $serializationCleaner;
+
     protected function setUp(): void
     {
-        $this->orderPersister = $this->getContainer()->get(OrderPersister::class);
-        $this->cartProcessor = $this->getContainer()->get(Processor::class);
-        $this->orderConverter = $this->getContainer()->get(OrderConverter::class);
+        $this->orderPersister = static::getContainer()->get(OrderPersister::class);
+        $this->cartProcessor = static::getContainer()->get(Processor::class);
+        $this->orderConverter = static::getContainer()->get(OrderConverter::class);
+        $this->serializationCleaner = static::getContainer()->get(CartSerializationCleaner::class);
     }
 
     public function testSave(): void
@@ -71,7 +77,7 @@ class OrderPersisterTest extends TestCase
         ];
 
         $repository = $this->createMock(EntityRepository::class);
-        $repository->expects(static::once())
+        $repository->expects($this->once())
             ->method('create')
             ->with(
                 static::callback(function (array $payload) use ($positionByIdentifier) {
@@ -97,7 +103,7 @@ class OrderPersisterTest extends TestCase
             )
         );
 
-        $persister = new OrderPersister($repository, $this->orderConverter);
+        $persister = new OrderPersister($repository, $this->orderConverter, $this->serializationCleaner);
 
         $persister->persist($cart, $this->getSalesChannelContext());
     }
@@ -110,7 +116,7 @@ class OrderPersisterTest extends TestCase
                 ->setPriceDefinition(new AbsolutePriceDefinition(1))
         );
 
-        $context = $this->getContainer()->get(SalesChannelContextFactory::class)
+        $context = static::getContainer()->get(SalesChannelContextFactory::class)
             ->create(Uuid::randomHex(), TestDefaults::SALES_CHANNEL);
 
         $processedCart = $this->cartProcessor->process($cart, $context, new CartBehavior());

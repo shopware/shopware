@@ -1,19 +1,17 @@
 /**
- * @package admin
+ * @sw-package framework
  */
 
 import template from './sw-app-action-button.html.twig';
 import './sw-app-action-button.scss';
 
-const { Component, State, Context } = Shopware;
+const { Component, Context } = Shopware;
 
 /**
  * @private
  */
 Component.register('sw-app-action-button', {
     template,
-
-    compatConfig: Shopware.compatConfig,
 
     inject: ['acl'],
 
@@ -28,7 +26,7 @@ Component.register('sw-app-action-button', {
 
     computed: {
         buttonLabel() {
-            const currentLocale = State.get('session').currentLocale;
+            const currentLocale = Shopware.Store.get('session').currentLocale;
             const fallbackLocale = Context.app.fallbackLocale;
 
             if (typeof this.action.label === 'string') {
@@ -45,4 +43,3 @@ Component.register('sw-app-action-button', {
         },
     },
 });
-

@@ -17,7 +17,7 @@ use Shopware\Core\Framework\Webhook\AclPrivilegeCollection;
 /**
  * @internal
  */
-#[Package('buyers-experience')]
+#[Package('discovery')]
 #[CoversClass(MediaUploadedEvent::class)]
 class MediaUploadedEventTest extends TestCase
 {
@@ -41,8 +41,6 @@ class MediaUploadedEventTest extends TestCase
     public function testGetAvailableData(): void
     {
         $eventDataCollection = MediaUploadedEvent::getAvailableData();
-
-        static::assertInstanceOf(EventDataCollection::class, $eventDataCollection);
         static::assertCount(1, $eventDataCollection->toArray());
         static::assertEquals(
             (new EventDataCollection())->add('mediaId', new ScalarValueType(ScalarValueType::TYPE_STRING)),

@@ -1,3 +1,7 @@
+/**
+ * @sw-package framework
+ */
+
 import template from './sw-popover.html.twig';
 import './sw-popover.scss';
 
@@ -15,11 +19,12 @@ const { Component } = Shopware;
 Component.register('sw-popover-deprecated', {
     template,
 
-    compatConfig: Shopware.compatConfig,
-
     props: {
         zIndex: {
-            type: [Number, null],
+            type: [
+                Number,
+                null,
+            ],
             required: false,
             default: null,
         },
@@ -29,7 +34,11 @@ Component.register('sw-popover-deprecated', {
             default: false,
         },
         popoverClass: {
-            type: [String, Array, Object],
+            type: [
+                String,
+                Array,
+                Object,
+            ],
             required: false,
             default: '',
         },

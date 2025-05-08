@@ -17,15 +17,9 @@ class ExtensionHelper
 {
     final public const IGNORED_PROPERTIES = ['extension', 'extensions', 'elements'];
 
-    /**
-     * @var PropertyInfoExtractor
-     */
-    protected $propertyInfoExtractor;
+    protected PropertyInfoExtractor $propertyInfoExtractor;
 
-    /**
-     * @var PropertyAccessor
-     */
-    protected $propertyAccessor;
+    protected PropertyAccessor $propertyAccessor;
 
     public function __construct()
     {
@@ -44,12 +38,8 @@ class ExtensionHelper
      * Removes all extensions from an object (recursive)
      * Only works if the properties are public or accessible by getter
      */
-    public function removeExtensions($object): void
+    public function removeExtensions(object $object): void
     {
-        if (\is_scalar($object)) {
-            return;
-        }
-
         if ($object instanceof Collection) {
             $object->map(function ($element): void {
                 $this->removeExtensions($element);
@@ -57,7 +47,7 @@ class ExtensionHelper
         }
 
         if ($object instanceof Struct) {
-            $properties = $this->propertyInfoExtractor->getProperties($object::class);
+            $properties = $this->propertyInfoExtractor->getProperties($object::class) ?? [];
 
             foreach ($properties as $property) {
                 if (\in_array($property, self::IGNORED_PROPERTIES, true)) {

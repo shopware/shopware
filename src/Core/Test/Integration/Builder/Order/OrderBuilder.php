@@ -10,9 +10,9 @@ use Shopware\Core\Checkout\Order\Aggregate\OrderTransaction\OrderTransactionStat
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\DataAbstractionLayer\Pricing\CashRoundingConfig;
 use Shopware\Core\Framework\Log\Package;
-use Shopware\Core\Framework\Test\IdsCollection;
 use Shopware\Core\Framework\Test\TestCaseBase\BasicTestDataBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
+use Shopware\Core\Test\Stub\Framework\IdsCollection;
 use Shopware\Core\Test\TestBuilderTrait;
 use Shopware\Core\Test\TestDefaults;
 
@@ -58,6 +58,11 @@ class OrderBuilder
     protected array $addresses = [];
 
     protected string $stateId;
+
+    /**
+     * @var array{id: string, orderId: string, customerId: string, versionId: string, orderVersionId: string, firstName: string, lastName: string, email: string}|null
+     */
+    protected ?array $orderCustomer;
 
     public function __construct(
         IdsCollection $ids,
@@ -160,6 +165,22 @@ class OrderBuilder
         ], $customParams);
 
         $this->addresses[$key] = $address;
+
+        return $this;
+    }
+
+    public function orderCustomer(string $firstName, string $customerNumber): self
+    {
+        $this->orderCustomer = [
+            'id' => $this->ids->get('orderCustomer'),
+            'orderId' => $this->id,
+            'customerId' => $this->ids->get($customerNumber),
+            'versionId' => Defaults::LIVE_VERSION,
+            'orderVersionId' => Defaults::LIVE_VERSION,
+            'firstName' => $firstName,
+            'lastName' => 'Mustermann',
+            'email' => 'some@mail.de',
+        ];
 
         return $this;
     }

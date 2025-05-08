@@ -1,5 +1,5 @@
 /*
- * @package inventory
+ * @sw-package inventory
  */
 
 import template from './sw-product-variants-configurator-prices.html.twig';
@@ -10,8 +10,6 @@ const { Criteria } = Shopware.Data;
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default {
     template,
-
-    compatConfig: Shopware.compatConfig,
 
     inject: ['repositoryFactory'],
 
@@ -71,12 +69,15 @@ export default {
                 };
             });
 
-            return [...defaultColumns, ...currenciesColumns];
+            return [
+                ...defaultColumns,
+                ...currenciesColumns,
+            ];
         },
     },
 
     watch: {
-        'activeGroup'() {
+        activeGroup() {
             this.getOptionsForGroup();
         },
     },
@@ -95,11 +96,9 @@ export default {
         },
 
         loadCurrencies() {
-            this.currencyRepository
-                .search(new Criteria(1, 25))
-                .then((searchResult) => {
-                    this.currencies = searchResult;
-                });
+            this.currencyRepository.search(new Criteria(1, 25)).then((searchResult) => {
+                this.currencies = searchResult;
+            });
         },
 
         getOptionsForGroup() {
@@ -123,13 +122,9 @@ export default {
             }
 
             // set empty surcharge
-            if (this.isCompatEnabled('INSTANCE_SET')) {
-                this.$set(option, 'price', []);
-            } else {
-                option.price = [];
-            }
+            option.price = [];
             this.currenciesList.forEach((currency) => {
-                if (!option.price.find(price => price.currencyId === currency.id)) {
+                if (!option.price.find((price) => price.currencyId === currency.id)) {
                     const newPriceForCurrency = {
                         currencyId: currency.id,
                         gross: 0,

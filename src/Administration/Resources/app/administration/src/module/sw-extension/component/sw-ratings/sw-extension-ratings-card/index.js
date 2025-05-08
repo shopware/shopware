@@ -2,13 +2,11 @@ import template from './sw-extension-ratings-card.html.twig';
 import './sw-extension-ratings-card.scss';
 
 /**
- * @package checkout
+ * @sw-package checkout
  * @private
  */
 export default {
     template,
-
-    compatConfig: Shopware.compatConfig,
 
     emits: ['update-extension'],
 
@@ -107,11 +105,7 @@ export default {
         },
 
         async getReviews() {
-            return this.extensionStoreDataService.getReviews(
-                this.criteriaPage,
-                this.criteriaLimit,
-                this.extension.id,
-            );
+            return this.extensionStoreDataService.getReviews(this.criteriaPage, this.criteriaLimit, this.extension.id);
         },
     },
 };

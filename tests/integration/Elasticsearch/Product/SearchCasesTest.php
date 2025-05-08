@@ -10,9 +10,9 @@ use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Content\Test\Product\ProductBuilder;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
-use Shopware\Core\Framework\Test\IdsCollection;
 use Shopware\Core\Framework\Test\TestCaseBase\DatabaseTransactionBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
+use Shopware\Core\Test\Stub\Framework\IdsCollection;
 use Shopware\Elasticsearch\Framework\DataAbstractionLayer\ElasticsearchEntitySearcher;
 use Shopware\Elasticsearch\Test\ElasticsearchTestTestBehaviour;
 use Symfony\Component\DependencyInjection\ContainerInterface;
@@ -37,9 +37,9 @@ class SearchCasesTest extends TestCase
     {
         $this->clearElasticsearch();
 
-        $this->getContainer()->get(Connection::class)->executeStatement('DELETE FROM product');
+        static::getContainer()->get(Connection::class)->executeStatement('DELETE FROM product');
 
-        $this->getContainer()->get('product.repository')->create(array_values($products), Context::createDefaultContext());
+        static::getContainer()->get('product.repository')->create(array_values($products), Context::createDefaultContext());
 
         $this->indexElasticSearch();
 
@@ -49,7 +49,7 @@ class SearchCasesTest extends TestCase
         $criteria->addState(Criteria::STATE_ELASTICSEARCH_AWARE);
         $criteria->setTerm($term);
 
-        $definition = $this->getContainer()->get(ProductDefinition::class);
+        $definition = static::getContainer()->get(ProductDefinition::class);
 
         $result = $searcher->search($definition, $criteria, Context::createDefaultContext());
 
@@ -87,7 +87,7 @@ class SearchCasesTest extends TestCase
 
     protected function getDiContainer(): ContainerInterface
     {
-        return $this->getContainer();
+        return static::getContainer();
     }
 
     protected function runWorker(): void

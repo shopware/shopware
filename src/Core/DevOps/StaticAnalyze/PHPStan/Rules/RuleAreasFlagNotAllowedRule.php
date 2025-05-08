@@ -11,6 +11,7 @@ use PHPStan\Analyser\Scope;
 use PHPStan\Reflection\ReflectionProvider;
 use PHPStan\Rules\Rule;
 use PHPStan\Rules\RuleError;
+use PHPStan\Rules\RuleErrorBuilder;
 use Shopware\Core\Content\Rule\RuleDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\AssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\RuleAreas;
@@ -21,7 +22,7 @@ use Shopware\Core\Framework\Log\Package;
  *
  * @internal
  */
-#[Package('core')]
+#[Package('framework')]
 class RuleAreasFlagNotAllowedRule implements Rule
 {
     use InTestClassTrait;
@@ -65,9 +66,11 @@ class RuleAreasFlagNotAllowedRule implements Rule
                 continue;
             }
 
-            if ($class->getName() !== RuleDefinition::class && !$class->isSubclassOf(RuleDefinition::class)) {
+            if ($class->getName() !== RuleDefinition::class && !$class->is(RuleDefinition::class)) {
                 return [
-                    'RuleAreas flag may only be added within the scope of RuleDefinition',
+                    RuleErrorBuilder::message('RuleAreas flag may only be added within the scope of RuleDefinition')
+                        ->identifier('shopware.ruleAreaFlag')
+                        ->build(),
                 ];
             }
 
@@ -78,9 +81,11 @@ class RuleAreasFlagNotAllowedRule implements Rule
             }
 
             $mockedClass = $this->reflectionProvider->getClass($fieldClassName);
-            if (!$mockedClass->isSubclassOf(AssociationField::class)) {
+            if (!$mockedClass->is(AssociationField::class)) {
                 return [
-                    'RuleAreas flag may only be added on instances of AssociationField',
+                    RuleErrorBuilder::message('RuleAreas flag may only be added on instances of AssociationField')
+                        ->identifier('shopware.ruleAreaFlag')
+                        ->build(),
                 ];
             }
         }
@@ -90,15 +95,14 @@ class RuleAreasFlagNotAllowedRule implements Rule
 
     private function resolveClassName(Node $node): ?string
     {
-        switch (true) {
-            case $node instanceof New_:
-                if ($node->class instanceof Name) {
-                    return (string) $node->class;
-                }
+        if ($node instanceof New_) {
+            if ($node->class instanceof Name) {
+                return (string) $node->class;
+            }
 
-                return null;
-            default:
-                return null;
+            return null;
         }
+
+        return null;
     }
 }

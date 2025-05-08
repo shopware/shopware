@@ -45,8 +45,8 @@ elasticsearch:
     ssl:
         verify_server_cert: true
     index_settings:
-        number_of_shards: 3
-        number_of_replicas: 3
+        number_of_shards: null
+        number_of_replicas: null
         'mapping.total_fields.limit': 50000
         'mapping.nested_fields.limit': 500
         'mapping.nested_objects.limit': 1000000
@@ -111,5 +111,5 @@ parameters:
     env(ADMIN_OPENSEARCH_URL): ""
     env(SHOPWARE_ADMIN_ES_INDEX_PREFIX): "sw-admin"
     env(SHOPWARE_ADMIN_ES_REFRESH_INDICES): ""
-    env(SHOPWARE_ES_INDEXING_BATCH_SIZE): 100
+    env(SHOPWARE_ES_INDEXING_BATCH_SIZE): "100"
     env(SHOPWARE_ES_EXCLUDE_SOURCE): "0"

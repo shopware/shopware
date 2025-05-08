@@ -21,71 +21,33 @@ class StateMachineStateEntity extends Entity
     use EntityCustomFieldsTrait;
     use EntityIdTrait;
 
-    /**
-     * @deprecated tag:v6.7.0 - Type will be nullable. Also, it will be natively typed to enforce strict data type checking.
-     *
-     * @var string|null
-     */
-    protected $name;
+    protected ?string $name = null;
 
-    /**
-     * @var string
-     */
-    protected $technicalName;
+    protected string $technicalName;
 
-    /**
-     * @var string
-     */
-    protected $stateMachineId;
+    protected string $stateMachineId;
 
-    /**
-     * @var StateMachineEntity|null
-     */
-    protected $stateMachine;
+    protected ?StateMachineEntity $stateMachine = null;
 
-    /**
-     * @var StateMachineTransitionCollection|null
-     */
-    protected $fromStateMachineTransitions;
+    protected ?StateMachineTransitionCollection $fromStateMachineTransitions = null;
 
-    /**
-     * @var StateMachineTransitionCollection|null
-     */
-    protected $toStateMachineTransitions;
+    protected ?StateMachineTransitionCollection $toStateMachineTransitions = null;
 
-    /**
-     * @var StateMachineStateTranslationCollection
-     */
-    protected $translations;
+    protected ?StateMachineStateTranslationCollection $translations = null;
 
-    /**
-     * @var OrderCollection|null
-     */
-    protected $orders;
+    protected ?OrderCollection $orders = null;
 
     protected ?OrderTransactionCaptureCollection $orderTransactionCaptures = null;
 
     protected ?OrderTransactionCaptureRefundCollection $orderTransactionCaptureRefunds = null;
 
-    /**
-     * @var OrderTransactionCollection|null
-     */
-    protected $orderTransactions;
+    protected ?OrderTransactionCollection $orderTransactions = null;
 
-    /**
-     * @var OrderDeliveryCollection|null
-     */
-    protected $orderDeliveries;
+    protected ?OrderDeliveryCollection $orderDeliveries = null;
 
-    /**
-     * @var StateMachineHistoryCollection|null
-     */
-    protected $fromStateMachineHistoryEntries;
+    protected ?StateMachineHistoryCollection $fromStateMachineHistoryEntries = null;
 
-    /**
-     * @var StateMachineHistoryCollection|null
-     */
-    protected $toStateMachineHistoryEntries;
+    protected ?StateMachineHistoryCollection $toStateMachineHistoryEntries = null;
 
     public function getToStateMachineHistoryEntries(): ?StateMachineHistoryCollection
     {
@@ -107,18 +69,9 @@ class StateMachineStateEntity extends Entity
         $this->fromStateMachineHistoryEntries = $fromStateMachineHistoryEntries;
     }
 
-    /**
-     * @deprecated tag:v6.7.0 - reason:return-type-change - Will also return null
-     * return type will be ?string in v6.7.0.0
-     */
-    public function getName(): string
+    public function getName(): ?string
     {
-        /**
-         * @deprecated tag:v6.7.0
-         * remove the null-check
-         * return $this->name;
-         */
-        return $this->name ?? '';
+        return $this->name;
     }
 
     public function setName(string $name): void
@@ -166,7 +119,7 @@ class StateMachineStateEntity extends Entity
         $this->toStateMachineTransitions = $toStateMachineTransitions;
     }
 
-    public function getTranslations(): StateMachineStateTranslationCollection
+    public function getTranslations(): ?StateMachineStateTranslationCollection
     {
         return $this->translations;
     }

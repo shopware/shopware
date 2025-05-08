@@ -5,7 +5,7 @@ namespace Shopware\Core\System\NumberRange\DataAbstractionLayer;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\StringField;
 use Shopware\Core\Framework\Log\Package;
 
-#[Package('core')]
+#[Package('framework')]
 class NumberRangeField extends StringField
 {
     public function __construct(

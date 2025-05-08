@@ -9,7 +9,7 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\SalesChannelApiTestBehaviour;
-use Shopware\Core\Framework\Test\TestDataCollection;
+use Shopware\Core\Test\Stub\Framework\IdsCollection;
 use Symfony\Bundle\FrameworkBundle\KernelBrowser;
 
 /**
@@ -24,11 +24,11 @@ class CustomerGroupRegistrationSettingsRouteTest extends TestCase
 
     private KernelBrowser $browser;
 
-    private TestDataCollection $ids;
+    private IdsCollection $ids;
 
     protected function setUp(): void
     {
-        $this->ids = new TestDataCollection();
+        $this->ids = new IdsCollection();
 
         $this->browser = $this->createCustomSalesChannelBrowser([
             'id' => $this->ids->create('sales-channel'),
@@ -54,7 +54,7 @@ class CustomerGroupRegistrationSettingsRouteTest extends TestCase
 
     public function testWithValidConfig(): void
     {
-        $customerGroupRepository = $this->getContainer()->get('customer_group.repository');
+        $customerGroupRepository = static::getContainer()->get('customer_group.repository');
         $customerGroupRepository->create([
             [
                 'id' => $this->ids->create('group'),

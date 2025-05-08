@@ -7,14 +7,12 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\StoreApiResponse;
 
+/**
+ * @extends StoreApiResponse<AccountNewsletterRecipientResult>
+ */
 #[Package('checkout')]
 class AccountNewsletterRecipientRouteResponse extends StoreApiResponse
 {
-    /**
-     * @var AccountNewsletterRecipientResult
-     */
-    protected $object;
-
     /**
      * @param EntitySearchResult<NewsletterRecipientCollection> $newsletterRecipients
      */

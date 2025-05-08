@@ -19,7 +19,7 @@ use Shopware\Core\Framework\Uuid\Uuid;
 /**
  * @internal
  */
-#[Package('core')]
+#[Package('framework')]
 class ManyToManyAssociationFieldSerializer implements FieldSerializerInterface
 {
     /**
@@ -51,15 +51,15 @@ class ManyToManyAssociationFieldSerializer implements FieldSerializerInterface
 
         $mappingAssociation = $this->getMappingAssociation($referencedDefinition, $field);
 
-        foreach ($value as $keyValue => $subresources) {
-            $mapped = $subresources;
+        foreach ($value as $keyValue => $subResources) {
+            $mapped = $subResources;
 
             if (!\is_array($mapped)) {
                 throw DataAbstractionLayerException::expectedArray($parameters->getPath() . '/' . $key . '/' . $keyValue);
             }
 
             if ($mappingAssociation) {
-                $mapped = $this->map($referencedDefinition, $mappingAssociation, $subresources);
+                $mapped = $this->map($referencedDefinition, $mappingAssociation, $subResources);
             }
 
             $clonedParams = $parameters->cloneForSubresource(
@@ -120,13 +120,13 @@ class ManyToManyAssociationFieldSerializer implements FieldSerializerInterface
             throw DataAbstractionLayerException::expectedArray($parameters->getPath() . '/' . $key);
         }
 
-        foreach ($value as $keyValue => $subresources) {
-            if (!\is_array($subresources)) {
+        foreach ($value as $keyValue => $subResources) {
+            if (!\is_array($subResources)) {
                 throw DataAbstractionLayerException::expectedArray($parameters->getPath() . '/' . $key . '/' . $keyValue);
             }
 
             $this->writeExtrator->extract(
-                $subresources,
+                $subResources,
                 $parameters->cloneForSubresource(
                     $referencedDefinition,
                     $parameters->getPath() . '/' . $key . '/' . $keyValue
@@ -148,8 +148,8 @@ class ManyToManyAssociationFieldSerializer implements FieldSerializerInterface
     ): ?ManyToOneAssociationField {
         $associations = $referencedDefinition->getFields()->filterInstance(ManyToOneAssociationField::class);
 
-        /** @var ManyToOneAssociationField $association */
         foreach ($associations as $association) {
+            \assert($association instanceof ManyToOneAssociationField);
             if ($association->getStorageName() === $field->getMappingReferenceColumn()) {
                 return $association;
             }
@@ -181,12 +181,11 @@ class ManyToManyAssociationFieldSerializer implements FieldSerializerInterface
             return [$association->getPropertyName() => $data];
         }
 
-        // only foreign key provided? entity should only be linked
-        /*e.g
+        /* only foreign key provided? entity should only be linked. e.g:
             [
                 categories => [
                     ['id' => {id}],
-                    ['id' => {id}]
+                    ['id' => {id}],
                 ]
             ]
         */
@@ -195,17 +194,13 @@ class ManyToManyAssociationFieldSerializer implements FieldSerializerInterface
         );
 
         if (!$fk) {
-            @trigger_error(\sprintf('Foreign key for association %s not found', $association->getPropertyName()));
-
-            $data['versionId'] = Defaults::LIVE_VERSION;
-
-            return [$association->getPropertyName() => $data];
+            throw DataAbstractionLayerException::foreignKeyNotFoundInDefinition($association->getPropertyName(), $referencedDefinition::class);
         }
 
         return [
             $fk->getPropertyName() => $data[$association->getReferenceField()],
 
-            // break versioning at many to many relations
+            // break versioning at many-to-many relations
             $referencedDefinition->getEntityName() . '_version_id' => Defaults::LIVE_VERSION,
         ];
     }

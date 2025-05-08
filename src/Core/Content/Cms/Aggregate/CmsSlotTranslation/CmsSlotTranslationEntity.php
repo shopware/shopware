@@ -7,31 +7,31 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityCustomFieldsTrait;
 use Shopware\Core\Framework\DataAbstractionLayer\TranslationEntity;
 use Shopware\Core\Framework\Log\Package;
 
-#[Package('buyers-experience')]
+#[Package('discovery')]
 class CmsSlotTranslationEntity extends TranslationEntity
 {
     use EntityCustomFieldsTrait;
 
     /**
-     * @var array|null
+     * @var array<mixed>|null
      */
-    protected $config;
+    protected ?array $config = null;
+
+    protected string $cmsSlotId;
+
+    protected ?CmsSlotEntity $cmsSlot = null;
 
     /**
-     * @var string
+     * @return array<mixed>|null
      */
-    protected $cmsSlotId;
-
-    /**
-     * @var CmsSlotEntity|null
-     */
-    protected $cmsSlot;
-
     public function getConfig(): ?array
     {
         return $this->config;
     }
 
+    /**
+     * @param array<mixed> $config
+     */
     public function setConfig(array $config): void
     {
         $this->config = $config;

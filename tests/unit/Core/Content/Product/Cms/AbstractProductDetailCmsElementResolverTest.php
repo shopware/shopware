@@ -23,7 +23,7 @@ use Symfony\Component\HttpFoundation\Request;
 /**
  * @internal
  */
-#[Package('buyers-experience')]
+#[Package('discovery')]
 #[CoversClass(AbstractProductDetailCmsElementResolver::class)]
 class AbstractProductDetailCmsElementResolverTest extends TestCase
 {
@@ -37,11 +37,14 @@ class AbstractProductDetailCmsElementResolverTest extends TestCase
         $slot->setId('slot-1');
         $slot->setFieldConfig($config);
 
+        $product = new SalesChannelProductEntity();
+        $product->setId('product-id-1');
+
         $context = new EntityResolverContext(
-            Generator::createSalesChannelContext(),
+            Generator::generateSalesChannelContext(),
             new Request(),
             new SalesChannelProductDefinition(),
-            new SalesChannelProductEntity()
+            $product,
         );
 
         $resolver = new TestProductDetailCmsElementResolver();
@@ -54,7 +57,7 @@ class AbstractProductDetailCmsElementResolverTest extends TestCase
         $slot = new CmsSlotEntity();
         $slot->setId('slot-1');
 
-        $context = new ResolverContext(Generator::createSalesChannelContext(), new Request());
+        $context = new ResolverContext(Generator::generateSalesChannelContext(), new Request());
 
         $resolver = new TestProductDetailCmsElementResolver();
         $collection = $resolver->collect($slot, $context);
@@ -71,7 +74,7 @@ class AbstractProductDetailCmsElementResolverTest extends TestCase
         $slot->setId('slot-1');
         $slot->setFieldConfig($config);
 
-        $context = new ResolverContext(Generator::createSalesChannelContext(), new Request());
+        $context = new ResolverContext(Generator::generateSalesChannelContext(), new Request());
 
         $resolver = new TestProductDetailCmsElementResolver();
         $collection = $resolver->collect($slot, $context);
@@ -107,7 +110,7 @@ class AbstractProductDetailCmsElementResolverTest extends TestCase
         $slot->setId('slot-1');
 
         $result = $this->createMock(EntitySearchResult::class);
-        $result->expects(static::once())
+        $result->expects($this->once())
             ->method('get')
             ->with('product-1')
             ->willReturn(new SalesChannelProductEntity());

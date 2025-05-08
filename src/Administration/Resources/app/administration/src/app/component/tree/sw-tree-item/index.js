@@ -4,7 +4,7 @@ import './sw-tree-item.scss';
 const { Component } = Shopware;
 
 /**
- * @package admin
+ * @sw-package framework
  *
  * @private
  */
@@ -57,8 +57,6 @@ Component.register('sw-tree-item', {
             default: null,
         },
     },
-
-    compatConfig: Shopware.compatConfig,
 
     emits: ['check-item'],
 
@@ -309,21 +307,6 @@ Component.register('sw-tree-item', {
         },
 
         parentScope() {
-            if (this.isCompatEnabled('INSTANCE_CHILDREN')) {
-                let parentNode = this.$parent;
-
-                // eslint-disable-next-line
-                while (parentNode.$options._componentTag !== 'sw-tree') {
-                    if (parentNode.$parent) {
-                        parentNode = parentNode.$parent;
-                    }
-
-                    break;
-                }
-
-                return parentNode;
-            }
-
             return {
                 addSubElement: this.treeAddSubElement,
                 addElement: this.treeAddElement,
@@ -360,18 +343,12 @@ Component.register('sw-tree-item', {
 
         contentSlot() {
             // eslint-disable-next-line @typescript-eslint/no-unsafe-call,@typescript-eslint/no-unsafe-member-access
-            if (this.isCompatEnabled('INSTANCE_SCOPED_SLOTS')) {
-                return this.$scopedSlots.content;
-            }
 
             return this.$slots.content;
         },
 
         actionsSlot() {
             // eslint-disable-next-line @typescript-eslint/no-unsafe-call,@typescript-eslint/no-unsafe-member-access
-            if (this.isCompatEnabled('INSTANCE_SCOPED_SLOTS')) {
-                return this.$scopedSlots.actions;
-            }
 
             return this.$slots.actions;
         },
@@ -415,6 +392,10 @@ Component.register('sw-tree-item', {
         this.mountedComponent();
     },
 
+    beforeUnmount() {
+        this.beforeUnmountComponent();
+    },
+
     methods: {
         updatedComponent() {
             if (this.item.children.length > 0 || this.item.childCount <= 0) {
@@ -423,6 +404,8 @@ Component.register('sw-tree-item', {
         },
 
         mountedComponent() {
+            this.$el.addEventListener('keydown', this.handleKeyDown);
+
             if (this.item.active) {
                 if (this.$el.querySelector('.sw-tree-item.is--active input')) {
                     this.$el.querySelector('.sw-tree-item.is--active input').focus();
@@ -435,6 +418,54 @@ Component.register('sw-tree-item', {
             }
 
             this.updatedComponent();
+        },
+
+        beforeUnmountComponent() {
+            this.$el.removeEventListener('keydown', this.handleKeyDown);
+        },
+
+        handleKeyDown(event) {
+            // Check if the event is fired inside the tree item
+            if (event.target !== this.$el) {
+                return;
+            }
+
+            switch (event.key) {
+                case 'ArrowRight': {
+                    // When the tree item is already open, do nothing
+                    if (this.opened) {
+                        break;
+                    }
+
+                    // Open the tree item
+                    this.openTreeItem();
+                    this.getTreeItemChildren(this.item);
+
+                    event.stopPropagation();
+                    event.preventDefault();
+
+                    break;
+                }
+
+                case 'ArrowLeft': {
+                    // Check if the tree is open
+                    if (!this.opened) {
+                        break;
+                    }
+
+                    // Close the tree item
+                    this.openTreeItem(false);
+
+                    event.stopPropagation();
+                    event.preventDefault();
+
+                    break;
+                }
+
+                default: {
+                    break;
+                }
+            }
         },
 
         openTreeItem(open = !this.opened) {
@@ -463,19 +494,11 @@ Component.register('sw-tree-item', {
 
             this.dragEl = dragElement;
 
-            if (this.isCompatEnabled('INSTANCE_CHILDREN')) {
-                this.$parent.$parent.startDrag(this);
-            } else {
-                this.treeStartDrag(this);
-            }
+            this.treeStartDrag(this);
         },
 
         dragEnd() {
-            if (this.isCompatEnabled('INSTANCE_CHILDREN')) {
-                this.$parent.$parent.endDrag();
-            } else {
-                this.treeEndDrag();
-            }
+            this.treeEndDrag();
         },
 
         onMouseEnter(dragData, dropData) {
@@ -483,33 +506,18 @@ Component.register('sw-tree-item', {
                 return;
             }
 
-            if (this.isCompatEnabled('INSTANCE_CHILDREN')) {
-                this.$parent.$parent.moveDrag(dragData, dropData);
-            } else {
-                this.treeMoveDrag(dragData, dropData);
-            }
+            this.treeMoveDrag(dragData, dropData);
         },
 
         startDrag(draggedComponent) {
-            if (this.isCompatEnabled('INSTANCE_CHILDREN')) {
-                return this.$parent.$parent.startDrag(draggedComponent);
-            }
-
             return this.treeStartDrag(draggedComponent);
         },
 
         endDrag() {
-            if (this.isCompatEnabled('INSTANCE_CHILDREN')) {
-                this.$parent.$parent.endDrag();
-            } else {
-                this.treeEndDrag();
-            }
+            this.treeEndDrag();
         },
 
         moveDrag(draggedComponent, droppedComponent) {
-            if (this.isCompatEnabled('INSTANCE_CHILDREN')) {
-                return this.$parent.$parent.moveDrag(draggedComponent, droppedComponent);
-            }
             return this.treeMoveDrag(draggedComponent, droppedComponent);
         },
 
@@ -607,18 +615,12 @@ Component.register('sw-tree-item', {
 
         renderContentSlotNode({ item, openTreeItem, getName }) {
             // eslint-disable-next-line @typescript-eslint/no-unsafe-call,@typescript-eslint/no-unsafe-member-access
-            if (this.isCompatEnabled('INSTANCE_SCOPED_SLOTS')) {
-                return this.$scopedSlots.content({ item, openTreeItem, getName });
-            }
 
             return this.$slots.content({ item, openTreeItem, getName });
         },
 
         renderActionsSlotNode({ item, openTreeItem }) {
             // eslint-disable-next-line @typescript-eslint/no-unsafe-call,@typescript-eslint/no-unsafe-member-access
-            if (this.isCompatEnabled('INSTANCE_SCOPED_SLOTS')) {
-                return this.$scopedSlots.actions({ item, openTreeItem });
-            }
 
             return this.$slots.actions({ item, openTreeItem });
         },

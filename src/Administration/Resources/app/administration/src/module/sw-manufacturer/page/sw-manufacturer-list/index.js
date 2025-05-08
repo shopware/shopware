@@ -1,5 +1,5 @@
 /*
- * @package inventory
+ * @sw-package inventory
  */
 
 import template from './sw-manufacturer-list.html.twig';
@@ -11,9 +11,10 @@ const { Criteria } = Shopware.Data;
 export default {
     template,
 
-    compatConfig: Shopware.compatConfig,
-
-    inject: ['repositoryFactory', 'acl'],
+    inject: [
+        'repositoryFactory',
+        'acl',
+    ],
 
     mixins: [
         Mixin.getByName('listing'),
@@ -42,19 +43,22 @@ export default {
         },
 
         manufacturerColumns() {
-            return [{
-                property: 'name',
-                dataIndex: 'name',
-                allowResize: true,
-                routerLink: 'sw.manufacturer.detail',
-                label: 'sw-manufacturer.list.columnName',
-                inlineEdit: 'string',
-                primary: true,
-            }, {
-                property: 'link',
-                label: 'sw-manufacturer.list.columnLink',
-                inlineEdit: 'string',
-            }];
+            return [
+                {
+                    property: 'name',
+                    dataIndex: 'name',
+                    allowResize: true,
+                    routerLink: 'sw.manufacturer.detail',
+                    label: 'sw-manufacturer.list.columnName',
+                    inlineEdit: 'string',
+                    primary: true,
+                },
+                {
+                    property: 'link',
+                    label: 'sw-manufacturer.list.columnLink',
+                    inlineEdit: 'string',
+                },
+            ];
         },
 
         manufacturerCriteria() {
@@ -88,12 +92,11 @@ export default {
                 criteria.resetSorting();
             }
 
-            return this.manufacturerRepository.search(criteria)
-                .then(searchResult => {
-                    this.manufacturers = searchResult;
-                    this.total = searchResult.total;
-                    this.isLoading = false;
-                });
+            return this.manufacturerRepository.search(criteria).then((searchResult) => {
+                this.manufacturers = searchResult;
+                this.total = searchResult.total;
+                this.isLoading = false;
+            });
         },
 
         updateTotal({ total }) {

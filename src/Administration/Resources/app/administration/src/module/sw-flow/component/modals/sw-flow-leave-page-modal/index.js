@@ -2,14 +2,15 @@ import template from './sw-flow-leave-page-modal.html.twig';
 
 /**
  * @private
- * @package services-settings
+ * @sw-package after-sales
  */
 export default {
     template,
 
-    emits: ['page-leave-confirm', 'page-leave-cancel'],
-
-    compatConfig: Shopware.compatConfig,
+    emits: [
+        'page-leave-confirm',
+        'page-leave-cancel',
+    ],
 
     methods: {
         onConfirm() {

@@ -15,7 +15,7 @@ use Shopware\Core\Framework\Log\Package;
 /**
  * @internal
  */
-#[Package('buyers-experience')]
+#[Package('discovery')]
 #[CoversClass(ElementDataCollection::class)]
 class ElementDataCollectionTest extends TestCase
 {
@@ -32,6 +32,6 @@ class ElementDataCollectionTest extends TestCase
         ));
 
         static::assertCount(1, $collection);
-        static::assertContainsOnly(EntitySearchResult::class, $collection);
+        static::assertContainsOnlyInstancesOf(EntitySearchResult::class, $collection);
     }
 }

@@ -10,15 +10,9 @@ use Shopware\Core\Framework\Log\Package;
 #[Package('checkout')]
 class ImageStruct extends StoreStruct
 {
-    /**
-     * @var string
-     */
-    protected $remoteLink;
+    protected string $remoteLink;
 
-    /**
-     * @var string|null
-     */
-    protected $raw;
+    protected ?string $raw;
 
     /**
      * @return ImageStruct

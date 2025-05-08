@@ -1,19 +1,15 @@
-<!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
 {% block sw_settings_cache_index %}
 <sw-page class="sw-settings-cache">
 
-    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_settings_cache_smart_bar_header %}
     <template #smart-bar-header>
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_settings_cache_smart_bar_header_title %}
         <h2>
-            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_settings_cache_smart_bar_header_title_text %}
             {{ $tc('sw-settings.index.title') }}
-            <sw-icon
+            <mt-icon
                 name="regular-chevron-right-xs"
-                small
+                size="16px"
             />
             {{ $tc('sw-settings-cache.general.mainMenuItemGeneral') }}
             {% endblock %}
@@ -22,8 +18,7 @@
     </template>
 {% endblock %}
 
-    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
-{% block sw_settings_cache_content %}
+    {% block sw_settings_cache_content %}
     <template #content>
         <sw-card-view>
             <template v-if="componentIsBuilding">
@@ -31,14 +26,13 @@
                 <sw-skeleton />
             </template>
 
-            <sw-card
+            <mt-card
                 v-else
                 position-identifier="sw-settings-cache-content"
                 :title="$tc('sw-settings-cache.general.mainMenuItemGeneral')"
                 :is-loading="isLoading"
             >
 
-                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_settings_cache_content_toolbar %}
                 <template #toolbar>
                     <sw-card-section secondary>
@@ -48,54 +42,45 @@
                             rows="repeat(2, 40px)"
                         >
 
-                            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                             {% block sw_settings_cache_content_toolbar_environment %}
                             <div>
 
-                                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                                 {% block sw_settings_cache_content_toolbar_environment_heading %}
                                 <p class="sw-settings-cache__card-toolbar-heading">
                                     {{ $tc('sw-settings-cache.toolbar.environment') }}
                                 </p>
                                 {% endblock %}
 
-                                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                                 {% block sw_settings_cache_content_toolbar_environment_text %}
                                 <p>{{ environmentValue }}</p>
                                 {% endblock %}
                             </div>
                         {% endblock %}
 
-                            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
-                        {% block sw_settings_cache_content_toolbar_http_cache %}
+                            {% block sw_settings_cache_content_toolbar_http_cache %}
                             <div>
 
-                                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                                 {% block sw_settings_cache_content_toolbar_http_cache_heading %}
                                 <p class="sw-settings-cache__card-toolbar-heading">
                                     {{ $tc('sw-settings-cache.toolbar.httpCache') }}
                                 </p>
                                 {% endblock %}
 
-                                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                                 {% block sw_settings_cache_content_toolbar_http_cache_text %}
                                 <p>{{ httpCacheValue }}</p>
                                 {% endblock %}
                             </div>
                         {% endblock %}
 
-                            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
-                        {% block sw_settings_cache_content_toolbar_cache_adapter %}
+                            {% block sw_settings_cache_content_toolbar_cache_adapter %}
                             <div>
 
-                                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                                 {% block sw_settings_cache_content_toolbar_cache_adapter_heading %}
                                 <p class="sw-settings-cache__card-toolbar-heading">
                                     {{ $tc('sw-settings-cache.toolbar.cacheAdapter') }}
                                 </p>
                                 {% endblock %}
 
-                                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                                 {% block sw_settings_cache_content_toolbar_cache_adapter_text %}
                                 <p>{{ cacheAdapterValue }}</p>
                                 {% endblock %}
@@ -106,28 +91,28 @@
                 </template>
                 {% endblock %}
 
-                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
-                {% block sw_settings_cache_content_clear_cache_row %}
+                {% block sw_settings_cache_content_clear_data_cache_row %}
                 <sw-card-section divider="bottom">
-                    <sw-container align="center" columns="1fr auto" gap="20px">
+                    <sw-container
+                        align="center"
+                        columns="1fr auto"
+                        gap="20px"
+                    >
                         <div>
-                            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                             {% block sw_settings_cache_content_clear_data_cache_row_heading %}
                             <p class="sw-settings-cache__card-section-heading">
                                 {{ $tc('sw-settings-cache.section.clearDataCachesHeadline') }}
                             </p>
                             {% endblock %}
 
-                            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                             {% block sw_settings_cache_content_clear_data_cache_row_text %}
                             <p>{{ $tc('sw-settings-cache.section.clearDataCachesText') }}</p>
                             {% endblock %}
                         </div>
 
-                        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                         {% block sw_settings_cache_content_clear_data_cache_row_button %}
                         <sw-button-process
-                            variant="ghost"
+                            ghost
                             :is-loading="processes.normalClearCache"
                             :process-success="processSuccess.normalClearCache"
                             @update:process-success="resetButtons"
@@ -140,7 +125,6 @@
                 </sw-card-section>
                 {% endblock %}
 
-                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_settings_cache_content_clear_cache_row %}
                 <sw-card-section divider="bottom">
                     <sw-container
@@ -150,23 +134,20 @@
                     >
                         <div>
 
-                            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                             {% block sw_settings_cache_content_clear_cache_row_heading %}
                             <p class="sw-settings-cache__card-section-heading">
                                 {{ $tc('sw-settings-cache.section.clearCachesHeadline') }}
                             </p>
                             {% endblock %}
 
-                            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                             {% block sw_settings_cache_content_clear_cache_row_text %}
                             <p>{{ $tc('sw-settings-cache.section.clearCachesText') }}</p>
                             {% endblock %}
                         </div>
 
-                        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                         {% block sw_settings_cache_content_clear_cache_row_button %}
                         <sw-button-process
-                            variant="ghost"
+                            ghost
                             :is-loading="processes.normalClearCache"
                             :process-success="processSuccess.normalClearCache"
                             @update:process-success="resetButtons"
@@ -179,18 +160,15 @@
                 </sw-card-section>
                 {% endblock %}
 
-                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
-            {% block sw_settings_cache_content_indexes_row %}
+                {% block sw_settings_cache_content_indexes_row %}
                 <sw-card-section class="sw-settings-cache__card-indexes">
                     <sw-container>
-                        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                         {% block sw_settings_cache_content_indexes_row_heading %}
                         <p class="sw-settings-cache__card-section-heading">
                             {{ $tc('sw-settings-cache.section.indexesHeadline') }}
                         </p>
                         {% endblock %}
 
-                        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                         {% block sw_settings_cache_content_indexes_row_text %}
                         <p>{{ $tc('sw-settings-cache.section.indexesText') }}</p>
                         {% endblock %}
@@ -201,23 +179,16 @@
                         justify="end"
                         align="end"
                     >
-                        <sw-select-field
-                            v-model:value="indexingMethod"
+                        <mt-select
+                            v-model="indexingMethod"
                             name="indexingMethod"
                             class="sw-settings-cache__skip-indexers-select"
                             :label="$tc('sw-settings-cache.section.indexingModeLabel')"
                             :disabled="processes.updateIndexes"
-                        >
-                            <option value="skip">
-                                {{ $tc('sw-settings-cache.section.indexingModeOptionSkipLabel') }}
-                            </option>
-                            <option value="only">
-                                {{ $tc('sw-settings-cache.section.indexingModeOptionOnlyLabel') }}
-                            </option>
-                        </sw-select-field>
+                            :options="indexingMethodOptions"
+                        />
 
-                        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
-                    {% block sw_settings_cache_content_indexes_row_skip_select %}
+                        {% block sw_settings_cache_content_indexes_row_skip_select %}
                         <sw-select-base
                             class="sw-settings-cache__indexers-select"
                             :label="indexingMethod === 'skip' ? $tc('sw-settings-cache.section.indexesSkipSelectLabel') : $tc('sw-settings-cache.section.indexesOnlySelectLabel')"
@@ -249,28 +220,27 @@
                                                 v-for="(updaters, indexer) in item"
                                                 :key="indexer"
                                             >
-                                                <sw-checkbox-field
+                                                <mt-checkbox
                                                     class="sw-settings-cache__indexers-entry"
-                                                    :value="indexerSelection.includes(indexer)"
+                                                    :checked="indexerSelection.includes(indexer)"
                                                     :label="indexer"
                                                     :name="indexer"
                                                     size="small"
-                                                    @update:value="changeSelection($event, indexer)"
+                                                    @update:checked="changeSelection($event, indexer)"
                                                 />
                                                 <ul>
                                                     <li
                                                         v-for="(updater, index) in updaters"
                                                         :key="index"
                                                     >
-                                                        <sw-checkbox-field
+                                                        <mt-checkbox
                                                             class="sw-settings-cache__indexers-entry"
-                                                            :value="indexerSelection.includes(updater) || indexerSelection.includes(indexer)"
+                                                            :checked="indexerSelection.includes(updater) || indexerSelection.includes(indexer)"
                                                             :label="updater"
                                                             :name="updater"
                                                             size="small"
                                                             :disabled="indexerSelection.includes(indexer)"
-                                                            @click.prevent
-                                                            @update:value="changeSelection($event, updater)"
+                                                            @update:checked="changeSelection($event, updater)"
                                                         />
                                                     </li>
                                                 </ul>
@@ -282,12 +252,12 @@
                         </sw-select-base>
                     {% endblock %}
 
-                        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
-                    {% block sw_settings_cache_content_indexes_row_button %}
+                        {% block sw_settings_cache_content_indexes_row_button %}
                         <sw-button-process
                             name="updateIndexesButton"
                             class="sw-button--large"
-                            variant="ghost"
+                            ghost
+                            size="large"
                             :is-loading="processes.updateIndexes"
                             :process-success="processSuccess.updateIndexes"
                             @update:process-success="resetButtons"
@@ -299,7 +269,7 @@
                     </sw-container>
                 </sw-card-section>
         {% endblock %}
-            </sw-card>
+            </mt-card>
         </sw-card-view>
     </template>
     {% endblock %}

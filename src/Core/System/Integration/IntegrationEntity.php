@@ -9,46 +9,25 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityCustomFieldsTrait;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityIdTrait;
 use Shopware\Core\Framework\Log\Package;
 
-#[Package('services-settings')]
+#[Package('fundamentals@framework')]
 class IntegrationEntity extends Entity
 {
     use EntityCustomFieldsTrait;
     use EntityIdTrait;
 
-    /**
-     * @var string
-     */
-    protected $label;
+    protected string $label;
 
-    /**
-     * @var string
-     */
-    protected $accessKey;
+    protected string $accessKey;
 
-    /**
-     * @var string
-     */
-    protected $secretAccessKey;
+    protected string $secretAccessKey;
 
-    /**
-     * @var bool
-     */
-    protected $admin;
+    protected bool $admin;
 
-    /**
-     * @var \DateTimeInterface|null
-     */
-    protected $lastUsageAt;
+    protected ?\DateTimeInterface $lastUsageAt = null;
 
-    /**
-     * @var AppEntity|null
-     */
-    protected $app;
+    protected ?AppEntity $app = null;
 
-    /**
-     * @var AclRoleCollection|null
-     */
-    protected $aclRoles;
+    protected ?AclRoleCollection $aclRoles = null;
 
     protected ?\DateTimeInterface $deletedAt = null;
 

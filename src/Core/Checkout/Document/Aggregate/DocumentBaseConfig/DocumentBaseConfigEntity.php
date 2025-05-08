@@ -10,66 +10,36 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityCustomFieldsTrait;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityIdTrait;
 use Shopware\Core\Framework\Log\Package;
 
-#[Package('checkout')]
+#[Package('after-sales')]
 class DocumentBaseConfigEntity extends Entity
 {
     use EntityCustomFieldsTrait;
     use EntityIdTrait;
 
-    /**
-     * @var string
-     */
-    protected $name;
+    protected string $name;
 
-    /**
-     * @var string|null
-     */
-    protected $filenamePrefix;
+    protected ?string $filenamePrefix = null;
 
-    /**
-     * @var string|null
-     */
-    protected $filenameSuffix;
+    protected ?string $filenameSuffix = null;
 
-    /**
-     * @var string
-     */
-    protected $documentNumber;
+    protected string $documentNumber;
 
-    /**
-     * @var bool
-     */
-    protected $global = false;
+    protected bool $global = false;
 
-    /**
-     * @var string|null
-     */
-    protected $documentTypeId;
+    protected ?string $documentTypeId = null;
 
-    /**
-     * @var string|null
-     */
-    protected $logoId;
+    protected ?string $logoId = null;
 
     /**
      * @var array<string, string|bool|array<int, string>>|null
      */
-    protected $config;
+    protected ?array $config = null;
 
-    /**
-     * @var DocumentBaseConfigSalesChannelCollection
-     */
-    protected $salesChannels;
+    protected DocumentBaseConfigSalesChannelCollection $salesChannels;
 
-    /**
-     * @var DocumentTypeEntity|null
-     */
-    protected $documentType;
+    protected ?DocumentTypeEntity $documentType = null;
 
-    /**
-     * @var MediaEntity|null
-     */
-    protected $logo;
+    protected ?MediaEntity $logo = null;
 
     public function getName(): string
     {

@@ -8,35 +8,20 @@ use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityIdTrait;
 use Shopware\Core\Framework\Log\Package;
 
-#[Package('buyers-experience')]
+#[Package('after-sales')]
 class MailTemplateMediaEntity extends Entity
 {
     use EntityIdTrait;
 
-    /**
-     * @var string
-     */
-    protected $mailTemplateId;
+    protected string $mailTemplateId;
 
-    /**
-     * @var string|null
-     */
-    protected $languageId;
+    protected ?string $languageId = null;
 
-    /**
-     * @var string
-     */
-    protected $mediaId;
+    protected string $mediaId;
 
-    /**
-     * @var MediaEntity|null
-     */
-    protected $media;
+    protected ?MediaEntity $media = null;
 
-    /**
-     * @var MailTemplateEntity|null
-     */
-    protected $mailTemplate;
+    protected ?MailTemplateEntity $mailTemplate = null;
 
     public function getMailTemplateId(): string
     {

@@ -2,22 +2,23 @@ import template from './sw-order-create-invalid-promotion-modal.html.twig';
 import './sw-order-create-invalid-promotion-modal.scss';
 
 /**
- * @package checkout
+ * @sw-package checkout
  */
 
-const { State } = Shopware;
+const { Store } = Shopware;
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default {
     template,
 
-    compatConfig: Shopware.compatConfig,
-
-    emits: ['close', 'confirm'],
+    emits: [
+        'close',
+        'confirm',
+    ],
 
     computed: {
         invalidPromotionCodes() {
-            return State.getters['swOrder/invalidPromotionCodes'];
+            return Store.get('swOrder').invalidPromotionCodes;
         },
     },
 

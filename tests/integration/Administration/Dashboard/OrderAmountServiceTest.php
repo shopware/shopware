@@ -11,6 +11,7 @@ use Shopware\Core\Checkout\Cart\Price\CashRounding;
 use Shopware\Core\Checkout\Order\Aggregate\OrderTransaction\OrderTransactionStates;
 use Shopware\Core\Checkout\Order\OrderStates;
 use Shopware\Core\Defaults;
+use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Doctrine\MultiInsertQueryQueue;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
@@ -27,7 +28,7 @@ class OrderAmountServiceTest extends TestCase
     {
         parent::tearDown();
 
-        $this->getContainer()->get(Connection::class)->executeQuery('SET FOREIGN_KEY_CHECKS=1;');
+        static::getContainer()->get(Connection::class)->executeQuery('SET FOREIGN_KEY_CHECKS=1;');
     }
 
     /**
@@ -37,15 +38,15 @@ class OrderAmountServiceTest extends TestCase
     #[DataProvider('loadProvider')]
     public function testLoad(array $orders, array $expected, string $since, bool $paid): void
     {
-        $states = $this->getContainer()->get(Connection::class)->fetchAllKeyValue(
+        $states = static::getContainer()->get(Connection::class)->fetchAllKeyValue(
             'SELECT technical_name, LOWER(HEX(id)) FROM state_machine_state WHERE technical_name IN (:states)',
             ['states' => [OrderTransactionStates::STATE_PAID, OrderStates::STATE_OPEN]],
             ['states' => ArrayParameterType::STRING]
         );
 
-        $this->getContainer()->get(Connection::class)->executeQuery('SET FOREIGN_KEY_CHECKS=0;');
+        static::getContainer()->get(Connection::class)->executeQuery('SET FOREIGN_KEY_CHECKS=0;');
 
-        $queue = new MultiInsertQueryQueue($this->getContainer()->get(Connection::class));
+        $queue = new MultiInsertQueryQueue(static::getContainer()->get(Connection::class));
 
         foreach ($orders as $order) {
             $order['state_id'] = Uuid::fromHexToBytes($states[$order['state_id']]);
@@ -67,12 +68,14 @@ class OrderAmountServiceTest extends TestCase
         $queue->execute();
 
         $service = new OrderAmountService(
-            $this->getContainer()->get(Connection::class),
-            $this->getContainer()->get(CashRounding::class),
+            static::getContainer()->get(Connection::class),
+            static::getContainer()->get(CashRounding::class),
             false
         );
 
-        $buckets = $service->load($since, $paid);
+        $context = Context::createDefaultContext();
+
+        $buckets = $service->load($context, $since, $paid);
 
         static::assertEquals($expected, $buckets);
     }

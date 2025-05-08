@@ -18,15 +18,14 @@ use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextPersister;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextService;
-use Shopware\Core\System\SalesChannel\SalesChannelContext;
-use Shopware\Core\System\SalesChannel\SalesChannelEntity;
+use Shopware\Core\Test\Generator;
 use Shopware\Core\Test\TestDefaults;
 use Symfony\Component\EventDispatcher\EventDispatcher;
 
 /**
  * @internal
  */
-#[Package('core')]
+#[Package('framework')]
 class SalesChannelContextPersisterTest extends TestCase
 {
     use IntegrationTestBehaviour;
@@ -38,9 +37,9 @@ class SalesChannelContextPersisterTest extends TestCase
 
     protected function setUp(): void
     {
-        $this->connection = $this->getContainer()->get(Connection::class);
+        $this->connection = static::getContainer()->get(Connection::class);
         $eventDispatcher = new EventDispatcher();
-        $this->contextPersister = new SalesChannelContextPersister($this->connection, $eventDispatcher, $this->getContainer()->get(CartPersister::class));
+        $this->contextPersister = new SalesChannelContextPersister($this->connection, $eventDispatcher, static::getContainer()->get(CartPersister::class));
     }
 
     public function testLoad(): void
@@ -243,9 +242,7 @@ class SalesChannelContextPersisterTest extends TestCase
     {
         $token = Random::getAlphanumericString(32);
 
-        $context = $this->createMock(SalesChannelContext::class);
-        $salesChannel = (new SalesChannelEntity())->assign(['id' => TestDefaults::SALES_CHANNEL]);
-        $context->method('getSalesChannel')->willReturn($salesChannel);
+        $context = Generator::generateSalesChannelContext(overrides: ['customer' => null]);
         $newToken = $this->contextPersister->replace($token, $context);
 
         static::assertTrue($this->contextExists($newToken));
@@ -265,10 +262,7 @@ class SalesChannelContextPersisterTest extends TestCase
             'sales_channel_id' => Uuid::fromHexToBytes(TestDefaults::SALES_CHANNEL),
         ]);
 
-        $context = $this->createMock(SalesChannelContext::class);
-        $salesChannel = (new SalesChannelEntity())->assign(['id' => TestDefaults::SALES_CHANNEL]);
-        $context->method('getSalesChannel')->willReturn($salesChannel);
-
+        $context = Generator::generateSalesChannelContext(overrides: ['customer' => null]);
         $newToken = $this->contextPersister->replace($token, $context);
 
         static::assertTrue($this->contextExists($newToken));
@@ -279,12 +273,12 @@ class SalesChannelContextPersisterTest extends TestCase
     {
         $token = Random::getAlphanumericString(32);
 
-        $context = $this->getContainer()->get(SalesChannelContextFactory::class)
+        $context = static::getContainer()->get(SalesChannelContextFactory::class)
             ->create($token, TestDefaults::SALES_CHANNEL);
 
         $cart = new Cart($token);
         $cart->addLineItems(new LineItemCollection([new LineItem('test', 'test', Uuid::randomHex(), 10)]));
-        $this->getContainer()->get(CartPersister::class)->save($cart, $context);
+        static::getContainer()->get(CartPersister::class)->save($cart, $context);
 
         static::assertTrue($this->cartExists($token));
 
@@ -323,11 +317,11 @@ class SalesChannelContextPersisterTest extends TestCase
     #[DataProvider('tokenExpiringDataProvider')]
     public function testTokenExpiring(int $tokenAgeInDays, string $lifeTimeInterval, bool $expectedExpired): void
     {
-        $connection = $this->getContainer()->get(Connection::class);
+        $connection = static::getContainer()->get(Connection::class);
         $persister = new SalesChannelContextPersister(
             $connection,
             $this->createMock(EventDispatcher::class),
-            $this->getContainer()->get(CartPersister::class),
+            static::getContainer()->get(CartPersister::class),
             $lifeTimeInterval
         );
         $token = Uuid::randomHex();

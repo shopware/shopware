@@ -1,10 +1,9 @@
 import { mount } from '@vue/test-utils';
 
 import EntityCollection from 'src/core/data/entity-collection.data';
-import flowState from 'src/module/sw-flow/state/flow.state';
 
 /**
- * @package services-settings
+ * @sw-package after-sales
  */
 
 const fieldClasses = [
@@ -13,134 +12,124 @@ const fieldClasses = [
 ];
 
 function getTagCollection(collection = []) {
-    return new EntityCollection(
-        '/tag',
-        'tag',
-        null,
-        { isShopwareContext: true },
-        collection,
-        collection.length,
-        null,
-    );
+    return new EntityCollection('/tag', 'tag', null, { isShopwareContext: true }, collection, collection.length, null);
 }
 
 async function createWrapper() {
-    return mount(await wrapTestComponent('sw-flow-tag-modal', {
-        sync: true,
-    }), {
-        props: {
-            sequence: {
-                config: {},
-                id: '123',
+    return mount(
+        await wrapTestComponent('sw-flow-tag-modal', {
+            sync: true,
+        }),
+        {
+            props: {
+                sequence: {
+                    config: {},
+                    id: '123',
+                },
             },
-        },
-        global: {
-            provide: {
-                flowBuilderService: {
-                    getActionModalName: () => {},
+            global: {
+                provide: {
+                    flowBuilderService: {
+                        getActionModalName: () => {},
 
-                    getAvailableEntities: () => {
-                        return [
-                            {
-                                label: 'Order',
-                                value: 'order',
-                            },
-                            {
-                                label: 'Customer',
-                                value: 'customer',
-                            },
-                        ];
+                        getAvailableEntities: () => {
+                            return [
+                                {
+                                    label: 'Order',
+                                    value: 'order',
+                                },
+                                {
+                                    label: 'Customer',
+                                    value: 'customer',
+                                },
+                            ];
+                        },
+                    },
+                    repositoryFactory: {
+                        create: () => {
+                            return {
+                                search: () => Promise.resolve(),
+                            };
+                        },
                     },
                 },
-                repositoryFactory: {
-                    create: () => {
-                        return {
-                            search: () => Promise.resolve(),
-                        };
-                    },
-                },
-            },
-            stubs: {
-                'sw-entity-tag-select': await wrapTestComponent('sw-entity-tag-select'),
-                'sw-single-select': await wrapTestComponent('sw-single-select'),
-                'sw-select-base': await wrapTestComponent('sw-select-base'),
-                'sw-block-field': await wrapTestComponent('sw-block-field'),
-                'sw-base-field': await wrapTestComponent('sw-base-field'),
-                'sw-select-result-list': await wrapTestComponent('sw-select-result-list'),
-                'sw-select-selection-list': await wrapTestComponent('sw-select-selection-list'),
-                'sw-modal': {
-                    template: `
+                stubs: {
+                    'sw-entity-tag-select': await wrapTestComponent('sw-entity-tag-select'),
+                    'sw-single-select': await wrapTestComponent('sw-single-select'),
+                    'sw-select-base': await wrapTestComponent('sw-select-base'),
+                    'sw-block-field': await wrapTestComponent('sw-block-field'),
+                    'sw-base-field': await wrapTestComponent('sw-base-field'),
+                    'sw-select-result-list': await wrapTestComponent('sw-select-result-list'),
+                    'sw-select-selection-list': await wrapTestComponent('sw-select-selection-list'),
+                    'sw-modal': {
+                        template: `
                     <div class="sw-modal">
                       <slot name="modal-header"></slot>
                       <slot></slot>
                       <slot name="modal-footer"></slot>
                     </div>
                 `,
-                },
-                'sw-button': {
-                    template: '<button @click="$emit(\'click\', $event)"><slot></slot></button>',
-                },
-                'sw-popover': {
-                    template: '<div class="sw-popover"><slot></slot></div>',
-                },
-                'sw-select-result': {
-                    props: ['item', 'index'],
-                    template: `
+                    },
+                    'sw-popover': {
+                        template: '<div class="sw-popover"><slot></slot></div>',
+                    },
+                    'sw-select-result': {
+                        props: [
+                            'item',
+                            'index',
+                        ],
+                        template: `
                         <li class="sw-select-result" @click.stop="onClickResult">
                             <slot></slot>
                         </li>`,
-                    methods: {
-                        onClickResult() {
-                            this.$parent.$parent.$emit('item-select', this.item);
+                        methods: {
+                            onClickResult() {
+                                this.$parent.$parent.$emit('item-select', this.item);
+                            },
                         },
                     },
+                    'sw-loader': true,
+                    'sw-label': true,
+                    'sw-field-error': true,
+                    'sw-highlight-text': true,
+                    'sw-product-variant-info': true,
+                    'sw-inheritance-switch': true,
+                    'sw-ai-copilot-badge': true,
+                    'sw-help-text': true,
                 },
-                'sw-loader': true,
-                'sw-label': true,
-                'sw-icon': true,
-                'sw-field-error': true,
-                'sw-highlight-text': true,
-                'sw-product-variant-info': true,
-                'sw-inheritance-switch': true,
-                'sw-ai-copilot-badge': true,
-                'sw-help-text': true,
             },
         },
-    });
+    );
 }
 
 describe('module/sw-flow/component/sw-flow-tag-modal', () => {
-    Shopware.State.registerModule('swFlowState', {
-        ...flowState,
-        state: {
-            invalidSequences: [],
-            triggerEvent: {
-                data: {
-                    customer: {
-                        type: 'entity',
-                    },
-                    order: {
-                        type: 'entity',
-                    },
+    beforeAll(() => {
+        Shopware.Store.get('swFlow').triggerEvent = {
+            data: {
+                customer: {
+                    type: 'entity',
                 },
-                customerAware: true,
-                extensions: [],
-                logAware: false,
-                mailAware: true,
-                name: 'checkout.customer.login',
-                orderAware: false,
-                salesChannelAware: true,
-                userAware: false,
-                webhookAware: true,
+                order: {
+                    type: 'entity',
+                },
             },
-        },
+            customerAware: true,
+            extensions: [],
+            logAware: false,
+            mailAware: true,
+            name: 'checkout.customer.login',
+            orderAware: false,
+            salesChannelAware: true,
+            userAware: false,
+            webhookAware: true,
+        };
     });
 
     it('should show these fields on modal', async () => {
         const wrapper = await createWrapper();
         await flushPromises();
 
-        fieldClasses.forEach(elementClass => {
+        fieldClasses.forEach((elementClass) => {
             expect(wrapper.find(elementClass).exists()).toBe(true);
         });
     });
@@ -157,7 +146,7 @@ describe('module/sw-flow/component/sw-flow-tag-modal', () => {
         await buttonSave.trigger('click');
         await flushPromises();
 
-        fieldClasses.forEach(elementClass => {
+        fieldClasses.forEach((elementClass) => {
             expect(wrapper.find(elementClass).classes()).toContain('has--error');
         });
     });
@@ -174,7 +163,7 @@ describe('module/sw-flow/component/sw-flow-tag-modal', () => {
         await buttonSave.trigger('click');
         await flushPromises();
 
-        fieldClasses.forEach(elementClass => {
+        fieldClasses.forEach((elementClass) => {
             expect(wrapper.find(elementClass).classes()).toContain('has--error');
         });
 
@@ -193,7 +182,7 @@ describe('module/sw-flow/component/sw-flow-tag-modal', () => {
         await buttonSave.trigger('click');
         await flushPromises();
 
-        fieldClasses.forEach(elementClass => {
+        fieldClasses.forEach((elementClass) => {
             expect(wrapper.find(elementClass).classes()).not.toContain('has--error');
         });
     });
@@ -204,7 +193,10 @@ describe('module/sw-flow/component/sw-flow-tag-modal', () => {
 
         expect(wrapper.vm.entityOptions).toHaveLength(2);
         wrapper.vm.entityOptions.forEach((option) => {
-            expect(['Order', 'Customer']).toContain(option.label);
+            expect([
+                'Order',
+                'Customer',
+            ]).toContain(option.label);
         });
     });
 

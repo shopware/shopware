@@ -1,11 +1,12 @@
 /**
- * @package buyers-experience
+ * @sw-package discovery
  */
 import { mount } from '@vue/test-utils';
 import 'src/module/sw-cms/mixin/sw-cms-state.mixin';
 import { setupCmsEnvironment } from 'src/module/sw-cms/test-utils';
 
 const block = {
+    id: 'blockId',
     name: 'Block name',
     type: 'text',
     backgroundColor: '',
@@ -40,43 +41,41 @@ responses.addResponse({
 });
 
 async function createWrapper() {
-    return mount(await wrapTestComponent('sw-cms-block-config', {
-        sync: true,
-    }), {
-        attachTo: document.body,
-        props: {
-            block,
-        },
-        global: {
-            provide: {
-                validationService: {},
-                cmsService: {
-                    getCmsBlockRegistry: () => {
-                        return {
-                            text: block,
-                        };
+    return mount(
+        await wrapTestComponent('sw-cms-block-config', {
+            sync: true,
+        }),
+        {
+            attachTo: document.body,
+            props: {
+                block,
+            },
+            global: {
+                provide: {
+                    validationService: {},
+                    cmsService: {
+                        getCmsBlockRegistry: () => {
+                            return {
+                                text: block,
+                            };
+                        },
                     },
                 },
-            },
-            stubs: {
-                'sw-base-field': await wrapTestComponent('sw-base-field'),
-                'sw-colorpicker': await wrapTestComponent('sw-colorpicker'),
-                'sw-colorpicker-deprecated': await wrapTestComponent('sw-colorpicker-deprecated'),
-                'sw-contextual-field': await wrapTestComponent('sw-contextual-field'),
-                'sw-block-field': await wrapTestComponent('sw-block-field'),
-                'sw-field-error': true,
-                'sw-icon': true,
-                'sw-text-field': {
-                    template: '<input class="sw-text-field" :value="value" @input="$emit(\'update:value\', $event.target.value)" />',
-                    props: ['value'],
+                stubs: {
+                    'sw-base-field': await wrapTestComponent('sw-base-field'),
+                    'sw-colorpicker': await wrapTestComponent('sw-colorpicker'),
+                    'sw-colorpicker-deprecated': await wrapTestComponent('sw-colorpicker-deprecated'),
+                    'sw-contextual-field': await wrapTestComponent('sw-contextual-field'),
+                    'sw-block-field': await wrapTestComponent('sw-block-field'),
+                    'sw-field-error': true,
+                    'sw-media-compact-upload-v2': true,
+                    'sw-upload-listener': true,
+                    'sw-select-field': true,
+                    'sw-help-text': true,
                 },
-                'sw-media-compact-upload-v2': true,
-                'sw-upload-listener': true,
-                'sw-select-field': true,
-                'sw-help-text': true,
             },
         },
-    });
+    );
 }
 
 describe('module/sw-cms/component/sw-cms-block-config', () => {
@@ -85,7 +84,7 @@ describe('module/sw-cms/component/sw-cms-block-config', () => {
     });
 
     beforeEach(() => {
-        Shopware.Store.get('cmsPageState').setIsSystemDefaultLanguage(true);
+        Shopware.Store.get('cmsPage').setIsSystemDefaultLanguage(true);
     });
 
     it('should be a Vue.js component', async () => {
@@ -95,7 +94,7 @@ describe('module/sw-cms/component/sw-cms-block-config', () => {
 
     it('should be able to config block name', async () => {
         const wrapper = await createWrapper();
-        const blockNameField = await wrapper.find('.sw-text-field');
+        const blockNameField = await wrapper.find('.mt-text-field input');
 
         expect(wrapper.vm.block.name).toBe(block.name);
         await blockNameField.setValue('test');
@@ -110,7 +109,7 @@ describe('module/sw-cms/component/sw-cms-block-config', () => {
         const wrapper = await createWrapper();
         expect(wrapper.vm.block.backgroundMediaId).toBe(block.backgroundMediaId);
         await wrapper.vm.removeMedia();
-        expect(wrapper.vm.block.backgroundMediaId).toBeNull();
+        expect(wrapper.vm.block.backgroundMediaId).toBeUndefined();
     });
 
     it('should be able to manually set background media', async () => {
@@ -136,8 +135,14 @@ describe('module/sw-cms/component/sw-cms-block-config', () => {
     });
 
     const eventEmittedDataProvider = [
-        ['block-delete', 'onBlockDelete'],
-        ['block-duplicate', 'onBlockDuplicate'],
+        [
+            'block-delete',
+            'onBlockDelete',
+        ],
+        [
+            'block-duplicate',
+            'onBlockDuplicate',
+        ],
     ];
     it.each(eventEmittedDataProvider)('should be able to push the %s event on delete', async (eventName, handler) => {
         const wrapper = await createWrapper();
@@ -148,13 +153,16 @@ describe('module/sw-cms/component/sw-cms-block-config', () => {
         expect(wrapper.vm.quickactionClasses).toEqual({ 'is--disabled': false });
     });
 
-    it.each(eventEmittedDataProvider)('should not be able to push the %s event on delete, when quickactions are disabled', async (eventName, handler) => {
-        Shopware.Store.get('cmsPageState').setIsSystemDefaultLanguage(false);
-        const wrapper = await createWrapper();
+    it.each(eventEmittedDataProvider)(
+        'should not be able to push the %s event on delete, when quickactions are disabled',
+        async (eventName, handler) => {
+            Shopware.Store.get('cmsPage').setIsSystemDefaultLanguage(false);
+            const wrapper = await createWrapper();
 
-        wrapper.vm[handler]();
+            wrapper.vm[handler]();
 
-        expect(wrapper.emitted()).not.toHaveProperty(eventName);
-        expect(wrapper.vm.quickactionClasses).toEqual({ 'is--disabled': true });
-    });
+            expect(wrapper.emitted()).not.toHaveProperty(eventName);
+            expect(wrapper.vm.quickactionClasses).toEqual({ 'is--disabled': true });
+        },
+    );
 });

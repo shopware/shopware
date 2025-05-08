@@ -1,5 +1,5 @@
 /**
- * @package admin
+ * @sw-package framework
  */
 
 import { mount } from '@vue/test-utils';
@@ -14,9 +14,6 @@ const createWrapper = async (options) => {
                     }
                     return key + JSON.stringify(value);
                 },
-            },
-            stubs: {
-                'sw-icon': true,
             },
         },
         ...options,
@@ -63,6 +60,8 @@ describe('src/app/component/form/field-base/sw-field-error', () => {
         });
 
         expect(wrapper.find('.sw-field__error').exists()).toBe(true);
-        expect(wrapper.find('.sw-field__error').text()).toContain('global.error-codes.SOME_ERROR_CODE{\"parameter\":\"Test Parameter\"}');
+        expect(wrapper.find('.sw-field__error').text()).toContain(
+            'global.error-codes.SOME_ERROR_CODE{"parameter":"Test Parameter"}',
+        );
     });
 });

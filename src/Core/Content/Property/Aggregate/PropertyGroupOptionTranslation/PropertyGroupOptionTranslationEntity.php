@@ -12,25 +12,13 @@ class PropertyGroupOptionTranslationEntity extends TranslationEntity
 {
     use EntityCustomFieldsTrait;
 
-    /**
-     * @var string
-     */
-    protected $propertyGroupOptionId;
+    protected string $propertyGroupOptionId;
 
-    /**
-     * @var string|null
-     */
-    protected $name;
+    protected ?string $name = null;
 
-    /**
-     * @var int|null
-     */
-    protected $position;
+    protected ?int $position = null;
 
-    /**
-     * @var PropertyGroupOptionEntity|null
-     */
-    protected $propertyGroupOption;
+    protected ?PropertyGroupOptionEntity $propertyGroupOption = null;
 
     public function getPropertyGroupOptionId(): string
     {

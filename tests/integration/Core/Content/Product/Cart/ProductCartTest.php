@@ -7,10 +7,10 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\LineItem\LineItem;
 use Shopware\Core\Checkout\Cart\Price\Struct\CalculatedPrice;
 use Shopware\Core\Content\Test\Product\ProductBuilder;
-use Shopware\Core\Framework\Test\IdsCollection;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Test\Integration\Traits\TestShortHands;
+use Shopware\Core\Test\Stub\Framework\IdsCollection;
 
 /**
  * @internal
@@ -28,7 +28,7 @@ class ProductCartTest extends TestCase
     public function testPriceInCart(ProductBuilder $builder, float $expected, array $contextOptions = []): void
     {
         // the product builder has a helper function to write the product values to the database, including all dependencies (rules, currencies, properties, etc)
-        $builder->write($this->getContainer());
+        $builder->write(static::getContainer());
 
         $context = $this->getContext(Uuid::randomHex(), $contextOptions);
 

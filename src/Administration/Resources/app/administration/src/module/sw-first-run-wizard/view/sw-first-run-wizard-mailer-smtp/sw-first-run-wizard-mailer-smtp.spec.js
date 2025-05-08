@@ -1,52 +1,54 @@
-/**
- * @package checkout
- */
 import { mount } from '@vue/test-utils';
 
 /**
- * @package checkout
+ * @sw-package fundamentals@after-sales
  */
 describe('module/sw-first-run-wizard/view/sw-first-run-wizard-mailer-smtp', () => {
     async function createWrapper() {
-        return mount(await wrapTestComponent('sw-first-run-wizard-mailer-smtp', { sync: true }), {
-            global: {
-                stubs: {
-                    'sw-settings-mailer-smtp': {
-                        template: '<div />',
+        return mount(
+            await wrapTestComponent('sw-first-run-wizard-mailer-smtp', {
+                sync: true,
+            }),
+            {
+                global: {
+                    stubs: {
+                        'sw-settings-mailer-smtp': {
+                            template: '<div />',
+                        },
+                        'sw-loader': {
+                            template: '<div />',
+                        },
                     },
-                    'sw-loader': {
-                        template: '<div />',
-                    },
-                },
-                provide: {
-                    systemConfigApiService: {
-                        getValues: () => Promise.resolve({
-                            'core.mailerSettings.emailAgent': null,
-                            'core.mailerSettings.host': null,
-                            'core.mailerSettings.port': null,
-                            'core.mailerSettings.username': null,
-                            'core.mailerSettings.password': null,
-                            'core.mailerSettings.encryption': 'null',
-                            'core.mailerSettings.authenticationMethod': 'null',
-                            'core.mailerSettings.senderAddress': null,
-                            'core.mailerSettings.deliveryAddress': null,
-                            'core.mailerSettings.disableDelivery': false,
-                        }),
-                        saveValues: () => Promise.resolve(),
+                    provide: {
+                        systemConfigApiService: {
+                            getValues: () =>
+                                Promise.resolve({
+                                    'core.mailerSettings.emailAgent': null,
+                                    'core.mailerSettings.host': null,
+                                    'core.mailerSettings.port': null,
+                                    'core.mailerSettings.username': null,
+                                    'core.mailerSettings.password': null,
+                                    'core.mailerSettings.encryption': 'null',
+                                    'core.mailerSettings.senderAddress': null,
+                                    'core.mailerSettings.deliveryAddress': null,
+                                    'core.mailerSettings.disableDelivery': false,
+                                }),
+                            saveValues: () => Promise.resolve(),
+                        },
                     },
                 },
             },
-        });
+        );
     }
 
     beforeAll(() => {
-        if (Shopware.State.get('context')) {
-            Shopware.State.unregisterModule('context');
+        if (Shopware.Store.get('context')) {
+            Shopware.Store.unregister('context');
         }
 
-        Shopware.State.registerModule('context', {
-            namespaced: true,
-            state: {
+        Shopware.Store.register({
+            id: 'context',
+            state: () => ({
                 app: {
                     config: {
                         settings: {
@@ -60,12 +62,12 @@ describe('module/sw-first-run-wizard/view/sw-first-run-wizard-mailer-smtp', () =
                         token: 'testToken',
                     },
                 },
-            },
+            }),
         });
     });
 
     it('template renders with disabled extension management', async () => {
-        Shopware.State.get('context').app.config.settings.disableExtensionManagement = true;
+        Shopware.Store.get('context').app.config.settings.disableExtensionManagement = true;
 
         const wrapper = await createWrapper();
         await flushPromises();
@@ -74,7 +76,7 @@ describe('module/sw-first-run-wizard/view/sw-first-run-wizard-mailer-smtp', () =
 
         expect(wrapper.vm.nextAction).toBe('sw.first.run.wizard.index.shopware.account');
 
-        Shopware.State.get('context').app.config.settings.disableExtensionManagement = false;
+        Shopware.Store.get('context').app.config.settings.disableExtensionManagement = false;
     });
 
     it('should emit the button config and the title on creation', async () => {
@@ -116,7 +118,6 @@ describe('module/sw-first-run-wizard/view/sw-first-run-wizard-mailer-smtp', () =
             'core.mailerSettings.username': 'Mad max',
             'core.mailerSettings.password': 'verySafe123',
             'core.mailerSettings.encryption': 'md5',
-            'core.mailerSettings.authenticationMethod': 'login',
             'core.mailerSettings.senderAddress': 'sender@address.com',
             'core.mailerSettings.deliveryAddress': 'delivery@address.com',
             'core.mailerSettings.disableDelivery': true,
@@ -142,7 +143,6 @@ describe('module/sw-first-run-wizard/view/sw-first-run-wizard-mailer-smtp', () =
             'core.mailerSettings.username': 'Mad max',
             'core.mailerSettings.password': 'verySafe123',
             'core.mailerSettings.encryption': 'md5',
-            'core.mailerSettings.authenticationMethod': 'login',
             'core.mailerSettings.senderAddress': 'sender@address.com',
             'core.mailerSettings.deliveryAddress': 'delivery@address.com',
             'core.mailerSettings.disableDelivery': true,

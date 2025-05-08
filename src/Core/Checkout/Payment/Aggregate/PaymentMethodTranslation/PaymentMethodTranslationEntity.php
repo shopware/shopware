@@ -14,30 +14,15 @@ class PaymentMethodTranslationEntity extends TranslationEntity
     use EntityCustomFieldsTrait;
     use EntityIdTrait;
 
-    /**
-     * @var string
-     */
-    protected $paymentMethodId;
+    protected string $paymentMethodId;
 
-    /**
-     * @var string|null
-     */
-    protected $name;
+    protected ?string $name = null;
 
-    /**
-     * @var string|null
-     */
-    protected $distinguishableName;
+    protected ?string $distinguishableName = null;
 
-    /**
-     * @var string|null
-     */
-    protected $description;
+    protected ?string $description = null;
 
-    /**
-     * @var PaymentMethodEntity|null
-     */
-    protected $paymentMethod;
+    protected ?PaymentMethodEntity $paymentMethod = null;
 
     public function getPaymentMethodId(): string
     {

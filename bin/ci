@@ -36,10 +36,10 @@ return static function (array &$context) {
     $_SERVER['DATABASE_URL'] = 'mysql://_placeholder.test';
 
     $kernel = KernelFactory::create(
-        environment: $env,
-        debug: $debug,
-        classLoader: $classLoader,
-        pluginLoader: new ComposerPluginLoader($classLoader, null),
+        $env,
+        $debug,
+        $classLoader,
+        new ComposerPluginLoader($classLoader, null),
     );
 
     $application = new Application($kernel);

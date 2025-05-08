@@ -10,7 +10,6 @@
       "visibilityModalDescription": "“Hide in listing” will exclude the product from product overview listings but also from product sliders and cross selling lists. Selecting the option “Hide in listing and search” will also exclude the product from search actions. Products can still be reached via URL.",
       "linkAdvancedVisibility": "Set visibility for selected Sales Channels",
       "labelVisibility": "Sales Channels",
-      "closeModal": "Apply",
       "bodyVisibility": "Add Sales Channels in which this product should be displayed. You may further define the product visibility for each Storefront Sales Channel via the link below.",
       "errorMessage": "Unable to load default Sales Channel configuration."
     },
@@ -192,7 +191,6 @@
       "modal": {
         "confirmTitle": "Delete review",
         "confirmText": "Do you really want to delete this review?",
-        "buttonCancel": "Cancel",
         "buttonDelete": "Delete"
       },
       "messageEmptyTitle": "Product not reviewed yet",
@@ -222,7 +220,6 @@
       "textProductOverview": "Products",
       "buttonAddProduct": "Add product",
       "buttonAddDownloadableProduct": "Add digital product",
-      "buttonCancel": "Cancel",
       "buttonDuplicate": "Duplicate",
       "buttonDelete": "Delete",
       "columnName": "Name",
@@ -267,7 +264,6 @@
     },
     "detail": {
       "textHeadline": "New product",
-      "buttonCancel": "Cancel",
       "buttonSave": "Save",
       "buttonSaveDuplicate": "Save and duplicate",
       "buttonSaveAndNew": "Save and create new",
@@ -347,7 +343,6 @@
       "generateVariationsButton": "Save variants",
       "nextModalButton": "Next",
       "deleteVariationsButton": "Delete all variants",
-      "cancelVariationsButton": "Cancel",
       "backVariationsButton": "Back",
       "configuratorCardTitle": "Variant generator",
       "generatedVariationCardTitle": "Variants",
@@ -377,7 +372,6 @@
       "generatedListContextMenuDelete": "Delete",
       "generatedListDeleteModalMessage": "Do you really want to delete this variant?",
       "generatedListDeleteModalMessagePlural": "Do you really want to delete these variants?",
-      "generatedListDeleteModalButtonCancel": "Cancel",
       "generatedListDeleteModalButtonDelete": "Delete",
       "generatedListMessageSaveSuccess": "Variant has been saved.",
       "generatedListMessageSaveError": "Variant could not be saved.",
@@ -414,7 +408,6 @@
         "singleRestrictionSeperation": "And",
         "deleteCombination": "Delete",
         "isOneFrom": "is one of",
-        "cancel": "Cancel",
         "save": "Save",
         "searchPlaceholder": "Search values...",
         "singleRestrictionAddTitle": "Exclude values",
@@ -439,7 +432,6 @@
         "listingExplanationModeMainProduct": "Choose a variant that will be the preselected on the product detail page.",
         "listingLabelModeExpanded": "Expand property values in product listings",
         "listingPlaceholderSelectMainVariant": "Choose a variant...",
-        "cancel": "Cancel",
         "save": "Save"
       }
     },
@@ -475,12 +467,19 @@
       "releaseDateDescendingSortingType": "Release date, descending",
       "deleteConfirmTitle": "Delete Cross Selling",
       "deleteConfirmText": "Are you sure you want to delete the Cross Selling configuration?",
-      "deleteButtonCancel": "Cancel",
       "deleteButtonDelete": "Delete",
       "linkOpenStreamPreview": "Open preview",
       "emptyStateDescription": "There is no Cross Selling configured for this product, yet.",
+      "inheritedEmptyStateDescription": "This product has inherited cross sellings from its parent.",
+      "notInheritedEmptyStateDescription": "You can now use custom Cross Selling configurations for this variant.",
       "assignEmptyStateDescription": "Save the Cross Selling in order to add products to it.",
-      "assignPlaceholder": "Search products..."
+      "assignPlaceholder": "Search products...",
+      "linkCrossSellingsOfParent": "Show cross sellings of parent product",
+      "inheritSwitchLabel": "Use cross sellings from parent product",
+      "buttonRestoreCrossSellingInheritance": "Restore inheritance",
+      "restoreInheritanceConfirmTitle": "Restore Cross Selling inheritance",
+      "restoreInheritanceConfirmText": "Are you sure you want to restore the Cross Selling inheritance? All Cross Selling configurations of this variant will be deleted.",
+      "restoreInheritanceButtonRestore": "Restore inheritance"
     },
     "featureSets": {
       "cardTitle": "Essential Characteristics",

@@ -39,7 +39,7 @@ class CartMergedSubscriberTest extends TestCase
         $requestStack->push($request);
 
         $translator = $this->createMock(TranslatorInterface::class);
-        $translator->expects(static::once())
+        $translator->expects($this->once())
             ->method('trans')
             ->with('checkout.cart-merged-hint')
             ->willReturn('checkout.cart-merged-hint');
@@ -83,7 +83,7 @@ class CartMergedSubscriberTest extends TestCase
             $salesChannelData[SalesChannelContextService::CUSTOMER_ID] = $customerId;
         }
 
-        return $this->getContainer()->get(SalesChannelContextFactory::class)->create(
+        return static::getContainer()->get(SalesChannelContextFactory::class)->create(
             $contextToken,
             TestDefaults::SALES_CHANNEL,
             $salesChannelData
@@ -108,7 +108,7 @@ class CartMergedSubscriberTest extends TestCase
                 ['salesChannelId' => TestDefaults::SALES_CHANNEL, 'visibility' => ProductVisibilityDefinition::VISIBILITY_ALL],
             ],
         ];
-        $this->getContainer()->get('product.repository')->create([$data], $context);
+        static::getContainer()->get('product.repository')->create([$data], $context);
 
         return $productId;
     }

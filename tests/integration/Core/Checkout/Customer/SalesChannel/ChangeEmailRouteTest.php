@@ -4,22 +4,24 @@ namespace Shopware\Tests\Integration\Core\Checkout\Customer\SalesChannel;
 
 use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Checkout\Customer\CustomerCollection;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
-use Shopware\Core\Framework\Feature;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
-use Shopware\Core\Framework\Test\TestDataCollection;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\PlatformRequest;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Shopware\Core\Test\Integration\Traits\CustomerTestTrait;
+use Shopware\Core\Test\Stub\Framework\IdsCollection;
 use Shopware\Core\Test\TestDefaults;
 use Symfony\Bundle\FrameworkBundle\KernelBrowser;
 
 /**
  * @internal
  */
+#[Package('checkout')]
 class ChangeEmailRouteTest extends TestCase
 {
     use CustomerTestTrait;
@@ -27,19 +29,22 @@ class ChangeEmailRouteTest extends TestCase
 
     private KernelBrowser $browser;
 
-    private TestDataCollection $ids;
+    private IdsCollection $ids;
 
+    /**
+     * @var EntityRepository<CustomerCollection>
+     */
     private EntityRepository $customerRepository;
 
     protected function setUp(): void
     {
-        $this->ids = new TestDataCollection();
+        $this->ids = new IdsCollection();
 
         $this->browser = $this->createCustomSalesChannelBrowser([
             'id' => $this->ids->create('sales-channel'),
         ]);
         $this->assignSalesChannelContext($this->browser);
-        $this->customerRepository = $this->getContainer()->get('customer.repository');
+        $this->customerRepository = static::getContainer()->get('customer.repository');
 
         $email = Uuid::randomHex() . '@example.com';
         $this->createCustomer('shopware', $email);
@@ -130,7 +135,7 @@ class ChangeEmailRouteTest extends TestCase
 
     public function testChangeSuccessWithSameEmailOnDiffSalesChannel(): void
     {
-        $this->getContainer()->get(SystemConfigService::class)->set('core.systemWideLoginRegistration.isCustomerBoundToSalesChannel', true);
+        static::getContainer()->get(SystemConfigService::class)->set('core.systemWideLoginRegistration.isCustomerBoundToSalesChannel', true);
 
         $newEmail = 'test@fooware.de';
 
@@ -145,7 +150,7 @@ class ChangeEmailRouteTest extends TestCase
             ],
         ]);
 
-        $this->createCustomerOfSalesChannel($salesChannelContext->getSalesChannel()->getId(), $newEmail);
+        $this->createCustomerOfSalesChannel($salesChannelContext->getSalesChannelId(), $newEmail);
 
         $this->browser
             ->request(
@@ -236,7 +241,7 @@ class ChangeEmailRouteTest extends TestCase
                 ]
             );
 
-        $count = (int) $this->getContainer()->get(Connection::class)
+        $count = (int) static::getContainer()->get(Connection::class)
             ->fetchOne('SELECT COUNT(*) FROM newsletter_recipient WHERE status = "direct" AND email = ?', [$response['email']]);
         static::assertSame(1, $count);
 
@@ -251,11 +256,11 @@ class ChangeEmailRouteTest extends TestCase
                 ]
             );
 
-        $count = (int) $this->getContainer()->get(Connection::class)
+        $count = (int) static::getContainer()->get(Connection::class)
             ->fetchOne('SELECT COUNT(*) FROM newsletter_recipient WHERE status = "direct" AND email = ?', [$response['email']]);
         static::assertSame(0, $count);
 
-        $email = $this->getContainer()->get(Connection::class)
+        $email = static::getContainer()->get(Connection::class)
             ->fetchOne('SELECT email FROM newsletter_recipient WHERE status = "direct" AND email = "test@fooware.de"');
         static::assertSame($email, 'test@fooware.de');
     }
@@ -288,10 +293,6 @@ class ChangeEmailRouteTest extends TestCase
             'salutationId' => $this->getValidSalutationId(),
             'customerNumber' => '12345',
         ];
-
-        if (!Feature::isActive('v6.7.0.0')) {
-            $customer['defaultPaymentMethodId'] = $this->getValidPaymentMethodId();
-        }
 
         $this->customerRepository->create([$customer], Context::createDefaultContext());
 
@@ -331,14 +332,10 @@ class ChangeEmailRouteTest extends TestCase
             ],
         ];
 
-        if (!Feature::isActive('v6.7.0.0')) {
-            $customer['defaultPaymentMethodId'] = $this->getValidPaymentMethodId();
-        }
-
-        $isCustomerBound = $this->getContainer()->get(SystemConfigService::class)->get('core.systemWideLoginRegistration.isCustomerBoundToSalesChannel');
+        $isCustomerBound = static::getContainer()->get(SystemConfigService::class)->get('core.systemWideLoginRegistration.isCustomerBoundToSalesChannel');
         $customer['boundSalesChannelId'] = $isCustomerBound ? $salesChannelId : null;
 
-        $this->getContainer()
+        static::getContainer()
             ->get('customer.repository')
             ->upsert([$customer], Context::createDefaultContext());
 

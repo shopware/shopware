@@ -18,7 +18,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\Struct\ArrayEntity;
-use Shopware\Core\Framework\Test\IdsCollection;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\SalesChannelApiTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\TaxAddToSalesChannelTestBehaviour;
@@ -27,6 +26,7 @@ use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
+use Shopware\Core\Test\Stub\Framework\IdsCollection;
 use Shopware\Core\Test\TestDefaults;
 
 /**
@@ -69,10 +69,10 @@ class ProductListingLoaderTest extends TestCase
 
     protected function setUp(): void
     {
-        $this->productRepository = $this->getContainer()->get('product.repository');
-        $this->productListingLoader = $this->getContainer()->get(ProductListingLoader::class);
+        $this->productRepository = static::getContainer()->get('product.repository');
+        $this->productListingLoader = static::getContainer()->get(ProductListingLoader::class);
         $this->salesChannelContext = $this->createSalesChannelContext();
-        $this->systemConfigService = $this->getContainer()->get(SystemConfigService::class);
+        $this->systemConfigService = static::getContainer()->get(SystemConfigService::class);
 
         parent::setUp();
     }
@@ -84,12 +84,12 @@ class ProductListingLoaderTest extends TestCase
             ->price(100)
             ->visibility()
             ->build();
-        $this->getContainer()->get('product.repository')->create([$product], Context::createDefaultContext());
+        static::getContainer()->get('product.repository')->create([$product], Context::createDefaultContext());
 
         $listener = $this->getMockBuilder(CallableClass::class)->getMock();
-        $listener->expects(static::once())->method('__invoke');
-        $this->getContainer()->get('event_dispatcher')->addListener(ProductListingResolvePreviewEvent::class, $listener);
-        $context = $this->getContainer()->get(SalesChannelContextFactory::class)->create(Uuid::randomHex(), TestDefaults::SALES_CHANNEL);
+        $listener->expects($this->once())->method('__invoke');
+        static::getContainer()->get('event_dispatcher')->addListener(ProductListingResolvePreviewEvent::class, $listener);
+        $context = static::getContainer()->get(SalesChannelContextFactory::class)->create(Uuid::randomHex(), TestDefaults::SALES_CHANNEL);
 
         $criteria = new Criteria($ids->getList(['p1']));
         $this->productListingLoader->load($criteria, $context);
@@ -165,7 +165,7 @@ class ProductListingLoaderTest extends TestCase
         $this->systemConfigService->set(
             'core.listing.hideCloseoutProductsWhenOutOfStock',
             true,
-            $this->salesChannelContext->getSalesChannel()->getId()
+            $this->salesChannelContext->getSalesChannelId()
         );
 
         // update main variant to be out of stock
@@ -257,7 +257,7 @@ class ProductListingLoaderTest extends TestCase
         $this->systemConfigService->set(
             'core.listing.hideCloseoutProductsWhenOutOfStock',
             true,
-            $this->salesChannelContext->getSalesChannel()->getId()
+            $this->salesChannelContext->getSalesChannelId()
         );
 
         $this->productRepository->update([[
@@ -556,7 +556,7 @@ class ProductListingLoaderTest extends TestCase
                 ],
                 'visibilities' => [
                     [
-                        'salesChannelId' => $this->salesChannelContext->getSalesChannel()->getId(),
+                        'salesChannelId' => $this->salesChannelContext->getSalesChannelId(),
                         'visibility' => ProductVisibilityDefinition::VISIBILITY_ALL,
                     ],
                 ],

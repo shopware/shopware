@@ -4,7 +4,7 @@
            xsi:schemaLocation="http://symfony.com/schema/dic/services http://symfony.com/schema/dic/services/services-1.0.xsd">
     <services>
         <service id="shopware.increment.gateway.registry" class="Shopware\Core\Framework\Increment\IncrementGatewayRegistry" public="true">
-            <argument type="tagged" tag="shopware.increment.gateway"/>
+            <argument type="tagged_iterator" tag="shopware.increment.gateway"/>
         </service>
 
         <service id="shopware.increment.gateway.mysql" class="Shopware\Core\Framework\Increment\MySQLIncrementer">

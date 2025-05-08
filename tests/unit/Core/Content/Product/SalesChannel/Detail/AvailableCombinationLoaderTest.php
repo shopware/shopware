@@ -31,7 +31,7 @@ class AvailableCombinationLoaderTest extends TestCase
     public function testLoadCombinationsReturnsAvailableCombinationResult(): void
     {
         $context = Context::createDefaultContext();
-        $salesChanelContext = Generator::createSalesChannelContext($context);
+        $salesChanelContext = Generator::generateSalesChannelContext($context);
         $loader = $this->getAvailableCombinationLoader();
         $result = $loader->loadCombinations(
             Uuid::randomHex(),
@@ -40,11 +40,11 @@ class AvailableCombinationLoaderTest extends TestCase
 
         $combinations = $result->getCombinations();
         static::assertSame([
-            'a3f67ea263a4f2f5cf456e16de744b4b' => [
+            '4b97f87ff3bd2cd72cc6f6f7d2ae49ae' => [
                 'green',
                 'red',
             ],
-            'b6073234fc601007b541885dd70491f1' => [
+            'a6a23a74867cad90ee0c788a48944911' => [
                 'green',
             ],
         ], $combinations);
@@ -53,10 +53,10 @@ class AvailableCombinationLoaderTest extends TestCase
     public function testLoadCombinationsReturnsAvailableCombinationResultWithAvailabilityFromStockStorage(): void
     {
         $context = Context::createDefaultContext();
-        $salesChanelContext = Generator::createSalesChannelContext($context);
+        $salesChanelContext = Generator::generateSalesChannelContext($context);
 
         $stockStorage = $this->createMock(AbstractStockStorage::class);
-        $stockStorage->expects(static::once())
+        $stockStorage->expects($this->once())
             ->method('load')
             ->willReturn(new StockDataCollection([
                 new StockData('product-1', 10, false),
@@ -70,11 +70,11 @@ class AvailableCombinationLoaderTest extends TestCase
 
         $combinations = $result->getCombinations();
         static::assertSame([
-            'a3f67ea263a4f2f5cf456e16de744b4b' => [
+            '4b97f87ff3bd2cd72cc6f6f7d2ae49ae' => [
                 'green',
                 'red',
             ],
-            'b6073234fc601007b541885dd70491f1' => [
+            'a6a23a74867cad90ee0c788a48944911' => [
                 'green',
             ],
         ], $combinations);

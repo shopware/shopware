@@ -8,13 +8,13 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\SalesChannelApiTestBehaviour;
-use Shopware\Core\Framework\Test\TestDataCollection;
+use Shopware\Core\Test\Stub\Framework\IdsCollection;
 use Symfony\Bundle\FrameworkBundle\KernelBrowser;
 
 /**
  * @internal
  */
-#[Package('checkout')]
+#[Package('after-sales')]
 #[Group('store-api')]
 class NewsletterConfirmRouteTest extends TestCase
 {
@@ -23,11 +23,11 @@ class NewsletterConfirmRouteTest extends TestCase
 
     private KernelBrowser $browser;
 
-    private TestDataCollection $ids;
+    private IdsCollection $ids;
 
     protected function setUp(): void
     {
-        $this->ids = new TestDataCollection();
+        $this->ids = new IdsCollection();
 
         $this->browser = $this->createCustomSalesChannelBrowser([
             'id' => $this->ids->create('sales-channel'),
@@ -96,9 +96,9 @@ class NewsletterConfirmRouteTest extends TestCase
                 ]
             );
 
-        $count = (int) $this->getContainer()->get(Connection::class)->fetchOne('SELECT COUNT(*) FROM newsletter_recipient WHERE email = "test@test.de"');
+        $count = (int) static::getContainer()->get(Connection::class)->fetchOne('SELECT COUNT(*) FROM newsletter_recipient WHERE email = "test@test.de"');
         static::assertSame(1, $count);
-        $hash = $this->getContainer()->get(Connection::class)->fetchOne('SELECT hash FROM newsletter_recipient WHERE email = "test@test.de"');
+        $hash = static::getContainer()->get(Connection::class)->fetchOne('SELECT hash FROM newsletter_recipient WHERE email = "test@test.de"');
 
         $this->browser
             ->request(
@@ -110,7 +110,7 @@ class NewsletterConfirmRouteTest extends TestCase
                 ]
             );
 
-        $status = $this->getContainer()->get(Connection::class)->fetchOne('SELECT status FROM newsletter_recipient WHERE email = "test@test.de"');
+        $status = static::getContainer()->get(Connection::class)->fetchOne('SELECT status FROM newsletter_recipient WHERE email = "test@test.de"');
         static::assertSame('optIn', $status);
     }
 }

@@ -5,7 +5,7 @@ const { Component } = Shopware;
 const { mapPropertyErrors } = Component.getComponentHelper();
 
 /**
- * @package services-settings
+ * @sw-package fundamentals@after-sales
  */
 Component.extend('sw-condition-line-item-purchase-price', 'sw-condition-base-line-item', {
     template,
@@ -40,12 +40,14 @@ Component.extend('sw-condition-line-item-purchase-price', 'sw-condition-base-lin
             },
         },
 
-        ...mapPropertyErrors('condition', ['value.operator', 'value.isNet', 'value.amount']),
+        ...mapPropertyErrors('condition', [
+            'value.operator',
+            'value.isNet',
+            'value.amount',
+        ]),
 
         currentError() {
-            return this.conditionValueIsNetError
-                || this.conditionValueOperatorError
-                || this.conditionValueAmountError;
+            return this.conditionValueIsNetError || this.conditionValueOperatorError || this.conditionValueAmountError;
         },
     },
 

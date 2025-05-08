@@ -10,61 +10,31 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityCustomFieldsTrait;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityIdTrait;
 use Shopware\Core\Framework\Log\Package;
 
-#[Package('buyers-experience')]
+#[Package('after-sales')]
 class MailTemplateEntity extends Entity
 {
     use EntityCustomFieldsTrait;
     use EntityIdTrait;
 
-    /**
-     * @var string|null
-     */
-    protected $mailTemplateTypeId;
+    protected ?string $mailTemplateTypeId = null;
 
-    /**
-     * @var MailTemplateTypeEntity|null
-     */
-    protected $mailTemplateType;
+    protected ?MailTemplateTypeEntity $mailTemplateType = null;
 
-    /**
-     * @var bool
-     */
-    protected $systemDefault;
+    protected bool $systemDefault;
 
-    /**
-     * @var string|null
-     */
-    protected $senderName;
+    protected ?string $senderName = null;
 
-    /**
-     * @var string|null
-     */
-    protected $description;
+    protected ?string $description = null;
 
-    /**
-     * @var string|null
-     */
-    protected $subject;
+    protected ?string $subject = null;
 
-    /**
-     * @var string|null
-     */
-    protected $contentHtml;
+    protected ?string $contentHtml = null;
 
-    /**
-     * @var string|null
-     */
-    protected $contentPlain;
+    protected ?string $contentPlain = null;
 
-    /**
-     * @var MailTemplateTranslationCollection|null
-     */
-    protected $translations;
+    protected ?MailTemplateTranslationCollection $translations = null;
 
-    /**
-     * @var MailTemplateMediaCollection|null
-     */
-    protected $media;
+    protected ?MailTemplateMediaCollection $media = null;
 
     public function getMailTemplateType(): ?MailTemplateTypeEntity
     {

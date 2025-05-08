@@ -1,5 +1,5 @@
 /**
- * @package admin
+ * @sw-package framework
  */
 import { mount } from '@vue/test-utils';
 
@@ -25,11 +25,17 @@ async function createWrapper(back = null, push = jest.fn()) {
                 'sw-my-apps-error-page': true,
                 'sw-iframe-renderer': true,
                 'sw-language-switch': true,
-                'sw-button': await wrapTestComponent('sw-button'),
-                'sw-button-deprecated': await wrapTestComponent('sw-button-deprecated', { sync: true }),
+                'sw-context-menu-item': true,
+                'sw-context-button': true,
                 'router-link': {
                     props: {
-                        to: { type: [String, Object], required: true },
+                        to: {
+                            type: [
+                                String,
+                                Object,
+                            ],
+                            required: true,
+                        },
                     },
                     template: '<a @click="$router.push(to)"></a>',
                 },
@@ -37,7 +43,6 @@ async function createWrapper(back = null, push = jest.fn()) {
                 'sw-app-topbar-button': true,
                 'sw-notification-center': true,
                 'sw-help-center-v2': true,
-                'sw-icon': true,
                 'sw-app-actions': true,
             },
             mocks: {
@@ -76,7 +81,7 @@ describe('src/module/sw-extension-sdk/page/sw-extension-sdk-module', () => {
     });
 
     it('@slow should not time out with menu item', async () => {
-        const moduleId = await Shopware.State.dispatch('extensionSdkModules/addModule', mockModule);
+        const moduleId = await Shopware.Store.get('extensionSdkModules').addModule(mockModule);
         expect(typeof moduleId).toBe('string');
         expect(moduleId).toBe(wrapper.vm.id);
 
@@ -87,7 +92,7 @@ describe('src/module/sw-extension-sdk/page/sw-extension-sdk-module', () => {
     });
 
     it('should show language switch', async () => {
-        await Shopware.State.dispatch('extensionSdkModules/addModule', mockModule);
+        await Shopware.Store.get('extensionSdkModules').addModule(mockModule);
 
         expect(wrapper.findComponent('sw-language-switch-stub').exists()).toBe(true);
     });
@@ -95,8 +100,8 @@ describe('src/module/sw-extension-sdk/page/sw-extension-sdk-module', () => {
     it('should show smart bar button', async () => {
         const spy = jest.fn();
 
-        await Shopware.State.dispatch('extensionSdkModules/addModule', mockModule);
-        Shopware.State.commit('extensionSdkModules/addSmartBarButton', {
+        await Shopware.Store.get('extensionSdkModules').addModule(mockModule);
+        Shopware.Store.get('extensionSdkModules').addSmartBarButton({
             locationId: 'jest',
             buttonId: 'test-button-1',
             label: 'Test button 1',
@@ -112,7 +117,7 @@ describe('src/module/sw-extension-sdk/page/sw-extension-sdk-module', () => {
 
         expect(smartBarButton.text()).toBe('Test button 1');
         expect(smartBarButton.attributes().id).toBe('test-button-1');
-        expect(smartBarButton.classes('sw-button--primary')).toBe(true);
+        expect(smartBarButton.classes().some((cls) => cls.includes('--primary'))).toBe(true);
 
         // Test if callback function is called
         await smartBarButton.trigger('click');
@@ -134,7 +139,7 @@ describe('src/module/sw-extension-sdk/page/sw-extension-sdk-module', () => {
         expect(wrapper.find('.smart-bar__content').exists()).toBeTruthy();
 
         mockModule.displaySmartBar = false;
-        const moduleId = await Shopware.State.dispatch('extensionSdkModules/addModule', mockModule);
+        const moduleId = await Shopware.Store.get('extensionSdkModules').addModule(mockModule);
         await wrapper.setProps({
             id: moduleId,
         });

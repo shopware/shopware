@@ -1,5 +1,5 @@
 /**
- * @package services-settings
+ * @sw-package fundamentals@framework
  */
 import template from './sw-users-permissions.html.twig';
 
@@ -9,9 +9,10 @@ const { Mixin } = Shopware;
 export default {
     template,
 
-    compatConfig: Shopware.compatConfig,
-
-    inject: ['feature', 'acl'],
+    inject: [
+        'feature',
+        'acl',
+    ],
 
     mixins: [
         Mixin.getByName('notification'),

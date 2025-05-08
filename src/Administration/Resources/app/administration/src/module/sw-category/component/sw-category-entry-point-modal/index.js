@@ -2,13 +2,11 @@ import template from './sw-category-entry-point-modal.html.twig';
 import './sw-category-entry-point-modal.scss';
 
 /**
- * @package inventory
+ * @sw-package discovery
  */
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default {
     template,
-
-    compatConfig: Shopware.compatConfig,
 
     inject: [
         'acl',
@@ -30,7 +28,11 @@ export default {
             salesChannelOptions: [],
             selectedSalesChannelId: '',
             showLayoutSelectionModal: false,
-            pageTypes: ['page', 'landingpage', 'product_list'],
+            pageTypes: [
+                'page',
+                'landingpage',
+                'product_list',
+            ],
             nextRoute: null,
             isDisplayingLeavePageWarning: false,
         };
@@ -100,7 +102,10 @@ export default {
         openInPagebuilder() {
             let to = { name: 'sw.cms.create' };
             if (this.selectedSalesChannel.homeCmsPage) {
-                to = { name: 'sw.cms.detail', params: { id: this.selectedSalesChannel.homeCmsPageId } };
+                to = {
+                    name: 'sw.cms.detail',
+                    params: { id: this.selectedSalesChannel.homeCmsPageId },
+                };
             }
 
             if (this.hasNotAppliedChanges()) {
@@ -140,11 +145,7 @@ export default {
                 realSalesChannel.homeMetaDescription = tempSalesChannel.homeMetaDescription;
                 realSalesChannel.homeKeywords = tempSalesChannel.homeKeywords;
                 realSalesChannel.homeCmsPageId = tempSalesChannel.homeCmsPageId;
-                if (this.isCompatEnabled('INSTANCE_SET')) {
-                    this.$set(realSalesChannel, 'homeCmsPage', tempSalesChannel.homeCmsPage);
-                } else {
-                    realSalesChannel.homeCmsPage = tempSalesChannel.homeCmsPage;
-                }
+                realSalesChannel.homeCmsPage = tempSalesChannel.homeCmsPage;
             }
 
             this.closeModal();
@@ -193,7 +194,10 @@ export default {
             this.$nextTick(() => {
                 this.closeModal();
                 this.$nextTick(() => {
-                    this.$router.push({ name: destination.name, params: destination.params });
+                    this.$router.push({
+                        name: destination.name,
+                        params: destination.params,
+                    });
                 });
             });
         },

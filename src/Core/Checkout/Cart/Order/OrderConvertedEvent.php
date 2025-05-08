@@ -11,34 +11,13 @@ use Shopware\Core\Framework\Log\Package;
 #[Package('checkout')]
 class OrderConvertedEvent extends NestedEvent
 {
-    /**
-     * @var Context
-     */
-    private $context;
-
-    /**
-     * @var OrderEntity
-     */
-    private $order;
-
-    /**
-     * @var Cart
-     */
-    private $cart;
-
-    /**
-     * @var Cart
-     */
-    private $convertedCart;
+    private Cart $convertedCart;
 
     public function __construct(
-        OrderEntity $order,
-        Cart $cart,
-        Context $context
+        private OrderEntity $order,
+        private Cart $cart,
+        private Context $context
     ) {
-        $this->context = $context;
-        $this->order = $order;
-        $this->cart = $cart;
         $this->convertedCart = clone $cart;
     }
 

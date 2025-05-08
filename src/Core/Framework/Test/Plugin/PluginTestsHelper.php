@@ -60,13 +60,11 @@ trait PluginTestsHelper
     {
         require_once $testPluginBaseDir . '/src/' . $pluginName . '.php';
 
-        /** @var KernelPluginCollection $pluginCollection */
-        $pluginCollection = $this->getContainer()->get(KernelPluginCollection::class);
-        /** @var class-string<Plugin> $class */
         $class = '\\' . $pluginName . '\\' . $pluginName;
         $plugin = new $class($active, $testPluginBaseDir);
-        $pluginCollection->add($plugin);
+        static::assertInstanceOf(Plugin::class, $plugin);
+        static::getContainer()->get(KernelPluginCollection::class)->add($plugin);
 
-        $this->getContainer()->get(KernelPluginLoader::class)->getPluginInstances()->add($plugin);
+        static::getContainer()->get(KernelPluginLoader::class)->getPluginInstances()->add($plugin);
     }
 }

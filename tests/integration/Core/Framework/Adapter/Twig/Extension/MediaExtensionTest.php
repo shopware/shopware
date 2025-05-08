@@ -5,7 +5,7 @@ namespace Shopware\Tests\Integration\Core\Framework\Adapter\Twig\Extension;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
-use Shopware\Core\Framework\Test\TestDataCollection;
+use Shopware\Core\Test\Stub\Framework\IdsCollection;
 use Twig\Loader\ArrayLoader;
 
 /**
@@ -17,14 +17,14 @@ class MediaExtensionTest extends TestCase
 
     public function testSingleSearch(): void
     {
-        $ids = new TestDataCollection();
+        $ids = new IdsCollection();
 
         $data = [
             'id' => $ids->create('media'),
             'fileName' => 'testImage',
         ];
 
-        $this->getContainer()->get('media.repository')
+        static::getContainer()->get('media.repository')
             ->create([$data], Context::createDefaultContext());
 
         $result = $this->render('search-media.html.twig', [
@@ -37,14 +37,14 @@ class MediaExtensionTest extends TestCase
 
     public function testMultiSearch(): void
     {
-        $ids = new TestDataCollection();
+        $ids = new IdsCollection();
 
         $data = [
             ['id' => $ids->create('media-1'), 'fileName' => 'image-1'],
             ['id' => $ids->create('media-2'), 'fileName' => 'image-2'],
         ];
 
-        $this->getContainer()->get('media.repository')
+        static::getContainer()->get('media.repository')
             ->create($data, Context::createDefaultContext());
 
         $result = $this->render('search-media.html.twig', [
@@ -70,7 +70,7 @@ class MediaExtensionTest extends TestCase
      */
     private function render(string $template, array $data): string
     {
-        $twig = $this->getContainer()->get('twig');
+        $twig = static::getContainer()->get('twig');
 
         $originalLoader = $twig->getLoader();
         $twig->setLoader(new ArrayLoader([

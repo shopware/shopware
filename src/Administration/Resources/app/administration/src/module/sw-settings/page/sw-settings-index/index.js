@@ -1,5 +1,5 @@
 /**
- * @package services-settings
+ * @sw-package framework
  */
 import template from './sw-settings-index.html.twig';
 import './sw-settings-index.scss';
@@ -10,9 +10,10 @@ const { hasOwnProperty } = Shopware.Utils.object;
 export default {
     template,
 
-    compatConfig: Shopware.compatConfig,
-
-    inject: ['acl'],
+    inject: [
+        'acl',
+        'feature',
+    ],
 
     metaInfo() {
         return {
@@ -22,35 +23,44 @@ export default {
 
     computed: {
         settingsGroups() {
-            const settingsGroups = Object.entries(Shopware.State.get('settingsItems').settingsGroups);
-            return settingsGroups.reduce((acc, [groupName, groupSettings]) => {
-                const group = groupSettings
-                    .filter((setting) => {
-                        if (!setting.privilege) {
-                            return true;
-                        }
+            const settingsGroups = Object.entries(Shopware.Store.get('settingsItems').settingsGroups);
+            return settingsGroups.reduce(
+                (
+                    acc,
+                    [
+                        groupName,
+                        groupSettings,
+                    ],
+                ) => {
+                    const group = groupSettings
+                        .filter((setting) => {
+                            if (!setting.privilege) {
+                                return true;
+                            }
 
-                        return this.acl.can(setting.privilege);
-                    })
-                    .sort((a, b) => {
-                        const labelA = typeof a.label === 'string' ? a.label : a.label?.label;
-                        const labelB = typeof b.label === 'string' ? b.label : b.label?.label;
+                            return this.acl.can(setting.privilege);
+                        })
+                        .sort((a, b) => {
+                            const labelA = typeof a.label === 'string' ? a.label : a.label?.label;
+                            const labelB = typeof b.label === 'string' ? b.label : b.label?.label;
 
-                        return this.$tc(labelA).localeCompare(this.$tc(labelB));
-                    });
+                            return this.$tc(labelA).localeCompare(this.$tc(labelB));
+                        });
 
-                if (group.length > 0) {
-                    acc[groupName] = group;
-                }
+                    if (group.length > 0) {
+                        acc[groupName] = group;
+                    }
 
-                return acc;
-            }, {});
+                    return acc;
+                },
+                {},
+            );
         },
     },
 
     methods: {
         hasPluginConfig() {
-            return (hasOwnProperty(this.settingsGroups, 'plugins') && this.settingsGroups.plugins.length > 0);
+            return hasOwnProperty(this.settingsGroups, 'plugins') && this.settingsGroups.plugins.length > 0;
         },
 
         getRouteConfig(settingsItem) {
@@ -95,6 +105,11 @@ export default {
             }
 
             return this.$tc(settingsItem.label.label);
+        },
+
+        getGroupLabel(settingsGroup) {
+            const upper = settingsGroup.charAt(0).toUpperCase() + settingsGroup.slice(1);
+            return this.$tc(`sw-settings.index.tab${upper}`);
         },
     },
 };

@@ -6,18 +6,12 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\ShopwareHttpException;
 use Symfony\Component\HttpFoundation\Response;
 
-#[Package('services-settings')]
+#[Package('fundamentals@after-sales')]
 class UnsupportedOperatorException extends ShopwareHttpException
 {
-    /**
-     * @var string
-     */
-    protected $operator;
+    protected string $operator;
 
-    /**
-     * @var string
-     */
-    protected $class;
+    protected string $class;
 
     public function __construct(
         string $operator,

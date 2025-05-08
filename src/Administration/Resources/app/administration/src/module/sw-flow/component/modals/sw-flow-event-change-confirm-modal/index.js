@@ -1,23 +1,24 @@
 import template from './sw-flow-event-change-confirm-modal.html.twig';
 import './sw-flow-event-change-confirm-modal.scss';
 
-const { Component, State } = Shopware;
+const { Component, Store } = Shopware;
 const { EntityCollection } = Shopware.Data;
-const { mapGetters } = Component.getComponentHelper();
+const { mapState } = Component.getComponentHelper();
 
 /**
  * @private
- * @package services-settings
+ * @sw-package after-sales
  */
 export default {
     template,
 
-    emits: ['modal-confirm', 'modal-close'],
-
-    compatConfig: Shopware.compatConfig,
+    emits: [
+        'modal-confirm',
+        'modal-close',
+    ],
 
     computed: {
-        ...mapGetters('swFlowState', ['sequences']),
+        ...mapState(() => Store.get('swFlow'), ['sequences']),
     },
 
     methods: {
@@ -30,7 +31,7 @@ export default {
                 [],
             );
 
-            State.commit('swFlowState/setSequences', sequencesCollection);
+            Store.get('swFlow').setSequences(sequencesCollection);
 
             this.$emit('modal-confirm');
             this.onClose();

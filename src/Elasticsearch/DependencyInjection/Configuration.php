@@ -6,7 +6,7 @@ use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\Config\Definition\Builder\TreeBuilder;
 use Symfony\Component\Config\Definition\ConfigurationInterface;
 
-#[Package('core')]
+#[Package('framework')]
 class Configuration implements ConfigurationInterface
 {
     public function getConfigTreeBuilder(): TreeBuilder
@@ -29,6 +29,19 @@ class Configuration implements ConfigurationInterface
                         ->scalarNode('cert_key_path')->end()
                         ->scalarNode('cert_key_password')->end()
                         ->booleanNode('verify_server_cert')->defaultValue(true)->end()
+                        ->arrayNode('sigV4')
+                            ->children()
+                                ->scalarNode('enabled')->defaultValue(false)->end()
+                                ->scalarNode('region')->end()
+                                ->scalarNode('service')->end()
+                                ->arrayNode('credentials_provider')
+                                    ->children()
+                                        ->scalarNode('key_id')->end()
+                                        ->scalarNode('secret_key')->end()
+                                    ->end()
+                                ->end()
+                            ->end()
+                        ->end()
                     ->end()
                 ->end()
                 ->arrayNode('index_settings')->variablePrototype()->end()->end()

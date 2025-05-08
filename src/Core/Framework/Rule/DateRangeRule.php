@@ -8,25 +8,19 @@ use Symfony\Component\Validator\Constraints\NotBlank;
 use Symfony\Component\Validator\Constraints\NotNull;
 use Symfony\Component\Validator\Constraints\Type;
 
-#[Package('services-settings')]
+/**
+ * @final
+ */
+#[Package('fundamentals@after-sales')]
 class DateRangeRule extends Rule
 {
     final public const RULE_NAME = 'dateRange';
 
-    /**
-     * @var \DateTimeInterface|string|null
-     */
-    protected $fromDate;
+    protected \DateTimeInterface|string|null $fromDate = null;
 
-    /**
-     * @var \DateTimeInterface|string|null
-     */
-    protected $toDate;
+    protected \DateTimeInterface|string|null $toDate = null;
 
-    /**
-     * @var bool
-     */
-    protected $useTime;
+    protected bool $useTime;
 
     /**
      * @internal

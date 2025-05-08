@@ -14,14 +14,11 @@ class HookableEventCollectorTest extends TestCase
 {
     use IntegrationTestBehaviour;
 
-    /**
-     * @var HookableEventCollector
-     */
-    private $hookableEventCollector;
+    private HookableEventCollector $hookableEventCollector;
 
     protected function setUp(): void
     {
-        $this->hookableEventCollector = $this->getContainer()->get(HookableEventCollector::class);
+        $this->hookableEventCollector = static::getContainer()->get(HookableEventCollector::class);
     }
 
     public function testGetHookableEventNamesWithPrivileges(): void

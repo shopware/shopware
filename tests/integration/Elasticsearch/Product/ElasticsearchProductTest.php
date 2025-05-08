@@ -8,10 +8,10 @@ use PHPUnit\Framework\Attributes\AfterClass;
 use PHPUnit\Framework\Attributes\BeforeClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\Depends;
-use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Product\Aggregate\ProductManufacturer\ProductManufacturerDefinition;
 use Shopware\Core\Content\Product\Aggregate\ProductVisibility\ProductVisibilityDefinition;
+use Shopware\Core\Content\Product\ProductCollection;
 use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Content\Product\ProductEntity;
 use Shopware\Core\Content\Product\SalesChannel\Listing\ProductListingRoute;
@@ -64,7 +64,6 @@ use Shopware\Core\Framework\Test\DataAbstractionLayer\Field\DataAbstractionLayer
 use Shopware\Core\Framework\Test\DataAbstractionLayer\Field\TestDefinition\ExtendedProductDefinition;
 use Shopware\Core\Framework\Test\DataAbstractionLayer\Field\TestDefinition\ProductExtension;
 use Shopware\Core\Framework\Test\DataAbstractionLayer\Search\Util\DateHistogramCase;
-use Shopware\Core\Framework\Test\IdsCollection;
 use Shopware\Core\Framework\Test\TestCaseBase\CacheTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\FilesystemBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelLifecycleManager;
@@ -76,9 +75,12 @@ use Shopware\Core\Framework\Test\TestCaseHelper\ReflectionHelper;
 use Shopware\Core\Framework\Util\FloatComparator;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\CustomField\CustomFieldTypes;
+use Shopware\Core\System\Language\LanguageCollection;
+use Shopware\Core\System\Language\SalesChannelLanguageLoader;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextService;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
+use Shopware\Core\Test\Stub\Framework\IdsCollection;
 use Shopware\Core\Test\TestDefaults;
 use Shopware\Elasticsearch\Framework\AbstractElasticsearchDefinition;
 use Shopware\Elasticsearch\Framework\DataAbstractionLayer\ElasticsearchEntityAggregator;
@@ -93,7 +95,6 @@ use Symfony\Component\HttpFoundation\Request;
 /**
  * @internal
  */
-#[Group('skip-paratest')]
 class ElasticsearchProductTest extends TestCase
 {
     use CacheTestBehaviour;
@@ -109,6 +110,9 @@ class ElasticsearchProductTest extends TestCase
 
     private ProductDefinition $productDefinition;
 
+    /**
+     * @var EntityRepository<LanguageCollection>
+     */
     private EntityRepository $languageRepository;
 
     private ElasticsearchHelper $helper;
@@ -117,6 +121,9 @@ class ElasticsearchProductTest extends TestCase
 
     private Connection $connection;
 
+    /**
+     * @var EntityRepository<ProductCollection>
+     */
     private EntityRepository $productRepository;
 
     private string $navigationId;
@@ -133,15 +140,16 @@ class ElasticsearchProductTest extends TestCase
 
     protected function setUp(): void
     {
-        $this->definition = $this->getContainer()->get(ElasticsearchProductDefinition::class);
-        $this->utils = $this->getContainer()->get(ElasticsearchIndexingUtils::class);
+        $this->definition = static::getContainer()->get(ElasticsearchProductDefinition::class);
+        $this->utils = static::getContainer()->get(ElasticsearchIndexingUtils::class);
 
-        $this->helper = $this->getContainer()->get(ElasticsearchHelper::class);
-        $this->client = $this->getContainer()->get(Client::class);
-        $this->productDefinition = $this->getContainer()->get(ProductDefinition::class);
-        $this->languageRepository = $this->getContainer()->get('language.repository');
+        $this->helper = static::getContainer()->get(ElasticsearchHelper::class);
+        $this->client = static::getContainer()->get(Client::class);
+        $this->productDefinition = static::getContainer()->get(ProductDefinition::class);
+        $this->languageRepository = static::getContainer()->get('language.repository');
 
-        $this->connection = $this->getContainer()->get(Connection::class);
+        static::getContainer()->get(SalesChannelLanguageLoader::class)->reset();
+        $this->connection = static::getContainer()->get(Connection::class);
 
         $this->navigationId = $this->connection->fetchOne(
             'SELECT LOWER(HEX(navigation_category_id)) FROM sales_channel WHERE id = :id',
@@ -151,7 +159,7 @@ class ElasticsearchProductTest extends TestCase
         $this->registerDefinition(ExtendedProductDefinition::class);
         $this->registerDefinitionWithExtensions(ProductDefinition::class, ProductExtension::class);
 
-        $this->productRepository = $this->getContainer()->get('product.repository');
+        $this->productRepository = static::getContainer()->get('product.repository');
 
         $this->ids = new IdsCollection();
         $this->ids->set('navi', $this->navigationId);
@@ -234,7 +242,7 @@ class ElasticsearchProductTest extends TestCase
                 ],
             ];
 
-            $this->getContainer()
+            static::getContainer()
                 ->get('currency.repository')
                 ->upsert($currencies, $this->context);
 
@@ -1813,7 +1821,7 @@ class ElasticsearchProductTest extends TestCase
                     '2020-09-30 00:00:00' => 1,
                     '2021-12-10 00:00:00' => 2,
                     '2024-12-12 00:00:00' => 1,
-                ], null, 'Asia/Saigon'),
+                ], null, 'Asia/Ho_Chi_Minh'),
             ],
         ];
     }
@@ -2064,7 +2072,7 @@ class ElasticsearchProductTest extends TestCase
         try {
             $this->helper->setEnabled(true);
 
-            $context = $this->getContainer()->get(SalesChannelContextFactory::class)
+            $context = static::getContainer()->get(SalesChannelContextFactory::class)
                 ->create(
                     Uuid::randomHex(),
                     TestDefaults::SALES_CHANNEL,
@@ -2078,7 +2086,7 @@ class ElasticsearchProductTest extends TestCase
             $criteria = new Criteria();
             $criteria->addState(Criteria::STATE_ELASTICSEARCH_AWARE);
 
-            $result = $this->getContainer()->get(ProductListingRoute::class)
+            $result = static::getContainer()->get(ProductListingRoute::class)
                 ->load($context->getSalesChannel()->getNavigationCategoryId(), $request, $context, $criteria);
 
             $listing = $result->getResult();
@@ -2138,7 +2146,7 @@ class ElasticsearchProductTest extends TestCase
         try {
             $cases = $this->providerCheapestPriceFilter();
 
-            $context = $this->getContainer()->get(SalesChannelContextFactory::class)
+            $context = static::getContainer()->get(SalesChannelContextFactory::class)
                 ->create(
                     Uuid::randomHex(),
                     TestDefaults::SALES_CHANNEL,
@@ -2228,7 +2236,7 @@ class ElasticsearchProductTest extends TestCase
     public function testCheapestPriceSorting(IdsCollection $ids): void
     {
         try {
-            $context = $this->getContainer()->get(SalesChannelContextFactory::class)
+            $context = static::getContainer()->get(SalesChannelContextFactory::class)
                 ->create(
                     Uuid::randomHex(),
                     TestDefaults::SALES_CHANNEL,
@@ -2451,7 +2459,7 @@ class ElasticsearchProductTest extends TestCase
     public function testCheapestPricePercentageFilterAndSorting(IdsCollection $ids): void
     {
         try {
-            $context = $this->getContainer()->get(SalesChannelContextFactory::class)
+            $context = static::getContainer()->get(SalesChannelContextFactory::class)
                 ->create(
                     Uuid::randomHex(),
                     TestDefaults::SALES_CHANNEL,
@@ -3068,62 +3076,52 @@ class ElasticsearchProductTest extends TestCase
     }
 
     #[Depends('testIndexing')]
-    #[DataProvider('variantListingConfigProvider')]
-    public function testVariantListingConfig(string $productIds, int $expected, IdsCollection $ids): void
+    public function testVariantListingConfigShouldIndexMainProductWhenDisplayParentIsTrue(IdsCollection $ids): void
     {
-        $criteria = new Criteria($ids->prefixed($productIds));
+        $criteria = new Criteria($ids->prefixed('variant-1'));
         $criteria->addState(Criteria::STATE_ELASTICSEARCH_AWARE);
 
         $searcher = $this->createEntitySearcher();
 
         $result = $searcher->search($this->productDefinition, $criteria, $this->context)->getIds();
-        static::assertCount($expected, $result);
+        static::assertCount(3, $result);
     }
 
-    /**
-     * @return array<string, array{productIds: string, expected: int}>
-     */
-    public static function variantListingConfigProvider(): iterable
-    {
-        yield 'Should index main product when displayParent is true' => ['productIds' => 'variant-1', 'expected' => 3];
-        yield 'Should not index main product when displayParent is false' => ['productIds' => 'variant-2', 'expected' => 2];
-    }
-
-    /**
-     * @return array<string, array{rangesDefinition: mixed, rangesExpectedResult: mixed}>
-     */
-    public static function rangeAggregationDataProvider(): iterable
-    {
-        yield 'default ranges test cases' => [
-            'rangesDefinition' => [
-                [],
-                ['key' => 'all'],
-                ['key' => 'custom_key', 'from' => 0, 'to' => 200],
-                ['to' => 100],
-                ['from' => 100, 'to' => 160],
-                ['from' => 200, 'to' => 500],
-                ['to' => 500],
-            ],
-            'rangesExpectedResult' => [
-                '*-*' => 7,
-                'all' => 7,
-                'custom_key' => 3,
-                '*-100' => 2,
-                '100-160' => 1,
-                '200-500' => 4,
-                '*-500' => 7,
-            ],
-        ];
-    }
-
-    /**
-     * @param array<int, array<string, string|float>> $rangesDefinition
-     * @param array<string, int> $rangesExpectedResult
-     */
     #[Depends('testIndexing')]
-    #[DataProvider('rangeAggregationDataProvider')]
-    public function testRangeAggregation(array $rangesDefinition, array $rangesExpectedResult, IdsCollection $data): void
+    public function testVariantListingConfigShouldNotIndexMainProductWhenDisplayParentIsFalse(IdsCollection $ids): void
     {
+        $criteria = new Criteria($ids->prefixed('variant-2'));
+        $criteria->addState(Criteria::STATE_ELASTICSEARCH_AWARE);
+
+        $searcher = $this->createEntitySearcher();
+
+        $result = $searcher->search($this->productDefinition, $criteria, $this->context)->getIds();
+        static::assertCount(2, $result);
+    }
+
+    #[Depends('testIndexing')]
+    public function testRangeAggregation(IdsCollection $data): void
+    {
+        $rangesDefinition = [
+            [],
+            ['key' => 'all'],
+            ['key' => 'custom_key', 'from' => 0, 'to' => 200],
+            ['to' => 100],
+            ['from' => 100, 'to' => 160],
+            ['from' => 200, 'to' => 500],
+            ['to' => 500],
+        ];
+
+        $rangesExpectedResult = [
+            '*-*' => 7,
+            'all' => 7,
+            'custom_key' => 3,
+            '*-100' => 2,
+            '100-160' => 1,
+            '200-500' => 4,
+            '*-500' => 7,
+        ];
+
         $aggregator = $this->createEntityAggregator();
         $criteria = new Criteria($data->prefixed('product-'));
         $criteria->addState(Criteria::STATE_ELASTICSEARCH_AWARE);
@@ -3190,7 +3188,7 @@ class ElasticsearchProductTest extends TestCase
 
     protected function getDiContainer(): ContainerInterface
     {
-        return $this->getContainer();
+        return static::getContainer();
     }
 
     /**
@@ -3251,9 +3249,9 @@ class ElasticsearchProductTest extends TestCase
         $this->ids->set('language-3', $fourthLanguage);
         $this->createSalesChannel(['id' => Defaults::SALES_CHANNEL_TYPE_STOREFRONT]);
 
-        $this->getContainer()->get(Connection::class)->executeStatement('DELETE FROM custom_field');
+        static::getContainer()->get(Connection::class)->executeStatement('DELETE FROM custom_field');
 
-        $customFieldRepository = $this->getContainer()->get('custom_field_set.repository');
+        $customFieldRepository = static::getContainer()->get('custom_field_set.repository');
 
         $customFields = [
             [
@@ -3398,7 +3396,7 @@ class ElasticsearchProductTest extends TestCase
                 ->property('red', 'color')
                 ->build(),
             (new ProductBuilder($this->ids, 'zanother-product-3b'))
-                ->name('Foo Sti')
+                ->name('Bar Sti')
                 ->manufacturer('m2')
                 ->price(100, 100, 'default', 100, 100)
                 ->purchasePrice(100)
@@ -4004,7 +4002,7 @@ class ElasticsearchProductTest extends TestCase
     {
         $id = Uuid::randomHex();
 
-        $languageRepository = $this->getContainer()->get('language.repository');
+        $languageRepository = static::getContainer()->get('language.repository');
 
         $languageRepository->create(
             [
@@ -4035,7 +4033,7 @@ class ElasticsearchProductTest extends TestCase
     private function createIndexingContext(): Context
     {
         $context = $this->context;
-        $context->addExtension('currencies', $this->getContainer()->get('currency.repository')->search(new Criteria(), $this->context));
+        $context->addExtension('currencies', static::getContainer()->get('currency.repository')->search(new Criteria(), $this->context));
 
         return $context;
     }
@@ -4046,13 +4044,15 @@ class ElasticsearchProductTest extends TestCase
      */
     private function resetStopWords(): void
     {
-        $connection = $this->getContainer()->get(Connection::class);
+        $connection = static::getContainer()->get(Connection::class);
         $connection->executeStatement('UPDATE `product_search_config` SET `excluded_terms` = "[]"');
     }
 }
 
 /**
  * @internal
+ *
+ * @phpstan-ignore class.extendsFinalByPhpDoc
  */
 class EsAwareCriteria extends Criteria
 {

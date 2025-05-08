@@ -9,20 +9,11 @@ use Shopware\Core\Framework\Log\Package;
 #[Package('inventory')]
 class ProductCrossSellingTranslationEntity extends TranslationEntity
 {
-    /**
-     * @var string
-     */
-    protected $productCrossSellingId;
+    protected string $productCrossSellingId;
 
-    /**
-     * @var string|null
-     */
-    protected $name;
+    protected ?string $name = null;
 
-    /**
-     * @var ProductCrossSellingEntity|null
-     */
-    protected $productCrossSelling;
+    protected ?ProductCrossSellingEntity $productCrossSelling = null;
 
     public function getProductCrossSellingId(): string
     {

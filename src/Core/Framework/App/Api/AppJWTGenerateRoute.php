@@ -9,6 +9,7 @@ use Lcobucci\JWT\Signer\Key\InMemory;
 use Shopware\Core\Framework\App\AppException;
 use Shopware\Core\Framework\App\ShopId\ShopIdProvider;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\Store\InAppPurchase;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\Routing\Attribute\Route;
@@ -17,12 +18,13 @@ use Symfony\Component\Routing\Attribute\Route;
  * @internal
  */
 #[Route(defaults: ['_routeScope' => ['store-api']])]
-#[Package('core')]
+#[Package('framework')]
 class AppJWTGenerateRoute
 {
     public function __construct(
         private readonly Connection $connection,
-        private readonly ShopIdProvider $shopIdProvider
+        private readonly ShopIdProvider $shopIdProvider,
+        private readonly InAppPurchase $inAppPurchase,
     ) {
     }
 
@@ -53,16 +55,18 @@ class AppJWTGenerateRoute
             ->canOnlyBeUsedAfter(new \DateTimeImmutable())
             ->expiresAt($expiration);
 
+        $builder = $builder->withClaim('inAppPurchases', $this->inAppPurchase->getJWTByExtension($name));
+
         if (\in_array('sales_channel:read', $privileges, true)) {
-            $builder = $builder->withClaim('salesChannelId', $context->getSalesChannel()->getId());
+            $builder = $builder->withClaim('salesChannelId', $context->getSalesChannelId());
         }
 
         if (\in_array('customer:read', $privileges, true)) {
-            $builder = $builder->withClaim('customerId', $context->getCustomer()->getId());
+            $builder = $builder->withClaim('customerId', $context->getCustomerId());
         }
 
         if (\in_array('currency:read', $privileges, true)) {
-            $builder = $builder->withClaim('currencyId', $context->getCurrency()->getId());
+            $builder = $builder->withClaim('currencyId', $context->getCurrencyId());
         }
 
         if (\in_array('language:read', $privileges, true)) {

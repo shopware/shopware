@@ -1,5 +1,5 @@
 /**
- * @package inventory
+ * @sw-package inventory
  */
 import template from './sw-settings-product-feature-sets-modal.html.twig';
 import './sw-settings-product-feature-sets-modal.scss';
@@ -10,8 +10,6 @@ const { Criteria } = Shopware.Data;
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default {
     template,
-
-    compatConfig: Shopware.compatConfig,
 
     inject: ['repositoryFactory'],
 
@@ -156,9 +154,11 @@ export default {
                 return false;
             }
 
-            return this.productFeatureSet.features.filter((item) => {
-                return (item.type === 'referencePrice');
-            }).length === 1;
+            return (
+                this.productFeatureSet.features.filter((item) => {
+                    return item.type === 'referencePrice';
+                }).length === 1
+            );
         },
 
         settingOptions() {
@@ -248,7 +248,7 @@ export default {
                 return;
             }
 
-            const featureNames = this.productFeatureSet.features.map(a => a.name);
+            const featureNames = this.productFeatureSet.features.map((a) => a.name);
 
             this.productInfo = this.productInfo.filter((item) => {
                 return !(item.type === 'product' && featureNames.includes(item.name));
@@ -256,33 +256,28 @@ export default {
         },
 
         getCustomFieldList() {
-            return this.getList(
-                this.customFieldsRepository,
-                this.customFieldCriteria,
-                (items) => {
-                    this.customFields = items;
-                    this.valuesLoading = false;
-                },
-            );
+            return this.getList(this.customFieldsRepository, this.customFieldCriteria, (items) => {
+                this.customFields = items;
+                this.valuesLoading = false;
+            });
         },
 
         getPropertyList() {
-            return this.getList(
-                this.propertyGroupsRepository,
-                this.propertyGroupCriteria,
-                (items) => {
-                    this.propertyGroups = items;
-                    this.valuesLoading = false;
-                },
-            );
+            return this.getList(this.propertyGroupsRepository, this.propertyGroupCriteria, (items) => {
+                this.propertyGroups = items;
+                this.valuesLoading = false;
+            });
         },
 
         getList(repository, criteria, callback) {
             this.valuesLoading = true;
 
-            return repository.search(criteria, Shopware.Context.api).then(callback).catch(() => {
-                this.valuesLoading = false;
-            });
+            return repository
+                .search(criteria, Shopware.Context.api)
+                .then(callback)
+                .catch(() => {
+                    this.valuesLoading = false;
+                });
         },
 
         getFeaturesIds(type) {
@@ -290,9 +285,11 @@ export default {
                 return [];
             }
 
-            return this.productFeatureSet.features.filter((feature) => {
-                return feature.type === type;
-            }).map(a => a.id);
+            return this.productFeatureSet.features
+                .filter((feature) => {
+                    return feature.type === type;
+                })
+                .map((a) => a.id);
         },
 
         onChangeOption() {
@@ -318,24 +315,26 @@ export default {
                     position: this.features.length + 1,
                 });
             } else {
-                this.selectedFeatures.forEach(features => this.setFeatures(features));
+                this.selectedFeatures.forEach((features) => this.setFeatures(features));
             }
 
             this.productFeatureSet.features = this.features;
-            this.productFeatureSetRepository.save(this.productFeatureSet, Context.api).then(() => {
-                this.isSaveSuccessful = true;
-                this.featureType = null;
-                this.$emit('modal-close');
-            }).catch(() => {
-                this.createNotificationError({
-                    title: this.$tc('global.default.error'),
-                    message: this.$tc(
-                        'global.notification.unspecifiedSaveErrorMessage',
-                    ),
+            this.productFeatureSetRepository
+                .save(this.productFeatureSet, Context.api)
+                .then(() => {
+                    this.isSaveSuccessful = true;
+                    this.featureType = null;
+                    this.$emit('modal-close');
+                })
+                .catch(() => {
+                    this.createNotificationError({
+                        title: this.$tc('global.default.error'),
+                        message: this.$tc('global.notification.unspecifiedSaveErrorMessage'),
+                    });
+                })
+                .finally(() => {
+                    this.isLoading = false;
                 });
-            }).finally(() => {
-                this.isLoading = false;
-            });
         },
 
         setFeatures(features) {
@@ -379,34 +378,41 @@ export default {
             const grid = this.showCustomField ? this.$refs.customFieldGrid : this.$refs.propertyGroupGrid;
 
             // Mark all preselected items as selected
-            Object.keys(preSelected).forEach(key => grid.selectItem(true, preSelected[key]));
+            Object.keys(preSelected).forEach((key) => grid.selectItem(true, preSelected[key]));
         },
 
         getPropertyGroupColumns() {
-            return [{
-                property: 'name',
-                label: 'sw-settings-product-feature-sets.modal.textPropertyLabel',
-                primary: true,
-            }];
+            return [
+                {
+                    property: 'name',
+                    label: 'sw-settings-product-feature-sets.modal.textPropertyLabel',
+                    primary: true,
+                },
+            ];
         },
 
         getCustomFieldColumns() {
-            return [{
-                property: 'name',
-                label: 'sw-settings-product-feature-sets.modal.labelName',
-                primary: true,
-            }, {
-                property: 'type',
-                label: 'sw-settings-product-feature-sets.valuesCard.labelType',
-            }];
+            return [
+                {
+                    property: 'name',
+                    label: 'sw-settings-product-feature-sets.modal.labelName',
+                    primary: true,
+                },
+                {
+                    property: 'type',
+                    label: 'sw-settings-product-feature-sets.valuesCard.labelType',
+                },
+            ];
         },
 
         getProductInformationColumns() {
-            return [{
-                property: 'label',
-                label: 'sw-settings-product-feature-sets.modal.labelName',
-                primary: true,
-            }];
+            return [
+                {
+                    property: 'label',
+                    label: 'sw-settings-product-feature-sets.modal.labelName',
+                    primary: true,
+                },
+            ];
         },
 
         paginateCustomFieldGrid({ page, limit }) {
@@ -424,7 +430,7 @@ export default {
         },
 
         readCustomFieldLabel(field) {
-            const language = Shopware.State.get('session').currentLocale;
+            const language = Shopware.Store.get('session').currentLocale;
             const fallback = Shopware.Context.app.fallbackLocale;
 
             return field.config.label[language] || field.config.label[fallback];

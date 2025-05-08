@@ -1,5 +1,5 @@
 /**
- * @package buyers-experience
+ * @sw-package checkout
  */
 import template from './sw-promotion-v2-list.html.twig';
 import './sw-promotion-v2-list.scss';
@@ -11,8 +11,6 @@ const { Criteria } = Shopware.Data;
 export default {
     template,
 
-    compatConfig: Shopware.compatConfig,
-
     inject: [
         'repositoryFactory',
         'acl',
@@ -20,6 +18,7 @@ export default {
 
     mixins: [
         Mixin.getByName('listing'),
+        Mixin.getByName('notification'),
     ],
 
     data() {
@@ -46,7 +45,7 @@ export default {
         },
 
         promotionCriteria() {
-            return (new Criteria(this.page, this.limit))
+            return new Criteria(this.page, this.limit)
                 .setTerm(this.term)
                 .addSorting(Criteria.sort(this.sortBy, this.sortDirection));
         },
@@ -94,36 +93,85 @@ export default {
         },
 
         getPromotionColumns() {
-            return [{
-                property: 'name',
-                label: 'sw-promotion-v2.list.columnName',
-                routerLink: 'sw.promotion.v2.detail',
-                inlineEdit: 'string',
-                allowResize: true,
-                primary: true,
-            }, {
-                property: 'active',
-                label: 'sw-promotion-v2.list.columnActive',
-                inlineEdit: 'boolean',
-                allowResize: true,
-                align: 'center',
-            }, {
-                property: 'validFrom',
-                label: 'sw-promotion-v2.list.columnValidFrom',
-                inlineEdit: 'date',
-                allowResize: true,
-                align: 'center',
-            }, {
-                property: 'validUntil',
-                label: 'sw-promotion-v2.list.columnValidUntil',
-                inlineEdit: 'date',
-                allowResize: true,
-                align: 'center',
-            }];
+            return [
+                {
+                    property: 'name',
+                    label: 'sw-promotion-v2.list.columnName',
+                    routerLink: 'sw.promotion.v2.detail',
+                    inlineEdit: 'string',
+                    allowResize: true,
+                    primary: true,
+                },
+                {
+                    property: 'active',
+                    label: 'sw-promotion-v2.list.columnActive',
+                    inlineEdit: 'boolean',
+                    allowResize: true,
+                    align: 'center',
+                },
+                {
+                    property: 'validFrom',
+                    label: 'sw-promotion-v2.list.columnValidFrom',
+                    inlineEdit: 'date',
+                    allowResize: true,
+                    align: 'center',
+                },
+                {
+                    property: 'validUntil',
+                    label: 'sw-promotion-v2.list.columnValidUntil',
+                    inlineEdit: 'date',
+                    allowResize: true,
+                    align: 'center',
+                },
+            ];
         },
 
         updateTotal({ total }) {
             this.total = total;
+        },
+
+        async onDuplicatePromotion(referencePromotion) {
+            this.isLoading = true;
+
+            try {
+                const behavior = {
+                    overwrites: {
+                        name: `${referencePromotion.name} ${this.$tc('global.default.copy')}`,
+                        code: null,
+                        useCodes: false,
+                        useIndividualCodes: false,
+                        individualCodePattern: '',
+                        individualCodes: null,
+                        active: false,
+                        orderCount: 0,
+                        ordersPerCustomerCount: null,
+                    },
+                };
+                const clone = await this.promotionRepository.clone(referencePromotion.id, behavior, Shopware.Context.api);
+
+                this.$nextTick(() => {
+                    this.$router.push({
+                        name: 'sw.promotion.v2.detail',
+                        params: { id: clone.id },
+                    });
+                });
+
+                this.createNotificationInfo({
+                    message: this.$tc('sw-promotion-v2.list.duplicatePromotionInfo'),
+                });
+            } catch (error) {
+                throw new Error(error);
+            } finally {
+                this.isLoading = false;
+            }
+        },
+
+        deleteDisabledTooltip(promotion) {
+            return {
+                showDelay: 300,
+                message: this.$tc('sw-promotion-v2.list.deleteDisabledToolTip'),
+                disabled: promotion.orderCount === 0,
+            };
         },
     },
 };

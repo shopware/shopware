@@ -1,5 +1,5 @@
 /**
- * @package buyers-experience
+ * @sw-package checkout
  */
 import template from './sw-promotion-v2-individual-codes-behavior.html.twig';
 import './sw-promotion-v2-individual-codes-behavior.scss';
@@ -10,16 +10,16 @@ const { Criteria } = Shopware.Data;
 export default {
     template,
 
-    compatConfig: Shopware.compatConfig,
-
     inject: [
         'acl',
         'repositoryFactory',
         'promotionCodeApiService',
-        'feature',
     ],
 
-    emits: ['delete-finish', 'generate-finish'],
+    emits: [
+        'delete-finish',
+        'generate-finish',
+    ],
 
     mixins: [
         'notification',
@@ -60,28 +60,38 @@ export default {
                 return '';
             }
 
-            return this.$tc(
-                'sw-promotion-v2.detail.base.codes.individual.textDeleteConfirm',
-                this.currentSelection.length,
-                { code: this.currentSelection[0].code || '' },
-            );
+            return this.$tc('sw-promotion-v2.detail.base.codes.individual.textDeleteConfirm', this.currentSelection.length, {
+                code: this.currentSelection[0].code || '',
+            });
         },
 
         codeColumns() {
-            return [{
-                property: 'code',
-                label: this.$tc('sw-promotion-v2.detail.base.codes.individual.columnCode'),
-            }, {
-                property: 'payload',
-                label: this.$tc('sw-promotion-v2.detail.base.codes.individual.columnRedeemed'),
-            }, {
-                property: 'payload.customerName',
-                label: this.$tc('sw-promotion-v2.detail.base.codes.individual.columnCustomer'),
-            }];
+            return [
+                {
+                    property: 'code',
+                    label: this.$tc('sw-promotion-v2.detail.base.codes.individual.columnCode'),
+                },
+                {
+                    property: 'payload',
+                    label: this.$tc('sw-promotion-v2.detail.base.codes.individual.columnRedeemed'),
+                },
+                {
+                    property: 'payload.customerName',
+                    label: this.$tc('sw-promotion-v2.detail.base.codes.individual.columnCustomer'),
+                },
+                {
+                    property: 'createdAt',
+                    label: this.$tc('sw-promotion-v2.detail.base.codes.individual.columnCreatedAt'),
+                },
+            ];
         },
 
         assetFilter() {
             return Shopware.Filter.getByName('asset');
+        },
+
+        dateFilter() {
+            return Shopware.Filter.getByName('date');
         },
     },
 
@@ -171,35 +181,36 @@ export default {
         onAddCodes() {
             this.isAdding = true;
 
-            this.promotionCodeApiService.addIndividualCodes(this.promotion.id, this.newCodeAmount).then(() => {
-                this.isAdding = false;
-                this.onCloseAddCodesModal();
-                this.$emit('generate-finish');
-            }).catch((e) => {
-                this.isAdding = false;
+            this.promotionCodeApiService
+                .addIndividualCodes(this.promotion.id, this.newCodeAmount)
+                .then(() => {
+                    this.isAdding = false;
+                    this.onCloseAddCodesModal();
+                    this.$emit('generate-finish');
+                })
+                .catch((e) => {
+                    this.isAdding = false;
 
-                e.response.data.errors.forEach((error) => {
-                    let errorType;
-                    switch (error.code) {
-                        case 'PROMOTION__INDIVIDUAL_CODES_PATTERN_INSUFFICIENTLY_COMPLEX':
-                            errorType = 'notComplexEnoughException';
-                            break;
-                        case 'PROMOTION__INDIVIDUAL_CODES_PATTERN_ALREADY_IN_USE':
-                            errorType = 'alreadyInUseException';
-                            break;
-                        default:
-                            errorType = 'unknownErrorCode';
-                            break;
-                    }
+                    e.response.data.errors.forEach((error) => {
+                        let errorType;
+                        switch (error.code) {
+                            case 'PROMOTION__INDIVIDUAL_CODES_PATTERN_INSUFFICIENTLY_COMPLEX':
+                                errorType = 'notComplexEnoughException';
+                                break;
+                            case 'PROMOTION__INDIVIDUAL_CODES_PATTERN_ALREADY_IN_USE':
+                                errorType = 'alreadyInUseException';
+                                break;
+                            default:
+                                errorType = 'unknownErrorCode';
+                                break;
+                        }
 
-                    this.createNotificationError({
-                        autoClose: false,
-                        message: this.$tc(
-                            `sw-promotion-v2.detail.base.codes.individual.generateModal.${errorType}`,
-                        ),
+                        this.createNotificationError({
+                            autoClose: false,
+                            message: this.$tc(`sw-promotion-v2.detail.base.codes.individual.generateModal.${errorType}`),
+                        });
                     });
                 });
-            });
         },
 
         onCloseAddCodesModal() {
@@ -207,24 +218,27 @@ export default {
         },
 
         routeToCustomer(redeemedCustomer) {
-            return this.customerRepository.get(redeemedCustomer.customerId).then((result) => {
-                if (result === null) {
-                    this.createRoutingErrorNotification(redeemedCustomer.customerName);
-                    return;
-                }
+            return this.customerRepository
+                .get(redeemedCustomer.customerId)
+                .then((result) => {
+                    if (result === null) {
+                        this.createRoutingErrorNotification(redeemedCustomer.customerName);
+                        return;
+                    }
 
-                this.$router.push({
-                    name: 'sw.customer.detail',
-                    params: { id: result.id },
+                    this.$router.push({
+                        name: 'sw.customer.detail',
+                        params: { id: result.id },
+                    });
+                })
+                .catch(() => {
+                    this.createRoutingErrorNotification(redeemedCustomer.customerName);
                 });
-            }).catch(() => {
-                this.createRoutingErrorNotification(redeemedCustomer.customerName);
-            });
         },
 
         createRoutingErrorNotification(name) {
             this.createNotificationError({
-                message: this.$tc('sw-promotion-v2.detail.base.codes.individual.routingError', 0, { name }),
+                message: this.$tc('sw-promotion-v2.detail.base.codes.individual.routingError', { name }, 0),
             });
         },
     },

@@ -14,13 +14,14 @@ class SearchFieldConfigTest extends TestCase
 {
     public function testInit(): void
     {
-        $searchConfig = new SearchFieldConfig('fooField', 1000.0, true, true);
+        $searchConfig = new SearchFieldConfig('fooField', 1000.0, true, true, false);
 
         static::assertSame('fooField', $searchConfig->getField());
         static::assertSame(1000.0, $searchConfig->getRanking());
         static::assertTrue($searchConfig->tokenize());
         static::assertFalse($searchConfig->isCustomField());
         static::assertTrue($searchConfig->isAndLogic());
+        static::assertFalse($searchConfig->usePrefixMatch());
 
         $customFieldSearchConfig = new SearchFieldConfig('customFields.foo', 1000.0, true);
 

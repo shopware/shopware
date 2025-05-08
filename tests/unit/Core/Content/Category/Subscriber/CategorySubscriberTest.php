@@ -5,25 +5,19 @@ namespace Shopware\Tests\Unit\Core\Content\Category\Subscriber;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
-use Shopware\Core\Checkout\Cart\Delivery\Struct\ShippingLocation;
-use Shopware\Core\Checkout\Customer\Aggregate\CustomerGroup\CustomerGroupEntity;
-use Shopware\Core\Checkout\Customer\CustomerEntity;
-use Shopware\Core\Checkout\Payment\PaymentMethodEntity;
-use Shopware\Core\Checkout\Shipping\ShippingMethodEntity;
 use Shopware\Core\Content\Category\CategoryDefinition;
 use Shopware\Core\Content\Category\CategoryEntity;
 use Shopware\Core\Content\Category\CategoryEvents;
+use Shopware\Core\Content\Category\SalesChannel\SalesChannelCategoryEntity;
+use Shopware\Core\Content\Category\Service\CategoryUrlGenerator;
 use Shopware\Core\Content\Category\Subscriber\CategorySubscriber;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityLoadedEvent;
-use Shopware\Core\Framework\DataAbstractionLayer\Pricing\CashRoundingConfig;
-use Shopware\Core\System\Country\CountryEntity;
-use Shopware\Core\System\Currency\CurrencyEntity;
 use Shopware\Core\System\SalesChannel\Entity\SalesChannelEntityLoadedEvent;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\System\SalesChannel\SalesChannelEntity;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
-use Shopware\Core\System\Tax\TaxCollection;
+use Shopware\Core\Test\Generator;
 use Shopware\Core\Test\Stub\SystemConfigService\StaticSystemConfigService;
 
 /**
@@ -39,13 +33,18 @@ class CategorySubscriberTest extends TestCase
             'sales_channel.' . CategoryEvents::CATEGORY_LOADED_EVENT => 'entityLoaded',
         ];
 
-        static::assertEquals($expectedEvents, CategorySubscriber::getSubscribedEvents());
+        static::assertSame($expectedEvents, CategorySubscriber::getSubscribedEvents());
     }
 
     #[DataProvider('entityLoadedEventDataProvider')]
-    public function testEntityLoadedEvent(SystemConfigService $systemConfigService, CategoryEntity $categoryEntity, ?string $cmsPageIdBeforeEvent, ?string $cmsPageIdAfterEvent, ?string $salesChannelId): void
-    {
-        $categorySubscriber = new CategorySubscriber($systemConfigService);
+    public function testEntityLoadedEvent(
+        SystemConfigService $systemConfigService,
+        CategoryEntity $categoryEntity,
+        ?string $cmsPageIdBeforeEvent,
+        ?string $cmsPageIdAfterEvent,
+        ?string $salesChannelId
+    ): void {
+        $categorySubscriber = new CategorySubscriber($systemConfigService, $this->createMock(CategoryUrlGenerator::class));
 
         if ($salesChannelId) {
             $event = new SalesChannelEntityLoadedEvent(new CategoryDefinition(), [$categoryEntity], $this->getSalesChannelContext($salesChannelId));
@@ -53,9 +52,9 @@ class CategorySubscriberTest extends TestCase
             $event = new EntityLoadedEvent(new CategoryDefinition(), [$categoryEntity], Context::createDefaultContext());
         }
 
-        static::assertEquals($cmsPageIdBeforeEvent, $categoryEntity->getCmsPageId());
+        static::assertSame($cmsPageIdBeforeEvent, $categoryEntity->getCmsPageId());
         $categorySubscriber->entityLoaded($event);
-        static::assertEquals($cmsPageIdAfterEvent, $categoryEntity->getCmsPageId());
+        static::assertSame($cmsPageIdAfterEvent, $categoryEntity->getCmsPageId());
     }
 
     /**
@@ -73,7 +72,7 @@ class CategorySubscriberTest extends TestCase
 
         yield 'It does not set cms page id if already set by the subscriber' => [
             self::getSystemConfigServiceMock(null, 'cmsPageId'),
-            self::getCategory('differentCmsPageId', true),
+            self::getCategory('differentCmsPageId', true, true),
             'differentCmsPageId',
             'differentCmsPageId',
             'salesChannelId',
@@ -97,7 +96,7 @@ class CategorySubscriberTest extends TestCase
 
         yield 'It uses salesChannel specific default' => [
             self::getSystemConfigServiceMock('salesChannelId', 'salesChannelSpecificDefault'),
-            self::getCategory(null, false),
+            self::getCategory(null, false, true),
             null,
             'salesChannelSpecificDefault',
             'salesChannelId',
@@ -123,9 +122,12 @@ class CategorySubscriberTest extends TestCase
         ]);
     }
 
-    private static function getCategory(?string $cmsPageId, bool $cmsPageIdSwitched): CategoryEntity
+    private static function getCategory(?string $cmsPageId, bool $cmsPageIdSwitched, bool $salesChannelEntity = false): CategoryEntity
     {
         $category = new CategoryEntity();
+        if ($salesChannelEntity) {
+            $category = new SalesChannelCategoryEntity();
+        }
 
         if ($cmsPageId) {
             $category->setCmsPageId($cmsPageId);
@@ -141,21 +143,6 @@ class CategorySubscriberTest extends TestCase
         $salesChannelEntity = new SalesChannelEntity();
         $salesChannelEntity->setId($salesChanelId);
 
-        return new SalesChannelContext(
-            Context::createDefaultContext(),
-            'foo',
-            'bar',
-            $salesChannelEntity,
-            new CurrencyEntity(),
-            new CustomerGroupEntity(),
-            new TaxCollection(),
-            new PaymentMethodEntity(),
-            new ShippingMethodEntity(),
-            new ShippingLocation(new CountryEntity(), null, null),
-            new CustomerEntity(),
-            new CashRoundingConfig(2, 0.01, true),
-            new CashRoundingConfig(2, 0.01, true),
-            []
-        );
+        return Generator::generateSalesChannelContext(salesChannel: $salesChannelEntity);
     }
 }

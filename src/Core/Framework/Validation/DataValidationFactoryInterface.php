@@ -5,7 +5,7 @@ namespace Shopware\Core\Framework\Validation;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
-#[Package('core')]
+#[Package('framework')]
 interface DataValidationFactoryInterface
 {
     public function create(SalesChannelContext $context): DataValidationDefinition;

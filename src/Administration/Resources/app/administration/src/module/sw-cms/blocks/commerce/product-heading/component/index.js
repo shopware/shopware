@@ -5,16 +5,14 @@ const { Store } = Shopware;
 
 /**
  * @private
- * @package buyers-experience
+ * @sw-package discovery
  */
 export default {
     template,
 
-    compatConfig: Shopware.compatConfig,
-
     computed: {
         currentDeviceView() {
-            return Store.get('cmsPageState').currentCmsDeviceView;
+            return Store.get('cmsPage').currentCmsDeviceView;
         },
 
         currentDeviceViewClass() {

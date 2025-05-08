@@ -11,65 +11,29 @@ use Shopware\Core\Framework\Struct\Struct;
 #[Package('checkout')]
 class StoreLicenseStruct extends Struct
 {
-    /**
-     * @var int
-     */
-    protected $id;
+    protected int $id;
 
-    /**
-     * @var string
-     */
-    protected $name;
+    protected string $name;
 
-    /**
-     * @var string
-     */
-    protected $producerName;
+    protected string $producerName;
 
-    /**
-     * @var string
-     */
-    protected $technicalPluginName;
+    protected string $technicalPluginName;
 
-    /**
-     * @var \DateTimeInterface
-     */
-    protected $creationDate;
+    protected \DateTimeInterface $creationDate;
 
-    /**
-     * @var \DateTimeInterface
-     */
-    protected $expirationDate;
+    protected \DateTimeInterface $expirationDate;
 
-    /**
-     * @var StoreLicenseSubscriptionStruct|null
-     */
-    protected $subscription;
+    protected ?StoreLicenseSubscriptionStruct $subscription;
 
-    /**
-     * @var StoreLicenseTypeStruct
-     */
-    protected $type;
+    protected StoreLicenseTypeStruct $type;
 
-    /**
-     * @var string
-     */
-    protected $availableVersion;
+    protected string $availableVersion;
 
-    /**
-     * @var bool
-     */
-    protected $installed;
+    protected bool $installed;
 
-    /**
-     * @var string
-     */
-    protected $iconPath;
+    protected string $iconPath;
 
-    /**
-     * @var bool
-     */
-    protected $updateAvailable;
+    protected bool $updateAvailable;
 
     public function getTechnicalPluginName(): string
     {

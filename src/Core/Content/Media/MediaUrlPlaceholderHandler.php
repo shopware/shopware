@@ -12,7 +12,7 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Profiling\Profiler;
 
-#[Package('buyers-experience')]
+#[Package('discovery')]
 class MediaUrlPlaceholderHandler implements MediaUrlPlaceholderHandlerInterface
 {
     final public const DOMAIN_PLACEHOLDER = '124c71d524604ccbad6042edce3ac799';
@@ -62,7 +62,7 @@ class MediaUrlPlaceholderHandler implements MediaUrlPlaceholderHandlerInterface
         }
         $query = new QueryBuilder($this->connection);
         $query->setTitle('media_url::replacement');
-        $query->addSelect(['id', 'path', 'updated_at', 'created_at']);
+        $query->addSelect('id', 'path', 'updated_at', 'created_at');
         $query->from('media');
         $query->andWhere('id IN (:mediaIds)');
         $query->setParameter('mediaIds', $mediaIds, ArrayParameterType::BINARY);

@@ -6,20 +6,15 @@ use Shopware\Core\Content\Product\ProductEntity;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Struct\Struct;
 
-#[Package('storefront')]
+#[Package('framework')]
 class MinimalQuickViewPage extends Struct
 {
     /**
-     * @var ProductEntity
-     */
-    protected $product;
-
-    /**
      * @internal
      */
-    public function __construct(ProductEntity $product)
-    {
-        $this->product = $product;
+    public function __construct(
+        protected ProductEntity $product,
+    ) {
     }
 
     public function getProduct(): ProductEntity

@@ -17,7 +17,7 @@ use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 /**
  * @internal
  */
-#[Package('services-settings')]
+#[Package('fundamentals@after-sales')]
 class PromotionIndividualCodeSerializerTest extends TestCase
 {
     use IntegrationTestBehaviour;
@@ -38,9 +38,9 @@ class PromotionIndividualCodeSerializerTest extends TestCase
 
     protected function setUp(): void
     {
-        $this->promoRepository = $this->getContainer()->get('promotion.repository');
-        $this->promoCodeRepository = $this->getContainer()->get('promotion_individual_code.repository');
-        $serializerRegistry = $this->getContainer()->get(SerializerRegistry::class);
+        $this->promoRepository = static::getContainer()->get('promotion.repository');
+        $this->promoCodeRepository = static::getContainer()->get('promotion_individual_code.repository');
+        $serializerRegistry = static::getContainer()->get(SerializerRegistry::class);
 
         $this->serializer = new PromotionIndividualCodeSerializer(
             $this->promoCodeRepository,

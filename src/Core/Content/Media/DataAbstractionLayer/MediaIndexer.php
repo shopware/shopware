@@ -18,7 +18,7 @@ use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
-#[Package('buyers-experience')]
+#[Package('discovery')]
 class MediaIndexer extends EntityIndexer
 {
     /**
@@ -70,6 +70,9 @@ class MediaIndexer extends EntityIndexer
         }
 
         $ids = $message->getData();
+        if (!\is_array($ids)) {
+            return;
+        }
 
         $ids = array_unique(array_filter($ids));
         if (empty($ids)) {

@@ -6,19 +6,12 @@ use Shopware\Core\Content\Category\CategoryEntity;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\StoreApiResponse;
 
-#[Package('inventory')]
+/**
+ * @extends StoreApiResponse<CategoryEntity>
+ */
+#[Package('discovery')]
 class CategoryRouteResponse extends StoreApiResponse
 {
-    /**
-     * @var CategoryEntity
-     */
-    protected $object;
-
-    public function __construct(CategoryEntity $category)
-    {
-        parent::__construct($category);
-    }
-
     public function getCategory(): CategoryEntity
     {
         return $this->object;

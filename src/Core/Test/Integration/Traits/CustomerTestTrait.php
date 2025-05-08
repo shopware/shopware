@@ -10,7 +10,7 @@ use Shopware\Core\System\SalesChannel\Context\SalesChannelContextPersister;
 use Shopware\Core\Test\TestDefaults;
 
 /**
- * @deprecated tag:v6.7.0 - reason:becomes-internal - Will be internal in v6.7.0
+ * @internal
  */
 #[Package('checkout')]
 trait CustomerTestTrait
@@ -21,7 +21,7 @@ trait CustomerTestTrait
     private function getLoggedInContextToken(string $customerId, string $salesChannelId = TestDefaults::SALES_CHANNEL): string
     {
         $token = Random::getAlphanumericString(32);
-        $this->getContainer()->get(SalesChannelContextPersister::class)->save(
+        static::getContainer()->get(SalesChannelContextPersister::class)->save(
             $token,
             [
                 'customerId' => $customerId,

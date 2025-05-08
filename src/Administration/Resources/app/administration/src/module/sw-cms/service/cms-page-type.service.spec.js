@@ -1,5 +1,5 @@
 /**
- * @package buyers-experience
+ * @sw-package discovery
  */
 import CmsPageTypeService from './cms-page-type.service';
 import initCmsPageTypes from '../init/cmsPageTypes.init';
@@ -75,9 +75,7 @@ describe('module/sw-cms/service/cms-page-type.service.ts', () => {
     it('should throw an error, when an existing page type is added again', () => {
         expect(() => {
             cmsPageTypeService.register(mockType);
-        }).toThrow(
-            new Error("Can't register new Page Type with \"mock_type\" already in use."),
-        );
+        }).toThrow(new Error('Can\'t register new Page Type with "mock_type" already in use.'));
     });
 
     Object.keys(expectedTypes).forEach((typeName) => {

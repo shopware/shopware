@@ -5,7 +5,10 @@ namespace Shopware\Core\Framework\Plugin\Exception;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\ShopwareHttpException;
 
-#[Package('core')]
+/**
+ * @deprecated tag:v6.8.0 - reason:remove-exception - Will be removed, use StoreException::pluginNotAZipFile instead
+ */
+#[Package('framework')]
 class PluginNotAZipFileException extends ShopwareHttpException
 {
     public function __construct(string $mimeType)

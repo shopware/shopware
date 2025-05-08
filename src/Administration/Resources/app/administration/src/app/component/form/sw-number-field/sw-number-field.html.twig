@@ -1,11 +1,10 @@
 {# v-on="$listeners" needed becaues vue/compat removes them from $attrs #}
 {# New mt-number-field component #}
+{% block sw_number_field %}
 <mt-number-field
-    v-if="useMeteorComponent"
+    v-if="!deprecated"
     v-bind="$attrs"
-    :model-value="currentValue"
-    v-on="listeners"
-    @change="currentValue = $event"
+    v-model="currentValue"
 >
     <template
         v-for="(index, name) in getSlots()"
@@ -19,14 +18,13 @@
     </template>
     <slot></slot>
 </mt-number-field>
+{% endblock %}
 
-{# v-on="$listeners" needed becaues vue/compat removes them from $attrs #}
 {# Deprecated component #}
 <sw-number-field-deprecated
     v-else
     v-bind="$attrs"
     :value="value"
-    v-on="listeners"
 >
     <template
         v-for="(index, name) in getSlots()"

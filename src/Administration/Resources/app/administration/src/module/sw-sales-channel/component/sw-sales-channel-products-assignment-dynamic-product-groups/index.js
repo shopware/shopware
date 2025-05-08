@@ -1,5 +1,5 @@
 /**
- * @package buyers-experience
+ * @sw-package discovery
  */
 
 import template from './sw-sales-channel-products-assignment-dynamic-product-groups.html.twig';
@@ -12,11 +12,12 @@ const { Criteria } = Shopware.Data;
 Component.register('sw-sales-channel-products-assignment-dynamic-product-groups', {
     template,
 
-    compatConfig: Shopware.compatConfig,
-
     inject: ['repositoryFactory'],
 
-    emits: ['selection-change', 'product-loading'],
+    emits: [
+        'selection-change',
+        'product-loading',
+    ],
 
     mixins: [
         Mixin.getByName('notification'),
@@ -61,9 +62,11 @@ Component.register('sw-sales-channel-products-assignment-dynamic-product-groups'
 
             criteria.filters = this.productStreamFilter;
             criteria.addAssociation('visibilities.salesChannel');
-            criteria.addFilter(Criteria.not('AND', [
-                Criteria.equals('product.visibilities.salesChannelId', this.salesChannel.id),
-            ]));
+            criteria.addFilter(
+                Criteria.not('AND', [
+                    Criteria.equals('product.visibilities.salesChannelId', this.salesChannel.id),
+                ]),
+            );
 
             return criteria;
         },
@@ -105,7 +108,8 @@ Component.register('sw-sales-channel-products-assignment-dynamic-product-groups'
         getProductStreams() {
             this.isProductStreamsLoading = true;
 
-            return this.productStreamRepository.search(this.productStreamCriteria)
+            return this.productStreamRepository
+                .search(this.productStreamCriteria)
                 .then((productStreams) => {
                     this.productStreams = productStreams;
                     this.total = productStreams.total;
@@ -136,7 +140,10 @@ Component.register('sw-sales-channel-products-assignment-dynamic-product-groups'
         },
 
         onOpen(productStream) {
-            const route = this.$router.resolve({ name: 'sw.product.stream.detail', params: { id: productStream.id } });
+            const route = this.$router.resolve({
+                name: 'sw.product.stream.detail',
+                params: { id: productStream.id },
+            });
 
             window.open(route.href, '_blank');
         },
@@ -175,7 +182,8 @@ Component.register('sw-sales-channel-products-assignment-dynamic-product-groups'
         },
 
         getProductStreamFilter(id) {
-            return this.productStreamRepository.get(id)
+            return this.productStreamRepository
+                .get(id)
                 .then((productStreamFilter) => {
                     this.productStreamFilter = productStreamFilter.apiFilter;
                 })
@@ -186,10 +194,9 @@ Component.register('sw-sales-channel-products-assignment-dynamic-product-groups'
         },
 
         getProducts() {
-            return this.productRepository.search(this.productCriteria)
-                .then((products) => {
-                    return products;
-                });
+            return this.productRepository.search(this.productCriteria).then((products) => {
+                return products;
+            });
         },
     },
 });

@@ -1,27 +1,30 @@
 /**
- * @package admin
+ * @sw-package framework
  */
 import 'src/app/mixin/sw-inline-snippet.mixin';
 import { mount } from '@vue/test-utils';
 
 async function createWrapper() {
-    return mount({
-        template: `
+    return mount(
+        {
+            template: `
             <div class="sw-mock">
               <slot></slot>
             </div>
         `,
-        mixins: [
-            Shopware.Mixin.getByName('sw-inline-snippet'),
-        ],
-        data() {
-            return {
-                name: 'sw-mock-field',
-            };
+            mixins: [
+                Shopware.Mixin.getByName('sw-inline-snippet'),
+            ],
+            data() {
+                return {
+                    name: 'sw-mock-field',
+                };
+            },
         },
-    }, {
-        attachTo: document.body,
-    });
+        {
+            attachTo: document.body,
+        },
+    );
 }
 
 describe('src/app/mixin/sw-inline-snippet.mixin.ts', () => {

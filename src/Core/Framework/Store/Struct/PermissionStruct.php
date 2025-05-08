@@ -10,15 +10,9 @@ use Shopware\Core\Framework\Log\Package;
 #[Package('checkout')]
 class PermissionStruct extends StoreStruct
 {
-    /**
-     * @var string
-     */
-    protected $entity;
+    protected string $entity;
 
-    /**
-     * @var string
-     */
-    protected $operation;
+    protected string $operation;
 
     /**
      * @return PermissionStruct

@@ -5,21 +5,22 @@ const { Application, Mixin, Context } = Shopware;
 const { warn } = Shopware.Utils.debug;
 
 /**
- * @package content
+ * @sw-package discovery
  */
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default {
     template,
-
-    compatConfig: Shopware.compatConfig,
 
     inheritAttrs: false,
 
     inject: ['repositoryFactory'],
 
     emits: [
-        'media-folder-remove', 'media-folder-changed', 'media-folder-delete',
-        'media-folder-dissolve', 'media-folder-move',
+        'media-folder-remove',
+        'media-folder-changed',
+        'media-folder-delete',
+        'media-folder-dissolve',
+        'media-folder-move',
     ],
 
     mixins: [
@@ -88,15 +89,6 @@ export default {
 
         dateFilter() {
             return Shopware.Filter.getByName('date');
-        },
-
-        listeners() {
-            // eslint-disable-next-line @typescript-eslint/no-unsafe-call,@typescript-eslint/no-unsafe-member-access
-            if (this.isCompatEnabled('INSTANCE_LISTENERS')) {
-                return this.$listeners;
-            }
-
-            return {};
         },
     },
 

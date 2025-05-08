@@ -1,8 +1,8 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 /**
- * @package services-settings
+ * @sw-package framework
  * @module app/entity-validation-service
  */
-import type { Entity } from '@shopware-ag/meteor-admin-sdk/es/_internals/data/Entity';
 import type ChangesetGenerator from 'src/core/data/changeset-generator.data';
 import type EntityDefinition from 'src/core/data/entity-definition.data';
 import type ErrorResolver from 'src/core/data/error-resolver.data';
@@ -12,18 +12,21 @@ import type EntityDefinitionFactory from 'src/core/factory/entity-definition.fac
  * @private
  */
 export type ValidationError = {
-    code: string,
+    code: string;
     source: {
-        pointer: string
-    }
-}
+        pointer: string;
+    };
+};
 
 /**
  * @private
  */
-// eslint-disable-next-line @typescript-eslint/no-explicit-any,max-len,sw-deprecation-rules/private-feature-declarations
-export type CustomValidator = (errors: ValidationError[], entity: Entity<any>, definition: EntityDefinition<any>) => ValidationError[];
-
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
+export type CustomValidator = (
+    errors: ValidationError[],
+    entity: Entity<any>,
+    definition: EntityDefinition<any>,
+) => ValidationError[];
 
 /**
  * A service for client side validation of entities

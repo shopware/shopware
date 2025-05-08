@@ -6,11 +6,11 @@ use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
-use Shopware\Core\Framework\Test\TestDataCollection;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\PlatformRequest;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextPersister;
 use Shopware\Core\Test\Integration\Traits\CustomerTestTrait;
+use Shopware\Core\Test\Stub\Framework\IdsCollection;
 use Symfony\Bundle\FrameworkBundle\KernelBrowser;
 
 /**
@@ -25,7 +25,7 @@ class ChangePasswordRouteTest extends TestCase
 
     private KernelBrowser $browser;
 
-    private TestDataCollection $ids;
+    private IdsCollection $ids;
 
     private string $email;
 
@@ -35,7 +35,7 @@ class ChangePasswordRouteTest extends TestCase
 
     protected function setUp(): void
     {
-        $this->ids = new TestDataCollection();
+        $this->ids = new IdsCollection();
 
         $this->browser = $this->createCustomSalesChannelBrowser([
             'id' => $this->ids->create('sales-channel'),
@@ -155,14 +155,14 @@ class ChangePasswordRouteTest extends TestCase
         $contextToken = $response->headers->get(PlatformRequest::HEADER_CONTEXT_TOKEN) ?? '';
         static::assertNotEmpty($contextToken);
 
-        $oldContextExists = $this->getContainer()->get(SalesChannelContextPersister::class)->load($this->contextToken, $this->ids->get('sales-channel'));
+        $oldContextExists = static::getContainer()->get(SalesChannelContextPersister::class)->load($this->contextToken, $this->ids->get('sales-channel'));
 
         static::assertEmpty($oldContextExists);
 
         // Token is replaced
         static::assertNotEquals($this->contextToken, $contextToken);
 
-        $newContextExists = $this->getContainer()->get(SalesChannelContextPersister::class)->load($contextToken, $this->ids->get('sales-channel'), $this->customerId);
+        $newContextExists = static::getContainer()->get(SalesChannelContextPersister::class)->load($contextToken, $this->ids->get('sales-channel'), $this->customerId);
 
         static::assertNotEmpty($newContextExists);
     }

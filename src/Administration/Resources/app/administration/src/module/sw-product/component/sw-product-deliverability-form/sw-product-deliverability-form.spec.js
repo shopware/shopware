@@ -1,90 +1,70 @@
 /**
- * @package inventory
+ * @sw-package inventory
  */
 
 import { mount } from '@vue/test-utils';
-import { createStore } from 'vuex';
-import productStore from 'src/module/sw-product/page/sw-product-detail/state';
-
-const { Utils } = Shopware;
-
+import { nextTick } from 'vue';
 
 describe('module/sw-product/component/sw-product-deliverability-form', () => {
     async function createWrapper(productEntityOverride, parentProductOverride) {
-        const productEntity =
-            {
-                metaTitle: 'Product1',
-                id: 'productId1',
-                ...productEntityOverride,
-            };
+        const productEntity = {
+            metaTitle: 'Product1',
+            id: 'productId1',
+            ...productEntityOverride,
+        };
 
         const parentProduct = {
             id: 'productId',
             ...parentProductOverride,
         };
 
-        return mount(await wrapTestComponent('sw-product-deliverability-form', { sync: true }), {
-            global: {
-                mocks: {
-                    $route: {
-                        name: 'sw.product.detail.base',
-                        params: {
-                            id: 1,
-                        },
+        const store = Shopware.Store.get('swProductDetail');
+        store.product = productEntity;
+        store.parentProduct = parentProduct;
+        store.advancedModeSetting = {
+            value: {
+                settings: [
+                    {
+                        key: 'deliverability',
+                        label: 'sw-product.detailBase.cardTitleDeliverabilityInfo',
+                        enabled: true,
+                        name: 'general',
                     },
-                    $store: createStore({
-                        modules: {
-                            swProductDetail: {
-                                ...productStore,
-                                state: {
-                                    ...productStore.state,
-                                    product: productEntity,
-                                    parentProduct,
-                                    loading: {
-                                        product: false,
-                                        media: false,
-                                    },
-                                    advancedModeSetting: {
-                                        value: {
-                                            settings: [
-                                                {
-                                                    key: 'deliverability',
-                                                    label: 'sw-product.detailBase.cardTitleDeliverabilityInfo',
-                                                    enabled: true,
-                                                    name: 'general',
-                                                },
-                                            ],
-                                            advancedMode: {
-                                                enabled: true,
-                                                label: 'sw-product.general.textAdvancedMode',
-                                            },
-                                        },
-                                    },
-                                    creationStates: 'is-physical',
-                                },
-                                getters: {
-                                    ...productStore.getters,
-                                    isLoading: () => false,
-                                },
-                            },
-                        },
-                    }),
-                },
-                stubs: {
-                    'sw-container': {
-                        template: '<div><slot></slot></div>',
-                    },
-                    'sw-inherit-wrapper': await wrapTestComponent('sw-inherit-wrapper'),
-                    'sw-switch-field': true,
-                    'sw-number-field': {
-                        template: '<input class="sw-field">',
-                    },
-                    'sw-entity-single-select': true,
-                    'sw-inheritance-switch': true,
-                    'sw-help-text': true,
+                ],
+                advancedMode: {
+                    enabled: true,
+                    label: 'sw-product.general.textAdvancedMode',
                 },
             },
-        });
+        };
+        store.creationStates = 'is-physical';
+
+        return mount(
+            await wrapTestComponent('sw-product-deliverability-form', {
+                sync: true,
+            }),
+            {
+                global: {
+                    mocks: {
+                        $route: {
+                            name: 'sw.product.detail.base',
+                            params: {
+                                id: 1,
+                            },
+                        },
+                    },
+                    stubs: {
+                        'sw-container': {
+                            template: '<div><slot></slot></div>',
+                        },
+                        'sw-inherit-wrapper': await wrapTestComponent('sw-inherit-wrapper'),
+                        'sw-entity-single-select': true,
+                        'sw-inheritance-switch': true,
+                        'sw-help-text': true,
+                    },
+                },
+            },
+        );
     }
 
     let wrapper;
@@ -102,7 +82,7 @@ describe('module/sw-product/component/sw-product-deliverability-form', () => {
             '.sw-product-deliverability__max-purchase',
         ];
 
-        deliveryFieldsClassName.forEach(item => {
+        deliveryFieldsClassName.forEach((item) => {
             expect(wrapper.find(item).exists()).toBe(true);
         });
     });
@@ -111,9 +91,9 @@ describe('module/sw-product/component/sw-product-deliverability-form', () => {
         wrapper = await createWrapper();
         await flushPromises();
 
-        const advancedModeSetting = Utils.get(wrapper, 'vm.$store.state.swProductDetail.advancedModeSetting');
+        const advancedModeSetting = Shopware.Store.get('swProductDetail').advancedModeSetting;
 
-        await wrapper.vm.$store.commit('swProductDetail/setAdvancedModeSetting', {
+        Shopware.Store.get('swProductDetail').advancedModeSetting = {
             value: {
                 ...advancedModeSetting.value,
                 advancedMode: {
@@ -121,7 +101,9 @@ describe('module/sw-product/component/sw-product-deliverability-form', () => {
                     label: 'sw-product.general.textAdvancedMode',
                 },
             },
-        });
+        };
+
+        await nextTick();
 
         const deliveryFieldsClassName = [
             '.product-deliverability-form__delivery-time',
@@ -132,7 +114,7 @@ describe('module/sw-product/component/sw-product-deliverability-form', () => {
             '.sw-product-deliverability__max-purchase',
         ];
 
-        deliveryFieldsClassName.forEach(item => {
+        deliveryFieldsClassName.forEach((item) => {
             expect(wrapper.find(item).exists()).toBeFalsy();
         });
     });
@@ -141,6 +123,6 @@ describe('module/sw-product/component/sw-product-deliverability-form', () => {
         wrapper = await createWrapper();
         await flushPromises();
 
-        expect(wrapper.find('.sw-field[name="sw-field--product-stock"]').element.value).toBe('0');
+        expect(wrapper.findByLabel('sw-product.settingsForm.labelStock').element.value).toBe('0');
     });
 });

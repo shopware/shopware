@@ -5,17 +5,17 @@ namespace Shopware\Core\System\SystemConfig\Event;
 use Shopware\Core\Framework\Log\Package;
 use Symfony\Contracts\EventDispatcher\Event;
 
-#[Package('services-settings')]
+#[Package('framework')]
 class SystemConfigChangedEvent extends Event
 {
     /**
      * @internal
      *
-     * @param array|bool|float|int|string|null $value
+     * @param array<string, mixed>|bool|float|int|string|null $value
      */
     public function __construct(
         private readonly string $key,
-        private $value,
+        private readonly array|bool|float|int|string|null $value,
         private readonly ?string $salesChannelId
     ) {
     }
@@ -26,9 +26,9 @@ class SystemConfigChangedEvent extends Event
     }
 
     /**
-     * @return array|bool|float|int|string|null
+     * @return array<string, mixed>|bool|float|int|string|null
      */
-    public function getValue()
+    public function getValue(): array|bool|float|int|string|null
     {
         return $this->value;
     }

@@ -1,5 +1,5 @@
 /**
- * @package admin
+ * @sw-package framework
  *
  * These types of initializers are called in the middle of the initialization process.
  * They are not allowed to depend on another initializers to suppress circular references.
@@ -25,12 +25,15 @@ import initTabs from 'src/app/init/tabs.init';
 import initCms from './cms.init';
 import initMenu from './menu-item.init';
 import initModals from './modals.init';
+import initializeSidebar from './sidebar.init';
 import initSettingItems from './settings-item.init';
 import initMainModules from './main-module.init';
 import initializeActionButtons from './action-button.init';
 import initializeActions from './actions.init';
 import initializeExtensionDataHandling from './extension-data-handling.init';
+import initializeInAppPurchaseCheckout from './in-app-purchase-checkout.init';
 import initializeTopBarButtons from './topbar-button.init';
+import initializeTeaserPopovers from './teaser-popover.init';
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default {
@@ -56,9 +59,12 @@ export default {
     menu: initMenu,
     settingItems: initSettingItems,
     modals: initModals,
+    sidebar: initializeSidebar,
     mainModules: initMainModules,
     actionButton: initializeActionButtons,
     actions: initializeActions,
     extensionDataHandling: initializeExtensionDataHandling,
+    inAppPurchaseCheckout: initializeInAppPurchaseCheckout,
     topbarButton: initializeTopBarButtons,
+    teaserPopover: initializeTeaserPopovers,
 };

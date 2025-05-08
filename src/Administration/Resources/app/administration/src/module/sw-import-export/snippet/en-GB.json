@@ -136,7 +136,6 @@
             "descriptionBlock": "Object types define a certain mode for importing and exporting data. Selecting an object type will limit the mapping options. Notice that you cannot change the object type after mapping options have been introduced.",
             "mappingDescriptionBlock": "Use the table on the \"Mappings\" tab to map CSV fields to their respective database counterparts.",
             "csvDescriptionBlock": "Separators and enclosure characters are used to indicate the separate field within the CSV file. Separators are used to split single fields, enclosure characters are used to group multiple fields.",
-            "cancelLabel": "Cancel",
             "addMappingLabel": "Add new mapping",
             "deleteMappingLabel": "Remove mapping",
             "downloadTemplateLabel": "Download template",

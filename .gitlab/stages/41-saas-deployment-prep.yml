@@ -14,30 +14,9 @@ variables:
 .rules_deployment_preparation: &rules_deployment_preparation
   - if: '$CI_PREPARE_SAAS_DEPLOYMENT == "true"'
 
-create downstream deployment branch:
-  extends: .base-no-setup
-  stage: downstream
-  needs: []
-  rules:
-    - *rules_deployment_preparation
-  script:
-    - export DEPLOYMENT_BRANCH_NAME=$(.gitlab/bin/compile_deployment_info.sh deployment_branch_name) # FIXME: $DEPLOYMENT_BRANCH_NAME should be set already, but it's not. This is likely a bug in Gitlab-CI.
-    - .gitlab/bin/branch.sh create_deployment_branch "${PROJECT_PATH}" "${DEPLOYMENT_BRANCH_NAME}" "${DEPLOYMENT_BRANCH_BASE_REF}"
-    # sleep 10 minutes so that all pipelines are created
-    - sleep 10m
-  parallel:
-    matrix:
-      - PROJECT_PATH:
-          - "shopware%2F6%2Fproduct%2Fcommercial"
-          - "shopware%2F6%2Fproduct%2Frufus"
-          - "shopware%2F6%2Fproduct%2Fplatform"
-
 compile deployment info:
   extends: .base-no-setup
   stage: downstream
-  needs:
-    - job: "create downstream deployment branch"
-      artifacts: false
   rules:
     - *rules_deployment_preparation
   variables:
@@ -63,8 +42,6 @@ create deployment merge request:
   needs:
     - job: "compile deployment info"
       artifacts: true
-    - job: "create downstream deployment branch"
-      artifacts: false
   rules:
     - *rules_deployment_preparation
   variables:
@@ -92,3 +69,13 @@ create deployment merge request:
     project: "shopware/6/product/saas"
     branch: "trunk"
     strategy: "depend"
+
+post last deployment slack message:
+  stage: downstream
+  needs:
+    - job: "create deployment merge request"
+      artifacts: false
+  rules:
+    - *rules_deployment_preparation
+  script:
+    - .github/bin/post_last_deployment.bash

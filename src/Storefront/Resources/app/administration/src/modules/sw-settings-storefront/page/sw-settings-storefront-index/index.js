@@ -2,7 +2,7 @@ import template from './sw-settings-storefront-index.html.twig';
 import './sw-settings-storefront-index.scss';
 
 /**
- * @package services-settings
+ * @sw-package framework
  */
 Shopware.Component.register('sw-settings-storefront-index', {
     template,
@@ -15,7 +15,8 @@ Shopware.Component.register('sw-settings-storefront-index', {
             isSaveSuccessful: false,
             storefrontSettings: {
                 'core.storefrontSettings.iconCache': true,
-                'core.storefrontSettings.asyncThemeCompilation': false
+                'core.storefrontSettings.asyncThemeCompilation': false,
+                'core.storefrontSettings.speculationRules': false
             },
         };
     },
@@ -47,12 +48,8 @@ Shopware.Component.register('sw-settings-storefront-index', {
             if (Object.keys(this.storefrontSettings).length === 0) {
                 this.storefrontSettings = {
                     'core.storefrontSettings.iconCache': true,
-                };
-            }
-
-            if (Object.keys(this.storefrontSettings).length === 0) {
-                this.storefrontSettings = {
                     'core.storefrontSettings.asyncThemeCompilation': false,
+                    'core.storefrontSettings.speculationRules': false
                 };
             }
 
@@ -69,6 +66,10 @@ Shopware.Component.register('sw-settings-storefront-index', {
 
             if (this.storefrontSettings['core.storefrontSettings.asyncThemeCompilation'] === '') {
                 this.storefrontSettings['core.storefrontSettings.asyncThemeCompilation'] = false;
+            }
+
+            if (this.storefrontSettings['core.storefrontSettings.speculationRules'] === '') {
+                this.storefrontSettings['core.storefrontSettings.speculationRules'] = false;
             }
 
             await this.systemConfigApiService.saveValues(this.storefrontSettings);

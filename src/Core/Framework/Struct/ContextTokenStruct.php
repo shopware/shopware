@@ -5,17 +5,11 @@ namespace Shopware\Core\Framework\Struct;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\PlatformRequest;
 
-#[Package('core')]
+#[Package('framework')]
 class ContextTokenStruct extends Struct
 {
-    /**
-     * @var string
-     */
-    protected $token;
-
-    public function __construct(string $token)
+    public function __construct(protected string $token)
     {
-        $this->token = $token;
     }
 
     public function getToken(): string

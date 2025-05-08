@@ -53,16 +53,12 @@ class CrossSellingRouteTest extends TestCase
 
     protected function setUp(): void
     {
-        $this->salesChannelContext = Generator::createSalesChannelContext(
-            null,
-            null,
-            (new SalesChannelEntity())->assign([
-                'id' => TestDefaults::SALES_CHANNEL,
-                'taxCalculationType' => SalesChannelDefinition::CALCULATION_TYPE_VERTICAL,
-            ])
-        );
-        $this->productRepository = $this->getContainer()->get('product.repository');
-        $this->route = $this->getContainer()->get(ProductCrossSellingRoute::class);
+        $this->salesChannelContext = Generator::generateSalesChannelContext(salesChannel: (new SalesChannelEntity())->assign([
+            'id' => TestDefaults::SALES_CHANNEL,
+            'taxCalculationType' => SalesChannelDefinition::CALCULATION_TYPE_VERTICAL,
+        ]));
+        $this->productRepository = static::getContainer()->get('product.repository');
+        $this->route = static::getContainer()->get(ProductCrossSellingRoute::class);
 
         $this->browser = $this->createCustomSalesChannelBrowser([
             'id' => TestDefaults::SALES_CHANNEL,
@@ -89,7 +85,7 @@ class CrossSellingRouteTest extends TestCase
         $result = $this->route->load($productId, new Request(), $this->salesChannelContext, new Criteria())
             ->getResult();
 
-        static::assertEquals(1, $result->count());
+        static::assertCount(1, $result);
 
         $element = $result->first();
         static::assertNotNull($element);
@@ -125,7 +121,7 @@ class CrossSellingRouteTest extends TestCase
         static::assertInstanceOf(ProductEntity::class, $product);
         $result = $this->route->load($product->getId(), new Request(), $this->salesChannelContext, new Criteria())->getResult();
 
-        static::assertEquals(1, $result->count());
+        static::assertCount(1, $result);
 
         $element = $result->first();
         static::assertNotNull($element);
@@ -144,7 +140,7 @@ class CrossSellingRouteTest extends TestCase
     public function testLoadForProductWithCloseoutAndFilterDisabled(): void
     {
         // disable hideCloseoutProductsWhenOutOfStock filter
-        $this->getContainer()->get(SystemConfigService::class)
+        static::getContainer()->get(SystemConfigService::class)
             ->set('core.listing.hideCloseoutProductsWhenOutOfStock', false);
 
         $productId = Uuid::randomHex();
@@ -165,7 +161,7 @@ class CrossSellingRouteTest extends TestCase
         static::assertInstanceOf(ProductEntity::class, $product);
         $result = $this->route->load($product->getId(), new Request(), $this->salesChannelContext, new Criteria())->getResult();
 
-        static::assertEquals(1, $result->count());
+        static::assertCount(1, $result);
 
         $element = $result->first();
         static::assertNotNull($element);
@@ -184,7 +180,7 @@ class CrossSellingRouteTest extends TestCase
     public function testLoadForProductWithCloseoutAndFilterEnabled(): void
     {
         // enable hideCloseoutProductsWhenOutOfStock filter
-        $this->getContainer()->get(SystemConfigService::class)
+        static::getContainer()->get(SystemConfigService::class)
             ->set('core.listing.hideCloseoutProductsWhenOutOfStock', true);
 
         $productId = Uuid::randomHex();
@@ -205,7 +201,7 @@ class CrossSellingRouteTest extends TestCase
         static::assertInstanceOf(ProductEntity::class, $product);
         $result = $this->route->load($product->getId(), new Request(), $this->salesChannelContext, new Criteria())->getResult();
 
-        static::assertEquals(1, $result->count());
+        static::assertCount(1, $result);
 
         $element = $result->first();
         static::assertNotNull($element);
@@ -224,7 +220,7 @@ class CrossSellingRouteTest extends TestCase
     public function testLoadForProductWithCloseoutAndFilterEnabledAllProductsOfOfStock(): void
     {
         // enable hideCloseoutProductsWhenOutOfStock filter
-        $this->getContainer()->get(SystemConfigService::class)
+        static::getContainer()->get(SystemConfigService::class)
             ->set('core.listing.hideCloseoutProductsWhenOutOfStock', true);
 
         $productId = Uuid::randomHex();
@@ -245,13 +241,13 @@ class CrossSellingRouteTest extends TestCase
         static::assertInstanceOf(ProductEntity::class, $product);
         $result = $this->route->load($product->getId(), new Request(), $this->salesChannelContext, new Criteria())->getResult();
 
-        static::assertEquals(1, $result->count());
+        static::assertCount(1, $result);
     }
 
     public function testLoadForProductWithProductCrossSellingAssignedProducts(): void
     {
         // enable hideCloseoutProductsWhenOutOfStock filter
-        $this->getContainer()->get(SystemConfigService::class)
+        static::getContainer()->get(SystemConfigService::class)
             ->set('core.listing.hideCloseoutProductsWhenOutOfStock', false);
 
         $productId = Uuid::randomHex();
@@ -273,12 +269,13 @@ class CrossSellingRouteTest extends TestCase
         static::assertInstanceOf(ProductEntity::class, $product);
         $result = $this->route->load($product->getId(), new Request(), $this->salesChannelContext, new Criteria())->getResult();
 
-        static::assertEquals(1, $result->count());
+        static::assertCount(1, $result);
 
         $element = $result->first();
         static::assertNotNull($element);
-        static::assertEquals(5, $element->getProducts()->count());
-        static::assertEquals(5, $element->getCrossSelling()->getAssignedProducts()?->count());
+        static::assertCount(5, $element->getProducts());
+        static::assertNotNull($element->getCrossSelling()->getAssignedProducts());
+        static::assertCount(5, $element->getCrossSelling()->getAssignedProducts());
 
         $this->browser->request(
             'POST',
@@ -318,7 +315,7 @@ class CrossSellingRouteTest extends TestCase
     public function testLoadForProductWithProductCrossSellingAssignedProductsOutOfStock(): void
     {
         // enable hideCloseoutProductsWhenOutOfStock filter
-        $this->getContainer()->get(SystemConfigService::class)
+        static::getContainer()->get(SystemConfigService::class)
             ->set('core.listing.hideCloseoutProductsWhenOutOfStock', true);
 
         $productId = Uuid::randomHex();
@@ -340,12 +337,13 @@ class CrossSellingRouteTest extends TestCase
         static::assertInstanceOf(ProductEntity::class, $product);
         $result = $this->route->load($product->getId(), new Request(), $this->salesChannelContext, new Criteria())->getResult();
 
-        static::assertEquals(1, $result->count());
+        static::assertCount(1, $result);
 
         $element = $result->first();
         static::assertNotNull($element);
-        static::assertEquals(0, $element->getProducts()->count());
-        static::assertEquals(5, $element->getCrossSelling()->getAssignedProducts()?->count());
+        static::assertCount(0, $element->getProducts());
+        static::assertNotNull($element->getCrossSelling()->getAssignedProducts());
+        static::assertCount(5, $element->getCrossSelling()->getAssignedProducts());
     }
 
     /**
@@ -378,7 +376,7 @@ class CrossSellingRouteTest extends TestCase
 
         $result = $this->route->load($productId, new Request(), $this->salesChannelContext, new Criteria())->getResult();
 
-        static::assertEquals(2, $result->count());
+        static::assertCount(2, $result);
         foreach ($result as $index => $element) {
             static::assertEquals($crossSellingIds[$index], $element->getCrossSelling()->getId());
         }
@@ -440,7 +438,7 @@ class CrossSellingRouteTest extends TestCase
 
         $result = $this->route->load($variantId, new Request(), $this->salesChannelContext, new Criteria())->getResult();
 
-        static::assertEquals(2, $result->count());
+        static::assertCount(2, $result);
         foreach ($result as $index => $element) {
             static::assertEquals($crossSellingIds[$index], $element->getCrossSelling()->getId());
         }
@@ -449,7 +447,7 @@ class CrossSellingRouteTest extends TestCase
     public function testCrossSellingEventSubscriberCanUpdateCriteria(): void
     {
         $eventDispatcher = new EventDispatcher();
-        $productRepository = $this->getContainer()->get('product.repository');
+        $productRepository = static::getContainer()->get('product.repository');
         $eventDispatcher->addListener(
             ProductCrossSellingIdsCriteriaEvent::class,
             static function (ProductCrossSellingIdsCriteriaEvent $event) use ($productRepository): void {
@@ -463,10 +461,10 @@ class CrossSellingRouteTest extends TestCase
         );
 
         $route = new ProductCrossSellingRoute(
-            $this->getContainer()->get('product_cross_selling.repository'),
+            static::getContainer()->get('product_cross_selling.repository'),
             $eventDispatcher,
             $this->createMock(ProductStreamBuilderInterface::class),
-            $this->getContainer()->get('sales_channel.product.repository'),
+            static::getContainer()->get('sales_channel.product.repository'),
             $this->createMock(SystemConfigService::class),
             $this->createMock(ProductListingLoader::class),
             $this->createMock(AbstractProductCloseoutFilterFactory::class),
@@ -492,20 +490,50 @@ class CrossSellingRouteTest extends TestCase
         $product = $this->productRepository->search(new Criteria([$productId]), $this->salesChannelContext->getContext())->get($productId);
         static::assertInstanceOf(ProductEntity::class, $product);
         $result = $route->load($product->getId(), new Request(), $this->salesChannelContext, new Criteria())->getResult();
-        static::assertEquals(1, $result->count());
+        static::assertCount(1, $result);
 
         $element = $result->first();
         static::assertNotNull($element);
-        static::assertEquals(5, $element->getProducts()->count());
-        static::assertEquals(5, $element->getCrossSelling()->getAssignedProducts()?->count());
+        static::assertCount(5, $element->getProducts());
+        static::assertNotNull($element->getCrossSelling()->getAssignedProducts());
+        static::assertCount(5, $element->getCrossSelling()->getAssignedProducts());
     }
 
-    private function createProductStream(bool $includesIsCloseoutProducts = false, bool $noStock = false): string
+    public function testCrossSellingProductStreamNotContainsProduct(): void
+    {
+        $productId = Uuid::randomHex();
+
+        $productData = $this->getProductData($productId);
+        $productData['crossSellings'] = [[
+            'name' => 'Test Cross Selling',
+            'sortBy' => ProductCrossSellingDefinition::SORT_BY_PRICE,
+            'sortDirection' => FieldSorting::ASCENDING,
+            'active' => true,
+            'productStreamId' => $this->createProductStream(false, false, $productId),
+        ]];
+
+        $this->productRepository->create([$productData], $this->salesChannelContext->getContext());
+
+        $result = $this->route->load($productId, new Request(), $this->salesChannelContext, new Criteria())
+            ->getResult();
+
+        $element = $result->first();
+
+        static::assertNotNull($element);
+        static::assertCount(5, $element->getProducts());
+        static::assertNotContains($productId, $element->getProducts()->getIds());
+    }
+
+    private function createProductStream(bool $includesIsCloseoutProducts = false, bool $noStock = false, ?string $includedProductId = null): string
     {
         $id = Uuid::randomHex();
         $randomProductIds = implode('|', array_column($this->createProducts($includesIsCloseoutProducts, $noStock), 'id'));
 
-        $this->getContainer()->get('product_stream.repository')->create([
+        if ($includedProductId) {
+            $randomProductIds .= '|' . $includedProductId;
+        }
+
+        static::getContainer()->get('product_stream.repository')->create([
             [
                 'id' => $id,
                 'filters' => [
@@ -588,7 +616,7 @@ class CrossSellingRouteTest extends TestCase
             'manufacturer' => ['id' => $manufacturerId ?? Uuid::randomHex(), 'name' => 'test'],
             'tax' => ['id' => $taxId ?? Uuid::randomHex(), 'taxRate' => 17, 'name' => 'with id'],
             'visibilities' => [
-                ['salesChannelId' => $this->salesChannelContext->getSalesChannel()->getId(), 'visibility' => ProductVisibilityDefinition::VISIBILITY_ALL],
+                ['salesChannelId' => $this->salesChannelContext->getSalesChannelId(), 'visibility' => ProductVisibilityDefinition::VISIBILITY_ALL],
             ],
         ];
 

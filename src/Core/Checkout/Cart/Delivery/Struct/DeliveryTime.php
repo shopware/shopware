@@ -9,25 +9,13 @@ use Shopware\Core\System\DeliveryTime\DeliveryTimeEntity;
 #[Package('checkout')]
 class DeliveryTime extends Struct
 {
-    /**
-     * @var string
-     */
-    protected $name;
+    protected string $name;
 
-    /**
-     * @var int
-     */
-    protected $min;
+    protected int $min;
 
-    /**
-     * @var int
-     */
-    protected $max;
+    protected int $max;
 
-    /**
-     * @var string
-     */
-    protected $unit;
+    protected string $unit;
 
     public static function createFromEntity(DeliveryTimeEntity $entity): self
     {

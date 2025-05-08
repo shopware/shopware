@@ -24,9 +24,9 @@ class IncrementStorageRegistryTest extends TestCase
 
     protected function setUp(): void
     {
-        $this->registry = $this->getContainer()->get(IncrementStorageRegistry::class);
+        $this->registry = static::getContainer()->get(IncrementStorageRegistry::class);
 
-        $this->connection = $this->getContainer()->get(Connection::class);
+        $this->connection = static::getContainer()->get(Connection::class);
 
         $this->connection->executeStatement('DELETE FROM `number_range_state`');
     }
@@ -48,7 +48,7 @@ class IncrementStorageRegistryTest extends TestCase
             Uuid::randomHex() => 10,
             Uuid::randomHex() => 4,
         ]);
-        $sqlStorage = $this->getContainer()->get(IncrementSqlStorage::class);
+        $sqlStorage = static::getContainer()->get(IncrementSqlStorage::class);
 
         $registry = new IncrementStorageRegistry(
             new \ArrayObject(
@@ -73,7 +73,7 @@ class IncrementStorageRegistryTest extends TestCase
             Uuid::randomHex() => 10,
             Uuid::randomHex() => 4,
         ];
-        $sqlStorage = $this->getContainer()->get(IncrementSqlStorage::class);
+        $sqlStorage = static::getContainer()->get(IncrementSqlStorage::class);
         foreach ($states as $key => $value) {
             $sqlStorage->set($key, $value);
         }

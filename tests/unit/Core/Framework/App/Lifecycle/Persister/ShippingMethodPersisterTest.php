@@ -8,7 +8,6 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Shipping\ShippingMethodEntity;
 use Shopware\Core\Content\Media\MediaService;
 use Shopware\Core\Framework\App\Aggregate\AppShippingMethod\AppShippingMethodEntity;
-use Shopware\Core\Framework\App\Lifecycle\AppLoader;
 use Shopware\Core\Framework\App\Lifecycle\Persister\ShippingMethodPersister;
 use Shopware\Core\Framework\App\Manifest\Manifest;
 use Shopware\Core\Framework\Context;
@@ -18,7 +17,9 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\IdSearchResult;
 use Shopware\Core\System\DeliveryTime\DeliveryTimeEntity;
+use Shopware\Core\Test\Stub\App\StaticSourceResolver;
 use Shopware\Core\Test\Stub\DataAbstractionLayer\StaticEntityRepository;
+use Shopware\Core\Test\Stub\Framework\Util\StaticFilesystem;
 
 /**
  * @internal
@@ -26,7 +27,7 @@ use Shopware\Core\Test\Stub\DataAbstractionLayer\StaticEntityRepository;
 #[CoversClass(ShippingMethodPersister::class)]
 class ShippingMethodPersisterTest extends TestCase
 {
-    private const ICON_URL = __DIR__ . '/Icons/TestIcon.png';
+    private const ICON_URL = __DIR__ . '/_fixtures/Icons/TestIcon.png';
 
     private const APP_ID = '2b0e78aa591e11ee8c990242ac120002';
 
@@ -50,13 +51,12 @@ class ShippingMethodPersisterTest extends TestCase
         $appShippingMethodRepositoryMock = $this->createAppShippingMethodRepositoryMockWithExistingAppShippingMethods();
 
         $shippingMethodRepositoryMock = $this->createMock(EntityRepository::class);
-        $shippingMethodRepositoryMock->expects(static::once())->method('upsert');
-        $shippingMethodRepositoryMock->expects(static::once())->method('update');
+        $shippingMethodRepositoryMock->expects($this->once())->method('upsert');
+        $shippingMethodRepositoryMock->expects($this->once())->method('update');
 
         $shippingMethodPersister = $this->createShippingMethodPersister([
             'shippingMethodRepository' => $shippingMethodRepositoryMock,
             'appShippingMethodRepository' => $appShippingMethodRepositoryMock,
-            'appLoader' => $this->createMock(AppLoader::class),
             'mediaService' => $this->createMock(MediaService::class),
         ]);
 
@@ -76,7 +76,9 @@ class ShippingMethodPersisterTest extends TestCase
             \array_key_exists('appShippingMethodRepository', $services) ? $services['appShippingMethodRepository'] : $this->createAppShippingMethodRepositoryMock(),
             \array_key_exists('mediaRepository', $services) ? $services['mediaRepository'] : $this->createMediaRepositoryMock(),
             \array_key_exists('mediaService', $services) ? $services['mediaService'] : $this->createMediaServiceMock(),
-            \array_key_exists('appLoader', $services) ? $services['appLoader'] : $this->createAppLoaderMock(),
+            \array_key_exists('sourceResolver', $services) ? $services['sourceResolver'] : new StaticSourceResolver([
+                'swagUnitTestShippingMethodPersister' => new StaticFilesystem(['icons/TestIcon.png' => 'someiconblob']),
+            ]),
         );
     }
 
@@ -120,17 +122,9 @@ class ShippingMethodPersisterTest extends TestCase
     private function createMediaServiceMock(): MediaService&MockObject
     {
         $mediaServiceMock = $this->createMock(MediaService::class);
-        $mediaServiceMock->expects(static::once())->method('saveFile')->willReturn(self::ICON_URL);
+        $mediaServiceMock->expects($this->once())->method('saveFile')->willReturn(self::ICON_URL);
 
         return $mediaServiceMock;
-    }
-
-    private function createAppLoaderMock(): AppLoader&MockObject
-    {
-        $appLoaderMock = $this->createMock(AppLoader::class);
-        $appLoaderMock->expects(static::once())->method('loadFile')->willReturn(self::ICON_URL);
-
-        return $appLoaderMock;
     }
 
     private function getManifest(string $file): Manifest
@@ -168,10 +162,10 @@ class ShippingMethodPersisterTest extends TestCase
         ]);
 
         $entitySearchResultMock = $this->createMock(EntitySearchResult::class);
-        $entitySearchResultMock->expects(static::once())->method('getEntities')->willReturn($entityCollection);
+        $entitySearchResultMock->expects($this->once())->method('getEntities')->willReturn($entityCollection);
 
         $appShippingMethodRepositoryMock = $this->createMock(EntityRepository::class);
-        $appShippingMethodRepositoryMock->expects(static::once())->method('search')->willReturn($entitySearchResultMock);
+        $appShippingMethodRepositoryMock->expects($this->once())->method('search')->willReturn($entitySearchResultMock);
 
         return $appShippingMethodRepositoryMock;
     }

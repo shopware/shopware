@@ -7,28 +7,16 @@ use Shopware\Core\Content\Product\SalesChannel\SalesChannelProductEntity;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Struct\Struct;
 
-#[Package('buyers-experience')]
+#[Package('discovery')]
 class ProductDescriptionReviewsStruct extends Struct
 {
-    /**
-     * @var string|null
-     */
-    protected $productId;
+    protected ?string $productId = null;
 
-    /**
-     * @var bool|null
-     */
-    protected $ratingSuccess;
+    protected ?bool $ratingSuccess = null;
 
-    /**
-     * @var ProductReviewResult|null
-     */
-    protected $reviews;
+    protected ?ProductReviewResult $reviews = null;
 
-    /**
-     * @var SalesChannelProductEntity|null
-     */
-    protected $product;
+    protected ?SalesChannelProductEntity $product = null;
 
     public function getProduct(): ?SalesChannelProductEntity
     {

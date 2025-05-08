@@ -6,13 +6,16 @@ const { mapPropertyErrors } = Component.getComponentHelper();
 const { EntityCollection, Criteria } = Shopware.Data;
 
 /**
- * @package services-settings
+ * @sw-package fundamentals@after-sales
  */
 Component.extend('sw-condition-line-item-in-category', 'sw-condition-base-line-item', {
     template,
     inheritAttrs: false,
 
-    inject: ['repositoryFactory', 'feature'],
+    inject: [
+        'repositoryFactory',
+        'feature',
+    ],
 
     data() {
         return {
@@ -39,11 +42,17 @@ Component.extend('sw-condition-line-item-in-category', 'sw-condition-base-line-i
             },
             set(categoryIds) {
                 this.ensureValueExist();
-                this.condition.value = { ...this.condition.value, categoryIds };
+                this.condition.value = {
+                    ...this.condition.value,
+                    categoryIds,
+                };
             },
         },
 
-        ...mapPropertyErrors('condition', ['value.operator', 'value.categoryIds']),
+        ...mapPropertyErrors('condition', [
+            'value.operator',
+            'value.categoryIds',
+        ]),
 
         currentError() {
             return this.conditionValueOperatorError || this.conditionValueCategoryIdsError;

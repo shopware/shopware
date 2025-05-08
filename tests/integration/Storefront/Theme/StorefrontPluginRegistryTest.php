@@ -4,9 +4,9 @@ namespace Shopware\Tests\Integration\Storefront\Theme;
 
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
+use Shopware\Core\Test\AppSystemTestBehaviour;
 use Shopware\Storefront\Theme\StorefrontPluginConfiguration\StorefrontPluginConfiguration;
 use Shopware\Storefront\Theme\StorefrontPluginRegistry;
-use Shopware\Tests\Integration\Core\Framework\App\AppSystemTestBehaviour;
 
 /**
  * @internal
@@ -20,7 +20,7 @@ class StorefrontPluginRegistryTest extends TestCase
     {
         $this->loadAppsFromDir(__DIR__ . '/fixtures/Apps/theme');
 
-        $registry = $this->getContainer()
+        $registry = static::getContainer()
             ->get(StorefrontPluginRegistry::class);
 
         static::assertInstanceOf(
@@ -33,7 +33,7 @@ class StorefrontPluginRegistryTest extends TestCase
     {
         $this->loadAppsFromDir(__DIR__ . '/fixtures/Apps/theme', false);
 
-        $registry = $this->getContainer()
+        $registry = static::getContainer()
             ->get(StorefrontPluginRegistry::class);
 
         static::assertNull(
@@ -45,7 +45,7 @@ class StorefrontPluginRegistryTest extends TestCase
     {
         $this->loadAppsFromDir(__DIR__ . '/fixtures/Apps/noThemeCustomCss');
 
-        $registry = $this->getContainer()
+        $registry = static::getContainer()
             ->get(StorefrontPluginRegistry::class);
 
         static::assertInstanceOf(
@@ -58,7 +58,7 @@ class StorefrontPluginRegistryTest extends TestCase
     {
         $this->loadAppsFromDir(__DIR__ . '/fixtures/Apps/noThemeNoCss');
 
-        $registry = $this->getContainer()
+        $registry = static::getContainer()
             ->get(StorefrontPluginRegistry::class);
 
         static::assertInstanceOf(

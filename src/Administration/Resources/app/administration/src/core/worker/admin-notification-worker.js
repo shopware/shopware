@@ -1,5 +1,5 @@
 /**
- * @package admin
+ * @sw-package framework
  */
 
 const { Service } = Shopware;
@@ -29,19 +29,24 @@ export default class AdminNotificationWorker {
     }
 
     loadNotifications() {
-        this._notificationService.fetchNotifications(this._limit, this._timestamp).then(({ notifications, timestamp }) => {
-            notifications.forEach((notification) => {
-                const { status, message } = notification;
-                this.createNotification(status, message);
-            });
+        this._notificationService
+            .fetchNotifications(this._limit, this._timestamp)
+            .then(({ notifications, timestamp }) => {
+                notifications.forEach((notification) => {
+                    const { status, message } = notification;
+                    this.createNotification(status, message);
+                });
 
-            if (timestamp) {
-                this._timestamp = timestamp;
-                this._userConfigService.upsert({ [READ_NOTIFICATION]: { timestamp } });
-            }
-        }).catch((error) => {
-            this.createNotification('error', error.message);
-        });
+                if (timestamp) {
+                    this._timestamp = timestamp;
+                    this._userConfigService.upsert({
+                        [READ_NOTIFICATION]: { timestamp },
+                    });
+                }
+            })
+            .catch((error) => {
+                console.error('Error while fetching notifications', error);
+            });
 
         this._notiticationTimeoutId = setTimeout(() => {
             this.loadNotifications();
@@ -56,7 +61,7 @@ export default class AdminNotificationWorker {
     }
 
     createNotification(variant, message) {
-        Shopware.State.dispatch('notification/createNotification', {
+        Shopware.Store.get('notification').createNotification({
             variant,
             message,
         });

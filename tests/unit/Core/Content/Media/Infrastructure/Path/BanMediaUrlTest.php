@@ -12,12 +12,12 @@ use Shopware\Core\Content\Media\Infrastructure\Path\BanMediaUrl;
 use Shopware\Core\Content\Media\Infrastructure\Path\MediaUrlGenerator;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Log\Package;
-use Shopware\Core\Framework\Test\IdsCollection;
+use Shopware\Core\Test\Stub\Framework\IdsCollection;
 
 /**
  * @internal
  */
-#[Package('core')]
+#[Package('framework')]
 #[CoversClass(BanMediaUrl::class)]
 class BanMediaUrlTest extends TestCase
 {
@@ -27,7 +27,7 @@ class BanMediaUrlTest extends TestCase
 
         $generator = $this->createMock(MediaUrlGenerator::class);
 
-        $generator->expects(static::never())
+        $generator->expects($this->never())
             ->method('generate');
 
         $banMediaUrl = new BanMediaUrl($gateway, $generator);
@@ -42,10 +42,10 @@ class BanMediaUrlTest extends TestCase
     {
         $gateway = $this->createMock(MediaReverseProxy::class);
         $gateway->method('enabled')->willReturn(true);
-        $gateway->expects(static::never())->method('ban');
+        $gateway->expects($this->never())->method('ban');
 
         $generator = $this->createMock(MediaUrlGenerator::class);
-        $generator->expects(static::never())->method('generate');
+        $generator->expects($this->never())->method('generate');
 
         $banMediaUrl = new BanMediaUrl($gateway, $generator);
 
@@ -57,7 +57,7 @@ class BanMediaUrlTest extends TestCase
     {
         $gateway = $this->createMock(MediaReverseProxy::class);
         $gateway->method('enabled')->willReturn(true);
-        $gateway->expects(static::never())->method('ban');
+        $gateway->expects($this->never())->method('ban');
 
         $generator = $this->createMock(MediaUrlGenerator::class);
         $generator->method('generate')->willReturn([]);

@@ -1,27 +1,25 @@
 /**
- * @package buyers-experience
+ * @sw-package discovery
  */
 import { mount } from '@vue/test-utils';
 
 async function createWrapper() {
-    return mount(await wrapTestComponent('sw-cms-section-actions', {
-        sync: true,
-    }), {
-        props: {
-            section: {},
-        },
-        global: {
-            stubs: {
-                'sw-icon': true,
+    return mount(
+        await wrapTestComponent('sw-cms-section-actions', {
+            sync: true,
+        }),
+        {
+            props: {
+                section: {},
             },
         },
-    });
+    );
 }
 
 describe('module/sw-cms/component/sw-cms-section-actions', () => {
     beforeAll(() => {
         Shopware.Store.register({
-            id: 'cmsPageState',
+            id: 'cmsPage',
             state: () => ({
                 selectedSection: {},
             }),

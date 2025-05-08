@@ -41,8 +41,10 @@ class EntityTemplateLoaderTest extends TestCase
 
     protected function setUp(): void
     {
-        $this->templateRepository = $this->getContainer()->get('app_template.repository');
-        $this->templateLoader = $this->getContainer()->get(EntityTemplateLoader::class);
+        $repository = static::getContainer()->get('app_template.repository');
+        static::assertInstanceOf(EntityRepository::class, $repository);
+        $this->templateRepository = $repository;
+        $this->templateLoader = static::getContainer()->get(EntityTemplateLoader::class);
         $this->template1Id = Uuid::randomHex();
         $this->template2Id = Uuid::randomHex();
     }
@@ -154,7 +156,7 @@ class EntityTemplateLoaderTest extends TestCase
     public function testTemplateLoadingIsCachedWithoutDatabaseTemplates(): void
     {
         $connection = $this->createMock(Connection::class);
-        $connection->expects(static::once())
+        $connection->expects($this->once())
             ->method('fetchAllAssociative')
             ->willReturn([]);
 

@@ -16,6 +16,7 @@ use Shopware\Core\Framework\Store\Struct\ExtensionCollection;
 use Shopware\Core\Framework\Store\Struct\ExtensionStruct;
 use Shopware\Core\Framework\Update\Services\ExtensionCompatibility;
 use Shopware\Core\Framework\Update\Struct\Version;
+use Symfony\Component\EventDispatcher\EventDispatcher;
 
 /**
  * @internal
@@ -31,7 +32,8 @@ class ExtensionCompatibilityTest extends TestCase
 
         $pluginCompatibility = new ExtensionCompatibility(
             $storeClient,
-            $this->getExtensionDataProvider()
+            $this->getExtensionDataProvider(),
+            new EventDispatcher()
         );
 
         $version = new Version();
@@ -78,7 +80,8 @@ class ExtensionCompatibilityTest extends TestCase
 
         $pluginCompatibility = new ExtensionCompatibility(
             $storeClient,
-            $this->getExtensionDataProvider()
+            $this->getExtensionDataProvider(),
+            new EventDispatcher()
         );
 
         $version = new Version();
@@ -101,7 +104,8 @@ class ExtensionCompatibilityTest extends TestCase
 
         $pluginCompatibility = new ExtensionCompatibility(
             $storeClient,
-            $this->getExtensionDataProvider()
+            $this->getExtensionDataProvider(),
+            new EventDispatcher()
         );
 
         static::expectException(ClientException::class);
@@ -112,7 +116,8 @@ class ExtensionCompatibilityTest extends TestCase
     {
         $pluginCompatibility = new ExtensionCompatibility(
             $this->getStoreClient(),
-            $this->getExtensionDataProvider()
+            $this->getExtensionDataProvider(),
+            new EventDispatcher()
         );
 
         static::assertEmpty($pluginCompatibility->getExtensionsToDeactivate(new Version(), Context::createDefaultContext(), ExtensionCompatibility::PLUGIN_DEACTIVATION_FILTER_NONE));
@@ -122,7 +127,8 @@ class ExtensionCompatibilityTest extends TestCase
     {
         $pluginCompatibility = new ExtensionCompatibility(
             $this->getStoreClient(),
-            $this->getExtensionDataProvider()
+            $this->getExtensionDataProvider(),
+            new EventDispatcher()
         );
 
         $extensionStructs = $pluginCompatibility->getExtensionsToDeactivate(new Version(), Context::createDefaultContext(), ExtensionCompatibility::PLUGIN_DEACTIVATION_FILTER_ALL);
@@ -135,7 +141,8 @@ class ExtensionCompatibilityTest extends TestCase
     {
         $pluginCompatibility = new ExtensionCompatibility(
             $this->getStoreClient(__DIR__ . './../_fixtures/responses/extension-yellow.json'),
-            $this->getExtensionDataProvider()
+            $this->getExtensionDataProvider(),
+            new EventDispatcher()
         );
 
         $extensionStructs = $pluginCompatibility->getExtensionsToDeactivate(new Version(), Context::createDefaultContext());
@@ -148,7 +155,8 @@ class ExtensionCompatibilityTest extends TestCase
     {
         $pluginCompatibility = new ExtensionCompatibility(
             $this->getStoreClient(__DIR__ . './../_fixtures/responses/extension-green.json'),
-            $this->getExtensionDataProvider()
+            $this->getExtensionDataProvider(),
+            new EventDispatcher()
         );
 
         $extensionStructs = $pluginCompatibility->getExtensionsToDeactivate(new Version(), Context::createDefaultContext());

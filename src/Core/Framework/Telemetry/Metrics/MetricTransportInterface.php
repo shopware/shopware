@@ -4,16 +4,16 @@ namespace Shopware\Core\Framework\Telemetry\Metrics;
 
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Telemetry\Metrics\Exception\MetricNotSupportedException;
-use Shopware\Core\Framework\Telemetry\Metrics\Metric\MetricInterface;
+use Shopware\Core\Framework\Telemetry\Metrics\Metric\Metric;
 
 /**
- * @internal
+ * @experimental feature:TELEMETRY_METRICS stableVersion:v6.8.0
  */
-#[Package('core')]
+#[Package('framework')]
 interface MetricTransportInterface
 {
     /**
      * @throws MetricNotSupportedException
      */
-    public function emit(MetricInterface $metric): void;
+    public function emit(Metric $metric): void;
 }

@@ -1,9 +1,7 @@
 import Plugin from 'src/plugin-system/plugin.class';
-import DomAccess from 'src/helper/dom-access.helper';
-import Iterator from 'src/helper/iterator.helper';
 
 /**
- * @package content
+ * @package framework
  */
 export default class FormFieldTogglePlugin extends Plugin {
 
@@ -75,7 +73,7 @@ export default class FormFieldTogglePlugin extends Plugin {
         // the onChange function must be called.
         this._onChange();
 
-        this._triggerNested = DomAccess.getDataAttribute(this.el, this.options.triggerNestedDataAttribute, false);
+        this._triggerNested = this.el.getAttribute(this.options.triggerNestedDataAttribute);
     }
 
     /**
@@ -85,27 +83,27 @@ export default class FormFieldTogglePlugin extends Plugin {
      * @private
      */
     _getTargets() {
-        const selector = DomAccess.getDataAttribute(this.el, this.options.targetDataAttribute);
-        const scope = DomAccess.getDataAttribute(this.el, this.options.scopeDataAttribute, false) || this.options.scopeAll;
+        const selector = this.el.getAttribute(this.options.targetDataAttribute);
+        const scope = this.el.getAttribute(this.options.scopeDataAttribute) || this.options.scopeAll;
 
         if (scope === this.options.scopeAll) {
-            this._targets = DomAccess.querySelectorAll(document, selector);
+            this._targets = document.querySelectorAll(selector);
 
             return;
         }
 
-        const parentEl = this.el.closest(DomAccess.getDataAttribute(this.el, this.options.parentSelectorDataAttribute));
-        this._targets = DomAccess.querySelectorAll(parentEl, selector);
+        const parentEl = this.el.closest(this.el.getAttribute(this.options.parentSelectorDataAttribute));
+        this._targets = parentEl.querySelectorAll(selector);
     }
 
     /**
-     * sets the value on which the the
+     * sets the value on which the
      * targets should be toggled
      *
      * @private
      */
     _getControlValue() {
-        this._value = DomAccess.getDataAttribute(this.el, this.options.valueDataAttribute);
+        this._value = this.el.getAttribute(this.options.valueDataAttribute);
     }
 
     /**
@@ -126,7 +124,7 @@ export default class FormFieldTogglePlugin extends Plugin {
     _onChange() {
         const shouldShow = this._shouldShowTarget();
 
-        Iterator.iterate(this._targets, node => {
+        this._targets.forEach(node => {
             if (shouldShow) {
                 this._showTarget(node);
             } else {
@@ -138,7 +136,7 @@ export default class FormFieldTogglePlugin extends Plugin {
     }
 
     /**
-     * returns whether or not the
+     * returns whether the
      * target should be hidden
      *
      * @returns {*}
@@ -147,7 +145,8 @@ export default class FormFieldTogglePlugin extends Plugin {
     _shouldShowTarget() {
         const type = this.el.type;
         if (type === 'checkbox' || type === 'radio') {
-            return this.el.checked === this._value;
+            const booleanValue = (this._value === 'true' || this._value);
+            return this.el.checked === booleanValue;
         } else {
             return this.el.value === this._value;
         }
@@ -161,15 +160,15 @@ export default class FormFieldTogglePlugin extends Plugin {
      */
     _hideTarget(target) {
         const fields = this._getFields(target);
-        Iterator.iterate(fields, field => {
-            const isRequired = DomAccess.hasAttribute(field, 'required');
+        fields.forEach(field => {
+            const isRequired = field.hasAttribute('required');
             if (isRequired) {
                 field.classList.add(this.options.wasRequiredCls);
                 field.removeAttribute('required');
             }
 
             field.setAttribute('disabled', 'disabled');
-            const isDisabled = DomAccess.hasAttribute(field, 'disabled');
+            const isDisabled = field.hasAttribute('disabled');
             if (isDisabled) {
                 field.classList.remove(this.options.wasDisabledCls);
             }
@@ -187,20 +186,20 @@ export default class FormFieldTogglePlugin extends Plugin {
      */
     _showTarget(target) {
         const fields = this._getFields(target);
-        Iterator.iterate(fields, field => {
+        fields.forEach(field => {
             if (field.classList.contains(this.options.wasRequiredCls)) {
                 field.classList.remove(this.options.wasRequiredCls);
                 field.setAttribute('required', 'required');
             }
 
-            const wasDisabled = DomAccess.hasAttribute(field, 'disabled');
+            const wasDisabled = field.hasAttribute('disabled');
             if (wasDisabled) {
                 field.removeAttribute('disabled');
                 field.classList.add(this.options.wasDisabledCls);
             }
         });
         if (this._triggerNested) {
-            Iterator.iterate(fields, field => {
+            fields.forEach(field => {
                 if (field.matches('[data-form-field-toggle="true"]')) {
                     const instance = window.PluginManager.getPluginInstanceFromElement(field, 'FormFieldToggle');
 
@@ -224,6 +223,6 @@ export default class FormFieldTogglePlugin extends Plugin {
      * @private
      */
     _getFields(target) {
-        return DomAccess.querySelectorAll(target, 'input, select, textarea', false);
+        return target.querySelectorAll('input, select, textarea');
     }
 }

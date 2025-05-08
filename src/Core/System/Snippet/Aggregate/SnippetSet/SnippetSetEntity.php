@@ -9,36 +9,21 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\Aggregate\SalesChannelDomain\SalesChannelDomainCollection;
 use Shopware\Core\System\Snippet\SnippetCollection;
 
-#[Package('services-settings')]
+#[Package('discovery')]
 class SnippetSetEntity extends Entity
 {
     use EntityCustomFieldsTrait;
     use EntityIdTrait;
 
-    /**
-     * @var string
-     */
-    protected $name;
+    protected string $name;
 
-    /**
-     * @var string
-     */
-    protected $baseFile;
+    protected string $baseFile;
 
-    /**
-     * @var string
-     */
-    protected $iso;
+    protected string $iso;
 
-    /**
-     * @var SnippetCollection|null
-     */
-    protected $snippets;
+    protected ?SnippetCollection $snippets = null;
 
-    /**
-     * @var SalesChannelDomainCollection|null
-     */
-    protected $salesChannelDomains;
+    protected ?SalesChannelDomainCollection $salesChannelDomains = null;
 
     public function getName(): string
     {

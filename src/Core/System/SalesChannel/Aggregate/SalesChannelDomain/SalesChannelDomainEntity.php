@@ -12,71 +12,35 @@ use Shopware\Core\System\Language\LanguageEntity;
 use Shopware\Core\System\SalesChannel\SalesChannelEntity;
 use Shopware\Core\System\Snippet\Aggregate\SnippetSet\SnippetSetEntity;
 
-#[Package('buyers-experience')]
+#[Package('discovery')]
 class SalesChannelDomainEntity extends Entity
 {
     use EntityCustomFieldsTrait;
     use EntityIdTrait;
 
-    /**
-     * @var string
-     */
-    protected $url;
+    protected string $url;
 
-    /**
-     * @var string|null
-     */
-    protected $currencyId;
+    protected ?string $currencyId = null;
 
-    /**
-     * @var CurrencyEntity|null
-     */
-    protected $currency;
+    protected ?CurrencyEntity $currency = null;
 
-    /**
-     * @var string|null
-     */
-    protected $snippetSetId;
+    protected ?string $snippetSetId = null;
 
-    /**
-     * @var SnippetSetEntity|null
-     */
-    protected $snippetSet;
+    protected ?SnippetSetEntity $snippetSet = null;
 
-    /**
-     * @var string
-     */
-    protected $salesChannelId;
+    protected string $salesChannelId;
 
-    /**
-     * @var SalesChannelEntity|null
-     */
-    protected $salesChannel;
+    protected ?SalesChannelEntity $salesChannel = null;
 
-    /**
-     * @var string
-     */
-    protected $languageId;
+    protected string $languageId;
 
-    /**
-     * @var LanguageEntity|null
-     */
-    protected $language;
+    protected ?LanguageEntity $language = null;
 
-    /**
-     * @var ProductExportCollection|null
-     */
-    protected $productExports;
+    protected ?ProductExportCollection $productExports = null;
 
-    /**
-     * @var SalesChannelEntity|null
-     */
-    protected $salesChannelDefaultHreflang;
+    protected ?SalesChannelEntity $salesChannelDefaultHreflang = null;
 
-    /**
-     * @var bool
-     */
-    protected $hreflangUseOnlyLocale;
+    protected bool $hreflangUseOnlyLocale;
 
     public function getUrl(): string
     {

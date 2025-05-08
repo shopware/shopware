@@ -27,7 +27,7 @@ class EntityDefinitionQueryHelperTest extends TestCase
         array $expected,
         bool $resolveTranslated = true
     ): void {
-        $definition = $this->getContainer()->get(DefinitionInstanceRegistry::class)->get($class);
+        $definition = static::getContainer()->get(DefinitionInstanceRegistry::class)->get($class);
         $fields = EntityDefinitionQueryHelper::getFieldsOfAccessor($definition, $accessor, $resolveTranslated);
 
         $actual = [];

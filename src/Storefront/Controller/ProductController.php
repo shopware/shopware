@@ -6,21 +6,21 @@ use Shopware\Core\Content\Product\Exception\ProductNotFoundException;
 use Shopware\Core\Content\Product\Exception\ReviewNotActiveExeption;
 use Shopware\Core\Content\Product\Exception\VariantNotFoundException;
 use Shopware\Core\Content\Product\SalesChannel\FindVariant\AbstractFindProductVariantRoute;
+use Shopware\Core\Content\Product\SalesChannel\Review\AbstractProductReviewLoader;
 use Shopware\Core\Content\Product\SalesChannel\Review\AbstractProductReviewSaveRoute;
+use Shopware\Core\Content\Product\SalesChannel\Review\ProductReviewsWidgetLoadedHook;
 use Shopware\Core\Content\Seo\SeoUrlPlaceholderHandlerInterface;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
 use Shopware\Core\Framework\Validation\Exception\ConstraintViolationException;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
-use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Shopware\Storefront\Controller\Exception\StorefrontException;
 use Shopware\Storefront\Framework\Routing\RequestTransformer;
 use Shopware\Storefront\Page\Product\ProductPageLoadedHook;
 use Shopware\Storefront\Page\Product\ProductPageLoader;
 use Shopware\Storefront\Page\Product\QuickView\MinimalQuickViewPageLoader;
 use Shopware\Storefront\Page\Product\QuickView\ProductQuickViewWidgetLoadedHook;
-use Shopware\Storefront\Page\Product\Review\ProductReviewLoader;
-use Shopware\Storefront\Page\Product\Review\ProductReviewsWidgetLoadedHook;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -31,7 +31,7 @@ use Symfony\Component\Routing\Attribute\Route;
  * Do not use direct or indirect repository calls in a controller. Always use a store-api route to get or put data
  */
 #[Route(defaults: ['_routeScope' => ['storefront']])]
-#[Package('storefront')]
+#[Package('framework')]
 class ProductController extends StorefrontController
 {
     /**
@@ -43,8 +43,7 @@ class ProductController extends StorefrontController
         private readonly MinimalQuickViewPageLoader $minimalQuickViewPageLoader,
         private readonly AbstractProductReviewSaveRoute $productReviewSaveRoute,
         private readonly SeoUrlPlaceholderHandlerInterface $seoUrlPlaceholderHandler,
-        private readonly ProductReviewLoader $productReviewLoader,
-        private readonly SystemConfigService $systemConfigService
+        private readonly AbstractProductReviewLoader $productReviewLoader,
     ) {
     }
 
@@ -119,17 +118,30 @@ class ProductController extends StorefrontController
     #[Route(path: '/product/{productId}/rating', name: 'frontend.detail.review.save', defaults: ['XmlHttpRequest' => true, '_loginRequired' => true], methods: ['POST'])]
     public function saveReview(string $productId, RequestDataBag $data, SalesChannelContext $context): Response
     {
-        $this->checkReviewsActive($context);
-
-        try {
-            $this->productReviewSaveRoute->save($productId, $data, $context);
-        } catch (ConstraintViolationException $formViolations) {
-            return $this->forwardToRoute('frontend.product.reviews', [
-                'productId' => $productId,
-                'success' => -1,
-                'formViolations' => $formViolations,
-                'data' => $data,
-            ], ['productId' => $productId]);
+        if (!Feature::isActive('v6.8.0.0')) {
+            try {
+                $this->productReviewSaveRoute->save($productId, $data, $context);
+            } catch (ConstraintViolationException $formViolations) {
+                return $this->forwardToRoute('frontend.product.reviews', [
+                    'productId' => $productId,
+                    'success' => -1,
+                    'formViolations' => $formViolations,
+                    'data' => $data,
+                ], ['productId' => $productId]);
+            } catch (ReviewNotActiveExeption $e) {
+                throw StorefrontException::reviewNotActive();
+            }
+        } else {
+            try {
+                $this->productReviewSaveRoute->save($productId, $data, $context);
+            } catch (ConstraintViolationException $formViolations) {
+                return $this->forwardToRoute('frontend.product.reviews', [
+                    'productId' => $productId,
+                    'success' => -1,
+                    'formViolations' => $formViolations,
+                    'data' => $data,
+                ], ['productId' => $productId]);
+            }
         }
 
         $forwardParams = [
@@ -147,11 +159,17 @@ class ProductController extends StorefrontController
     }
 
     #[Route(path: '/product/{productId}/reviews', name: 'frontend.product.reviews', defaults: ['XmlHttpRequest' => true], methods: ['GET', 'POST'])]
-    public function loadReviews(Request $request, SalesChannelContext $context): Response
+    public function loadReviews(string $productId, Request $request, SalesChannelContext $context): Response
     {
-        $this->checkReviewsActive($context);
-
-        $reviews = $this->productReviewLoader->load($request, $context);
+        if (!Feature::isActive('v6.8.0.0')) {
+            try {
+                $reviews = $this->productReviewLoader->load($request, $context, $productId, $request->get('parentId'));
+            } catch (ReviewNotActiveExeption $e) {
+                throw StorefrontException::reviewNotActive();
+            }
+        } else {
+            $reviews = $this->productReviewLoader->load($request, $context, $productId, $request->get('parentId'));
+        }
 
         $this->hook(new ProductReviewsWidgetLoadedHook($reviews, $context));
 
@@ -159,17 +177,5 @@ class ProductController extends StorefrontController
             'reviews' => $reviews,
             'ratingSuccess' => $request->get('success'),
         ]);
-    }
-
-    /**
-     * @throws ReviewNotActiveExeption
-     */
-    private function checkReviewsActive(SalesChannelContext $context): void
-    {
-        $showReview = $this->systemConfigService->get('core.listing.showReview', $context->getSalesChannel()->getId());
-
-        if (!$showReview) {
-            throw StorefrontException::reviewNotActive();
-        }
     }
 }

@@ -13,45 +13,21 @@ class ProductSearchConfigFieldEntity extends Entity
 {
     use EntityIdTrait;
 
-    /**
-     * @var string
-     */
-    protected $searchConfigId;
+    protected string $searchConfigId;
 
-    /**
-     * @var string|null
-     */
-    protected $customFieldId;
+    protected ?string $customFieldId = null;
 
-    /**
-     * @var string
-     */
-    protected $field;
+    protected string $field;
 
-    /**
-     * @var bool
-     */
-    protected $tokenize;
+    protected bool $tokenize;
 
-    /**
-     * @var bool
-     */
-    protected $searchable;
+    protected bool $searchable;
 
-    /**
-     * @var int
-     */
-    protected $ranking;
+    protected int $ranking;
 
-    /**
-     * @var ProductSearchConfigEntity|null
-     */
-    protected $searchConfig;
+    protected ?ProductSearchConfigEntity $searchConfig = null;
 
-    /**
-     * @var CustomFieldEntity|null
-     */
-    protected $customField;
+    protected ?CustomFieldEntity $customField = null;
 
     public function getSearchConfigId(): string
     {

@@ -3,8 +3,9 @@
 namespace Shopware\Core\Checkout\Promotion\Util;
 
 use Doctrine\DBAL\Connection;
+use Shopware\Core\Checkout\Promotion\Aggregate\PromotionIndividualCode\PromotionIndividualCodeCollection;
 use Shopware\Core\Checkout\Promotion\Exception\PatternNotComplexEnoughException;
-use Shopware\Core\Checkout\Promotion\PromotionEntity;
+use Shopware\Core\Checkout\Promotion\PromotionCollection;
 use Shopware\Core\Checkout\Promotion\PromotionException;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
@@ -12,9 +13,13 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\NotFilter;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\Util\Random;
 use Shopware\Core\Framework\Uuid\Uuid;
 
-#[Package('buyers-experience')]
+/**
+ * @phpstan-type CodePattern array{prefix?: string, replacement: string, suffix?: string, replacementString: string, replacementArray: array<string>}
+ */
+#[Package('checkout')]
 class PromotionCodeService
 {
     final public const PROMOTION_PATTERN_REGEX = '/(?<prefix>[^%]*)(?<replacement>(%[sd])+)(?<suffix>.*)/';
@@ -22,6 +27,9 @@ class PromotionCodeService
 
     /**
      * @internal
+     *
+     * @param EntityRepository<PromotionCollection> $promotionRepository
+     * @param EntityRepository<PromotionIndividualCodeCollection> $individualCodesRepository
      */
     public function __construct(
         private readonly EntityRepository $promotionRepository,
@@ -87,9 +95,8 @@ class PromotionCodeService
         $criteria = (new Criteria([$promotionId]))
             ->addAssociation('individualCodes');
 
-        $promotion = $this->promotionRepository->search($criteria, $context)->first();
-
-        if (!$promotion instanceof PromotionEntity) {
+        $promotion = $this->promotionRepository->search($criteria, $context)->getEntities()->first();
+        if (!$promotion) {
             throw PromotionException::promotionsNotFound([$promotionId]);
         }
 
@@ -139,12 +146,11 @@ class PromotionCodeService
     }
 
     /**
-     * @return array{prefix: string, replacement: string, suffix: string, replacementString: string, replacementArray: array<string>}
+     * @return CodePattern
      */
     public function splitPattern(string $pattern): array
     {
         preg_match(self::PROMOTION_PATTERN_REGEX, $pattern, $codePattern);
-        /** @var array{prefix: string, replacement: ?string, suffix: string} $codePattern */
         if (!isset($codePattern['replacement'])) {
             throw PromotionException::invalidCodePattern($pattern);
         }
@@ -165,7 +171,7 @@ class PromotionCodeService
     }
 
     /**
-     * @param array{prefix: string, replacement: string, suffix: string, replacementString: string, replacementArray: array<string>} $codePattern
+     * @param CodePattern $codePattern
      */
     private function generateCode(array $codePattern): string
     {
@@ -174,16 +180,16 @@ class PromotionCodeService
             $code .= $this->getRandomChar($letter);
         }
 
-        return $codePattern['prefix'] . $code . $codePattern['suffix'];
+        return ($codePattern['prefix'] ?? '') . $code . ($codePattern['suffix'] ?? '');
     }
 
     private function getRandomChar(string $type): string
     {
         if ($type === 'd') {
-            return (string) random_int(0, 9);
+            return (string) Random::getInteger(0, 9);
         }
 
-        return \chr(random_int(65, 90));
+        return \chr(Random::getInteger(65, 90));
     }
 
     /**

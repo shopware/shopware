@@ -2,28 +2,22 @@ import { mount } from '@vue/test-utils';
 import EntityCollection from 'src/core/data/entity-collection.data';
 
 /**
- * @package checkout
+ * @sw-package checkout
  */
 
-const orderFixture = [{
-    orderNumber: '10062',
-    id: '1234',
-    taxStatus: 'net',
-    amountNet: 80,
-    amountTotal: 100,
-    orderDate: '2022-05-17T00:00:00.000+00:00',
-}];
+const orderFixture = [
+    {
+        orderNumber: '10062',
+        id: '1234',
+        taxStatus: 'net',
+        amountNet: 80,
+        amountTotal: 100,
+        orderDate: '2022-05-17T00:00:00.000+00:00',
+    },
+];
 
 function getOrderCollection(collection = []) {
-    return new EntityCollection(
-        '/order',
-        'order',
-        null,
-        { isShopwareContext: true },
-        collection,
-        collection.length,
-        null,
-    );
+    return new EntityCollection('/order', 'order', null, { isShopwareContext: true }, collection, collection.length, null);
 }
 
 async function createWrapper(orderData = []) {
@@ -41,12 +35,11 @@ async function createWrapper(orderData = []) {
                         };
                     },
                 },
-
             },
 
             stubs: {
-                'sw-card': {
-                    template: `<div class="sw-card">
+                'mt-card': {
+                    template: `<div class="mt-card">
                     <slot name="toolbar"></slot>
                     <slot name="grid"></slot>
                     <slot></slot>
@@ -57,8 +50,6 @@ async function createWrapper(orderData = []) {
                 },
                 'sw-empty-state': true,
                 'sw-entity-listing': true,
-                'sw-button': true,
-                'sw-icon': true,
                 'router-link': true,
                 'sw-time-ago': true,
                 'sw-context-menu-item': true,

@@ -12,16 +12,16 @@ use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Log\Package;
-use Shopware\Core\Framework\Test\IdsCollection;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Test\Integration\Builder\Customer\CustomerBuilder;
+use Shopware\Core\Test\Stub\Framework\IdsCollection;
 use Shopware\Core\Test\TestDefaults;
 
 /**
  * @internal
  */
-#[Package('services-settings')]
+#[Package('fundamentals@after-sales')]
 #[CoversClass(ProductReviewCountService::class)]
 class ProductReviewCountServiceTest extends TestCase
 {
@@ -35,7 +35,7 @@ class ProductReviewCountServiceTest extends TestCase
     {
         $this->ids = new IdsCollection();
 
-        $this->reviewCountService = $this->getContainer()->get(ProductReviewCountService::class);
+        $this->reviewCountService = static::getContainer()->get(ProductReviewCountService::class);
     }
 
     public function testReviewCountIsUpdatedCorrectly(): void
@@ -52,7 +52,7 @@ class ProductReviewCountServiceTest extends TestCase
 
         $this->reviewCountService->updateReviewCount($createdReviews);
 
-        $customerRepo = $this->getContainer()->get('customer.repository');
+        $customerRepo = static::getContainer()->get('customer.repository');
         /** @var CustomerCollection $customers */
         $customers = $customerRepo->search(new Criteria([$this->ids->get('c1'), $this->ids->get('c2')]), Context::createDefaultContext());
 
@@ -72,7 +72,7 @@ class ProductReviewCountServiceTest extends TestCase
             $customerNumber
         ))->build();
 
-        $customerRepo = $this->getContainer()->get('customer.repository');
+        $customerRepo = static::getContainer()->get('customer.repository');
         $customerRepo->create([$customer], Context::createDefaultContext());
     }
 
@@ -84,13 +84,13 @@ class ProductReviewCountServiceTest extends TestCase
         );
         $product->price(100);
 
-        $productRepo = $this->getContainer()->get('product.repository');
+        $productRepo = static::getContainer()->get('product.repository');
         $productRepo->create([$product->build()], Context::createDefaultContext());
     }
 
     private function createReview(string $customerNumber, string $productNumber, bool $status): string
     {
-        $productReviewRepo = $this->getContainer()->get('product_review.repository');
+        $productReviewRepo = static::getContainer()->get('product_review.repository');
 
         $id = Uuid::randomHex();
 

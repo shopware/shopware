@@ -9,25 +9,13 @@ use Shopware\Core\Framework\Log\Package;
 #[Package('inventory')]
 class ProductFeatureSetTranslationEntity extends TranslationEntity
 {
-    /**
-     * @var string
-     */
-    protected $productFeatureSetId;
+    protected string $productFeatureSetId;
 
-    /**
-     * @var string|null
-     */
-    protected $name;
+    protected ?string $name = null;
 
-    /**
-     * @var string|null
-     */
-    protected $description;
+    protected ?string $description = null;
 
-    /**
-     * @var ProductFeatureSetEntity
-     */
-    protected $productFeatureSet;
+    protected ProductFeatureSetEntity $productFeatureSet;
 
     public function getProductFeatureSetId(): string
     {

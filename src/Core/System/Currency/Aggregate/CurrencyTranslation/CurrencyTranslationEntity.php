@@ -7,30 +7,18 @@ use Shopware\Core\Framework\DataAbstractionLayer\TranslationEntity;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\Currency\CurrencyEntity;
 
-#[Package('buyers-experience')]
+#[Package('fundamentals@framework')]
 class CurrencyTranslationEntity extends TranslationEntity
 {
     use EntityCustomFieldsTrait;
 
-    /**
-     * @var string
-     */
-    protected $currencyId;
+    protected string $currencyId;
 
-    /**
-     * @var string|null
-     */
-    protected $shortName;
+    protected ?string $shortName = null;
 
-    /**
-     * @var string|null
-     */
-    protected $name;
+    protected ?string $name = null;
 
-    /**
-     * @var CurrencyEntity|null
-     */
-    protected $currency;
+    protected ?CurrencyEntity $currency = null;
 
     public function getCurrencyId(): string
     {

@@ -10,60 +10,33 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\CustomField\Aggregate\CustomFieldSetRelation\CustomFieldSetRelationCollection;
 use Shopware\Core\System\CustomField\CustomFieldCollection;
 
-#[Package('services-settings')]
+#[Package('framework')]
 class CustomFieldSetEntity extends Entity
 {
     use EntityIdTrait;
 
-    /**
-     * @var string
-     */
-    protected $name;
+    protected string $name;
 
     /**
-     * @var array|null
+     * @var array<string, mixed>|null
      */
-    protected $config;
+    protected ?array $config = null;
 
-    /**
-     * @var bool
-     */
-    protected $active;
+    protected bool $active;
 
-    /**
-     * @var bool
-     */
-    protected $global;
+    protected bool $global;
 
-    /**
-     * @var int
-     */
-    protected $position;
+    protected int $position;
 
-    /**
-     * @var CustomFieldCollection|null
-     */
-    protected $customFields;
+    protected ?CustomFieldCollection $customFields = null;
 
-    /**
-     * @var CustomFieldSetRelationCollection|null
-     */
-    protected $relations;
+    protected ?CustomFieldSetRelationCollection $relations = null;
 
-    /**
-     * @var ProductCollection|null
-     */
-    protected $products;
+    protected ?ProductCollection $products = null;
 
-    /**
-     * @var string|null
-     */
-    protected $appId;
+    protected ?string $appId = null;
 
-    /**
-     * @var AppEntity|null
-     */
-    protected $app;
+    protected ?AppEntity $app = null;
 
     public function getName(): string
     {
@@ -75,11 +48,17 @@ class CustomFieldSetEntity extends Entity
         $this->name = $name;
     }
 
+    /**
+     * @return array<string, mixed>|null
+     */
     public function getConfig(): ?array
     {
         return $this->config;
     }
 
+    /**
+     * @param array<string, mixed>|null $config
+     */
     public function setConfig(?array $config): void
     {
         $this->config = $config;

@@ -4,12 +4,13 @@ namespace Shopware\Core\Framework\DependencyInjection;
 
 use Shopware\Core\Content\Media\File\DownloadResponseGenerator;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\Telemetry\Metrics\Metric\Type;
 use Shopware\Core\Framework\Util\MemorySizeCalculator;
 use Symfony\Component\Config\Definition\Builder\ArrayNodeDefinition;
 use Symfony\Component\Config\Definition\Builder\TreeBuilder;
 use Symfony\Component\Config\Definition\ConfigurationInterface;
 
-#[Package('core')]
+#[Package('framework')]
 class Configuration implements ConfigurationInterface
 {
     public function getConfigTreeBuilder(): TreeBuilder
@@ -49,6 +50,9 @@ class Configuration implements ConfigurationInterface
                 ->append($this->createSystemConfigNode())
                 ->append($this->createMessengerSection())
                 ->append($this->createSearchSection())
+                ->append($this->createTelemetrySection())
+                ->append($this->createRedisSection())
+                ->append($this->createProductStreamSection())
             ->end();
 
         return $treeBuilder;
@@ -120,6 +124,10 @@ class Configuration implements ConfigurationInterface
                     ->defaultValue('php')
                     ->values(['php', DownloadResponseGenerator::X_SENDFILE_DOWNLOAD_STRATEGY, DownloadResponseGenerator::X_ACCEL_DOWNLOAD_STRATEGY])
                 ->end()
+                ->scalarNode('private_local_path_prefix')
+                    ->defaultValue('')
+                    ->info('Path prefix to be prepended to the path when using a local download strategy')
+                ->end()
             ->end();
 
         return $rootNode;
@@ -178,23 +186,6 @@ class Configuration implements ConfigurationInterface
             ->end()
             ->scalarNode('access_token_ttl')->defaultValue('PT10M')->end()
             ->scalarNode('refresh_token_ttl')->defaultValue('P1W')->end()
-            ->arrayNode('jwt_key')
-                ->children()
-                    ->booleanNode('use_app_secret')->defaultFalse()->end()
-                    ->scalarNode('private_key_path')
-                        ->setDeprecated('shopware/core', '6.7.0.0', 'private_key_path is deprecated and will be removed with Shopware 6.7')
-                        ->defaultValue('file://%kernel.project_dir%/config/jwt/private.pem')
-                    ->end()
-                    ->scalarNode('private_key_passphrase')
-                        ->setDeprecated('shopware/core', '6.7.0.0', 'private_key_passphrase is deprecated and will be removed with Shopware 6.7')
-                        ->defaultValue('shopware')
-                    ->end()
-                    ->scalarNode('public_key_path')
-                        ->setDeprecated('shopware/core', '6.7.0.0', 'public_key_path is deprecated and will be removed with Shopware 6.7')
-                        ->defaultValue('file://%kernel.project_dir%/config/jwt/public.pem')
-                    ->end()
-                ->end()
-            ->end()
             ->scalarNode('max_limit')->end()
             ->arrayNode('api_browser')
                 ->children()
@@ -405,31 +396,15 @@ class Configuration implements ConfigurationInterface
                 ->scalarNode('redis_prefix')->end()
                 ->booleanNode('cache_compression')->defaultTrue()->end()
                 ->scalarNode('cache_compression_method')->defaultValue('gzip')->end()
-                ->arrayNode('tagging')
-                    ->children()
-                        ->booleanNode('each_snippet')
-                            ->defaultTrue()
-                        ->end()
-                        ->booleanNode('each_config')
-                            ->defaultTrue()
-                        ->end()
-                        ->booleanNode('each_theme_config')
-                            ->defaultTrue()
-                        ->end()
-                    ->end()
-                ->end()
                 ->arrayNode('invalidation')
                     ->children()
-                        ->integerNode('delay')
-                            ->defaultValue(0)
-                        ->end()
                         ->arrayNode('delay_options')
                             ->children()
                                 ->scalarNode('storage')
-                                    ->defaultValue('redis')
+                                    ->defaultValue('mysql')
                                 ->end()
-                                ->scalarNode('dsn')
-                                    ->defaultValue('redis://localhost')
+                                ->scalarNode('connection')
+                                    ->defaultValue(null)
                                 ->end()
                             ->end()
                         ->end()
@@ -437,71 +412,89 @@ class Configuration implements ConfigurationInterface
                             ->performNoDeepMerging()
                             ->prototype('scalar')->end()
                         ->end()
+                        // @deprecated tag:v6.8.0 - remove all route specific invalidation options
                         ->arrayNode('product_listing_route')
+                            ->setDeprecated('shopware/core', '6.8.0', 'The "%node%" option is deprecated and will be removed in 6.8.0 as it has no effect anymore.')
                             ->performNoDeepMerging()
                             ->prototype('scalar')->end()
                         ->end()
                         ->arrayNode('product_detail_route')
+                            ->setDeprecated('shopware/core', '6.8.0', 'The "%node%" option is deprecated and will be removed in 6.8.0 as it has no effect anymore.')
                             ->performNoDeepMerging()
                             ->prototype('scalar')->end()
                         ->end()
                         ->arrayNode('product_search_route')
+                            ->setDeprecated('shopware/core', '6.8.0', 'The "%node%" option is deprecated and will be removed in 6.8.0 as it has no effect anymore.')
                             ->performNoDeepMerging()
                             ->prototype('scalar')->end()
                         ->end()
                         ->arrayNode('product_suggest_route')
+                            ->setDeprecated('shopware/core', '6.8.0', 'The "%node%" option is deprecated and will be removed in 6.8.0 as it has no effect anymore.')
                             ->performNoDeepMerging()
                             ->prototype('scalar')->end()
                         ->end()
                         ->arrayNode('product_cross_selling_route')
+                            ->setDeprecated('shopware/core', '6.8.0', 'The "%node%" option is deprecated and will be removed in 6.8.0 as it has no effect anymore.')
                             ->performNoDeepMerging()
                             ->prototype('scalar')->end()
                         ->end()
                         ->arrayNode('payment_method_route')
+                            ->setDeprecated('shopware/core', '6.8.0', 'The "%node%" option is deprecated and will be removed in 6.8.0 as it has no effect anymore.')
                             ->performNoDeepMerging()
                             ->prototype('scalar')->end()
                         ->end()
                         ->arrayNode('shipping_method_route')
+                            ->setDeprecated('shopware/core', '6.8.0', 'The "%node%" option is deprecated and will be removed in 6.8.0 as it has no effect anymore.')
                             ->performNoDeepMerging()
                             ->prototype('scalar')->end()
                         ->end()
                         ->arrayNode('navigation_route')
+                            ->setDeprecated('shopware/core', '6.8.0', 'The "%node%" option is deprecated and will be removed in 6.8.0 as it has no effect anymore.')
                             ->performNoDeepMerging()
                             ->prototype('scalar')->end()
                         ->end()
                         ->arrayNode('category_route')
+                            ->setDeprecated('shopware/core', '6.8.0', 'The "%node%" option is deprecated and will be removed in 6.8.0 as it has no effect anymore.')
                             ->performNoDeepMerging()
                             ->prototype('scalar')->end()
                         ->end()
                         ->arrayNode('landing_page_route')
+                            ->setDeprecated('shopware/core', '6.8.0', 'The "%node%" option is deprecated and will be removed in 6.8.0 as it has no effect anymore.')
                             ->performNoDeepMerging()
                             ->prototype('scalar')->end()
                         ->end()
                         ->arrayNode('language_route')
+                            ->setDeprecated('shopware/core', '6.8.0', 'The "%node%" option is deprecated and will be removed in 6.8.0 as it has no effect anymore.')
                             ->performNoDeepMerging()
                             ->prototype('scalar')->end()
                         ->end()
                         ->arrayNode('currency_route')
+                            ->setDeprecated('shopware/core', '6.8.0', 'The "%node%" option is deprecated and will be removed in 6.8.0 as it has no effect anymore.')
                             ->performNoDeepMerging()
                             ->prototype('scalar')->end()
                         ->end()
                         ->arrayNode('country_route')
+                            ->setDeprecated('shopware/core', '6.8.0', 'The "%node%" option is deprecated and will be removed in 6.8.0 as it has no effect anymore.')
                             ->performNoDeepMerging()
                             ->prototype('scalar')->end()
                         ->end()
                         ->arrayNode('country_state_route')
+                            ->setDeprecated('shopware/core', '6.8.0', 'The "%node%" option is deprecated and will be removed in 6.8.0 as it has no effect anymore.')
                             ->performNoDeepMerging()
                             ->prototype('scalar')->end()
                         ->end()
                         ->arrayNode('salutation_route')
+                            ->setDeprecated('shopware/core', '6.8.0', 'The "%node%" option is deprecated and will be removed in 6.8.0 as it has no effect anymore.')
                             ->performNoDeepMerging()
                             ->prototype('scalar')->end()
                         ->end()
                         ->arrayNode('product_review_route')
+                            ->setDeprecated('shopware/core', '6.8.0', 'The "%node%" option is deprecated and will be removed in 6.8.0 as it has no effect anymore.')
                             ->performNoDeepMerging()
                             ->prototype('scalar')->end()
                         ->end()
                         ->arrayNode('sitemap_route')
+                            ->setDeprecated('shopware/core', '6.8.0', 'The "%node%" option is deprecated and will be removed in 6.8.0 as it has no effect anymore.')
                             ->performNoDeepMerging()
                             ->prototype('scalar')->end()
                         ->end()
@@ -552,7 +545,6 @@ class Configuration implements ConfigurationInterface
                     ->min(1)
                     ->defaultValue(120)
                 ->end()
-                ->scalarNode('redis_url')->end() // @deprecated tag:v6.7.0 - will be removed
                 ->arrayNode('storage')
                     ->children()
                         ->enumNode('type')
@@ -561,7 +553,7 @@ class Configuration implements ConfigurationInterface
                             ->end()
                         ->arrayNode('config')
                             ->children()
-                                ->scalarNode('dsn')->end()
+                                ->scalarNode('connection')->defaultValue(null)->end()
                             ->end()
                     ->end()
             ->end();
@@ -577,13 +569,12 @@ class Configuration implements ConfigurationInterface
         $rootNode
             ->children()
             ->enumNode('increment_storage')
-                ->values(['SQL', 'mysql', 'Redis', 'redis']) // @deprecated tag:v6.7.0 - only "mysql" and "redis" are allowed
+                ->values(['mysql', 'redis'])
                 ->defaultValue('mysql')
                 ->end()
-            ->scalarNode('redis_url')->end() // @deprecated tag:v6.7.0 - will be removed
             ->arrayNode('config')
                 ->children()
-                    ->scalarNode('dsn')->end()
+                    ->scalarNode('connection')->defaultValue(null)->end()
                 ->end()
             ->end();
 
@@ -781,6 +772,7 @@ class Configuration implements ConfigurationInterface
         $rootNode = $treeBuilder->getRootNode();
         $rootNode
             ->children()
+                ->scalarNode('collection_enabled')->end()
                 ->arrayNode('gateway')
                     ->children()
                         ->scalarNode('dispatch_enabled')->end()
@@ -888,7 +880,6 @@ class Configuration implements ConfigurationInterface
                             ->scalarPrototype()->end()
                         ->end()
                         ->integerNode('max_parallel_invalidations')->defaultValue(2)->end()
-                        ->scalarNode('redis_url')->end()
                         ->scalarNode('ban_method')->defaultValue('BAN')->end()
                         ->arrayNode('ban_headers')->performNoDeepMerging()->defaultValue([])
                             ->scalarPrototype()->end()
@@ -929,7 +920,6 @@ class Configuration implements ConfigurationInterface
                     ->useAttributeAsKey('name')
                     ->scalarPrototype()->end()
                 ->end()
-                // @deprecated tag:v6.7.0 - Set `enforce_message_size` to default true. Also change the `config-schema.json` accordingly
                 ->booleanNode('enforce_message_size')->defaultFalse()->end()
             ->end();
 
@@ -948,6 +938,90 @@ class Configuration implements ConfigurationInterface
             ->performNoDeepMerging()->defaultValue([])
             ->prototype('scalar')->end()
             ->end()
+            ->end();
+
+        return $rootNode;
+    }
+
+    private function createTelemetrySection(): ArrayNodeDefinition
+    {
+        $treeBuilder = new TreeBuilder('telemetry');
+        $rootNode = $treeBuilder->getRootNode();
+
+        $rootNode
+            ->children()
+            ->arrayNode('metrics')
+                ->children()
+                    ->scalarNode('namespace')->end()
+                    ->booleanNode('allow_unknown_labels')->defaultFalse()->end()
+                    ->booleanNode('allow_unknown_label_values')->defaultFalse()->end()
+                    ->booleanNode('enable_internal_metrics')->defaultFalse()->end()
+                    ->booleanNode('enabled')->defaultFalse()->end()
+                    ->scalarNode('replace_unknown_label_values_with')->defaultValue('other')->end()
+                    ->arrayNode('definitions')
+                        ->useAttributeAsKey('name')
+                        ->arrayPrototype()
+                            ->children()
+                                ->enumNode('type')
+                                    ->isRequired()
+                                    ->values(array_map(fn (Type $type) => $type->value, Type::cases()))
+                                ->end()
+                                ->scalarNode('description')->end()
+                                ->scalarNode('unit')->end()
+                                ->scalarNode('enabled')->defaultTrue()->end()
+                                ->arrayNode('parameters')
+                                    ->variablePrototype()
+                                ->end()
+                                ->end()
+                                ->arrayNode('labels')
+                                    ->useAttributeAsKey('label_name')
+                                    ->arrayPrototype()
+                                        ->children()
+                                            ->arrayNode('allowed_values')
+                                                ->scalarPrototype()
+                                            ->end()
+                                            ->end()
+                                        ->end()
+                                    ->end()
+                                ->end()
+                            ->end()
+                        ->end()
+                    ->end()
+        ->end()
+        ->end();
+
+        return $rootNode;
+    }
+
+    private function createRedisSection(): ArrayNodeDefinition
+    {
+        $treeBuilder = new TreeBuilder('redis');
+        $rootNode = $treeBuilder->getRootNode();
+
+        $rootNode
+            ->children()
+                ->arrayNode('connections')
+                    ->useAttributeAsKey('name')
+                    ->arrayPrototype()
+                        ->children()
+                            ->scalarNode('dsn')->isRequired()->end()
+                            // Additional options if necessary
+                        ->end()
+                    ->end()
+                ->end()
+            ->end();
+
+        return $rootNode;
+    }
+
+    private function createProductStreamSection(): ArrayNodeDefinition
+    {
+        $treeBuilder = new TreeBuilder('product_stream');
+        $rootNode = $treeBuilder->getRootNode();
+
+        $rootNode
+            ->children()
+                ->booleanNode('indexing')->defaultTrue()->end()
             ->end();
 
         return $rootNode;

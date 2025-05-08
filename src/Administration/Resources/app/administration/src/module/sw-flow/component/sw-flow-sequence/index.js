@@ -3,12 +3,10 @@ import './sw-flow-sequence.scss';
 
 /**
  * @private
- * @package services-settings
+ * @sw-package after-sales
  */
 export default {
     template,
-
-    compatConfig: Shopware.compatConfig,
 
     props: {
         sequence: {
@@ -68,10 +66,11 @@ export default {
 
             // Check if both true block and false block are selector components
             return {
-                'has--selector': falseBlock[0].actionName === null
-                    && falseBlock[0].ruleId === null
-                    && trueBlock[0].actionName === null
-                    && trueBlock[0].ruleId === null,
+                'has--selector':
+                    falseBlock[0].actionName === null &&
+                    falseBlock[0].ruleId === null &&
+                    trueBlock[0].actionName === null &&
+                    trueBlock[0].ruleId === null,
             };
         },
     },

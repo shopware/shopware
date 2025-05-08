@@ -1,5 +1,5 @@
 /**
- * @package buyers-experience
+ * @sw-package discovery
  */
 
 import template from './sw-sales-channel-create.html.twig';
@@ -18,8 +18,6 @@ const insertIdIntoRoute = (to, from, next) => {
 export default {
     template,
 
-    compatConfig: Shopware.compatConfig,
-
     beforeRouteEnter: insertIdIntoRoute,
 
     beforeRouteUpdate: insertIdIntoRoute,
@@ -36,8 +34,8 @@ export default {
                 return;
             }
 
-            if (!Shopware.State.getters['context/isSystemDefaultLanguage']) {
-                Shopware.State.commit('context/resetLanguageToDefault');
+            if (!Shopware.Store.get('context').isSystemDefaultLanguage) {
+                Shopware.Store.get('context').resetLanguageToDefault();
             }
 
             this.salesChannel = this.salesChannelRepository.create();
@@ -49,7 +47,10 @@ export default {
 
         saveFinish() {
             this.isSaveSuccessful = false;
-            this.$router.push({ name: 'sw.sales.channel.detail', params: { id: this.salesChannel.id } });
+            this.$router.push({
+                name: 'sw.sales.channel.detail',
+                params: { id: this.salesChannel.id },
+            });
         },
 
         onSave() {

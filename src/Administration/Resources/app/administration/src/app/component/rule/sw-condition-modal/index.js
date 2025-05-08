@@ -6,12 +6,10 @@ const { EntityCollection } = Shopware.Data;
 
 /**
  * @private
- * @package services-settings
+ * @sw-package fundamentals@after-sales
  */
 Component.register('sw-condition-modal', {
     template,
-
-    compatConfig: Shopware.compatConfig,
 
     inject: ['repositoryFactory'],
 
@@ -75,7 +73,10 @@ Component.register('sw-condition-modal', {
     methods: {
         onConditionsChanged({ conditions, deletedIds }) {
             this.childConditions = conditions;
-            this.deletedIds = [...this.deletedIds, ...deletedIds];
+            this.deletedIds = [
+                ...this.deletedIds,
+                ...deletedIds,
+            ];
         },
 
         deleteAndClose() {
@@ -105,9 +106,11 @@ Component.register('sw-condition-modal', {
                 return Promise.resolve();
             }
 
-            return Promise.all(ids.map((id) => {
-                return this.conditionRepository.delete(id, context);
-            }));
+            return Promise.all(
+                ids.map((id) => {
+                    return this.conditionRepository.delete(id, context);
+                }),
+            );
         },
 
         closeModal() {

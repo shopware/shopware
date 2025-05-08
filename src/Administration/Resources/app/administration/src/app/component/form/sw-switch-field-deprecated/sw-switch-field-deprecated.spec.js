@@ -1,8 +1,9 @@
 /**
- * @package admin
+ * @sw-package framework
  */
 
 import { mount } from '@vue/test-utils';
+import { ref } from 'vue';
 
 const createWrapper = async () => {
     const baseComponent = {
@@ -82,7 +83,11 @@ describe('app/component/form/sw-switch-field-deprecated', () => {
         expect(thirdSwitchInputId).toMatch(thirdLabelFor);
     });
 
-    ['checkOne', 'checkTwo', 'checkThree'].forEach((checkboxId, index) => {
+    [
+        'checkOne',
+        'checkTwo',
+        'checkThree',
+    ].forEach((checkboxId, index) => {
         it(`should update the value of the "${checkboxId} field when clicking its label"`, async () => {
             const wrapper = await createWrapper();
             await flushPromises();
@@ -91,7 +96,6 @@ describe('app/component/form/sw-switch-field-deprecated', () => {
             await wrapper.findAll('.sw-field__label label').at(index).trigger('click');
             expect(wrapper.vm[checkboxId]).toBeTruthy();
         });
-
 
         it(`should update the value of the "${checkboxId} field when clicking on the input"`, async () => {
             const wrapper = await createWrapper();
@@ -104,22 +108,27 @@ describe('app/component/form/sw-switch-field-deprecated', () => {
     });
 
     it('should show the label from the property', async () => {
-        const wrapper = mount(await wrapTestComponent('sw-switch-field-deprecated', { sync: true }), {
-            props: {
-                label: 'Label from prop',
-            },
-            global: {
-                stubs: {
-                    'sw-base-field': await wrapTestComponent('sw-base-field'),
-                    'sw-field-error': {
-                        template: '<div></div>',
+        const wrapper = mount(
+            await wrapTestComponent('sw-switch-field-deprecated', {
+                sync: true,
+            }),
+            {
+                props: {
+                    label: 'Label from prop',
+                },
+                global: {
+                    stubs: {
+                        'sw-base-field': await wrapTestComponent('sw-base-field'),
+                        'sw-field-error': {
+                            template: '<div></div>',
+                        },
+                        'sw-inheritance-switch': true,
+                        'sw-ai-copilot-badge': true,
+                        'sw-help-text': true,
                     },
-                    'sw-inheritance-switch': true,
-                    'sw-ai-copilot-badge': true,
-                    'sw-help-text': true,
                 },
             },
-        });
+        );
 
         await flushPromises();
 
@@ -127,25 +136,30 @@ describe('app/component/form/sw-switch-field-deprecated', () => {
     });
 
     it('should show the value from the label slot', async () => {
-        const wrapper = mount(await wrapTestComponent('sw-switch-field-deprecated', { sync: true }), {
-            props: {
-                label: 'Label from prop',
-            },
-            global: {
-                stubs: {
-                    'sw-base-field': await wrapTestComponent('sw-base-field'),
-                    'sw-field-error': {
-                        template: '<div></div>',
+        const wrapper = mount(
+            await wrapTestComponent('sw-switch-field-deprecated', {
+                sync: true,
+            }),
+            {
+                props: {
+                    label: 'Label from prop',
+                },
+                global: {
+                    stubs: {
+                        'sw-base-field': await wrapTestComponent('sw-base-field'),
+                        'sw-field-error': {
+                            template: '<div></div>',
+                        },
+                        'sw-inheritance-switch': true,
+                        'sw-ai-copilot-badge': true,
+                        'sw-help-text': true,
                     },
-                    'sw-inheritance-switch': true,
-                    'sw-ai-copilot-badge': true,
-                    'sw-help-text': true,
+                },
+                slots: {
+                    label: '<template>Label from slot</template>',
                 },
             },
-            slots: {
-                label: '<template>Label from slot</template>',
-            },
-        });
+        );
         await flushPromises();
 
         expect(wrapper.find('label').text()).toBe('Label from slot');
@@ -163,5 +177,32 @@ describe('app/component/form/sw-switch-field-deprecated', () => {
         expect(checkboxContentWrappers.at(1).classes()).toContain('sw-field--switch-padded');
         expect(checkboxContentWrappers.at(2).classes()).toContain('sw-field--switch-bordered');
         expect(checkboxContentWrappers.at(2).classes()).toContain('sw-field--switch-padded');
+    });
+
+    it('injects ariaLabel prop from global injection', async () => {
+        const wrapper = mount(
+            { template: `<sw-switch-field-deprecated />` },
+            {
+                global: {
+                    stubs: {
+                        'sw-switch-field-deprecated': await wrapTestComponent('sw-switch-field-deprecated'),
+                        'sw-base-field': await wrapTestComponent('sw-base-field'),
+                        'sw-field-error': {
+                            template: '<div></div>',
+                        },
+                        'sw-inheritance-switch': true,
+                        'sw-ai-copilot-badge': true,
+                        'sw-help-text': true,
+                    },
+                    provide: {
+                        ariaLabel: ref('Aria Label'),
+                    },
+                },
+            },
+        );
+
+        await flushPromises();
+
+        expect(wrapper.find('input').attributes('aria-label')).toBe('Aria Label');
     });
 });

@@ -126,8 +126,7 @@ class LineItemTransformer
                     continue;
                 }
 
-                // NEXT-21735 - This is covered randomly
-                // @codeCoverageIgnoreStart
+                // @codeCoverageIgnoreStart - This is covered randomly
                 $index[$lineItem->getParentId()] = self::createLineItem($parentItem);
                 // @codeCoverageIgnoreEnd
             }
@@ -228,7 +227,7 @@ class LineItemTransformer
 
             $lineItem->setDeliveryInformation(
                 new DeliveryInformation(
-                    (int) $product->getAvailableStock(),
+                    $product->getStock(),
                     $product->getWeight(),
                     $product->getShippingFree() === true,
                     $product->getRestockTime(),

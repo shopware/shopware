@@ -25,6 +25,7 @@ use Shopware\Core\Checkout\Shipping\ShippingMethodEntity;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\DataAbstractionLayer\Pricing\Price;
 use Shopware\Core\Framework\DataAbstractionLayer\Pricing\PriceCollection;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
@@ -42,15 +43,20 @@ class DeliveryProcessorTest extends TestCase
 {
     use IntegrationTestBehaviour;
 
-    /**
-     * @var SalesChannelContext
-     */
-    private $salesChannelContext;
+    private SalesChannelContext $salesChannelContext;
 
     protected function setUp(): void
     {
-        $this->salesChannelContext = $this->getContainer()->get(SalesChannelContextFactory::class)
+        $this->salesChannelContext = static::getContainer()->get(SalesChannelContextFactory::class)
             ->create(Uuid::randomHex(), TestDefaults::SALES_CHANNEL);
+
+        $shippingMethodCriteria = new Criteria([$this->salesChannelContext->getShippingMethod()->getId()]);
+        $shippingMethodCriteria->addAssociation('media');
+        $shippingMethodCriteria->addAssociation('deliveryTime');
+
+        $this->salesChannelContext->assign([
+            'shippingMethod' => static::getContainer()->get('shipping_method.repository')->search($shippingMethodCriteria, $this->salesChannelContext->getContext())->first(),
+        ]);
 
         $shippingMethodPriceEntity = new ShippingMethodPriceEntity();
         $shippingMethodPriceEntity->setUniqueIdentifier('test');
@@ -61,7 +67,7 @@ class DeliveryProcessorTest extends TestCase
 
     public function testProcessShouldRecalculateAll(): void
     {
-        $deliveryProcessor = $this->getContainer()->get(DeliveryProcessor::class);
+        $deliveryProcessor = static::getContainer()->get(DeliveryProcessor::class);
 
         $cartDataCollection = new CartDataCollection();
         $cartDataCollection->set(
@@ -104,7 +110,7 @@ class DeliveryProcessorTest extends TestCase
     {
         $factor = 1.1;
         $this->salesChannelContext->getContext()->assign(['currencyFactor' => $factor]);
-        $deliveryProcessor = $this->getContainer()->get(DeliveryProcessor::class);
+        $deliveryProcessor = static::getContainer()->get(DeliveryProcessor::class);
 
         $cartDataCollection = new CartDataCollection();
         $cartDataCollection->set(
@@ -152,6 +158,69 @@ class DeliveryProcessorTest extends TestCase
         // Price was recalculated
         static::assertNotNull($originalCart->getExtension(DeliveryProcessor::MANUAL_SHIPPING_COSTS));
         static::assertNotNull($originalCart->getDeliveries()->first());
+        static::assertSame(10.0, $originalCart->getDeliveries()->first()->getShippingCosts()->getTotalPrice());
+    }
+
+    public function testDeliveriesContainDiscountButSkipRecalculation(): void
+    {
+        $deliveryProcessor = static::getContainer()->get(DeliveryProcessor::class);
+
+        $cartDataCollection = new CartDataCollection();
+        $cartDataCollection->set(
+            DeliveryProcessor::buildKey($this->salesChannelContext->getShippingMethod()->getId()),
+            $this->salesChannelContext->getShippingMethod()
+        );
+
+        $originalCart = new Cart('original');
+        $deliveryTime = $this->generateDeliveryTimeDummy();
+
+        $shippingMethod = new ShippingMethodEntity();
+        $shippingMethod->setId('1');
+        $shippingMethod->setName('Express');
+        $shippingMethod->addTranslated('name', 'Express');
+        $shippingMethod->setDeliveryTime($deliveryTime);
+        $shippingMethod->setAvailabilityRuleId(Uuid::randomHex());
+        $shippingMethod->setTaxType(ShippingMethodEntity::TAX_TYPE_AUTO);
+        $deliveryDate = new DeliveryDate(new \DateTime(), new \DateTime());
+
+        $delivery = new Delivery(
+            new DeliveryPositionCollection(),
+            $deliveryDate,
+            $shippingMethod,
+            new ShippingLocation(new CountryEntity(), null, null),
+            new CalculatedPrice(10, 10, new CalculatedTaxCollection(), new TaxRuleCollection())
+        );
+
+        $deliveryDiscount = new Delivery(
+            new DeliveryPositionCollection(),
+            $deliveryDate,
+            $shippingMethod,
+            new ShippingLocation(new CountryEntity(), null, null),
+            new CalculatedPrice(-10, -10, new CalculatedTaxCollection(), new TaxRuleCollection())
+        );
+
+        $originalCart->setDeliveries(new DeliveryCollection([$delivery, $deliveryDiscount]));
+
+        $calculatedCart = new Cart('calculated');
+
+        $lineItem = new LineItem('test', LineItem::PRODUCT_LINE_ITEM_TYPE);
+        $lineItem->setDeliveryInformation(new DeliveryInformation(5, 0, false));
+        $lineItem->setPrice(new CalculatedPrice(5.0, 5.0, new CalculatedTaxCollection([
+            new CalculatedTax(5, 19, 5),
+        ]), new TaxRuleCollection()));
+
+        $calculatedCart->setLineItems(new LineItemCollection([$lineItem]));
+        $cartBehavior = new CartBehavior([DeliveryProcessor::SKIP_DELIVERY_PRICE_RECALCULATION => true]);
+
+        $deliveryProcessor->process($cartDataCollection, $originalCart, $calculatedCart, $this->salesChannelContext, $cartBehavior);
+        $originalCart = $calculatedCart;
+        $deliveryProcessor->process($cartDataCollection, $originalCart, $calculatedCart, $this->salesChannelContext, $cartBehavior);
+
+        // Price was recalculated
+        static::assertNotNull($originalCart->getExtension(DeliveryProcessor::MANUAL_SHIPPING_COSTS));
+        static::assertNotNull($originalCart->getDeliveries()->first());
+        static::assertCount(1, $originalCart->getDeliveries());
+        static::assertInstanceOf(Delivery::class, $originalCart->getDeliveries()->first());
         static::assertSame(10.0, $originalCart->getDeliveries()->first()->getShippingCosts()->getTotalPrice());
     }
 

@@ -8,10 +8,10 @@ use Shopware\Core\Content\Seo\SeoUrlGenerator;
 use Shopware\Core\Content\Test\Product\ProductBuilder;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
-use Shopware\Core\Framework\Test\IdsCollection;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\SalesChannelApiTestBehaviour;
 use Shopware\Core\System\SalesChannel\SalesChannelEntity;
+use Shopware\Core\Test\Stub\Framework\IdsCollection;
 use Shopware\Core\Test\TestDefaults;
 use Shopware\Storefront\Framework\Seo\SeoUrlRoute\ProductPageSeoUrlRoute;
 
@@ -39,7 +39,7 @@ class ProductPageSeoUrlRouteTest extends TestCase
             ->mainCategory($salesChannel['id'], 'c2')
             ->build();
 
-        $this->getContainer()->get('product.repository')
+        static::getContainer()->get('product.repository')
             ->create([$product], Context::createDefaultContext());
 
         $this->generateAndAssert(
@@ -65,7 +65,7 @@ class ProductPageSeoUrlRouteTest extends TestCase
     {
         $context = Context::createDefaultContext();
 
-        $channels = $this->getContainer()
+        $channels = static::getContainer()
             ->get('sales_channel.repository')
             ->search(new Criteria([$salesChannelId]), $context);
 
@@ -73,12 +73,12 @@ class ProductPageSeoUrlRouteTest extends TestCase
 
         static::assertInstanceOf(SalesChannelEntity::class, $channel);
 
-        $generator = $this->getContainer()->get(SeoUrlGenerator::class);
+        $generator = static::getContainer()->get(SeoUrlGenerator::class);
 
         $urls = $generator->generate(
             ids: $ids,
             template: $template,
-            route: $this->getContainer()->get(ProductPageSeoUrlRoute::class),
+            route: static::getContainer()->get(ProductPageSeoUrlRoute::class),
             context: $context,
             salesChannel: $channel
         );

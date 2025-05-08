@@ -7,30 +7,18 @@ use Shopware\Core\Framework\DataAbstractionLayer\TranslationEntity;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\Locale\LocaleEntity;
 
-#[Package('buyers-experience')]
+#[Package('discovery')]
 class LocaleTranslationEntity extends TranslationEntity
 {
     use EntityCustomFieldsTrait;
 
-    /**
-     * @var string
-     */
-    protected $localeId;
+    protected string $localeId;
 
-    /**
-     * @var string|null
-     */
-    protected $name;
+    protected ?string $name = null;
 
-    /**
-     * @var string|null
-     */
-    protected $territory;
+    protected ?string $territory = null;
 
-    /**
-     * @var LocaleEntity|null
-     */
-    protected $locale;
+    protected ?LocaleEntity $locale = null;
 
     public function getLocaleId(): string
     {

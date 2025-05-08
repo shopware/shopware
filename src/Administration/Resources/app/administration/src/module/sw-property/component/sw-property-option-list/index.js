@@ -1,17 +1,15 @@
 /*
- * @package inventory
+ * @sw-package inventory
  */
 
 import template from './sw-property-option-list.html.twig';
 import './sw-property-option-list.scss';
 
-const { State, Mixin } = Shopware;
+const { Store, Mixin } = Shopware;
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default {
     template,
-
-    compatConfig: Shopware.compatConfig,
 
     inject: [
         'repositoryFactory',
@@ -49,11 +47,11 @@ export default {
 
     computed: {
         isSystemLanguage() {
-            return State.get('context').api.systemLanguageId === this.currentLanguage;
+            return Store.get('context').api.systemLanguageId === this.currentLanguage;
         },
 
         currentLanguage() {
-            return State.get('context').api.languageId;
+            return Store.get('context').api.languageId;
         },
 
         allowInlineEdit() {
@@ -177,20 +175,24 @@ export default {
         },
 
         getGroupColumns() {
-            return [{
-                property: 'name',
-                label: this.$tc('sw-property.detail.labelOptionName'),
-                routerLink: 'sw.property.detail',
-                inlineEdit: 'string',
-                primary: true,
-            }, {
-                property: 'colorHexCode',
-                label: this.$tc('sw-property.detail.labelOptionColor'),
-            }, {
-                property: 'position',
-                label: this.$tc('sw-property.detail.labelOptionPosition'),
-                inlineEdit: 'number',
-            }];
+            return [
+                {
+                    property: 'name',
+                    label: this.$tc('sw-property.detail.labelOptionName'),
+                    routerLink: 'sw.property.detail',
+                    inlineEdit: 'string',
+                    primary: true,
+                },
+                {
+                    property: 'colorHexCode',
+                    label: this.$tc('sw-property.detail.labelOptionColor'),
+                },
+                {
+                    property: 'position',
+                    label: this.$tc('sw-property.detail.labelOptionPosition'),
+                    inlineEdit: 'number',
+                },
+            ];
         },
     },
 };

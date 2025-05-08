@@ -13,12 +13,12 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\Routing\ApiRequestContextResolver;
 use Shopware\Core\Framework\Routing\RequestContextResolverInterface;
-use Shopware\Core\Framework\Test\IdsCollection;
 use Shopware\Core\Framework\Test\TestCaseBase\AdminApiTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseHelper\TestUser;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\PlatformRequest;
+use Shopware\Core\Test\Stub\Framework\IdsCollection;
 use Shopware\Core\Test\TestDefaults;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -37,8 +37,8 @@ class ApiRequestContextResolverTest extends TestCase
 
     protected function setUp(): void
     {
-        $this->connection = $this->getContainer()->get(Connection::class);
-        $this->resolver = $this->getContainer()->get(ApiRequestContextResolver::class);
+        $this->connection = static::getContainer()->get(Connection::class);
+        $this->resolver = static::getContainer()->get(ApiRequestContextResolver::class);
     }
 
     /**
@@ -203,7 +203,7 @@ class ApiRequestContextResolverTest extends TestCase
         $ids = new IdsCollection();
         $browser = $this->getBrowserAuthenticatedWithIntegration($ids->create('integration'));
 
-        $this->getContainer()
+        static::getContainer()
             ->get(Connection::class)
             ->executeStatement('UPDATE `integration` SET `admin` = 1 WHERE id = :id', ['id' => Uuid::fromHexToBytes($ids->get('integration'))]);
 
@@ -218,7 +218,7 @@ class ApiRequestContextResolverTest extends TestCase
 
     public function testAdminIntegrationIdHeader(): void
     {
-        $connection = $this->getContainer()->get(Connection::class);
+        $connection = static::getContainer()->get(Connection::class);
         $ids = new IdsCollection();
         $ids->create('integration');
 
@@ -271,7 +271,7 @@ class ApiRequestContextResolverTest extends TestCase
 
     public function testAdminIntegrationIdHeaderUserNeedsToBePrivileged(): void
     {
-        $connection = $this->getContainer()->get(Connection::class);
+        $connection = static::getContainer()->get(Connection::class);
         $ids = new IdsCollection();
         $ids->create('integration');
 
@@ -315,7 +315,7 @@ class ApiRequestContextResolverTest extends TestCase
 
         $criteria = new Criteria();
         $criteria->addFilter(new EqualsFilter('email', 'admin@example.com'));
-        $userRepository = $this->getContainer()->get('user.repository');
+        $userRepository = static::getContainer()->get('user.repository');
         $adminUserId = $userRepository->searchIds($criteria, Context::createDefaultContext())->firstId();
         static::assertNotNull($adminUserId, (string) $adminUserId);
 
@@ -347,7 +347,7 @@ class ApiRequestContextResolverTest extends TestCase
 
     public function testAdminIntegrationIdHeaderNeedsToBeAppIntegration(): void
     {
-        $connection = $this->getContainer()->get(Connection::class);
+        $connection = static::getContainer()->get(Connection::class);
         $ids = new IdsCollection();
         $ids->create('integration');
 
@@ -379,7 +379,7 @@ class ApiRequestContextResolverTest extends TestCase
 
         $criteria = new Criteria();
         $criteria->addFilter(new EqualsFilter('email', 'admin@example.com'));
-        $userRepository = $this->getContainer()->get('user.repository');
+        $userRepository = static::getContainer()->get('user.repository');
         $adminUserId = $userRepository->searchIds($criteria, Context::createDefaultContext())->firstId();
         static::assertNotNull($adminUserId, (string) $adminUserId);
 
@@ -411,7 +411,7 @@ class ApiRequestContextResolverTest extends TestCase
         $ids = new IdsCollection();
         $browser = $this->getBrowserAuthenticatedWithIntegration($ids->create('integration'));
 
-        $this->getContainer()
+        static::getContainer()
             ->get(Connection::class)
             ->executeStatement('UPDATE `integration` SET `admin` = 0 WHERE id = :id', ['id' => Uuid::fromHexToBytes($ids->get('integration'))]);
 
@@ -433,7 +433,7 @@ class ApiRequestContextResolverTest extends TestCase
         $ids = new IdsCollection();
         $browser = $this->getBrowserAuthenticatedWithIntegration($ids->create('integration'));
 
-        $this->getContainer()
+        static::getContainer()
             ->get(Connection::class)
             ->executeStatement('UPDATE `integration` SET `admin` = 0 WHERE id = :id', ['id' => Uuid::fromHexToBytes($ids->get('integration'))]);
 
@@ -489,7 +489,7 @@ class ApiRequestContextResolverTest extends TestCase
             'secretAccessKey' => AccessKeyHelper::generateSecretAccessKey(),
         ];
 
-        $this->getContainer()->get('user_access_key.repository')
+        static::getContainer()->get('user_access_key.repository')
             ->create([$data], Context::createDefaultContext());
 
         return $key;
@@ -503,10 +503,10 @@ class ApiRequestContextResolverTest extends TestCase
         $id = Uuid::randomHex();
         $role = ['id' => $id, 'name' => 'test', 'privileges' => $privileges];
 
-        $this->getContainer()->get('acl_role.repository')
+        static::getContainer()->get('acl_role.repository')
             ->create([$role], Context::createDefaultContext());
 
-        $this->getContainer()->get(Connection::class)
+        static::getContainer()->get(Connection::class)
             ->insert('integration_role', [
                 'acl_role_id' => Uuid::fromHexToBytes($id),
                 'integration_id' => Uuid::fromHexToBytes($integrationId),

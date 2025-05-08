@@ -59,25 +59,19 @@ function runCmsElementRegistryTest(config) {
 }
 
 async function setupCmsEnvironment() {
-    await import('src/module/sw-cms/state/cms-page.state');
+    await import('src/module/sw-cms/store/cms-page.store');
     await import('src/module/sw-cms/service/cms.service');
     await import('src/module/sw-cms/service/cms-element-favorites.service');
     await import('src/module/sw-cms/mixin/sw-cms-element.mixin');
     await import('src/module/sw-cms/mixin/sw-cms-state.mixin');
 
-    Shopware.State.get('session').currentUser = {
+    Shopware.Store.get('session').setCurrentUser({
         id: 'admin',
-    };
+    });
 }
-
 
 /**
  * @private
- * @package buyers-experience
+ * @sw-package discovery
  */
-export {
-    runGenericCmsTest,
-    runCmsBlockRegistryTest,
-    runCmsElementRegistryTest,
-    setupCmsEnvironment,
-};
+export { runGenericCmsTest, runCmsBlockRegistryTest, runCmsElementRegistryTest, setupCmsEnvironment };

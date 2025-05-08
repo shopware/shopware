@@ -1,3 +1,5 @@
+import { computed } from 'vue';
+
 import template from './sw-custom-field-set-renderer.html.twig';
 import './sw-custom-field-set-renderer.scss';
 
@@ -5,7 +7,7 @@ const { Component, Mixin } = Shopware;
 const { Criteria } = Shopware.Data;
 
 /**
- * @package admin
+ * @sw-package framework
  *
  * @private
  * @status ready
@@ -22,16 +24,13 @@ Component.register('sw-custom-field-set-renderer', {
         'repositoryFactory',
     ],
 
-    compatConfig: Shopware.compatConfig,
-
-
     // Grant access to some variables to the child form render components
     provide() {
         return {
-            getEntity: this.entity,
-            getParentEntity: this.parentEntity,
-            getCustomFieldSet: this.set,
-            getCustomFieldSetVariant: this.variant,
+            getEntity: computed(() => this.entity),
+            getParentEntity: computed(() => this.parentEntity),
+            getCustomFieldSet: computed(() => this.set),
+            getCustomFieldSetVariant: computed(() => this.variant),
         };
     },
 
@@ -64,12 +63,18 @@ Component.register('sw-custom-field-set-renderer', {
             type: String,
             required: false,
             default: 'tabs',
-            validValues: ['tabs', 'media-collapse'],
+            validValues: [
+                'tabs',
+                'media-collapse',
+            ],
             validator(value) {
                 if (!value.length) {
                     return true;
                 }
-                return ['tabs', 'media-collapse'].includes(value);
+                return [
+                    'tabs',
+                    'media-collapse',
+                ].includes(value);
             },
         },
         disabled: {
@@ -122,8 +127,7 @@ Component.register('sw-custom-field-set-renderer', {
 
             criteria.addFilter(Criteria.equals('relations.entityName', this.entity.getEntityName()));
             criteria.addFilter(Criteria.equals('global', 0));
-            criteria
-                .addSorting(Criteria.sort('config.customFieldPosition', 'ASC', true));
+            criteria.addSorting(Criteria.sort('config.customFieldPosition', 'ASC', true));
 
             return criteria;
         },
@@ -139,13 +143,16 @@ Component.register('sw-custom-field-set-renderer', {
                 'sw-select-field',
                 'sw-checkbox-field',
                 'sw-switch-field',
+                'mt-switch',
                 'sw-number-field',
                 'sw-datepicker',
                 'sw-email-field',
+                'mt-email-field',
                 'sw-url-field',
                 'sw-password-field',
                 'sw-radio-field',
                 'sw-colorpicker',
+                'mt-colorpicker',
                 'sw-compact-colorpicker',
                 'sw-price-field',
                 'sw-tagged-field',
@@ -242,15 +249,17 @@ Component.register('sw-custom-field-set-renderer', {
         getCustomFieldInformation(customFieldName) {
             let returnValue;
 
-            this.sets.some(set => set.customFields.some(customField => {
-                const isMatching = customField.name === customFieldName;
+            this.sets.some((set) =>
+                set.customFields.some((customField) => {
+                    const isMatching = customField.name === customFieldName;
 
-                if (isMatching) {
-                    returnValue = customField;
-                }
+                    if (isMatching) {
+                        returnValue = customField;
+                    }
 
-                return isMatching;
-            }));
+                    return isMatching;
+                }),
+            );
 
             return returnValue;
         },
@@ -290,12 +299,28 @@ Component.register('sw-custom-field-set-renderer', {
         getBind(customField, props) {
             const customFieldClone = Shopware.Utils.object.cloneDeep(customField);
 
+            const isMeteorComponent = [
+                // Disabled for now, enable once Inheritance is aligned on all meteor components
+                // 'bool',
+                // 'switch',
+                // 'text',
+            ].includes(customField.type);
+
             if (customFieldClone.type === 'bool') {
                 customFieldClone.config.bordered = true;
             }
 
             if (this.supportsMapInheritance(customFieldClone)) {
                 customFieldClone.mapInheritance = props;
+
+                // Special case for meteor components
+                if (isMeteorComponent) {
+                    customFieldClone.isInheritanceField = props.isInheritField;
+                    customFieldClone.isInherited = props.isInherited;
+                    customFieldClone.inheritanceRemove = props.removeInheritance;
+                    customFieldClone.inheritanceRestore = props.restoreInheritance;
+                    customFieldClone.inheritedValue = props.currentValue;
+                }
 
                 return customFieldClone;
             }
@@ -328,8 +353,7 @@ Component.register('sw-custom-field-set-renderer', {
         customFieldSetCriteriaById() {
             const criteria = new Criteria(1, 1);
 
-            criteria.getAssociation('customFields')
-                .addSorting(Criteria.naturalSorting('config.customFieldPosition'));
+            criteria.getAssociation('customFields').addSorting(Criteria.naturalSorting('config.customFieldPosition'));
 
             return criteria;
         },
@@ -341,7 +365,7 @@ Component.register('sw-custom-field-set-renderer', {
             }
 
             // failsave dealing with sets (should be an entityCollection, but in reality might be just an array)
-            const set = this.sets.get ? this.sets.get(setId) : this.sets.find(s => s.id === setId);
+            const set = this.sets.get ? this.sets.get(setId) : this.sets.find((s) => s.id === setId);
 
             if (set.customFields && set.customFields.length > 0) {
                 // already loaded, so do nothing
@@ -354,25 +378,22 @@ Component.register('sw-custom-field-set-renderer', {
             // fully load the set
             this.customFieldSetRepository
                 .get(setId, Shopware.Context.api, this.customFieldSetCriteriaById())
-                .then(newSet => {
+                .then((newSet) => {
                     // replace the fully fetched set
                     this.sets.forEach((originalSet, index) => {
                         if (originalSet.id === newSet.id) {
-                            if (this.isCompatEnabled('INSTANCE_SET')) {
-                                this.$set(this.sets, index, newSet);
-                            } else {
-                                // eslint-disable-next-line vue/no-mutating-props
-                                this.sets[index] = newSet;
-                            }
+                            // eslint-disable-next-line vue/no-mutating-props
+                            this.sets[index] = newSet;
                         }
                     });
 
                     // remove the set from the currently loading onces and refresh the visible sets
-                    this.loadingFields = this.loadingFields.filter(s => s.id !== setId);
-                }).catch((error) => {
+                    this.loadingFields = this.loadingFields.filter((s) => s.id !== setId);
+                })
+                .catch((error) => {
                     console.error(error);
                     // in case of error make loading again possible
-                    this.loadingFields = this.loadingFields.filter(s => s.id !== setId);
+                    this.loadingFields = this.loadingFields.filter((s) => s.id !== setId);
                 });
         },
 
@@ -380,7 +401,9 @@ Component.register('sw-custom-field-set-renderer', {
             if (this.visibleCustomFieldSets.length > 0 && this.$refs.tabComponent) {
                 // Reset state of tab component if custom field selection changes
                 this.$refs.tabComponent.mountedComponent();
-                this.$refs.tabComponent.setActiveItem({ name: this.visibleCustomFieldSets[0].id });
+                this.$refs.tabComponent.setActiveItem({
+                    name: this.visibleCustomFieldSets[0].id,
+                });
             }
         },
 

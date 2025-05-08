@@ -4,32 +4,14 @@ namespace Shopware\Core\Migration\Traits;
 
 use Shopware\Core\Framework\Log\Package;
 
-#[Package('core')]
+#[Package('framework')]
 class MailSubjectUpdate
 {
-    /**
-     * @var string
-     */
-    protected $type;
-
-    /**
-     * @var string|null
-     */
-    protected $enSubject;
-
-    /**
-     * @var string|null
-     */
-    protected $deSubject;
-
     public function __construct(
-        string $type,
-        ?string $enSubject = null,
-        ?string $deSubject = null
+        protected string $type,
+        protected ?string $enSubject = null,
+        protected ?string $deSubject = null
     ) {
-        $this->type = $type;
-        $this->enSubject = $enSubject;
-        $this->deSubject = $deSubject;
     }
 
     public function getType(): string

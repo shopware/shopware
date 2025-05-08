@@ -1,11 +1,9 @@
-<!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
 {% block sw_wizard_page %}
 <div
     v-if="isCurrentlyActive"
     class="sw-wizard-page"
 >
     <slot>
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_wizard_page_slot_default %}{% endblock %}
     </slot>
 </div>

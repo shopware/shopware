@@ -5,18 +5,15 @@ namespace Shopware\Core\Content\Cms\SalesChannel\Struct;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Struct\Struct;
 
-#[Package('buyers-experience')]
+#[Package('discovery')]
 class ImageSliderStruct extends Struct
 {
-    /**
-     * @var array|null
-     */
-    protected $navigation;
+    protected ?array $navigation = null;
 
     /**
      * @var ImageSliderItemStruct[]|null
      */
-    protected $sliderItems = [];
+    protected ?array $sliderItems = [];
 
     /**
      * @return ImageSliderItemStruct[]|null

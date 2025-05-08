@@ -3,9 +3,11 @@
 namespace Shopware\Core\Framework\App\Command;
 
 use Shopware\Core\Framework\Adapter\Console\ShopwareStyle;
+use Shopware\Core\Framework\App\AppException;
 use Shopware\Core\Framework\App\AppService;
 use Shopware\Core\Framework\App\Exception\AppValidationException;
 use Shopware\Core\Framework\App\Exception\UserAbortedCommandException;
+use Shopware\Core\Framework\App\Lifecycle\Parameters\AppInstallParameters;
 use Shopware\Core\Framework\App\Lifecycle\RefreshableAppDryRun;
 use Shopware\Core\Framework\App\Manifest\Manifest;
 use Shopware\Core\Framework\App\Validation\ManifestValidator;
@@ -22,7 +24,7 @@ use Symfony\Component\Console\Output\OutputInterface;
  * @internal only for use by the app-system
  */
 #[AsCommand(name: 'app:refresh', description: 'Refreshes an app', aliases: ['app:update'])]
-#[Package('core')]
+#[Package('framework')]
 class RefreshAppCommand extends Command
 {
     public function __construct(
@@ -91,7 +93,12 @@ class RefreshAppCommand extends Command
             }
         }
 
-        $fails = $this->appService->doRefreshApps($input->getOption('activate'), $context, $refreshableApps->getAppNames());
+        // in the future: if it was forced then it counts as not accepted, eg: $input->getOption('force') === false
+        $fails = $this->appService->doRefreshApps(
+            new AppInstallParameters(activate: $input->getOption('activate')),
+            $context,
+            $refreshableApps->getAppNames()
+        );
 
         $this->appPrinter->printInstalledApps($io, $context);
         $this->appPrinter->printIncompleteInstallations($io, $fails);
@@ -145,7 +152,7 @@ class RefreshAppCommand extends Command
             ),
             $default
         )) {
-            throw new UserAbortedCommandException();
+            throw AppException::userAborted();
         }
 
         foreach ($refreshableApps->getToBeInstalled() as $app) {
@@ -170,7 +177,7 @@ class RefreshAppCommand extends Command
                 \sprintf('Do you want to grant these permissions for app "%s"?', $app->getMetadata()->getName()),
                 false
             )) {
-                throw new UserAbortedCommandException();
+                throw AppException::userAborted();
             }
         }
     }

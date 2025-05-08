@@ -1,8 +1,12 @@
+/**
+ * @sw-package framework
+ */
+
 declare namespace EntitySchema {
     interface generic_custom_entity {
         id: string;
         swCmsPageId?: string | null;
-        swSlotConfig?: {[key: string]: unknown} | null;
+        swSlotConfig?: { [key: string]: unknown } | null;
         swSeoMetaTitle?: string | null;
         swSeoMetaDescription?: string | null;
         swSeoUrl?: string | null;

@@ -1,5 +1,5 @@
 /**
- * @package inventory
+ * @sw-package discovery
  */
 import { mount } from '@vue/test-utils';
 
@@ -26,13 +26,12 @@ async function createWrapper(category = {}) {
     return mount(await wrapTestComponent('sw-category-link-settings', { sync: true }), {
         global: {
             stubs: {
-                'sw-card': {
-                    template: '<div class="sw-card"><slot></slot></div>',
+                'mt-card': {
+                    template: '<div class="mt-card"><slot></slot></div>',
                 },
-                'sw-text-field': true,
                 'sw-single-select': true,
                 'sw-entity-single-select': true,
-                'sw-switch-field': true,
+
                 'sw-category-tree-field': true,
             },
         },
@@ -59,10 +58,10 @@ describe('src/module/sw-category/component/sw-category-link-settings', () => {
         expect(linkTypeField.attributes().options).toBeTruthy();
         expect(wrapper.vm.linkTypeValues).toHaveLength(2);
 
-        const textField = wrapper.find('sw-text-field-stub');
-        expect(textField.attributes().disabled).toBeFalsy();
+        const textField = wrapper.findComponent('.mt-text-field');
+        expect(textField.props().disabled).toBeFalsy();
 
-        const newTabField = wrapper.find('sw-switch-field-stub');
+        const newTabField = wrapper.find('.mt-switch');
         expect(newTabField.attributes().disabled).toBeFalsy();
     });
 
@@ -78,10 +77,10 @@ describe('src/module/sw-category/component/sw-category-link-settings', () => {
         expect(linkTypeField.attributes().options).toBeTruthy();
         expect(wrapper.vm.linkTypeValues).toHaveLength(2);
 
-        const textField = wrapper.find('sw-text-field-stub');
-        expect(textField.attributes().disabled).toBeFalsy();
+        const textField = wrapper.findComponent('.mt-text-field');
+        expect(textField.props().disabled).toBeFalsy();
 
-        const newTabField = wrapper.find('sw-switch-field-stub');
+        const newTabField = wrapper.find('.mt-switch');
         expect(newTabField.attributes().disabled).toBeFalsy();
     });
 
@@ -109,7 +108,7 @@ describe('src/module/sw-category/component/sw-category-link-settings', () => {
         expect(productSelectField.attributes().disabled).toBeFalsy();
         expect(productSelectField.attributes().entity).toBe('product');
 
-        const newTabField = wrapper.find('sw-switch-field-stub');
+        const newTabField = wrapper.find('.mt-switch');
         expect(newTabField.attributes().disabled).toBeFalsy();
     });
 
@@ -149,7 +148,6 @@ describe('src/module/sw-category/component/sw-category-link-settings', () => {
 
         await wrapper.getComponent('.sw-category-link-settings__type').vm.$emit('update:value', 'external');
 
-
         expect(wrapper.vm.category.internalLink).toBeNull();
     });
 
@@ -161,26 +159,11 @@ describe('src/module/sw-category/component/sw-category-link-settings', () => {
         const linkTypeField = wrapper.find('sw-single-select-stub');
         expect(linkTypeField.attributes().disabled).toBeTruthy();
 
-        const externalLinkField = wrapper.find('sw-text-field-stub');
-        expect(externalLinkField.attributes().disabled).toBeTruthy();
+        const externalLinkField = wrapper.findComponent('.mt-text-field');
+        expect(externalLinkField.props().disabled).toBeTruthy();
 
-        const newTabField = wrapper.find('sw-switch-field-stub');
-        expect(newTabField.attributes().disabled).toBeTruthy();
-    });
-
-    it('should show only categories with type page', async () => {
-        global.activeAclRoles = ['category.editor'];
-
-        const wrapper = await createWrapper({
-            linkType: 'category',
-            internalLink: 'someUuid',
-        });
-
-        wrapper.find('sw-category-tree-field-stub');
-        const criteria = wrapper.vm.categoryCriteria;
-        const expectedFilters = [{ type: 'equals', field: 'type', value: 'page' }];
-
-        expect(criteria.filters).toEqual(expect.arrayContaining(expectedFilters));
+        const newTabField = wrapper.findComponent('.mt-switch');
+        expect(newTabField.props().disabled).toBe(true);
     });
 
     it('should have correct internal link', async () => {

@@ -12,35 +12,11 @@ class CustomerRecoveryEntity extends Entity
 {
     use EntityIdTrait;
 
-    /**
-     * @var string
-     */
-    protected $id;
+    protected string $customerId;
 
-    /**
-     * @var string
-     */
-    protected $customerId;
+    protected string $hash;
 
-    /**
-     * @var string
-     */
-    protected $hash;
-
-    /**
-     * @var CustomerEntity|null
-     */
-    protected $customer;
-
-    public function getId(): string
-    {
-        return $this->id;
-    }
-
-    public function setId(string $id): void
-    {
-        $this->id = $id;
-    }
+    protected ?CustomerEntity $customer = null;
 
     public function getCustomerId(): string
     {

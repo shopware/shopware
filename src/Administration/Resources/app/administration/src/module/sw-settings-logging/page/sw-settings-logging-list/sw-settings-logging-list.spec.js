@@ -1,5 +1,5 @@
 /**
- * @package services-settings
+ * @sw-package framework
  */
 
 import { mount } from '@vue/test-utils';
@@ -23,8 +23,7 @@ async function createWrapper() {
             stubs: {
                 'sw-settings-logging-mail-sent-info': await wrapTestComponent('sw-settings-logging-mail-sent-info'),
                 'sw-page': {
-                    template:
-                        `<div class="sw-page">
+                    template: `<div class="sw-page">
                             <slot name="content"></slot>
                         </div>`,
                 },
@@ -35,14 +34,14 @@ async function createWrapper() {
                 'sw-sidebar-item': true,
                 'sw-sidebar': true,
                 'sw-tabs-item': true,
-                'sw-tabs': await wrapTestComponent('sw-tabs', { sync: true }),
+                'sw-tabs': await wrapTestComponent('sw-tabs', {
+                    sync: true,
+                }),
                 'sw-tabs-deprecated': {
                     template: '<div><slot /></div>',
                 },
                 'sw-extension-component-section': await wrapTestComponent('sw-extension-component-section', { sync: true }),
                 'sw-textarea-field': true,
-                'sw-button': true,
-                'sw-icon': true,
             },
             provide: {
                 searchRankingService: {},

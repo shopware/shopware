@@ -9,9 +9,7 @@ use Shopware\Core\Checkout\Order\Aggregate\OrderTransaction\OrderTransactionEnti
 use Shopware\Core\Checkout\Order\Aggregate\OrderTransaction\OrderTransactionStateHandler;
 use Shopware\Core\Checkout\Order\Aggregate\OrderTransaction\OrderTransactionStates;
 use Shopware\Core\Checkout\Payment\Cart\AbstractPaymentTransactionStructFactory;
-use Shopware\Core\Checkout\Payment\Cart\PaymentHandler\AbstractPaymentHandler;
 use Shopware\Core\Checkout\Payment\Cart\PaymentHandler\PaymentHandlerRegistry;
-use Shopware\Core\Checkout\Payment\Cart\PaymentHandler\PreparedPaymentHandlerInterface;
 use Shopware\Core\Checkout\Payment\Cart\Token\TokenFactoryInterfaceV2;
 use Shopware\Core\Checkout\Payment\Cart\Token\TokenStruct;
 use Shopware\Core\Framework\Context;
@@ -50,7 +48,6 @@ class PaymentProcessor
         private readonly InitialStateIdLoader $initialStateIdLoader,
         private readonly RouterInterface $router,
         private readonly SystemConfigService $systemConfigService,
-        private readonly PaymentService $paymentService,
     ) {
     }
 
@@ -74,11 +71,6 @@ class PaymentProcessor
                 throw PaymentException::unknownPaymentMethodById($transaction->getPaymentMethodId());
             }
 
-            // @deprecated tag:v6.7.0 - will be removed with old payment handler interfaces
-            if (!$paymentHandler instanceof AbstractPaymentHandler) {
-                return $this->paymentService->handlePaymentByOrder($orderId, new RequestDataBag($request->request->all()), $salesChannelContext, $finishUrl, $errorUrl);
-            }
-
             $transactionStruct = $this->paymentTransactionStructFactory->build($transaction->getId(), $salesChannelContext->getContext(), $returnUrl);
             $validationStruct = $transaction->getValidationData() ? new ArrayStruct($transaction->getValidationData()) : null;
 
@@ -89,7 +81,7 @@ class PaymentProcessor
 
             return $response;
         } catch (\Throwable $e) {
-            $this->logger->error('An error occurred during processing the payment', ['orderTransactionId' => $transaction->getId(), 'exceptionMessage' => $e->getMessage()]);
+            $this->logger->error('An error occurred during processing the payment', ['orderTransactionId' => $transaction->getId(), 'exceptionMessage' => $e->getMessage(), 'exceptionTrace' => $e->getTraceAsString(), 'exception' => $e]);
             $this->transactionStateHandler->fail($transaction->getId(), $salesChannelContext->getContext());
             if ($errorUrl !== null) {
                 $errorCode = $e instanceof HttpException ? $e->getErrorCode() : PaymentException::PAYMENT_PROCESS_ERROR;
@@ -117,16 +109,6 @@ class PaymentProcessor
             throw PaymentException::unknownPaymentMethodById($token->getPaymentMethodId());
         }
 
-        // @deprecated tag:v6.7.0 - will be removed with old payment handler interfaces
-        if (!$paymentHandler instanceof AbstractPaymentHandler) {
-            $paymentToken = $token->getToken();
-            if ($paymentToken === null) {
-                throw PaymentException::invalidToken('');
-            }
-
-            return $this->paymentService->finalizeTransaction($paymentToken, $request, $context);
-        }
-
         try {
             $transactionStruct = $this->paymentTransactionStructFactory->build($token->getTransactionId(), $context->getContext());
             $paymentHandler->finalize($request, $transactionStruct, $context->getContext());
@@ -136,11 +118,6 @@ class PaymentProcessor
             } else {
                 $this->logger->error('An error occurred during finalizing async payment', ['orderTransactionId' => $token->getTransactionId(), 'exceptionMessage' => $e->getMessage(), 'exception' => $e]);
                 $this->transactionStateHandler->fail($token->getTransactionId(), $context->getContext());
-            }
-
-            // @deprecated tag:v6.7.0 - remove, $token will accept Throwable
-            if (!$e instanceof \Exception) {
-                $e = new \Exception($e->getMessage(), $e->getCode(), $e);
             }
 
             $token->setException($e);
@@ -164,10 +141,6 @@ class PaymentProcessor
                 throw PaymentException::unknownPaymentMethodById($salesChannelContext->getPaymentMethod()->getId());
             }
 
-            if (!($paymentHandler instanceof PreparedPaymentHandlerInterface) && !($paymentHandler instanceof AbstractPaymentHandler)) {
-                return null;
-            }
-
             $struct = $paymentHandler->validate($cart, $dataBag, $salesChannelContext);
             $cart->getTransactions()->first()?->setValidationStruct($struct);
 
@@ -175,7 +148,7 @@ class PaymentProcessor
         } catch (\Throwable $e) {
             $this->logger->error(
                 'An error occurred during processing the validation of the payment. The order has not been placed yet.',
-                ['customerId' => $salesChannelContext->getCustomer()?->getId(), 'exceptionMessage' => $e->getMessage(), 'exception' => $e]
+                ['customerId' => $salesChannelContext->getCustomerId(), 'exceptionMessage' => $e->getMessage(), 'exception' => $e]
             );
 
             throw $e;
@@ -184,11 +157,11 @@ class PaymentProcessor
 
     private function getCurrentOrderTransaction(string $orderId, Context $context): ?OrderTransactionEntity
     {
-        $criteria = new Criteria();
-        $criteria->addFilter(new EqualsFilter('stateId', $this->initialStateIdLoader->get(OrderTransactionStates::STATE_MACHINE)));
-        $criteria->addFilter(new EqualsFilter('orderId', $orderId));
-        $criteria->addSorting(new FieldSorting('createdAt', FieldSorting::DESCENDING));
-        $criteria->setLimit(1);
+        $criteria = (new Criteria())
+            ->addFilter(new EqualsFilter('stateId', $this->initialStateIdLoader->get(OrderTransactionStates::STATE_MACHINE)))
+            ->addFilter(new EqualsFilter('orderId', $orderId))
+            ->addSorting(new FieldSorting('createdAt', FieldSorting::DESCENDING))
+            ->setLimit(1);
 
         $transaction = $this->orderTransactionRepository->search($criteria, $context)->getEntities()->first();
 

@@ -1,32 +1,30 @@
 import { DocumentEvents } from 'src/core/service/api/document.api.service';
 import { searchRankingPoint } from 'src/app/service/search-ranking.service';
-import { getCurrentInstance } from 'vue';
 import template from './sw-order-document-card.html.twig';
 import './sw-order-document-card.scss';
 
 /**
- * @package checkout
+ * @sw-package checkout
  */
 
-const { Mixin } = Shopware;
+const { Mixin, Store } = Shopware;
 const { Criteria } = Shopware.Data;
-const { mapGetters } = Shopware.Component.getComponentHelper();
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default {
     template,
 
-    compatConfig: Shopware.compatConfig,
-
     inject: [
         'documentService',
         'numberRangeService',
         'repositoryFactory',
-        'feature',
         'acl',
     ],
 
-    emits: ['update-loading', 'document-save'],
+    emits: [
+        'update-loading',
+        'document-save',
+    ],
 
     mixins: [
         Mixin.getByName('listing'),
@@ -72,9 +70,7 @@ export default {
     },
 
     computed: {
-        ...mapGetters('swOrderDetail', [
-            'isEditing',
-        ]),
+        isEditing: () => Store.get('swOrderDetail').isEditing,
 
         creditItems() {
             const items = [];
@@ -103,9 +99,7 @@ export default {
         documentModal() {
             const subComponentName = this.currentDocumentType.technicalName.replace(/_/g, '-');
 
-            if (
-                `sw-order-document-settings-${subComponentName}-modal` in getCurrentInstance().appContext.components
-            ) {
+            if (this.$.appContext.components[`sw-order-document-settings-${subComponentName}-modal`]) {
                 return `sw-order-document-settings-${subComponentName}-modal`;
             }
 
@@ -126,7 +120,11 @@ export default {
         documentCriteria() {
             const criteria = new Criteria(this.page, this.limit);
             criteria.addSorting(Criteria.sort('createdAt', 'DESC'));
-            criteria.addAssociation('documentType');
+            criteria
+                .addAssociation('documentType')
+                .addAssociation('documentMediaFile')
+                .addAssociation('documentA11yMediaFile');
+
             criteria.addFilter(Criteria.equals('order.id', this.order.id));
 
             if (!this.term) {
@@ -134,42 +132,50 @@ export default {
             }
 
             criteria.setTerm(this.term);
-            criteria.addQuery(
-                Criteria.contains('config.documentDate', this.term),
-                searchRankingPoint.HIGH_SEARCH_RANKING,
-            );
-            criteria.addQuery(
-                Criteria.equals('config.documentNumber', this.term),
-                searchRankingPoint.HIGH_SEARCH_RANKING,
-            );
+            criteria.addQuery(Criteria.contains('config.documentDate', this.term), searchRankingPoint.HIGH_SEARCH_RANKING);
+            criteria.addQuery(Criteria.equals('config.documentNumber', this.term), searchRankingPoint.HIGH_SEARCH_RANKING);
 
             return criteria;
         },
 
         getDocumentColumns() {
-            const columns = [{
-                property: 'createdAt',
-                dataIndex: 'createdAt',
-                label: 'sw-order.documentCard.labelDate',
-                allowResize: false,
-                primary: true,
-            }, {
-                property: 'config.documentNumber',
-                dataIndex: 'config.documentNumber',
-                label: 'sw-order.documentCard.labelNumber',
-                allowResize: false,
-            }, {
-                property: 'documentType.name',
-                dataIndex: 'documentType.name',
-                label: 'sw-order.documentCard.labelType',
-                allowResize: false,
-            }, {
-                property: 'sent',
-                dataIndex: 'sent',
-                label: 'sw-order.documentCard.labelSent',
-                allowResize: false,
-                align: 'center',
-            }];
+            const columns = [
+                {
+                    property: 'createdAt',
+                    dataIndex: 'createdAt',
+                    label: 'sw-order.documentCard.labelDate',
+                    allowResize: false,
+                    primary: true,
+                },
+                {
+                    property: 'config.documentNumber',
+                    dataIndex: 'config.documentNumber',
+                    label: 'sw-order.documentCard.labelNumber',
+                    allowResize: false,
+                },
+                {
+                    property: 'documentType.name',
+                    dataIndex: 'documentType.name',
+                    label: 'sw-order.documentCard.labelType',
+                    allowResize: false,
+                },
+                {
+                    property: 'sent',
+                    dataIndex: 'sent',
+                    label: 'sw-order.documentCard.labelSent',
+                    allowResize: false,
+                    align: 'center',
+                },
+            ];
+
+            if (this.$route.name === 'sw.order.detail.documents') {
+                columns.splice(3, 0, {
+                    property: 'fileTypes',
+                    dataIndex: 'fileTypes',
+                    label: 'sw-order.documentCard.labelAvailableFormats',
+                    allowResize: false,
+                });
+            }
 
             if (this.attachView) {
                 columns.push({
@@ -277,25 +283,16 @@ export default {
 
         documentTypeAvailable(documentType) {
             return (
-                (
-                    documentType.technicalName !== 'storno' &&
-                    documentType.technicalName !== 'credit_note'
-                ) ||
-                (
-                    (
-                        documentType.technicalName === 'storno' ||
-                        (
-                            documentType.technicalName === 'credit_note' &&
-                            this.creditItems.length !== 0
-                        )
-                    ) && this.invoiceExists()
-                )
+                (documentType.technicalName !== 'storno' && documentType.technicalName !== 'credit_note') ||
+                ((documentType.technicalName === 'storno' ||
+                    (documentType.technicalName === 'credit_note' && this.creditItems.length !== 0)) &&
+                    this.invoiceExists())
             );
         },
 
         invoiceExists() {
             return this.documents.some((document) => {
-                return (document.documentType.technicalName === 'invoice');
+                return document.documentType.technicalName === 'invoice';
             });
         },
 
@@ -325,39 +322,33 @@ export default {
             this.showModal = true;
         },
 
-        openDocument(documentId, documentDeepLink) {
-            this.documentService.getDocument(
-                documentId,
-                documentDeepLink,
-                Shopware.Context.api,
-                true,
-            ).then((response) => {
-                if (response.data) {
-                    const link = document.createElement('a');
-                    link.href = URL.createObjectURL(response.data);
-                    link.target = '_blank';
-                    link.dispatchEvent(new MouseEvent('click'));
-                    link.remove();
-                }
-            });
+        openDocument(documentId, documentDeepLink, fileType) {
+            this.documentService
+                .getDocument(documentId, documentDeepLink, Shopware.Context.api, true, fileType)
+                .then((response) => {
+                    if (response.data) {
+                        const link = document.createElement('a');
+                        link.href = URL.createObjectURL(response.data);
+                        link.target = '_blank';
+                        link.dispatchEvent(new MouseEvent('click'));
+                        link.remove();
+                    }
+                });
         },
 
-        downloadDocument(documentId, documentDeepLink) {
-            this.documentService.getDocument(
-                documentId,
-                documentDeepLink,
-                Shopware.Context.api,
-                true,
-            ).then((response) => {
-                if (response.data) {
-                    const filename = response.headers['content-disposition'].split('filename=')[1];
-                    const link = document.createElement('a');
-                    link.href = URL.createObjectURL(response.data);
-                    link.download = filename;
-                    link.dispatchEvent(new MouseEvent('click'));
-                    link.remove();
-                }
-            });
+        downloadDocument(documentId, documentDeepLink, fileType) {
+            this.documentService
+                .getDocument(documentId, documentDeepLink, Shopware.Context.api, true, fileType)
+                .then((response) => {
+                    if (response.data) {
+                        const filename = response.headers['content-disposition'].split('filename=')[1];
+                        const link = document.createElement('a');
+                        link.href = URL.createObjectURL(response.data);
+                        link.download = filename;
+                        link.dispatchEvent(new MouseEvent('click'));
+                        link.remove();
+                    }
+                });
         },
 
         markDocumentAsSent(documentId) {
@@ -396,9 +387,7 @@ export default {
                     return;
                 }
 
-                const documentId = Array.isArray(response)
-                    ? response[0].documentId
-                    : response?.data?.documentId;
+                const documentId = Array.isArray(response) ? response[0].documentId : response?.data?.documentId;
 
                 const documentDeepLink = Array.isArray(response)
                     ? response[0].documentDeepLink
@@ -414,52 +403,51 @@ export default {
                     this.downloadDocument(documentId, documentDeepLink);
                 } else if (additionalAction === 'send') {
                     const criteria = new Criteria(null, null);
-                    criteria.addAssociation('documentType');
+                    criteria.addAssociation('documentType').addAssociation('documentA11yMediaFile');
 
-                    this.documentRepository.get(documentId, Shopware.Context.api, criteria)
-                        .then((documentData) => {
-                            if (!documentData) {
-                                return;
-                            }
+                    this.documentRepository.get(documentId, Shopware.Context.api, criteria).then((documentData) => {
+                        if (!documentData) {
+                            return;
+                        }
 
-                            this.sendDocument = documentData;
-                            this.showSendDocumentModal = true;
-                        });
+                        this.sendDocument = documentData;
+                        this.showSendDocumentModal = true;
+                    });
                 }
             } finally {
                 this.isLoadingDocument = false;
             }
         },
 
-        onPreview(params) {
+        onPreview(params, fileType) {
             this.isLoadingPreview = true;
 
-            return this.documentService.getDocumentPreview(
-                this.order.id,
-                this.order.deepLinkCode,
-                this.currentDocumentType.technicalName,
-                params,
-            ).then((response) => {
-                if (response.data) {
-                    const link = document.createElement('a');
-                    link.href = URL.createObjectURL(response.data);
-                    link.target = '_blank';
-                    link.dispatchEvent(new MouseEvent('click'));
-                    link.remove();
-                }
+            return this.documentService
+                .getDocumentPreview(this.order.id, this.order.deepLinkCode, this.currentDocumentType.technicalName, params, {
+                    fileType,
+                })
+                .then((response) => {
+                    if (response.data) {
+                        const link = document.createElement('a');
+                        link.href = URL.createObjectURL(response.data);
+                        link.target = '_blank';
+                        link.dispatchEvent(new MouseEvent('click'));
+                        link.remove();
+                    }
 
-                return response;
-            }).finally(() => {
-                this.isLoadingPreview = false;
-            });
+                    return response;
+                })
+                .finally(() => {
+                    this.isLoadingPreview = false;
+                });
         },
 
-        onOpenDocument(id, deepLink) {
-            this.openDocument(id, deepLink);
+        onOpenDocument(id, deepLink, fileType) {
+            this.openDocument(id, deepLink, fileType);
         },
 
-        onDownload(id, deepLink) {
-            this.downloadDocument(id, deepLink);
+        onDownload(id, deepLink, fileType) {
+            this.downloadDocument(id, deepLink, fileType);
         },
 
         onSendDocument(id) {
@@ -503,6 +491,15 @@ export default {
             if (persist) {
                 this.onPrepareDocument();
             }
+        },
+
+        availableFormatsFilter(item) {
+            const fileTypesArray = [
+                item.documentMediaFile?.fileExtension,
+                item.documentA11yMediaFile?.fileExtension,
+            ].filter((fileType) => fileType);
+
+            return fileTypesArray.join(', ').toUpperCase();
         },
     },
 };

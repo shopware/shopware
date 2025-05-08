@@ -7,8 +7,8 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Product\Exception\DuplicateProductSearchConfigFieldException;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\Test\IdsCollection;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
+use Shopware\Core\Test\Stub\Framework\IdsCollection;
 
 /**
  * @internal
@@ -19,7 +19,7 @@ class ProductSearchConfigFieldExceptionHandlerTest extends TestCase
 
     public function testDuplicateInsert(): void
     {
-        $this->getContainer()->get(Connection::class)
+        static::getContainer()->get(Connection::class)
             ->executeStatement('DELETE FROM product_search_config');
 
         $ids = new IdsCollection();
@@ -37,7 +37,7 @@ class ProductSearchConfigFieldExceptionHandlerTest extends TestCase
         static::expectException(DuplicateProductSearchConfigFieldException::class);
         static::expectExceptionMessage('Product search config with field test already exists.');
 
-        $this->getContainer()->get('product_search_config.repository')
+        static::getContainer()->get('product_search_config.repository')
             ->create([$config], Context::createDefaultContext());
     }
 }

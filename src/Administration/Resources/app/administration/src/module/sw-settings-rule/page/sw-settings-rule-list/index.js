@@ -6,12 +6,10 @@ const { Criteria } = Shopware.Data;
 
 /**
  * @private
- * @package services-settings
+ * @sw-package fundamentals@after-sales
  */
 export default {
     template,
-
-    compatConfig: Shopware.compatConfig,
 
     inject: [
         'repositoryFactory',
@@ -60,7 +58,10 @@ export default {
 
         conditionFilterOptions() {
             const conditions = this.ruleConditionDataProviderService.getConditions().map((condition) => {
-                return { value: condition.type, label: this.$tc(condition.label) };
+                return {
+                    value: condition.type,
+                    label: this.$tc(condition.label),
+                };
             });
             conditions.sort((a, b) => a.label.localeCompare(b.label));
 
@@ -70,9 +71,12 @@ export default {
         groupFilterOptions() {
             const groupFilter = [];
             Object.values(this.ruleConditionDataProviderService.getGroups()).forEach((group) => {
-                const conditionFilterString = this.ruleConditionDataProviderService.getByGroup(group.id).map((condition) => {
-                    return condition.type;
-                }).join('|');
+                const conditionFilterString = this.ruleConditionDataProviderService
+                    .getByGroup(group.id)
+                    .map((condition) => {
+                        return condition.type;
+                    })
+                    .join('|');
 
                 groupFilter.push({
                     value: conditionFilterString,
@@ -125,7 +129,7 @@ export default {
                     property: 'tags',
                     label: this.$tc('sw-settings-rule.filter.tagFilter.label'),
                     placeholder: this.$tc('sw-settings-rule.filter.tagFilter.placeholder'),
-                    criteria: (new Criteria(1, 25)).addSorting(Criteria.sort('name')),
+                    criteria: new Criteria(1, 25).addSorting(Criteria.sort('name')),
                 },
             };
 
@@ -135,20 +139,17 @@ export default {
         listCriteria() {
             const criteria = new Criteria(this.page, this.limit);
             criteria.setTerm(this.term);
-            const naturalSort = ['createdAt', 'updatedAt'].includes(this.sortBy);
+            const naturalSort = [
+                'createdAt',
+                'updatedAt',
+            ].includes(this.sortBy);
             const sorting = Criteria.sort(this.sortBy, this.sortDirection, naturalSort);
 
-            if (this.assignmentProperties.includes(this.sortBy)) {
-                sorting.field += '.id';
-                sorting.type = 'count';
-            }
             criteria.addSorting(sorting);
 
             criteria.addAssociation('tags');
 
-            this.setAggregations(criteria);
-
-            this.filterCriteria.forEach(filter => {
+            this.filterCriteria.forEach((filter) => {
                 criteria.addFilter(filter);
             });
 
@@ -178,39 +179,6 @@ export default {
     },
 
     methods: {
-        setAggregations(criteria) {
-            Object.keys(this.getRuleDefinition.properties).forEach((propertyName) => {
-                if (propertyName === 'conditions' || propertyName === 'tags') {
-                    return;
-                }
-
-                const property = this.getRuleDefinition.properties[propertyName];
-
-                if (property.relation === 'many_to_many' || property.relation === 'one_to_many') {
-                    criteria.addAggregation(
-                        Criteria.terms(
-                            propertyName,
-                            'id',
-                            null,
-                            null,
-                            Criteria.count(propertyName, `rule.${propertyName}.id`),
-                        ),
-                    );
-                }
-            });
-        },
-
-        getCounts(propertyName, id) {
-            const countBucket = this.rules.aggregations[propertyName].buckets
-                .find((bucket) => bucket.key === id);
-
-            if (!countBucket || !countBucket[propertyName] || !countBucket[propertyName].count) {
-                return 0;
-            }
-
-            return countBucket[propertyName].count;
-        },
-
         async getList() {
             this.isLoading = true;
 
@@ -218,19 +186,22 @@ export default {
 
             this.activeFilterNumber = criteria.filters.length;
 
-            this.ruleRepository.search(criteria).then((items) => {
-                this.total = items.total;
-                this.rules = items;
-                this.isLoading = false;
+            this.ruleRepository
+                .search(criteria)
+                .then((items) => {
+                    this.total = items.total;
+                    this.rules = items;
+                    this.isLoading = false;
 
-                return items;
-            }).catch(() => {
-                this.isLoading = false;
-            });
+                    return items;
+                })
+                .catch(() => {
+                    this.isLoading = false;
+                });
         },
 
         onChangeLanguage(languageId) {
-            Shopware.State.commit('context/setApiLanguageId', languageId);
+            Shopware.Store.get('context').api.languageId = languageId;
             this.getList();
         },
 
@@ -244,30 +215,30 @@ export default {
             };
 
             this.ruleRepository.clone(referenceRule.id, behaviour, Shopware.Context.api).then((duplicatedData) => {
-                this.$router.push(
-                    {
-                        name: 'sw.settings.rule.detail',
-                        params: { id: duplicatedData.id },
-                    },
-                );
+                this.$router.push({
+                    name: 'sw.settings.rule.detail',
+                    params: { id: duplicatedData.id },
+                });
             });
         },
 
         onInlineEditSave(promise, rule) {
             this.isLoading = true;
 
-            return promise.then(() => {
-                this.isLoading = false;
+            return promise
+                .then(() => {
+                    this.isLoading = false;
 
-                this.createNotificationSuccess({
-                    message: this.$tc('sw-settings-rule.detail.messageSaveSuccess', 0, { name: rule.name }),
+                    this.createNotificationSuccess({
+                        message: this.$tc('sw-settings-rule.detail.messageSaveSuccess', { name: rule.name }, 0),
+                    });
+                })
+                .catch(() => {
+                    this.getList();
+                    this.createNotificationError({
+                        message: this.$tc('sw-settings-rule.detail.messageSaveError'),
+                    });
                 });
-            }).catch(() => {
-                this.getList();
-                this.createNotificationError({
-                    message: this.$tc('sw-settings-rule.detail.messageSaveError'),
-                });
-            });
         },
 
         updateCriteria(criteria) {
@@ -277,59 +248,55 @@ export default {
         },
 
         getRuleColumns() {
-            const columns = [{
-                property: 'name',
-                dataIndex: 'name',
-                inlineEdit: 'string',
-                label: 'sw-settings-rule.list.columnName',
-                routerLink: 'sw.settings.rule.detail',
-                width: '250px',
-                allowResize: true,
-                primary: true,
-            }, {
-                property: 'priority',
-                label: 'sw-settings-rule.list.columnPriority',
-                inlineEdit: 'number',
-                allowResize: true,
-            }, {
-                property: 'description',
-                label: 'sw-settings-rule.list.columnDescription',
-                width: '250px',
-                allowResize: true,
-            }, {
-                property: 'updatedAt',
-                label: 'sw-settings-rule.list.columnDateUpdated',
-                align: 'right',
-                allowResize: true,
-            }, {
-                property: 'createdAt',
-                label: 'sw-settings-rule.list.columnDateCreated',
-                align: 'right',
-                allowResize: true,
-            }, {
-                property: 'invalid',
-                label: 'sw-settings-rule.list.columnStatus',
-                allowResize: true,
-            }, {
-                property: 'tags',
-                label: 'sw-settings-rule.list.columnTags',
-                width: '250px',
-                allowResize: true,
-                sortable: false,
-                visible: false,
-            }];
-
-            this.assignmentProperties.forEach((propertyName) => {
-                const labelPostfix = propertyName.charAt(0).toUpperCase() + propertyName.slice(1);
-                columns.push({
-                    property: `${propertyName}`,
-                    label: `sw-settings-rule.list.column${labelPostfix}`,
+            const columns = [
+                {
+                    property: 'name',
+                    dataIndex: 'name',
+                    inlineEdit: 'string',
+                    label: 'sw-settings-rule.list.columnName',
+                    routerLink: 'sw.settings.rule.detail',
                     width: '250px',
                     allowResize: true,
-                    sortable: true,
+                    primary: true,
+                },
+                {
+                    property: 'priority',
+                    label: 'sw-settings-rule.list.columnPriority',
+                    inlineEdit: 'number',
+                    allowResize: true,
+                },
+                {
+                    property: 'description',
+                    label: 'sw-settings-rule.list.columnDescription',
+                    width: '250px',
+                    allowResize: true,
+                },
+                {
+                    property: 'updatedAt',
+                    label: 'sw-settings-rule.list.columnDateUpdated',
+                    align: 'right',
+                    allowResize: true,
+                },
+                {
+                    property: 'createdAt',
+                    label: 'sw-settings-rule.list.columnDateCreated',
+                    align: 'right',
+                    allowResize: true,
+                },
+                {
+                    property: 'invalid',
+                    label: 'sw-settings-rule.list.columnStatus',
+                    allowResize: true,
+                },
+                {
+                    property: 'tags',
+                    label: 'sw-settings-rule.list.columnTags',
+                    width: '250px',
+                    allowResize: true,
+                    sortable: false,
                     visible: false,
-                });
-            });
+                },
+            ];
 
             return columns;
         },

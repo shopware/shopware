@@ -9,35 +9,20 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityIdTrait;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\SalesChannelEntity;
 
-#[Package('buyers-experience')]
+#[Package('checkout')]
 class PromotionSalesChannelEntity extends Entity
 {
     use EntityIdTrait;
 
-    /**
-     * @var string
-     */
-    protected $promotionId;
+    protected string $promotionId;
 
-    /**
-     * @var string
-     */
-    protected $salesChannelId;
+    protected string $salesChannelId;
 
-    /**
-     * @var int
-     */
-    protected $priority;
+    protected int $priority;
 
-    /**
-     * @var PromotionEntity|null
-     */
-    protected $promotion;
+    protected ?PromotionEntity $promotion = null;
 
-    /**
-     * @var SalesChannelEntity|null
-     */
-    protected $salesChannel;
+    protected ?SalesChannelEntity $salesChannel = null;
 
     public function getPromotionId(): string
     {

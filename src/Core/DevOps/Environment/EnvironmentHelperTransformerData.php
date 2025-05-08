@@ -4,17 +4,13 @@ namespace Shopware\Core\DevOps\Environment;
 
 use Shopware\Core\Framework\Log\Package;
 
-#[Package('core')]
+#[Package('framework')]
 class EnvironmentHelperTransformerData
 {
-    /**
-     * @param bool|float|int|string|null $value
-     * @param bool|float|int|string|null $default
-     */
     public function __construct(
         private readonly string $key,
-        private $value,
-        private $default
+        private bool|float|int|string|null $value,
+        private bool|float|int|string|null $default
     ) {
     }
 
@@ -23,34 +19,22 @@ class EnvironmentHelperTransformerData
         return $this->key;
     }
 
-    /**
-     * @return bool|float|int|string|null
-     */
-    public function getValue()
+    public function getValue(): bool|float|int|string|null
     {
         return $this->value;
     }
 
-    /**
-     * @param bool|float|int|string|null $value
-     */
-    public function setValue($value): void
+    public function setValue(bool|float|int|string|null $value): void
     {
         $this->value = $value;
     }
 
-    /**
-     * @return bool|float|int|string|null
-     */
-    public function getDefault()
+    public function getDefault(): bool|float|int|string|null
     {
         return $this->default;
     }
 
-    /**
-     * @param bool|float|int|string|null $default
-     */
-    public function setDefault($default): void
+    public function setDefault(bool|float|int|string|null $default): void
     {
         $this->default = $default;
     }

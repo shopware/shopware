@@ -3,18 +3,18 @@
 namespace Shopware\Storefront\Controller;
 
 use Shopware\Core\Content\Category\SalesChannel\AbstractCategoryRoute;
-use Shopware\Core\Content\Cms\Exception\PageNotFoundException;
+use Shopware\Core\Content\Cms\CmsException;
 use Shopware\Core\Content\Cms\SalesChannel\AbstractCmsRoute;
 use Shopware\Core\Content\Product\SalesChannel\Detail\AbstractProductDetailRoute;
 use Shopware\Core\Content\Product\SalesChannel\FindVariant\AbstractFindProductVariantRoute;
 use Shopware\Core\Content\Product\SalesChannel\Listing\AbstractProductListingRoute;
+use Shopware\Core\Content\Product\SalesChannel\Review\AbstractProductReviewLoader;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Routing\RoutingException;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Storefront\Event\SwitchBuyBoxVariantEvent;
 use Shopware\Storefront\Page\Cms\CmsPageLoadedHook;
-use Shopware\Storefront\Page\Product\Review\ProductReviewLoader;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
@@ -26,7 +26,7 @@ use Symfony\Component\Routing\Attribute\Route;
  * Do not use direct or indirect repository calls in a controller. Always use a store-api route to get or put data
  */
 #[Route(defaults: ['_routeScope' => ['storefront']])]
-#[Package('buyers-experience')]
+#[Package('discovery')]
 class CmsController extends StorefrontController
 {
     /**
@@ -37,12 +37,16 @@ class CmsController extends StorefrontController
         private readonly AbstractCategoryRoute $categoryRoute,
         private readonly AbstractProductListingRoute $listingRoute,
         private readonly AbstractProductDetailRoute $productRoute,
-        private readonly ProductReviewLoader $productReviewLoader,
+        private readonly AbstractProductReviewLoader $productReviewLoader,
         private readonly AbstractFindProductVariantRoute $findVariantRoute,
         private readonly EventDispatcherInterface $eventDispatcher
     ) {
     }
 
+    /**
+     * Rendering a CMS layout as a widget, meaning that the layout is rendered standalone without the surrounding page template.
+     * Use this if you want to load content via JS and embed into an existing page or modal.
+     */
     #[Route(path: '/widgets/cms/{id}', name: 'frontend.cms.page', defaults: ['id' => null, 'XmlHttpRequest' => true, '_httpCache' => true], methods: ['GET', 'POST'])]
     public function page(?string $id, Request $request, SalesChannelContext $salesChannelContext): Response
     {
@@ -61,9 +65,27 @@ class CmsController extends StorefrontController
     }
 
     /**
+     * Rendering a CMS layout as a full page, example including stylesheets, scripts, header, footer, etc.
+     * Use this for internal page links pointing to a layout.
+     */
+    #[Route(path: '/page/cms/{id}', name: 'frontend.cms.page.full', defaults: ['XmlHttpRequest' => true, '_httpCache' => true], methods: ['GET', 'POST'])]
+    public function pageFull(string $id, Request $request, SalesChannelContext $salesChannelContext): Response
+    {
+        $page = $this->cmsRoute->load($id, $request, $salesChannelContext)->getCmsPage();
+        $this->hook(new CmsPageLoadedHook($page, $salesChannelContext));
+
+        return $this->renderStorefront('@Storefront/storefront/page/content/index.html.twig', ['page' => ['cmsPage' => $page]]);
+    }
+
+    /**
      * Navigation id is required to load the slot config for the navigation
      */
-    #[Route(path: '/widgets/cms/navigation/{navigationId}', name: 'frontend.cms.navigation.page', defaults: ['navigationId' => null, 'XmlHttpRequest' => true, '_httpCache' => true], methods: ['GET', 'POST'])]
+    #[Route(
+        path: '/widgets/cms/navigation/{navigationId}',
+        name: 'frontend.cms.navigation.page',
+        defaults: ['navigationId' => null, 'XmlHttpRequest' => true, '_httpCache' => true],
+        methods: ['GET', 'POST']
+    )]
     public function category(?string $navigationId, Request $request, SalesChannelContext $salesChannelContext): Response
     {
         if (!$navigationId) {
@@ -74,7 +96,7 @@ class CmsController extends StorefrontController
 
         $page = $category->getCmsPage();
         if (!$page) {
-            throw new PageNotFoundException('');
+            throw CmsException::pageNotFound('navigationId: ' . $navigationId);
         }
 
         $this->hook(new CmsPageLoadedHook($page, $salesChannelContext));
@@ -88,7 +110,12 @@ class CmsController extends StorefrontController
     /**
      * Route to load the listing filters
      */
-    #[Route(path: '/widgets/cms/navigation/{navigationId}/filter', name: 'frontend.cms.navigation.filter', defaults: ['XmlHttpRequest' => true, '_routeScope' => ['storefront'], '_httpCache' => true], methods: ['GET', 'POST'])]
+    #[Route(
+        path: '/widgets/cms/navigation/{navigationId}/filter',
+        name: 'frontend.cms.navigation.filter',
+        defaults: ['XmlHttpRequest' => true, '_routeScope' => ['storefront'], '_httpCache' => true],
+        methods: ['GET', 'POST']
+    )]
     public function filter(string $navigationId, Request $request, SalesChannelContext $context): Response
     {
         // Allows to fetch only aggregations over the gateway.
@@ -117,7 +144,12 @@ class CmsController extends StorefrontController
      * Route to load the cms element buy box product config which assigned to the provided product id.
      * Product id is required to load the slot config for the buy box
      */
-    #[Route(path: '/widgets/cms/buybox/{productId}/switch', name: 'frontend.cms.buybox.switch', defaults: ['productId' => null, 'XmlHttpRequest' => true, '_routeScope' => ['storefront'], '_httpCache' => true], methods: ['GET'])]
+    #[Route(
+        path: '/widgets/cms/buybox/{productId}/switch',
+        name: 'frontend.cms.buybox.switch',
+        defaults: ['productId' => null, 'XmlHttpRequest' => true, '_routeScope' => ['storefront'], '_httpCache' => true],
+        methods: ['GET']
+    )]
     public function switchBuyBoxVariant(string $productId, Request $request, SalesChannelContext $context): Response
     {
         /** @var string $elementId */
@@ -144,10 +176,7 @@ class CmsController extends StorefrontController
         $product = $result->getProduct();
         $configurator = $result->getConfigurator();
 
-        $request->request->set('parentId', $product->getParentId());
-        $request->request->set('productId', $product->getId());
-        $reviews = $this->productReviewLoader->load($request, $context);
-        $reviews->setParentId($product->getParentId() ?? $product->getId());
+        $reviews = $this->productReviewLoader->load($request, $context, $product->getId(), $product->getParentId());
 
         $event = new SwitchBuyBoxVariantEvent($elementId, $product, $configurator, $request, $context);
         $this->eventDispatcher->dispatch($event);
@@ -155,7 +184,7 @@ class CmsController extends StorefrontController
         $response = $this->renderStorefront('@Storefront/storefront/component/buy-widget/buy-widget.html.twig', [
             'product' => $product,
             'configuratorSettings' => $configurator,
-            'totalReviews' => $reviews->getTotalReviews(),
+            'totalReviews' => $reviews->getTotal(),
             'elementId' => $elementId,
         ]);
         $response->headers->set('x-robots-tag', 'noindex');

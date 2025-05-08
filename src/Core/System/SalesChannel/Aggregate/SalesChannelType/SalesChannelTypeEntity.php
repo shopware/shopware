@@ -9,56 +9,32 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\Aggregate\SalesChannelTypeTranslation\SalesChannelTypeTranslationCollection;
 use Shopware\Core\System\SalesChannel\SalesChannelCollection;
 
-#[Package('buyers-experience')]
+#[Package('discovery')]
 class SalesChannelTypeEntity extends Entity
 {
     use EntityCustomFieldsTrait;
     use EntityIdTrait;
 
-    /**
-     * @var string|null
-     */
-    protected $name;
+    protected ?string $name = null;
+
+    protected ?string $manufacturer = null;
+
+    protected ?string $description = null;
+
+    protected ?string $descriptionLong = null;
+
+    protected ?string $coverUrl = null;
+
+    protected ?string $iconName = null;
 
     /**
-     * @var string|null
+     * @var list<string>|null
      */
-    protected $manufacturer;
+    protected ?array $screenshotUrls = null;
 
-    /**
-     * @var string|null
-     */
-    protected $description;
+    protected ?SalesChannelCollection $salesChannels = null;
 
-    /**
-     * @var string|null
-     */
-    protected $descriptionLong;
-
-    /**
-     * @var string|null
-     */
-    protected $coverUrl;
-
-    /**
-     * @var string|null
-     */
-    protected $iconName;
-
-    /**
-     * @var array|null
-     */
-    protected $screenshotUrls;
-
-    /**
-     * @var SalesChannelCollection|null
-     */
-    protected $salesChannels;
-
-    /**
-     * @var SalesChannelTypeTranslationCollection|null
-     */
-    protected $translations;
+    protected ?SalesChannelTypeTranslationCollection $translations = null;
 
     public function getName(): ?string
     {
@@ -100,32 +76,58 @@ class SalesChannelTypeEntity extends Entity
         $this->descriptionLong = $descriptionLong;
     }
 
+    /**
+     * @deprecated tag:v6.8.0 - reason:return-type-change - return type will be nullable and condition will be removed
+     */
     public function getCoverUrl(): string
     {
+        if ($this->coverUrl === null) {
+            return '';
+        }
+
         return $this->coverUrl;
     }
 
-    public function setCoverUrl(string $coverUrl): void
+    public function setCoverUrl(?string $coverUrl): void
     {
         $this->coverUrl = $coverUrl;
     }
 
+    /**
+     * @deprecated tag:v6.8.0 - reason:return-type-change - return type will be nullable and condition will be removed
+     */
     public function getIconName(): string
     {
+        if ($this->iconName === null) {
+            return '';
+        }
+
         return $this->iconName;
     }
 
-    public function setIconName(string $iconName): void
+    public function setIconName(?string $iconName): void
     {
         $this->iconName = $iconName;
     }
 
+    /**
+     * @return list<string>
+     *
+     * @deprecated tag:v6.8.0 - reason:return-type-change - return type will be nullable and condition will be removed
+     */
     public function getScreenshotUrls(): array
     {
+        if ($this->screenshotUrls === null) {
+            return [];
+        }
+
         return $this->screenshotUrls;
     }
 
-    public function setScreenshotUrls(array $screenshotUrls): void
+    /**
+     * @param list<string>|null $screenshotUrls
+     */
+    public function setScreenshotUrls(?array $screenshotUrls): void
     {
         $this->screenshotUrls = $screenshotUrls;
     }

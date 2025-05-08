@@ -1,18 +1,17 @@
 import template from './sw-order-document-settings-storno-modal.html.twig';
 
 /**
- * @package checkout
+ * @sw-package checkout
  */
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default {
     template,
 
-    compatConfig: Shopware.compatConfig,
-
-    inject: ['feature'],
-
-    emits: ['loading-document', 'loading-preview'],
+    emits: [
+        'loading-document',
+        'loading-preview',
+    ],
 
     props: {
         order: {
@@ -49,6 +48,25 @@ export default {
                 return document.documentType.technicalName === 'invoice';
             });
         },
+
+        documentNumber: {
+            get() {
+                return String(this.documentConfig.documentNumber);
+            },
+            set(value) {
+                this.documentConfig.documentNumber = Number(value);
+            },
+        },
+
+        invoiceOptions() {
+            return this.invoices.map((item, index) => {
+                return {
+                    id: index,
+                    value: item.config.custom.invoiceNumber,
+                    label: `${item.config.custom.invoiceNumber}`,
+                };
+            });
+        },
     },
 
     created() {
@@ -57,15 +75,13 @@ export default {
 
     methods: {
         createdComponent() {
-            this.numberRangeService.reserve(
-                `document_${this.currentDocumentType.technicalName}`,
-                this.order.salesChannelId,
-                true,
-            ).then((response) => {
-                this.documentConfig.documentNumber = response.number;
-                this.documentNumberPreview = this.documentConfig.documentNumber;
-                this.documentConfig.documentDate = (new Date()).toISOString();
-            });
+            this.numberRangeService
+                .reserve(`document_${this.currentDocumentType.technicalName}`, this.order.salesChannelId, true)
+                .then((response) => {
+                    this.documentConfig.documentNumber = response.number;
+                    this.documentNumberPreview = this.documentConfig.documentNumber;
+                    this.documentConfig.documentDate = new Date().toISOString();
+                });
         },
 
         onCreateDocument(additionalAction = false) {
@@ -76,30 +92,28 @@ export default {
             })[0];
 
             if (this.documentNumberPreview === this.documentConfig.documentNumber) {
-                this.numberRangeService.reserve(
-                    `document_${this.currentDocumentType.technicalName}`,
-                    this.order.salesChannelId,
-                    false,
-                ).then((response) => {
-                    this.documentConfig.custom.stornoNumber = response.number;
-                    if (response.number !== this.documentConfig.documentNumber) {
-                        this.createNotificationInfo({
-                            message: this.$tc('sw-order.documentCard.info.DOCUMENT__NUMBER_WAS_CHANGED'),
-                        });
-                    }
-                    this.documentConfig.documentNumber = response.number;
-                    this.callDocumentCreate(additionalAction, selectedInvoice.id);
-                });
+                this.numberRangeService
+                    .reserve(`document_${this.currentDocumentType.technicalName}`, this.order.salesChannelId, false)
+                    .then((response) => {
+                        this.documentConfig.custom.stornoNumber = response.number;
+                        if (response.number !== this.documentConfig.documentNumber) {
+                            this.createNotificationInfo({
+                                message: this.$tc('sw-order.documentCard.info.DOCUMENT__NUMBER_WAS_CHANGED'),
+                            });
+                        }
+                        this.documentConfig.documentNumber = response.number;
+                        this.callDocumentCreate(additionalAction, selectedInvoice.id);
+                    });
             } else {
                 this.documentConfig.custom.stornoNumber = this.documentConfig.documentNumber;
                 this.callDocumentCreate(additionalAction, selectedInvoice.id);
             }
         },
 
-        onPreview() {
+        onPreview(fileType = 'pdf') {
             this.$emit('loading-preview');
             this.documentConfig.custom.stornoNumber = this.documentConfig.documentNumber;
-            this.$super('onPreview');
+            this.$super('onPreview', fileType);
         },
     },
 };

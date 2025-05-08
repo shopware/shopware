@@ -11,7 +11,10 @@ use Shopware\Core\Framework\Rule\RuleComparison;
 use Shopware\Core\Framework\Rule\RuleConstraints;
 use Shopware\Core\Framework\Rule\RuleScope;
 
-#[Package('services-settings')]
+/**
+ * @final
+ */
+#[Package('fundamentals@after-sales')]
 class GoodsPriceRule extends FilterRule
 {
     final public const RULE_NAME = 'cartGoodsPrice';
@@ -34,11 +37,13 @@ class GoodsPriceRule extends FilterRule
      */
     public function match(RuleScope $scope): bool
     {
-        if (!$scope instanceof CartRuleScope) {
+        if (!$scope instanceof CartRuleScope && !$scope instanceof LineItemScope) {
             return false;
         }
 
-        $goods = new LineItemCollection($scope->getCart()->getLineItems()->filterGoodsFlat());
+        $goods = $scope instanceof CartRuleScope
+            ? new LineItemCollection($scope->getCart()->getLineItems()->filterGoodsFlat())
+            : new LineItemCollection($scope->getLineItem()->isGood() ? [$scope->getLineItem()] : []);
         $filter = $this->filter;
         if ($filter !== null) {
             $context = $scope->getSalesChannelContext();

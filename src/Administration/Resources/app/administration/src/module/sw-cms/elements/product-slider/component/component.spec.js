@@ -1,5 +1,5 @@
 /**
- * @package buyers-experience
+ * @sw-package discovery
  */
 import { mount } from '@vue/test-utils';
 import { setupCmsEnvironment } from 'src/module/sw-cms/test-utils';
@@ -7,9 +7,7 @@ import { setupCmsEnvironment } from 'src/module/sw-cms/test-utils';
 async function createWrapper() {
     return mount(await wrapTestComponent('sw-cms-el-product-slider', { sync: true }), {
         props: {
-            element: {
-
-            },
+            element: {},
         },
         global: {
             provide: {
@@ -17,7 +15,6 @@ async function createWrapper() {
             },
             stubs: {
                 'sw-cms-el-product-box': await wrapTestComponent('sw-cms-el-product-box'),
-                'sw-icon': true,
             },
         },
     });

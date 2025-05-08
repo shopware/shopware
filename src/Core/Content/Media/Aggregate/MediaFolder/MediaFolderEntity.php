@@ -10,71 +10,35 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityCustomFieldsTrait;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityIdTrait;
 use Shopware\Core\Framework\Log\Package;
 
-#[Package('buyers-experience')]
+#[Package('discovery')]
 class MediaFolderEntity extends Entity
 {
     use EntityCustomFieldsTrait;
     use EntityIdTrait;
 
-    /**
-     * @var string
-     */
-    protected $name;
+    protected string $name;
 
-    /**
-     * @var string|null
-     */
-    protected $parentId;
+    protected ?string $parentId = null;
 
-    /**
-     * @var MediaFolderEntity|null
-     */
-    protected $parent;
+    protected ?MediaFolderEntity $parent = null;
 
-    /**
-     * @var int
-     */
-    protected $childCount;
+    protected int $childCount;
 
-    /**
-     * @var MediaCollection
-     */
-    protected $media;
+    protected ?MediaCollection $media = null;
 
-    /**
-     * @var string|null
-     */
-    protected $configurationId;
+    protected ?string $configurationId = null;
 
-    /**
-     * @var MediaFolderConfigurationEntity|null
-     */
-    protected $configuration;
+    protected ?MediaFolderConfigurationEntity $configuration = null;
 
-    /**
-     * @var bool
-     */
-    protected $useParentConfiguration;
+    protected bool $useParentConfiguration;
 
-    /**
-     * @var MediaFolderCollection|null
-     */
-    protected $children;
+    protected ?MediaFolderCollection $children = null;
 
-    /**
-     * @var MediaDefaultFolderEntity|null
-     */
-    protected $defaultFolder;
+    protected ?MediaDefaultFolderEntity $defaultFolder = null;
 
-    /**
-     * @var string|null
-     */
-    protected $defaultFolderId;
+    protected ?string $defaultFolderId = null;
 
-    /**
-     * @var string|null
-     */
-    protected $path;
+    protected ?string $path = null;
 
     public function getName(): string
     {
@@ -116,8 +80,15 @@ class MediaFolderEntity extends Entity
         $this->childCount = $childCount;
     }
 
+    /**
+     * @deprecated tag:v6.8.0 - reason:return-type-change - return type will be nullable and condition will be removed
+     */
     public function getMedia(): MediaCollection
     {
+        if ($this->media === null) {
+            $this->media = new MediaCollection();
+        }
+
         return $this->media;
     }
 

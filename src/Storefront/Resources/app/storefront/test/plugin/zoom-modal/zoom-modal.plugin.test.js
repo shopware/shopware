@@ -7,10 +7,11 @@ import GallerySliderPlugin from 'src/plugin/slider/gallery-slider.plugin';
 describe('ZoomModalPlugin tests', () => {
     let zoomModalPlugin = undefined;
     let gallerySliderPlugin = undefined;
+    let parentSliderPlugin = undefined;
 
     beforeEach(() => {
         document.body.innerHTML = `
-            <div class="js-gallery-zoom-modal-container">
+            <div class="js-gallery-zoom-modal-container" data-gallery-slider="true">
                 <div data-zoom-modal="true">
 
                     <div id="gallery-slider" class="gallery-slider-container">
@@ -68,13 +69,15 @@ describe('ZoomModalPlugin tests', () => {
             sm: 576,
             xl: 1200,
             xs: 0,
-        }
+        };
 
         const element = document.querySelector('[data-zoom-modal]');
         const modalGalleryElement = document.querySelector('[data-modal-gallery-slider]');
+        const parentSliderElement = document.querySelector('[data-gallery-slider]');
 
         zoomModalPlugin = new ZoomModalPlugin(element);
         gallerySliderPlugin = new GallerySliderPlugin(modalGalleryElement);
+        parentSliderPlugin = new GallerySliderPlugin(parentSliderElement);
 
         gallerySliderPlugin._slider = {
             goTo: jest.fn(),
@@ -82,9 +85,19 @@ describe('ZoomModalPlugin tests', () => {
                 off: jest.fn(),
                 on: jest.fn,
             },
-        }
+        };
+
+        parentSliderPlugin.getCurrentSliderIndex = jest.fn();
+
+        // Access the parent slider plugin instance
+        window.PluginManager.getPluginInstanceFromElement = (element, name) => {
+            if (name === 'GallerySlider' && element === parentSliderElement) {
+                return parentSliderPlugin;
+            }
+        };
 
         zoomModalPlugin.gallerySliderPlugin = gallerySliderPlugin;
+        zoomModalPlugin._parentSliderPlugin = parentSliderPlugin;
     });
 
     afterEach(() => {
@@ -120,6 +133,9 @@ describe('ZoomModalPlugin tests', () => {
 
         const getParentSliderIndexSpy = jest.spyOn(zoomModalPlugin, '_getParentSliderIndex');
 
+        // Mock the current index of the parent GallerySlider, so the ZoomModal attempts to slide to the correct image when opening.
+        zoomModalPlugin._parentSliderPlugin.getCurrentSliderIndex.mockReturnValue(activeIndex);
+
         // Click on image trigger element to open the zoom modal
         triggerImgElement.dispatchEvent(new Event('click'));
 
@@ -130,7 +146,7 @@ describe('ZoomModalPlugin tests', () => {
         expect(document.querySelector('.modal-backdrop.show')).toBeTruthy();
 
         expect(getParentSliderIndexSpy).toHaveBeenCalled();
-        expect(zoomModalPlugin.gallerySliderPlugin._slider.goTo).toHaveBeenCalledWith(activeIndex - 1);
+        expect(zoomModalPlugin.gallerySliderPlugin._slider.goTo).toHaveBeenCalledWith(activeIndex);
         expect(window.focusHandler.setFocus).toHaveBeenCalledWith(activeModalImgElement);
     });
 
@@ -146,6 +162,9 @@ describe('ZoomModalPlugin tests', () => {
 
         const getParentSliderIndexSpy = jest.spyOn(zoomModalPlugin, '_getParentSliderIndex');
 
+        // Mock the current index of the parent GallerySlider, so the ZoomModal attempts to slide to the correct image when opening.
+        zoomModalPlugin._parentSliderPlugin.getCurrentSliderIndex.mockReturnValue(activeIndex);
+
         const keydownEvent = new Event('keydown');
         keydownEvent.key = 'Enter';
 
@@ -158,7 +177,7 @@ describe('ZoomModalPlugin tests', () => {
         expect(document.querySelector('.modal-backdrop.show')).toBeTruthy();
 
         expect(getParentSliderIndexSpy).toHaveBeenCalled();
-        expect(zoomModalPlugin.gallerySliderPlugin._slider.goTo).toHaveBeenCalledWith(activeIndex - 1);
+        expect(zoomModalPlugin.gallerySliderPlugin._slider.goTo).toHaveBeenCalledWith(activeIndex);
         expect(window.focusHandler.setFocus).toHaveBeenCalledWith(activeModalImgElement);
     });
 

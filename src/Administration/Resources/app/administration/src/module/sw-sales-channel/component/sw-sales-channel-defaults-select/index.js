@@ -1,5 +1,5 @@
 /**
- * @package buyers-experience
+ * @sw-package discovery
  */
 
 import './sw-sales-channel-defaults-select.scss';
@@ -10,8 +10,6 @@ const { Mixin } = Shopware;
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default {
     template,
-
-    compatConfig: Shopware.compatConfig,
 
     inject: ['feature'],
 
@@ -132,7 +130,7 @@ export default {
         },
 
         defaultsValueError() {
-            return Shopware.State.getters['error/getApiError'](this.salesChannel, this.defaultPropertyName);
+            return Shopware.Store.get('error').getApiError(this.salesChannel, this.defaultPropertyName);
         },
 
         labelProperty() {
@@ -184,8 +182,10 @@ export default {
                     this.createNotificationError({
                         message: this.$tc(
                             'sw-sales-channel.sw-sales-channel-defaults-select.messageError',
+                            {
+                                url: domain.url,
+                            },
                             0,
-                            { url: domain.url },
                         ),
                     });
                     return;
@@ -199,9 +199,11 @@ export default {
         },
 
         getDomainUsingValue(item) {
-            return this.salesChannel.domains.find((domain) => {
-                return domain[this.propertyNameInDomain] === item.id;
-            }) || null;
+            return (
+                this.salesChannel.domains.find((domain) => {
+                    return domain[this.propertyNameInDomain] === item.id;
+                }) || null
+            );
         },
 
         updateDefault(defaultId, defaultEntity) {

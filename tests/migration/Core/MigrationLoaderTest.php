@@ -5,9 +5,9 @@ namespace Shopware\Tests\Migration\Core;
 use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
-use Shopware\Core\Framework\Migration\Exception\InvalidMigrationClassException;
 use Shopware\Core\Framework\Migration\Exception\UnknownMigrationSourceException;
 use Shopware\Core\Framework\Migration\MigrationCollectionLoader;
+use Shopware\Core\Framework\Migration\MigrationException;
 use Shopware\Core\Framework\Migration\MigrationStep;
 use Shopware\Core\Framework\Test\Migration\MigrationTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
@@ -27,7 +27,7 @@ class MigrationLoaderTest extends TestCase
 
     protected function setUp(): void
     {
-        $container = $this->getContainer();
+        $container = static::getContainer();
 
         $this->connection = $container->get(Connection::class);
         $this->loader = $container->get(MigrationCollectionLoader::class);
@@ -102,11 +102,13 @@ class MigrationLoaderTest extends TestCase
     {
         $collection = $this->loader->collect('_test_migrations_invalid_namespace');
 
-        $this->expectException(InvalidMigrationClassException::class);
+        $this->expectException(MigrationException::class);
+        $this->expectExceptionMessageMatches('/Unable to load migration Shopware\\\\Core\\\\Framework\\\\Test\\\\Migration\\\\_test_migrations_invalid_namespace\\\\Migration1WithoutANamespace at path/');
+
         $collection->getMigrationSteps();
     }
 
-    public function testNullcollection(): void
+    public function testNullCollection(): void
     {
         $nullCollection = $this->loader->collect('null');
 

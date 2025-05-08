@@ -3,12 +3,12 @@
 namespace Shopware\Tests\Bench;
 
 use Doctrine\DBAL\Connection;
-use Shopware\Core\Framework\Test\IdsCollection;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelLifecycleManager;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\Test\FixtureLoader;
+use Shopware\Core\Test\Stub\Framework\IdsCollection;
 
 /**
  * @internal - only for performance benchmarks
@@ -57,6 +57,7 @@ CREATE TABLE IF NOT EXISTS `php_bench` (
                 ->fetchOne('SELECT ids FROM php_bench WHERE `key` = :key', ['key' => 'ids']);
 
             self::$ids = \unserialize($ids);
+            \assert(self::$ids instanceof IdsCollection);
         }
 
         return self::$ids;

@@ -9,7 +9,7 @@ use Shopware\Core\Framework\Event\ShopwareSalesChannelEvent;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
-#[Package('buyers-experience')]
+#[Package('discovery')]
 class SalesChannelEntityAggregationResultLoadedEvent extends EntityAggregationResultLoadedEvent implements ShopwareSalesChannelEvent
 {
     private readonly SalesChannelContext $salesChannelContext;

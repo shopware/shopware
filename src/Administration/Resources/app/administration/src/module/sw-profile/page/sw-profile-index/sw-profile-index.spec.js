@@ -1,5 +1,5 @@
 /**
- * @package services-settings
+ * @sw-package fundamentals@framework
  */
 import { mount } from '@vue/test-utils';
 import EntityCollection from 'src/core/data/entity-collection.data';
@@ -15,7 +15,6 @@ async function createWrapper(privileges = []) {
                 'sw-search-bar': true,
                 'sw-notification-center': true,
                 'sw-language-switch': true,
-                'sw-button': true,
                 'sw-button-process': true,
                 'sw-card-view': true,
                 'sw-language-info': true,
@@ -45,16 +44,15 @@ async function createWrapper(privileges = []) {
                         }
 
                         return {
-                            get: () => Promise.resolve({ id: '87923', localeId: '1337' }),
-                            search: () => Promise.resolve(new EntityCollection(
-                                '',
-                                '',
-                                Shopware.Context.api,
-                                null,
-                                [],
-                                0,
-                            )),
-                            getSyncChangeset: () => ({ changeset: [{ changes: { id: '1337' } }] }),
+                            get: () =>
+                                Promise.resolve({
+                                    id: '87923',
+                                    localeId: '1337',
+                                }),
+                            search: () => Promise.resolve(new EntityCollection('', '', Shopware.Context.api, null, [], 0)),
+                            getSyncChangeset: () => ({
+                                changeset: [{ changes: { id: '1337' } }],
+                            }),
                         };
                     },
                 },
@@ -65,10 +63,8 @@ async function createWrapper(privileges = []) {
                 },
                 mediaDefaultFolderService: {},
                 searchPreferencesService: {
-                    getDefaultSearchPreferences: () => {
-                    },
-                    getUserSearchPreferences: () => {
-                    },
+                    getDefaultSearchPreferences: () => {},
+                    getUserSearchPreferences: () => {},
                     createUserSearchPreferences: () => {
                         return {
                             key: 'search.preferences',
@@ -77,8 +73,7 @@ async function createWrapper(privileges = []) {
                     },
                 },
                 searchRankingService: {
-                    clearCacheUserSearchConfiguration: () => {
-                    },
+                    clearCacheUserSearchConfiguration: () => {},
                 },
                 userConfigService: {
                     upsert: () => {

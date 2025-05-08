@@ -7,6 +7,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\AttributeEntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\AttributeMappingDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\AttributeTranslationDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
+use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityLoadedEventFactory;
 use Shopware\Core\Framework\DataAbstractionLayer\Read\EntityReaderInterface;
@@ -20,7 +21,7 @@ use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\DependencyInjection\Definition;
 use Symfony\Component\DependencyInjection\Reference;
 
-#[Package('core')]
+#[Package('framework')]
 class AttributeEntityCompilerPass implements CompilerPassInterface
 {
     public function __construct(private readonly AttributeEntityCompiler $compiler)
@@ -32,7 +33,7 @@ class AttributeEntityCompilerPass implements CompilerPassInterface
         $services = $container->findTaggedServiceIds('shopware.entity');
 
         foreach ($services as $class => $_) {
-            /** @var class-string<object> $class */
+            /** @var class-string<Entity> $class */
             $definitions = $this->compiler->compile($class);
 
             foreach ($definitions as $definition) {
@@ -51,6 +52,24 @@ class AttributeEntityCompilerPass implements CompilerPassInterface
                 }
             }
         }
+    }
+
+    /**
+     * @param array<string, mixed> $meta
+     */
+    public function definition(array $meta, ContainerBuilder $container, string $entity): void
+    {
+        $definition = new Definition(AttributeEntityDefinition::class);
+        $definition->addArgument($meta);
+        $definition->setPublic(true);
+        $definition->addTag('shopware.entity.definition');
+        $container->setDefinition($entity . '.definition', $definition);
+
+        $registry = $container->getDefinition(DefinitionInstanceRegistry::class);
+        $salesChannelRegistry = $container->getDefinition(SalesChannelDefinitionInstanceRegistry::class);
+
+        $registry->addMethodCall('register', [new Reference($entity . '.definition'), $entity . '.definition']);
+        $salesChannelRegistry->addMethodCall('register', [new Reference($entity . '.definition'), 'sales_channel_definition.' . $entity . '.definition']);
     }
 
     private function repository(ContainerBuilder $container, string $entity): void
@@ -75,23 +94,6 @@ class AttributeEntityCompilerPass implements CompilerPassInterface
     /**
      * @param array<string, mixed> $meta
      */
-    public function definition(array $meta, ContainerBuilder $container, string $entity): void
-    {
-        $definition = new Definition(AttributeEntityDefinition::class);
-        $definition->addArgument($meta);
-        $definition->setPublic(true);
-        $container->setDefinition($entity . '.definition', $definition);
-
-        $registry = $container->getDefinition(DefinitionInstanceRegistry::class);
-        $salesChannelRegistry = $container->getDefinition(SalesChannelDefinitionInstanceRegistry::class);
-
-        $registry->addMethodCall('register', [new Reference($entity . '.definition'), $entity . '.definition']);
-        $salesChannelRegistry->addMethodCall('register', [new Reference($entity . '.definition'), 'sales_channel_definition.' . $entity . '.definition']);
-    }
-
-    /**
-     * @param array<string, mixed> $meta
-     */
     private function translation(array $meta, ContainerBuilder $container, string $entity): void
     {
         if (!$this->hasTranslation($meta)) {
@@ -101,6 +103,7 @@ class AttributeEntityCompilerPass implements CompilerPassInterface
         $definition = new Definition(AttributeTranslationDefinition::class);
         $definition->addArgument($meta);
         $definition->setPublic(true);
+        $definition->addTag('shopware.entity.definition');
         $container->setDefinition($entity . '_translation.definition', $definition);
 
         $registry = $container->getDefinition(DefinitionInstanceRegistry::class);
@@ -135,6 +138,7 @@ class AttributeEntityCompilerPass implements CompilerPassInterface
         $definition = new Definition(AttributeMappingDefinition::class);
         $definition->addArgument($meta);
         $definition->setPublic(true);
+        $definition->addTag('shopware.entity.definition');
         $container->setDefinition($meta['entity_name'] . '.definition', $definition);
 
         $registry = $container->getDefinition(DefinitionInstanceRegistry::class);

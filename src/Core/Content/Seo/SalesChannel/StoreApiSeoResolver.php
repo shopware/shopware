@@ -31,7 +31,7 @@ use Symfony\Component\HttpKernel\KernelEvents;
 /**
  * @internal
  */
-#[Package('buyers-experience')]
+#[Package('inventory')]
 class StoreApiSeoResolver implements EventSubscriberInterface
 {
     /**
@@ -96,6 +96,10 @@ class StoreApiSeoResolver implements EventSubscriberInterface
             foreach ($struct->getEntities() as $entity) {
                 $this->findStruct($data, $entity);
             }
+
+            foreach ($struct->getExtensions() as $extension) {
+                $this->findStruct($data, $extension);
+            }
         }
 
         if ($struct instanceof Collection) {
@@ -117,7 +121,7 @@ class StoreApiSeoResolver implements EventSubscriberInterface
         }
 
         foreach ($struct->getVars() as $item) {
-            if ($item instanceof Collection) {
+            if ($item instanceof Collection || \is_array($item)) {
                 foreach ($item as $collectionItem) {
                     if ($collectionItem instanceof Struct) {
                         $this->findStruct($data, $collectionItem);
@@ -146,7 +150,7 @@ class StoreApiSeoResolver implements EventSubscriberInterface
             $criteria->addFilter(new EqualsFilter('isCanonical', true));
             $criteria->addFilter(new EqualsAnyFilter('routeName', $routes));
             $criteria->addFilter(new EqualsAnyFilter('foreignKey', $ids));
-            $criteria->addFilter(new EqualsFilter('languageId', $context->getContext()->getLanguageId()));
+            $criteria->addFilter(new EqualsFilter('languageId', $context->getLanguageId()));
             $criteria->addSorting(new FieldSorting('salesChannelId'));
 
             /** @var SeoUrlEntity $url */

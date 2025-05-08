@@ -71,12 +71,12 @@ class RegisterRouteTest extends TestCase
         $customerEntity->setDoubleOptInRegistration(false);
         $customerEntity->setId('customer-1');
         $customerEntity->setGuest(false);
-        $result->method('first')->willReturn($customerEntity);
+        $result->method('getEntities')->willReturn(new CustomerCollection([$customerEntity]));
 
         $customerRepository = $this->createMock(EntityRepository::class);
         $customerRepository->method('search')->willReturn($result);
         $customerRepository
-            ->expects(static::once())
+            ->expects($this->once())
             ->method('create')
             ->willReturnCallback(function (array $create) {
                 static::assertCount(1, $create);
@@ -356,12 +356,12 @@ class RegisterRouteTest extends TestCase
         $customerEntity->setDoubleOptInRegistration(false);
         $customerEntity->setId('customer-1');
         $customerEntity->setGuest(false);
-        $result->method('first')->willReturn($customerEntity);
+        $result->method('getEntities')->willReturn(new CustomerCollection([$customerEntity]));
 
         $customerRepository = $this->createMock(EntityRepository::class);
         $customerRepository->method('search')->willReturn($result);
         $customerRepository
-            ->expects(static::once())
+            ->expects($this->once())
             ->method('create')
             ->willReturnCallback(function (array $create) {
                 static::assertSame(['mapped' => 1], $create[0]['customFields']);
@@ -423,7 +423,7 @@ class RegisterRouteTest extends TestCase
         $customerEntity->setDoubleOptInRegistration(false);
         $customerEntity->setId('customer-1');
         $customerEntity->setGuest(false);
-        $result->method('first')->willReturn($customerEntity);
+        $result->method('getEntities')->willReturn(new CustomerCollection([$customerEntity]));
 
         $salutationId = Uuid::randomHex();
         /** @var StaticEntityRepository<SalutationCollection> $salutationRepository */
@@ -432,7 +432,7 @@ class RegisterRouteTest extends TestCase
         $customerRepository = $this->createMock(EntityRepository::class);
         $customerRepository->method('search')->willReturn($result);
         $customerRepository
-            ->expects(static::once())
+            ->expects($this->once())
             ->method('create')
             ->willReturnCallback(function (array $create) use ($salutationId) {
                 static::assertCount(1, $create);
@@ -498,7 +498,7 @@ class RegisterRouteTest extends TestCase
 
         $eventDispatcher = $this->createMock(EventDispatcher::class);
         $eventDispatcher
-            ->expects(static::atLeast(1))
+            ->expects($this->atLeast(1))
             ->method('dispatch')
             ->with(
                 static::callback(function (Event $event): bool {
@@ -572,7 +572,7 @@ class RegisterRouteTest extends TestCase
 
         $eventDispatcher = $this->createMock(EventDispatcher::class);
         $eventDispatcher
-            ->expects(static::atLeast(1))
+            ->expects($this->atLeast(1))
             ->method('dispatch')
             ->with(
                 static::callback(function ($event): bool {
@@ -675,6 +675,7 @@ class RegisterRouteTest extends TestCase
             ],
             'accountType' => CustomerEntity::ACCOUNT_TYPE_BUSINESS,
             'shippingAddress' => [
+                'countryId' => $countryId,
                 'id' => Uuid::randomHex(),
                 'accountType' => CustomerEntity::ACCOUNT_TYPE_BUSINESS,
             ],
@@ -687,7 +688,7 @@ class RegisterRouteTest extends TestCase
 
         $dataValidator = $this->createMock(DataValidator::class);
         $dataValidator
-            ->expects(static::once())
+            ->expects($this->once())
             ->method('getViolations')
             ->with($data, static::callback(function (DataValidationDefinition $definition) {
                 $subs = $definition->getSubDefinitions();
@@ -798,7 +799,7 @@ class RegisterRouteTest extends TestCase
 
         $dataValidator = $this->createMock(DataValidator::class);
         $dataValidator
-            ->expects(static::once())
+            ->expects($this->once())
             ->method('getViolations')
             ->with($data, static::callback(function (DataValidationDefinition $definition) {
                 $subs = $definition->getSubDefinitions();

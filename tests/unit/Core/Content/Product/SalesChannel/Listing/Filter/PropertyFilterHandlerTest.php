@@ -13,6 +13,7 @@ use Shopware\Core\Content\Product\SalesChannel\Listing\ProductListingResult;
 use Shopware\Core\Content\Property\Aggregate\PropertyGroupOption\PropertyGroupOptionCollection;
 use Shopware\Core\Content\Property\Aggregate\PropertyGroupOption\PropertyGroupOptionDefinition;
 use Shopware\Core\Content\Property\Aggregate\PropertyGroupOption\PropertyGroupOptionEntity;
+use Shopware\Core\Content\Property\PropertyGroupDefinition;
 use Shopware\Core\Content\Property\PropertyGroupEntity;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
@@ -28,10 +29,10 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\AndFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsAnyFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\OrFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\EntityWriteGatewayInterface;
-use Shopware\Core\Framework\Test\IdsCollection;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\Test\Stub\DataAbstractionLayer\StaticDefinitionInstanceRegistry;
 use Shopware\Core\Test\Stub\DataAbstractionLayer\StaticEntityRepository;
+use Shopware\Core\Test\Stub\Framework\IdsCollection;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
 
@@ -48,7 +49,7 @@ class PropertyFilterHandlerTest extends TestCase
         $context = $this->createMock(SalesChannelContext::class);
         $connection = $this->createMock(Connection::class);
 
-        $connection->expects(static::never())
+        $connection->expects($this->never())
             ->method('fetchAllAssociative');
 
         $handler = new PropertyListingFilterHandler(
@@ -68,7 +69,7 @@ class PropertyFilterHandlerTest extends TestCase
         $context = $this->createMock(SalesChannelContext::class);
         $connection = $this->createMock(Connection::class);
 
-        $connection->expects(static::never())
+        $connection->expects($this->never())
             ->method('fetchAllAssociative');
 
         $handler = new PropertyListingFilterHandler(
@@ -109,7 +110,7 @@ class PropertyFilterHandlerTest extends TestCase
 
         $connection = $this->createMock(Connection::class);
 
-        $connection->expects(static::once())
+        $connection->expects($this->once())
             ->method('fetchAllAssociative')
             ->willReturn($mapping);
 
@@ -175,7 +176,7 @@ class PropertyFilterHandlerTest extends TestCase
         $context = $this->createMock(SalesChannelContext::class);
         $connection = $this->createMock(Connection::class);
 
-        $connection->expects(static::never())
+        $connection->expects($this->never())
             ->method('fetchAllAssociative');
 
         $handler = new PropertyListingFilterHandler(
@@ -236,6 +237,7 @@ class PropertyFilterHandlerTest extends TestCase
                         'position' => 1,
                         'group' => (new PropertyGroupEntity())->assign([
                             'id' => 'color',
+                            'sortingType' => PropertyGroupDefinition::SORTING_TYPE_POSITION,
                             'position' => 1,
                         ]),
                     ]),
@@ -245,6 +247,7 @@ class PropertyFilterHandlerTest extends TestCase
                         'position' => 2,
                         'group' => (new PropertyGroupEntity())->assign([
                             'id' => 'color',
+                            'sortingType' => PropertyGroupDefinition::SORTING_TYPE_POSITION,
                             'position' => 2,
                         ]),
                     ]),
@@ -254,6 +257,7 @@ class PropertyFilterHandlerTest extends TestCase
                         'position' => 2,
                         'group' => (new PropertyGroupEntity())->assign([
                             'id' => 'size',
+                            'sortingType' => PropertyGroupDefinition::SORTING_TYPE_POSITION,
                             'position' => 1,
                         ]),
                     ]),
@@ -263,6 +267,7 @@ class PropertyFilterHandlerTest extends TestCase
                         'position' => 1,
                         'group' => (new PropertyGroupEntity())->assign([
                             'id' => 'size',
+                            'sortingType' => PropertyGroupDefinition::SORTING_TYPE_POSITION,
                             'position' => 1,
                         ]),
                     ]),

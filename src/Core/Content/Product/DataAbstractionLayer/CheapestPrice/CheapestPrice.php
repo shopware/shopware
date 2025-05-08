@@ -7,48 +7,24 @@ use Shopware\Core\Framework\DataAbstractionLayer\Pricing\PriceCollection;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Struct\Struct;
 
-#[Package('core')]
+#[Package('framework')]
 class CheapestPrice extends Struct
 {
-    /**
-     * @var bool
-     */
-    protected $hasRange;
+    protected bool $hasRange;
 
-    /**
-     * @var string
-     */
-    protected $variantId;
+    protected string $variantId;
 
-    /**
-     * @var string
-     */
-    protected $parentId;
+    protected string $parentId;
 
-    /**
-     * @var string|null
-     */
-    protected $ruleId;
+    protected ?string $ruleId = null;
 
-    /**
-     * @var float|null
-     */
-    protected $purchase;
+    protected ?float $purchase = null;
 
-    /**
-     * @var float|null
-     */
-    protected $reference;
+    protected ?float $reference = null;
 
-    /**
-     * @var string|null
-     */
-    protected $unitId;
+    protected ?string $unitId = null;
 
-    /**
-     * @var PriceCollection
-     */
-    protected $price;
+    protected PriceCollection $price;
 
     public function getCurrencyPrice(string $currencyId): ?Price
     {

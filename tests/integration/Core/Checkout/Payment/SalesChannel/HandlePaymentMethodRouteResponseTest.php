@@ -7,8 +7,11 @@ use Shopware\Core\Checkout\Cart\Price\Struct\CalculatedPrice;
 use Shopware\Core\Checkout\Cart\Price\Struct\CartPrice;
 use Shopware\Core\Checkout\Cart\Tax\Struct\CalculatedTaxCollection;
 use Shopware\Core\Checkout\Cart\Tax\Struct\TaxRuleCollection;
+use Shopware\Core\Checkout\Order\Aggregate\OrderTransaction\OrderTransactionCollection;
 use Shopware\Core\Checkout\Order\Aggregate\OrderTransaction\OrderTransactionStates;
+use Shopware\Core\Checkout\Order\OrderCollection;
 use Shopware\Core\Checkout\Order\OrderStates;
+use Shopware\Core\Checkout\Payment\PaymentMethodCollection;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
@@ -16,10 +19,10 @@ use Shopware\Core\Framework\DataAbstractionLayer\Pricing\CashRoundingConfig;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\SalesChannelApiTestBehaviour;
-use Shopware\Core\Framework\Test\TestDataCollection;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\StateMachine\Loader\InitialStateIdLoader;
 use Shopware\Core\Test\Integration\PaymentHandler\TestPaymentHandler;
+use Shopware\Core\Test\Stub\Framework\IdsCollection;
 use Shopware\Core\Test\TestDefaults;
 use Symfony\Bundle\FrameworkBundle\KernelBrowser;
 
@@ -34,25 +37,34 @@ class HandlePaymentMethodRouteResponseTest extends TestCase
 
     private KernelBrowser $browser;
 
+    /**
+     * @var EntityRepository<OrderCollection>
+     */
     private EntityRepository $orderRepository;
 
+    /**
+     * @var EntityRepository<OrderTransactionCollection>
+     */
     private EntityRepository $orderTransactionRepository;
 
+    /**
+     * @var EntityRepository<PaymentMethodCollection>
+     */
     private EntityRepository $paymentMethodRepository;
 
-    private TestDataCollection $ids;
+    private IdsCollection $ids;
 
     protected function setUp(): void
     {
-        $this->ids = new TestDataCollection();
+        $this->ids = new IdsCollection();
 
         $this->browser = $this->createCustomSalesChannelBrowser([
             'id' => $this->ids->create('sales-channel'),
         ]);
 
-        $this->orderRepository = $this->getContainer()->get('order.repository');
-        $this->orderTransactionRepository = $this->getContainer()->get('order_transaction.repository');
-        $this->paymentMethodRepository = $this->getContainer()->get('payment_method.repository');
+        $this->orderRepository = static::getContainer()->get('order.repository');
+        $this->orderTransactionRepository = static::getContainer()->get('order_transaction.repository');
+        $this->paymentMethodRepository = static::getContainer()->get('payment_method.repository');
     }
 
     public function testRequestNotLoggedIn(): void
@@ -122,7 +134,7 @@ class HandlePaymentMethodRouteResponseTest extends TestCase
             'id' => $id,
             'orderId' => $orderId,
             'paymentMethodId' => $paymentMethodId,
-            'stateId' => $this->getContainer()->get(InitialStateIdLoader::class)->get(OrderTransactionStates::STATE_MACHINE),
+            'stateId' => static::getContainer()->get(InitialStateIdLoader::class)->get(OrderTransactionStates::STATE_MACHINE),
             'amount' => new CalculatedPrice(100, 100, new CalculatedTaxCollection(), new TaxRuleCollection(), 1),
             'payload' => '{}',
         ];
@@ -139,7 +151,7 @@ class HandlePaymentMethodRouteResponseTest extends TestCase
     ): string {
         $orderId = Uuid::randomHex();
         $addressId = Uuid::randomHex();
-        $stateId = $this->getContainer()->get(InitialStateIdLoader::class)->get(OrderStates::STATE_MACHINE);
+        $stateId = static::getContainer()->get(InitialStateIdLoader::class)->get(OrderStates::STATE_MACHINE);
 
         $order = [
             'id' => $orderId,

@@ -11,35 +11,20 @@ use Shopware\Core\System\Language\LanguageEntity;
 /**
  * @internal
  */
-#[Package('buyers-experience')]
+#[Package('discovery')]
 class AppCmsBlockTranslationEntity extends Entity
 {
     use EntityIdTrait;
 
-    /**
-     * @var string
-     */
-    protected $label;
+    protected string $label;
 
-    /**
-     * @var string
-     */
-    protected $appCmsBlockId;
+    protected string $appCmsBlockId;
 
-    /**
-     * @var string
-     */
-    protected $languageId;
+    protected string $languageId;
 
-    /**
-     * @var AppCmsBlockEntity|null
-     */
-    protected $appCmsBlock;
+    protected ?AppCmsBlockEntity $appCmsBlock = null;
 
-    /**
-     * @var LanguageEntity|null
-     */
-    protected $language;
+    protected ?LanguageEntity $language = null;
 
     public function getLabel(): ?string
     {

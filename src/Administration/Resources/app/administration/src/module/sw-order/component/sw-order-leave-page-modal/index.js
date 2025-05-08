@@ -1,16 +1,17 @@
 import template from './sw-order-leave-page-modal.html.twig';
 
 /**
- * @package checkout
+ * @sw-package checkout
  */
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default {
     template,
 
-    compatConfig: Shopware.compatConfig,
-
-    emits: ['page-leave-confirm', 'page-leave-cancel'],
+    emits: [
+        'page-leave-confirm',
+        'page-leave-cancel',
+    ],
 
     methods: {
         onConfirm() {

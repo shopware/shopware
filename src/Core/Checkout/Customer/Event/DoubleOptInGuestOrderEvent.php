@@ -24,34 +24,13 @@ class DoubleOptInGuestOrderEvent extends Event implements SalesChannelAware, Cus
 {
     public const EVENT_NAME = 'checkout.customer.double_opt_in_guest_order';
 
-    /**
-     * @var CustomerEntity
-     */
-    private $customer;
-
-    /**
-     * @var SalesChannelContext
-     */
-    private $salesChannelContext;
-
-    /**
-     * @var string
-     */
-    private $confirmUrl;
-
-    /**
-     * @var MailRecipientStruct
-     */
-    private $mailRecipientStruct;
+    private ?MailRecipientStruct $mailRecipientStruct = null;
 
     public function __construct(
-        CustomerEntity $customer,
-        SalesChannelContext $salesChannelContext,
-        string $confirmUrl
+        private CustomerEntity $customer,
+        private SalesChannelContext $salesChannelContext,
+        private string $confirmUrl
     ) {
-        $this->customer = $customer;
-        $this->salesChannelContext = $salesChannelContext;
-        $this->confirmUrl = $confirmUrl;
     }
 
     public static function getAvailableData(): EventDataCollection
@@ -97,7 +76,7 @@ class DoubleOptInGuestOrderEvent extends Event implements SalesChannelAware, Cus
 
     public function getSalesChannelId(): string
     {
-        return $this->salesChannelContext->getSalesChannel()->getId();
+        return $this->salesChannelContext->getSalesChannelId();
     }
 
     public function getContext(): Context
@@ -107,6 +86,6 @@ class DoubleOptInGuestOrderEvent extends Event implements SalesChannelAware, Cus
 
     public function getCustomerId(): string
     {
-        return $this->getCustomer()->getId();
+        return $this->customer->getId();
     }
 }

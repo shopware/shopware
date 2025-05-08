@@ -10,7 +10,7 @@
     },
     "types": [
       "vite/client",
-      "@types/webpack-env",
+      "jest"
     ],
     "resolveJsonModule": true,
     "allowJs": true,
@@ -22,7 +22,15 @@
     "skipLibCheck": true,
     "noErrorTruncation": false,
   },
-  "include": ["./src/**/*", "./scripts/**/*"],
+  "include": [
+    "build.ts",
+    "./src/**/*",
+    "./scripts/**/*",
+    "./vite.config.mts",
+    "./build/vite-plugins/**/*",
+    "./build/plugins.vite.ts",
+    "./test/**/*.d.ts"
+  ],
   "exclude": ["node_modules"],
   "files": ["node_modules/jest-expect-message/types/index.d.ts"]
 }

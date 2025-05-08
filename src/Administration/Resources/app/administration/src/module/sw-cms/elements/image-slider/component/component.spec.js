@@ -1,6 +1,6 @@
 /**
- * @package buyers-experience
-*/
+ * @sw-package discovery
+ */
 import { mount } from '@vue/test-utils';
 import { setupCmsEnvironment } from 'src/module/sw-cms/test-utils';
 
@@ -44,47 +44,47 @@ const sliderItemsDataMock = [
 ];
 
 async function createWrapper() {
-    return mount(await wrapTestComponent('sw-cms-el-image-slider', {
-        sync: true,
-    }), {
-        global: {
-            sync: false,
-            provide: {
-                cmsService: Shopware.Service('cmsService'),
+    return mount(
+        await wrapTestComponent('sw-cms-el-image-slider', {
+            sync: true,
+        }),
+        {
+            global: {
+                sync: false,
+                provide: {
+                    cmsService: Shopware.Service('cmsService'),
+                },
             },
-            stubs: {
-                'sw-icon': true,
+            props: {
+                element: {
+                    config: {},
+                    data: {},
+                },
+                defaultConfig: {
+                    sliderItems: {
+                        source: 'static',
+                        value: [],
+                    },
+                    navigationArrows: {
+                        source: 'static',
+                        value: 'outside',
+                    },
+                    navigationDots: {
+                        source: 'static',
+                        value: null,
+                    },
+                    displayMode: {
+                        source: 'static',
+                        value: 'standard',
+                    },
+                    verticalAlign: {
+                        source: 'static',
+                        value: null,
+                    },
+                },
             },
         },
-        props: {
-            element: {
-                config: {},
-                data: {},
-            },
-            defaultConfig: {
-                sliderItems: {
-                    source: 'static',
-                    value: [],
-                },
-                navigationArrows: {
-                    source: 'static',
-                    value: 'outside',
-                },
-                navigationDots: {
-                    source: 'static',
-                    value: null,
-                },
-                displayMode: {
-                    source: 'static',
-                    value: 'standard',
-                },
-                verticalAlign: {
-                    source: 'static',
-                    value: null,
-                },
-            },
-        },
-    });
+    );
 }
 
 describe('src/module/sw-cms/elements/image-slider/component', () => {
@@ -98,7 +98,9 @@ describe('src/module/sw-cms/elements/image-slider/component', () => {
 
         const image = wrapper.get('.sw-cms-el-image-slider__image');
 
-        expect(image.attributes('src')).toBe(`${MOCK_ASSET_PATH}administration/static/img/cms/preview_mountain_large.jpg`);
+        expect(image.attributes('src')).toBe(
+            `${MOCK_ASSET_PATH}administration/administration/static/img/cms/preview_mountain_large.jpg`,
+        );
     });
 
     it('setSliderArrowItem should work correctly', async () => {

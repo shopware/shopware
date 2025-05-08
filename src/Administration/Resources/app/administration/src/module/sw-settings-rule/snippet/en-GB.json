@@ -1,5 +1,8 @@
 {
   "sw-settings-rule": {
+    "error-codes": {
+      "INVALID_DATE_RANGE": "Invalid date range: The start date must precede the end date."
+    },
     "general": {
       "mainMenuItemGeneral": "Rule builder",
       "placeholderSearchBar": "Search all rules...",
@@ -82,7 +85,6 @@
     },
     "detail": {
       "textHeadline": "New rule",
-      "buttonCancel": "Cancel",
       "buttonSave": "Save",
       "titleCard": "General",
       "labelName": "Name",

@@ -11,7 +11,7 @@ use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
 use Shopware\Core\System\Snippet\Files\AppSnippetFileLoader;
 use Shopware\Core\System\Snippet\Files\SnippetFileCollection;
 use Shopware\Core\System\Snippet\Files\SnippetFileLoader;
-use Shopware\Tests\Integration\Core\Framework\App\AppSystemTestBehaviour;
+use Shopware\Core\Test\AppSystemTestBehaviour;
 use Symfony\Component\HttpKernel\KernelInterface;
 
 /**
@@ -30,9 +30,9 @@ class AppSnippetFileLoaderTest extends TestCase
     {
         $this->snippetFileLoader = new SnippetFileLoader(
             $this->createMock(KernelInterface::class),
-            $this->getContainer()->get(Connection::class),
-            $this->getContainer()->get(AppSnippetFileLoader::class),
-            $this->getContainer()->get(ActiveAppsLoader::class)
+            static::getContainer()->get(Connection::class),
+            static::getContainer()->get(AppSnippetFileLoader::class),
+            static::getContainer()->get(ActiveAppsLoader::class)
         );
     }
 

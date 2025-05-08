@@ -6,13 +6,12 @@ use GuzzleHttp\ClientInterface;
 use GuzzleHttp\Exception\ClientException;
 use Psr\Http\Message\ResponseInterface;
 use Shopware\Core\Framework\Api\Context\AdminApiSource;
-use Shopware\Core\Framework\Api\Context\Exception\InvalidContextSourceException;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\PluginCollection;
 use Shopware\Core\Framework\Store\Authentication\AbstractStoreRequestOptionsProvider;
-use Shopware\Core\Framework\Store\Exception\StoreApiException;
 use Shopware\Core\Framework\Store\Exception\StoreTokenMissingException;
+use Shopware\Core\Framework\Store\StoreException;
 use Shopware\Core\Framework\Store\Struct\AccessTokenStruct;
 use Shopware\Core\Framework\Store\Struct\ExtensionCollection;
 use Shopware\Core\Framework\Store\Struct\ExtensionStruct;
@@ -27,6 +26,8 @@ use Shopware\Core\Framework\Store\Struct\StoreUpdateStruct;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\RequestStack;
+use Symfony\Contracts\Cache\CacheInterface;
+use Symfony\Contracts\Cache\ItemInterface;
 
 /**
  * @internal
@@ -34,6 +35,9 @@ use Symfony\Component\HttpFoundation\RequestStack;
 #[Package('checkout')]
 class StoreClient
 {
+    public const EXTENSION_LICENSE_IS_ALREADY_CANCELLED = 'ShopwarePlatformException-61';
+    public const EXTENSION_LIST_CACHE = 'extensionListStatus';
+    public const EXTENSION_LIST_TTL = 7200; // 2 hours
     private const PLUGIN_LICENSE_VIOLATION_EXTENSION_KEY = 'licenseViolation';
 
     public function __construct(
@@ -46,13 +50,14 @@ class StoreClient
         protected readonly ClientInterface $client,
         private readonly InstanceService $instanceService,
         private readonly RequestStack $requestStack,
+        private readonly CacheInterface $cache,
     ) {
     }
 
     public function loginWithShopwareId(string $shopwareId, string $password, Context $context): void
     {
         if (!$context->getSource() instanceof AdminApiSource) {
-            throw new InvalidContextSourceException(AdminApiSource::class, $context->getSource()::class);
+            throw StoreException::invalidContextSource(AdminApiSource::class, $context->getSource()::class);
         }
 
         $userId = $context->getSource()->getUserId();
@@ -115,10 +120,15 @@ class StoreClient
             $extensionList[] = [
                 'name' => $extension->getName(),
                 'version' => $extension->getVersion(),
+                'inAppFeatures' => \implode(',', $extension->getInAppPurchases()),
             ];
         }
 
-        return $this->getUpdateListFromStore($extensionList, $context);
+        return $this->cache->get(self::EXTENSION_LIST_CACHE, function (ItemInterface $item) use ($extensionList, $context) {
+            $item->expiresAfter(self::EXTENSION_LIST_TTL);
+
+            return $this->getUpdateListFromStore($extensionList, $context);
+        });
     }
 
     public function checkForViolations(
@@ -309,7 +319,7 @@ class StoreClient
 
             $response = $this->fetchLicenses($payload, $context);
         } catch (ClientException $e) {
-            throw new StoreApiException($e);
+            throw StoreException::storeError($e);
         }
 
         $body = \json_decode($response->getBody()->getContents(), true, flags: \JSON_THROW_ON_ERROR);
@@ -351,12 +361,12 @@ class StoreClient
                 $error = \json_decode((string) $e->getResponse()->getBody(), true, flags: \JSON_THROW_ON_ERROR);
 
                 // It's okay when its already canceled
-                if (isset($error['type']) && $error['type'] === 'EXTENSION_LICENSE_IS_ALREADY_CANCELLED') {
+                if (isset($error['code']) && $error['code'] === self::EXTENSION_LICENSE_IS_ALREADY_CANCELLED) {
                     return;
                 }
             }
 
-            throw new StoreApiException($e);
+            throw StoreException::storeError($e);
         }
     }
 
@@ -373,7 +383,7 @@ class StoreClient
                 ]
             );
         } catch (ClientException $e) {
-            throw new StoreApiException($e);
+            throw StoreException::storeError($e);
         }
     }
 

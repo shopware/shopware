@@ -4,28 +4,27 @@ import template from './sw-plugin-card.html.twig';
 import './sw-plugin-card.scss';
 
 type ComponentData = {
-    pluginIsLoading: boolean,
-    pluginIsSaveSuccessful: boolean,
-}
+    pluginIsLoading: boolean;
+    pluginIsSaveSuccessful: boolean;
+};
 
 type RecommendedPlugin = {
-    active: boolean,
-    name: string,
-    iconPath: string,
-    label: string,
-    manufacturer: string,
-    shortDescription: string,
-    type: ExtensionType,
-}
+    active: boolean;
+    name: string;
+    iconPath: string;
+    label: string;
+    manufacturer: string;
+    shortDescription: string;
+    type: ExtensionType;
+};
 
 /**
- * @package checkout
+ * @sw-package fundamentals@after-sales
+ *
  * @private
  */
 export default Shopware.Component.wrapComponentConfig({
     template,
-
-    compatConfig: Shopware.compatConfig,
 
     inject: [
         'cacheApiService',

@@ -1,5 +1,5 @@
 /**
- * @package services-settings
+ * @sw-package fundamentals@after-sales
  */
 import template from './sw-import-export-view-export.html.twig';
 import './sw-import-export-view-export.scss';
@@ -9,8 +9,6 @@ import './sw-import-export-view-export.scss';
  */
 export default {
     template,
-
-    compatConfig: Shopware.compatConfig,
 
     metaInfo() {
         return {

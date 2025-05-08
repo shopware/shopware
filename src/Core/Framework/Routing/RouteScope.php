@@ -5,13 +5,10 @@ namespace Shopware\Core\Framework\Routing;
 use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\HttpFoundation\Request;
 
-#[Package('core')]
+#[Package('framework')]
 class RouteScope extends AbstractRouteScope
 {
-    /**
-     * @var array<string>
-     */
-    protected $allowedPaths = ['_wdt', '_profiler', '_error'];
+    protected array $allowedPaths = ['_wdt', '_profiler', '_error'];
 
     public function isAllowed(Request $request): bool
     {

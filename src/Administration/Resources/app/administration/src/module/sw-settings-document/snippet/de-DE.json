@@ -15,7 +15,6 @@
       "buttonAddDocument": "Dokument anlegen",
       "contextMenuEdit": "Bearbeiten",
       "messageDeleteSuccess": "Dokument \"{name}\" wurde erfolgreich gelöscht.",
-      "buttonCancel": "Abbrechen",
       "buttonDelete": "Löschen",
       "global": "Global"
     },
@@ -37,11 +36,15 @@
       "labelPageSize": "Seitenformat",
       "labelItemsPerPage": "Positionen pro Seite",
       "labelDisplayCompanyAddress": "Geschäftsadresse anzeigen",
-      "labelCompanyAddress": "Geschäftsadresse",
+      "labelCompanyCity": "Stadt",
+      "labelCompanyCountry": "Land",
       "labelCompanyName": "Geschäftsname",
       "labelCompanyEmail": "Geschäfts-E-Mail-Adresse",
       "labelCompanyPhone": "Geschäfts-Telefon",
+      "labelCompanyStreet": "Straße",
       "labelCompanyUrl": "Geschäfts-Webseite",
+      "labelCompanyZipcode": "Postleitzahl",
+      "labelPaymentDueDate": "Fälligkeit der Zahlung",
       "labelTaxNumber": "Geschäfts-Steuernummer",
       "labelTaxOffice": "Finanzamt",
       "labelVatId": "Geschäfts-USt-Id",
@@ -60,7 +63,6 @@
       "placeholderDisplayDeliveryCountries": "Gültige Länder für \"innergemeinschaftliche Lieferung\" suchen und hinzufügen ...",
       "labelOptionMedia": "Geschäftslogo",
       "placeholderName": "Namen eingeben ...",
-      "buttonCancel": "Abbrechen",
       "buttonSave": "Speichern",
       "disabledSalesChannel": "Es gibt bereits ein Dokument vom selben Typ in diesem Verkaufskanal.",
       "disabledSalesChannelSelect": "Wähle zunächst einen Dokumententyp.",
@@ -69,7 +71,9 @@
       "labelDisplayDivergentDeliveryAddress": "Abweichende Lieferadresse anzeigen",
       "helpTextDisplayDocumentInCustomerAccount": "Das Dokument wird dem Shopkunden unter Bestellungen im Kundenkonto angezeigt. Nur Dokumente die an den Kunden gesendet wurden, werden im Kundenkonto angezeigt.",
       "helpTextDisplayDeliveryCountries": "Alle ausgewählten Länder erhalten einen Hinweis zur \"innergemeinschaftlichen Lieferung\" auf den Rechnungsdokumenten.",
-      "helpTextCompanyAddress": "Verwende Bindestriche (\"-\") um die einzelnen Elemente der Adresse voneinander abzugrenzen. Das hilft bei der gleichzeitigen Darstellung der Adresse an unterschiedlichen Stellen der Kopfzeile."
+      "helpTextPaymentDueDate": "Bsp.: +30 days, +4 weeks, +1 week 2 days",
+      "helpTextDisplayAdditionalNoteDelivery": "Nur für EU-Mitgliedsstaaten, siehe auch \"Einstellungen > Länder\".",
+      "labelFileTypes": "Dateiformate"
     }
   },
   "sw-privileges": {

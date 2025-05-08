@@ -9,7 +9,6 @@ use Symfony\Component\HttpFoundation\Request;
  * The `request` service allows you to access the current request in the script
  *
  * Examples:
- * {% raw %}
  * ```twig
  * {% block response %}
  *  {% if services.request.method != "POST" %}
@@ -24,13 +23,12 @@ use Symfony\Component\HttpFoundation\Request;
  *  {% do hook.setResponse(response) %}
  * {% endblock %}
  * ```
- * {% endraw %}
  *
  * @script-service miscellaneous
  *
  * @example scripts/store-api-request-test/store-api-request-test.twig Use request to determine method and return all json body back
  */
-#[Package('core')]
+#[Package('framework')]
 final class RequestFacade
 {
     private const ALLOWED_PARAMETERS = [

@@ -46,6 +46,6 @@ class LoginPageTest extends TestCase
 
     protected function getPageLoader(): AccountLoginPageLoader
     {
-        return $this->getContainer()->get(AccountLoginPageLoader::class);
+        return static::getContainer()->get(AccountLoginPageLoader::class);
     }
 }

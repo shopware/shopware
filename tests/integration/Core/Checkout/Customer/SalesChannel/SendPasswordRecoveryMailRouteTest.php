@@ -6,18 +6,18 @@ use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Checkout\Customer\CustomerCollection;
 use Shopware\Core\Checkout\Customer\Event\CustomerAccountRecoverRequestEvent;
 use Shopware\Core\Checkout\Customer\Event\PasswordRecoveryUrlEvent;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\SalesChannelApiTestBehaviour;
-use Shopware\Core\Framework\Test\TestDataCollection;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
+use Shopware\Core\Test\Stub\Framework\IdsCollection;
 use Shopware\Core\Test\TestDefaults;
 use Symfony\Bundle\FrameworkBundle\KernelBrowser;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
@@ -34,19 +34,22 @@ class SendPasswordRecoveryMailRouteTest extends TestCase
 
     private KernelBrowser $browser;
 
-    private TestDataCollection $ids;
+    private IdsCollection $ids;
 
+    /**
+     * @var EntityRepository<CustomerCollection>
+     */
     private EntityRepository $customerRepository;
 
     protected function setUp(): void
     {
-        $this->ids = new TestDataCollection();
+        $this->ids = new IdsCollection();
 
         $this->browser = $this->createCustomSalesChannelBrowser([
             'id' => $this->ids->create('sales-channel'),
         ]);
         $this->assignSalesChannelContext($this->browser);
-        $this->customerRepository = $this->getContainer()->get('customer.repository');
+        $this->customerRepository = static::getContainer()->get('customer.repository');
     }
 
     public function testResetUnknownEmail(): void
@@ -61,10 +64,12 @@ class SendPasswordRecoveryMailRouteTest extends TestCase
                 ]
             );
 
-        $response = json_decode($this->browser->getResponse()->getContent() ?: '', true, 512, \JSON_THROW_ON_ERROR);
+        /** @var array<string, mixed> $response */
+        $response = \json_decode($this->browser->getResponse()->getContent() ?: '', true, 512, \JSON_THROW_ON_ERROR);
 
-        static::assertArrayHasKey('errors', $response);
-        static::assertSame('CHECKOUT__CUSTOMER_NOT_FOUND', $response['errors'][0]['code']);
+        static::assertArrayHasKey('apiAlias', $response);
+        static::assertArrayHasKey('success', $response);
+        static::assertTrue($response['success']);
     }
 
     public function testResetWithInvalidUrl(): void
@@ -124,11 +129,14 @@ class SendPasswordRecoveryMailRouteTest extends TestCase
                 ]
             );
 
-        static::assertSame(401, $this->browser->getResponse()->getStatusCode());
+        static::assertSame(200, $this->browser->getResponse()->getStatusCode());
 
-        $response = json_decode($this->browser->getResponse()->getContent() ?: '', true, 512, \JSON_THROW_ON_ERROR);
+        /** @var array<string, mixed> $response */
+        $response = \json_decode($this->browser->getResponse()->getContent() ?: '', true, 512, \JSON_THROW_ON_ERROR);
 
-        static::assertSame('CHECKOUT__CUSTOMER_NOT_FOUND', $response['errors'][0]['code']);
+        static::assertArrayHasKey('apiAlias', $response);
+        static::assertArrayHasKey('success', $response);
+        static::assertTrue($response['success']);
     }
 
     /**
@@ -143,7 +151,7 @@ class SendPasswordRecoveryMailRouteTest extends TestCase
 
         $caughtEvent = null;
         $this->addEventListener(
-            $this->getContainer()->get('event_dispatcher'),
+            static::getContainer()->get('event_dispatcher'),
             CustomerAccountRecoverRequestEvent::EVENT_NAME,
             static function (CustomerAccountRecoverRequestEvent $event) use (&$caughtEvent): void {
                 $caughtEvent = $event;
@@ -171,11 +179,11 @@ class SendPasswordRecoveryMailRouteTest extends TestCase
     {
         $this->createCustomer('foo-test@test.de');
 
-        $systemConfigService = $this->getContainer()->get(SystemConfigService::class);
+        $systemConfigService = static::getContainer()->get(SystemConfigService::class);
         $systemConfigService->set('core.loginRegistration.pwdRecoverUrl', '/test/rec/password/%%RECOVERHASH%%"');
 
         /** @var EventDispatcherInterface $dispatcher */
-        $dispatcher = $this->getContainer()->get('event_dispatcher');
+        $dispatcher = static::getContainer()->get('event_dispatcher');
 
         $caughtEvent = null;
         $this->addEventListener(
@@ -235,7 +243,7 @@ class SendPasswordRecoveryMailRouteTest extends TestCase
 
     private function addDomain(string $url): void
     {
-        $snippetSetId = $this->getContainer()->get(Connection::class)
+        $snippetSetId = static::getContainer()->get(Connection::class)
             ->fetchOne('SELECT LOWER(HEX(id)) FROM snippet_set LIMIT 1');
 
         $domain = [
@@ -246,7 +254,7 @@ class SendPasswordRecoveryMailRouteTest extends TestCase
             'snippetSetId' => $snippetSetId,
         ];
 
-        $this->getContainer()->get('sales_channel_domain.repository')
+        static::getContainer()->get('sales_channel_domain.repository')
             ->create([$domain], Context::createDefaultContext());
     }
 
@@ -278,10 +286,6 @@ class SendPasswordRecoveryMailRouteTest extends TestCase
             'salutationId' => $this->getValidSalutationId(),
             'customerNumber' => '12345',
         ];
-
-        if (!Feature::isActive('v6.7.0.0')) {
-            $customer['defaultPaymentMethodId'] = $this->getValidPaymentMethodId();
-        }
 
         $this->customerRepository->create([$customer], Context::createDefaultContext());
 

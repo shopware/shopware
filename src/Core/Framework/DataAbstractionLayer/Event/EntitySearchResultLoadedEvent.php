@@ -13,33 +13,18 @@ use Shopware\Core\Framework\Log\Package;
 /**
  * @template TEntityCollection of EntityCollection
  */
-#[Package('core')]
+#[Package('framework')]
 class EntitySearchResultLoadedEvent extends NestedEvent implements GenericEvent
 {
-    /**
-     * @var EntitySearchResult<TEntityCollection>
-     */
-    protected $result;
-
-    /**
-     * @var EntityDefinition
-     */
-    protected $definition;
-
-    /**
-     * @var string
-     */
-    protected $name;
+    protected string $name;
 
     /**
      * @param EntitySearchResult<TEntityCollection> $result
      */
     public function __construct(
-        EntityDefinition $definition,
-        EntitySearchResult $result
+        protected EntityDefinition $definition,
+        protected EntitySearchResult $result
     ) {
-        $this->result = $result;
-        $this->definition = $definition;
         $this->name = $this->definition->getEntityName() . '.search.result.loaded';
     }
 

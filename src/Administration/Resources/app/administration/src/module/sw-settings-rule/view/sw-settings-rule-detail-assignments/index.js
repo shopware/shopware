@@ -7,12 +7,10 @@ const { Criteria } = Shopware.Data;
 
 /**
  * @private
- * @package services-settings
+ * @sw-package fundamentals@after-sales
  */
 export default {
     template,
-
-    compatConfig: Shopware.compatConfig,
 
     inject: [
         'repositoryFactory',
@@ -53,7 +51,10 @@ export default {
             shippingMethods: null,
             paymentMethods: null,
             promotions: null,
-            associationSteps: [5, 10],
+            associationSteps: [
+                5,
+                10,
+            ],
             associationEntities: null,
             deleteModal: false,
             deleteEntity: null,
@@ -156,12 +157,14 @@ export default {
         },
 
         async onDeleteItems(entity, selection) {
-            await Promise.all(Object.values(selection).map(async (item) => {
-                this.deleteEntity = entity;
-                this.deleteItem = item;
+            await Promise.all(
+                Object.values(selection).map(async (item) => {
+                    this.deleteEntity = entity;
+                    this.deleteItem = item;
 
-                await this.doDeleteItem();
-            }));
+                    await this.doDeleteItem();
+                }),
+            );
 
             return this.refreshAssignmentData(entity).then(() => {
                 this.onCloseDeleteModal();
@@ -215,11 +218,14 @@ export default {
             criteria.setTerm(term);
 
             this.isLoading = true;
-            return item.repository.search(criteria, api).then((result) => {
-                item.loadedData = result;
-            }).finally(() => {
-                this.isLoading = false;
-            });
+            return item.repository
+                .search(criteria, api)
+                .then((result) => {
+                    item.loadedData = result;
+                })
+                .finally(() => {
+                    this.isLoading = false;
+                });
         },
 
         async loadNotAssignedDataTotals(item, api) {
@@ -231,11 +237,14 @@ export default {
             criteria.addFilter(Criteria.not('AND', item.criteria().filters));
 
             this.isLoading = true;
-            return item.repository.search(criteria, api).then((notAssignedDataResult) => {
-                return Promise.resolve(notAssignedDataResult.total);
-            }).finally(() => {
-                this.isLoading = false;
-            });
+            return item.repository
+                .search(criteria, api)
+                .then((notAssignedDataResult) => {
+                    return Promise.resolve(notAssignedDataResult.total);
+                })
+                .finally(() => {
+                    this.isLoading = false;
+                });
         },
 
         getRouterLink(entity, item) {
@@ -245,8 +254,8 @@ export default {
         loadAssociationData() {
             this.isLoading = true;
 
-            return Promise
-                .all(this.associationEntities.map((item) => {
+            return Promise.all(
+                this.associationEntities.map((item) => {
                     const api = item.api ? item.api() : Context.api;
 
                     return item.repository.search(item.criteria(), api).then(async (result) => {
@@ -254,7 +263,8 @@ export default {
 
                         item.notAssignedDataTotal = await this.loadNotAssignedDataTotals(item, api);
                     });
-                }))
+                }),
+            )
                 .catch(() => {
                     this.createNotificationError({
                         message: this.$tc('sw-settings-rule.detail.associationsLoadingError'),

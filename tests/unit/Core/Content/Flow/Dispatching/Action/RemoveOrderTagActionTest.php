@@ -12,13 +12,13 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\Event\OrderAware;
 use Shopware\Core\Framework\Log\Package;
-use Shopware\Core\Framework\Test\TestDataCollection;
 use Shopware\Core\Framework\Uuid\Uuid;
+use Shopware\Core\Test\Stub\Framework\IdsCollection;
 
 /**
  * @internal
  */
-#[Package('services-settings')]
+#[Package('after-sales')]
 #[CoversClass(RemoveOrderTagAction::class)]
 class RemoveOrderTagActionTest extends TestCase
 {
@@ -58,7 +58,7 @@ class RemoveOrderTagActionTest extends TestCase
         ]);
         $flow->setConfig($config);
 
-        $this->repository->expects(static::once())
+        $this->repository->expects($this->once())
             ->method('delete')
             ->with(array_map(fn ($id) => [
                 'orderId' => $orderId,
@@ -72,7 +72,7 @@ class RemoveOrderTagActionTest extends TestCase
     {
         $flow = new StorableFlow('foo', Context::createDefaultContext());
 
-        $this->repository->expects(static::never())->method('update');
+        $this->repository->expects($this->never())->method('update');
 
         $this->action->handleFlow($flow);
     }
@@ -83,14 +83,14 @@ class RemoveOrderTagActionTest extends TestCase
             OrderAware::ORDER_ID => Uuid::randomHex(),
         ]);
 
-        $this->repository->expects(static::never())->method('update');
+        $this->repository->expects($this->never())->method('update');
 
         $this->action->handleFlow($flow);
     }
 
     public static function actionExecutedProvider(): \Generator
     {
-        $ids = new TestDataCollection();
+        $ids = new IdsCollection();
 
         yield 'Test with single tag' => [
             ['tagIds' => self::keys([$ids->get('tag-1')])],

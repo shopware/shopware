@@ -1,5 +1,5 @@
 /**
- * @package buyers-experience
+ * @sw-package inventory
  */
 import template from './sw-settings-search.html.twig';
 
@@ -9,8 +9,6 @@ const { EntityCollection, Criteria } = Shopware.Data;
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default {
     template,
-
-    compatConfig: Shopware.compatConfig,
 
     inject: [
         'repositoryFactory',
@@ -109,11 +107,24 @@ export default {
         createdComponent() {
             this.getDefaultSearchConfig();
             this.getProductSearchConfigs();
+
+            Shopware.ExtensionAPI.publishData({
+                id: 'sw-settings-search__defaultConfig',
+                path: 'defaultConfig',
+                scope: this,
+            });
+
+            Shopware.ExtensionAPI.publishData({
+                id: 'sw-settings-search__productSearchConfigs',
+                path: 'productSearchConfigs',
+                scope: this,
+            });
         },
 
         getProductSearchConfigs() {
             this.isLoading = true;
-            this.productSearchRepository.search(this.productSearchConfigsCriteria)
+            this.productSearchRepository
+                .search(this.productSearchConfigsCriteria)
                 .then((items) => {
                     if (!items.total) {
                         this.onSaveDefaultSearchConfig();
@@ -132,7 +143,8 @@ export default {
         },
 
         getDefaultSearchConfig() {
-            this.productSearchRepository.search(this.productDefaultConfigsCriteria)
+            this.productSearchRepository
+                .search(this.productDefaultConfigsCriteria)
                 .then((items) => {
                     this.defaultConfig = items.first();
                 })
@@ -162,7 +174,7 @@ export default {
                 this.productSearchFieldRepository.entityName,
                 Shopware.Context.api,
             );
-            this.defaultConfig.configFields.forEach(item => {
+            this.defaultConfig.configFields.forEach((item) => {
                 const newConfigField = this.productSearchFieldRepository.create();
                 newConfigField.field = item.field;
                 newConfigField.ranking = item.ranking;
@@ -178,7 +190,8 @@ export default {
         onSaveDefaultSearchConfig() {
             this.productSearchConfigs = this.createDefaultSearchConfig();
             this.productSearchConfigs.configFields = this.createConfigFields();
-            this.productSearchRepository.save(this.productSearchConfigs)
+            this.productSearchRepository
+                .save(this.productSearchConfigs)
                 .then(() => {
                     this.getProductSearchConfigs();
                 })
@@ -200,7 +213,8 @@ export default {
 
         onSaveSearchSettings() {
             this.isLoading = true;
-            this.productSearchRepository.save(this.productSearchConfigs)
+            this.productSearchRepository
+                .save(this.productSearchConfigs)
                 .then(() => {
                     this.createNotificationSuccess({
                         message: this.$tc('sw-settings-search.notification.saveSuccess'),

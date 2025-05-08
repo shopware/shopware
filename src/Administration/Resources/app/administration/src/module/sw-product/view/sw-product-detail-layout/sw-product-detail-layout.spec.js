@@ -1,10 +1,11 @@
 /**
- * @package inventory
+ * @sw-package inventory
  */
 
 import { mount } from '@vue/test-utils';
+import { nextTick } from 'vue';
 
-const { State } = Shopware;
+const { Store } = Shopware;
 
 async function createWrapper(privileges = []) {
     return mount(await wrapTestComponent('sw-product-detail-layout', { sync: true }), {
@@ -18,19 +19,25 @@ async function createWrapper(privileges = []) {
                             }
                             return Promise.resolve({
                                 id,
-                                sections: [{
-                                    blocks: [{
-                                        slots: [{
-                                            id: 'slot1',
-                                            config: {
-                                                content: {
-                                                    value: 'product.name',
-                                                    source: 'mapped',
-                                                },
+                                sections: [
+                                    {
+                                        blocks: [
+                                            {
+                                                slots: [
+                                                    {
+                                                        id: 'slot1',
+                                                        config: {
+                                                            content: {
+                                                                value: 'product.name',
+                                                                source: 'mapped',
+                                                            },
+                                                        },
+                                                    },
+                                                ],
                                             },
-                                        }],
-                                    }],
-                                }],
+                                        ],
+                                    },
+                                ],
                             });
                         },
                     }),
@@ -40,14 +47,16 @@ async function createWrapper(privileges = []) {
                 },
                 acl: {
                     can: (identifier) => {
-                        if (!identifier) { return true; }
+                        if (!identifier) {
+                            return true;
+                        }
 
                         return privileges.includes(identifier);
                     },
                 },
             },
             stubs: {
-                'sw-card': {
+                'mt-card': {
                     template: '<div><slot></slot></div>',
                 },
                 'sw-product-layout-assignment': true,
@@ -59,14 +68,13 @@ async function createWrapper(privileges = []) {
     });
 }
 
-
 describe('src/module/sw-product/view/sw-product-detail-layout', () => {
     beforeAll(() => {
-        State.registerModule('swProductDetail', {
-            namespaced: true,
-            state: {
+        Store.register({
+            id: 'swProductDetail',
+            state: () => ({
                 product: null,
-            },
+            }),
             mutations: {
                 setProduct(state, product) {
                     state.product = product;
@@ -77,7 +85,7 @@ describe('src/module/sw-product/view/sw-product-detail-layout', () => {
             },
         });
         Shopware.Store.register({
-            id: 'cmsPageState',
+            id: 'cmsPage',
             state: () => ({
                 currentPage: null,
             }),
@@ -122,11 +130,11 @@ describe('src/module/sw-product/view/sw-product-detail-layout', () => {
                 },
             },
         });
-        State.commit('context/setApiLanguageId', '123456789');
+        Shopware.Store.get('context').setApiLanguageId('123456789');
     });
 
     afterAll(() => {
-        Shopware.Store.unregister('cmsPageState');
+        Shopware.Store.unregister('cmsPage');
     });
 
     it('should turn on layout modal', async () => {
@@ -157,7 +165,7 @@ describe('src/module/sw-product/view/sw-product-detail-layout', () => {
         const wrapper = await createWrapper();
 
         wrapper.vm.$router.push = jest.fn();
-        Shopware.Store.get('cmsPageState').setCurrentPage(null);
+        Shopware.Store.get('cmsPage').setCurrentPage(null);
 
         await wrapper.vm.onOpenInPageBuilder();
 
@@ -169,7 +177,7 @@ describe('src/module/sw-product/view/sw-product-detail-layout', () => {
         const wrapper = await createWrapper();
 
         wrapper.vm.$router.push = jest.fn();
-        Shopware.Store.get('cmsPageState').setCurrentPage({ id: 'id' });
+        Shopware.Store.get('cmsPage').setCurrentPage({ id: 'id' });
 
         await wrapper.vm.onOpenInPageBuilder();
 
@@ -179,10 +187,10 @@ describe('src/module/sw-product/view/sw-product-detail-layout', () => {
 
     it('should be able to select a product page layout', async () => {
         const wrapper = await createWrapper();
-        wrapper.vm.$store.commit('swProductDetail/setProduct', { id: '1' });
+        Store.get('swProductDetail').product = { id: '1' };
 
         wrapper.vm.onSelectLayout('cmsPageId');
-        await wrapper.vm.$nextTick();
+        await nextTick();
 
         expect(wrapper.vm.product.cmsPageId).toBe('cmsPageId');
         expect(wrapper.vm.currentPage.id).toBe('cmsPageId');
@@ -196,7 +204,7 @@ describe('src/module/sw-product/view/sw-product-detail-layout', () => {
     });
 
     it('should be able to overwrite product config to selected layout config', async () => {
-        Shopware.State.commit('swProductDetail/setProduct', {
+        Shopware.Store.get('swProductDetail').product = {
             id: '1',
             cmsPageId: 'cmsPageId',
             slotConfig: {
@@ -207,7 +215,7 @@ describe('src/module/sw-product/view/sw-product-detail-layout', () => {
                     },
                 },
             },
-        });
+        };
 
         const wrapper = await createWrapper();
         await wrapper.vm.handleGetCmsPage();
@@ -255,7 +263,7 @@ describe('src/module/sw-product/view/sw-product-detail-layout', () => {
     it('should not be able to view layout config if cms page is locked', async () => {
         const wrapper = await createWrapper(['product.editor']);
         await wrapper.vm.onResetLayout();
-        Shopware.Store.get('cmsPageState').setCurrentPage({ id: 'id', locked: true });
+        Shopware.Store.get('cmsPage').setCurrentPage({ id: 'id', locked: true });
         await flushPromises();
         const cmsForm = wrapper.find('sw-cms-page-form-stub');
         const infoNoConfig = wrapper.find('.sw-product-detail-layout__no-config');
@@ -267,7 +275,7 @@ describe('src/module/sw-product/view/sw-product-detail-layout', () => {
     it('should update new content of slotConfig in product', async () => {
         const wrapper = await createWrapper();
 
-        Shopware.State.commit('swProductDetail/setProduct', {
+        Store.get('swProductDetail').product = {
             slotConfig: {
                 elementId: {
                     content: {
@@ -275,7 +283,7 @@ describe('src/module/sw-product/view/sw-product-detail-layout', () => {
                     },
                 },
             },
-        });
+        };
 
         const element = {
             id: 'elementId',
@@ -295,7 +303,7 @@ describe('src/module/sw-product/view/sw-product-detail-layout', () => {
         const wrapper = await createWrapper();
         const handleGetCmsPageMock = jest.spyOn(wrapper.vm, 'handleGetCmsPage');
 
-        State.commit('context/setApiLanguageId', '123');
+        Shopware.Store.get('context').setApiLanguageId('123');
 
         await flushPromises();
 

@@ -1,14 +1,12 @@
 {%  block sw_customer_create %}
 <sw-page class="sw-customer-create">
 
-    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_customer_create_header %}
     <template #smart-bar-header>
         <h2>{{ salutationFilter(customer, $tc('sw-customer.general.newCustomer')) }}</h2>
     </template>
     {% endblock %}
 
-    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_customer_create_language_switch %}
     <template #language-switch>
         <sw-language-switch
@@ -18,7 +16,6 @@
     </template>
     {% endblock %}
 
-    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_customer_create_actions %}
     <template #smart-bar-actions>
         <sw-button-process
@@ -35,13 +32,11 @@
     </template>
     {% endblock %}
 
-    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_customer_create_content %}
     <template #content>
         <sw-card-view>
-            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_customer_create_base_form %}
-            <sw-card
+            <mt-card
                 :title="$tc('sw-customer.detailBase.labelAccountCard')"
                 position-identifier="sw-customer-create-base-form"
             >
@@ -51,12 +46,11 @@
                     :customer="customer"
                     @sales-channel-change="onChangeSalesChannel"
                 />
-            </sw-card>
+            </mt-card>
             {% endblock %}
 
-            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_customer_create_adress_form %}
-            <sw-card
+            <mt-card
                 :title="$tc('sw-customer.detailBase.labelAddressesCard')"
                 position-identifier="sw-customer-create-address-form"
             >
@@ -64,7 +58,7 @@
                     v-if="customer"
                     v-bind="{ customer, address }"
                 />
-            </sw-card>
+            </mt-card>
             {% endblock %}
         </sw-card-view>
     </template>

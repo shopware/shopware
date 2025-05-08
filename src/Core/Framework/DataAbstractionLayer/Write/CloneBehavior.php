@@ -4,7 +4,7 @@ namespace Shopware\Core\Framework\DataAbstractionLayer\Write;
 
 use Shopware\Core\Framework\Log\Package;
 
-#[Package('core')]
+#[Package('framework')]
 class CloneBehavior
 {
     public function __construct(

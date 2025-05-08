@@ -9,8 +9,8 @@ use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Pricing\CashRoundingConfig;
-use Shopware\Core\Framework\Test\IdsCollection;
 use Shopware\Core\Framework\Uuid\Uuid;
+use Shopware\Core\Test\Stub\Framework\IdsCollection;
 use Shopware\Core\Test\TestBuilderTrait;
 use Shopware\Core\Test\TestDefaults;
 use Symfony\Component\DependencyInjection\ContainerInterface;
@@ -164,14 +164,14 @@ class ProductBuilder
     protected array $mainCategories = [];
 
     /**
-     * @var array<string, array<array<mixed>>>
-     */
-    private array $dependencies = [];
-
-    /**
      * @var array<array<mixed>>
      */
     protected array $variantListingConfig = [];
+
+    /**
+     * @var array<string, array<array<mixed>>>
+     */
+    private array $dependencies = [];
 
     public function __construct(
         IdsCollection $ids,
@@ -316,7 +316,7 @@ class ProductBuilder
         return $this;
     }
 
-    public function prices(string $ruleKey, float $gross, string $currencyKey = 'default', ?float $net = null, int $start = 1, bool $valid = false, ?float $listPriceGross = null, ?float $listPriceNet = null): self
+    public function prices(string $ruleKey, float $gross, string $currencyKey = 'default', ?float $net = null, int $start = 1, bool $valid = false, ?float $listPriceGross = null, ?float $listPriceNet = null, ?int $end = null): self
     {
         $net ??= $gross / 115 * 100;
 
@@ -363,6 +363,7 @@ class ProductBuilder
 
         $this->prices[] = [
             'quantityStart' => $start,
+            'quantityEnd' => $end,
             'rule' => [
                 'id' => $this->ids->create($ruleKey),
                 'priority' => 1,

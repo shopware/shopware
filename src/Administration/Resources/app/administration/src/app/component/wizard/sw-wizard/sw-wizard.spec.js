@@ -1,5 +1,5 @@
 /**
- * @package admin
+ * @sw-package framework
  */
 
 import { mount } from '@vue/test-utils';
@@ -23,10 +23,6 @@ async function createWrapper(options = {}) {
             stubs: {
                 'sw-modal': await wrapTestComponent('sw-modal'),
                 'sw-wizard-dot-navigation': await wrapTestComponent('sw-wizard-dot-navigation'),
-                'sw-icon': true,
-                'sw-button': await wrapTestComponent('sw-button'),
-                'sw-button-deprecated': await wrapTestComponent('sw-button-deprecated'),
-                'mt-button': true,
                 'sw-loader': true,
                 'router-link': true,
             },
@@ -45,7 +41,10 @@ async function createWrapper(options = {}) {
         },
     };
 
-    return mount(await wrapTestComponent('sw-wizard', { sync: true }), { ...defaults, ...options });
+    return mount(await wrapTestComponent('sw-wizard', { sync: true }), {
+        ...defaults,
+        ...options,
+    });
 }
 describe('src/app/component/wizard/sw-wizard', () => {
     it('should be a Vue.js component', async () => {

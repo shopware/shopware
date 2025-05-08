@@ -4,7 +4,7 @@ import template from './sw-grouped-single-select.html.twig';
 const { Component } = Shopware;
 
 /**
- * @package admin
+ * @sw-package framework
  *
  * @private
  * @description The <u>sw-grouped-single-select</u> component can be used to show a single sleect with grouped result items.
@@ -64,7 +64,7 @@ Component.extend('sw-grouped-single-select', 'sw-single-select', {
         },
 
         getGroupLabel(item) {
-            const itemGroup = this.groups.find(group => group[this.groupIdProperty] === item.group);
+            const itemGroup = this.groups.find((group) => group[this.groupIdProperty] === item.group);
 
             return itemGroup?.label ?? '';
         },
@@ -73,5 +73,4 @@ Component.extend('sw-grouped-single-select', 'sw-single-select', {
             return item.group && item.group !== this.visibleResults[index - 1]?.group;
         },
     },
-
 });

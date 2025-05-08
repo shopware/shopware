@@ -7,7 +7,7 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\ShopwareHttpException;
 use Symfony\Component\HttpFoundation\Response;
 
-#[Package('core')]
+#[Package('framework')]
 class WriteException extends ShopwareHttpException
 {
     private const MESSAGE = "There are {{ errorCount }} error(s) while writing data.\n\n{{ messagesString }}";

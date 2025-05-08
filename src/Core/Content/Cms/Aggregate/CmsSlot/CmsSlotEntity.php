@@ -14,63 +14,37 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityIdTrait;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Struct\Struct;
 
-#[Package('buyers-experience')]
+#[Package('discovery')]
 class CmsSlotEntity extends Entity
 {
     use EntityCustomFieldsTrait;
     use EntityIdTrait;
 
-    /**
-     * @var string
-     */
-    protected $type;
+    protected string $type;
 
-    /**
-     * @var string
-     */
-    protected $slot;
+    protected string $slot;
 
-    /**
-     * @var CmsBlockEntity|null
-     */
-    protected $block;
+    protected ?CmsBlockEntity $block = null;
 
-    /**
-     * @var string
-     */
-    protected $blockId;
+    protected string $blockId;
 
     /**
      * @var array<mixed>|null
      */
-    protected $config;
+    protected ?array $config = null;
 
-    /**
-     * @var FieldConfigCollection|null
-     *
-     * @internal
-     */
-    protected $fieldConfig;
+    protected ?FieldConfigCollection $fieldConfig = null;
 
     /**
      * @var EntityCollection<CmsSlotTranslationEntity>|null
      */
-    protected $translations;
+    protected ?EntityCollection $translations = null;
 
-    /**
-     * @var Struct|null
-     */
-    protected $data;
+    protected ?Struct $data = null;
 
-    /**
-     * @var bool
-     */
-    protected $locked;
+    protected bool $locked;
 
-    /**
-     * @var string|null
-     */
-    protected $cmsBlockVersionId;
+    protected ?string $cmsBlockVersionId = null;
 
     public function getType(): string
     {

@@ -1,3 +1,7 @@
+/**
+ * @sw-package framework
+ */
+
 import 'src/app/component/filter/sw-range-filter';
 import 'src/app/component/filter/sw-base-filter';
 import { mount } from '@vue/test-utils';
@@ -8,11 +12,12 @@ async function createWrapper() {
     return mount(await wrapTestComponent('sw-range-filter', { sync: true }), {
         global: {
             stubs: {
-                'sw-base-filter': await wrapTestComponent('sw-base-filter', { sync: true }),
+                'sw-base-filter': await wrapTestComponent('sw-base-filter', {
+                    sync: true,
+                }),
                 'sw-container': {
                     template: '<div class="sw-container"><slot></slot></div>',
                 },
-                'sw-icon': true,
                 'sw-field-error': true,
             },
         },
@@ -72,7 +77,12 @@ describe('src/app/component/filter/sw-range-filter', () => {
         });
 
         expect(wrapper.emitted()['filter-update'][0]).toEqual([
-            [Criteria.range('releaseDate', { gte: '2021-01-20', lte: '2021-01-23' })],
+            [
+                Criteria.range('releaseDate', {
+                    gte: '2021-01-20',
+                    lte: '2021-01-23',
+                }),
+            ],
         ]);
     });
 

@@ -19,11 +19,13 @@ class SourceTest extends TestCase
         $url = 'https://foo.bar';
         $shopId = 'foo';
         $appVersion = '1.0.0';
+        $inAppPurchases = 'jwt-1';
 
-        $source = new Source($url, $shopId, $appVersion);
+        $source = new Source($url, $shopId, $appVersion, $inAppPurchases);
 
         static::assertSame($url, $source->getUrl());
         static::assertSame($shopId, $source->getShopId());
         static::assertSame($appVersion, $source->getAppVersion());
+        static::assertSame($inAppPurchases, $source->getInAppPurchases());
     }
 }

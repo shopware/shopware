@@ -13,35 +13,20 @@ class ProductSearchConfigEntity extends Entity
 {
     use EntityIdTrait;
 
-    /**
-     * @var string
-     */
-    protected $languageId;
+    protected string $languageId;
+
+    protected bool $andLogic;
+
+    protected int $minSearchLength;
 
     /**
-     * @var bool
+     * @var array<string>|null
      */
-    protected $andLogic;
+    protected ?array $excludedTerms = null;
 
-    /**
-     * @var int
-     */
-    protected $minSearchLength;
+    protected ?LanguageEntity $language = null;
 
-    /**
-     * @var array|null
-     */
-    protected $excludedTerms;
-
-    /**
-     * @var LanguageEntity|null
-     */
-    protected $language;
-
-    /**
-     * @var ProductSearchConfigFieldCollection|null
-     */
-    protected $configFields;
+    protected ?ProductSearchConfigFieldCollection $configFields = null;
 
     public function getLanguageId(): string
     {
@@ -73,11 +58,17 @@ class ProductSearchConfigEntity extends Entity
         $this->minSearchLength = $minSearchLength;
     }
 
+    /**
+     * @return array<string>|null
+     */
     public function getExcludedTerms(): ?array
     {
         return $this->excludedTerms;
     }
 
+    /**
+     * @param array<string>|null $excludedTerms
+     */
     public function setExcludedTerms(?array $excludedTerms): void
     {
         $this->excludedTerms = $excludedTerms;

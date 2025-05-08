@@ -7,30 +7,18 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityCustomFieldsTrait;
 use Shopware\Core\Framework\DataAbstractionLayer\TranslationEntity;
 use Shopware\Core\Framework\Log\Package;
 
-#[Package('buyers-experience')]
+#[Package('discovery')]
 class MediaTranslationEntity extends TranslationEntity
 {
     use EntityCustomFieldsTrait;
 
-    /**
-     * @var string
-     */
-    protected $mediaId;
+    protected string $mediaId;
 
-    /**
-     * @var string|null
-     */
-    protected $title;
+    protected ?string $title = null;
 
-    /**
-     * @var string|null
-     */
-    protected $alt;
+    protected ?string $alt = null;
 
-    /**
-     * @var MediaEntity|null
-     */
-    protected $media;
+    protected ?MediaEntity $media = null;
 
     public function getMediaId(): string
     {

@@ -46,7 +46,7 @@ use Shopware\Core\System\CustomEntity\CustomEntityDefinition;
 use Shopware\Core\System\SalesChannel\SalesChannelDefinition;
 use Shopware\Core\System\Tag\TagDefinition;
 
-#[Package('inventory')]
+#[Package('discovery')]
 class CategoryDefinition extends EntityDefinition
 {
     final public const ENTITY_NAME = 'category';

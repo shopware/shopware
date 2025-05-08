@@ -22,7 +22,7 @@ use Symfony\Component\Serializer\Encoder\DecoderInterface;
 use Symfony\Component\Serializer\Exception\NotEncodableValueException;
 
 #[Route(defaults: ['_routeScope' => ['api']])]
-#[Package('core')]
+#[Package('framework')]
 class SyncController extends AbstractController
 {
     final public const ACTION_UPSERT = 'upsert';

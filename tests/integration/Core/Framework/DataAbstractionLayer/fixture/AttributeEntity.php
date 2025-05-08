@@ -4,6 +4,9 @@ namespace Shopware\Tests\Integration\Core\Framework\DataAbstractionLayer\fixture
 
 use Shopware\Core\Checkout\Order\OrderEntity;
 use Shopware\Core\Checkout\Order\OrderStates;
+use Shopware\Core\Content\Product\ProductEntity;
+use Shopware\Core\Framework\DataAbstractionLayer\Attribute\AllowEmptyString;
+use Shopware\Core\Framework\DataAbstractionLayer\Attribute\AllowHtml;
 use Shopware\Core\Framework\DataAbstractionLayer\Attribute\AutoIncrement;
 use Shopware\Core\Framework\DataAbstractionLayer\Attribute\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\Attribute\Field;
@@ -21,6 +24,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Attribute\State;
 use Shopware\Core\Framework\DataAbstractionLayer\Attribute\Translations;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity as EntityStruct;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCustomFieldsTrait;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\PriceField;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldSerializer\PriceFieldSerializer;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldType\DateInterval;
 use Shopware\Core\Framework\DataAbstractionLayer\Pricing\PriceCollection;
@@ -31,7 +35,7 @@ use Shopware\Core\System\StateMachine\Aggregation\StateMachineState\StateMachine
 /**
  * @internal
  */
-#[Entity('attribute_entity', since: '6.6.3.0')]
+#[Entity('attribute_entity', since: '6.6.3.0', collectionClass: AttributeEntityCollection::class)]
 class AttributeEntity extends EntityStruct
 {
     use EntityCustomFieldsTrait;
@@ -61,6 +65,9 @@ class AttributeEntity extends EntityStruct
     #[AutoIncrement]
     public int $autoIncrement;
 
+    #[Field(type: FieldType::ENUM)]
+    public ?StringEnum $enum = null;
+
     /**
      * @var array<string, mixed>|null
      */
@@ -78,6 +85,9 @@ class AttributeEntity extends EntityStruct
 
     #[Serialized(serializer: PriceFieldSerializer::class, api: true)]
     public ?PriceCollection $serialized = null;
+
+    #[Field(type: PriceField::class)]
+    public ?PriceCollection $price = null;
 
     #[Required]
     #[Field(type: FieldType::STRING, translated: true)]
@@ -122,6 +132,10 @@ class AttributeEntity extends EntityStruct
     #[State(machine: OrderStates::STATE_MACHINE)]
     public ?string $stateId = null;
 
+    #[Field(type: FieldType::STRING)]
+    #[AllowEmptyString]
+    public string $emptyString = '';
+
     #[ForeignKey(entity: 'currency')]
     public ?string $followId = null;
 
@@ -157,4 +171,14 @@ class AttributeEntity extends EntityStruct
      */
     #[Translations]
     public ?array $translations = null;
+
+    /**
+     * @var array<ProductEntity>
+     */
+    #[ManyToMany(entity: 'product', mapping: 'my_own_mapping_table_name')]
+    public array $ownMapping = [];
+
+    #[Field(type: FieldType::STRING)]
+    #[AllowHtml]
+    public string $htmlString;
 }

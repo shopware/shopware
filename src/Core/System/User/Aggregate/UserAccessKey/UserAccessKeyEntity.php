@@ -8,36 +8,21 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityIdTrait;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\User\UserEntity;
 
-#[Package('services-settings')]
+#[Package('fundamentals@framework')]
 class UserAccessKeyEntity extends Entity
 {
     use EntityCustomFieldsTrait;
     use EntityIdTrait;
 
-    /**
-     * @var string
-     */
-    protected $userId;
+    protected string $userId;
 
-    /**
-     * @var string
-     */
-    protected $accessKey;
+    protected string $accessKey;
 
-    /**
-     * @var string
-     */
-    protected $secretAccessKey;
+    protected string $secretAccessKey;
 
-    /**
-     * @var \DateTimeInterface|null
-     */
-    protected $lastUsageAt;
+    protected ?\DateTimeInterface $lastUsageAt = null;
 
-    /**
-     * @var UserEntity|null
-     */
-    protected $user;
+    protected ?UserEntity $user = null;
 
     public function getUserId(): string
     {

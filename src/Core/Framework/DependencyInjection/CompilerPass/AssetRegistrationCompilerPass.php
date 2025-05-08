@@ -8,7 +8,7 @@ use Symfony\Component\DependencyInjection\Compiler\CompilerPassInterface;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\DependencyInjection\Reference;
 
-#[Package('core')]
+#[Package('framework')]
 class AssetRegistrationCompilerPass implements CompilerPassInterface
 {
     public function process(ContainerBuilder $container): void
@@ -23,7 +23,7 @@ class AssetRegistrationCompilerPass implements CompilerPassInterface
         $assetService->addMethodCall('setDefaultPackage', [$assets['asset']]);
 
         if ($container->hasDefinition(ThemeCompiler::class)) {
-            $container->getDefinition(ThemeCompiler::class)->replaceArgument(6, $assets);
+            $container->getDefinition(ThemeCompiler::class)->replaceArgument(7, $assets);
         }
     }
 }

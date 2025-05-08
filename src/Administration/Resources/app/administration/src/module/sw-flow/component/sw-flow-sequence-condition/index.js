@@ -1,20 +1,18 @@
 import template from './sw-flow-sequence-condition.html.twig';
 import './sw-flow-sequence-condition.scss';
 
-const { Component, State } = Shopware;
+const { Component, Store } = Shopware;
 const { Criteria } = Shopware.Data;
 const utils = Shopware.Utils;
 const { ShopwareError } = Shopware.Classes;
-const { mapState, mapGetters } = Component.getComponentHelper();
+const { mapState } = Component.getComponentHelper();
 
 /**
  * @private
- * @package services-settings
+ * @sw-package after-sales
  */
 export default {
     template,
-
-    compatConfig: Shopware.compatConfig,
 
     inject: [
         'repositoryFactory',
@@ -46,7 +44,15 @@ export default {
     },
 
     computed: {
-        ...mapState('swFlowState', ['restrictedRules', 'flow']),
+        ...mapState(
+            () => Store.get('swFlow'),
+            [
+                'restrictedRules',
+                'flow',
+                'invalidSequences',
+                'sequences',
+            ],
+        ),
 
         sequenceRepository() {
             return this.repositoryFactory.create('flow_sequence');
@@ -85,9 +91,6 @@ export default {
                 ruleAwareGroupKey: `flowTrigger.${this.flow.eventName}`,
             };
         },
-
-        ...mapState('swFlowState', ['invalidSequences', 'flow']),
-        ...mapGetters('swFlowState', ['sequences']),
     },
 
     watch: {
@@ -139,7 +142,7 @@ export default {
                 return;
             }
 
-            State.commit('swFlowState/updateSequence', {
+            Store.get('swFlow').updateSequence({
                 id: this.sequence.id,
                 rule,
                 ruleId: rule.id,
@@ -147,13 +150,12 @@ export default {
 
             if (this.selectedRuleId) {
                 // Update other conditions which use the same rule
-                this.sequences.forEach(sequence => {
-                    if (sequence.ruleId !== this.selectedRuleId
-                        || sequence.id === this.sequence.id) {
+                this.sequences.forEach((sequence) => {
+                    if (sequence.ruleId !== this.selectedRuleId || sequence.id === this.sequence.id) {
                         return;
                     }
 
-                    State.commit('swFlowState/updateSequence', {
+                    Store.get('swFlow').updateSequence({
                         id: sequence.id,
                         rule,
                         ruleId: rule.id,
@@ -168,7 +170,7 @@ export default {
         },
 
         deleteRule() {
-            State.commit('swFlowState/updateSequence', {
+            Store.get('swFlow').updateSequence({
                 id: this.sequence.id,
                 rule: null,
                 ruleId: '',
@@ -240,7 +242,7 @@ export default {
 
             const getRemoveIds = (sequence, sequenceIds = []) => {
                 if (sequence.trueBlock) {
-                    Object.values(sequence.trueBlock).forEach(trueSequence => {
+                    Object.values(sequence.trueBlock).forEach((trueSequence) => {
                         if (trueSequence._isNew) {
                             sequenceIds.push(trueSequence.id);
                         }
@@ -250,7 +252,7 @@ export default {
                 }
 
                 if (sequence.falseBlock) {
-                    Object.values(sequence.falseBlock).forEach(falseSequence => {
+                    Object.values(sequence.falseBlock).forEach((falseSequence) => {
                         if (falseSequence._isNew) {
                             sequenceIds.push(falseSequence.id);
                         }
@@ -262,7 +264,7 @@ export default {
 
             getRemoveIds(this.sequence, actionIds);
 
-            State.commit('swFlowState/removeSequences', actionIds);
+            Store.get('swFlow').removeSequences(actionIds);
         },
 
         createSequence(params) {
@@ -280,7 +282,7 @@ export default {
             };
 
             sequence = Object.assign(sequence, newSequence);
-            State.commit('swFlowState/addSequence', sequence);
+            Store.get('swFlow').addSequence(sequence);
         },
 
         setFieldError() {
@@ -300,8 +302,8 @@ export default {
             }
 
             this.fieldError = null;
-            const invalidSequences = this.invalidSequences?.filter(id => this.sequence.id !== id);
-            State.commit('swFlowState/setInvalidSequences', invalidSequences);
+            const invalidSequences = this.invalidSequences?.filter((id) => this.sequence.id !== id);
+            Store.get('swFlow').invalidSequences = invalidSequences;
         },
 
         toggleAddButton() {

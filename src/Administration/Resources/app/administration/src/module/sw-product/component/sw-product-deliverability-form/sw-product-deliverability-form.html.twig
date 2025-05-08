@@ -1,14 +1,12 @@
-<!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
 {% block sw_product_deliverability_form %}
 <div class="product-deliverability-form">
     <sw-container
         columns="1fr 1fr 1fr"
         gap="0px 30px"
     >
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_product_deliverability_form_stock_field %}
-        <sw-number-field
-            v-model:value="product.stock"
+        <mt-number-field
+            v-model="product.stock"
             name="sw-field--product-stock"
             number-type="int"
             :disabled="!allowEdit"
@@ -18,10 +16,9 @@
         />
         {% endblock %}
 
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_product_deliverability_form_available_stock_field %}
-        <sw-number-field
-            v-model:value="product.availableStock"
+        <mt-number-field
+            v-model="product.availableStock"
             name="sw-field--product-available-stock"
             number-type="int"
             :disabled="true"
@@ -29,7 +26,6 @@
         />
         {% endblock %}
 
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_product_deliverability_form_is_closeout_field %}
         <sw-inherit-wrapper
             v-model:value="product.isCloseout"
@@ -38,15 +34,18 @@
         >
             <template #content="props">
 
-                <sw-switch-field
+                <mt-switch
                     name="sw-field--product-is-closeout"
                     :error="productIsCloseoutError"
-                    :map-inheritance="props"
+                    :is-inheritance-field="props.isInheritField"
+                    :is-inherited="props.isInherited"
                     :label="$tc('sw-product.settingsForm.labelIsCloseout')"
                     :help-text="$tc('sw-product.settingsForm.isCloseoutHelpText')"
                     :disabled="props.isInherited || !allowEdit"
-                    :value="props.currentValue"
-                    @update:value="props.updateCurrentValue"
+                    :model-value="props.currentValue"
+                    @update:model-value="props.updateCurrentValue"
+                    @inheritance-restore="props.restoreInheritance"
+                    @inheritance-remove="props.removeInheritance"
                 />
 
             </template>
@@ -58,7 +57,6 @@
         columns="1fr 1fr 1fr"
         gap="0px 30px"
     >
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_product_deliverability_form_delivery_time_field %}
         <sw-inherit-wrapper
             v-if="showModeSetting"
@@ -85,7 +83,6 @@
         </sw-inherit-wrapper>
         {% endblock %}
 
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_product_deliverability_form_restock_field %}
         <sw-inherit-wrapper
             v-if="showModeSetting"
@@ -96,25 +93,27 @@
         >
             <template #content="props">
 
-                <sw-number-field
+                <mt-number-field
                     name="sw-field--product-restock-time"
-                    :map-inheritance="props"
+                    :is-inheritance-field="props.isInheritField"
+                    :is-inherited="props.isInherited"
                     number-type="int"
                     allow-empty
                     :min="0"
                     :disabled="props.isInherited || !allowEdit"
                     :label="$tc('sw-product.settingsForm.labelRestockTime')"
                     :placeholder="$tc('sw-product.settingsForm.placeholderRestockTime')"
-                    :value="props.currentValue"
+                    :model-value="props.currentValue"
                     :error="productRestockTimeError"
-                    @update:value="props.updateCurrentValue"
+                    @update:model-value="props.updateCurrentValue"
+                    @inheritance-restore="props.restoreInheritance"
+                    @inheritance-remove="props.removeInheritance"
                 />
 
             </template>
         </sw-inherit-wrapper>
         {% endblock %}
 
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_product_deliverability_form_shipping_free_field %}
         <sw-inherit-wrapper
             v-if="showModeSetting"
@@ -125,13 +124,16 @@
         >
             <template #content="props">
 
-                <sw-switch-field
-                    :map-inheritance="props"
+                <mt-switch
+                    :is-inheritance-field="props.isInheritField"
+                    :is-inherited="props.isInherited"
                     :error="productShippingFreeError"
                     :label="$tc('sw-product.settingsForm.labelShippingFree')"
                     :disabled="props.isInherited || !allowEdit"
-                    :value="props.currentValue"
-                    @update:value="props.updateCurrentValue"
+                    :model-value="props.currentValue"
+                    @update:model-value="props.updateCurrentValue"
+                    @inheritance-restore="props.restoreInheritance"
+                    @inheritance-remove="props.removeInheritance"
                 />
 
             </template>
@@ -143,7 +145,6 @@
         columns="1fr 1fr 1fr"
         gap="0px 30px"
     >
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_product_deliverability_form_min_purchase_field %}
         <sw-inherit-wrapper
             v-if="showModeSetting"
@@ -154,23 +155,25 @@
         >
             <template #content="props">
 
-                <sw-number-field
-                    :map-inheritance="props"
+                <mt-number-field
+                    :is-inheritance-field="props.isInheritField"
+                    :is-inherited="props.isInherited"
                     number-type="int"
                     :min="1"
                     :error="productMinPurchaseError"
                     :label="$tc('sw-product.settingsForm.labelMinPurchase')"
                     :placeholder="$tc('sw-product.settingsForm.placeholderMinPurchase')"
                     :disabled="props.isInherited || !allowEdit"
-                    :value="props.currentValue"
-                    @update:value="props.updateCurrentValue"
+                    :model-value="props.currentValue"
+                    @update:model-value="props.updateCurrentValue"
+                    @inheritance-restore="props.restoreInheritance"
+                    @inheritance-remove="props.removeInheritance"
                 />
 
             </template>
         </sw-inherit-wrapper>
         {% endblock %}
 
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_product_deliverability_form_purchase_steps_field %}
         <sw-inherit-wrapper
             v-if="showModeSetting"
@@ -181,22 +184,24 @@
         >
             <template #content="props">
 
-                <sw-number-field
-                    :map-inheritance="props"
+                <mt-number-field
+                    :is-inheritance-field="props.isInheritField"
+                    :is-inherited="props.isInherited"
                     number-type="int"
                     :min="1"
                     :error="productPurchaseStepsError"
                     :label="$tc('sw-product.settingsForm.labelPurchaseSteps')"
                     :placeholder="$tc('sw-product.settingsForm.placeholderPurchaseSteps')"
                     :disabled="props.isInherited || !allowEdit"
-                    :value="props.currentValue"
-                    @update:value="props.updateCurrentValue"
+                    :model-value="props.currentValue"
+                    @update:model-value="props.updateCurrentValue"
+                    @inheritance-restore="props.restoreInheritance"
+                    @inheritance-remove="props.removeInheritance"
                 />
             </template>
         </sw-inherit-wrapper>
         {% endblock %}
 
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_product_deliverability_form_max_purchase_field %}
         <sw-inherit-wrapper
             v-if="showModeSetting"
@@ -207,8 +212,9 @@
         >
             <template #content="props">
 
-                <sw-number-field
-                    :map-inheritance="props"
+                <mt-number-field
+                    :is-inheritance-field="props.isInheritField"
+                    :is-inherited="props.isInherited"
                     number-type="int"
                     :allow-empty="true"
                     :min="0"
@@ -216,8 +222,10 @@
                     :label="$tc('sw-product.settingsForm.labelMaxPurchase')"
                     :placeholder="$tc('sw-product.settingsForm.placeholderMaxPurchase')"
                     :disabled="props.isInherited || !allowEdit"
-                    :value="props.currentValue"
-                    @update:value="props.updateCurrentValue"
+                    :model-value="props.currentValue"
+                    @update:model-value="props.updateCurrentValue"
+                    @inheritance-restore="props.restoreInheritance"
+                    @inheritance-remove="props.removeInheritance"
                 />
             </template>
         </sw-inherit-wrapper>

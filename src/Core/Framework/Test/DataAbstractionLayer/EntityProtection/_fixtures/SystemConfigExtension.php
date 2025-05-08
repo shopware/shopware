@@ -13,16 +13,13 @@ use Shopware\Core\System\SystemConfig\SystemConfigDefinition;
  */
 class SystemConfigExtension extends EntityExtension
 {
-    /**
-     * {@inheritdoc}
-     */
-    public function getDefinitionClass(): string
-    {
-        return SystemConfigDefinition::class;
-    }
-
     public function extendProtections(EntityProtectionCollection $protections): void
     {
         $protections->add(new WriteProtection(Context::SYSTEM_SCOPE, Context::USER_SCOPE));
+    }
+
+    public function getEntityName(): string
+    {
+        return SystemConfigDefinition::ENTITY_NAME;
     }
 }

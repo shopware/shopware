@@ -19,12 +19,14 @@ use Shopware\Core\Checkout\Cart\Tax\Struct\CalculatedTaxCollection;
 use Shopware\Core\Checkout\Cart\Tax\Struct\TaxRule;
 use Shopware\Core\Checkout\Cart\Tax\Struct\TaxRuleCollection;
 use Shopware\Core\Checkout\Cart\Tax\TaxCalculator;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Test\Generator;
 
 /**
  * @internal
  */
 #[CoversClass(PercentagePriceCalculator::class)]
+#[Package('checkout')]
 class PercentagePriceCalculatorTest extends TestCase
 {
     #[DataProvider('grossPriceDataProvider')]
@@ -44,7 +46,7 @@ class PercentagePriceCalculatorTest extends TestCase
         $price = $calculator->calculate(
             $calculation->getPercentageDiscount(),
             $calculation->getPrices(),
-            Generator::createSalesChannelContext()
+            Generator::generateSalesChannelContext()
         );
         $expected = $calculation->getExpected();
 
@@ -69,12 +71,12 @@ class PercentagePriceCalculatorTest extends TestCase
         $calculator = self::createQuantityPriceCalculator();
 
         $priceDefinition = new QuantityPriceDefinition(10.40, new TaxRuleCollection([new TaxRule(21, 100)]), 1);
-        $price = $calculator->calculate($priceDefinition, Generator::createSalesChannelContext());
+        $price = $calculator->calculate($priceDefinition, Generator::generateSalesChannelContext());
         static::assertSame(10.40, $price->getTotalPrice());
         static::assertSame(1.80, $price->getCalculatedTaxes()->getAmount());
 
         $priceDefinition = new QuantityPriceDefinition(104.00, new TaxRuleCollection([new TaxRule(21, 100)]), 1);
-        $price = $calculator->calculate($priceDefinition, Generator::createSalesChannelContext());
+        $price = $calculator->calculate($priceDefinition, Generator::generateSalesChannelContext());
         static::assertSame(104.00, $price->getTotalPrice());
         static::assertSame(18.05, $price->getCalculatedTaxes()->getAmount());
 
@@ -98,7 +100,7 @@ class PercentagePriceCalculatorTest extends TestCase
 
         $priceDefinition = new QuantityPriceDefinition(100.00, new TaxRuleCollection([new TaxRule(20, 100)]), 5);
 
-        $price = $calculator->calculate($priceDefinition, Generator::createSalesChannelContext());
+        $price = $calculator->calculate($priceDefinition, Generator::generateSalesChannelContext());
         static::assertSame(500.00, $price->getTotalPrice());
         static::assertSame(83.33, $price->getCalculatedTaxes()->getAmount());
 
@@ -122,7 +124,7 @@ class PercentagePriceCalculatorTest extends TestCase
 
         $priceDefinition = new QuantityPriceDefinition(29.00, new TaxRuleCollection([new TaxRule(17, 100)]), 10);
 
-        $price = $calculator->calculate($priceDefinition, Generator::createSalesChannelContext());
+        $price = $calculator->calculate($priceDefinition, Generator::generateSalesChannelContext());
 
         return new PercentageCalculation(
             -100,
@@ -143,10 +145,10 @@ class PercentagePriceCalculatorTest extends TestCase
         $calculator = self::createQuantityPriceCalculator();
 
         $definition = new QuantityPriceDefinition(30, new TaxRuleCollection([new TaxRule(19)]));
-        $price1 = $calculator->calculate($definition, Generator::createSalesChannelContext());
+        $price1 = $calculator->calculate($definition, Generator::generateSalesChannelContext());
 
         $definition = new QuantityPriceDefinition(30, new TaxRuleCollection([new TaxRule(7)]));
-        $price2 = $calculator->calculate($definition, Generator::createSalesChannelContext());
+        $price2 = $calculator->calculate($definition, Generator::generateSalesChannelContext());
 
         return new PercentageCalculation(
             -10,
@@ -178,6 +180,7 @@ class PercentagePriceCalculatorTest extends TestCase
 /**
  * @internal
  */
+#[Package('checkout')]
 class PercentageCalculation
 {
     public function __construct(

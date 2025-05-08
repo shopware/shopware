@@ -33,7 +33,7 @@ class AppRecurringHandlerTest extends AbstractAppPaymentHandlerTestCase
 
         $this->appendNewResponse($this->signResponse($response->jsonSerialize()));
 
-        $paymentHandler = $this->getContainer()->get(AppPaymentHandler::class);
+        $paymentHandler = static::getContainer()->get(AppPaymentHandler::class);
         $paymentHandler->recurring($this->getRecurringStruct(), Context::createDefaultContext());
 
         $request = $this->getLastRequest();
@@ -56,6 +56,7 @@ class AppRecurringHandlerTest extends AbstractAppPaymentHandlerTestCase
             'url' => $this->shopUrl,
             'shopId' => $this->shopIdProvider->getShopId(),
             'appVersion' => '1.0.0',
+            'inAppPurchases' => null,
         ], $content['source']);
 
         $this->assertOrderTransactionState(OrderTransactionStates::STATE_PAID, $transactionId);
@@ -73,7 +74,7 @@ class AppRecurringHandlerTest extends AbstractAppPaymentHandlerTestCase
 
         $this->appendNewResponse($this->signResponse($response->jsonSerialize()));
 
-        $paymentHandler = $this->getContainer()->get(AppPaymentHandler::class);
+        $paymentHandler = static::getContainer()->get(AppPaymentHandler::class);
 
         try {
             $paymentHandler->recurring($this->getRecurringStruct(), Context::createDefaultContext());
@@ -102,7 +103,7 @@ FOO_BAR_ERROR_MESSAGE', $e->getMessage());
 
         $this->appendNewResponse(new Response(200, [], $json));
 
-        $paymentHandler = $this->getContainer()->get(AppPaymentHandler::class);
+        $paymentHandler = static::getContainer()->get(AppPaymentHandler::class);
 
         try {
             $paymentHandler->recurring($this->getRecurringStruct(), Context::createDefaultContext());
@@ -130,7 +131,7 @@ FOO_BAR_ERROR_MESSAGE', $e->getMessage());
 
         $this->appendNewResponse(new Response(200, ['shopware-app-signature' => 'invalid'], $json));
 
-        $paymentHandler = $this->getContainer()->get(AppPaymentHandler::class);
+        $paymentHandler = static::getContainer()->get(AppPaymentHandler::class);
 
         try {
             $paymentHandler->recurring($this->getRecurringStruct(), Context::createDefaultContext());

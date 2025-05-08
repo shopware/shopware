@@ -4,8 +4,9 @@ namespace Shopware\Core\Framework\Adapter\Cache;
 
 use Psr\Cache\CacheItemPoolInterface;
 use Psr\Log\LoggerInterface;
-use Shopware\Core\DevOps\Environment\EnvironmentHelper;
+use Shopware\Core\Framework\Adapter\AdapterException;
 use Shopware\Core\Framework\Adapter\Cache\Message\CleanupOldCacheFolders;
+use Shopware\Core\Framework\Adapter\Cache\ReverseProxy\AbstractReverseProxyGateway;
 use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\Cache\PruneableInterface;
 use Symfony\Component\Filesystem\Filesystem;
@@ -16,7 +17,7 @@ use Symfony\Component\Messenger\MessageBusInterface;
 /**
  * @final
  */
-#[Package('core')]
+#[Package('framework')]
 class CacheClearer
 {
     /**
@@ -27,6 +28,7 @@ class CacheClearer
     public function __construct(
         private readonly array $adapters,
         private readonly CacheClearerInterface $cacheClearer,
+        private readonly ?AbstractReverseProxyGateway $reverseProxyCache,
         private readonly CacheInvalidator $invalidator,
         private readonly Filesystem $filesystem,
         private readonly string $cacheDir,
@@ -37,10 +39,14 @@ class CacheClearer
     ) {
     }
 
-    public function clear(): void
+    public function clear(bool $clearHttp = true): void
     {
         foreach ($this->adapters as $adapter) {
             $adapter->clear();
+        }
+
+        if ($clearHttp) {
+            $this->reverseProxyCache?->banAll();
         }
 
         try {
@@ -51,7 +57,7 @@ class CacheClearer
         }
 
         if (!is_writable($this->cacheDir)) {
-            throw new \RuntimeException(\sprintf('Unable to write in the "%s" directory', $this->cacheDir));
+            throw AdapterException::cacheDirectoryError($this->cacheDir);
         }
 
         $this->cacheClearer->clear($this->cacheDir);
@@ -112,10 +118,6 @@ class CacheClearer
 
     public function cleanupOldContainerCacheDirectories(): void
     {
-        // Don't delete other folders while paratest is running
-        if (EnvironmentHelper::getVariable('TEST_TOKEN')) {
-            return;
-        }
         if ($this->clusterMode) {
             // In cluster mode we can't delete caches on the filesystem
             // because this only runs on one node in the cluster
@@ -140,6 +142,16 @@ class CacheClearer
 
         if ($remove !== []) {
             $this->filesystem->remove($remove);
+        }
+    }
+
+    public function clearHttpCache(): void
+    {
+        $this->reverseProxyCache?->banAll();
+
+        // if reverse proxy is not enabled, clear the http pool
+        if ($this->reverseProxyCache === null) {
+            $this->adapters['http']->clear();
         }
     }
 

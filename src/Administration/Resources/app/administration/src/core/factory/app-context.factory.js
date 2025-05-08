@@ -1,5 +1,6 @@
+import useContext from '../../app/composables/use-context';
 /**
- * @package admin
+ * @sw-package framework
  *
  * @private
  * @module core/factory/context
@@ -8,13 +9,19 @@
  */
 export default function createContext(context = {}) {
     // set initial context
-    Shopware.State.commit('context/setAppEnvironment', process.env.NODE_ENV);
-    Shopware.State.commit('context/setAppFallbackLocale', 'en-GB');
+    const contextStore = useContext();
+    contextStore.app.environment = process.env.NODE_ENV;
+    contextStore.app.fallbackLocale = 'en-GB';
 
     // assign unknown context information
-    Object.entries(context).forEach(([key, value]) => {
-        Shopware.State.commit('context/addAppValue', { key, value });
-    });
+    Object.entries(context).forEach(
+        ([
+            key,
+            value,
+        ]) => {
+            contextStore.addAppValue({ key, value });
+        },
+    );
 
     return Shopware.Context.app;
 }

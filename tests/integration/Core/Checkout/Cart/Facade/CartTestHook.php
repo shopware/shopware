@@ -7,8 +7,8 @@ use Shopware\Core\Checkout\Cart\Hook\CartAware;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Script\Execution\Awareness\SalesChannelContextAwareTrait;
 use Shopware\Core\Framework\Script\Execution\Hook;
-use Shopware\Core\Framework\Test\IdsCollection;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
+use Shopware\Core\Test\Stub\Framework\IdsCollection;
 
 /**
  * @internal

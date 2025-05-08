@@ -1,33 +1,21 @@
-<!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
 {% block sw_gtc_checkbox %}
 <div class="sw-gtc-checkbox">
-    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_gtc_checkbox_input %}
-    <sw-checkbox-field
-        :value="value"
-        @update:value="onChange"
+    <mt-checkbox
+        :checked="value"
+        @update:checked="onChange"
     >
         <template #label>
-            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
-            {% block sw_gtc_checkbox_input_label %}
             {{ $tc('global.sw-gtc-checkbox.label') }}
-
-            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
-            {% block sw_gtc_checkbox_input_label_link %}
-            <sw-external-link
-                class="sw-external-link"
+            <mt-link
+                type="external"
+                as="a"
                 :href="$tc('global.sw-gtc-checkbox.url')"
             >
-                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
-                {% block sw_gtc_checkbox_input_label_text %}
                 {{ $tc('global.sw-gtc-checkbox.link') }}
-                {% endblock %}
-
-            </sw-external-link>
-            {% endblock %}
-            {% endblock %}
+            </mt-link>
         </template>
-    </sw-checkbox-field>
+    </mt-checkbox>
     {% endblock %}
 </div>
 {% endblock %}

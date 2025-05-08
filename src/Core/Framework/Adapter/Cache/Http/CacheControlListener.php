@@ -8,7 +8,7 @@ use Shopware\Core\Framework\Log\Package;
 /**
  * @internal
  */
-#[Package('core')]
+#[Package('framework')]
 readonly class CacheControlListener
 {
     public function __construct(private bool $reverseProxyEnabled)
@@ -31,7 +31,7 @@ readonly class CacheControlListener
 
         // We don't want that the client will cache the website, if no reverse proxy is configured
         $response->headers->remove('cache-control');
-        $response->headers->remove(CacheResponseSubscriber::INVALIDATION_STATES_HEADER);
+        $response->headers->remove(HttpCacheKeyGenerator::INVALIDATION_STATES_HEADER);
         $response->setPrivate();
 
         if ($noStore) {

@@ -1,60 +1,58 @@
 /**
- * @package services-settings
+ * @sw-package inventory
  */
 import { mount } from '@vue/test-utils';
 
 async function createWrapper() {
-    return mount(await wrapTestComponent('sw-bulk-edit-product-visibility', { sync: true }), {
-        global: {
-            stubs: {
-                'sw-inherit-wrapper': {
-                    template: '<div class="sw-inherit-wrapper"><slot name="content"></slot></div>',
+    return mount(
+        await wrapTestComponent('sw-bulk-edit-product-visibility', {
+            sync: true,
+        }),
+        {
+            global: {
+                stubs: {
+                    'sw-inherit-wrapper': {
+                        template: '<div class="sw-inherit-wrapper"><slot name="content"></slot></div>',
+                    },
+                    'sw-product-visibility-select': true,
+                    'sw-container': await wrapTestComponent('sw-container'),
+                    'sw-product-visibility-detail': true,
                 },
-                'sw-product-visibility-select': true,
-                'sw-container': await wrapTestComponent('sw-container'),
-                'sw-icon': true,
-                'sw-product-visibility-detail': true,
-                'sw-button': true,
-            },
-            provide: {
-                repositoryFactory: {
-                    create: () => {
-                        return {
-                            create: () => {
-                                return Promise.resolve();
-                            },
-                        };
+                provide: {
+                    repositoryFactory: {
+                        create: () => {
+                            return {
+                                create: () => {
+                                    return Promise.resolve();
+                                },
+                            };
+                        },
                     },
                 },
             },
+            props: {
+                bulkEditProduct: {},
+                disabled: false,
+            },
         },
-        props: {
-            bulkEditProduct: {},
-            disabled: false,
-        },
-    });
+    );
 }
 
 describe('sw-bulk-edit-product-visibility', () => {
     let wrapper;
 
     beforeAll(() => {
-        Shopware.State.registerModule('swProductDetail', {
-            namespaced: true,
-            state: () => {
-                return {
-                    product: {
-                        visibilities: [{
-                            productId: 'productId',
-                            productVersionId: 'productVersionId',
-                            salesChannel: {},
-                            salesChannelId: 'salesChannelId',
-                            visibility: 30,
-                        }],
-                    },
-                };
-            },
-        });
+        Shopware.Store.get('swProductDetail').product = {
+            visibilities: [
+                {
+                    productId: 'productId',
+                    productVersionId: 'productVersionId',
+                    salesChannel: {},
+                    salesChannelId: 'salesChannelId',
+                    visibility: 30,
+                },
+            ],
+        };
     });
 
     beforeEach(async () => {

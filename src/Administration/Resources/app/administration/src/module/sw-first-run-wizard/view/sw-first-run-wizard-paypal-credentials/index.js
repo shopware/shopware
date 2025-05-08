@@ -1,15 +1,16 @@
 import template from './sw-first-run-wizard-paypal-credentials.html.twig';
 
 /**
- * @package checkout
+ * @sw-package fundamentals@after-sales
  */
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default {
     template,
 
-    compatConfig: Shopware.compatConfig,
-
-    emits: ['frw-set-title', 'buttons-update'],
+    emits: [
+        'frw-set-title',
+        'buttons-update',
+    ],
 
     computed: {
         buttonConfig() {
@@ -18,7 +19,7 @@ export default {
                     key: 'back',
                     label: this.$tc('sw-first-run-wizard.general.buttonBack'),
                     position: 'left',
-                    variant: null,
+                    variant: 'secondary',
                     action: 'sw.first.run.wizard.index.paypal.info',
                     disabled: false,
                 },
@@ -26,7 +27,7 @@ export default {
                     key: 'skip',
                     label: this.$tc('sw-first-run-wizard.general.buttonSkip'),
                     position: 'right',
-                    variant: null,
+                    variant: 'secondary',
                     action: 'sw.first.run.wizard.index.plugins',
                     disabled: false,
                 },

@@ -6,28 +6,16 @@ use Shopware\Core\Content\Media\MediaEntity;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Struct\Struct;
 
-#[Package('buyers-experience')]
+#[Package('discovery')]
 class ImageStruct extends Struct
 {
-    /**
-     * @var string|null
-     */
-    protected $mediaId;
+    protected ?string $mediaId = null;
 
-    /**
-     * @var string|null
-     */
-    protected $url;
+    protected ?string $url = null;
 
-    /**
-     * @var bool|null
-     */
-    protected $newTab;
+    protected ?bool $newTab = null;
 
-    /**
-     * @var MediaEntity|null
-     */
-    protected $media;
+    protected ?MediaEntity $media = null;
 
     public function getMedia(): ?MediaEntity
     {

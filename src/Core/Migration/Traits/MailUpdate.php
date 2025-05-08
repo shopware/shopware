@@ -4,46 +4,16 @@ namespace Shopware\Core\Migration\Traits;
 
 use Shopware\Core\Framework\Log\Package;
 
-#[Package('core')]
+#[Package('framework')]
 class MailUpdate
 {
-    /**
-     * @var string
-     */
-    protected $type;
-
-    /**
-     * @var string|null
-     */
-    protected $enPlain;
-
-    /**
-     * @var string|null
-     */
-    protected $enHtml;
-
-    /**
-     * @var string|null
-     */
-    protected $dePlain;
-
-    /**
-     * @var string|null
-     */
-    protected $deHtml;
-
     public function __construct(
-        string $type,
-        ?string $enPlain = null,
-        ?string $enHtml = null,
-        ?string $dePlain = null,
-        ?string $deHtml = null
+        protected string $type,
+        protected ?string $enPlain = null,
+        protected ?string $enHtml = null,
+        protected ?string $dePlain = null,
+        protected ?string $deHtml = null
     ) {
-        $this->type = $type;
-        $this->enPlain = $enPlain;
-        $this->enHtml = $enHtml;
-        $this->dePlain = $dePlain;
-        $this->deHtml = $deHtml;
     }
 
     public function getEnPlain(): ?string

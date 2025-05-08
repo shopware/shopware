@@ -4,7 +4,7 @@ import './sw-card-view.scss';
 const { Component } = Shopware;
 
 /**
- * @package admin
+ * @sw-package framework
  *
  * @private
  * @description
@@ -27,8 +27,6 @@ const { Component } = Shopware;
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 Component.register('sw-card-view', {
     template,
-
-    compatConfig: Shopware.compatConfig,
 
     props: {
         showErrorSummary: {

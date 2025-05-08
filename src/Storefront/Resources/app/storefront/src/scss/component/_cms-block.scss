@@ -6,8 +6,6 @@ specific styling for elements dependent on their parent block
 */
 
 .cms-block {
-    overflow: hidden;
-
     &.bg-image {
         position: relative;
         background-repeat: no-repeat;
@@ -54,7 +52,7 @@ specific styling for elements dependent on their parent block
         margin: 0;
     }
 
-    [class^=col-] {
+    [class^='col-'] {
         padding: 0;
     }
 }

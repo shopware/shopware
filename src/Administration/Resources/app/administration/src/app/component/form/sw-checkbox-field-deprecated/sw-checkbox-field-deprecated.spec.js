@@ -1,10 +1,11 @@
 /**
- * @package admin
+ * @sw-package framework
  */
 
 import { mount } from '@vue/test-utils';
 import 'src/app/component/form/field-base/sw-base-field';
 import 'src/app/component/form/sw-checkbox-field';
+import { ref } from 'vue';
 
 const defaultData = {
     indeterminateOne: false,
@@ -18,7 +19,7 @@ const createWrapper = async (data = defaultData) => {
         template: `
             <div>
                 <sw-checkbox-field v-model:value="checkOne" label="CheckOne"  bordered :partly-checked="indeterminateOne" name="sw-field--checkOne" />
-                <sw-checkbox-field v-model:value="checkTwo" label="CheckTwo" padded name="sw-field--checkTwo" />
+                <sw-checkbox-field v-model:value="checkTwo" label="CheckTwo" aria-label="Check Two" padded name="sw-field--checkTwo" />
                 <sw-checkbox-field v-model:value="checkThree" label="CheckThree" bordered padded name="sw-field--checkThree" />
             </div>
         `,
@@ -35,7 +36,6 @@ const createWrapper = async (data = defaultData) => {
             stubs: {
                 'sw-checkbox-field': await wrapTestComponent('sw-checkbox-field-deprecated'),
                 'sw-base-field': await wrapTestComponent('sw-base-field'),
-                'sw-icon': true,
                 'sw-field-error': {
                     template: '<div></div>',
                 },
@@ -96,7 +96,11 @@ describe('app/component/form/sw-checkbox-field', () => {
         expect(thirdCheckboxInputId).toMatch(thirdLabelFor);
     });
 
-    ['checkOne', 'checkTwo', 'checkThree'].forEach((checkboxId, index) => {
+    [
+        'checkOne',
+        'checkTwo',
+        'checkThree',
+    ].forEach((checkboxId, index) => {
         it(`should click on the label of Checkbox "${checkboxId}" and the corresponding data updates`, async () => {
             const wrapper = await createWrapper();
             await flushPromises();
@@ -105,9 +109,8 @@ describe('app/component/form/sw-checkbox-field', () => {
             await wrapper.findAll('.sw-field__label label').at(index).trigger('click');
             expect(wrapper.vm[checkboxId]).toBeTruthy();
 
-            expect(wrapper.find('.sw-field__checkbox-state sw-icon-stub').attributes('name')).toBe('regular-checkmark-xxs');
+            expect(wrapper.find('.sw-field__checkbox-state .mt-icon').classes()).toContain('icon--regular-checkmark-xxs');
         });
-
 
         it(`should click on the input of Checkbox "${checkboxId}" and the corresponding data updates`, async () => {
             const wrapper = await createWrapper();
@@ -117,28 +120,32 @@ describe('app/component/form/sw-checkbox-field', () => {
             await wrapper.find(`input[name="sw-field--${checkboxId}"]`).setChecked();
             expect(wrapper.vm[checkboxId]).toBeTruthy();
 
-            expect(wrapper.find('.sw-field__checkbox-state sw-icon-stub').attributes('name')).toBe('regular-checkmark-xxs');
+            expect(wrapper.find('.sw-field__checkbox-state .mt-icon').classes()).toContain('icon--regular-checkmark-xxs');
         });
     });
 
     it('should show the label from the property', async () => {
-        const wrapper = mount(await wrapTestComponent('sw-checkbox-field-deprecated', { sync: true }), {
-            props: {
-                label: 'Label from prop',
-            },
-            global: {
-                stubs: {
-                    'sw-base-field': await wrapTestComponent('sw-base-field'),
-                    'sw-icon': true,
-                    'sw-field-error': {
-                        template: '<div></div>',
+        const wrapper = mount(
+            await wrapTestComponent('sw-checkbox-field-deprecated', {
+                sync: true,
+            }),
+            {
+                props: {
+                    label: 'Label from prop',
+                },
+                global: {
+                    stubs: {
+                        'sw-base-field': await wrapTestComponent('sw-base-field'),
+                        'sw-field-error': {
+                            template: '<div></div>',
+                        },
+                        'sw-help-text': true,
+                        'sw-ai-copilot-badge': true,
+                        'sw-inheritance-switch': true,
                     },
-                    'sw-help-text': true,
-                    'sw-ai-copilot-badge': true,
-                    'sw-inheritance-switch': true,
                 },
             },
-        });
+        );
 
         await flushPromises();
 
@@ -146,26 +153,30 @@ describe('app/component/form/sw-checkbox-field', () => {
     });
 
     it('should show the value from the label slot', async () => {
-        const wrapper = mount(await wrapTestComponent('sw-checkbox-field-deprecated', { sync: true }), {
-            props: {
-                label: 'Label from prop',
-            },
-            global: {
-                stubs: {
-                    'sw-base-field': await wrapTestComponent('sw-base-field'),
-                    'sw-icon': true,
-                    'sw-field-error': {
-                        template: '<div></div>',
+        const wrapper = mount(
+            await wrapTestComponent('sw-checkbox-field-deprecated', {
+                sync: true,
+            }),
+            {
+                props: {
+                    label: 'Label from prop',
+                },
+                global: {
+                    stubs: {
+                        'sw-base-field': await wrapTestComponent('sw-base-field'),
+                        'sw-field-error': {
+                            template: '<div></div>',
+                        },
+                        'sw-help-text': true,
+                        'sw-ai-copilot-badge': true,
+                        'sw-inheritance-switch': true,
                     },
-                    'sw-help-text': true,
-                    'sw-ai-copilot-badge': true,
-                    'sw-inheritance-switch': true,
+                },
+                slots: {
+                    label: '<template>Label from slot</template>',
                 },
             },
-            slots: {
-                label: '<template>Label from slot</template>',
-            },
-        });
+        );
         await flushPromises();
 
         expect(wrapper.find('label').text()).toBe('Label from slot');
@@ -196,7 +207,7 @@ describe('app/component/form/sw-checkbox-field', () => {
         const firstCheckbox = wrapper.find('.sw-field--checkbox');
 
         expect(firstCheckbox.find('input').element.checked).toBe(false);
-        expect(firstCheckbox.find('.sw-field__checkbox-state sw-icon-stub').attributes('name')).toBe('regular-minus-xxs');
+        expect(firstCheckbox.find('.sw-field__checkbox-state .mt-icon').classes()).toContain('icon--regular-minus-xxs');
     });
 
     it('should switch the checked icon if partlyChecked state and state is active and checkbox is partlyChecked', async () => {
@@ -209,11 +220,11 @@ describe('app/component/form/sw-checkbox-field', () => {
         await flushPromises();
 
         const firstCheckbox = wrapper.find('.sw-field--checkbox');
-        const icon = firstCheckbox.find('.sw-field__checkbox-state sw-icon-stub');
+        const icon = firstCheckbox.find('.sw-field__checkbox-state .mt-icon');
 
-        expect(icon.attributes('name')).toBe('regular-minus-xxs');
+        expect(icon.classes()).toContain('icon--regular-minus-xxs');
         await firstCheckbox.find('input').setChecked();
-        expect(icon.attributes('name')).toBe('regular-checkmark-xxs');
+        expect(icon.classes()).toContain('icon--regular-checkmark-xxs');
     });
 
     it('should add partlyChecked class to checkbox if partlyChecked state is active and checkbox is not checked', async () => {
@@ -226,5 +237,40 @@ describe('app/component/form/sw-checkbox-field', () => {
         await flushPromises();
 
         expect(wrapper.find('.sw-field--checkbox').classes()).toContain('is--partly-checked');
+    });
+
+    it('should add the ariaLabel prop to the input element', async () => {
+        const wrapper = await createWrapper();
+        await flushPromises();
+
+        const firstCheckbox = wrapper.find('.sw-field--checkbox');
+        expect(firstCheckbox.find('input').attributes('aria-label')).toBe('CheckOne');
+
+        const secondCheckbox = wrapper.findAll('.sw-field--checkbox').at(1);
+        expect(secondCheckbox.find('input').attributes('aria-label')).toBe('Check Two');
+    });
+
+    it('injects ariaLabel prop from global injection', async () => {
+        const wrapper = mount(
+            { template: `<sw-checkbox-field-deprecated />` },
+            {
+                global: {
+                    stubs: {
+                        'sw-checkbox-field-deprecated': await wrapTestComponent('sw-checkbox-field-deprecated'),
+                        'sw-base-field': await wrapTestComponent('sw-base-field'),
+                        'sw-field-error': { template: '<div></div>' },
+                        'sw-help-text': true,
+                        'sw-ai-copilot-badge': true,
+                        'sw-inheritance-switch': true,
+                    },
+                    provide: {
+                        ariaLabel: ref('Aria Label'),
+                    },
+                },
+            },
+        );
+        await flushPromises();
+
+        expect(wrapper.find('input').attributes('aria-label')).toBe('Aria Label');
     });
 });

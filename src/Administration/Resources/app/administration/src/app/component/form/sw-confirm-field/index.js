@@ -4,7 +4,7 @@ import './sw-confirm-field.scss';
 const { Component } = Shopware;
 
 /**
- * @package admin
+ * @sw-package framework
  *
  * @private
  * @description Text field with additional confirmation buttons inlined in the field itself.
@@ -15,8 +15,6 @@ const { Component } = Shopware;
  */
 Component.register('sw-confirm-field', {
     template,
-
-    compatConfig: Shopware.compatConfig,
 
     emits: [
         'remove-error',

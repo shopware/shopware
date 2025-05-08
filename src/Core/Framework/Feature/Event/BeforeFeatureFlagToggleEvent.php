@@ -5,7 +5,7 @@ namespace Shopware\Core\Framework\Feature\Event;
 use Shopware\Core\Framework\Log\Package;
 use Symfony\Contracts\EventDispatcher\Event;
 
-#[Package('core')]
+#[Package('framework')]
 class BeforeFeatureFlagToggleEvent extends Event
 {
     public function __construct(

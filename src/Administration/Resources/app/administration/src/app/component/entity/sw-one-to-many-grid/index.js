@@ -1,5 +1,5 @@
 /**
- * @package admin
+ * @sw-package framework
  */
 
 import template from './sw-one-to-many-grid.html.twig';
@@ -34,8 +34,14 @@ Component.extend('sw-one-to-many-grid', 'sw-data-grid', {
         },
         // eslint-disable-next-line vue/require-default-prop
         dataSource: {
-            type: [Array, Object],
+            type: [
+                Array,
+                Object,
+            ],
             required: false,
+            default(props) {
+                return (props.localMode && props.collection) ? props.collection : null;
+            },
         },
         allowDelete: {
             type: Boolean,
@@ -60,8 +66,19 @@ Component.extend('sw-one-to-many-grid', 'sw-data-grid', {
             page: 1,
             limit: 25,
             total: 0,
-            intial: true,
+            initial: true,
         };
+    },
+
+    watch: {
+        collection: {
+            handler() {
+                if (!this.initial) {
+                    this.load();
+                }
+            },
+            deep: true,
+        },
     },
 
     methods: {
@@ -71,7 +88,7 @@ Component.extend('sw-one-to-many-grid', 'sw-data-grid', {
             // assign collection as records for the sw-data-grid
             this.applyResult(this.collection);
 
-            this.intial = false;
+            this.initial = false;
 
             // local mode means, the records are loaded with the parent record
             if (this.localMode) {
@@ -89,7 +106,7 @@ Component.extend('sw-one-to-many-grid', 'sw-data-grid', {
             );
 
             // records contains a pre loaded offset
-            if (this.records.length > 0) {
+            if (Array.isArray(this.records) && this.records.length > 0) {
                 return Promise.resolve();
             }
 
@@ -99,7 +116,7 @@ Component.extend('sw-one-to-many-grid', 'sw-data-grid', {
         applyResult(result) {
             this.result = result;
 
-            if (!this.dataSource || !this.intial) {
+            if (!this.collection || !this.initial) {
                 this.records = result;
             }
 
@@ -135,11 +152,15 @@ Component.extend('sw-one-to-many-grid', 'sw-data-grid', {
         },
 
         load() {
-            return this.repository.search(this.result.criteria, this.result.context)
-                .then((response) => {
-                    this.applyResult(response);
-                    this.$emit('load-finish');
-                });
+            // If in local mode, return early since data is loaded with parent
+            if (this.localMode) {
+                return Promise.resolve();
+            }
+
+            return this.repository.search(this.result.criteria, this.result.context).then((response) => {
+                this.applyResult(response);
+                this.$emit('load-finish');
+            });
         },
 
         deleteItem(id) {
@@ -149,13 +170,16 @@ Component.extend('sw-one-to-many-grid', 'sw-data-grid', {
                 return Promise.resolve();
             }
 
-            return this.repository.delete(id, this.result.context).then(() => {
-                this.resetSelection();
+            return this.repository
+                .delete(id, this.result.context)
+                .then(() => {
+                    this.resetSelection();
 
-                return this.load();
-            }).catch((errorResponse) => {
-                this.$emit('delete-item-failed', { id, errorResponse });
-            });
+                    return this.load();
+                })
+                .catch((errorResponse) => {
+                    this.$emit('delete-item-failed', { id, errorResponse });
+                });
         },
 
         deleteItems() {
@@ -172,13 +196,17 @@ Component.extend('sw-one-to-many-grid', 'sw-data-grid', {
             }
 
             this.isBulkLoading = true;
-            const selectedIds = selection.map(selectedProxy => selectedProxy.id);
+            const selectedIds = selection.map((selectedProxy) => selectedProxy.id);
 
-            return this.repository.syncDeleted(selectedIds, this.result.context).then(() => {
-                return this.deleteItemsFinish();
-            }).catch(() => {
-                return this.deleteItemsFinish();
-            });
+            return this.repository
+                .syncDeleted(selectedIds, this.result.context)
+                .then(() => {
+                    this.resetSelection();
+                    this.load();
+                })
+                .catch(() => {
+                    return this.deleteItemsFinish();
+                });
         },
 
         deleteItemsFinish() {
@@ -206,9 +234,7 @@ Component.extend('sw-one-to-many-grid', 'sw-data-grid', {
                 }
             }
 
-            this.result.criteria.addSorting(
-                Criteria.sort(column.dataIndex, direction, !!column.naturalSorting),
-            );
+            this.result.criteria.addSorting(Criteria.sort(column.dataIndex, direction, !!column.naturalSorting));
 
             this.currentSortBy = column.dataIndex;
             this.currentSortDirection = direction;

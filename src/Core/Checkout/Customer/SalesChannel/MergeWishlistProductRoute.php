@@ -4,9 +4,11 @@ namespace Shopware\Core\Checkout\Customer\SalesChannel;
 
 use Doctrine\DBAL\ArrayParameterType;
 use Doctrine\DBAL\Connection;
+use Shopware\Core\Checkout\Customer\Aggregate\CustomerWishlist\CustomerWishlistCollection;
 use Shopware\Core\Checkout\Customer\CustomerEntity;
 use Shopware\Core\Checkout\Customer\CustomerException;
 use Shopware\Core\Checkout\Customer\Event\WishlistMergedEvent;
+use Shopware\Core\Content\Product\ProductCollection;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
@@ -30,6 +32,9 @@ class MergeWishlistProductRoute extends AbstractMergeWishlistProductRoute
 {
     /**
      * @internal
+     *
+     * @param EntityRepository<CustomerWishlistCollection> $wishlistRepository
+     * @param SalesChannelRepository<ProductCollection> $productRepository
      */
     public function __construct(
         private readonly EntityRepository $wishlistRepository,
@@ -48,7 +53,7 @@ class MergeWishlistProductRoute extends AbstractMergeWishlistProductRoute
     #[Route(path: '/store-api/customer/wishlist/merge', name: 'store-api.customer.wishlist.merge', methods: ['POST'], defaults: ['_loginRequired' => true])]
     public function merge(RequestDataBag $data, SalesChannelContext $context, CustomerEntity $customer): SuccessResponse
     {
-        if (!$this->systemConfigService->get('core.cart.wishlistEnabled', $context->getSalesChannel()->getId())) {
+        if (!$this->systemConfigService->get('core.cart.wishlistEnabled', $context->getSalesChannelId())) {
             throw CustomerException::customerWishlistNotActivated();
         }
 
@@ -59,7 +64,7 @@ class MergeWishlistProductRoute extends AbstractMergeWishlistProductRoute
         $this->wishlistRepository->upsert([[
             'id' => $wishlistId,
             'customerId' => $customer->getId(),
-            'salesChannelId' => $context->getSalesChannel()->getId(),
+            'salesChannelId' => $context->getSalesChannelId(),
             'products' => $upsertData,
         ]], $context->getContext());
 
@@ -70,16 +75,14 @@ class MergeWishlistProductRoute extends AbstractMergeWishlistProductRoute
 
     private function getWishlistId(SalesChannelContext $context, string $customerId): string
     {
-        $criteria = new Criteria();
-        $criteria->setLimit(1);
-        $criteria->addFilter(new MultiFilter(MultiFilter::CONNECTION_AND, [
-            new EqualsFilter('customerId', $customerId),
-            new EqualsFilter('salesChannelId', $context->getSalesChannel()->getId()),
-        ]));
+        $criteria = (new Criteria())
+            ->setLimit(1)
+            ->addFilter(new MultiFilter(MultiFilter::CONNECTION_AND, [
+                new EqualsFilter('customerId', $customerId),
+                new EqualsFilter('salesChannelId', $context->getSalesChannelId()),
+            ]));
 
-        $wishlistIds = $this->wishlistRepository->searchIds($criteria, $context->getContext());
-
-        return $wishlistIds->firstId() ?? Uuid::randomHex();
+        return $this->wishlistRepository->searchIds($criteria, $context->getContext())->firstId() ?? Uuid::randomHex();
     }
 
     /**

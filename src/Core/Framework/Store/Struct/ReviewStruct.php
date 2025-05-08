@@ -16,50 +16,26 @@ class ReviewStruct extends StoreStruct
     final public const MAX_RATING = 5;
     final public const MIN_RATING = 1;
 
-    /**
-     * @var int
-     */
-    protected $extensionId;
+    protected int $extensionId;
 
-    /**
-     * @var string
-     */
-    protected $headline;
+    protected string $headline;
 
-    /**
-     * @var string
-     */
-    protected $authorName;
+    protected string $authorName;
 
-    /**
-     * @var int
-     */
-    protected $rating;
+    protected int $rating;
 
-    /**
-     * @var string|null
-     */
-    protected $text;
+    protected ?string $text;
 
-    /**
-     * @var \DateTimeImmutable
-     */
-    protected $lastChangeDate;
+    protected \DateTimeImmutable $lastChangeDate;
 
-    /**
-     * @var string
-     */
-    protected $version;
+    protected string $version;
 
-    /**
-     * @var bool
-     */
-    protected $acceptGuidelines;
+    protected bool $acceptGuidelines;
 
     /**
      * @var list<array{text: string, creationDate: \DateTimeImmutable}>
      */
-    protected $replies = [];
+    protected array $replies = [];
 
     /**
      * @return ReviewStruct

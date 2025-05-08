@@ -1,13 +1,12 @@
 import template from './sw-theme-manager-detail.html.twig';
 import './sw-theme-manager-detail.scss';
-
 /**
- * @package buyers-experience
+ * @package discovery
  */
 
 const { Component, Mixin } = Shopware;
 const Criteria = Shopware.Data.Criteria;
-const { getObjectDiff, cloneDeep } = Shopware.Utils.object;
+const { getObjectDiff, cloneDeep, deepMergeObject } = Shopware.Utils.object;
 const { isArray } = Shopware.Utils.types;
 
 Component.register('sw-theme-manager-detail', {
@@ -19,15 +18,6 @@ Component.register('sw-theme-manager-detail', {
         Mixin.getByName('theme'),
         Mixin.getByName('notification')
     ],
-
-    filters: {
-        cssValue: function (value) {
-            // Be careful what to filter here because many characters are allowed
-            if (!value) return ''
-            value = value.toString()
-            return value.replace(/`|´/g, '');
-        }
-    },
 
     data() {
         return {
@@ -127,7 +117,7 @@ Component.register('sw-theme-manager-detail', {
         deleteDisabledToolTip() {
             return {
                 showDelay: 300,
-                message: this.$tc('sw-theme-manager.actions.deleteDisabledToolTip'),
+                message: this.$t('sw-theme-manager.actions.deleteDisabledToolTip'),
                 disabled: this.theme.salesChannels.length === 0
             };
         },
@@ -163,6 +153,13 @@ Component.register('sw-theme-manager-detail', {
         createdComponent() {
             this.getTheme();
             this.setPageContext();
+        },
+
+        cssValue(value) {
+            // Be careful what to filter here because many characters are allowed
+            if (!value) return ''
+            value = value.toString()
+            return value.replace(/`|´/g, '');
         },
 
         getTheme() {
@@ -351,6 +348,49 @@ Component.register('sw-theme-manager-detail', {
             this.showSaveModal = false;
         },
 
+        onValidate() {
+            if (!this.acl.can('theme.editor')) {
+                return;
+            }
+
+            this.isLoading = true;
+            const allValues = this.getCurrentChangeset();
+            this.removeInheritedFromChangeset(allValues);
+
+            return this.themeService.validateFields(deepMergeObject(this.themeConfig, allValues)).then(() => {
+                this.isLoading = false;
+                this.createNotificationSuccess({
+                    title: this.$t('sw-theme-manager.detail.validate.success'),
+                    message: this.$t('sw-theme-manager.detail.validate.successMessage'),
+                    autoClose: true,
+                });
+            }).catch((error) => {
+                this.isLoading = false;
+
+                const errorObject = error.response.data.errors[0];
+                if (errorObject.code === 'THEME__INVALID_SCSS_VAR') {
+                    this.createNotificationError({
+                        title: this.$t('sw-theme-manager.detail.validate.failed'),
+                        message: this.$t('sw-theme-manager.detail.validate.failedMessage'),
+                        autoClose: false,
+                        actions: [{
+                            label: this.$t('sw-theme-manager.detail.showFullError'),
+                            method: function showFullError() {
+                                this.errorModalMessage = errorObject.detail;
+                            }.bind(this),
+                        }],
+                    });
+
+                    return;
+                }
+
+                this.createNotificationError({
+                    message: errorObject.detail ?? error.toString(),
+                    autoClose: true,
+                });
+            });
+        },
+
         onSaveTheme(clean = false) {
             if (!this.acl.can('theme.editor')) {
                 return;
@@ -365,13 +405,13 @@ Component.register('sw-theme-manager-detail', {
                 this.isLoading = false;
 
                 const errorObject = error.response.data.errors[0];
-                if (errorObject.code === 'THEME__COMPILING_ERROR') {
+                if (errorObject.code === 'THEME__COMPILING_ERROR' || errorObject.code === 'THEME__INVALID_SCSS_VAR') {
                     this.createNotificationError({
-                        title: this.$tc('sw-theme-manager.detail.error.themeCompile.title'),
-                        message: this.$tc('sw-theme-manager.detail.error.themeCompile.message'),
+                        title: this.$t('sw-theme-manager.detail.error.themeCompile.title'),
+                        message: this.$t('sw-theme-manager.detail.error.themeCompile.message'),
                         autoClose: false,
                         actions: [{
-                            label: this.$tc('sw-theme-manager.detail.showFullError'),
+                            label: this.$t('sw-theme-manager.detail.showFullError'),
                             method: function showFullError() {
                                 this.errorModalMessage = errorObject.detail;
                             }.bind(this),
@@ -382,8 +422,7 @@ Component.register('sw-theme-manager-detail', {
                 }
 
                 this.createNotificationError({
-                    title: this.$tc('global.default.error'),
-                    message: error.toString(),
+                    message: errorObject.detail ?? error.toString(),
                     autoClose: true,
                 });
             });
@@ -500,7 +539,6 @@ Component.register('sw-theme-manager-detail', {
 
         saveThemeConfig(clean = false) {
             const allValues = this.getCurrentChangeset(clean);
-
             this.removeInheritedFromChangeset(allValues);
 
             // Theme has to be reset, because inherited fields needs to be removed from the set

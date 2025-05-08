@@ -3,6 +3,7 @@
 namespace Shopware\Core\Framework\Test\Migration;
 
 use Doctrine\DBAL\Connection;
+use PHPUnit\Framework\Attributes\After;
 use PHPUnit\Framework\Attributes\Before;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Migration\MigrationCollection;
@@ -16,7 +17,7 @@ trait MigrationTestBehaviour
     #[Before]
     public function addMigrationSources(): void
     {
-        $loader = $this->getContainer()->get(MigrationCollectionLoader::class);
+        $loader = static::getContainer()->get(MigrationCollectionLoader::class);
 
         $loader->addSource(
             new MigrationSource(
@@ -53,14 +54,14 @@ trait MigrationTestBehaviour
             )
         );
 
-        $this->getContainer()->get(MigrationCollectionLoader::class)->addSource(
+        static::getContainer()->get(MigrationCollectionLoader::class)->addSource(
             new MigrationSource(
                 self::INTEGRATION_IDENTIFIER(),
                 [__DIR__ . '/_test_migrations_valid' => 'Shopware\Core\Framework\Test\Migration\_test_migrations_valid']
             )
         );
 
-        $this->getContainer()->get(MigrationCollectionLoader::class)->addSource(
+        static::getContainer()->get(MigrationCollectionLoader::class)->addSource(
             new MigrationSource(
                 self::INTEGRATION_WITH_EXCEPTION_IDENTIFIER(),
                 [
@@ -71,9 +72,25 @@ trait MigrationTestBehaviour
         );
     }
 
+    #[After]
+    public function removeMigrationSources(): void
+    {
+        $loader = static::getContainer()->get(MigrationCollectionLoader::class);
+        $prop = ReflectionHelper::getProperty(MigrationCollectionLoader::class, 'migrationSources');
+        $migrationSources = $prop->getValue($loader);
+        unset($migrationSources['_test_migrations_invalid_namespace']);
+        unset($migrationSources['_test_migrations_valid']);
+        unset($migrationSources['_test_migrations_valid_run_time']);
+        unset($migrationSources['_test_migrations_valid_run_time_exceptions']);
+        unset($migrationSources['_test_trigger_with_trigger_']);
+        unset($migrationSources[self::INTEGRATION_IDENTIFIER()]);
+        unset($migrationSources[self::INTEGRATION_WITH_EXCEPTION_IDENTIFIER()]);
+        $prop->setValue($loader, $migrationSources);
+    }
+
     protected static function INTEGRATION_IDENTIFIER(): string
     {
-        return 'intergration';
+        return 'integration';
     }
 
     protected static function INTEGRATION_WITH_EXCEPTION_IDENTIFIER(): string
@@ -83,12 +100,12 @@ trait MigrationTestBehaviour
 
     protected function getMigrationCollection(string $name): MigrationCollection
     {
-        return $this->getContainer()->get(MigrationCollectionLoader::class)->collect($name);
+        return static::getContainer()->get(MigrationCollectionLoader::class)->collect($name);
     }
 
     protected function assertMigrationState(MigrationCollection $migrationCollection, int $expectedCount, ?int $updateUntil = null, ?int $destructiveUntil = null): void
     {
-        $connection = $this->getContainer()->get(Connection::class);
+        $connection = static::getContainer()->get(Connection::class);
 
         /** @var MigrationSource $migrationSource */
         $migrationSource = ReflectionHelper::getPropertyValue($migrationCollection, 'migrationSource');

@@ -1,5 +1,5 @@
 /**
- * @package services-settings
+ * @sw-package fundamentals@framework
  */
 import template from './sw-profile-index-general.html.twig';
 
@@ -9,11 +9,15 @@ const { mapPropertyErrors } = Shopware.Component.getComponentHelper();
 export default {
     template,
 
-    compatConfig: Shopware.compatConfig,
-
     inject: ['acl'],
 
-    emits: ['new-password-change', 'new-password-confirm-change', 'media-upload', 'media-remove', 'media-open'],
+    emits: [
+        'new-password-change',
+        'new-password-confirm-change',
+        'media-upload',
+        'media-remove',
+        'media-open',
+    ],
 
     props: {
         user: {
@@ -83,6 +87,16 @@ export default {
             set(newPasswordConfirm) {
                 this.$emit('new-password-confirm-change', newPasswordConfirm);
             },
+        },
+
+        localeOptions() {
+            return this.languages.map((language) => {
+                return {
+                    id: language.locale.id,
+                    value: language.locale.id,
+                    label: language.customLabel,
+                };
+            });
         },
     },
 

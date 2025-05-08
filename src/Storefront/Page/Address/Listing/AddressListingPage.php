@@ -10,33 +10,18 @@ use Shopware\Core\System\Country\CountryCollection;
 use Shopware\Core\System\Salutation\SalutationCollection;
 use Shopware\Storefront\Page\Page;
 
-#[Package('storefront')]
+#[Package('framework')]
 class AddressListingPage extends Page
 {
-    /**
-     * @var CustomerAddressCollection
-     */
-    protected $addresses;
+    protected CustomerAddressCollection $addresses;
 
-    /**
-     * @var SalutationCollection
-     */
-    protected $salutations;
+    protected SalutationCollection $salutations;
 
-    /**
-     * @var CountryCollection
-     */
-    protected $countries;
+    protected CountryCollection $countries;
 
-    /**
-     * @var Cart
-     */
-    protected $cart;
+    protected Cart $cart;
 
-    /**
-     * @var CustomerAddressEntity|null
-     */
-    protected $address;
+    protected ?CustomerAddressEntity $address = null;
 
     public function getAddresses(): CustomerAddressCollection
     {

@@ -7,20 +7,14 @@ use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Storefront\Page\PageLoadedEvent;
 use Symfony\Component\HttpFoundation\Request;
 
-#[Package('storefront')]
+#[Package('framework')]
 class AddressDetailPageLoadedEvent extends PageLoadedEvent
 {
-    /**
-     * @var AddressDetailPage
-     */
-    protected $page;
-
     public function __construct(
-        AddressDetailPage $page,
+        protected AddressDetailPage $page,
         SalesChannelContext $salesChannelContext,
         Request $request
     ) {
-        $this->page = $page;
         parent::__construct($salesChannelContext, $request);
     }
 

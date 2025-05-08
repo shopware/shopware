@@ -22,7 +22,7 @@ use Symfony\Component\Console\Output\OutputInterface;
     name: 'media:generate-media-types',
     description: 'Generates media types for all media files',
 )]
-#[Package('buyers-experience')]
+#[Package('discovery')]
 class GenerateMediaTypesCommand extends Command
 {
     private ShopwareStyle $io;

@@ -4,19 +4,21 @@ namespace Shopware\Tests\Integration\Core\Checkout\Customer\SalesChannel;
 
 use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Checkout\Customer\Aggregate\CustomerRecovery\CustomerRecoveryCollection;
 use Shopware\Core\Checkout\Customer\Aggregate\CustomerRecovery\CustomerRecoveryEntity;
+use Shopware\Core\Checkout\Customer\CustomerCollection;
 use Shopware\Core\Checkout\Customer\CustomerEntity;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\SalesChannelApiTestBehaviour;
-use Shopware\Core\Framework\Test\TestDataCollection;
+use Shopware\Core\Framework\Util\Hasher;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\PlatformRequest;
+use Shopware\Core\Test\Stub\Framework\IdsCollection;
 use Shopware\Core\Test\TestDefaults;
 use Symfony\Bundle\FrameworkBundle\KernelBrowser;
 
@@ -32,22 +34,22 @@ class ResetPasswordRouteTest extends TestCase
 
     private KernelBrowser $browser;
 
-    private TestDataCollection $ids;
+    private IdsCollection $ids;
 
     /**
-     * @var EntityRepository
+     * @var EntityRepository<CustomerCollection>
      */
-    private $customerRepository;
+    private EntityRepository $customerRepository;
 
     protected function setUp(): void
     {
-        $this->ids = new TestDataCollection();
+        $this->ids = new IdsCollection();
 
         $this->browser = $this->createCustomSalesChannelBrowser([
             'id' => $this->ids->create('sales-channel'),
         ]);
         $this->assignSalesChannelContext($this->browser);
-        $this->customerRepository = $this->getContainer()->get('customer.repository');
+        $this->customerRepository = static::getContainer()->get('customer.repository');
     }
 
     public function testWithInvalidHash(): void
@@ -88,12 +90,10 @@ class ResetPasswordRouteTest extends TestCase
         $criteria = new Criteria();
         $criteria->addFilter(new EqualsFilter('customerId', $customerId));
 
-        /** @var EntityRepository $repo */
-        $repo = $this->getContainer()->get('customer_recovery.repository');
+        /** @var EntityRepository<CustomerRecoveryCollection> $repo */
+        $repo = static::getContainer()->get('customer_recovery.repository');
 
-        /** @var CustomerRecoveryEntity $recovery */
-        $recovery = $repo->search($criteria, Context::createDefaultContext())->first();
-
+        $recovery = $repo->search($criteria, Context::createDefaultContext())->getEntities()->first();
         static::assertInstanceOf(CustomerRecoveryEntity::class, $recovery);
 
         $this->browser
@@ -145,11 +145,10 @@ class ResetPasswordRouteTest extends TestCase
         $criteria = new Criteria();
         $criteria->addFilter(new EqualsFilter('customerId', $customerId));
 
-        /** @var EntityRepository $repo */
-        $repo = $this->getContainer()->get('customer_recovery.repository');
+        /** @var EntityRepository<CustomerRecoveryCollection> $repo */
+        $repo = static::getContainer()->get('customer_recovery.repository');
 
-        /** @var CustomerRecoveryEntity $recovery */
-        $recovery = $repo->search($criteria, Context::createDefaultContext())->first();
+        $recovery = $repo->search($criteria, Context::createDefaultContext())->getEntities()->first();
 
         static::assertInstanceOf(CustomerRecoveryEntity::class, $recovery);
 
@@ -185,7 +184,7 @@ class ResetPasswordRouteTest extends TestCase
         $criteria = new Criteria([$customerId]);
 
         /** @var CustomerEntity $customer */
-        $customer = $this->getContainer()->get('customer.repository')->search($criteria, Context::createDefaultContext())->first();
+        $customer = static::getContainer()->get('customer.repository')->search($criteria, Context::createDefaultContext())->first();
 
         static::assertNull($customer->getLegacyEncoder());
         static::assertNull($customer->getLegacyPassword());
@@ -217,12 +216,8 @@ class ResetPasswordRouteTest extends TestCase
         ];
 
         if ($addLegacyPassword) {
-            $customer['legacyPassword'] = md5('test');
+            $customer['legacyPassword'] = Hasher::hash('test', 'md5');
             $customer['legacyEncoder'] = 'Md5';
-        }
-
-        if (!Feature::isActive('v6.7.0.0')) {
-            $customer['defaultPaymentMethodId'] = $this->getValidPaymentMethodId();
         }
 
         $this->customerRepository->create([

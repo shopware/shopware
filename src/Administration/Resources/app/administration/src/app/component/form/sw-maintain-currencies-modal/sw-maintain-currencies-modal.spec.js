@@ -1,5 +1,5 @@
 /**
- * @package admin
+ * @sw-package framework
  */
 
 import { mount } from '@vue/test-utils';
@@ -40,15 +40,12 @@ async function createWrapper() {
                 },
             },
             stubs: {
-                'sw-data-grid': await wrapTestComponent('sw-data-grid', { sync: true }),
+                'sw-data-grid': await wrapTestComponent('sw-data-grid', {
+                    sync: true,
+                }),
                 'sw-inheritance-switch': await wrapTestComponent('sw-inheritance-switch', { sync: true }),
-                'sw-icon': {
-                    inheritAttrs: false,
-                    template: '<div class="sw-icon" @click="$emit(\'click\', $event)"></div>',
-                },
                 'sw-data-grid-skeleton': true,
                 'sw-list-price-field': true,
-                'sw-button': true,
                 'sw-checkbox-field': true,
                 'sw-context-menu-item': true,
                 'sw-context-button': true,
@@ -56,6 +53,7 @@ async function createWrapper() {
                 'sw-data-grid-column-boolean': true,
                 'sw-data-grid-inline-edit': true,
                 'router-link': true,
+                'sw-provide': { template: `<slot/>`, inheritAttrs: false },
             },
         },
         props: {
@@ -84,7 +82,7 @@ describe('src/app/component/form/sw-maintain-currencies-modal', () => {
 
         const inheritanceSwitch = wrapper.find('.sw-inheritance-switch');
         expect(inheritanceSwitch.isVisible()).toBe(true);
-        const icon = inheritanceSwitch.find('.sw-icon');
+        const icon = inheritanceSwitch.find('.mt-icon');
         expect(icon.isVisible()).toBe(true);
 
         // check if switch show inheritance
@@ -106,7 +104,7 @@ describe('src/app/component/form/sw-maintain-currencies-modal', () => {
 
         const inheritanceSwitch = wrapper.find('.sw-inheritance-switch');
         expect(inheritanceSwitch.isVisible()).toBe(true);
-        const icon = inheritanceSwitch.find('.sw-icon');
+        const icon = inheritanceSwitch.find('.mt-icon');
         expect(icon.isVisible()).toBe(true);
 
         // check if switch show inheritance

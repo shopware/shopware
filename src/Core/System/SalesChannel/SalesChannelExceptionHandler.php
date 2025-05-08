@@ -6,7 +6,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Dbal\ExceptionHandlerInterface;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\Exception\LanguageOfSalesChannelDomainDeleteException;
 
-#[Package('buyers-experience')]
+#[Package('discovery')]
 class SalesChannelExceptionHandler implements ExceptionHandlerInterface
 {
     public function getPriority(): int
@@ -14,7 +14,7 @@ class SalesChannelExceptionHandler implements ExceptionHandlerInterface
         return ExceptionHandlerInterface::PRIORITY_DEFAULT;
     }
 
-    public function matchException(\Exception $e): ?\Exception
+    public function matchException(\Throwable $e): ?\Throwable
     {
         if (preg_match('/SQLSTATE\[23000\]:.*1451.*a foreign key constraint.*sales_channel_domain.*CONSTRAINT `fk.sales_channel_domain.language_id`/', $e->getMessage())) {
             return new LanguageOfSalesChannelDomainDeleteException($e);

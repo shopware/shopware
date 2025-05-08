@@ -1,5 +1,5 @@
 /**
- * @package buyers-experience
+ * @sw-package discovery
  */
 
 import template from './sw-sales-channel-detail.html.twig';
@@ -10,8 +10,6 @@ const { Criteria } = Shopware.Data;
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default {
     template,
-
-    compatConfig: Shopware.compatConfig,
 
     inject: [
         'repositoryFactory',
@@ -78,7 +76,7 @@ export default {
             return this.productComparison.newProductExport;
         },
 
-        isStoreFront() {
+        isStorefront() {
             if (!this.salesChannel) {
                 return this.$route.params.typeId === Defaults.storefrontSalesChannelTypeId;
             }
@@ -209,17 +207,16 @@ export default {
             criteria.addAssociation('paymentMethods');
             criteria.addAssociation('shippingMethods');
             criteria.addAssociation('countries');
-            criteria.getAssociation('currencies')
-                .addSorting(Criteria.sort('name', 'ASC'));
+            criteria.getAssociation('currencies').addSorting(Criteria.sort('name', 'ASC'));
             criteria.addAssociation('domains');
-            criteria.addAssociation('languages');
+            criteria.getAssociation('languages').addSorting(Criteria.sort('name', 'ASC'));
             criteria.addAssociation('analytics');
 
             criteria.addAssociation('productExports');
             criteria.addAssociation('productExports.salesChannelDomain.salesChannel');
 
-            criteria.addAssociation('domains.language');
-            criteria.addAssociation('domains.snippetSet');
+            criteria.getAssociation('domains.language').addSorting(Criteria.sort('name', 'ASC'));
+            criteria.getAssociation('domains.snippetSet').addSorting(Criteria.sort('name', 'ASC'));
             criteria.addAssociation('domains.currency');
             criteria.addAssociation('domains.productExports');
 
@@ -264,14 +261,11 @@ export default {
             const criteria = new Criteria(1, 100);
 
             criteria.addFilter(Criteria.equals('relations.entityName', 'sales_channel'));
-            criteria.getAssociation('customFields')
-                .addSorting(Criteria.sort('config.customFieldPosition', 'ASC', true));
+            criteria.getAssociation('customFields').addSorting(Criteria.sort('config.customFieldPosition', 'ASC', true));
 
-            this.customFieldRepository
-                .search(criteria, Context.api)
-                .then((searchResult) => {
-                    this.customFieldSets = searchResult;
-                });
+            this.customFieldRepository.search(criteria, Context.api).then((searchResult) => {
+                this.customFieldSets = searchResult;
+            });
         },
 
         generateAccessUrl() {
@@ -281,8 +275,8 @@ export default {
             }
 
             const domainUrl = this.productExport.salesChannelDomain.url.replace(/\/+$/g, '');
-            this.productComparison.productComparisonAccessUrl =
-                `${domainUrl}/store-api/product-export/${this.productExport.accessKey}/${this.productExport.fileName}`;
+            // eslint-disable-next-line max-len
+            this.productComparison.productComparisonAccessUrl = `${domainUrl}/store-api/product-export/${this.productExport.accessKey}/${this.productExport.fileName}`;
         },
 
         loadProductExportTemplates() {
@@ -320,19 +314,19 @@ export default {
                 this.isLoading = false;
                 this.isSaveSuccessful = true;
 
-                if (this.isCompatEnabled('INSTANCE_EVENT_EMITTER')) {
-                    this.$root.$emit('sales-channel-change');
-                } else {
-                    Shopware.Utils.EventBus.emit('sw-sales-channel-detail-sales-channel-change');
-                }
+                Shopware.Utils.EventBus.emit('sw-sales-channel-detail-sales-channel-change');
                 this.loadEntityData();
             } catch (error) {
                 this.isLoading = false;
 
                 this.createNotificationError({
-                    message: this.$tc('sw-sales-channel.detail.messageSaveError', 0, {
-                        name: this.salesChannel.name || this.placeholder(this.salesChannel, 'name'),
-                    }),
+                    message: this.$tc(
+                        'sw-sales-channel.detail.messageSaveError',
+                        {
+                            name: this.salesChannel.name || this.placeholder(this.salesChannel, 'name'),
+                        },
+                        0,
+                    ),
                 });
             }
         },

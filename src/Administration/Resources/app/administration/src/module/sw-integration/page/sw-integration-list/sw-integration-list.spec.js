@@ -1,64 +1,62 @@
 /**
- * @package services-settings
+ * @sw-package fundamentals@framework
  */
 import { mount } from '@vue/test-utils';
 import 'src/module/sw-integration/page/sw-integration-list';
 
 async function createWrapper(privileges = []) {
-    const wrapper = mount(
-        await wrapTestComponent('sw-integration-list', { sync: true }),
-        {
-            global: {
-                provide: {
-                    repositoryFactory: {
-                        create: () => ({
-                            create: () => {
-                                return Promise.resolve({
-                                    id: '44de136acf314e7184401d36406c1e90',
-                                });
-                            },
-
-                            search: () => {
-                                return Promise.resolve([
-                                    {
-                                        id: '44de136acf314e7184401d36406c1e90',
-                                    },
-                                ]);
-                            },
-
-                            save: () => {
-                                return Promise.resolve();
-                            },
-
-                            delete: () => {
-                                return Promise.resolve();
-                            },
-                        }),
-                    },
-
-                    integrationService: {
-                        generateKey: () => {
+    const wrapper = mount(await wrapTestComponent('sw-integration-list', { sync: true }), {
+        global: {
+            provide: {
+                repositoryFactory: {
+                    create: () => ({
+                        create: () => {
                             return Promise.resolve({
-                                accessKey: 'SWIANMDUSUR1Q2X0VURGAVDAQG',
-                                secretAccessKey: 'YzFnaFprUjdaZUI4WkJsSmVOcHNOTnI5bUNqc2o4YUx0WmFIb3Y',
+                                id: '44de136acf314e7184401d36406c1e90',
                             });
                         },
-                    },
 
-                    acl: {
-                        can: (identifier) => {
-                            if (!identifier) {
-                                return true;
-                            }
-
-                            return privileges.includes(identifier);
+                        search: () => {
+                            return Promise.resolve([
+                                {
+                                    id: '44de136acf314e7184401d36406c1e90',
+                                },
+                            ]);
                         },
+
+                        save: () => {
+                            return Promise.resolve();
+                        },
+
+                        delete: () => {
+                            return Promise.resolve();
+                        },
+                    }),
+                },
+
+                integrationService: {
+                    generateKey: () => {
+                        return Promise.resolve({
+                            accessKey: 'SWIANMDUSUR1Q2X0VURGAVDAQG',
+                            secretAccessKey: 'YzFnaFprUjdaZUI4WkJsSmVOcHNOTnI5bUNqc2o4YUx0WmFIb3Y',
+                        });
                     },
                 },
 
-                stubs: {
-                    'sw-page': {
-                        template: `
+                acl: {
+                    can: (identifier) => {
+                        if (!identifier) {
+                            return true;
+                        }
+
+                        return privileges.includes(identifier);
+                    },
+                },
+            },
+
+            stubs: {
+                'sw-page': {
+                    template: `
                         <div class="sw-page">
                             <slot name="search-bar"></slot>
                             <slot name="smart-bar-back"></slot>
@@ -71,47 +69,46 @@ async function createWrapper(privileges = []) {
                             <slot></slot>
                         </div>
                         `,
-                    },
-                    'sw-card-view': {
-                        template: `
+                },
+                'sw-card-view': {
+                    template: `
                         <div class="sw-card-view">
                             <slot></slot>
                         </div>
                         `,
-                    },
-                    'sw-card': {
-                        template: `
-                        <div class="sw-card">
+                },
+                'mt-card': {
+                    template: `
+                        <div class="mt-card">
                             <slot></slot>
                         </div>
                         `,
-                    },
-                    'sw-language-switch': true,
-                    'sw-search-bar': true,
-                    'sw-icon': true,
-                    'sw-button': await wrapTestComponent('sw-button'),
-                    'sw-button-deprecated': await wrapTestComponent('sw-button-deprecated'),
-                    'sw-container': {
-                        template: '<div><slot></slot></div>',
-                    },
-                    'sw-text-field': await wrapTestComponent('sw-text-field'),
-                    'sw-text-field-deprecated': await wrapTestComponent('sw-text-field-deprecated', { sync: true }),
-                    'sw-password-field': await wrapTestComponent('sw-password-field'),
-                    'sw-contextual-field': await wrapTestComponent('sw-contextual-field'),
-                    'sw-block-field': await wrapTestComponent('sw-block-field'),
-                    'sw-base-field': await wrapTestComponent('sw-base-field'),
-                    'sw-checkbox-field': await wrapTestComponent('sw-checkbox-field'),
-                    'sw-checkbox-field-deprecated': await wrapTestComponent('sw-checkbox-field-deprecated', { sync: true }),
-                    'sw-field-error': true,
-                    'sw-field-copyable': true,
-                    'sw-switch-field': true,
-                    'sw-entity-multi-select': true,
-                    'sw-empty-state': {
-                        template: '<div class="sw-empty-state"></div>',
-                    },
-                    'sw-entity-listing': {
-                        props: ['items', 'detailRoute'],
-                        template: `
+                },
+                'sw-language-switch': true,
+                'sw-search-bar': true,
+                'sw-container': {
+                    template: '<div><slot></slot></div>',
+                },
+                'sw-text-field': await wrapTestComponent('sw-text-field'),
+                'sw-text-field-deprecated': await wrapTestComponent('sw-text-field-deprecated', { sync: true }),
+                'sw-contextual-field': await wrapTestComponent('sw-contextual-field'),
+                'sw-block-field': await wrapTestComponent('sw-block-field'),
+                'sw-base-field': await wrapTestComponent('sw-base-field'),
+                'sw-checkbox-field': await wrapTestComponent('sw-checkbox-field'),
+                'sw-checkbox-field-deprecated': await wrapTestComponent('sw-checkbox-field-deprecated', { sync: true }),
+                'sw-field-error': true,
+                'sw-field-copyable': true,
+
+                'sw-entity-multi-select': true,
+                'sw-empty-state': {
+                    template: '<div class="sw-empty-state"></div>',
+                },
+                'sw-entity-listing': {
+                    props: [
+                        'items',
+                        'detailRoute',
+                    ],
+                    template: `
                         <div>
                             <template v-for="item in items" :key="item.id">
                                 <slot name="actions" v-bind="{ item }">
@@ -121,19 +118,18 @@ async function createWrapper(privileges = []) {
                             </template>
                         </div>
                     `,
-                    },
-                    'sw-context-menu-item': await wrapTestComponent('sw-context-menu-item'),
-                    'sw-alert': true,
-                    'sw-label': true,
-                    'router-link': true,
-                    'sw-loader': true,
-                    'sw-inheritance-switch': true,
-                    'sw-ai-copilot-badge': true,
-                    'sw-help-text': true,
                 },
+                'sw-context-menu-item': await wrapTestComponent('sw-context-menu-item'),
+
+                'sw-label': true,
+                'router-link': true,
+                'sw-loader': true,
+                'sw-inheritance-switch': true,
+                'sw-ai-copilot-badge': true,
+                'sw-help-text': true,
             },
         },
-    );
+    });
 
     await flushPromises();
     return wrapper;
@@ -221,7 +217,6 @@ describe('module/sw-integration/page/sw-integration-list', () => {
         expect(modalAfterSave.exists()).toBeFalsy();
     });
 
-
     it('should be able to delete a integration', async () => {
         const wrapper = await createWrapper([
             'integration.deleter',
@@ -234,7 +229,7 @@ describe('module/sw-integration/page/sw-integration-list', () => {
         const deleteModal = wrapper.find('.sw-modal');
         expect(deleteModal.exists()).toBeTruthy();
 
-        const deleteButton = wrapper.find('.sw-modal .sw-button--primary');
+        const deleteButton = wrapper.findByText('button', 'sw-integration.detail.buttonDelete');
         expect(deleteButton.text()).toBe('sw-integration.detail.buttonDelete');
         await deleteButton.trigger('click');
         await flushPromises();
@@ -254,8 +249,8 @@ describe('module/sw-integration/page/sw-integration-list', () => {
         await editMenuItem.trigger('click');
         await flushPromises();
 
-        const adminRoleSwitch = wrapper.find('.sw-settings-user-detail__grid-is-admin');
-        expect(adminRoleSwitch.attributes().disabled).toBeDefined();
+        const adminRoleSwitch = wrapper.findComponent('.sw-settings-user-detail__grid-is-admin');
+        expect(adminRoleSwitch.props().disabled).toBe(true);
     });
 
     it('should have integration criteria with filters', async () => {

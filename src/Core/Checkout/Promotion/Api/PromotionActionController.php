@@ -12,7 +12,7 @@ use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\Routing\Attribute\Route;
 
 #[Route(defaults: ['_routeScope' => ['api']])]
-#[Package('buyers-experience')]
+#[Package('checkout')]
 class PromotionActionController extends AbstractController
 {
     /**

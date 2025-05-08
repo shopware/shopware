@@ -1,5 +1,5 @@
 /**
- * @package admin
+ * @sw-package framework
  */
 
 import { mount } from '@vue/test-utils';
@@ -74,5 +74,19 @@ describe('src/app/component/utils/sw-inherit-wrapper', () => {
         expect(wrapper.vm.labelClasses).toStrictEqual({
             'has--error': true,
         });
+    });
+
+    it('should inherit on empty array', async () => {
+        const wrapper = await createWrapper({
+            propsData: {
+                value: [],
+                inheritedValue: 1,
+                hasParent: true,
+            },
+            global: createWrapperGlobalValue,
+        });
+
+        expect(wrapper.vm).toBeTruthy();
+        expect(wrapper.vm.isInherited).toBe(true);
     });
 });

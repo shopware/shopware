@@ -9,10 +9,7 @@ use Shopware\Storefront\Page\Account\Login\AccountLoginPage;
 #[Package('checkout')]
 class CustomerGroupRegistrationPage extends AccountLoginPage
 {
-    /**
-     * @var CustomerGroupEntity
-     */
-    protected $customerGroup;
+    protected CustomerGroupEntity $customerGroup;
 
     public function setGroup(CustomerGroupEntity $customerGroup): void
     {

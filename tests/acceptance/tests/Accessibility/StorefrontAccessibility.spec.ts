@@ -17,8 +17,8 @@ test('The Storefront should implement accessibility best practices.', { tag: '@A
     StorefrontCheckoutCart,
     StorefrontAccountProfile,
     StorefrontAccountAddresses,
-    StorefrontAccountPayment,
 }) => {
+
     test.slow();
 
     const product = await TestDataService.createBasicProduct();
@@ -77,10 +77,5 @@ test('The Storefront should implement accessibility best practices.', { tag: '@A
     await test.step('Account Addresses Accessibility', async () => {
         await ShopCustomer.goesTo(StorefrontAccountAddresses.url());
         await ShopCustomer.attemptsTo(ValidateAccessibility('Account Addresses', true));
-    });
-
-    await test.step('Account Payment Accessibility', async () => {
-        await ShopCustomer.goesTo(StorefrontAccountPayment.url());
-        await ShopCustomer.attemptsTo(ValidateAccessibility('Account Payment', true));
     });
 });

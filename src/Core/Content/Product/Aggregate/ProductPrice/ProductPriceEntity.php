@@ -13,30 +13,15 @@ class ProductPriceEntity extends PriceRuleEntity
 {
     use EntityCustomFieldsTrait;
 
-    /**
-     * @var string
-     */
-    protected $productId;
+    protected string $productId;
 
-    /**
-     * @var int
-     */
-    protected $quantityStart;
+    protected int $quantityStart;
 
-    /**
-     * @var int|null
-     */
-    protected $quantityEnd;
+    protected ?int $quantityEnd = null;
 
-    /**
-     * @var ProductEntity|null
-     */
-    protected $product;
+    protected ?ProductEntity $product = null;
 
-    /**
-     * @var RuleEntity|null
-     */
-    protected $rule;
+    protected ?RuleEntity $rule = null;
 
     public function getProduct(): ?ProductEntity
     {

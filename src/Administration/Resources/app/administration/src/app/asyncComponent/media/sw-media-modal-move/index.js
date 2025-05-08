@@ -1,12 +1,16 @@
 import template from './sw-media-modal-move.html.twig';
 import './sw-media-modal-move.scss';
 
-const { Mixin, Context, Data: { Criteria } } = Shopware;
+const {
+    Mixin,
+    Context,
+    Data: { Criteria },
+} = Shopware;
 
 /**
  * @status ready
  * @description The <u>sw-media-modal-move</u> component is used to validate the move action.
- * @package content
+ * @sw-package discovery
  * @example-type code-only
  * @component-example
  * <sw-media-modal-move :items-to-move="[items]"></sw-media-modal-move>
@@ -14,8 +18,6 @@ const { Mixin, Context, Data: { Criteria } } = Shopware;
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default {
     template,
-
-    compatConfig: Shopware.compatConfig,
 
     inject: ['repositoryFactory'],
 
@@ -25,7 +27,10 @@ export default {
         };
     },
 
-    emits: ['media-move-modal-close', 'media-move-modal-items-move'],
+    emits: [
+        'media-move-modal-close',
+        'media-move-modal-items-move',
+    ],
 
     mixins: [
         Mixin.getByName('notification'),
@@ -36,7 +41,7 @@ export default {
             required: true,
             type: Array,
             validator(value) {
-                return (value.length > 0);
+                return value.length > 0;
             },
         },
     },
@@ -61,9 +66,7 @@ export default {
 
         mediaNameFilter() {
             return (media) => {
-                return media.getEntityName() === 'media' ?
-                    `${media.fileName}.${media.fileExtension}` :
-                    media.name;
+                return media.getEntityName() === 'media' ? `${media.fileName}.${media.fileExtension}` : media.name;
             };
         },
 
@@ -139,9 +142,7 @@ export default {
         async fetchParentFolder(id) {
             let items = null;
 
-            const criteria = new Criteria(1, 1)
-                .addFilter(Criteria.equals('id', id))
-                .addAssociation('children');
+            const criteria = new Criteria(1, 1).addFilter(Criteria.equals('id', id)).addAssociation('children');
 
             try {
                 items = await this.mediaFolderRepository.search(criteria, Context.api);
@@ -177,8 +178,10 @@ export default {
                     title: this.$root.$tc('global.default.success'),
                     message: this.$root.$tc(
                         'global.sw-media-modal-move.notification.successSingle.message',
+                        {
+                            mediaName: this.mediaNameFilter(item),
+                        },
                         1,
-                        { mediaName: this.mediaNameFilter(item) },
                     ),
                 });
 
@@ -188,8 +191,10 @@ export default {
                     title: this.$root.$tc('global.default.error'),
                     message: this.$root.$tc(
                         'global.sw-media-modal-move.notification.errorSingle.message',
+                        {
+                            mediaName: this.mediaNameFilter(item),
+                        },
                         1,
-                        { mediaName: this.mediaNameFilter(item) },
                     ),
                 });
 
@@ -211,25 +216,26 @@ export default {
                     return item.getEntityName() === 'media';
                 });
 
-                await Promise.all(folders.map(async (folder) => {
-                    await this._moveSelection(folder);
-                }));
+                await Promise.all(
+                    folders.map(async (folder) => {
+                        await this._moveSelection(folder);
+                    }),
+                );
 
-                await Promise.all(media.map(async (mediaItem) => {
-                    const item = mediaItem;
-                    item.mediaFolderId = this.targetFolder.id || null;
-                    movedIds.push(await this.mediaRepository.save(item, Context.api));
-                }));
+                await Promise.all(
+                    media.map(async (mediaItem) => {
+                        const item = mediaItem;
+                        item.mediaFolderId = this.targetFolder.id || null;
+                        movedIds.push(await this.mediaRepository.save(item, Context.api));
+                    }),
+                );
 
                 this.createNotificationSuccess({
                     title: this.$root.$tc('global.default.success'),
                     message: this.$root.$tc('global.sw-media-modal-move.notification.successOverall.message'),
                 });
 
-                this.$emit(
-                    'media-move-modal-items-move',
-                    movedIds,
-                );
+                this.$emit('media-move-modal-items-move', movedIds);
             } catch {
                 this.createNotificationError({
                     title: this.$root.$tc('global.default.error'),

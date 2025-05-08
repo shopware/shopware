@@ -1,21 +1,20 @@
-<!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
 {% block sw_settings_tax_rule_type_zip_code_range %}
 <sw-container
     columns="1fr 1fr"
     gap="0 32px"
 >
-    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_settings_tax_rule_type_zip_code_range_from %}
-    <sw-text-field
-        v-model:value="taxRule.data.fromZipCode"
+
+    <mt-text-field
+        v-model="taxRule.data.fromZipCode"
         :label="$tc('sw-settings-tax.taxRuleCard.labelToZipCode')"
     />
     {% endblock %}
 
-    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_settings_tax_rule_type_zip_code_range_to %}
-    <sw-text-field
-        v-model:value="taxRule.data.toZipCode"
+
+    <mt-text-field
+        v-model="taxRule.data.toZipCode"
         :label="$tc('sw-settings-tax.taxRuleCard.labelFromZipCode')"
     />
     {% endblock %}

@@ -43,6 +43,10 @@ class CartItemRemoveRoute extends AbstractCartItemRemoveRoute
         $lineItems = [];
 
         foreach ($ids as $id) {
+            if (!\is_string($id)) {
+                throw CartException::lineItemNotFound((string) $id);
+            }
+
             $lineItem = $cart->get($id);
 
             if (!$lineItem) {

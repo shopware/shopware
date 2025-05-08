@@ -1,5 +1,5 @@
 /**
- * @package admin
+ * @sw-package framework
  */
 
 // Vue3 imports
@@ -15,7 +15,6 @@ export default function initializeRouter(container: InitContainer) {
     // @ts-expect-error - RouterFactory is also a method
     // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
     const factory = RouterFactory(VueRouter3, container.view, factoryContainer.module, loginService);
-
 
     // eslint-disable-next-line @typescript-eslint/no-unsafe-call,@typescript-eslint/no-unsafe-member-access
     factory.addRoutes(coreRoutes);

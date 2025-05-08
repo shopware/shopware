@@ -7,18 +7,12 @@ use Shopware\Core\Checkout\Shipping\ShippingMethodCollection;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Storefront\Page\Page;
 
-#[Package('storefront')]
+#[Package('framework')]
 class OffcanvasCartPage extends Page
 {
-    /**
-     * @var Cart
-     */
-    protected $cart;
+    protected Cart $cart;
 
-    /**
-     * @var ShippingMethodCollection
-     */
-    protected $shippingMethods;
+    protected ShippingMethodCollection $shippingMethods;
 
     public function getCart(): Cart
     {

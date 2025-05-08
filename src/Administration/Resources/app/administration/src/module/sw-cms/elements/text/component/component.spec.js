@@ -1,8 +1,9 @@
 /**
- * @package buyers-experience
+ * @sw-package discovery
  */
 import { mount } from '@vue/test-utils';
 import { setupCmsEnvironment } from 'src/module/sw-cms/test-utils';
+import { MtTextEditor } from '@shopware-ag/meteor-component-library';
 
 async function createWrapper() {
     return mount(await wrapTestComponent('sw-cms-el-text', { sync: true }), {
@@ -11,7 +12,7 @@ async function createWrapper() {
                 cmsService: Shopware.Service('cmsService'),
             },
             stubs: {
-                'sw-text-editor': await wrapTestComponent('sw-text-editor'),
+                'mt-text-editor': MtTextEditor,
                 'sw-text-editor-toolbar': true,
                 'sw-text-editor-table-toolbar': true,
                 'sw-code-editor': true,
@@ -38,7 +39,7 @@ describe('src/module/sw-cms/elements/text/component', () => {
     });
 
     afterEach(() => {
-        Shopware.Store.get('cmsPageState').resetCmsPageState();
+        Shopware.Store.get('cmsPage').resetCmsPageState();
     });
 
     it('updates the demo value if demo entity changes', async () => {
@@ -57,7 +58,7 @@ describe('src/module/sw-cms/elements/text/component', () => {
 
         wrapper.vm.updateDemoValue = jest.fn();
 
-        await Shopware.Store.get('cmsPageState').setCurrentDemoEntity({
+        await Shopware.Store.get('cmsPage').setCurrentDemoEntity({
             id: 'foo-bar',
         });
         expect(wrapper.vm.updateDemoValue).toHaveBeenCalled();

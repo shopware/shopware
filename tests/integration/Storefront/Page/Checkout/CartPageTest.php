@@ -8,6 +8,7 @@ use Shopware\Core\Checkout\Gateway\SalesChannel\AbstractCheckoutGatewayRoute;
 use Shopware\Core\Checkout\Gateway\SalesChannel\CheckoutGatewayRouteResponse;
 use Shopware\Core\Checkout\Payment\PaymentMethodCollection;
 use Shopware\Core\Checkout\Shipping\ShippingMethodCollection;
+use Shopware\Core\Framework\Adapter\Translation\Translator;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\System\Country\SalesChannel\CountryRoute;
 use Shopware\Storefront\Checkout\Cart\SalesChannel\StorefrontCartFacade;
@@ -54,11 +55,12 @@ class CartPageTest extends TestCase
             ->willReturn($response);
 
         $loader = new CheckoutCartPageLoader(
-            $this->getContainer()->get(GenericPageLoader::class),
-            $this->getContainer()->get('event_dispatcher'),
-            $this->getContainer()->get(StorefrontCartFacade::class),
+            static::getContainer()->get(GenericPageLoader::class),
+            static::getContainer()->get('event_dispatcher'),
+            static::getContainer()->get(StorefrontCartFacade::class),
             $route,
-            $this->getContainer()->get(CountryRoute::class)
+            static::getContainer()->get(CountryRoute::class),
+            static::getContainer()->get(Translator::class)
         );
 
         $context = $this->createSalesChannelContextWithNavigation();
@@ -70,6 +72,6 @@ class CartPageTest extends TestCase
 
     protected function getPageLoader(): CheckoutCartPageLoader
     {
-        return $this->getContainer()->get(CheckoutCartPageLoader::class);
+        return static::getContainer()->get(CheckoutCartPageLoader::class);
     }
 }

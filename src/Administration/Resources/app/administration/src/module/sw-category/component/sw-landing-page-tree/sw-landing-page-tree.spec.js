@@ -1,15 +1,16 @@
 /**
- * @package inventory
+ * @sw-package discovery
  */
 import { mount } from '@vue/test-utils';
 import { createRouter, createWebHashHistory } from 'vue-router';
-import swCategoryState from 'src/module/sw-category/page/sw-category-detail/state';
 
 async function createWrapper() {
-    const routes = [{
-        name: 'sw.category.landingPageDetail',
-        path: '/category/landingPage/:id',
-    }];
+    const routes = [
+        {
+            name: 'sw.category.landingPageDetail',
+            path: '/category/landingPage/:id',
+        },
+    ];
 
     const router = createRouter({
         routes,
@@ -40,7 +41,6 @@ async function createWrapper() {
                         </div>
                     `,
                 },
-                'sw-button': true,
                 'sw-context-button': true,
                 'sw-context-menu-item': true,
             },
@@ -48,11 +48,12 @@ async function createWrapper() {
                 syncService: {},
                 repositoryFactory: {
                     create: () => ({
-                        search: () => Promise.resolve([
-                            {
-                                id: '1a',
-                            },
-                        ]),
+                        search: () =>
+                            Promise.resolve([
+                                {
+                                    id: '1a',
+                                },
+                            ]),
                     }),
                 },
             },
@@ -66,13 +67,12 @@ async function createWrapper() {
 describe('src/module/sw-category/component/sw-landing-page-tree', () => {
     let oldSystemLanguageId = null;
     beforeEach(async () => {
-        global.activeAclRoles = ['landing_page.creator', 'landing_page.editor'];
+        global.activeAclRoles = [
+            'landing_page.creator',
+            'landing_page.editor',
+        ];
 
-        if (Shopware.State.get('swCategoryDetail')) {
-            Shopware.State.unregisterModule('swCategoryDetail');
-        }
-
-        Shopware.State.registerModule('swCategoryDetail', swCategoryState);
+        Shopware.Store.get('swCategoryDetail').$reset();
 
         // this is normally set by the shopware runtime
         // but needed for this unit tests because the component relies on this value.

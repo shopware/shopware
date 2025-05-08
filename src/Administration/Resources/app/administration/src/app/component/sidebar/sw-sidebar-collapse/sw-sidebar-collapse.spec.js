@@ -1,5 +1,5 @@
 /**
- * @package admin
+ * @sw-package framework
  */
 
 import { mount } from '@vue/test-utils';
@@ -10,12 +10,6 @@ async function createWrapper() {
     return mount(await wrapTestComponent('sw-sidebar-collapse', { sync: true }), {
         global: {
             stubs: {
-                'sw-icon': {
-                    props: [
-                        'name',
-                    ],
-                    template: '<span class="sw-icon">{{ name }}</span>',
-                },
                 'sw-collapse': true,
             },
             mocks: {
@@ -30,19 +24,26 @@ describe('src/app/component/sidebar/sw-sidebar-collapse', () => {
         it('has a chevron pointing right', async () => {
             const wrapper = await createWrapper();
 
-            expect(wrapper.find('.sw-sidebar-collapse__expand-button').text()).toContain('right');
+            expect(wrapper.findComponent('.mt-icon').vm.name).toBe('regular-chevron-right-xxs');
         });
     });
 
-    describe('prop expandChevronDirection down', () => {
-        it('has a chevron pointing down', async () => {
-            const wrapper = await createWrapper();
+    describe('all directions', () => {
+        [
+            'up',
+            'left',
+            'right',
+            'down',
+        ].forEach((direction) => {
+            it(`has a chevron pointing ${direction}`, async () => {
+                const wrapper = await createWrapper();
 
-            await wrapper.setProps({
-                expandChevronDirection: 'bottom',
+                await wrapper.setProps({
+                    expandChevronDirection: direction,
+                });
+
+                expect(wrapper.findComponent('.mt-icon').vm.name).toBe(`regular-chevron-${direction}-xxs`);
             });
-
-            expect(wrapper.find('.sw-sidebar-collapse__expand-button').text()).toContain('bottom');
         });
     });
 });

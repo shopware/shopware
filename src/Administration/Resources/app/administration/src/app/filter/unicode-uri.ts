@@ -1,5 +1,5 @@
 /**
- * @package admin
+ * @sw-package framework
  */
 
 import Punycode from 'punycode';
@@ -19,4 +19,3 @@ Shopware.Filter.register('unicodeUri', (value: string) => {
 
 /* @private */
 export {};
-

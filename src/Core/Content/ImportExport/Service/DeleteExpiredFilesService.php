@@ -9,9 +9,9 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\RangeFilter;
 use Shopware\Core\Framework\Log\Package;
 
 /**
- * @internal We might break this in v6.2
+ * @internal
  */
-#[Package('services-settings')]
+#[Package('fundamentals@after-sales')]
 class DeleteExpiredFilesService
 {
     public function __construct(private readonly EntityRepository $fileRepository)

@@ -1,5 +1,5 @@
 /**
- * @package admin
+ * @sw-package framework
  */
 
 import { mount } from '@vue/test-utils';
@@ -17,7 +17,6 @@ async function createWrapper() {
                 'sw-block-field': await wrapTestComponent('sw-block-field'),
                 'sw-base-field': await wrapTestComponent('sw-base-field'),
                 'sw-field-error': await wrapTestComponent('sw-field-error'),
-                'sw-icon': true,
                 'icons-small-search': true,
                 'sw-field-copyable': await wrapTestComponent('sw-field-copyable'),
                 'sw-inheritance-switch': await wrapTestComponent('sw-inheritance-switch'),
@@ -48,8 +47,7 @@ describe('components/base/sw-simple-search-field', () => {
     });
 
     it('should emit `input` event', async () => {
-        await wrapper.find('input[type="text"]')
-            .setValue('@input Sw Simple Search Field Typing');
+        await wrapper.find('input[type="text"]').setValue('@input Sw Simple Search Field Typing');
 
         /* wait for `$emit('input')` */
         await wrapper.vm.$nextTick();

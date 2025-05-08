@@ -11,12 +11,12 @@ use Shopware\Core\Checkout\Gateway\SalesChannel\CheckoutGatewayRoute;
 use Shopware\Core\Framework\App\Hmac\RequestSigner;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Log\Package;
-use Shopware\Core\Framework\Test\IdsCollection;
 use Shopware\Core\Framework\Test\TestCaseBase\SalesChannelApiTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Test\Integration\App\GuzzleHistoryCollector;
 use Shopware\Core\Test\Integration\App\TestAppServer;
-use Shopware\Core\Test\Integration\PaymentHandler\AsyncTestPaymentHandler;
+use Shopware\Core\Test\Integration\PaymentHandler\TestPaymentHandler;
+use Shopware\Core\Test\Stub\Framework\IdsCollection;
 use Shopware\Tests\Integration\Core\Framework\App\GuzzleTestClientBehaviour;
 use Symfony\Bundle\FrameworkBundle\KernelBrowser;
 
@@ -49,13 +49,13 @@ class CheckoutGatewayRouteTest extends TestCase
             ],
         ]);
 
-        $historyCollector = $this->getContainer()->get(GuzzleHistoryCollector::class);
+        $historyCollector = static::getContainer()->get(GuzzleHistoryCollector::class);
         static::assertInstanceOf(GuzzleHistoryCollector::class, $historyCollector);
         $historyCollector->resetHistory();
-        $mockHandler = $this->getContainer()->get(MockHandler::class);
+        $mockHandler = static::getContainer()->get(MockHandler::class);
         static::assertInstanceOf(MockHandler::class, $mockHandler);
         $mockHandler->reset();
-        $testServer = $this->getContainer()->get(TestAppServer::class);
+        $testServer = static::getContainer()->get(TestAppServer::class);
         static::assertInstanceOf(TestAppServer::class, $testServer);
         $testServer->reset();
     }
@@ -186,7 +186,7 @@ class CheckoutGatewayRouteTest extends TestCase
             ],
         ];
 
-        $this->getContainer()
+        static::getContainer()
             ->get('app.repository')
             ->create([$app], Context::createDefaultContext());
 
@@ -196,18 +196,18 @@ class CheckoutGatewayRouteTest extends TestCase
                 'name' => 'Payment 1',
                 'technicalName' => 'payment_test',
                 'active' => true,
-                'handlerIdentifier' => AsyncTestPaymentHandler::class,
+                'handlerIdentifier' => TestPaymentHandler::class,
             ],
             [
                 'id' => $this->ids->create('new-payment'),
                 'name' => 'Payment 2',
                 'technicalName' => 'payment_new-test',
                 'active' => true,
-                'handlerIdentifier' => AsyncTestPaymentHandler::class,
+                'handlerIdentifier' => TestPaymentHandler::class,
             ],
         ];
 
-        $this->getContainer()
+        static::getContainer()
             ->get('payment_method.repository')
             ->create($payments, Context::createDefaultContext());
     }

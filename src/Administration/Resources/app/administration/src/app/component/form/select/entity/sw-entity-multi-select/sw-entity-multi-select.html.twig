@@ -1,21 +1,18 @@
-<!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
 {% block sw_entity_multi_select %}
 <sw-select-base
     ref="selectBase"
     class="sw-entity-multi-select"
     :is-loading="isLoading"
     v-bind="$attrs"
-    v-on="listeners"
+    :label="label"
+    :disabled="disabled"
     @select-expanded="onSelectExpanded"
     @select-collapsed="onSelectCollapsed"
     @clear="clearSelection"
 >
-    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_entity_multi_select_base %}
-    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_entity_multi_select_base_selection %}
     <template #sw-select-selection="{ identification, error, disabled, size, expand, collapse}">
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_entity_multi_select_advanced_selection_modal %}
         <component
             :is="advancedSelectionComponent"
@@ -28,7 +25,6 @@
         />
         {% endblock %}
 
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_entity_multi_select_base_selection_slot %}
         <sw-select-selection-list
             ref="selectionList"
@@ -36,6 +32,7 @@
             :invisible-count="invisibleValueCount"
             value-property="id"
             v-bind="{ size, labelProperty, placeholder, alwaysShowPlaceholder, searchTerm, disabled }"
+            :input-label="label"
             :hide-labels="hideLabels"
             :selection-disabling-method="selectionDisablingMethod"
             @total-count-click="expandValueLimit"
@@ -43,12 +40,9 @@
             @last-item-delete="removeLastItem"
             @search-term-change="onSearchTermChange"
         >
-            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_entity_multi_select_base_selection_list %}
-            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_entity_multi_select_base_selection_list_label %}
             <template #label-property="{ item, index, labelProperty, valueProperty, getKey }">
-                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_entity_multi_select_base_selection_list_label_inner %}
                 <slot
                     name="selection-label-property"
@@ -73,26 +67,21 @@
     </template>
     {% endblock %}
 
-    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_entity_multi_select_base_results %}
     <template #results-list>
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_entity_multi_select_base_results_slot %}
         <sw-select-result-list
             ref="swSelectResultList"
             :options="resultCollection"
             :is-loading="isLoading"
-            :empty-message="$tc('global.sw-entity-multi-select.messageNoResults', 0, { term: searchTerm })"
+            :empty-message="$tc('global.sw-entity-multi-select.messageNoResults', { term: searchTerm }, 0)"
             :focus-el="$refs.selectionList.getFocusEl()"
             @paginate="paginate"
             @item-select="addItem"
         >
-            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_entity_multi_select_base_results_list %}
-            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_entity_multi_select_base_results_list_before %}
             <template #before-item-list>
-                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_entity_multi_select_base_results_list_before_advanced_selection %}
                 <!-- eslint-disable-next-line vuejs-accessibility/click-events-have-key-events, vuejs-accessibility/no-static-element-interactions -->
                 <div
@@ -104,14 +93,12 @@
                 </div>
                 {% endblock %}
 
-                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_entity_multi_select_base_results_list_before_slot %}
                 <slot name="before-item-list"></slot>
                 {% endblock %}
             </template>
             {% endblock %}
 
-            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_entity_multi_select_base_results_list_result %}
             <template #result-item="{ item, index }">
                 <slot
@@ -125,7 +112,6 @@
                         :description-position="descriptionPosition"
                         @item-select="addItem"
                     >
-                        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                         {% block sw_entity_multi_select_base_results_list_result_preview %}
                         <template #preview>
                             <slot
@@ -142,7 +128,6 @@
                             ></slot>
                         </template>
                         {% endblock %}
-                        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                         {% block sw_entity_multi_select_base_results_list_result_label %}
                         <slot
                             name="result-label-property"
@@ -168,7 +153,6 @@
                             </template>
                         </slot>
                         {% endblock %}
-                        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                         {% block sw_entity_multi_select_base_results_list_result_description %}
                         <template #description>
                             <slot
@@ -182,7 +166,6 @@
             </template>
             {% endblock %}
 
-            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_entity_multi_select_base_results_list_after %}
             <template #after-item-list>
                 <slot name="after-item-list"></slot>

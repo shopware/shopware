@@ -5,10 +5,11 @@ namespace Shopware\Core;
 use Shopware\Core\Framework\Log\Package;
 
 /**
- * @internal
- * System wide defaults that are fixed for performance measures
+ * System-wide defaults that are fixed for performance reasons.
+ *
+ * @codeCoverageIgnore
  */
-#[Package('core')]
+#[Package('framework')]
 final class Defaults
 {
     /**

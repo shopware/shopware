@@ -2,13 +2,11 @@ import template from './sw-extension-rating-stars.html.twig';
 import './sw-extension-rating-stars.scss';
 
 /**
- * @package checkout
+ * @sw-package checkout
  * @private
  */
 export default {
     template,
-
-    compatConfig: Shopware.compatConfig,
 
     inject: ['feature'],
 
@@ -52,9 +50,7 @@ export default {
         },
 
         starSize() {
-            return {
-                width: `${this.sizeValue * this.scaleFactor}px`,
-            };
+            return `${this.sizeValue * this.scaleFactor}px`;
         },
 
         partialStarSize() {
@@ -107,9 +103,11 @@ export default {
         },
 
         showPartialStar(key) {
-            return this.ratingValue % 1 !== 0
+            return (
+                this.ratingValue % 1 !== 0 &&
                 // subtract because rtl direction is used
-                && (this.maxRating - Math.ceil(this.ratingValue)) === key;
+                this.maxRating - Math.ceil(this.ratingValue) === key
+            );
         },
     },
 };

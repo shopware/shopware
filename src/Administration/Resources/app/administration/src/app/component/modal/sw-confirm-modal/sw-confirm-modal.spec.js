@@ -1,5 +1,5 @@
 /**
- * @package admin
+ * @sw-package framework
  */
 
 import { mount } from '@vue/test-utils';
@@ -15,10 +15,7 @@ describe('src/app/component/modal/sw-confirm-modal', () => {
             global: {
                 stubs: {
                     'sw-modal': await wrapTestComponent('sw-modal'),
-                    'sw-button': await wrapTestComponent('sw-button'),
-                    'sw-button-deprecated': await wrapTestComponent('sw-button-deprecated', { sync: true }),
                     'sw-loader': true,
-                    'sw-icon': true,
                     'router-link': true,
                 },
                 provide: {
@@ -39,8 +36,7 @@ describe('src/app/component/modal/sw-confirm-modal', () => {
     it('emits confirm when confirm button is clicked', async () => {
         wrapper = await createWrapper({});
 
-        await wrapper.get('.sw-confirm-modal__button-confirm')
-            .trigger('click');
+        await wrapper.get('.sw-confirm-modal__button-confirm').trigger('click');
 
         expect(wrapper.emitted('confirm')).toBeTruthy();
     });
@@ -48,8 +44,7 @@ describe('src/app/component/modal/sw-confirm-modal', () => {
     it('emits cancel when cancel button is clicked', async () => {
         wrapper = await createWrapper({});
 
-        await wrapper.get('.sw-confirm-modal__button-cancel')
-            .trigger('click');
+        await wrapper.get('.sw-confirm-modal__button-cancel').trigger('click');
 
         expect(wrapper.emitted('cancel')).toBeTruthy();
     });
@@ -72,17 +67,34 @@ describe('src/app/component/modal/sw-confirm-modal', () => {
     }
 
     const typeExpectations = [
-        ['confirm', expectedValues('primary', 'confirm', 'cancel')],
-        ['yesno', expectedValues('primary', 'yes', 'no')],
-        ['delete', expectedValues('danger', 'delete', 'cancel')],
-        ['discard', expectedValues('danger', 'discard', 'cancel')],
+        [
+            'confirm',
+            expectedValues('primary', 'confirm', 'cancel'),
+        ],
+        [
+            'yesno',
+            expectedValues('primary', 'yes', 'no'),
+        ],
+        [
+            'delete',
+            expectedValues('critical', 'delete', 'cancel'),
+        ],
+        [
+            'discard',
+            expectedValues('critical', 'discard', 'cancel'),
+        ],
     ];
 
-    it.each(typeExpectations)('has correct labels for %s', async (type, { cancelText, confirmText, confirmButtonVariant }) => {
-        wrapper = await createWrapper({ type });
+    it.each(typeExpectations)(
+        'has correct labels for %s',
+        async (type, { cancelText, confirmText, confirmButtonVariant }) => {
+            wrapper = await createWrapper({ type });
 
-        expect(wrapper.get('.sw-confirm-modal__button-cancel').text()).toBe(`global.default.${cancelText}`);
-        expect(wrapper.get('.sw-confirm-modal__button-confirm').text()).toBe(`global.default.${confirmText}`);
-        expect(wrapper.get('.sw-confirm-modal__button-confirm').classes(`sw-button--${confirmButtonVariant}`)).toBe(true);
-    });
+            expect(wrapper.get('.sw-confirm-modal__button-cancel').text()).toBe(`global.default.${cancelText}`);
+            expect(wrapper.get('.sw-confirm-modal__button-confirm').text()).toBe(`global.default.${confirmText}`);
+            expect(wrapper.get('.sw-confirm-modal__button-confirm').classes(`mt-button--${confirmButtonVariant}`)).toBe(
+                true,
+            );
+        },
+    );
 });

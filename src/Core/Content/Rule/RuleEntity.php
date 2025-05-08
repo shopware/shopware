@@ -19,113 +19,60 @@ use Shopware\Core\Framework\Rule\Rule;
 use Shopware\Core\System\Tag\TagCollection;
 use Shopware\Core\System\TaxProvider\TaxProviderCollection;
 
-#[Package('services-settings')]
+#[Package('fundamentals@after-sales')]
 class RuleEntity extends Entity
 {
     use EntityCustomFieldsTrait;
     use EntityIdTrait;
 
-    /**
-     * @var string
-     */
-    protected $name;
+    protected string $name;
 
-    /**
-     * @var string|null
-     */
-    protected $description;
+    protected ?string $description = null;
 
-    /**
-     * @var int
-     */
-    protected $priority;
+    protected int $priority;
 
     /**
      * @internal
-     *
-     * @var string|Rule|null
      */
-    protected $payload;
+    protected string|Rule|null $payload = null;
 
     /**
      * @var string[]|null
      */
-    protected $moduleTypes;
+    protected ?array $moduleTypes = null;
 
-    /**
-     * @var ProductPriceCollection|null
-     */
-    protected $productPrices;
+    protected ?ProductPriceCollection $productPrices = null;
 
-    /**
-     * @var ShippingMethodCollection|null
-     */
-    protected $shippingMethods;
+    protected ?ShippingMethodCollection $shippingMethods = null;
 
-    /**
-     * @var PaymentMethodCollection|null
-     */
-    protected $paymentMethods;
+    protected ?PaymentMethodCollection $paymentMethods = null;
 
-    /**
-     * @var RuleConditionCollection|null
-     */
-    protected $conditions;
+    protected ?RuleConditionCollection $conditions = null;
 
-    /**
-     * @var bool
-     */
-    protected $invalid;
+    protected bool $invalid;
 
     /**
      * @var string[]|null
      */
     protected ?array $areas = null;
 
-    /**
-     * @var ShippingMethodPriceCollection|null
-     */
-    protected $shippingMethodPrices;
+    protected ?ShippingMethodPriceCollection $shippingMethodPrices = null;
 
-    /**
-     * @var PromotionDiscountCollection|null
-     */
-    protected $promotionDiscounts;
+    protected ?PromotionDiscountCollection $promotionDiscounts = null;
 
-    /**
-     * @var PromotionSetGroupCollection|null
-     */
-    protected $promotionSetGroups;
+    protected ?PromotionSetGroupCollection $promotionSetGroups = null;
 
-    /**
-     * @var ShippingMethodPriceCollection|null
-     */
-    protected $shippingMethodPriceCalculations;
+    protected ?ShippingMethodPriceCollection $shippingMethodPriceCalculations = null;
 
-    /**
-     * @var PromotionCollection|null
-     */
-    protected $personaPromotions;
+    protected ?PromotionCollection $personaPromotions = null;
 
-    /**
-     * @var FlowSequenceCollection|null
-     */
-    protected $flowSequences;
+    protected ?FlowSequenceCollection $flowSequences = null;
 
-    /**
-     * @var TagCollection|null
-     */
-    protected $tags;
+    protected ?TagCollection $tags = null;
 
-    /**
-     * @var PromotionCollection|null
-     */
-    protected $orderPromotions;
+    protected ?PromotionCollection $orderPromotions = null;
 
-    /**
-     * @var PromotionCollection|null
-     */
-    protected $cartPromotions;
+    protected ?PromotionCollection $cartPromotions = null;
 
     protected ?TaxProviderCollection $taxProviders = null;
 

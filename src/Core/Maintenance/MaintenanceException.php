@@ -4,12 +4,10 @@ declare(strict_types=1);
 
 namespace Shopware\Core\Maintenance;
 
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\HttpException;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Migration\MigrationCollectionLoader;
 use Shopware\Core\Maintenance\System\Exception\DatabaseSetupException;
-use Shopware\Core\Maintenance\System\Exception\JwtCertificateGenerationException;
 use Symfony\Component\HttpFoundation\Response;
 
 /**
@@ -17,7 +15,7 @@ use Symfony\Component\HttpFoundation\Response;
  *
  * @codeCoverageIgnore
  */
-#[Package('core')]
+#[Package('framework')]
 class MaintenanceException extends HttpException
 {
     final public const MAINTENANCE_SYMFONY_CONSOLE_APPLICATION_NOT_FOUND = 'MAINTENANCE__SYMFONY_CONSOLE_APPLICATION_NOT_FOUND';
@@ -49,7 +47,7 @@ class MaintenanceException extends HttpException
             self::MAINTENANCE_MIGRATION_INVALID_VERSION_SELECTION_MODE,
             'Version selection mode needs to be one of these values: "{{ validModes }}", but "{{ mode }}" was given.',
             [
-                'validModes' => implode('", "', MigrationCollectionLoader::VALID_VERSION_SELECTION_SAFE_VALUES),
+                'validModes' => implode('", "', MigrationCollectionLoader::VALID_VERSION_SELECTION_VALUES),
                 'mode' => $mode,
             ]
         );
@@ -87,10 +85,6 @@ class MaintenanceException extends HttpException
 
     public static function dbVersionSelectFailed(): DatabaseSetupException
     {
-        if (!Feature::isActive('v6.7.0.0')) {
-            return new DatabaseSetupException('Failed to select database version');
-        }
-
         return new DatabaseSetupException(
             Response::HTTP_INTERNAL_SERVER_ERROR,
             self::MAINTENANCE_DB_VERSION_SELECT_FAILED,
@@ -104,18 +98,6 @@ class MaintenanceException extends HttpException
         string $mysqlRequiredVersion,
         string $mariaDBRequiredVersion
     ): DatabaseSetupException {
-        if (!Feature::isActive('v6.7.0.0')) {
-            return new DatabaseSetupException(
-                \sprintf(
-                    'Your database server is running %s %s, but Shopware 6 requires at least MySQL %s OR MariaDB %s',
-                    $dbKind,
-                    $actualVersion,
-                    $mysqlRequiredVersion,
-                    $mariaDBRequiredVersion
-                )
-            );
-        }
-
         return new DatabaseSetupException(
             Response::HTTP_INTERNAL_SERVER_ERROR,
             self::MAINTENANCE_DB_VERSION_SELECT_FAILED,
@@ -127,19 +109,6 @@ class MaintenanceException extends HttpException
                 'mariaDBRequiredVersion' => $mariaDBRequiredVersion,
             ]
         );
-    }
-
-    /**
-     * @deprecated tag:v6.7.0 - Will be removed without replacement as the class where this exception is thrown will be removed
-     */
-    public static function jwtCertificateGenerationFailed(string $message): JwtCertificateGenerationException
-    {
-        Feature::triggerDeprecationOrThrow(
-            'v6.7.0.0',
-            Feature::deprecatedMethodMessage(__CLASS__, __METHOD__, 'v6.7.0.0')
-        );
-
-        return new JwtCertificateGenerationException($message);
     }
 
     public static function shopConfigurationNotValid(string $message): self
@@ -198,6 +167,16 @@ class MaintenanceException extends HttpException
             self::MAINTENANCE_COULD_NOT_CREATE_DIRECTORY,
             'Could not create directory "{{ directoryName }}"',
             ['directoryName' => $directoryName]
+        );
+    }
+
+    public static function aclRolesNotLoaded(string $userId, string $userName): self
+    {
+        return new self(
+            Response::HTTP_INTERNAL_SERVER_ERROR,
+            'MAINTENANCE__ACL_ROLES_NOT_LOADED',
+            'Could not get ACL roles for user "{{ userName }}" (ID: {{ userId }})',
+            ['userId' => $userId, 'userName' => $userName],
         );
     }
 }

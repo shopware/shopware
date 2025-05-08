@@ -1,7 +1,7 @@
 import type { App } from 'vue';
 
 /**
- * @package admin
+ * @sw-package framework
  */
 const MeteorSdkDataPlugin = {
     install(app: App) {
@@ -16,7 +16,7 @@ const MeteorSdkDataPlugin = {
                 // @ts-expect-error
                 // eslint-disable-next-line max-len
                 // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access,@typescript-eslint/no-unsafe-call,@typescript-eslint/no-unsafe-return
-                this.dataSetUnwatchers.forEach(unwatch => unwatch());
+                this.dataSetUnwatchers.forEach((unwatch) => unwatch());
             },
         });
     },

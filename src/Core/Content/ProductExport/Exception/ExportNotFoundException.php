@@ -16,7 +16,7 @@ class ExportNotFoundException extends ShopwareHttpException
         $message = 'No product exports found';
 
         if ($id) {
-            $message = 'Product export with ID {{ id }} not found';
+            $message = 'Product export with ID {{ id }} not found. Make sure the export exists and the export sales channel is active';
         } elseif ($fileName) {
             $message = 'Product export with file name {{ fileName }} not found. Please check your access key.';
         }

@@ -1,23 +1,18 @@
-<!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
 {% block sw_version %}
 <div class="sw-version">
 
-    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_version_name %}
     <div class="sw-version__title">
 
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_version_name_text %}
         {{ $tc('global.sw-admin-menu.textProjectName') }}
         {% endblock %}
 
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_version_status %}
         <span
             title="Shop status: OK"
             class="sw-version__status"
         >
-            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_version_status_badge %}
             <sw-color-badge
                 variant="success"
@@ -29,10 +24,8 @@
     </div>
     {% endblock %}
 
-    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_version_info %}
     <div class="sw-version__info">
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_version_info_text %}
         {{ version }}
         {% endblock %}

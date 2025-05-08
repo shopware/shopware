@@ -118,6 +118,15 @@ $sw-tree-item-color-text: $color-darkgray-200;
         }
     }
 
+    &:focus {
+        outline: 0;
+
+        > .sw-tree-item__element {
+            box-shadow: inset 0 0 0 2px $color-shopware-brand-500;
+            outline: 0;
+        }
+    }
+
     &.is--highlighted > .sw-tree-item__element {
         .sw-tree-item__label {
             background-color: $color-gray-100;
@@ -143,14 +152,15 @@ $sw-tree-item-color-text: $color-darkgray-200;
     }
 
     .sw-tree-item__toggle {
-        width: 15px;
-        height: 24px;
+        display: flex;
+        align-items: center;
+        width: 100%;
+        height: 100%;
         line-height: $line-height-sm;
         text-align: center;
         position: relative;
         cursor: pointer;
         user-select: none;
-        justify-self: center;
 
         .sw-loader {
             background: none;
@@ -161,10 +171,7 @@ $sw-tree-item-color-text: $color-darkgray-200;
         }
 
         .icon--regular-chevron-right-xxs {
-            padding-top: 6px;
-            padding-right: 7px;
-            padding-bottom: 8px;
-            padding-left: 9px;
+            padding: 6px 7px 8px 9px;
         }
     }
 
@@ -187,13 +194,13 @@ $sw-tree-item-color-text: $color-darkgray-200;
         .sw-context-button__button {
             padding: 0 6px;
 
-            .sw-icon {
+            .mt-icon {
                 width: 18px;
                 height: 18px;
             }
         }
 
-        .sw-button {
+        .mt-button {
             width: 100%;
             height: 26px;
             padding: 2px 8px;
@@ -242,6 +249,18 @@ $sw-tree-item-color-text: $color-darkgray-200;
             @include size(8px);
         }
     }
+
+    .sw-tree-detail__edit-tree-item {
+        .mt-field {
+            margin-bottom: 0;
+        }
+    }
+
+    .mt-field--checkbox__container {
+        .mt-field--checkbox {
+            margin-bottom: 0;
+        }
+    }
 }
 
 .sw-tree-item__element {
@@ -272,6 +291,11 @@ $sw-tree-item-color-text: $color-darkgray-200;
             text-decoration: inherit;
             padding: 12px 0;
             display: block;
+
+            &:focus {
+                box-shadow: inset 0 0 0 2px $color-shopware-brand-500;
+                outline: none;
+            }
         }
     }
 
@@ -292,6 +316,14 @@ $sw-tree-item-color-text: $color-darkgray-200;
 
         .sw-tree-item__children {
             display: none;
+        }
+
+        .icon--regular-chevron-down-xxs {
+            padding: 7px;
+        }
+
+        .icon--regular-chevron-right-xxs {
+            padding: 6px 7px 8px 9px;
         }
     }
 

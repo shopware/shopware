@@ -13,6 +13,7 @@ use Shopware\Core\DevOps\Environment\EnvironmentHelper;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\DataAbstractionLayerException;
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\InvalidAggregationQueryException;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Aggregation\Bucket\BucketAggregation;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Aggregation\Bucket\DateHistogramAggregation;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Aggregation\Bucket\FilterAggregation;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Aggregation\Bucket\TermsAggregation;
@@ -41,10 +42,9 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Query\ScoreQuery;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
 use Shopware\Core\Framework\Test\DataAbstractionLayer\Search\TestAggregation;
 use Shopware\Core\Framework\Test\DataAbstractionLayer\Search\Util\DateHistogramCase;
-use Shopware\Core\Framework\Test\IdsCollection;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
-use Shopware\Core\Framework\Test\TestDataCollection;
 use Shopware\Core\System\Tax\TaxDefinition;
+use Shopware\Core\Test\Stub\Framework\IdsCollection;
 
 /**
  * @internal
@@ -56,14 +56,14 @@ class EntityAggregatorTest extends TestCase
 
     private EntityAggregatorInterface $aggregator;
 
-    private TestDataCollection $ids;
+    private IdsCollection $ids;
 
     private ProductDefinition $definition;
 
     protected function setUp(): void
     {
-        $this->aggregator = $this->getContainer()->get(EntityAggregatorInterface::class);
-        $this->definition = $this->getContainer()->get(ProductDefinition::class);
+        $this->aggregator = static::getContainer()->get(EntityAggregatorInterface::class);
+        $this->definition = static::getContainer()->get(ProductDefinition::class);
 
         $this->insertData();
     }
@@ -98,7 +98,7 @@ class EntityAggregatorTest extends TestCase
                 ->build(),
         ];
 
-        $this->getContainer()
+        static::getContainer()
             ->get('product.repository')
             ->create($products, Context::createDefaultContext());
 
@@ -114,7 +114,7 @@ class EntityAggregatorTest extends TestCase
             )
         );
 
-        $result = $this->getContainer()
+        $result = static::getContainer()
             ->get('product.repository')
             ->aggregate($criteria, Context::createDefaultContext());
 
@@ -1253,7 +1253,7 @@ class EntityAggregatorTest extends TestCase
                     '2020-09-30 00:00:00' => 1,
                     '2021-12-10 00:00:00' => 1,
                     '2024-12-12 00:00:00' => 1,
-                ], null, 'Asia/Saigon'),
+                ], null, 'Asia/Ho_Chi_Minh'),
             ] : [],
         ]);
     }
@@ -1325,7 +1325,7 @@ class EntityAggregatorTest extends TestCase
         $this->expectException(InvalidAggregationQueryException::class);
         $this->expectExceptionMessage('Aggregation of type Shopware\Core\Framework\Test\DataAbstractionLayer\Search\TestAggregation not supported');
 
-        $this->aggregator->aggregate($this->getContainer()->get(TaxDefinition::class), $criteria, $context);
+        $this->aggregator->aggregate(static::getContainer()->get(TaxDefinition::class), $criteria, $context);
     }
 
     public function testAggregationWithBacktickInName(): void
@@ -1337,7 +1337,7 @@ class EntityAggregatorTest extends TestCase
 
         static::expectException(\InvalidArgumentException::class);
         static::expectExceptionMessage('Backtick not allowed in identifier');
-        $this->aggregator->aggregate($this->getContainer()->get(TaxDefinition::class), $criteria, $context);
+        $this->aggregator->aggregate(static::getContainer()->get(TaxDefinition::class), $criteria, $context);
     }
 
     public function testAggregationNameWithDisallowedName(): void
@@ -1349,14 +1349,27 @@ class EntityAggregatorTest extends TestCase
 
         static::expectExceptionObject(DataAbstractionLayerException::invalidAggregationName('foo?foo'));
 
-        $this->aggregator->aggregate($this->getContainer()->get(TaxDefinition::class), $criteria, $context);
+        $this->aggregator->aggregate(static::getContainer()->get(TaxDefinition::class), $criteria, $context);
+    }
+
+    public function testAggregationNameWithDisallowedNameNested(): void
+    {
+        $context = Context::createDefaultContext();
+
+        $criteria = new Criteria();
+
+        $criteria->addAggregation(new BucketAggregation('bla', 'test', new SumAggregation('foo?foo', 'taxRate')));
+
+        static::expectExceptionObject(DataAbstractionLayerException::invalidAggregationName('foo?foo'));
+
+        $this->aggregator->aggregate(static::getContainer()->get(TaxDefinition::class), $criteria, $context);
     }
 
     private function insertData(): void
     {
-        $repository = $this->getContainer()->get('product.repository');
+        $repository = static::getContainer()->get('product.repository');
 
-        $this->ids = new TestDataCollection();
+        $this->ids = new IdsCollection();
 
         $repository->create([
             $this->getProduct('p-1', 't-1', 'm-1', 50, ['c-1', 'c-2'], '2019-01-01 10:11:00'),

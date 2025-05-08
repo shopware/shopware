@@ -32,10 +32,10 @@ final class FileLoaderTest extends TestCase
 
     protected function setUp(): void
     {
-        $this->fileLoader = $this->getContainer()->get(FileLoader::class);
-        $this->fileFetcher = $this->getContainer()->get(FileFetcher::class);
-        $this->fileSaver = $this->getContainer()->get(FileSaver::class);
-        $this->mediaRepository = $this->getContainer()->get('media.repository');
+        $this->fileLoader = static::getContainer()->get(FileLoader::class);
+        $this->fileFetcher = static::getContainer()->get(FileFetcher::class);
+        $this->fileSaver = static::getContainer()->get(FileSaver::class);
+        $this->mediaRepository = static::getContainer()->get('media.repository');
     }
 
     public function testLoadMediaFile(): void

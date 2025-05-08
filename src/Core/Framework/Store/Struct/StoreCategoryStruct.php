@@ -10,25 +10,16 @@ use Shopware\Core\Framework\Log\Package;
 #[Package('checkout')]
 class StoreCategoryStruct extends StoreStruct
 {
-    /**
-     * @var int
-     */
-    protected $id;
+    protected int $id;
 
-    /**
-     * @var string
-     */
-    protected $name;
+    protected string $name;
 
-    /**
-     * @var int|null
-     */
-    protected $parent;
+    protected ?int $parent;
 
     /**
      * @var array<string, mixed>
      */
-    protected $details;
+    protected array $details;
 
     /**
      * @return StoreCategoryStruct

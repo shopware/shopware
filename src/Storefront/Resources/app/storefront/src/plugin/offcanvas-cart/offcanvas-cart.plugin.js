@@ -1,10 +1,9 @@
 import Plugin from 'src/plugin-system/plugin.class';
-import DomAccess from 'src/helper/dom-access.helper';
+/** @deprecated tag:v6.8.0 - HttpClient is deprecated. Use native fetch API instead. */
 import HttpClient from 'src/service/http-client.service';
 import AjaxOffCanvas from 'src/plugin/offcanvas/ajax-offcanvas.plugin';
 import DeviceDetection from 'src/helper/device-detection.helper';
 import FormSerializeUtil from 'src/utility/form/form-serialize.util';
-import Iterator from 'src/helper/iterator.helper';
 import OffCanvas from 'src/plugin/offcanvas/offcanvas.plugin';
 import ElementLoadingIndicatorUtil from 'src/utility/loading-indicator/element-loading-indicator.util';
 import Debouncer from 'src/helper/debouncer.helper';
@@ -31,7 +30,7 @@ export default class OffCanvasCartPlugin extends Plugin {
          * When true, the OffCanvas will try to re-focus the previously focused element after content reload.
          * @type {boolean}
          */
-        autoFocus: true,
+        autoFocus: false,
 
         /**
          * The key under which the focus state is saved in `window.focusHandler`.
@@ -41,6 +40,7 @@ export default class OffCanvasCartPlugin extends Plugin {
     };
 
     init() {
+        /** @deprecated tag:v6.8.0 - HttpClient is deprecated. Use native fetch API instead. */
         this.client = new HttpClient();
         this._registerOpenTriggerEvents();
     }
@@ -87,9 +87,9 @@ export default class OffCanvasCartPlugin extends Plugin {
      * @private
      */
     _registerRemoveProductTriggerEvents() {
-        const forms = DomAccess.querySelectorAll(document, this.options.removeProductTriggerSelector, false);
+        const forms = document.querySelectorAll(this.options.removeProductTriggerSelector);
         if (forms) {
-            Iterator.iterate(forms, form => form.addEventListener('submit', this._onRemoveProductFromCart.bind(this)));
+            forms.forEach(form => form.addEventListener('submit', this._onRemoveProductFromCart.bind(this)));
         }
     }
 
@@ -99,15 +99,15 @@ export default class OffCanvasCartPlugin extends Plugin {
      * @private
      */
     _registerChangeQuantityProductTriggerEvents() {
-        const selects = DomAccess.querySelectorAll(document, this.options.changeProductQuantityTriggerSelector, false);
-        const numberInputs = DomAccess.querySelectorAll(document, this.options.changeProductQuantityTriggerNumberSelector, false);
+        const selects = document.querySelectorAll(this.options.changeProductQuantityTriggerSelector);
+        const numberInputs = document.querySelectorAll(this.options.changeProductQuantityTriggerNumberSelector);
 
         if (selects) {
-            Iterator.iterate(selects, select => select.addEventListener('change', this._onChangeProductQuantity.bind(this)));
+            selects.forEach(select => select.addEventListener('change', this._onChangeProductQuantity.bind(this)));
         }
 
         if (numberInputs) {
-            Iterator.iterate(numberInputs, (input) => {
+            numberInputs.forEach((input) => {
                 input.addEventListener('change', Debouncer.debounce(
                     this._onChangeProductQuantity.bind(this),
                     this.options.changeQuantityInputDelay,
@@ -122,10 +122,10 @@ export default class OffCanvasCartPlugin extends Plugin {
      * @private
      */
     _registeraddPromotionTriggerEvents() {
-        const forms = DomAccess.querySelectorAll(document, this.options.addPromotionTriggerSelector, false);
+        const forms = document.querySelectorAll(this.options.addPromotionTriggerSelector);
 
         if (forms) {
-            Iterator.iterate(forms, form => form.addEventListener('submit', this._onAddPromotionToCart.bind(this)));
+            forms.forEach(form => form.addEventListener('submit', this._onAddPromotionToCart.bind(this)));
         }
     }
 
@@ -205,12 +205,18 @@ export default class OffCanvasCartPlugin extends Plugin {
         ElementLoadingIndicatorUtil.create(form.closest(selector));
 
         const cb = callback ? callback.bind(this) : this._onOffCanvasOpened.bind(this, this._updateOffCanvasContent.bind(this));
-        const requestUrl = DomAccess.getAttribute(form, 'action');
+        const requestUrl = form.getAttribute('action');
         const data = FormSerializeUtil.serialize(form);
 
         this.$emitter.publish('beforeFireRequest');
 
-        this.client.post(requestUrl, data, cb);
+        fetch(requestUrl, {
+            method: 'POST',
+            body: data,
+            headers: { 'X-Requested-With': 'XMLHttpRequest' },
+        })
+            .then(response => response.text())
+            .then(response => cb(response));
     }
 
     /**
@@ -264,7 +270,7 @@ export default class OffCanvasCartPlugin extends Plugin {
 
         this.$emitter.publish('onAddPromotionToCart');
 
-        this._saveFocusState('#addPromotionOffcanvasCartInput');
+        this._saveFocusState('#addPromotionOffcanvasCart');
         this._fireRequest(form, selector);
     }
 
@@ -275,7 +281,7 @@ export default class OffCanvasCartPlugin extends Plugin {
      */
     _fetchCartWidgets() {
         const CartWidgetPluginInstances = window.PluginManager.getPluginInstances('CartWidget');
-        Iterator.iterate(CartWidgetPluginInstances, instance => instance.fetch());
+        CartWidgetPluginInstances.forEach(instance => instance.fetch());
 
         this.$emitter.publish('fetchCartWidgets');
     }
@@ -303,10 +309,14 @@ export default class OffCanvasCartPlugin extends Plugin {
         const url = window.router['frontend.cart.offcanvas'];
 
         const _callback = () => {
-            this.client.get(url, response => {
-                this._updateOffCanvasContent(response);
-                this._registerEvents();
-            }, 'text/html');
+            fetch(url, {
+                headers: { 'X-Requested-With': 'XMLHttpRequest' },
+            })
+                .then(response => response.text())
+                .then(response => {
+                    this._updateOffCanvasContent(response);
+                    this._registerEvents();
+                });
         };
 
         this._fireRequest(event.target.form, '.offcanvas-summary', _callback);

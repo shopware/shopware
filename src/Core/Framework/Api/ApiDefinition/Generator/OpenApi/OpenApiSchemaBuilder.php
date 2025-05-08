@@ -17,7 +17,7 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\PlatformRequest;
 use Symfony\Component\HttpFoundation\Response;
 
-#[Package('core')]
+#[Package('framework')]
 class OpenApiSchemaBuilder
 {
     final public const API = [
@@ -82,7 +82,7 @@ This endpoint reference contains an overview of all endpoints comprising the Sho
 
 For a better overview, all CRUD-endpoints are hidden by default. If you want to show also CRUD-endpoints
 add the query parameter `type=jsonapi`.
-EOF
+EOF,
         ]);
     }
 

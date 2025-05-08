@@ -7,13 +7,10 @@ use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Storefront\Page\PageLoadedEvent;
 use Symfony\Component\HttpFoundation\Request;
 
-#[Package('buyers-experience')]
+#[Package('discovery')]
 class LandingPageLoadedEvent extends PageLoadedEvent
 {
-    /**
-     * @var LandingPage
-     */
-    protected $page;
+    protected LandingPage $page;
 
     public function __construct(
         LandingPage $page,

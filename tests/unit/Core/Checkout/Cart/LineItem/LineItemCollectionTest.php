@@ -397,4 +397,17 @@ class LineItemCollectionTest extends TestCase
             $collection
         );
     }
+
+    public function testAddBeyondIntMax(): void
+    {
+        $collection = new LineItemCollection([
+            (new LineItem('A', 'test', null, 3))->assign(['uniqueIdentifier' => 'A']),
+        ]);
+
+        $expected = clone $collection;
+
+        $collection->add(new LineItem('A', 'test', null, \PHP_INT_MAX));
+
+        static::assertEquals($expected, $collection);
+    }
 }

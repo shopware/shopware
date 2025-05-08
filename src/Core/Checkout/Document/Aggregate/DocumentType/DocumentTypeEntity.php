@@ -11,41 +11,23 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityCustomFieldsTrait;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityIdTrait;
 use Shopware\Core\Framework\Log\Package;
 
-#[Package('checkout')]
+#[Package('after-sales')]
 class DocumentTypeEntity extends Entity
 {
     use EntityCustomFieldsTrait;
     use EntityIdTrait;
 
-    /**
-     * @var string
-     */
-    protected $name;
+    protected string $name;
 
-    /**
-     * @var string
-     */
-    protected $technicalName;
+    protected string $technicalName;
 
-    /**
-     * @var ProductTranslationCollection|null
-     */
-    protected $translations;
+    protected ?ProductTranslationCollection $translations = null;
 
-    /**
-     * @var DocumentCollection|null
-     */
-    protected $documents;
+    protected ?DocumentCollection $documents = null;
 
-    /**
-     * @var DocumentBaseConfigCollection|null
-     */
-    protected $documentBaseConfigs;
+    protected ?DocumentBaseConfigCollection $documentBaseConfigs = null;
 
-    /**
-     * @var DocumentBaseConfigSalesChannelCollection|null
-     */
-    protected $documentBaseConfigSalesChannels;
+    protected ?DocumentBaseConfigSalesChannelCollection $documentBaseConfigSalesChannels = null;
 
     public function getName(): string
     {

@@ -8,30 +8,21 @@ use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityIdTrait;
 use Shopware\Core\Framework\Log\Package;
 
-#[Package('buyers-experience')]
+#[Package('checkout')]
 class PromotionIndividualCodeEntity extends Entity
 {
     use EntityIdTrait;
 
-    /**
-     * @var string
-     */
-    protected $promotionId;
+    protected string $promotionId;
 
-    /**
-     * @var string
-     */
-    protected $code;
+    protected string $code;
 
-    /**
-     * @var PromotionEntity|null
-     */
-    protected $promotion;
+    protected ?PromotionEntity $promotion = null;
 
     /**
      * @var array<string>|null
      */
-    protected $payload;
+    protected ?array $payload = null;
 
     /**
      * Gets if the code has been redeemed

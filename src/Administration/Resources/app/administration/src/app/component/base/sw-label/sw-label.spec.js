@@ -1,5 +1,5 @@
 /**
- * @package admin
+ * @sw-package framework
  */
 
 import { mount } from '@vue/test-utils';
@@ -8,7 +8,6 @@ async function createWrapper(propsData = {}) {
     return mount(await wrapTestComponent('sw-label', { sync: true }), {
         global: {
             stubs: {
-                'sw-icon': true,
                 'sw-color-badge': true,
             },
         },

@@ -1,5 +1,5 @@
 /**
- * @package buyers-experience
+ * @sw-package checkout
  */
 import { mount } from '@vue/test-utils';
 
@@ -7,22 +7,14 @@ async function createWrapper() {
     return mount(await wrapTestComponent('sw-promotion-v2-detail-base', { sync: true }), {
         global: {
             stubs: {
-                'sw-card': {
-                    template: '<div class="sw-card"><slot></slot></div>',
+                'mt-card': {
+                    template: '<div class="mt-card"><slot></slot></div>',
                 },
                 'sw-container': {
                     template: '<div class="sw-container"><slot></slot></div>',
                 },
                 'sw-text-field': {
                     template: '<div class="sw-field sw-text-field"></div>',
-                    props: ['disabled'],
-                },
-                'sw-number-field': {
-                    template: '<div class="sw-field sw-number-field"></div>',
-                    props: ['disabled'],
-                },
-                'sw-switch-field': {
-                    template: '<div class="sw-field sw-switch-field"></div>',
                     props: ['disabled'],
                 },
                 'sw-select-field': {
@@ -107,7 +99,7 @@ describe('src/module/sw-promotion-v2/component/sw-promotion-v2-detail-base', () 
 
         const wrapper = await createWrapper();
 
-        wrapper.findAllComponents('.sw-field').forEach(el => {
+        wrapper.findAllComponents('.sw-field').forEach((el) => {
             expect(el.props('disabled')).toBe(true);
         });
         expect(wrapper.findComponent('.sw-button-process').props('disabled')).toBe(true);
@@ -118,7 +110,7 @@ describe('src/module/sw-promotion-v2/component/sw-promotion-v2-detail-base', () 
 
         const wrapper = await createWrapper();
 
-        wrapper.findAllComponents('.sw-field').forEach(el => expect(el.props('disabled')).toBeFalsy());
+        wrapper.findAllComponents('.sw-field').forEach((el) => expect(el.props('disabled')).toBeFalsy());
         expect(wrapper.findComponent('.sw-button-process').props('disabled')).toBe(false);
     });
 });

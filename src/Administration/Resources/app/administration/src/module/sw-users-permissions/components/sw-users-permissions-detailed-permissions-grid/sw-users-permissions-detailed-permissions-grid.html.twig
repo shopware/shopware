@@ -1,27 +1,22 @@
-<!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
 {% block sw_users_permissions_detailed_permissions_grid %}
-<sw-card
+<mt-card
     class="sw-users-permissions-detailed-permissions-grid"
     position-identifier="sw-users-permissions-detailed-permissions-grid"
     :title="$tc('sw-users-permissions.roles.grid.title')"
 >
     <div class="sw-users-permissions-detailed-permissions-grid__grid">
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_users_permissions_detailed_permissions_grid_header %}
         <div class="sw-users-permissions-detailed-permissions-grid__entry sw-users-permissions-detailed-permissions-grid__entry-header">
-            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_users_permissions_detailed_permissions_grid_header_title %}
             <div class="sw-users-permissions-detailed-permissions-grid__title"></div>
             {% endblock %}
 
-            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_users_permissions_detailed_permissions_grid_header_roles %}
             <div
                 v-for="permissionType in permissionTypes"
                 :key="permissionType"
                 class="sw-users-permissions-detailed-permissions-grid__checkbox-wrapper"
             >
-                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_users_permissions_detailed_permissions_grid_header_roles_name %}
                 {{ $tc('sw-privileges.permissionType.' + permissionType) }}
                 {% endblock %}
@@ -30,7 +25,6 @@
         </div>
         {% endblock %}
 
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_users_permissions_detailed_permissions_grid_permissions %}
         <div
             v-for="entity in allEntities"
@@ -38,14 +32,12 @@
             :class="'sw-users-permissions-detailed-permissions-grid__entry_' + entity"
             class="sw-users-permissions-detailed-permissions-grid__entry"
         >
-            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_users_permissions_detailed_permissions_grid_permissions_title %}
             <div class="sw-users-permissions-detailed-permissions-grid__title">
                 {{ entity }}
             </div>
             {% endblock %}
 
-            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_users_permissions_detailed_permissions_grid_permissions_roles %}
             <div
                 v-for="permissionType in permissionTypes"
@@ -53,7 +45,6 @@
                 :class="'sw-users-permissions-detailed-permissions-grid__role_' + permissionType"
                 class="sw-users-permissions-detailed-permissions-grid__checkbox-wrapper"
             >
-                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_users_permissions_detailed_permissions_grid_permissions_roles_field %}
                 {# Checkbox are hardcoded for better performance #}
                 <div class="sw-field--checkbox">
@@ -69,7 +60,7 @@
                             >
                             <div class="sw-field__checkbox-state">
                                 <span
-                                    class="sw-icon sw-icon--fill"
+                                    class="mt-icon mt-icon--fill"
                                     style="width: 16px; height: 16px;"
                                 >
                                     <svg
@@ -102,5 +93,5 @@
         </div>
         {% endblock %}
     </div>
-</sw-card>
+</mt-card>
 {% endblock %}

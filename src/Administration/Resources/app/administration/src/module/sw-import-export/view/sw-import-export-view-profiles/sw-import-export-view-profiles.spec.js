@@ -1,5 +1,5 @@
 /**
- * @package services-settings
+ * @sw-package fundamentals@after-sales
  */
 import { mount } from '@vue/test-utils';
 import ImportExportService from 'src/module/sw-import-export/service/importExport.service';
@@ -36,71 +36,72 @@ function importExportProfiles() {
 }
 
 async function createWrapper(profiles = null) {
-    return mount(await wrapTestComponent('sw-import-export-view-profiles', { sync: true }), {
-        global: {
-            stubs: {
-                'sw-card': await wrapTestComponent('sw-card'),
-                'sw-card-deprecated': await wrapTestComponent('sw-card-deprecated', { sync: true }),
-                'sw-button': await wrapTestComponent('sw-button'),
-                'sw-button-deprecated': await wrapTestComponent('sw-button-deprecated', { sync: true }),
-                'sw-simple-search-field': true,
-                'sw-entity-listing': await wrapTestComponent('sw-entity-listing'),
-                'sw-import-export-edit-profile-modal': {
-                    template: `
+    return mount(
+        await wrapTestComponent('sw-import-export-view-profiles', {
+            sync: true,
+        }),
+        {
+            global: {
+                stubs: {
+                    'sw-simple-search-field': true,
+                    'sw-entity-listing': await wrapTestComponent('sw-entity-listing'),
+                    'sw-import-export-edit-profile-modal': {
+                        template: `
                         <div class="sw-import-export-edit-profile-modal"></div>
                     `,
-                },
-                'sw-import-export-new-profile-wizard': {
-                    template: `
+                    },
+                    'sw-import-export-new-profile-wizard': {
+                        template: `
                         <div class="sw-import-export-new-profile-wizard"></div>
                     `,
-                },
-                'sw-modal': await wrapTestComponent('sw-modal'),
-                'sw-context-menu-item': await wrapTestComponent('sw-context-menu-item'),
-                'sw-extension-component-section': true,
-                'sw-ai-copilot-badge': true,
-                'sw-context-button': {
-                    template: '<div><slot></slot></div>',
-                },
-                'sw-loader': true,
-                'router-link': true,
-                'sw-bulk-edit-modal': true,
-                'sw-checkbox-field': true,
-                'sw-icon': true,
-                'sw-data-grid-settings': true,
-                'sw-data-grid-column-boolean': true,
-                'sw-data-grid-inline-edit': true,
-                'sw-data-grid-skeleton': true,
-                'sw-pagination': true,
-            },
-            provide: {
-                importExport: new ImportExportService(),
-                repositoryFactory: {
-                    create() {
-                        return {
-                            search() {
-                                return profiles;
-                            },
-                            create() {
-                                return Promise.resolve();
-                            },
-                            get(id) {
-                                return profiles.get(id);
-                            },
-                            delete(id) {
-                                profiles.remove(id);
-                                return Promise.resolve();
-                            },
-                        };
                     },
+                    'sw-modal': await wrapTestComponent('sw-modal'),
+                    'sw-context-menu-item': await wrapTestComponent('sw-context-menu-item'),
+                    'sw-extension-component-section': true,
+                    'sw-ai-copilot-badge': true,
+                    'sw-context-button': {
+                        template: '<div><slot></slot></div>',
+                    },
+                    'sw-loader': true,
+                    'router-link': true,
+                    'sw-bulk-edit-modal': true,
+                    'sw-checkbox-field': true,
+                    'sw-data-grid-settings': true,
+                    'sw-data-grid-column-boolean': true,
+                    'sw-data-grid-inline-edit': true,
+                    'sw-data-grid-skeleton': true,
+                    'sw-pagination': true,
+                    'sw-provide': true,
                 },
-                shortcutService: {
-                    stopEventListener: () => {},
-                    startEventListener: () => {},
+                provide: {
+                    importExport: new ImportExportService(),
+                    repositoryFactory: {
+                        create() {
+                            return {
+                                search() {
+                                    return profiles;
+                                },
+                                create() {
+                                    return Promise.resolve();
+                                },
+                                get(id) {
+                                    return profiles.get(id);
+                                },
+                                delete(id) {
+                                    profiles.remove(id);
+                                    return Promise.resolve();
+                                },
+                            };
+                        },
+                    },
+                    shortcutService: {
+                        stopEventListener: () => {},
+                        startEventListener: () => {},
+                    },
                 },
             },
         },
-    });
+    );
 }
 
 describe('src/module/sw-extension/component/sw-extension-card-base', () => {
@@ -138,7 +139,9 @@ describe('src/module/sw-extension/component/sw-extension-card-base', () => {
         const showEditProfileModal = editProfileModal.attributes('show');
         expect(showEditProfileModal === 'false' || showEditProfileModal === undefined).toBe(true);
 
-        const createProfileButton = wrapper.find('.sw-data-grid__row--0 .sw-import-export-view-profiles__listing-open-action');
+        const createProfileButton = wrapper.find(
+            '.sw-data-grid__row--0 .sw-import-export-view-profiles__listing-open-action',
+        );
         await createProfileButton.trigger('click');
         await flushPromises();
 
@@ -151,11 +154,13 @@ describe('src/module/sw-extension/component/sw-extension-card-base', () => {
 
         expect(wrapper.vm.profiles).toHaveLength(2);
 
-        const createProfileButton = wrapper.find('.sw-data-grid__row--0 .sw-import-export-view-profiles__listing-delete-action');
+        const createProfileButton = wrapper.find(
+            '.sw-data-grid__row--0 .sw-import-export-view-profiles__listing-delete-action',
+        );
         await createProfileButton.trigger('click');
         await flushPromises();
 
-        document.body.querySelector('.sw-button--danger').click();
+        document.body.querySelector('.mt-button--critical').click();
         await flushPromises();
 
         expect(wrapper.vm.profiles).toHaveLength(1);

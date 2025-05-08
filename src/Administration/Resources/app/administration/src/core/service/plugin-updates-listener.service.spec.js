@@ -1,5 +1,5 @@
 /**
- * @package admin
+ * @sw-package framework
  */
 import addPluginUpdatesListener from 'src/core/service/plugin-updates-listener.service';
 
@@ -37,10 +37,18 @@ describe('src/core/service/plugin-update-listener.service.ts', () => {
         localStorage.setItem(localStorageKey, lastCheckDate);
 
         // no application root given => no notification can be dispatched => localStorageKey should not be updated
-        jest.spyOn(Shopware.Application, 'getApplicationRoot').mockImplementation(() => { return false; });
+        jest.spyOn(Shopware.Application, 'getApplicationRoot').mockImplementation(() => {
+            return false;
+        });
 
-        addPluginUpdatesListener(null, createServiceContainer(['plugin:update', 'app.all']));
-        Shopware.State.commit('setCurrentUser', {
+        addPluginUpdatesListener(
+            null,
+            createServiceContainer([
+                'plugin:update',
+                'app.all',
+            ]),
+        );
+        Shopware.Store.get('session').setCurrentUser({
             firstName: 'userFirstName',
         });
 
@@ -55,9 +63,15 @@ describe('src/core/service/plugin-update-listener.service.ts', () => {
         // This is to simplify the retrieval of the notification
         jest.spyOn(Shopware.Utils, 'createId').mockImplementation(() => 'jest');
 
-        addPluginUpdatesListener(null, createServiceContainer(['plugin:update', 'app.all']));
+        addPluginUpdatesListener(
+            null,
+            createServiceContainer([
+                'plugin:update',
+                'app.all',
+            ]),
+        );
 
-        Shopware.State.commit('setCurrentUser', {
+        Shopware.Store.get('session').setCurrentUser({
             firstName: 'userFirstName',
         });
 
@@ -66,9 +80,13 @@ describe('src/core/service/plugin-update-listener.service.ts', () => {
         const expectedDate = currentTime.toString();
         expect(localStorage.getItem(localStorageKey)).toBe(expectedDate);
 
-        const notifications = Shopware.State.get('notification');
-        expect(notifications.notifications.jest.message).toBe('global.notification-center.plugin-updates-listener.updatesAvailableMessage');
-        expect(notifications.growlNotifications.jest.message).toBe('global.notification-center.plugin-updates-listener.updatesAvailableMessage');
+        const notifications = Shopware.Store.get('notification');
+        expect(notifications.notifications.jest.message).toBe(
+            'global.notification-center.plugin-updates-listener.updatesAvailableMessage',
+        );
+        expect(notifications.growlNotifications.jest.message).toBe(
+            'global.notification-center.plugin-updates-listener.updatesAvailableMessage',
+        );
     });
 
     it('should only update the key if it checked for updates', async () => {
@@ -78,7 +96,7 @@ describe('src/core/service/plugin-update-listener.service.ts', () => {
         localStorage.setItem(localStorageKey, lastCheckDate);
 
         addPluginUpdatesListener(null, null);
-        Shopware.State.commit('setCurrentUser', {
+        Shopware.Store.get('session').setCurrentUser({
             firstName: 'userFirstName',
         });
 
@@ -93,13 +111,13 @@ describe('src/core/service/plugin-update-listener.service.ts', () => {
         const lastCheckDate = (currentTime - oneDay - 1).toString();
         localStorage.setItem(localStorageKey, lastCheckDate);
 
-        Shopware.State.commit('setCurrentUser', null);
+        Shopware.Store.get('session').setCurrentUser(null);
         await flushPromises();
 
         addPluginUpdatesListener(null, null);
 
         // should not trigger the check because the user was not changed
-        Shopware.State.commit('setCurrentUser', null);
+        Shopware.Store.get('session').setCurrentUser(null);
         await flushPromises();
 
         const expectedDate = (currentTime - oneDay - 1).toString();

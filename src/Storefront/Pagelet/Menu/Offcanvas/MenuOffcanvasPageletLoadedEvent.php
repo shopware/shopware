@@ -7,20 +7,14 @@ use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Storefront\Pagelet\PageletLoadedEvent;
 use Symfony\Component\HttpFoundation\Request;
 
-#[Package('storefront')]
+#[Package('framework')]
 class MenuOffcanvasPageletLoadedEvent extends PageletLoadedEvent
 {
-    /**
-     * @var MenuOffcanvasPagelet
-     */
-    protected $pagelet;
-
     public function __construct(
-        MenuOffcanvasPagelet $pagelet,
+        protected MenuOffcanvasPagelet $pagelet,
         SalesChannelContext $salesChannelContext,
         Request $request
     ) {
-        $this->pagelet = $pagelet;
         parent::__construct($salesChannelContext, $request);
     }
 

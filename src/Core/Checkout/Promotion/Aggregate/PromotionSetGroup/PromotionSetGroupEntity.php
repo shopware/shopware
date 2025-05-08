@@ -8,40 +8,22 @@ use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityIdTrait;
 use Shopware\Core\Framework\Log\Package;
 
-#[Package('buyers-experience')]
+#[Package('checkout')]
 class PromotionSetGroupEntity extends Entity
 {
     use EntityIdTrait;
 
-    /**
-     * @var string
-     */
-    protected $packagerKey;
+    protected string $packagerKey;
 
-    /**
-     * @var string
-     */
-    protected $sorterKey;
+    protected string $sorterKey;
 
-    /**
-     * @var float
-     */
-    protected $value;
+    protected float $value;
 
-    /**
-     * @var string
-     */
-    protected $promotionId;
+    protected string $promotionId;
 
-    /**
-     * @var PromotionEntity|null
-     */
-    protected $promotion;
+    protected ?PromotionEntity $promotion = null;
 
-    /**
-     * @var RuleCollection|null
-     */
-    protected $setGroupRules;
+    protected ?RuleCollection $setGroupRules = null;
 
     public function getPackagerKey(): string
     {

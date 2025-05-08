@@ -1,5 +1,5 @@
 /**
- * @package services-settings
+ * @sw-package framework
  */
 import template from './sw-bulk-edit-change-type-field-renderer.html.twig';
 import './sw-bulk-edit-change-type-field-renderer.scss';
@@ -8,11 +8,13 @@ import './sw-bulk-edit-change-type-field-renderer.scss';
 export default {
     template,
 
-    compatConfig: Shopware.compatConfig,
-
     inject: ['feature'],
 
-    emits: ['change-value', 'inheritance-restore', 'inheritance-remove'],
+    emits: [
+        'change-value',
+        'inheritance-restore',
+        'inheritance-remove',
+    ],
 
     props: {
         bulkEditData: {
@@ -57,10 +59,12 @@ export default {
         },
 
         showSelectBoxType(formField) {
-            return this.getConfigValue(formField, 'allowOverwrite') === true ||
+            return (
+                this.getConfigValue(formField, 'allowOverwrite') === true ||
                 this.getConfigValue(formField, 'allowClear') === true ||
                 this.getConfigValue(formField, 'allowAdd') === true ||
-                this.getConfigValue(formField, 'allowRemove') === true;
+                this.getConfigValue(formField, 'allowRemove') === true
+            );
         },
 
         onChangeValue(value, fieldName, valueChange = true) {

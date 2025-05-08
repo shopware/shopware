@@ -1,9 +1,5 @@
 {% sw_extends '@Storefront/storefront/page/checkout/_page.html.twig' %}
 
-{% block base_head %}
-    {% sw_include '@Storefront/storefront/page/checkout/cart/meta.html.twig' %}
-{% endblock %}
-
 {% block page_checkout_container %}
     {% if page.cart.lineItems.count is same as(0) %}
         {% sw_include '@Storefront/storefront/utilities/alert.html.twig' with {
@@ -26,28 +22,44 @@
 {% block page_checkout_main_content %}
     {% block page_checkout_cart %}
         {% block page_checkout_cart_header %}
-            <h1 class="cart-main-header">
+            <h1 class="cart-main-header d-inline-block">
                 {{ 'checkout.cartHeader'|trans|sw_sanitize }}
             </h1>
+            <span class="cart-main-header-item-counter d-inline-block mb-4 fw-bold fs-3 ms-1 text-dark-emphasis">
+                ({{- 'checkout.itemCounter'|trans({'%count%': page.cart.lineItems|length})|sw_sanitize -}})
+            </span>
         {% endblock %}
 
         {% block page_checkout_cart_product_table %}
+            {% set showTaxPrice = config('core.cart.columnTaxInsteadUnitPrice') %}
+            {# @deprecated tag:v6.8.0 - Will listening to core.cart.columnTaxInsteadUnitPrice instead #}
+            {% if not feature('v6.8.0.0') %}
+                {% set showTaxPrice = false %}
+            {% endif %}
+            {% set showSubtotal = config('core.cart.showSubtotal') %}
+
             <div class="card checkout-product-table">
-                <div class="card-body">
+                <ul class="card-body list-unstyled">
                     {% block page_checkout_cart_table_header %}
-                        {% sw_include '@Storefront/storefront/component/checkout/cart-header.html.twig' %}
+                        {% sw_include '@Storefront/storefront/component/checkout/cart-header.html.twig' with {
+                            showSubtotal: showSubtotal,
+                            showTaxPrice: showTaxPrice
+                        } %}
                     {% endblock %}
 
                     {% block page_checkout_cart_table_items %}
                         {% for lineItem in page.cart.lineItems %}
                             {% block page_checkout_cart_table_item %}
                                 {% block page_checkout_item %}
-                                    {% sw_include '@Storefront/storefront/component/line-item/line-item.html.twig' %}
+                                    {% sw_include '@Storefront/storefront/component/line-item/line-item.html.twig' with {
+                                        showSubtotal: showSubtotal,
+                                        showTaxPrice: showTaxPrice
+                                    } %}
                                 {% endblock %}
                             {% endblock %}
                         {% endfor %}
                     {% endblock %}
-                </div>
+                </ul>
             </div>
         {% endblock %}
 
@@ -71,14 +83,14 @@
                                        value="frontend.checkout.cart.page">
                             {% endblock %}
 
+                            {% block page_checkout_cart_add_product_label %}
+                                <label class="visually-hidden" for="addProductInput">
+                                    {{ 'checkout.addProductLabel'|trans|sw_sanitize }}
+                                </label>
+                            {% endblock %}
+
                             {% block page_checkout_cart_add_product_input_group %}
                                 <div class="input-group">
-                                    {% block page_checkout_cart_add_product_label %}
-                                        <label class="visually-hidden" for="addProductInput">
-                                            {{ 'checkout.addProductLabel'|trans|sw_sanitize }}
-                                        </label>
-                                    {% endblock %}
-
                                     {% block page_checkout_cart_add_product_input %}
                                         <input type="text"
                                                name="number"
@@ -91,7 +103,7 @@
                                     {% endblock %}
 
                                     {% block page_checkout_cart_add_product_submit %}
-                                        <button class="btn btn-secondary"
+                                        <button class="btn btn-outline-secondary add-product-button"
                                                 type="submit"
                                                 aria-labelledby="addProductInput"
                                                 id="addProductButton">
@@ -120,10 +132,6 @@
                                        aria-expanded="false"
                                        aria-controls="collapseExample">
                                         {{ 'checkout.shippingCosts'|trans|sw_sanitize }}
-
-                                        {% block page_checkout_cart_shipping_costs_trigger_icon %}
-                                            {% sw_icon 'arrow-medium-right' style { pack:'solid', size: 'sm' } %}
-                                        {% endblock %}
                                     </a>
                                 {% endif %}
                             {% endblock %}
@@ -211,27 +219,28 @@
                            value="frontend.checkout.cart.page">
                 {% endblock %}
 
-                {% block page_checkout_cart_add_promotion_input_group %}
-                    <div class="input-group checkout-aside-add-code mt-3">
-                        {% block page_checkout_cart_add_promotion_label %}
-                            <label class="visually-hidden" for="addPromotionInput">
-                                {{ 'checkout.addPromotionLabel'|trans|sw_sanitize }}
-                            </label>
-                        {% endblock %}
+                {% block page_checkout_cart_add_promotion_label %}
+                    <label class="mb-1" for="addPromotionInput">
+                        {{ 'checkout.addPromotionLabel'|trans|sw_sanitize }}
+                    </label>
+                {% endblock %}
 
+                {% block page_checkout_cart_add_promotion_input_group %}
+                    <div class="input-group checkout-aside-add-code">
                         {% block page_checkout_cart_add_promotion_input %}
                             <input type="text"
                                    name="code"
                                    class="form-control"
-                                   id="addPromotionInput"
                                    placeholder="{{ 'checkout.addPromotionPlaceholder'|trans|striptags }}"
+                                   id="addPromotionInput"
                                    aria-label="{{ 'checkout.addPromotionLabel'|trans|striptags }}"
                                    aria-describedby="addPromotion"
-                                   required="required">
+                                   required="required"
+                                   aria-invalid="false">
                         {% endblock %}
 
                         {% block page_checkout_cart_add_promotion_submit %}
-                            <button class="btn btn-secondary"
+                            <button class="btn btn-outline-secondary checkout-aside-add-promotion-button"
                                     type="submit"
                                     aria-labelledby="addPromotionInput"
                                     id="addPromotion">

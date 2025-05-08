@@ -9,7 +9,7 @@ use Shopware\Core\Framework\Struct\Collection;
 /**
  * @extends Collection<ShopwareHttpException>
  */
-#[Package('core')]
+#[Package('framework')]
 class ExceptionCollection extends Collection
 {
     public function getApiAlias(): string

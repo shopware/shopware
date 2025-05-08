@@ -5,7 +5,7 @@ namespace Shopware\Core\Content\Media\Cms;
 use Shopware\Core\Content\Media\MediaEntity;
 use Shopware\Core\Framework\Log\Package;
 
-#[Package('buyers-experience')]
+#[Package('discovery')]
 abstract class AbstractDefaultMediaResolver
 {
     abstract public function getDecorated(): AbstractDefaultMediaResolver;

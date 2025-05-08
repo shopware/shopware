@@ -11,15 +11,9 @@ use Shopware\Core\Framework\Struct\Struct;
 #[Package('checkout')]
 class DomainVerificationRequestStruct extends Struct
 {
-    /**
-     * @var string
-     */
-    protected $content;
+    protected string $content;
 
-    /**
-     * @var string
-     */
-    protected $fileName;
+    protected string $fileName;
 
     public function __construct(
         string $content,

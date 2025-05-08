@@ -12,12 +12,12 @@ use Shopware\Core\Checkout\Cart\LineItem\LineItem;
 use Shopware\Core\Checkout\Cart\LineItem\LineItemCollection;
 use Shopware\Core\Checkout\Promotion\Cart\Error\AutoPromotionNotFoundError;
 use Shopware\Core\Checkout\Promotion\Cart\Error\PromotionsOnCartPriceZeroError;
-use Shopware\Core\Checkout\Promotion\Exception\InvalidPriceDefinitionException;
+use Shopware\Core\Checkout\Promotion\PromotionException;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Profiling\Profiler;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
-#[Package('buyers-experience')]
+#[Package('checkout')]
 class PromotionProcessor implements CartProcessorInterface
 {
     final public const DATA_KEY = 'promotions';
@@ -36,7 +36,7 @@ class PromotionProcessor implements CartProcessorInterface
 
     /**
      * @throws CartException
-     * @throws InvalidPriceDefinitionException
+     * @throws PromotionException
      */
     public function process(CartDataCollection $data, Cart $original, Cart $toCalculate, SalesChannelContext $context, CartBehavior $behavior): void
     {
@@ -75,8 +75,14 @@ class PromotionProcessor implements CartProcessorInterface
             $discountLineItems = $data->get(self::DATA_KEY);
 
             if ($toCalculate->getPrice()->getTotalPrice() === 0.0) {
+                // We'll only display the `PromotionsOnCartPriceZeroError` if a promotion code is input and the cart price is zero. Auto-promotions are not considered in this case.
+                $discountPromotionsWithCode = $discountLineItems->filter(fn (LineItem $lineItem) => !$lineItem->hasPayloadValue('promotionCodeType') || $lineItem->getPayloadValue('promotionCodeType') !== PromotionItemBuilder::PROMOTION_TYPE_GLOBAL);
+                if ($discountPromotionsWithCode->count() === 0) {
+                    return;
+                }
+
                 $toCalculate->addErrors(
-                    new PromotionsOnCartPriceZeroError($discountLineItems->fmap(fn (LineItem $lineItem) => $lineItem->getLabel()))
+                    new PromotionsOnCartPriceZeroError($discountPromotionsWithCode->fmap(fn (LineItem $lineItem) => $lineItem->getLabel()))
                 );
 
                 return;

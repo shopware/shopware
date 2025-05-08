@@ -1,10 +1,10 @@
-import { shallowMount } from '@vue/test-utils';
+import { mount } from '@vue/test-utils';
 
 import swGenericCustomEntityDetail from 'src/module/sw-custom-entity/page/sw-generic-custom-entity-detail';
 import 'src/app/component/base/sw-button-process';
 
 /**
- * @package content
+ * @sw-package framework
  */
 
 Shopware.Component.register('sw-generic-custom-entity-detail', swGenericCustomEntityDetail);
@@ -48,34 +48,51 @@ const customEntityDefinition = {
         'admin-ui': {
             color: 'some-hex-color',
             detail: {
-                tabs: [{
-                    name: 'main',
-                    cards: [{
-                        name: 'general',
-                        fields: [{
-                            ref: 'title',
-                        }, {
-                            ref: 'description',
-                        }, {
-                            ref: 'position',
-                        }],
-                    }, {
-                        name: 'useless',
-                        fields: [{
-                            ref: 'description',
-                        }, {
-                            ref: 'position',
-                        }],
-                    }],
-                }, {
-                    name: 'secondary',
-                    cards: [{
-                        name: 'secondary-useless',
-                        fields: [{
-                            ref: 'position',
-                        }],
-                    }],
-                }],
+                tabs: [
+                    {
+                        name: 'main',
+                        cards: [
+                            {
+                                name: 'general',
+                                fields: [
+                                    {
+                                        ref: 'title',
+                                    },
+                                    {
+                                        ref: 'description',
+                                    },
+                                    {
+                                        ref: 'position',
+                                    },
+                                ],
+                            },
+                            {
+                                name: 'useless',
+                                fields: [
+                                    {
+                                        ref: 'description',
+                                    },
+                                    {
+                                        ref: 'position',
+                                    },
+                                ],
+                            },
+                        ],
+                    },
+                    {
+                        name: 'secondary',
+                        cards: [
+                            {
+                                name: 'secondary-useless',
+                                fields: [
+                                    {
+                                        ref: 'position',
+                                    },
+                                ],
+                            },
+                        ],
+                    },
+                ],
             },
         },
         'cms-aware': true,
@@ -98,11 +115,12 @@ const customEntityRepository = {
 };
 
 async function createWrapper({ activeTab = 'main', routeId = null, entityName = testEntityName } = {}) {
-    return shallowMount(await Shopware.Component.build('sw-generic-custom-entity-detail'), {
+    return mount(await Shopware.Component.build('sw-generic-custom-entity-detail'), {
         global: {
             stubs: {
                 'sw-page': {
-                    template: '<div class="sw-page"><slot name="search-bar"/><slot name="smart-bar-header" /><slot name="smart-bar-actions"/><slot name="language-switch" /><slot name="content"/></div>',
+                    template:
+                        '<div class="sw-page"><slot name="search-bar"/><slot name="smart-bar-header" /><slot name="smart-bar-actions"/><slot name="language-switch" /><slot name="content"/></div>',
                 },
                 'sw-search-bar': {
                     template: '<div class="sw-search-bar"></div>',
@@ -114,8 +132,8 @@ async function createWrapper({ activeTab = 'main', routeId = null, entityName = 
                 'sw-card-view': {
                     template: '<div class="sw-card-view"><slot></slot></div>',
                 },
-                'sw-card': {
-                    template: '<div class="sw-card"><slot></slot></div>',
+                'mt-card': {
+                    template: '<div class="mt-card"><slot></slot></div>',
                 },
                 'sw-tabs': {
                     template: `<div class="sw-tabs"><slot></slot><slot name="content" active="${activeTab}"></slot></div>`,
@@ -126,9 +144,6 @@ async function createWrapper({ activeTab = 'main', routeId = null, entityName = 
                 'sw-button-process': {
                     template: '<div class="sw-button-process" @click="$emit(`click`)"></div>',
                 },
-                'sw-button': {
-                    template: '<button></button>',
-                },
                 'sw-language-switch': {
                     template: '<div class="sw-language-switch"></div>',
                 },
@@ -137,15 +152,27 @@ async function createWrapper({ activeTab = 'main', routeId = null, entityName = 
                 },
                 'sw-generic-cms-page-assignment': {
                     template: '<div class="sw-generic-cms-page-assignment"></div>',
-                    props: ['cms-page-id', 'slot-overrides'],
+                    props: [
+                        'cms-page-id',
+                        'slot-overrides',
+                    ],
                 },
                 'sw-generic-seo-general-card': {
                     template: '<div class="sw-generic-seo-general-card"></div>',
-                    props: ['seo-meta-title', 'seo-meta-description', 'seo-keywords', 'seo-url'],
+                    props: [
+                        'seo-meta-title',
+                        'seo-meta-description',
+                        'seo-keywords',
+                        'seo-url',
+                    ],
                 },
                 'sw-generic-social-media-card': {
                     template: '<div class="sw-generic-social-media-card"></div>',
-                    props: ['og-title', 'og-description', 'og-image-id'],
+                    props: [
+                        'og-title',
+                        'og-description',
+                        'og-image-id',
+                    ],
                 },
             },
             provide: {
@@ -177,46 +204,62 @@ async function createWrapper({ activeTab = 'main', routeId = null, entityName = 
                 },
             },
         },
-
     });
 }
 
-const numberOfElementsDataProvider = [{
-    activeTab: 'main',
-    cardCount: 2,
-    cards: [{
-        name: 'general',
-        fieldCount: 3,
-        fields: [{
-            ref: 'title',
-        }, {
-            ref: 'description',
-        }, {
-            ref: 'position',
-        }],
-    }, {
-        name: 'useless',
-        fieldCount: 2,
-        fields: [{
-            ref: 'description',
-        }, {
-            ref: 'position',
-        }],
-    }],
-}, {
-    activeTab: 'secondary',
-    cardCount: 1,
-    cards: [{
-        name: 'secondary-useless',
-        fieldCount: 1,
-        fields: [{
-            ref: 'position',
-        }],
-    }],
-}];
+const numberOfElementsDataProvider = [
+    {
+        activeTab: 'main',
+        cardCount: 2,
+        cards: [
+            {
+                name: 'general',
+                fieldCount: 3,
+                fields: [
+                    {
+                        ref: 'title',
+                    },
+                    {
+                        ref: 'description',
+                    },
+                    {
+                        ref: 'position',
+                    },
+                ],
+            },
+            {
+                name: 'useless',
+                fieldCount: 2,
+                fields: [
+                    {
+                        ref: 'description',
+                    },
+                    {
+                        ref: 'position',
+                    },
+                ],
+            },
+        ],
+    },
+    {
+        activeTab: 'secondary',
+        cardCount: 1,
+        cards: [
+            {
+                name: 'secondary-useless',
+                fieldCount: 1,
+                fields: [
+                    {
+                        ref: 'position',
+                    },
+                ],
+            },
+        ],
+    },
+];
 
 /**
- * @package content
+ * @sw-package framework
  */
 describe('module/sw-custom-entity/page/sw-generic-custom-entity-detail', () => {
     it('should render the correct number of tabs, tab-items and activeTabs with correct labels', async () => {
@@ -241,8 +284,7 @@ describe('module/sw-custom-entity/page/sw-generic-custom-entity-detail', () => {
 
             // Check title and amount of children in each card
             data.cards.forEach((card, cardIndex) => {
-                expect(cardElements.at(cardIndex).attributes().title)
-                    .toBe(`custom_test_entity.cards.${card.name}`);
+                expect(wrapper.find(`[title="custom_test_entity.cards.${card.name}"]`).exists()).toBe(true);
 
                 const fieldElements = cardElements.at(cardIndex).findAll('.sw-generic-custom-entity-detail__field');
                 expect(fieldElements).toHaveLength(card.fieldCount);

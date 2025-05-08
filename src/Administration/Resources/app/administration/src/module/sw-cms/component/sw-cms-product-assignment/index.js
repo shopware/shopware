@@ -5,14 +5,15 @@ const { Criteria } = Shopware.Data;
 
 /**
  * @private
- * @package buyers-experience
+ * @sw-package discovery
  */
 export default {
     template,
 
-    compatConfig: Shopware.compatConfig,
-
-    emits: ['change', 'paginate'],
+    emits: [
+        'change',
+        'paginate',
+    ],
 
     data() {
         return {
@@ -20,15 +21,7 @@ export default {
         };
     },
 
-    computed: {
-        listeners() {
-            if (this.isCompatEnabled('INSTANCE_LISTENERS')) {
-                return this.$listeners;
-            }
-
-            return {};
-        },
-    },
+    computed: {},
 
     watch: {
         criteria: {
@@ -98,7 +91,6 @@ export default {
 
             return Promise.resolve();
         },
-
 
         onSelectCollapsed() {
             this.resultCollection = null;

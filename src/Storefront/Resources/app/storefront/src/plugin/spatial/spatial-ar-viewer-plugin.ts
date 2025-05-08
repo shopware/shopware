@@ -5,11 +5,12 @@ import Plugin from 'src/plugin-system/plugin.class';
 import { supportQuickLook, supportsAr, supportWebXR } from './utils/ar/arSupportChecker';
 import WebXrView from './utils/ar/WebXrView';
 import { loadThreeJs } from './utils/spatial-threejs-load-util';
+import type NativeEventEmitter from 'src/helper/emitter.helper';
 
 /**
  * @package innovation
  *
- * @experimental stableVersion:v6.7.0 feature:SPATIAL_BASES
+ * @experimental stableVersion:v6.8.0 feature:SPATIAL_BASES
  */
 export default class SpatialArViewerPlugin extends Plugin {
     private modelUrl: string;
@@ -24,6 +25,8 @@ export default class SpatialArViewerPlugin extends Plugin {
 
     public static options: object;
 
+    $emitter: NativeEventEmitter;
+
     async init() {
         await loadThreeJs();
 
@@ -35,7 +38,7 @@ export default class SpatialArViewerPlugin extends Plugin {
             return;
         }
 
-        this.objectLoader = new SpatialObjectLoaderUtil();
+        this.objectLoader = new SpatialObjectLoaderUtil(this);
 
         // eslint-disable-next-line @typescript-eslint/no-floating-promises
         this.objectLoader.loadSingleObjectByUrl(this.modelUrl, {
@@ -69,7 +72,22 @@ export default class SpatialArViewerPlugin extends Plugin {
 
             if (qrModalTemplate) {
                 // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-unsafe-call
-                new bootstrap.Modal(qrModalTemplate).show();
+                window.focusHandler.saveFocusState('spatial-ar-viewer');
+
+
+                const refocusButton = () => {
+                    // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-unsafe-call
+                    window.focusHandler.resumeFocusState('spatial-ar-viewer');
+                    // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-unsafe-call
+                    modal._element.removeEventListener('hidden.bs.modal', refocusButton);
+                };
+
+                // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-member-access
+                const modal = new bootstrap.Modal(qrModalTemplate);
+                // eslint-disable-next-line @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-member-access
+                modal._element.addEventListener('hidden.bs.modal', refocusButton);
+                // eslint-disable-next-line @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-member-access
+                modal.show();
             }
             return;
         }

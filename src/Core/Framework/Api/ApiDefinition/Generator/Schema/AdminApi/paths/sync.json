@@ -1,5 +1,5 @@
 {
-    "openapi": "3.0.0",
+    "openapi": "3.1.0",
     "info": [],
     "paths": {
         "\/_action\/sync": {
@@ -64,6 +64,26 @@
                                             "type": "array",
                                             "items": {
                                                 "type": "object"
+                                            }
+                                        },
+                                        "filter": {
+                                            "description": "Only for delete operations: Instead of providing IDs in the payload, the filter by which should be deleted can be provided directly.",
+                                            "type": "array",
+                                            "items": {
+                                                "anyOf": [
+                                                    {
+                                                        "$ref": "#/components/schemas/SimpleFilter"
+                                                    },
+                                                    {
+                                                        "$ref": "#/components/schemas/EqualsFilter"
+                                                    },
+                                                    {
+                                                        "$ref": "#/components/schemas/MultiNotFilter"
+                                                    },
+                                                    {
+                                                        "$ref": "#/components/schemas/RangeFilter"
+                                                    }
+                                                ]
                                             }
                                         }
                                     },

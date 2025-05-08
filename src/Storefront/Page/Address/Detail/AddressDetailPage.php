@@ -8,23 +8,14 @@ use Shopware\Core\System\Country\CountryCollection;
 use Shopware\Core\System\Salutation\SalutationCollection;
 use Shopware\Storefront\Page\Page;
 
-#[Package('storefront')]
+#[Package('framework')]
 class AddressDetailPage extends Page
 {
-    /**
-     * @var CustomerAddressEntity|null
-     */
-    protected $address;
+    protected ?CustomerAddressEntity $address = null;
 
-    /**
-     * @var SalutationCollection
-     */
-    protected $salutations;
+    protected SalutationCollection $salutations;
 
-    /**
-     * @var CountryCollection
-     */
-    protected $countries;
+    protected CountryCollection $countries;
 
     public function getAddress(): ?CustomerAddressEntity
     {

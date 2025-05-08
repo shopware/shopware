@@ -6,8 +6,10 @@ use Shopware\Core\Checkout\Cart\Cart;
 use Shopware\Core\Checkout\Cart\CartBehavior;
 use Shopware\Core\Checkout\Cart\CartDataCollectorInterface;
 use Shopware\Core\Checkout\Cart\CartProcessorInterface;
+use Shopware\Core\Checkout\Cart\Delivery\Struct\Delivery;
 use Shopware\Core\Checkout\Cart\LineItem\CartDataCollection;
 use Shopware\Core\Checkout\Cart\Price\Struct\CalculatedPrice;
+use Shopware\Core\Checkout\Shipping\ShippingMethodCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Log\Package;
@@ -24,31 +26,15 @@ class DeliveryProcessor implements CartProcessorInterface, CartDataCollectorInte
     final public const SKIP_DELIVERY_TAX_RECALCULATION = 'skipDeliveryTaxRecalculation';
 
     /**
-     * @var DeliveryBuilder
-     */
-    protected $builder;
-
-    /**
-     * @var DeliveryCalculator
-     */
-    protected $deliveryCalculator;
-
-    /**
-     * @var EntityRepository
-     */
-    protected $shippingMethodRepository;
-
-    /**
      * @internal
+     *
+     * @param EntityRepository<ShippingMethodCollection> $shippingMethodRepository
      */
     public function __construct(
-        DeliveryBuilder $builder,
-        DeliveryCalculator $deliveryCalculator,
-        EntityRepository $shippingMethodRepository
+        protected DeliveryBuilder $builder,
+        protected DeliveryCalculator $deliveryCalculator,
+        protected EntityRepository $shippingMethodRepository
     ) {
-        $this->builder = $builder;
-        $this->deliveryCalculator = $deliveryCalculator;
-        $this->shippingMethodRepository = $shippingMethodRepository;
     }
 
     public static function buildKey(string $shippingMethodId): string
@@ -77,13 +63,15 @@ class DeliveryProcessor implements CartProcessorInterface, CartDataCollectorInte
                 return;
             }
 
-            $criteria = new Criteria($ids);
-            $criteria->addAssociation('prices');
-            $criteria->addAssociation('deliveryTime');
-            $criteria->addAssociation('tax');
-            $criteria->setTitle('cart::shipping-methods');
+            $criteria = (new Criteria($ids))
+                ->addAssociations([
+                    'prices',
+                    'deliveryTime',
+                    'tax',
+                ])
+                ->setTitle('cart::shipping-methods');
 
-            $shippingMethods = $this->shippingMethodRepository->search($criteria, $context->getContext());
+            $shippingMethods = $this->shippingMethodRepository->search($criteria, $context->getContext())->getEntities();
 
             foreach ($ids as $id) {
                 $key = self::buildKey($id);
@@ -101,7 +89,10 @@ class DeliveryProcessor implements CartProcessorInterface, CartDataCollectorInte
     {
         Profiler::trace('cart::delivery::process', function () use ($data, $original, $toCalculate, $context, $behavior): void {
             if ($behavior->hasPermission(self::SKIP_DELIVERY_PRICE_RECALCULATION)) {
-                $deliveries = $original->getDeliveries();
+                $deliveries = $original->getDeliveries()->filter(function (Delivery $delivery) {
+                    return $delivery->getShippingCosts()->getTotalPrice() >= 0;
+                });
+
                 $firstDelivery = $deliveries->first();
                 if ($firstDelivery === null) {
                     return;

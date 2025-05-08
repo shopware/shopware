@@ -13,14 +13,14 @@ use Shopware\Core\System\SystemConfig\SystemConfigLoader;
 /**
  * @internal
  */
-#[Package('core')]
+#[Package('framework')]
 class MemoizedSystemConfigLoaderTest extends TestCase
 {
     use KernelTestBehaviour;
 
     public function testServiceDecorationChainPriority(): void
     {
-        $service = $this->getContainer()->get(SystemConfigLoader::class);
+        $service = static::getContainer()->get(SystemConfigLoader::class);
 
         static::assertInstanceOf(MemoizedSystemConfigLoader::class, $service);
         static::assertInstanceOf(ConfiguredSystemConfigLoader::class, $service->getDecorated());

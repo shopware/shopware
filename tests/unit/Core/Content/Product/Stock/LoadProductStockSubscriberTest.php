@@ -4,6 +4,7 @@ namespace Shopware\Tests\Unit\Core\Content\Product\Stock;
 
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Content\Product\ProductEntity;
 use Shopware\Core\Content\Product\SalesChannel\SalesChannelProductDefinition;
 use Shopware\Core\Content\Product\SalesChannel\SalesChannelProductEntity;
 use Shopware\Core\Content\Product\Stock\AbstractStockStorage;
@@ -11,9 +12,9 @@ use Shopware\Core\Content\Product\Stock\LoadProductStockSubscriber;
 use Shopware\Core\Content\Product\Stock\StockData;
 use Shopware\Core\Content\Product\Stock\StockDataCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\PartialEntity;
-use Shopware\Core\Framework\Test\IdsCollection;
 use Shopware\Core\System\SalesChannel\Entity\SalesChannelEntityLoadedEvent;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
+use Shopware\Core\Test\Stub\Framework\IdsCollection;
 
 /**
  * @internal
@@ -35,10 +36,11 @@ class LoadProductStockSubscriberTest extends TestCase
         $stock1->addArrayExtension('extra', ['arbitrary-data1' => 'foo']);
         $stock2 = new StockData($ids->get('product-2'), 12, true);
 
-        $stockStorage->expects(static::once())
+        $stockStorage->expects($this->once())
             ->method('load')
             ->willReturn(new StockDataCollection([$stock1, $stock2]));
 
+        /** @var SalesChannelEntityLoadedEvent<ProductEntity|PartialEntity> $event */
         $event = new SalesChannelEntityLoadedEvent(
             $this->createMock(SalesChannelProductDefinition::class),
             [$p1, $p2],
@@ -74,10 +76,11 @@ class LoadProductStockSubscriberTest extends TestCase
         $stock1->addArrayExtension('extra', ['arbitrary-data1' => 'foo']);
         $stock2 = new StockData($ids->get('product-2'), 12, true);
 
-        $stockStorage->expects(static::once())
+        $stockStorage->expects($this->once())
             ->method('load')
             ->willReturn(new StockDataCollection([$stock1, $stock2]));
 
+        /** @var SalesChannelEntityLoadedEvent<ProductEntity|PartialEntity> $event */
         $event = new SalesChannelEntityLoadedEvent(
             $this->createMock(SalesChannelProductDefinition::class),
             [$p1, $p2],

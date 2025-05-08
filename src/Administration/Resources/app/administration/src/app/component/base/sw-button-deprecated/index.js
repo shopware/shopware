@@ -4,7 +4,7 @@ import template from './sw-button.html.twig';
 const { Component } = Shopware;
 
 /**
- * @package admin
+ * @sw-package framework
  *
  * @private
  * @status ready
@@ -15,17 +15,13 @@ const { Component } = Shopware;
  * <sw-button>
  *     Button
  * </sw-button>
+ *
+ * @deprecated tag:v6.8.0 - Will be removed, use mt-button instead.
  */
 Component.register('sw-button-deprecated', {
     template,
 
     inheritAttrs: false,
-
-    compatConfig: {
-        ...Shopware.compatConfig,
-        // Needed so that Button classes are bound correctly via `v-bind="$attrs"`
-        INSTANCE_ATTRS_CLASS_STYLE: false,
-    },
 
     props: {
         disabled: {
@@ -37,25 +33,45 @@ Component.register('sw-button-deprecated', {
             type: String,
             required: false,
             default: '',
-            validValues: ['primary', 'ghost', 'danger', 'ghost-danger', 'contrast', 'context'],
+            validValues: [
+                'primary',
+                'ghost',
+                'danger',
+                'ghost-danger',
+                'contrast',
+                'context',
+            ],
             validator(value) {
                 if (!value.length) {
                     return true;
                 }
-                return ['primary', 'ghost', 'danger', 'ghost-danger', 'contrast', 'context'].includes(value);
+                return [
+                    'primary',
+                    'ghost',
+                    'danger',
+                    'ghost-danger',
+                    'contrast',
+                    'context',
+                ].includes(value);
             },
         },
         size: {
             type: String,
             required: false,
             default: '',
-            validValues: ['x-small', 'small'],
+            validValues: [
+                'x-small',
+                'small',
+            ],
             validator(value) {
                 if (!value.length) {
                     return true;
                 }
 
-                return ['x-small', 'small'].includes(value);
+                return [
+                    'x-small',
+                    'small',
+                ].includes(value);
             },
         },
         square: {
@@ -100,15 +116,6 @@ Component.register('sw-button-deprecated', {
             return {
                 'is--hidden': this.isLoading,
             };
-        },
-
-        listeners() {
-            // eslint-disable-next-line @typescript-eslint/no-unsafe-call,@typescript-eslint/no-unsafe-member-access
-            if (this.isCompatEnabled('INSTANCE_LISTENERS')) {
-                return this.$listeners;
-            }
-
-            return {};
         },
 
         filteredAttributes() {

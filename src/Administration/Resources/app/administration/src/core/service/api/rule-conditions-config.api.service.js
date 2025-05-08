@@ -2,7 +2,7 @@ import ApiService from '../api.service';
 
 /**
  * @private
- * @package services-settings
+ * @sw-package fundamentals@after-sales
  */
 export default class RuleConditionsConfigApiService extends ApiService {
     constructor(httpClient, loginService) {
@@ -11,17 +11,16 @@ export default class RuleConditionsConfigApiService extends ApiService {
     }
 
     load() {
-        if (Shopware.State.getters['ruleConditionsConfig/getConfig']() !== null) {
+        if (Shopware.Store.get('ruleConditionsConfig').config !== null) {
             return Promise.resolve();
         }
 
-        return this.httpClient.get(
-            '_info/rule-config',
-            {
+        return this.httpClient
+            .get('_info/rule-config', {
                 headers: this.getBasicHeaders(),
-            },
-        ).then((response) => {
-            Shopware.State.commit('ruleConditionsConfig/setConfig', ApiService.handleResponse(response));
-        });
+            })
+            .then((response) => {
+                Shopware.Store.get('ruleConditionsConfig').config = ApiService.handleResponse(response);
+            });
     }
 }

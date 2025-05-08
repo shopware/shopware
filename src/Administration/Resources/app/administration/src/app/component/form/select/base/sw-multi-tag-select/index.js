@@ -5,7 +5,7 @@ const { Component, Mixin } = Shopware;
 const { get } = Shopware.Utils;
 
 /**
- * @package admin
+ * @sw-package framework
  *
  * @private
  * @status ready
@@ -19,8 +19,6 @@ const { get } = Shopware.Utils;
  */
 Component.register('sw-multi-tag-select', {
     template,
-
-    compatConfig: Shopware.compatConfig,
 
     inheritAttrs: false,
 
@@ -75,7 +73,7 @@ Component.register('sw-multi-tag-select', {
         validate: {
             type: Function,
             required: false,
-            default: searchTerm => searchTerm.length > 0,
+            default: (searchTerm) => searchTerm.length > 0,
         },
 
         disabled: {
@@ -94,13 +92,6 @@ Component.register('sw-multi-tag-select', {
     },
 
     computed: {
-        /**
-         * @deprecated tag:v6.7.0 - Will be removed
-         */
-        // eslint-disable-next-line vue/return-in-computed-property
-        objectValues() {
-        },
-
         errorObject() {
             return null;
         },
@@ -117,7 +108,6 @@ Component.register('sw-multi-tag-select', {
             return this.value.map((entry) => ({ value: entry })).slice(0, this.limit);
         },
 
-
         totalValuesCount() {
             if (this.value.length) {
                 return this.value.length;
@@ -133,15 +123,6 @@ Component.register('sw-multi-tag-select', {
 
             return Math.max(0, this.totalValuesCount - this.limit);
         },
-
-        listeners() {
-            // eslint-disable-next-line @typescript-eslint/no-unsafe-call,@typescript-eslint/no-unsafe-member-access
-            if (this.isCompatEnabled('INSTANCE_LISTENERS')) {
-                return this.$listeners;
-            }
-
-            return {};
-        },
     },
 
     methods: {
@@ -156,12 +137,18 @@ Component.register('sw-multi-tag-select', {
                 return;
             }
 
-            this.$emit('update:value', [...this.value, this.searchTerm]);
+            this.$emit('update:value', [
+                ...this.value,
+                this.searchTerm,
+            ]);
             this.searchTerm = '';
         },
 
         remove({ value }) {
-            this.$emit('update:value', this.value.filter(entry => entry !== value));
+            this.$emit(
+                'update:value',
+                this.value.filter((entry) => entry !== value),
+            );
         },
 
         removeLastItem() {

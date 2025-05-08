@@ -4,7 +4,7 @@ import './sw-select-field.scss';
 const { Component, Mixin } = Shopware;
 
 /**
- * @package admin
+ * @sw-package framework
  *
  * @private
  * @description select input field.
@@ -21,8 +21,6 @@ const { Component, Mixin } = Shopware;
  */
 Component.register('sw-select-field-deprecated', {
     template,
-
-    compatConfig: Shopware.compatConfig,
 
     inheritAttrs: false,
 
@@ -88,7 +86,9 @@ Component.register('sw-select-field-deprecated', {
     },
 
     watch: {
-        value() { this.currentValue = this.value; },
+        value() {
+            this.currentValue = this.value;
+        },
     },
 
     methods: {

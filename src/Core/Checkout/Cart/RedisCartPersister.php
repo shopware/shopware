@@ -2,31 +2,32 @@
 
 namespace Shopware\Core\Checkout\Cart;
 
-use Predis\ClientInterface;
-use Relay\Relay;
 use Shopware\Core\Checkout\Cart\Error\ErrorCollection;
 use Shopware\Core\Checkout\Cart\Event\CartLoadedEvent;
 use Shopware\Core\Checkout\Cart\Event\CartSavedEvent;
 use Shopware\Core\Checkout\Cart\Event\CartVerifyPersistEvent;
 use Shopware\Core\Checkout\Cart\Exception\CartTokenNotFoundException;
+use Shopware\Core\Framework\Adapter\Cache\RedisConnectionFactory;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
+/**
+ * @phpstan-import-type RedisTypeHint from RedisConnectionFactory
+ */
 #[Package('checkout')]
 class RedisCartPersister extends AbstractCartPersister
 {
     final public const PREFIX = 'cart-persister-';
 
     /**
-     * @param \Redis|\RedisArray|\RedisCluster|ClientInterface|Relay $redis
+     * @param RedisTypeHint $redis
      *
      * @internal
-     *
-     * param cannot be natively typed, as symfony might change the type in the future
      */
     public function __construct(
+        /** @phpstan-ignore shopware.propertyNativeType (Cannot type natively, as Symfony might change the implementation in the future) */
         private $redis,
         private readonly EventDispatcherInterface $eventDispatcher,
         private readonly CartSerializationCleaner $cartSerializationCleaner,
@@ -50,7 +51,7 @@ class RedisCartPersister extends AbstractCartPersister
         }
 
         try {
-            $value = \unserialize($value);
+            $value = @\unserialize($value);
         } catch (\Exception) {
             throw CartException::tokenNotFound($token);
         }
@@ -88,8 +89,6 @@ class RedisCartPersister extends AbstractCartPersister
     {
         $shouldPersist = $this->shouldPersist($cart);
 
-        $this->eventDispatcher->dispatch(new CartSavedEvent($context, $cart));
-
         $event = new CartVerifyPersistEvent($context, $cart, $shouldPersist);
 
         $this->eventDispatcher->dispatch($event);
@@ -102,6 +101,8 @@ class RedisCartPersister extends AbstractCartPersister
         $content = $this->serializeCart($cart, $context);
 
         $this->redis->set(self::PREFIX . $cart->getToken(), $content, ['EX' => $this->expireDays * 86400]);
+
+        $this->eventDispatcher->dispatch(new CartSavedEvent($context, $cart));
     }
 
     public function delete(string $token, SalesChannelContext $context): void

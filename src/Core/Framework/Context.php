@@ -11,10 +11,9 @@ use Shopware\Core\Framework\DataAbstractionLayer\Pricing\CashRoundingConfig;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Struct\StateAwareTrait;
 use Shopware\Core\Framework\Struct\Struct;
-use Shopware\Core\System\SalesChannel\Exception\ContextRulesLockedException;
-use Symfony\Component\Serializer\Annotation\Ignore;
+use Symfony\Component\Serializer\Attribute\Ignore;
 
-#[Package('core')]
+#[Package('framework')]
 class Context extends Struct
 {
     use StateAwareTrait;
@@ -25,27 +24,22 @@ class Context extends Struct
 
     final public const SKIP_TRIGGER_FLOW = 'skipTriggerFlow';
 
-    /**
-     * @var non-empty-array<string>
-     */
-    protected array $languageIdChain;
-
     protected string $scope = self::USER_SCOPE;
 
     protected bool $rulesLocked = false;
 
     #[Ignore]
-    protected $extensions = [];
+    protected array $extensions = [];
 
     /**
-     * @param array<string> $languageIdChain
      * @param array<string> $ruleIds
+     * @param non-empty-list<string> $languageIdChain
      */
     public function __construct(
         protected ContextSource $source,
         protected array $ruleIds = [],
         protected string $currencyId = Defaults::CURRENCY,
-        array $languageIdChain = [Defaults::LANGUAGE_SYSTEM],
+        protected array $languageIdChain = [Defaults::LANGUAGE_SYSTEM],
         protected string $versionId = Defaults::LIVE_VERSION,
         protected float $currencyFactor = 1.0,
         protected bool $considerInheritance = false,
@@ -59,13 +53,56 @@ class Context extends Struct
             $this->scope = self::SYSTEM_SCOPE;
         }
 
+        // Should be already a valid language chain, but we will ensure it anyway
+        $languageIdChain = array_values(array_filter($languageIdChain));
         if (empty($languageIdChain)) {
-            throw new \InvalidArgumentException('Argument languageIdChain must not be empty');
+            throw FrameworkException::invalidArgumentException('Argument "languageIdChain" must not be empty');
         }
 
-        /** @var non-empty-array<string> $chain */
-        $chain = array_keys(array_flip(array_filter($languageIdChain)));
-        $this->languageIdChain = $chain;
+        $this->languageIdChain = $languageIdChain;
+    }
+
+    /**
+     * Extension are not serialized, as they could be anything and make problems during serialization,
+     * for symfony serializer they are exlcuded by the #[Exclude] attribute already
+     *
+     * @return array<mixed>
+     */
+    public function __serialize(): array
+    {
+        return [
+            $this->source,
+            $this->ruleIds,
+            $this->currencyId,
+            $this->languageIdChain,
+            $this->versionId,
+            $this->currencyFactor,
+            $this->considerInheritance,
+            $this->taxState,
+            $this->rounding,
+            $this->scope,
+            $this->states,
+        ];
+    }
+
+    /**
+     * @param array<mixed> $data
+     */
+    public function __unserialize(array $data): void
+    {
+        [
+            $this->source,
+            $this->ruleIds,
+            $this->currencyId,
+            $this->languageIdChain,
+            $this->versionId,
+            $this->currencyFactor,
+            $this->considerInheritance,
+            $this->taxState,
+            $this->rounding,
+            $this->scope,
+            $this->states,
+        ] = $data;
     }
 
     /**
@@ -117,7 +154,7 @@ class Context extends Struct
     }
 
     /**
-     * @return non-empty-array<string>
+     * @return non-empty-list<string>
      */
     public function getLanguageIdChain(): array
     {
@@ -153,7 +190,7 @@ class Context extends Struct
      *
      * @return TReturn the return value of the provided callback function
      */
-    public function scope(string $scope, \Closure $callback)
+    public function scope(string $scope, \Closure $callback): mixed
     {
         $currentScope = $this->getScope();
         $this->scope = $scope;
@@ -207,7 +244,7 @@ class Context extends Struct
     public function setRuleIds(array $ruleIds): void
     {
         if ($this->rulesLocked) {
-            throw new ContextRulesLockedException();
+            throw FrameworkException::contextRulesLocked();
         }
 
         $this->ruleIds = array_filter(array_values($ruleIds));
@@ -220,7 +257,7 @@ class Context extends Struct
      *
      * @return TReturn
      */
-    public function enableInheritance(\Closure $function)
+    public function enableInheritance(\Closure $function): mixed
     {
         $previous = $this->considerInheritance;
         $this->considerInheritance = true;
@@ -237,7 +274,7 @@ class Context extends Struct
      *
      * @return TReturn
      */
-    public function disableInheritance(\Closure $function)
+    public function disableInheritance(\Closure $function): mixed
     {
         $previous = $this->considerInheritance;
         $this->considerInheritance = false;

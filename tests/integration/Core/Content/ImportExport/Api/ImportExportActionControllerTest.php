@@ -20,7 +20,7 @@ use Symfony\Component\HttpFoundation\Response;
 /**
  * @internal
  */
-#[Package('services-settings')]
+#[Package('fundamentals@after-sales')]
 class ImportExportActionControllerTest extends TestCase
 {
     use AdminFunctionalTestBehaviour;
@@ -34,7 +34,7 @@ class ImportExportActionControllerTest extends TestCase
 
     protected function setUp(): void
     {
-        $this->repository = $this->getContainer()->get('import_export_profile.repository');
+        $this->repository = static::getContainer()->get('import_export_profile.repository');
         $this->context = Context::createDefaultContext();
     }
 

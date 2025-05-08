@@ -38,8 +38,10 @@ use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
 /**
  * @phpstan-type ImportData array{record: array<string, mixed>, original: array<string, mixed>}
+ *
+ * @internal
  */
-#[Package('services-settings')]
+#[Package('fundamentals@after-sales')]
 class ImportExport
 {
     private const PART_FILE_SUFFIX = '.offset_';
@@ -51,9 +53,6 @@ class ImportExport
      */
     private array $failedWriteCommands = [];
 
-    /**
-     * @internal
-     */
     public function __construct(
         private readonly ImportExportService $importExportService,
         private ImportExportLogEntity $logEntity,
@@ -105,7 +104,6 @@ class ImportExport
         $context->addState(Context::SKIP_TRIGGER_FLOW);
 
         if ($this->logEntity->getActivity() === ImportExportLogEntity::ACTIVITY_DRYRUN) {
-            $this->connection->setNestTransactionsWithSavepoints(true);
             $this->connection->beginTransaction();
         }
 

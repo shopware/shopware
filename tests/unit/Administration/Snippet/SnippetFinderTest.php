@@ -86,6 +86,7 @@ class SnippetFinderTest extends TestCase
         static::assertEquals([
             'activePlugin' => 'successfully loaded',
             'existingBundle' => 'successfully loaded as well',
+            'activeMeteorApp' => 'Snippet',
         ], $actualSnippets);
     }
 
@@ -229,33 +230,6 @@ class SnippetFinderTest extends TestCase
     }
 
     /**
-     * @param array<string, mixed> $snippets
-     */
-    private function getConnectionMock(string $expectedLocale, array $snippets): Connection&MockObject
-    {
-        $connection = $this->createMock(Connection::class);
-
-        $returns = [];
-        foreach ($snippets as $key => $value) {
-            $returns[]['value'] = json_encode([$key => $value], \JSON_THROW_ON_ERROR);
-        }
-
-        $connection
-            ->method('fetchAllAssociative')
-            ->with(
-                'SELECT app_administration_snippet.value
-             FROM locale
-             INNER JOIN app_administration_snippet ON locale.id = app_administration_snippet.locale_id
-             INNER JOIN app ON app_administration_snippet.app_id = app.id
-             WHERE locale.code = :code AND app.active = 1;',
-                ['code' => $expectedLocale]
-            )
-            ->willReturn($returns);
-
-        return $connection;
-    }
-
-    /**
      * @param list<string> $pluginPaths
      * @param list<string> $activePluginPaths
      * @param list<string> $bundlePaths
@@ -323,6 +297,33 @@ class SnippetFinderTest extends TestCase
             ->willReturn($bundles);
 
         return $kernelMock;
+    }
+
+    /**
+     * @param array<string, mixed> $snippets
+     */
+    private function getConnectionMock(string $expectedLocale, array $snippets): Connection&MockObject
+    {
+        $connection = $this->createMock(Connection::class);
+
+        $returns = [];
+        foreach ($snippets as $key => $value) {
+            $returns[]['value'] = json_encode([$key => $value], \JSON_THROW_ON_ERROR);
+        }
+
+        $connection
+            ->method('fetchAllAssociative')
+            ->with(
+                'SELECT app_administration_snippet.value
+             FROM locale
+             INNER JOIN app_administration_snippet ON locale.id = app_administration_snippet.locale_id
+             INNER JOIN app ON app_administration_snippet.app_id = app.id
+             WHERE locale.code = :code AND app.active = 1;',
+                ['code' => $expectedLocale]
+            )
+            ->willReturn($returns);
+
+        return $connection;
     }
 
     /**

@@ -3,13 +3,18 @@
 namespace Shopware\Tests\Integration\Core\Content\Sitemap\Service;
 
 use League\Flysystem\FilesystemOperator;
-use PHPUnit\Framework\Attributes\Group;
+use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Psr\Cache\CacheItemInterface;
 use Psr\Cache\CacheItemPoolInterface;
-use Shopware\Core\Content\Sitemap\Exception\AlreadyLockedException;
+use Shopware\Core\Checkout\Cart\CartRuleLoader;
+use Shopware\Core\Content\Sitemap\Provider\AbstractUrlProvider;
 use Shopware\Core\Content\Sitemap\Service\SitemapExporter;
 use Shopware\Core\Content\Sitemap\Service\SitemapHandleFactoryInterface;
+use Shopware\Core\Content\Sitemap\Service\SitemapHandleInterface;
+use Shopware\Core\Content\Sitemap\SitemapException;
+use Shopware\Core\Content\Sitemap\Struct\Url;
+use Shopware\Core\Content\Sitemap\Struct\UrlResult;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
@@ -19,18 +24,20 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\Seo\StorefrontSalesChannelTestHelper;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
+use Shopware\Core\System\SalesChannel\Aggregate\SalesChannelDomain\SalesChannelDomainCollection;
 use Shopware\Core\System\SalesChannel\Aggregate\SalesChannelDomain\SalesChannelDomainEntity;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextService;
 use Shopware\Core\System\SalesChannel\SalesChannelCollection;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
+use Shopware\Core\Test\Generator;
 use Symfony\Component\Cache\CacheItem;
 use Symfony\Component\EventDispatcher\EventDispatcher;
 
 /**
  * @internal
  */
-#[Package('services-settings')]
+#[Package('discovery')]
 class SitemapExporterTest extends TestCase
 {
     use IntegrationTestBehaviour;
@@ -47,7 +54,7 @@ class SitemapExporterTest extends TestCase
     {
         parent::setUp();
         $this->context = $this->createStorefrontSalesChannelContext(Uuid::randomHex(), 'sitemap-exporter-test');
-        $this->salesChannelRepository = $this->getContainer()->get('sales_channel.repository');
+        $this->salesChannelRepository = static::getContainer()->get('sales_channel.repository');
     }
 
     public function testNotLocked(): void
@@ -55,14 +62,7 @@ class SitemapExporterTest extends TestCase
         $cache = $this->createMock(CacheItemPoolInterface::class);
         $cache->method('getItem')->willReturn($this->createCacheItem('', true, false));
 
-        $exporter = new SitemapExporter(
-            [],
-            $cache,
-            10,
-            $this->createMock(FilesystemOperator::class),
-            $this->createMock(SitemapHandleFactoryInterface::class),
-            $this->createMock(EventDispatcher::class)
-        );
+        $exporter = $this->createSitemapExporter($cache);
 
         $result = $exporter->generate($this->context);
 
@@ -74,16 +74,9 @@ class SitemapExporterTest extends TestCase
         $cache = $this->createMock(CacheItemPoolInterface::class);
         $cache->method('getItem')->willReturn($this->createCacheItem('', true, true));
 
-        $exporter = new SitemapExporter(
-            [],
-            $cache,
-            10,
-            $this->createMock(FilesystemOperator::class),
-            $this->createMock(SitemapHandleFactoryInterface::class),
-            $this->createMock(EventDispatcher::class)
-        );
+        $exporter = $this->createSitemapExporter($cache);
 
-        $this->expectException(AlreadyLockedException::class);
+        $this->expectException(SitemapException::class);
         $exporter->generate($this->context);
     }
 
@@ -92,14 +85,7 @@ class SitemapExporterTest extends TestCase
         $cache = $this->createMock(CacheItemPoolInterface::class);
         $cache->method('getItem')->willReturn($this->createCacheItem('', true, true));
 
-        $exporter = new SitemapExporter(
-            [],
-            $cache,
-            10,
-            $this->createMock(FilesystemOperator::class),
-            $this->createMock(SitemapHandleFactoryInterface::class),
-            $this->createMock(EventDispatcher::class)
-        );
+        $exporter = $this->createSitemapExporter($cache);
 
         $result = $exporter->generate($this->context, true);
 
@@ -134,24 +120,13 @@ class SitemapExporterTest extends TestCase
             return true;
         });
 
-        $exporter = new SitemapExporter(
-            [],
-            $cache,
-            10,
-            $this->createMock(FilesystemOperator::class),
-            $this->createMock(SitemapHandleFactoryInterface::class),
-            $this->createMock(EventDispatcher::class)
-        );
+        $exporter = $this->createSitemapExporter($cache);
 
         $result = $exporter->generate($this->context);
 
         static::assertTrue($result->isFinish());
     }
 
-    /**
-     * NEXT-21735
-     */
-    #[Group('not-deterministic')]
     public function testWriteWithMultipleSchemesAndSameLanguage(): void
     {
         $salesChannel = $this->salesChannelRepository->search(
@@ -191,7 +166,7 @@ class SitemapExporterTest extends TestCase
         $languageIds = array_unique($languageIds);
 
         foreach ($languageIds as $languageId) {
-            $salesChannelContext = $this->getContainer()->get(SalesChannelContextFactory::class)
+            $salesChannelContext = static::getContainer()->get(SalesChannelContextFactory::class)
                 ->create('', $salesChannel->getId(), [SalesChannelContextService::LANGUAGE_ID => $languageId]);
 
             $this->generateSitemap($salesChannelContext, false);
@@ -201,6 +176,48 @@ class SitemapExporterTest extends TestCase
 
             static::assertCount(1, iterator_to_array($files));
         }
+    }
+
+    public function testGenerationWithSlashes(): void
+    {
+        $url1 = new Url();
+        $url1->setLoc('/test-with-slash');
+        $url1->setLastmod(new \DateTime());
+        $url1->setChangefreq('daily');
+
+        $url2 = new Url();
+        $url2->setLoc('test-without-slash');
+        $url2->setLastmod(new \DateTime());
+        $url2->setChangefreq('daily');
+
+        $urls = [$url1, $url2];
+
+        $handler = $this->createMock(AbstractUrlProvider::class);
+        $handler->expects($this->once())->method('getUrls')->willReturn(new UrlResult($urls, null));
+
+        $factory = $this->createMock(SitemapHandleFactoryInterface::class);
+        $sitemapHandleMock = $this->createMock(SitemapHandleInterface::class);
+        $sitemapHandleMock->expects($this->once())->method('write')->willReturnCallback(function (array $urls): void {
+            static::assertCount(2, $urls);
+            static::assertInstanceOf(Url::class, $urls[0]);
+            static::assertInstanceOf(Url::class, $urls[1]);
+            static::assertSame('https://test.com/de/test-with-slash', $urls[0]->getLoc());
+            static::assertSame('https://test.com/de/test-without-slash', $urls[1]->getLoc());
+        });
+
+        $factory->expects($this->once())->method('create')->willReturn($sitemapHandleMock);
+
+        $cache = $this->createMock(CacheItemPoolInterface::class);
+        $cache->method('getItem')->willReturn($this->createCacheItem('', true, false));
+
+        $exporter = $this->createSitemapExporter($cache, [$handler], $factory);
+
+        $salesChannel = Generator::generateSalesChannelContext();
+        $salesChannel->getSalesChannel()->setDomains(new SalesChannelDomainCollection([
+            (new SalesChannelDomainEntity())->assign(['id' => '11', 'url' => 'https://test.com/de', 'languageId' => Defaults::LANGUAGE_SYSTEM]),
+        ]));
+
+        $exporter->generate($salesChannel);
     }
 
     private function createCacheItem(string $key, ?bool $value, ?bool $isHit): CacheItemInterface
@@ -247,9 +264,28 @@ class SitemapExporterTest extends TestCase
         ?string $lastProvider = null,
         ?int $offset = null
     ): void {
-        $result = $this->getContainer()->get(SitemapExporter::class)->generate($salesChannelContext, $force, $lastProvider, $offset);
+        $result = static::getContainer()->get(SitemapExporter::class)->generate($salesChannelContext, $force, $lastProvider, $offset);
         if (!$result->isFinish()) {
             $this->generateSitemap($salesChannelContext, $force, $result->getProvider(), $result->getOffset());
         }
+    }
+
+    /**
+     * @param iterable<AbstractUrlProvider>|null $urlProvider
+     */
+    private function createSitemapExporter(
+        CacheItemPoolInterface&MockObject $cache,
+        ?iterable $urlProvider = null,
+        (SitemapHandleFactoryInterface&MockObject)|null $sitemapHandleFactory = null,
+    ): SitemapExporter {
+        return new SitemapExporter(
+            $urlProvider ?? [],
+            $cache,
+            10,
+            $this->createMock(FilesystemOperator::class),
+            $sitemapHandleFactory ?? $this->createMock(SitemapHandleFactoryInterface::class),
+            $this->createMock(EventDispatcher::class),
+            $this->createMock(CartRuleLoader::class)
+        );
     }
 }

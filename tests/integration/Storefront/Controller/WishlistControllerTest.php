@@ -13,7 +13,6 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Script\Debugging\ScriptTraces;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelLifecycleManager;
@@ -49,7 +48,7 @@ class WishlistControllerTest extends TestCase
     {
         parent::setUp();
         $this->customerId = Uuid::randomHex();
-        $systemConfig = $this->getContainer()->get(SystemConfigService::class);
+        $systemConfig = static::getContainer()->get(SystemConfigService::class);
         $systemConfig->set('core.cart.wishlistEnabled', true);
     }
 
@@ -105,7 +104,7 @@ class WishlistControllerTest extends TestCase
 
         $productId = $this->createProduct($this->getSalesChannelId());
 
-        $this->addEventListener($this->getContainer()->get('event_dispatcher'), StorefrontRenderEvent::class, function (StorefrontRenderEvent $event) use ($productId): void {
+        $this->addEventListener(static::getContainer()->get('event_dispatcher'), StorefrontRenderEvent::class, function (StorefrontRenderEvent $event) use ($productId): void {
             static::assertInstanceOf(EntitySearchResult::class, $result = $event->getParameters()['searchResult']);
             static::assertCount(1, $result);
             static::assertInstanceOf(Entity::class, $result->first());
@@ -219,7 +218,7 @@ class WishlistControllerTest extends TestCase
 
         static::assertSame(302, $response->getStatusCode());
         static::assertInstanceOf(RedirectResponse::class, $response);
-        static::assertSame('/', $response->getTargetUrl());
+        static::assertSame('/wishlist', $response->getTargetUrl());
 
         $session = $this->getSession();
         static::assertInstanceOf(Session::class, $session);
@@ -242,7 +241,7 @@ class WishlistControllerTest extends TestCase
         $response = $browser->getResponse();
         static::assertEquals(200, $response->getStatusCode(), (string) $response->getContent());
 
-        $traces = $this->getContainer()->get(ScriptTraces::class)->getTraces();
+        $traces = static::getContainer()->get(ScriptTraces::class)->getTraces();
 
         static::assertArrayHasKey(WishlistPageLoadedHook::HOOK_NAME, $traces);
     }
@@ -252,7 +251,7 @@ class WishlistControllerTest extends TestCase
         $response = $this->request('GET', '/wishlist', []);
         static::assertEquals(200, $response->getStatusCode());
 
-        $traces = $this->getContainer()->get(ScriptTraces::class)->getTraces();
+        $traces = static::getContainer()->get(ScriptTraces::class)->getTraces();
 
         static::assertArrayHasKey(GuestWishlistPageLoadedHook::HOOK_NAME, $traces);
     }
@@ -269,7 +268,7 @@ class WishlistControllerTest extends TestCase
 
         static::assertEquals(200, $response->getStatusCode());
 
-        $traces = $this->getContainer()->get(ScriptTraces::class)->getTraces();
+        $traces = static::getContainer()->get(ScriptTraces::class)->getTraces();
 
         static::assertArrayHasKey(GuestWishlistPageletLoadedHook::HOOK_NAME, $traces);
     }
@@ -282,7 +281,7 @@ class WishlistControllerTest extends TestCase
         $response = $browser->getResponse();
         static::assertEquals(200, $response->getStatusCode(), (string) $response->getContent());
 
-        $traces = $this->getContainer()->get(ScriptTraces::class)->getTraces();
+        $traces = static::getContainer()->get(ScriptTraces::class)->getTraces();
 
         static::assertArrayHasKey(WishlistPageLoadedHook::HOOK_NAME, $traces);
     }
@@ -295,7 +294,7 @@ class WishlistControllerTest extends TestCase
         $response = $browser->getResponse();
         static::assertEquals(200, $response->getStatusCode());
 
-        $traces = $this->getContainer()->get(ScriptTraces::class)->getTraces();
+        $traces = static::getContainer()->get(ScriptTraces::class)->getTraces();
 
         static::assertArrayHasKey(WishlistWidgetLoadedHook::HOOK_NAME, $traces);
     }
@@ -327,11 +326,7 @@ class WishlistControllerTest extends TestCase
             'customerNumber' => '12345',
         ];
 
-        if (!Feature::isActive('v6.7.0.0')) {
-            $customer['defaultPaymentMethodId'] = $this->getValidPaymentMethodId();
-        }
-
-        $repo = $this->getContainer()->get('customer.repository');
+        $repo = static::getContainer()->get('customer.repository');
 
         $repo->create([$customer], Context::createDefaultContext());
 
@@ -411,7 +406,7 @@ class WishlistControllerTest extends TestCase
             ],
         ];
 
-        $repository = $this->getContainer()->get('product.repository');
+        $repository = static::getContainer()->get('product.repository');
 
         $repository->create([$product], Context::createDefaultContext());
 
@@ -421,7 +416,7 @@ class WishlistControllerTest extends TestCase
     private function createCustomerWishlist(string $productId, string $salesChannelId): string
     {
         $customerWishlistId = Uuid::randomHex();
-        $customerWishlistRepository = $this->getContainer()->get('customer_wishlist.repository');
+        $customerWishlistRepository = static::getContainer()->get('customer_wishlist.repository');
 
         $customerWishlistRepository->create([
             [

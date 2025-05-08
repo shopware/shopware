@@ -30,7 +30,7 @@ class ProductSearchScoringTest extends TestCase
 
     protected function setUp(): void
     {
-        $this->repository = $this->getContainer()->get('product.repository');
+        $this->repository = static::getContainer()->get('product.repository');
     }
 
     public function testScoringExtensionExists(): void
@@ -40,8 +40,8 @@ class ProductSearchScoringTest extends TestCase
         $builder = new EntityScoreQueryBuilder();
         $queries = $builder->buildScoreQueries(
             $pattern,
-            $this->getContainer()->get(ProductDefinition::class),
-            $this->getContainer()->get(ProductDefinition::class)->getEntityName(),
+            static::getContainer()->get(ProductDefinition::class),
+            static::getContainer()->get(ProductDefinition::class)->getEntityName(),
             $context
         );
 

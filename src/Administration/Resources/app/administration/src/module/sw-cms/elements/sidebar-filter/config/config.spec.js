@@ -1,19 +1,20 @@
 /**
- * @package buyers-experience
+ * @sw-package discovery
  */
 import { mount } from '@vue/test-utils';
 import { setupCmsEnvironment } from 'src/module/sw-cms/test-utils';
 
 async function createWrapper() {
-    return mount(await wrapTestComponent('sw-cms-el-config-sidebar-filter', {
-        sync: true,
-    }), {
-        global: {
-            stubs: {
-                'sw-alert': true,
+    return mount(
+        await wrapTestComponent('sw-cms-el-config-sidebar-filter', {
+            sync: true,
+        }),
+        {
+            global: {
+                stubs: {},
             },
         },
-    });
+    );
 }
 
 describe('src/module/sw-cms/elements/sidebar-filter/config', () => {

@@ -9,53 +9,30 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityCustomFieldsTrait;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityIdTrait;
 use Shopware\Core\Framework\Log\Package;
 
-#[Package('buyers-experience')]
+#[Package('discovery')]
 class MediaFolderConfigurationEntity extends Entity
 {
     use EntityCustomFieldsTrait;
     use EntityIdTrait;
 
-    /**
-     * @var MediaFolderCollection
-     */
-    protected $mediaFolders;
+    protected ?MediaFolderCollection $mediaFolders = null;
 
-    /**
-     * @var bool
-     */
-    protected $createThumbnails;
+    protected bool $createThumbnails;
 
-    /**
-     * @var bool
-     */
-    protected $keepAspectRatio;
+    protected bool $keepAspectRatio;
 
-    /**
-     * @var int
-     */
-    protected $thumbnailQuality;
+    protected int $thumbnailQuality;
 
-    /**
-     * @var bool
-     */
-    protected $private;
+    protected bool $private;
 
-    /**
-     * @var bool|null
-     */
-    protected $noAssociation;
+    protected ?bool $noAssociation = null;
 
-    /**
-     * @var MediaThumbnailSizeCollection|null
-     */
-    protected $mediaThumbnailSizes;
+    protected ?MediaThumbnailSizeCollection $mediaThumbnailSizes = null;
 
     /**
      * @internal
-     *
-     * @var string|null
      */
-    protected $mediaThumbnailSizesRo;
+    protected ?string $mediaThumbnailSizesRo = null;
 
     public function getMediaFolders(): ?MediaFolderCollection
     {

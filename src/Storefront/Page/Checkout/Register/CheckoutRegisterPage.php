@@ -9,28 +9,16 @@ use Shopware\Core\System\Country\CountryCollection;
 use Shopware\Core\System\Salutation\SalutationCollection;
 use Shopware\Storefront\Page\Page;
 
-#[Package('storefront')]
+#[Package('framework')]
 class CheckoutRegisterPage extends Page
 {
-    /**
-     * @var CountryCollection
-     */
-    protected $countries;
+    protected CountryCollection $countries;
 
-    /**
-     * @var CustomerAddressEntity|null
-     */
-    protected $address;
+    protected ?CustomerAddressEntity $address = null;
 
-    /**
-     * @var SalutationCollection
-     */
-    protected $salutations;
+    protected SalutationCollection $salutations;
 
-    /**
-     * @var Cart
-     */
-    protected $cart;
+    protected Cart $cart;
 
     public function getCountries(): CountryCollection
     {

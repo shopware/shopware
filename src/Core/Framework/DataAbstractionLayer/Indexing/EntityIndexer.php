@@ -5,7 +5,7 @@ namespace Shopware\Core\Framework\DataAbstractionLayer\Indexing;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenContainerEvent;
 use Shopware\Core\Framework\Log\Package;
 
-#[Package('core')]
+#[Package('framework')]
 abstract class EntityIndexer
 {
     /**
@@ -41,7 +41,7 @@ abstract class EntityIndexer
     /**
      * Returns a list of known indexers
      *
-     * @return array<string>
+     * @return list<string>
      */
     public function getOptions(): array
     {

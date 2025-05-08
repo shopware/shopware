@@ -1,5 +1,5 @@
 /**
- * @package buyers-experience
+ * @sw-package fundamentals@discovery
  */
 import template from './sw-settings-country-list.html.twig';
 import './sw-settings-country-list.scss';
@@ -10,8 +10,6 @@ const { Criteria } = Shopware.Data;
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default {
     template,
-
-    compatConfig: Shopware.compatConfig,
 
     inject: [
         'repositoryFactory',
@@ -64,32 +62,37 @@ export default {
             criteria.setTerm(this.term);
             criteria.addSorting(Criteria.sort(this.sortBy, this.sortDirection, this.naturalSorting));
 
-            this.countryRepository.search(criteria, Shopware.Context.api).then((items) => {
-                this.total = items.total;
-                this.country = items;
-                this.isLoading = false;
+            this.countryRepository
+                .search(criteria, Shopware.Context.api)
+                .then((items) => {
+                    this.total = items.total;
+                    this.country = items;
+                    this.isLoading = false;
 
-                return items;
-            }).catch(() => {
-                this.isLoading = false;
-            });
+                    return items;
+                })
+                .catch(() => {
+                    this.isLoading = false;
+                });
         },
 
         onInlineEditSave(promise, country) {
-            promise.then(() => {
-                this.createNotificationSuccess({
-                    message: this.$tc('sw-settings-country.detail.messageSaveSuccess', 0, { name: country.name }),
+            promise
+                .then(() => {
+                    this.createNotificationSuccess({
+                        message: this.$tc('sw-settings-country.detail.messageSaveSuccess', { name: country.name }, 0),
+                    });
+                })
+                .catch(() => {
+                    this.getList();
+                    this.createNotificationError({
+                        message: this.$tc('sw-settings-country.detail.messageSaveError'),
+                    });
                 });
-            }).catch(() => {
-                this.getList();
-                this.createNotificationError({
-                    message: this.$tc('sw-settings-country.detail.messageSaveError'),
-                });
-            });
         },
 
         onChangeLanguage(languageId) {
-            Shopware.State.commit('context/setApiLanguageId', languageId);
+            Shopware.Store.get('context').api.languageId = languageId;
             this.getList();
         },
 
@@ -110,30 +113,36 @@ export default {
         },
 
         getCountryColumns() {
-            return [{
-                property: 'name',
-                dataIndex: 'name',
-                inlineEdit: 'string',
-                label: 'sw-settings-country.list.columnName',
-                routerLink: 'sw.settings.country.detail',
-                primary: true,
-            }, {
-                property: 'position',
-                inlineEdit: 'number',
-                label: 'sw-settings-country.list.columnPosition',
-            }, {
-                property: 'iso',
-                inlineEdit: 'string',
-                label: 'sw-settings-country.list.columnIso',
-            }, {
-                property: 'iso3',
-                inlineEdit: 'string',
-                label: 'sw-settings-country.list.columnIso3',
-            }, {
-                property: 'active',
-                inlineEdit: 'string',
-                label: 'sw-settings-country.list.columnActive',
-            }];
+            return [
+                {
+                    property: 'name',
+                    dataIndex: 'name',
+                    inlineEdit: 'string',
+                    label: 'sw-settings-country.list.columnName',
+                    routerLink: 'sw.settings.country.detail',
+                    primary: true,
+                },
+                {
+                    property: 'position',
+                    inlineEdit: 'number',
+                    label: 'sw-settings-country.list.columnPosition',
+                },
+                {
+                    property: 'iso',
+                    inlineEdit: 'string',
+                    label: 'sw-settings-country.list.columnIso',
+                },
+                {
+                    property: 'iso3',
+                    inlineEdit: 'string',
+                    label: 'sw-settings-country.list.columnIso3',
+                },
+                {
+                    property: 'active',
+                    inlineEdit: 'string',
+                    label: 'sw-settings-country.list.columnActive',
+                },
+            ];
         },
     },
 };

@@ -4,6 +4,7 @@ namespace Shopware\Tests\Integration\Core\Framework\App;
 
 use Shopware\Core\Framework\App\AppCollection;
 use Shopware\Core\Framework\App\Lifecycle\AppLifecycle;
+use Shopware\Core\Framework\App\Lifecycle\Parameters\AppInstallParameters;
 use Shopware\Core\Framework\App\Manifest\Manifest;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
@@ -12,7 +13,7 @@ use Shopware\Core\System\CustomField\CustomFieldEntity;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
 /**
- * @deprecated tag:v6.7.0 - reason:becomes-internal - Will be internal in v6.7.0
+ * @internal
  */
 trait CustomFieldTypeTestBehaviour
 {
@@ -23,11 +24,11 @@ trait CustomFieldTypeTestBehaviour
         $manifest = Manifest::createFromXmlFile($manifestPath);
 
         $context = Context::createDefaultContext();
-        $appLifecycle = $this->getContainer()->get(AppLifecycle::class);
-        $appLifecycle->install($manifest, true, $context);
+        $appLifecycle = static::getContainer()->get(AppLifecycle::class);
+        $appLifecycle->install($manifest, new AppInstallParameters(), $context);
 
         /** @var EntityRepository<AppCollection> $appRepository */
-        $appRepository = $this->getContainer()->get('app.repository');
+        $appRepository = static::getContainer()->get('app.repository');
         $criteria = new Criteria();
         $criteria->addAssociation('customFieldSets.customFields');
 

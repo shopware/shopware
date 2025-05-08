@@ -1,18 +1,16 @@
 /*
- * @package inventory
+ * @sw-package inventory
  */
 
 import template from './sw-product-price-form.html.twig';
 import './sw-product-price-form.scss';
 
 const { Mixin } = Shopware;
-const { mapPropertyErrors, mapState, mapGetters } = Shopware.Component.getComponentHelper();
+const { mapPropertyErrors } = Shopware.Component.getComponentHelper();
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default {
     template,
-
-    compatConfig: Shopware.compatConfig,
 
     mixins: [
         Mixin.getByName('placeholder'),
@@ -34,35 +32,64 @@ export default {
     },
 
     computed: {
-        ...mapGetters('swProductDetail', [
-            'isLoading',
-            'defaultPrice',
-            'defaultCurrency',
-            'productTaxRate',
-            'showModeSetting',
-        ]),
+        isLoading() {
+            return Shopware.Store.get('swProductDetail').isLoading;
+        },
 
-        ...mapState('swProductDetail', [
-            'product',
-            'parentProduct',
-            'taxes',
-            'currencies',
-        ]),
+        defaultPrice() {
+            return Shopware.Store.get('swProductDetail').defaultPrice;
+        },
 
-        ...mapPropertyErrors('product', ['taxId', 'price', 'purchasePrices']),
+        defaultCurrency() {
+            return Shopware.Store.get('swProductDetail').defaultCurrency;
+        },
+
+        productTaxRate() {
+            return Shopware.Store.get('swProductDetail').productTaxRate;
+        },
+
+        showModeSetting() {
+            return Shopware.Store.get('swProductDetail').showModeSetting;
+        },
+
+        product() {
+            return Shopware.Store.get('swProductDetail').product;
+        },
+
+        parentProduct() {
+            return Shopware.Store.get('swProductDetail').parentProduct;
+        },
+
+        taxes() {
+            return Shopware.Store.get('swProductDetail').taxes;
+        },
+
+        currencies() {
+            return Shopware.Store.get('swProductDetail').currencies;
+        },
+
+        ...mapPropertyErrors('product', [
+            'taxId',
+            'price',
+            'purchasePrices',
+        ]),
 
         taxRateHelpText() {
             const link = {
                 name: 'sw.settings.tax.index',
             };
 
-            return this.$tc('sw-product.priceForm.taxRateHelpText.label', 0, {
-                link: `<sw-internal-link
+            return this.$tc(
+                'sw-product.priceForm.taxRateHelpText.label',
+                {
+                    link: `<sw-internal-link
                            :router-link=${JSON.stringify(link)}
                            :inline="true">
                            ${this.$tc('sw-product.priceForm.taxRateHelpText.linkText')}
                       </sw-internal-link>`,
-            });
+                },
+                0,
+            );
         },
 
         prices: {
@@ -84,8 +111,8 @@ export default {
             },
 
             set(newValue) {
-                this.product.price = (newValue?.price) || null;
-                this.product.purchasePrices = (newValue?.purchasePrices) || null;
+                this.product.price = newValue?.price || null;
+                this.product.purchasePrices = newValue?.purchasePrices || null;
             },
         },
 
@@ -94,6 +121,16 @@ export default {
                 price: this.product.price || this.parentProduct.price,
                 purchasePrices: this.product.purchasePrices || this.parentProduct.purchasePrices,
             };
+        },
+
+        taxRateOptions() {
+            return this.taxes.map((tax) => {
+                return {
+                    id: tax.id,
+                    value: tax.id,
+                    label: this.getTaxLabel(tax),
+                };
+            });
         },
     },
 
@@ -140,16 +177,6 @@ export default {
             this.product.price = prices;
 
             this.displayMaintainCurrencies = false;
-        },
-
-        /**
-         * @deprecated tag:v6.7.0 - Will be removed without replacement
-         */
-        keymonitor(event) {
-            if (event.key === ',') {
-                const value = event.currentTarget.value;
-                event.currentTarget.value = value.replace(/.$/, '.');
-            }
         },
 
         getTaxLabel(tax) {

@@ -8,20 +8,22 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Customer\CustomerEntity;
 use Shopware\Core\Content\Product\Aggregate\ProductVisibility\ProductVisibilityDefinition;
 use Shopware\Core\Content\Product\Exception\ProductNotFoundException;
+use Shopware\Core\Content\Product\SalesChannel\Review\ProductReviewsWidgetLoadedHook;
 use Shopware\Core\Content\Test\Product\ProductBuilder;
 use Shopware\Core\Defaults;
+use Shopware\Core\DevOps\Environment\EnvironmentHelper;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Script\Debugging\ScriptTraces;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelLifecycleManager;
 use Shopware\Core\Framework\Test\TestCaseBase\SalesChannelApiTestBehaviour;
-use Shopware\Core\Framework\Test\TestDataCollection;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\PlatformRequest;
+use Shopware\Core\SalesChannelRequest;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
+use Shopware\Core\Test\Stub\Framework\IdsCollection;
 use Shopware\Core\Test\TestDefaults;
 use Shopware\Storefront\Controller\ProductController;
 use Shopware\Storefront\Framework\Routing\RequestTransformer;
@@ -44,11 +46,11 @@ class ProductControllerTest extends TestCase
 
     private const TEST_CONTENT = 'Test review content foo bar test';
 
-    private TestDataCollection $ids;
+    private IdsCollection $ids;
 
     protected function setUp(): void
     {
-        $this->ids = new TestDataCollection();
+        $this->ids = new IdsCollection();
 
         $this->createSalesChannel([
             'id' => $this->ids->create('sales-channel'),
@@ -248,32 +250,32 @@ class ProductControllerTest extends TestCase
 
         $crawler->filter('.product-detail-configurator .product-detail-configurator-option-label')
             ->each(static function (Crawler $option) use ($blue, $green, $red, $xl, $l, &$blueFound, &$greenFound, &$redFound, &$xlFound, &$lFound, &$mFound): void {
-                if ($option->text() === 'blue') {
+                if ($option->innerText() === 'blue') {
                     static::assertEquals($blue, $option->matches('.is-combinable'));
                     $blueFound = true;
                 }
 
-                if ($option->text() === 'green') {
+                if ($option->innerText() === 'green') {
                     static::assertEquals($green, $option->matches('.is-combinable'));
                     $greenFound = true;
                 }
 
-                if ($option->text() === 'red') {
+                if ($option->innerText() === 'red') {
                     static::assertEquals($red, $option->matches('.is-combinable'));
                     $redFound = true;
                 }
 
-                if ($option->text() === 'xl') {
+                if ($option->innerText() === 'xl') {
                     static::assertEquals($xl, $option->matches('.is-combinable'));
                     $xlFound = true;
                 }
 
-                if ($option->text() === 'l') {
+                if ($option->innerText() === 'l') {
                     static::assertEquals($l, $option->matches('.is-combinable'));
                     $lFound = true;
                 }
 
-                if ($option->text() === 'm') {
+                if ($option->innerText() === 'm') {
                     $mFound = true;
                 }
             });
@@ -350,7 +352,8 @@ class ProductControllerTest extends TestCase
 
         $traces = static::getContainer()->get(ScriptTraces::class)->getTraces();
 
-        static::assertArrayHasKey('product-reviews-loaded', $traces);
+        static::assertArrayHasKey(ProductReviewsWidgetLoadedHook::HOOK_NAME, $traces);
+
         $content = $response->getContent();
         static::assertIsString($content);
         static::assertStringContainsString('<p class="product-detail-review-item-content" itemprop="description" lang="en-GB">', $content);
@@ -359,11 +362,14 @@ class ProductControllerTest extends TestCase
 
     private function createDetailRequest(SalesChannelContext $context, string $productId): Request
     {
-        $request = new Request();
-        $request->attributes->set(RequestTransformer::STOREFRONT_URL, $_SERVER['APP_URL']);
-        $request->attributes->set(PlatformRequest::ATTRIBUTE_SALES_CHANNEL_CONTEXT_OBJECT, $context);
-        $request->attributes->set(PlatformRequest::ATTRIBUTE_SALES_CHANNEL_ID, $context->getSalesChannelId());
-        $request->attributes->set('productId', $productId);
+        $request = Request::create((string) EnvironmentHelper::getVariable('APP_URL'));
+        $request->attributes->add([
+            RequestTransformer::STOREFRONT_URL => $_SERVER['APP_URL'],
+            PlatformRequest::ATTRIBUTE_SALES_CHANNEL_CONTEXT_OBJECT => $context,
+            PlatformRequest::ATTRIBUTE_SALES_CHANNEL_ID => $context->getSalesChannelId(),
+            'productId' => $productId,
+            SalesChannelRequest::ATTRIBUTE_IS_SALES_CHANNEL_REQUEST => true,
+        ]);
 
         static::getContainer()->get('request_stack')->push($request);
 
@@ -436,10 +442,6 @@ class ProductControllerTest extends TestCase
             'salutationId' => $this->getValidSalutationId(),
             'customerNumber' => '12345',
         ];
-
-        if (!Feature::isActive('v6.7.0.0')) {
-            $customer['defaultPaymentMethodId'] = $this->getValidPaymentMethodId();
-        }
 
         $repo = static::getContainer()->get('customer.repository');
 

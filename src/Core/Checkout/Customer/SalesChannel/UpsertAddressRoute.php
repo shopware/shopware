@@ -2,8 +2,8 @@
 
 namespace Shopware\Core\Checkout\Customer\SalesChannel;
 
+use Shopware\Core\Checkout\Customer\Aggregate\CustomerAddress\CustomerAddressCollection;
 use Shopware\Core\Checkout\Customer\Aggregate\CustomerAddress\CustomerAddressDefinition;
-use Shopware\Core\Checkout\Customer\Aggregate\CustomerAddress\CustomerAddressEntity;
 use Shopware\Core\Checkout\Customer\CustomerEntity;
 use Shopware\Core\Checkout\Customer\CustomerEvents;
 use Shopware\Core\Checkout\Customer\Validation\Constraint\CustomerZipCode;
@@ -22,6 +22,7 @@ use Shopware\Core\Framework\Validation\DataValidationFactoryInterface;
 use Shopware\Core\Framework\Validation\DataValidator;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\System\SalesChannel\StoreApiCustomFieldMapper;
+use Shopware\Core\System\Salutation\SalutationCollection;
 use Shopware\Core\System\Salutation\SalutationDefinition;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Symfony\Component\Routing\Attribute\Route;
@@ -35,15 +36,13 @@ class UpsertAddressRoute extends AbstractUpsertAddressRoute
     use CustomerAddressValidationTrait;
 
     /**
-     * @var EntityRepository
-     */
-    private $addressRepository;
-
-    /**
      * @internal
+     *
+     * @param EntityRepository<CustomerAddressCollection> $addressRepository
+     * @param EntityRepository<SalutationCollection> $salutationRepository
      */
     public function __construct(
-        EntityRepository $addressRepository,
+        private readonly EntityRepository $addressRepository,
         private readonly DataValidator $validator,
         private readonly EventDispatcherInterface $eventDispatcher,
         private readonly DataValidationFactoryInterface $addressValidationFactory,
@@ -51,7 +50,6 @@ class UpsertAddressRoute extends AbstractUpsertAddressRoute
         private readonly StoreApiCustomFieldMapper $storeApiCustomFieldMapper,
         private readonly EntityRepository $salutationRepository,
     ) {
-        $this->addressRepository = $addressRepository;
     }
 
     public function getDecorated(): AbstractUpsertAddressRoute
@@ -59,8 +57,18 @@ class UpsertAddressRoute extends AbstractUpsertAddressRoute
         throw new DecorationPatternException(self::class);
     }
 
-    #[Route(path: '/store-api/account/address', name: 'store-api.account.address.create', methods: ['POST'], defaults: ['addressId' => null, '_loginRequired' => true, '_loginRequiredAllowGuest' => true])]
-    #[Route(path: '/store-api/account/address/{addressId}', name: 'store-api.account.address.update', methods: ['PATCH'], defaults: ['_loginRequired' => true, '_loginRequiredAllowGuest' => true])]
+    #[Route(
+        path: '/store-api/account/address',
+        name: 'store-api.account.address.create',
+        defaults: ['addressId' => null, '_loginRequired' => true, '_loginRequiredAllowGuest' => true],
+        methods: ['POST']
+    )]
+    #[Route(
+        path: '/store-api/account/address/{addressId}',
+        name: 'store-api.account.address.update',
+        defaults: ['_loginRequired' => true, '_loginRequiredAllowGuest' => true],
+        methods: ['PATCH']
+    )]
     public function upsert(?string $addressId, RequestDataBag $data, SalesChannelContext $context, CustomerEntity $customer): UpsertAddressRouteResponse
     {
         if (!$addressId) {
@@ -112,10 +120,8 @@ class UpsertAddressRoute extends AbstractUpsertAddressRoute
 
         $this->addressRepository->upsert([$addressData], $context->getContext());
 
-        $criteria = new Criteria([$addressId]);
-
-        /** @var CustomerAddressEntity $address */
-        $address = $this->addressRepository->search($criteria, $context->getContext())->first();
+        $address = $this->addressRepository->search(new Criteria([$addressId]), $context->getContext())->getEntities()->first();
+        \assert($address !== null);
 
         return new UpsertAddressRouteResponse($address);
     }
@@ -142,11 +148,9 @@ class UpsertAddressRoute extends AbstractUpsertAddressRoute
 
     private function getDefaultSalutationId(SalesChannelContext $context): ?string
     {
-        $criteria = new Criteria();
-        $criteria->setLimit(1);
-        $criteria->addFilter(
-            new EqualsFilter('salutationKey', SalutationDefinition::NOT_SPECIFIED)
-        );
+        $criteria = (new Criteria())
+            ->setLimit(1)
+            ->addFilter(new EqualsFilter('salutationKey', SalutationDefinition::NOT_SPECIFIED));
 
         /** @var array<string> $ids */
         $ids = $this->salutationRepository->searchIds($criteria, $context->getContext())->getIds();

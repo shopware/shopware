@@ -1,7 +1,7 @@
 import { mount } from '@vue/test-utils';
 
 /**
- * @package customer-order
+ * @sw-package checkout
  */
 const orderFixture = {
     id: '2720b2fa-2ddc-479b-8c93-864fc8978f77',
@@ -38,8 +38,8 @@ const orderFixture = {
     ],
 };
 
-const manualPromotions = orderFixture.lineItems.filter(item => item.type === 'promotion' && item.referencedId !== null);
-const automaticPromotions = orderFixture.lineItems.filter(item => item.type === 'promotion' && item.referencedId === null);
+const manualPromotions = orderFixture.lineItems.filter((item) => item.type === 'promotion' && item.referencedId !== null);
+const automaticPromotions = orderFixture.lineItems.filter((item) => item.type === 'promotion' && item.referencedId === null);
 
 const successResponseForNotification = {
     data: {
@@ -52,31 +52,8 @@ const successResponseForNotification = {
 };
 
 const createStateMapper = (customOrder = {}) => {
-    if (Shopware.State.list().includes('swOrderDetail')) {
-        Shopware.State.unregisterModule('swOrderDetail');
-    }
-
-    const newModule = {
-        state: {
-            order: {
-                ...orderFixture,
-                ...customOrder,
-            },
-        },
-    };
-
-    Shopware.State.registerModule('swOrderDetail', {
-        ...{
-            namespaced: true,
-            state: {
-                isLoading: false,
-                isSavedSuccessful: false,
-                versionContext: {},
-                order: orderFixture,
-            },
-        },
-        ...newModule,
-    });
+    Shopware.Store.get('swOrderDetail').$reset();
+    Shopware.Store.get('swOrderDetail').order = { ...orderFixture, ...customOrder };
 };
 
 async function createWrapper(privileges = []) {
@@ -95,14 +72,17 @@ async function createWrapper(privileges = []) {
         global: {
             stubs: {
                 'sw-order-promotion-tag-field': true,
-                'sw-switch-field': true,
+                'sw-modal': {
+                    emits: ['modal-close'],
+                    template: `<div class="sw-modal__content"><slot /></div>`,
+                },
             },
             provide: {
                 repositoryFactory: {
                     create: () => ({
                         delete: (promotionId) => {
                             createStateMapper({
-                                lineItems: orderFixture.lineItems.filter(item => promotionId !== item.id),
+                                lineItems: orderFixture.lineItems.filter((item) => promotionId !== item.id),
                             });
 
                             return Promise.resolve(successResponseForNotification);
@@ -130,10 +110,27 @@ async function createWrapper(privileges = []) {
 
                         return Promise.resolve(successResponseForNotification);
                     },
+                    applyAutomaticPromotions: () => {
+                        createStateMapper({
+                            lineItems: [
+                                ...orderFixture.lineItems,
+                                {
+                                    id: 'auto-applied-promotion',
+                                    type: 'promotion',
+                                    referencedId: null,
+                                    payload: { code: '' },
+                                },
+                            ],
+                        });
+
+                        return Promise.resolve(successResponseForNotification);
+                    },
                 },
                 acl: {
                     can: (identifier) => {
-                        if (!identifier) { return true; }
+                        if (!identifier) {
+                            return true;
+                        }
 
                         return privileges.includes(identifier);
                     },
@@ -155,6 +152,9 @@ describe('src/module/sw-order/component/sw-order-promotion-field', () => {
         expect(wrapper.vm.manualPromotions).toStrictEqual(manualPromotions);
     });
 
+    /**
+     * @deprecated tag:v6.8.0 - Will be removed.
+     */
     it('should filter automatic Promotions', async () => {
         createStateMapper();
         const wrapper = await createWrapper();
@@ -163,6 +163,9 @@ describe('src/module/sw-order/component/sw-order-promotion-field', () => {
         expect(wrapper.vm.hasAutomaticPromotions).toBeTruthy();
     });
 
+    /**
+     * @deprecated tag:v6.8.0 - Will be removed.
+     */
     it('should disable automatic promotion on toggle with saved changes', async () => {
         createStateMapper();
 
@@ -180,6 +183,9 @@ describe('src/module/sw-order/component/sw-order-promotion-field', () => {
         expect(wrapper.emitted('reload-entity-data')).toBeTruthy();
     });
 
+    /**
+     * @deprecated tag:v6.8.0 - Will be removed.
+     */
     it('should skip disable automatic promotion on toggle with unsaved changes', async () => {
         createStateMapper();
 
@@ -204,62 +210,57 @@ describe('src/module/sw-order/component/sw-order-promotion-field', () => {
         expect(wrapper.emitted('error')).toBeUndefined();
     });
 
-    it('should skip adding promotion code with unsaved changes', async () => {
+    it('should save versioned order before adding promotion code', async () => {
         createStateMapper();
 
         const wrapper = await createWrapper();
-        await wrapper.setData({
-            hasOrderUnsavedChanges: true,
-        });
+        wrapper.vm.swOrderDetailOnSaveAndReload = jest.fn();
 
-        wrapper.vm.onSubmitCode('Redeem675');
-
+        await wrapper.vm.onSubmitCode('Redeem675');
         await flushPromises();
 
-        expect(wrapper.vm.promotionCodeTags).toEqual([{ code: 'Redeem3456' }, { code: 'Redeem23' }]);
-        expect(wrapper.emitted('reload-entity-data')).toBeFalsy();
+        expect(wrapper.vm.swOrderDetailOnSaveAndReload).toHaveBeenCalledTimes(1);
+        expect(wrapper.vm.promotionCodeTags).toEqual([
+            { code: 'Redeem3456' },
+            { code: 'Redeem23' },
+            { code: 'Redeem675' },
+        ]);
+        expect(wrapper.emitted('reload-entity-data')).toBeTruthy();
         expect(wrapper.emitted('error')).toBeUndefined();
     });
 
-    it('should adding promotion code with saved changes', async () => {
+    it('should save versioned order before applying automatic promotion code', async () => {
         createStateMapper();
+
         const wrapper = await createWrapper();
-        await wrapper.setData({
-            hasOrderUnsavedChanges: false,
-        });
-        wrapper.vm.onSubmitCode('Redeem675');
+        wrapper.vm.swOrderDetailOnSaveAndReload = jest.fn();
+
+        await wrapper.vm.applyAutomaticPromotions();
         await flushPromises();
 
-        expect(wrapper.vm.promotionCodeTags).toEqual([{ code: 'Redeem3456' }, { code: 'Redeem23' }, { code: 'Redeem675' }]);
+        const autoPromotions = wrapper.vm.order.lineItems
+            .filter((item) => item.type === 'promotion' && item.referencedId === null)
+            .map((item) => item.id);
+
+        expect(wrapper.vm.swOrderDetailOnSaveAndReload).toHaveBeenCalledTimes(1);
+        expect(autoPromotions).toEqual([
+            '05b5decd-072f-437e-84a3-8be5fb5e5fa7',
+            'auto-applied-promotion',
+        ]);
         expect(wrapper.emitted('error')).toBeUndefined();
         expect(wrapper.emitted('reload-entity-data')).toBeTruthy();
     });
 
-    it('should skip remove promotion code with unsaved changes', async () => {
+    it('should save versioned order before removing promotion code', async () => {
         createStateMapper();
 
         const wrapper = await createWrapper();
-        await wrapper.setData({
-            hasOrderUnsavedChanges: true,
-        });
+        wrapper.vm.swOrderDetailOnSaveAndReload = jest.fn();
+
         wrapper.vm.onRemoveExistingCode({ code: 'Redeem3456' });
         await flushPromises();
 
-        expect(wrapper.vm.promotionCodeTags).toEqual([{ code: 'Redeem3456' }, { code: 'Redeem23' }]);
-        expect(wrapper.emitted('error')).toBeUndefined();
-        expect(wrapper.emitted('reload-entity-data')).toBeFalsy();
-    });
-
-    it('should remove promotion code with saved changes', async () => {
-        createStateMapper();
-
-        const wrapper = await createWrapper();
-        await wrapper.setData({
-            hasOrderUnsavedChanges: false,
-        });
-        wrapper.vm.onRemoveExistingCode({ code: 'Redeem3456' });
-        await flushPromises();
-
+        expect(wrapper.vm.swOrderDetailOnSaveAndReload).toHaveBeenCalledTimes(1);
         expect(wrapper.vm.promotionCodeTags).toEqual([{ code: 'Redeem23' }]);
         expect(wrapper.emitted('error')).toBeUndefined();
         expect(wrapper.emitted('reload-entity-data')).toBeTruthy();
@@ -271,7 +272,7 @@ describe('src/module/sw-order/component/sw-order-promotion-field', () => {
         const wrapper = await createWrapper();
 
         expect(wrapper.find('sw-order-promotion-tag-field-stub').attributes('disabled')).toBe(String(true));
-        expect(wrapper.find('sw-switch-field-stub').attributes('disabled')).toBe(String(true));
+        expect(wrapper.findComponent('.mt-button').props('disabled')).toBe(true);
     });
 
     it('should enable the fields with roles', async () => {
@@ -280,6 +281,42 @@ describe('src/module/sw-order/component/sw-order-promotion-field', () => {
         const wrapper = await createWrapper(['order.editor']);
 
         expect(wrapper.find('sw-order-promotion-tag-field-stub').attributes('disabled')).toBeUndefined();
-        expect(wrapper.find('sw-switch-field-stub').attributes('disabled')).toBeUndefined();
+        expect(wrapper.findComponent('.mt-button').props('disabled')).toBeUndefined();
+    });
+
+    it('should open modal on errors', async () => {
+        createStateMapper();
+
+        const wrapper = await createWrapper(['order.editor']);
+
+        expect(wrapper.find('.sw-modal__content').exists()).toBe(false);
+
+        wrapper.vm.promotionUpdates = [
+            {
+                messageKey: 'promotion-discount-deleted',
+                parameters: { name: 'Disabled Auto promo' },
+            },
+            {
+                messageKey: 'promotion-discount-added',
+                parameters: { name: 'New Auto promo' },
+            },
+        ];
+
+        await wrapper.vm.$nextTick();
+
+        expect(wrapper.vm.promotionsRemoved).toEqual([wrapper.vm.promotionUpdates[0]]);
+        expect(wrapper.vm.promotionsAdded).toEqual([wrapper.vm.promotionUpdates[1]]);
+
+        const modal = wrapper.get('.sw-modal__content');
+        expect(modal.text()).toContain('updatesModal.description');
+        expect(modal.text()).toContain('updatesModal.promotionAddedTitle');
+        expect(modal.text()).toContain('updatesModal.promotionRemovedTitle');
+        expect(modal.text()).toContain('Disabled Auto promo');
+        expect(modal.text()).toContain('New Auto promo');
+
+        wrapper.vm.dismissPromotionUpdates();
+        await wrapper.vm.$nextTick();
+
+        expect(wrapper.find('.sw-modal__content').exists()).toBe(false);
     });
 });

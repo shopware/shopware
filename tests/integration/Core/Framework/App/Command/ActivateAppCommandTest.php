@@ -10,7 +10,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
-use Shopware\Tests\Integration\Core\Framework\App\AppSystemTestBehaviour;
+use Shopware\Core\Test\AppSystemTestBehaviour;
 use Symfony\Component\Console\Tester\CommandTester;
 
 /**
@@ -28,7 +28,7 @@ class ActivateAppCommandTest extends TestCase
 
     protected function setUp(): void
     {
-        $this->appRepository = $this->getContainer()->get('app.repository');
+        $this->appRepository = static::getContainer()->get('app.repository');
     }
 
     public function testActivateApp(): void
@@ -36,7 +36,7 @@ class ActivateAppCommandTest extends TestCase
         $this->loadAppsFromDir(__DIR__ . '/_fixtures/withoutPermissions', false);
         $appName = 'withoutPermissions';
 
-        $commandTester = new CommandTester($this->getContainer()->get(ActivateAppCommand::class));
+        $commandTester = new CommandTester(static::getContainer()->get(ActivateAppCommand::class));
 
         $commandTester->execute(['name' => $appName]);
 
@@ -55,7 +55,7 @@ class ActivateAppCommandTest extends TestCase
 
     public function testActivateNonExistingAppFails(): void
     {
-        $commandTester = new CommandTester($this->getContainer()->get(ActivateAppCommand::class));
+        $commandTester = new CommandTester(static::getContainer()->get(ActivateAppCommand::class));
 
         $appName = 'NonExisting';
         $commandTester->execute(['name' => $appName]);

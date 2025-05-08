@@ -4,13 +4,11 @@ import './sw-media-quickinfo-multiple.scss';
 const { Mixin } = Shopware;
 
 /**
- * @package buyers-experience
+ * @sw-package discovery
  */
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default {
     template,
-
-    compatConfig: Shopware.compatConfig,
 
     emits: ['media-item-selection-remove'],
 
@@ -73,15 +71,21 @@ export default {
         },
 
         quickActionClassesDelete(disabled) {
-            return ['sw-media-sidebar__quickaction', {
-                'sw-media-sidebar__quickaction--disabled': disabled,
-            }];
+            return [
+                'sw-media-sidebar__quickaction',
+                {
+                    'sw-media-sidebar__quickaction--disabled': disabled,
+                },
+            ];
         },
 
         quickActionClasses(disabled) {
-            return ['sw-media-sidebar__quickaction', {
-                'sw-media-sidebar__quickaction--disabled': disabled,
-            }];
+            return [
+                'sw-media-sidebar__quickaction',
+                {
+                    'sw-media-sidebar__quickaction--disabled': disabled,
+                },
+            ];
         },
     },
 };

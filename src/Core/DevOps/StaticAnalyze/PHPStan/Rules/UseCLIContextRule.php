@@ -18,11 +18,11 @@ use Symfony\Component\Console\Command\Command;
  *
  * @internal
  */
-#[Package('core')]
+#[Package('framework')]
 class UseCLIContextRule implements Rule
 {
     /**
-     * @var array<class-string>
+     * @var list<class-string>
      */
     private array $baseClasses = [
         Command::class,
@@ -50,10 +50,10 @@ class UseCLIContextRule implements Rule
         }
 
         foreach ($this->baseClasses as $baseClass) {
-            if ($classReflection->isSubclassOf($baseClass)) {
+            if ($classReflection->is($baseClass)) {
                 return [
                     RuleErrorBuilder::message('Method Context::createDefaultContext() should not be used in CLI context. Use Context::createCLIContext() instead.')
-                        ->line($node->getLine())
+                        ->line($node->getStartLine())
                         ->identifier('shopware.cliContext')
                         ->build(),
                 ];

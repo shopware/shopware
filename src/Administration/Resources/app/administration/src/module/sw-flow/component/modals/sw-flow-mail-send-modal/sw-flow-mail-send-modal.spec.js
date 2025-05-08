@@ -1,8 +1,8 @@
 import { mount } from '@vue/test-utils';
-import flowState from 'src/module/sw-flow/state/flow.state';
+import { createPinia } from 'pinia';
 
 /**
- * @package services-settings
+ * @sw-package after-sales
  */
 
 const recipientEmailInputClass = '.sw-flow-mail-send-modal__recipient-email #sw-field--item-email';
@@ -66,9 +66,12 @@ function mockMailTemplateData() {
     ];
 }
 
+const pinia = createPinia();
+
 async function createWrapper(sequence = {}) {
     return mount(await wrapTestComponent('sw-flow-mail-send-modal', { sync: true }), {
         global: {
+            plugins: [pinia],
             stubs: {
                 'sw-modal': {
                     template: `
@@ -79,11 +82,6 @@ async function createWrapper(sequence = {}) {
                     </div>
                 `,
                 },
-                'sw-button': {
-                    emits: ['click'],
-                    template: '<button @click="$emit(\'click\', $event)"><slot></slot></button>',
-                },
-                'sw-alert': true,
                 'sw-entity-multi-id-select': true,
                 'sw-entity-single-select': await wrapTestComponent('sw-entity-single-select'),
                 'sw-single-select': await wrapTestComponent('sw-single-select'),
@@ -91,19 +89,23 @@ async function createWrapper(sequence = {}) {
                 'sw-block-field': await wrapTestComponent('sw-block-field'),
                 'sw-base-field': await wrapTestComponent('sw-base-field'),
                 'sw-select-result-list': await wrapTestComponent('sw-select-result-list'),
-                'sw-data-grid': await wrapTestComponent('sw-data-grid', { sync: true }),
+                'sw-data-grid': await wrapTestComponent('sw-data-grid', {
+                    sync: true,
+                }),
                 'sw-text-field': await wrapTestComponent('sw-text-field'),
                 'sw-text-field-deprecated': await wrapTestComponent('sw-text-field-deprecated', { sync: true }),
                 'sw-contextual-field': await wrapTestComponent('sw-contextual-field'),
                 'sw-help-text': true,
-                'sw-icon': true,
                 'sw-field-error': {
                     props: ['error'],
                     template: '<div class="sw-field__error"></div>',
                 },
                 'sw-highlight-text': true,
                 'sw-select-result': {
-                    props: ['item', 'index'],
+                    props: [
+                        'item',
+                        'index',
+                    ],
                     template: `
                         <li class="sw-select-result" @click.stop="onClickResult">
                             <slot></slot>
@@ -136,6 +138,7 @@ async function createWrapper(sequence = {}) {
                 'sw-data-grid-inline-edit': true,
                 'sw-data-grid-skeleton': true,
                 'sw-field-copyable': true,
+                'sw-provide': { template: '<slot/>', inheritAttrs: false },
             },
             provide: {
                 repositoryFactory: {
@@ -157,12 +160,6 @@ async function createWrapper(sequence = {}) {
 }
 
 describe('module/sw-flow/component/sw-flow-mail-send-modal', () => {
-    beforeAll(() => {
-        Shopware.State.registerModule('swFlowState', {
-            ...flowState,
-        });
-    });
-
     it('should show and remove error on email template field if value is valid', async () => {
         const wrapper = await createWrapper();
         await flushPromises();
@@ -321,7 +318,7 @@ describe('module/sw-flow/component/sw-flow-mail-send-modal', () => {
         await wrapper.find('.sw-flow-mail-send-modal__save-button').trigger('click');
         await flushPromises();
 
-        recipientFieldsClasses.forEach(elementClass => {
+        recipientFieldsClasses.forEach((elementClass) => {
             expect(wrapper.find(elementClass).classes()).toContain('has--error');
         });
     });
@@ -357,8 +354,7 @@ describe('module/sw-flow/component/sw-flow-mail-send-modal', () => {
         expect(row1.find('.sw-data-grid__cell--email').text()).toContain('test@example.com');
         expect(row1.find('.sw-data-grid__cell--name').text()).toContain('John Doe');
 
-        await row1.find('.sw-flow-mail-send-modal__grid-action-delete')
-            .trigger('click');
+        await row1.find('.sw-flow-mail-send-modal__grid-action-delete').trigger('click');
         await flushPromises();
 
         recipientRows = wrapper.findAll('.sw-data-grid__body .sw-data-grid__row');
@@ -370,7 +366,7 @@ describe('module/sw-flow/component/sw-flow-mail-send-modal', () => {
     });
 
     it('should show customer recipient when entity available', async () => {
-        Shopware.State.commit('swFlowState/setTriggerEvent', {
+        Shopware.Store.get('swFlow').triggerEvent = {
             data: {
                 customer: '',
                 order: '',
@@ -383,7 +379,7 @@ describe('module/sw-flow/component/sw-flow-mail-send-modal', () => {
                 'Shopware\\Core\\Framework\\Event\\CustomerAware',
                 'Shopware\\Core\\Framework\\Event\\MailAware',
             ],
-        });
+        };
 
         const wrapper = await createWrapper();
         await flushPromises();
@@ -401,7 +397,7 @@ describe('module/sw-flow/component/sw-flow-mail-send-modal', () => {
     });
 
     it('should show standard recipient for contact form', async () => {
-        Shopware.State.commit('swFlowState/setTriggerEvent', {
+        Shopware.Store.get('swFlow').triggerEvent = {
             data: {
                 customer: '',
                 order: '',
@@ -413,7 +409,7 @@ describe('module/sw-flow/component/sw-flow-mail-send-modal', () => {
             aware: [
                 'Shopware\\Core\\Framework\\Event\\MailAware',
             ],
-        });
+        };
 
         const wrapper = await createWrapper();
         await flushPromises();
@@ -433,7 +429,7 @@ describe('module/sw-flow/component/sw-flow-mail-send-modal', () => {
     });
 
     it('should not show standard recipient when entity not available', async () => {
-        Shopware.State.commit('swFlowState/setTriggerEvent', {
+        Shopware.Store.get('swFlow').triggerEvent = {
             data: {
                 customer: '',
                 order: '',
@@ -445,7 +441,7 @@ describe('module/sw-flow/component/sw-flow-mail-send-modal', () => {
             aware: [
                 'Shopware\\Core\\Framework\\Event\\MailAware',
             ],
-        });
+        };
 
         const wrapper = await createWrapper();
         await flushPromises();
@@ -463,7 +459,7 @@ describe('module/sw-flow/component/sw-flow-mail-send-modal', () => {
     });
 
     it('should show default recipient with newsletter recipient confirm', async () => {
-        Shopware.State.commit('swFlowState/setTriggerEvent', {
+        Shopware.Store.get('swFlow').triggerEvent = {
             data: {},
             customerAware: true,
             extensions: [],
@@ -472,7 +468,7 @@ describe('module/sw-flow/component/sw-flow-mail-send-modal', () => {
             aware: [
                 'Shopware\\Core\\Framework\\Event\\MailAware',
             ],
-        });
+        };
 
         const wrapper = await createWrapper();
         await flushPromises();
@@ -490,7 +486,7 @@ describe('module/sw-flow/component/sw-flow-mail-send-modal', () => {
     });
 
     it('should show default recipient with newsletter recipient register', async () => {
-        Shopware.State.commit('swFlowState/setTriggerEvent', {
+        Shopware.Store.get('swFlow').triggerEvent = {
             data: {},
             customerAware: true,
             extensions: [],
@@ -499,7 +495,7 @@ describe('module/sw-flow/component/sw-flow-mail-send-modal', () => {
             aware: [
                 'Shopware\\Core\\Framework\\Event\\MailAware',
             ],
-        });
+        };
 
         const wrapper = await createWrapper();
         await flushPromises();
@@ -517,7 +513,7 @@ describe('module/sw-flow/component/sw-flow-mail-send-modal', () => {
     });
 
     it('should show default recipient with newsletter recipient unsubscribe', async () => {
-        Shopware.State.commit('swFlowState/setTriggerEvent', {
+        Shopware.Store.get('swFlow').triggerEvent = {
             data: {},
             customerAware: true,
             extensions: [],
@@ -526,7 +522,7 @@ describe('module/sw-flow/component/sw-flow-mail-send-modal', () => {
             aware: [
                 'Shopware\\Core\\Framework\\Event\\MailAware',
             ],
-        });
+        };
 
         const wrapper = await createWrapper();
         await flushPromises();
@@ -544,7 +540,10 @@ describe('module/sw-flow/component/sw-flow-mail-send-modal', () => {
     });
 
     it('should validate reply to field', async () => {
-        const sequence = { ...sequenceFixture, ...{ config: { replyTo: 'test@example.com' } } };
+        const sequence = {
+            ...sequenceFixture,
+            ...{ config: { replyTo: 'test@example.com' } },
+        };
         const wrapper = await createWrapper(sequence);
         await flushPromises();
 
@@ -573,9 +572,9 @@ describe('module/sw-flow/component/sw-flow-mail-send-modal', () => {
     });
 
     it('should validate reply to field with contact form trigger', async () => {
-        Shopware.State.commit('swFlowState/setTriggerEvent', {
+        Shopware.Store.get('swFlow').triggerEvent = {
             name: 'contact_form.send',
-        });
+        };
 
         const wrapper = await createWrapper();
         await wrapper.setData({
@@ -621,7 +620,9 @@ describe('module/sw-flow/component/sw-flow-mail-send-modal', () => {
         };
         wrapper.vm.buildReplyToTooltip('foo');
 
-        expect(wrapper.vm.$tc).toHaveBeenCalledWith('foo', 0, { settingsLink: 'bar' });
+        expect(wrapper.vm.$tc).toHaveBeenCalledWith('foo', 0, {
+            settingsLink: 'bar',
+        });
     });
 
     it('should be able to close modal', async () => {

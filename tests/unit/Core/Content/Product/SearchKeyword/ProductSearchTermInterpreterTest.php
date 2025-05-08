@@ -57,7 +57,7 @@ class ProductSearchTermInterpreterTest extends TestCase
         $term = 'foo-äöüß-مرحب-bar';
         $keywordLoader = static::createMock(KeywordLoader::class);
 
-        $keywordLoader->expects(static::once())->method('fetch')
+        $keywordLoader->expects($this->once())->method('fetch')
             ->with(static::callback(function ($tokenSlops) use ($term) {
                 $tokens = [
                     ...$tokenSlops[$term]['reversed'],
@@ -89,7 +89,7 @@ class ProductSearchTermInterpreterTest extends TestCase
     {
         $term = 'Aerodynamic Aluminum Chambermaid Placemats';
         $keywordLoader = static::createMock(KeywordLoader::class);
-        $keywordLoader->expects(static::once())->method('fetch')
+        $keywordLoader->expects($this->once())->method('fetch')
             ->willReturnCallback(function ($tokenSlops) {
                 return [
                     ['aerodynamic', '1', '0', '0', '0'],

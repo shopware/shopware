@@ -17,12 +17,12 @@ use Shopware\Elasticsearch\Product\SearchConfigLoader;
 /**
  * @internal
  */
-#[Package('core')]
+#[Package('framework')]
 #[CoversClass(SearchConfigLoader::class)]
 class SearchConfigLoaderTest extends TestCase
 {
     /**
-     * @param array<string, array<array{and_logic: string, field: string, tokenize: int, ranking: float}>> $configKeyedByLanguageId
+     * @param array<non-falsy-string, array<array{and_logic: string, field: string, tokenize: int, ranking: float}>> $configKeyedByLanguageId
      * @param array<array{and_logic: string, field: string, tokenize: int, ranking: float}> $expectedResult
      */
     #[DataProvider('loadDataProvider')]
@@ -30,17 +30,20 @@ class SearchConfigLoaderTest extends TestCase
     {
         $connection = $this->createMock(Connection::class);
 
-        $connection->expects(static::once())
+        $connection->expects($this->once())
             ->method('fetchAllAssociative')
             ->willReturn($configKeyedByLanguageId[array_key_first($configKeyedByLanguageId)]);
 
         $loader = new SearchConfigLoader($connection);
 
+        $languageIdChain = array_values(array_filter(array_keys($configKeyedByLanguageId)));
+        static::assertNotEmpty($languageIdChain);
+
         $context = new Context(
             new SystemSource(),
             [],
             Defaults::CURRENCY,
-            array_filter(array_keys($configKeyedByLanguageId)),
+            $languageIdChain,
         );
 
         $result = $loader->load($context);
@@ -54,7 +57,7 @@ class SearchConfigLoaderTest extends TestCase
         static::expectExceptionMessage('Configuration for product elasticsearch definition not found');
 
         $connection = $this->createMock(Connection::class);
-        $connection->expects(static::once())
+        $connection->expects($this->once())
             ->method('fetchAllAssociative')
             ->willReturn([]);
 

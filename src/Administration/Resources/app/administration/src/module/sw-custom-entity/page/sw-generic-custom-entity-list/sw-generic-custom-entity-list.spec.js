@@ -2,119 +2,124 @@ import { mount } from '@vue/test-utils';
 
 const testEntityName = 'custom_test_entity';
 
-const testEntityData = [{
-    id: 'some-id',
-    title: 'some-title',
-    description: 'some-description',
-    position: 10,
-}];
+const testEntityData = [
+    {
+        id: 'some-id',
+        title: 'some-title',
+        description: 'some-description',
+        position: 10,
+    },
+];
 
 testEntityData.total = 1;
 
 async function createWrapper(query = {}) {
-    return mount(await wrapTestComponent('sw-generic-custom-entity-list', { sync: true }), {
-        global: {
-            provide: {
-                customEntityDefinitionService: {
-                    getDefinitionByName() {
-                        return {
-                            entity: testEntityName,
-                            properties: {},
-                            flags: {
-                                'admin-ui': {
-                                    color: 'some-hex-color',
-                                    listing: {
-                                        columns: [{
-                                            ref: 'title',
-                                        }, {
-                                            ref: 'description',
-                                            hidden: true,
-                                        }, {
-                                            ref: 'position',
-                                        }],
+    return mount(
+        await wrapTestComponent('sw-generic-custom-entity-list', {
+            sync: true,
+        }),
+        {
+            global: {
+                provide: {
+                    customEntityDefinitionService: {
+                        getDefinitionByName() {
+                            return {
+                                entity: testEntityName,
+                                properties: {},
+                                flags: {
+                                    'admin-ui': {
+                                        color: 'some-hex-color',
+                                        listing: {
+                                            columns: [
+                                                {
+                                                    ref: 'title',
+                                                },
+                                                {
+                                                    ref: 'description',
+                                                    hidden: true,
+                                                },
+                                                {
+                                                    ref: 'position',
+                                                },
+                                            ],
+                                        },
                                     },
                                 },
-                            },
-                        };
-                    },
-                },
-                repositoryFactory: {
-                    create(name) {
-                        if (name === 'custom_test_entity') {
-                            return {
-                                entityName: 'custom_test_entity',
-                                search: jest.fn(criteria => {
-                                    testEntityData.criteria = criteria;
-
-                                    return testEntityData;
-                                }),
                             };
-                        }
-
-                        throw new Error(`Repository for ${name} is not mocked`);
-                    },
-                },
-            },
-            stubs: {
-                'sw-page': {
-                    template: '<div class="sw-page"><slot name="search-bar"/><slot name="smart-bar-header" /><slot name="smart-bar-actions"/><slot name="language-switch" /><slot name="content"/></div>',
-                },
-                'sw-search-bar': {
-                    template: '<div class="sw-search-bar"></div>',
-                    props: [
-                        'initial-search-type',
-                        'initial-search',
-                    ],
-                },
-                'sw-button': {
-                    template: '<div class="sw-button"></div>',
-                    props: [
-                        'router-link',
-                        'variant',
-                    ],
-                },
-                'sw-entity-listing': {
-                    template: '<div class="sw-entity-listing"></div>',
-                    props: [
-                        'repository',
-                        'items',
-                        'allow-inline-edit',
-                        'allow-column-edit',
-                        'columns',
-                        'sort-by',
-                        'sort-direction',
-                        'natural-sorting',
-                        'criteria-limit',
-                        'disable-data-fetching',
-                    ],
-                },
-                'sw-empty-state': {
-                    template: '<div class="sw-empty-state"><slot name="icon"/></div>',
-                    props: ['title'],
-                },
-                'sw-language-switch': {
-                    template: '<div class="sw-language-switch"></div>',
-                },
-            },
-            mocks: {
-                $route: {
-                    params: {
-                        entityName: testEntityName,
-                    },
-                    meta: {
-                        $module: {
-                            icon: null,
                         },
                     },
-                    query,
+                    repositoryFactory: {
+                        create(name) {
+                            if (name === 'custom_test_entity') {
+                                return {
+                                    entityName: 'custom_test_entity',
+                                    search: jest.fn((criteria) => {
+                                        testEntityData.criteria = criteria;
+
+                                        return testEntityData;
+                                    }),
+                                };
+                            }
+
+                            throw new Error(`Repository for ${name} is not mocked`);
+                        },
+                    },
+                },
+                stubs: {
+                    'sw-page': {
+                        template:
+                            '<div class="sw-page"><slot name="search-bar"/><slot name="smart-bar-header" /><slot name="smart-bar-actions"/><slot name="language-switch" /><slot name="content"/></div>',
+                    },
+                    'sw-search-bar': {
+                        template: '<div class="sw-search-bar"></div>',
+                        props: [
+                            'initial-search-type',
+                            'initial-search',
+                        ],
+                    },
+                    'sw-entity-listing': {
+                        template: '<div class="sw-entity-listing"></div>',
+                        props: [
+                            'repository',
+                            'items',
+                            'allow-inline-edit',
+                            'allow-column-edit',
+                            'columns',
+                            'sort-by',
+                            'sort-direction',
+                            'natural-sorting',
+                            'criteria-limit',
+                            'disable-data-fetching',
+                        ],
+                    },
+                    'sw-empty-state': {
+                        template: '<div class="sw-empty-state"><slot name="icon"/></div>',
+                        props: ['title'],
+                    },
+                    'sw-language-switch': {
+                        template: '<div class="sw-language-switch"></div>',
+                    },
+                },
+                mocks: {
+                    $route: {
+                        params: {
+                            entityName: testEntityName,
+                        },
+                        meta: {
+                            $module: {
+                                icon: null,
+                            },
+                        },
+                        query,
+                    },
                 },
             },
         },
-    });
+    );
 }
 
 /**
- * @package content
+ * @sw-package framework
  */
 describe('module/sw-custom-entity/page/sw-generic-custom-entity-list', () => {
     it('should display the empty state when 0 entities are found', async () => {
@@ -134,7 +139,7 @@ describe('module/sw-custom-entity/page/sw-generic-custom-entity-list', () => {
         const imageElement = wrapper.get('.sw-empty-state img');
 
         expect(imageElement.attributes()).toStrictEqual({
-            src: 'administration/static/img/empty-states/custom-entity-empty-state.svg',
+            src: 'administration/administration/static/img/empty-states/custom-entity-empty-state.svg',
             alt: 'custom_test_entity.list.emptyState',
         });
     });
@@ -160,24 +165,26 @@ describe('module/sw-custom-entity/page/sw-generic-custom-entity-list', () => {
         expect(entityListingProps.naturalSorting).toBe(false);
         expect(entityListingProps.criteriaLimit).toBe(25);
 
-        expect(entityListingProps.columns).toStrictEqual([{
-            visible: true,
-            label: 'custom_test_entity.list.title',
-            property: 'title',
-            routerLink: 'sw.custom.entity.detail',
-        },
-        {
-            visible: false,
-            label: 'custom_test_entity.list.description',
-            property: 'description',
-            routerLink: 'sw.custom.entity.detail',
-        },
-        {
-            visible: true,
-            label: 'custom_test_entity.list.position',
-            property: 'position',
-            routerLink: 'sw.custom.entity.detail',
-        }]);
+        expect(entityListingProps.columns).toStrictEqual([
+            {
+                visible: true,
+                label: 'custom_test_entity.list.title',
+                property: 'title',
+                routerLink: 'sw.custom.entity.detail',
+            },
+            {
+                visible: false,
+                label: 'custom_test_entity.list.description',
+                property: 'description',
+                routerLink: 'sw.custom.entity.detail',
+            },
+            {
+                visible: true,
+                label: 'custom_test_entity.list.position',
+                property: 'position',
+                routerLink: 'sw.custom.entity.detail',
+            },
+        ]);
 
         const criteriaData = entityListingProps.items.criteria.getCriteriaData();
         expect(criteriaData).toStrictEqual({
@@ -193,11 +200,13 @@ describe('module/sw-custom-entity/page/sw-generic-custom-entity-list', () => {
             page: 1,
             postFilter: [],
             queries: [],
-            sortings: [{
-                field: 'title',
-                naturalSorting: false,
-                order: 'ASC',
-            }],
+            sortings: [
+                {
+                    field: 'title',
+                    naturalSorting: false,
+                    order: 'ASC',
+                },
+            ],
             term: '',
             title: null,
             totalCountMode: 1,
@@ -215,7 +224,7 @@ describe('module/sw-custom-entity/page/sw-generic-custom-entity-list', () => {
 
         const languageSwitch = wrapper.getComponent('.sw-language-switch');
         languageSwitch.vm.$emit('on-change', testLanguageId);
-        expect(Shopware.State.get('context').api.languageId).toBe(testLanguageId);
+        expect(Shopware.Store.get('context').api.languageId).toBe(testLanguageId);
 
         const searchMock = wrapper.vm.customEntityRepository.search;
         expect(searchMock).toHaveBeenCalledTimes(2);
@@ -265,11 +274,13 @@ describe('module/sw-custom-entity/page/sw-generic-custom-entity-list', () => {
             page: 2,
             postFilter: [],
             queries: [],
-            sortings: [{
-                field: 'position',
-                naturalSorting: false,
-                order: 'ASC',
-            }],
+            sortings: [
+                {
+                    field: 'position',
+                    naturalSorting: false,
+                    order: 'ASC',
+                },
+            ],
             term: 'some-search-term',
             title: null,
             totalCountMode: 1,
@@ -307,7 +318,10 @@ describe('module/sw-custom-entity/page/sw-generic-custom-entity-list', () => {
 
         const entityListing = wrapper.getComponent('.sw-entity-listing');
 
-        entityListing.vm.$emit('column-sort', { dataIndex: 'title', naturalSorting: false });
+        entityListing.vm.$emit('column-sort', {
+            dataIndex: 'title',
+            naturalSorting: false,
+        });
 
         expect(wrapper.vm.$router.replace).toHaveBeenCalledTimes(1);
         expect(wrapper.vm.$router.replace).toHaveBeenCalledWith({
@@ -321,7 +335,10 @@ describe('module/sw-custom-entity/page/sw-generic-custom-entity-list', () => {
             },
         });
 
-        entityListing.vm.$emit('column-sort', { dataIndex: 'position', naturalSorting: false });
+        entityListing.vm.$emit('column-sort', {
+            dataIndex: 'position',
+            naturalSorting: false,
+        });
 
         expect(wrapper.vm.$router.replace).toHaveBeenCalledTimes(2);
         expect(wrapper.vm.$router.replace).toHaveBeenLastCalledWith({
@@ -403,11 +420,13 @@ describe('module/sw-custom-entity/page/sw-generic-custom-entity-list', () => {
             page: 2,
             postFilter: [],
             queries: [],
-            sortings: [{
-                field: 'position',
-                naturalSorting: false,
-                order: 'ASC',
-            }],
+            sortings: [
+                {
+                    field: 'position',
+                    naturalSorting: false,
+                    order: 'ASC',
+                },
+            ],
             term: 'some-search-term',
             title: null,
             totalCountMode: 1,

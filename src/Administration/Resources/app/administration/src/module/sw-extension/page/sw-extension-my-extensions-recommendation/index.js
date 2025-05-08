@@ -1,13 +1,11 @@
 import template from './sw-extension-store-recommendation.html.twig';
 
 /**
- * @package checkout
+ * @sw-package checkout
  * @private
  */
 export default {
     template,
-
-    compatConfig: Shopware.compatConfig,
 
     data() {
         return {

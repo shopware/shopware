@@ -13,14 +13,14 @@ use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
 /**
  * @internal
  */
-#[Package('services-settings')]
+#[Package('fundamentals@after-sales')]
 class CriteriaBuilderTest extends TestCase
 {
     use KernelTestBehaviour;
 
     public function testNoAssociations(): void
     {
-        $criteriaBuild = new CriteriaBuilder($this->getContainer()->get(ProductDefinition::class));
+        $criteriaBuild = new CriteriaBuilder(static::getContainer()->get(ProductDefinition::class));
 
         $criteria = new Criteria();
         $config = new Config(
@@ -37,7 +37,7 @@ class CriteriaBuilderTest extends TestCase
 
     public function testAssociations(): void
     {
-        $criteriaBuild = new CriteriaBuilder($this->getContainer()->get(ProductDefinition::class));
+        $criteriaBuild = new CriteriaBuilder(static::getContainer()->get(ProductDefinition::class));
 
         $criteria = new Criteria();
         $config = new Config(
@@ -56,18 +56,13 @@ class CriteriaBuilderTest extends TestCase
         static::assertNotEmpty($associations);
 
         static::assertArrayHasKey('translations', $associations);
-        static::assertInstanceOf(Criteria::class, $associations['translations']);
-
         static::assertArrayHasKey('visibilities', $associations);
-        static::assertInstanceOf(Criteria::class, $associations['visibilities']);
 
         static::assertArrayHasKey('manufacturer', $associations);
-        static::assertInstanceOf(Criteria::class, $associations['manufacturer']);
-
         $manufacturerAssociations = $associations['manufacturer']->getAssociations();
         static::assertArrayHasKey('media', $manufacturerAssociations);
-        static::assertInstanceOf(Criteria::class, $manufacturerAssociations['media']);
 
+        static::assertInstanceOf(Criteria::class, $manufacturerAssociations['media']);
         $manufacturerMediaAssociations = $manufacturerAssociations['media']->getAssociations();
         static::assertArrayHasKey('translations', $manufacturerMediaAssociations);
         static::assertInstanceOf(Criteria::class, $manufacturerMediaAssociations['translations']);

@@ -65,6 +65,11 @@ $sw-field--radio-color-border: $color-gray-300;
             cursor: pointer;
             z-index: 2;
 
+            &:focus-visible {
+                outline: revert;
+                opacity: 1;
+            }
+
             &:disabled ~ .sw-field__radio-state {
                 background: $color-gray-100;
                 border-color: $color-gray-300;

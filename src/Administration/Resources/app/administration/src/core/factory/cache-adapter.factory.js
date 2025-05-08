@@ -1,5 +1,5 @@
 /**
- * @package admin
+ * @sw-package framework
  */
 
 // this list contains all URLs which should be cached
@@ -13,6 +13,8 @@ const allowUrlList = [
     '/search/product-search-config',
     '/search/product-search-config-field',
     '/app-system/action-button/product/list',
+    '_action/system-config',
+    '/_action/system-config',
     'app-system/action-button/product/list',
     '/search/currency',
     '/search/order',
@@ -28,6 +30,8 @@ const allowUrlList = [
 const flushCacheUrls = [
     '/user-config',
     'user-config',
+    '_action/system-config/batch',
+    '/_action/system-config/batch',
     '/_action/sync',
     '_action/sync',
     '/product-visibility',
@@ -51,7 +55,10 @@ const requestCacheTimeout = 1500;
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default function cacheAdapterFactory(originalAdapter, requestCaches = {}) {
     return (config) => {
-        const requestChangesData = ['delete', 'patch'].includes(config?.method);
+        const requestChangesData = [
+            'delete',
+            'patch',
+        ].includes(config?.method);
         const shouldFlushCache = flushCacheUrls.includes(config?.url);
 
         // remove all caches when something gets changed

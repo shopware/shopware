@@ -1,16 +1,17 @@
 import template from './sw-order-create-details-body.html.twig';
 
 /**
- * @package checkout
+ * @sw-package checkout
  */
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default {
     template,
 
-    compatConfig: Shopware.compatConfig,
-
-    emits: ['on-edit-billing-address', 'on-edit-shipping-address'],
+    emits: [
+        'on-edit-billing-address',
+        'on-edit-shipping-address',
+    ],
 
     props: {
         // eslint-disable-next-line vue/require-default-prop

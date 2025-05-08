@@ -5,7 +5,7 @@ import CUSTOMER from '../../constant/sw-customer.constant';
 import ApiService from '../../../../core/service/api.service';
 
 /**
- * @package checkout
+ * @sw-package checkout
  */
 
 const { Mixin, Defaults } = Shopware;
@@ -15,8 +15,6 @@ const { Criteria } = Shopware.Data;
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default {
     template,
-
-    compatConfig: Shopware.compatConfig,
 
     inject: [
         'acl',
@@ -82,30 +80,39 @@ export default {
                 company: this.customer.company,
             };
 
-            return Object.values(name).filter(item => item !== null).join(' - ').trim();
+            return Object.values(name)
+                .filter((item) => item !== null)
+                .join(' - ')
+                .trim();
         },
 
         salutationCriteria() {
             const criteria = new Criteria(1, 25);
 
-            criteria.addFilter(Criteria.not('or', [
-                Criteria.equals('id', Defaults.defaultSalutationId),
-            ]));
+            criteria.addFilter(
+                Criteria.not('or', [
+                    Criteria.equals('id', Defaults.defaultSalutationId),
+                ]),
+            );
 
             return criteria;
         },
 
-        ...mapPropertyErrors(
-            'customer',
-            [...errorConfig['sw.customer.detail.base'].customer],
-        ),
+        ...mapPropertyErrors('customer', [
+            ...errorConfig['sw.customer.detail.base'].customer,
+        ]),
 
         accountTypeOptions() {
-            return [{
-                value: CUSTOMER.ACCOUNT_TYPE_PRIVATE, label: this.$tc('sw-customer.customerType.labelPrivate'),
-            }, {
-                value: CUSTOMER.ACCOUNT_TYPE_BUSINESS, label: this.$tc('sw-customer.customerType.labelBusiness'),
-            }];
+            return [
+                {
+                    value: CUSTOMER.ACCOUNT_TYPE_PRIVATE,
+                    label: this.$tc('sw-customer.customerType.labelPrivate'),
+                },
+                {
+                    value: CUSTOMER.ACCOUNT_TYPE_BUSINESS,
+                    label: this.$tc('sw-customer.customerType.labelBusiness'),
+                },
+            ];
         },
 
         isBusinessAccountType() {
@@ -113,7 +120,19 @@ export default {
         },
 
         canUseCustomerImitation() {
+            if (this.customer.guest) {
+                return false;
+            }
+
+            if (!this.customer.active) {
+                return false;
+            }
+
             if (this.customer.boundSalesChannel) {
+                if (!this.customer.boundSalesChannel.active) {
+                    return false;
+                }
+
                 if (this.customer.boundSalesChannel.typeId !== Defaults.storefrontSalesChannelTypeId) {
                     return false;
                 }
@@ -126,12 +145,38 @@ export default {
             return this.acl.can('api_proxy_imitate-customer');
         },
 
+        customerImitationWarning() {
+            if (this.customer.guest) {
+                return this.$tc('sw-customer.card.tooltipImitateCustomerGuest');
+            }
+
+            if (!this.customer.active) {
+                return this.$tc('sw-customer.card.tooltipImitateCustomerInactive');
+            }
+
+            if (this.customer.boundSalesChannel) {
+                if (!this.customer.boundSalesChannel.active) {
+                    return this.$tc('sw-customer.card.tooltipImitateCustomerInactiveSalesChannel');
+                }
+
+                if (this.customer.boundSalesChannel.typeId !== Defaults.storefrontSalesChannelTypeId) {
+                    return this.$tc('sw-customer.card.tooltipImitateCustomerNoStorefront');
+                }
+
+                if (!this.customer.boundSalesChannel.domains?.length) {
+                    return this.$tc('sw-customer.card.tooltipImitateCustomerNoDomain');
+                }
+            }
+
+            return this.$tc('sw-privileges.tooltip.warning');
+        },
+
         hasSingleBoundSalesChannelUrl() {
             return this.customer.boundSalesChannel?.domains?.length === 1;
         },
 
         currentUser() {
-            return Shopware.State.get('session').currentUser;
+            return Shopware.Store.get('session').currentUser;
         },
 
         emailIdnFilter() {
@@ -145,12 +190,7 @@ export default {
                 return;
             }
 
-            Shopware.State.dispatch(
-                'error/removeApiError',
-                {
-                    expression: `customer.${this.customer.id}.company`,
-                },
-            );
+            Shopware.Store.get('error').removeApiError(`customer.${this.customer.id}.company`);
         },
     },
 
@@ -161,23 +201,23 @@ export default {
 
         async onImitateCustomer() {
             if (this.hasSingleBoundSalesChannelUrl) {
-                this.contextStoreService.generateImitateCustomerToken(
-                    this.customer.id,
-                    this.customer.boundSalesChannel.id,
-                ).then((response) => {
-                    const handledResponse = ApiService.handleResponse(response);
+                this.contextStoreService
+                    .generateImitateCustomerToken(this.customer.id, this.customer.boundSalesChannel.id)
+                    .then((response) => {
+                        const handledResponse = ApiService.handleResponse(response);
 
-                    this.contextStoreService.redirectToSalesChannelUrl(
-                        this.customer.boundSalesChannel.domains.first().url,
-                        handledResponse.token,
-                        this.customer.id,
-                        this.currentUser?.id,
-                    );
-                }).catch(() => {
-                    this.createNotificationError({
-                        message: this.$tc('sw-customer.detail.notificationImitateCustomerErrorMessage'),
+                        this.contextStoreService.redirectToSalesChannelUrl(
+                            this.customer.boundSalesChannel.domains.first().url,
+                            handledResponse.token,
+                            this.customer.id,
+                            this.currentUser?.id,
+                        );
+                    })
+                    .catch(() => {
+                        this.createNotificationError({
+                            message: this.$tc('sw-customer.detail.notificationImitateCustomerErrorMessage'),
+                        });
                     });
-                });
                 return;
             }
 

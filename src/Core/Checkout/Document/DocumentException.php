@@ -2,12 +2,15 @@
 
 namespace Shopware\Core\Checkout\Document;
 
-use Shopware\Core\Checkout\Document\Exception\InvalidDocumentGeneratorTypeException;
+use Shopware\Core\Checkout\Cart\CartException;
+use Shopware\Core\Checkout\Cart\Exception\CustomerNotLoggedInException;
+use Shopware\Core\Checkout\Order\Exception\GuestNotAuthenticatedException;
+use Shopware\Core\Checkout\Order\Exception\WrongGuestCredentialsException;
 use Shopware\Core\Framework\HttpException;
 use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\HttpFoundation\Response;
 
-#[Package('checkout')]
+#[Package('after-sales')]
 class DocumentException extends HttpException
 {
     public const INVALID_DOCUMENT_GENERATOR_TYPE_CODE = 'DOCUMENT__INVALID_GENERATOR_TYPE';
@@ -18,11 +21,21 @@ class DocumentException extends HttpException
 
     public const GENERATION_ERROR = 'DOCUMENT__GENERATION_ERROR';
 
+    public const DOCUMENT_NUMBER_ALREADY_EXISTS = 'DOCUMENT__NUMBER_ALREADY_EXISTS';
+
+    public const DOCUMENT_GENERATION_ERROR = 'DOCUMENT__GENERATION_ERROR';
+
+    public const DOCUMENT_INVALID_RENDERER_TYPE = 'DOCUMENT__INVALID_RENDERER_TYPE';
+
+    public const INVALID_REQUEST_PARAMETER_CODE = 'FRAMEWORK__INVALID_REQUEST_PARAMETER';
+
+    public const FILE_EXTENSION_NOT_SUPPORTED = 'DOCUMENT__FILE_EXTENSION_NOT_SUPPORTED';
+
     public static function invalidDocumentGeneratorType(string $type): self
     {
-        return new InvalidDocumentGeneratorTypeException(
+        return new self(
             Response::HTTP_BAD_REQUEST,
-            DocumentException::INVALID_DOCUMENT_GENERATOR_TYPE_CODE,
+            self::INVALID_DOCUMENT_GENERATOR_TYPE_CODE,
             'Unable to find a document generator with type "{{ type }}"',
             ['type' => $type]
         );
@@ -33,7 +46,7 @@ class DocumentException extends HttpException
         return new self(
             Response::HTTP_NOT_FOUND,
             self::ORDER_NOT_FOUND,
-            'The order with id {{ orderId }} is invalid or could not be found.',
+            'The order with id "{{ orderId }}" is invalid or could not be found.',
             [
                 'orderId' => $orderId,
             ],
@@ -64,6 +77,97 @@ class DocumentException extends HttpException
                 '$message' => $message,
             ],
             $e
+        );
+    }
+
+    public static function customerNotLoggedIn(): CustomerNotLoggedInException
+    {
+        return new CustomerNotLoggedInException(
+            Response::HTTP_FORBIDDEN,
+            CartException::CUSTOMER_NOT_LOGGED_IN_CODE,
+            'Customer is not logged in.'
+        );
+    }
+
+    public static function documentNumberAlreadyExistsException(string $number = ''): self
+    {
+        return new self(
+            Response::HTTP_BAD_REQUEST,
+            self::DOCUMENT_NUMBER_ALREADY_EXISTS,
+            \sprintf('Document number %s has already been allocated.', $number),
+            [
+                '$number' => $number,
+            ],
+        );
+    }
+
+    public static function documentGenerationException(string $message = ''): self
+    {
+        return new self(
+            Response::HTTP_BAD_REQUEST,
+            self::DOCUMENT_GENERATION_ERROR,
+            \sprintf('Unable to generate document. %s', $message),
+            [
+                '$message' => $message,
+            ],
+        );
+    }
+
+    public static function invalidDocumentRenderer(string $type): self
+    {
+        return new self(
+            Response::HTTP_BAD_REQUEST,
+            self::DOCUMENT_INVALID_RENDERER_TYPE,
+            \sprintf('Unable to find a document renderer with type "%s"', $type),
+            [
+                '$type' => $type,
+            ],
+        );
+    }
+
+    public static function invalidRequestParameter(string $name): self
+    {
+        return new self(
+            Response::HTTP_BAD_REQUEST,
+            self::INVALID_REQUEST_PARAMETER_CODE,
+            'The parameter "{{ parameter }}" is invalid.',
+            ['parameter' => $name]
+        );
+    }
+
+    public static function guestNotAuthenticated(): GuestNotAuthenticatedException
+    {
+        return new GuestNotAuthenticatedException();
+    }
+
+    public static function wrongGuestCredentials(): WrongGuestCredentialsException
+    {
+        return new WrongGuestCredentialsException();
+    }
+
+    public static function unsupportedDocumentFileExtension(string $fileExtension): self
+    {
+        return new self(
+            Response::HTTP_BAD_REQUEST,
+            self::FILE_EXTENSION_NOT_SUPPORTED,
+            'File extension not supported: {{ fileExtension }}',
+            ['fileExtension' => $fileExtension]
+        );
+    }
+
+    /**
+     * @param array<string, string[]> $violations
+     */
+    public static function electronicInvoiceViolation(int $count, array $violations): self
+    {
+        return new self(
+            Response::HTTP_BAD_REQUEST,
+            self::GENERATION_ERROR,
+            'Unable to generate document. {{counter}} violation(s) found',
+            [
+                'counter' => $count,
+                'violations' => $violations,
+            ]
         );
     }
 }

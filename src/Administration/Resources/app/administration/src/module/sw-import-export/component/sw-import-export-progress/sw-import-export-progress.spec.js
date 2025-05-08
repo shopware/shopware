@@ -1,5 +1,5 @@
 /**
- * @package services-settings
+ * @sw-package fundamentals@after-sales
  */
 import { mount } from '@vue/test-utils';
 
@@ -7,13 +7,11 @@ describe('module/sw-import-export/components/sw-import-export-progress', () => {
     let wrapper;
 
     beforeEach(async () => {
-        wrapper = mount(await wrapTestComponent('sw-import-export-progress', { sync: true }), {
-            global: {
-                stubs: {
-                    'sw-button': true,
-                },
-            },
-        });
+        wrapper = mount(
+            await wrapTestComponent('sw-import-export-progress', {
+                sync: true,
+            }),
+        );
     });
 
     afterEach(() => {
@@ -27,7 +25,7 @@ describe('module/sw-import-export/components/sw-import-export-progress', () => {
     it('button should not be disabled when disableButton is false', async () => {
         const proccessActionButton = wrapper.find('.sw-import-export-progress__start-process-action');
 
-        expect(proccessActionButton.attributes().disabled).toBeTruthy();
+        expect(proccessActionButton.attributes('disabled')).toBeDefined();
 
         await wrapper.setProps({
             disableButton: false,

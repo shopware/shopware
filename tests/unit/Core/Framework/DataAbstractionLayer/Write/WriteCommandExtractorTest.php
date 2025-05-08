@@ -10,6 +10,14 @@ use Shopware\Core\Framework\Api\Context\ContextSource;
 use Shopware\Core\Framework\Api\Context\SystemSource;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\EntityWriteGateway;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\PrimaryKey;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Required;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\WriteProtected;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\IdField;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\IntField;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\StringField;
+use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Command\WriteCommandQueue;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\EntityWriteGatewayInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\PrimaryKeyBag;
@@ -18,7 +26,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteContext;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteParameterBag;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Framework\Validation\WriteConstraintViolationException;
-use Shopware\Core\Framework\Webhook\WebhookDefinition;
 use Shopware\Core\Test\Stub\DataAbstractionLayer\StaticDefinitionInstanceRegistry;
 use Symfony\Component\Validator\ConstraintViolation;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
@@ -35,17 +42,38 @@ class WriteCommandExtractorTest extends TestCase
     #[DataProvider('writeProtectedFieldsProvider')]
     public function testExceptionForWriteProtectedFields(array $payload, ContextSource $scope, bool $valid): void
     {
+        $definition = new class extends EntityDefinition {
+            final public const ENTITY_NAME = 'webhook';
+
+            public function getEntityName(): string
+            {
+                return self::ENTITY_NAME;
+            }
+
+            public function getDefaults(): array
+            {
+                return [
+                    'errorCount' => 0,
+                ];
+            }
+
+            protected function defineFields(): FieldCollection
+            {
+                return new FieldCollection([
+                    (new IdField('id', 'id'))->addFlags(new PrimaryKey(), new Required()),
+                    (new StringField('name', 'name'))->addFlags(new Required()),
+                    (new IntField('error_count', 'errorCount', 0))->addFlags(new Required(), new WriteProtected(Context::SYSTEM_SCOPE)),
+                ]);
+            }
+        };
+
         $data = [
             'name' => 'My super webhook',
-            'eventName' => 'product.written',
-            'url' => 'http://localhost',
         ];
         $data = \array_replace($data, $payload);
 
         $registry = new StaticDefinitionInstanceRegistry(
-            [
-                WebhookDefinition::class,
-            ],
+            [$definition],
             $this->createMock(ValidatorInterface::class),
             $this->createMock(EntityWriteGatewayInterface::class)
         );
@@ -56,7 +84,7 @@ class WriteCommandExtractorTest extends TestCase
         $context = Context::createDefaultContext($scope);
 
         $parameters = new WriteParameterBag(
-            $registry->get(WebhookDefinition::class),
+            $registry->get($definition::class),
             WriteContext::createFromContext($context),
             '',
             new WriteCommandQueue(),

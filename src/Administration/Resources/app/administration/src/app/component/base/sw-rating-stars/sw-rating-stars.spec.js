@@ -1,5 +1,5 @@
 /**
- * @package admin
+ * @sw-package framework
  */
 
 import { mount } from '@vue/test-utils';
@@ -11,11 +11,6 @@ async function createWrapper(props = {}) {
                 value: 3.5,
             },
             ...props,
-        },
-        global: {
-            stubs: {
-                'sw-icon': true,
-            },
         },
     });
 }
@@ -43,7 +38,11 @@ describe('src/app/component/base/sw-rating-stars', () => {
         expect(wrapper.vm).toBeTruthy();
     });
 
-    const maxStarCases = [5, 3, 8];
+    const maxStarCases = [
+        5,
+        3,
+        8,
+    ];
 
     maxStarCases.forEach((maxStars) => {
         it(`should round render float values per default into full stars (MaxStars = ${maxStars})`, async () => {

@@ -10,15 +10,9 @@ use Shopware\Storefront\Page\Page;
 #[Package('checkout')]
 class AccountLoginPage extends Page
 {
-    /**
-     * @var CountryCollection
-     */
-    protected $countries;
+    protected CountryCollection $countries;
 
-    /**
-     * @var SalutationCollection
-     */
-    protected $salutations;
+    protected SalutationCollection $salutations;
 
     public function getCountries(): CountryCollection
     {

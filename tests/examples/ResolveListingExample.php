@@ -11,13 +11,6 @@ use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
 readonly class ResolveListingExample implements EventSubscriberInterface
 {
-    public static function getSubscribedEvents(): array
-    {
-        return [
-            'listing-loader.resolve.pre' => 'replace',
-        ];
-    }
-
     /**
      * @param EntityRepository<ProductCollection> $repository
      */
@@ -26,6 +19,13 @@ readonly class ResolveListingExample implements EventSubscriberInterface
         private ClientInterface $client,
         private EntityRepository $repository
     ) {
+    }
+
+    public static function getSubscribedEvents(): array
+    {
+        return [
+            'listing-loader.resolve.pre' => 'replace',
+        ];
     }
 
     public function replace(ResolveListingExtension $event): void

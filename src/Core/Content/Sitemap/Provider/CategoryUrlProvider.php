@@ -6,6 +6,7 @@ use Doctrine\DBAL\ArrayParameterType;
 use Doctrine\DBAL\Connection;
 use Shopware\Core\Content\Category\CategoryDefinition;
 use Shopware\Core\Content\Category\CategoryEntity;
+use Shopware\Core\Content\Category\Event\SalesChannelCategoryIdsFetchedEvent;
 use Shopware\Core\Content\Sitemap\Service\ConfigHandler;
 use Shopware\Core\Content\Sitemap\Struct\Url;
 use Shopware\Core\Content\Sitemap\Struct\UrlResult;
@@ -16,9 +17,10 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
+use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\Routing\RouterInterface;
 
-#[Package('services-settings')]
+#[Package('discovery')]
 class CategoryUrlProvider extends AbstractUrlProvider
 {
     final public const CHANGE_FREQ = 'daily';
@@ -31,7 +33,8 @@ class CategoryUrlProvider extends AbstractUrlProvider
         private readonly Connection $connection,
         private readonly CategoryDefinition $definition,
         private readonly IteratorFactory $iteratorFactory,
-        private readonly RouterInterface $router
+        private readonly RouterInterface $router,
+        private readonly EventDispatcherInterface $eventDispatcher,
     ) {
     }
 
@@ -45,11 +48,6 @@ class CategoryUrlProvider extends AbstractUrlProvider
         return 'category';
     }
 
-    /**
-     * {@inheritdoc}
-     *
-     * @throws \Exception
-     */
     public function getUrls(SalesChannelContext $context, int $limit, ?int $offset = null): UrlResult
     {
         $categories = $this->getCategories($context, $limit, $offset);
@@ -57,9 +55,29 @@ class CategoryUrlProvider extends AbstractUrlProvider
         if (empty($categories)) {
             return new UrlResult([], null);
         }
-        $keys = FetchModeHelper::keyPair($categories);
 
-        $seoUrls = $this->getSeoUrls(array_values($keys), 'frontend.navigation.page', $context, $this->connection);
+        $keys = FetchModeHelper::keyPair($categories);
+        $autoIncrementIds = array_keys($keys);
+
+        // The next offset must be taken from all results before the event can filter any ids out to prevent fetching
+        // the same ids again
+        $nextOffset = array_pop($autoIncrementIds);
+        \assert(\is_int($nextOffset) || $nextOffset === null);
+
+        $categoryIdsFetchedEvent = $this->eventDispatcher->dispatch(
+            new SalesChannelCategoryIdsFetchedEvent(\array_column($categories, 'id'), $context)
+        );
+
+        if (empty($categoryIdsFetchedEvent->getIds())) {
+            return new UrlResult([], $nextOffset);
+        }
+
+        $availableCategories = \array_filter(
+            $categories,
+            fn (array $category) => $categoryIdsFetchedEvent->hasId($category['id'])
+        );
+
+        $seoUrls = $this->getSeoUrls($categoryIdsFetchedEvent->getIds(), 'frontend.navigation.page', $context, $this->connection);
 
         /** @var array<string, array{seo_path_info: string}> $seoUrls */
         $seoUrls = FetchModeHelper::groupUnique($seoUrls);
@@ -67,7 +85,7 @@ class CategoryUrlProvider extends AbstractUrlProvider
         $urls = [];
         $url = new Url();
 
-        foreach ($categories as $category) {
+        foreach ($availableCategories as $category) {
             $lastMod = $category['updated_at'] ?: $category['created_at'];
 
             $lastMod = (new \DateTime($lastMod))->format(Defaults::STORAGE_DATE_TIME_FORMAT);
@@ -88,10 +106,6 @@ class CategoryUrlProvider extends AbstractUrlProvider
             $urls[] = $newUrl;
         }
 
-        $keys = array_keys($keys);
-        /** @var int|null $nextOffset */
-        $nextOffset = array_pop($keys);
-
         return new UrlResult($urls, $nextOffset);
     }
 
@@ -109,10 +123,10 @@ class CategoryUrlProvider extends AbstractUrlProvider
         $query = $iterator->getQuery();
         $query->setMaxResults($limit);
 
-        $query->addSelect([
+        $query->addSelect(
             '`category`.created_at',
             '`category`.updated_at',
-        ]);
+        );
 
         $wheres = [];
         $categoryIds = array_filter([
@@ -152,7 +166,7 @@ class CategoryUrlProvider extends AbstractUrlProvider
      */
     private function getExcludedCategoryIds(SalesChannelContext $salesChannelContext): array
     {
-        $salesChannelId = $salesChannelContext->getSalesChannel()->getId();
+        $salesChannelId = $salesChannelContext->getSalesChannelId();
 
         $excludedUrls = $this->configHandler->get(ConfigHandler::EXCLUDED_URLS_KEY);
         if (empty($excludedUrls)) {

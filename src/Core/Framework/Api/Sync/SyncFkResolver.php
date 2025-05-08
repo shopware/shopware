@@ -16,7 +16,7 @@ use Shopware\Core\Framework\Log\Package;
 /**
  * @internal
  */
-#[Package('core')]
+#[Package('framework')]
 class SyncFkResolver
 {
     /**
@@ -107,7 +107,7 @@ class SyncFkResolver
                     $ref = match (true) {
                         $field instanceof FkField => $field->getReferenceDefinition()->getEntityName(),
                         $field instanceof IdField => $entity,
-                        default => null
+                        default => null,
                     };
 
                     if ($ref === null) {

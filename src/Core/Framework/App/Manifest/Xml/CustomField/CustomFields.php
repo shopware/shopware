@@ -8,13 +8,13 @@ use Shopware\Core\Framework\Log\Package;
 /**
  * @internal only for use by the app-system
  */
-#[Package('core')]
+#[Package('framework')]
 class CustomFields extends XmlElement
 {
     /**
      * @var list<CustomFieldSet>
      */
-    protected $customFieldSets = [];
+    protected array $customFieldSets = [];
 
     /**
      * @return list<CustomFieldSet>

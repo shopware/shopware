@@ -1,5 +1,5 @@
 /**
- * @package admin
+ * @sw-package framework
  */
 
 import { mount } from '@vue/test-utils';
@@ -39,11 +39,9 @@ async function createWrapper(propsData = {}) {
             renderStubDefaultSlot: true,
             stubs: {
                 'sw-data-grid-settings': await wrapTestComponent('sw-data-grid-settings'),
-                'sw-button': true,
                 'sw-context-button': true,
-                'sw-icon': true,
                 'sw-field': true,
-                'sw-switch-field': true,
+
                 'sw-context-menu-divider': true,
                 'sw-pagination': true,
                 'sw-checkbox-field': true,
@@ -54,6 +52,7 @@ async function createWrapper(propsData = {}) {
                 'sw-data-grid-inline-edit': true,
                 'router-link': true,
                 'sw-button-group': true,
+                'sw-provide': true,
             },
         },
     });
@@ -129,7 +128,7 @@ describe('src/app/component/entity/sw-entity-listing', () => {
 
         const elements = wrapper.findAll('.sw-entity-listing__context-menu-edit-action');
 
-        elements.forEach(el => expect(el.text()).toBe('global.default.edit'));
+        elements.forEach((el) => expect(el.text()).toBe('global.default.edit'));
         expect(elements).toHaveLength(3);
     });
 
@@ -146,7 +145,7 @@ describe('src/app/component/entity/sw-entity-listing', () => {
 
         const elements = wrapper.findAll('.sw-entity-listing__context-menu-edit-action');
 
-        elements.forEach(el => expect(el.text()).toBe('global.default.view'));
+        elements.forEach((el) => expect(el.text()).toBe('global.default.view'));
         expect(elements).toHaveLength(3);
     });
 
@@ -165,8 +164,8 @@ describe('src/app/component/entity/sw-entity-listing', () => {
         const elements = wrapper.findAll('.sw-entity-listing__context-menu-edit-action');
 
         expect(elements).toHaveLength(3);
-        elements.forEach(el => expect(el.text()).toBe('global.default.edit'));
-        elements.forEach(el => expect(el.attributes().disabled).toBe('true'));
+        elements.forEach((el) => expect(el.text()).toBe('global.default.edit'));
+        elements.forEach((el) => expect(el.attributes().disabled).toBe('true'));
     });
 
     it('should show delete id', async () => {

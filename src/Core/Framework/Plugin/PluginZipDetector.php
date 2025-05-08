@@ -9,7 +9,7 @@ use Shopware\Core\Framework\Plugin\Util\ZipUtils;
 /**
  * @internal
  */
-#[Package('core')]
+#[Package('framework')]
 class PluginZipDetector
 {
     /**
@@ -27,7 +27,7 @@ class PluginZipDetector
             return match (true) {
                 $this->isPlugin($archive) => PluginManagementService::PLUGIN,
                 $this->isApp($archive) => PluginManagementService::APP,
-                default => throw PluginException::noPluginFoundInZip($zipFilePath)
+                default => throw PluginException::noPluginFoundInZip($zipFilePath),
             };
         } finally {
             $archive->close();

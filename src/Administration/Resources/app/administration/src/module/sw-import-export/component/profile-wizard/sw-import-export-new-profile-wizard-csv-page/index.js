@@ -1,5 +1,5 @@
 /**
- * @package services-settings
+ * @sw-package fundamentals@after-sales
  */
 import template from './sw-import-export-new-profile-wizard-csv-page.html.twig';
 import './sw-import-export-new-profile-wizard-csv-page.scss';
@@ -10,14 +10,15 @@ const { Mixin } = Shopware;
 export default {
     template,
 
-    compatConfig: Shopware.compatConfig,
-
     inject: [
         'repositoryFactory',
         'importExport',
     ],
 
-    emits: ['next-disable', 'next-allow'],
+    emits: [
+        'next-disable',
+        'next-allow',
+    ],
 
     mixins: [Mixin.getByName('notification')],
 
@@ -50,41 +51,40 @@ export default {
                 return Promise.resolve();
             }
 
-            return this.importExport.getMappingFromTemplate(
-                this.csvFile,
-                this.profile.sourceEntity,
-                this.profile.delimiter,
-                this.profile.enclosure,
-            ).then((mapping) => {
-                const transformedMapping = this.transformMapping(mapping);
+            return this.importExport
+                .getMappingFromTemplate(
+                    this.csvFile,
+                    this.profile.sourceEntity,
+                    this.profile.delimiter,
+                    this.profile.enclosure,
+                )
+                .then((mapping) => {
+                    const transformedMapping = this.transformMapping(mapping);
 
-                if (this.isCompatEnabled('INSTANCE_SET')) {
-                    this.$set(this.profile, 'mapping', transformedMapping);
-                } else {
                     this.profile.mapping = transformedMapping;
-                }
-                this.$emit('next-allow');
+                    this.$emit('next-allow');
 
-                if (transformedMapping.length === 1) {
-                    this.createNotificationWarning({
-                        message: this.$tc('sw-import-export.profile.messageCsvTemplateUploadWarning'),
-                        duration: 10000,
+                    if (transformedMapping.length === 1) {
+                        this.createNotificationWarning({
+                            message: this.$tc('sw-import-export.profile.messageCsvTemplateUploadWarning'),
+                            duration: 10000,
+                        });
+                    }
+                })
+                .catch((error) => {
+                    this.profile.mapping = [];
+                    this.$emit('next-disable');
+                    let message = this.$tc('sw-import-export.profile.messageCsvTemplateUploadError');
+
+                    const errorCode = error.response?.data?.errors?.[0]?.code;
+                    if (errorCode === 'CONTENT__IMPORT_EXPORT_FILE_EMPTY') {
+                        message = this.$tc('sw-import-export.profile.messageCsvTemplateUploadEmptyError');
+                    }
+
+                    this.createNotificationError({
+                        message,
                     });
-                }
-            }).catch((error) => {
-                this.profile.mapping = [];
-                this.$emit('next-disable');
-                let message = this.$tc('sw-import-export.profile.messageCsvTemplateUploadError');
-
-                const errorCode = error.response?.data?.errors?.[0]?.code;
-                if (errorCode === 'CONTENT__IMPORT_EXPORT_FILE_EMPTY') {
-                    message = this.$tc('sw-import-export.profile.messageCsvTemplateUploadEmptyError');
-                }
-
-                this.createNotificationError({
-                    message,
                 });
-            });
         },
 
         /**
@@ -94,7 +94,7 @@ export default {
          * @returns {Array}
          */
         transformMapping(mapping) {
-            return mapping.map(currentMapping => {
+            return mapping.map((currentMapping) => {
                 return {
                     key: currentMapping.key,
                     mappedKey: currentMapping.mappedKey,

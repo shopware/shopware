@@ -11,7 +11,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityIdTrait;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\DeliveryTime\Aggregate\DeliveryTimeTranslation\DeliveryTimeTranslationCollection;
 
-#[Package('checkout')]
+#[Package('discovery')]
 class DeliveryTimeEntity extends Entity
 {
     use EntityCustomFieldsTrait;
@@ -22,40 +22,19 @@ class DeliveryTimeEntity extends Entity
     final public const DELIVERY_TIME_MONTH = 'month';
     final public const DELIVERY_TIME_YEAR = 'year';
 
-    /**
-     * @var string|null
-     */
-    protected $name;
+    protected ?string $name = null;
 
-    /**
-     * @var int
-     */
-    protected $min;
+    protected int $min;
 
-    /**
-     * @var int
-     */
-    protected $max;
+    protected int $max;
 
-    /**
-     * @var string
-     */
-    protected $unit;
+    protected string $unit;
 
-    /**
-     * @var ShippingMethodCollection|null
-     */
-    protected $shippingMethods;
+    protected ?ShippingMethodCollection $shippingMethods = null;
 
-    /**
-     * @var DeliveryTimeTranslationCollection|null
-     */
-    protected $translations;
+    protected ?DeliveryTimeTranslationCollection $translations = null;
 
-    /**
-     * @var ProductCollection|null
-     */
-    protected $products;
+    protected ?ProductCollection $products = null;
 
     public function getName(): ?string
     {

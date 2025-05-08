@@ -1,22 +1,24 @@
 /*
- * @package inventory
+ * @sw-package inventory
  */
 
 import template from './sw-product-detail-layout.html.twig';
 import './sw-product-detail-layout.scss';
 
-const { Component, State, Context, Utils } = Shopware;
+const { Context, Utils } = Shopware;
 const { Criteria } = Shopware.Data;
-const { mapState, mapGetters } = Component.getComponentHelper();
 const { cloneDeep, merge, get } = Utils.object;
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default {
     template,
 
-    compatConfig: Shopware.compatConfig,
-
-    inject: ['repositoryFactory', 'cmsService', 'feature', 'acl'],
+    inject: [
+        'repositoryFactory',
+        'cmsService',
+        'feature',
+        'acl',
+    ],
 
     data() {
         return {
@@ -38,13 +40,13 @@ export default {
             return (!this.isLoading || !this.isConfigLoading) && !this.currentPage.locked;
         },
 
-        ...mapState('swProductDetail', [
-            'product',
-        ]),
+        product() {
+            return Shopware.Store.get('swProductDetail').product;
+        },
 
-        ...mapGetters('swProductDetail', [
-            'isLoading',
-        ]),
+        isLoading() {
+            return Shopware.Store.get('swProductDetail').isLoading;
+        },
 
         cmsPageCriteria() {
             const criteria = new Criteria(1, 25);
@@ -53,9 +55,7 @@ export default {
             criteria.getAssociation('sections').addSorting(Criteria.sort('position'));
 
             criteria.addAssociation('sections.blocks');
-            criteria.getAssociation('sections.blocks')
-                .addSorting(Criteria.sort('position', 'ASC'))
-                .addAssociation('slots');
+            criteria.getAssociation('sections.blocks').addSorting(Criteria.sort('position', 'ASC')).addAssociation('slots');
 
             return criteria;
         },
@@ -65,11 +65,11 @@ export default {
         },
 
         currentPage() {
-            return Shopware.Store.get('cmsPageState').currentPage;
+            return Shopware.Store.get('cmsPage').currentPage;
         },
 
         cmsPageState() {
-            return Shopware.Store.get('cmsPageState');
+            return Shopware.Store.get('cmsPage');
         },
     },
 
@@ -128,7 +128,10 @@ export default {
             if (!this.currentPage) {
                 this.$router.push({ name: 'sw.cms.create' });
             } else {
-                this.$router.push({ name: 'sw.cms.detail', params: { id: this.currentPage.id } });
+                this.$router.push({
+                    name: 'sw.cms.detail',
+                    params: { id: this.currentPage.id },
+                });
             }
         },
 
@@ -139,7 +142,7 @@ export default {
 
             this.product.cmsPageId = cmsPageId;
             this.product.slotConfig = null;
-            State.commit('swProductDetail/setProduct', this.product);
+            Shopware.Store.get('swProductDetail').product = this.product;
         },
 
         handleGetCmsPage() {

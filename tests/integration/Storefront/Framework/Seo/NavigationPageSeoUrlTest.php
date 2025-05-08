@@ -6,6 +6,7 @@ use Doctrine\DBAL\ArrayParameterType;
 use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Content\Category\CategoryCollection;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Api\Util\AccessKeyHelper;
 use Shopware\Core\Framework\Context;
@@ -14,38 +15,44 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\QueueTestBehaviour;
-use Shopware\Core\Framework\Test\TestDataCollection;
 use Shopware\Core\Framework\Uuid\Uuid;
+use Shopware\Core\System\SalesChannel\SalesChannelCollection;
+use Shopware\Core\Test\Stub\Framework\IdsCollection;
 use Shopware\Core\Test\TestDefaults;
 use Shopware\Storefront\Framework\Seo\SeoUrlRoute\NavigationPageSeoUrlRoute;
 
 /**
  * @internal
  */
-#[Package('buyers-experience')]
+#[Package('inventory')]
 #[Group('slow')]
-#[Group('skip-paratest')]
 class NavigationPageSeoUrlTest extends TestCase
 {
     use IntegrationTestBehaviour;
     use QueueTestBehaviour;
 
+    /**
+     * @var EntityRepository<SalesChannelCollection>
+     */
     private EntityRepository $salesChannelRepository;
 
+    /**
+     * @var EntityRepository<CategoryCollection>
+     */
     private EntityRepository $categoryRepository;
 
     private Connection $connection;
 
     protected function setUp(): void
     {
-        $this->connection = $this->getContainer()->get(Connection::class);
-        $this->categoryRepository = $this->getContainer()->get('category.repository');
-        $this->salesChannelRepository = $this->getContainer()->get('sales_channel.repository');
+        $this->connection = static::getContainer()->get(Connection::class);
+        $this->categoryRepository = static::getContainer()->get('category.repository');
+        $this->salesChannelRepository = static::getContainer()->get('sales_channel.repository');
     }
 
     public function testGenerateForNewCategories(): void
     {
-        $ids = new TestDataCollection();
+        $ids = new IdsCollection();
 
         $categories = [
             ['id' => $ids->create('root'), 'name' => 'root'],
@@ -74,7 +81,7 @@ class NavigationPageSeoUrlTest extends TestCase
 
     public function testSwitchNavigationId(): void
     {
-        $ids = new TestDataCollection();
+        $ids = new IdsCollection();
 
         $categories = [
             ['id' => $ids->create('root'), 'name' => 'root', 'active' => true],
@@ -114,7 +121,7 @@ class NavigationPageSeoUrlTest extends TestCase
 
     public function testSwitchParentId(): void
     {
-        $ids = new TestDataCollection();
+        $ids = new IdsCollection();
 
         $categories = [
             ['id' => $ids->create('root'), 'name' => 'root', 'active' => true],
@@ -152,7 +159,7 @@ class NavigationPageSeoUrlTest extends TestCase
 
     public function testUpdateName(): void
     {
-        $ids = new TestDataCollection();
+        $ids = new IdsCollection();
 
         $categories = [
             ['id' => $ids->create('root'), 'name' => 'root', 'active' => true],
@@ -191,7 +198,7 @@ class NavigationPageSeoUrlTest extends TestCase
 
     public function testFooterMenu(): void
     {
-        $ids = new TestDataCollection();
+        $ids = new IdsCollection();
 
         /**
          * navigation
@@ -250,7 +257,7 @@ class NavigationPageSeoUrlTest extends TestCase
 
     public function testServiceMenuNotInFooter(): void
     {
-        $ids = new TestDataCollection();
+        $ids = new IdsCollection();
 
         /**
          * navigation
@@ -308,7 +315,7 @@ class NavigationPageSeoUrlTest extends TestCase
 
     public function testDuplicateUrl(): void
     {
-        $ids = new TestDataCollection();
+        $ids = new IdsCollection();
 
         $categories = [
             ['id' => $ids->create('root'), 'name' => 'root', 'active' => true],
@@ -396,10 +403,10 @@ class NavigationPageSeoUrlTest extends TestCase
     private function getSeoUrls(array $ids, ?string $salesChannelId): array
     {
         $query = $this->connection->createQueryBuilder();
-        $query->addSelect([
+        $query->addSelect(
             'seo_path_info',
             'path_info',
-        ]);
+        );
         $query->from('seo_url');
         $query->andWhere('foreign_key IN (:ids)');
         $query->andWhere('route_name = :routeName');

@@ -8,41 +8,23 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityIdTrait;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\SalesChannelEntity;
 
-#[Package('buyers-experience')]
+#[Package('inventory')]
 class SeoUrlTemplateEntity extends Entity
 {
     use EntityCustomFieldsTrait;
     use EntityIdTrait;
 
-    /**
-     * @var string|null
-     */
-    protected $salesChannelId;
+    protected ?string $salesChannelId = null;
 
-    /**
-     * @var string
-     */
-    protected $entityName;
+    protected string $entityName;
 
-    /**
-     * @var string
-     */
-    protected $routeName;
+    protected string $routeName;
 
-    /**
-     * @var string
-     */
-    protected $template;
+    protected string $template;
 
-    /**
-     * @var bool
-     */
-    protected $isValid;
+    protected bool $isValid;
 
-    /**
-     * @var SalesChannelEntity|null
-     */
-    protected $salesChannel;
+    protected ?SalesChannelEntity $salesChannel = null;
 
     public function getSalesChannelId(): ?string
     {

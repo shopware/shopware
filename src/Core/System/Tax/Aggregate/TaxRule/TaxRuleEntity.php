@@ -14,50 +14,23 @@ class TaxRuleEntity extends Entity
 {
     use EntityIdTrait;
 
-    /**
-     * @var string
-     */
-    protected $taxId;
+    protected string $taxId;
 
-    /**
-     * @var TaxEntity|null
-     */
-    protected $tax;
+    protected ?TaxEntity $tax = null;
 
-    /**
-     * @var string
-     */
-    protected $countryId;
+    protected string $countryId;
 
-    /**
-     * @var CountryEntity|null
-     */
-    protected $country;
+    protected ?CountryEntity $country = null;
 
-    /**
-     * @var string
-     */
-    protected $taxRuleTypeId;
+    protected string $taxRuleTypeId;
 
-    /**
-     * @var TaxRuleTypeEntity
-     */
-    protected $type;
+    protected TaxRuleTypeEntity $type;
 
-    /**
-     * @var float
-     */
-    protected $taxRate;
+    protected float $taxRate;
 
-    /**
-     * @var array|null
-     */
-    protected $data;
+    protected ?array $data = null;
 
-    /**
-     * @var \DateTimeInterface|null
-     */
-    protected $activeFrom;
+    protected ?\DateTimeInterface $activeFrom = null;
 
     public function getTaxId(): string
     {

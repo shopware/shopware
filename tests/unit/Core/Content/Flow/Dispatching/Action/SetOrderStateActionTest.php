@@ -13,14 +13,14 @@ use Shopware\Core\Content\Flow\Dispatching\StorableFlow;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Event\OrderAware;
 use Shopware\Core\Framework\Log\Package;
-use Shopware\Core\Framework\Test\TestDataCollection;
 use Shopware\Core\Framework\Uuid\Uuid;
+use Shopware\Core\Test\Stub\Framework\IdsCollection;
 use Symfony\Component\HttpFoundation\ParameterBag;
 
 /**
  * @internal
  */
-#[Package('services-settings')]
+#[Package('after-sales')]
 #[CoversClass(SetOrderStateAction::class)]
 class SetOrderStateActionTest extends TestCase
 {
@@ -58,7 +58,7 @@ class SetOrderStateActionTest extends TestCase
     #[DataProvider('actionProvider')]
     public function testAction(array $config, int $expectsTimes, array $expected): void
     {
-        $ids = new TestDataCollection();
+        $ids = new IdsCollection();
 
         $orderId = Uuid::randomHex();
         $flow = new StorableFlow('foo', Context::createDefaultContext(), [], [
@@ -66,7 +66,7 @@ class SetOrderStateActionTest extends TestCase
         ]);
         $flow->setConfig($config);
 
-        $this->connection->expects(static::exactly($expectsTimes))
+        $this->connection->expects($this->exactly($expectsTimes))
             ->method('fetchOne')
             ->willReturnOnConsecutiveCalls(
                 Uuid::randomHex(),
@@ -86,29 +86,29 @@ class SetOrderStateActionTest extends TestCase
             );
 
         if ($expected['order']) {
-            $this->orderService->expects(static::once())
+            $this->orderService->expects($this->once())
                 ->method('orderStateTransition')
                 ->with($orderId, $expected['order'], new ParameterBag());
         } else {
-            $this->orderService->expects(static::never())
+            $this->orderService->expects($this->never())
                 ->method('orderStateTransition');
         }
 
         if ($expected['orderDelivery']) {
-            $this->orderService->expects(static::once())
+            $this->orderService->expects($this->once())
                 ->method('orderDeliveryStateTransition')
                 ->with($ids->get('orderDeliveryId'), $expected['orderDelivery'], new ParameterBag());
         } else {
-            $this->orderService->expects(static::never())
+            $this->orderService->expects($this->never())
                 ->method('orderDeliveryStateTransition');
         }
 
         if ($expected['orderTransaction']) {
-            $this->orderService->expects(static::once())
+            $this->orderService->expects($this->once())
                 ->method('orderTransactionStateTransition')
                 ->with($ids->get('orderTransactionId'), $expected['orderTransaction'], new ParameterBag());
         } else {
-            $this->orderService->expects(static::never())
+            $this->orderService->expects($this->never())
                 ->method('orderTransactionStateTransition');
         }
 
@@ -119,11 +119,11 @@ class SetOrderStateActionTest extends TestCase
     {
         $flow = new StorableFlow('foo', Context::createDefaultContext());
 
-        $this->orderService->expects(static::never())
+        $this->orderService->expects($this->never())
             ->method('orderStateTransition');
-        $this->orderService->expects(static::never())
+        $this->orderService->expects($this->never())
             ->method('orderDeliveryStateTransition');
-        $this->orderService->expects(static::never())
+        $this->orderService->expects($this->never())
             ->method('orderTransactionStateTransition');
 
         $this->action->handleFlow($flow);
@@ -135,11 +135,11 @@ class SetOrderStateActionTest extends TestCase
             OrderAware::ORDER_ID => Uuid::randomHex(),
         ]);
 
-        $this->orderService->expects(static::never())
+        $this->orderService->expects($this->never())
             ->method('orderStateTransition');
-        $this->orderService->expects(static::never())
+        $this->orderService->expects($this->never())
             ->method('orderDeliveryStateTransition');
-        $this->orderService->expects(static::never())
+        $this->orderService->expects($this->never())
             ->method('orderTransactionStateTransition');
 
         $this->action->handleFlow($flow);

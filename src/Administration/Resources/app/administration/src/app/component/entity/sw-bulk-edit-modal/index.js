@@ -1,3 +1,7 @@
+/**
+ * @sw-package framework
+ */
+
 import template from './sw-bulk-edit-modal.html.twig';
 import './sw-bulk-edit-modal.scss';
 
@@ -8,8 +12,6 @@ const { Component } = Shopware;
  */
 Component.register('sw-bulk-edit-modal', {
     template,
-
-    compatConfig: Shopware.compatConfig,
 
     emits: [
         'modal-close',
@@ -29,7 +31,12 @@ Component.register('sw-bulk-edit-modal', {
             type: Array,
             required: false,
             default() {
-                return [200, 300, 400, 500];
+                return [
+                    200,
+                    300,
+                    400,
+                    500,
+                ];
             },
         },
 
@@ -60,9 +67,6 @@ Component.register('sw-bulk-edit-modal', {
 
         getSlots() {
             // eslint-disable-next-line @typescript-eslint/no-unsafe-call,@typescript-eslint/no-unsafe-member-access
-            if (this.isCompatEnabled('INSTANCE_SCOPED_SLOTS')) {
-                return this.$scopedSlots;
-            }
 
             return this.$slots;
         },
@@ -94,7 +98,7 @@ Component.register('sw-bulk-edit-modal', {
             this.$emit('modal-close');
 
             if (this.itemCount > 0) {
-                Shopware.State.commit('shopwareApps/setSelectedIds', Object.keys(this.bulkEditSelection));
+                Shopware.Store.get('shopwareApps').selectedIds = Object.keys(this.bulkEditSelection);
                 this.$emit('edit-items');
             }
         },

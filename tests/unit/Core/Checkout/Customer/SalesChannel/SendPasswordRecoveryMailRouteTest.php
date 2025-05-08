@@ -9,7 +9,6 @@ use Shopware\Core\Checkout\Customer\Aggregate\CustomerRecovery\CustomerRecoveryC
 use Shopware\Core\Checkout\Customer\Aggregate\CustomerRecovery\CustomerRecoveryEntity;
 use Shopware\Core\Checkout\Customer\CustomerCollection;
 use Shopware\Core\Checkout\Customer\CustomerEntity;
-use Shopware\Core\Checkout\Customer\CustomerException;
 use Shopware\Core\Checkout\Customer\Event\CustomerAccountRecoverRequestEvent;
 use Shopware\Core\Checkout\Customer\SalesChannel\SendPasswordRecoveryMailRoute;
 use Shopware\Core\Framework\Context;
@@ -59,7 +58,7 @@ class SendPasswordRecoveryMailRouteTest extends TestCase
         $this->systemConfigService = $this->createMock(SystemConfigService::class);
         $this->requestStack = $this->createMock(RequestStack::class);
         $this->rateLimiter = $this->createMock(RateLimiter::class);
-        $this->context = Generator::createSalesChannelContext();
+        $this->context = Generator::generateSalesChannelContext();
     }
 
     public function testSendRecoveryMail(): void
@@ -70,7 +69,7 @@ class SendPasswordRecoveryMailRouteTest extends TestCase
         $customerCollection = new CustomerCollection([$customer]);
 
         $this->customerRepository
-            ->expects(static::once())
+            ->expects($this->once())
             ->method('search')
             ->willReturn(
                 new EntitySearchResult(
@@ -84,7 +83,7 @@ class SendPasswordRecoveryMailRouteTest extends TestCase
             );
 
         $this->customerRecoveryRepository
-            ->expects(static::once())
+            ->expects($this->once())
             ->method('create')
             ->with(
                 static::callback(function (array $recoveryData): bool {
@@ -113,7 +112,7 @@ class SendPasswordRecoveryMailRouteTest extends TestCase
         $customerRecoveryCollection = new CustomerRecoveryCollection([$customerRecovery]);
 
         $this->customerRecoveryRepository
-            ->expects(static::exactly(2))
+            ->expects($this->exactly(2))
             ->method('search')
             ->willReturn(
                 new EntitySearchResult(
@@ -136,7 +135,8 @@ class SendPasswordRecoveryMailRouteTest extends TestCase
             $this->rateLimiter
         );
 
-        $event = new CustomerAccountRecoverRequestEvent($this->context, $customerRecovery, 'http://test.example.dev/account/recover/password?hash=super-secret-hash');
+        $this->context->getSalesChannel()->setTranslated(['name' => 'FooBar']);
+        $event = new CustomerAccountRecoverRequestEvent($this->context, $customerRecovery, 'https://test.example.dev/account/recover/password?hash=super-secret-hash');
 
         $this->eventDispatcher
             ->method('dispatch')
@@ -150,14 +150,14 @@ class SendPasswordRecoveryMailRouteTest extends TestCase
 
         $data = new RequestDataBag();
         $data->set('email', 'test@test.dev');
-        $data->set('storefrontUrl', 'http://test.example.dev');
+        $data->set('storefrontUrl', 'https://test.example.dev');
 
         $MailRoute->sendRecoveryMail($data, $this->context);
     }
 
     public function testNoCustomerFound(): void
     {
-        $MailRoute = new SendPasswordRecoveryMailRoute(
+        $mailRoute = new SendPasswordRecoveryMailRoute(
             $this->customerRepository,
             $this->customerRecoveryRepository,
             $this->eventDispatcher,
@@ -170,9 +170,9 @@ class SendPasswordRecoveryMailRouteTest extends TestCase
         $data = new RequestDataBag();
         $data->set('email', 'foo@foo');
 
-        static::expectException(CustomerException::class);
-        static::expectExceptionMessage('No matching customer for the email "foo@foo" was found.');
+        $response = $mailRoute->sendRecoveryMail($data, $this->context)->getObject()->getVars();
 
-        $MailRoute->sendRecoveryMail($data, $this->context);
+        static::assertArrayHasKey('success', $response);
+        static::assertTrue($response['success']);
     }
 }

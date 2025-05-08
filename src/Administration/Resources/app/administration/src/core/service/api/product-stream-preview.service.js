@@ -3,7 +3,7 @@ import ApiService from '../api.service';
 
 /**
  * @private
- * @package services-settings
+ * @sw-package inventory
  */
 export default class ProductStreamPreviewService extends ApiService {
     constructor(httpClient, loginService) {
@@ -24,12 +24,10 @@ export default class ProductStreamPreviewService extends ApiService {
             filter,
         });
 
-        return this.httpClient.post(
-            `_admin/product-stream-preview/${salesChannelId}`,
-            body,
-            {
+        return this.httpClient
+            .post(`_admin/product-stream-preview/${salesChannelId}`, body, {
                 headers: this.getBasicHeaders(additionalHeaders),
-            },
-        ).then(response => ApiService.handleResponse(response));
+            })
+            .then((response) => ApiService.handleResponse(response));
     }
 }

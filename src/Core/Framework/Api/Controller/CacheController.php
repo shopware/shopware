@@ -3,6 +3,7 @@
 namespace Shopware\Core\Framework\Api\Controller;
 
 use Shopware\Core\Framework\Adapter\Cache\CacheClearer;
+use Shopware\Core\Framework\Adapter\Cache\CacheInvalidator;
 use Shopware\Core\Framework\DataAbstractionLayer\Indexing\EntityIndexerRegistry;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
@@ -15,7 +16,7 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
 
 #[Route(defaults: ['_routeScope' => ['api']])]
-#[Package('services-settings')]
+#[Package('framework')]
 class CacheController extends AbstractController
 {
     /**
@@ -23,6 +24,7 @@ class CacheController extends AbstractController
      */
     public function __construct(
         private readonly CacheClearer $cacheClearer,
+        private readonly CacheInvalidator $cacheInvalidator,
         private readonly AdapterInterface $adapter,
         private readonly EntityIndexerRegistry $indexerRegistry
     ) {
@@ -55,6 +57,14 @@ class CacheController extends AbstractController
     public function clearCache(): Response
     {
         $this->cacheClearer->clear();
+
+        return new Response('', Response::HTTP_NO_CONTENT);
+    }
+
+    #[Route(path: '/api/_action/cache-delayed', name: 'api.action.cache.delete-delayed', methods: ['DELETE'], defaults: ['_acl' => ['system:clear:cache']])]
+    public function clearDelayedCache(): Response
+    {
+        $this->cacheInvalidator->invalidateExpired();
 
         return new Response('', Response::HTTP_NO_CONTENT);
     }

@@ -1,5 +1,5 @@
 /*
- * @package inventory
+ * @sw-package inventory
  */
 
 import './acl';
@@ -60,15 +60,17 @@ Module.register('sw-manufacturer', {
         },
     },
 
-    navigation: [{
-        path: 'sw.manufacturer.index',
-        privilege: 'product_manufacturer.viewer',
-        label: 'sw-manufacturer.general.mainMenuItemList',
-        id: 'sw-manufacturer',
-        parent: 'sw-catalogue',
-        color: '#57D9A3',
-        position: 50,
-    }],
+    navigation: [
+        {
+            path: 'sw.manufacturer.index',
+            privilege: 'product_manufacturer.viewer',
+            label: 'sw-manufacturer.general.mainMenuItemList',
+            id: 'sw-manufacturer',
+            parent: 'sw-catalogue',
+            color: '#57D9A3',
+            position: 50,
+        },
+    ],
 
     defaultSearchConfiguration,
 });

@@ -7,35 +7,20 @@ use Shopware\Core\Framework\DataAbstractionLayer\TranslationEntity;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Storefront\Theme\ThemeEntity;
 
-#[Package('storefront')]
+#[Package('framework')]
 class ThemeTranslationEntity extends TranslationEntity
 {
     use EntityCustomFieldsTrait;
 
-    /**
-     * @var string|null
-     */
-    protected $themeId;
+    protected ?string $themeId = null;
 
-    /**
-     * @var string|null
-     */
-    protected $description;
+    protected ?string $description = null;
 
-    /**
-     * @var array|null
-     */
-    protected $labels;
+    protected ?array $labels = null;
 
-    /**
-     * @var array|null
-     */
-    protected $helpTexts;
+    protected ?array $helpTexts = null;
 
-    /**
-     * @var ThemeEntity|null
-     */
-    protected $theme;
+    protected ?ThemeEntity $theme = null;
 
     public function getDescription(): ?string
     {

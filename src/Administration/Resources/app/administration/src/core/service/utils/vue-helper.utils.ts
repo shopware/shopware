@@ -1,5 +1,6 @@
 /**
  * @private
+ * @sw-package framework
  *
  * These helper methods shouldn't be used.
  * They are only needed used for internal purposes.

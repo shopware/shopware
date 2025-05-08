@@ -1,5 +1,5 @@
 /**
- * @package content
+ * @sw-package discovery
  */
 import { mount } from '@vue/test-utils';
 import 'src/module/sw-media/mixin/media-grid-listener.mixin';
@@ -41,8 +41,10 @@ class Repository {
     }
 }
 
-
 async function createWrapper({ mediaAmount, folderAmount } = { mediaAmount: [5], folderAmount: [5] }) {
+    const mediaRepositoryMock = new Repository('media', mediaAmount);
+    const folderRepositoryMock = new Repository('media_folder', folderAmount);
+
     return mount(await wrapTestComponent('sw-media-library', { sync: true }), {
         props: {
             selection: [],
@@ -56,9 +58,9 @@ async function createWrapper({ mediaAmount, folderAmount } = { mediaAmount: [5],
                 'sw-media-grid': true,
                 'sw-empty-state': true,
                 'sw-skeleton': true,
-                'sw-button': true,
                 'sw-media-folder-item': true,
                 'router-link': true,
+                'sw-extension-teaser-popover': true,
             },
 
             provide: {
@@ -66,9 +68,9 @@ async function createWrapper({ mediaAmount, folderAmount } = { mediaAmount: [5],
                     create: (repositoryName) => {
                         switch (repositoryName) {
                             case 'media':
-                                return new Repository('media', mediaAmount);
+                                return mediaRepositoryMock;
                             case 'media_folder':
-                                return new Repository('folder', folderAmount);
+                                return folderRepositoryMock;
                             case 'media_folder_configuration':
                                 return {};
                             default:
@@ -83,7 +85,6 @@ async function createWrapper({ mediaAmount, folderAmount } = { mediaAmount: [5],
     });
 }
 
-
 describe('src/module/sw-media/component/sw-media-library/index', () => {
     it('should be a Vue.js component', async () => {
         const wrapper = await createWrapper();
@@ -91,7 +92,17 @@ describe('src/module/sw-media/component/sw-media-library/index', () => {
     });
 
     it('should allow loading of additional folders', async () => {
-        const wrapper = await createWrapper({ folderAmount: [5, 5, 3], mediaAmount: [5, 3] });
+        const wrapper = await createWrapper({
+            folderAmount: [
+                5,
+                5,
+                3,
+            ],
+            mediaAmount: [
+                5,
+                3,
+            ],
+        });
         await flushPromises();
 
         // Check that it starts with the correct amounts
@@ -139,7 +150,17 @@ describe('src/module/sw-media/component/sw-media-library/index', () => {
     });
 
     it('should allow loading of additional media', async () => {
-        const wrapper = await createWrapper({ folderAmount: [5, 3], mediaAmount: [5, 5, 3] });
+        const wrapper = await createWrapper({
+            folderAmount: [
+                5,
+                3,
+            ],
+            mediaAmount: [
+                5,
+                5,
+                3,
+            ],
+        });
         await flushPromises();
 
         // Check that it starts with the correct amounts
@@ -207,11 +228,11 @@ describe('src/module/sw-media/component/sw-media-library/index', () => {
             'cmsBlocks.section.page',
             'cmsSections.page',
             'cmsPages',
-        ].forEach(association => {
+        ].forEach((association) => {
             const associationParts = association.split('.');
 
             let path = null;
-            associationParts.forEach(currentPart => {
+            associationParts.forEach((currentPart) => {
                 path = path ? `${path}.${currentPart}` : currentPart;
 
                 expect(usedCriteria.getAssociation(path).getLimit()).toBe(25);
@@ -220,7 +241,16 @@ describe('src/module/sw-media/component/sw-media-library/index', () => {
     });
 
     it('should show the load more button if the folder request fails', async () => {
-        const wrapper = await createWrapper({ folderAmount: [null, 3], mediaAmount: [3, undefined] });
+        const wrapper = await createWrapper({
+            folderAmount: [
+                null,
+                3,
+            ],
+            mediaAmount: [
+                3,
+                undefined,
+            ],
+        });
         await flushPromises();
 
         // Check that it starts with the correct amounts
@@ -252,7 +282,16 @@ describe('src/module/sw-media/component/sw-media-library/index', () => {
     });
 
     it('should show the load more button if the media request fails', async () => {
-        const wrapper = await createWrapper({ folderAmount: [3, undefined], mediaAmount: [null, 3] });
+        const wrapper = await createWrapper({
+            folderAmount: [
+                3,
+                undefined,
+            ],
+            mediaAmount: [
+                null,
+                3,
+            ],
+        });
         await flushPromises();
 
         // Check that it starts with the correct amounts
@@ -294,16 +333,36 @@ describe('src/module/sw-media/component/sw-media-library/index', () => {
             sort: [{ field: 'fileName', order: 'asc', naturalSorting: false }],
             associations: {
                 tags: { limit: 25, 'total-count-mode': 1 },
-                productMedia: { limit: 25, associations: expect.any(Object), 'total-count-mode': 1 },
+                productMedia: {
+                    limit: 25,
+                    associations: expect.any(Object),
+                    'total-count-mode': 1,
+                },
                 categories: { limit: 25, 'total-count-mode': 1 },
-                productManufacturers: { limit: 25, associations: expect.any(Object), 'total-count-mode': 1 },
-                mailTemplateMedia: { limit: 25, associations: expect.any(Object), 'total-count-mode': 1 },
+                productManufacturers: {
+                    limit: 25,
+                    associations: expect.any(Object),
+                    'total-count-mode': 1,
+                },
+                mailTemplateMedia: {
+                    limit: 25,
+                    associations: expect.any(Object),
+                    'total-count-mode': 1,
+                },
                 documentBaseConfigs: { limit: 25, 'total-count-mode': 1 },
                 avatarUsers: { limit: 25, 'total-count-mode': 1 },
                 paymentMethods: { limit: 25, 'total-count-mode': 1 },
                 shippingMethods: { limit: 25, 'total-count-mode': 1 },
-                cmsBlocks: { limit: 25, associations: expect.any(Object), 'total-count-mode': 1 },
-                cmsSections: { limit: 25, associations: expect.any(Object), 'total-count-mode': 1 },
+                cmsBlocks: {
+                    limit: 25,
+                    associations: expect.any(Object),
+                    'total-count-mode': 1,
+                },
+                cmsSections: {
+                    limit: 25,
+                    associations: expect.any(Object),
+                    'total-count-mode': 1,
+                },
                 cmsPages: { limit: 25, 'total-count-mode': 1 },
             },
             'total-count-mode': 1,

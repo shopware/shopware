@@ -1,0 +1,34 @@
+shopware:
+    telemetry:
+        metrics:
+            namespace: 'io.opentelemetry.contrib.php.shopware'
+
+            definitions:
+                plugin.install.count:
+                    description: 'Number of plugin installations'
+                    type: 'counter'
+
+                app.install.count:
+                    description: 'Number of app installations'
+                    type: 'counter'
+
+                cache.invalidate.count:
+                    description: 'Number of cache invalidations'
+                    type: 'counter'
+
+                messenger.message.size:
+                  description: 'Size of the message in bytes'
+                  enabled: true
+                  type: 'histogram'
+                  unit: 'byte'
+                  parameters:
+                    buckets: [0, 512, 1024, 2048, 4096, 8192, 16384, 32768]
+
+                dal.associations.count:
+                    description: 'Number of associations loaded'
+                    type: 'histogram'
+
+                database.locks.count:
+                    description: 'Number of database locks'
+                    enabled: true
+                    type: 'counter'

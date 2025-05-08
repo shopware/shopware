@@ -9,7 +9,7 @@ use Shopware\Core\Framework\Log\Package;
  *
  * @internal only rely on the concrete implementations
  */
-#[Package('core')]
+#[Package('framework')]
 abstract class OptionalFunctionHook extends FunctionHook
 {
     public static function willBeRequiredInVersion(): ?string

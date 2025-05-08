@@ -107,8 +107,8 @@ class SalesChannelCmsPageLoaderTest extends TestCase
     {
         parent::setUp();
 
-        $this->categoryRepository = $this->getContainer()->get('category.repository');
-        $this->salesChannelCmsPageLoader = $this->getContainer()->get(SalesChannelCmsPageLoader::class);
+        $this->categoryRepository = static::getContainer()->get('category.repository');
+        $this->salesChannelCmsPageLoader = static::getContainer()->get(SalesChannelCmsPageLoader::class);
 
         $this->salesChannelContext = $this->createSalesChannelContext();
 

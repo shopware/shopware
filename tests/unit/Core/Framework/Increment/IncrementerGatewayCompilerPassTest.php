@@ -28,7 +28,7 @@ class IncrementerGatewayCompilerPassTest extends TestCase
             ],
             'message_queue' => [
                 'type' => 'redis',
-                'config' => ['url' => 'redis://test'],
+                'config' => ['connection' => 'redis_incrementer'],
             ],
             'another_pool' => [
                 'type' => 'array',

@@ -44,6 +44,10 @@ class ArrayStructTest extends TestCase
 
     public function testOffsetSet(): void
     {
+        /**
+         * @var ArrayStruct<array<string, mixed>> $arrayStruct Overwriting the type is necessary, as PHPStan is determining the type
+         *                                        during instantiation and that will change afterwards.
+         */
         $arrayStruct = new ArrayStruct([]);
         static::assertCount(0, $arrayStruct->all());
 
@@ -85,6 +89,10 @@ class ArrayStructTest extends TestCase
 
     public function testAssign(): void
     {
+        /**
+         * @var ArrayStruct<array<string, mixed>> $arrayStruct Overwriting the type is necessary, as PHPStan is determining the type
+         *                                        during instantiation and that will change afterwards.
+         */
         $arrayStruct = new ArrayStruct(['a' => 'value', 'b' => ['array_value']]);
 
         static::assertSame('value', $arrayStruct->get('a'));

@@ -2,12 +2,19 @@
 
 namespace Shopware\Core\System\DependencyInjection\CompilerPass;
 
+use Shopware\Core\Framework\DataAbstractionLayer\AttributeEntityDefinition;
+use Shopware\Core\Framework\DataAbstractionLayer\AttributeMappingDefinition;
+use Shopware\Core\Framework\DataAbstractionLayer\AttributeTranslationDefinition;
+use Shopware\Core\Framework\DataAbstractionLayer\BulkEntityExtension;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityExtension;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityLoadedEventFactory;
+use Shopware\Core\Framework\DataAbstractionLayer\FilteredBulkEntityExtension;
 use Shopware\Core\Framework\DataAbstractionLayer\Read\EntityReaderInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntityAggregatorInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearcherInterface;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\System\DependencyInjection\DependencyInjectionException;
 use Shopware\Core\System\SalesChannel\Entity\SalesChannelDefinitionInstanceRegistry;
 use Shopware\Core\System\SalesChannel\Entity\SalesChannelRepository;
 use Symfony\Component\DependencyInjection\Alias;
@@ -17,7 +24,7 @@ use Symfony\Component\DependencyInjection\Definition;
 use Symfony\Component\DependencyInjection\Exception\ServiceNotFoundException;
 use Symfony\Component\DependencyInjection\Reference;
 
-#[Package('core')]
+#[Package('framework')]
 class SalesChannelEntityCompilerPass implements CompilerPassInterface
 {
     private const PREFIX = 'sales_channel_definition.';
@@ -58,7 +65,7 @@ class SalesChannelEntityCompilerPass implements CompilerPassInterface
                 $container->setAlias(self::PREFIX . $serviceId, new Alias($serviceId, true));
             }
 
-            // if both mask base with extended extended as base
+            // if both mask base with extended as base
             if (isset($definitions['extended'], $definitions['base'])) {
                 $container->setAlias(self::PREFIX . $definitions['base'], new Alias($definitions['extended'], true));
             }
@@ -124,12 +131,14 @@ class SalesChannelEntityCompilerPass implements CompilerPassInterface
         $definitionRegistry->replaceArgument(0, self::PREFIX);
         $definitionRegistry->replaceArgument(2, $entityNameMap);
         $definitionRegistry->replaceArgument(3, $repositoryNameMap);
+
+        $this->addExtensions($container, $baseDefinitions, $salesChannelDefinitions);
     }
 
     /**
      * @param array<string, array<mixed>> $taggedServiceIds
      *
-     * @return array<string, array<string, string>>
+     * @return array<string, array{entityName: string, fallback?: string}>
      */
     private function formatData(
         array $taggedServiceIds,
@@ -142,8 +151,18 @@ class SalesChannelEntityCompilerPass implements CompilerPassInterface
 
             /** @var string $class */
             $class = $service->getClass();
+
+            if (\in_array($class, [AttributeEntityDefinition::class, AttributeTranslationDefinition::class, AttributeMappingDefinition::class], true)) {
+                if (empty($service->getArguments())) {
+                    continue;
+                }
+
+                $instance = new $class($service->getArguments()[0]);
+            } else {
+                $instance = new $class();
+            }
+
             /** @var EntityDefinition $instance */
-            $instance = new $class();
             $entityName = $instance->getEntityName();
             $result[$serviceId]['entityName'] = $entityName;
 
@@ -191,5 +210,98 @@ class SalesChannelEntityCompilerPass implements CompilerPassInterface
         $service->addMethodCall('compile', [
             new Reference(SalesChannelDefinitionInstanceRegistry::class),
         ]);
+    }
+
+    /**
+     * @param array<string, array{entityName: string}> $baseEntityDefinitions
+     * @param array<string, array{entityName: string}> $salesChannelDefinitions
+     */
+    private function addExtensions(ContainerBuilder $container, array $baseEntityDefinitions, array $salesChannelDefinitions): void
+    {
+        $entityNameMap = [];
+        $salesChannelNameMap = [];
+
+        foreach ($baseEntityDefinitions as $definition => $attrs) {
+            $entityNameMap[$attrs['entityName']] = $definition;
+        }
+
+        foreach ($salesChannelDefinitions as $definition => $attrs) {
+            $salesChannelNameMap[$attrs['entityName']] = $definition;
+        }
+
+        foreach ($container->findTaggedServiceIds('shopware.entity.extension') as $id => $tags) {
+            $definition = $container->getDefinition($id);
+
+            /** @var class-string $className */
+            $className = $definition->getClass() ?? $id;
+
+            /** @var EntityExtension $classObject */
+            $classObject = (new \ReflectionClass($className))->newInstanceWithoutConstructor();
+
+            if (!\array_key_exists($classObject->getEntityName(), $entityNameMap)) {
+                throw DependencyInjectionException::definitionNotFound($classObject->getEntityName());
+            }
+
+            if (!$container->hasDefinition($entityNameMap[$classObject->getEntityName()])) {
+                throw DependencyInjectionException::definitionNotFound($classObject->getEntityName());
+            }
+
+            $definition = $container->getDefinition($entityNameMap[$classObject->getEntityName()]);
+            $definition->addMethodCall('addExtension', [new Reference($id)]);
+
+            if (isset($salesChannelNameMap[$classObject->getEntityName()])) {
+                $definition = $container->getDefinition($salesChannelNameMap[$classObject->getEntityName()]);
+                $definition->addMethodCall('addExtension', [new Reference($id)]);
+            }
+
+            $extendedDefinition = self::PREFIX . $entityNameMap[$classObject->getEntityName()];
+
+            if ($container->hasDefinition($extendedDefinition)) {
+                $definition = $container->getDefinition($extendedDefinition);
+                $definition->addMethodCall('addExtension', [new Reference($id)]);
+            }
+        }
+
+        foreach ($container->findTaggedServiceIds('shopware.bulk.entity.extension') as $id => $tags) {
+            $definition = $container->getDefinition($id);
+
+            /** @var class-string $className */
+            $className = $definition->getClass() ?? $id;
+
+            /** @var BulkEntityExtension $classObject */
+            $classObject = (new \ReflectionClass($className))->newInstanceWithoutConstructor();
+
+            $entities = array_keys(iterator_to_array($classObject->collect()));
+
+            foreach ($entities as $entity) {
+                if (!\array_key_exists($entity, $entityNameMap)) {
+                    throw DependencyInjectionException::definitionNotFound($entity);
+                }
+
+                if (!$container->hasDefinition($entityNameMap[$entity])) {
+                    throw DependencyInjectionException::definitionNotFound($entity);
+                }
+
+                $filteredExtension = new Definition(FilteredBulkEntityExtension::class);
+                $filteredExtension->addArgument($entity);
+                $filteredExtension->addArgument(new Reference($id));
+
+                $definition = $container->getDefinition($entityNameMap[$entity]);
+
+                $definition->addMethodCall('addExtension', [$filteredExtension]);
+
+                if (isset($salesChannelNameMap[$entity])) {
+                    $definition = $container->getDefinition($salesChannelNameMap[$entity]);
+                    $definition->addMethodCall('addExtension', [$filteredExtension]);
+                }
+
+                $extendedDefinition = self::PREFIX . $entityNameMap[$entity];
+
+                if ($container->hasDefinition($extendedDefinition)) {
+                    $definition = $container->getDefinition($extendedDefinition);
+                    $definition->addMethodCall('addExtension', [$filteredExtension]);
+                }
+            }
+        }
     }
 }

@@ -59,6 +59,12 @@ $cart-grid-gutter-width: $spacer-sm;
 
 .cart-add-product-container {
     margin-bottom: $spacer;
+
+    .add-product-button {
+        .icon-checkmark {
+            color: inherit;
+        }
+    }
 }
 
 .cart-shipping-costs-container {

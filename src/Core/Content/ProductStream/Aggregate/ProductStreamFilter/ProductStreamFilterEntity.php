@@ -14,60 +14,30 @@ class ProductStreamFilterEntity extends Entity
     use EntityCustomFieldsTrait;
     use EntityIdTrait;
 
-    /**
-     * @var string
-     */
-    protected $type;
+    protected string $type;
 
-    /**
-     * @var string|null
-     */
-    protected $field;
+    protected ?string $field = null;
 
-    /**
-     * @var string|null
-     */
-    protected $operator;
+    protected ?string $operator = null;
 
-    /**
-     * @var string|null
-     */
-    protected $value;
+    protected ?string $value = null;
 
-    /**
-     * @var string
-     */
-    protected $productStreamId;
+    protected string $productStreamId;
 
-    /**
-     * @var string|null
-     */
-    protected $parentId;
+    protected ?string $parentId = null;
 
-    /**
-     * @var ProductStreamEntity|null
-     */
-    protected $productStream;
+    protected ?ProductStreamEntity $productStream = null;
 
-    /**
-     * @var ProductStreamFilterCollection|null
-     */
-    protected $queries;
+    protected ?ProductStreamFilterCollection $queries = null;
 
-    /**
-     * @var ProductStreamFilterEntity|null
-     */
-    protected $parent;
+    protected ?ProductStreamFilterEntity $parent = null;
 
-    /**
-     * @var int
-     */
-    protected $position;
+    protected int $position;
 
     /**
      * @var array<string>|null
      */
-    protected $parameters;
+    protected ?array $parameters = null;
 
     public function getField(): ?string
     {

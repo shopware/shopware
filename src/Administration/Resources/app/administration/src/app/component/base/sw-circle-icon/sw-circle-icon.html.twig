@@ -1,3 +1,4 @@
+{% block sw_circle_icon %}
 <sw-label
     class="sw-circle-icon"
     :style="backgroundStyles"
@@ -5,8 +6,9 @@
     appearance="circle"
     :dismissable="false"
 >
-    <sw-icon
+    <mt-icon
         :name="iconName"
         :size="iconSize"
     />
 </sw-label>
+{% endblock %}

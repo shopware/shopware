@@ -1,13 +1,17 @@
 {# @var product \Shopware\Core\Content\Product\SalesChannel\SalesChannelProductEntity #}
 
 {% block layout_search_suggest %}
-    <div class="search-suggest js-search-result" aria-label="{{ 'header.searchDropdownTitle'|trans|striptags }}">
+    <div class="search-suggest js-search-result">
         {% block layout_search_suggest_container %}
-            <ul class="search-suggest-container">
+
+            <ul class="search-suggest-container" 
+                id="search-suggest-listbox"
+                aria-label="{{ 'header.searchDropdownTitle'|trans|striptags }}"
+                role="listbox">
                 {% block layout_search_suggest_results %}
                     {% for product in page.searchResult %}
                         {% block layout_search_suggest_result_product %}
-                            <li class="search-suggest-product js-result">
+                            <li class="search-suggest-product js-result" role="option">
                                 {% block layout_search_suggest_result_link %}
                                     <a href="{{ seoUrl('frontend.detail.page', {productId: product.id}) }}"
                                        title="{{ product.translated.name }}"
@@ -71,15 +75,15 @@
                                                         {{ 'listing.listingTextFrom'|trans|sw_sanitize }}
                                                     {% endif %}
                                                     <span class="search-suggest-product-price">
-                                                        {{ price.unitPrice|currency }}{{ 'general.star'|trans|sw_sanitize }}
+                                                        {{ price.unitPrice|currency }}
                                                     </span>
 
                                                     {% if price.referencePrice is not null %}
-                                                        <br><small class="search-suggest-product-reference-price">({{ price.referencePrice.price|currency }}{{ 'general.star'|trans|sw_sanitize }} / {{ price.referencePrice.referenceUnit }}&nbsp;{{ price.referencePrice.unitName }})</small>
+                                                        <br><small class="search-suggest-product-reference-price">({{ price.referencePrice.price|currency }} / {{ price.referencePrice.referenceUnit }}&nbsp;{{ price.referencePrice.unitName }})</small>
                                                     {% endif %}
 
                                                     {% if price.regulationPrice.price is not null %}
-                                                        <small class="search-suggest-product-list-price">{{ 'general.listPricePreviously'|trans({'%price%': price.regulationPrice.price|currency }) }}{{ 'general.star'|trans|sw_sanitize }}</small>
+                                                        <small class="search-suggest-product-list-price">{{ 'general.listPricePreviously'|trans({'%price%': price.regulationPrice.price|currency }) }}</small>
                                                     {% endif %}
                                                 </div>
                                             {% endblock %}
@@ -94,18 +98,19 @@
                 {% block layout_search_suggest_result_total %}
                     {% if page.searchResult.total == 0 %}
                         {% block layout_search_suggest_no_result %}
-                            <li class="search-suggest-no-result">
+                            <li class="search-suggest-no-result" id="search-suggest-result-info" role="option">
                                 {{ 'header.searchNoResult'|trans|sw_sanitize }}
                             </li>
                         {% endblock %}
                     {% else %}
                         {% block layout_search_suggest_result_total_result %}
-                            <li class="js-result search-suggest-total">
+                            <li class="js-result search-suggest-total" role="option">
                                 <div class="row align-items-center g-0">
                                     {% block layout_search_suggest_result_total_link %}
                                         <div class="col">
                                             <a href="{{ path('frontend.search.page') }}?search={{ page.searchTerm }}"
                                                title="{{ 'header.searchAllResults'|trans|striptags }}"
+                                               aria-label="{{ 'header.searchAllResults'|trans|striptags }}"
                                                class="search-suggest-total-link">
                                                 {% sw_icon 'arrow-head-right' style { size: 'sm' } %}
                                                 {{ 'header.searchAllResults'|trans|sw_sanitize }}
@@ -114,7 +119,7 @@
                                     {% endblock %}
 
                                     {% block layout_search_suggest_result_total_count %}
-                                        <div class="col-auto search-suggest-total-count">
+                                        <div class="col-auto search-suggest-total-count" id="search-suggest-result-info">
                                             {{ 'header.searchResults'|trans({
                                                 '%count%': page.searchResult.total,
                                             })|sw_sanitize }}

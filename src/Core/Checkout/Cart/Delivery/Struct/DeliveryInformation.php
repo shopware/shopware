@@ -8,64 +8,16 @@ use Shopware\Core\Framework\Struct\Struct;
 #[Package('checkout')]
 class DeliveryInformation extends Struct
 {
-    /**
-     * @var int
-     */
-    protected $stock;
-
-    /**
-     * @var float|null
-     */
-    protected $weight;
-
-    /**
-     * @var bool
-     */
-    protected $freeDelivery;
-
-    /**
-     * @var int|null
-     */
-    protected $restockTime;
-
-    /**
-     * @var DeliveryTime|null
-     */
-    protected $deliveryTime;
-
-    /**
-     * @var float|null
-     */
-    protected $height;
-
-    /**
-     * @var float|null
-     */
-    protected $width;
-
-    /**
-     * @var float|null
-     */
-    protected $length;
-
     public function __construct(
-        int $stock,
-        ?float $weight,
-        bool $freeDelivery,
-        ?int $restockTime = null,
-        ?DeliveryTime $deliveryTime = null,
-        ?float $height = null,
-        ?float $width = null,
-        ?float $length = null
+        protected int $stock,
+        protected ?float $weight,
+        protected bool $freeDelivery,
+        protected ?int $restockTime = null,
+        protected ?DeliveryTime $deliveryTime = null,
+        protected ?float $height = null,
+        protected ?float $width = null,
+        protected ?float $length = null
     ) {
-        $this->stock = $stock;
-        $this->weight = $weight;
-        $this->freeDelivery = $freeDelivery;
-        $this->restockTime = $restockTime;
-        $this->deliveryTime = $deliveryTime;
-        $this->height = $height;
-        $this->width = $width;
-        $this->length = $length;
     }
 
     public function getStock(): int

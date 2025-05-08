@@ -7,7 +7,7 @@ const { fileReader } = Shopware.Utils;
 /**
  * @status ready
  * @description The <u>sw-media-preview-v2</u> component is used to show a preview of media objects.
- * @package content
+ * @sw-package discovery
  * @example-type code-only
  * @component-example
  * <sw-media-preview-v2
@@ -21,11 +21,15 @@ const { fileReader } = Shopware.Utils;
 export default {
     template,
 
-    compatConfig: Shopware.compatConfig,
+    inject: [
+        'repositoryFactory',
+        'feature',
+    ],
 
-    inject: ['repositoryFactory', 'feature'],
-
-    emits: ['click', 'media-preview-play'],
+    emits: [
+        'click',
+        'media-preview-play',
+    ],
 
     playableVideoFormats: [
         'video/mp4',
@@ -40,7 +44,7 @@ export default {
         'audio/wav',
     ],
 
-    placeholderThumbnailsBasePath: '/administration/static/img/media-preview/',
+    placeholderThumbnailsBasePath: '/administration/administration/static/img/media-preview/',
 
     placeHolderThumbnails: {
         application: {

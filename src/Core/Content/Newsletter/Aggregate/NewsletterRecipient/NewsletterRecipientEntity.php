@@ -11,96 +11,45 @@ use Shopware\Core\System\SalesChannel\SalesChannelEntity;
 use Shopware\Core\System\Salutation\SalutationEntity;
 use Shopware\Core\System\Tag\TagCollection;
 
-#[Package('buyers-experience')]
+#[Package('after-sales')]
 class NewsletterRecipientEntity extends Entity
 {
     use EntityCustomFieldsTrait;
     use EntityIdTrait;
 
-    /**
-     * @var string
-     */
-    protected $email;
+    protected string $email;
 
-    /**
-     * @var string|null
-     */
-    protected $title;
+    protected ?string $title = null;
 
-    /**
-     * @var string|null
-     */
-    protected $firstName;
+    protected ?string $firstName = null;
 
-    /**
-     * @var string|null
-     */
-    protected $lastName;
+    protected ?string $lastName = null;
 
-    /**
-     * @var string|null
-     */
-    protected $zipCode;
+    protected ?string $zipCode = null;
 
-    /**
-     * @var string|null
-     */
-    protected $city;
+    protected ?string $city = null;
 
-    /**
-     * @var string|null
-     */
-    protected $street;
+    protected ?string $street = null;
 
-    /**
-     * @var string|null
-     */
-    protected $status;
+    protected ?string $status = null;
 
-    /**
-     * @var string
-     */
-    protected $hash;
+    protected string $hash;
 
-    /**
-     * @var string|null
-     */
-    protected $salutationId;
+    protected ?string $salutationId = null;
 
-    /**
-     * @var SalutationEntity|null
-     */
-    protected $salutation;
+    protected ?SalutationEntity $salutation = null;
 
-    /**
-     * @var string
-     */
-    protected $languageId;
+    protected string $languageId;
 
-    /**
-     * @var LanguageEntity|null
-     */
-    protected $language;
+    protected ?LanguageEntity $language = null;
 
-    /**
-     * @var string
-     */
-    protected $salesChannelId;
+    protected string $salesChannelId;
 
-    /**
-     * @var SalesChannelEntity|null
-     */
-    protected $salesChannel;
+    protected ?SalesChannelEntity $salesChannel = null;
 
-    /**
-     * @var \DateTimeInterface|null
-     */
-    protected $confirmedAt;
+    protected ?\DateTimeInterface $confirmedAt = null;
 
-    /**
-     * @var TagCollection|null
-     */
-    protected $tags;
+    protected ?TagCollection $tags = null;
 
     public function getEmail(): string
     {

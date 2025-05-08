@@ -11,6 +11,7 @@ use Shopware\Core\Checkout\Customer\Validation\Constraint\CustomerVatIdentificat
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsAnyFilter;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Validation\HappyPathValidator;
 use Shopware\Core\System\Country\CountryEntity;
@@ -23,17 +24,18 @@ use Symfony\Contracts\Translation\TranslatorInterface;
  * @internal
  */
 #[CoversClass(CustomerVatIdentificationValidator::class)]
+#[Package('checkout')]
 class CustomerVatIdentificationValidatorTest extends TestCase
 {
     use IntegrationTestBehaviour;
 
-    private CustomerVatIdentificationValidator $validator;
-
-    private ExecutionContext $executionContext;
-
     private const COUNTRY_ISO = [
         'DE', 'AT', 'BE', 'BG', 'CY', 'CZ', 'DK', 'EE', 'GR', 'ES', 'FI', 'FR', 'GB', 'HU', 'IE', 'IT', 'LT', 'LU', 'LV', 'MT', 'NL', 'PL', 'PT', 'RO', 'SE', 'SI', 'SK',
     ];
+
+    private CustomerVatIdentificationValidator $validator;
+
+    private ExecutionContext $executionContext;
 
     /**
      * @var string[]
@@ -45,12 +47,12 @@ class CustomerVatIdentificationValidatorTest extends TestCase
         $this->countries = $this->getCountries();
 
         $this->executionContext = new ExecutionContext(
-            $this->getContainer()->get(HappyPathValidator::class),
+            static::getContainer()->get(HappyPathValidator::class),
             null,
-            $this->getContainer()->get(TranslatorInterface::class),
+            static::getContainer()->get(TranslatorInterface::class),
         );
 
-        $connection = $this->getContainer()->get(Connection::class);
+        $connection = static::getContainer()->get(Connection::class);
 
         $this->validator = new CustomerVatIdentificationValidator($connection);
 
@@ -136,11 +138,11 @@ class CustomerVatIdentificationValidatorTest extends TestCase
 
         yield 'valid vat with Germany' => ['DE', ['DE123456789', 'DE999999999', 'DE888888888']];
 
-        yield 'valid vat with Belgium' => ['BE', ['BE0123456789']];
+        yield 'valid vat with Belgium' => ['BE', ['BE0123456789', 'BE1123456789']];
 
         yield 'valid vat with Bulgaria' => ['BG', ['BG1234567890', 'BG123456789']];
 
-        yield 'valid vat with Cyprus' => ['CY', ['CY12345678L']];
+        yield 'valid vat with Cyprus' => ['CY', ['CY12345678L', 'CY12345678D']];
 
         yield 'valid vat with Czech Republic' => ['CZ', ['CZ12345678', 'CZ123456789', 'CZ1234567890']];
 
@@ -156,11 +158,11 @@ class CustomerVatIdentificationValidatorTest extends TestCase
 
         yield 'valid vat with Hungary' => ['HU', ['HU12345678']];
 
-        yield 'valid vat with Ireland' => ['IE', ['IE1234567T', 'IE1234567FA']];
+        yield 'valid vat with Ireland' => ['IE', ['IE1234567T', 'IE1234567FA', 'IE1B12345D']];
 
         yield 'valid vat with Italy' => ['IT', ['IT12345678901', 'IT09876543210']];
 
-        yield 'valid vat with Lithuania' => ['LT', ['LT123456789', 'LT9876543210', 'LT123456789012']];
+        yield 'valid vat with Lithuania' => ['LT', ['LT123456789', 'LT123456789012']];
 
         yield 'valid vat with Luxembourg' => ['LU', ['LU12345678', 'LU87654321']];
 
@@ -174,7 +176,7 @@ class CustomerVatIdentificationValidatorTest extends TestCase
 
         yield 'valid vat with Portugal' => ['PT', ['PT123456789', 'PT987654321']];
 
-        yield 'valid vat with Romania' => ['RO', ['RO1234567890', 'RO123456', 'RO12']];
+        yield 'valid vat with Romania' => ['RO', ['RO1234567890', 'RO123456', 'RO12', 'RO1']];
 
         yield 'valid vat with Sweden' => ['SE', ['SE123456789901', 'SE987654321902', 'SE345678912303']];
 
@@ -215,7 +217,7 @@ class CustomerVatIdentificationValidatorTest extends TestCase
         yield 'invalid vat with Cyprus' => [
             'CY',
             4,
-            ['CY12345678Y', 'CY123456789', 'CY12345678', 'CY12345678X'],
+            ['CY123456789', 'CY12345678', 'AY12345678D', 'CY1234567D'],
         ];
 
         yield 'invalid vat with Czech Republic' => [
@@ -274,8 +276,8 @@ class CustomerVatIdentificationValidatorTest extends TestCase
 
         yield 'invalid vat with Lithuania' => [
             'LT',
-            3,
-            ['12345678', '1234567890', '1234567890123'],
+            4,
+            ['12345678', '1234567890', '1234567890123', 'LT9876543210'],
         ];
 
         yield 'invalid vat with Luxembourg' => [
@@ -316,8 +318,8 @@ class CustomerVatIdentificationValidatorTest extends TestCase
 
         yield 'invalid vat with Romania' => [
             'RO',
-            3,
-            ['RO1', 'RO12345678901', 'ROXY12345678'],
+            2,
+            ['RO12345678901', 'ROXY12345678'],
         ];
 
         yield 'invalid vat with Sweden' => [
@@ -351,7 +353,7 @@ class CustomerVatIdentificationValidatorTest extends TestCase
 
         $criteria->addFilter(new EqualsAnyFilter('iso', self::COUNTRY_ISO));
 
-        $repo = $this->getContainer()->get('country.repository');
+        $repo = static::getContainer()->get('country.repository');
 
         $countries = $repo->search($criteria, $context)->fmap(function (CountryEntity $country) {
             return $country->getIso();

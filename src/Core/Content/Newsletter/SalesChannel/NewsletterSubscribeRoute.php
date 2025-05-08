@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Content\Newsletter\SalesChannel;
 
+use Shopware\Core\Checkout\Customer\CustomerCollection;
 use Shopware\Core\Checkout\Customer\Service\EmailIdnConverter;
 use Shopware\Core\Content\Newsletter\Aggregate\NewsletterRecipient\NewsletterRecipientDefinition;
 use Shopware\Core\Content\Newsletter\Aggregate\NewsletterRecipient\NewsletterRecipientEntity;
@@ -17,6 +18,7 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\Framework\RateLimiter\Exception\RateLimitExceededException;
 use Shopware\Core\Framework\RateLimiter\RateLimiter;
+use Shopware\Core\Framework\Util\Hasher;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Framework\Validation\BuildValidationEvent;
 use Shopware\Core\Framework\Validation\DataBag\DataBag;
@@ -40,7 +42,7 @@ use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
  * @phpstan-type SubscribeRequest array{email: string, storefrontUrl: string, option: string, firstName?: string, lastName?: string, zipCode?: string, city?: string, street?: string, salutationId?: string}
  */
 #[Route(defaults: ['_routeScope' => ['store-api']])]
-#[Package('buyers-experience')]
+#[Package('after-sales')]
 class NewsletterSubscribeRoute extends AbstractNewsletterSubscribeRoute
 {
     final public const STATUS_NOT_SET = 'notSet';
@@ -75,6 +77,8 @@ class NewsletterSubscribeRoute extends AbstractNewsletterSubscribeRoute
 
     /**
      * @internal
+     *
+     * @param EntityRepository<CustomerCollection> $customerRepository
      */
     public function __construct(
         private readonly EntityRepository $newsletterRecipientRepository,
@@ -83,7 +87,8 @@ class NewsletterSubscribeRoute extends AbstractNewsletterSubscribeRoute
         private readonly SystemConfigService $systemConfigService,
         private readonly RateLimiter $rateLimiter,
         private readonly RequestStack $requestStack,
-        private readonly StoreApiCustomFieldMapper $customFieldMapper
+        private readonly StoreApiCustomFieldMapper $customFieldMapper,
+        private readonly EntityRepository $customerRepository,
     ) {
     }
 
@@ -157,37 +162,71 @@ class NewsletterSubscribeRoute extends AbstractNewsletterSubscribeRoute
         $this->newsletterRecipientRepository->upsert([$data], $context->getContext());
 
         $recipient = $this->getNewsletterRecipient('email', $data['email'], $context);
+        $recipientEmail = $recipient->getEmail();
 
-        if (!$this->isNewsletterDoi($context)) {
-            $event = new NewsletterConfirmEvent($context->getContext(), $recipient, $context->getSalesChannel()->getId());
+        if (!$this->isNewsletterDoi($context, $recipientEmail)) {
+            $event = new NewsletterConfirmEvent($context->getContext(), $recipient, $context->getSalesChannelId());
             $this->eventDispatcher->dispatch($event);
 
             return new NoContentResponse();
         }
 
-        $hashedEmail = hash('sha1', $data['email']);
+        $hashedEmail = Hasher::hash($data['email'], 'sha1');
         $url = $this->getSubscribeUrl($context, $hashedEmail, $data['hash'], $data, $recipient);
 
-        $event = new NewsletterRegisterEvent($context->getContext(), $recipient, $url, $context->getSalesChannel()->getId());
+        $event = new NewsletterRegisterEvent($context->getContext(), $recipient, $url, $context->getSalesChannelId());
         $this->eventDispatcher->dispatch($event);
 
         return new NoContentResponse();
     }
 
-    private function isNewsletterDoi(SalesChannelContext $context): bool
+    /**
+     * Determines if double opt-in (DOI) is required for newsletter subscription.
+     *
+     * For guest users: use general DOI setting
+     * For logged-in users:
+     * If DOI for registered customers is enabled: always require DOI
+     * If DOI for registered customers is disabled and general DOI is disabled: never require DOI
+     * If DOI for registered customers is disabled and general DOI is enabled: require DOI if the recipient email is different from the customer's email
+     */
+    private function isNewsletterDoi(SalesChannelContext $context, ?string $recipientEmail): bool
     {
-        if ($context->getCustomerId() === null) {
-            return $this->systemConfigService->getBool('core.newsletter.doubleOptIn', $context->getSalesChannelId());
+        $salesChannelId = $context->getSalesChannelId();
+        $customerId = $context->getCustomerId();
+        $isDoubleOptIn = $this->systemConfigService->getBool('core.newsletter.doubleOptIn', $salesChannelId);
+        $isDoubleOptInRegistered = $this->systemConfigService->getBool('core.newsletter.doubleOptInRegistered', $salesChannelId);
+
+        if ($customerId === null) {
+            return $isDoubleOptIn;
         }
 
-        return $this->systemConfigService->getBool('core.newsletter.doubleOptInRegistered', $context->getSalesChannelId());
+        if ($isDoubleOptInRegistered) {
+            return true;
+        }
+
+        if (!$isDoubleOptIn) {
+            return false;
+        }
+
+        $customerEmail = $this->getCustomerEmail($context, $customerId);
+
+        return $customerEmail !== $recipientEmail;
+    }
+
+    private function getCustomerEmail(SalesChannelContext $context, string $customerId): ?string
+    {
+        $criteria = new Criteria([$customerId]);
+
+        $customer = $this->customerRepository->search($criteria, $context->getContext())->getEntities()->first();
+
+        return $customer?->getEmail();
     }
 
     private function getOptInValidator(DataBag $dataBag, SalesChannelContext $context, bool $validateStorefrontUrl): DataValidationDefinition
     {
         $definition = new DataValidationDefinition('newsletter_recipient.create');
         $definition->add('email', new NotBlank(), new Email())
-            ->add('option', new NotBlank(), new Choice(array_keys($this->getOptionSelection($context))));
+            ->add('option', new NotBlank(), new Choice(array_keys($this->getOptionSelection($context, $dataBag->get('email')))));
 
         if (!empty($dataBag->get('firstName'))) {
             $definition->add('firstName', new NotBlank(), new Regex([
@@ -224,9 +263,9 @@ class NewsletterSubscribeRoute extends AbstractNewsletterSubscribeRoute
         $id = $this->getNewsletterRecipientId($data['email'], $context);
 
         $data['id'] = $id ?: Uuid::randomHex();
-        $data['languageId'] = $context->getContext()->getLanguageId();
-        $data['salesChannelId'] = $context->getSalesChannel()->getId();
-        $data['status'] = $this->getOptionSelection($context)[$data['option']];
+        $data['languageId'] = $context->getLanguageId();
+        $data['salesChannelId'] = $context->getSalesChannelId();
+        $data['status'] = $this->getOptionSelection($context, $data['email'])[$data['option']];
         $data['hash'] = Uuid::randomHex();
 
         return $data;
@@ -238,7 +277,7 @@ class NewsletterSubscribeRoute extends AbstractNewsletterSubscribeRoute
         $criteria->addFilter(
             new MultiFilter(MultiFilter::CONNECTION_AND, [
                 new EqualsFilter('email', $email),
-                new EqualsFilter('salesChannelId', $context->getSalesChannel()->getId()),
+                new EqualsFilter('salesChannelId', $context->getSalesChannelId()),
             ]),
         );
         $criteria->setLimit(1);
@@ -251,11 +290,11 @@ class NewsletterSubscribeRoute extends AbstractNewsletterSubscribeRoute
     /**
      * @return array<string, string>
      */
-    private function getOptionSelection(SalesChannelContext $context): array
+    private function getOptionSelection(SalesChannelContext $context, ?string $recipientEmail): array
     {
         return [
-            self::OPTION_DIRECT => $this->isNewsletterDoi($context) ? self::STATUS_NOT_SET : self::STATUS_DIRECT,
-            self::OPTION_SUBSCRIBE => $this->isNewsletterDoi($context) ? self::STATUS_NOT_SET : self::STATUS_DIRECT,
+            self::OPTION_DIRECT => $this->isNewsletterDoi($context, $recipientEmail) ? self::STATUS_NOT_SET : self::STATUS_DIRECT,
+            self::OPTION_SUBSCRIBE => $this->isNewsletterDoi($context, $recipientEmail) ? self::STATUS_NOT_SET : self::STATUS_DIRECT,
             self::OPTION_CONFIRM_SUBSCRIBE => self::STATUS_OPT_IN,
             self::OPTION_UNSUBSCRIBE => self::STATUS_OPT_OUT,
         ];

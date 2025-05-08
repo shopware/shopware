@@ -31,7 +31,7 @@ use Shopware\Core\Framework\Uuid\Uuid;
  *
  * @internal
  */
-#[Package('core')]
+#[Package('framework')]
 class EntityDefinitionQueryHelper
 {
     final public const HAS_TO_MANY_JOIN = 'has_to_many_join';
@@ -603,6 +603,25 @@ class EntityDefinitionQueryHelper
         $this->addIdConditionWithOr($criteria, $definition, $query);
     }
 
+    public function addGroupBy(EntityDefinition $definition, Criteria $criteria, Context $context, QueryBuilder $query, string $table): void
+    {
+        if ($criteria->getGroupFields()) {
+            foreach ($criteria->getGroupFields() as $grouping) {
+                $accessor = $this->getFieldAccessor($grouping->getField(), $definition, $definition->getEntityName(), $context);
+
+                $query->addGroupBy($accessor);
+            }
+
+            return;
+        }
+
+        if ($query->hasState(self::HAS_TO_MANY_JOIN)) {
+            $query->addGroupBy(
+                self::escape($table) . '.' . self::escape('id')
+            );
+        }
+    }
+
     private function callResolver(FieldResolverContext $context): string
     {
         $resolver = $context->getField()->getResolver();
@@ -655,25 +674,6 @@ class EntityDefinitionQueryHelper
         $wheres = implode(' OR ', $wheres);
 
         $query->andWhere($wheres);
-    }
-
-    public function addGroupBy(EntityDefinition $definition, Criteria $criteria, Context $context, QueryBuilder $query, string $table): void
-    {
-        if ($criteria->getGroupFields()) {
-            foreach ($criteria->getGroupFields() as $grouping) {
-                $accessor = $this->getFieldAccessor($grouping->getField(), $definition, $definition->getEntityName(), $context);
-
-                $query->addGroupBy($accessor);
-            }
-
-            return;
-        }
-
-        if ($query->hasState(self::HAS_TO_MANY_JOIN)) {
-            $query->addGroupBy(
-                self::escape($table) . '.' . self::escape('id')
-            );
-        }
     }
 
     /**

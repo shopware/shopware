@@ -43,435 +43,207 @@ class ProductEntity extends Entity implements \Stringable
     use EntityCustomFieldsTrait;
     use EntityIdTrait;
 
-    /**
-     * @var string|null
-     */
-    protected $parentId;
+    protected ?string $parentId = null;
 
-    /**
-     * @var int
-     */
-    protected $childCount;
+    protected int $childCount = 0;
 
-    /**
-     * @var int
-     */
-    protected $autoIncrement;
+    protected int $autoIncrement;
 
-    /**
-     * @var string|null
-     */
-    protected $taxId;
+    protected ?string $taxId = null;
 
-    /**
-     * @var string|null
-     */
-    protected $manufacturerId;
+    protected ?string $manufacturerId = null;
 
-    /**
-     * @var string|null
-     */
-    protected $unitId;
+    protected ?string $unitId = null;
 
-    /**
-     * @var bool|null
-     */
-    protected $active;
+    protected ?bool $active = null;
 
-    /**
-     * @var string|null
-     */
-    protected $displayGroup;
+    protected ?string $displayGroup = null;
 
-    /**
-     * @var PriceCollection|null
-     */
-    protected $price;
+    protected ?PriceCollection $price = null;
 
-    /**
-     * @var string|null
-     */
-    protected $manufacturerNumber;
+    protected ?string $manufacturerNumber = null;
 
-    /**
-     * @var string|null
-     */
-    protected $ean;
+    protected ?string $ean = null;
 
-    /**
-     * @var int
-     */
-    protected $sales;
+    protected int $sales;
 
-    /**
-     * @var string
-     */
-    protected $productNumber;
+    protected string $productNumber;
 
-    /**
-     * @var int
-     */
-    protected $stock;
+    protected int $stock;
 
-    /**
-     * @var int|null
-     */
-    protected $availableStock;
+    protected ?int $availableStock = null;
 
-    /**
-     * @var bool
-     */
-    protected $available;
+    protected bool $available;
 
-    /**
-     * @var string|null
-     */
-    protected $deliveryTimeId;
+    protected ?string $deliveryTimeId = null;
 
-    /**
-     * @var DeliveryTimeEntity|null
-     */
-    protected $deliveryTime;
+    protected ?DeliveryTimeEntity $deliveryTime = null;
 
-    /**
-     * @var int|null
-     */
-    protected $restockTime;
+    protected ?int $restockTime = null;
 
-    /**
-     * @var bool|null
-     */
-    protected $isCloseout;
+    protected ?bool $isCloseout = null;
 
-    /**
-     * @var int|null
-     */
-    protected $purchaseSteps;
+    protected ?int $purchaseSteps = null;
 
-    /**
-     * @var int|null
-     */
-    protected $maxPurchase;
+    protected ?int $maxPurchase = null;
 
-    /**
-     * @var int|null
-     */
-    protected $minPurchase;
+    protected ?int $minPurchase = null;
 
-    /**
-     * @var float|null
-     */
-    protected $purchaseUnit;
+    protected ?float $purchaseUnit = null;
 
-    /**
-     * @var float|null
-     */
-    protected $referenceUnit;
+    protected ?float $referenceUnit = null;
 
-    /**
-     * @var bool|null
-     */
-    protected $shippingFree;
+    protected ?bool $shippingFree = null;
 
-    /**
-     * @var PriceCollection|null
-     */
-    protected $purchasePrices;
+    protected ?PriceCollection $purchasePrices = null;
 
-    /**
-     * @var bool|null
-     */
-    protected $markAsTopseller;
+    protected ?bool $markAsTopseller = null;
 
-    /**
-     * @var float|null
-     */
-    protected $weight;
+    protected ?float $weight = null;
 
-    /**
-     * @var float|null
-     */
-    protected $width;
+    protected ?float $width = null;
 
-    /**
-     * @var float|null
-     */
-    protected $height;
+    protected ?float $height = null;
 
-    /**
-     * @var float|null
-     */
-    protected $length;
+    protected ?float $length = null;
 
-    /**
-     * @var \DateTimeInterface|null
-     */
-    protected $releaseDate;
+    protected ?\DateTimeInterface $releaseDate = null;
 
     /**
      * @var array<string>|null
      */
-    protected $categoryTree;
+    protected ?array $categoryTree = null;
 
     /**
      * @var array<string>|null
      */
-    protected $streamIds;
+    protected ?array $streamIds = null;
 
     /**
      * @var array<string>|null
      */
-    protected $optionIds;
+    protected ?array $optionIds = null;
 
     /**
      * @var array<string>|null
      */
-    protected $propertyIds;
+    protected ?array $propertyIds = null;
 
-    /**
-     * @var string|null
-     */
-    protected $name;
+    protected ?string $name = null;
 
-    /**
-     * @var string|null
-     */
-    protected $keywords;
+    protected ?string $keywords = null;
 
-    /**
-     * @var string|null
-     */
-    protected $description;
+    protected ?string $description = null;
 
-    /**
-     * @var string|null
-     */
-    protected $metaDescription;
+    protected ?string $metaDescription = null;
 
-    /**
-     * @var string|null
-     */
-    protected $metaTitle;
+    protected ?string $metaTitle = null;
 
-    /**
-     * @var string|null
-     */
-    protected $packUnit;
+    protected ?string $packUnit = null;
 
-    /**
-     * @var string|null
-     */
-    protected $packUnitPlural;
+    protected ?string $packUnitPlural = null;
 
     /**
      * @var array<string>|null
      */
-    protected $variantRestrictions;
+    protected ?array $variantRestrictions = null;
 
-    /**
-     * @var VariantListingConfig|null
-     */
-    protected $variantListingConfig;
+    protected ?VariantListingConfig $variantListingConfig = null;
 
     /**
      * @var array<array<string>>
      */
-    protected $variation = [];
+    protected array $variation = [];
 
-    /**
-     * @var TaxEntity|null
-     */
-    protected $tax;
+    protected ?TaxEntity $tax = null;
 
-    /**
-     * @var ProductManufacturerEntity|null
-     */
-    protected $manufacturer;
+    protected ?ProductManufacturerEntity $manufacturer = null;
 
-    /**
-     * @var UnitEntity|null
-     */
-    protected $unit;
+    protected ?UnitEntity $unit = null;
 
-    /**
-     * @var ProductPriceCollection
-     */
-    protected $prices;
+    protected ProductPriceCollection $prices;
 
-    /**
-     * @var ProductMediaEntity|null
-     */
-    protected $cover;
+    protected ?ProductMediaEntity $cover = null;
 
-    /**
-     * @var ProductEntity|null
-     */
-    protected $parent;
+    protected ?ProductEntity $parent = null;
 
-    /**
-     * @var ProductCollection|null
-     */
-    protected $children;
+    protected ?ProductCollection $children = null;
 
-    /**
-     * @var ProductMediaCollection|null
-     */
-    protected $media;
+    protected ?ProductMediaCollection $media = null;
 
-    /**
-     * @var string|null
-     */
-    protected $cmsPageId;
+    protected ?string $cmsPageId = null;
 
-    /**
-     * @var CmsPageEntity|null
-     */
-    protected $cmsPage;
+    protected ?CmsPageEntity $cmsPage = null;
 
     /**
      * @var array<string, array<string, array<string, string>>>|null
      */
-    protected $slotConfig;
+    protected ?array $slotConfig = null;
 
-    /**
-     * @var ProductSearchKeywordCollection|null
-     */
-    protected $searchKeywords;
+    protected ?ProductSearchKeywordCollection $searchKeywords = null;
 
-    /**
-     * @var ProductTranslationCollection|null
-     */
-    protected $translations;
+    protected ?ProductTranslationCollection $translations = null;
 
-    /**
-     * @var CategoryCollection|null
-     */
-    protected $categories;
+    protected ?CategoryCollection $categories = null;
 
-    /**
-     * @var CustomFieldSetCollection|null
-     */
-    protected $customFieldSets;
+    protected ?CustomFieldSetCollection $customFieldSets = null;
 
-    /**
-     * @var TagCollection|null
-     */
-    protected $tags;
+    protected ?TagCollection $tags = null;
 
-    /**
-     * @var PropertyGroupOptionCollection|null
-     */
-    protected $properties;
+    protected ?PropertyGroupOptionCollection $properties = null;
 
-    /**
-     * @var PropertyGroupOptionCollection|null
-     */
-    protected $options;
+    protected ?PropertyGroupOptionCollection $options = null;
 
-    /**
-     * @var ProductConfiguratorSettingCollection|null
-     */
-    protected $configuratorSettings;
+    protected ?ProductConfiguratorSettingCollection $configuratorSettings = null;
 
-    /**
-     * @var CategoryCollection|null
-     */
-    protected $categoriesRo;
+    protected ?CategoryCollection $categoriesRo = null;
 
-    /**
-     * @var string|null
-     */
-    protected $coverId;
+    protected ?string $coverId = null;
 
-    /**
-     * @var ProductVisibilityCollection|null
-     */
-    protected $visibilities;
+    protected ?ProductVisibilityCollection $visibilities = null;
 
     /**
      * @var array<string>|null
      */
-    protected $tagIds;
+    protected ?array $tagIds = null;
 
     /**
      * @var array<string>|null
      */
-    protected $categoryIds;
+    protected ?array $categoryIds = null;
 
-    /**
-     * @var ProductReviewCollection|null
-     */
-    protected $productReviews;
+    protected ?ProductReviewCollection $productReviews = null;
 
-    /**
-     * @var float|null
-     */
-    protected $ratingAverage;
+    protected ?float $ratingAverage = null;
 
-    /**
-     * @var MainCategoryCollection|null
-     */
-    protected $mainCategories;
+    protected ?MainCategoryCollection $mainCategories = null;
 
-    /**
-     * @var SeoUrlCollection|null
-     */
-    protected $seoUrls;
+    protected ?SeoUrlCollection $seoUrls = null;
 
-    /**
-     * @var OrderLineItemCollection|null
-     */
-    protected $orderLineItems;
+    protected ?OrderLineItemCollection $orderLineItems = null;
 
-    /**
-     * @var ProductCrossSellingCollection|null
-     */
-    protected $crossSellings;
+    protected ?ProductCrossSellingCollection $crossSellings = null;
 
-    /**
-     * @var ProductCrossSellingAssignedProductsCollection|null
-     */
-    protected $crossSellingAssignedProducts;
+    protected ?ProductCrossSellingAssignedProductsCollection $crossSellingAssignedProducts = null;
 
-    /**
-     * @var string|null
-     */
-    protected $featureSetId;
+    protected ?string $featureSetId = null;
 
-    /**
-     * @var ProductFeatureSetEntity|null
-     */
-    protected $featureSet;
+    protected ?ProductFeatureSetEntity $featureSet = null;
 
-    /**
-     * @var bool|null
-     */
-    protected $customFieldSetSelectionActive;
+    protected ?bool $customFieldSetSelectionActive = null;
 
     /**
      * @var array<string>|null
      */
-    protected $customSearchKeywords;
+    protected ?array $customSearchKeywords = null;
 
-    /**
-     * @var CustomerWishlistProductCollection|null
-     */
-    protected $wishlists;
+    protected ?CustomerWishlistProductCollection $wishlists = null;
 
-    /**
-     * @var string|null
-     */
-    protected $canonicalProductId;
+    protected ?string $canonicalProductId = null;
 
-    /**
-     * @var ProductEntity|null
-     */
-    protected $canonicalProduct;
+    protected ?ProductEntity $canonicalProduct = null;
 
-    /**
-     * @var ProductStreamCollection|null
-     */
-    protected $streams;
+    protected ?ProductStreamCollection $streams = null;
 
     protected ?ProductDownloadCollection $downloads = null;
 

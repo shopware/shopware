@@ -31,12 +31,12 @@ class ExtensionStoreLicensesServiceTest extends TestCase
 
     protected function setUp(): void
     {
-        $this->extensionLicensesService = $this->getContainer()->get(AbstractExtensionStoreLicensesService::class);
+        $this->extensionLicensesService = static::getContainer()->get(AbstractExtensionStoreLicensesService::class);
     }
 
     public function testCancelSubscriptionNotInstalled(): void
     {
-        $this->getContainer()->get(SystemConfigService::class)->set(StoreService::CONFIG_KEY_STORE_LICENSE_DOMAIN, 'localhost');
+        static::getContainer()->get(SystemConfigService::class)->set(StoreService::CONFIG_KEY_STORE_LICENSE_DOMAIN, 'localhost');
         $context = $this->getContextWithStoreToken();
 
         $this->setCancellationResponses();
@@ -87,7 +87,7 @@ class ExtensionStoreLicensesServiceTest extends TestCase
             ],
         ];
 
-        $this->getContainer()->get('user.repository')->create($data, Context::createDefaultContext());
+        static::getContainer()->get('user.repository')->create($data, Context::createDefaultContext());
         $source = new AdminApiSource($userId);
         $source->setIsAdmin(true);
 

@@ -2,14 +2,14 @@
 
 namespace Shopware\Elasticsearch\Framework;
 
-use OpenSearchDSL\Query\Compound\BoolQuery;
+use OpenSearchDSL\BuilderInterface;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\Common\IterableQuery;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Log\Package;
 
-#[Package('core')]
+#[Package('framework')]
 abstract class AbstractElasticsearchDefinition
 {
     final public const KEYWORD_FIELD = [
@@ -56,7 +56,7 @@ abstract class AbstractElasticsearchDefinition
         return [];
     }
 
-    abstract public function buildTermQuery(Context $context, Criteria $criteria): BoolQuery;
+    abstract public function buildTermQuery(Context $context, Criteria $criteria): BuilderInterface;
 
     /**
      * @return array<string, mixed>

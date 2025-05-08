@@ -57,7 +57,7 @@ use Shopware\Core\Framework\Log\Package;
  *
  * @internal
  */
-#[Package('core')]
+#[Package('framework')]
 class EntityAggregator implements EntityAggregatorInterface
 {
     /**
@@ -121,15 +121,24 @@ class EntityAggregator implements EntityAggregatorInterface
         }
     }
 
+    private function validateAggregation(Aggregation $aggregation): void
+    {
+        if (str_contains($aggregation->getName(), '?') || str_contains($aggregation->getName(), ':')) {
+            throw DataAbstractionLayerException::invalidAggregationName($aggregation->getName());
+        }
+
+        if ($aggregation instanceof BucketAggregation && $aggregation->getAggregation()) {
+            $this->validateAggregation($aggregation->getAggregation());
+        }
+    }
+
     private function fetchAggregation(
         Aggregation $aggregation,
         EntityDefinition $definition,
         Criteria $criteria,
         Context $context
     ): AggregationResult {
-        if (str_contains($aggregation->getName(), '?') || str_contains($aggregation->getName(), ':')) {
-            throw DataAbstractionLayerException::invalidAggregationName($aggregation->getName());
-        }
+        $this->validateAggregation($aggregation);
 
         $clone = clone $criteria;
         $clone->resetAggregations();
@@ -303,7 +312,7 @@ class EntityAggregator implements EntityAggregatorInterface
             DateHistogramAggregation::PER_MONTH => 'DATE_FORMAT(' . $accessor . ', \'%Y-%m\')',
             DateHistogramAggregation::PER_QUARTER => 'CONCAT(DATE_FORMAT(' . $accessor . ', \'%Y\'), \'-\', QUARTER(' . $accessor . '))',
             DateHistogramAggregation::PER_YEAR => 'DATE_FORMAT(' . $accessor . ', \'%Y\')',
-            default => throw new \RuntimeException('Provided date format is not supported'),
+            default => throw throw DataAbstractionLayerException::invalidDateFormat($aggregation->getInterval(), DateHistogramAggregation::ALLOWED_INTERVALS),
         };
         $query->addGroupBy($groupBy);
 

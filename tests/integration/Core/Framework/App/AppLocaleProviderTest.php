@@ -25,8 +25,8 @@ class AppLocaleProviderTest extends TestCase
 
     protected function setUp(): void
     {
-        $this->localeProvider = $this->getContainer()->get(AppLocaleProvider::class);
-        $this->userRepository = $this->getContainer()->get('user.repository');
+        $this->localeProvider = static::getContainer()->get(AppLocaleProvider::class);
+        $this->userRepository = static::getContainer()->get('user.repository');
     }
 
     public function testGetLocaleWithSystemSource(): void
@@ -38,7 +38,7 @@ class AppLocaleProviderTest extends TestCase
 
     public function testGetLocaleWithSalesChannelSource(): void
     {
-        $context = $this->getContainer()->get(SalesChannelContextFactory::class)->create(Uuid::randomHex(), TestDefaults::SALES_CHANNEL);
+        $context = static::getContainer()->get(SalesChannelContextFactory::class)->create(Uuid::randomHex(), TestDefaults::SALES_CHANNEL);
         $locale = $this->localeProvider->getLocaleFromContext($context->getContext());
 
         static::assertSame('en-GB', $locale);

@@ -7,25 +7,16 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityCustomFieldsTrait;
 use Shopware\Core\Framework\DataAbstractionLayer\TranslationEntity;
 use Shopware\Core\Framework\Log\Package;
 
-#[Package('checkout')]
+#[Package('after-sales')]
 class DocumentTypeTranslationEntity extends TranslationEntity
 {
     use EntityCustomFieldsTrait;
 
-    /**
-     * @var string
-     */
-    protected $documentTypeId;
+    protected string $documentTypeId;
 
-    /**
-     * @var DocumentTypeEntity|null
-     */
-    protected $documentType;
+    protected ?DocumentTypeEntity $documentType = null;
 
-    /**
-     * @var string|null
-     */
-    protected $name;
+    protected ?string $name = null;
 
     public function getDocumentTypeId(): string
     {

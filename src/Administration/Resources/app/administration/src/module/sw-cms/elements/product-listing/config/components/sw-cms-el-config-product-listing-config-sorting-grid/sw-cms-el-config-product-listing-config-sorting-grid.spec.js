@@ -1,5 +1,5 @@
 /**
- * @package buyers-experience
+ * @sw-package discovery
  */
 import { mount } from '@vue/test-utils';
 import EntityCollection from 'src/core/data/entity-collection.data';
@@ -64,7 +64,7 @@ async function createWrapper(productSortings = [], defaultSorting = {}) {
                               <slot name="column-fields" v-bind="{ item: item }"></slot>
                               <slot name="column-priority" v-bind="{ item: item }">
                                   <div :class="'column-priority_' + item.id">
-                                      <sw-number-field v-model:value="item.priority" class="sw-grid-priority"></sw-number-field>
+                                      <mt-number-field v-model:value="item.priority" class="sw-grid-priority"></mt-number-field>
                                   </div>
                               </slot>
                           </template>
@@ -75,7 +75,7 @@ async function createWrapper(productSortings = [], defaultSorting = {}) {
                     template: '<div @click="$emit(\'click\')"></div>',
                 },
                 'sw-pagination': true,
-                'sw-number-field': {
+                'mt-number-field': {
                     template: `
                     <input type="number" :value="value" @input="$emit('update:value', Number($event.target.value))" />
                 `,
@@ -180,24 +180,66 @@ describe('src/module/sw-cms/elements/product-listing/config/components/sw-cms-el
 
     it('should display criteria properly', async () => {
         const productSortings = new EntityCollection('', '', {}, {}, [
-            { id: '1a2b3c', fields: [{ field: 'product.name' }], locked: false, priority: 1 },
-            { id: 'foo', fields: [{ field: 'custom_field_2' }], locked: false, priority: 5 },
-            { id: 'bar', fields: [{ field: 'product.price' }, { field: 'custom_field_0' }], locked: false, priority: 3 },
+            {
+                id: '1a2b3c',
+                fields: [{ field: 'product.name' }],
+                locked: false,
+                priority: 1,
+            },
+            {
+                id: 'foo',
+                fields: [{ field: 'custom_field_2' }],
+                locked: false,
+                priority: 5,
+            },
+            {
+                id: 'bar',
+                fields: [
+                    { field: 'product.price' },
+                    { field: 'custom_field_0' },
+                ],
+                locked: false,
+                priority: 3,
+            },
         ]);
 
         const wrapper = await createWrapper(productSortings);
         await flushPromises();
 
-        expect(wrapper.findAll('.sw-cms-el-config-product-listing-config-sorting-grid__criteria').at(0).text()).toBe('Product name');
-        expect(wrapper.findAll('.sw-cms-el-config-product-listing-config-sorting-grid__criteria').at(1).text()).toBe('custom field 2');
-        expect(wrapper.findAll('.sw-cms-el-config-product-listing-config-sorting-grid__criteria').at(2).text()).toBe('Product price, custom field 0');
+        expect(wrapper.findAll('.sw-cms-el-config-product-listing-config-sorting-grid__criteria').at(0).text()).toBe(
+            'Product name',
+        );
+        expect(wrapper.findAll('.sw-cms-el-config-product-listing-config-sorting-grid__criteria').at(1).text()).toBe(
+            'custom field 2',
+        );
+        expect(wrapper.findAll('.sw-cms-el-config-product-listing-config-sorting-grid__criteria').at(2).text()).toBe(
+            'Product price, custom field 0',
+        );
     });
 
     it('should disable delete button of default sorting', async () => {
         const productSortings = new EntityCollection('', '', {}, {}, [
-            { id: '1a2b3c', fields: [{ field: 'product.name' }], locked: false, priority: 1 },
-            { id: 'foo', fields: [{ field: 'custom_field_2' }], locked: false, priority: 5 },
-            { id: 'bar', fields: [{ field: 'product.price' }, { field: 'custom_field_0' }], locked: false, priority: 3 },
+            {
+                id: '1a2b3c',
+                fields: [{ field: 'product.name' }],
+                locked: false,
+                priority: 1,
+            },
+            {
+                id: 'foo',
+                fields: [{ field: 'custom_field_2' }],
+                locked: false,
+                priority: 5,
+            },
+            {
+                id: 'bar',
+                fields: [
+                    { field: 'product.price' },
+                    { field: 'custom_field_0' },
+                ],
+                locked: false,
+                priority: 3,
+            },
         ]);
 
         const defaultSorting = {
@@ -207,6 +249,8 @@ describe('src/module/sw-cms/elements/product-listing/config/components/sw-cms-el
         const wrapper = await createWrapper(productSortings, defaultSorting);
         await flushPromises();
 
-        expect(wrapper.find('.sw-cms-el-config-product-listing-config-sorting-grid__grid_item_foo').attributes('disabled')).toBe('true');
+        expect(
+            wrapper.find('.sw-cms-el-config-product-listing-config-sorting-grid__grid_item_foo').attributes('disabled'),
+        ).toBe('true');
     });
 });

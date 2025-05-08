@@ -4,7 +4,7 @@ namespace Shopware\Core\Content\Media\MediaType;
 
 use Shopware\Core\Framework\Log\Package;
 
-#[Package('buyers-experience')]
+#[Package('discovery')]
 class ImageType extends MediaType
 {
     final public const ANIMATED = 'animated';
@@ -12,5 +12,5 @@ class ImageType extends MediaType
     final public const VECTOR_GRAPHIC = 'vectorGraphic';
     final public const ICON = 'image/x-icon';
 
-    protected $name = 'IMAGE';
+    protected string $name = 'IMAGE';
 }

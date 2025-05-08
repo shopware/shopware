@@ -1,5 +1,5 @@
 /**
- * @package services-settings
+ * @sw-package fundamentals@after-sales
  */
 import template from './sw-import-export-progress.html.twig';
 import './sw-import-export-progress.scss';
@@ -10,11 +10,12 @@ import './sw-import-export-progress.scss';
 export default {
     template,
 
-    compatConfig: Shopware.compatConfig,
-
     inject: ['feature'],
 
-    emits: ['process-start', 'process-start-dryrun'],
+    emits: [
+        'process-start',
+        'process-start-dryrun',
+    ],
 
     props: {
         activityType: {

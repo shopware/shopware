@@ -9,12 +9,14 @@ use Shopware\Core\Content\Test\Media\MediaFixtures;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 
 /**
  * @internal
  */
+#[Package('after-sales')]
 class MailHeaderFooterRepositoryTest extends TestCase
 {
     use IntegrationTestBehaviour;
@@ -28,8 +30,8 @@ class MailHeaderFooterRepositoryTest extends TestCase
 
     protected function setUp(): void
     {
-        $this->repository = $this->getContainer()->get('mail_header_footer.repository');
-        $this->connection = $this->getContainer()->get(Connection::class);
+        $this->repository = static::getContainer()->get('mail_header_footer.repository');
+        $this->connection = static::getContainer()->get(Connection::class);
         $this->context = Context::createDefaultContext();
 
         try {

@@ -7,10 +7,8 @@ use Shopware\Core\Framework\Log\Package;
 
 /**
  * @template TResultType
- *
- * @experimental stableVersion:v6.7.0 feature:EXTENSION_SYSTEM
  */
-#[Package('core')]
+#[Package('framework')]
 abstract class Extension implements StoppableEventInterface
 {
     /**

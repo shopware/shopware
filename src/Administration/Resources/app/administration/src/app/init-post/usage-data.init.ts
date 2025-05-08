@@ -1,5 +1,5 @@
 /**
- * @package data-services
+ * @sw-package data-services
  *
  * @private
  */
@@ -9,19 +9,23 @@ export default function initUsageData(): Promise<void> {
         const usageDataApiService = Shopware.Service('usageDataService');
 
         if (!loginService.isLoggedIn()) {
-            Shopware.State.commit('usageData/resetConsent');
+            Shopware.Store.get('usageData').resetConsent();
 
             resolve();
 
             return;
         }
 
-        usageDataApiService.getConsent().then((usageData) => {
-            Shopware.State.commit('usageData/updateConsent', usageData);
-        }).catch(() => {
-            Shopware.State.commit('usageData/resetConsent');
-        }).finally(() => {
-            resolve();
-        });
+        usageDataApiService
+            .getConsent()
+            .then((usageData) => {
+                Shopware.Store.get('usageData').updateConsent(usageData);
+            })
+            .catch(() => {
+                Shopware.Store.get('usageData').resetConsent();
+            })
+            .finally(() => {
+                resolve();
+            });
     });
 }

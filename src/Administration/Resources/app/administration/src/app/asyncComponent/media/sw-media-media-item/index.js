@@ -8,7 +8,7 @@ const { dom } = Shopware.Utils;
  * @status ready
  * @description The <u>sw-media-media-item</u> component is used to store the media item and manage it through the
  * <u>sw-media-base-item</u> component. Use the default slot to add additional context menu items.
- * @package content
+ * @sw-package discovery
  * @example-type code-only
  * @component-example
  * <sw-media-media-item
@@ -29,14 +29,16 @@ const { dom } = Shopware.Utils;
 export default {
     template,
 
-    compatConfig: Shopware.compatConfig,
-
     inheritAttrs: false,
 
     inject: ['mediaService'],
 
     emits: [
-        'media-item-rename-success', 'media-item-play', 'media-item-delete', 'media-folder-move', 'media-item-replaced',
+        'media-item-rename-success',
+        'media-item-play',
+        'media-item-delete',
+        'media-folder-move',
+        'media-item-replaced',
     ],
 
     mixins: [
@@ -73,15 +75,6 @@ export default {
         fileSizeFilter() {
             return Shopware.Filter.getByName('fileSize');
         },
-
-        listeners() {
-            // eslint-disable-next-line @typescript-eslint/no-unsafe-call,@typescript-eslint/no-unsafe-member-access
-            if (this.isCompatEnabled('INSTANCE_LISTENERS')) {
-                return this.$listeners;
-            }
-
-            return {};
-        },
     },
 
     methods: {
@@ -117,9 +110,13 @@ export default {
             switch (error.code) {
                 case 'CONTENT__MEDIA_FILE_NAME_IS_TOO_LONG':
                     this.createNotificationError({
-                        message: this.$tc('global.sw-media-media-item.notification.fileNameTooLong.message', 0, {
-                            length: error.meta.parameters.maxLength,
-                        }),
+                        message: this.$tc(
+                            'global.sw-media-media-item.notification.fileNameTooLong.message',
+                            {
+                                length: error.meta.parameters.maxLength,
+                            },
+                            0,
+                        ),
                     });
                     break;
                 default:

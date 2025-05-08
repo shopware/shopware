@@ -1,5 +1,5 @@
 /**
- * @package content
+ * @sw-package discovery
  */
 import { mount } from '@vue/test-utils';
 import { deepMergeObject } from 'src/core/service/utils/object.utils';
@@ -14,9 +14,6 @@ describe('src/app/asyncComponent/media/sw-media-preview-v2', () => {
                 },
             },
             global: {
-                stubs: {
-                    'sw-icon': true,
-                },
                 provide: {
                     repositoryFactory: {
                         create: () => ({
@@ -35,7 +32,10 @@ describe('src/app/asyncComponent/media/sw-media-preview-v2', () => {
             },
         };
 
-        return mount(await wrapTestComponent('sw-media-preview-v2', { sync: true }), deepMergeObject(config, componentConfig));
+        return mount(
+            await wrapTestComponent('sw-media-preview-v2', { sync: true }),
+            deepMergeObject(config, componentConfig),
+        );
     };
 
     it('should be a Vue.js component', async () => {
@@ -56,7 +56,9 @@ describe('src/app/asyncComponent/media/sw-media-preview-v2', () => {
         wrapper.vm.showEvent();
         await flushPromises();
 
-        expect(`${wrapper.vm.$options.placeholderThumbnailsBasePath}icons-multicolor-file-thumbnail-broken.svg`).toContain(wrapper.find('.sw-media-preview-v2__item').attributes('src'));
+        expect(`${wrapper.vm.$options.placeholderThumbnailsBasePath}icons-multicolor-file-thumbnail-broken.svg`).toContain(
+            wrapper.find('.sw-media-preview-v2__item').attributes('src'),
+        );
     });
 
     it('should render normal icon when image preview failed and media is private', async () => {
@@ -72,7 +74,9 @@ describe('src/app/asyncComponent/media/sw-media-preview-v2', () => {
         wrapper.vm.showEvent();
         await flushPromises();
 
-        expect(`${wrapper.vm.$options.placeholderThumbnailsBasePath}icons-multicolor-file-thumbnail-normal.svg`).toContain(wrapper.find('.sw-media-preview-v2__item').attributes('src'));
+        expect(`${wrapper.vm.$options.placeholderThumbnailsBasePath}icons-multicolor-file-thumbnail-normal.svg`).toContain(
+            wrapper.find('.sw-media-preview-v2__item').attributes('src'),
+        );
     });
 
     it('should render lock icon when width is greater than 40px', async () => {
@@ -120,7 +124,8 @@ describe('src/app/asyncComponent/media/sw-media-preview-v2', () => {
             'application/vnd.ms-excel': 'icons-multicolor-file-thumbnail-xls',
             'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet': 'icons-multicolor-file-thumbnail-xls',
             'application/vnd.ms-powerpoint': 'icons-multicolor-file-thumbnail-ppt',
-            'application/vnd.openxmlformats-officedocument.presentationml.presentation': 'icons-multicolor-file-thumbnail-ppt',
+            'application/vnd.openxmlformats-officedocument.presentationml.presentation':
+                'icons-multicolor-file-thumbnail-ppt',
             'video/x-msvideo': 'icons-multicolor-file-thumbnail-avi',
             'video/quicktime': 'icons-multicolor-file-thumbnail-mov',
             'video/mp4': 'icons-multicolor-file-thumbnail-mp4',
@@ -133,21 +138,25 @@ describe('src/app/asyncComponent/media/sw-media-preview-v2', () => {
             unknown: 'icons-multicolor-file-thumbnail-normal',
         };
 
-        await Promise.all(Object.keys(fileTypes).map(async (type) => {
-            const wrapper = await createWrapper();
-            await wrapper.setProps({
-                mediaIsPrivate: true,
-            });
-            await wrapper.setData({
-                imagePreviewFailed: true,
-                trueSource: { mimeType: type, thumbnails: [] },
-            });
-            await flushPromises();
-            wrapper.vm.showEvent();
-            await flushPromises();
+        await Promise.all(
+            Object.keys(fileTypes).map(async (type) => {
+                const wrapper = await createWrapper();
+                await wrapper.setProps({
+                    mediaIsPrivate: true,
+                });
+                await wrapper.setData({
+                    imagePreviewFailed: true,
+                    trueSource: { mimeType: type, thumbnails: [] },
+                });
+                await flushPromises();
+                wrapper.vm.showEvent();
+                await flushPromises();
 
-            expect(`${wrapper.vm.$options.placeholderThumbnailsBasePath}${fileTypes[type]}.svg`).toContain(wrapper.find('.sw-media-preview-v2__item').attributes('src'));
-        }));
+                expect(`${wrapper.vm.$options.placeholderThumbnailsBasePath}${fileTypes[type]}.svg`).toContain(
+                    wrapper.find('.sw-media-preview-v2__item').attributes('src'),
+                );
+            }),
+        );
     });
 
     it('should handle relative path sources', async () => {

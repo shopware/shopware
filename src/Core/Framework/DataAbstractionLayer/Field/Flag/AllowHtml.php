@@ -7,17 +7,11 @@ use Shopware\Core\Framework\Log\Package;
 /**
  * In case a column is allowed to contain HTML-esque data. Beware of injection possibilities
  */
-#[Package('core')]
+#[Package('framework')]
 class AllowHtml extends Flag
 {
-    /**
-     * @var bool
-     */
-    protected $sanitized;
-
-    public function __construct(bool $sanitized = true)
+    public function __construct(protected bool $sanitized = true)
     {
-        $this->sanitized = $sanitized;
     }
 
     public function parse(): \Generator

@@ -9,40 +9,22 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityIdTrait;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\SalesChannelEntity;
 
-#[Package('checkout')]
+#[Package('after-sales')]
 class DocumentBaseConfigSalesChannelEntity extends Entity
 {
     use EntityIdTrait;
 
-    /**
-     * @var string
-     */
-    protected $documentBaseConfigId;
+    protected string $documentBaseConfigId;
 
-    /**
-     * @var string|null
-     */
-    protected $salesChannelId;
+    protected ?string $salesChannelId = null;
 
-    /**
-     * @var string
-     */
-    protected $documentTypeId;
+    protected string $documentTypeId;
 
-    /**
-     * @var DocumentTypeEntity|null
-     */
-    protected $documentType;
+    protected ?DocumentTypeEntity $documentType = null;
 
-    /**
-     * @var DocumentBaseConfigEntity|null
-     */
-    protected $documentBaseConfig;
+    protected ?DocumentBaseConfigEntity $documentBaseConfig = null;
 
-    /**
-     * @var SalesChannelEntity|null
-     */
-    protected $salesChannel;
+    protected ?SalesChannelEntity $salesChannel = null;
 
     public function getDocumentBaseConfigId(): string
     {

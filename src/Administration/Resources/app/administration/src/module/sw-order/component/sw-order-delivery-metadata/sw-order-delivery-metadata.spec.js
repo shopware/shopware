@@ -1,7 +1,7 @@
 import { mount } from '@vue/test-utils';
 
 /**
- * @package customer-order
+ * @sw-package checkout
  */
 
 async function createWrapper() {
@@ -15,7 +15,9 @@ async function createWrapper() {
                 },
                 shippingOrderAddress: {
                     country: {
-                        addressFormat: [[{ type: 'snippet', value: 'address/company' }]],
+                        addressFormat: [
+                            [{ type: 'snippet', value: 'address/company' }],
+                        ],
                     },
                 },
             },
@@ -28,10 +30,12 @@ async function createWrapper() {
         },
         global: {
             stubs: {
-                'sw-container': await wrapTestComponent('sw-container', { sync: true }),
-                'sw-address': await wrapTestComponent('sw-address', { sync: true }),
-                'sw-card': await wrapTestComponent('sw-card', { sync: true }),
-                'sw-card-deprecated': await wrapTestComponent('sw-card-deprecated', { sync: true }),
+                'sw-container': await wrapTestComponent('sw-container', {
+                    sync: true,
+                }),
+                'sw-address': await wrapTestComponent('sw-address', {
+                    sync: true,
+                }),
                 'sw-description-list': await wrapTestComponent('sw-description-list', { sync: true }),
                 'sw-extension-component-section': true,
                 'sw-ai-copilot-badge': true,
@@ -43,7 +47,8 @@ async function createWrapper() {
                 customSnippetApiService: {
                     render() {
                         return Promise.resolve({
-                            rendered: 'Christa Stracke<br/> \\n \\n Philip Inlet<br/> \\n \\n \\n \\n 22005-3637 New Marilyneside<br/> \\n \\n Moldova (Republic of)<br/><br/>',
+                            rendered:
+                                'Christa Stracke<br/> \\n \\n Philip Inlet<br/> \\n \\n \\n \\n 22005-3637 New Marilyneside<br/> \\n \\n Moldova (Republic of)<br/><br/>',
                         });
                     },
                 },
@@ -64,6 +69,8 @@ describe('module/sw-order/component/sw-order-delivery-metadata', () => {
         wrapper = await createWrapper();
         await wrapper.vm.$nextTick();
 
-        expect(wrapper.find('.sw-address .sw-address__formatting').text()).toBe('Christa Stracke \\n \\n Philip Inlet \\n \\n \\n \\n 22005-3637 New Marilyneside \\n \\n Moldova (Republic of)');
+        expect(wrapper.find('.sw-address .sw-address__formatting').text()).toBe(
+            'Christa Stracke \\n \\n Philip Inlet \\n \\n \\n \\n 22005-3637 New Marilyneside \\n \\n Moldova (Republic of)',
+        );
     });
 });

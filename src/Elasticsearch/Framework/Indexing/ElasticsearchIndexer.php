@@ -15,7 +15,6 @@ use Shopware\Elasticsearch\Framework\ElasticsearchHelper;
 use Shopware\Elasticsearch\Framework\ElasticsearchRegistry;
 use Shopware\Elasticsearch\Framework\Indexing\Event\ElasticsearchIndexIteratorEvent;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
-use Symfony\Component\Finder\Finder;
 use Symfony\Component\Messenger\Attribute\AsMessageHandler;
 
 /**
@@ -24,7 +23,7 @@ use Symfony\Component\Messenger\Attribute\AsMessageHandler;
  * @final
  */
 #[AsMessageHandler]
-#[Package('core')]
+#[Package('framework')]
 class ElasticsearchIndexer
 {
     /**
@@ -148,8 +147,6 @@ class ElasticsearchIndexer
     {
         $this->connection->executeStatement('DELETE FROM elasticsearch_index_task');
 
-        $this->createScripts();
-
         $timestamp = new \DateTime();
 
         $this->createIndex($timestamp);
@@ -180,7 +177,7 @@ class ElasticsearchIndexer
             $errors[] = [
                 'index' => $item['_index'],
                 'id' => $item['_id'],
-                'type' => $item['error']['type'] ?? $item['_type'],
+                'type' => $item['error']['type'] ?? ($item['_type'] ?? 'n/a'),
                 'reason' => $item['error']['reason'] ?? $item['result'],
             ];
 
@@ -188,28 +185,6 @@ class ElasticsearchIndexer
         }
 
         return $errors;
-    }
-
-    private function createScripts(): void
-    {
-        $finder = (new Finder())
-            ->files()
-            ->in(__DIR__ . '/Scripts')
-            ->name('*.groovy');
-
-        foreach ($finder as $file) {
-            $name = pathinfo($file->getFilename(), \PATHINFO_FILENAME);
-
-            $this->client->putScript([
-                'id' => $name,
-                'body' => [
-                    'script' => [
-                        'lang' => 'painless',
-                        'source' => file_get_contents($file->getPathname()),
-                    ],
-                ],
-            ]);
-        }
     }
 
     private function createIndex(\DateTime $timestamp): void
@@ -290,6 +265,10 @@ class ElasticsearchIndexer
             $documents[] = ['delete' => ['_id' => $id]];
         }
 
+        if ($documents === []) {
+            throw ElasticsearchException::emptyIndexingRequest();
+        }
+
         $arguments = [
             'index' => $index,
             'body' => $documents,
@@ -300,7 +279,9 @@ class ElasticsearchIndexer
         if (\is_array($result) && isset($result['errors']) && $result['errors']) {
             $errors = $this->parseErrors($result);
 
-            throw ElasticsearchException::indexingError($errors);
+            $this->helper->logAndThrowException(
+                ElasticsearchException::indexingError($errors)
+            );
         }
     }
 

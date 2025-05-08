@@ -1,5 +1,5 @@
 /**
- * @package checkout
+ * @sw-package checkout
  */
 
 import { mount } from '@vue/test-utils';
@@ -21,24 +21,36 @@ async function createWrapper(privileges = []) {
                 repositoryFactory: {
                     create: (entity) => ({
                         create: () => {
-                            return Promise.resolve(entity === 'customer' ? [{
-                                id: '1a2b3c',
-                                entity: 'customer',
-                                customerId: 'd4c3b2a1',
-                                productId: 'd4c3b2a1',
-                                salesChannelId: 'd4c3b2a1',
-                            }] : []);
+                            return Promise.resolve(
+                                entity === 'customer'
+                                    ? [
+                                          {
+                                              id: '1a2b3c',
+                                              entity: 'customer',
+                                              customerId: 'd4c3b2a1',
+                                              productId: 'd4c3b2a1',
+                                              salesChannelId: 'd4c3b2a1',
+                                          },
+                                      ]
+                                    : [],
+                            );
                         },
                         search: () => {
-                            return Promise.resolve(entity === 'customer' ? [{
-                                id: '1a2b3c',
-                                entity: 'customer',
-                                customerId: 'd4c3b2a1',
-                                productId: 'd4c3b2a1',
-                                salesChannelId: 'd4c3b2a1',
-                                sourceEntitiy: 'customer',
-                                createdById: '123213132',
-                            }] : []);
+                            return Promise.resolve(
+                                entity === 'customer'
+                                    ? [
+                                          {
+                                              id: '1a2b3c',
+                                              entity: 'customer',
+                                              customerId: 'd4c3b2a1',
+                                              productId: 'd4c3b2a1',
+                                              salesChannelId: 'd4c3b2a1',
+                                              sourceEntitiy: 'customer',
+                                              createdById: '123213132',
+                                          },
+                                      ]
+                                    : [],
+                            );
                         },
                     }),
                 },
@@ -72,8 +84,6 @@ async function createWrapper(privileges = []) {
                         <slot></slot>
                     </div>`,
                 },
-                'sw-button': true,
-                'sw-icon': true,
                 'sw-search-bar': true,
                 'sw-entity-listing': {
                     props: ['items'],
@@ -122,7 +132,7 @@ describe('module/sw-customer/page/sw-customer-list', () => {
 
         const createButton = wrapper.find('.sw-customer-list__button-create');
 
-        expect(createButton.attributes().disabled).toBeTruthy();
+        expect(createButton.attributes('disabled')).toBeDefined();
     });
 
     it('should be able to create a new customer', async () => {

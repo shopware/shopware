@@ -2,9 +2,9 @@
 
 namespace Shopware\Core\Checkout\Cart\Facade;
 
+use Shopware\Core\Checkout\Cart\CartException;
 use Shopware\Core\Checkout\Cart\Hook\CartAware;
 use Shopware\Core\Framework\Log\Package;
-use Shopware\Core\Framework\Script\Exception\HookInjectionException;
 use Shopware\Core\Framework\Script\Execution\Awareness\HookServiceFactory;
 use Shopware\Core\Framework\Script\Execution\Hook;
 use Shopware\Core\Framework\Script\Execution\Script;
@@ -24,7 +24,7 @@ class CartFacadeHookFactory extends HookServiceFactory
     public function factory(Hook $hook, Script $script): CartFacade
     {
         if (!$hook instanceof CartAware) {
-            throw new HookInjectionException($hook, self::class, CartAware::class);
+            throw CartException::hookInjectionException($hook, self::class, CartAware::class);
         }
 
         return new CartFacade($this->helper, $this->priceStubs, $hook->getCart(), $hook->getSalesChannelContext());

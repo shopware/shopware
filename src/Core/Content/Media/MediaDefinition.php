@@ -55,7 +55,7 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\Tag\TagDefinition;
 use Shopware\Core\System\User\UserDefinition;
 
-#[Package('buyers-experience')]
+#[Package('discovery')]
 class MediaDefinition extends EntityDefinition
 {
     final public const ENTITY_NAME = 'media';
@@ -91,10 +91,10 @@ class MediaDefinition extends EntityDefinition
             (new IdField('id', 'id'))->addFlags(new ApiAware(), new PrimaryKey(), new Required()),
             new FkField('user_id', 'userId', UserDefinition::class),
             new FkField('media_folder_id', 'mediaFolderId', MediaFolderDefinition::class),
-            (new StringField('mime_type', 'mimeType'))->addFlags(new ApiAware(), new WriteProtected(Context::SYSTEM_SCOPE), new SearchRanking(SearchRanking::LOW_SEARCH_RANKING)),
+            (new StringField('mime_type', 'mimeType'))->addFlags(new ApiAware(), new SearchRanking(SearchRanking::LOW_SEARCH_RANKING)),
             (new StringField('file_extension', 'fileExtension'))->addFlags(new ApiAware(), new WriteProtected(Context::SYSTEM_SCOPE)),
             (new DateTimeField('uploaded_at', 'uploadedAt'))->addFlags(new ApiAware(), new WriteProtected(Context::SYSTEM_SCOPE)),
-            (new LongTextField('file_name', 'fileName'))->addFlags(new ApiAware(), new WriteProtected(Context::SYSTEM_SCOPE), new SearchRanking(SearchRanking::HIGH_SEARCH_RANKING)),
+            (new LongTextField('file_name', 'fileName'))->addFlags(new ApiAware(), new SearchRanking(SearchRanking::HIGH_SEARCH_RANKING)),
             (new IntField('file_size', 'fileSize'))->addFlags(new ApiAware(), new WriteProtected(Context::SYSTEM_SCOPE)),
             (new BlobField('media_type', 'mediaTypeRaw'))->removeFlag(ApiAware::class)->addFlags(new WriteProtected(Context::SYSTEM_SCOPE)),
             (new JsonField('meta_data', 'metaData'))->addFlags(new ApiAware(), new WriteProtected(Context::SYSTEM_SCOPE)),
@@ -102,7 +102,7 @@ class MediaDefinition extends EntityDefinition
             (new JsonField('config', 'config'))->addFlags(new ApiAware()),
             (new TranslatedField('alt'))->addFlags(new ApiAware(), new SearchRanking(SearchRanking::MIDDLE_SEARCH_RANKING)),
             (new TranslatedField('title'))->addFlags(new ApiAware(), new SearchRanking(SearchRanking::HIGH_SEARCH_RANKING)),
-            (new StringField('url', 'url'))->addFlags(new ApiAware(), new Runtime(['path', 'updatedAt'])),
+            (new StringField('url', 'url'))->addFlags(new ApiAware(), new Runtime(['path', 'private', 'updatedAt'])),
             (new StringField('path', 'path'))->addFlags(new ApiAware()),
             (new BoolField('has_file', 'hasFile'))->addFlags(new ApiAware(), new Runtime()),
             (new BoolField('private', 'private'))->addFlags(new ApiAware()),
@@ -133,6 +133,7 @@ class MediaDefinition extends EntityDefinition
             (new OneToManyAssociationField('documents', DocumentDefinition::class, 'document_media_file_id'))->addFlags(new RestrictDelete()),
             (new OneToManyAssociationField('appPaymentMethods', AppPaymentMethodDefinition::class, 'original_media_id', 'id'))->addFlags(new SetNullOnDelete()),
             (new OneToManyAssociationField('appShippingMethods', AppShippingMethodDefinition::class, 'original_media_id', 'id'))->addFlags(new SetNullOnDelete()),
+            (new StringField('file_hash', 'fileHash'))->addFlags(new Computed()),
         ]);
 
         return $fields;

@@ -1,5 +1,5 @@
 /**
- * @package services-settings
+ * @sw-package framework
  */
 import template from './sw-bulk-edit-save-modal-error.html.twig';
 
@@ -7,9 +7,10 @@ import template from './sw-bulk-edit-save-modal-error.html.twig';
 export default {
     template,
 
-    compatConfig: Shopware.compatConfig,
-
-    emits: ['title-set', 'buttons-update'],
+    emits: [
+        'title-set',
+        'buttons-update',
+    ],
 
     created() {
         this.createdComponent();

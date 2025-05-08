@@ -8,7 +8,7 @@ use Shopware\Core\Framework\Log\Package;
 /**
  * @extends EntityCollection<ScheduledTaskEntity>
  */
-#[Package('core')]
+#[Package('framework')]
 class ScheduledTaskCollection extends EntityCollection
 {
     public function getApiAlias(): string

@@ -7,25 +7,16 @@ use Shopware\Core\Framework\DataAbstractionLayer\TranslationEntity;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\NumberRange\Aggregate\NumberRangeType\NumberRangeTypeEntity;
 
-#[Package('checkout')]
+#[Package('framework')]
 class NumberRangeTypeTranslationEntity extends TranslationEntity
 {
     use EntityCustomFieldsTrait;
 
-    /**
-     * @var string
-     */
-    protected $numberRangeTypeId;
+    protected string $numberRangeTypeId;
 
-    /**
-     * @var string|null
-     */
-    protected $typeName;
+    protected ?string $typeName = null;
 
-    /**
-     * @var NumberRangeTypeEntity|null
-     */
-    protected $numberRangeType;
+    protected ?NumberRangeTypeEntity $numberRangeType = null;
 
     public function getNumberRangeTypeId(): string
     {

@@ -34,7 +34,7 @@ use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
  * Do not use direct or indirect repository calls in a controller. Always use a store-api route to get or put data
  */
 #[Route(defaults: ['_routeScope' => ['storefront']])]
-#[Package('storefront')]
+#[Package('framework')]
 class WishlistController extends StorefrontController
 {
     /**
@@ -104,6 +104,7 @@ class WishlistController extends StorefrontController
     public function ajaxList(Request $request, SalesChannelContext $context, CustomerEntity $customer): Response
     {
         $criteria = new Criteria();
+        $criteria->setTitle('wishlist::list');
         $this->eventDispatcher->dispatch(new WishListPageProductCriteriaEvent($criteria, $context, $request));
 
         try {
@@ -176,7 +177,7 @@ class WishlistController extends StorefrontController
             $this->addFlash(self::DANGER, $this->trans('error.message-default'));
         }
 
-        return $this->redirectToRoute('frontend.home.page');
+        return $this->redirectToRoute('frontend.wishlist.page');
     }
 
     #[Route(path: '/wishlist/merge', name: 'frontend.wishlist.product.merge', options: ['seo' => false], defaults: ['XmlHttpRequest' => true, '_loginRequired' => true], methods: ['POST'])]

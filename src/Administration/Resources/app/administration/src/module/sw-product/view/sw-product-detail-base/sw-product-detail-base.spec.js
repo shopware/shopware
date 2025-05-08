@@ -1,12 +1,10 @@
 /**
- * @package inventory
+ * @sw-package inventory
  */
 
 import { mount } from '@vue/test-utils';
-import productStore from 'src/module/sw-product/page/sw-product-detail/state';
 import EntityCollection from 'src/core/data/entity-collection.data';
-
-const { Utils } = Shopware;
+import { nextTick } from 'vue';
 
 async function createWrapper() {
     return mount(await wrapTestComponent('sw-product-detail-base', { sync: true }), {
@@ -41,22 +39,23 @@ async function createWrapper() {
                 'sw-inherit-wrapper': await wrapTestComponent('sw-inherit-wrapper', { sync: true }),
                 'sw-inheritance-switch': await wrapTestComponent('sw-inheritance-switch', { sync: true }),
                 'sw-empty-state': true,
-                'sw-card': {
+                'mt-card': {
                     template: '<div><slot></slot><slot name="title"></slot><slot name="grid"></slot></div>',
                 },
                 'sw-context-menu-item': true,
                 'sw-media-modal-v2': true,
                 'sw-container': true,
                 'sw-text-editor': true,
-                'sw-switch-field': true,
+
                 'sw-product-media-form': true,
                 'sw-entity-single-select': true,
                 'sw-help-text': true,
-                'sw-icon': { template: '<div class="sw-icon" @click="$emit(\'click\')"></div>' },
                 'sw-text-field': true,
                 'sw-select-field': true,
                 'router-link': true,
                 'sw-skeleton': true,
+                'sw-extension-teaser-popover': true,
+                'mt-text-editor': true,
             },
             mocks: {
                 $route: {
@@ -69,17 +68,19 @@ async function createWrapper() {
             provide: {
                 repositoryFactory: {
                     create: () => ({
-                        search: () => Promise.resolve({
-                            first: () => {
-                                return {
-                                    folder: {},
-                                };
-                            },
-                        }),
+                        search: () =>
+                            Promise.resolve({
+                                first: () => {
+                                    return {
+                                        folder: {},
+                                    };
+                                },
+                            }),
                         get: () => Promise.resolve({}),
-                        searchIds: () => Promise.resolve({
-                            data: [],
-                        }),
+                        searchIds: () =>
+                            Promise.resolve({
+                                data: [],
+                            }),
                         create: () => ({ id: 'id' }),
                     }),
                 },
@@ -90,105 +91,101 @@ async function createWrapper() {
 
 describe('src/module/sw-product/view/sw-product-detail-base', () => {
     beforeEach(() => {
-        if (Shopware.State.get('swProductDetail')) {
-            Shopware.State.unregisterModule('swProductDetail');
-        }
-
-        Shopware.State.registerModule('swProductDetail', {
-            ...productStore,
-            state: {
-                ...productStore.state,
-                parentProduct: {
-                    media: [],
-                    reviews: [{
-                        id: '1a2b3c',
-                        entity: 'review',
-                        customerId: 'd4c3b2a1',
-                        productId: 'd4c3b2a1',
-                        salesChannelId: 'd4c3b2a1',
-                    }],
+        const store = Shopware.Store.get('swProductDetail');
+        store.$reset();
+        store.parentProduct = {
+            media: [],
+            reviews: [
+                {
+                    id: '1a2b3c',
+                    entity: 'review',
+                    customerId: 'd4c3b2a1',
+                    productId: 'd4c3b2a1',
+                    salesChannelId: 'd4c3b2a1',
                 },
-                product: {
-                    id: 'productId',
-                    getEntityName: () => 'product',
-                    isNew: () => false,
-                    media: new EntityCollection('', '', {}, {}, []),
-                    coverId: null,
-                    reviews: [{
-                        id: '1a2b3c',
-                        entity: 'review',
-                        customerId: 'd4c3b2a1',
-                        productId: 'd4c3b2a1',
-                        salesChannelId: 'd4c3b2a1',
-                    }],
-                    purchasePrices: [{
-                        currencyId: '1',
-                        linked: true,
-                        gross: 0,
-                        net: 0,
-                    }],
-                    price: [{
-                        currencyId: '1',
-                        linked: true,
-                        gross: 100,
-                        net: 84.034,
-                    }],
+            ],
+        };
+        store.product = {
+            id: 'productId',
+            getEntityName: () => 'product',
+            isNew: () => false,
+            media: new EntityCollection('', '', {}, {}, []),
+            coverId: null,
+            reviews: [
+                {
+                    id: '1a2b3c',
+                    entity: 'review',
+                    customerId: 'd4c3b2a1',
+                    productId: 'd4c3b2a1',
+                    salesChannelId: 'd4c3b2a1',
                 },
-                loading: {
-                    product: false,
-                    media: false,
+            ],
+            purchasePrices: [
+                {
+                    currencyId: '1',
+                    linked: true,
+                    gross: 0,
+                    net: 0,
                 },
-                modeSettings: [
-                    'general_information',
-                    'prices',
-                    'deliverability',
-                    'visibility_structure',
-                    'media',
-                    'labelling',
-                ],
-                advancedModeSetting: {
-                    value: {
-                        settings: [
-                            {
-                                key: 'general_information',
-                                label: 'sw-product.detailBase.cardTitleProductInfo',
-                                enabled: true,
-                                name: 'general',
-                            },
-                            {
-                                key: 'prices',
-                                label: 'sw-product.detailBase.cardTitlePrices',
-                                enabled: true,
-                                name: 'general',
-                            },
-                            {
-                                key: 'deliverability',
-                                label: 'sw-product.detailBase.cardTitleDeliverabilityInfo',
-                                enabled: true,
-                                name: 'general',
-                            },
-                            {
-                                key: 'visibility_structure',
-                                label: 'sw-product.detailBase.cardTitleVisibilityStructure',
-                                enabled: true,
-                                name: 'general',
-                            },
-                            {
-                                key: 'labelling',
-                                label: 'sw-product.detailBase.cardTitleSettings',
-                                enabled: true,
-                                name: 'general',
-                            },
-                        ],
-                        advancedMode: {
-                            enabled: true,
-                            label: 'sw-product.general.textAdvancedMode',
-                        },
+            ],
+            price: [
+                {
+                    currencyId: '1',
+                    linked: true,
+                    gross: 100,
+                    net: 84.034,
+                },
+            ],
+        };
+        store.modeSettings = [
+            'general_information',
+            'prices',
+            'deliverability',
+            'visibility_structure',
+            'media',
+            'labelling',
+        ];
+        store.advancedModeSetting = {
+            value: {
+                settings: [
+                    {
+                        key: 'general_information',
+                        label: 'sw-product.detailBase.cardTitleProductInfo',
+                        enabled: true,
+                        name: 'general',
                     },
+                    {
+                        key: 'prices',
+                        label: 'sw-product.detailBase.cardTitlePrices',
+                        enabled: true,
+                        name: 'general',
+                    },
+                    {
+                        key: 'deliverability',
+                        label: 'sw-product.detailBase.cardTitleDeliverabilityInfo',
+                        enabled: true,
+                        name: 'general',
+                    },
+                    {
+                        key: 'visibility_structure',
+                        label: 'sw-product.detailBase.cardTitleVisibilityStructure',
+                        enabled: true,
+                        name: 'general',
+                    },
+                    {
+                        key: 'labelling',
+                        label: 'sw-product.detailBase.cardTitleSettings',
+                        enabled: true,
+                        name: 'general',
+                    },
+                ],
+                advancedMode: {
+                    enabled: true,
+                    label: 'sw-product.general.textAdvancedMode',
                 },
-                creationStates: 'is-physical',
             },
-        });
+        };
+        store.creationStates = 'is-physical';
     });
 
     it('should be a Vue.JS component', async () => {
@@ -199,30 +196,29 @@ describe('src/module/sw-product/view/sw-product-detail-base', () => {
     it('should not show files card when product states not includes is-download', async () => {
         const wrapper = await createWrapper();
 
-        await Shopware.State.commit('swProductDetail/setProduct', {
-            ...Utils.get(wrapper, 'vm.$store.state.swProductDetail.product'),
+        Shopware.Store.get('swProductDetail').product = {
+            ...Shopware.Store.get('swProductDetail').product,
             states: [
                 'is-physical',
             ],
-        });
+        };
 
         await wrapper.vm.$nextTick();
 
         const cardElement = wrapper.find('.sw-product-detail-base__downloads');
-        const cardStyles = cardElement.attributes('style');
 
-        expect(cardStyles).toBe('display: none;');
+        expect(cardElement.exists()).toBeFalsy();
     });
 
     it('should show files card when product states includes is-download', async () => {
         const wrapper = await createWrapper();
 
-        await Shopware.State.commit('swProductDetail/setProduct', {
-            ...Utils.get(wrapper, 'vm.$store.state.swProductDetail.product'),
+        Shopware.Store.get('swProductDetail').product = {
+            ...Shopware.Store.get('swProductDetail').product,
             states: [
                 'is-download',
             ],
-        });
+        };
 
         await wrapper.vm.$nextTick();
 
@@ -233,12 +229,12 @@ describe('src/module/sw-product/view/sw-product-detail-base', () => {
     it('should show correct deliverability card when product states includes is-download', async () => {
         const wrapper = await createWrapper();
 
-        await Shopware.State.commit('swProductDetail/setProduct', {
-            ...Utils.get(wrapper, 'vm.$store.state.swProductDetail.product'),
+        Shopware.Store.get('swProductDetail').product = {
+            ...Shopware.Store.get('swProductDetail').product,
             states: [
                 'is-download',
             ],
-        });
+        };
 
         await wrapper.vm.$nextTick();
 
@@ -248,12 +244,12 @@ describe('src/module/sw-product/view/sw-product-detail-base', () => {
         const cardElement = wrapper.find('.sw-product-detail-base__deliverability-downloadable');
         expect(cardElement).toBeTruthy();
 
-        await Shopware.State.commit('swProductDetail/setProduct', {
-            ...Utils.get(wrapper, 'vm.$store.state.swProductDetail.product'),
+        Shopware.Store.get('swProductDetail').product = {
+            ...Shopware.Store.get('swProductDetail').product,
             states: [
                 'is-physical',
             ],
-        });
+        };
     });
 
     it('should get media default folder id when component got created', async () => {
@@ -310,7 +306,12 @@ describe('src/module/sw-product/view/sw-product-detail-base', () => {
     it('should be able to add a new media', async () => {
         const wrapper = await createWrapper();
 
-        const media = { id: 'id', fileName: 'fileName', fileSize: 101, url: 'http://image.jpg' };
+        const media = {
+            id: 'id',
+            fileName: 'fileName',
+            fileSize: 101,
+            url: 'http://image.jpg',
+        };
 
         const productMediaFrom = wrapper.findComponent('sw-product-media-form-stub');
         await productMediaFrom.vm.$emit('media-open');
@@ -318,15 +319,19 @@ describe('src/module/sw-product/view/sw-product-detail-base', () => {
         const mediaModal = wrapper.findComponent('sw-media-modal-v2-stub');
         await mediaModal.vm.$emit('media-modal-selection-change', [media]);
 
-        expect(wrapper.vm.product.media).toEqual(expect.arrayContaining([{
-            id: 'id',
-            media: {
-                id: 'id',
-                url: 'http://image.jpg',
-            },
-            mediaId: 'id',
-            position: 0,
-        }]));
+        expect(wrapper.vm.product.media).toEqual(
+            expect.arrayContaining([
+                {
+                    id: 'id',
+                    media: {
+                        id: 'id',
+                        url: 'http://image.jpg',
+                    },
+                    mediaId: 'id',
+                    position: 0,
+                },
+            ]),
+        );
     });
 
     it('should not be able to add a new media', async () => {
@@ -334,10 +339,15 @@ describe('src/module/sw-product/view/sw-product-detail-base', () => {
 
         wrapper.vm.createNotificationError = jest.fn();
 
-        const media = { id: 'id', fileName: 'fileName', fileSize: 101, url: 'http://image.jpg' };
+        const media = {
+            id: 'id',
+            fileName: 'fileName',
+            fileSize: 101,
+            url: 'http://image.jpg',
+        };
 
-        await Shopware.State.commit('swProductDetail/setProduct', {
-            ...Utils.get(wrapper, 'vm.$store.state.swProductDetail.product'),
+        Shopware.Store.get('swProductDetail').product = {
+            ...Shopware.Store.get('swProductDetail').product,
             media: new EntityCollection('', '', {}, {}, [
                 {
                     id: 'id',
@@ -349,7 +359,7 @@ describe('src/module/sw-product/view/sw-product-detail-base', () => {
                     position: 0,
                 },
             ]),
-        });
+        };
 
         const productMediaFrom = wrapper.findComponent('sw-product-media-form-stub');
         await productMediaFrom.vm.$emit('media-open');
@@ -402,9 +412,9 @@ describe('src/module/sw-product/view/sw-product-detail-base', () => {
 
     it('should hide Promotion Switch when advanced mode is off', async () => {
         const wrapper = await createWrapper();
-        const advancedModeSetting = Utils.get(wrapper, 'vm.$store.state.swProductDetail.advancedModeSetting');
+        const advancedModeSetting = Shopware.Store.get('swProductDetail').advancedModeSetting;
 
-        Shopware.State.commit('swProductDetail/setAdvancedModeSetting', {
+        Shopware.Store.get('swProductDetail').advancedModeSetting = {
             value: {
                 ...advancedModeSetting.value,
                 advancedMode: {
@@ -412,7 +422,7 @@ describe('src/module/sw-product/view/sw-product-detail-base', () => {
                     label: 'sw-product.general.textAdvancedMode',
                 },
             },
-        });
+        };
 
         await wrapper.vm.$nextTick();
 
@@ -422,9 +432,9 @@ describe('src/module/sw-product/view/sw-product-detail-base', () => {
 
     it('should hide Labelling card when commit when advanced mode is off', async () => {
         const wrapper = await createWrapper();
-        const advancedModeSetting = Utils.get(wrapper, 'vm.$store.state.swProductDetail.advancedModeSetting');
+        const advancedModeSetting = Shopware.Store.get('swProductDetail').advancedModeSetting;
 
-        Shopware.State.commit('swProductDetail/setAdvancedModeSetting', {
+        Shopware.Store.get('swProductDetail').advancedModeSetting = {
             value: {
                 ...advancedModeSetting.value,
                 advancedMode: {
@@ -432,7 +442,7 @@ describe('src/module/sw-product/view/sw-product-detail-base', () => {
                     label: 'sw-product.general.textAdvancedMode',
                 },
             },
-        });
+        };
 
         await wrapper.vm.$nextTick();
 
@@ -442,11 +452,11 @@ describe('src/module/sw-product/view/sw-product-detail-base', () => {
 
     it('should hide Media card when media mode is unchecked', async () => {
         const wrapper = await createWrapper();
-        const modeSettings = Utils.get(wrapper, 'vm.$store.state.swProductDetail.modeSettings');
+        const modeSettings = Shopware.Store.get('swProductDetail').modeSettings;
 
-        Shopware.State.commit('swProductDetail/setModeSettings', [
-            ...modeSettings.filter(item => item !== 'media'),
-        ]);
+        Shopware.Store.get('swProductDetail').modeSettings = [
+            ...modeSettings.filter((item) => item !== 'media'),
+        ];
 
         await wrapper.vm.$nextTick();
 
@@ -456,11 +466,11 @@ describe('src/module/sw-product/view/sw-product-detail-base', () => {
 
     it('should hide General card when general_information mode is unchecked', async () => {
         const wrapper = await createWrapper();
-        const modeSettings = Utils.get(wrapper, 'vm.$store.state.swProductDetail.modeSettings');
+        const modeSettings = Shopware.Store.get('swProductDetail').modeSettings;
 
-        Shopware.State.commit('swProductDetail/setModeSettings', [
-            ...modeSettings.filter(item => item !== 'general_information'),
-        ]);
+        Shopware.Store.get('swProductDetail').modeSettings = [
+            ...modeSettings.filter((item) => item !== 'general_information'),
+        ];
 
         await wrapper.vm.$nextTick();
 
@@ -470,11 +480,11 @@ describe('src/module/sw-product/view/sw-product-detail-base', () => {
 
     it('should hide Prices card when prices mode is unchecked', async () => {
         const wrapper = await createWrapper();
-        const modeSettings = Utils.get(wrapper, 'vm.$store.state.swProductDetail.modeSettings');
+        const modeSettings = Shopware.Store.get('swProductDetail').modeSettings;
 
-        Shopware.State.commit('swProductDetail/setModeSettings', [
-            ...modeSettings.filter(item => item !== 'prices'),
-        ]);
+        Shopware.Store.get('swProductDetail').modeSettings = [
+            ...modeSettings.filter((item) => item !== 'prices'),
+        ];
 
         await wrapper.vm.$nextTick();
 
@@ -484,11 +494,11 @@ describe('src/module/sw-product/view/sw-product-detail-base', () => {
 
     it('should hide Deliverability card when deliverability mode is unchecked', async () => {
         const wrapper = await createWrapper();
-        const modeSettings = Utils.get(wrapper, 'vm.$store.state.swProductDetail.modeSettings');
+        const modeSettings = Shopware.Store.get('swProductDetail').modeSettings;
 
-        Shopware.State.commit('swProductDetail/setModeSettings', [
-            ...modeSettings.filter(item => item !== 'deliverability'),
-        ]);
+        Shopware.Store.get('swProductDetail').modeSettings = [
+            ...modeSettings.filter((item) => item !== 'deliverability'),
+        ];
 
         await wrapper.vm.$nextTick();
 
@@ -498,11 +508,11 @@ describe('src/module/sw-product/view/sw-product-detail-base', () => {
 
     it('should hide Visibility Structure card when prices mode is unchecked', async () => {
         const wrapper = await createWrapper();
-        const modeSettings = Utils.get(wrapper, 'vm.$store.state.swProductDetail.modeSettings');
+        const modeSettings = Shopware.Store.get('swProductDetail').modeSettings;
 
-        Shopware.State.commit('swProductDetail/setModeSettings', [
-            ...modeSettings.filter(item => item !== 'visibility_structure'),
-        ]);
+        Shopware.Store.get('swProductDetail').modeSettings = [
+            ...modeSettings.filter((item) => item !== 'visibility_structure'),
+        ];
 
         await wrapper.vm.$nextTick();
 
@@ -541,14 +551,16 @@ describe('src/module/sw-product/view/sw-product-detail-base', () => {
             position: 0,
         };
 
-        await Shopware.State.commit('swProductDetail/setParentProduct', {
-            ...Utils.get(wrapper, 'vm.$store.state.swProductDetail.parentProduct'),
+        Shopware.Store.get('swProductDetail').parentProduct = {
+            ...Shopware.Store.get('swProductDetail').parentProduct,
             media: new EntityCollection('', '', {}, {}, [media]),
-        });
+        };
+
+        await nextTick();
 
         expect(wrapper.vm.product.media).toHaveLength(0);
 
-        const inheritanceSwitch = wrapper.find('.sw-inheritance-switch--is-inherited .sw-icon');
+        const inheritanceSwitch = wrapper.find('.sw-inheritance-switch--is-inherited .mt-icon');
         expect(inheritanceSwitch.exists()).toBe(true);
 
         await inheritanceSwitch.trigger('click');
@@ -574,10 +586,10 @@ describe('src/module/sw-product/view/sw-product-detail-base', () => {
             position: 0,
         };
 
-        await Shopware.State.commit('swProductDetail/setParentProduct', {
-            ...Utils.get(wrapper, 'vm.$store.state.swProductDetail.parentProduct'),
+        Shopware.Store.get('swProductDetail').parentProduct = {
+            ...Shopware.Store.get('swProductDetail').parentProduct,
             media: new EntityCollection('', '', {}, {}, [media]),
-        });
+        };
 
         const media1 = {
             ...media,
@@ -589,14 +601,16 @@ describe('src/module/sw-product/view/sw-product-detail-base', () => {
             mediaId: 'id1',
         };
 
-        await Shopware.State.commit('swProductDetail/setProduct', {
-            ...Utils.get(wrapper, 'vm.$store.state.swProductDetail.product'),
+        Shopware.Store.get('swProductDetail').product = {
+            ...Shopware.Store.get('swProductDetail').product,
             media: new EntityCollection('', '', {}, {}, [media1]),
-        });
+        };
+
+        await nextTick();
 
         expect(wrapper.vm.product.media.first()).toEqual(media1);
 
-        const notInheritanceSwitch = wrapper.find('.sw-inheritance-switch--is-not-inherited .sw-icon');
+        const notInheritanceSwitch = wrapper.find('.sw-inheritance-switch--is-not-inherited .mt-icon');
         expect(notInheritanceSwitch.exists()).toBe(true);
 
         await notInheritanceSwitch.trigger('click');

@@ -8,55 +8,28 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityIdTrait;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\SalesChannelCollection;
 
-#[Package('buyers-experience')]
+#[Package('after-sales')]
 class MailHeaderFooterEntity extends Entity
 {
     use EntityIdTrait;
 
-    /**
-     * @var string|null
-     */
-    protected $name;
+    protected ?string $name = null;
 
-    /**
-     * @var bool
-     */
-    protected $systemDefault;
+    protected bool $systemDefault;
 
-    /**
-     * @var string|null
-     */
-    protected $description;
+    protected ?string $description = null;
 
-    /**
-     * @var string|null
-     */
-    protected $headerHtml;
+    protected ?string $headerHtml = null;
 
-    /**
-     * @var string|null
-     */
-    protected $headerPlain;
+    protected ?string $headerPlain = null;
 
-    /**
-     * @var string|null
-     */
-    protected $footerHtml;
+    protected ?string $footerHtml = null;
 
-    /**
-     * @var string|null
-     */
-    protected $footerPlain;
+    protected ?string $footerPlain = null;
 
-    /**
-     * @var SalesChannelCollection|null
-     */
-    protected $salesChannels;
+    protected ?SalesChannelCollection $salesChannels = null;
 
-    /**
-     * @var MailHeaderFooterTranslationCollection|null
-     */
-    protected $translations;
+    protected ?MailHeaderFooterTranslationCollection $translations = null;
 
     public function getName(): ?string
     {

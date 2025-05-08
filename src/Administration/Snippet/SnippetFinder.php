@@ -9,21 +9,15 @@ use Shopware\Core\Kernel;
 use Symfony\Component\Finder\Finder;
 
 /**
- * @deprecated tag:v6.7.0 - reason:becomes-internal - Will be internal in v6.7.0
+ * @internal
  */
-#[Package('administration')]
+#[Package('discovery')]
 class SnippetFinder implements SnippetFinderInterface
 {
-    /**
-     * @internal
-     */
     public const ALLOWED_INTERSECTING_FIRST_LEVEL_SNIPPET_KEYS = [
         'sw-flow-custom-event',
     ];
 
-    /**
-     * @internal
-     */
     public function __construct(
         private readonly Kernel $kernel,
         private readonly Connection $connection
@@ -59,11 +53,14 @@ class SnippetFinder implements SnippetFinderInterface
 
         foreach ($activePlugins as $plugin) {
             $pluginPath = $plugin->getPath() . '/Resources/app/administration/src';
-            if (!file_exists($pluginPath)) {
-                continue;
+            if (file_exists($pluginPath)) {
+                $paths[] = $pluginPath;
             }
 
-            $paths[] = $pluginPath;
+            $meteorPluginPath = $plugin->getPath() . '/Resources/app/meteor-app';
+            if (file_exists($meteorPluginPath)) {
+                $paths[] = $meteorPluginPath;
+            }
         }
 
         foreach ($bundles as $bundle) {
@@ -91,12 +88,17 @@ class SnippetFinder implements SnippetFinderInterface
             }
 
             $bundlePath = $bundle->getPath() . '/Resources/app/administration/src';
+            $meteorBundlePath = $bundle->getPath() . '/Resources/app/meteor-app';
 
-            if (!file_exists($bundlePath)) {
-                continue;
+            // Add the bundle path if it exists
+            if (file_exists($bundlePath)) {
+                $paths[] = $bundlePath;
             }
 
-            $paths[] = $bundlePath;
+            // Add the meteor bundle path if it exists
+            if (file_exists($meteorBundlePath)) {
+                $paths[] = $meteorBundlePath;
+            }
         }
 
         return $paths;

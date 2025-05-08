@@ -1,13 +1,11 @@
-<!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
 {% block sw_order_detail_state_card %}
-<sw-card
+<mt-card
     class="sw-order-detail-state-card"
-    position-identifier="sw-order-details-state"
+    :position-identifier="cardPosition"
     :title="title"
     :is-loading="isLoading"
 >
 
-    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_order_detail_state_card_state %}
     <div class="sw-order-detail-state-card__state">
         <sw-container
@@ -16,7 +14,6 @@
             columns="33% auto auto"
         >
 
-            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_order_detail_state_card_state_select %}
             <sw-order-state-select-v2
                 v-tooltip="{
@@ -36,25 +33,26 @@
             />
             {% endblock %}
 
-            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_order_detail_state_card_state_history_text %}
             <div
                 v-if="lastStateChange"
                 class="sw-order-detail-state-card__state-history-text"
             >
-                <i18n path="sw-order.stateCard.labelHistory">
+                <i18n-t
+                    keypath="sw-order.stateCard.labelHistory"
+                    scope="local"
+                >
                     <template #time>
                         <sw-time-ago :date="lastStateChange.createdAt" />
                     </template>
                     <template #author>
                         {{ lastStateChange.user ? lastStateChange.user.firstName + ' ' + lastStateChange.user.lastName : $tc('sw-order.stateCard.labelSystemUser') }}
                     </template>
-                </i18n>
+                </i18n-t>
             </div>
             <div v-else></div>
             {% endblock %}
 
-            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_order_detail_state_card_state_history_button %}
             <sw-external-link
                 class="sw-order-detail-state-card__state-history-button"
@@ -67,7 +65,6 @@
 
         </sw-container>
 
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_order_state_change_card_state_modal %}
         <sw-order-state-change-modal
             v-if="showStateChangeModal"
@@ -81,12 +78,10 @@
     </div>
     {% endblock %}
 
-    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_order_state_change_card_divider %}
     <hr class="sw-order-detail-state-card__divider">
     {% endblock %}
 
-    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_order_state_change_card_content %}
     <sw-container
         class="sw-order-detail-state-card__content"
@@ -96,5 +91,5 @@
     </sw-container>
     {% endblock %}
 
-</sw-card>
+</mt-card>
 {% endblock %}

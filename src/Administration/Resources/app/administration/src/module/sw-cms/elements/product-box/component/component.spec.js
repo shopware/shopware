@@ -1,5 +1,5 @@
 /**
- * @package buyers-experience
+ * @sw-package discovery
  */
 import { mount } from '@vue/test-utils';
 import { setupCmsEnvironment } from 'src/module/sw-cms/test-utils';
@@ -21,32 +21,32 @@ const defaultElementConfig = {
 };
 
 async function createWrapper() {
-    return mount(await wrapTestComponent('sw-cms-el-product-box', {
-
-        sync: true,
-    }), {
-        props: {
-            element: {
-                config: { ...defaultElementConfig },
+    return mount(
+        await wrapTestComponent('sw-cms-el-product-box', {
+            sync: true,
+        }),
+        {
+            props: {
+                element: {
+                    config: { ...defaultElementConfig },
+                },
+                defaultConfig: {
+                    displayMode: {
+                        value: null,
+                    },
+                    verticalAlign: {
+                        value: null,
+                    },
+                },
             },
-            defaultConfig: {
-                displayMode: {
-                    value: null,
+            global: {
+                provide: {
+                    cmsService: Shopware.Service('cmsService'),
                 },
-                verticalAlign: {
-                    value: null,
-                },
+                stubs: {},
             },
         },
-        global: {
-            provide: {
-                cmsService: Shopware.Service('cmsService'),
-            },
-            stubs: {
-
-            },
-        },
-    });
+    );
 }
 
 describe('module/sw-cms/elements/product-box/component', () => {
@@ -82,11 +82,11 @@ describe('module/sw-cms/elements/product-box/component', () => {
                           sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat,
                           sed diam voluptua.`.trim(),
                         price: [
-                            { gross: 19.90 },
+                            { gross: 19.9 },
                         ],
                         cover: {
                             media: {
-                                url: '/administration/static/img/cms/preview_glasses_large.jpg',
+                                url: '/administration/administration/static/img/cms/preview_glasses_large.jpg',
                                 alt: 'Lorem Ipsum dolor',
                             },
                         },

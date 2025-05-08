@@ -1,3 +1,7 @@
+/**
+ * @sw-package checkout
+ */
+
 import type { AxiosInstance } from 'axios';
 import ApiService from '../api.service';
 import type { LoginService } from '../login.service';
@@ -20,8 +24,7 @@ class CheckoutStoreService extends ApiService {
             ...this.getBasicHeaders(additionalHeaders),
             'sw-context-token': contextToken,
         };
-        return this.httpClient
-            .post(route, {}, { ...additionalParams, headers });
+        return this.httpClient.post(route, {}, { ...additionalParams, headers });
     }
 }
 

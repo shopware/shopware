@@ -1,3 +1,7 @@
+/**
+ * @sw-package framework
+ */
+
 import template from './sw-shortcut-overview-item.html.twig';
 import './sw-shortcut-overview-item.scss';
 
@@ -8,8 +12,6 @@ const { Component } = Shopware;
  */
 Component.register('sw-shortcut-overview-item', {
     template,
-
-    compatConfig: Shopware.compatConfig,
 
     inject: ['acl'],
 

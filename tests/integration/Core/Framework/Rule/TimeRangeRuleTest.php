@@ -17,7 +17,7 @@ use Shopware\Core\Framework\Uuid\Uuid;
 /**
  * @internal
  */
-#[Package('services-settings')]
+#[Package('fundamentals@after-sales')]
 class TimeRangeRuleTest extends TestCase
 {
     use DatabaseTransactionBehaviour;
@@ -27,9 +27,9 @@ class TimeRangeRuleTest extends TestCase
     {
         $ruleId = Uuid::randomHex();
         $context = Context::createDefaultContext();
-        $ruleRepository = $this->getContainer()->get('rule.repository');
+        $ruleRepository = static::getContainer()->get('rule.repository');
         /** @var EntityRepository<RuleConditionCollection> $conditionRepository */
-        $conditionRepository = $this->getContainer()->get('rule_condition.repository');
+        $conditionRepository = static::getContainer()->get('rule_condition.repository');
 
         $ruleRepository->create(
             [['id' => $ruleId, 'name' => 'Demo rule', 'priority' => 1]],

@@ -19,26 +19,23 @@ class NavigationLoadedEventTest extends TestCase
 {
     use IntegrationTestBehaviour;
 
-    /**
-     * @var NavigationLoaderInterface
-     */
-    protected $loader;
+    protected NavigationLoaderInterface $loader;
 
     protected function setUp(): void
     {
-        $this->loader = $this->getContainer()->get(NavigationLoader::class);
+        $this->loader = static::getContainer()->get(NavigationLoader::class);
         parent::setUp();
     }
 
     public function testEventDispatched(): void
     {
         $listener = $this->getMockBuilder(CallableClass::class)->getMock();
-        $listener->expects(static::once())->method('__invoke');
+        $listener->expects($this->once())->method('__invoke');
 
-        $dispatcher = $this->getContainer()->get('event_dispatcher');
+        $dispatcher = static::getContainer()->get('event_dispatcher');
         $this->addEventListener($dispatcher, NavigationLoadedEvent::class, $listener);
 
-        $context = $this->getContainer()->get(SalesChannelContextFactory::class)
+        $context = static::getContainer()->get(SalesChannelContextFactory::class)
             ->create(Uuid::randomHex(), TestDefaults::SALES_CHANNEL);
 
         $navigationId = $context->getSalesChannel()->getNavigationCategoryId();

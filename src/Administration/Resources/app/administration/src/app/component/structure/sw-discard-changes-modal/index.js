@@ -3,7 +3,7 @@ import template from './sw-discard-changes-modal.html.twig';
 const { Component } = Shopware;
 
 /**
- * @package admin
+ * @sw-package framework
  *
  * @private
  * @description
@@ -18,9 +18,10 @@ const { Component } = Shopware;
 Component.register('sw-discard-changes-modal', {
     template,
 
-    compatConfig: Shopware.compatConfig,
-
-    emits: ['keep-editing', 'discard-changes'],
+    emits: [
+        'keep-editing',
+        'discard-changes',
+    ],
 
     methods: {
         keepEditing() {

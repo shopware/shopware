@@ -4,7 +4,7 @@ namespace Shopware\Core\Framework\Adapter\Cache\InvalidatorStorage;
 
 use Shopware\Core\Framework\Log\Package;
 
-#[Package('core')]
+#[Package('framework')]
 class RedisInvalidatorStorage extends AbstractInvalidatorStorage
 {
     private const KEY = 'invalidation';
@@ -14,8 +14,10 @@ class RedisInvalidatorStorage extends AbstractInvalidatorStorage
      *
      * @param \Redis|\RedisCluster $redis
      */
-    public function __construct(private $redis)
-    {
+    public function __construct(
+        /** @phpstan-ignore shopware.propertyNativeType (Cannot type natively, as Symfony might change the implementation in the future) */
+        private $redis
+    ) {
     }
 
     public function store(array $tags): void

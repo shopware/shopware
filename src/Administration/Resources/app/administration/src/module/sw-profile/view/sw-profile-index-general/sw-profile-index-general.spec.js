@@ -1,5 +1,5 @@
 /**
- * @package services-settings
+ * @sw-package framework
  */
 import { mount } from '@vue/test-utils';
 
@@ -7,17 +7,9 @@ async function createWrapper(privileges = []) {
     return mount(await wrapTestComponent('sw-profile-index-general', { sync: true }), {
         global: {
             stubs: {
-                'sw-card': await wrapTestComponent('sw-card'),
-                'sw-card-deprecated': await wrapTestComponent('sw-card-deprecated', { sync: true }),
                 'sw-container': await wrapTestComponent('sw-container'),
                 'sw-text-field': true,
                 'sw-select-field': true,
-                'sw-password-field': {
-                    template: '<input class="sw-password-field" :value="value" @input="$emit(\'update:value\', $event.target.value)">',
-                    props: {
-                        value: '',
-                    },
-                },
                 'sw-select-base': await wrapTestComponent('sw-select-base'),
                 'sw-block-field': await wrapTestComponent('sw-block-field'),
                 'sw-base-field': await wrapTestComponent('sw-base-field'),
@@ -28,7 +20,10 @@ async function createWrapper(privileges = []) {
                 'sw-highlight-text': await wrapTestComponent('sw-highlight-text'),
                 'sw-select-result': await wrapTestComponent('sw-select-result'),
                 'sw-upload-listener': {
-                    emits: ['click', 'media-upload-finish'],
+                    emits: [
+                        'click',
+                        'media-upload-finish',
+                    ],
                     template: `<div
                         class="sw-upload-listener"
                         @click="$emit('click', $event)"
@@ -36,7 +31,11 @@ async function createWrapper(privileges = []) {
                     ></div>`,
                 },
                 'sw-media-upload-v2': {
-                    emits: ['media-drop', 'media-upload-remove-image', 'media-upload-sidebar-open'],
+                    emits: [
+                        'media-drop',
+                        'media-upload-remove-image',
+                        'media-upload-sidebar-open',
+                    ],
                     template: `<div
                         class="sw-media-upload-v2"
                         @media-drop="$emit('media-drop', $event)"
@@ -51,7 +50,6 @@ async function createWrapper(privileges = []) {
                 'sw-ai-copilot-badge': true,
                 'sw-context-button': true,
                 'sw-loader': true,
-                'sw-icon': true,
                 'sw-inheritance-switch': true,
                 'sw-help-text': true,
                 'sw-field-error': true,
@@ -97,7 +95,7 @@ describe('src/module/sw-profile/view/sw-profile-index-general', () => {
         const wrapper = await createWrapper(['user.update_profile']);
         await flushPromises();
 
-        const changeNewPasswordField = wrapper.find('.sw-password-field:nth-of-type(1)');
+        const changeNewPasswordField = wrapper.findByLabel('sw-profile.index.labelNewPassword');
         await changeNewPasswordField.setValue('Shopware');
         await changeNewPasswordField.trigger('input');
         await flushPromises();
@@ -109,7 +107,7 @@ describe('src/module/sw-profile/view/sw-profile-index-general', () => {
         const wrapper = await createWrapper(['user.update_profile']);
         await flushPromises();
 
-        const changeNewPasswordConfirmField = wrapper.find('.sw-password-field:nth-of-type(2)');
+        const changeNewPasswordConfirmField = wrapper.findByLabel('sw-profile.index.labelNewPasswordConfirm');
         await changeNewPasswordConfirmField.setValue('Shopware');
         await changeNewPasswordConfirmField.trigger('input');
         await flushPromises();
@@ -121,8 +119,7 @@ describe('src/module/sw-profile/view/sw-profile-index-general', () => {
         const wrapper = await createWrapper(['media.creator']);
         await flushPromises();
 
-        await wrapper.find('.sw-upload-listener')
-            .trigger('media-upload-finish', { targetId: 'targetId' });
+        await wrapper.find('.sw-upload-listener').trigger('media-upload-finish', { targetId: 'targetId' });
 
         expect(wrapper.emitted('media-upload')[0][0].targetId).toBe('targetId');
     });
@@ -162,7 +159,7 @@ describe('src/module/sw-profile/view/sw-profile-index-general', () => {
         await flushPromises();
 
         const results = wrapper.findAll('.sw-select-result');
-        const resultNames = results.map(result => result.text());
+        const resultNames = results.map((result) => result.text());
 
         expect(resultNames).toContain('UTC');
     });

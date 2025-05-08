@@ -7,18 +7,19 @@ const { Criteria } = Shopware.Data;
 
 /**
  * @private
- * @package services-settings
+ * @sw-package fundamentals@after-sales
  */
 export default {
     template,
-
-    compatConfig: Shopware.compatConfig,
 
     inject: [
         'repositoryFactory',
     ],
 
-    emits: ['close-add-modal', 'entities-saved'],
+    emits: [
+        'close-add-modal',
+        'entities-saved',
+    ],
 
     props: {
         rule: {
@@ -89,7 +90,7 @@ export default {
             const api = this.entityContext.api ? this.entityContext.api() : Context.api;
             const repository = this.repositoryFactory.create(this.entityContext.addContext.entity);
 
-            Object.values(this.selection).forEach(item => {
+            Object.values(this.selection).forEach((item) => {
                 item[this.entityContext.addContext.column] = this.rule.id;
             });
 
@@ -101,7 +102,7 @@ export default {
             const repository = this.repositoryFactory.create(this.entityContext.addContext.entity);
 
             const inserts = [];
-            Object.values(this.selection).forEach(item => {
+            Object.values(this.selection).forEach((item) => {
                 const entity = repository.create(api);
                 entity.ruleId = this.rule.id;
                 entity[this.entityContext.addContext.column] = item.id;

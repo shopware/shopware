@@ -1,5 +1,5 @@
 /**
- * @package admin
+ * @sw-package framework
  */
 
 import { mount } from '@vue/test-utils';
@@ -17,7 +17,6 @@ async function createWrapper(customConfig = {}) {
                 'sw-tabs-deprecated': await wrapTestComponent('sw-tabs-deprecated', { sync: true }),
                 'sw-tabs-item': await wrapTestComponent('sw-tabs-item'),
                 'mt-tabs': true,
-                'sw-icon': true,
                 'sw-extension-component-section': true,
                 'router-link': true,
             },
@@ -149,8 +148,9 @@ describe('src/app/component/meteor/sw-meteor-card', () => {
     });
 
     it('should render the tabs', async () => {
-        const wrapper = mount({
-            template: `
+        const wrapper = mount(
+            {
+                template: `
 <sw-meteor-card defaultTab="tab1">
 
     <template #tabs="{ activeTab }">
@@ -165,21 +165,22 @@ describe('src/app/component/meteor/sw-meteor-card', () => {
 
 </sw-meteor-card>
             `,
-        }, {
-            global: {
-                stubs: {
-                    'sw-meteor-card': await wrapTestComponent('sw-meteor-card'),
-                    'sw-tabs': await wrapTestComponent('sw-tabs'),
-                    'sw-tabs-deprecated': await wrapTestComponent('sw-tabs-deprecated', { sync: true }),
-                    'sw-tabs-item': await wrapTestComponent('sw-tabs-item'),
-                    'sw-loader': true,
-                    'mt-tabs': true,
-                    'sw-icon': true,
-                    'sw-extension-component-section': true,
-                    'router-link': true,
+            },
+            {
+                global: {
+                    stubs: {
+                        'sw-meteor-card': await wrapTestComponent('sw-meteor-card'),
+                        'sw-tabs': await wrapTestComponent('sw-tabs'),
+                        'sw-tabs-deprecated': await wrapTestComponent('sw-tabs-deprecated', { sync: true }),
+                        'sw-tabs-item': await wrapTestComponent('sw-tabs-item'),
+                        'sw-loader': true,
+                        'mt-tabs': true,
+                        'sw-extension-component-section': true,
+                        'router-link': true,
+                    },
                 },
             },
-        });
+        );
 
         await flushPromises();
 
@@ -189,8 +190,9 @@ describe('src/app/component/meteor/sw-meteor-card', () => {
     });
 
     it('should render tabs and change content', async () => {
-        const wrapper = mount({
-            template: `
+        const wrapper = mount(
+            {
+                template: `
 <sw-meteor-card defaultTab="tab1">
 
     <template #tabs="{ activeTab }">
@@ -205,21 +207,22 @@ describe('src/app/component/meteor/sw-meteor-card', () => {
 
 </sw-meteor-card>
             `,
-        }, {
-            global: {
-                stubs: {
-                    'sw-meteor-card': await wrapTestComponent('sw-meteor-card'),
-                    'sw-tabs': await wrapTestComponent('sw-tabs'),
-                    'sw-tabs-deprecated': await wrapTestComponent('sw-tabs-deprecated', { sync: true }),
-                    'sw-tabs-item': await wrapTestComponent('sw-tabs-item'),
-                    'sw-loader': true,
-                    'mt-tabs': true,
-                    'sw-icon': true,
-                    'sw-extension-component-section': true,
-                    'router-link': true,
+            },
+            {
+                global: {
+                    stubs: {
+                        'sw-meteor-card': await wrapTestComponent('sw-meteor-card'),
+                        'sw-tabs': await wrapTestComponent('sw-tabs'),
+                        'sw-tabs-deprecated': await wrapTestComponent('sw-tabs-deprecated', { sync: true }),
+                        'sw-tabs-item': await wrapTestComponent('sw-tabs-item'),
+                        'sw-loader': true,
+                        'mt-tabs': true,
+                        'sw-extension-component-section': true,
+                        'router-link': true,
+                    },
                 },
             },
-        });
+        );
 
         await flushPromises();
 

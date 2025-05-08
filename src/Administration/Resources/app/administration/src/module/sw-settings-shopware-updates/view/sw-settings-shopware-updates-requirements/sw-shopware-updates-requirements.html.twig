@@ -1,6 +1,5 @@
-<!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
 {% block sw_shopware_updates_requirements %}
-<sw-card
+<mt-card
     position-identifier="sw-shopware-updates-requirements"
     :title="$t('sw-settings-shopware-updates.cards.requirements')"
     :is-loading="isLoading"
@@ -14,7 +13,6 @@
             :data-source="requirements"
         >
 
-            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_shopware_updates_requirements_column_result %}
             <template
                 #column-result="{ item, isInlineEdit }"
@@ -37,7 +35,6 @@
             </template>
             {% endblock %}
 
-            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_shopware_updates_requirements_column_message %}
             <template
                 #column-message="{ item, isInlineEdit }"
@@ -47,5 +44,5 @@
             {% endblock %}
         </sw-data-grid>
     </template>
-</sw-card>
+</mt-card>
 {% endblock %}

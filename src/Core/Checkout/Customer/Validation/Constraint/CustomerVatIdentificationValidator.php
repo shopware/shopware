@@ -34,18 +34,13 @@ class CustomerVatIdentificationValidator extends ConstraintValidator
             throw new UnexpectedValueException($vatIds, 'iterable');
         }
 
-        if (!$this->shouldCheckVatIdFormat($constraint)) {
+        $vatIdPattern = $this->getVatIdPattern($constraint);
+        if ($vatIdPattern === null) {
             return;
         }
-
-        if (!$vatPattern = $this->getVatPattern($constraint)) {
-            return;
-        }
-
-        $regex = '/^' . $vatPattern . '$/i';
 
         foreach ($vatIds as $vatId) {
-            if (!preg_match($regex, (string) $vatId)) {
+            if (!preg_match($vatIdPattern, (string) $vatId)) {
                 $this->context->buildViolation($constraint->message)
                     ->setParameter('{{ vatId }}', $this->formatValue($vatId))
                     ->setCode(CustomerVatIdentification::VAT_ID_FORMAT_NOT_CORRECT)
@@ -54,23 +49,29 @@ class CustomerVatIdentificationValidator extends ConstraintValidator
         }
     }
 
-    private function shouldCheckVatIdFormat(CustomerVatIdentification $constraint): bool
+    private function getVatIdPattern(CustomerVatIdentification $constraint): ?string
     {
-        if ($constraint->getShouldCheck()) {
-            return true;
+        $vatIdInformation = $this->connection->fetchAssociative(
+            'SELECT check_vat_id_pattern, vat_id_pattern FROM `country` WHERE id = :id',
+            ['id' => Uuid::fromHexToBytes($constraint->getCountryId())]
+        );
+
+        if ($vatIdInformation === false) {
+            return null;
         }
 
-        return (bool) $this->connection->fetchOne(
-            'SELECT check_vat_id_pattern FROM `country` WHERE id = :id',
-            ['id' => Uuid::fromHexToBytes($constraint->getCountryId())]
-        );
-    }
+        \assert(\array_key_exists('check_vat_id_pattern', $vatIdInformation));
+        \assert(\array_key_exists('vat_id_pattern', $vatIdInformation));
 
-    private function getVatPattern(CustomerVatIdentification $constraint): string
-    {
-        return (string) $this->connection->fetchOne(
-            'SELECT vat_id_pattern FROM `country` WHERE id = :id',
-            ['id' => Uuid::fromHexToBytes($constraint->getCountryId())]
-        );
+        if (!$constraint->getShouldCheck() && !$vatIdInformation['check_vat_id_pattern']) {
+            return null;
+        }
+
+        $pattern = (string) $vatIdInformation['vat_id_pattern'];
+        if ($pattern === '') {
+            return null;
+        }
+
+        return '/^' . $pattern . '$/';
     }
 }

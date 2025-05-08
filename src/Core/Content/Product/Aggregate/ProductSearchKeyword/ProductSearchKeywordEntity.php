@@ -13,35 +13,17 @@ class ProductSearchKeywordEntity extends Entity
 {
     use EntityIdTrait;
 
-    /**
-     * @var string
-     */
-    protected $languageId;
+    protected string $languageId;
 
-    /**
-     * @var string
-     */
-    protected $productId;
+    protected string $productId;
 
-    /**
-     * @var string
-     */
-    protected $keyword;
+    protected string $keyword;
 
-    /**
-     * @var float
-     */
-    protected $ranking;
+    protected float $ranking;
 
-    /**
-     * @var ProductEntity|null
-     */
-    protected $product;
+    protected ?ProductEntity $product = null;
 
-    /**
-     * @var LanguageEntity|null
-     */
-    protected $language;
+    protected ?LanguageEntity $language = null;
 
     public function getLanguageId(): string
     {

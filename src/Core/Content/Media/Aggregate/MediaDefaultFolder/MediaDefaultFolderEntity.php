@@ -8,21 +8,15 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityCustomFieldsTrait;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityIdTrait;
 use Shopware\Core\Framework\Log\Package;
 
-#[Package('buyers-experience')]
+#[Package('discovery')]
 class MediaDefaultFolderEntity extends Entity
 {
     use EntityCustomFieldsTrait;
     use EntityIdTrait;
 
-    /**
-     * @var string
-     */
-    protected $entity;
+    protected string $entity;
 
-    /**
-     * @var MediaFolderEntity|null
-     */
-    protected $folder;
+    protected ?MediaFolderEntity $folder = null;
 
     public function getEntity(): string
     {

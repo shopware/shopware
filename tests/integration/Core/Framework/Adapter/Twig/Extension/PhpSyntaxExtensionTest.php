@@ -19,7 +19,7 @@ class PhpSyntaxExtensionTest extends TestCase
     {
         $template = file_get_contents(__DIR__ . '/fixture/php-syntax-extension.html.twig');
         static::assertIsString($template);
-        $renderer = $this->getContainer()->get(StringTemplateRenderer::class);
+        $renderer = static::getContainer()->get(StringTemplateRenderer::class);
 
         $jsonEncodeData = [
             -4,

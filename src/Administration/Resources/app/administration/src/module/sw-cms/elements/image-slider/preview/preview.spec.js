@@ -1,18 +1,14 @@
 /**
- * @package buyers-experience
+ * @sw-package discovery
  */
 import { mount } from '@vue/test-utils';
 
 async function createWrapper() {
-    return mount(await wrapTestComponent('sw-cms-el-preview-image-slider', {
-        sync: true,
-    }), {
-        global: {
-            stubs: {
-                'sw-icon': await wrapTestComponent('sw-icon'),
-            },
-        },
-    });
+    return mount(
+        await wrapTestComponent('sw-cms-el-preview-image-slider', {
+            sync: true,
+        }),
+    );
 }
 
 describe('src/module/sw-cms/elements/image-slider/preview', () => {

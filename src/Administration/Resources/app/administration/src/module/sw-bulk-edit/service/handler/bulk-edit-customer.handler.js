@@ -6,7 +6,7 @@ const types = Shopware.Utils.types;
 /**
  * @class
  * @extends BulkEditBaseHandler
- * @package services-settings
+ * @sw-package checkout
  */
 class BulkEditCustomerHandler extends BulkEditBaseHandler {
     constructor() {
@@ -28,16 +28,20 @@ class BulkEditCustomerHandler extends BulkEditBaseHandler {
         }
 
         return RetryHelper.retry(() => {
-            return this.syncService.sync(syncPayload, {}, {
-                'single-operation': 1,
-                'sw-language-id': Shopware.Context.api.languageId,
-            });
+            return this.syncService.sync(
+                syncPayload,
+                {},
+                {
+                    'single-operation': 1,
+                    'sw-language-id': Shopware.Context.api.languageId,
+                },
+            );
         });
     }
 
     async bulkEditRequestedGroup(entityIds, payload) {
         const promises = [];
-        const shouldTriggerFlows = Shopware.State.get('swBulkEdit').isFlowTriggered;
+        const shouldTriggerFlows = Shopware.Store.get('swBulkEdit').isFlowTriggered;
 
         payload.forEach((change) => {
             if (!change.value) {

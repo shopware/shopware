@@ -1,8 +1,8 @@
 const { Component } = Shopware;
 
 /**
- * @package admin
- * @deprecated tag:v6.7.0 - Will be removed, use mt-select instead.
+ * @sw-package framework
+ * @deprecated tag:v6.8.0 - Will be removed, use mt-select instead.
  *
  * @private
  * @description select input field. Values will be transformed to numbers.
@@ -18,7 +18,6 @@ const { Component } = Shopware;
  * </sw-select-number-field>
  */
 Component.extend('sw-select-number-field', 'sw-select-field-deprecated', {
-
     inheritAttrs: false,
 
     inject: ['feature'],
@@ -40,7 +39,9 @@ Component.extend('sw-select-number-field', 'sw-select-field-deprecated', {
     },
 
     watch: {
-        value() { this.currentValue = Number(this.value); },
+        value() {
+            this.currentValue = Number(this.value);
+        },
     },
 
     methods: {

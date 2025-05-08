@@ -16,9 +16,17 @@
 
 .order-table-header {
     display: none;
+    padding-top: $spacer-sm;
+    padding-bottom: $spacer-sm;
+    padding-left: $order-grid-gutter-width;
+    padding-right: $order-grid-gutter-width;
 
     :first-child {
         position: relative;
+    }
+
+    &:last-of-type {
+        border-bottom: 0;
     }
 }
 
@@ -42,33 +50,20 @@
     }
 }
 
-.order-table-header,
 .order-wrapper {
     &:last-of-type {
         border-bottom: 0;
     }
 }
 
-.order-table-header,
 .order-item-header {
-    padding-top: $spacer-sm;
-    padding-bottom: $spacer-sm;
-}
-
-.order-table-header,
-.order-item-header {
-    padding-left: $order-grid-gutter-width;
-    padding-right: $order-grid-gutter-width;
+    padding: $spacer-sm $order-grid-gutter-width;
 }
 
 .order-table-header-heading,
 .order-table-header-order-status,
 .order-table-header-context-menu {
     display: inline-block;
-}
-
-.order-table-header-heading {
-    max-width: 290px;
 }
 
 .order-table-header-order-status {
@@ -84,59 +79,6 @@
 .order-table-header-context-menu-wrapper,
 .order-table-header-heading {
     margin-top: $spacer-sm;
-}
-
-.order-table-header-context-menu {
-    $width: 35px;
-    $height: $width;
-
-    float: right;
-    border: 1px solid $sw-border-color;
-    border-radius: $border-radius;
-    width: $width;
-    height: $height;
-    padding: 0;
-
-    &::after {
-        display: none;
-    }
-
-    .icon {
-        position: relative;
-        margin: 5px;
-
-        > svg {
-            color: $sw-text-color;
-            position: absolute;
-            top: 0;
-            left: 0;
-        }
-    }
-
-    &-content {
-        padding-left: 10px;
-        padding-right: 10px;
-    }
-}
-
-.order-table-header-context-menu-content-link {
-    display: block;
-    border: 0 none;
-    padding: 0;
-    width: 100%;
-    color: $sw-text-color;
-    background: none;
-    cursor: pointer;
-    text-align: left;
-
-    &:hover {
-        text-decoration: none;
-        color: $primary;
-    }
-
-    &:active {
-        outline: none;
-    }
 }
 
 .order-table-header-order-number {
@@ -193,10 +135,6 @@
 
 .order-table-header-order-table {
     width: 100%;
-}
-
-.order-table-header-label {
-    display: none;
 }
 
 .payment-control input,
@@ -283,6 +221,12 @@
     }
 }
 
+@include media-breakpoint-up(sm) {
+    .order-table-header-order-table-body .order-table-header-label {
+        @include visually-hidden();
+    }
+}
+
 @include media-breakpoint-down(sm) {
     .order-table-header-order-table-header {
         display: none;
@@ -293,17 +237,13 @@
     }
 
     .order-table-header-label {
-        display: inline;
+        display: block;
+        float: left;
+        width: 50%;
     }
 
     .order-table-header-order-number {
         margin-bottom: 0;
-    }
-
-    .order-table-header-label {
-        display: block;
-        float: left;
-        width: 50%;
     }
 
     .order-table-body-value {

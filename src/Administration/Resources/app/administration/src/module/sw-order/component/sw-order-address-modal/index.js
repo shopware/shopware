@@ -2,7 +2,7 @@ import template from './sw-order-address-modal.html.twig';
 import './sw-order-address-modal.scss';
 
 /**
- * @package checkout
+ * @sw-package checkout
  */
 
 const { Mixin } = Shopware;
@@ -12,11 +12,13 @@ const { Criteria } = Shopware.Data;
 export default {
     template,
 
-    compatConfig: Shopware.compatConfig,
-
     inject: ['repositoryFactory'],
 
-    emits: ['reset', 'address-select', 'save'],
+    emits: [
+        'reset',
+        'address-select',
+        'save',
+    ],
 
     mixins: [
         Mixin.getByName('notification'),
@@ -114,13 +116,16 @@ export default {
         getCustomerInfo() {
             this.isLoading = true;
 
-            this.customerRepository.search(this.customerCriteria).then((customer) => {
-                this.availableAddresses = customer[0].addresses;
+            this.customerRepository
+                .search(this.customerCriteria)
+                .then((customer) => {
+                    this.availableAddresses = customer[0].addresses;
 
-                return Shopware.State.dispatch('error/resetApiErrors');
-            }).finally(() => {
-                this.isLoading = false;
-            });
+                    return Shopware.Store.get('error').resetApiErrors();
+                })
+                .finally(() => {
+                    this.isLoading = false;
+                });
         },
 
         onNewActiveItem() {
@@ -128,8 +133,9 @@ export default {
         },
 
         addressButtonClasses(addressId) {
-            return `sw-order-address-modal__entry${addressId === this.selectedAddressId ?
-                ' sw-order-address-modal__entry__selected' : ''}`;
+            return `sw-order-address-modal__entry${
+                addressId === this.selectedAddressId ? ' sw-order-address-modal__entry__selected' : ''
+            }`;
         },
 
         onExistingAddressSelected(address) {
@@ -164,15 +170,19 @@ export default {
                     resolve();
                 } else {
                     // save address
-                    this.orderRepository.save(this.order, this.versionContext).then(() => {
-                        this.$emit('save');
-                    }).catch(() => {
-                        this.createNotificationError({
-                            message: this.$tc('sw-order.detail.messageSaveError'),
+                    this.orderRepository
+                        .save(this.order, this.versionContext)
+                        .then(() => {
+                            this.$emit('save');
+                        })
+                        .catch(() => {
+                            this.createNotificationError({
+                                message: this.$tc('sw-order.detail.messageSaveError'),
+                            });
+                        })
+                        .finally(() => {
+                            resolve();
                         });
-                    }).finally(() => {
-                        resolve();
-                    });
                 }
             }).finally(() => {
                 this.isLoading = false;

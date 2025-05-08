@@ -12,7 +12,7 @@ const URL_REGEX = {
 };
 
 /**
- * @package admin
+ * @sw-package framework
  *
  * @private
  * @description URL field component which supports a switch for https and http.
@@ -27,12 +27,12 @@ Component.extend('sw-url-field-deprecated', 'sw-text-field-deprecated', {
 
     inheritAttrs: false,
 
-    compatConfig: Shopware.compatConfig,
-
     inject: ['feature'],
 
     emits: [
-        'update:value', 'inheritance-restore', 'inheritance-remove',
+        'update:value',
+        'inheritance-restore',
+        'inheritance-remove',
     ],
 
     props: {
@@ -46,6 +46,10 @@ Component.extend('sw-url-field-deprecated', 'sw-text-field-deprecated', {
             default: false,
         },
         omitUrlSearch: {
+            type: Boolean,
+            default: false,
+        },
+        addTrailingSlash: {
             type: Boolean,
             default: false,
         },
@@ -144,6 +148,7 @@ Component.extend('sw-url-field-deprecated', 'sw-text-field-deprecated', {
 
         handleEmptyUrl() {
             this.currentUrlValue = '';
+            this.$emit('update:value', this.url);
         },
 
         validateCurrentValue(value) {
@@ -163,7 +168,8 @@ Component.extend('sw-url-field-deprecated', 'sw-text-field-deprecated', {
             }
 
             // when a hash or search query is provided we want to allow trailing slash, eg a vue route `admin#/`
-            const removeTrailingSlash = url.hash === '' && url.search === '' ? URL_REGEX.TRAILING_SLASH : '';
+            const removeTrailingSlash =
+                url.hash === '' && url.search === '' && !this.addTrailingSlash ? URL_REGEX.TRAILING_SLASH : '';
 
             // build URL via native URL.toString() function instead by hand @see NEXT-15747
             return url

@@ -1,5 +1,5 @@
 /**
- * @package buyers-experience
+ * @sw-package fundamentals@discovery
  */
 import template from './sw-settings-language-list.html.twig';
 import './sw-settings-language-list.scss';
@@ -10,8 +10,6 @@ const { Criteria } = Shopware.Data;
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default {
     template,
-
-    compatConfig: Shopware.compatConfig,
 
     inject: [
         'repositoryFactory',
@@ -69,26 +67,32 @@ export default {
         },
 
         getColumns() {
-            return [{
-                property: 'name',
-                label: 'sw-settings-language.list.columnName',
-                dataIndex: 'name',
-                inlineEdit: true,
-            }, {
-                property: 'locale',
-                dataIndex: 'locale.id',
-                label: 'sw-settings-language.list.columnLocaleName',
-            }, {
-                property: 'translationCode.code',
-                label: 'sw-settings-language.list.columnIsoCode',
-            }, {
-                property: 'parent',
-                dataIndex: 'parent.id',
-                label: 'sw-settings-language.list.columnInherit',
-            }, {
-                property: 'id',
-                label: 'sw-settings-language.list.columnDefault',
-            }];
+            return [
+                {
+                    property: 'name',
+                    label: 'sw-settings-language.list.columnName',
+                    dataIndex: 'name',
+                    inlineEdit: true,
+                },
+                {
+                    property: 'locale',
+                    dataIndex: 'locale.id',
+                    label: 'sw-settings-language.list.columnLocaleName',
+                },
+                {
+                    property: 'translationCode.code',
+                    label: 'sw-settings-language.list.columnIsoCode',
+                },
+                {
+                    property: 'parent',
+                    dataIndex: 'parent.id',
+                    label: 'sw-settings-language.list.columnInherit',
+                },
+                {
+                    property: 'id',
+                    label: 'sw-settings-language.list.columnDefault',
+                },
+            ];
         },
 
         allowCreate() {
@@ -118,7 +122,7 @@ export default {
             return this.languageRepository.search(this.listingCriteria).then((languageResult) => {
                 this.total = languageResult.total || this.total;
 
-                const parentCriteria = (new Criteria(1, this.limit));
+                const parentCriteria = new Criteria(1, this.limit);
                 const parentIds = {};
 
                 languageResult.forEach((language) => {

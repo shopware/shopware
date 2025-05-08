@@ -2,10 +2,11 @@
 
 namespace Shopware\Core\Checkout\Customer\Validation\Constraint;
 
+use Shopware\Core\Checkout\Customer\CustomerException;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Component\Validator\Constraint;
-use Symfony\Component\Validator\Exception\MissingOptionsException;
 
 #[Package('checkout')]
 class CustomerPasswordMatches extends Constraint
@@ -16,35 +17,60 @@ class CustomerPasswordMatches extends Constraint
         self::CUSTOMER_PASSWORD_NOT_CORRECT => 'CUSTOMER_PASSWORD_NOT_CORRECT',
     ];
 
-    /**
-     * @var string
-     */
-    public $message = 'Your password is wrong';
+    public string $message = 'Your password is wrong';
 
     /**
-     * @var SalesChannelContext
+     * @deprecated tag:v6.8.0 - Will be removed, use $salesChannelContext instead
      */
-    protected $context;
+    protected SalesChannelContext $context;
+
+    protected SalesChannelContext $salesChannelContext;
 
     /**
+     * @param ?array{salesChannelContext: SalesChannelContext} $options
+     *
+     * @deprecated tag:v6.8.0 - Parameter $options will be required and natively typed as array
+     *
      * @internal
      */
     public function __construct($options = null)
     {
-        $options = array_merge(
-            ['context' => null],
-            $options
-        );
+        if ($options === null) {
+            Feature::triggerDeprecationOrThrow('v6.8.0.0', 'The parameter $options will be required and natively typed as array');
+        }
+
+        $options ??= [];
+
+        if (!Feature::isActive('v6.8.0.0') && isset($options['context'])) {
+            $options['salesChannelContext'] = $options['context'];
+        }
+
+        if (!($options['salesChannelContext'] ?? null) instanceof SalesChannelContext) {
+            throw CustomerException::missingOption('salesChannelContext', self::class);
+        }
+
+        if (!Feature::isActive('v6.8.0.0')) {
+            $options['context'] = $options['salesChannelContext'];
+        }
 
         parent::__construct($options);
-
-        if (!$this->context instanceof SalesChannelContext) {
-            throw new MissingOptionsException(\sprintf('Option "context" must be given for constraint %s', self::class), ['context']);
-        }
     }
 
+    /**
+     * @deprecated tag:v6.8.0 - Will be removed, use getSalesChannelContext instead
+     */
     public function getContext(): SalesChannelContext
     {
+        Feature::triggerDeprecationOrThrow(
+            'v6.8.0.0',
+            Feature::deprecatedMethodMessage(__CLASS__, __METHOD__, 'v6.8.0.0', 'getSalesChannelContext')
+        );
+
         return $this->context;
+    }
+
+    public function getSalesChannelContext(): SalesChannelContext
+    {
+        return $this->salesChannelContext;
     }
 }

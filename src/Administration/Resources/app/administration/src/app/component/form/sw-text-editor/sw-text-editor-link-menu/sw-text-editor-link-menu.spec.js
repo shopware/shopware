@@ -1,80 +1,83 @@
 /**
- * @package admin
+ * @sw-package framework
  */
 
 import { mount } from '@vue/test-utils';
+import { MtUrlField } from '@shopware-ag/meteor-component-library';
+import selectMtSelectOptionByText from 'test/_helper_/select-mt-select-by-text';
 
 const seoDomainPrefix = '124c71d524604ccbad6042edce3ac799';
 
-const linkDataProvider = [{
-    buttonConfig: {
+const linkDataProvider = [
+    {
+        buttonConfig: {
+            value: 'http://www.domain.de/test',
+            type: 'link',
+        },
         value: 'http://www.domain.de/test',
         type: 'link',
+        prefix: 'http://',
+        selector: '.mt-text-field input',
+        label: 'sw-text-editor-toolbar.link.linkTo',
+        placeholder: 'sw-text-editor-toolbar.link.placeholder',
     },
-    value: 'http://www.domain.de/test',
-    type: 'link',
-    prefix: 'http://',
-    selector: '.sw-field--text input',
-    label: 'sw-text-editor-toolbar.link.linkTo',
-    placeholder: 'sw-text-editor-toolbar.link.placeholder',
-}, {
-    buttonConfig: {
-        value: 'tel:01234567890123',
+    {
+        buttonConfig: {
+            value: 'tel:01234567890123',
+            type: 'phone',
+        },
+        value: '01234567890123',
         type: 'phone',
+        prefix: 'tel:',
+        selector: '.mt-text-field input',
+        label: 'sw-text-editor-toolbar.link.linkTo',
+        placeholder: 'sw-text-editor-toolbar.link.placeholderPhoneNumber',
     },
-    value: '01234567890123',
-    type: 'phone',
-    prefix: 'tel:',
-    selector: '.sw-field--text input',
-    label: 'sw-text-editor-toolbar.link.linkTo',
-    placeholder: 'sw-text-editor-toolbar.link.placeholderPhoneNumber',
-}, {
-    buttonConfig: {
+    {
+        buttonConfig: {
+            value: 'puppy.png?ts=1719991125',
+            type: 'media',
+        },
         value: 'puppy.png?ts=1719991125',
         type: 'media',
+        prefix: '124c71d524604ccbad6042edce3ac799/mediaId/',
+        selector: '.sw-field--media input',
+        label: 'sw-text-editor-toolbar.link.linkTo',
     },
-    value: 'puppy.png?ts=1719991125',
-    type: 'media',
-    prefix: '124c71d524604ccbad6042edce3ac799/mediaId/',
-    selector: '.sw-field--media input',
-    label: 'sw-text-editor-toolbar.link.linkTo',
-}, {
-    buttonConfig: {
-        value: 'mailto:test@shopware.com',
+    {
+        buttonConfig: {
+            value: 'mailto:test@shopware.com',
+            type: 'email',
+        },
+        value: 'test@shopware.com',
         type: 'email',
+        prefix: 'mailto:',
+        selector: '.mt-email-field input',
+        label: 'sw-text-editor-toolbar.link.linkTo',
+        placeholder: 'sw-text-editor-toolbar.link.placeholderEmail',
     },
-    value: 'test@shopware.com',
-    type: 'email',
-    prefix: 'mailto:',
-    selector: '.sw-field--email input',
-    label: 'sw-text-editor-toolbar.link.linkTo',
-    placeholder: 'sw-text-editor-toolbar.link.placeholderEmail',
-}, {
-    buttonConfig: {
-        value: `${seoDomainPrefix}/detail/aaaaaaa524604ccbad6042edce3ac799#`,
+    {
+        buttonConfig: {
+            value: `${seoDomainPrefix}/detail/aaaaaaa524604ccbad6042edce3ac799#`,
+            type: 'detail',
+        },
+        value: 'aaaaaaa524604ccbad6042edce3ac799',
         type: 'detail',
+        prefix: `${seoDomainPrefix}/detail/`,
+        selector: '.sw-text-editor-link-menu__entity-single-select input',
+        label: 'sw-text-editor-toolbar.link.linkTo',
+        placeholder: 'sw-text-editor-toolbar.link.placeholderProduct',
     },
-    value: 'aaaaaaa524604ccbad6042edce3ac799',
-    type: 'detail',
-    prefix: `${seoDomainPrefix}/detail/`,
-    selector: '.sw-text-editor-link-menu__entity-single-select input',
-    label: 'sw-text-editor-toolbar.link.linkTo',
-    placeholder: 'sw-text-editor-toolbar.link.placeholderProduct',
-}];
+];
 
 async function createWrapper(buttonConfig) {
     return mount(await wrapTestComponent('sw-text-editor-link-menu', { sync: true }), {
         global: {
             stubs: {
-                'sw-select-field': await wrapTestComponent('sw-select-field', { sync: true }),
-                'sw-select-field-deprecated': await wrapTestComponent('sw-select-field-deprecated', { sync: true }),
-                'sw-switch-field': await wrapTestComponent('sw-switch-field'),
-                'sw-switch-field-deprecated': await wrapTestComponent('sw-switch-field-deprecated', { sync: true }),
                 'sw-email-field': await wrapTestComponent('sw-email-field'),
                 'sw-email-field-deprecated': await wrapTestComponent('sw-email-field-deprecated'),
                 'sw-text-field': await wrapTestComponent('sw-text-field'),
                 'sw-text-field-deprecated': await wrapTestComponent('sw-text-field-deprecated', { sync: true }),
-                'sw-url-field': await wrapTestComponent('sw-url-field'),
                 'sw-entity-single-select': await wrapTestComponent('sw-entity-single-select'),
                 'sw-category-tree-field': await wrapTestComponent('sw-category-tree-field'),
                 'sw-media-field': await wrapTestComponent('sw-media-field'),
@@ -89,8 +92,6 @@ async function createWrapper(buttonConfig) {
                 'sw-upload-listener': true,
                 'sw-media-base-item': true,
                 'sw-media-media-item': await wrapTestComponent('sw-media-media-item'),
-                'sw-button': await wrapTestComponent('sw-button'),
-                'sw-button-deprecated': await wrapTestComponent('sw-button-deprecated'),
                 'sw-contextual-field': await wrapTestComponent('sw-contextual-field'),
                 'sw-block-field': await wrapTestComponent('sw-block-field'),
                 'sw-base-field': await wrapTestComponent('sw-base-field'),
@@ -106,9 +107,6 @@ async function createWrapper(buttonConfig) {
                 'sw-highlight-text': await wrapTestComponent('sw-highlight-text'),
                 'sw-loader': true,
                 'router-link': true,
-                'mt-button': true,
-                'sw-icon': true,
-                'mt-select': true,
                 'sw-help-text': true,
                 'sw-ai-copilot-badge': true,
                 'sw-inheritance-switch': true,
@@ -117,10 +115,9 @@ async function createWrapper(buttonConfig) {
                 'sw-tree': true,
                 'sw-checkbox-field': true,
                 'sw-tree-item': true,
-                'mt-text-field': true,
                 'sw-field-copyable': true,
-                'mt-email-field': true,
                 'mt-floating-ui': true,
+                'mt-url-field': MtUrlField,
             },
         },
         props: {
@@ -157,11 +154,13 @@ responses.addResponse({
     url: '/search/category',
     status: 200,
     response: {
-        data: [{
-            id: 'test-id',
-            attributes: categoryData,
-            relationships: [],
-        }],
+        data: [
+            {
+                id: 'test-id',
+                attributes: categoryData,
+                relationships: [],
+            },
+        ],
         meta: {
             total: 1,
         },
@@ -224,7 +223,7 @@ describe('components/form/sw-text-editor/sw-text-editor-link-menu', () => {
         expect(wrapper.vm).toBeTruthy();
     });
 
-    linkDataProvider.forEach(link => {
+    linkDataProvider.forEach((link) => {
         it(`parses ${link.type} URLs correctly`, async () => {
             const wrapper = await createWrapper(link.buttonConfig);
             await flushPromises();
@@ -236,7 +235,12 @@ describe('components/form/sw-text-editor/sw-text-editor-link-menu', () => {
             const inputField = wrapper.find(link.selector);
 
             // sw-entity-single-select only uses the input field for the search
-            if (!['detail', 'media'].includes(link.type)) {
+            if (
+                ![
+                    'detail',
+                    'media',
+                ].includes(link.type)
+            ) {
                 // eslint-disable-next-line jest/no-conditional-expect
                 expect(inputField.element.value).toBe(link.value);
             }
@@ -320,16 +324,26 @@ describe('components/form/sw-text-editor/sw-text-editor-link-menu', () => {
         expect(associations[0].criteria.associations).toHaveLength(1);
         expect(associations[0].criteria.associations[0].association).toBe('group');
 
-        expect(productSingleSelect.criteria.filters).toStrictEqual(expect.objectContaining(
-            [{
-                operator: 'OR',
-                queries: [
-                    { field: 'product.childCount', type: 'equals', value: 0 },
-                    { field: 'product.childCount', type: 'equals', value: null },
-                ],
-                type: 'multi',
-            }],
-        ));
+        expect(productSingleSelect.criteria.filters).toStrictEqual(
+            expect.objectContaining([
+                {
+                    operator: 'OR',
+                    queries: [
+                        {
+                            field: 'product.childCount',
+                            type: 'equals',
+                            value: 0,
+                        },
+                        {
+                            field: 'product.childCount',
+                            type: 'equals',
+                            value: null,
+                        },
+                    ],
+                    type: 'multi',
+                },
+            ]),
+        );
 
         const results = productSingleSelect.resultCollection;
         expect(results).toHaveLength(2);
@@ -356,7 +370,9 @@ describe('components/form/sw-text-editor/sw-text-editor-link-menu', () => {
         await productSingleSelect.setValue({ id: null });
         await flushPromises();
 
-        const isDisabled = wrapper.findComponent('.sw-text-editor-toolbar-button__link-menu-buttons-button-insert').attributes('disabled');
+        const isDisabled = wrapper
+            .findComponent('.sw-text-editor-toolbar-button__link-menu-buttons-button-insert')
+            .attributes('disabled');
         expect(isDisabled).toBeDefined();
     });
 
@@ -373,7 +389,9 @@ describe('components/form/sw-text-editor/sw-text-editor-link-menu', () => {
         expect(wrapper.text()).toContain('sw-text-editor-toolbar.link.linkTo');
         expect(categoryTreeFieldElement.element.placeholder).toBe('sw-text-editor-toolbar.link.placeholderCategory');
 
-        const categoryTreeField = wrapper.findComponent({ name: 'sw-category-tree-field__wrapped' }).vm;
+        const categoryTreeField = wrapper.findComponent({
+            name: 'sw-category-tree-field__wrapped',
+        }).vm;
 
         expect(categoryTreeField.categoryCriteria).toStrictEqual(
             expect.objectContaining({
@@ -411,7 +429,9 @@ describe('components/form/sw-text-editor/sw-text-editor-link-menu', () => {
         categoryTreeField.$emit('selection-remove');
         await flushPromises();
 
-        const isDisabled = wrapper.findComponent('.sw-text-editor-toolbar-button__link-menu-buttons-button-insert').attributes('disabled');
+        const isDisabled = wrapper
+            .findComponent('.sw-text-editor-toolbar-button__link-menu-buttons-button-insert')
+            .attributes('disabled');
         expect(isDisabled).toBeDefined();
     });
 
@@ -425,12 +445,13 @@ describe('components/form/sw-text-editor/sw-text-editor-link-menu', () => {
 
         expect(wrapper.vm.linkCategory).toBe('link');
 
-        await wrapper.get('select').setValue('email');
-        await flushPromises();
+        await selectMtSelectOptionByText(wrapper, 'sw-text-editor-toolbar.link.labelEmail');
 
         expect(wrapper.vm.linkCategory).toBe('email');
 
-        const isDisabled = wrapper.findComponent('.sw-text-editor-toolbar-button__link-menu-buttons-button-insert').attributes('disabled');
+        const isDisabled = wrapper
+            .findComponent('.sw-text-editor-toolbar-button__link-menu-buttons-button-insert')
+            .attributes('disabled');
         expect(isDisabled).toBeDefined();
     });
 
@@ -445,10 +466,8 @@ describe('components/form/sw-text-editor/sw-text-editor-link-menu', () => {
         expect(wrapper.vm.linkCategory).toBe('link');
         expect(wrapper.vm.linkTarget).toBe('http://www.domain.de/test');
 
-
         wrapper.findComponent('.sw-text-editor-toolbar-button__link-menu-buttons-button-remove').vm.$emit('click');
         await flushPromises();
-
 
         const dispatchedInputEvents = wrapper.emitted('button-click');
 

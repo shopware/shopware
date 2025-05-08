@@ -104,5 +104,5 @@ test('Stock reached message should be displayed if stock is changed to 1 and cle
     await ShopCustomer.goesTo(StorefrontCheckoutCart.url());
 
     await ShopCustomer.expects(StorefrontCheckoutCart.stockReachedAlert).toContainText(product.name);
-    await ShopCustomer.expects(StorefrontCheckoutCart.grandTotalPrice).toHaveText('€10.00*');
+    await ShopCustomer.expects(StorefrontCheckoutCart.grandTotalPrice).toContainText('€10.00');
 });

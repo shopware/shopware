@@ -6,12 +6,10 @@ const { Criteria } = Shopware.Data;
 
 /**
  * @private
- * @package buyers-experience
+ * @sw-package discovery
  */
 export default {
     template,
-
-    compatConfig: Shopware.compatConfig,
 
     inject: [
         'repositoryFactory',
@@ -20,7 +18,10 @@ export default {
         'cmsPageTypeService',
     ],
 
-    emits: ['modal-layout-select', 'modal-close'],
+    emits: [
+        'modal-layout-select',
+        'modal-close',
+    ],
 
     mixins: [
         Mixin.getByName('listing'),
@@ -73,9 +74,7 @@ export default {
         cmsPageCriteria() {
             const criteria = new Criteria(this.page, this.limit);
 
-            criteria
-                .addAssociation('previewMedia')
-                .addSorting(Criteria.sort(this.sortBy, this.sortDirection));
+            criteria.addAssociation('previewMedia').addSorting(Criteria.sort(this.sortBy, this.sortDirection));
 
             if (this.cmsPageTypes.length) {
                 criteria.addFilter(Criteria.equalsAny('type', this.cmsPageTypes));
@@ -87,21 +86,26 @@ export default {
         },
 
         columnConfig() {
-            return [{
-                property: 'name',
-                label: this.$tc('sw-cms.list.gridHeaderName'),
-                inlineEdit: 'string',
-                primary: true,
-            }, {
-                property: 'type',
-                label: this.$tc('sw-cms.list.gridHeaderType'),
-            }, {
-                property: 'createdAt',
-                label: this.$tc('sw-cms.list.gridHeaderCreated'),
-            }, {
-                property: 'updatedAt',
-                label: this.$tc('sw-cms.list.gridHeaderUpdated'),
-            }];
+            return [
+                {
+                    property: 'name',
+                    label: this.$tc('sw-cms.list.gridHeaderName'),
+                    inlineEdit: 'string',
+                    primary: true,
+                },
+                {
+                    property: 'type',
+                    label: this.$tc('sw-cms.list.gridHeaderType'),
+                },
+                {
+                    property: 'createdAt',
+                    label: this.$tc('sw-cms.list.gridHeaderCreated'),
+                },
+                {
+                    property: 'updatedAt',
+                    label: this.$tc('sw-cms.list.gridHeaderUpdated'),
+                },
+            ];
         },
 
         gridPreSelection() {
@@ -140,12 +144,15 @@ export default {
         getList() {
             this.isLoading = true;
 
-            return this.pageRepository.search(this.cmsPageCriteria).then((searchResult) => {
-                this.total = searchResult.total;
-                this.pages = searchResult;
-            }).finally(() => {
-                this.isLoading = false;
-            });
+            return this.pageRepository
+                .search(this.cmsPageCriteria)
+                .then((searchResult) => {
+                    this.total = searchResult.total;
+                    this.pages = searchResult;
+                })
+                .finally(() => {
+                    this.isLoading = false;
+                });
         },
 
         selectLayout() {
@@ -197,7 +204,10 @@ export default {
         },
 
         getPageType(page) {
-            const isDefault = [this.defaultProductId, this.defaultCategoryId].includes(page.id);
+            const isDefault = [
+                this.defaultProductId,
+                this.defaultCategoryId,
+            ].includes(page.id);
             const defaultText = this.$tc('sw-cms.components.cmsListItem.defaultLayout');
             const typeLabel = this.$tc(this.cmsPageTypeService.getType(page.type)?.title);
             return isDefault ? `${defaultText} - ${typeLabel}` : typeLabel;

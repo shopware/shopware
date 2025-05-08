@@ -7,25 +7,16 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityIdTrait;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\NumberRange\NumberRangeEntity;
 
-#[Package('checkout')]
+#[Package('framework')]
 class NumberRangeStateEntity extends Entity
 {
     use EntityIdTrait;
 
-    /**
-     * @var string
-     */
-    protected $numberRangeId;
+    protected string $numberRangeId;
 
-    /**
-     * @var int
-     */
-    protected $lastValue;
+    protected int $lastValue;
 
-    /**
-     * @var NumberRangeEntity|null
-     */
-    protected $numberRange;
+    protected ?NumberRangeEntity $numberRange = null;
 
     public function getNumberRangeId(): string
     {

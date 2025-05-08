@@ -7,17 +7,11 @@ use Shopware\Core\Framework\Log\Package;
 /**
  * In case the referenced association data will be deleted, the related data will be deleted too
  */
-#[Package('core')]
+#[Package('framework')]
 class CascadeDelete extends Flag
 {
-    /**
-     * @var bool
-     */
-    protected $cloneRelevant;
-
-    public function __construct(bool $cloneRelevant = true)
+    public function __construct(protected bool $cloneRelevant = true)
     {
-        $this->cloneRelevant = $cloneRelevant;
     }
 
     public function parse(): \Generator

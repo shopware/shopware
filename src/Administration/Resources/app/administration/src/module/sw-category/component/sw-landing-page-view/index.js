@@ -3,13 +3,11 @@ import template from './sw-landing-page-view.html.twig';
 const { Mixin } = Shopware;
 
 /**
- * @package inventory
+ * @sw-package discovery
  */
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default {
     template,
-
-    compatConfig: Shopware.compatConfig,
 
     inject: ['acl'],
 
@@ -27,11 +25,11 @@ export default {
 
     computed: {
         landingPage() {
-            return Shopware.State.get('swCategoryDetail').landingPage;
+            return Shopware.Store.get('swCategoryDetail').landingPage;
         },
 
         cmsPage() {
-            return Shopware.Store.get('cmsPageState').currentPage;
+            return Shopware.Store.get('cmsPage').currentPage;
         },
     },
 };

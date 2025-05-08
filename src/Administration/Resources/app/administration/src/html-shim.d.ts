@@ -1,5 +1,5 @@
 /**
- * @package admin
+ * @sw-package framework
  */
 
 declare module '*.html.twig' {
@@ -17,13 +17,11 @@ declare module '*.html?raw' {
     export default content;
 }
 
-// For compat build backward imports
-declare module 'vue' {
-    import type { CompatVue } from '@vue/runtime-dom';
+declare module '*.vue' {
+    import type { DefineComponent } from 'vue';
 
-    const Vue: CompatVue;
+    // eslint-disable-next-line @typescript-eslint/no-empty-object-type, @typescript-eslint/no-explicit-any
+    const component: DefineComponent<{}, {}, any>;
     // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
-    export default Vue;
-    // eslint-disable-next-line import/no-extraneous-dependencies
-    export * from '@vue/runtime-dom';
+    export default component;
 }

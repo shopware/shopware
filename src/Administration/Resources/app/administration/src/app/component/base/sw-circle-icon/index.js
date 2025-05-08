@@ -4,7 +4,7 @@ import './sw-circle-icon.scss';
 const { Component } = Shopware;
 
 /**
- * @package admin
+ * @sw-package framework
  *
  * @private
  * @description Renders an icon from the icon library. For a list of available variants see sw-label.
@@ -22,8 +22,6 @@ const { Component } = Shopware;
  */
 Component.register('sw-circle-icon', {
     template,
-
-    compatConfig: Shopware.compatConfig,
 
     props: {
         size: {
@@ -44,7 +42,14 @@ Component.register('sw-circle-icon', {
             type: String,
             required: false,
             default: '',
-            validValues: ['info', 'danger', 'success', 'warning', 'neutral', 'primary'],
+            validValues: [
+                'info',
+                'danger',
+                'success',
+                'warning',
+                'neutral',
+                'primary',
+            ],
         },
     },
 

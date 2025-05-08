@@ -37,17 +37,17 @@ class PasswordFieldTest extends TestCase
     public function testNullableField(): void
     {
         $field = new PasswordField('password', 'password');
-        $existence = new EntityExistence($this->getContainer()->get(UserDefinition::class)->getEntityName(), [], false, false, false, []);
+        $existence = new EntityExistence(static::getContainer()->get(UserDefinition::class)->getEntityName(), [], false, false, false, []);
         $kvPair = new KeyValuePair('password', null, true);
 
         $passwordFieldHandler = new PasswordFieldSerializer(
-            $this->getContainer()->get(ValidatorInterface::class),
-            $this->getContainer()->get(DefinitionInstanceRegistry::class),
-            $this->getContainer()->get(SystemConfigService::class)
+            static::getContainer()->get(ValidatorInterface::class),
+            static::getContainer()->get(DefinitionInstanceRegistry::class),
+            static::getContainer()->get(SystemConfigService::class)
         );
 
         $payload = $passwordFieldHandler->encode($field, $existence, $kvPair, new WriteParameterBag(
-            $this->getContainer()->get(UserDefinition::class),
+            static::getContainer()->get(UserDefinition::class),
             WriteContext::createFromContext(Context::createDefaultContext()),
             '',
             new WriteCommandQueue()
@@ -60,17 +60,17 @@ class PasswordFieldTest extends TestCase
     public function testEncoding(): void
     {
         $field = new PasswordField('password', 'password');
-        $existence = new EntityExistence($this->getContainer()->get(UserDefinition::class)->getEntityName(), [], false, false, false, []);
+        $existence = new EntityExistence(static::getContainer()->get(UserDefinition::class)->getEntityName(), [], false, false, false, []);
         $kvPair = new KeyValuePair('password', 'shopware', true);
 
         $passwordFieldHandler = new PasswordFieldSerializer(
-            $this->getContainer()->get(ValidatorInterface::class),
-            $this->getContainer()->get(DefinitionInstanceRegistry::class),
-            $this->getContainer()->get(SystemConfigService::class)
+            static::getContainer()->get(ValidatorInterface::class),
+            static::getContainer()->get(DefinitionInstanceRegistry::class),
+            static::getContainer()->get(SystemConfigService::class)
         );
 
         $payload = $passwordFieldHandler->encode($field, $existence, $kvPair, new WriteParameterBag(
-            $this->getContainer()->get(UserDefinition::class),
+            static::getContainer()->get(UserDefinition::class),
             WriteContext::createFromContext(Context::createDefaultContext()),
             '',
             new WriteCommandQueue()
@@ -86,17 +86,17 @@ class PasswordFieldTest extends TestCase
         $field = new PasswordField('password', 'password');
         $field->addFlags(new ApiAware(), new Required());
 
-        $existence = new EntityExistence($this->getContainer()->get(UserDefinition::class)->getEntityName(), [], false, false, false, []);
+        $existence = new EntityExistence(static::getContainer()->get(UserDefinition::class)->getEntityName(), [], false, false, false, []);
         $kvPair = new KeyValuePair('password', null, true);
 
         $exception = null;
         $array = null;
 
         try {
-            $handler = $this->getContainer()->get(PasswordFieldSerializer::class);
+            $handler = static::getContainer()->get(PasswordFieldSerializer::class);
 
             $parameters = new WriteParameterBag(
-                $this->getContainer()->get(UserDefinition::class),
+                static::getContainer()->get(UserDefinition::class),
                 WriteContext::createFromContext(Context::createDefaultContext()),
                 '',
                 new WriteCommandQueue()
@@ -109,7 +109,7 @@ class PasswordFieldTest extends TestCase
 
         static::assertIsNotArray($array);
         static::assertInstanceOf(WriteConstraintViolationException::class, $exception);
-        static::assertNotNull($exception->getViolations()->findByCodes(NotBlank::IS_BLANK_ERROR));
+        static::assertCount(1, $exception->getViolations()->findByCodes(NotBlank::IS_BLANK_ERROR));
     }
 
     public function testValueIsRequiredOnUpdate(): void
@@ -117,17 +117,17 @@ class PasswordFieldTest extends TestCase
         $field = new PasswordField('password', 'password');
         $field->addFlags(new ApiAware(), new Required());
 
-        $existence = new EntityExistence($this->getContainer()->get(UserDefinition::class)->getEntityName(), [], true, false, false, []);
+        $existence = new EntityExistence(static::getContainer()->get(UserDefinition::class)->getEntityName(), [], true, false, false, []);
         $kvPair = new KeyValuePair('password', null, true);
 
         $exception = null;
         $array = null;
 
         try {
-            $handler = $this->getContainer()->get(PasswordFieldSerializer::class);
+            $handler = static::getContainer()->get(PasswordFieldSerializer::class);
 
             $x = $handler->encode($field, $existence, $kvPair, new WriteParameterBag(
-                $this->getContainer()->get(UserDefinition::class),
+                static::getContainer()->get(UserDefinition::class),
                 WriteContext::createFromContext(Context::createDefaultContext()),
                 '',
                 new WriteCommandQueue()
@@ -138,7 +138,7 @@ class PasswordFieldTest extends TestCase
 
         static::assertIsNotArray($array);
         static::assertInstanceOf(WriteConstraintViolationException::class, $exception);
-        static::assertNotNull($exception->getViolations()->findByCodes(NotBlank::IS_BLANK_ERROR));
+        static::assertCount(1, $exception->getViolations()->findByCodes(NotBlank::IS_BLANK_ERROR));
     }
 
     public function testAlreadyEncodedValueIsPassedThrough(): void
@@ -146,17 +146,17 @@ class PasswordFieldTest extends TestCase
         $password = password_hash('shopware', \PASSWORD_DEFAULT);
 
         $field = new PasswordField('password', 'password');
-        $existence = new EntityExistence($this->getContainer()->get(UserDefinition::class)->getEntityName(), [], false, false, false, []);
+        $existence = new EntityExistence(static::getContainer()->get(UserDefinition::class)->getEntityName(), [], false, false, false, []);
         $kvPair = new KeyValuePair('password', $password, true);
 
         $passwordFieldHandler = new PasswordFieldSerializer(
-            $this->getContainer()->get(ValidatorInterface::class),
-            $this->getContainer()->get(DefinitionInstanceRegistry::class),
-            $this->getContainer()->get(SystemConfigService::class)
+            static::getContainer()->get(ValidatorInterface::class),
+            static::getContainer()->get(DefinitionInstanceRegistry::class),
+            static::getContainer()->get(SystemConfigService::class)
         );
 
         $payload = $passwordFieldHandler->encode($field, $existence, $kvPair, new WriteParameterBag(
-            $this->getContainer()->get(UserDefinition::class),
+            static::getContainer()->get(UserDefinition::class),
             WriteContext::createFromContext(Context::createDefaultContext()),
             '',
             new WriteCommandQueue()

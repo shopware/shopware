@@ -9,6 +9,7 @@ use Lcobucci\JWT\Validation\Constraint\LooseValidAt;
 use Shopware\Core\Checkout\Payment\PaymentException;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\Util\Hasher;
 use Shopware\Core\Framework\Uuid\Uuid;
 
 #[Package('checkout')]
@@ -132,6 +133,6 @@ class JWTFactoryV2 implements TokenFactoryInterfaceV2
 
     private static function normalize(string $token): string
     {
-        return substr(hash('sha256', $token), 0, 32);
+        return substr(Hasher::hash($token, 'sha256'), 0, 32);
     }
 }

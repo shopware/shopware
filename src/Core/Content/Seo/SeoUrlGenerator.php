@@ -16,12 +16,12 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\Common\RepositoryIterator;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\EntityDefinitionQueryHelper;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
-use Shopware\Core\Framework\DataAbstractionLayer\Entity;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Runtime;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\Util\Hasher;
 use Shopware\Core\System\SalesChannel\SalesChannelEntity;
 use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Component\Routing\RouterInterface;
@@ -31,7 +31,7 @@ use Twig\Error\SyntaxError;
 use Twig\Loader\ArrayLoader;
 use Twig\Loader\ChainLoader;
 
-#[Package('buyers-experience')]
+#[Package('inventory')]
 class SeoUrlGenerator
 {
     final public const ESCAPE_SLUGIFY = 'slugifyurlencode';
@@ -75,14 +75,14 @@ class SeoUrlGenerator
             /** @var RepositoryIterator<LandingPageCollection|CategoryCollection|ProductCollection> $iterator */
             $iterator = $context->enableInheritance(static fn (Context $context): RepositoryIterator => new RepositoryIterator($repository, $context, $criteria));
 
-            while ($entities = $iterator->fetch()) {
-                yield from $this->generateUrls($route, $config, $salesChannel, $entities, $this->getTemplateName($template));
+            while ($searchResult = $iterator->fetch()) {
+                yield from $this->generateUrls($route, $config, $salesChannel, $searchResult, $this->getTemplateName($template));
             }
         }
     }
 
     /**
-     * @param EntityCollection<Entity> $entities
+     * @param EntitySearchResult<LandingPageCollection|CategoryCollection|ProductCollection> $searchResult
      *
      * @return iterable<SeoUrlEntity>
      */
@@ -90,14 +90,14 @@ class SeoUrlGenerator
         SeoUrlRouteInterface $seoUrlRoute,
         SeoUrlRouteConfig $config,
         SalesChannelEntity $salesChannel,
-        EntityCollection $entities,
+        EntitySearchResult $searchResult,
         string $templateName
     ): iterable {
         $request = $this->requestStack->getMainRequest();
 
         $basePath = $request ? $request->getBasePath() : '';
 
-        foreach ($entities as $entity) {
+        foreach ($searchResult->getEntities() as $entity) {
             $seoUrl = new SeoUrlEntity();
             $seoUrl->setForeignKey($entity->getUniqueIdentifier());
 
@@ -180,7 +180,7 @@ class SeoUrlGenerator
 
     private function getTemplateName(string $template): string
     {
-        return 'seo_url_template_' . \md5($template);
+        return 'seo_url_template_' . Hasher::hash($template);
     }
 
     private function removePrefix(string $subject, string $prefix): string

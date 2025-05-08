@@ -1,12 +1,12 @@
 {% sw_extends '@Storefront/storefront/base.html.twig' %}
 
-{% block base_head %}
-    {% sw_include '@Storefront/storefront/page/account/register/meta.html.twig' %}
-{% endblock %}
-
 {% block base_content %}
     {% block page_account_register %}
         <div class="account-register">
+            {% block page_account_register_header %}
+                <h1>{{ 'account.loginRegistrationHeader'|trans|sw_sanitize }}</h1>
+            {% endblock %}
+
             {% block page_account_register_inner %}
                 <div class="row">
                     {% block page_account_register_login_container %}

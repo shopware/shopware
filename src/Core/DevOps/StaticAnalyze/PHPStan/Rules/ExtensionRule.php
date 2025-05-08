@@ -17,7 +17,7 @@ use Shopware\Core\Framework\Log\Package;
  *
  * @internal
  */
-#[Package('core')]
+#[Package('framework')]
 class ExtensionRule implements Rule
 {
     public function getNodeType(): string
@@ -45,6 +45,7 @@ class ExtensionRule implements Rule
         $errors = [];
         if ($internal) {
             $errors[] = RuleErrorBuilder::message('Extension / Example classes should not be marked as internal')
+                ->identifier('shopware.extensionNotInternal')
                 ->line($node->getDocComment()?->getStartLine() ?? 0)
                 ->build();
         }
@@ -68,20 +69,23 @@ class ExtensionRule implements Rule
             $nameConstant = $node->getClassReflection()->getConstant('NAME');
         } catch (MissingConstantFromReflectionException) {
             $errors[] = RuleErrorBuilder::message('Extension classes should have a public NAME constant')
-                ->line($node->getLine())
+                ->identifier('shopware.extensionPublicNameConst')
+                ->line($node->getStartLine())
                 ->build();
         }
 
         if ($nameConstant && !$nameConstant->isPublic()) {
             $errors[] = RuleErrorBuilder::message('Extension classes should have a public NAME constant')
-                ->line($node->getLine())
+                ->identifier('shopware.extensionPublicNameConst')
+                ->line($node->getStartLine())
                 ->build();
         }
 
         // is final?
         if (!$node->getClassReflection()->isFinal()) {
             $errors[] = RuleErrorBuilder::message('Extension classes should be final')
-                ->line($node->getLine())
+                ->identifier('shopware.extensionFinal')
+                ->line($node->getStartLine())
                 ->build();
         }
 
@@ -89,7 +93,8 @@ class ExtensionRule implements Rule
         $internal = $this->isInternal($constructor->getDocComment() ?? '');
         if (!$internal) {
             $errors[] = RuleErrorBuilder::message('Extension classes constructor should be marked as internal')
-                ->line($node->getLine())
+                ->identifier('shopware.extensionConstructInternal')
+                ->line($node->getStartLine())
                 ->build();
         }
 

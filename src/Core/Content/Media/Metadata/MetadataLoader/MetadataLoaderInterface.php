@@ -5,7 +5,7 @@ namespace Shopware\Core\Content\Media\Metadata\MetadataLoader;
 use Shopware\Core\Content\Media\MediaType\MediaType;
 use Shopware\Core\Framework\Log\Package;
 
-#[Package('buyers-experience')]
+#[Package('discovery')]
 interface MetadataLoaderInterface
 {
     /**

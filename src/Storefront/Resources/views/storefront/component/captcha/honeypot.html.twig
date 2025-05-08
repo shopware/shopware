@@ -9,7 +9,8 @@
                    autocapitalize="off"
                    spellcheck="false"
                    autocorrect="off"
-                   autocomplete="off"
+                   {# Using "new-password" as workaround because Firefox ignores autocomplete="off" #}
+                   autocomplete="new-password"
             >
         {% endblock %}
     </div>

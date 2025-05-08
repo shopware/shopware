@@ -1,19 +1,32 @@
+$infoItemDetailMdSpace: 8;
+$infoItemInfoMdSpace: 5;
+$infoItemTotalPriceMdSpace: 2;
+$infoItemRemoveMdSpace: 1;
+
 .line-item {
-    margin-bottom: $spacer;
+    margin: 0;
+    padding: 10px 0;
+    border-bottom: 1px solid $border-color;
 
     &.is-discount {
         .line-item-total-price {
             color: $success;
         }
     }
+
+    &:last-child {
+        border-bottom: 0;
+    }
 }
 
 .line-item-info {
+    order: 1;
+    margin-bottom: $spacer;
     // Equals: .col-10 .col-md-5
     @include make-col-ready();
     @include make-col(10);
     @include media-breakpoint-up(md) {
-        @include make-col(5);
+        @include make-col($infoItemInfoMdSpace);
     }
 }
 
@@ -25,11 +38,13 @@
         @include make-col(7);
     }
     @include media-breakpoint-up(md) {
-        @include make-col(8);
+        @include make-col($infoItemDetailMdSpace);
     }
 }
 
 .line-item-quantity {
+    order: 3;
+    margin-bottom: $spacer-sm;
     // Equals: .col-12 .col-sm-4 .col-md-2;
     @include make-col-ready();
     @include make-col(12);
@@ -57,8 +72,8 @@
     }
 }
 
-
 .line-item-unit-price {
+    display: none;
     // Equals: .col-12 .col-sm-4 .col-md-2;
     @include make-col(12);
     @include media-breakpoint-up(sm) {
@@ -70,6 +85,7 @@
 }
 
 .line-item-tax-price {
+    justify-content: flex-end;
     @include make-col(12);
     @include media-breakpoint-up(sm) {
         @include make-col(4);
@@ -80,6 +96,9 @@
 }
 
 .line-item-total-price {
+    order: 4;
+    font-weight: $font-weight-bold;
+    justify-content: flex-end;
     // Equals: .col-12 .col-sm-4 .col-md-2;
     @include make-col-ready();
     @include make-col(12);
@@ -87,16 +106,18 @@
         @include make-col(4);
     }
     @include media-breakpoint-up(md) {
-        @include make-col(2);
+        @include make-col($infoItemTotalPriceMdSpace);
     }
 }
 
 .line-item-remove {
+    order: 2;
+    text-align: right;
     // Equals: .col-2 .col-md-1;
     @include make-col-ready();
     @include make-col(2);
     @include media-breakpoint-up(md) {
-        @include make-col(1);
+        @include make-col($infoItemRemoveMdSpace);
     }
 }
 
@@ -124,6 +145,14 @@
 
     .line-item-unit-price {
         @include make-col(12);
+        display: none;
+        font-size: $font-size-sm;
+        font-style: italic;
+
+        &.is-shown {
+            display: flex;
+            justify-content: flex-end;
+        }
     }
 
     .line-item-tax-price {
@@ -141,13 +170,58 @@
     .line-item-details-container {
         padding-left: 0;
     }
+
+    .line-item-unit-price-value-descriptor {
+        display: inline;
+    }
+
+    .line-item-unit-price-label,
+    .line-item-tax-price-label,
+    .line-item-total-price-label {
+        @include visually-hidden();
+    }
 }
 
 .no-remove-button {
     // Info column needs to use more gird space when no remove button exists as last row.
     .line-item-info {
         @include media-breakpoint-up(md) {
-            @include make-col(6);
+            @include make-col($infoItemInfoMdSpace + $infoItemRemoveMdSpace);
+        }
+    }
+    .line-item-details {
+        @include media-breakpoint-up(md) {
+            @include make-col($infoItemDetailMdSpace + 1);
+        }
+    }
+}
+
+.no-summary {
+    // Info column needs to use more gird space when no subtotal column exists.
+    .line-item-info {
+        @include media-breakpoint-up(md) {
+            @include make-col($infoItemInfoMdSpace + $infoItemTotalPriceMdSpace);
+        }
+    }
+    .line-item-details {
+        @include media-breakpoint-up(md) {
+            @include make-col($infoItemDetailMdSpace + 1);
+        }
+    }
+}
+
+.no-summary.no-remove-button {
+    // Info column needs to use more gird space when no remove button and subtotal column exists.
+    .line-item-info {
+        @include media-breakpoint-up(md) {
+            @include make-col(
+                $infoItemInfoMdSpace + $infoItemRemoveMdSpace + $infoItemTotalPriceMdSpace
+            );
+        }
+    }
+    .line-item-details {
+        @include media-breakpoint-up(md) {
+            @include make-col($infoItemDetailMdSpace + 2);
         }
     }
 }
@@ -202,6 +276,7 @@
 }
 
 .line-item-nested-icon {
+    background-color: $gray-600;
     align-items: center;
     justify-content: center;
     border-radius: 50%;
@@ -217,31 +292,15 @@
     }
 }
 
-.line-item-info {
-    order: 1;
-}
-
-.line-item-quantity {
-    order: 3;
-}
-
 .line-item-unit-price,
 .line-item-tax-price {
     order: 5;
 }
 
-.line-item-total-price {
-    order: 4;
-}
-
-.line-item-remove {
-    order: 2;
-    text-align: right;
-}
-
 .line-item-img-container {
     text-align: center;
     width: 70px;
+    margin-bottom: $spacer-sm;
 }
 
 .line-item-img-link {
@@ -252,14 +311,9 @@
     width: 100%;
     height: 70px;
     object-fit: contain;
-}
-
-.line-item-info {
-    margin-bottom: $spacer;
-}
-
-.line-item-total-price {
-    font-weight: $font-weight-bold;
+    padding: $spacer-xs;
+    border: 1px solid $border-color;
+    border-radius: $border-radius-sm;
 }
 
 .line-item-total-price,
@@ -268,24 +322,12 @@
     display: flex;
 }
 
-.line-item-total-price {
-    justify-content: flex-end;
-}
-
-.line-item-tax-price {
-    justify-content: flex-end;
-}
-
 @include media-breakpoint-only(xs) {
     .line-item-tax-price,
     .line-item-unit-price {
         font-size: $font-size-sm;
         font-style: italic;
     }
-}
-
-.line-item-unit-price {
-    display: none;
 }
 
 @include media-breakpoint-up(sm) {
@@ -298,19 +340,6 @@
 .line-item-unit-price.is-shown {
     display: flex;
     justify-content: flex-end;
-}
-
-.is-offcanvas .line-item-unit-price {
-    display: none;
-    font-size: $font-size-sm;
-    font-style: italic;
-}
-
-.is-offcanvas .line-item-unit-price {
-    &.is-shown {
-        display: flex;
-        justify-content: flex-end;
-    }
 }
 
 .line-item-quantity-label,
@@ -326,17 +355,9 @@
     margin-bottom: $spacer-sm;
 }
 
-.line-item-quantity {
-    margin-bottom: $spacer-sm;
-}
-
-.line-item-details {
-    padding-top: 8px;
-}
-
 .line-item-details-characteristics {
-    margin: $spacer-sm 0;
     font-size: $font-size-sm;
+    margin: $spacer-sm 0;
 
     .line-item-details-characteristics-option {
         font-weight: $font-weight-bold;
@@ -344,6 +365,7 @@
 }
 
 .line-item-variants {
+    font-size: $font-size-sm;
     margin-bottom: $spacer-sm;
 }
 
@@ -352,6 +374,7 @@
 }
 
 .line-item-variants-properties-name {
+    font-weight: $font-weight-bold;
     margin-right: $spacer-sm;
 }
 
@@ -377,11 +400,6 @@
         .line-item-total-price,
         .line-item-tax-price {
             text-align: right;
-        }
-
-        .line-item-unit-price,
-        .line-item-total-price,
-        .line-item-tax-price {
             justify-content: normal;
             flex-direction: column;
         }
@@ -409,10 +427,7 @@
             margin-bottom: 0;
         }
 
-        .line-item-quantity-label,
-        .line-item-unit-price-label,
-        .line-item-total-price-label,
-        .line-item-tax-price-label {
+        .line-item-quantity-label {
             display: none;
         }
     }
@@ -452,6 +467,7 @@
 
     .line-item-collapse {
         margin: 0;
+        align-items: center;
     }
 
     .line-item-collapse-container,
@@ -520,6 +536,22 @@
         border-top: 1px solid $sw-border-color;
         margin: $spacer-md 0;
     }
+
+    &.nesting-level-2 {
+        background-color: darken($gray-100, 3.5%);
+    }
+
+    &.nesting-level-3 {
+        background-color: darken($gray-100, 5.5%);
+    }
+
+    .line-item-details-container {
+        padding-left: 0;
+    }
+
+    .line-item-headline-text {
+        font-weight: normal;
+    }
 }
 
 @include media-breakpoint-up(md) {
@@ -547,50 +579,6 @@
     padding-right: 12px;
 }
 
-.line-item-children {
-    font-size: $font-size-sm;
-
-    &.nesting-level-2 {
-        background-color: darken($gray-100, 3.5%);
-    }
-
-    &.nesting-level-3 {
-        background-color: darken($gray-100, 5.5%);
-    }
-
-    .line-item-details-container {
-        padding-left: 0;
-    }
-
-    .line-item-headline-text {
-        font-weight: normal;
-    }
-
-    .line-item-collapse {
-        align-items: center;
-    }
-}
-
-.line-item {
-    margin: 0;
-    padding: 10px 0;
-    border-bottom: 1px solid $border-color;
-
-    &:last-child {
-        border-bottom: 0;
-    }
-}
-
-.line-item-nested-icon {
-    background-color: $gray-600;
-}
-
-.line-item-img {
-    padding: $spacer-xs;
-    border: 1px solid $border-color;
-    border-radius: $border-radius-sm;
-}
-
 .line-item-product-number {
     margin-bottom: $spacer-sm;
     font-size: $font-size-sm;
@@ -598,14 +586,6 @@
 
 .line-item-delivery-date {
     font-size: $font-size-sm;
-}
-
-.line-item-variants {
-    font-size: $font-size-sm;
-}
-
-.line-item-variants-properties-name {
-    font-weight: $font-weight-bold;
 }
 
 .line-item-label {
@@ -616,23 +596,11 @@
 a.line-item-label {
     &:hover {
         color: $primary;
-        text-decoration: none;
     }
-}
-
-.line-item-quantity-label,
-.line-item-unit-price-label,
-.line-item-total-price-label,
-.line-item-tax-price-label {
-    color: $gray-800;
 }
 
 .line-item-total-price-value {
     text-align: right;
-}
-
-.line-item-unit-price-label {
-    display: none;
 }
 
 .line-item-tax-price-label {
@@ -641,23 +609,24 @@ a.line-item-label {
     margin-right: 5px;
 }
 
-.line-item-total-price-label {
-    display: none;
+@include media-breakpoint-only(xs) {
+    .line-item-unit-price-label,
+    .line-item-total-price-label {
+        @include visually-hidden();
+    }
 }
 
-@include media-breakpoint-only(sm) {
-    .line-item-unit-price-label {
-        display: block;
+@include media-breakpoint-up(md) {
+    .line-item-unit-price-label,
+    .line-item-tax-price-label,
+    .line-item-total-price-label {
+        @include visually-hidden();
     }
 }
 
 @include media-breakpoint-up(sm) {
     .line-item-unit-price-value-descriptor {
         display: none;
-    }
-
-    .line-item-total-price-label {
-        display: block;
     }
 
     .line-item-tax-price-label {
@@ -667,23 +636,9 @@ a.line-item-label {
     }
 }
 
-.is-offcanvas {
-    .line-item-unit-price-label {
-        display: none;
-    }
-
-    .line-item-total-price-label {
-        display: none;
-    }
-
-    .line-item-unit-price-value-descriptor {
-        display: inline;
-    }
-}
-
 @include media-breakpoint-up(md) {
     .line-item-details-container {
-        padding-left: $spacer;
+        padding-left: $spacer-xs;
     }
 }
 
@@ -694,4 +649,8 @@ a.line-item-label {
     .line-item-characteristics-option {
         font-weight: $font-weight-bold;
     }
+}
+
+.line-item-remove-button .icon {
+    color: inherit;
 }

@@ -9,11 +9,11 @@ use Shopware\Core\System\Country\CountryDefinition;
 use Shopware\Core\System\SalesChannel\Entity\SalesChannelDefinitionInterface;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
-#[Package('buyers-experience')]
+#[Package('fundamentals@discovery')]
 class SalesChannelCountryDefinition extends CountryDefinition implements SalesChannelDefinitionInterface
 {
     public function processCriteria(Criteria $criteria, SalesChannelContext $context): void
     {
-        $criteria->addFilter(new EqualsFilter('country.salesChannels.id', $context->getSalesChannel()->getId()));
+        $criteria->addFilter(new EqualsFilter('country.salesChannels.id', $context->getSalesChannelId()));
     }
 }

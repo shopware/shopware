@@ -1,5 +1,5 @@
 /**
- * @package buyers-experience
+ * @sw-package discovery
  */
 import { mount } from '@vue/test-utils';
 import { kebabCase } from 'lodash';
@@ -18,25 +18,29 @@ const block = {
 };
 
 async function createWrapper() {
-    return mount(await wrapTestComponent('sw-cms-block-layout-config', {
-        sync: true,
-    }), {
-        attachTo: document.body,
-        props: {
-            block,
-        },
-        global: {
-            provide: {
-                cmsService: Shopware.Service('cmsService'),
+    return mount(
+        await wrapTestComponent('sw-cms-block-layout-config', {
+            sync: true,
+        }),
+        {
+            attachTo: document.body,
+            props: {
+                block,
             },
-            stubs: {
-                'sw-text-field': {
-                    template: '<input class="sw-text-field" :value="value" @input="$emit(\'update:value\', $event.target.value)" />',
-                    props: ['value'],
+            global: {
+                provide: {
+                    cmsService: Shopware.Service('cmsService'),
+                },
+                stubs: {
+                    'sw-text-field': {
+                        template:
+                            '<input class="sw-text-field" :value="value" @input="$emit(\'update:value\', $event.target.value)" />',
+                        props: ['value'],
+                    },
                 },
             },
         },
-    });
+    );
 }
 
 describe('module/sw-cms/component/sw-cms-block-layout-config', () => {
@@ -45,7 +49,7 @@ describe('module/sw-cms/component/sw-cms-block-layout-config', () => {
     });
 
     beforeEach(() => {
-        Shopware.Store.get('cmsPageState').resetCmsPageState();
+        Shopware.Store.get('cmsPage').resetCmsPageState();
     });
 
     it('should be a Vue.js component', async () => {
@@ -58,7 +62,6 @@ describe('module/sw-cms/component/sw-cms-block-layout-config', () => {
         const selector = `.sw-cms-block-layout-config__${kebabCase(property)}`;
 
         expect(wrapper.get(selector)).toBeTruthy();
-        expect(wrapper.get(selector).attributes('value')).toBe(value);
+        expect(wrapper.findComponent(selector).props('modelValue')).toBe(value);
     });
 });
-

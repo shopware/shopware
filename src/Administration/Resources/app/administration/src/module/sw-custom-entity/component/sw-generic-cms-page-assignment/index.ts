@@ -1,5 +1,4 @@
 import type ChangesetGenerator from 'src/core/data/changeset-generator.data';
-import type { Entity } from '@shopware-ag/meteor-admin-sdk/es/_internals/data/Entity';
 import type Repository from 'src/core/data/repository.data';
 import type { PropType } from 'vue';
 
@@ -10,17 +9,15 @@ import './sw-generic-cms-page-assignment.scss';
 const objectUtils = Shopware.Utils.object;
 
 interface CmsSlotOverrides {
-    [key: string]: unknown
+    [key: string]: unknown;
 }
 
 /**
  * @private
- * @package content
+ * @sw-package discovery
  */
 export default Shopware.Component.wrapComponentConfig({
     template,
-
-    compatConfig: Shopware.compatConfig,
 
     inject: [
         'repositoryFactory',
@@ -48,10 +45,10 @@ export default Shopware.Component.wrapComponentConfig({
     },
 
     data(): {
-        cmsPage: Entity<'cms_page'> | null,
-        showLayoutSelection: boolean,
-        isLoading: boolean
-        } {
+        cmsPage: Entity<'cms_page'> | null;
+        showLayoutSelection: boolean;
+        isLoading: boolean;
+    } {
         return {
             cmsPage: null,
             showLayoutSelection: false,
@@ -131,7 +128,10 @@ export default Shopware.Component.wrapComponentConfig({
                 return;
             }
 
-            void this.$router.push({ name: 'sw.cms.detail', params: { id: this.cmsPageId } });
+            void this.$router.push({
+                name: 'sw.cms.detail',
+                params: { id: this.cmsPageId },
+            });
         },
 
         createNewLayout(): void {
@@ -172,7 +172,7 @@ export default Shopware.Component.wrapComponentConfig({
             const response = await this.cmsPageRepository.search(criteria);
             const cmsPage = this.applySlotOverrides(response[0]);
 
-            Shopware.Store.get('cmsPageState').setCurrentPage(cmsPage);
+            Shopware.Store.get('cmsPage').setCurrentPage(cmsPage);
             this.cmsPage = cmsPage;
 
             this.isLoading = false;
@@ -198,11 +198,16 @@ export default Shopware.Component.wrapComponentConfig({
                             return;
                         }
 
-                        Object.values(slot.config as Record<string, {
-                            entity?: string,
-                            required?: boolean,
-                            type?: string
-                        }>).forEach((configField) => {
+                        Object.values(
+                            slot.config as Record<
+                                string,
+                                {
+                                    entity?: string;
+                                    required?: boolean;
+                                    type?: string;
+                                }
+                            >,
+                        ).forEach((configField) => {
                             if (!configField) {
                                 return;
                             }

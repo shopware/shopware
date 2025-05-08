@@ -10,41 +10,23 @@ use Shopware\Core\System\Language\LanguageCollection;
 use Shopware\Core\System\Locale\Aggregate\LocaleTranslation\LocaleTranslationCollection;
 use Shopware\Core\System\User\UserCollection;
 
-#[Package('buyers-experience')]
+#[Package('discovery')]
 class LocaleEntity extends Entity
 {
     use EntityCustomFieldsTrait;
     use EntityIdTrait;
 
-    /**
-     * @var string
-     */
-    protected $code;
+    protected string $code;
 
-    /**
-     * @var string|null
-     */
-    protected $name;
+    protected ?string $name = null;
 
-    /**
-     * @var string|null
-     */
-    protected $territory;
+    protected ?string $territory = null;
 
-    /**
-     * @var LocaleTranslationCollection|null
-     */
-    protected $translations;
+    protected ?LocaleTranslationCollection $translations = null;
 
-    /**
-     * @var UserCollection|null
-     */
-    protected $users;
+    protected ?UserCollection $users = null;
 
-    /**
-     * @var LanguageCollection|null
-     */
-    protected $languages;
+    protected ?LanguageCollection $languages = null;
 
     public function getCode(): string
     {

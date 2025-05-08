@@ -1,8 +1,6 @@
-<!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
 {% block sw_property_list %}
 <sw-page class="sw-property-list">
 
-    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_property_list_search_bar %}
     <template #search-bar>
         <sw-search-bar
@@ -13,20 +11,16 @@
     </template>
     {% endblock %}
 
-    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_property_list_smart_bar_header %}
     <template #smart-bar-header>
 
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_property_list_smart_bar_header_title %}
         <h2>
 
-            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_property_list_smart_bar_header_title_text %}
             {{ $tc('sw-property.list.textProperties') }}
             {% endblock %}
 
-            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_property_list_smart_bar_header_title_amount %}
             <span
                 v-if="!isLoading"
@@ -42,13 +36,11 @@
     </template>
     {% endblock %}
 
-    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_property_list_ %}
     <template #smart-bar-actions>
 
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_property_list_add_button %}
-        <sw-button
+        <mt-button
             v-tooltip="{
                 message: $tc('sw-privileges.tooltip.warning'),
                 disabled: acl.can('property.creator'),
@@ -56,17 +48,17 @@
             }"
             class="sw-property-list__button-create"
             :disabled="!acl.can('property.creator')"
-            :router-link="{ name: 'sw.property.create' }"
             variant="primary"
+            size="default"
+            @click="$router.push({ name: 'sw.property.create' })"
         >
             {{ $tc('sw-property.list.buttonAddProperty') }}
-        </sw-button>
+        </mt-button>
         {% endblock %}
 
     </template>
     {% endblock %}
 
-    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_property_list_language_switch %}
     <template #language-switch>
         <sw-language-switch @on-change="onChangeLanguage" />
@@ -75,11 +67,9 @@
 
     <template #content>
 
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_property_list_content %}
         <div class="sw-property-list__content">
 
-            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_property_list_grid %}
             <sw-entity-listing
                 v-if="entitySearchable"
@@ -105,7 +95,6 @@
                 @page-change="onPageChange"
             >
 
-                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_property_list_grid_options %}
                 <template
                     #column-options="{ item }"
@@ -122,27 +111,24 @@
                 </template>
                 {% endblock %}
 
-                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_property_list_grid_filterable %}
                 <template #column-filterable="{ item, isInlineEdit }">
-                    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                     {% block sw_property_list_grid_columns_filterable_inline_edit %}
                     <template v-if="isInlineEdit">
-                        <sw-checkbox-field
-                            v-model:value="item.filterable"
+                        <mt-checkbox
+                            v-model:checked="item.filterable"
                         />
                     </template>
                     {% endblock %}
 
-                    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                     {% block sw_property_list_grid_columns_filterable_content %}
                     <template v-else>
-                        <sw-icon
+                        <mt-icon
                             v-if="item.filterable"
                             name="regular-checkmark-xs"
                             class="is--active"
                         />
-                        <sw-icon
+                        <mt-icon
                             v-else
                             name="regular-times-s"
                             class="is--inactive"
@@ -152,12 +138,10 @@
                 </template>
                 {% endblock %}
 
-                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_property_list_grid_columns_actions %}
                 <template
                     #actions="{ item }"
                 >
-                    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                     {% block sw_property_list_grid_columns_actions_detail %}
                     <sw-context-menu-item
                         class="sw-property-list__edit-action"
@@ -168,7 +152,6 @@
                     </sw-context-menu-item>
                     {% endblock %}
 
-                    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                     {% block sw_property_list_grid_columns_actions_delete %}
                     <sw-context-menu-item
                         class="sw-property-list__delete-action"
@@ -182,7 +165,6 @@
                 </template>
                 {% endblock %}
 
-                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_product_list_grid_action_modals %}
                 <template
                     #action-modals="{ item }"
@@ -194,24 +176,25 @@
                         @modal-close="onCloseDeleteModal"
                     >
                         <p class="sw-property-list__confirm-delete-text">
-                            {{ $tc('sw-property.list.textDeleteConfirm', 0, { name: item.translated.name }) }}
+                            {{ $tc('sw-property.list.textDeleteConfirm', { name: item.translated.name }, 0) }}
                         </p>
 
                         <template #modal-footer>
-                            <sw-button
+                            <mt-button
                                 size="small"
+                                variant="secondary"
                                 @click="onCloseDeleteModal"
                             >
-                                {{ $tc('sw-property.list.buttonCancel') }}
-                            </sw-button>
+                                {{ $tc('global.default.cancel') }}
+                            </mt-button>
 
-                            <sw-button
-                                variant="danger"
+                            <mt-button
+                                variant="critical"
                                 size="small"
                                 @click="onConfirmDelete(item.id)"
                             >
                                 {{ $tc('sw-property.list.buttonDelete') }}
-                            </sw-button>
+                            </mt-button>
                         </template>
                     </sw-modal>
                 </template>
@@ -220,7 +203,6 @@
             </sw-entity-listing>
             {% endblock %}
 
-            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_property_list_empty_state %}
             <template v-if="!isLoading && !total">
                 <sw-empty-state
@@ -249,11 +231,9 @@
         {% endblock %}
     </template>
 
-    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_property_list_sidebar %}
     <template #sidebar>
         <sw-sidebar>
-            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_property_list_sidebar_refresh_item %}
             <sw-sidebar-item
                 icon="regular-undo"

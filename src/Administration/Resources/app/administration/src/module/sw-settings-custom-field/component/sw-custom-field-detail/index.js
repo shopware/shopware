@@ -1,5 +1,5 @@
 /**
- * @package services-settings
+ * @sw-package framework
  */
 import template from './sw-custom-field-detail.html.twig';
 import './sw-custom-field-detail.scss';
@@ -11,11 +11,17 @@ const { Criteria } = Shopware.Data;
 export default {
     template,
 
-    compatConfig: Shopware.compatConfig,
+    inject: [
+        'repositoryFactory',
+        'customFieldDataProviderService',
+        'SwCustomFieldListIsCustomFieldNameUnique',
+        'acl',
+    ],
 
-    inject: ['repositoryFactory', 'customFieldDataProviderService', 'SwCustomFieldListIsCustomFieldNameUnique', 'acl'],
-
-    emits: ['custom-field-edit-cancel', 'custom-field-edit-save'],
+    emits: [
+        'custom-field-edit-cancel',
+        'custom-field-edit-save',
+    ],
 
     mixins: [
         Mixin.getByName('notification'),
@@ -67,7 +73,7 @@ export default {
 
         labelSaveButton() {
             if (this.currentCustomField._isNew) {
-                return this.$tc('sw-settings-custom-field.customField.detail.buttonSaveApply');
+                return this.$tc('global.default.add');
             }
 
             return this.$tc('sw-settings-custom-field.customField.detail.buttonEditApply');
@@ -78,11 +84,21 @@ export default {
                 return false;
             }
 
-            return this.set.relations.filter(relation => relation.entityName === 'product').length !== 0;
+            return this.set.relations.filter((relation) => relation.entityName === 'product').length !== 0;
         },
 
         ruleConditionRepository() {
             return this.repositoryFactory.create('rule_condition');
+        },
+
+        customFieldTypeOptions() {
+            return Object.keys(this.fieldTypes).map((key) => {
+                return {
+                    id: key,
+                    value: key,
+                    label: this.$tc(`sw-settings-custom-field.types.${key}`),
+                };
+            });
         },
     },
 
@@ -95,19 +111,11 @@ export default {
             this.fieldTypes = this.customFieldDataProviderService.getTypes();
 
             if (!this.currentCustomField.config) {
-                if (this.isCompatEnabled('INSTANCE_SET')) {
-                    this.$set(this.currentCustomField, 'config', {});
-                } else {
-                    this.currentCustomField.config = {};
-                }
+                this.currentCustomField.config = {};
             }
 
             if (!this.currentCustomField.config.hasOwnProperty('customFieldType')) {
-                if (this.isCompatEnabled('INSTANCE_SET')) {
-                    this.$set(this.currentCustomField.config, 'customFieldType', '');
-                } else {
-                    this.currentCustomField.config.customFieldType = '';
-                }
+                this.currentCustomField.config.customFieldType = '';
             }
 
             if (!this.currentCustomField.name) {
@@ -115,11 +123,7 @@ export default {
             }
 
             if (!this.currentCustomField.config.hasOwnProperty('customFieldPosition')) {
-                if (this.isCompatEnabled('INSTANCE_SET')) {
-                    this.$set(this.currentCustomField.config, 'customFieldPosition', 1);
-                } else {
-                    this.currentCustomField.config.customFieldPosition = 1;
-                }
+                this.currentCustomField.config.customFieldPosition = 1;
             }
 
             if (!this.currentCustomField.allowCartExpose) {
@@ -129,13 +133,12 @@ export default {
             }
 
             const criteria = new Criteria(1, 1);
-            criteria.addFilter(Criteria.multi(
-                'AND',
-                [
+            criteria.addFilter(
+                Criteria.multi('AND', [
                     Criteria.equals('type', 'cartLineItemCustomField'),
                     Criteria.equals('value.renderedField.name', this.currentCustomField.name),
-                ],
-            ));
+                ]),
+            );
 
             this.ruleConditionRepository.search(criteria, Context.api).then((searchResult) => {
                 this.disableCartExpose = searchResult.length > 0;
@@ -163,7 +166,7 @@ export default {
                 }
             }
 
-            this.SwCustomFieldListIsCustomFieldNameUnique(this.currentCustomField).then(isUnique => {
+            this.SwCustomFieldListIsCustomFieldNameUnique(this.currentCustomField).then((isUnique) => {
                 if (isUnique) {
                     this.$emit('custom-field-edit-save', this.currentCustomField);
 

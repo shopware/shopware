@@ -24,7 +24,7 @@ use Symfony\Component\Finder\Finder;
 /**
  * @internal
  */
-#[Package('core')]
+#[Package('framework')]
 class MediaGenerator implements DemodataGeneratorInterface
 {
     private Generator $faker;
@@ -146,7 +146,7 @@ class MediaGenerator implements DemodataGeneratorInterface
                     (new Finder())
                         ->files()
                         ->in($fixtureDir)
-                        ->name('/\.(jpg|png)$/')
+                        ->name('/\.(jpg|png|webp|avif)$/')
                         ->getIterator()
                 )
             );

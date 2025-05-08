@@ -1,7 +1,8 @@
 import { mount } from '@vue/test-utils';
+import findByText from '../../../../../test/_helper_/find-by-text';
 
 /**
- * @package checkout
+ * @sw-package checkout
  */
 
 const remindPaymentMock = jest.fn(() => {
@@ -9,10 +10,14 @@ const remindPaymentMock = jest.fn(() => {
 });
 
 const contextState = {
-    namespaced: true,
-    state: { api: { languageId: '2fbb5fe2e29a4d70aa5854ce7ce3e20b', systemLanguageId: '2fbb5fe2e29a4d70aa5854ce7ce3e20b' } },
-    mutations: {
-        setLanguageId: jest.fn(),
+    id: 'context',
+    state: () => ({
+        api: {
+            languageId: '2fbb5fe2e29a4d70aa5854ce7ce3e20b',
+            systemLanguageId: '2fbb5fe2e29a4d70aa5854ce7ce3e20b',
+        },
+    }),
+    actions: {
         resetLanguageToDefault: jest.fn(),
     },
 };
@@ -28,13 +33,12 @@ describe('src/module/sw-order/page/sw-order-create', () => {
                 provide: {
                     repositoryFactory: {
                         create: () => ({
-                            get: () => Promise.resolve(
-                                {
+                            get: () =>
+                                Promise.resolve({
                                     translated: {
                                         distinguishableName: 'Cash on Delivery',
                                     },
-                                },
-                            ),
+                                }),
                         }),
                     },
                     shortcutService: {
@@ -65,20 +69,23 @@ describe('src/module/sw-order/page/sw-order-create', () => {
     beforeAll(async () => {
         stubs = {
             'router-view': true,
-            'sw-icon': true,
             'sw-loader': true,
             'sw-app-actions': true,
             'sw-notification-center': true,
             'sw-help-center': true,
             'sw-search-bar': true,
             'sw-language-switch': true,
-            'sw-card-view': await wrapTestComponent('sw-card-view', { sync: true }),
+            'sw-context-menu-item': true,
+            'sw-context-button': true,
+            'sw-card-view': await wrapTestComponent('sw-card-view', {
+                sync: true,
+            }),
             'sw-tabs': await wrapTestComponent('sw-tabs', { sync: true }),
             'sw-tabs-item': true,
             'sw-page': await wrapTestComponent('sw-page', { sync: true }),
-            'sw-button': await wrapTestComponent('sw-button', { sync: true }),
-            'sw-button-deprecated': await wrapTestComponent('sw-button-deprecated', { sync: true }),
-            'sw-button-process': await wrapTestComponent('sw-button-process', { sync: true }),
+            'sw-button-process': await wrapTestComponent('sw-button-process', {
+                sync: true,
+            }),
             'sw-modal': {
                 template: `
                     <div class="sw-modal">
@@ -101,9 +108,9 @@ describe('src/module/sw-order/page/sw-order-create', () => {
     beforeEach(async () => {
         wrapper = await createWrapper();
 
-        Shopware.State.unregisterModule('swOrder');
-        Shopware.State.registerModule('swOrder', {
-            namespaced: true,
+        Shopware.Store.unregister('swOrder');
+        Shopware.Store.register({
+            id: 'swOrder',
             state() {
                 return {
                     defaultSalesChannel: null,
@@ -122,7 +129,7 @@ describe('src/module/sw-order/page/sw-order-create', () => {
             },
             actions: {
                 saveOrder() {
-                    return {
+                    return Promise.resolve({
                         data: {
                             id: Shopware.Utils.createId(),
                             transactions: [
@@ -131,7 +138,7 @@ describe('src/module/sw-order/page/sw-order-create', () => {
                                 },
                             ],
                         },
-                    };
+                    });
                 },
                 createCart() {
                     return {
@@ -143,11 +150,11 @@ describe('src/module/sw-order/page/sw-order-create', () => {
             },
         });
 
-        if (Shopware.State.get('context')) {
-            Shopware.State.unregisterModule('context');
+        if (Shopware.Store.get('context')) {
+            Shopware.Store.unregister('context');
         }
 
-        Shopware.State.registerModule('context', contextState);
+        Shopware.Store.register(contextState);
     });
 
     it('should be a Vue.js component', async () => {
@@ -172,7 +179,7 @@ describe('src/module/sw-order/page/sw-order-create', () => {
         const modal = wrapper.find('.sw-modal');
         expect(modal.isVisible).toBeTruthy();
 
-        await modal.find('.sw-modal__footer .sw-button').trigger('click');
+        await findByText(modal, 'button', 'global.default.no').trigger('click');
 
         expect(wrapper.vm.isSaveSuccessful).toBeTruthy();
         expect(wrapper.vm.showRemindPaymentModal).not.toBeTruthy();
@@ -187,7 +194,7 @@ describe('src/module/sw-order/page/sw-order-create', () => {
         const modal = wrapper.find('.sw-modal');
         expect(modal.isVisible).toBeTruthy();
 
-        await modal.find('.sw-modal__footer .sw-button--primary').trigger('click');
+        await findByText(modal, 'button', 'sw-order.create.remindPaymentModal.primaryAction').trigger('click');
 
         expect(remindPaymentMock).toHaveBeenCalledTimes(1);
 
@@ -203,6 +210,6 @@ describe('src/module/sw-order/page/sw-order-create', () => {
         await wrapper.getComponent('.sw-button-process').vm.$emit('update:processSuccess');
         await flushPromises();
 
-        expect(contextState.mutations.setLanguageId).toHaveBeenCalledWith(expect.anything(), '2fbb5fe2e29a4d70aa5854ce7ce3e20b');
+        expect(Shopware.Store.get('context').api.languageId).toBe('2fbb5fe2e29a4d70aa5854ce7ce3e20b');
     });
 });

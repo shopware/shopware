@@ -1,5 +1,5 @@
 /**
- * @package services-settings
+ * @sw-package framework
  */
 import template from './sw-custom-field-type-date.html.twig';
 
@@ -14,13 +14,28 @@ export default {
                 helpText: this.$tc('sw-settings-custom-field.customField.detail.labelHelpText'),
             },
             types: [
-                { id: 'datetime', name: this.$tc('sw-settings-custom-field.customField.detail.labelDatetime') },
-                { id: 'date', name: this.$tc('sw-settings-custom-field.customField.detail.labelDate') },
-                { id: 'time', name: this.$tc('sw-settings-custom-field.customField.detail.labelTime') },
+                {
+                    id: 'datetime',
+                    name: this.$tc('sw-settings-custom-field.customField.detail.labelDatetime'),
+                },
+                {
+                    id: 'date',
+                    name: this.$tc('sw-settings-custom-field.customField.detail.labelDate'),
+                },
+                {
+                    id: 'time',
+                    name: this.$tc('sw-settings-custom-field.customField.detail.labelTime'),
+                },
             ],
             timeForms: [
-                { id: 'true', name: this.$tc('sw-settings-custom-field.customField.detail.labelYes') },
-                { id: 'false', name: this.$tc('sw-settings-custom-field.customField.detail.labelNo') },
+                {
+                    id: 'true',
+                    name: this.$tc('global.default.yes'),
+                },
+                {
+                    id: 'false',
+                    name: this.$tc('global.default.no'),
+                },
             ],
         };
     },
@@ -32,11 +47,13 @@ export default {
     methods: {
         createdComponent() {
             if (!this.currentCustomField.config.hasOwnProperty('dateType')) {
-                this.$set(this.currentCustomField.config, 'dateType', 'datetime');
+                this.currentCustomField.config.dateType = 'datetime';
             }
 
             if (!this.currentCustomField.config.hasOwnProperty('config')) {
-                this.$set(this.currentCustomField.config, 'config', { time_24hr: true });
+                this.currentCustomField.config.config = {
+                    time_24hr: true,
+                };
             }
         },
     },

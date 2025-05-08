@@ -12,81 +12,39 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\SalesChannelCollection;
 use Shopware\Core\System\Tag\TagCollection;
 
-#[Package('buyers-experience')]
+#[Package('discovery')]
 class LandingPageEntity extends Entity
 {
     use EntityCustomFieldsTrait;
     use EntityIdTrait;
 
-    /**
-     * @var bool
-     */
-    protected $active;
+    protected bool $active;
 
-    /**
-     * @var LandingPageTranslationCollection|null
-     */
-    protected $translations;
+    protected ?LandingPageTranslationCollection $translations = null;
 
-    /**
-     * @var TagCollection|null
-     */
-    protected $tags;
+    protected ?TagCollection $tags = null;
 
-    /**
-     * @var string|null
-     */
-    protected $cmsPageId;
+    protected ?string $cmsPageId = null;
 
-    /**
-     * @var string|null
-     */
-    protected $cmsPageVersionId;
+    protected ?string $cmsPageVersionId = null;
 
-    /**
-     * @var CmsPageEntity|null
-     */
-    protected $cmsPage;
+    protected ?CmsPageEntity $cmsPage = null;
 
-    /**
-     * @var SalesChannelCollection|null
-     */
-    protected $salesChannels;
+    protected ?SalesChannelCollection $salesChannels = null;
 
-    /**
-     * @var string|null
-     */
-    protected $name;
+    protected ?string $name = null;
 
-    /**
-     * @var string|null
-     */
-    protected $metaTitle;
+    protected ?string $metaTitle = null;
 
-    /**
-     * @var string|null
-     */
-    protected $metaDescription;
+    protected ?string $metaDescription = null;
 
-    /**
-     * @var string|null
-     */
-    protected $keywords;
+    protected ?string $keywords = null;
 
-    /**
-     * @var string|null
-     */
-    protected $url;
+    protected ?string $url = null;
 
-    /**
-     * @var array|null
-     */
-    protected $slotConfig;
+    protected ?array $slotConfig = null;
 
-    /**
-     * @var SeoUrlCollection|null
-     */
-    protected $seoUrls;
+    protected ?SeoUrlCollection $seoUrls = null;
 
     public function isActive(): bool
     {

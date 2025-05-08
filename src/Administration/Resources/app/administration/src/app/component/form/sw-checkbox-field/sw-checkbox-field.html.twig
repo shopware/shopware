@@ -1,9 +1,9 @@
-{# v-on="$listeners" needed becaues vue/compat removes them from $attrs #}
-{# New mt-checkbox component #}
+{% block sw_checkbox_field %}
 <mt-checkbox
-    v-if="useMeteorComponent"
+    v-if="!deprecated"
     v-bind="$attrs"
-    v-on="listeners"
+    :checked="compatValue"
+    @update:checked="handleUpdateChecked"
 >
     <template
         v-for="(index, name) in getSlots()"
@@ -17,16 +17,16 @@
     </template>
     <slot></slot>
 </mt-checkbox>
+{% endblock %}
 
-{# v-on="$listeners" needed becaues vue/compat removes them from $attrs #}
 {# Deprecated component #}
 <sw-checkbox-field-deprecated
     v-else
     v-bind="$attrs"
-    v-on="listeners"
+    :value="value"
 >
     <template
-        v-for="(index, name) in getSlots()"
+        v-for="(_index, name) in getSlots()"
         #[name]="data"
     >
         <slot

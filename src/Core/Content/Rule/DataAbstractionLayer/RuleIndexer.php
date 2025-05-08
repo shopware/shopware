@@ -16,7 +16,7 @@ use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 /**
  * @final
  */
-#[Package('services-settings')]
+#[Package('fundamentals@after-sales')]
 class RuleIndexer extends EntityIndexer
 {
     final public const PAYLOAD_UPDATER = 'rule.payload';
@@ -69,6 +69,9 @@ class RuleIndexer extends EntityIndexer
     public function handle(EntityIndexingMessage $message): void
     {
         $ids = $message->getData();
+        if (!\is_array($ids)) {
+            return;
+        }
 
         $ids = array_unique(array_filter($ids));
         if (empty($ids)) {

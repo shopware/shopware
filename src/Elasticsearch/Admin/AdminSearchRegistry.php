@@ -26,7 +26,7 @@ use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
  *
  * @final
  */
-#[Package('services-settings')]
+#[Package('inventory')]
 #[AsMessageHandler(handles: AdminSearchIndexingMessage::class)]
 class AdminSearchRegistry implements EventSubscriberInterface
 {
@@ -160,9 +160,9 @@ class AdminSearchRegistry implements EventSubscriberInterface
             if (empty($ids)) {
                 continue;
             }
-            $documents = $indexer->fetch($ids);
 
-            $this->push($indexer, $indices, $documents, $ids);
+            $msg = new AdminSearchIndexingMessage($indexer->getEntity(), $indexer->getName(), $indices, $ids);
+            $this->queue->dispatch($msg);
         }
     }
 
@@ -243,13 +243,7 @@ class AdminSearchRegistry implements EventSubscriberInterface
             'body' => $documents,
         ];
 
-        try {
-            $result = $this->client->bulk($arguments);
-        } catch (OpenSearchException $e) {
-            $this->logger->error('Could not index documents. Run "bin/console es:admin:index" to reindex. Error: ' . $e->getMessage());
-
-            return;
-        }
+        $result = $this->client->bulk($arguments);
 
         if (\is_array($result) && !empty($result['errors'])) {
             $errors = $this->parseErrors($result);

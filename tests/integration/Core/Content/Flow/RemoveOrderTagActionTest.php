@@ -18,15 +18,15 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Pricing\CashRoundingConfig;
 use Shopware\Core\Framework\Log\Package;
-use Shopware\Core\Framework\Test\TestDataCollection;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\StateMachine\Loader\InitialStateIdLoader;
+use Shopware\Core\Test\Stub\Framework\IdsCollection;
 use Shopware\Core\Test\TestDefaults;
 
 /**
  * @internal
  */
-#[Package('services-settings')]
+#[Package('after-sales')]
 class RemoveOrderTagActionTest extends TestCase
 {
     use OrderActionTrait;
@@ -37,13 +37,13 @@ class RemoveOrderTagActionTest extends TestCase
 
     protected function setUp(): void
     {
-        $this->flowRepository = $this->getContainer()->get('flow.repository');
+        $this->flowRepository = static::getContainer()->get('flow.repository');
 
-        $this->connection = $this->getContainer()->get(Connection::class);
+        $this->connection = static::getContainer()->get(Connection::class);
 
-        $this->customerRepository = $this->getContainer()->get('customer.repository');
+        $this->customerRepository = static::getContainer()->get('customer.repository');
 
-        $this->ids = new TestDataCollection();
+        $this->ids = new IdsCollection();
 
         $this->browser = $this->createCustomSalesChannelBrowser([
             'id' => $this->ids->create('sales-channel'),
@@ -136,7 +136,7 @@ class RemoveOrderTagActionTest extends TestCase
 
         $this->prepareProductTest();
 
-        $this->getContainer()->get('tag.repository')->create([
+        static::getContainer()->get('tag.repository')->create([
             [
                 'id' => $this->ids->create('tag_id'),
                 'name' => 'test tag',
@@ -155,7 +155,7 @@ class RemoveOrderTagActionTest extends TestCase
     private function createOrder(Context $context): string
     {
         $orderId = Uuid::randomHex();
-        $stateId = $this->getContainer()->get(InitialStateIdLoader::class)->get(OrderStates::STATE_MACHINE);
+        $stateId = static::getContainer()->get(InitialStateIdLoader::class)->get(OrderStates::STATE_MACHINE);
         $billingAddressId = Uuid::randomHex();
 
         $order = [
@@ -202,7 +202,7 @@ class RemoveOrderTagActionTest extends TestCase
             ],
         ];
 
-        $orderRepository = $this->getContainer()->get('order.repository');
+        $orderRepository = static::getContainer()->get('order.repository');
 
         $orderRepository->upsert([$order], $context);
 

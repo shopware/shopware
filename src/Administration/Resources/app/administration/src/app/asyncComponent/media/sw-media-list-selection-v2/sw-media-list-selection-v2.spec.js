@@ -1,5 +1,5 @@
 /**
- * @package content
+ * @sw-package discovery
  */
 import { mount } from '@vue/test-utils';
 import { reactive } from 'vue';
@@ -9,7 +9,6 @@ const entityMediaItems = [
         id: '1',
         url: 'http://shopware.com/image1.jpg',
         position: 3,
-
     },
     {
         id: '2',
@@ -37,7 +36,6 @@ async function createWrapper() {
                 'sw-upload-listener': true,
                 'sw-media-upload-v2': true,
                 'sw-media-list-selection-item-v2': await wrapTestComponent('sw-media-list-selection-item-v2'),
-                'sw-icon': true,
                 'sw-media-preview-v2': {
                     props: ['source'],
                     template: '<div class="sw-media-preview-v2">{{ source }}</div>',
@@ -77,7 +75,10 @@ describe('components/media/sw-media-list-selection-v2', () => {
         await wrapper.vm.$nextTick();
 
         expect(wrapper.emitted()['item-sort']).toBeTruthy();
-        expect(wrapper.emitted()['item-sort'][0]).toEqual([{ id: 2, position: 1 }, { id: 1, position: 2 }]);
+        expect(wrapper.emitted()['item-sort'][0]).toEqual([
+            { id: 2, position: 1 },
+            { id: 1, position: 2 },
+        ]);
     });
 
     it('should not emit item-sort event when drag and drop item valid', async () => {

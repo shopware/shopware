@@ -1,5 +1,5 @@
 /**
- * @package buyers-experience
+ * @sw-package buyers-experience
  */
 import MediaApiService from 'src/core/service/api/media.api.service';
 import createLoginService from 'src/core/service/login.service';
@@ -38,17 +38,13 @@ describe('storeService', () => {
     it('handles keeping files', async () => {
         const mediaApiService = getMediaApiService();
         const callback = jest.fn();
-        const event = mediaApiService._createUploadEvent(
-            'media-upload-finish',
-            uploadTaskMock.uploadTag,
-            {
-                targetId: uploadTaskMock.targetId,
-                successAmount: 0,
-                failureAmount: 0,
-                totalAmount: 0,
-                customMessage: 'global.sw-media-upload.notification.assigned.message',
-            },
-        );
+        const event = mediaApiService._createUploadEvent('media-upload-finish', uploadTaskMock.uploadTag, {
+            targetId: uploadTaskMock.targetId,
+            successAmount: 0,
+            failureAmount: 0,
+            totalAmount: 0,
+            customMessage: 'global.sw-media-upload.notification.assigned.message',
+        });
         mediaApiService.addListener(uploadTaskMock.uploadTag, callback);
 
         mediaApiService.keepFile(uploadTaskMock.uploadTag, uploadTaskMock);
@@ -87,9 +83,11 @@ describe('storeService', () => {
         const spyRepository = jest.spyOn(Shopware.Service('repositoryFactory'), 'create').mockImplementation(() => {
             return {
                 search: async () => {
-                    return Promise.resolve([{
-                        id: 'test',
-                    }]);
+                    return Promise.resolve([
+                        {
+                            id: 'test',
+                        },
+                    ]);
                 },
             };
         });
@@ -109,12 +107,14 @@ describe('storeService', () => {
                 search: async () => {
                     searchCount += 1;
 
-                    return Promise.resolve([{
-                        id: 'test',
-                        folder: {
-                            id: 'product_download_id',
+                    return Promise.resolve([
+                        {
+                            id: 'test',
+                            folder: {
+                                id: 'product_download_id',
+                            },
                         },
-                    }]);
+                    ]);
                 },
             };
         });

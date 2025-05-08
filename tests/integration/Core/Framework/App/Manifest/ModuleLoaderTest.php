@@ -34,8 +34,8 @@ class ModuleLoaderTest extends TestCase
 
     protected function setUp(): void
     {
-        $this->appRepository = $this->getContainer()->get('app.repository');
-        $this->moduleLoader = $this->getContainer()->get(ModuleLoader::class);
+        $this->appRepository = static::getContainer()->get('app.repository');
+        $this->moduleLoader = static::getContainer()->get(ModuleLoader::class);
 
         $this->context = Context::createDefaultContext();
     }
@@ -99,7 +99,7 @@ class ModuleLoaderTest extends TestCase
     {
         $this->registerAppsWithModules();
 
-        $systemConfigService = $this->getContainer()->get(SystemConfigService::class);
+        $systemConfigService = static::getContainer()->get(SystemConfigService::class);
         $systemConfigService->set(ShopIdProvider::SHOP_ID_SYSTEM_CONFIG_KEY, [
             'app_url' => 'https://test.com',
             'value' => Uuid::randomHex(),
@@ -269,7 +269,7 @@ class ModuleLoaderTest extends TestCase
         $expectedUrl = parse_url($urlPath);
         static::assertSame($expectedUrl, $url);
 
-        $shopId = $this->getContainer()->get(SystemConfigService::class)->get(ShopIdProvider::SHOP_ID_SYSTEM_CONFIG_KEY);
+        $shopId = static::getContainer()->get(SystemConfigService::class)->get(ShopIdProvider::SHOP_ID_SYSTEM_CONFIG_KEY);
         static::assertIsArray($shopId);
 
         parse_str($queryString, $query);
@@ -277,7 +277,7 @@ class ModuleLoaderTest extends TestCase
         static::assertArrayHasKey('shop-id', $query);
         static::assertSame($shopId['value'], $query['shop-id']);
         static::assertArrayHasKey('sw-version', $query);
-        static::assertSame($this->getContainer()->getParameter('kernel.shopware_version'), $query['sw-version']);
+        static::assertSame(static::getContainer()->getParameter('kernel.shopware_version'), $query['sw-version']);
         static::assertArrayHasKey('sw-context-language', $query);
         static::assertSame(Context::createDefaultContext()->getLanguageId(), $query['sw-context-language']);
         static::assertArrayHasKey('sw-user-language', $query);

@@ -1,5 +1,5 @@
 /**
- * @package buyers-experience
+ * @sw-package checkout
  */
 
 enum DiscountTypes {
@@ -19,7 +19,4 @@ enum DiscountScopes {
 /**
  * @private
  */
-export {
-    DiscountTypes,
-    DiscountScopes,
-};
+export { DiscountTypes, DiscountScopes };

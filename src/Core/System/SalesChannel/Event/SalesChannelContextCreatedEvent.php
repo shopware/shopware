@@ -8,12 +8,16 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Contracts\EventDispatcher\Event;
 
-#[Package('core')]
+#[Package('framework')]
 class SalesChannelContextCreatedEvent extends Event implements ShopwareSalesChannelEvent
 {
+    /**
+     * @param array<string, mixed> $session
+     */
     public function __construct(
         private readonly SalesChannelContext $salesChannelContext,
-        private readonly string $usedToken
+        private readonly string $usedToken,
+        private readonly array $session = []
     ) {
     }
 
@@ -30,5 +34,13 @@ class SalesChannelContextCreatedEvent extends Event implements ShopwareSalesChan
     public function getUsedToken(): string
     {
         return $this->usedToken;
+    }
+
+    /**
+     * @return array<string, mixed>
+     */
+    public function getSession(): array
+    {
+        return $this->session;
     }
 }

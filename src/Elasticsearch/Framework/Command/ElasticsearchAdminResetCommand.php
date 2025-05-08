@@ -22,7 +22,7 @@ use Symfony\Component\Console\Style\SymfonyStyle;
     name: 'es:admin:reset',
     description: 'Reset Admin Elasticsearch indexing',
 )]
-#[Package('services-settings')]
+#[Package('inventory')]
 class ElasticsearchAdminResetCommand extends Command
 {
     /**

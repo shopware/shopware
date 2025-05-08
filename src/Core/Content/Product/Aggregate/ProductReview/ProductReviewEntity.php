@@ -11,86 +11,41 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\Language\LanguageEntity;
 use Shopware\Core\System\SalesChannel\SalesChannelEntity;
 
-#[Package('inventory')]
+#[Package('after-sales')]
 class ProductReviewEntity extends Entity
 {
     use EntityCustomFieldsTrait;
     use EntityIdTrait;
 
-    /**
-     * @var string
-     */
-    protected $productId;
+    protected string $productId;
 
-    /**
-     * @var string|null
-     */
-    protected $customerId;
+    protected ?string $customerId = null;
 
-    /**
-     * @var string
-     */
-    protected $salesChannelId;
+    protected string $salesChannelId;
 
-    /**
-     * @var string
-     */
-    protected $languageId;
+    protected string $languageId;
 
-    /**
-     * @var string|null
-     */
-    protected $externalUser;
+    protected ?string $externalUser = null;
 
-    /**
-     * @var string|null
-     */
-    protected $externalEmail;
+    protected ?string $externalEmail = null;
 
-    /**
-     * @var float|null
-     */
-    protected $points;
+    protected ?float $points = null;
 
-    /**
-     * @var bool
-     */
-    protected $status;
+    protected ?bool $status = null;
 
-    /**
-     * @var string|null
-     */
-    protected $comment;
+    protected ?string $comment = null;
 
-    /**
-     * @var SalesChannelEntity|null
-     */
-    protected $salesChannel;
+    protected ?SalesChannelEntity $salesChannel = null;
 
-    /**
-     * @var LanguageEntity|null
-     */
-    protected $language;
+    protected ?LanguageEntity $language = null;
 
-    /**
-     * @var CustomerEntity|null
-     */
-    protected $customer;
+    protected ?CustomerEntity $customer = null;
 
-    /**
-     * @var ProductEntity|null
-     */
-    protected $product;
+    protected ?ProductEntity $product = null;
 
-    /**
-     * @var string|null
-     */
-    protected $content;
+    protected ?string $content = null;
 
-    /**
-     * @var string|null
-     */
-    protected $title;
+    protected ?string $title = null;
 
     public function getProductId(): string
     {

@@ -1,7 +1,7 @@
 import { mount } from '@vue/test-utils';
 
 /**
- * @package services-settings
+ * @sw-package framework
  */
 async function createWrapper(props = {}) {
     return mount(await wrapTestComponent('sw-extension-icon', { sync: true }), {
@@ -23,7 +23,10 @@ describe('src/module/sw-extension/component/sw-extension-icon', () => {
     });
 
     it('can take an alt text', async () => {
-        const wrapper = await createWrapper({ src: 'path-to-icon', alt: 'description of an image' });
+        const wrapper = await createWrapper({
+            src: 'path-to-icon',
+            alt: 'description of an image',
+        });
 
         const image = wrapper.get('img');
 

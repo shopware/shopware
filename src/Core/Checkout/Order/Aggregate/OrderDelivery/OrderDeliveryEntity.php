@@ -19,80 +19,38 @@ class OrderDeliveryEntity extends Entity
     use EntityCustomFieldsTrait;
     use EntityIdTrait;
 
-    /**
-     * @var string
-     */
-    protected $orderId;
+    protected string $orderId;
 
-    /**
-     * @var string
-     */
-    protected $orderVersionId;
+    protected string $orderVersionId;
 
-    /**
-     * @var string
-     */
-    protected $shippingOrderAddressId;
+    protected string $shippingOrderAddressId;
 
-    /**
-     * @var string
-     */
-    protected $shippingOrderAddressVersionId;
+    protected string $shippingOrderAddressVersionId;
 
-    /**
-     * @var string
-     */
-    protected $shippingMethodId;
+    protected string $shippingMethodId;
 
     /**
      * @var array<string>
      */
-    protected $trackingCodes;
+    protected array $trackingCodes;
 
-    /**
-     * @var \DateTimeInterface
-     */
-    protected $shippingDateEarliest;
+    protected \DateTimeInterface $shippingDateEarliest;
 
-    /**
-     * @var \DateTimeInterface
-     */
-    protected $shippingDateLatest;
+    protected \DateTimeInterface $shippingDateLatest;
 
-    /**
-     * @var CalculatedPrice
-     */
-    protected $shippingCosts;
+    protected CalculatedPrice $shippingCosts;
 
-    /**
-     * @var OrderAddressEntity|null
-     */
-    protected $shippingOrderAddress;
+    protected ?OrderAddressEntity $shippingOrderAddress = null;
 
-    /**
-     * @var string
-     */
-    protected $stateId;
+    protected string $stateId;
 
-    /**
-     * @var StateMachineStateEntity|null
-     */
-    protected $stateMachineState;
+    protected ?StateMachineStateEntity $stateMachineState = null;
 
-    /**
-     * @var ShippingMethodEntity|null
-     */
-    protected $shippingMethod;
+    protected ?ShippingMethodEntity $shippingMethod = null;
 
-    /**
-     * @var OrderEntity|null
-     */
-    protected $order;
+    protected ?OrderEntity $order = null;
 
-    /**
-     * @var OrderDeliveryPositionCollection|null
-     */
-    protected $positions;
+    protected ?OrderDeliveryPositionCollection $positions = null;
 
     public function getOrderId(): string
     {

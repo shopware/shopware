@@ -1,7 +1,7 @@
 import { mount } from '@vue/test-utils';
 
 /**
- * @package customer-order
+ * @sw-package checkout
  */
 async function createWrapper() {
     const orderProp = {
@@ -12,13 +12,13 @@ async function createWrapper() {
     };
 
     orderProp.transactions.last = () => ({});
-    orderProp.transactions.getIds = () => ([]);
-    orderProp.deliveries.getIds = () => ([]);
+    orderProp.transactions.getIds = () => [];
+    orderProp.deliveries.getIds = () => [];
 
     return mount(await wrapTestComponent('sw-order-state-history-card', { sync: true }), {
         global: {
             stubs: {
-                'sw-card': {
+                'mt-card': {
                     template: '<div><slot></slot></div>',
                 },
                 'sw-container': await wrapTestComponent('sw-container'),
@@ -32,7 +32,9 @@ async function createWrapper() {
             provide: {
                 orderService: {},
                 stateMachineService: {
-                    getState: () => { return { data: { transactions: [] } }; },
+                    getState: () => {
+                        return { data: { transactions: [] } };
+                    },
                 },
                 orderStateMachineService: {},
                 repositoryFactory: {
@@ -40,6 +42,7 @@ async function createWrapper() {
                         search: () => Promise.resolve([]),
                     }),
                 },
+                swOrderDetailAskAndSaveEdits: () => Promise.resolve(true),
             },
         },
         props: {

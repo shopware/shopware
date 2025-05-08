@@ -11,15 +11,9 @@ use Shopware\Core\Framework\Struct\Struct;
 #[Package('checkout')]
 class PluginDownloadDataStruct extends Struct
 {
-    /**
-     * @var string
-     */
-    protected $location;
+    protected string $location;
 
-    /**
-     * @var string
-     */
-    protected $type;
+    protected string $type;
 
     protected ?string $binaryVersion = null;
 

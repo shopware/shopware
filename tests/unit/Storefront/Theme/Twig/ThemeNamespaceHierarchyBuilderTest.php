@@ -7,6 +7,7 @@ use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Document\Event\DocumentTemplateRendererParameterEvent;
+use Shopware\Core\Framework\Test\TestCaseHelper\ReflectionHelper;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\SalesChannelRequest;
 use Shopware\Core\Test\Generator;
@@ -85,7 +86,7 @@ class ThemeNamespaceHierarchyBuilderTest extends TestCase
         ];
         $connectionMock = $this->createMock(Connection::class);
         if (\array_key_exists('context', $parameters)) {
-            $connectionMock->expects(static::exactly(1))->method('fetchAssociative')->willReturn($expectedDB);
+            $connectionMock->expects($this->exactly(1))->method('fetchAssociative')->willReturn($expectedDB);
         }
         $cachedThemeLoader = new DatabaseSalesChannelThemeLoader($connectionMock);
 
@@ -173,7 +174,7 @@ class ThemeNamespaceHierarchyBuilderTest extends TestCase
      */
     public static function onRenderingDocumentProvider(): iterable
     {
-        $context = Generator::createSalesChannelContext();
+        $context = Generator::generateSalesChannelContext();
 
         yield 'no theme is using' => [
             [
@@ -206,11 +207,9 @@ class ThemeNamespaceHierarchyBuilderTest extends TestCase
      */
     private function assertThemes(array $expectation, ThemeNamespaceHierarchyBuilder $builder): void
     {
-        $refObj = new \ReflectionObject($builder);
-        $refProperty = $refObj->getProperty('themes');
-        $refProperty->setAccessible(true);
+        $refProperty = ReflectionHelper::getPropertyValue($builder, 'themes');
 
-        static::assertEquals($expectation, $refProperty->getValue($builder));
+        static::assertEquals($expectation, $refProperty);
     }
 }
 

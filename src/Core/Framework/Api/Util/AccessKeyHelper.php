@@ -6,7 +6,7 @@ use Shopware\Core\Framework\Api\ApiException;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Util\Random;
 
-#[Package('core')]
+#[Package('framework')]
 class AccessKeyHelper
 {
     private const USER_IDENTIFIER = 'SWUA';
@@ -17,7 +17,7 @@ class AccessKeyHelper
     /**
      * @var array<string, string>
      */
-    public static $mapping = [
+    public static array $mapping = [
         self::USER_IDENTIFIER => 'user',
         self::INTEGRATION_IDENTIFIER => 'integration',
         self::SALES_CHANNEL_IDENTIFIER => 'sales-channel',

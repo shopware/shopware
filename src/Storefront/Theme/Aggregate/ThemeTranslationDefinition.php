@@ -11,7 +11,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Storefront\Theme\ThemeDefinition;
 
-#[Package('storefront')]
+#[Package('framework')]
 class ThemeTranslationDefinition extends EntityTranslationDefinition
 {
     final public const ENTITY_NAME = 'theme_translation';

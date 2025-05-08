@@ -1,5 +1,5 @@
 /**
- * @package admin
+ * @sw-package framework
  *
  * @private
  * Refresh token helper which manages a cache of requests to retry them after the token got refreshed.
@@ -63,15 +63,19 @@ class RefreshTokenHelper {
         const loginService = Shopware.Service('loginService');
         this.isRefreshing = true;
 
-        return loginService.refreshToken().then((newToken) => {
-            this.onRefreshToken(newToken);
-        }).finally(() => {
-            this.isRefreshing = false;
-        }).catch(() => {
-            loginService.logout();
-            this.onRefreshTokenFailed();
-            return Promise.reject();
-        });
+        return loginService
+            .refreshToken()
+            .then((newToken) => {
+                this.onRefreshToken(newToken);
+            })
+            .finally(() => {
+                this.isRefreshing = false;
+            })
+            .catch(() => {
+                loginService.logout();
+                this.onRefreshTokenFailed();
+                return Promise.reject();
+            });
     }
 
     // eslint-disable-next-line inclusive-language/use-inclusive-words

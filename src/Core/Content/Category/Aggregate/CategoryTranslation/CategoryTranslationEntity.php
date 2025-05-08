@@ -8,85 +8,46 @@ use Shopware\Core\Framework\DataAbstractionLayer\TranslationEntity;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\Language\LanguageEntity;
 
-#[Package('inventory')]
+#[Package('discovery')]
 class CategoryTranslationEntity extends TranslationEntity
 {
     use EntityCustomFieldsTrait;
 
-    /**
-     * @var string
-     */
-    protected $categoryId;
+    protected string $categoryId;
 
-    /**
-     * @var string
-     */
-    protected $categoryVersionId;
+    protected string $categoryVersionId;
 
-    /**
-     * @var string|null
-     */
-    protected $name;
+    protected ?string $name = null;
 
     /**
      * @var array<string>|null
      */
-    protected $breadcrumb;
+    protected ?array $breadcrumb = null;
 
-    /**
-     * @var CategoryEntity|null
-     */
-    protected $category;
+    protected ?CategoryEntity $category = null;
 
-    /**
-     * @var LanguageEntity|null
-     */
-    protected $language;
+    protected ?LanguageEntity $language = null;
 
     /**
      * @var array<string, mixed>|null
      */
-    protected $slotConfig;
+    protected ?array $slotConfig = null;
 
-    /**
-     * @var string|null
-     */
-    protected $linkType;
+    protected ?string $linkType = null;
 
-    /**
-     * @var bool|null
-     */
-    protected $linkNewTab;
+    protected ?bool $linkNewTab = null;
 
-    /**
-     * @var string|null
-     */
-    protected $internalLink;
+    protected ?string $internalLink = null;
 
-    /**
-     * @var string|null
-     */
-    protected $externalLink;
+    protected ?string $externalLink = null;
 
-    /**
-     * @var string|null
-     */
-    protected $description;
+    protected ?string $description = null;
 
-    /**
-     * @var string|null
-     */
-    protected $metaTitle;
+    protected ?string $metaTitle = null;
 
-    /**
-     * @var string|null
-     */
-    protected $metaDescription;
+    protected ?string $metaDescription = null;
 
-    /**
-     * @var string|null
-     */
-    protected $keywords;
+    protected ?string $keywords = null;
 
     public function getCategoryId(): string
     {

@@ -8,46 +8,25 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityIdTrait;
 use Shopware\Core\Framework\DataAbstractionLayer\TranslationEntity;
 use Shopware\Core\Framework\Log\Package;
 
-#[Package('checkout')]
+#[Package('discovery')]
 class CustomerGroupTranslationEntity extends TranslationEntity
 {
     use EntityCustomFieldsTrait;
     use EntityIdTrait;
 
-    /**
-     * @var string
-     */
-    protected $customerGroupId;
+    protected string $customerGroupId;
 
-    /**
-     * @var string|null
-     */
-    protected $name;
+    protected ?string $name = null;
 
-    /**
-     * @var CustomerGroupEntity|null
-     */
-    protected $customerGroup;
+    protected ?CustomerGroupEntity $customerGroup = null;
 
-    /**
-     * @var string
-     */
-    protected $registrationTitle;
+    protected ?string $registrationTitle = null;
 
-    /**
-     * @var string
-     */
-    protected $registrationIntroduction;
+    protected ?string $registrationIntroduction = null;
 
-    /**
-     * @var bool
-     */
-    protected $registrationOnlyCompanyRegistration;
+    protected ?bool $registrationOnlyCompanyRegistration = null;
 
-    /**
-     * @var string
-     */
-    protected $registrationSeoMetaDescription;
+    protected ?string $registrationSeoMetaDescription = null;
 
     public function getCustomerGroupId(): string
     {

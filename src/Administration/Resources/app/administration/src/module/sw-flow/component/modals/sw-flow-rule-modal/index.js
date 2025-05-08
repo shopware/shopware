@@ -1,19 +1,16 @@
-import { mapState } from 'vuex';
 import template from './sw-flow-rule-modal.html.twig';
 import './sw-flow-rule-modal.scss';
 
-const { Component, Mixin, Context } = Shopware;
+const { Component, Mixin, Context, Store } = Shopware;
 const { Criteria } = Shopware.Data;
-const { mapPropertyErrors } = Component.getComponentHelper();
+const { mapPropertyErrors, mapState } = Component.getComponentHelper();
 
 /**
  * @private
- * @package services-settings
+ * @sw-package after-sales
  */
 export default {
     template,
-
-    compatConfig: Shopware.compatConfig,
 
     inject: [
         'repositoryFactory',
@@ -22,7 +19,10 @@ export default {
         'feature',
     ],
 
-    emits: ['process-finish', 'modal-close'],
+    emits: [
+        'process-finish',
+        'modal-close',
+    ],
 
     mixins: [
         Mixin.getByName('placeholder'),
@@ -65,10 +65,7 @@ export default {
                 return null;
             }
 
-            return this.repositoryFactory.create(
-                this.rule?.conditions?.entity,
-                this.rule?.conditions?.source,
-            );
+            return this.repositoryFactory.create(this.rule?.conditions?.entity, this.rule?.conditions?.source);
         },
 
         appScriptConditionRepository() {
@@ -76,7 +73,7 @@ export default {
         },
 
         availableModuleTypes() {
-            return this.ruleConditionDataProviderService.getModuleTypes(moduleType => moduleType);
+            return this.ruleConditionDataProviderService.getModuleTypes((moduleType) => moduleType);
         },
 
         moduleTypes: {
@@ -99,16 +96,18 @@ export default {
 
         scopesOfRuleAwarenessKey() {
             const ruleAwarenessKey = `flowTrigger.${this.flow.eventName}`;
-            const awarenessConfig = this.ruleConditionDataProviderService
-                .getAwarenessConfigurationByAssignmentName(ruleAwarenessKey);
-
+            const awarenessConfig =
+                this.ruleConditionDataProviderService.getAwarenessConfigurationByAssignmentName(ruleAwarenessKey);
 
             return awarenessConfig?.scopes ?? undefined;
         },
 
-        ...mapState('swFlowState', ['flow']),
+        ...mapState(() => Store.get('swFlow'), ['flow']),
 
-        ...mapPropertyErrors('rule', ['name', 'priority']),
+        ...mapPropertyErrors('rule', [
+            'name',
+            'priority',
+        ]),
     },
 
     created() {
@@ -135,7 +134,10 @@ export default {
         },
 
         loadConditionData() {
-            const context = { ...Context.api, languageId: Shopware.State.get('session').languageId };
+            const context = {
+                ...Context.api,
+                languageId: Shopware.Store.get('session').languageId,
+            };
             const criteria = new Criteria(1, 500);
 
             return Promise.all([
@@ -151,7 +153,9 @@ export default {
             this.conditions = this.rule?.conditions;
             this.conditionTree = this.conditions;
             this.rule.flowSequences = [];
-            this.rule.flowSequences.push({ flow: { eventName: this.flow.eventName } });
+            this.rule.flowSequences.push({
+                flow: { eventName: this.flow.eventName },
+            });
         },
 
         loadRule(ruleId) {
@@ -178,10 +182,7 @@ export default {
                 return Promise.resolve();
             }
 
-            const criteria = new Criteria(
-                conditions.criteria.page + 1,
-                conditions.criteria.limit,
-            );
+            const criteria = new Criteria(conditions.criteria.page + 1, conditions.criteria.limit);
 
             if (conditions.entity === 'product') {
                 criteria.addAssociation('options.group');
@@ -197,20 +198,22 @@ export default {
         },
 
         syncConditions() {
-            return this.conditionRepository.sync(this.conditionTree, Context.api)
-                .then(() => {
-                    if (this.deletedIds.length > 0) {
-                        return this.conditionRepository.syncDeleted(this.deletedIds, Context.api).then(() => {
-                            this.deletedIds = [];
-                        });
-                    }
-                    return Promise.resolve();
-                });
+            return this.conditionRepository.sync(this.conditionTree, Context.api).then(() => {
+                if (this.deletedIds.length > 0) {
+                    return this.conditionRepository.syncDeleted(this.deletedIds, Context.api).then(() => {
+                        this.deletedIds = [];
+                    });
+                }
+                return Promise.resolve();
+            });
         },
 
         onConditionsChanged({ conditions, deletedIds }) {
             this.conditionTree = conditions;
-            this.deletedIds = [...this.deletedIds, ...deletedIds];
+            this.deletedIds = [
+                ...this.deletedIds,
+                ...deletedIds,
+            ];
         },
 
         getRuleDetail() {
@@ -218,7 +221,8 @@ export default {
                 return null;
             }
 
-            return this.ruleRepository.get(this.rule.id)
+            return this.ruleRepository
+                .get(this.rule.id)
                 .then((rule) => {
                     this.$emit('process-finish', rule);
                 })
@@ -240,13 +244,15 @@ export default {
 
                 this.saveRule()
                     .then(() => {
-                        Shopware.State.dispatch('error/resetApiErrors');
+                        Shopware.Store.get('error').resetApiErrors();
                         this.getRuleDetail();
 
                         this.isSaveSuccessful = true;
-                    }).catch(() => {
+                    })
+                    .catch(() => {
                         this.showErrorNotification();
-                    }).finally(() => {
+                    })
+                    .finally(() => {
                         this.isSaveLoading = false;
                     });
 
@@ -256,7 +262,7 @@ export default {
             this.saveRule()
                 .then(this.syncConditions)
                 .then(() => {
-                    Shopware.State.dispatch('error/resetApiErrors');
+                    Shopware.Store.get('error').resetApiErrors();
                     this.getRuleDetail();
 
                     this.isSaveSuccessful = true;
@@ -275,7 +281,7 @@ export default {
 
         showErrorNotification() {
             this.createNotificationError({
-                message: this.$tc('sw-settings-rule.detail.messageSaveError', 0, { name: this.rule.name }),
+                message: this.$tc('sw-settings-rule.detail.messageSaveError', { name: this.rule.name }, 0),
             });
         },
 

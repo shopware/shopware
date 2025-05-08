@@ -19,7 +19,7 @@ use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 /**
  * @internal
  */
-#[Package('buyers-experience')]
+#[Package('discovery')]
 #[CoversClass(DeleteNotUsedMediaCommand::class)]
 class DeleteNotUsedMediaCommandTest extends TestCase
 {
@@ -27,7 +27,7 @@ class DeleteNotUsedMediaCommandTest extends TestCase
     {
         $service = $this->createMock(UnusedMediaPurger::class);
 
-        $service->expects(static::once())
+        $service->expects($this->once())
             ->method('deleteNotUsedMedia')
             ->willReturn(2);
 
@@ -47,7 +47,7 @@ class DeleteNotUsedMediaCommandTest extends TestCase
     {
         $service = $this->createMock(UnusedMediaPurger::class);
 
-        $service->expects(static::once())
+        $service->expects($this->once())
             ->method('deleteNotUsedMedia')
             ->with($limit, static::identicalTo($offset))
             ->willReturn(2);
@@ -78,7 +78,7 @@ class DeleteNotUsedMediaCommandTest extends TestCase
     {
         $service = $this->createMock(UnusedMediaPurger::class);
 
-        $service->expects(static::never())
+        $service->expects($this->never())
             ->method('deleteNotUsedMedia');
 
         $command = new DeleteNotUsedMediaCommand($service, $this->createMock(EventDispatcherInterface::class));
@@ -96,7 +96,7 @@ class DeleteNotUsedMediaCommandTest extends TestCase
     {
         $service = $this->createMock(UnusedMediaPurger::class);
 
-        $service->expects(static::once())
+        $service->expects($this->once())
             ->method('deleteNotUsedMedia')
             ->with(50, null, 20, 'product')
             ->willReturn(2);
@@ -121,11 +121,11 @@ class DeleteNotUsedMediaCommandTest extends TestCase
             yield [$this->createMedia('File 2')];
         };
 
-        $service->expects(static::once())
+        $service->expects($this->once())
             ->method('getNotUsedMedia')
             ->willReturnCallback($result);
 
-        $service->expects(static::never())
+        $service->expects($this->never())
             ->method('deleteNotUsedMedia');
 
         $command = new DeleteNotUsedMediaCommand($service, $this->createMock(EventDispatcherInterface::class));
@@ -152,11 +152,11 @@ class DeleteNotUsedMediaCommandTest extends TestCase
 
         $generator = $this->generatorOfMedia([10, 11]);
 
-        $service->expects(static::once())
+        $service->expects($this->once())
             ->method('getNotUsedMedia')
             ->willReturnCallback($generator);
 
-        $service->expects(static::never())
+        $service->expects($this->never())
             ->method('deleteNotUsedMedia');
 
         $command = new DeleteNotUsedMediaCommand($service, $this->createMock(EventDispatcherInterface::class));
@@ -179,11 +179,11 @@ class DeleteNotUsedMediaCommandTest extends TestCase
 
         $generator = $this->generatorOfMedia([20, 20]);
 
-        $service->expects(static::once())
+        $service->expects($this->once())
             ->method('getNotUsedMedia')
             ->willReturnCallback($generator);
 
-        $service->expects(static::never())
+        $service->expects($this->never())
             ->method('deleteNotUsedMedia');
 
         $command = new DeleteNotUsedMediaCommand($service, $this->createMock(EventDispatcherInterface::class));
@@ -230,11 +230,11 @@ class DeleteNotUsedMediaCommandTest extends TestCase
             yield [$this->createMedia('File 2')];
         };
 
-        $service->expects(static::once())
+        $service->expects($this->once())
             ->method('getNotUsedMedia')
             ->willReturnCallback($result);
 
-        $service->expects(static::never())
+        $service->expects($this->never())
             ->method('deleteNotUsedMedia');
 
         $command = new DeleteNotUsedMediaCommand($service, $this->createMock(EventDispatcherInterface::class));
@@ -244,6 +244,14 @@ class DeleteNotUsedMediaCommandTest extends TestCase
         $commandTester->execute(['--report' => true]);
 
         $commandTester->assertCommandIsSuccessful();
+
+        $lines = explode("\n", $commandTester->getDisplay(true));
+        $parsed = [];
+
+        foreach ($lines as $line) {
+            // Keep the parameters, otherwise PHP deprecations are triggered
+            $parsed[] = str_getcsv($line, ',', '"', '\\');
+        }
 
         static::assertSame(
             [
@@ -266,7 +274,7 @@ class DeleteNotUsedMediaCommandTest extends TestCase
                     '1 MB',
                 ],
             ],
-            array_map(str_getcsv(...), explode("\n", $commandTester->getDisplay(true)))
+            $parsed
         );
     }
 

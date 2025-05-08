@@ -13,17 +13,11 @@ class ReviewSummaryStruct extends StoreStruct
     /**
      * @var list<array{rating: int<1, 5>, count: positive-int}>
      */
-    protected $ratingAssignment;
+    protected array $ratingAssignment;
 
-    /**
-     * @var float
-     */
-    protected $averageRating;
+    protected float $averageRating;
 
-    /**
-     * @var int
-     */
-    protected $numberOfRatings;
+    protected int $numberOfRatings;
 
     /**
      * @return ReviewSummaryStruct

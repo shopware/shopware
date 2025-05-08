@@ -17,12 +17,12 @@ use Shopware\Core\Framework\Log\Package;
 #[CoversClass(ImitateCustomerTokenGenerator::class)]
 class ImitateCustomerTokenGeneratorTest extends TestCase
 {
-    private ImitateCustomerTokenGenerator $imitateCustomerTokenGenerator;
-
     private const SALES_CHANNEL_ID = '0146543d6a6241718da05d5ee6f6891a';
     private const CUSTOMER_ID = 'bcf76884cb764eb2b9650bb2fcf1073e';
     private const USER_ID = 'bcf76884cb764eb2b9650bb2fcf1073f';
     private const APP_SECRET = 'testAppSecret';
+
+    private ImitateCustomerTokenGenerator $imitateCustomerTokenGenerator;
 
     protected function setUp(): void
     {

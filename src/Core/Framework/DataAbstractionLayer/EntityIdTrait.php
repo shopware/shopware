@@ -5,13 +5,10 @@ namespace Shopware\Core\Framework\DataAbstractionLayer;
 
 use Shopware\Core\Framework\Log\Package;
 
-#[Package('core')]
+#[Package('framework')]
 trait EntityIdTrait
 {
-    /**
-     * @var string
-     */
-    protected $id;
+    protected string $id;
 
     public function getId(): string
     {

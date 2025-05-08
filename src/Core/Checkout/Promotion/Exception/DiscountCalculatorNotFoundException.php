@@ -6,7 +6,10 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\ShopwareHttpException;
 use Symfony\Component\HttpFoundation\Response;
 
-#[Package('buyers-experience')]
+/**
+ * @deprecated tag:v6.8.0 - reason:remove-exception - Will be removed, use PromotionException::discountCalculatorNotFound() instead
+ */
+#[Package('checkout')]
 class DiscountCalculatorNotFoundException extends ShopwareHttpException
 {
     public function __construct(string $type)

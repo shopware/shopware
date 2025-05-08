@@ -18,7 +18,7 @@ use Symfony\Component\Validator\Constraints\Type;
 /**
  * @internal
  */
-#[Package('services-settings')]
+#[Package('fundamentals@after-sales')]
 #[CoversClass(DaysSinceLastLoginRule::class)]
 #[Group('rules')]
 class DaysSinceLastLoginRuleTest extends TestCase
@@ -35,7 +35,7 @@ class DaysSinceLastLoginRuleTest extends TestCase
     public function testValidateWithMissingParameters(): void
     {
         try {
-            $this->getContainer()->get('rule_condition.repository')->create([
+            static::getContainer()->get('rule_condition.repository')->create([
                 [
                     'type' => $this->rule->getName(),
                     'ruleId' => Uuid::randomHex(),
@@ -56,7 +56,7 @@ class DaysSinceLastLoginRuleTest extends TestCase
     public function testValidateWithIllegalParameters(): void
     {
         try {
-            $this->getContainer()->get('rule_condition.repository')->create([
+            static::getContainer()->get('rule_condition.repository')->create([
                 [
                     'type' => $this->rule->getName(),
                     'ruleId' => Uuid::randomHex(),

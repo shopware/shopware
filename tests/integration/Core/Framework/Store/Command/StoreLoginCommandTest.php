@@ -20,7 +20,7 @@ class StoreLoginCommandTest extends TestCase
 
     public function testEmptyPasswordOption(): void
     {
-        $commandTester = new CommandTester($this->getContainer()->get(StoreLoginCommand::class));
+        $commandTester = new CommandTester(static::getContainer()->get(StoreLoginCommand::class));
 
         static::expectException(\RuntimeException::class);
         static::expectExceptionMessage('The password cannot be empty');
@@ -34,7 +34,7 @@ class StoreLoginCommandTest extends TestCase
 
     public function testValidPasswordOptionInvalidUserOption(): void
     {
-        $commandTester = new CommandTester($this->getContainer()->get(StoreLoginCommand::class));
+        $commandTester = new CommandTester(static::getContainer()->get(StoreLoginCommand::class));
 
         static::expectException(\RuntimeException::class);
         static::expectExceptionMessage('User not found');

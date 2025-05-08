@@ -10,7 +10,7 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\Language\LanguageDefinition;
 use Shopware\Storefront\Theme\Aggregate\ThemeTranslationDefinition;
 
-#[Package('storefront')]
+#[Package('framework')]
 class LanguageExtension extends EntityExtension
 {
     public function extendFields(FieldCollection $collection): void
@@ -20,8 +20,8 @@ class LanguageExtension extends EntityExtension
         );
     }
 
-    public function getDefinitionClass(): string
+    public function getEntityName(): string
     {
-        return LanguageDefinition::class;
+        return LanguageDefinition::ENTITY_NAME;
     }
 }

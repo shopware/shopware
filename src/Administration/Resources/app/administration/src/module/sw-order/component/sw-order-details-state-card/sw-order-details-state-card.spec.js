@@ -2,7 +2,7 @@ import { mount } from '@vue/test-utils';
 import EntityCollection from 'src/core/data/entity-collection.data';
 
 /**
- * @package customer-order
+ * @sw-package checkout
  */
 
 jest.useFakeTimers().setSystemTime(new Date(170363865609544));
@@ -78,7 +78,9 @@ async function createWrapper() {
                     },
                 },
                 stateMachineService: {
-                    getState: () => { return { data: { transitions: [] } }; },
+                    getState: () => {
+                        return { data: { transitions: [] } };
+                    },
                 },
                 repositoryFactory: {
                     create: (entity) => {
@@ -98,49 +100,41 @@ async function createWrapper() {
                                     });
                                 }
 
-                                return Promise.resolve(new EntityCollection(
-                                    '',
-                                    '',
-                                    Shopware.Context.api,
-                                    null,
-                                    [],
-                                    0,
-                                ));
+                                return Promise.resolve(new EntityCollection('', '', Shopware.Context.api, null, [], 0));
                             },
                         };
                     },
                 },
+                swOrderDetailAskAndSaveEdits: () => Promise.resolve(true),
             },
             stubs: {
                 'sw-order-state-select-v2': true,
                 'sw-external-link': { template: '<a href="#"></a>' },
                 'sw-order-state-change-modal': true,
-                'sw-container': await wrapTestComponent('sw-container', { sync: true }),
-                'sw-card': await wrapTestComponent('sw-card', { sync: true }),
-                'sw-card-deprecated': await wrapTestComponent('sw-card-deprecated', { sync: true }),
+                'sw-container': await wrapTestComponent('sw-container', {
+                    sync: true,
+                }),
                 'sw-time-ago': {
                     template: '<div class="sw-time-ago"></div>',
                     props: ['date'],
                 },
-                i18n: { template: '<span><slot name="time"></slot><slot name="author"></slot></span>' },
+                'i18n-t': {
+                    template: '<span><slot name="time"></slot><slot name="author"></slot></span>',
+                },
                 'sw-extension-component-section': true,
                 'sw-ai-copilot-badge': true,
                 'sw-context-button': true,
                 'sw-loader': true,
             },
         },
-
     });
 }
 
 describe('src/module/sw-order/component/sw-order-details-state-card', () => {
     beforeEach(async () => {
-        if (Shopware.State.get('swOrderDetail')) {
-            Shopware.State.unregisterModule('swOrderDetail');
-        }
-
-        Shopware.State.registerModule('swOrderDetail', {
-            namespaced: true,
+        Shopware.Store.unregister('swOrderDetail');
+        Shopware.Store.register({
+            id: 'swOrderDetail',
             state: {
                 isLoading: false,
                 isSavedSuccessful: false,

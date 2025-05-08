@@ -2,23 +2,28 @@ DROP TABLE IF EXISTS `attribute_entity_order`;
 DROP TABLE IF EXISTS `attribute_entity_currency`;
 DROP TABLE IF EXISTS `attribute_entity_translation`;
 DROP TABLE IF EXISTS `attribute_entity_agg`;
+DROP TABLE IF EXISTS `attribute_entity_with_hydrator`;
 DROP TABLE IF EXISTS `attribute_entity`;
 
 CREATE TABLE `attribute_entity` (
     `id` BINARY(16) NOT NULL,
     `string` VARCHAR(255) NOT NULL,
+    `empty_string` VARCHAR(255) DEFAULT '' NOT NULL,
+    `html_string` VARCHAR(255) NOT NULL,
     `text` LONGTEXT NULL,
     `int` INT(11) NULL,
     `float` DOUBLE NULL,
     `bool` TINYINT(1) NULL DEFAULT '0',
     `datetime` DATETIME(3) NULL,
     `auto_increment` int NOT NULL AUTO_INCREMENT,
+    `enum` ENUM('a', 'b') NULL,
     `json` JSON NULL,
     `custom_fields` JSON NULL,
     `date` DATE NULL,
     `date_interval` VARCHAR(255) NULL,
     `time_zone` VARCHAR(255) NULL,
     `serialized` JSON NULL,
+    `price` JSON NULL,
     `currency_id` BINARY(16) NULL,
     `state_id` BINARY(16) NULL,
     `follow_id` BINARY(16) NULL,
@@ -27,6 +32,7 @@ CREATE TABLE `attribute_entity` (
     PRIMARY KEY (`id`),
     UNIQUE KEY `auto_increment` (`auto_increment`),
     CONSTRAINT `json.attribute_entity.json` CHECK (JSON_VALID(`json`)),
+    CONSTRAINT `json.attribute_entity.price` CHECK (JSON_VALID(`price`)),
     KEY `fk.attribute_entity.currency_id` (`currency_id`),
     CONSTRAINT `fk.attribute_entity.currency_id` FOREIGN KEY (`currency_id`) REFERENCES `currency` (`id`) ON DELETE RESTRICT ON UPDATE CASCADE,
     CONSTRAINT `fk.attribute_entity.state_id` FOREIGN KEY (`state_id`) REFERENCES `state_machine_state` (`id`) ON DELETE RESTRICT ON UPDATE CASCADE,
@@ -70,6 +76,14 @@ CREATE TABLE `attribute_entity_translation` (
 CREATE TABLE `attribute_entity_agg` (
     `id` BINARY(16) NOT NULL,
     `attribute_entity_id` BINARY(16) NOT NULL,
+    `number` VARCHAR(255) NOT NULL,
+    `created_at` DATETIME(3) NOT NULL,
+    `updated_at` DATETIME(3) NULL,
+    PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+CREATE TABLE `attribute_entity_with_hydrator` (
+    `id` BINARY(16) NOT NULL,
     `number` VARCHAR(255) NOT NULL,
     `created_at` DATETIME(3) NOT NULL,
     `updated_at` DATETIME(3) NULL,

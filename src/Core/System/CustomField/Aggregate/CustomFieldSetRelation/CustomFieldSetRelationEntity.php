@@ -7,25 +7,16 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityIdTrait;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\CustomField\Aggregate\CustomFieldSet\CustomFieldSetEntity;
 
-#[Package('services-settings')]
+#[Package('framework')]
 class CustomFieldSetRelationEntity extends Entity
 {
     use EntityIdTrait;
 
-    /**
-     * @var string
-     */
-    protected $entityName;
+    protected string $entityName;
 
-    /**
-     * @var string
-     */
-    protected $customFieldSetId;
+    protected string $customFieldSetId;
 
-    /**
-     * @var CustomFieldSetEntity|null
-     */
-    protected $customFieldSet;
+    protected ?CustomFieldSetEntity $customFieldSet = null;
 
     public function getEntityName(): string
     {

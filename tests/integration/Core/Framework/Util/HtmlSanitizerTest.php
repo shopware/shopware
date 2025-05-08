@@ -21,7 +21,7 @@ class HtmlSanitizerTest extends TestCase
 
     protected function setUp(): void
     {
-        $this->sanitizer = $this->getContainer()->get(HtmlSanitizer::class);
+        $this->sanitizer = static::getContainer()->get(HtmlSanitizer::class);
     }
 
     public function testWithoutConfigUses(): void
@@ -70,7 +70,7 @@ class HtmlSanitizerTest extends TestCase
 
     public function testIfCacheIsDisabled(): void
     {
-        $cacheDir = $this->getContainer()->getParameter('kernel.cache_dir');
+        $cacheDir = static::getContainer()->getParameter('kernel.cache_dir');
 
         $sanitizer = new HtmlSanitizer(
             $cacheDir,
@@ -124,7 +124,7 @@ class HtmlSanitizerTest extends TestCase
         $currentUmask = umask();
         umask(0002);
 
-        $cacheDir = $this->getContainer()->getParameter('kernel.cache_dir');
+        $cacheDir = static::getContainer()->getParameter('kernel.cache_dir');
 
         $sanitizer = new HtmlSanitizer(
             $cacheDir,

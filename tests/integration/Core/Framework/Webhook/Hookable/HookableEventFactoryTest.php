@@ -32,14 +32,14 @@ class HookableEventFactoryTest extends TestCase
 
     protected function setUp(): void
     {
-        $this->hookableEventFactory = $this->getContainer()->get(HookableEventFactory::class);
+        $this->hookableEventFactory = static::getContainer()->get(HookableEventFactory::class);
     }
 
     public function testDoesNotCreateEventForConcreteBusinessEvent(): void
     {
-        $factory = $this->getContainer()->get(FlowFactory::class);
+        $factory = static::getContainer()->get(FlowFactory::class);
         $event = $factory->create(new CustomerBeforeLoginEvent(
-            $this->getContainer()->get(SalesChannelContextFactory::class)->create(Uuid::randomHex(), TestDefaults::SALES_CHANNEL),
+            static::getContainer()->get(SalesChannelContextFactory::class)->create(Uuid::randomHex(), TestDefaults::SALES_CHANNEL),
             'test@example.com'
         ));
         $event->setFlowState(new FlowState());
@@ -63,7 +63,7 @@ class HookableEventFactoryTest extends TestCase
         $id = Uuid::randomHex();
 
         /** @var EntityRepository $productRepository */
-        $productRepository = $this->getContainer()->get('product.repository');
+        $productRepository = static::getContainer()->get('product.repository');
         $writtenEvent = $this->insertProduct($id, $productRepository);
 
         $hookables = $this->hookableEventFactory->createHookablesFor($writtenEvent);
@@ -114,7 +114,7 @@ class HookableEventFactoryTest extends TestCase
         $id = Uuid::randomHex();
 
         /** @var EntityRepository $productRepository */
-        $productRepository = $this->getContainer()->get('product.repository');
+        $productRepository = static::getContainer()->get('product.repository');
         $this->insertProduct($id, $productRepository);
 
         $writtenEvent = $productRepository->upsert([
@@ -167,7 +167,7 @@ class HookableEventFactoryTest extends TestCase
         $id = Uuid::randomHex();
 
         /** @var EntityRepository $productRepository */
-        $productRepository = $this->getContainer()->get('product.repository');
+        $productRepository = static::getContainer()->get('product.repository');
         $this->insertProduct($id, $productRepository);
 
         $writtenEvent = $productRepository->delete([['id' => $id]], Context::createDefaultContext());
@@ -189,7 +189,7 @@ class HookableEventFactoryTest extends TestCase
     {
         $id = Uuid::randomHex();
         /** @var EntityRepository $taxRepository */
-        $taxRepository = $this->getContainer()->get('tax.repository');
+        $taxRepository = static::getContainer()->get('tax.repository');
 
         $createdEvent = $taxRepository->upsert([
             [
@@ -226,7 +226,7 @@ class HookableEventFactoryTest extends TestCase
         $id = Uuid::randomHex();
 
         /** @var EntityRepository $productRepository */
-        $productRepository = $this->getContainer()->get('product.repository');
+        $productRepository = static::getContainer()->get('product.repository');
         $this->insertProduct($id, $productRepository);
 
         $writtenEvent = $productRepository->upsert([
@@ -269,10 +269,10 @@ class HookableEventFactoryTest extends TestCase
         $productPriceId = Uuid::randomHex();
 
         /** @var EntityRepository $productRepository */
-        $productRepository = $this->getContainer()->get('product.repository');
+        $productRepository = static::getContainer()->get('product.repository');
         $this->insertProduct($id, $productRepository);
 
-        $ruleRepository = $this->getContainer()->get('rule.repository');
+        $ruleRepository = static::getContainer()->get('rule.repository');
         $ruleId = $ruleRepository->searchIds(new Criteria(), Context::createDefaultContext())->firstId();
 
         $writtenEvent = $productRepository->upsert([
@@ -348,14 +348,14 @@ class HookableEventFactoryTest extends TestCase
         $id = Uuid::randomHex();
 
         /** @var EntityRepository $productRepository */
-        $productRepository = $this->getContainer()->get('product.repository');
+        $productRepository = static::getContainer()->get('product.repository');
         $this->insertProduct($id, $productRepository);
 
-        $ruleRepository = $this->getContainer()->get('rule.repository');
+        $ruleRepository = static::getContainer()->get('rule.repository');
         $ruleId = $ruleRepository->searchIds(new Criteria(), Context::createDefaultContext())->firstId();
 
         /** @var EntityRepository $productPriceRepository */
-        $productPriceRepository = $this->getContainer()->get('product_price.repository');
+        $productPriceRepository = static::getContainer()->get('product_price.repository');
         $writtenEvent = $productPriceRepository->upsert([
             [
                 'id' => $id,
@@ -402,7 +402,7 @@ class HookableEventFactoryTest extends TestCase
         $id = Uuid::randomHex();
 
         /** @var EntityRepository $salesChannelDomainRepository */
-        $salesChannelDomainRepository = $this->getContainer()->get('sales_channel_domain.repository');
+        $salesChannelDomainRepository = static::getContainer()->get('sales_channel_domain.repository');
         $writtenEvent = $this->insertSalesChannelDomain($id, $salesChannelDomainRepository);
 
         $hookables = $this->hookableEventFactory->createHookablesFor($writtenEvent);

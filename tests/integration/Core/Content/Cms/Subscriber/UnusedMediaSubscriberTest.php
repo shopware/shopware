@@ -12,13 +12,13 @@ use Shopware\Core\Content\Test\Product\ProductBuilder;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\Log\Package;
-use Shopware\Core\Framework\Test\IdsCollection;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
+use Shopware\Core\Test\Stub\Framework\IdsCollection;
 
 /**
  * @internal
  */
-#[Package('buyers-experience')]
+#[Package('discovery')]
 class UnusedMediaSubscriberTest extends TestCase
 {
     use IntegrationTestBehaviour;
@@ -33,7 +33,7 @@ class UnusedMediaSubscriberTest extends TestCase
 
     protected function setUp(): void
     {
-        $connection = $this->getContainer()->get(Connection::class);
+        $connection = static::getContainer()->get(Connection::class);
 
         try {
             $connection->fetchOne('SELECT JSON_OVERLAPS(JSON_ARRAY(1), JSON_ARRAY(1));');
@@ -43,10 +43,10 @@ class UnusedMediaSubscriberTest extends TestCase
 
         parent::setUp();
 
-        $this->cmsPageRepository = $this->getContainer()->get('cms_page.repository');
-        $this->mediaRepository = $this->getContainer()->get('media.repository');
-        $this->productRepository = $this->getContainer()->get('product.repository');
-        $this->categoryRepository = $this->getContainer()->get('category.repository');
+        $this->cmsPageRepository = static::getContainer()->get('cms_page.repository');
+        $this->mediaRepository = static::getContainer()->get('media.repository');
+        $this->productRepository = static::getContainer()->get('product.repository');
+        $this->categoryRepository = static::getContainer()->get('category.repository');
     }
 
     public function testMediaIdsAreNotRemovedWhenMediaIsNotReferenced(): void
@@ -67,7 +67,7 @@ class UnusedMediaSubscriberTest extends TestCase
         $mediaIds = array_values($ids->all());
 
         $event = new UnusedMediaSearchEvent($mediaIds);
-        $listener = new UnusedMediaSubscriber($this->getContainer()->get(Connection::class));
+        $listener = new UnusedMediaSubscriber(static::getContainer()->get(Connection::class));
 
         $listener->removeUsedMedia($event);
 
@@ -78,7 +78,7 @@ class UnusedMediaSubscriberTest extends TestCase
     {
         $mediaIds = $this->createContent();
         $event = new UnusedMediaSearchEvent($mediaIds);
-        $listener = new UnusedMediaSubscriber($this->getContainer()->get(Connection::class));
+        $listener = new UnusedMediaSubscriber(static::getContainer()->get(Connection::class));
 
         $listener->removeUsedMedia($event);
 

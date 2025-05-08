@@ -1,7 +1,7 @@
 import { mount } from '@vue/test-utils';
 
 /**
- * @package checkout
+ * @sw-package checkout
  */
 describe('src/module/sw-extension/component/sw-ratings/sw-extension-review', () => {
     async function createWrapper() {
@@ -9,7 +9,6 @@ describe('src/module/sw-extension/component/sw-ratings/sw-extension-review', () 
             global: {
                 stubs: {
                     'sw-extension-rating-stars': await wrapTestComponent('sw-extension-rating-stars'),
-                    'sw-icon': true,
                     'sw-extension-review-reply': true,
                 },
             },

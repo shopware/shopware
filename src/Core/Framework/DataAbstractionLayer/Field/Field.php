@@ -13,7 +13,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\FieldSerializer\FieldSerializer
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Struct\Struct;
 
-#[Package('core')]
+#[Package('framework')]
 abstract class Field extends Struct
 {
     /**
@@ -87,6 +87,20 @@ abstract class Field extends Struct
     public function is(string $class): bool
     {
         return $this->getFlag($class) !== null;
+    }
+
+    /**
+     * @param list<class-string<Flag>> $flagClasses List of flag classes to check
+     */
+    public function isAny(array $flagClasses): bool
+    {
+        foreach ($flagClasses as $flagClass) {
+            if ($this->is($flagClass)) {
+                return true;
+            }
+        }
+
+        return false;
     }
 
     /**

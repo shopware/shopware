@@ -1,9 +1,8 @@
 /**
- * @package inventory
+ * @sw-package inventory
  */
-import type { Entity } from '@shopware-ag/meteor-admin-sdk/es/_internals/data/Entity';
 import Criteria from '@shopware-ag/meteor-admin-sdk/es/data/Criteria';
-import template from './index.html.twig';
+import template from './sw-settings-units-detail.html.twig';
 import type Repository from '../../../../core/data/repository.data';
 import { mapPropertyErrors } from '../../../../app/service/map-errors.service';
 
@@ -15,15 +14,14 @@ const { Component, Mixin } = Shopware;
 export default Component.wrapComponentConfig({
     template,
 
-    compatConfig: Shopware.compatConfig,
-
     mixins: [
         Mixin.getByName('notification'),
     ],
 
-
-    inject: ['repositoryFactory', 'acl'],
-
+    inject: [
+        'repositoryFactory',
+        'acl',
+    ],
 
     props: {
         /**
@@ -52,15 +50,18 @@ export default Component.wrapComponentConfig({
             return criteria;
         },
 
-        ...mapPropertyErrors('unit', ['name', 'shortCode']),
+        ...mapPropertyErrors('unit', [
+            'name',
+            'shortCode',
+        ]),
     },
 
     data(): {
-        unit: Entity<'unit'>|null,
-        isLoading: boolean,
-        isSaveSuccessful: boolean,
-        customFieldSets: Entity<'custom_field_set'>[]
-        } {
+        unit: Entity<'unit'> | null;
+        isLoading: boolean;
+        isSaveSuccessful: boolean;
+        customFieldSets: Entity<'custom_field_set'>[];
+    } {
         return {
             unit: null,
             isLoading: true,
@@ -86,41 +87,47 @@ export default Component.wrapComponentConfig({
     },
 
     created() {
-        this.customFieldSetRepository.search(this.customFieldSetCriteria).then((result) => {
-            this.customFieldSets = result;
+        this.customFieldSetRepository
+            .search(this.customFieldSetCriteria)
+            .then((result) => {
+                this.customFieldSets = result;
 
-            if (this.unitId !== null) {
-                this.loadUnit();
+                if (this.unitId !== null) {
+                    this.loadUnit();
 
-                return;
-            }
+                    return;
+                }
 
-            this.unit = this.unitRepository.create(Shopware.Context.api);
-            this.isLoading = false;
-        }).catch(() => {
-            // eslint-disable-next-line @typescript-eslint/no-unsafe-call
-            this.createNotificationError({
-                message: this.$tc('sw-settings-units.notification.errorMessage'),
+                this.unit = this.unitRepository.create(Shopware.Context.api);
+                this.isLoading = false;
+            })
+            .catch(() => {
+                // eslint-disable-next-line @typescript-eslint/no-unsafe-call
+                this.createNotificationError({
+                    message: this.$tc('sw-settings-units.notification.errorMessage'),
+                });
+
+                this.isLoading = false;
             });
-
-            this.isLoading = false;
-        });
     },
 
     methods: {
         loadUnit(): void {
             this.isLoading = true;
 
-            this.unitRepository.get(this.unitId, Shopware.Context.api).then((unit) => {
-                this.unit = unit;
+            this.unitRepository
+                .get(this.unitId, Shopware.Context.api)
+                .then((unit) => {
+                    this.unit = unit;
 
-                this.isLoading = false;
-            }).catch((error: { message: string }) => {
-                // eslint-disable-next-line @typescript-eslint/no-unsafe-call
-                this.createNotificationError({
-                    message: this.$tc(error.message),
+                    this.isLoading = false;
+                })
+                .catch((error: { message: string }) => {
+                    // eslint-disable-next-line @typescript-eslint/no-unsafe-call
+                    this.createNotificationError({
+                        message: this.$tc(error.message),
+                    });
                 });
-            });
         },
 
         onSave(): void {
@@ -129,20 +136,26 @@ export default Component.wrapComponentConfig({
             }
 
             this.isLoading = true;
-            this.unitRepository.save(this.unit).then(() => {
-                this.isSaveSuccessful = true;
+            this.unitRepository
+                .save(this.unit)
+                .then(() => {
+                    this.isSaveSuccessful = true;
 
-                void this.$router.push({ name: 'sw.settings.units.detail', params: { id: this.unit?.id ?? '' } });
+                    void this.$router.push({
+                        name: 'sw.settings.units.detail',
+                        params: { id: this.unit?.id ?? '' },
+                    });
 
-                this.isLoading = false;
-            }).catch(() => {
-                // eslint-disable-next-line @typescript-eslint/no-unsafe-call
-                this.createNotificationError({
-                    message: this.$tc('sw-settings-units.notification.errorMessage'),
+                    this.isLoading = false;
+                })
+                .catch(() => {
+                    // eslint-disable-next-line @typescript-eslint/no-unsafe-call
+                    this.createNotificationError({
+                        message: this.$tc('sw-settings-units.notification.errorMessage'),
+                    });
+
+                    this.isLoading = false;
                 });
-
-                this.isLoading = false;
-            });
         },
 
         onChangeLanguage(): void {

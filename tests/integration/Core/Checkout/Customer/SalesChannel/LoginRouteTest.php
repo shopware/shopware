@@ -14,11 +14,9 @@ use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\SalesChannelApiTestBehaviour;
-use Shopware\Core\Framework\Test\TestDataCollection;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
 use Shopware\Core\PlatformRequest;
@@ -26,6 +24,7 @@ use Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextService;
 use Shopware\Core\System\SalesChannel\ContextTokenResponse;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
+use Shopware\Core\Test\Stub\Framework\IdsCollection;
 use Shopware\Core\Test\TestDefaults;
 use Symfony\Bundle\FrameworkBundle\KernelBrowser;
 
@@ -41,7 +40,7 @@ class LoginRouteTest extends TestCase
 
     private KernelBrowser $browser;
 
-    private TestDataCollection $ids;
+    private IdsCollection $ids;
 
     /**
      * @var EntityRepository<CustomerCollection>
@@ -50,13 +49,13 @@ class LoginRouteTest extends TestCase
 
     protected function setUp(): void
     {
-        $this->ids = new TestDataCollection();
+        $this->ids = new IdsCollection();
 
         $this->browser = $this->createCustomSalesChannelBrowser([
             'id' => $this->ids->create('sales-channel'),
         ]);
         $this->assignSalesChannelContext($this->browser);
-        $this->customerRepository = $this->getContainer()->get('customer.repository');
+        $this->customerRepository = static::getContainer()->get('customer.repository');
     }
 
     public function testInvalidCredentials(): void
@@ -177,7 +176,7 @@ class LoginRouteTest extends TestCase
 
         $this->createCustomer($email, $salesChannel['id']);
 
-        $loginRoute = $this->getContainer()->get(LoginRoute::class);
+        $loginRoute = static::getContainer()->get(LoginRoute::class);
 
         $requestDataBag = new RequestDataBag(['email' => $email, 'password' => 'shopware']);
 
@@ -196,7 +195,7 @@ class LoginRouteTest extends TestCase
         $salesChannelContext = $this->createSalesChannelContext($contextToken, [], $customerId);
         $this->createCart($contextToken, $salesChannelContext);
 
-        $loginRoute = $this->getContainer()->get(LoginRoute::class);
+        $loginRoute = static::getContainer()->get(LoginRoute::class);
 
         $request = new RequestDataBag(['email' => $email, 'password' => 'shopware']);
 
@@ -214,7 +213,7 @@ class LoginRouteTest extends TestCase
 
         // Previous Cart is restored
         $salesChannelContext = $this->createSalesChannelContext($oldToken, [], $customerId);
-        $oldCartExists = $this->getContainer()->get(CartService::class)->getCart($oldToken, $salesChannelContext);
+        $oldCartExists = static::getContainer()->get(CartService::class)->getCart($oldToken, $salesChannelContext);
 
         static::assertInstanceOf(Cart::class, $oldCartExists);
         static::assertEquals($oldToken, $oldCartExists->getToken());
@@ -257,7 +256,7 @@ class LoginRouteTest extends TestCase
 
         $this->createCart($this->ids->get('context-2'), $salesChannelContext2);
 
-        $loginRoute = $this->getContainer()->get(LoginRoute::class);
+        $loginRoute = static::getContainer()->get(LoginRoute::class);
 
         $request = new RequestDataBag(['email' => $email, 'password' => 'shopware']);
 
@@ -267,7 +266,7 @@ class LoginRouteTest extends TestCase
 
         static::assertNotEquals($responseSalesChannel1->getToken(), $responseSalesChannel2->getToken());
 
-        $cartService = $this->getContainer()->get(CartService::class);
+        $cartService = static::getContainer()->get(CartService::class);
 
         $cartFromSalesChannel1 = $cartService->getCart($responseSalesChannel1->getToken(), $salesChannelContext1, false);
         $cartFromSalesChannel2 = $cartService->getCart($responseSalesChannel2->getToken(), $salesChannelContext2, false);
@@ -277,7 +276,7 @@ class LoginRouteTest extends TestCase
 
     private function createCart(string $contextToken, SalesChannelContext $context): void
     {
-        $persister = $this->getContainer()->get(CartPersister::class);
+        $persister = static::getContainer()->get(CartPersister::class);
 
         $persister->save(new Cart($contextToken), $context);
     }
@@ -291,7 +290,7 @@ class LoginRouteTest extends TestCase
             $salesChannelData[SalesChannelContextService::CUSTOMER_ID] = $customerId;
         }
 
-        return $this->getContainer()->get(SalesChannelContextFactory::class)->create(
+        return static::getContainer()->get(SalesChannelContextFactory::class)->create(
             $contextToken,
             $salesChannelId ?? TestDefaults::SALES_CHANNEL,
             $salesChannelData
@@ -330,10 +329,6 @@ class LoginRouteTest extends TestCase
 
         if ($languageId !== null) {
             $customer['languageId'] = $languageId;
-        }
-
-        if (!Feature::isActive('v6.7.0.0')) {
-            $customer['defaultPaymentMethodId'] = $this->getValidPaymentMethodId();
         }
 
         $this->customerRepository->create([$customer], Context::createDefaultContext());

@@ -1,3 +1,4 @@
+{% block sw_app_wrong_app_url_modal %}
 <sw-modal
     v-if="display"
     class="sw-app-wrong-app-url-modal"
@@ -9,25 +10,22 @@
         <div class="sw-app-wrong-app-url-modal__content-description">
             <img
                 class="sw-app-wrong-app-url-modal__content-image"
-                :src="assetFilter('administration/static/img/empty-states/extensions-empty-state.svg')"
+                :src="assetFilter('administration/administration/static/img/empty-states/extensions-empty-state.svg')"
                 alt=""
             >
             <h3>{{ $tc('sw-app.component.sw-app-wrong-app-url-modal.explanationHeader') }}</h3>
             <div>
                 {{ $tc('sw-app.component.sw-app-wrong-app-url-modal.explanation') }}
             </div>
-            <br>
-            <div>
-                {{ $tc('sw-app.component.sw-app-wrong-app-url-modal.textGetSupport') }}
-            </div>
 
-            <sw-button
+            <mt-button
                 class="sw-app-wrong-app-url-modal__content-link-button"
-                variant="ghost"
+                ghost
                 :link="$tc('sw-app.component.sw-app-wrong-app-url-modal.linkToDocsArticle')"
+                variant="secondary"
             >
                 {{ $tc('sw-app.component.sw-app-wrong-app-url-modal.labelLearnMoreButton') }}
-            </sw-button>
+            </mt-button>
 
             <div class="sw-app-wrong-app-url_modal__content-description-technical-details">
                 {{ $tc('sw-app.component.sw-app-wrong-app-url-modal.textDetails') }}
@@ -35,3 +33,4 @@
         </div>
     </template>
 </sw-modal>
+{% endblock %}

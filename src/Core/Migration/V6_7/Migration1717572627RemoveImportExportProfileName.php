@@ -9,7 +9,7 @@ use Shopware\Core\Framework\Migration\MigrationStep;
 /**
  * @internal
  */
-#[Package('services-settings')]
+#[Package('fundamentals@after-sales')]
 class Migration1717572627RemoveImportExportProfileName extends MigrationStep
 {
     public function getCreationTimestamp(): int
@@ -23,8 +23,6 @@ class Migration1717572627RemoveImportExportProfileName extends MigrationStep
 
     public function updateDestructive(Connection $connection): void
     {
-        if ($this->columnExists($connection, 'import_export_profile', 'name')) {
-            $connection->executeStatement('ALTER TABLE `import_export_profile` DROP COLUMN `name`');
-        }
+        $this->dropColumnIfExists($connection, 'import_export_profile', 'name');
     }
 }

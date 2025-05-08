@@ -7,7 +7,7 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
-#[Package('services-settings')]
+#[Package('discovery')]
 class SitemapHandleFactory implements SitemapHandleFactoryInterface
 {
     /**
@@ -17,8 +17,14 @@ class SitemapHandleFactory implements SitemapHandleFactoryInterface
     {
     }
 
-    public function create(FilesystemOperator $filesystem, SalesChannelContext $context, ?string $domain = null): SitemapHandleInterface
-    {
-        return new SitemapHandle($filesystem, $context, $this->eventDispatcher, $domain);
+    public function create(
+        FilesystemOperator $filesystem,
+        SalesChannelContext $context,
+        ?string $domain = null,
+        ?string $domainId = null,
+    ): SitemapHandleInterface {
+        $domainId = \func_num_args() > 3 ? func_get_arg(3) : null;
+
+        return new SitemapHandle($filesystem, $context, $this->eventDispatcher, $domain, $domainId);
     }
 }

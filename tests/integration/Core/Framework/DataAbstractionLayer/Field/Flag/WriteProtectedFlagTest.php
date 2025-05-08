@@ -33,7 +33,7 @@ class WriteProtectedFlagTest extends TestCase
 
     protected function setUp(): void
     {
-        $this->connection = $this->getContainer()->get(Connection::class);
+        $this->connection = static::getContainer()->get(Connection::class);
 
         $this->connection->executeStatement('DROP TABLE IF EXISTS `_test_nullable`');
         $this->connection->executeStatement('DROP TABLE IF EXISTS `_test_nullable_reference`');
@@ -98,7 +98,7 @@ EOF;
     {
         $id = Uuid::randomHex();
         $context = $this->createWriteContext();
-        $definition = $this->getContainer()->get(WriteProtectedDefinition::class);
+        $definition = static::getContainer()->get(WriteProtectedDefinition::class);
         static::assertInstanceOf(EntityDefinition::class, $definition);
 
         $data = [
@@ -127,7 +127,7 @@ EOF;
     {
         $id = Uuid::randomHex();
         $context = $this->createWriteContext();
-        $definition = $this->getContainer()->get(WriteProtectedDefinition::class);
+        $definition = static::getContainer()->get(WriteProtectedDefinition::class);
         static::assertInstanceOf(EntityDefinition::class, $definition);
 
         $data = [
@@ -147,7 +147,7 @@ EOF;
     {
         $id = Uuid::randomHex();
         $context = $this->createWriteContext();
-        $definition = $this->getContainer()->get(WriteProtectedDefinition::class);
+        $definition = static::getContainer()->get(WriteProtectedDefinition::class);
         static::assertInstanceOf(EntityDefinition::class, $definition);
 
         $data = [
@@ -168,7 +168,7 @@ EOF;
     {
         $id = Uuid::randomHex();
         $context = $this->createWriteContext();
-        $definition = $this->getContainer()->get(WriteProtectedDefinition::class);
+        $definition = static::getContainer()->get(WriteProtectedDefinition::class);
         static::assertInstanceOf(EntityDefinition::class, $definition);
 
         $data = [
@@ -199,7 +199,7 @@ EOF;
     {
         $id = Uuid::randomHex();
         $context = $this->createWriteContext();
-        $definition = $this->getContainer()->get(WriteProtectedDefinition::class);
+        $definition = static::getContainer()->get(WriteProtectedDefinition::class);
         static::assertInstanceOf(EntityDefinition::class, $definition);
 
         $data = [
@@ -222,7 +222,7 @@ EOF;
     {
         $id = Uuid::randomHex();
         $context = $this->createWriteContext();
-        $definition = $this->getContainer()->get(WriteProtectedRelationDefinition::class);
+        $definition = static::getContainer()->get(WriteProtectedRelationDefinition::class);
         static::assertInstanceOf(EntityDefinition::class, $definition);
 
         $data = [
@@ -255,7 +255,7 @@ EOF;
     {
         $id = Uuid::randomHex();
         $context = $this->createWriteContext();
-        $definition = $this->getContainer()->get(WriteProtectedRelationDefinition::class);
+        $definition = static::getContainer()->get(WriteProtectedRelationDefinition::class);
         static::assertInstanceOf(EntityDefinition::class, $definition);
 
         $data = [
@@ -279,7 +279,7 @@ EOF;
         $id = Uuid::randomHex();
         $id2 = Uuid::randomHex();
         $context = $this->createWriteContext();
-        $definition = $this->getContainer()->get(WriteProtectedDefinition::class);
+        $definition = static::getContainer()->get(WriteProtectedDefinition::class);
         static::assertInstanceOf(EntityDefinition::class, $definition);
 
         $data = [
@@ -313,7 +313,7 @@ EOF;
         $id = Uuid::randomHex();
         $id2 = Uuid::randomHex();
         $context = $this->createWriteContext();
-        $definition = $this->getContainer()->get(WriteProtectedDefinition::class);
+        $definition = static::getContainer()->get(WriteProtectedDefinition::class);
         static::assertInstanceOf(EntityDefinition::class, $definition);
 
         $data = [
@@ -338,7 +338,7 @@ EOF;
     {
         $id = Uuid::randomHex();
         $context = $this->createWriteContext();
-        $definition = $this->getContainer()->get(WriteProtectedTranslatedDefinition::class);
+        $definition = static::getContainer()->get(WriteProtectedTranslatedDefinition::class);
         static::assertInstanceOf(EntityDefinition::class, $definition);
 
         $data = [
@@ -367,7 +367,7 @@ EOF;
     {
         $id = Uuid::randomHex();
         $context = $this->createWriteContext();
-        $definition = $this->getContainer()->get(WriteProtectedTranslatedDefinition::class);
+        $definition = static::getContainer()->get(WriteProtectedTranslatedDefinition::class);
         static::assertInstanceOf(EntityDefinition::class, $definition);
 
         $data = [
@@ -391,7 +391,7 @@ EOF;
 
     private function getWriter(): EntityWriterInterface
     {
-        return $this->getContainer()->get(EntityWriter::class);
+        return static::getContainer()->get(EntityWriter::class);
     }
 
     private function getValidationExceptionMessage(WriteException $ex, string $field = 'protected'): string|\Stringable

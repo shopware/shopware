@@ -27,7 +27,7 @@ class LanguageValidatorTest extends TestCase
         parent::setUp();
 
         $this->defaultContext = Context::createDefaultContext();
-        $this->languageRepository = $this->getContainer()->get('language.repository');
+        $this->languageRepository = static::getContainer()->get('language.repository');
     }
 
     /**

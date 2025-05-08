@@ -17,6 +17,11 @@ class ScriptReferenceGeneratorTest extends TestCase
 {
     use IntegrationTestBehaviour;
 
+    public static function tearDownAfterClass(): void
+    {
+        ScriptReferenceDataCollector::reset();
+    }
+
     public function testGeneratedDocumentsAreRecent(): void
     {
         $generators = $this->getGenerators();
@@ -36,11 +41,6 @@ MSG
         }
     }
 
-    public static function tearDownAfterClass(): void
-    {
-        ScriptReferenceDataCollector::reset();
-    }
-
     /**
      * Ugly hack as the container does not expose all services with a specific tag
      *
@@ -48,7 +48,7 @@ MSG
      */
     private function getGenerators(): iterable
     {
-        $command = $this->getContainer()->get(ScriptReferenceGeneratorCommand::class);
+        $command = static::getContainer()->get(ScriptReferenceGeneratorCommand::class);
 
         $reflection = new \ReflectionClass($command);
 

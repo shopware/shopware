@@ -1,5 +1,5 @@
 /**
- * @package buyers-experience
+ * @sw-package discovery
  */
 
 import template from './sw-sales-channel-detail-domains.html.twig';
@@ -12,8 +12,6 @@ const { ShopwareError } = Shopware.Classes;
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default {
     template,
-
-    compatConfig: Shopware.compatConfig,
 
     inject: [
         'repositoryFactory',
@@ -53,52 +51,46 @@ export default {
             sortBy: 'url',
             sortDirection: 'ASC',
             error: null,
+            isEditingDomain: false,
         };
     },
 
     computed: {
         domainRepository() {
-            return this.repositoryFactory.create(
-                this.salesChannel.domains.entity,
-                this.salesChannel.domains.source,
-            );
+            return this.repositoryFactory.create(this.salesChannel.domains.entity, this.salesChannel.domains.source);
         },
 
         currentDomainModalTitle() {
-            if (this.currentDomain?.isNew()) {
+            if (!this.isEditingDomain) {
                 return this.$t('sw-sales-channel.detail.titleCreateDomain');
             }
 
-            return this.$t('sw-sales-channel.detail.titleEditDomain', 0, {
+            return this.$t('sw-sales-channel.detail.titleEditDomain', {
                 name: this.unicodeUriFilter(this.currentDomainBackup.url),
             });
         },
 
         currentDomainModalButtonText() {
-            if (this.currentDomain?.isNew()) {
+            if (!this.isEditingDomain) {
                 return this.$t('sw-sales-channel.detail.buttonAddDomain');
             }
             return this.$t('sw-sales-channel.detail.buttonEditDomain');
         },
 
         snippetSetCriteria() {
-            return (new Criteria(1, 25))
-                .addSorting(Criteria.sort('name', 'ASC'));
+            return new Criteria(1, 25).addSorting(Criteria.sort('name', 'ASC'));
         },
 
         salesChannelFilterCriteria() {
             const criteria = new Criteria(1, 25);
 
-            criteria
-                .addAssociation('salesChannels')
-                .addSorting(Criteria.sort('name', 'ASC'));
+            criteria.addAssociation('salesChannels').addSorting(Criteria.sort('name', 'ASC'));
 
             return criteria.addFilter(Criteria.equals('salesChannels.id', this.salesChannel.id));
         },
 
         currencyCriteria() {
-            return (new Criteria(1, 25))
-                .addSorting(Criteria.sort('name', 'ASC'));
+            return new Criteria(1, 25).addSorting(Criteria.sort('name', 'ASC'));
         },
 
         hreflangLocalisationOptions() {
@@ -117,13 +109,15 @@ export default {
         },
 
         disabled() {
-            return !this.currentDomain ||
+            return (
+                !this.currentDomain ||
                 !this.currentDomain.currencyId ||
                 !this.currentDomain.snippetSetId ||
                 !this.currentDomain.url ||
                 !this.currentDomain.languageId ||
                 this.disableEdit ||
-                this.error !== null;
+                this.error !== null
+            );
         },
 
         sortedDomains() {
@@ -155,7 +149,10 @@ export default {
                 const valA = this.getSortValue(a, this.sortBy).toString();
                 const valB = this.getSortValue(b, this.sortBy).toString();
 
-                const compareVal = valA.localeCompare(valB, undefined, { numeric: true, sensitivity: 'base' });
+                const compareVal = valA.localeCompare(valB, undefined, {
+                    numeric: true,
+                    sensitivity: 'base',
+                });
 
                 if (this.sortDirection === 'ASC') {
                     return compareVal;
@@ -183,13 +180,15 @@ export default {
         },
 
         async verifyUrl(domain) {
-            return !(this.domainExistsLocal(domain) || await this.domainExistsInDatabase(domain.url));
+            return !(this.domainExistsLocal(domain) || (await this.domainExistsInDatabase(domain.url)));
         },
 
         domainExistsLocal(currentDomain) {
-            return this.salesChannel.domains.filter(
-                (domain) => domain.id !== currentDomain.id && domain.url === currentDomain.url,
-            ).length > 0;
+            return (
+                this.salesChannel.domains.filter(
+                    (domain) => domain.id !== currentDomain.id && domain.url === currentDomain.url,
+                ).length > 0
+            );
         },
 
         isOriginalUrl(url) {
@@ -262,7 +261,10 @@ export default {
                 this.setInitialLanguage(domain);
             }
 
+            domain.hreflangUseOnlyLocale = false;
+
             this.currentDomain = domain;
+            this.isEditingDomain = false;
         },
 
         async onClickAddNewDomain() {
@@ -271,7 +273,7 @@ export default {
                 return;
             }
 
-            if (!await this.verifyUrl(this.currentDomain)) {
+            if (!(await this.verifyUrl(this.currentDomain))) {
                 this.error = new ShopwareError({
                     code: 'DUPLICATED_URL',
                 });
@@ -279,21 +281,24 @@ export default {
                 return;
             }
 
-            if (this.currentDomain.isNew()) {
+            if (!this.isEditingDomain) {
                 this.salesChannel.domains.add(this.currentDomain);
             }
 
             this.currentDomain = null;
+            this.isEditingDomain = false;
         },
 
         onClickEditDomain(domain) {
             this.currentDomain = domain;
             this.setCurrentDomainBackup(this.currentDomain);
+            this.isEditingDomain = true;
         },
 
         onCloseCreateDomainModal() {
             this.resetCurrentDomainToBackup();
             this.currentDomain = null;
+            this.isEditingDomain = false;
         },
 
         onClickDeleteDomain(domain) {
@@ -307,9 +312,13 @@ export default {
         onConfirmDeleteDomain(domain) {
             if (domain.productExports.length > 0) {
                 this.createNotificationError({
-                    message: this.$tc('sw-sales-channel.detail.messageDeleteDomainError', 0, {
-                        url: this.unicodeUriFilter(domain.url),
-                    }),
+                    message: this.$tc(
+                        'sw-sales-channel.detail.messageDeleteDomainError',
+                        {
+                            url: this.unicodeUriFilter(domain.url),
+                        },
+                        0,
+                    ),
                 });
 
                 this.deleteDomain = null;
@@ -341,32 +350,37 @@ export default {
         },
 
         getDomainColumns() {
-            return [{
-                property: 'url',
-                dataIndex: 'url',
-                label: this.$t('sw-sales-channel.detail.columnDomainUrl'),
-                allowResize: false,
-                primary: true,
-                inlineEdit: true,
-            }, {
-                property: 'languageId',
-                dataIndex: 'languageId',
-                label: this.$t('sw-sales-channel.detail.columnDomainLanguage'),
-                allowResize: false,
-                inlineEdit: false,
-            }, {
-                property: 'snippetSetId',
-                dataIndex: 'snippetSetId',
-                label: this.$t('sw-sales-channel.detail.columnDomainSnippetSet'),
-                allowResize: false,
-                inlineEdit: false,
-            }, {
-                property: 'currencyId',
-                dataIndex: 'currencyId',
-                label: this.$t('sw-sales-channel.detail.columnDomainCurrency'),
-                allowResize: false,
-                inlineEdit: false,
-            }];
+            return [
+                {
+                    property: 'url',
+                    dataIndex: 'url',
+                    label: this.$t('sw-sales-channel.detail.columnDomainUrl'),
+                    allowResize: false,
+                    primary: true,
+                    inlineEdit: true,
+                },
+                {
+                    property: 'languageId',
+                    dataIndex: 'languageId',
+                    label: this.$t('sw-sales-channel.detail.columnDomainLanguage'),
+                    allowResize: false,
+                    inlineEdit: false,
+                },
+                {
+                    property: 'snippetSetId',
+                    dataIndex: 'snippetSetId',
+                    label: this.$t('sw-sales-channel.detail.columnDomainSnippetSet'),
+                    allowResize: false,
+                    inlineEdit: false,
+                },
+                {
+                    property: 'currencyId',
+                    dataIndex: 'currencyId',
+                    label: this.$t('sw-sales-channel.detail.columnDomainCurrency'),
+                    allowResize: false,
+                    inlineEdit: false,
+                },
+            ];
         },
     },
 };

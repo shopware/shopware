@@ -13,15 +13,18 @@ use Shopware\Core\Framework\Rule\RuleConfig;
 use Shopware\Core\Framework\Rule\RuleConstraints;
 use Shopware\Core\Framework\Rule\RuleScope;
 
-#[Package('services-settings')]
+/**
+ * @final
+ */
+#[Package('fundamentals@after-sales')]
 class PromotionLineItemRule extends Rule
 {
     final public const RULE_NAME = 'promotionLineItem';
 
     /**
-     * @internal
-     *
      * @param list<string>|null $identifiers
+     *
+     * @internal
      */
     public function __construct(
         protected string $operator = self::OPERATOR_EQ,

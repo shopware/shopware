@@ -7,23 +7,20 @@ use Shopware\Core\Content\Category\CategoryException;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Struct\Struct;
 
-#[Package('inventory')]
+#[Package('discovery')]
 class TreeItem extends Struct
 {
     /**
      * @internal public to allow AfterSort::sort()
      */
-    public ?string $afterId;
+    public ?string $afterId = null;
 
-    /**
-     * @var CategoryEntity|null
-     */
-    protected $category;
+    protected ?CategoryEntity $category = null;
 
     /**
      * @var TreeItem[]
      */
-    protected $children;
+    protected array $children;
 
     /**
      * @param TreeItem[] $children

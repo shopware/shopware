@@ -8,9 +8,13 @@ use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenContainerEve
 use Shopware\Core\Framework\Log\Package;
 use Symfony\Contracts\EventDispatcher\Event;
 
-#[Package('services-settings')]
+#[Package('fundamentals@after-sales')]
 class ImportExportAfterImportRecordEvent extends Event
 {
+    /**
+     * @param array<string, mixed> $record
+     * @param array<string, mixed> $row
+     */
     public function __construct(
         private readonly EntityWrittenContainerEvent $result,
         private readonly array $record,
@@ -25,11 +29,17 @@ class ImportExportAfterImportRecordEvent extends Event
         return $this->result;
     }
 
+    /**
+     * @return array<string, mixed>
+     */
     public function getRecord(): array
     {
         return $this->record;
     }
 
+    /**
+     * @return array<string, mixed>
+     */
     public function getRow(): array
     {
         return $this->row;

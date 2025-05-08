@@ -12,40 +12,22 @@ class ProductSortingEntity extends Entity
 {
     use EntityIdTrait;
 
-    /**
-     * @var string
-     */
-    protected $key;
+    protected string $key;
 
-    /**
-     * @var int
-     */
-    protected $priority;
+    protected int $priority;
 
-    /**
-     * @var bool
-     */
-    protected $active;
+    protected bool $active;
 
     /**
      * @var array<array{field: string, priority: int, order: ?string, naturalSorting: bool|int|null}>
      */
-    protected $fields;
+    protected array $fields = [];
 
-    /**
-     * @var string|null
-     */
-    protected $label;
+    protected ?string $label = null;
 
-    /**
-     * @var ProductSortingTranslationCollection|null
-     */
-    protected $translations;
+    protected ?ProductSortingTranslationCollection $translations = null;
 
-    /**
-     * @var bool
-     */
-    protected $locked;
+    protected bool $locked;
 
     /**
      * @return array<FieldSorting>
@@ -55,10 +37,6 @@ class ProductSortingEntity extends Entity
         $sorting = [];
 
         $fields = $this->fields;
-
-        if (!\is_array($fields)) {
-            $fields = [];
-        }
 
         usort($fields, fn ($a, $b) => $b['priority'] <=> $a['priority']);
 

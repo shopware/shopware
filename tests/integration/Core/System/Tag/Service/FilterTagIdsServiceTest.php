@@ -14,11 +14,11 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\NotFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\CountSorting;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
-use Shopware\Core\Framework\Test\IdsCollection;
 use Shopware\Core\Framework\Test\TestCaseBase\DatabaseTransactionBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\Tag\Service\FilterTagIdsService;
+use Shopware\Core\Test\Stub\Framework\IdsCollection;
 use Shopware\Core\Test\TestDefaults;
 use Symfony\Component\HttpFoundation\Request;
 
@@ -34,10 +34,10 @@ class FilterTagIdsServiceTest extends TestCase
 
     private FilterTagIdsService $filterTagIdsService;
 
-    protected function setup(): void
+    protected function setUp(): void
     {
         $this->ids = new IdsCollection();
-        $this->filterTagIdsService = $this->getContainer()->get(FilterTagIdsService::class);
+        $this->filterTagIdsService = static::getContainer()->get(FilterTagIdsService::class);
     }
 
     public function testFilterIdsWithDuplicateFilter(): void
@@ -236,8 +236,9 @@ class FilterTagIdsServiceTest extends TestCase
             ],
         ];
 
-        Context::createDefaultContext()->addState(EntityIndexerRegistry::DISABLE_INDEXING);
-        $this->getContainer()->get('tag.repository')->create($tags, Context::createDefaultContext());
+        $context = Context::createDefaultContext();
+        $context->addState(EntityIndexerRegistry::DISABLE_INDEXING);
+        static::getContainer()->get('tag.repository')->create($tags, $context);
     }
 
     /**
@@ -283,7 +284,7 @@ class FilterTagIdsServiceTest extends TestCase
                 ->build(),
         ];
 
-        $this->getContainer()->get('product.repository')
+        static::getContainer()->get('product.repository')
             ->create($products, $context);
 
         $tags = [
@@ -304,13 +305,13 @@ class FilterTagIdsServiceTest extends TestCase
             ],
         ];
 
-        $this->getContainer()->get('tag.repository')->create($tags, $context);
+        static::getContainer()->get('tag.repository')->create($tags, $context);
 
         $order = $this->getOrderFixture($this->ids->get('o1'), $context->getVersionId());
 
-        $this->getContainer()->get('order.repository')->create([$order], $context);
+        static::getContainer()->get('order.repository')->create([$order], $context);
 
-        $versionId = $this->getContainer()->get('order.repository')->createVersion(
+        $versionId = static::getContainer()->get('order.repository')->createVersion(
             $this->ids->get('o1'),
             $context,
             Uuid::randomHex(),
@@ -328,7 +329,7 @@ class FilterTagIdsServiceTest extends TestCase
             ],
         ];
 
-        $this->getContainer()->get('order.repository')->update($orders, $versionContext);
+        static::getContainer()->get('order.repository')->update($orders, $versionContext);
 
         return $versionContext;
     }
@@ -338,7 +339,7 @@ class FilterTagIdsServiceTest extends TestCase
      */
     private function getOrderFixture(string $orderId, string $orderVersionId): array
     {
-        $stateId = $this->getContainer()->get('state_machine_state.repository')
+        $stateId = static::getContainer()->get('state_machine_state.repository')
             ->searchIds((new Criteria())->addFilter(new EqualsFilter('stateMachine.technicalName', OrderStates::STATE_MACHINE)), Context::createDefaultContext())
             ->firstId();
         static::assertIsString($stateId);

@@ -1,3 +1,6 @@
+/**
+ * @deprecated tag:v6.8.0 - Will be removed, use mt-button instead.
+ */
 @import "~scss/variables";
 
 $sw-button-transition: all 0.15s ease-out;
@@ -22,6 +25,10 @@ $sw-button-transition: all 0.15s ease-out;
     user-select: none;
     margin: 0;
     position: relative;
+
+    &:focus-visible {
+        outline: revert;
+    }
 
     .sw-button__content {
         display: grid;
@@ -50,12 +57,12 @@ $sw-button-transition: all 0.15s ease-out;
         border-color: $color-gray-200;
         cursor: not-allowed;
 
-        .sw-icon {
+        .mt-icon {
             color: $color-gray-400;
         }
     }
 
-    .sw-icon {
+    .mt-icon {
         color: $color-gray-800;
     }
 
@@ -69,7 +76,7 @@ $sw-button-transition: all 0.15s ease-out;
         line-height: 36px;
         border: 0 none;
 
-        .sw-icon {
+        .mt-icon {
             color: $color-white;
         }
 
@@ -98,7 +105,7 @@ $sw-button-transition: all 0.15s ease-out;
             background: $color-shopware-brand-200;
         }
 
-        &.sw-button--square .sw-icon {
+        &.sw-button--square .mt-icon {
             color: $color-white;
         }
     }
@@ -109,7 +116,7 @@ $sw-button-transition: all 0.15s ease-out;
         line-height: 36px;
         border: 0 none;
 
-        .sw-icon {
+        .mt-icon {
             color: $color-darkgray-200;
         }
 
@@ -138,7 +145,7 @@ $sw-button-transition: all 0.15s ease-out;
             background: $color-module-yellow-200;
             color: $color-gray-800;
 
-            .sw-icon {
+            .mt-icon {
                 color: $color-gray-400;
             }
         }
@@ -150,7 +157,7 @@ $sw-button-transition: all 0.15s ease-out;
         line-height: 36px;
         border: 0 none;
 
-        .sw-icon {
+        .mt-icon {
             color: $color-white;
         }
 
@@ -178,7 +185,7 @@ $sw-button-transition: all 0.15s ease-out;
         &.sw-button--disabled {
             background: $color-crimson-200;
 
-            .sw-icon {
+            .mt-icon {
                 color: $color-white;
             }
         }
@@ -189,7 +196,7 @@ $sw-button-transition: all 0.15s ease-out;
         border-color: $color-shopware-brand-500;
         color: $color-shopware-brand-500;
 
-        .sw-icon {
+        .mt-icon {
             color: $color-shopware-brand-500;
         }
 
@@ -211,7 +218,7 @@ $sw-button-transition: all 0.15s ease-out;
             border-color: $color-shopware-brand-200;
             color: $color-shopware-brand-200;
 
-            .sw-icon {
+            .mt-icon {
                 color: $color-shopware-brand-200;
             }
         }
@@ -236,7 +243,7 @@ $sw-button-transition: all 0.15s ease-out;
             border-color: $color-crimson-200;
             color: $color-crimson-200;
 
-            .sw-icon {
+            .mt-icon {
                 color: $color-crimson-200;
             }
         }
@@ -247,7 +254,7 @@ $sw-button-transition: all 0.15s ease-out;
         background-color: transparent;
         color: $color-darkgray-800;
 
-        .sw-icon {
+        .mt-icon {
             color: $color-darkgray-800;
         }
 

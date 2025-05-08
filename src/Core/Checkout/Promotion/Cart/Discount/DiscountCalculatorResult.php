@@ -6,11 +6,11 @@ use Shopware\Core\Checkout\Cart\Price\Struct\CalculatedPrice;
 use Shopware\Core\Checkout\Promotion\Cart\Discount\Composition\DiscountCompositionItem;
 use Shopware\Core\Framework\Log\Package;
 
-#[Package('buyers-experience')]
+#[Package('checkout')]
 class DiscountCalculatorResult
 {
     /**
-     * @param DiscountCompositionItem[] $compositionItems
+     * @param list<DiscountCompositionItem> $compositionItems
      */
     public function __construct(
         private readonly CalculatedPrice $price,
@@ -24,7 +24,7 @@ class DiscountCalculatorResult
     }
 
     /**
-     * @return DiscountCompositionItem[]
+     * @return list<DiscountCompositionItem>
      */
     public function getCompositionItems(): array
     {

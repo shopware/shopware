@@ -130,6 +130,8 @@ class StoreApiGeneratorTest extends TestCase
 
         static::assertArrayHasKey('Simple', $entities);
         static::assertArrayHasKey('required', $entities['Simple']);
-        static::assertCount(3, $entities['Simple']['required']);
+        static::assertCount(2, $entities['Simple']['required']);
+        static::assertContains('requiredField', $entities['Simple']['required']);
+        static::assertContains('apiAlias', $entities['Simple']['required']);
     }
 }

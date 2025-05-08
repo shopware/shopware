@@ -1,5 +1,5 @@
 /**
- * @package inventory
+ * @sw-package inventory
  */
 // eslint-disable-next-line max-len
 import FeatureGridTranslationService from 'src/module/sw-settings-product-feature-sets/service/feature-grid-translation.service';
@@ -11,8 +11,6 @@ const { Criteria } = Shopware.Data;
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default {
     template,
-
-    compatConfig: Shopware.compatConfig,
 
     inject: ['repositoryFactory'],
 
@@ -179,11 +177,7 @@ export default {
         },
 
         onPositionChange(features) {
-            if (this.isCompatEnabled('INSTANCE_SET')) {
-                this.$set(this.productFeatureSet, 'features', features);
-            } else {
-                this.productFeatureSet.features = features;
-            }
+            this.productFeatureSet.features = features;
         },
 
         resetPositions() {
@@ -193,17 +187,21 @@ export default {
         },
 
         getColumns() {
-            return [{
-                property: 'name',
-                label: 'sw-settings-product-feature-sets.valuesCard.labelValue',
-                primary: true,
-            }, {
-                property: 'type',
-                label: 'sw-settings-product-feature-sets.valuesCard.labelType',
-            }, {
-                property: 'position',
-                label: 'sw-settings-product-feature-sets.valuesCard.labelPosition',
-            }];
+            return [
+                {
+                    property: 'name',
+                    label: 'sw-settings-product-feature-sets.valuesCard.labelValue',
+                    primary: true,
+                },
+                {
+                    property: 'type',
+                    label: 'sw-settings-product-feature-sets.valuesCard.labelType',
+                },
+                {
+                    property: 'position',
+                    label: 'sw-settings-product-feature-sets.valuesCard.labelPosition',
+                },
+            ];
         },
     },
 };

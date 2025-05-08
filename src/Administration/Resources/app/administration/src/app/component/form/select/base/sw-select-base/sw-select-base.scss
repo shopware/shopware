@@ -27,6 +27,7 @@ $sw-select-focus-transition: all ease-in-out 0.2s;
     .sw-select__selection-indicators {
         position: absolute;
         display: flex;
+        align-items: center;
         gap: 8px;
         top: 50%;
         right: 16px;
@@ -72,12 +73,12 @@ $sw-select-focus-transition: all ease-in-out 0.2s;
         cursor: pointer;
 
         &.sw-select__select-indicator-expand {
-            width: 16px;
-            height: 16px;
-            padding-top: 6px;
-            padding-right: 3px;
-            padding-bottom: 4px;
-            padding-left: 3px;
+            transition: transform 0.3s ease-in-out;
+        }
+
+        &.sw-select__select-indicator-expand--rotated {
+            transition: transform 0.3s ease-in-out;
+            transform: rotate(180deg);
         }
     }
 
@@ -101,8 +102,14 @@ $sw-select-focus-transition: all ease-in-out 0.2s;
         padding: 4px 6px 0;
     }
 
-    &.sw-field--small .sw-select__selection {
-        padding: 4px 6px 0;
+    &.sw-field--small {
+        .sw-block-field__block {
+            height: auto;
+        }
+
+        .sw-select__selection {
+            padding: 4px 6px 0;
+        }
     }
 
     &.is--disabled {

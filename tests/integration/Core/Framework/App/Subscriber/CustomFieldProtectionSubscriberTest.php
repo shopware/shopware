@@ -16,7 +16,7 @@ use Shopware\Core\Framework\Test\TestCaseBase\AdminApiTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\CustomField\Aggregate\CustomFieldSet\CustomFieldSetCollection;
-use Shopware\Tests\Integration\Core\Framework\App\AppSystemTestBehaviour;
+use Shopware\Core\Test\AppSystemTestBehaviour;
 use Symfony\Bundle\FrameworkBundle\KernelBrowser;
 use Symfony\Component\HttpFoundation\Response;
 
@@ -41,8 +41,8 @@ class CustomFieldProtectionSubscriberTest extends TestCase
 
     protected function setUp(): void
     {
-        $this->customFieldSetRepo = $this->getContainer()->get('custom_field_set.repository');
-        $this->appRepo = $this->getContainer()->get('app.repository');
+        $this->customFieldSetRepo = static::getContainer()->get('custom_field_set.repository');
+        $this->appRepo = static::getContainer()->get('app.repository');
     }
 
     public function testGetSubscribedEvents(): void

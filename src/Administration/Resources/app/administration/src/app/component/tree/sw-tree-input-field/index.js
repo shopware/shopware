@@ -4,7 +4,7 @@ import './sw-tree-input-field.scss';
 const { Component } = Shopware;
 
 /**
- * @package admin
+ * @sw-package framework
  *
  * @private
  * @status ready
@@ -15,8 +15,6 @@ const { Component } = Shopware;
  */
 Component.register('sw-tree-input-field', {
     template,
-
-    compatConfig: Shopware.compatConfig,
 
     emits: ['new-item-create'],
 

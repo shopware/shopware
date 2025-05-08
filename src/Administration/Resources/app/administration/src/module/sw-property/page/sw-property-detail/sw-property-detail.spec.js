@@ -1,5 +1,5 @@
 /**
- * @package inventory
+ * @sw-package inventory
  */
 import { mount } from '@vue/test-utils';
 
@@ -16,14 +16,15 @@ async function createWrapper() {
                                 entity: 'property',
                             };
                         },
-                        get: () => Promise.resolve({
-                            id: '1a2b3c',
-                            name: 'Test property',
-                            entity: 'property',
-                            options: {
-                                entity: 'property_options_group',
-                            },
-                        }),
+                        get: () =>
+                            Promise.resolve({
+                                id: '1a2b3c',
+                                name: 'Test property',
+                                entity: 'property',
+                                options: {
+                                    entity: 'property_options_group',
+                                },
+                            }),
                         search: () => Promise.resolve({}),
                     }),
                 },
@@ -38,11 +39,9 @@ async function createWrapper() {
                             <slot name="smart-bar-actions"></slot>
                         </div>`,
                 },
-                'sw-button': true,
                 'sw-button-process': true,
                 'sw-language-switch': true,
                 'sw-card-view': true,
-                'sw-card': true,
                 'sw-container': true,
                 'sw-field': true,
                 'sw-language-info': true,

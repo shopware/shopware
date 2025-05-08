@@ -10,7 +10,6 @@
       "visibilityModalDescription": "Mit der Option “In Produktlisten ausblenden” wird das Produkt von Übersichtslisten, sowie Produkt-Slidern und Cross Sellings ausgeblendet. Mit der Option “In Produktlisten und der Suche ausblenden” wird das Produkt auch über die Suche nicht mehr angezeigt. Augeblendete Produkte können immer noch über die URL erreicht werden.",
       "linkAdvancedVisibility": "Sichtbarkeit für ausgewählte Verkaufskanäle einstellen",
       "labelVisibility": "Sichtbarkeit",
-      "closeModal": "Übernehmen",
       "bodyVisibility": "Füge Verkaufskanäle hinzu, die dieses Produkt anzeigen. Über den unten stehenden Link kannst Du die Sichtbarkeit des Produktes in Deinen Storefront-Verkausfkanälen weiter beeinflussen.",
       "errorMessage": "Die Standardkonfiguration des Verkaufskanals konnte nicht geladen werden."
     },
@@ -192,7 +191,6 @@
       "modal": {
         "confirmTitle": "Bewertung löschen",
         "confirmText": "Möchten Sie diese Bewertung wirklich löschen?",
-        "buttonCancel": "Abbrechen",
         "buttonDelete": "Löschen"
       },
       "messageEmptyTitle": "Produkt noch nicht bewertet",
@@ -222,7 +220,6 @@
       "textProductOverview": "Produkte",
       "buttonAddProduct": "Produkt anlegen",
       "buttonAddDownloadableProduct": "Digitales Produkt anlegen",
-      "buttonCancel": "Abbrechen",
       "buttonDuplicate": "Duplizieren",
       "buttonDelete": "Löschen",
       "columnName": "Name",
@@ -267,7 +264,6 @@
     },
     "detail": {
       "textHeadline": "Neues Produkt",
-      "buttonCancel": "Abbrechen",
       "buttonSave": "Speichern",
       "buttonSaveDuplicate": "Speichern und duplizieren",
       "buttonSaveAndNew": "Speichern und neues erstellen",
@@ -347,7 +343,6 @@
       "generateVariationsButton": "Varianten speichern",
       "nextModalButton": "Weiter",
       "deleteVariationsButton": "Alle Varianten löschen",
-      "cancelVariationsButton": "Abbrechen",
       "backVariationsButton": "Zurück",
       "configuratorCardTitle": "Varianten generieren",
       "generatedVariationCardTitle": "Varianten",
@@ -377,7 +372,6 @@
       "generatedListContextMenuDelete": "Löschen",
       "generatedListDeleteModalMessage": "Möchtest Du die Variante löschen?",
       "generatedListDeleteModalMessagePlural": "Möchten Sie diese Varianten löschen?",
-      "generatedListDeleteModalButtonCancel": "Abbrechen",
       "generatedListDeleteModalButtonDelete": "Löschen",
       "generatedListMessageSaveSuccess": "Die Variante wurde gespeichert.",
       "generatedListMessageSaveError": "Die Variante konnte nicht gespeichert werden.",
@@ -414,7 +408,6 @@
         "singleRestrictionSeperation": "Und",
         "deleteCombination": "Löschen",
         "isOneFrom": "ist eine von",
-        "cancel": "Abbrechen",
         "save": "Speichern",
         "searchPlaceholder": "Durchsuche Ausprägungen ...",
         "singleRestrictionAddTitle": "Ausprägungen ausschließen",
@@ -439,7 +432,6 @@
         "listingExplanationModeMainProduct": "Wähle eine Variante, die auf der Produktdetailseite vorausgewählt wird.",
         "listingLabelModeExpanded": "Auffächern der Eigenschaften in Produktliste",
         "listingPlaceholderSelectMainVariant": "Wähle eine Variante ...",
-        "cancel": "Abbrechen",
         "save": "Speichern"
       }
     },
@@ -475,12 +467,19 @@
       "productListType": "Manuelle Zuweisung",
       "deleteConfirmTitle": "Cross Selling löschen",
       "deleteConfirmText": "Möchtest Du die Cross-Selling-Konfiguration wirklich löschen?",
-      "deleteButtonCancel": "Zurück",
       "deleteButtonDelete": "Löschen",
       "linkOpenStreamPreview": "Vorschau öffnen",
       "emptyStateDescription": "Für dieses Produkt existiert noch keine Cross-Selling-Konfiguration.",
+      "inheritedEmptyStateDescription": "Dieses Produkt hat vererbte Cross Sellings vom Hauptprodukt.",
+      "notInheritedEmptyStateDescription": "Du kannst jetzt benutzerdefinierte Cross-Selling-Konfigurationen für diese Variante verwenden.",
       "assignEmptyStateDescription": "Das Cross Selling muss zunächst gespeichert werden, bevor Du Produkte hinzufügen kannst.",
-      "assignPlaceholder": "Durchsuche Produkte ..."
+      "assignPlaceholder": "Durchsuche Produkte ...",
+      "linkCrossSellingsOfParent": "Zeige die Cross Sellings des Hauptprodukts",
+      "inheritSwitchLabel": "Nutze die Cross Sellings des Hauptprodukts",
+      "buttonRestoreCrossSellingInheritance": "Vererbung wiederherstellen",
+      "restoreInheritanceConfirmTitle": "Cross Selling Vererbung wiederherstellen",
+      "restoreInheritanceConfirmText": "Möchtest Du die Cross-Selling-Vererbung wirklich wiederherstellen? Alle Cross-Selling-Konfigurationen dieser Variante werden dabei gelöscht.",
+      "restoreInheritanceButtonRestore": "Vererbung wiederherstellen"
     },
     "featureSets": {
       "cardTitle": "Wesentliche Merkmale",

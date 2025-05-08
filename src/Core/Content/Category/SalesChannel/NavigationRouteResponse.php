@@ -6,19 +6,12 @@ use Shopware\Core\Content\Category\CategoryCollection;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\StoreApiResponse;
 
-#[Package('inventory')]
+/**
+ * @extends StoreApiResponse<CategoryCollection>
+ */
+#[Package('discovery')]
 class NavigationRouteResponse extends StoreApiResponse
 {
-    /**
-     * @var CategoryCollection
-     */
-    protected $object;
-
-    public function __construct(CategoryCollection $categories)
-    {
-        parent::__construct($categories);
-    }
-
     public function getCategories(): CategoryCollection
     {
         return $this->object;

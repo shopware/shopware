@@ -1,3 +1,880 @@
+# 6.6.10.1
+
+## Fix `ServiceNotFoundException` during platform update
+
+Updating shopware to 6.6.10.0 with the commercial plugin activated lead to `ServiceNotFoundException` being thrown until the commercial plugin was updated as well. 
+To fix the error an alias to the old service was added to ensure the commercial plugin does not error during the update process.
+
+## Fix `MessengerMiddlewareCompilerPass` middleware assertion
+The `MessengerMiddlewareCompilerPass` now handles cases when middlewares are not defined yet. This change ensures that the middleware is correctly registered in the application.
+
+# 6.6.10.0
+
+## Deprecated EntityExtension::getDefinitionClass
+Since (app) custom entities and entities defined via PHP attributes do not have a definition class, the method `EntityExtension::getDefinitionClass` has been deprecated. 
+It will be replaced by `EntityExtension::getEntityName`, which needs to return the entity name. This can already be implemented now.
+
+Before:
+
+```php
+<?php
+
+namespace Examples\Extension;
+
+use Shopware\Core\Content\Product\ProductDefinition;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityExtension;
+
+class MyEntityExtension extends EntityExtension
+{
+    public function getDefinitionClass(): string
+    { 
+        return ProductDefinition::class;
+    }
+}
+```
+
+After:
+
+```php
+<?php
+
+namespace Examples\Extension;
+
+use Shopware\Core\Content\Product\ProductDefinition;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityExtension;
+
+class MyEntityExtension extends EntityExtension
+{
+    public function getEntityName() : string
+    {
+        return ProductDefinition::ENTITY_NAME;
+    }
+}
+```
+
+## Feature: Bulk entity extension
+The new `BulkEntityExtension` allows to define fields for different entities within one class. It removes the overhead of creating multiple classes for each entity and allows to define the fields in one place.
+
+```php
+<?php
+
+namespace Examples\Extension;
+
+use Shopware\Core\Content\Category\CategoryDefinition;
+use Shopware\Core\Content\Product\ProductDefinition;
+use Shopware\Core\Framework\DataAbstractionLayer\BulkEntityExtension;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\FkField;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\ManyToOneAssociationField;
+
+class MyEntityExtension extends BulkEntityExtension
+{
+    public function collect(): \Generator
+    {
+        yield ProductDefinition::ENTITY_NAME => [
+            new FkField('follow_up_id', 'followUp', ProductDefinition::class),
+            new ManyToOneAssociationField('followUp', 'follow_up_id', ProductDefinition::class, 'id')
+        ];
+
+        yield CategoryDefinition::ENTITY_NAME => [
+            new FkField('linked_category_id', 'linkedCategoryId', CategoryDefinition::class),
+            new ManyToOneAssociationField('category', 'linked_category_id', CategoryDefinition::class, 'id')
+        ];
+    }
+}
+```
+
+```xml
+<service id="Examples\Extension\MyEntityExtension">
+    <tag name="shopware.bulk.entity.extension"/>
+</service>
+```
+
+## setTwig in Storefront Controller deprecated
+The method `Shopware\Storefront\Controller\StorefrontController::setTwig` is deprecated and will be removed in 6.7.0, you can remove the `setTwig` call from your DI config, no further change is required.
+
+## Using external URL for media's path
+You can now store media paths as external URLs using the admin API. This allows for more flexible media management without the need to store physical files on the server.
+
+**Example Request:**
+
+```http
+POST http://sw.test/api/media
+Content-Type: application/json
+
+{
+    "id": "01934e0015bd7174b35838bbb30dc927",
+    "mediaFolderId": "01934ebfc0da735d841f38e8e54fda09",
+    "path": "https://test.com/photo/2024/11/30/sunflowers.jpg",
+    "fileName": "sunflower",
+    "mimeType": "image/jpeg"
+}
+```
+## Deprecated `messenger.bus.shopware` service
+Change your usages of `messenger.bus.shopware` to `messenger.default_bus`. As long as you typed the interface `\Symfony\Component\Messenger\MessageBusInterface`, your code will work as expected.
+
+## Deprecated old address editor
+The `address-editor.plugin.js` is deprecated and will be removed in 6.7.0, extend `address-manager.plugin.js` instead.
+The `address-editor-modal.html.twig` is deprecated and will be removed in 6.7.0, extend `address-manager-modal.html.twig` instead.
+The `address-editor-modal-list.html.twig` is deprecated and will be removed in 6.7.0, extend `address-manager-modal-list.html.twig` instead.
+The `address-editor-modal-create-address.html.twig` is deprecated and will be removed in 6.7.0, extend `address-manager-modal-create-address.html.twig` instead.
+
+## Added new address search plugin
+
+Added `address-search.plugin.js` to search customer addresses in the new modal and address account page.
+## Deprecation of ReverseProxyCacheClearer
+
+The `\Shopware\Core\Framework\Adapter\Cache\ReverseProxy\ReverseProxyCacheClearer` will be removed with the next major version.
+
+If you relied on the `cache:clear` command to clear your HTTP cache, you should use the `cache:clear:http` command additionally.
+However, unless you enable the `v6.7.0.0` feature flag, HTTP cache will still be cleared on `cache:clear`
+
+## Addition of MySQLInvalidatorStorage
+We added a new MySQL cache invalidator storage so you can take advantage of delayed cache invalidation without needing Redis (Redis is still preferred).
+
+```yaml
+shopware:
+    cache:
+        invalidation:
+            delay: 1
+            delay_options:
+                storage: mysql
+```
+
+## Mail settings
+If you are using OAuth2 authentication for mail sending, you need to update your mail settings in the administration:
+1. Go to Setting > System > Mailer
+2. Select the new option "SMTP server with OAuth2"
+3. Fill in the required fields
+4. Save the settings
+5. Test the connection
+6. Check Settings > System > Event logs for any errors
+
+## Internalisation of StorefrontPluginRegistry & Removal of StorefrontPluginRegistryInterface
+
+The class `Shopware\Storefront\Theme\StorefrontPluginRegistry` will become internal and will no longer implement `Shopware\Storefront\Theme\StorefrontPluginRegistryInterface`.
+
+The interface `Shopware\Storefront\Theme\StorefrontPluginRegistryInterface` will be removed.
+
+Please refactor your code to not use this class & interface.
+The new field type allows to use PHP's `BackedEnum` types to be used as Entity fields. Together with RDBMS `ENUM` types, this allows to store and query enum values in a type-safe way with restricted values for a field.
+
+## Example
+
+```php
+<?php
+// Declare your Enum
+enum PaymentProvider: string {
+    case PAYPAL = 'paypal';
+    case CREDIT_CARD = 'credit_card';
+}
+
+// Assign the Enum to a field
+class Entity {
+    private PaymentProvider $paymentProvider;
+…
+}
+
+// Define the field in the EntityDefinition
+class EntityDefinition extends EntityDefinition {
+…
+    public function getFields(): FieldCollection {
+        return new FieldCollection([
+            new EnumField('paymentProvider', 'payment_provider', PaymentProvider::CREDIT_CARD),
+        ]);
+    }
+}
+```
+
+```mysql
+CREATE TABLE `entity`
+(
+    `id`               INTEGER                        NOT NULL,
+    `payment_provider` ENUM ('paypal', 'credit_card') NOT NULL
+)
+```
+
+## New `.encode` event for store api routes
+This new event allows you to extend the response data of store api routes on a event based approach. The event is triggered after the data has been fetched and before it is returned to the client.
+
+```php
+<?php
+
+#[\Symfony\Component\EventDispatcher\Attribute\AsEventListener(
+    event: 'store-api.product.listing.encode', 
+    priority: 0, 
+    method: 'onListing'
+)]
+class MyListener
+{
+    public function onListing(\Symfony\Component\HttpKernel\Event\ResponseEvent $event): void
+    {
+        $response = $event->getResponse();
+           
+        assert($response instanceof \Shopware\Core\System\SalesChannel\StoreApiResponse);
+    }
+}
+
+```
+
+## Storefront accessibility: Unify focus outline:
+To improve the keyboard accessibility we will unify all focus outlines to have the same appearance.
+Currently, the focus outlines are dependent on the color of the interactive element (e.g. light-green outline for green buttons).
+This can be an accessibility issue because some focus outlines don't have sufficient contrast and also look inconsistent which makes keyboard navigation harder.
+
+## Storefront accessibility: Deprecated current structure of `filter-active` span elements in favor of a button:
+Currently, the label that displays an activate listing filter is using a span element with custom styling. 
+Instead, we will use a Bootstrap button `.btn` which also functions as the "Remove filter" button directly.
+This improves the focus outline visibility of active filters and also increases the click-surface for removal.
+The `getLabelTemplate` of the `ListingPlugin` will return the updated HTML structure.
+
+Current HTML structure:
+```html
+<span class="filter-active">
+    <span aria-hidden="true">Example manufacturer</span>
+    <button class="filter-active-remove" data-id="1234" aria-label="Remove filter: Example manufacturer">
+        &times;
+    </button>
+</span>
+```
+
+New HTML structure:
+```html
+<button class="filter-active btn" data-id="1234" aria-label="Remove filter: Example manufacturer">
+    Example manufacturer
+    <span aria-hidden="true" class="ms-1 fs-4">&times;</span>
+</button>
+```
+## Improved local form handling in the Storefront
+To make forms more accessible, we overhauled the form handling in the Storefront, which includes local form validation and best-practices for user feedback.
+
+### Implemented best-practices
+Sadly, the native browser validation methods are not accessible by default. Therefore, we decided to create custom form handling and disable the native validation of the browser. In the following you can learn more about specific best-practices we implemented for accessible form handling and optimization for screen readers.
+
+#### Form
+* The form has the `novalidate` attribute to not use native validation by the browser.
+* The `checkValidity()` method of the form is replaced by a custom implementation.
+
+#### Required fields
+* The asterisk to mark required fields has now a highlight color for better contrast.
+* The asterisk got the `aria-hidden` attribute, because it is irritating to screen readers. The required state is already read out by screen readers if the form field has the necessary attributes.
+* Required fields are not marked with a `required` attribute, but with a `aria-required` attribute. This marks the field as required from a semantic standpoint and will be read out by screen readers, but will not trigger native validation.
+
+#### Input validation
+* Fields are validated by a local form validation on direct change, but only if changed. The `input` event is used instead of the `change` or `blur` event because these fire everytime and not on immediate change. It is a common pattern that keyboard users tab through a form to get a sense of available fields without filling them out. Therefore, the fields should only be validated on change and then with immediate feedback. If the feedback happens only on `blur` event, it can be irritating because the user has already moved on to the next field.
+* Field validation can be configured via the `data-validation` attribute. You can pass a comma separated list of validation rules the field should be checked against. You can define the priority of these validators by their order. The first validator has the highest priority. This is important to always give the user the right validation feedback. Only the validation message with the highest applying validator is shown to the user and read out by screen readers.
+* By default, the validators `required`, `email`, `confirmation`, and `minLength` are available for local form validation. You can extend these and add your own if needed.
+
+#### Input feedback
+* Every field has a feedback area beneath it that is referenced with the `aria-describedby` attribute. It is used to show a validation message to users, which is also read out by screen readers.
+* Optionally every input field can have a description area beneath it to give more context to the user. If present, the description is also referenced via the `aria-describedby` attribute and read out by screen readers.
+* Besides the normal color feedback, invalid fields now also display an error icon on the right side of the input. This is an important visual feedback for users which find it difficult to identify colors.
+* Placeholder labels were removed from most form fields, as they are irritating and don't add value, especially if they just mirror the content of the label.
+
+#### Form validation
+* Besides the immediate field validation feedback, all fields will be validated when submitting the form. 
+* If there are still invalid fields, they will be highlighted with the necessary visual feedback.
+* In addition, the page will focus the first invalid field. The browser will automatically scroll the page to that field if it is not in view.
+
+### Implementation
+
+#### New validation service and form handler plugin
+There is a new central form validation class that is also available as a default instance under `window.formValidation`. This is used by a new form handler plugin that will automatically implement the necessary events and handling on a form element. It can be activated with the `data-form-handler="true"` attribute on a form element.
+
+**Example:**  
+```HTML
+<form action="/newsletter" method="post" data-form-handler="true">
+    <label for="email">Email</label>
+    <input type="email" id="email" name="email" data-validation="required,email">
+    
+
+    <button type="submit">Submit</button>
+</form>
+```
+The form validation works with an associated `data-validation` attribute on the form fields. You can pass a comma separated list of validator keys. Their priority is defined by their order. Only the validation message of the highest applying validator is shown to the user for relevant feedback.
+
+These validators are available by default:  
+
+| Key            | Description                                                                                                                                                                                                                                                                                                                                                                                                                                  |
+|----------------|----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| `required`     | Checks if the field is not empty.                                                                                                                                                                                                                                                                                                                                                                                                            |
+| `email`        | Checks the value of the field to be a valid email address.                                                                                                                                                                                                                                                                                                                                                                                   |
+| `conformation` | Checks if the value of a confirmation field matches the value of the original field. Make sure to use the right ID naming for the validator to work. As an example, the orginal field has the ID `email` and the confirmation field has the ID `emailConfirmation`. The `confirmation` validator should be added to the confirmation field. Note that unnecessary inputs are seen as not accessible and should be avoided wherever possible. |
+| `minLength`    | Checks the value of the field for a minimum length. If available the validator will use the `minlength` attribute of the field to validate against. Otherwise, it will use the default configuration of eight characters.                                                                                                                                                                                                                    | 
+
+You can add your own custom validators via the global `formValidation` class.
+
+```JavaScript
+window.formValidation.addValidator('custom', (value, field) => {
+    // You custom validation. Should return a boolean.
+}, 'Your custom validation message.');
+```
+
+You can take a look at the reference documentation of the service and the plugin for further information.
+
+#### New form field components in Twig
+To make it easier to implement all best practices without recreating a lot of boilerplate code for every form field, we created new templates for different field types which can be used for easy form field rendering. You can find them in `views/storefront/components/form/`. These components work in association with the described local form handling but also the additional server-side validation.
+
+**Example usage:**  
+```TWIG
+<form action="/newsletter" method="post" data-form-handler="true">
+
+    {% sw_include '@Storefront/storefront/component/form/form-input.html.twig' with {
+        type: 'email',
+        label: 'account.personalMailLabel'|trans|sw_sanitize,
+        id: 'personalMail',
+        name: 'email',
+        value: data.get('email'),
+        autocomplete: 'section-personal email',
+        violationPath: '/email',
+        validationRules: 'required,email',
+        additionalClass: 'col-sm-6',
+    } %}
+
+    <button type="submit">Submit</button>
+</form>
+```
+
+### Updated Shopware standard forms
+The existing forms in the Shopware Storefront are already reworked to use the described practices and tools. The changes are part of our accessibility initiative and are still behind a feature flag. They will become the default with the Shopware 6.7.0.0 major version. If you already want to get these changes among other accessibility improvements you can activate the flag `ACCESSIBILITY_TWEAKS`.
+
+**Forms that are updated:**
+* Login
+* Guest Login
+* Registration
+* Custom Registration
+* Customer profile
+* Change email
+* Change password
+* Recover password
+* Reset password
+* Address creation
+* Address editing
+* Product reviews
+* Newsletter registration (CMS)
+* Contact form (CMS)
+
+## Adjust duplicate async JS file names
+
+We have made changes to have more consistent JavaScript filenames in the storefront. If we have duplicate filenames, we will append the chunk id (numeric value, length of 5) to the filename.
+
+### Examples
+
+Filenames **before** this change in different modes  
+Hot-Reloading: `http://localhost:9999/storefront/plugin_scroll-up_scroll-up_plugin_js.js`  
+Development: `http://localhost:8000/theme/fa1abe71af50c0c1fd964660ee680e66/js/storefront/scroll-up.plugin.0ce767.js`  
+Production: `http://localhost:8000/theme/fa1abe71af50c0c1fd964660ee680e66/js/storefront/scroll-up.plugin.0ce767.js`  
+Duplicate Filename: `http://localhost:8000/theme/fa1abe71af50c0c1fd964660ee680e66/js/storefront/plugin_scroll-up_scroll-up_plugin_js.0ce767.js`
+
+Filenames **after** this change in different modes  
+Hot-Reloading: `http://localhost:9999/storefront/hot-reloading.scroll-up.plugin.js`  
+Development: `http://localhost:8000/theme/fa1abe71af50c0c1fd964660ee680e66/js/storefront/storefront.scroll-up.plugin.2e9f58.js`  
+Production: `http://localhost:8000/theme/fa1abe71af50c0c1fd964660ee680e66/js/storefront/storefront.scroll-up.plugin.2e9f58.js`  
+Duplicate Filename: `http://localhost:8000/theme/fa1abe71af50c0c1fd964660ee680e66/js/storefront/storefront.scroll-up.plugin.45231.2e9f58.js`
+
+## Deprecation of Twig variable
+The global `showStagingBanner` Twig variable has been deprecated. Use `shopware.showStagingBanner` instead.
+
+## New constructor parameter in FooterPagelet
+The new optional parameter `serviceMenu` of type `\Shopware\Core\Content\Category\CategoryCollection` has been added to `\Shopware\Storefront\Pagelet\Footer\FooterPagelet`.
+You can already add it to your implementation to prevent breaking changes, as it will be required in the next major version.
+
+## Deprecated CSS declarations
+* Deprecated custom CSS declarations for selectors `.header-cart-total`, `.header-logo-col`, `.header-search`, `.header-logo-main-link`, `.header-logo-main` and `.header-logo-picture`  and replaced them by Bootstrap helper classes in the corresponding templates.
+
+## App System
+Use `sw_macro_function` instead of usual `macro` in app scripts if you return values (`sw_macro_function` will be the new default in Shopware Version 6.8.0)
+
+## Introduction of ESI for header and footer
+With the next major version the header and footer will be loaded via ESI.
+Due to this change many things were deprecated and will be removed with the next major version, as they are not needed anymore.
+See the following chapter for a detailed list of deprecations.
+
+### Deprecations
+* The properties `header` and `footer` and their getter and setter Methods in `\Shopware\Storefront\Framework\Twig\ErrorTemplateStruct` are deprecated and will be removed with the next major version.
+* The loading of header, footer, payment methods and shipping methods in `\Shopware\Storefront\Page\GenericPageLoader` is deprecated and will be removed with the next major version.
+  Extend `\Shopware\Storefront\Pagelet\Header\HeaderPageletLoader` or `\Shopware\Storefront\Pagelet\Footer\FooterPageletLoader` instead.
+* The properties `header`, `footer`, `salesChannelShippingMethods` and `salesChannelPaymentMethods` and their getter and setter Methods in `\Shopware\Storefront\Page\Page` are deprecated and will be removed with the next major version.
+  Extend `\Shopware\Storefront\Pagelet\Header\HeaderPagelet` or `\Shopware\Storefront\Pagelet\Footer\FooterPagelet` instead.
+  Use the following alternatives in templates instead:
+    * `context.currency` instead of `page.header.activeCurrency`
+    * `shopware.navigation.id` instead of `page.header.navigation.active.id`
+    * `shopware.navigation.pathIdList` instead of `page.header.navigation.active.path`
+    * `context.languageInfo` instead of `page.header.activeLanguage`
+* The property `serviceMenu` and its getter and setter Methods in `\Shopware\Storefront\Pagelet\Header\HeaderPagelet` are deprecated and will be removed with the next major version.
+  Extend it via the `\Shopware\Storefront\Pagelet\Footer\FooterPagelet` instead.
+* The `navigationId` request parameter in `\Shopware\Storefront\Pagelet\Header\HeaderPageletLoader::load` is deprecated and will be removed with the next major version as it is not needed anymore.
+* The `setNavigation` method in `\Shopware\Storefront\Pagelet\Menu\Offcanvas\MenuOffcanvasPagelet` is deprecated and will be removed with the next major version as it is unused.
+* The option `tiggerEvent` in `OffcanvasMenuPlugin` JavaScript plugin is deprecated and will be removed with the next major version. Use `triggerEvent` instead.
+* The following blocks will be moved from `src/Storefront/Resources/views/storefront/base.html.twig` to `src/Storefront/Resources/views/storefront/layout/header.html.twig` in the next major version.
+  * `base_header`
+  * `base_header_inner`
+  * `base_navigation`
+  * `base_navigation_inner`
+  * `base_offcanvas_navigation`
+  * `base_offcanvas_navigation_inner`
+* The following blocks will be moved from `src/Storefront/Resources/views/storefront/base.html.twig` to `src/Storefront/Resources/views/storefront/layout/footer.html.twig` in the next major version.
+  * `base_footer`
+  * `base_footer_inner`
+* The template variable `page` in following templates is deprecated and will be removed in the next major version. Provide `header` or `footer` directly.
+  * `src/Storefront/Resources/views/storefront/layout/footer/footer.html.twig`
+  * `src/Storefront/Resources/views/storefront/layout/header/actions/currency-widget.html.twig`
+  * `src/Storefront/Resources/views/storefront/layout/header/actions/language-widget.html.twig`
+  * `src/Storefront/Resources/views/storefront/layout/header/top-bar.html.twig`
+  * `src/Storefront/Resources/views/storefront/layout/navbar/navbar.html.twig`
+* The template variables `activeId` and `activePath` in `src/Storefront/Resources/views/storefront/layout/navbar/categories.html.twig` are deprecated and will be removed in the next major version.
+* The template variable `activePath` in `src/Storefront/Resources/views/storefront/layout/navbar/navbar.html.twig` is deprecated and will be removed in the next major version.
+* The parameter `activeResult` of `src/Storefront/Resources/views/storefront/layout/sidebar/category-navigation.html.twig` is deprecated and will be removed in the next major version.
+
+## Rule classes becoming internal
+* Existing rule classes will be marked as internal, limiting direct usage by third parties.
+* If you currently extend any of the existing rule classes, consider migrating to a custom rule class.
+* Existing rule behavior remains unchanged, but internal implementations may evolve.
+
+## Added `addTrailingSlash` option to the `sw-url-field` component
+This option allows you to add a trailing slash to the URL and adds it to the value if it is missing.
+The option is disabled by default.
+
+### Example
+```html
+<sw-url-field v-model:value="currentValue" addTrailingSlash />
+```
+## Empty theme config values
+We changed the way empty theme config fields are handled. Previous the fields were not added as variables to the SCSS if they were empty, which could lead to unwanted compiler crashes. But empty values could be a reasonable setting, for example to use it for optional styling or the usage of default variables in the SCSS code. Therefore, we decided to always add theme config fields to the SCSS, even if they are empty. In that case the value of the variable is set to "null". This is a valid value in SCSS and works along default variables or conditional styling.
+
+### Example: Default Variables
+```SCSS
+$test-color: #fff !default;
+
+body {
+    background: $test-color;
+}
+```
+If the variable is left empty in the config, the default value will be used.
+
+### Example: Conditions
+```SCSS
+@if ($test-color != null) {
+    body {
+        background: darken($test-color, 20);
+    }
+}
+```
+You can use a condition to do optional styling. It should also be used in case of color variables and the usage of color functions. Those color functions would break with a null value if you don't use a proper default value.
+## SalesChannelId is available in SystemConfigChangedHook
+The SalesChannelId is now available in the SystemConfigChangedHook (`app.config.changed`). The request formats now looks like this:*
+```diff
+{
+  "changes": [...],
++  "salesChannelId": "00000"
+}
+```
+
+# 6.6.9.0
+
+## SCSS Values will be validated and sanitized
+From now on, every scss value added by a theme will be validated when changed in the administration interface.
+The values will be sanitized when they are invalid to a standard value when they are not valid when changed before or via api.
+
+## Parameter names of some `\Shopware\Core\Framework\Migration\MigrationStep` methods will change
+This will only have an effect if you are using the named parameter feature of PHP with those methods.
+If you want to be forward compatible, call the methods without using named parameters.
+* Parameter name `column` of `\Shopware\Core\Framework\Migration\MigrationStep::dropColumnIfExists` will change to `columnName`
+* Parameter name `column` of `\Shopware\Core\Framework\Migration\MigrationStep::dropForeignKeyIfExists` will change to `foreignKeyName`
+* Parameter name `index` of `\Shopware\Core\Framework\Migration\MigrationStep::dropIndexIfExists` will change to `indexName`
+
+## Environment Configuration
+
+The web installer now supports configurable command timeouts through the environment variable `SHOPWARE_INSTALLER_TIMEOUT`. This value should be provided in seconds.
+
+### Default Behavior
+If the environment variable is not set, the installer will use the default timeout of 900 seconds (15 minutes).
+
+### Configuration Examples
+```bash
+# Set timeout to 30 minutes
+export SHOPWARE_INSTALLER_TIMEOUT=1800
+
+# Set timeout to 1 hour
+export SHOPWARE_INSTALLER_TIMEOUT=3600
+```
+
+Or in the projects' `.env.installer` file:
+
+```bash
+SHOPWARE_INSTALLER_TIMEOUT=1800
+```
+
+### Validation
+The provided timeout value must be:
+- A numeric value
+- Non-negative
+
+If these conditions are not met, the installer will fall back to the default timeout of 900 seconds.
+
+## Product review loading moved to core
+The logic responsible for loading product reviews was unified and moved to the core.
+* The service `\Shopware\Storefront\Page\Product\Review\ProductReviewLoader` is deprecated. Use `\Shopware\Core\Content\Product\SalesChannel\Review\AbstractProductReviewLoader` instead.
+* The event `\Shopware\Storefront\Page\Product\Review\ProductReviewsLoadedEvent` is deprecated. Use `\Shopware\Core\Content\Product\SalesChannel\Review\Event\ProductReviewsLoadedEvent` instead.
+* The hook `\Shopware\Storefront\Page\Product\Review\ProductReviewsWidgetLoadedHook` is deprecated. Use `\Shopware\Core\Content\Product\SalesChannel\Review\ProductReviewsWidgetLoadedHook` instead.
+* The struct `\Shopware\Storefront\Page\Product\Review\ReviewLoaderResult` is deprecated. Use `\Shopware\Core\Content\Product\SalesChannel\Review\ProductReviewResult` instead.
+
+## Native types for PHP class properties
+A "deprecation" message was added to every PHP class property without a native type.
+The native types will be added with Shopware 6.7.0.0.
+If you extend classes with such properties, you will also need to add the type accordingly during the major update.
+
+## New skip to content links
+The "Skip to content" link for accessibility inside `@Storefront/storefront/base.html.twig` is now inside a separate include template `@Storefront/storefront/component/skip-to-content.html.twig`.
+The new template also has additional links to skip directly to the search field and main navigation. The links can be enabled or disabled by passing boolean variables. By default, only "Skip to main content" is shown:
+
+```twig
+{% sw_include '@Storefront/storefront/component/skip-to-content.html.twig' with {
+    skipToContent: true,
+    skipToSearch: true,
+    skipToMainNav: true
+} %}
+```
+
+## Storefront product box accessibility: Replace duplicate links around the product image with stretched link in product name
+**Affected template: `Resources/views/storefront/component/product/card/box-standard.html.twig`**
+
+Currently, the link to the product detail page is always duplicated in the default product box because the image is wrapped with the same link.
+This is not ideal for accessibility because the link is read twice when using a screen reader. Therefore, we want to remove the link around the product image that also points to the detail page.
+To make the image still click-able the Bootstrap helper class `stretched-link` will be used on the product name link.
+
+When the `ACESSIBILITY_TWEAKS` flag is active, the product card will no longer contain a link around the product image:
+```diff
+<div class="card product-box box-standard">
+    <div class="card-body">
+        <div class="product-image-wrapper">
+-            <a href="https://shopware.local/Example-Product/SW-01931a101dcc725aa3affc0ff408ee31">
+                <img src="https://shopware.local/media/a3/22/75/1731309077/Example-Product_%283%29.webp?ts=1731309077" alt="Example-Product">
+-            </a>
+        </div>
+
+        <div class="product-info">
+            <a href="https://shopware.local/Example-Product/SW-01931a101dcc725aa3affc0ff408ee31"
++               class="product-name stretched-link"> {# <------ stretched-link is used instead #}
+                Example-Product
+            </a>
+        </div>
+    </div>
+</div>
+```
+## Required foreign key in mapping definition for many-to-many associations
+For many-to-many associations it is necessary that the mapping definition contains the foreign key fields.
+Until now there was a silent error triggered, which is now changed to a proper deprecation message. An exception will be thrown in the next major version.
+
+## App servers: New In-App Purchases feature
+In-App Purchases are a way to lock certain features behind a paywall within the same extension. 
+This is useful for developers who want to offer a free version of their extension with limited features and a paid version with more features.
+
+We've modified the requests to app servers to include a JWT token for all active In-App Purchases.
+With GET requests, the `in-app-purchases` parameter was added.
+With POST requests, the In-App-Purchases are part of the `source` object in the request body.
+
+If you use the official Shopware [Symfony App bundle](https://github.com/shopware/app-bundle-symfony) or the [App PHP SDK](https://github.com/shopware/app-php-sdk), you're app server is already set to go.
+If you use a custom signing mechanism, you need to adjust your app server to handle the new requests.
+See an example implementation in PHP [here](https://github.com/shopware/app-php-sdk/blob/main/examples/index.php).
+
+See the documentation for In-App Purchases [here](https://developer.shopware.com/docs/guides/plugins/apps/in-app-purchase/).
+
+# 6.6.8.0
+## Search server now provides OpenSearch/Elasticsearch shards and replicas
+
+Previously we had an default configuration of three shards and three replicas. With 6.7 we removed this default configuration and now the search server is responsible for providing the correct configuration.
+This allows that the indices automatically scale based on your nodes available in the cluster.
+
+You can revert to the old behavior by setting the following configuration in your `config/packages/shopware.yml`:
+
+```yaml
+elasticsearch:
+    index_settings:
+        number_of_shards: 3
+        number_of_replicas: 3
+```
+## Redis configuration
+
+Now you can define multiple redis connections in the `config/packages/shopware.yaml` file under the `shopware` section:
+```yaml
+shopware:
+    # ...
+    redis:
+        connections:
+            connection_1:
+                dsn: 'redis://host:port/database_index'
+            connection_2:
+                dsn: 'redis://host:port/database_index'
+```
+Connection names should reflect the actual connection purpose/type and be unique, for example `ephemeral`, `persistent`. Also they are used as a part of service names in the container, so they should follow the service naming conventions. After defining connections, you can reference them by name in configuration of different subsystems.
+
+### Cache invalidation
+
+Replace `shopware.cache.invalidation.delay_options.dsn` with `shopware.cache.invalidation.delay_options.connection` in the configuration files:
+
+```yaml
+shopware:
+    # ...
+    cache:
+        invalidation:
+            delay: 1
+            delay_options:
+                storage: redis
+                # dsn: 'redis://host:port/database_index' # deprecated
+                connection: 'connection_1' # new way
+```
+
+### Increment storage
+
+Replace `shopware.increment.<increment_name>.config.url` with `shopware.increment.<increment_name>.config.connection` in the configuration files:
+
+```yaml
+shopware:
+    # ...
+    increment:
+        increment_name:
+            type: 'redis'
+            config:
+                # url: 'redis://host:port/database_index' # deprecated
+                connection: 'connection_2' # new way
+```
+
+### Number ranges
+
+Replace `shopware.number_range.config.dsn` with `shopware.number_range.config.connection` in the configuration files:
+
+```yaml
+shopware:
+    # ...
+    number_range:
+        increment_storage: "redis"
+        config:
+            # dsn: 'redis://host:port/dbindex' # deprecated
+            connection: 'connection_2' # new way
+```
+
+### Cart storage
+
+Replace `cart.storage.config.dsn` with `cart.storage.config.connection` in the configuration files:
+
+```yaml
+shopware:
+    # ...
+    cart:
+        storage:
+            type: 'redis'
+            config:
+                #dsn: 'redis://host:port/dbindex' # deprecated
+                connection: 'connection_2' # new way
+```
+
+### Custom services
+
+If you have custom services that use redis connection, you have next options for the upgrade:
+
+1. Inject `Shopware\Core\Framework\Adapter\Redis\RedisConnectionProvider` and use it to get the connection by name:
+
+    ```xml
+    <service id="MyCustomService">
+        <argument type="service" id="Shopware\Core\Framework\Adapter\Redis\RedisConnectionProvider" />
+        <argument>%myservice.redis_connection_name%</argument>
+    </service>
+    ```
+
+    ```php
+    class MyCustomService
+    { 
+        public function __construct (
+            private RedisConnectionProvider $redisConnectionProvider,
+            string $connectionName,
+        ) { }
+
+        public function doSomething()
+        {
+            if ($this->redisConnectionProvider->hasConnection($this->connectionName)) {
+                $connection = $this->redisConnectionProvider->getConnection($this->connectionName);
+                // use connection
+            }
+        }
+    }
+    ```
+
+2. Use `Shopware\Core\Framework\Adapter\Redis\RedisConnectionProvider` as factory to define custom services:
+
+    ```xml
+    <service id="my.custom.redis_connection" class="Redis">
+        <factory service="Shopware\Core\Framework\Adapter\Redis\RedisConnectionProvider" method="getConnection" />
+        <argument>%myservice.redis_connection_name%</argument>
+    </service>
+
+    <service id="MyCustomService">
+        <argument type="service" id="my.custom.redis_connection" />
+    </service>
+    ```
+
+    ```php
+    class MyCustomService
+    { 
+        public function __construct (
+            private Redis $redisConnection,
+        ) { }
+
+        public function doSomething()
+        {
+            // use connection
+        }
+    }
+    ```
+    This approach is especially useful if you need multiple services to share the same connection.
+
+3. Inject connection by name directly:
+    ```xml
+    <service id="MyCustomService">
+        <argument type="service" id="shopware.redis.connection.connection_name" />
+    </service>
+    ```
+   Be cautious with this approach—if you change the Redis connection names in your configuration, it will cause container build errors.
+
+Please beware that redis connections with the **same DSNs** are shared over the system, so closing the connection in one service will affect all other services that use the same connection.
+## "adminMenu" Vuex store moved to Pinia
+
+The `adminMenu` store has been migrated from Vuex to Pinia. The store is now available as a Pinia store and can be accessed via `Shopware.Store.get('adminMenu')`.
+
+### Before:
+```js
+Shopware.State.get('adminMenu');
+```
+
+### After:
+```js
+Shopware.Store.get('adminMenu');
+```
+If you use a TLS proxy in your setup, you can now start the hot reloading with https without setting certificate files.
+
+**_Example .env file for a DDEV setup:_**
+```
+IPV4FIRST=1
+APP_ENV=dev
+ESLINT_DISABLE=true
+HOST=0.0.0.0
+STOREFRONT_ASSETS_PORT=9999
+STOREFRONT_PROXY_PORT=9998
+APP_URL=https://shopware-ddev-new.ddev.site/
+PROXY_URL=https://shopware-ddev-new.ddev.site:9998/
+```
+## Deprecation of obsolete method in DefinitionValidator
+The method `\Shopware\Core\Framework\DataAbstractionLayer\DefinitionValidator::getNotices` is deprecated and will be removed without replacement.
+It always returns an empty array, so it has no real purpose.
+
+# 6.6.7.0
+## Shortened filenames with hashes for async JS built files
+When building the Storefront JS-files for production using `composer run build:js:storefront`, the async bundle filenames no longer contain the filepath.
+Instead, only the filename is used with a chunkhash / dynamic version number. This also helps to identify which files have changed after build. Similar to the main entry file like e.g. `cms-extensions.js?1720776107`.
+
+**JS Filename before change in dist:**
+```
+└── custom/apps/
+    └── ExampleCmsExtensions/src/Resources/app/storefront/dist/storefront/js/
+        └── cms-extensions/           
+            ├── cms-extensions.js <-- The main entry pint JS-bundle
+            └── custom_plugins_CmsExtensions_src_Resources_app_storefront_src_cms-extensions-quickview.js  <-- Complete path in filename
+```
+
+**JS Filename after change in dist:**
+```
+└── custom/apps/
+    └── ExampleCmsExtensions/src/Resources/app/storefront/dist/storefront/js/
+        └── cms-extensions/           
+            ├── cms-extensions.js <-- The main entry pint JS-bundle
+            └── cms-extensions-quickview.plugin.423fc1.js <-- Filename and chunkhash
+```
+## Persistent mode for `focusHandler`
+The `window.focusHandler` now supports a persistent mode that can be used in case the current focus is lost after a page reload.
+When using methods `saveFocusStatePersistent` and `resumeFocusStatePersistent` the focus element will be saved inside the `sessionStorage` instead of the window object / memory.
+
+The persistent mode requires a key name for the `sessionStorage` as well as a unique selector as string. It is not possible to save element references into the `sessionStorage`.
+The unique selector will be used to find the DOM element during `resumeFocusStatePersistent` and re-focus it.
+```js
+// Save the current focus state
+window.focusHandler.saveFocusStatePersistent('special-form', '#unique-id-on-this-page');
+
+// Something happens and the page reloads
+window.location.reload();
+
+// Resume the focus state for the key `special-form`. The unique selector will be retrieved from the `sessionStorage` 
+window.focusHandler.resumeFocusStatePersistent('special-form');
+```
+
+By default, the storage keys are prefixed with `sw-last-focus`. The above example will save the following to the `sessionStorage`:
+
+| key                          | value                     |
+|------------------------------|---------------------------|
+| `sw-last-focus-special-form` | `#unique-id-on-this-page` |
+
+## Automatic focus for `FormAutoSubmitPlugin`
+The `FormAutoSubmitPlugin` can now try to re-focus elements after AJAX submits or full page reloads using the `window.focusHandler`.
+This works automatically for all form input elements inside an auto submit form that have a `[data-focus-id]` attribute that is unique.
+
+The automatic focus is activated by default and be modified by the new JS-plugin options:
+
+```js
+export default class FormAutoSubmitPlugin extends Plugin {
+    static options = {
+        autoFocus: true,
+        focusHandlerKey: 'form-auto-submit'
+    }
+}
+```
+
+```diff
+<form action="/example/action" data-form-auto-submit="true">
+    <!-- FormAutoSubmitPlugin will try to restore previous focus on all elements with da focus-id -->
+    <input 
+        class="form-control"
++        data-focus-id="unique-id"
+    >
+</form>
+```
+## Improved formating behaviour of the text editor
+The text editor in the administration was changed to produce paragraph `<p>` elements for new lines instead of `<div>` elements. This leads to a more consistent text formatting. You can still create `<div>` elements on purpose via using the code editor.
+
+In addition, loose text nodes will be wrapped in a paragraph `<p>` element on initializing a new line via the enter key. In the past it could happen that when starting to write in an empty text editor, that text is not wrapped in a proper section element. Now this is automatically fixed when you add a first new line to your text. From then on everything is wrapped in paragraph elements and every new line will also create a new paragraph instead of `<div>` elements.
+## Change Storefront language and currency dropdown items to buttons
+The "top-bar" dropdown items inside `views/storefront/layout/header/top-bar.html.twig` will use `<button>` elements instead of hidden `<input type="radio">` when the `ACCESSIBILITY_TWEAKS` flag is `1`.
+This will improve the keyboard navigation because the user can navigate through all options first before submitting the form.
+
+Currently, every radio input change results in a form submit and thus in a page reload. Using button elements is also more aligned with Bootstraps dropdown HTML structure: [Bootstrap dropdown documentation](https://getbootstrap.com/docs/5.3/components/dropdowns/#menu-items)
+## Change Storefront order items and cart line-items from `<div>` to `<ul>` and `<li>`:
+* We want to change several list views that are currently using generic `<div>` elements to proper `<ul>` and `<li>`. This will not only improve the semantics but also the screen reader accessibility. 
+* To avoid breaking changes in the HTML and the styling, the change to `<ul>` and `<li>` is done behind the `ACCESSIBILITY_TWEAKS` feature flag.
+* With the next major version the `<ul>` and `<li>` will become the default. In the meantime, the `<div>` elements get `role="list"` and `role="listitem"`.
+* All `<ul>` will get a Bootstrap `list-unstyled` class to avoid the list bullet points and have the same appearance as `<div>`.
+* The general HTML structure and Twig blocks remain the same.
+
+### Affected templates:
+* Account order overview
+    * `src/Storefront/Resources/views/storefront/page/account/order-history/index.html.twig`
+    * `src/Storefront/Resources/views/storefront/page/account/order-history/order-detail-document-item.html.twig`
+    * `src/Storefront/Resources/views/storefront/page/account/order-history/order-detail-document.html.twig`
+* Cart table header (Root element changed to `<li>`)
+    * `src/Storefront/Resources/views/storefront/component/checkout/cart-header.html.twig`
+* Line-items wrapper (List wrapper element changed to `<ul>`)
+    * `src/Storefront/Resources/views/storefront/page/checkout/cart/index.html.twig`
+    * `src/Storefront/Resources/views/storefront/page/checkout/confirm/index.html.twig`
+    * `src/Storefront/Resources/views/storefront/page/checkout/finish/index.html.twig`
+    * `src/Storefront/Resources/views/storefront/page/checkout/address/index.html.twig`
+    * `src/Storefront/Resources/views/storefront/page/account/order-history/order-detail-list.html.twig`
+    * `src/Storefront/Resources/views/storefront/component/checkout/offcanvas-cart.html.twig`
+* Line-items (Root element changed to `<li>`)
+    * `src/Storefront/Resources/views/storefront/component/line-item/type/product.html.twig`
+    * `src/Storefront/Resources/views/storefront/component/line-item/type/discount.html.twig`
+    * `src/Storefront/Resources/views/storefront/component/line-item/type/generic.html.twig`
+    * `src/Storefront/Resources/views/storefront/component/line-item/type/container.html.twig`
+## Correct order of app-cms blocks via xml files
+The order of app CMS blocks is now correctly applied when using XML files to define the blocks. This is achieved by using a position attribute in the JSON generated from the XML file, which reflects the order of the CMS slots within the file. Since it's not possible to determine the correct order of CMS blocks that have already been loaded into the database, this change will only affect newly loaded blocks.
+
+To ensure the correct order is applied, you should consider to reinstall apps that provide app CMS blocks.
+
 # 6.6.6.0
 ## Rework Storefront pagination to use anchor links and improve accessibility
 We want to change the Storefront pagination component (`Resources/views/storefront/component/pagination.html.twig`) to use anchor links `<a href="#"></a>` instead of radio inputs with styled labels.
@@ -469,9 +1346,11 @@ shopware:
     cache:
         invalidation:
             delay_options:
-                storage: cache
+                storage: redis
                 dsn: 'redis://localhost'
 ```
+
+Since 6.6.10.0 we also have a MySQL implementation available: `\Shopware\Core\Framework\Adapter\Cache\InvalidatorStorage\MySQLInvalidatorStorage`. Use it via `mysql`
 
 # General Core Breaking Changes
 
@@ -670,7 +1549,7 @@ public function loadCombinations(string $productId, SalesChannelContext $salesCh
 
 The `loadCombinations` method has been made abstract so it must be implemented. The `SalesChannelContext` instance, contains the data which was previously in the defined on the `load` method.
 
-`$salesChannelId` can be replaced with `$salesChannelContext->getSalesChannel()->getId()`.
+`$salesChannelId` can be replaced with `$salesChannelContext->getSalesChannelId()`.
 
 `$context` can be replaced with `$salesChannelContext->getContext()`.
 
@@ -1683,9 +2562,11 @@ shopware:
     cache:
         invalidation:
             delay_options:
-                storage: cache
+                storage: redis
                 dsn: 'redis://localhost'
 ```
+
+Since 6.6.10.0 we also have a MySQL implementation available: `\Shopware\Core\Framework\Adapter\Cache\InvalidatorStorage\MySQLInvalidatorStorage`. Use it via `mysql`
 
 ## Introduced in 6.5.5.0
 ## New stock handling implementation is now the default
@@ -1720,7 +2601,7 @@ public function loadCombinations(string $productId, SalesChannelContext $salesCh
 
 The `loadCombinations` method has been made abstract so it must be implemented. The `SalesChannelContext` instance, contains the data which was previously in the defined on the `load` method. 
 
-`$salesChannelId` can be replaced with `$salesChannelContext->getSalesChannel()->getId()`.
+`$salesChannelId` can be replaced with `$salesChannelContext->getSalesChannelId()`.
 
 `$context` can be replaced with `$salesChannelContext->getContext()`.
 

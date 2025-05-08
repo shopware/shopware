@@ -2,16 +2,19 @@
 
 namespace Shopware\Core\Framework\Adapter\Twig\Extension;
 
-use Shopware\Core\Content\Category\CategoryDefinition;
 use Shopware\Core\Content\Category\CategoryEntity;
 use Shopware\Core\Content\Category\Service\AbstractCategoryUrlGenerator;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Bridge\Twig\Extension\RoutingExtension;
 use Twig\Extension\AbstractExtension;
 use Twig\TwigFunction;
 
-#[Package('core')]
+/**
+ * @deprecated tag:v6.8.0 - reason:remove-subscriber - Will be removed, use CategoryEntity directly
+ */
+#[Package('framework')]
 class CategoryUrlExtension extends AbstractExtension
 {
     /**
@@ -25,14 +28,26 @@ class CategoryUrlExtension extends AbstractExtension
 
     public function getFunctions(): array
     {
+        if (Feature::isActive('v6.8.0.0')) {
+            return [];
+        }
+
         return [
             new TwigFunction('category_url', $this->getCategoryUrl(...), ['needs_context' => true, 'is_safe_callback' => $this->routingExtension->isUrlGenerationSafe(...)]),
             new TwigFunction('category_linknewtab', $this->isLinkNewTab(...)),
         ];
     }
 
+    /**
+     * @param array<string, mixed> $twigContext
+     */
     public function getCategoryUrl(array $twigContext, CategoryEntity $category): ?string
     {
+        Feature::triggerDeprecationOrThrow(
+            'v6.8.0.0',
+            'The "category_url" function is deprecated and will be removed in v6.8.0.0. Use SalesChannelCategoryEntity::getSeoLink() instead.'
+        );
+
         $salesChannel = null;
         if (\array_key_exists('context', $twigContext) && $twigContext['context'] instanceof SalesChannelContext) {
             $salesChannel = $twigContext['context']->getSalesChannel();
@@ -43,14 +58,11 @@ class CategoryUrlExtension extends AbstractExtension
 
     public function isLinkNewTab(CategoryEntity $categoryEntity): bool
     {
-        if ($categoryEntity->getType() !== CategoryDefinition::TYPE_LINK) {
-            return false;
-        }
+        Feature::triggerDeprecationOrThrow(
+            'v6.8.0.0',
+            'The "category_linknewtab" function is deprecated and will be removed in v6.8.0.0. Use CategoryEntity::shouldOpenInNewTab() instead.'
+        );
 
-        if (!$categoryEntity->getTranslation('linkNewTab')) {
-            return false;
-        }
-
-        return true;
+        return $categoryEntity->shouldOpenInNewTab();
     }
 }

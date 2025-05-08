@@ -13,6 +13,7 @@ use Shopware\Core\Checkout\Order\Aggregate\OrderTransaction\OrderTransactionColl
 use Shopware\Core\Checkout\Order\Aggregate\OrderTransaction\OrderTransactionStates;
 use Shopware\Core\Checkout\Order\Event\OrderPaymentMethodChangedCriteriaEvent;
 use Shopware\Core\Checkout\Order\Event\OrderPaymentMethodChangedEvent;
+use Shopware\Core\Checkout\Payment\PaymentMethodCollection;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
@@ -20,14 +21,15 @@ use Shopware\Core\Framework\DataAbstractionLayer\Pricing\CashRoundingConfig;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
-use Shopware\Core\Framework\Test\IdsCollection;
+use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\Routing\RoutingException;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\MailTemplateTestBehaviour;
-use Shopware\Core\Framework\Test\TestDataCollection;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\PlatformRequest;
 use Shopware\Core\System\StateMachine\Event\StateMachineTransitionEvent;
 use Shopware\Core\Test\Integration\Traits\CustomerTestTrait;
+use Shopware\Core\Test\Stub\Framework\IdsCollection;
 use Shopware\Core\Test\TestDefaults;
 use Symfony\Bundle\FrameworkBundle\KernelBrowser;
 use Symfony\Component\HttpFoundation\Response;
@@ -35,6 +37,7 @@ use Symfony\Component\HttpFoundation\Response;
 /**
  * @internal
  */
+#[Package('checkout')]
 class SetPaymentOrderRouteTest extends TestCase
 {
     use CustomerTestTrait;
@@ -55,7 +58,7 @@ class SetPaymentOrderRouteTest extends TestCase
     {
         parent::setUp();
 
-        $this->ids = new TestDataCollection();
+        $this->ids = new IdsCollection();
 
         $this->browser = $this->createCustomSalesChannelBrowser([
             'id' => $this->ids->create('sales-channel'),
@@ -225,7 +228,7 @@ class SetPaymentOrderRouteTest extends TestCase
         $response = json_decode((string) $this->browser->getResponse()->getContent(), true, 512, \JSON_THROW_ON_ERROR);
 
         static::assertSame(Response::HTTP_NOT_FOUND, $this->browser->getResponse()->getStatusCode());
-        static::assertSame('FRAMEWORK__ENTITY_NOT_FOUND', $response['errors'][0]['code']);
+        static::assertSame('CHECKOUT__ORDER_ORDER_NOT_FOUND', $response['errors'][0]['code']);
         static::assertNotNull($this->paymentMethodChangedCriteriaEventResult);
         static::assertNull($this->paymentMethodChangedEventResult);
         static::assertNull($this->transactionStateEventResult);
@@ -246,7 +249,7 @@ class SetPaymentOrderRouteTest extends TestCase
         $response = json_decode((string) $this->browser->getResponse()->getContent(), true, 512, \JSON_THROW_ON_ERROR);
 
         static::assertSame(Response::HTTP_NOT_FOUND, $this->browser->getResponse()->getStatusCode());
-        static::assertSame('FRAMEWORK__ENTITY_NOT_FOUND', $response['errors'][0]['code']);
+        static::assertSame('CHECKOUT__ORDER_ORDER_NOT_FOUND', $response['errors'][0]['code']);
         static::assertNotNull($this->paymentMethodChangedCriteriaEventResult);
         static::assertNull($this->paymentMethodChangedEventResult);
         static::assertNull($this->transactionStateEventResult);
@@ -271,7 +274,7 @@ class SetPaymentOrderRouteTest extends TestCase
         $response = json_decode((string) $this->browser->getResponse()->getContent(), true, 512, \JSON_THROW_ON_ERROR);
 
         static::assertSame(Response::HTTP_FORBIDDEN, $this->browser->getResponse()->getStatusCode());
-        static::assertSame('CHECKOUT__CUSTOMER_NOT_LOGGED_IN', $response['errors'][0]['code']);
+        static::assertSame(RoutingException::CUSTOMER_NOT_LOGGED_IN_CODE, $response['errors'][0]['code']);
         static::assertNull($this->paymentMethodChangedCriteriaEventResult);
         static::assertNull($this->paymentMethodChangedEventResult);
         static::assertNull($this->transactionStateEventResult);
@@ -317,14 +320,14 @@ class SetPaymentOrderRouteTest extends TestCase
                 ]
             );
 
-        static::assertSame(Response::HTTP_BAD_REQUEST, $this->browser->getResponse()->getStatusCode());
+        static::assertSame(Response::HTTP_FORBIDDEN, $this->browser->getResponse()->getStatusCode());
     }
 
     private function createOrder(string $customerId): string
     {
         $id = Uuid::randomHex();
 
-        $this->getContainer()->get('order.repository')->create(
+        static::getContainer()->get('order.repository')->create(
             [[
                 'id' => $id,
                 'itemRounding' => json_decode(json_encode(new CashRoundingConfig(2, 0.01, true), \JSON_THROW_ON_ERROR), true, 512, \JSON_THROW_ON_ERROR),
@@ -406,8 +409,8 @@ class SetPaymentOrderRouteTest extends TestCase
 
     private function getAvailablePaymentMethodId(int $offset = 0): string
     {
-        /** @var EntityRepository $repository */
-        $repository = $this->getContainer()->get('payment_method.repository');
+        /** @var EntityRepository<PaymentMethodCollection> $repository */
+        $repository = static::getContainer()->get('payment_method.repository');
 
         $criteria = (new Criteria())
             ->setLimit(1)
@@ -430,7 +433,7 @@ class SetPaymentOrderRouteTest extends TestCase
         $criteria->addAssociation('stateMachineState');
 
         /** @var OrderTransactionCollection $transactions */
-        $transactions = $this->getContainer()->get('order_transaction.repository')->search($criteria, Context::createDefaultContext())->getEntities();
+        $transactions = static::getContainer()->get('order_transaction.repository')->search($criteria, Context::createDefaultContext())->getEntities();
 
         return $transactions;
     }
@@ -441,8 +444,8 @@ class SetPaymentOrderRouteTest extends TestCase
         $criteria->addFilter(new EqualsFilter('orderId', $orderId));
         $criteria->addSorting(new FieldSorting('createdAt'));
 
-        $transactionId = $this->getContainer()->get('order_transaction.repository')->searchIds($criteria, Context::createDefaultContext())->firstId();
-        $this->getContainer()->get('order_transaction.repository')->update([[
+        $transactionId = static::getContainer()->get('order_transaction.repository')->searchIds($criteria, Context::createDefaultContext())->firstId();
+        static::getContainer()->get('order_transaction.repository')->update([[
             'id' => $transactionId,
             'stateId' => $this->getStateMachineState(OrderTransactionStates::STATE_MACHINE, $state),
         ]], Context::createDefaultContext());

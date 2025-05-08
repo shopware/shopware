@@ -7,20 +7,14 @@ use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Storefront\Page\PageLoadedEvent;
 use Symfony\Component\HttpFoundation\Request;
 
-#[Package('storefront')]
+#[Package('framework')]
 class ProductPageLoadedEvent extends PageLoadedEvent
 {
-    /**
-     * @var ProductPage
-     */
-    protected $page;
-
     public function __construct(
-        ProductPage $page,
+        protected ProductPage $page,
         SalesChannelContext $salesChannelContext,
-        Request $request
+        Request $request,
     ) {
-        $this->page = $page;
         parent::__construct($salesChannelContext, $request);
     }
 

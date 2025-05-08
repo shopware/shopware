@@ -19,7 +19,7 @@ use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 /**
  * @internal
  */
-#[Package('core')]
+#[Package('framework')]
 class CustomFieldUpdater implements EventSubscriberInterface
 {
     public function __construct(
@@ -83,7 +83,7 @@ class CustomFieldUpdater implements EventSubscriberInterface
                 'type' => 'object',
                 'dynamic' => true,
             ],
-            default => AbstractElasticsearchDefinition::KEYWORD_FIELD + AbstractElasticsearchDefinition::SEARCH_FIELD
+            default => AbstractElasticsearchDefinition::KEYWORD_FIELD + AbstractElasticsearchDefinition::SEARCH_FIELD,
         };
     }
 

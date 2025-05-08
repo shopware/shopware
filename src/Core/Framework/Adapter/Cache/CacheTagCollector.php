@@ -8,7 +8,7 @@ use Symfony\Component\EventDispatcher\Attribute\AsEventListener;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\RequestStack;
 
-#[Package('core')]
+#[Package('framework')]
 #[AsEventListener]
 class CacheTagCollector
 {

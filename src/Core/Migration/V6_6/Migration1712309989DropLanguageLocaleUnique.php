@@ -11,7 +11,7 @@ use Shopware\Core\Framework\Migration\MigrationStep;
  *
  * @codeCoverageIgnore
  */
-#[Package('core')]
+#[Package('framework')]
 class Migration1712309989DropLanguageLocaleUnique extends MigrationStep
 {
     public function getCreationTimestamp(): int
@@ -22,10 +22,5 @@ class Migration1712309989DropLanguageLocaleUnique extends MigrationStep
     public function update(Connection $connection): void
     {
         $this->dropIndexIfExists($connection, 'language', 'uniq.translation_code_id');
-    }
-
-    public function updateDestructive(Connection $connection): void
-    {
-        // implement update destructive
     }
 }

@@ -1,5 +1,5 @@
 /**
- * @package admin
+ * @sw-package framework
  */
 
 import { mount } from '@vue/test-utils';
@@ -79,15 +79,12 @@ const createAdvancedSelectionModal = async (customOptions) => {
         },
         global: {
             stubs: {
-                'sw-icon': true,
                 'sw-modal': true,
-                'sw-card': true,
                 'sw-card-filter': true,
                 'sw-ignore-class': true,
                 'sw-extension-component-section': true,
                 'sw-empty-state': true,
                 'sw-loader': true,
-                'sw-button': true,
                 'sw-simple-search-field': true,
                 'sw-context-menu': true,
                 'sw-filter-panel': true,
@@ -119,10 +116,8 @@ const createAdvancedSelectionModal = async (customOptions) => {
                     },
                 },
                 shortcutService: {
-                    startEventListener() {
-                    },
-                    stopEventListener() {
-                    },
+                    startEventListener() {},
+                    stopEventListener() {},
                 },
                 searchRankingService: {
                     getSearchFieldsByEntity() {
@@ -136,12 +131,15 @@ const createAdvancedSelectionModal = async (customOptions) => {
         },
     };
 
-    return mount(await wrapTestComponent('sw-entity-advanced-selection-modal', {
-        sync: true,
-    }), {
-        ...options,
-        ...customOptions,
-    });
+    return mount(
+        await wrapTestComponent('sw-entity-advanced-selection-modal', {
+            sync: true,
+        }),
+        {
+            ...options,
+            ...customOptions,
+        },
+    );
 };
 
 describe('components/sw-entity-advanced-selection-modal', () => {
@@ -165,12 +163,14 @@ describe('components/sw-entity-advanced-selection-modal', () => {
         const searchModal = await createAdvancedSelectionModal();
         const allEntityAssociations = searchModal.vm.allEntityAssociations;
 
-        expect(allEntityAssociations).toEqual(new Set([
-            'assoc',
-            'another',
-            'some.deeply.nested',
-            'some.changed.association',
-        ]));
+        expect(allEntityAssociations).toEqual(
+            new Set([
+                'assoc',
+                'another',
+                'some.deeply.nested',
+                'some.changed.association',
+            ]),
+        );
     });
 
     it('should have the correct filter number', async () => {
@@ -200,10 +200,12 @@ describe('components/sw-entity-advanced-selection-modal', () => {
         // assert proper event dispatch with correct data
         const selectionSubmitEvent = searchModal.emitted('selection-submit');
         expect(selectionSubmitEvent).toHaveLength(1);
-        expect(selectionSubmitEvent[0]).toEqual([[
-            'one',
-            'two',
-        ]]);
+        expect(selectionSubmitEvent[0]).toEqual([
+            [
+                'one',
+                'two',
+            ],
+        ]);
         expect(searchModal.emitted('modal-close')).toHaveLength(1);
     });
 

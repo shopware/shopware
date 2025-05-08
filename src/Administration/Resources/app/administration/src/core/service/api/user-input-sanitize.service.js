@@ -1,3 +1,7 @@
+/**
+ * @sw-package framework
+ */
+
 import ApiService from '../api.service';
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
@@ -13,15 +17,17 @@ export default class AppUrlChangeService extends ApiService {
      * @returns {*} - ApiService.handleResponse(response)
      */
     sanitizeInput({ html, field }) {
-        return this.httpClient.post(
-            '_admin/sanitize-html',
-            {
-                html,
-                field: field ?? null,
-            },
-            {
-                headers: this.getBasicHeaders(),
-            },
-        ).then(response => ApiService.handleResponse(response));
+        return this.httpClient
+            .post(
+                '_admin/sanitize-html',
+                {
+                    html,
+                    field: field ?? null,
+                },
+                {
+                    headers: this.getBasicHeaders(),
+                },
+            )
+            .then((response) => ApiService.handleResponse(response));
     }
 }

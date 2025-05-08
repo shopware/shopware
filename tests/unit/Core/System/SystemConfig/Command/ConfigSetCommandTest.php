@@ -15,7 +15,7 @@ use Symfony\Component\Console\Tester\CommandTester;
 /**
  * @internal
  */
-#[Package('services-settings')]
+#[Package('framework')]
 #[CoversClass(ConfigSet::class)]
 class ConfigSetCommandTest extends TestCase
 {
@@ -59,7 +59,7 @@ class ConfigSetCommandTest extends TestCase
     {
         $key = 'fake_config_key';
 
-        $this->systemConfigService->expects(static::once())
+        $this->systemConfigService->expects($this->once())
             ->method('set')
             ->with(
                 $key,

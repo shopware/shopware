@@ -2,7 +2,6 @@
 
 namespace Shopware\Tests\Integration\Core\Framework\Store\Services;
 
-use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Api\Context\SystemSource;
@@ -26,7 +25,6 @@ use Symfony\Component\DependencyInjection\ContainerInterface;
 /**
  * @internal
  */
-#[Group('skip-paratest')]
 #[Package('checkout')]
 class ExtensionLifecycleServiceTest extends TestCase
 {
@@ -43,6 +41,8 @@ class ExtensionLifecycleServiceTest extends TestCase
 
     /**
      * @var EntityRepository<ThemeCollection>|null
+     *
+     * @phpstan-ignore property.unusedType (can be null in a test, where the storefront is not installed)
      */
     private ?EntityRepository $themeRepository;
 
@@ -102,7 +102,7 @@ class ExtensionLifecycleServiceTest extends TestCase
         $this->installApp(__DIR__ . '/../_fixtures/TestApp');
 
         $this->lifecycleService->uninstall('app', 'TestApp', false, $this->context);
-        $this->lifecycleService->remove('app', 'TestApp', $this->context);
+        $this->lifecycleService->remove('app', 'TestApp', false, $this->context);
 
         $apps = $this->appRepository->search(new Criteria(), $this->context)->getEntities();
 
@@ -310,7 +310,7 @@ class ExtensionLifecycleServiceTest extends TestCase
 
         rename($oldName, $newName);
 
-        $this->lifecycleService->remove('app', 'TestAppTheme', Context::createDefaultContext());
+        $this->lifecycleService->remove('app', 'TestAppTheme', true, Context::createDefaultContext());
 
         static::assertFileDoesNotExist($newName);
     }

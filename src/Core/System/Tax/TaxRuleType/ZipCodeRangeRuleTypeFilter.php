@@ -22,8 +22,8 @@ class ZipCodeRangeRuleTypeFilter extends AbstractTaxRuleTypeFilter
 
         $zipCode = $this->getZipCode($shippingLocation);
 
-        $toZipCode = $taxRuleEntity->getData()['toZipCode'];
-        $fromZipCode = $taxRuleEntity->getData()['fromZipCode'];
+        $toZipCode = $taxRuleEntity->getData()['toZipCode'] ?? null;
+        $fromZipCode = $taxRuleEntity->getData()['fromZipCode'] ?? null;
 
         if ($fromZipCode === null || $toZipCode === null || $zipCode < $fromZipCode || $zipCode > $toZipCode) {
             return false;
@@ -47,6 +47,6 @@ class ZipCodeRangeRuleTypeFilter extends AbstractTaxRuleTypeFilter
 
     private function getZipCode(ShippingLocation $shippingLocation): ?string
     {
-        return $shippingLocation->getAddress() !== null ? $shippingLocation->getAddress()->getZipcode() : null;
+        return $shippingLocation->getAddress()?->getZipcode();
     }
 }

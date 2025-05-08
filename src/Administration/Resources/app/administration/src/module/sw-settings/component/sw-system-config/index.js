@@ -1,12 +1,16 @@
 /**
- * @package services-settings
+ * @sw-package framework
  */
 import ErrorResolverSystemConfig from 'src/core/data/error-resolver.system-config.data';
+import { deepCloneWithEntity } from 'src/core/service/extension-api-data.service';
 import template from './sw-system-config.html.twig';
 import './sw-system-config.scss';
 
 const { Mixin } = Shopware;
-const { object, string: { kebabCase } } = Shopware.Utils;
+const {
+    object,
+    string: { kebabCase },
+} = Shopware.Utils;
 const { mapSystemConfigErrors } = Shopware.Component.getComponentHelper();
 
 /**
@@ -24,11 +28,12 @@ const { mapSystemConfigErrors } = Shopware.Component.getComponentHelper();
 export default {
     template,
 
-    compatConfig: Shopware.compatConfig,
-
     inject: ['systemConfigApiService'],
 
-    emits: ['loading-changed', 'config-changed'],
+    emits: [
+        'loading-changed',
+        'config-changed',
+    ],
 
     mixins: [
         Mixin.getByName('notification'),
@@ -162,11 +167,7 @@ export default {
             try {
                 const values = await this.systemConfigApiService.getValues(this.domain, this.currentSalesChannelId);
 
-                if (this.isCompatEnabled('INSTANCE_SET')) {
-                    this.$set(this.actualConfigData, this.currentSalesChannelId, values);
-                } else {
-                    this.actualConfigData[this.currentSalesChannelId] = values;
-                }
+                this.actualConfigData[this.currentSalesChannelId] = values;
             } finally {
                 this.isLoading = false;
             }
@@ -174,18 +175,13 @@ export default {
 
         saveAll() {
             this.isLoading = true;
-            return this.systemConfigApiService
-                .batchSave(this.actualConfigData)
-                .finally(() => {
-                    this.isLoading = false;
-                });
+            return this.systemConfigApiService.batchSave(this.actualConfigData).finally(() => {
+                this.isLoading = false;
+            });
         },
 
         createErrorNotification(errors) {
-            let message = `<div>${this.$tc(
-                'sw-config-form-renderer.configLoadErrorMessage',
-                errors.length,
-            )}</div><ul>`;
+            let message = `<div>${this.$tc('sw-config-form-renderer.configLoadErrorMessage', errors.length)}</div><ul>`;
 
             errors.forEach((error) => {
                 message = `${message}<li>${error.detail}</li>`;
@@ -224,7 +220,12 @@ export default {
             }
 
             // Add select properties
-            if (['single-select', 'multi-select'].includes(bind.type)) {
+            if (
+                [
+                    'single-select',
+                    'multi-select',
+                ].includes(bind.type)
+            ) {
                 bind.config.labelProperty = 'name';
                 bind.config.valueProperty = 'id';
             }
@@ -252,7 +253,11 @@ export default {
         },
 
         getInheritedValue(element) {
-            const value = this.actualConfigData.null[element.name];
+            let value = this.actualConfigData.null[element.name];
+
+            if (typeof value === 'object' && !Array.isArray(value) && value !== null) {
+                value = deepCloneWithEntity(value);
+            }
 
             if (value) {
                 return value;

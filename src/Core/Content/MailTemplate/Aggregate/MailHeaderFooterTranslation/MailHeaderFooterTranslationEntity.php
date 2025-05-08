@@ -6,48 +6,24 @@ use Shopware\Core\Content\MailTemplate\Aggregate\MailHeaderFooter\MailHeaderFoot
 use Shopware\Core\Framework\DataAbstractionLayer\TranslationEntity;
 use Shopware\Core\Framework\Log\Package;
 
-#[Package('buyers-experience')]
+#[Package('after-sales')]
 class MailHeaderFooterTranslationEntity extends TranslationEntity
 {
-    /**
-     * @var string|null
-     */
-    protected $name;
+    protected ?string $name = null;
 
-    /**
-     * @var string|null
-     */
-    protected $description;
+    protected ?string $description = null;
 
-    /**
-     * @var string|null
-     */
-    protected $headerHtml;
+    protected ?string $headerHtml = null;
 
-    /**
-     * @var string|null
-     */
-    protected $headerPlain;
+    protected ?string $headerPlain = null;
 
-    /**
-     * @var string|null
-     */
-    protected $footerHtml;
+    protected ?string $footerHtml = null;
 
-    /**
-     * @var string|null
-     */
-    protected $footerPlain;
+    protected ?string $footerPlain = null;
 
-    /**
-     * @var MailHeaderFooterEntity|null
-     */
-    protected $mailHeaderFooter;
+    protected ?MailHeaderFooterEntity $mailHeaderFooter = null;
 
-    /**
-     * @var string
-     */
-    protected $mailHeaderFooterId;
+    protected string $mailHeaderFooterId;
 
     public function getMailHeaderFooterId(): string
     {

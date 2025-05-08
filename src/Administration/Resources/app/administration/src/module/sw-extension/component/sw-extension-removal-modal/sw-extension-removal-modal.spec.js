@@ -8,9 +8,7 @@ async function createWrapper(propsData = {}) {
                     return key + JSON.stringify(Object.values(values));
                 },
             },
-            stubs: {
-                'sw-button': true,
-            },
+            stubs: {},
         },
         props: {
             extensionName: 'Awesome extension',
@@ -22,7 +20,7 @@ async function createWrapper(propsData = {}) {
 }
 
 /**
- * @package checkout
+ * @sw-package checkout
  */
 describe('src/module/sw-extension/component/sw-extension-removal-modal', () => {
     it('should show the correct title', async () => {
@@ -31,7 +29,7 @@ describe('src/module/sw-extension/component/sw-extension-removal-modal', () => {
         let title = wrapper.vm.title;
 
         // eslint-disable-next-line max-len
-        expect(title).toBe('sw-extension-store.component.sw-extension-removal-modal.titleCancel[\"Awesome extension\"]');
+        expect(title).toBe('sw-extension-store.component.sw-extension-removal-modal.titleCancel["Awesome extension"]');
 
         await wrapper.setProps({
             isLicensed: false,
@@ -39,7 +37,7 @@ describe('src/module/sw-extension/component/sw-extension-removal-modal', () => {
 
         title = wrapper.vm.title;
         // eslint-disable-next-line max-len
-        expect(title).toBe('sw-extension-store.component.sw-extension-removal-modal.titleRemove[\"Awesome extension\"]');
+        expect(title).toBe('sw-extension-store.component.sw-extension-removal-modal.titleRemove["Awesome extension"]');
     });
 
     it('should show the correct alert text', async () => {

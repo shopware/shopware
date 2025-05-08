@@ -6,14 +6,12 @@ use Shopware\Core\Content\Product\SalesChannel\Listing\ProductListingResult;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\StoreApiResponse;
 
-#[Package('services-settings')]
+/**
+ * @extends StoreApiResponse<ProductListingResult>
+ */
+#[Package('inventory')]
 class ProductSearchRouteResponse extends StoreApiResponse
 {
-    /**
-     * @var ProductListingResult
-     */
-    protected $object;
-
     public function getListingResult(): ProductListingResult
     {
         return $this->object;

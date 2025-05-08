@@ -9,15 +9,16 @@ use Shopware\Core\Checkout\Cart\Cart;
 use Shopware\Core\Checkout\Cart\CartPersister;
 use Shopware\Core\Checkout\Cart\LineItem\LineItem;
 use Shopware\Core\Content\Product\Aggregate\ProductVisibility\ProductVisibilityDefinition;
+use Shopware\Core\Content\Product\ProductCollection;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\SalesChannelApiTestBehaviour;
-use Shopware\Core\Framework\Test\TestDataCollection;
 use Shopware\Core\System\SalesChannel\Context\AbstractSalesChannelContextFactory;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory;
+use Shopware\Core\Test\Stub\Framework\IdsCollection;
 use Symfony\Bundle\FrameworkBundle\KernelBrowser;
 
 /**
@@ -33,8 +34,11 @@ class CartDeleteRouteTest extends TestCase
 
     private KernelBrowser $browser;
 
-    private TestDataCollection $ids;
+    private IdsCollection $ids;
 
+    /**
+     * @var EntityRepository<ProductCollection>
+     */
     private EntityRepository $productRepository;
 
     private AbstractSalesChannelContextFactory $salesChannelFactory;
@@ -43,7 +47,7 @@ class CartDeleteRouteTest extends TestCase
 
     protected function setUp(): void
     {
-        $this->ids = new TestDataCollection();
+        $this->ids = new IdsCollection();
 
         $this->browser = $this->createCustomSalesChannelBrowser([
             'id' => $this->ids->create('sales-channel'),
@@ -51,9 +55,9 @@ class CartDeleteRouteTest extends TestCase
 
         $this->browser->setServerParameter('HTTP_SW_CONTEXT_TOKEN', $this->ids->create('token'));
 
-        $this->productRepository = $this->getContainer()->get('product.repository');
-        $this->cartPersister = $this->getContainer()->get(CartPersister::class);
-        $this->salesChannelFactory = $this->getContainer()->get(SalesChannelContextFactory::class);
+        $this->productRepository = static::getContainer()->get('product.repository');
+        $this->cartPersister = static::getContainer()->get(CartPersister::class);
+        $this->salesChannelFactory = static::getContainer()->get(SalesChannelContextFactory::class);
     }
 
     public function testEmptyCart(): void

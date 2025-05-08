@@ -1,78 +1,86 @@
 /**
- * @package buyers-experience
+ * @sw-package discovery
  */
 import { mount } from '@vue/test-utils';
 
+let repositoryFactoryCreateMock;
+let repositoryFactorySearchMock;
+let repositoryFactorySearchIdsMock;
+let repositoryFactorySaveMock;
+
 async function createWrapper() {
-    return mount(await wrapTestComponent('sw-media-modal-folder-settings', { sync: true }), {
-        props: {
-            mediaFolderId: '12345',
-            disabled: false,
-        },
-        global: {
-            stubs: {
-                'sw-modal': await wrapTestComponent('sw-modal', { sync: true }),
-                'sw-tabs': await wrapTestComponent('sw-tabs', { sync: true }),
-                'sw-tabs-item': true,
-                'sw-text-field': true,
-                'sw-highlight-text': true,
-                'sw-select-result': true,
-                'sw-entity-single-select': true,
-                'sw-container': true,
-                'sw-field': true,
-                'sw-switch-field': true,
-                'sw-number-field': true,
-                'sw-media-add-thumbnail-form': true,
-                'sw-icon': true,
-                'sw-button': true,
-                'sw-loader': true,
-                'mt-tabs': true,
-                'sw-tabs-deprecated': true,
+    repositoryFactoryCreateMock = jest.fn(() => Promise.resolve());
+    repositoryFactorySearchMock = jest.fn(() => Promise.resolve([]));
+    repositoryFactorySearchIdsMock = jest.fn(() => Promise.resolve([]));
+    repositoryFactorySaveMock = jest.fn(() => Promise.resolve());
+
+    return mount(
+        await wrapTestComponent('sw-media-modal-folder-settings', {
+            sync: true,
+        }),
+        {
+            props: {
+                mediaFolderId: '12345',
+                disabled: false,
             },
-            provide: {
-                repositoryFactory: {
-                    create: (entity) => {
-                        return {
-                            create: () => {
-                                return Promise.resolve();
-                            },
-                            search: () => {
-                                return Promise.resolve([]);
-                            },
-                            searchIds: () => {
-                                return Promise.resolve([]);
-                            },
-                            save: () => {
-                                return Promise.resolve();
-                            },
-                            get: () => {
-                                switch (entity) {
-                                    case 'media_folder_configuration':
-                                        return Promise.resolve({
-                                            mediaThumbnailSizes: {
-                                                entity: 'media_thumbnail_size',
-                                                source: 'media_thumbnail_size',
-                                            },
-                                        });
-                                    default:
-                                        return Promise.resolve({
-                                            id: '12345',
-                                            name: 'Test folder',
-                                            parentId: null,
-                                            configurationId: '12345',
-                                        });
-                                }
-                            },
-                        };
+            global: {
+                stubs: {
+                    'sw-modal': await wrapTestComponent('sw-modal', {
+                        sync: true,
+                    }),
+                    'sw-tabs': await wrapTestComponent('sw-tabs', {
+                        sync: true,
+                    }),
+                    'sw-tabs-item': true,
+                    'sw-text-field': true,
+                    'sw-highlight-text': true,
+                    'sw-select-result': true,
+                    'sw-entity-single-select': true,
+                    'sw-container': true,
+                    'sw-field': true,
+                    'mt-number-field': true,
+                    'sw-media-add-thumbnail-form': true,
+                    'sw-loader': true,
+                    'mt-tabs': true,
+                    'sw-tabs-deprecated': true,
+                },
+                provide: {
+                    repositoryFactory: {
+                        create: (entity) => {
+                            return {
+                                create: repositoryFactoryCreateMock,
+                                search: repositoryFactorySearchMock,
+                                searchIds: repositoryFactorySearchIdsMock,
+                                save: repositoryFactorySaveMock,
+                                get: () => {
+                                    switch (entity) {
+                                        case 'media_folder_configuration':
+                                            return Promise.resolve({
+                                                mediaThumbnailSizes: {
+                                                    entity: 'media_thumbnail_size',
+                                                    source: 'media_thumbnail_size',
+                                                },
+                                            });
+                                        default:
+                                            return Promise.resolve({
+                                                id: '12345',
+                                                name: 'Test folder',
+                                                parentId: null,
+                                                configurationId: '12345',
+                                            });
+                                    }
+                                },
+                            };
+                        },
+                    },
+                    shortcutService: {
+                        startEventListener: () => {},
+                        stopEventListener: () => {},
                     },
                 },
-                shortcutService: {
-                    startEventListener: () => {},
-                    stopEventListener: () => {},
-                },
             },
         },
-    });
+    );
 }
 
 describe('src/app/asyncComponent/media/sw-media-modal-folder-settings', () => {
@@ -98,33 +106,37 @@ describe('src/app/asyncComponent/media/sw-media-modal-folder-settings', () => {
         expect(getUnusedThumbnailSizes).toHaveBeenCalled();
         expect(getThumbnailSizes).toHaveBeenCalled();
 
-        expect(searchIds).toHaveBeenCalledWith(expect.objectContaining({
-            filters: [
-                {
-                    field: 'mediaFolderConfigurations.mediaFolders.id',
-                    type: 'equals',
-                    value: null,
-                },
-            ],
-        }));
-        expect(search).toHaveBeenCalledWith(expect.objectContaining({
-            sortings: [
-                {
-                    field: 'width',
-                    naturalSorting: false,
-                    order: 'ASC',
-                },
-            ],
-        }));
+        expect(searchIds).toHaveBeenCalledWith(
+            expect.objectContaining({
+                filters: [
+                    {
+                        field: 'mediaFolderConfigurations.mediaFolders.id',
+                        type: 'equals',
+                        value: null,
+                    },
+                ],
+            }),
+        );
+        expect(search).toHaveBeenCalledWith(
+            expect.objectContaining({
+                sortings: [
+                    {
+                        field: 'width',
+                        naturalSorting: false,
+                        order: 'ASC',
+                    },
+                ],
+            }),
+        );
     });
 
     it('should update thumbnail sizes correctly', async () => {
-        wrapper.vm.mediaThumbnailSizeRepository.searchIds = jest.fn(() => {
+        repositoryFactorySearchIdsMock = jest.fn(() => {
             return Promise.resolve({
                 data: ['12345'],
             });
         });
-        wrapper.vm.mediaThumbnailSizeRepository.search = jest.fn(() => {
+        repositoryFactorySearchMock = jest.fn(() => {
             return Promise.resolve([
                 {
                     id: '12345',
@@ -159,11 +171,8 @@ describe('src/app/asyncComponent/media/sw-media-modal-folder-settings', () => {
     });
 
     it('should be able to add a new thumbnail size', async () => {
-        const create = jest.spyOn(wrapper.vm.mediaThumbnailSizeRepository, 'create').mockImplementation(() => {
+        repositoryFactoryCreateMock = jest.fn(() => {
             return { _isNew: true };
-        });
-        const save = jest.spyOn(wrapper.vm.mediaThumbnailSizeRepository, 'save').mockImplementation(() => {
-            return Promise.resolve();
         });
 
         await wrapper.setData({
@@ -179,15 +188,14 @@ describe('src/app/asyncComponent/media/sw-media-modal-folder-settings', () => {
                     deletable: false,
                 },
             ],
-
         });
         await wrapper.vm.addThumbnail({
             width: 30,
             height: 30,
         });
 
-        expect(create).toHaveBeenCalled();
-        expect(save).toHaveBeenCalledWith(
+        expect(repositoryFactoryCreateMock).toHaveBeenCalled();
+        expect(repositoryFactorySaveMock).toHaveBeenCalledWith(
             expect.objectContaining({
                 _isNew: true,
                 width: 30,
@@ -213,7 +221,6 @@ describe('src/app/asyncComponent/media/sw-media-modal-folder-settings', () => {
                     deletable: false,
                 },
             ],
-
         });
         await wrapper.vm.addThumbnail({
             width: 10,

@@ -1,13 +1,13 @@
 import { mount } from '@vue/test-utils';
 
 /**
- * @package checkout
+ * @sw-package checkout
  */
 
 const { Context } = Shopware;
 const { EntityCollection } = Shopware.Data;
 
-async function createWrapper() {
+async function createWrapper({ customerRepositorySaveMock, languageRepositorySearchIdsMock } = {}) {
     return mount(await wrapTestComponent('sw-customer-create', { sync: true }), {
         global: {
             stubs: {
@@ -18,22 +18,21 @@ async function createWrapper() {
         <slot name="content"></slot>
     </div>`,
                 },
-                'sw-card': true,
                 'sw-language-switch': true,
                 'sw-customer-address-form': true,
                 'sw-customer-base-form': true,
                 'sw-card-view': true,
-                'sw-button': await wrapTestComponent('sw-button'),
-                'sw-button-deprecated': await wrapTestComponent('sw-button-deprecated'),
                 'sw-button-process': await wrapTestComponent('sw-button-process'),
-                'sw-icon': true,
                 'sw-loader': true,
                 'router-link': true,
             },
             provide: {
                 numberRangeService: {},
                 systemConfigApiService: {
-                    getValues: () => Promise.resolve({ 'core.register.minPasswordLength': 8 }),
+                    getValues: () =>
+                        Promise.resolve({
+                            'core.register.minPasswordLength': 8,
+                        }),
                 },
                 customerValidationService: {},
                 repositoryFactory: {
@@ -43,27 +42,38 @@ async function createWrapper() {
                                 create: () => {
                                     return {
                                         id: '63e27affb5804538b5b06cb4e344b130',
-                                        addresses: new EntityCollection('/customer_address', 'customer_address', Context.api, null, []),
+                                        addresses: new EntityCollection(
+                                            '/customer_address',
+                                            'customer_address',
+                                            Context.api,
+                                            null,
+                                            [],
+                                        ),
                                     };
                                 },
+                                save: customerRepositorySaveMock,
                             };
                         }
 
                         if (entity === 'language') {
                             return {
-                                searchIds: () => Promise.resolve({
-                                    total: 1,
-                                    data: ['1'],
-                                }),
+                                searchIds:
+                                    languageRepositorySearchIdsMock ??
+                                    (() =>
+                                        Promise.resolve({
+                                            total: 1,
+                                            data: ['1'],
+                                        })),
                             };
                         }
 
                         if (entity === 'salutation') {
                             return {
-                                searchIds: () => Promise.resolve({
-                                    total: 1,
-                                    data: ['salutationId'],
-                                }),
+                                searchIds: () =>
+                                    Promise.resolve({
+                                        total: 1,
+                                        data: ['salutationId'],
+                                    }),
                             };
                         }
 
@@ -128,9 +138,9 @@ describe('module/sw-customer/page/sw-customer-create', () => {
     });
 
     it('should override context when the sales channel does not exist language compared to the API language', async () => {
-        const wrapper = await createWrapper();
+        const customerRepositorySaveMock = jest.fn((customer, context) => Promise.resolve(context));
+        const wrapper = await createWrapper({ customerRepositorySaveMock });
         wrapper.vm.validateEmail = jest.fn().mockImplementation(() => Promise.resolve({ isValid: true }));
-        wrapper.vm.customerRepository.save = jest.fn((customer, context) => Promise.resolve(context));
 
         expect(await wrapper.vm.languageId).toEqual(Shopware.Context.api.languageId);
 
@@ -155,14 +165,16 @@ describe('module/sw-customer/page/sw-customer-create', () => {
     });
 
     it('should keep context when sales channel exists language compared to API language', async () => {
-        const wrapper = await createWrapper();
-        wrapper.vm.validateEmail = jest.fn().mockImplementation(() => Promise.resolve({ isValid: true }));
-        wrapper.vm.customerRepository.save = jest.fn((customer, context) => Promise.resolve(context));
+        const customerRepositorySaveMock = jest.fn((customer, context) => Promise.resolve(context));
+        const languageRepositorySearchIdsMock = jest.fn(() =>
+            Promise.resolve({
+                total: 1,
+                data: [Shopware.Context.api.languageId],
+            }),
+        );
 
-        wrapper.vm.languageRepository.searchIds = jest.fn(() => Promise.resolve({
-            total: 1,
-            data: [Shopware.Context.api.languageId],
-        }));
+        const wrapper = await createWrapper({ customerRepositorySaveMock, languageRepositorySearchIdsMock });
+        wrapper.vm.validateEmail = jest.fn().mockImplementation(() => Promise.resolve({ isValid: true }));
 
         expect(await wrapper.vm.languageId).toEqual(Shopware.Context.api.languageId);
 
@@ -206,7 +218,25 @@ describe('module/sw-customer/page/sw-customer-create', () => {
     });
 
     it('should throw exception when the customer creation fails', async () => {
-        const wrapper = await createWrapper();
+        const customerRepositorySaveMock = jest.fn(() =>
+            // eslint-disable-next-line prefer-promise-reject-errors
+            Promise.reject({
+                response: {
+                    data: {
+                        errors: [
+                            {
+                                code: 'c1051bb4-d103-4f74-8988-acbcafc7fdc3',
+                                detail: 'This value should not be blank.',
+                                status: '400',
+                                template: 'This value should not be blank.',
+                            },
+                        ],
+                    },
+                },
+            }),
+        );
+
+        const wrapper = await createWrapper({ customerRepositorySaveMock });
         await wrapper.setData({
             customer: {
                 id: '1',
@@ -214,22 +244,6 @@ describe('module/sw-customer/page/sw-customer-create', () => {
                 boundSalesChannelId: null,
             },
         });
-
-        // eslint-disable-next-line prefer-promise-reject-errors
-        wrapper.vm.customerRepository.save = jest.fn(() => Promise.reject({
-            response: {
-                data: {
-                    errors: [
-                        {
-                            code: 'c1051bb4-d103-4f74-8988-acbcafc7fdc3',
-                            detail: 'This value should not be blank.',
-                            status: '400',
-                            template: 'This value should not be blank.',
-                        },
-                    ],
-                },
-            },
-        }));
 
         try {
             await wrapper.vm.onSave();

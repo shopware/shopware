@@ -3,7 +3,7 @@ import EntityCollection from 'src/core/data/entity-collection.data';
 import RuleAssignmentConfigurationService from 'src/module/sw-settings-rule/service/rule-assignment-configuration.service';
 
 /**
- * @package services-settings
+ * @sw-package fundamentals@after-sales
  */
 
 const { Criteria } = Shopware.Data;
@@ -113,77 +113,85 @@ const ruleConditionDataProviderServiceMock = {
     },
 };
 
-async function createWrapper(props = defaultProps, entitiesWithResults = ['product'], repositoryMockOverwrite = null, privileges = ['rule.editor']) {
-    return mount(await wrapTestComponent('sw-settings-rule-detail-assignments', { sync: true }), {
-        props,
-        global: {
-            stubs: {
-                'sw-settings-rule-assignment-listing': await wrapTestComponent('sw-settings-rule-assignment-listing'),
-                'sw-settings-rule-add-assignment-modal': await wrapTestComponent('sw-settings-rule-add-assignment-modal'),
-                'sw-checkbox-field': await wrapTestComponent('sw-checkbox-field'),
-                'sw-checkbox-field-deprecated': await wrapTestComponent('sw-checkbox-field-deprecated', { sync: true }),
-                'sw-base-field': await wrapTestComponent('sw-base-field'),
-                'sw-entity-listing': await wrapTestComponent('sw-entity-listing'),
-                'sw-data-grid': await wrapTestComponent('sw-data-grid'),
-                'sw-simple-search-field': await wrapTestComponent('sw-simple-search-field'),
-                'sw-text-field': await wrapTestComponent('sw-text-field'),
-                'sw-text-field-deprecated': await wrapTestComponent('sw-text-field-deprecated', { sync: true }),
-                'sw-context-button': await wrapTestComponent('sw-context-button'),
-                'sw-card': await wrapTestComponent('sw-card'),
-                'sw-card-deprecated': await wrapTestComponent('sw-card-deprecated', { sync: true }),
-                'sw-contextual-field': await wrapTestComponent('sw-contextual-field'),
-                'sw-button': await wrapTestComponent('sw-button'),
-                'sw-button-deprecated': await wrapTestComponent('sw-button-deprecated'),
-                'sw-block-field': await wrapTestComponent('sw-block-field'),
-                'sw-card-filter': await wrapTestComponent('sw-card-filter'),
-                'sw-empty-state': await wrapTestComponent('sw-empty-state'),
-                'router-link': {
-                    template: '<a class="router-link" :detail-route="to.name"><slot></slot></a>',
-                    props: ['to'],
-                },
-                'sw-product-variant-info': true,
-                'sw-context-menu-item': await wrapTestComponent('sw-context-menu-item'),
-                'sw-extension-component-section': true,
-                'sw-ai-copilot-badge': true,
-                'sw-loader': true,
-                'sw-icon': true,
-                'sw-field-error': true,
-                'sw-data-grid-inline-edit': true,
-                'sw-pagination': true,
-                'sw-field-copyable': true,
-                'sw-inheritance-switch': true,
-                'sw-help-text': true,
-                'sw-popover': {
-                    template: '<div class="sw-popover"><slot></slot></div>',
-                },
-                'sw-context-menu': {
-                    template: '<div class="sw-context-menu"><slot></slot></div>',
-                },
-                'sw-bulk-edit-modal': true,
-                'sw-data-grid-settings': true,
-                'sw-data-grid-column-boolean': true,
-                'sw-data-grid-skeleton': true,
-                'sw-settings-rule-add-assignment-listing': true,
-                'sw-settings-rule-category-tree': true,
-            },
-            provide: {
-                ruleConditionDataProviderService: ruleConditionDataProviderServiceMock,
-                validationService: {},
-                repositoryFactory: {
-                    create: (entityName) => (repositoryMockOverwrite || repositoryMock(entityName, entitiesWithResults)),
-                },
-                acl: {
-                    can: (identifier) => {
-                        return privileges.includes(identifier);
+async function createWrapper(
+    props = defaultProps,
+    entitiesWithResults = ['product'],
+    repositoryMockOverwrite = null,
+    privileges = ['rule.editor'],
+) {
+    return mount(
+        await wrapTestComponent('sw-settings-rule-detail-assignments', {
+            sync: true,
+        }),
+        {
+            props,
+            global: {
+                stubs: {
+                    'sw-settings-rule-assignment-listing': await wrapTestComponent('sw-settings-rule-assignment-listing'),
+                    'sw-settings-rule-add-assignment-modal': await wrapTestComponent(
+                        'sw-settings-rule-add-assignment-modal',
+                    ),
+                    'sw-checkbox-field': await wrapTestComponent('sw-checkbox-field'),
+                    'sw-checkbox-field-deprecated': await wrapTestComponent('sw-checkbox-field-deprecated', { sync: true }),
+                    'sw-base-field': await wrapTestComponent('sw-base-field'),
+                    'sw-entity-listing': await wrapTestComponent('sw-entity-listing'),
+                    'sw-data-grid': await wrapTestComponent('sw-data-grid'),
+                    'sw-simple-search-field': await wrapTestComponent('sw-simple-search-field'),
+                    'sw-text-field': await wrapTestComponent('sw-text-field'),
+                    'sw-text-field-deprecated': await wrapTestComponent('sw-text-field-deprecated', { sync: true }),
+                    'sw-context-button': await wrapTestComponent('sw-context-button'),
+                    'sw-contextual-field': await wrapTestComponent('sw-contextual-field'),
+                    'sw-block-field': await wrapTestComponent('sw-block-field'),
+                    'sw-card-filter': await wrapTestComponent('sw-card-filter'),
+                    'sw-empty-state': await wrapTestComponent('sw-empty-state'),
+                    'router-link': {
+                        template: '<a class="router-link" :detail-route="to.name"><slot></slot></a>',
+                        props: ['to'],
                     },
+                    'sw-product-variant-info': true,
+                    'sw-context-menu-item': await wrapTestComponent('sw-context-menu-item'),
+                    'sw-extension-component-section': true,
+                    'sw-ai-copilot-badge': true,
+                    'sw-loader': true,
+                    'sw-field-error': true,
+                    'sw-data-grid-inline-edit': true,
+                    'sw-pagination': true,
+                    'sw-field-copyable': true,
+                    'sw-inheritance-switch': true,
+                    'sw-help-text': true,
+                    'sw-popover': {
+                        template: '<div class="sw-popover"><slot></slot></div>',
+                    },
+                    'sw-context-menu': {
+                        template: '<div class="sw-context-menu"><slot></slot></div>',
+                    },
+                    'sw-bulk-edit-modal': true,
+                    'sw-data-grid-settings': true,
+                    'sw-data-grid-column-boolean': true,
+                    'sw-data-grid-skeleton': true,
+                    'sw-settings-rule-add-assignment-listing': true,
+                    'sw-settings-rule-category-tree': true,
+                    'sw-provide': { template: '<slot/>', inheritAttrs: false },
                 },
-                shortcutService: {
-                    startEventListener: jest.fn(),
-                    stopEventListener: jest.fn(),
+                provide: {
+                    ruleConditionDataProviderService: ruleConditionDataProviderServiceMock,
+                    validationService: {},
+                    repositoryFactory: {
+                        create: (entityName) => repositoryMockOverwrite || repositoryMock(entityName, entitiesWithResults),
+                    },
+                    acl: {
+                        can: (identifier) => {
+                            return privileges.includes(identifier);
+                        },
+                    },
+                    shortcutService: {
+                        startEventListener: jest.fn(),
+                        stopEventListener: jest.fn(),
+                    },
                 },
             },
         },
-    });
+    );
 }
 
 describe('src/module/sw-settings-rule/view/sw-settings-rule-detail-assignments', () => {
@@ -234,7 +242,11 @@ describe('src/module/sw-settings-rule/view/sw-settings-rule-detail-assignments',
             expect.objectContaining({ name: 'Baz' }),
         ]);
 
-        expect(repository.search).toHaveBeenNthCalledWith(1, expect.any(Criteria), defaultApi ? Context.api : testConfig.product.api());
+        expect(repository.search).toHaveBeenNthCalledWith(
+            1,
+            expect.any(Criteria),
+            defaultApi ? Context.api : testConfig.product.api(),
+        );
         expect(wrapper.vm.associationEntities).toEqual(
             expect.arrayContaining([
                 expect.objectContaining({
@@ -250,15 +262,11 @@ describe('src/module/sw-settings-rule/view/sw-settings-rule-detail-assignments',
     });
 
     it('should throw error if loading association data fails', async () => {
-        const wrapper = await createWrapper(
-            defaultProps,
-            ['product'],
-            {
-                search: jest.fn(() => {
-                    return Promise.reject(new Error('Error'));
-                }),
-            },
-        );
+        const wrapper = await createWrapper(defaultProps, ['product'], {
+            search: jest.fn(() => {
+                return Promise.reject(new Error('Error'));
+            }),
+        });
         wrapper.vm.createNotificationError = jest.fn();
         await flushPromises();
 
@@ -313,12 +321,19 @@ describe('src/module/sw-settings-rule/view/sw-settings-rule-detail-assignments',
         // expect entity listing for products to be present
         expect(wrapper.find('.sw-settings-rule-detail-assignments__card-product .router-link').exists()).toBeTruthy();
 
-        const productAssignments = wrapper.findAll('.sw-settings-rule-detail-assignments__entity-listing-product .sw-data-grid__cell--name');
+        const productAssignments = wrapper.findAll(
+            '.sw-settings-rule-detail-assignments__entity-listing-product .sw-data-grid__cell--name',
+        );
 
         // expect the right amount of items
         expect(productAssignments).toHaveLength(4);
 
-        const validNames = ['Foo', 'Bar', 'Baz', 'Inherited'];
+        const validNames = [
+            'Foo',
+            'Bar',
+            'Baz',
+            'Inherited',
+        ];
 
         // expect the correct names of the products
         productAssignments.forEach((assignment, index) => {
@@ -330,7 +345,9 @@ describe('src/module/sw-settings-rule/view/sw-settings-rule-detail-assignments',
         const wrapper = await createWrapper();
         await flushPromises();
 
-        const productListing = wrapper.find('.sw-settings-rule-detail-assignments__entity-listing-product .sw-data-grid__cell--name .router-link');
+        const productListing = wrapper.find(
+            '.sw-settings-rule-detail-assignments__entity-listing-product .sw-data-grid__cell--name .router-link',
+        );
 
         // expect promotion entity listing to exist
         expect(productListing.exists()).toBe(true);
@@ -341,8 +358,18 @@ describe('src/module/sw-settings-rule/view/sw-settings-rule-detail-assignments',
     });
 
     it.each([
-        { name: 'not assigned total (true)', total: 0, restricted: false, disabled: true },
-        { name: 'not assigned total (false)', total: 10, restricted: false, disabled: false },
+        {
+            name: 'not assigned total (true)',
+            total: 0,
+            restricted: false,
+            disabled: true,
+        },
+        {
+            name: 'not assigned total (false)',
+            total: 10,
+            restricted: false,
+            disabled: false,
+        },
         { name: 'restricted', total: 10, restricted: true, disabled: true },
     ])('should enable/disable rule add button: $name', async ({ total, restricted, disabled }) => {
         ruleConditionDataProviderServiceMock.isRuleRestricted.mockImplementationOnce(() => {
@@ -358,16 +385,13 @@ describe('src/module/sw-settings-rule/view/sw-settings-rule-detail-assignments',
             };
         });
 
-        const wrapper = await createWrapper(
-            defaultProps,
-            total === 0 ? [] : ['product'],
-        );
+        const wrapper = await createWrapper(defaultProps, total === 0 ? [] : ['product']);
         await flushPromises();
 
         const addButton = wrapper.find('.sw-settings-rule-detail-assignments__add-button');
 
         expect(addButton.exists()).toBe(true);
-        expect(addButton.attributes('disabled') === '').toBe(disabled);
+        expect(addButton.attributes('disabled') !== undefined).toBe(disabled);
     });
 
     it.each([
@@ -438,7 +462,7 @@ describe('src/module/sw-settings-rule/view/sw-settings-rule-detail-assignments',
 
         expect(wrapper.find('.sw-settings-rule-detail-assignments__delete-modal').exists()).toBe(false);
 
-        await wrapper.find('.sw-data-grid__row--0 .sw-context-button button').trigger('click');
+        await wrapper.find('.sw-data-grid__row--0 .sw-context-button').trigger('click');
         await flushPromises();
 
         expect(wrapper.find('.sw-context-menu-item--danger').exists()).toBe(true);
@@ -556,20 +580,14 @@ describe('src/module/sw-settings-rule/view/sw-settings-rule-detail-assignments',
         };
 
         const repositoryOverwriteMock = {
-            search: jest.fn(() => Promise.resolve(
-                createEntityCollectionMock('product', [itemMock]),
-            )),
+            search: jest.fn(() => Promise.resolve(createEntityCollectionMock('product', [itemMock]))),
             save: jest.fn(() => Promise.resolve()),
         };
 
-        const wrapper = await createWrapper(
-            defaultProps,
-            ['product'],
-            repositoryOverwriteMock,
-        );
+        const wrapper = await createWrapper(defaultProps, ['product'], repositoryOverwriteMock);
         await flushPromises();
 
-        await wrapper.find('.sw-data-grid__row--0 .sw-context-button button').trigger('click');
+        await wrapper.find('.sw-data-grid__row--0 .sw-context-button').trigger('click');
         await flushPromises();
 
         expect(wrapper.find('.sw-context-menu-item--danger').exists()).toBe(true);
@@ -611,22 +629,20 @@ describe('src/module/sw-settings-rule/view/sw-settings-rule-detail-assignments',
         };
 
         const repositoryOverwriteMock = {
-            search: jest.fn(() => Promise.resolve(
-                createEntityCollectionMock('product', [itemMock]),
-            )),
+            search: jest.fn(() => Promise.resolve(createEntityCollectionMock('product', [itemMock]))),
             save: jest.fn(() => Promise.resolve()),
         };
 
         const wrapper = await createWrapper(defaultProps, ['product'], repositoryOverwriteMock);
         await flushPromises();
 
-        await wrapper.find('.sw-data-grid__row--0 .sw-field__checkbox input').setChecked(true);
-        await wrapper.find('.sw-data-grid__row--0 .sw-field__checkbox input').trigger('click');
+        await wrapper.find('.sw-data-grid__row--0 .mt-field--checkbox__container input').setChecked(true);
+        await wrapper.find('.sw-data-grid__row--0 .mt-field--checkbox__container input').trigger('click');
 
         await wrapper.find('.sw-settings-rule-detail-assignments__entity-listing .link-danger').trigger('click');
 
         expect(wrapper.find('.sw-entity-listing__confirm-bulk-delete-modal').exists()).toBe(true);
-        await wrapper.find('.sw-entity-listing__confirm-bulk-delete-modal .sw-button--danger').trigger('click');
+        await wrapper.findByText('button', 'global.default.remove').trigger('click');
         await flushPromises();
 
         expect(wrapper.find('.sw-entity-listing__confirm-bulk-delete-modal').exists()).toBe(false);
@@ -678,6 +694,8 @@ describe('src/module/sw-settings-rule/view/sw-settings-rule-detail-assignments',
         const wrapper = await createWrapper();
         await flushPromises();
 
-        expect(wrapper.find('.sw-data-grid__row--0 .router-link').attributes('detail-route')).toBe(testConfig.product.detailRoute);
+        expect(wrapper.find('.sw-data-grid__row--0 .router-link').attributes('detail-route')).toBe(
+            testConfig.product.detailRoute,
+        );
     });
 });

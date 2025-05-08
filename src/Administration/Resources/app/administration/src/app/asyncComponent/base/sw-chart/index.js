@@ -1,4 +1,5 @@
-import VueApexCharts from 'vue-apexcharts';
+import VueApexCharts from 'vue3-apexcharts';
+import apexLocales from './locales';
 import template from './sw-chart.html.twig';
 import './sw-chart.scss';
 
@@ -6,7 +7,7 @@ const { object } = Shopware.Utils;
 const { warn } = Shopware.Utils.debug;
 
 /**
- * @package admin
+ * @sw-package framework
  *
  * @private
  * @status ready
@@ -85,8 +86,6 @@ export default {
     template,
     inheritAttrs: false,
 
-    compatConfig: Shopware.compatConfig,
-
     components: {
         apexchart: VueApexCharts,
     },
@@ -158,16 +157,18 @@ export default {
 
     computed: {
         mergedOptions() {
-            return object.merge(
-                {},
-                this.defaultOptions,
-                this.options,
-                { labels: this.mergedLabels },
-            );
+            return object.merge({}, this.defaultOptions, this.options, {
+                labels: this.mergedLabels,
+            });
         },
 
         mergedLabels() {
-            return this.options.labels ? [...this.options.labels, ...this.generatedLabels] : this.generatedLabels;
+            return this.options.labels
+                ? [
+                      ...this.options.labels,
+                      ...this.generatedLabels,
+                  ]
+                : this.generatedLabels;
         },
 
         optimizedSeries() {
@@ -223,39 +224,22 @@ export default {
              *
              * [84561, ...]
              */
-            return this.series
-                .map(serie => serie.data.map(data => data.x))
-                .flat();
+            return this.series.map((serie) => serie.data.map((data) => data.x)).flat();
         },
 
         needOneDimensionalArray() {
-            return ['pie', 'donut'].indexOf(this.type) >= 0;
+            return (
+                [
+                    'pie',
+                    'donut',
+                ].indexOf(this.type) >= 0
+            );
         },
 
         defaultLocale() {
-            const adminLocaleLanguage = Shopware.State.getters.adminLocaleLanguage;
+            const adminLocaleLanguage = Shopware.Store.get('session').adminLocaleLanguage;
 
-            let allowedLocales = [];
-            if (!this.feature.isActive('ADMIN_VITE')) {
-                // get all available languages in "apexcharts/dist/locales/**.json"
-                const languageFiles = require.context('apexcharts/dist/locales', false, /.json/);
-
-                // change string from "./en.json" to "en"
-                allowedLocales = languageFiles.keys()
-                    .map(filePath => filePath.replace('./', ''))
-                    .map(filePath => filePath.replace('.json', ''));
-            } else {
-                // get all available languages in "apexcharts/dist/locales/**.json"
-                // eslint-disable-next-line max-len
-                const languageFiles = import.meta.glob('./../../../../../node_modules/apexcharts/dist/locales/*.json', { eager: true });
-
-                // change string from "../../../../../node_modules/apexcharts/dist/locales/en.json" to "en"
-                allowedLocales = Object.keys(languageFiles)
-                    .map(filePath => filePath.replace('../../../../../node_modules/apexcharts/dist/locales/', ''))
-                    .map(filePath => filePath.replace('.json', ''));
-            }
-
-            if (allowedLocales.includes(adminLocaleLanguage)) {
+            if (Object.keys(apexLocales).includes(adminLocaleLanguage)) {
                 return adminLocaleLanguage;
             }
 
@@ -271,7 +255,9 @@ export default {
                     },
 
                     defaultLocale: this.defaultLocale,
-                    locales: [...(this.localeConfig ? [this.localeConfig] : [])],
+                    locales: [
+                        ...(this.localeConfig ? [this.localeConfig] : []),
+                    ],
                     zoom: false,
                 },
 
@@ -329,19 +315,6 @@ export default {
                 },
             };
         },
-
-        /**
-         * @deprecated tag:v6.7.0 - Can be removed. Event listerns will be in $attrs.
-         */
-        listeners() {
-            let listeners = {};
-
-            if (this.isCompatEnabled('INSTANCE_LISTENERS')) {
-                listeners = this.$listeners;
-            }
-
-            return listeners;
-        },
     },
 
     created() {
@@ -350,16 +323,15 @@ export default {
 
     methods: {
         createdComponent() {
-            return this.loadLocaleConfig().finally(() => {
-                this.isLoading = false;
-            });
+            this.loadLocaleConfig();
+            this.isLoading = false;
         },
 
         sortSeries(series) {
             const newSeries = object.deepCopyObject(series);
 
             newSeries.forEach((serie) => {
-                serie.data = serie.data.sort((a, b) => ((a.x && b.x) ? a.x - b.x : a - b));
+                serie.data = serie.data.sort((a, b) => (a.x && b.x ? a.x - b.x : a - b));
             });
 
             return newSeries;
@@ -375,7 +347,7 @@ export default {
             // add zero values for each serie
             newSeries.forEach((serie) => {
                 zeroValues.forEach((zeroDate) => {
-                    const findDate = serie.data.find(date => date.x === zeroDate.x);
+                    const findDate = serie.data.find((date) => date.x === zeroDate.x);
                     if (!findDate) {
                         serie.data.push(zeroDate);
                     }
@@ -421,10 +393,7 @@ export default {
 
         getZeroValues() {
             // check if empty dates should filled and xaxis is datetime
-            if (!(
-                (this.fillEmptyValues) &&
-                this.options.xaxis && this.options.xaxis.type === 'datetime'
-            )) {
+            if (!(this.fillEmptyValues && this.options.xaxis && this.options.xaxis.type === 'datetime')) {
                 return [];
             }
 
@@ -473,14 +442,8 @@ export default {
             return zeroTimestamps;
         },
 
-        async loadLocaleConfig() {
-            const defaultLocale = this.defaultLocale;
-
-            // ESLint can´t understand template strings in this import context
-            /* eslint-disable prefer-template, max-len */
-            const localeConfigModule = await import(/* @vite-ignore */'../../../../../node_modules/apexcharts/dist/locales/' + defaultLocale + '.json');
-
-            this.localeConfig = localeConfigModule?.default;
+        loadLocaleConfig() {
+            this.localeConfig = apexLocales[this.defaultLocale];
         },
     },
 };

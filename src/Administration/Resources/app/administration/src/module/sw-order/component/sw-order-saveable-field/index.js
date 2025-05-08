@@ -2,16 +2,17 @@ import template from './sw-order-saveable-field.html.twig';
 import './sw-order-saveable-field.scss';
 
 /**
- * @package checkout
+ * @sw-package checkout
  */
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default {
     template,
 
-    compatConfig: Shopware.compatConfig,
-
-    emits: ['value-change'],
+    emits: [
+        'value-change',
+        'update:value',
+    ],
 
     props: {
         // eslint-disable-next-line vue/require-prop-types
@@ -60,7 +61,7 @@ export default {
                 case 'number':
                     return 'sw-number-field';
                 case 'password':
-                    return 'sw-password-field';
+                    return 'mt-password-field';
                 case 'radio':
                     return 'sw-radio-field';
                 case 'select':
@@ -76,15 +77,23 @@ export default {
             }
         },
 
-        /**
-         * @deprecated tag:v6.7.0 - Will be removed
-         */
-        listeners() {
-            if (this.isCompatEnabled('INSTANCE_LISTENERS')) {
-                return this.$listeners;
+        valuePropName() {
+            switch (this.component) {
+                case 'mt-textarea':
+                case 'mt-switch':
+                case 'mt-number-field':
+                    return 'modelValue';
+                default:
+                    return 'value';
             }
+        },
 
-            return {};
+        computedAttrs() {
+            return {
+                ...this.$attrs,
+                [this.valuePropName]: this.value,
+                'onUpdate:modelValue': (value) => this.$emit('update:value', value),
+            };
         },
     },
 

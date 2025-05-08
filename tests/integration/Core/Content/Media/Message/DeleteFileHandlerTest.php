@@ -14,14 +14,11 @@ class DeleteFileHandlerTest extends TestCase
 {
     use IntegrationTestBehaviour;
 
-    /**
-     * @var DeleteFileHandler
-     */
-    private $handler;
+    private DeleteFileHandler $handler;
 
     protected function setUp(): void
     {
-        $this->handler = $this->getContainer()->get(DeleteFileHandler::class);
+        $this->handler = static::getContainer()->get(DeleteFileHandler::class);
     }
 
     public function testItHandlesDeletes(): void

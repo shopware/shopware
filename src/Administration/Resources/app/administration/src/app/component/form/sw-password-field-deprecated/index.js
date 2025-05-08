@@ -2,7 +2,7 @@ import template from './sw-password-field-deprecated.html.twig';
 import './sw-password-field.scss';
 
 /**
- * @package admin
+ * @sw-package framework
  *
  * @private
  * @description password input field.
@@ -52,10 +52,9 @@ Shopware.Component.extend('sw-password-field-deprecated', 'sw-text-field-depreca
         },
 
         passwordPlaceholder() {
-            return this.showPassword ||
-                !this.placeholderIsPassword ?
-                this.placeholder :
-                '*'.repeat(this.placeholder.length ? this.placeholder.length : 6);
+            return this.showPassword || !this.placeholderIsPassword
+                ? this.placeholder
+                : '*'.repeat(this.placeholder.length ? this.placeholder.length : 6);
         },
     },
 

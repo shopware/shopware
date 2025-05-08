@@ -15,53 +15,27 @@ use Shopware\Core\Framework\Log\Package;
 #[Package('inventory')]
 class SalesChannelProductEntity extends ProductEntity
 {
-    /**
-     * @var PriceCollection
-     */
-    protected $calculatedPrices;
+    protected PriceCollection $calculatedPrices;
 
-    /**
-     * @var CalculatedPrice
-     */
-    protected $calculatedPrice;
+    protected CalculatedPrice $calculatedPrice;
 
-    /**
-     * @var PropertyGroupCollection|null
-     */
-    protected $sortedProperties;
+    protected ?PropertyGroupCollection $sortedProperties = null;
 
-    /**
-     * @var CalculatedCheapestPrice
-     */
-    protected $calculatedCheapestPrice;
+    protected CalculatedCheapestPrice $calculatedCheapestPrice;
 
-    /**
-     * @var bool
-     */
-    protected $isNew = false;
+    protected bool $isNew = false;
 
-    /**
-     * @var int
-     */
-    protected $calculatedMaxPurchase;
+    protected int $calculatedMaxPurchase;
 
-    /**
-     * @var CategoryEntity|null
-     */
-    protected $seoCategory;
+    protected ?CategoryEntity $seoCategory = null;
 
     /**
      * The container will be resolved on product.loaded event and
      * the detected cheapest price will be set for the current context rules
-     *
-     * @var CheapestPrice|CheapestPriceContainer|null
      */
-    protected $cheapestPrice;
+    protected CheapestPrice|CheapestPriceContainer|null $cheapestPrice = null;
 
-    /**
-     * @var CheapestPriceContainer|null
-     */
-    protected $cheapestPriceContainer;
+    protected ?CheapestPriceContainer $cheapestPriceContainer = null;
 
     public function setCalculatedPrices(PriceCollection $prices): void
     {

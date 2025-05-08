@@ -5,7 +5,7 @@ namespace Shopware\Core\Content\LandingPage;
 use Shopware\Core\Framework\HttpException;
 use Shopware\Core\Framework\Log\Package;
 
-#[Package('buyers-experience')]
+#[Package('discovery')]
 class LandingPageException extends HttpException
 {
     public const EXCEPTION_CODE_LANDING_PAGE_NOT_FOUND = 'CONTENT__LANDING_PAGE_NOT_FOUND';

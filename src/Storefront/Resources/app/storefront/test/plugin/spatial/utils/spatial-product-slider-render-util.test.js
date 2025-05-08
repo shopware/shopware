@@ -10,6 +10,8 @@ describe('SpatialProductSliderRenderUtil', () => {
         jest.clearAllMocks();
 
         SpatialProductSliderRenderUtilObject = new SpatialProductSliderRenderUtil();
+
+        window.PluginManager.initializePlugin = jest.fn(() => Promise.resolve());
     });
 
     afterEach(() => {
@@ -147,8 +149,7 @@ describe('SpatialProductSliderRenderUtil', () => {
 
             SpatialProductSliderRenderUtilObject.rebuildEvent(testTarget);
 
-            expect(SpatialProductSliderRenderUtilObject.init).toHaveBeenCalled();
-            expect(SpatialProductSliderRenderUtilObject.plugin.initViewer).toHaveBeenCalled();
+            expect(window.PluginManager.initializePlugin).toHaveBeenCalledTimes(3);
         });
     });
 
@@ -200,7 +201,8 @@ describe('SpatialProductSliderRenderUtil', () => {
             }
             SpatialProductSliderRenderUtilObject.sliderPlugin = {
                 $emitter: {
-                    subscribe: jest.fn()
+                    subscribe: jest.fn(),
+                    unsubscribe: jest.fn()
                 }
             }
 

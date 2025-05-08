@@ -4,15 +4,17 @@ import './sw-review-detail.scss';
 const { Criteria } = Shopware.Data;
 
 /**
- * @package inventory
+ * @sw-package inventory
  */
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default {
     template,
 
-    compatConfig: Shopware.compatConfig,
-
-    inject: ['repositoryFactory', 'acl', 'customFieldDataProviderService'],
+    inject: [
+        'repositoryFactory',
+        'acl',
+        'customFieldDataProviderService',
+    ],
 
     mixins: [
         'placeholder',
@@ -156,17 +158,18 @@ export default {
 
         onSave() {
             this.isSaveSuccessful = false;
-            const messageSaveError = this.$tc(
-                'global.notification.notificationSaveErrorMessageRequiredFieldsInvalid',
-            );
+            const messageSaveError = this.$tc('global.notification.notificationSaveErrorMessageRequiredFieldsInvalid');
 
-            this.repository.save(this.review).then(() => {
-                this.isSaveSuccessful = true;
-            }).catch(() => {
-                this.createNotificationError({
-                    message: messageSaveError,
+            this.repository
+                .save(this.review)
+                .then(() => {
+                    this.isSaveSuccessful = true;
+                })
+                .catch(() => {
+                    this.createNotificationError({
+                        message: messageSaveError,
+                    });
                 });
-            });
         },
 
         onSaveFinish() {

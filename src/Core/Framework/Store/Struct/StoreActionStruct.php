@@ -11,15 +11,9 @@ use Shopware\Core\Framework\Struct\Struct;
 #[Package('checkout')]
 class StoreActionStruct extends Struct
 {
-    /**
-     * @var string
-     */
-    protected $label;
+    protected string $label;
 
-    /**
-     * @var string
-     */
-    protected $externalLink;
+    protected string $externalLink;
 
     public function getApiAlias(): string
     {

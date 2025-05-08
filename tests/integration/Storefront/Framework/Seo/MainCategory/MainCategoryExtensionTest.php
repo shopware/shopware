@@ -3,6 +3,7 @@
 namespace Shopware\Tests\Integration\Storefront\Framework\Seo\MainCategory;
 
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Content\Category\CategoryCollection;
 use Shopware\Core\Content\Product\ProductCollection;
 use Shopware\Core\Content\Product\ProductEntity;
 use Shopware\Core\Content\Seo\MainCategory\MainCategoryCollection;
@@ -19,7 +20,7 @@ use Shopware\Core\Framework\Uuid\Uuid;
 /**
  * @internal
  */
-#[Package('buyers-experience')]
+#[Package('inventory')]
 class MainCategoryExtensionTest extends TestCase
 {
     use IntegrationTestBehaviour;
@@ -30,12 +31,15 @@ class MainCategoryExtensionTest extends TestCase
      */
     private EntityRepository $productRepository;
 
+    /**
+     * @var EntityRepository<CategoryCollection>
+     */
     private EntityRepository $categoryRepository;
 
     protected function setUp(): void
     {
-        $this->productRepository = $this->getContainer()->get('product.repository');
-        $this->categoryRepository = $this->getContainer()->get('category.repository');
+        $this->productRepository = static::getContainer()->get('product.repository');
+        $this->categoryRepository = static::getContainer()->get('category.repository');
     }
 
     public function testMainCategoryLoaded(): void

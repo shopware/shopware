@@ -1,35 +1,37 @@
 /**
- * @package buyers-experience
+ * @sw-package discovery
  */
 import { mount } from '@vue/test-utils';
 import { setupCmsEnvironment } from 'src/module/sw-cms/test-utils';
 
 async function createWrapper() {
-    return mount(await wrapTestComponent('sw-cms-el-location-renderer', {
-        sync: true,
-    }), {
-        props: {
-            element: {
-                id: '123456789',
+    return mount(
+        await wrapTestComponent('sw-cms-el-location-renderer', {
+            sync: true,
+        }),
+        {
+            props: {
+                element: {
+                    id: '123456789',
+                },
+                elementData: {
+                    name: 'example_cms_element_type',
+                    appData: {
+                        baseUrl: 'http://test.example-app.com',
+                    },
+                },
             },
-            elementData: {
-                name: 'example_cms_element_type',
-                appData: {
-                    baseUrl: 'http://test.example-app.com',
+            global: {
+                stubs: {
+                    'sw-iframe-renderer': true,
+                },
+                provide: {
+                    cmsService: Shopware.Service('cmsService'),
                 },
             },
         },
-        global: {
-            stubs: {
-                'sw-iframe-renderer': true,
-            },
-            provide: {
-                cmsService: Shopware.Service('cmsService'),
-            },
-        },
-    });
+    );
 }
-
 
 describe('module/sw-cms/elements/location-renderer/component', () => {
     beforeAll(async () => {
@@ -57,23 +59,21 @@ describe('module/sw-cms/elements/location-renderer/component', () => {
 
         expect(Shopware.ExtensionAPI.publishData).toHaveBeenCalledTimes(2);
         // First call is just for backwards compatibility
-        expect(Shopware.ExtensionAPI.publishData).toHaveBeenNthCalledWith(
-            1,
-            {
-                id: 'example_cms_element_type__config-element',
-                path: 'element',
-                scope: expect.anything(),
-            },
-        );
+        expect(Shopware.ExtensionAPI.publishData).toHaveBeenNthCalledWith(1, {
+            id: 'example_cms_element_type__config-element',
+            path: 'element',
+            scope: expect.anything(),
+            deprecated: true,
+            deprecationMessage:
+                // eslint-disable-next-line max-len
+                'The general cms element data set is deprecated. Please use a specific cms data set instead by provoding the element id.',
+        });
 
-        expect(Shopware.ExtensionAPI.publishData).toHaveBeenNthCalledWith(
-            2,
-            {
-                id: 'example_cms_element_type__config-element__123456789',
-                path: 'element',
-                scope: expect.anything(),
-            },
-        );
+        expect(Shopware.ExtensionAPI.publishData).toHaveBeenNthCalledWith(2, {
+            id: 'example_cms_element_type__config-element__123456789',
+            path: 'element',
+            scope: expect.anything(),
+        });
     });
 
     it('should unpublish the old publishData when elementData changes', async () => {

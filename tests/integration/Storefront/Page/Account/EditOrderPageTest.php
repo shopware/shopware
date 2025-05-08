@@ -3,7 +3,6 @@
 namespace Shopware\Tests\Integration\Storefront\Page\Account;
 
 use PHPUnit\Framework\TestCase;
-use Shopware\Core\Checkout\Customer\CustomerEntity;
 use Shopware\Core\Checkout\Order\Aggregate\OrderTransaction\OrderTransactionCollection;
 use Shopware\Core\Checkout\Order\Aggregate\OrderTransaction\OrderTransactionDefinition;
 use Shopware\Core\Checkout\Order\Aggregate\OrderTransaction\OrderTransactionEntity;
@@ -16,7 +15,6 @@ use Shopware\Core\Content\Rule\RuleCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
@@ -43,7 +41,7 @@ class EditOrderPageTest extends TestCase
 
     protected function setUp(): void
     {
-        $this->paymentMethodRepository = $this->getContainer()->get('payment_method.repository');
+        $this->paymentMethodRepository = static::getContainer()->get('payment_method.repository');
     }
 
     public function testEditOrderPageShouldLoad(): void
@@ -123,7 +121,7 @@ class EditOrderPageTest extends TestCase
         $ruleCriteria->addFilter(new EqualsFilter('name', 'Customers from USA'));
 
         /** @var EntityRepository<RuleCollection> $ruleRepository */
-        $ruleRepository = $this->getContainer()->get('rule.repository');
+        $ruleRepository = static::getContainer()->get('rule.repository');
 
         $ruleId = $ruleRepository->search($ruleCriteria, $context->getContext())->getEntities()->first()?->getId();
         static::assertNotNull($ruleId);
@@ -145,26 +143,18 @@ class EditOrderPageTest extends TestCase
         $context = $this->createSalesChannelContextWithLoggedInCustomerAndWithNavigation();
         $this->placeRandomOrder($context);
 
-        $selectedPaymentMethod = $this->createCustomPaymentMethod($context, ['position' => 1]);
+        $primaryMethod = $this->createCustomPaymentMethod($context, ['position' => 1]);
 
         // create some dummy methods to test sorting
         $this->createCustomPaymentMethod($context, ['position' => 0]);
         $this->createCustomPaymentMethod($context, ['position' => 4]);
 
-        // replace active payment method with a new one
-        $context->assign(['paymentMethod' => $selectedPaymentMethod]);
+        $context->getSalesChannel()->setPaymentMethodId($primaryMethod->getId());
 
         $page = $this->getPageLoader()->load($request, $context);
         $paymentMethods = \array_values($page->getPaymentMethods()->getElements());
 
-        // selected payment method should be first
-        static::assertSame($selectedPaymentMethod->getId(), $paymentMethods[0]->getId());
-
-        if (!Feature::isActive('v6.7.0.0')) {
-            // default payment method of customer should be second
-            static::assertInstanceOf(CustomerEntity::class, $context->getCustomer());
-            static::assertSame($context->getCustomer()->getDefaultPaymentMethodId(), $paymentMethods[1]->getId());
-        }
+        static::assertSame($primaryMethod->getId(), $paymentMethods[0]->getId());
     }
 
     public function testShouldNotAllowPaymentMethodChangeOnCertainTransactionStates(): void
@@ -190,7 +180,7 @@ class EditOrderPageTest extends TestCase
 
     protected function getPageLoader(): AccountEditOrderPageLoader
     {
-        return $this->getContainer()->get(AccountEditOrderPageLoader::class);
+        return static::getContainer()->get(AccountEditOrderPageLoader::class);
     }
 
     private function setOrderToTransactionState(
@@ -200,7 +190,7 @@ class EditOrderPageTest extends TestCase
     ): void {
         $order = $this->getOrder($orderId, $context);
 
-        $stateMachineRegistry = $this->getContainer()->get(StateMachineRegistry::class);
+        $stateMachineRegistry = static::getContainer()->get(StateMachineRegistry::class);
 
         static::assertInstanceOf(OrderTransactionCollection::class, $order->getTransactions());
 
@@ -221,7 +211,7 @@ class EditOrderPageTest extends TestCase
     private function getOrder(string $orderId, SalesChannelContext $context): OrderEntity
     {
         /** @var EntityRepository<OrderCollection> $orderRepository */
-        $orderRepository = $this->getContainer()->get('order.repository');
+        $orderRepository = static::getContainer()->get('order.repository');
         $criteria = new Criteria([$orderId]);
 
         $criteria->addAssociations(['stateMachineState', 'transactions.stateMachineState']);

@@ -9,7 +9,7 @@ use Symfony\Component\DependencyInjection\Compiler\CompilerPassInterface;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\DependencyInjection\Reference;
 
-#[Package('core')]
+#[Package('framework')]
 class AssetBundleRegistrationCompilerPass implements CompilerPassInterface
 {
     public function process(ContainerBuilder $container): void
@@ -36,8 +36,6 @@ class AssetBundleRegistrationCompilerPass implements CompilerPassInterface
         array_unshift($arguments, new Reference('shopware.asset.asset_without_versioning'));
         array_unshift($arguments, $bundleMap);
 
-        $assetService->setArguments(
-            $arguments
-        );
+        $assetService->setArguments($arguments);
     }
 }

@@ -1,33 +1,32 @@
 import type { PropType } from 'vue';
-import type { Entity } from '@shopware-ag/meteor-admin-sdk/es/_internals/data/Entity';
 import template from './sw-sortable-list.html.twig';
 import './sw-sortable-list.scss';
 
 const { Component } = Shopware;
 
 interface DragConfig {
-    delay: number,
-    dragGroup: number | string,
-    draggableCls: string,
-    draggingStateCls: string,
-    dragElementCls: string,
-    validDragCls: string,
-    invalidDragCls: string,
-    preventEvent: boolean,
-    validateDrop: boolean,
-    validateDrag: boolean,
-    onDragStart: (...args: never[]) => void,
-    onDragEnter: (...args: never[]) => void,
-    onDragLeave: (...args: never[]) => void,
-    onDrop: (...args: never[]) => void,
-    data: Record<string, unknown>,
-    disabled: boolean,
+    delay: number;
+    dragGroup: number | string;
+    draggableCls: string;
+    draggingStateCls: string;
+    dragElementCls: string;
+    validDragCls: string;
+    invalidDragCls: string;
+    preventEvent: boolean;
+    validateDrop: boolean;
+    validateDrag: boolean;
+    onDragStart: (...args: never[]) => void;
+    onDragEnter: (...args: never[]) => void;
+    onDragLeave: (...args: never[]) => void;
+    onDrop: (...args: never[]) => void;
+    data: Record<string, unknown>;
+    disabled: boolean;
 }
 
 interface ScrollOnDragConf {
-    speed: number,
-    margin: number,
-    accelerationMargin: number,
+    speed: number;
+    margin: number;
+    accelerationMargin: number;
 }
 
 const defaultConfig = {
@@ -45,7 +44,7 @@ const defaultScrollOnDragConf = {
 } as ScrollOnDragConf;
 
 /**
- * @package admin
+ * @sw-package framework
  *
  * @private
  * @status ready
@@ -63,8 +62,6 @@ const defaultScrollOnDragConf = {
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 Component.register('sw-sortable-list', {
     template,
-
-    compatConfig: Shopware.compatConfig,
 
     props: {
         items: {
@@ -104,12 +101,12 @@ Component.register('sw-sortable-list', {
     },
 
     data(): {
-        dragElement: Element|null,
-        defaultConfig: DragConfig,
-        defaultScrollOnDragConf: ScrollOnDragConf,
-        sortedItems: Array<Entity<keyof EntitySchema.Entities>>,
-        scrollEventTicking: boolean,
-        } {
+        dragElement: Element | null;
+        defaultConfig: DragConfig;
+        defaultScrollOnDragConf: ScrollOnDragConf;
+        sortedItems: Array<Entity<keyof EntitySchema.Entities>>;
+        scrollEventTicking: boolean;
+    } {
         return {
             defaultConfig,
             defaultScrollOnDragConf,
@@ -140,16 +137,19 @@ Component.register('sw-sortable-list', {
         },
 
         mergedScrollOnDragConfig(): ScrollOnDragConf {
-            return { ...this.defaultScrollOnDragConf, ...this.scrollOnDragConf } as ScrollOnDragConf;
+            return {
+                ...this.defaultScrollOnDragConf,
+                ...this.scrollOnDragConf,
+            } as ScrollOnDragConf;
         },
 
-        scrollableParent(): Element|null {
-            return this.findScrollableParent(this.$el as Element|null);
+        scrollableParent(): Element | null {
+            return this.findScrollableParent(this.$el as Element | null);
         },
     },
 
     methods: {
-        findScrollableParent(node: Element|null): Element|null {
+        findScrollableParent(node: Element | null): Element | null {
             if (node === null) {
                 return null;
             }
@@ -185,8 +185,8 @@ Component.register('sw-sortable-list', {
                 this.scroll();
             }
 
-            const draggedIndex = this.sortedItems.findIndex(c => c.id === draggedComponent.id);
-            const droppedIndex = this.sortedItems.findIndex(c => c.id === droppedComponent.id);
+            const draggedIndex = this.sortedItems.findIndex((c) => c.id === draggedComponent.id);
+            const droppedIndex = this.sortedItems.findIndex((c) => c.id === droppedComponent.id);
 
             if (draggedIndex < 0 || droppedIndex < 0) {
                 return;

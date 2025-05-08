@@ -14,13 +14,15 @@ use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 /**
  * @internal
  */
-#[Package('buyers-experience')]
+#[Package('discovery')]
 class SalesChannelUserConfigSubscriber implements EventSubscriberInterface
 {
     final public const CONFIG_KEY = 'sales-channel-favorites';
 
     /**
      * @internal
+     *
+     * @param EntityRepository<UserConfigCollection> $userConfigRepository
      */
     public function __construct(private readonly EntityRepository $userConfigRepository)
     {
@@ -70,9 +72,6 @@ class SalesChannelUserConfigSubscriber implements EventSubscriberInterface
         $criteria = new Criteria();
         $criteria->addFilter(new EqualsFilter('key', self::CONFIG_KEY));
 
-        /** @var UserConfigCollection $result */
-        $result = $this->userConfigRepository->search($criteria, $context)->getEntities();
-
-        return $result;
+        return $this->userConfigRepository->search($criteria, $context)->getEntities();
     }
 }

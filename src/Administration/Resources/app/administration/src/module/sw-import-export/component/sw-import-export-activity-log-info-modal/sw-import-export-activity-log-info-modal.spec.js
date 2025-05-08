@@ -1,5 +1,5 @@
 /**
- * @package services-settings
+ * @sw-package fundamentals@after-sales
  */
 import { mount } from '@vue/test-utils';
 
@@ -21,38 +21,66 @@ function getLogEntityMock() {
 }
 
 async function createWrapper(logEntity = getLogEntityMock()) {
-    return mount(await wrapTestComponent('sw-import-export-activity-log-info-modal', { sync: true }), {
-        global: {
-            provide: {
-                importExport: {},
-            },
-            stubs: {
-                'sw-modal': {
-                    template: `
+    return mount(
+        await wrapTestComponent('sw-import-export-activity-log-info-modal', {
+            sync: true,
+        }),
+        {
+            global: {
+                provide: {
+                    importExport: {},
+                },
+                stubs: {
+                    'sw-modal': {
+                        template: `
                     <div class="sw-modal-stub">
                         <slot></slot>
                     </div>`,
+                    },
+                    'sw-color-badge': true,
                 },
-                'sw-button': true,
-                'sw-color-badge': true,
+            },
+            props: {
+                logEntity,
             },
         },
-        props: {
-            logEntity,
-        },
-    });
+    );
 }
 
 describe('module/sw-import-export/components/sw-import-export-activity-log-info-modal', () => {
     let wrapper;
 
     it.each([
-        ['file name', '.sw-import-export-activity-log-info-modal__item-file-name dd', 'star-lord.csv'],
-        ['profile name', '.sw-import-export-activity-log-info-modal__item-profile dd', 'Default product'],
-        ['updated records', '.sw-import-export-activity-log-info-modal__item-records dd', '1'],
-        ['file size', '.sw-import-export-activity-log-info-modal__item-size dd', '458.00B'],
-        ['date', '.sw-import-export-activity-log-info-modal__item-date dd', '5 November 2021 at 09:08'],
-        ['user', '.sw-import-export-activity-log-info-modal__item-user dd', 'admin'],
+        [
+            'file name',
+            '.sw-import-export-activity-log-info-modal__item-file-name dd',
+            'star-lord.csv',
+        ],
+        [
+            'profile name',
+            '.sw-import-export-activity-log-info-modal__item-profile dd',
+            'Default product',
+        ],
+        [
+            'updated records',
+            '.sw-import-export-activity-log-info-modal__item-records dd',
+            '1',
+        ],
+        [
+            'file size',
+            '.sw-import-export-activity-log-info-modal__item-size dd',
+            '458.00B',
+        ],
+        [
+            'date',
+            '.sw-import-export-activity-log-info-modal__item-date dd',
+            '5 November 2021 at 09:08',
+        ],
+        [
+            'user',
+            '.sw-import-export-activity-log-info-modal__item-user dd',
+            'admin',
+        ],
     ])('should display the %s', async (_, selector, expectedText) => {
         wrapper = await createWrapper();
 
@@ -61,9 +89,18 @@ describe('module/sw-import-export/components/sw-import-export-activity-log-info-
     });
 
     it.each([
-        ['error', 'failed'],
-        ['success', 'succeeded'],
-        [undefined, 'pending'],
+        [
+            'error',
+            'failed',
+        ],
+        [
+            'success',
+            'succeeded',
+        ],
+        [
+            undefined,
+            'pending',
+        ],
     ])('should display badge as %s', async (expectedVariant, logEntityState) => {
         const logEntity = getLogEntityMock();
         logEntity.state = logEntityState;
@@ -81,8 +118,8 @@ describe('module/sw-import-export/components/sw-import-export-activity-log-info-
 
         wrapper = await createWrapper(logEntity);
 
-        const downloadButton = wrapper.find('sw-button-stub');
-        expect(downloadButton.attributes('disabled')).toBe('true');
+        const downloadButton = wrapper.findByText('button', 'sw-import-export.activity.logInfo.labelDownloadFile');
+        expect(downloadButton.attributes('disabled')).toBeDefined();
     });
 
     it('should enable the button when export has been finished', async () => {
@@ -92,7 +129,7 @@ describe('module/sw-import-export/components/sw-import-export-activity-log-info-
 
         wrapper = await createWrapper(logEntity);
 
-        const downloadButton = wrapper.find('sw-button-stub');
+        const downloadButton = wrapper.findByText('button', 'sw-import-export.activity.logInfo.labelDownloadFile');
         expect(downloadButton.attributes('disabled')).toBeUndefined();
     });
 });

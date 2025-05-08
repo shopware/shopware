@@ -1,20 +1,21 @@
 /*
- * @package inventory
+ * @sw-package inventory
  */
 
 import template from './sw-product-media-form.html.twig';
 import './sw-product-media-form.scss';
 
-const { Component, Mixin } = Shopware;
-const { mapGetters } = Component.getComponentHelper();
+const { Mixin } = Shopware;
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default {
     template,
 
-    compatConfig: Shopware.compatConfig,
-
-    inject: ['repositoryFactory', 'acl', 'systemConfigApiService'],
+    inject: [
+        'repositoryFactory',
+        'acl',
+        'systemConfigApiService',
+    ],
 
     emits: ['media-open'],
 
@@ -54,7 +55,7 @@ export default {
 
     computed: {
         product() {
-            const state = Shopware.State.get('swProductDetail');
+            const state = Shopware.Store.get('swProductDetail');
 
             if (this.isInherited) {
                 return state.parentProduct;
@@ -82,12 +83,12 @@ export default {
                 return null;
             }
             const coverId = this.product.cover ? this.product.cover.mediaId : this.product.coverId;
-            return this.product.media.find(media => media.id === coverId);
+            return this.product.media.find((media) => media.id === coverId);
         },
 
-        ...mapGetters('swProductDetail', {
-            isStoreLoading: 'isLoading',
-        }),
+        isStoreLoading() {
+            return Shopware.Store.get('swProductDetail').isLoading;
+        },
 
         isLoading() {
             return this.isMediaLoading || this.isStoreLoading;
@@ -117,7 +118,7 @@ export default {
         },
 
         currentCoverID() {
-            const coverMediaItem = this.productMedia.find(coverMedium => coverMedium.media.id === this.product.coverId);
+            const coverMediaItem = this.productMedia.find((coverMedium) => coverMedium.media.id === this.product.coverId);
 
             return coverMediaItem.id;
         },
@@ -129,11 +130,14 @@ export default {
 
     methods: {
         onCreated() {
-            this.systemConfigApiService.getValues('core.media').then((response) => {
-                this.globalIsArReady = response['core.media.defaultEnableAugmentedReality'];
-            }).catch((error) => {
-                throw error;
-            });
+            this.systemConfigApiService
+                .getValues('core.media')
+                .then((response) => {
+                    this.globalIsArReady = response['core.media.defaultEnableAugmentedReality'];
+                })
+                .catch((error) => {
+                    throw error;
+                });
         },
 
         onOpenMedia() {
@@ -146,7 +150,8 @@ export default {
                     return false;
                 }
 
-                const cssColumns = window.getComputedStyle(this.$refs.grid, null)
+                const cssColumns = window
+                    .getComputedStyle(this.$refs.grid, null)
                     .getPropertyValue('grid-template-columns')
                     .split(' ');
                 this.columnCount = cssColumns.length;
@@ -164,7 +169,7 @@ export default {
             let placeholderCount = columnCount;
 
             if (this.productMedia.length !== 0) {
-                placeholderCount = columnCount - ((this.productMedia.length) % columnCount);
+                placeholderCount = columnCount - (this.productMedia.length % columnCount);
                 if (placeholderCount === columnCount) {
                     return 0;
                 }
@@ -275,7 +280,7 @@ export default {
         },
 
         /**
-         * @experimental stableVersion:v6.7.0 feature:SPATIAL_BASES
+         * @experimental stableVersion:v6.8.0 feature:SPATIAL_BASES
          */
         isSpatial(productMedia) {
             // we need to check the media url since media.fileExtension is set directly after upload
@@ -283,7 +288,7 @@ export default {
         },
 
         /**
-         * @experimental stableVersion:v6.7.0 feature:SPATIAL_BASES
+         * @experimental stableVersion:v6.8.0 feature:SPATIAL_BASES
          */
         isArReady(productMedia) {
             return productMedia.media?.config?.spatial?.arReady ?? this.globalIsArReady;
@@ -328,9 +333,11 @@ export default {
         },
 
         onMediaItemDragSort(dragData, dropData, validDrop) {
-            if (validDrop !== true
-                || (dragData.id === this.product.coverId && dragData.position === 0)
-                || (dropData.id === this.product.coverId && dropData.position === 0)) {
+            if (
+                validDrop !== true ||
+                (dragData.id === this.product.coverId && dragData.position === 0) ||
+                (dropData.id === this.product.coverId && dropData.position === 0)
+            ) {
                 return;
             }
 

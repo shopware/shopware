@@ -1,6 +1,3 @@
-import type { Entity } from '@shopware-ag/meteor-admin-sdk/es/_internals/data/Entity';
-import type EntityCollection from 'src/core/data/entity-collection.data';
-
 import Criteria from '@shopware-ag/meteor-admin-sdk/es/data/Criteria';
 import template from './sw-category-detail-custom-entity.html.twig';
 import './sw-category-detail-custom-entity.scss';
@@ -10,12 +7,10 @@ const EXTENSION_POSTFIX = 'SwCategories';
 
 /**
  * @private
- * @package inventory
+ * @sw-package inventory
  */
 export default Shopware.Component.wrapComponentConfig({
     template,
-
-    compatConfig: Shopware.compatConfig,
 
     inject: [
         'repositoryFactory',
@@ -38,12 +33,16 @@ export default Shopware.Component.wrapComponentConfig({
 
     computed: {
         customEntityAssignments(): EntityCollection<'custom_entity'> | undefined {
-            return this.category?.extensions?.
-                [`${this.categoryCustomEntityProperty}${EXTENSION_POSTFIX}`] as
-                    EntityCollection<'custom_entity'> | undefined;
+            return this.category?.extensions?.[`${this.categoryCustomEntityProperty}${EXTENSION_POSTFIX}`] as
+                | EntityCollection<'custom_entity'>
+                | undefined;
         },
 
-        customEntityColumns(): { dataIndex: string; property: string, label: string }[] {
+        customEntityColumns(): {
+            dataIndex: string;
+            property: string;
+            label: string;
+        }[] {
             return [
                 {
                     dataIndex: 'cmsAwareTitle',
@@ -55,17 +54,15 @@ export default Shopware.Component.wrapComponentConfig({
 
         category(): Entity<'category'> | null {
             // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
-            return Shopware.State.get('swCategoryDetail').category as Entity<'category'> | null;
+            return Shopware.Store.get('swCategoryDetail').category as Entity<'category'> | null;
         },
 
         customEntityCriteria(): Criteria {
-            return new Criteria(1, 10)
-                .addFilter(Criteria.contains('flags', 'cms-aware'));
+            return new Criteria(1, 10).addFilter(Criteria.contains('flags', 'cms-aware'));
         },
 
         sortingCriteria(): Criteria {
-            return new Criteria(1, 10)
-                .addSorting(Criteria.sort('cmsAwareTitle', 'ASC'));
+            return new Criteria(1, 10).addSorting(Criteria.sort('cmsAwareTitle', 'ASC'));
         },
 
         assetFilter() {

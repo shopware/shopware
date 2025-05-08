@@ -6,7 +6,7 @@ const { mapPropertyErrors } = Component.getComponentHelper();
 
 /**
  * @public
- * @package services-settings
+ * @sw-package fundamentals@after-sales
  * @description Condition for the GoodsPriceRule. This component must a be child of sw-condition-tree.
  * @status prototype
  * @example-type code-only
@@ -38,7 +38,10 @@ Component.extend('sw-condition-goods-price', 'sw-condition-base', {
             },
         },
 
-        ...mapPropertyErrors('condition', ['value.operator', 'value.amount']),
+        ...mapPropertyErrors('condition', [
+            'value.operator',
+            'value.amount',
+        ]),
 
         currentError() {
             return this.conditionValueOperatorError || this.conditionValueAmountError;

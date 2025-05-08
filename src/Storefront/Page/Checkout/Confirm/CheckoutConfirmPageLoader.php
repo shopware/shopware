@@ -20,20 +20,17 @@ use Shopware\Core\Framework\Validation\DataValidator;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Storefront\Checkout\Cart\SalesChannel\StorefrontCartFacade;
 use Shopware\Storefront\Page\GenericPageLoaderInterface;
-use Shopware\Storefront\Page\MetaInformation;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
 /**
  * Do not use direct or indirect repository calls in a PageLoader. Always use a store-api route to get or put data.
  */
-#[Package('storefront')]
+#[Package('framework')]
 class CheckoutConfirmPageLoader
 {
     /**
      * @internal
-     *
-     * @deprecated tag:v6.7.0 - translator will be mandatory from 6.7
      */
     public function __construct(
         private readonly EventDispatcherInterface $eventDispatcher,
@@ -42,7 +39,7 @@ class CheckoutConfirmPageLoader
         private readonly GenericPageLoaderInterface $genericPageLoader,
         private readonly DataValidationFactoryInterface $addressValidationFactory,
         private readonly DataValidator $validator,
-        private readonly ?AbstractTranslator $translator = null
+        private readonly AbstractTranslator $translator
     ) {
     }
 
@@ -78,25 +75,10 @@ class CheckoutConfirmPageLoader
 
     protected function setMetaInformation(CheckoutConfirmPage $page): void
     {
-        /**
-         * @deprecated tag:v6.7.0 - Remove condtion in 6.7.
-         */
-        if ($page->getMetaInformation()) {
-            $page->getMetaInformation()->setRobots('noindex,follow');
-        }
-
-        /**
-         * @deprecated tag:v6.7.0 - Remove condition with body in 6.7.
-         */
-        if ($this->translator !== null && $page->getMetaInformation() === null) {
-            $page->setMetaInformation(new MetaInformation());
-        }
-
-        if ($this->translator !== null) {
-            $page->getMetaInformation()?->setMetaTitle(
-                $this->translator->trans('checkout.confirmMetaTitle') . ' | ' . $page->getMetaInformation()->getMetaTitle()
-            );
-        }
+        $page->getMetaInformation()?->setRobots('noindex,follow');
+        $page->getMetaInformation()?->setMetaTitle(
+            $this->translator->trans('checkout.confirmMetaTitle') . ' | ' . $page->getMetaInformation()->getMetaTitle()
+        );
     }
 
     /**
@@ -127,7 +109,7 @@ class CheckoutConfirmPageLoader
         }
 
         $validationEvent = new BuildValidationEvent($validation, new DataBag(), $context->getContext());
-        $this->eventDispatcher->dispatch($validationEvent);
+        $this->eventDispatcher->dispatch($validationEvent, $validationEvent->getName());
 
         if ($billingAddress === null) {
             return;
@@ -152,7 +134,7 @@ class CheckoutConfirmPageLoader
         }
 
         $validationEvent = new BuildValidationEvent($validation, new DataBag(), $context->getContext());
-        $this->eventDispatcher->dispatch($validationEvent);
+        $this->eventDispatcher->dispatch($validationEvent, $validationEvent->getName());
 
         if ($shippingAddress === null) {
             return;

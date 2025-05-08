@@ -1,5 +1,3 @@
-import type { Entity } from '@shopware-ag/meteor-admin-sdk/es/_internals/data/Entity';
-import type EntityCollection from '@shopware-ag/meteor-admin-sdk/es/_internals/data/EntityCollection';
 import type CriteriaType from 'src/core/data/criteria.data';
 import type RepositoryType from '../../../../core/data/repository.data';
 
@@ -9,26 +7,26 @@ import './sw-order-customer-grid.scss';
 import type { Cart } from '../../order.types';
 
 /**
- * @package checkout
+ * @sw-package checkout
  */
 
-const { Component, State, Mixin, Context } = Shopware;
+const { Component, Store, Mixin, Context } = Shopware;
 const { Criteria } = Shopware.Data;
 
 interface GridColumn {
-    property: string,
-    dataIndex?: string,
-    label: string,
-    primary?: boolean,
+    property: string;
+    dataIndex?: string;
+    label: string;
+    primary?: boolean;
 }
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default Component.wrapComponentConfig({
     template,
 
-    compatConfig: Shopware.compatConfig,
-
-    inject: ['repositoryFactory', 'feature'],
+    inject: [
+        'repositoryFactory',
+    ],
 
     mixins: [
         Mixin.getByName('listing'),
@@ -36,17 +34,17 @@ export default Component.wrapComponentConfig({
     ],
 
     data(): {
-        customers: EntityCollection<'customer'>|null,
-        isLoading: boolean,
-        isSwitchingCustomer: boolean,
-        showNewCustomerModal: boolean,
-        customer: Entity<'customer'>|null,
-        disableRouteParams: boolean,
-        showSalesChannelSelectModal: boolean,
-        showCustomerChangesModal: boolean,
-        salesChannelIds: string[],
-        customerDraft: Entity<'customer'>|null,
-        } {
+        customers: EntityCollection<'customer'> | null;
+        isLoading: boolean;
+        isSwitchingCustomer: boolean;
+        showNewCustomerModal: boolean;
+        customer: Entity<'customer'> | null;
+        disableRouteParams: boolean;
+        showSalesChannelSelectModal: boolean;
+        showCustomerChangesModal: boolean;
+        salesChannelIds: string[];
+        customerDraft: Entity<'customer'> | null;
+    } {
         return {
             customers: null,
             isLoading: false,
@@ -62,8 +60,8 @@ export default Component.wrapComponentConfig({
     },
 
     computed: {
-        customerData(): Entity<'customer'>| null {
-            return State.get('swOrder').customer;
+        customerData(): Entity<'customer'> | null {
+            return Store.get('swOrder').customer;
         },
 
         customerRepository(): RepositoryType<'customer'> {
@@ -102,33 +100,34 @@ export default Component.wrapComponentConfig({
                 .addAssociation('tags')
                 .addAssociation('boundSalesChannel');
 
-            if (!this.feature.isActive('v6.7.0.0')) {
-                criteria.addAssociation('defaultPaymentMethod');
-            }
-
             return criteria;
         },
 
         customerColumns(): GridColumn[] {
-            return [{
-                property: 'select',
-                label: '',
-            }, {
-                property: 'firstName',
-                dataIndex: 'lastName,firstName',
-                label: this.$tc('sw-order.initialModal.customerGrid.columnCustomerName'),
-                primary: true,
-            }, {
-                property: 'customerNumber',
-                label: this.$tc('sw-order.initialModal.customerGrid.columnCustomerNumber'),
-            },
-            {
-                property: 'salesChannel',
-                label: this.$tc('sw-order.initialModal.customerGrid.columnSalesChannel'),
-            }, {
-                property: 'email',
-                label: this.$tc('sw-order.initialModal.customerGrid.columnEmailAddress'),
-            }];
+            return [
+                {
+                    property: 'select',
+                    label: '',
+                },
+                {
+                    property: 'firstName',
+                    dataIndex: 'lastName,firstName',
+                    label: this.$tc('sw-order.initialModal.customerGrid.columnCustomerName'),
+                    primary: true,
+                },
+                {
+                    property: 'customerNumber',
+                    label: this.$tc('sw-order.initialModal.customerGrid.columnCustomerNumber'),
+                },
+                {
+                    property: 'salesChannel',
+                    label: this.$tc('sw-order.initialModal.customerGrid.columnSalesChannel'),
+                },
+                {
+                    property: 'email',
+                    label: this.$tc('sw-order.initialModal.customerGrid.columnEmailAddress'),
+                },
+            ];
         },
 
         showEmptyState(): boolean {
@@ -141,11 +140,11 @@ export default Component.wrapComponentConfig({
             }
 
             // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
-            return this.$tc('sw-order.initialModal.customerGrid.textEmptySearch', 0, { name: this.term });
+            return this.$t('sw-order.initialModal.customerGrid.textEmptySearch', { name: this.term }, 0);
         },
 
         cart(): Cart {
-            return State.get('swOrder').cart;
+            return Store.get('swOrder').cart;
         },
 
         assetFilter() {
@@ -190,17 +189,20 @@ export default Component.wrapComponentConfig({
 
             // @ts-expect-error
             this.$refs.customerFilter.term = this.customerData?.customerNumber;
+            void this.onSearch(this.customerData?.customerNumber);
             void this.onCheckCustomer(this.customerData);
         },
 
         getList(): Promise<void> {
             this.isLoading = true;
-            return this.customerRepository.search(this.customerCriteria)
+            return this.customerRepository
+                .search(this.customerCriteria)
                 .then((customers) => {
                     this.customers = customers;
                     // @ts-expect-error
                     this.total = customers.total;
-                }).finally(() => {
+                })
+                .finally(() => {
                     this.isLoading = false;
                 });
         },
@@ -219,20 +221,19 @@ export default Component.wrapComponentConfig({
                 this.customerDraft = this.customer;
             }
 
-            this.customer = await this.customerRepository
-                .get(item.id, Context.api, this.customerCriterion);
+            this.customer = await this.customerRepository.get(item.id, Context.api, this.customerCriterion);
 
             const isExists = (this.customer?.salesChannel?.languages || []).some(
                 (language) => language.id === Context.api.systemLanguageId,
             );
 
             if (!isExists && this.customer?.salesChannel?.languageId) {
-                State.commit('context/setLanguageId', this.customer.salesChannel.languageId);
+                Store.get('context').api.languageId = this.customer.salesChannel.languageId;
             }
 
             // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
-            if (isExists && !State.getters['context/isSystemDefaultLanguage']) {
-                State.commit('context/resetLanguageToDefault');
+            if (isExists && !Store.get('context').isSystemDefaultLanguage) {
+                Store.get('context').resetLanguageToDefault();
             }
 
             // If the customer belongs to a sales channel not in the allowed list and has no bound sales channel.
@@ -258,11 +259,11 @@ export default Component.wrapComponentConfig({
 
         createCart(salesChannelId: string): Promise<void> {
             // eslint-disable-next-line @typescript-eslint/no-unsafe-return
-            return State.dispatch('swOrder/createCart', { salesChannelId });
+            return Store.get('swOrder').createCart({ salesChannelId });
         },
 
-        setCustomer(customer: Entity<'customer'>|null): void {
-            void State.dispatch('swOrder/selectExistingCustomer', { customer });
+        setCustomer(customer: Entity<'customer'> | null): void {
+            void Store.get('swOrder').selectExistingCustomer({ customer });
         },
 
         async handleSelectCustomer(): Promise<void> {
@@ -298,24 +299,29 @@ export default Component.wrapComponentConfig({
             this.term = '';
         },
 
-        updateCustomerContext(): Promise<void> {
-            return State.dispatch('swOrder/updateCustomerContext', {
-                customerId: this.customer?.id,
-                salesChannelId: this.customer?.salesChannelId,
-                contextToken: this.cart.token,
-            }).then((response) => {
-                // Update cart after customer context is updated
-                // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
-                if (response.status === 200) {
-                    void this.getCart();
-                }
-            });
+        async updateCustomerContext(): Promise<void> {
+            if (!this.customer) return;
+
+            await Store.get('swOrder')
+                .updateCustomerContext({
+                    customerId: this.customer.id,
+                    salesChannelId: this.customer.salesChannelId,
+                    contextToken: this.cart.token,
+                })
+                .then((response) => {
+                    // Update cart after customer context is updated
+                    // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
+                    if (response.status === 200) {
+                        void this.getCart();
+                    }
+                });
         },
 
-        getCart(): Promise<void> {
-            // eslint-disable-next-line @typescript-eslint/no-unsafe-return
-            return State.dispatch('swOrder/getCart', {
-                salesChannelId: this.customer?.salesChannelId,
+        async getCart(): Promise<void> {
+            if (!this.customer) return;
+
+            await Store.get('swOrder').getCart({
+                salesChannelId: this.customer.salesChannelId,
                 contextToken: this.cart.token,
             });
         },
@@ -361,7 +367,6 @@ export default Component.wrapComponentConfig({
 
         async onChangeCustomer() {
             this.isLoading = true;
-
             try {
                 await this.handleSelectCustomer();
             } finally {

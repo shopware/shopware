@@ -10,35 +10,17 @@ use Shopware\Core\Framework\Log\Package;
 #[Package('checkout')]
 class DiscountCampaignStruct extends StoreStruct
 {
-    /**
-     * @var string
-     */
-    protected $name;
+    protected string $name;
 
-    /**
-     * @var \DateTimeImmutable
-     */
-    protected $startDate;
+    protected \DateTimeImmutable $startDate;
 
-    /**
-     * @var \DateTimeImmutable
-     */
-    protected $endDate;
+    protected \DateTimeImmutable $endDate;
 
-    /**
-     * @var float
-     */
-    protected $discount;
+    protected float $discount;
 
-    /**
-     * @var float
-     */
-    protected $discountedPrice;
+    protected float $discountedPrice;
 
-    /**
-     * @var int|null
-     */
-    protected $discountAppliesForMonths;
+    protected ?int $discountAppliesForMonths;
 
     /**
      * @return DiscountCampaignStruct

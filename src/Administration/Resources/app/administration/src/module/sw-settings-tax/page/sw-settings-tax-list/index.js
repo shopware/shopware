@@ -5,16 +5,18 @@ const { Mixin } = Shopware;
 const { Criteria } = Shopware.Data;
 
 /**
- * @package checkout
+ * @sw-package checkout
  */
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default {
     template,
 
-    compatConfig: Shopware.compatConfig,
-
-    inject: ['repositoryFactory', 'acl', 'systemConfigApiService'],
+    inject: [
+        'repositoryFactory',
+        'acl',
+        'systemConfigApiService',
+    ],
 
     mixins: [
         Mixin.getByName('listing'),
@@ -52,9 +54,7 @@ export default {
         taxProviderCriteria() {
             const criteria = new Criteria(this.page, this.limit);
 
-            criteria.addSorting(
-                Criteria.sort('priority', 'DESC'),
-            );
+            criteria.addSorting(Criteria.sort('priority', 'DESC'));
 
             return criteria;
         },
@@ -84,15 +84,18 @@ export default {
                 this.selectedDefaultRate = defaultRate;
             });
 
-            this.taxRepository.search(criteria).then((items) => {
-                this.total = items.total;
-                this.tax = items;
-                this.isLoading = false;
+            this.taxRepository
+                .search(criteria)
+                .then((items) => {
+                    this.total = items.total;
+                    this.tax = items;
+                    this.isLoading = false;
 
-                return items;
-            }).catch(() => {
-                this.isLoading = false;
-            });
+                    return items;
+                })
+                .catch(() => {
+                    this.isLoading = false;
+                });
 
             this.loadTaxProviders();
         },
@@ -107,40 +110,45 @@ export default {
         },
 
         onChangeLanguage(languageId) {
-            Shopware.State.commit('context/setApiLanguageId', languageId);
+            Shopware.Store.get('context').api.languageId = languageId;
             this.getList();
         },
 
         async onInlineEditSave(promise, tax) {
-            promise.then(() => {
-                if (this.selectedDefaultTaxRateId === this.defaultTaxRateId) {
-                    this.createNotificationSuccess({
-                        message: this.$tc('sw-settings-tax.detail.messageSaveSuccess', 0, { name: tax.name }),
-                    });
-
-                    return;
-                }
-
-                this.systemConfigApiService.saveValues({ 'core.tax.defaultTaxRate': this.selectedDefaultTaxRateId })
-                    .then(() => {
-                        this.defaultTaxRateId = this.selectedDefaultTaxRateId;
-
+            promise
+                .then(() => {
+                    if (this.selectedDefaultTaxRateId === this.defaultTaxRateId) {
                         this.createNotificationSuccess({
-                            message: this.$tc('sw-settings-tax.detail.messageSaveSuccess', 0, { name: tax.name }),
+                            message: this.$tc('sw-settings-tax.detail.messageSaveSuccess', { name: tax.name }, 0),
                         });
-                    })
-                    .catch(() => {
-                        this.getList();
 
-                        this.createNotificationError({
-                            message: this.$tc('sw-settings-tax.detail.messageSaveError'),
+                        return;
+                    }
+
+                    this.systemConfigApiService
+                        .saveValues({
+                            'core.tax.defaultTaxRate': this.selectedDefaultTaxRateId,
+                        })
+                        .then(() => {
+                            this.defaultTaxRateId = this.selectedDefaultTaxRateId;
+
+                            this.createNotificationSuccess({
+                                message: this.$tc('sw-settings-tax.detail.messageSaveSuccess', { name: tax.name }, 0),
+                            });
+                        })
+                        .catch(() => {
+                            this.getList();
+
+                            this.createNotificationError({
+                                message: this.$tc('sw-settings-tax.detail.messageSaveError'),
+                            });
                         });
+                })
+                .catch(() => {
+                    this.createNotificationError({
+                        message: this.$tc('sw-settings-tax.detail.messageSaveError'),
                     });
-            }).catch(() => {
-                this.createNotificationError({
-                    message: this.$tc('sw-settings-tax.detail.messageSaveError'),
                 });
-            });
         },
 
         async onInlineEditCancel(promise) {
@@ -170,23 +178,27 @@ export default {
         },
 
         getTaxColumns() {
-            return [{
-                property: 'name',
-                dataIndex: 'name',
-                inlineEdit: 'string',
-                label: 'sw-settings-tax.list.columnName',
-                routerLink: 'sw.settings.tax.detail',
-                width: '250px',
-                primary: true,
-            }, {
-                property: 'taxRate',
-                inlineEdit: 'number',
-                label: 'sw-settings-tax.list.columnDefaultTaxRate',
-            }, {
-                property: 'default',
-                inlineEdit: 'boolean',
-                label: 'sw-settings-tax.list.columnDefault',
-            }];
+            return [
+                {
+                    property: 'name',
+                    dataIndex: 'name',
+                    inlineEdit: 'string',
+                    label: 'sw-settings-tax.list.columnName',
+                    routerLink: 'sw.settings.tax.detail',
+                    width: '250px',
+                    primary: true,
+                },
+                {
+                    property: 'taxRate',
+                    inlineEdit: 'number',
+                    label: 'sw-settings-tax.list.columnDefaultTaxRate',
+                },
+                {
+                    property: 'default',
+                    inlineEdit: 'boolean',
+                    label: 'sw-settings-tax.list.columnDefault',
+                },
+            ];
         },
 
         isShopwareDefaultTax(tax) {
@@ -208,35 +220,35 @@ export default {
         getDefaultTaxRate() {
             return this.systemConfigApiService
                 .getValues('core.tax')
-                .then(response => response['core.tax.defaultTaxRate'] ?? null)
+                .then((response) => response['core.tax.defaultTaxRate'] ?? null)
                 .catch(() => null);
         },
 
         loadTaxProviders() {
             this.isLoading = true;
 
-            this.taxProviderRepository.search(this.taxProviderCriteria).then((items) => {
-                this.taxProviders = items;
-            }).finally(() => {
-                this.isLoading = false;
-            });
+            this.taxProviderRepository
+                .search(this.taxProviderCriteria)
+                .then((items) => {
+                    this.taxProviders = items;
+                })
+                .finally(() => {
+                    this.isLoading = false;
+                });
         },
 
         onChangeTaxProviderActive(taxProvider) {
             taxProvider.active = !taxProvider.active;
 
-            this.taxProviderRepository.save(taxProvider, Shopware.Context.api)
-                .then(() => {
-                    const state = taxProvider.active ? 'active' : 'inactive';
+            this.taxProviderRepository.save(taxProvider, Shopware.Context.api).then(() => {
+                const state = taxProvider.active ? 'active' : 'inactive';
 
-                    this.createNotificationSuccess({
-                        message: this.$tc(
-                            `sw-settings-tax.list.taxProvider.statusChangedSuccess.${state}`,
-                            0,
-                            { name: taxProvider.translated.name },
-                        ),
-                    });
+                this.createNotificationSuccess({
+                    message: this.$tc(`sw-settings-tax.list.taxProvider.statusChangedSuccess.${state}`, 0, {
+                        name: taxProvider.translated.name,
+                    }),
                 });
+            });
         },
     },
 };

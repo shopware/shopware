@@ -26,14 +26,11 @@ class GenerateMediaTypesCommandTest extends TestCase
     use MediaFixtures;
 
     /**
-     * @var EntityRepository
+     * @var EntityRepository<MediaCollection>
      */
-    private $mediaRepository;
+    private EntityRepository $mediaRepository;
 
-    /**
-     * @var GenerateMediaTypesCommand
-     */
-    private $generateMediaTypesCommand;
+    private GenerateMediaTypesCommand $generateMediaTypesCommand;
 
     private Context $context;
 
@@ -44,9 +41,9 @@ class GenerateMediaTypesCommandTest extends TestCase
 
     protected function setUp(): void
     {
-        $this->mediaRepository = $this->getContainer()->get('media.repository');
+        $this->mediaRepository = static::getContainer()->get('media.repository');
 
-        $this->generateMediaTypesCommand = $this->getContainer()->get(GenerateMediaTypesCommand::class);
+        $this->generateMediaTypesCommand = static::getContainer()->get(GenerateMediaTypesCommand::class);
 
         $this->context = Context::createDefaultContext();
 

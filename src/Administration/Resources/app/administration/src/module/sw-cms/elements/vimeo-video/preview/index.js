@@ -3,12 +3,10 @@ import './sw-cms-el-preview-vimeo-video.scss';
 
 /**
  * @private
- * @package buyers-experience
+ * @sw-package discovery
  */
 export default {
     template,
-
-    compatConfig: Shopware.compatConfig,
 
     computed: {
         assetFilter() {

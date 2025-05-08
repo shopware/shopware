@@ -1,17 +1,44 @@
 import { mount } from '@vue/test-utils';
-import flowState from 'src/module/sw-flow/state/flow.state';
 
 /**
- * @package services-settings
+ * @sw-package after-sales
  */
 
 const { ShopwareError } = Shopware.Classes;
 
-Shopware.State.registerModule('swFlowState', {
-    ...flowState,
-    state: {
-        invalidSequences: [],
-        triggerEvent: {
+async function createWrapper(config = null) {
+    return mount(
+        await wrapTestComponent('sw-flow-grant-download-access-modal', {
+            sync: true,
+        }),
+        {
+            global: {
+                stubs: {
+                    'sw-modal': await wrapTestComponent('sw-modal'),
+                    'sw-single-select': true,
+                    'sw-loader': true,
+                },
+                provide: {
+                    shortcutService: {
+                        stopEventListener: jest.fn(),
+                        startEventListener: jest.fn(),
+                    },
+                },
+            },
+            props: {
+                sequence: config
+                    ? {
+                          config,
+                      }
+                    : {},
+            },
+        },
+    );
+}
+
+describe('module/sw-flow/component/sw-flow-grant-download-access-modal', () => {
+    beforeAll(() => {
+        Shopware.Store.get('swFlow').triggerEvent = {
             data: {
                 order: {
                     type: 'entity',
@@ -26,39 +53,9 @@ Shopware.State.registerModule('swFlowState', {
             salesChannelAware: false,
             userAware: false,
             webhookAware: false,
-        },
-    },
-});
-
-async function createWrapper(config = null) {
-    return mount(await wrapTestComponent('sw-flow-grant-download-access-modal', { sync: true }), {
-        global: {
-            stubs: {
-                'sw-modal': await wrapTestComponent('sw-modal'),
-                'sw-single-select': true,
-                'sw-button': {
-                    emits: ['click'],
-                    template: '<button @click="$emit(\'click\')"><slot></slot></button>',
-                },
-                'sw-icon': true,
-                'sw-loader': true,
-            },
-            provide: {
-                shortcutService: {
-                    stopEventListener: jest.fn(),
-                    startEventListener: jest.fn(),
-                },
-            },
-        },
-        props: {
-            sequence: config ? {
-                config,
-            } : {},
-        },
+        };
     });
-}
 
-describe('module/sw-flow/component/sw-flow-grant-download-access-modal', () => {
     it('should get config', async () => {
         const wrapper = await createWrapper();
         await flushPromises();
@@ -106,8 +103,7 @@ describe('module/sw-flow/component/sw-flow-grant-download-access-modal', () => {
         const valueField = wrapper.find('.sw-flow-grant-download-access-modal__value-field');
         expect(valueField.attributes('error')).toBeUndefined();
 
-        await wrapper.find('.sw-flow-grant-download-access-modal__save-button')
-            .trigger('click');
+        await wrapper.find('.sw-flow-grant-download-access-modal__save-button').trigger('click');
         await flushPromises();
 
         expect(valueField.attributes('error')).toBeUndefined();

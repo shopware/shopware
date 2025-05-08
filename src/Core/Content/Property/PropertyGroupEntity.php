@@ -15,50 +15,23 @@ class PropertyGroupEntity extends Entity
     use EntityCustomFieldsTrait;
     use EntityIdTrait;
 
-    /**
-     * @var string|null
-     */
-    protected $name;
+    protected ?string $name = null;
 
-    /**
-     * @var string
-     */
-    protected $displayType;
+    protected string $displayType;
 
-    /**
-     * @var string
-     */
-    protected $sortingType;
+    protected string $sortingType;
 
-    /**
-     * @var string|null
-     */
-    protected $description;
+    protected ?string $description = null;
 
-    /**
-     * @var int|null
-     */
-    protected $position;
+    protected ?int $position = null;
 
-    /**
-     * @var bool
-     */
-    protected $filterable;
+    protected bool $filterable;
 
-    /**
-     * @var bool|null
-     */
-    protected $visibleOnProductDetailPage;
+    protected ?bool $visibleOnProductDetailPage = null;
 
-    /**
-     * @var PropertyGroupOptionCollection|null
-     */
-    protected $options;
+    protected ?PropertyGroupOptionCollection $options = null;
 
-    /**
-     * @var PropertyGroupTranslationCollection|null
-     */
-    protected $translations;
+    protected ?PropertyGroupTranslationCollection $translations = null;
 
     public function getName(): ?string
     {

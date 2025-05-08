@@ -1,11 +1,10 @@
-<!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
 {% block sw_first_run_wizard_mailer_selection %}
 <div class="sw-first-run-wizard-mailer-selection">
     <sw-loader v-if="isLoading" />
 
     <img
         class="sw-first-run-wizard-mailer-selection__illustration"
-        :src="assetFilter('/administration/static/img/first-run-wizard/mailer-selection.svg')"
+        :src="assetFilter('/administration/administration/static/img/first-run-wizard/mailer-selection.svg')"
         alt=""
     >
 
@@ -39,7 +38,7 @@
                 :text="$tc('sw-first-run-wizard.mailerSelection.localOptionHelptext')"
             />
 
-            <sw-icon
+            <mt-icon
                 name="regular-paper-plane"
                 class="sw-first-run-wizard-mailer-selection__selection-icon"
             />
@@ -62,7 +61,7 @@
             @keydown.enter="setMailAgent('smtp')"
         >
 
-            <sw-icon
+            <mt-icon
                 name="regular-server"
                 class="sw-first-run-wizard-mailer-selection__selection-icon"
             />

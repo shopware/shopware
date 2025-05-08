@@ -5,7 +5,7 @@ const { Component, Mixin } = Shopware;
 
 /**
  * @private
- * @package services-settings
+ * @sw-package fundamentals@after-sales
  * @description Contains some sw-base-conditions / sw-condition-and-container connected by and.
  * This component must be a child of sw-condition-tree
  * @status prototype
@@ -15,8 +15,6 @@ const { Component, Mixin } = Shopware;
  */
 Component.register('sw-condition-and-container', {
     template,
-
-    compatConfig: Shopware.compatConfig,
 
     inject: ['acl'],
 
@@ -56,8 +54,10 @@ Component.register('sw-condition-and-container', {
             this.insertNodeIntoTree(this.condition, orContainer);
 
             // "replace" first child if it is a placeholder
-            if (this.condition[this.childAssociationField].length === 2 &&
-                this.condition[this.childAssociationField][0].type === null) {
+            if (
+                this.condition[this.childAssociationField].length === 2 &&
+                this.condition[this.childAssociationField][0].type === null
+            ) {
                 this.removeNodeFromTree(this.condition, this.condition[this.childAssociationField][0]);
             }
         },

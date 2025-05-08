@@ -4,7 +4,7 @@ namespace Shopware\Core\Content\Seo\SeoUrlRoute;
 
 use Shopware\Core\Framework\Log\Package;
 
-#[Package('buyers-experience')]
+#[Package('inventory')]
 class SeoUrlRouteRegistry
 {
     /**

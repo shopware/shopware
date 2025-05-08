@@ -34,14 +34,14 @@ class ProductSearchFilterOutOfStockTest extends TestCase
     {
         parent::setUp();
 
-        $parent = $this->getContainer()->get(Connection::class)->fetchOne(
+        $parent = static::getContainer()->get(Connection::class)->fetchOne(
             'SELECT LOWER(HEX(navigation_category_id)) FROM sales_channel WHERE id = :id',
             ['id' => Uuid::fromHexToBytes(TestDefaults::SALES_CHANNEL)]
         );
 
         $this->categoryId = Uuid::randomHex();
 
-        $this->getContainer()->get('category.repository')
+        static::getContainer()->get('category.repository')
             ->create([['id' => $this->categoryId, 'name' => 'test', 'parentId' => $parent]], Context::createDefaultContext());
 
         $this->testData = new ListingTestData();
@@ -54,17 +54,17 @@ class ProductSearchFilterOutOfStockTest extends TestCase
     public function testListingWithFilterDisabled(): void
     {
         // disable hideCloseoutProductsWhenOutOfStock filter
-        $this->getContainer()->get(SystemConfigService::class)
+        static::getContainer()->get(SystemConfigService::class)
             ->set('core.listing.hideCloseoutProductsWhenOutOfStock', false);
 
         $request = new Request();
 
         $request->query->set('search', ['product']);
 
-        $context = $this->getContainer()->get(SalesChannelContextFactory::class)
+        $context = static::getContainer()->get(SalesChannelContextFactory::class)
             ->create(Uuid::randomHex(), TestDefaults::SALES_CHANNEL);
 
-        $listing = $this->getContainer()
+        $listing = static::getContainer()
             ->get(ProductListingRoute::class)
             ->load($this->categoryId, $request, $context, new Criteria())
             ->getResult();
@@ -96,17 +96,17 @@ class ProductSearchFilterOutOfStockTest extends TestCase
     public function testListingWithFilterEnabled(): void
     {
         // enable hideCloseoutProductsWhenOutOfStock filter
-        $this->getContainer()->get(SystemConfigService::class)
+        static::getContainer()->get(SystemConfigService::class)
             ->set('core.listing.hideCloseoutProductsWhenOutOfStock', true);
 
         $request = new Request();
 
         $request->query->set('search', ['product']);
 
-        $context = $this->getContainer()->get(SalesChannelContextFactory::class)
+        $context = static::getContainer()->get(SalesChannelContextFactory::class)
             ->create(Uuid::randomHex(), TestDefaults::SALES_CHANNEL);
 
-        $listing = $this->getContainer()
+        $listing = static::getContainer()
             ->get(ProductListingRoute::class)
             ->load($this->categoryId, $request, $context, new Criteria())
             ->getResult();
@@ -246,12 +246,12 @@ class ProductSearchFilterOutOfStockTest extends TestCase
             }
         }
 
-        $this->getContainer()->get('product.repository')->create($data, Context::createDefaultContext());
+        static::getContainer()->get('product.repository')->create($data, Context::createDefaultContext());
     }
 
     private function insertOptions(): void
     {
-        $this->getContainer()->get('property_group.repository')->create([
+        static::getContainer()->get('property_group.repository')->create([
             [
                 'id' => $this->testData->createId('color'),
                 'name' => 'color',

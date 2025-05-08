@@ -14,65 +14,29 @@ class StateMachineHistoryEntity extends Entity
 {
     use EntityIdTrait;
 
-    /**
-     * @var string
-     */
-    protected $stateMachineId;
+    protected string $stateMachineId;
 
-    /**
-     * @var StateMachineEntity|null
-     */
-    protected $stateMachine;
+    protected ?StateMachineEntity $stateMachine = null;
 
-    /**
-     * @var string
-     */
-    protected $entityName;
+    protected string $entityName;
 
-    /**
-     * @var string
-     */
-    protected $referencedId;
+    protected string $referencedId;
 
-    /**
-     * @var string
-     */
-    protected $referencedVersionId;
+    protected string $referencedVersionId;
 
-    /**
-     * @var string
-     */
-    protected $fromStateId;
+    protected string $fromStateId;
 
-    /**
-     * @var StateMachineStateEntity|null
-     */
-    protected $fromStateMachineState;
+    protected ?StateMachineStateEntity $fromStateMachineState = null;
 
-    /**
-     * @var string
-     */
-    protected $toStateId;
+    protected string $toStateId;
 
-    /**
-     * @var StateMachineStateEntity|null
-     */
-    protected $toStateMachineState;
+    protected ?StateMachineStateEntity $toStateMachineState = null;
 
-    /**
-     * @var string
-     */
-    protected $userId;
+    protected ?string $userId = null;
 
-    /**
-     * @var UserEntity|null
-     */
-    protected $user;
+    protected ?UserEntity $user = null;
 
-    /**
-     * @var string
-     */
-    protected $transitionActionName;
+    protected string $transitionActionName;
 
     public function getTransitionActionName(): string
     {
@@ -169,12 +133,12 @@ class StateMachineHistoryEntity extends Entity
         $this->toStateMachineState = $toStateMachineState;
     }
 
-    public function getUserId(): string
+    public function getUserId(): ?string
     {
         return $this->userId;
     }
 
-    public function setUserId(string $userId): void
+    public function setUserId(?string $userId): void
     {
         $this->userId = $userId;
     }

@@ -7,7 +7,7 @@
     <services>
         <!-- Filesystem -->
         <service id="Shopware\Core\Framework\Adapter\Filesystem\FilesystemFactory">
-            <argument type="tagged" tag="shopware.filesystem.factory"/>
+            <argument type="tagged_iterator" tag="shopware.filesystem.factory"/>
         </service>
 
         <service class="League\Flysystem\FilesystemOperator" id="shopware.filesystem.public" public="true">
@@ -106,5 +106,7 @@
             <argument type="service" id="request_stack" on-invalid="null"/>
             <tag name="shopware.asset" asset="sitemap"/>
         </service>
+
+        <service id="Shopware\Core\Framework\Adapter\Filesystem\Plugin\CopyBatchInputFactory"/>
     </services>
 </container>

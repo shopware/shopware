@@ -6,8 +6,13 @@ use League\Flysystem\FilesystemOperator;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
-#[Package('services-settings')]
+#[Package('discovery')]
 interface SitemapHandleFactoryInterface
 {
-    public function create(FilesystemOperator $filesystem, SalesChannelContext $context, ?string $domain = null): SitemapHandleInterface;
+    public function create(
+        FilesystemOperator $filesystem,
+        SalesChannelContext $context,
+        ?string $domain = null,
+        ?string $domainId = null,
+    ): SitemapHandleInterface;
 }

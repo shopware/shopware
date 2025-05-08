@@ -11,6 +11,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
+use Shopware\Core\Framework\Util\Hasher;
 use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
 use Shopware\Core\Framework\Validation\DataValidationDefinition;
 use Shopware\Core\Framework\Validation\DataValidator;
@@ -22,7 +23,7 @@ use Symfony\Component\Validator\Constraints\NotBlank;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
 #[Route(defaults: ['_routeScope' => ['store-api']])]
-#[Package('buyers-experience')]
+#[Package('after-sales')]
 class NewsletterConfirmRoute extends AbstractNewsletterConfirmRoute
 {
     /**
@@ -52,14 +53,14 @@ class NewsletterConfirmRoute extends AbstractNewsletterConfirmRoute
             'em' => $dataBag->get('em'),
         ];
 
-        $this->validator->validate($data, $this->getBeforeConfirmSubscribeValidation(hash('sha1', $recipient->getEmail())));
+        $this->validator->validate($data, $this->getBeforeConfirmSubscribeValidation(Hasher::hash($recipient->getEmail(), 'sha1')));
 
         $data['status'] = NewsletterSubscribeRoute::STATUS_OPT_IN;
         $data['confirmedAt'] = new \DateTime();
 
         $this->newsletterRecipientRepository->update([$data], $context->getContext());
 
-        $event = new NewsletterConfirmEvent($context->getContext(), $recipient, $context->getSalesChannel()->getId());
+        $event = new NewsletterConfirmEvent($context->getContext(), $recipient, $context->getSalesChannelId());
         $this->eventDispatcher->dispatch($event);
 
         return new NoContentResponse();

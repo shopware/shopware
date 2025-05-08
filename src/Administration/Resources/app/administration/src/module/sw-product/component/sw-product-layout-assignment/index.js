@@ -1,5 +1,5 @@
 /*
- * @package inventory
+ * @sw-package inventory
  */
 
 import template from './sw-product-layout-assignment.html.twig';
@@ -9,11 +9,13 @@ import './sw-product-layout-assignment.scss';
 export default {
     template,
 
-    compatConfig: Shopware.compatConfig,
-
     inject: ['acl'],
 
-    emits: ['modal-layout-open', 'button-edit-click', 'button-delete-click'],
+    emits: [
+        'modal-layout-open',
+        'button-edit-click',
+        'button-delete-click',
+    ],
 
     props: {
         cmsPage: {

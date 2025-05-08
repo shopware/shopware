@@ -15,110 +15,53 @@ use Shopware\Core\System\Currency\Aggregate\CurrencyCountryRounding\CurrencyCoun
 use Shopware\Core\System\SalesChannel\SalesChannelCollection;
 use Shopware\Core\System\Tax\Aggregate\TaxRule\TaxRuleCollection;
 
-#[Package('buyers-experience')]
+#[Package('fundamentals@discovery')]
 class CountryEntity extends Entity
 {
     use EntityCustomFieldsTrait;
     use EntityIdTrait;
 
-    /**
-     * @var string|null
-     */
-    protected $name;
+    protected ?string $name = null;
 
-    /**
-     * @var string|null
-     */
-    protected $iso;
+    protected ?string $iso = null;
 
-    /**
-     * @var int
-     */
-    protected $position;
+    protected int $position;
 
-    /**
-     * @var bool
-     */
-    protected $active;
+    protected bool $active;
 
-    /**
-     * @var bool
-     */
-    protected $shippingAvailable;
+    protected bool $shippingAvailable;
 
-    /**
-     * @var string|null
-     */
-    protected $iso3;
+    protected ?string $iso3 = null;
 
-    /**
-     * @var bool
-     */
-    protected $displayStateInRegistration;
+    protected bool $displayStateInRegistration;
 
-    /**
-     * @var bool
-     */
-    protected $forceStateInRegistration;
+    protected bool $forceStateInRegistration;
 
-    /**
-     * @var bool
-     */
-    protected $checkVatIdPattern;
+    protected bool $checkVatIdPattern;
 
-    /**
-     * @var string|null
-     */
-    protected $vatIdPattern;
+    protected ?string $vatIdPattern = null;
 
-    /**
-     * @var bool|null
-     */
-    protected $vatIdRequired;
+    protected ?bool $vatIdRequired = null;
 
     protected TaxFreeConfig $customerTax;
 
     protected TaxFreeConfig $companyTax;
 
-    /**
-     * @var CountryStateCollection|null
-     */
-    protected $states;
+    protected ?CountryStateCollection $states = null;
 
-    /**
-     * @var CountryTranslationCollection|null
-     */
-    protected $translations;
+    protected ?CountryTranslationCollection $translations = null;
 
-    /**
-     * @var OrderAddressCollection|null
-     */
-    protected $orderAddresses;
+    protected ?OrderAddressCollection $orderAddresses = null;
 
-    /**
-     * @var CustomerAddressCollection|null
-     */
-    protected $customerAddresses;
+    protected ?CustomerAddressCollection $customerAddresses = null;
 
-    /**
-     * @var SalesChannelCollection|null
-     */
-    protected $salesChannelDefaultAssignments;
+    protected ?SalesChannelCollection $salesChannelDefaultAssignments = null;
 
-    /**
-     * @var SalesChannelCollection|null
-     */
-    protected $salesChannels;
+    protected ?SalesChannelCollection $salesChannels = null;
 
-    /**
-     * @var TaxRuleCollection|null
-     */
-    protected $taxRules;
+    protected ?TaxRuleCollection $taxRules = null;
 
-    /**
-     * @var CurrencyCountryRoundingCollection|null
-     */
-    protected $currencyCountryRoundings;
+    protected ?CurrencyCountryRoundingCollection $currencyCountryRoundings = null;
 
     protected bool $postalCodeRequired;
 

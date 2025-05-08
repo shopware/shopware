@@ -6,7 +6,7 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\PluginException;
 use Symfony\Component\HttpFoundation\Response;
 
-#[Package('core')]
+#[Package('framework')]
 class PluginNotFoundException extends PluginException
 {
     public function __construct(string $pluginName)
@@ -17,15 +17,5 @@ class PluginNotFoundException extends PluginException
             'Plugin by name "{{ name }}" not found.',
             ['name' => $pluginName]
         );
-    }
-
-    public function getErrorCode(): string
-    {
-        return 'FRAMEWORK__PLUGIN_NOT_FOUND';
-    }
-
-    public function getStatusCode(): int
-    {
-        return Response::HTTP_NOT_FOUND;
     }
 }

@@ -1,5 +1,5 @@
 /*
- * @package inventory
+ * @sw-package inventory
  */
 
 import template from './sw-property-create.html.twig';
@@ -22,7 +22,7 @@ export default {
 
     methods: {
         createdComponent() {
-            if (!Shopware.State.getters['context/isSystemDefaultLanguage']) {
+            if (!Shopware.Store.get('context').isSystemDefaultLanguage) {
                 Shopware.Context.api.languageId = Shopware.Context.api.systemLanguageId;
             }
 
@@ -39,7 +39,10 @@ export default {
 
         saveFinish() {
             this.isSaveSuccessful = false;
-            this.$router.push({ name: 'sw.property.detail', params: { id: this.newId } });
+            this.$router.push({
+                name: 'sw.property.detail',
+                params: { id: this.newId },
+            });
         },
 
         onSave() {

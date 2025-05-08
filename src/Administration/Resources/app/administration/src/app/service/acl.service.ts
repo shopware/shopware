@@ -1,20 +1,11 @@
 /**
- * @package admin
+ * @sw-package framework
  */
-
-import type { FullState } from '../../core/factory/state.factory';
-
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default class AclService {
-    state: FullState;
-
-    constructor(state: FullState) {
-        this.state = state;
-    }
-
     isAdmin(): boolean {
         // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
-        return !!this.state.get('session').currentUser && !!this.state.get('session').currentUser.admin;
+        return !!Shopware.Store.get('session').currentUser?.admin;
     }
 
     can(privilegeKey: string): boolean {
@@ -22,9 +13,8 @@ export default class AclService {
             return true;
         }
 
-
         // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
-        return (this.state.getters.userPrivileges as string[]).includes(privilegeKey);
+        return (Shopware.Store.get('session').userPrivileges as string[]).includes(privilegeKey);
     }
 
     hasAccessToRoute(path: string): boolean {
@@ -39,7 +29,7 @@ export default class AclService {
 
         const router = Shopware.Application.view.root.$router;
         // @ts-expect-error - meta is not defined in the type
-        const match = router.resolve(route) as { meta?: { privilege: string}};
+        const match = router.resolve(route) as { meta?: { privilege: string } };
 
         if (!match.meta) {
             return true;
@@ -48,11 +38,10 @@ export default class AclService {
         return this.can(match.meta.privilege);
     }
 
-
     hasActiveSettingModules(): boolean {
         // @ts-expect-error
         // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access,@typescript-eslint/no-unsafe-argument
-        const groups = Object.values(this.state.get('settingsItems').settingsGroups) as [[{privilege?: string}]];
+        const groups = Object.values(Shopware.Store.get('settingsItems').settingsGroups) as [[{ privilege?: string }]];
 
         let hasActive = false;
 
@@ -71,6 +60,6 @@ export default class AclService {
 
     get privileges(): string[] {
         // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
-        return this.state.getters.userPrivileges as string[];
+        return Shopware.Store.get('session').userPrivileges as string[];
     }
 }

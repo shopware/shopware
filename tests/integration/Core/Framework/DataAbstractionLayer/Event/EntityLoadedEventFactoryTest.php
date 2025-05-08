@@ -10,11 +10,11 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityLoadedEvent;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityLoadedEventFactory;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
-use Shopware\Core\Framework\Test\IdsCollection;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\System\Language\LanguageCollection;
 use Shopware\Core\System\Language\LanguageEntity;
 use Shopware\Core\System\Tax\TaxEntity;
+use Shopware\Core\Test\Stub\Framework\IdsCollection;
 
 /**
  * @internal
@@ -34,8 +34,8 @@ class EntityLoadedEventFactoryTest extends TestCase
 
     protected function setUp(): void
     {
-        $this->productRepository = $this->getContainer()->get('product.repository');
-        $this->entityLoadedEventFactory = $this->getContainer()->get(EntityLoadedEventFactory::class);
+        $this->productRepository = static::getContainer()->get('product.repository');
+        $this->entityLoadedEventFactory = static::getContainer()->get(EntityLoadedEventFactory::class);
         $this->ids = new IdsCollection();
     }
 
@@ -49,7 +49,7 @@ class EntityLoadedEventFactoryTest extends TestCase
 
         $this->productRepository->create([$builder->build()], Context::createDefaultContext());
 
-        $criteria = new Criteria();
+        $criteria = new Criteria([$this->ids->get('p1')]);
         $criteria->addAssociations([
             'manufacturer',
             'prices',
@@ -76,7 +76,6 @@ class EntityLoadedEventFactoryTest extends TestCase
             'product.loaded',
             'product_manufacturer.loaded',
             'product_price.loaded',
-            'tax.loaded',
         ], $createdEvents);
     }
 

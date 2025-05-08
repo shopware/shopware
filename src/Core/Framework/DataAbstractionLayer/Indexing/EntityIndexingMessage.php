@@ -6,13 +6,10 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\MessageQueue\AsyncMessageInterface;
 
-#[Package('core')]
+#[Package('framework')]
 class EntityIndexingMessage implements AsyncMessageInterface
 {
-    /**
-     * @var string
-     */
-    protected $indexer;
+    protected string $indexer;
 
     private readonly Context $context;
 
@@ -21,9 +18,13 @@ class EntityIndexingMessage implements AsyncMessageInterface
      */
     private array $skip = [];
 
+    /**
+     * @param array<string>|string $data
+     * @param array{offset: int|null}|null $offset
+     */
     public function __construct(
-        protected $data,
-        protected $offset = null,
+        protected array|string $data,
+        protected ?array $offset = null,
         ?Context $context = null,
         public bool $forceQueue = false,
         public bool $isFullIndexing = false
@@ -31,12 +32,18 @@ class EntityIndexingMessage implements AsyncMessageInterface
         $this->context = $context ?? Context::createDefaultContext();
     }
 
-    public function getData()
+    /**
+     * @return array<string>|string
+     */
+    public function getData(): array|string
     {
         return $this->data;
     }
 
-    public function getOffset()
+    /**
+     * @return array{offset: int|null}|null
+     */
+    public function getOffset(): ?array
     {
         return $this->offset;
     }

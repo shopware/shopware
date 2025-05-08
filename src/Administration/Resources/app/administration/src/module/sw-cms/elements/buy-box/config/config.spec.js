@@ -1,5 +1,5 @@
 /**
- * @package buyers-experience
+ * @sw-package discovery
  */
 import { mount } from '@vue/test-utils';
 import { setupCmsEnvironment } from 'src/module/sw-cms/test-utils';
@@ -18,48 +18,51 @@ const productMock = {
 };
 
 async function createWrapper() {
-    return mount(await wrapTestComponent('sw-cms-el-config-buy-box', {
-        sync: true,
-    }), {
-        props: {
-            element: {
-                data: {},
-                config: {},
-            },
-            defaultConfig: {
-                product: {
-                    value: null,
+    return mount(
+        await wrapTestComponent('sw-cms-el-config-buy-box', {
+            sync: true,
+        }),
+        {
+            props: {
+                element: {
+                    data: {},
+                    config: {},
                 },
-                alignment: {
-                    value: null,
+                defaultConfig: {
+                    product: {
+                        value: null,
+                    },
+                    alignment: {
+                        value: null,
+                    },
                 },
             },
-        },
-        global: {
-            stubs: {
-                'sw-tabs': {
-                    template: '<div class="sw-tabs"><slot></slot><slot name="content" active="content"></slot></div>',
+            global: {
+                stubs: {
+                    'sw-tabs': {
+                        template: '<div class="sw-tabs"><slot></slot><slot name="content" active="content"></slot></div>',
+                    },
+                    'sw-tabs-item': true,
+                    'sw-entity-single-select': true,
+
+                    'sw-product-variant-info': true,
+                    'sw-select-result': true,
+                    'sw-select-field': true,
                 },
-                'sw-tabs-item': true,
-                'sw-entity-single-select': true,
-                'sw-alert': true,
-                'sw-product-variant-info': true,
-                'sw-select-result': true,
-                'sw-select-field': true,
-            },
-            provide: {
-                cmsService: Shopware.Service('cmsService'),
-                repositoryFactory: {
-                    create: () => {
-                        return {
-                            get: () => Promise.resolve(productMock),
-                            search: () => Promise.resolve(productMock),
-                        };
+                provide: {
+                    cmsService: Shopware.Service('cmsService'),
+                    repositoryFactory: {
+                        create: () => {
+                            return {
+                                get: () => Promise.resolve(productMock),
+                                search: () => Promise.resolve(productMock),
+                            };
+                        },
                     },
                 },
             },
         },
-    });
+    );
 }
 
 describe('module/sw-cms/elements/buy-box/config', () => {
@@ -69,7 +72,7 @@ describe('module/sw-cms/elements/buy-box/config', () => {
     });
 
     afterEach(() => {
-        Shopware.Store.get('cmsPageState').resetCmsPageState();
+        Shopware.Store.get('cmsPage').resetCmsPageState();
     });
 
     it('should show product selector if page type is not product detail', async () => {
@@ -82,13 +85,13 @@ describe('module/sw-cms/elements/buy-box/config', () => {
     });
 
     it('should show alert information if page type is product detail', async () => {
-        Shopware.Store.get('cmsPageState').setCurrentPage({
+        Shopware.Store.get('cmsPage').setCurrentPage({
             type: 'product_detail',
         });
         const wrapper = await createWrapper();
 
         const productSelector = wrapper.find('sw-entity-single-select-stub');
-        const alert = wrapper.find('sw-alert-stub');
+        const alert = wrapper.find('[role="banner"]');
 
         expect(productSelector.exists()).toBeFalsy();
         expect(alert.exists()).toBeTruthy();

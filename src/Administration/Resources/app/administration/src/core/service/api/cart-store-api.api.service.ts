@@ -1,3 +1,7 @@
+/**
+ * @sw-package checkout
+ */
+
 import { deepCopyObject } from 'src/core/service/utils/object.utils';
 import utils from 'src/core/service/util.service';
 import type { AxiosInstance } from 'axios';
@@ -31,7 +35,7 @@ class CartStoreService extends ApiService {
         return this.getCart(salesChannelId, null, additionalParams, additionalHeaders);
     }
 
-    getCart(salesChannelId: string, contextToken: string|null, additionalParams = {}, additionalHeaders = {}) {
+    getCart(salesChannelId: string, contextToken: string | null, additionalParams = {}, additionalHeaders = {}) {
         const route = `_proxy/store-api/${salesChannelId}/checkout/cart`;
         const headers = this.getBasicHeaders({ ...additionalHeaders });
         if (contextToken) {
@@ -64,7 +68,11 @@ class CartStoreService extends ApiService {
             'sw-context-token': contextToken,
         });
 
-        return this.httpClient.delete(route, { ...additionalParams, headers, data: { ids: lineItemKeys } });
+        return this.httpClient.delete(route, {
+            ...additionalParams,
+            headers,
+            data: { ids: lineItemKeys },
+        });
     }
 
     getRouteForItem(id: string, salesChannelId: string) {
@@ -73,13 +81,13 @@ class CartStoreService extends ApiService {
 
     shouldPriceUpdated(item: LineItem, isNewProductItem: boolean) {
         const isUnitPriceEdited = item.price?.unitPrice !== item.priceDefinition.price;
-        const isTaxRateEdited = (item.price?.taxRules?.[0]?.taxRate ?? null)
-            !== (item.priceDefinition?.taxRules?.[0]?.taxRate ?? null);
+        const isTaxRateEdited =
+            (item.price?.taxRules?.[0]?.taxRate ?? null) !== (item.priceDefinition?.taxRules?.[0]?.taxRate ?? null);
         const isCustomItem = item.type === LineItemType.CUSTOM;
 
         const isExistingProductAndUnitPriceIsEdited = !isNewProductItem && isUnitPriceEdited;
 
-        if ((isExistingProductAndUnitPriceIsEdited || isTaxRateEdited) || (isCustomItem && !isUnitPriceEdited)) {
+        if (isExistingProductAndUnitPriceIsEdited || isTaxRateEdited || (isCustomItem && !isUnitPriceEdited)) {
             return true;
         }
         return false;
@@ -130,10 +138,16 @@ class CartStoreService extends ApiService {
         const payload = this.getPayloadForItem(item, salesChannelId, isNewProductItem, id);
 
         if (item._isNew) {
-            return this.httpClient.post(route, payload, { ...additionalParams, headers });
+            return this.httpClient.post(route, payload, {
+                ...additionalParams,
+                headers,
+            });
         }
 
-        return this.httpClient.patch(route, payload, { ...additionalParams, headers });
+        return this.httpClient.patch(route, payload, {
+            ...additionalParams,
+            headers,
+        });
     }
 
     addPromotionCode(
@@ -158,7 +172,10 @@ class CartStoreService extends ApiService {
             ],
         };
 
-        return this.httpClient.post(route, payload, { ...additionalParams, headers });
+        return this.httpClient.post(route, payload, {
+            ...additionalParams,
+            headers,
+        });
     }
 
     modifyShippingCosts(
@@ -177,10 +194,11 @@ class CartStoreService extends ApiService {
         return this.httpClient.patch(route, { salesChannelId, shippingCosts }, { ...additionalParams, headers });
     }
 
-
     disableAutomaticPromotions(
         contextToken: string,
-        additionalParams: { salesChannelId: string|null } = { salesChannelId: null },
+        additionalParams: { salesChannelId: string | null } = {
+            salesChannelId: null,
+        },
         additionalHeaders = {},
     ) {
         const route = '_proxy/disable-automatic-promotions';
@@ -193,12 +211,17 @@ class CartStoreService extends ApiService {
             salesChannelId: additionalParams.salesChannelId,
         };
 
-        return this.httpClient.patch(route, data, { ...additionalParams, headers });
+        return this.httpClient.patch(route, data, {
+            ...additionalParams,
+            headers,
+        });
     }
 
     enableAutomaticPromotions(
         contextToken: string,
-        additionalParams: { salesChannelId: string|null } = { salesChannelId: null },
+        additionalParams: { salesChannelId: string | null } = {
+            salesChannelId: null,
+        },
         additionalHeaders = {},
     ) {
         const route = '_proxy/enable-automatic-promotions';
@@ -211,7 +234,10 @@ class CartStoreService extends ApiService {
             salesChannelId: additionalParams.salesChannelId,
         };
 
-        return this.httpClient.patch(route, data, { ...additionalParams, headers });
+        return this.httpClient.patch(route, data, {
+            ...additionalParams,
+            headers,
+        });
     }
 
     addMultipleLineItems(
@@ -227,7 +253,7 @@ class CartStoreService extends ApiService {
             'sw-context-token': contextToken,
         };
 
-        const payload = items.map(item => {
+        const payload = items.map((item) => {
             if (item.type === LineItemType.PROMOTION) {
                 return item;
             }

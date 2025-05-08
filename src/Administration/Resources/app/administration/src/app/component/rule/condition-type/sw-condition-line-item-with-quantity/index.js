@@ -6,7 +6,7 @@ const { mapPropertyErrors } = Component.getComponentHelper();
 
 /**
  * @public
- * @package services-settings
+ * @sw-package fundamentals@after-sales
  * @description Condition for the LineItemWithQuantityRule. This component must a be child of sw-condition-tree.
  * @status prototype
  * @example-type code-only
@@ -40,7 +40,10 @@ Component.extend('sw-condition-line-item-with-quantity', 'sw-condition-base-line
             },
             set(quantity) {
                 this.ensureValueExist();
-                this.condition.value = { ...this.condition.value, quantity };
+                this.condition.value = {
+                    ...this.condition.value,
+                    quantity,
+                };
             },
         },
 
@@ -55,7 +58,11 @@ Component.extend('sw-condition-line-item-with-quantity', 'sw-condition-base-line
             },
         },
 
-        ...mapPropertyErrors('condition', ['value.operator', 'value.quantity', 'value.id']),
+        ...mapPropertyErrors('condition', [
+            'value.operator',
+            'value.quantity',
+            'value.id',
+        ]),
 
         currentError() {
             return this.conditionValueOperatorError || this.conditionValueQuantityError || this.conditionValueIdError;

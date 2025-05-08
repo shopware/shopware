@@ -1,18 +1,19 @@
 import template from './sw-order-detail-documents.html.twig';
 
 /**
- * @package checkout
+ * @sw-package checkout
  */
 
-const { mapGetters, mapState } = Shopware.Component.getComponentHelper();
+const { Store } = Shopware;
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default {
     template,
 
-    compatConfig: Shopware.compatConfig,
-
-    emits: ['save-and-reload', 'update-loading'],
+    emits: [
+        'save-and-reload',
+        'update-loading',
+    ],
 
     inject: {
         swOrderDetailOnSaveAndReload: {
@@ -26,28 +27,27 @@ export default {
     },
 
     computed: {
-        ...mapGetters('swOrderDetail', [
-            'isLoading',
-        ]),
+        isLoading: () => Store.get('swOrderDetail').isLoading,
 
-        ...mapState('swOrderDetail', [
-            'order',
-            'versionContext',
-        ]),
+        order: () => Store.get('swOrderDetail').order,
+
+        versionContext: () => Store.get('swOrderDetail').versionContext,
     },
 
     methods: {
         saveAndReload() {
-            this.$emit('save-and-reload');
             if (this.swOrderDetailOnSaveAndReload) {
                 this.swOrderDetailOnSaveAndReload();
+            } else {
+                this.$emit('save-and-reload');
             }
         },
 
         onUpdateLoading(loading) {
-            this.$emit('update-loading', loading);
             if (this.swOrderDetailOnLoadingChange) {
                 this.swOrderDetailOnLoadingChange(loading);
+            } else {
+                this.$emit('update-loading', loading);
             }
         },
     },

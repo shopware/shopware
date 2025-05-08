@@ -10,6 +10,7 @@ use Shopware\Core\Content\Category\Exception\CategoryNotFoundException;
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\InconsistentCriteriaIdsException;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Routing\RoutingException;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
@@ -21,6 +22,8 @@ use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 
 /**
  * Do not use direct or indirect repository calls in a PageLoader. Always use a store-api route to get or put data.
+ *
+ * @deprecated tag:v6.8.0 - Will be removed without replacement
  */
 #[Package('checkout')]
 class AccountOrderDetailPageLoader
@@ -43,6 +46,11 @@ class AccountOrderDetailPageLoader
      */
     public function load(Request $request, SalesChannelContext $salesChannelContext): AccountOrderDetailPage
     {
+        Feature::triggerDeprecationOrThrow(
+            'v6.8.0.0',
+            Feature::deprecatedMethodMessage(__CLASS__, __METHOD__, 'v6.8.0.0')
+        );
+
         if (!$salesChannelContext->getCustomer()) {
             throw CartException::customerNotLoggedIn();
         }

@@ -1,10 +1,9 @@
 import template from './sw-condition-line-item-custom-field.html.twig';
 import './sw-condition-line-item-custom-field.scss';
 
-const { Component, Mixin } = Shopware;
+const { Component, Filter, Mixin } = Shopware;
 const { mapPropertyErrors } = Component.getComponentHelper();
 const { Criteria } = Shopware.Data;
-const { Filter } = Shopware;
 
 /**
  * @sw-package fundamentals@after-sales
@@ -147,6 +146,10 @@ Component.extend('sw-condition-line-item-custom-field', 'sw-condition-base-line-
                     customFieldSettingsLink: routeData.href,
                 }),
             };
+        },
+
+        getFieldDescription(item) {
+            return this.getInlineSnippet(item.customFieldSet.config.label) || item.customFieldSet.name;
         },
 
         /**

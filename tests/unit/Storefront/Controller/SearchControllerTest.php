@@ -137,6 +137,8 @@ class SearchControllerTest extends TestCase
         $parameters = [
             'page' => $searchPage,
             'context' => $context,
+            'headerParameters' => [],
+            'footerParameters' => [],
         ];
 
         $twig = static::createMock(Environment::class);
@@ -202,6 +204,8 @@ class SearchControllerTest extends TestCase
         $parameters = [
             'page' => $searchPage,
             'context' => $context,
+            'headerParameters' => [],
+            'footerParameters' => [],
         ];
 
         $twig = static::createMock(Environment::class);

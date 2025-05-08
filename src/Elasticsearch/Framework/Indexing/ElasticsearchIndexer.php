@@ -177,7 +177,7 @@ class ElasticsearchIndexer
             $errors[] = [
                 'index' => $item['_index'],
                 'id' => $item['_id'],
-                'type' => $item['error']['type'] ?? $item['_type'],
+                'type' => $item['error']['type'] ?? ($item['_type'] ?? 'n/a'),
                 'reason' => $item['error']['reason'] ?? $item['result'],
             ];
 

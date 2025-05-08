@@ -193,13 +193,15 @@
       "emptyTitle": "Noch keine Bestellungen",
       "emptySearchTitle": "Keine Suchergebnisse",
       "emptySubline": "Hier kannst Du die Bestellungen Deiner Kunden verwalten",
-      "buttonCreateOrder": "Bestellung anlegen"
+      "buttonCreateOrder": "Bestellung anlegen",
+      "ordersTitle": "Bestellungen"
     },
     "imitateCustomerModal": {
       "modalTitle": "Anmelden als {firstname} {lastname}",
       "modalDescription": "Wähle den Verkaufskanal, in dem Du Dich als {firstname} {lastname} anmelden möchtest.",
       "modalInfo": "Bitte denke daran, Dich {logout}, nachdem du Deine Arbeit erledigt hast.",
       "modalInfoLogout": "abzumelden",
+      "modalInfoNoDomains": "Keine aktive Domain gefunden. Bitte überprüfe die Verkaufskanaleinstellungen.",
       "labelCancel": "Schließen"
     },
     "addressForm": {
@@ -230,8 +232,8 @@
       "placeholderCity": "Gib eine Stadt ein ...",
       "placeholderCountry": "Wähle ein Land aus ...",
       "placeholderState": "Wähle ein (Bundes-)Land aus ...",
-      "placeholderAdditionalAddressLine1": "Gib eine erste zusätzliche Adresszeile ein ...",
-      "placeholderAdditionalAddressLine2": "Gib eine zweite zusätzliche Adresszeile ein ...",
+      "placeholderAdditionalAddressLine1": "Gib eine erste Adresszeile ein ...",
+      "placeholderAdditionalAddressLine2": "Gib eine zweite Adresszeile ein ...",
       "placeholderPhoneNumber": "Gib eine Telefonnummer an ...",
       "placeholderVatId": "Gib die USt-IdNr. ein ..."
     },

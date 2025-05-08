@@ -2,6 +2,8 @@ import template from './sw-order-state-history-card.html.twig';
 
 /**
  * @sw-package checkout
+ *
+ * @deprecated tag:v6.8.0 - will be removed, no usages found
  */
 
 const { Mixin } = Shopware;
@@ -111,6 +113,7 @@ export default {
             criteria.addAssociation('fromStateMachineState');
             criteria.addAssociation('toStateMachineState');
             criteria.addAssociation('user');
+            criteria.addAssociation('integration');
             criteria.addSorting({
                 field: 'state_machine_history.createdAt',
                 order: 'ASC',

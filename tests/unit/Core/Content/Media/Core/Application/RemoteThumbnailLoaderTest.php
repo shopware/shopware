@@ -13,8 +13,10 @@ use Shopware\Core\Content\Media\Core\Application\RemoteThumbnailLoader;
 use Shopware\Core\Content\Media\Infrastructure\Path\MediaUrlGenerator;
 use Shopware\Core\Framework\Adapter\Filesystem\PrefixFilesystem;
 use Shopware\Core\Framework\DataAbstractionLayer\PartialEntity;
+use Shopware\Core\Framework\Extensions\ExtensionDispatcher;
 use Shopware\Core\Framework\Test\TestCaseHelper\ReflectionHelper;
 use Shopware\Core\Test\Stub\Framework\IdsCollection;
+use Symfony\Component\EventDispatcher\EventDispatcher;
 
 /**
  * @internal
@@ -37,10 +39,14 @@ class RemoteThumbnailLoaderTest extends TestCase
         $connection = $this->createMock(Connection::class);
         $connection->method('fetchAllAssociative')->willReturn($thumbnailSizes);
 
+        $dispatcher = new EventDispatcher();
+        $extensionDispatcher = new ExtensionDispatcher($dispatcher);
+
         $loader = new RemoteThumbnailLoader(
             new MediaUrlGenerator($filesystem),
             $connection,
             $prefixFilesystem,
+            $extensionDispatcher,
             '{mediaUrl}/{mediaPath}?width={width}&ts={mediaUpdatedAt}'
         );
 
@@ -171,10 +177,14 @@ class RemoteThumbnailLoaderTest extends TestCase
             'private' => false,
         ]);
 
+        $dispatcher = new EventDispatcher();
+        $extensionDispatcher = new ExtensionDispatcher($dispatcher);
+
         $loader = new RemoteThumbnailLoader(
             new MediaUrlGenerator($filesystem),
             $connection,
             $this->createMock(PrefixFilesystem::class),
+            $extensionDispatcher,
             '{mediaUrl}/{mediaPath}?width={width}&ts={mediaUpdatedAt}'
         );
 

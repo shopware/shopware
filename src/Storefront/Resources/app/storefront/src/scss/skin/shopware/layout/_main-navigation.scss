@@ -24,3 +24,21 @@ https://getbootstrap.com/docs/5.2/components/navs-tabs
         padding-bottom: 3px;
     }
 }
+
+.main-navigation-menu {
+    .dropdown-menu::after {
+        content: '';
+        position: absolute;
+        height: calc(1 * var(--#{$prefix}dropdown-spacer) + 1px);
+        left: 0;
+        right: 0;
+    }
+
+    .dropdown:not(.dropup) .dropdown-menu::after {
+        top: calc(-1 * var(--#{$prefix}dropdown-spacer) - 1px);
+    }
+
+    .dropup .dropdown-menu::after {
+        bottom: calc(-1 * var(--#{$prefix}dropdown-spacer) - 1px);
+    }
+}

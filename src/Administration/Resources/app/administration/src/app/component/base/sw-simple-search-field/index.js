@@ -55,6 +55,12 @@ Component.register('sw-simple-search-field', {
             required: false,
         },
 
+        size: {
+            type: String,
+            required: false,
+            default: 'default',
+        },
+
         delay: {
             type: Number,
             required: false,

@@ -632,11 +632,9 @@ Component.register('sw-theme-manager-detail', {
         getBind(field) {
             const config = Object.assign({}, field);
 
-            if (config?.type !== 'switch' &&
-                config?.type !== 'checkbox' &&
-                config.custom?.componentName !== 'sw-switch-field' &&
-                config.custom?.componentName !== 'sw-checkbox-field'
-            ) {
+            const isCheckboxType = ['switch', 'checkbox'].includes(config?.type);
+            const isCheckboxField = ['sw-switch-field', 'sw-checkbox-field'].includes(config.custom?.componentName);
+            if (!isCheckboxType && !isCheckboxField) {
                 config.label = '';
             }
 
@@ -644,11 +642,56 @@ Component.register('sw-theme-manager-detail', {
 
             Object.assign(config, config.custom);
 
+            if (['sw-single-select', 'sw-multi-select'].includes(config.custom?.componentName)) {
+                config.custom.options.forEach((option) => {
+                    /** @deprecated tag:v6.8.0 - Theme config labels will be removed entirely, use `this.$t` instead */
+                    option.label = this.getSnippet(option.labelSnippetKey, option.label);
+                });
+            }
+
             if (config.custom?.componentName !== 'sw-switch-field' && config.custom?.componentName !== 'sw-checkbox-field') {
                 delete config.custom;
             }
 
-            return { type: field.type, config: config };
+            return { type: field.type, config };
+        },
+
+        /**
+         * @deprecated tag:v6.8.0 - Theme config labels will be removed entirely, use `this.$t` instead.
+         */
+        getSnippet(key, fallback = '') {
+            if (this.$t(key) !== key) {
+                return this.$t(key);
+            }
+
+            console.warn(`[DEPRECATED] v6.8.0 - Theme config labels will be removed entirely, use snippet translation for key "${key}" instead.`);
+
+            return fallback;
+        },
+
+        /**
+         * @deprecated tag:v6.8.0 - `fallback` will be removed and return `null` instead, since theme config helpTexts will be removed entirely.
+         */
+        getHelpText(key, fallback = null) {
+            if (this.$t(key) !== key) {
+                return this.$t(key);
+            }
+
+            console.warn(`[DEPRECATED] v6.8.0 - Theme config helpTexts will be removed entirely, use snippet translation for key "${key}" instead.`);
+
+            return fallback;
+        },
+
+        /**
+         * @deprecated tag:v6.8.0 - Parameter `fallback` will be removed
+         */
+        getTabLabel(key, fallback = '') {
+            const snippet = this.getSnippet(key, fallback);
+            if (snippet.length >= 1) {
+                return snippet;
+            }
+
+            return this.$t('sw-theme-manager.general.defaultTab');
         },
 
         selectionDisablingMethod(selection) {

@@ -116,6 +116,7 @@
     "VIOLATION::LAST_NAME_IS_TOO_LONG": "Eingabe zu lang. Bitte geben Sie Ihren Namen in abgekürzter Form ein.",
     "VIOLATION::TITLE_IS_TOO_LONG": "Eingabe zu lang. Bitte geben Sie nur Ihren Haupttitel ein oder verwenden Sie Abkürzungen.",
     "VIOLATION::ZIPCODE_IS_TOO_LONG": "Eingabe zu lang. Bitte geben Sie eine gültige Postleitzahl ein.",
+    "VIOLATION::PASSWORD_IS_TOO_LONG": "Das gewählte Passwort ist zu lang.",
     "message-default": "Leider ist etwas schiefgelaufen",
     "message-404": "Die angeforderte Seite kann nicht gefunden werden.",
     "addToCartError": "Beim Hinzufügen zum Warenkorb ist ein Fehler aufgetreten.",

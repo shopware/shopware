@@ -13,12 +13,15 @@
                 class="product-deliverability-downloadable-form__manage-stock-switch"
                 name="sw-field--product-is-closeout"
                 :error="productIsCloseoutError"
-                :map-inheritance="props"
+                :is-inheritance-field="props.isInheritField"
+                :is-inherited="props.isInherited"
                 :label="$tc('sw-product.detailBase.manageStockLabel')"
                 :help-text="$tc('sw-product.detailBase.manageStockTooltip')"
                 :disabled="props.isInherited || disabled"
                 :model-value="props.currentValue"
                 @update:model-value="props.updateCurrentValue"
+                @inheritance-restore="props.restoreInheritance"
+                @inheritance-remove="props.removeInheritance"
             />
 
         </template>

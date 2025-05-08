@@ -47,9 +47,7 @@ Component.register('sw-verify-user-modal', {
 
                     const authObject = {
                         ...this.loginService.getBearerAuthentication(),
-                        ...{
-                            access: verifiedToken,
-                        },
+                        access: verifiedToken,
                     };
 
                     this.loginService.setBearerAuthentication(authObject);

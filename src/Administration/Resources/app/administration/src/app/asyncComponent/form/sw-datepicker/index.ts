@@ -6,6 +6,8 @@ import template from './sw-datepicker.html.twig';
  * @private
  * @status ready
  * @description Wrapper component for sw-datepicker and mt-datepicker. Autoswitches between the two components.
+ *
+ * @deprecated tag:v6.8.0 - Will be removed, use mt-datepicker instead
  */
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default Shopware.Component.wrapComponentConfig({
@@ -28,6 +30,12 @@ export default Shopware.Component.wrapComponentConfig({
             type: String,
             required: false,
             default: undefined,
+        },
+
+        deprecated: {
+            type: Boolean,
+            required: false,
+            default: false,
         },
     },
 

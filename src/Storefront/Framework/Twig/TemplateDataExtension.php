@@ -61,7 +61,7 @@ class TemplateDataExtension extends AbstractExtension implements GlobalsInterfac
                 'showStagingBanner' => $this->showStagingBanner,
             ],
             'themeId' => $themeId, /** Not used in Twig template directly, but in @see \Shopware\Storefront\Framework\Twig\Extension\ConfigExtension::getThemeId */
-            /** @deprecated tag:v6.8.0 - Will be removed in 6.8.0 as it will be replaces with the "activeRoute" variable */
+            /** @deprecated tag:v6.8.0 - Will be removed. Use the "activeRoute" variable instead */
             'controllerName' => $controllerName,
             /** @deprecated tag:v6.8.0 - Will be removed in 6.8.0 as it will be replaces with the "activeRoute" variable */
             'controllerAction' => $controllerAction,

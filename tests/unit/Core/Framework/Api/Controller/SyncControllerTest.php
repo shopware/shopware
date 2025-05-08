@@ -45,7 +45,7 @@ class SyncControllerTest extends TestCase
         $request = new Request([], [], [], [], [], [], (string) \json_encode($operations));
 
         $service = $this->createMock(SyncService::class);
-        $service->expects(static::once())
+        $service->expects($this->once())
             ->method('sync')
             ->willReturnCallback(function ($operations) use ($criteria) {
                 static::assertCount(1, $operations);

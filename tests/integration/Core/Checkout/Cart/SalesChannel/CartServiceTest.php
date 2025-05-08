@@ -145,7 +145,7 @@ class CartServiceTest extends TestCase
         $dispatcher = static::getContainer()->get('event_dispatcher');
 
         $listener = $this->getMockBuilder(CallableClass::class)->getMock();
-        $listener->expects(static::once())->method('__invoke');
+        $listener->expects($this->once())->method('__invoke');
 
         $this->addEventListener($dispatcher, AfterLineItemAddedEvent::class, $listener);
 
@@ -167,7 +167,7 @@ class CartServiceTest extends TestCase
         $dispatcher = static::getContainer()->get('event_dispatcher');
 
         $listener = $this->getMockBuilder(CallableClass::class)->getMock();
-        $listener->expects(static::once())->method('__invoke');
+        $listener->expects($this->once())->method('__invoke');
 
         $this->addEventListener($dispatcher, BeforeLineItemRemovedEvent::class, $listener);
 
@@ -193,7 +193,7 @@ class CartServiceTest extends TestCase
         $dispatcher = static::getContainer()->get('event_dispatcher');
 
         $listener = $this->getMockBuilder(CallableClass::class)->getMock();
-        $listener->expects(static::once())->method('__invoke');
+        $listener->expects($this->once())->method('__invoke');
 
         $this->addEventListener($dispatcher, AfterLineItemRemovedEvent::class, $listener);
 
@@ -219,7 +219,7 @@ class CartServiceTest extends TestCase
         $dispatcher = static::getContainer()->get('event_dispatcher');
 
         $listener = $this->getMockBuilder(CallableClass::class)->getMock();
-        $listener->expects(static::once())->method('__invoke');
+        $listener->expects($this->once())->method('__invoke');
 
         $this->addEventListener($dispatcher, BeforeLineItemQuantityChangedEvent::class, $listener);
 
@@ -243,7 +243,7 @@ class CartServiceTest extends TestCase
         $dispatcher = static::getContainer()->get('event_dispatcher');
 
         $listener = $this->getMockBuilder(CallableClass::class)->getMock();
-        $listener->expects(static::once())->method('__invoke');
+        $listener->expects($this->once())->method('__invoke');
 
         $this->addEventListener($dispatcher, AfterLineItemQuantityChangedEvent::class, $listener);
 

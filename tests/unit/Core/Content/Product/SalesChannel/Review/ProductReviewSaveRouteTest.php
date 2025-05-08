@@ -77,15 +77,15 @@ class ProductReviewSaveRouteTest extends TestCase
         $salesChannel = new SalesChannelEntity();
         $salesChannel->setId('test');
 
-        $salesChannelContext->expects(static::once())->method('getCustomer')->willReturn($customer);
-        $salesChannelContext->expects(static::exactly(3))->method('getSalesChannelId')->willReturn($salesChannel->getId());
-        $salesChannelContext->expects(static::exactly(1))->method('getLanguageId')->willReturn($context->getLanguageId());
-        $salesChannelContext->expects(static::exactly(3))->method('getContext')->willReturn($context);
+        $salesChannelContext->expects($this->once())->method('getCustomer')->willReturn($customer);
+        $salesChannelContext->expects($this->exactly(3))->method('getSalesChannelId')->willReturn($salesChannel->getId());
+        $salesChannelContext->expects($this->exactly(1))->method('getLanguageId')->willReturn($context->getLanguageId());
+        $salesChannelContext->expects($this->exactly(3))->method('getContext')->willReturn($context);
 
-        $this->validator->expects(static::once())->method('getViolations')->willReturn(new ConstraintViolationList());
+        $this->validator->expects($this->once())->method('getViolations')->willReturn(new ConstraintViolationList());
 
         $this->repository
-            ->expects(static::once())
+            ->expects($this->once())
             ->method('upsert')
             ->with([
                 [
@@ -123,7 +123,7 @@ class ProductReviewSaveRouteTest extends TestCase
         );
 
         $this->eventDispatcher
-            ->expects(static::once())
+            ->expects($this->once())
             ->method('dispatch')
             ->with($event, ReviewFormEvent::EVENT_NAME);
 

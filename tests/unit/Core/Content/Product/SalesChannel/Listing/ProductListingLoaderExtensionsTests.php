@@ -35,7 +35,7 @@ class ProductListingLoaderExtensionsTests extends TestCase
     {
         // @phpstan-ignore-next-line
         $client = $this->createMock(Client::class);
-        $client->expects(static::once())
+        $client->expects($this->once())
             ->method('get')
             ->willReturn(new Response(200, [], json_encode(['ids' => ['plugin-id'], 'total' => 1], \JSON_THROW_ON_ERROR)));
 
@@ -66,7 +66,7 @@ class ProductListingLoaderExtensionsTests extends TestCase
     {
         // @phpstan-ignore-next-line
         $client = $this->createMock(Client::class);
-        $client->expects(static::once())
+        $client->expects($this->once())
             ->method('get')
             ->willReturn(new Response(200, [], json_encode(['ids' => ['plugin-id'], 'total' => 1], \JSON_THROW_ON_ERROR)));
 

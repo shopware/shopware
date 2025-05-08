@@ -43,8 +43,8 @@ class TranslatorTest extends TestCase
             ],
         ]);
 
-        $decorated->expects(static::any())->method('getCatalogue')->with('en-GB')->willReturn($originCatalogue);
-        $decorated->expects(static::any())->method('getLocale')->willReturn('en-GB');
+        $decorated->expects($this->any())->method('getCatalogue')->with('en-GB')->willReturn($originCatalogue);
+        $decorated->expects($this->any())->method('getLocale')->willReturn('en-GB');
 
         $requestStack = new RequestStack();
 
@@ -57,16 +57,16 @@ class TranslatorTest extends TestCase
         $snippetServiceMock = $this->createMock(SnippetService::class);
 
         if ($expectedCacheKey !== null) {
-            $snippetServiceMock->expects(static::once())->method('getStorefrontSnippets')->willReturn([
+            $snippetServiceMock->expects($this->once())->method('getStorefrontSnippets')->willReturn([
                 'global.title' => 'This is overrided title',
                 'global.description' => 'Description',
             ]);
         } else {
-            $snippetServiceMock->expects(static::never())->method('getStorefrontSnippets');
+            $snippetServiceMock->expects($this->never())->method('getStorefrontSnippets');
         }
 
         $localeCodeProvider = $this->createMock(LanguageLocaleCodeProvider::class);
-        $localeCodeProvider->expects(static::any())->method('getLocaleForLanguageId')->with(Defaults::LANGUAGE_SYSTEM)->willReturn('en-GB');
+        $localeCodeProvider->expects($this->any())->method('getLocaleForLanguageId')->with(Defaults::LANGUAGE_SYSTEM)->willReturn('en-GB');
 
         $connection = $this->createMock(Connection::class);
         $connection->method('fetchFirstColumn')->willReturn([$snippetSetId]);
@@ -88,7 +88,7 @@ class TranslatorTest extends TestCase
         $property = ReflectionHelper::getProperty(CacheItem::class, 'isTaggable');
         $property->setValue($item, true);
 
-        $cache->expects($expectedCacheKey ? static::once() : static::never())->method('get')->willReturnCallback(function (string $key, callable $callback) use ($expectedCacheKey, $item) {
+        $cache->expects($expectedCacheKey ? $this->once() : $this->never())->method('get')->willReturnCallback(function (string $key, callable $callback) use ($expectedCacheKey, $item) {
             static::assertSame($expectedCacheKey, $key);
 
             return $callback($item);
@@ -130,7 +130,7 @@ class TranslatorTest extends TestCase
         $requestStack->push($this->createRequest(null, $requestSnippetSetId));
 
         $connection = $this->createMock(Connection::class);
-        $connection->expects($locale ? static::once() : static::never())->method('fetchFirstColumn')->willReturn($dbSnippetSetIds);
+        $connection->expects($locale ? $this->once() : $this->never())->method('fetchFirstColumn')->willReturn($dbSnippetSetIds);
 
         $translator = new Translator(
             $this->createMock(SymfonyTranslator::class),
@@ -162,12 +162,12 @@ class TranslatorTest extends TestCase
         $injectSnippetSetId = Uuid::randomHex();
 
         $connection = $this->createMock(Connection::class);
-        $connection->expects(static::exactly(3))->method('fetchFirstColumn')->willReturn([$injectSnippetSetId, $domainSnippetSetId]);
+        $connection->expects($this->exactly(3))->method('fetchFirstColumn')->willReturn([$injectSnippetSetId, $domainSnippetSetId]);
 
         $key1 = \sprintf('translation.catalog.%s.%s', TestDefaults::SALES_CHANNEL, $injectSnippetSetId);
         $key2 = \sprintf('translation.catalog.%s.%s', TestDefaults::SALES_CHANNEL, $domainSnippetSetId);
         $snippetService = $this->createMock(SnippetService::class);
-        $snippetService->expects(static::once())->method('findSnippetSetId')->with(TestDefaults::SALES_CHANNEL, Defaults::LANGUAGE_SYSTEM, 'en-GB')->willReturn($injectSnippetSetId);
+        $snippetService->expects($this->once())->method('findSnippetSetId')->with(TestDefaults::SALES_CHANNEL, Defaults::LANGUAGE_SYSTEM, 'en-GB')->willReturn($injectSnippetSetId);
 
         $translator = new Translator(
             $this->createMock(SymfonyTranslator::class),

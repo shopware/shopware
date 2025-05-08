@@ -72,7 +72,7 @@ class CachedProductListingRouteTest extends TestCase
         $response = new ProductListingRouteResponse(new ProductListingResult('product', 0, new ProductCollection(), null, $criteria, $context->getContext()));
 
         $core = $this->createMock(ProductListingRoute::class);
-        $core->expects(static::exactly(2))
+        $core->expects($this->exactly(2))
             ->method('load')
             ->willReturn($response);
 
@@ -120,7 +120,7 @@ class CachedProductListingRouteTest extends TestCase
         $hasState = \count(array_intersect($config, $current)) > 0;
 
         $context = $this->createMock(SalesChannelContext::class);
-        $context->expects(static::any())
+        $context->expects($this->any())
             ->method('hasState')
             ->willReturn($hasState);
 
@@ -132,7 +132,7 @@ class CachedProductListingRouteTest extends TestCase
         if ($hasState) {
             $calls = 2;
         }
-        $core->expects(static::exactly($calls))
+        $core->expects($this->exactly($calls))
             ->method('load')
             ->willReturn($response);
 
@@ -169,7 +169,7 @@ class CachedProductListingRouteTest extends TestCase
             });
 
         $listener = $this->getMockBuilder(CallableClass::class)->getMock();
-        $listener->expects(static::exactly($calls))->method('__invoke');
+        $listener->expects($this->exactly($calls))->method('__invoke');
 
         static::getContainer()
             ->get('event_dispatcher')

@@ -67,7 +67,7 @@ class IterateEntityMessageHandlerTest extends TestCase
         $definitionRegistry = static::getContainer()->get(DefinitionInstanceRegistry::class);
 
         $entityDefinitionService = $this->createMock(EntityDefinitionService::class);
-        $entityDefinitionService->expects(static::any())
+        $entityDefinitionService->expects($this->any())
             ->method('getAllowedEntityDefinition')
             ->with('product')
             ->willReturn($definitionRegistry->get(ProductDefinition::class));
@@ -121,7 +121,7 @@ class IterateEntityMessageHandlerTest extends TestCase
         $definitionRegistry = static::getContainer()->get(DefinitionInstanceRegistry::class);
 
         $entityDefinitionService = $this->createMock(EntityDefinitionService::class);
-        $entityDefinitionService->expects(static::any())
+        $entityDefinitionService->expects($this->any())
             ->method('getAllowedEntityDefinition')
             ->with('product')
             ->willReturn($definitionRegistry->get(ProductDefinition::class));
@@ -175,7 +175,7 @@ class IterateEntityMessageHandlerTest extends TestCase
         $definitionRegistry = static::getContainer()->get(DefinitionInstanceRegistry::class);
 
         $entityDefinitionService = $this->createMock(EntityDefinitionService::class);
-        $entityDefinitionService->expects(static::any())
+        $entityDefinitionService->expects($this->any())
             ->method('getAllowedEntityDefinition')
             ->with('product')
             ->willReturn($definitionRegistry->get(ProductDefinition::class));
@@ -224,15 +224,15 @@ class IterateEntityMessageHandlerTest extends TestCase
     public function testItLogsExceptionWithTableDoesNotExistExceptionIsThrown(): void
     {
         $logger = $this->createMock(Logger::class);
-        $logger->expects(static::once())->method('error');
+        $logger->expects($this->once())->method('error');
 
         $consentService = $this->createMock(ConsentService::class);
-        $consentService->expects(static::once())
+        $consentService->expects($this->once())
             ->method('getLastConsentIsAcceptedDate')
             ->willReturn(new \DateTimeImmutable());
 
         $entityDefinitionService = $this->createMock(EntityDefinitionService::class);
-        $entityDefinitionService->expects(static::once())
+        $entityDefinitionService->expects($this->once())
             ->method('getAllowedEntityDefinition')
             ->with('test_entity')
             ->willReturn(new TestEntityDefinition());

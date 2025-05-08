@@ -121,8 +121,8 @@ class LicenseSyncSubscriberTest extends TestCase
         $this->serviceRegistryClient->method('get')->willReturn($serviceEntry);
         $this->clientFactory->method('newAuthenticatedFor')->willReturn($serviceAuthedClient);
 
-        $this->clientFactory->expects(static::exactly(2))->method('newAuthenticatedFor');
-        $serviceAuthedClient->expects(static::exactly(2))->method('syncLicense');
+        $this->clientFactory->expects($this->exactly(2))->method('newAuthenticatedFor');
+        $serviceAuthedClient->expects($this->exactly(2))->method('syncLicense');
         $this->subscriber->syncLicense($event);
     }
 
@@ -172,8 +172,8 @@ class LicenseSyncSubscriberTest extends TestCase
         $this->serviceRegistryClient->method('get')->willReturn($serviceEntry);
         $this->clientFactory->method('newAuthenticatedFor')->willReturn($serviceAuthedClient);
 
-        $this->clientFactory->expects(static::exactly(2))->method('newAuthenticatedFor');
-        $serviceAuthedClient->expects(static::exactly(2))->method('syncLicense');
+        $this->clientFactory->expects($this->exactly(2))->method('newAuthenticatedFor');
+        $serviceAuthedClient->expects($this->exactly(2))->method('syncLicense');
         $this->subscriber->syncLicense($event);
     }
 
@@ -223,8 +223,8 @@ class LicenseSyncSubscriberTest extends TestCase
         $this->serviceRegistryClient->method('get')->willReturn($serviceEntry);
         $this->clientFactory->method('newAuthenticatedFor')->willReturn($serviceAuthedClient);
 
-        $this->clientFactory->expects(static::exactly(2))->method('newAuthenticatedFor');
-        $serviceAuthedClient->expects(static::exactly(2))->method('syncLicense');
+        $this->clientFactory->expects($this->exactly(2))->method('newAuthenticatedFor');
+        $serviceAuthedClient->expects($this->exactly(2))->method('syncLicense');
         $this->subscriber->syncLicense($event);
     }
 
@@ -267,8 +267,8 @@ class LicenseSyncSubscriberTest extends TestCase
 
         $this->serviceRegistryClient->method('get')->willReturn($serviceEntry);
 
-        $this->clientFactory->expects(static::never())->method('newAuthenticatedFor');
-        $serviceAuthedClient->expects(static::never())->method('syncLicense');
+        $this->clientFactory->expects($this->never())->method('newAuthenticatedFor');
+        $serviceAuthedClient->expects($this->never())->method('syncLicense');
         $this->subscriber->syncLicense($event);
     }
 
@@ -312,8 +312,8 @@ class LicenseSyncSubscriberTest extends TestCase
 
         $this->serviceRegistryClient->method('get')->willReturn($serviceEntry);
 
-        $this->clientFactory->expects(static::never())->method('newAuthenticatedFor');
-        $serviceAuthedClient->expects(static::never())->method('syncLicense');
+        $this->clientFactory->expects($this->never())->method('newAuthenticatedFor');
+        $serviceAuthedClient->expects($this->never())->method('syncLicense');
         $this->subscriber->syncLicense($event);
     }
 
@@ -336,7 +336,7 @@ class LicenseSyncSubscriberTest extends TestCase
             )),
         );
 
-        $this->clientFactory->expects(static::never())->method('newAuthenticatedFor');
+        $this->clientFactory->expects($this->never())->method('newAuthenticatedFor');
         $this->subscriber->serviceInstalled($event);
     }
 
@@ -360,7 +360,7 @@ class LicenseSyncSubscriberTest extends TestCase
         );
 
         $this->clientFactory->method('newAuthenticatedFor')->willThrowException(new \Exception('error'));
-        $this->clientFactory->expects(static::never())->method('newAuthenticatedFor');
+        $this->clientFactory->expects($this->never())->method('newAuthenticatedFor');
 
         $this->subscriber->serviceInstalled($event);
     }
@@ -405,8 +405,8 @@ class LicenseSyncSubscriberTest extends TestCase
 
         $this->serviceRegistryClient->method('get')->willReturn($serviceEntry);
 
-        $this->clientFactory->expects(static::never())->method('newAuthenticatedFor');
-        $serviceAuthedClient->expects(static::never())->method('syncLicense');
+        $this->clientFactory->expects($this->never())->method('newAuthenticatedFor');
+        $serviceAuthedClient->expects($this->never())->method('syncLicense');
         $this->subscriber->syncLicense($event);
     }
 
@@ -450,8 +450,8 @@ class LicenseSyncSubscriberTest extends TestCase
 
         $this->serviceRegistryClient->method('get')->willReturn($serviceEntry);
 
-        $this->clientFactory->expects(static::never())->method('newAuthenticatedFor');
-        $serviceAuthedClient->expects(static::never())->method('syncLicense');
+        $this->clientFactory->expects($this->never())->method('newAuthenticatedFor');
+        $serviceAuthedClient->expects($this->never())->method('syncLicense');
         $this->subscriber->syncLicense($event);
     }
 
@@ -463,7 +463,7 @@ class LicenseSyncSubscriberTest extends TestCase
             Uuid::randomHex(),
         );
 
-        $this->serviceRegistryClient->expects(static::never())->method('get');
+        $this->serviceRegistryClient->expects($this->never())->method('get');
         $this->subscriber->syncLicense($event);
     }
 
@@ -475,7 +475,7 @@ class LicenseSyncSubscriberTest extends TestCase
             Uuid::randomHex(),
         );
 
-        $this->serviceRegistryClient->expects(static::never())->method('get');
+        $this->serviceRegistryClient->expects($this->never())->method('get');
         $this->subscriber->syncLicense($event);
     }
 
@@ -487,7 +487,7 @@ class LicenseSyncSubscriberTest extends TestCase
             Uuid::randomHex(),
         );
 
-        $this->serviceRegistryClient->expects(static::never())->method('get');
+        $this->serviceRegistryClient->expects($this->never())->method('get');
         $this->subscriber->syncLicense($event);
     }
 
@@ -520,7 +520,7 @@ class LicenseSyncSubscriberTest extends TestCase
 
         $this->serviceRegistryClient->method('get')->willReturn($serviceEntry);
 
-        $this->clientFactory->expects(static::once())->method('newAuthenticatedFor');
+        $this->clientFactory->expects($this->once())->method('newAuthenticatedFor');
         $this->subscriber->serviceInstalled($event);
     }
 
@@ -535,7 +535,7 @@ class LicenseSyncSubscriberTest extends TestCase
 
         $this->systemConfigService = new StaticSystemConfigService([]);
 
-        $this->serviceRegistryClient->expects(static::never())->method('get');
+        $this->serviceRegistryClient->expects($this->never())->method('get');
         $this->subscriber->serviceInstalled($event);
     }
 
@@ -580,7 +580,7 @@ class LicenseSyncSubscriberTest extends TestCase
 
         $this->clientFactory->method('newAuthenticatedFor')->willThrowException(new ServiceException(301, 'error', 'error'));
 
-        $serviceAuthedClient->expects(static::never())->method('syncLicense');
+        $serviceAuthedClient->expects($this->never())->method('syncLicense');
         $this->subscriber->syncLicense($event);
     }
 }

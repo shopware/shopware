@@ -19,7 +19,7 @@ class ElasticsearchAdminIndexingCommandTest extends TestCase
     {
         $registry = $this->getMockBuilder(AdminSearchRegistry::class)->disableOriginalConstructor()->getMock();
 
-        $registry->expects(static::any())->method('iterate')->with(new AdminIndexingBehavior(true, [], ['promotion']));
+        $registry->expects($this->any())->method('iterate')->with(new AdminIndexingBehavior(true, [], ['promotion']));
         $commandTester = new CommandTester(new ElasticsearchAdminIndexingCommand($registry));
         $commandTester->execute(['--no-queue' => true, '--only' => 'promotion']);
 

@@ -49,6 +49,7 @@ class SystemInstallCommand extends Command
             ->addOption('shop-currency', null, InputOption::VALUE_REQUIRED, 'Iso code for the default currency of the shop')
             ->addOption('skip-jwt-keys-generation', null, InputOption::VALUE_NONE, 'Skips generation of jwt private and public key')
             ->addOption('skip-assets-install', null, InputOption::VALUE_NONE, 'Skips installing of assets')
+            ->addOption('skip-first-run-wizard', null, InputOption::VALUE_NONE, 'Skips the first run wizard')
         ;
     }
 
@@ -163,6 +164,14 @@ class SystemInstallCommand extends Command
         $commands[] = [
             'command' => 'cache:clear',
         ];
+
+        if ($input->getOption('skip-first-run-wizard')) {
+            $commands[] = [
+                'command' => 'system:config:set',
+                'key' => 'core.frw.completedAt',
+                'value' => (new \DateTime())->format('Y-m-d H:i:s'),
+            ];
+        }
 
         $result = $this->runCommands($commands, $output);
 

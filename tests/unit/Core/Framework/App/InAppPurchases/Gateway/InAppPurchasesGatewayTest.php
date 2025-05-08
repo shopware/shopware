@@ -41,7 +41,7 @@ class InAppPurchasesGatewayTest extends TestCase
 
         $payloadService = $this->createMock(InAppPurchasesPayloadService::class);
         $payloadService
-            ->expects(static::once())
+            ->expects($this->once())
             ->method('request')
             ->with(
                 'https://example.com/filter',
@@ -52,7 +52,7 @@ class InAppPurchasesGatewayTest extends TestCase
 
         $eventDispatcher = $this->createMock(EventDispatcherInterface::class);
         $eventDispatcher
-            ->expects(static::once())
+            ->expects($this->once())
             ->method('dispatch')
             ->with(static::equalTo(new InAppPurchasesGatewayEvent($inAppPurchaseFilterResponse)));
 

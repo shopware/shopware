@@ -13,6 +13,8 @@ use Shopware\Core\Framework\SystemCheck\Check\SystemCheckExecutionContext;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Kernel;
 use Shopware\Core\SalesChannelRequest;
+use Shopware\Storefront\Framework\Routing\RequestTransformer;
+use Shopware\Storefront\Framework\Routing\Router;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Component\HttpFoundation\Response;
@@ -36,7 +38,8 @@ class SaleChannelsReadinessCheck extends BaseCheck
         private readonly Kernel $kernel,
         private readonly RouterInterface $router,
         protected readonly Connection $connection,
-        private readonly RequestStack $requestStack
+        private readonly RequestStack $requestStack,
+        private readonly RequestTransformer $requestTransformer,
     ) {
     }
 
@@ -87,7 +90,10 @@ class SaleChannelsReadinessCheck extends BaseCheck
         $requestStatus = [];
         foreach ($domains as $domain) {
             $url = $this->generateDomainUrl($domain);
-            $request = Request::create($url);
+            $request = $this->requestTransformer->transform(Request::create($url));
+            // set fake main request to avoid the router to use the main request for generating the URL,
+            // as that is an API request and not a storefront request
+            Router::$fakeMainRequest = $request;
             $requestStart = microtime(true);
             $response = $this->kernel->handle($request);
             $responseTime = microtime(true) - $requestStart;

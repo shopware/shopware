@@ -30,6 +30,8 @@
     .mt-block-field__block,
     .sw-block-field .sw-block-field__block {
         border: 0;
+        min-height: auto;
+        height: auto;
     }
 
     .sw-block-field.has--focus .sw-block-field__block {
@@ -61,6 +63,10 @@
 
     .sw-product-stream-value__placeholder {
         height: 100%;
+    }
+
+    .sw-label {
+        height: auto;
     }
 }
 

@@ -36,7 +36,7 @@ return [
         // Fix to make promotions work with order recalculation
         'Value of constant Shopware\\\\Core\\\\Checkout\\\\Cart\\\\Order\\\\OrderConverter::ADMIN_EDIT_ORDER_PERMISSIONS changed from array \((\n.*)*skipPromotion.*(\n.*)*to array \((\n.*)*pinAutomaticPromotions',
 
-        // Exclude the backwards-incompatible change for the new parameter
-        'ADDED: Parameter prefixMatch was added to Method __construct\(\) of class Shopware\\\\Elasticsearch\\\\Product\\\\SearchFieldConfig',
+        // No break as mixed is the top type and every other type is a subtype of mixed
+        'The parameter \$value of Shopware\\\\Storefront\\\\Event\\\\StorefrontRenderEvent#setParameter\(\) changed from no type to mixed',
     ],
 ];

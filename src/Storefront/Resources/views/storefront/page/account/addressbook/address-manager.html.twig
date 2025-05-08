@@ -25,9 +25,9 @@
 {% endblock %}
 
 {% block address_base_list_address_item %}
-    {% if defaultShippingAddress.id != address.id and defaultBillingAddress.id != address.id %}
-        {% sw_include '@Storefront/storefront/page/account/addressbook/address-item.html.twig' with {
-            address: address,
-        }  %}
-    {% endif %}
+    {% sw_include '@Storefront/storefront/page/account/addressbook/address-item.html.twig' with {
+        address: address,
+        defaultShipping: defaultShippingAddress.id === address.id,
+        defaultBilling: defaultBillingAddress.id === address.id
+    }  %}
 {% endblock %}

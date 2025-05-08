@@ -112,7 +112,7 @@ class PromotionDeliveryCalculator
 
             if ($deliveryItemAdded) {
                 // ensure that a lineItem will be added to cart if a discount has been added
-                $this->addFakeLineitem($toCalculate, $discountItem, $context);
+                $this->addFakeLineItem($original, $toCalculate, $discountItem, $context);
                 $this->addPromotionAddedNotice($original, $toCalculate, $discountItem);
             } else {
                 $this->addPromotionDeletedNotice($original, $toCalculate, $discountItem);
@@ -529,7 +529,7 @@ class PromotionDeliveryCalculator
      *
      * @throws CartException
      */
-    private function addFakeLineitem(Cart $toCalculate, LineItem $discount, SalesChannelContext $context): void
+    private function addFakeLineItem(Cart $original, Cart $toCalculate, LineItem $discount, SalesChannelContext $context): void
     {
         // filter all cart line items with the code
         $lineItems = $toCalculate->getLineItems()->filterType(PromotionProcessor::LINE_ITEM_TYPE)->filter(fn (LineItem $discountLineItem) => $discountLineItem->getId() === $discount->getId());
@@ -544,6 +544,13 @@ class PromotionDeliveryCalculator
         $price = $this->quantityPriceCalculator->calculate($priceDefinition, $context);
 
         $promotionItem = $this->builder->buildDeliveryPlaceholderLineItem($discount, $priceDefinition, $price);
+
+        $originalLineItems = $original->getLineItems()->filterType(PromotionProcessor::LINE_ITEM_TYPE)
+            ->filter(fn (LineItem $discountLineItem) => $discountLineItem->getId() === $discount->getId());
+
+        if (\count($originalLineItems) === 1) {
+            $promotionItem->setExtensions($originalLineItems->first()->getExtensions());
+        }
 
         $toCalculate->addLineItems(new LineItemCollection([$promotionItem]));
     }

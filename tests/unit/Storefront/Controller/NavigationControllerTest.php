@@ -91,7 +91,7 @@ class NavigationControllerTest extends TestCase
 
     public function testHeaderRendersStorefront(): void
     {
-        $request = new Request();
+        $request = new Request(['headerParameters' => ['foo' => 'bar']]);
         $context = Generator::generateSalesChannelContext();
         $headerPagelet = new HeaderPagelet(new Tree(null, []), new LanguageCollection(), new CurrencyCollection(), new LanguageEntity(), new CurrencyEntity());
 
@@ -99,6 +99,7 @@ class NavigationControllerTest extends TestCase
 
         $this->controller->header($request, $context);
         static::assertSame('@Storefront/storefront/layout/header.html.twig', $this->controller->renderStorefrontView);
+        static::assertSame(['foo' => 'bar'], $this->controller->renderStorefrontParameters['headerParameters']);
 
         static::assertInstanceOf(HeaderPageletLoadedHook::class, $this->controller->calledHook);
         static::assertSame($headerPagelet, $this->controller->calledHook->getPage());
@@ -106,7 +107,7 @@ class NavigationControllerTest extends TestCase
 
     public function testFooterRendersStorefront(): void
     {
-        $request = new Request();
+        $request = new Request(['footerParameters' => ['foo' => 'bar']]);
         $context = Generator::generateSalesChannelContext();
         $footerPagelet = new FooterPagelet(null, new CategoryCollection(), new PaymentMethodCollection(), new ShippingMethodCollection());
 
@@ -114,6 +115,7 @@ class NavigationControllerTest extends TestCase
 
         $this->controller->footer($request, $context);
         static::assertSame('@Storefront/storefront/layout/footer.html.twig', $this->controller->renderStorefrontView);
+        static::assertSame(['foo' => 'bar'], $this->controller->renderStorefrontParameters['footerParameters']);
 
         static::assertInstanceOf(FooterPageletLoadedHook::class, $this->controller->calledHook);
         static::assertSame($footerPagelet, $this->controller->calledHook->getPage());

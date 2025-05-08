@@ -267,7 +267,11 @@
                                                                                 {% endif %}
 
                                                                                 {% if isProduct %}
-                                                                                    {% set attributes = attributes|merge({ itemprop: 'image' }) %}
+                                                                                    {% if loop.first %}
+                                                                                        {% set attributes = attributes|merge({ itemprop: 'image primaryImageOfPage' }) %}
+                                                                                    {% else %}
+                                                                                        {% set attributes = attributes|merge({ itemprop: 'image' }) %}
+                                                                                    {% endif %}
                                                                                 {% endif %}
 
                                                                                 {% if loop.first %}
@@ -412,7 +416,11 @@
                                                                 {% endif %}
 
                                                                 {% if isProduct %}
-                                                                    {% set attributes = attributes|merge({ itemprop: 'image' }) %}
+                                                                    {% if loop.first %}
+                                                                        {% set attributes = attributes|merge({ itemprop: 'image primaryImageOfPage' }) %}
+                                                                    {% else %}
+                                                                        {% set attributes = attributes|merge({ itemprop: 'image' }) %}
+                                                                    {% endif %}
                                                                 {% endif %}
 
                                                                 {% sw_thumbnails 'gallery-slider-image-thumbnails' with {
@@ -500,7 +508,11 @@
                                                                             }) %}
 
                                                                             {% if isProduct %}
-                                                                                {% set attributes = attributes|merge({ itemprop: 'image' }) %}
+                                                                                {% if loop.first %}
+                                                                                    {% set attributes = attributes|merge({ itemprop: 'image primaryImageOfPage' }) %}
+                                                                                {% else %}
+                                                                                    {% set attributes = attributes|merge({ itemprop: 'image' }) %}
+                                                                                {% endif %}
                                                                             {% endif %}
 
                                                                             {% sw_thumbnails 'gallery-slider-thumbnails-image-thumbnails' with {

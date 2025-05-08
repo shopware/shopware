@@ -79,7 +79,10 @@ class NavigationController extends StorefrontController
 
         $this->hook(new HeaderPageletLoadedHook($header, $context));
 
-        return $this->renderStorefront('@Storefront/storefront/layout/header.html.twig', ['header' => $header]);
+        return $this->renderStorefront('@Storefront/storefront/layout/header.html.twig', [
+            'header' => $header,
+            'headerParameters' => $request->get('headerParameters') ?? [],
+        ]);
     }
 
     #[Route(path: '/footer', name: 'frontend.footer', defaults: ['XmlHttpRequest' => true, '_httpCache' => true, '_esi' => true], methods: ['GET'])]
@@ -89,6 +92,9 @@ class NavigationController extends StorefrontController
 
         $this->hook(new FooterPageletLoadedHook($footer, $context));
 
-        return $this->renderStorefront('@Storefront/storefront/layout/footer.html.twig', ['footer' => $footer]);
+        return $this->renderStorefront('@Storefront/storefront/layout/footer.html.twig', [
+            'footer' => $footer,
+            'footerParameters' => $request->get('footerParameters') ?? [],
+        ]);
     }
 }

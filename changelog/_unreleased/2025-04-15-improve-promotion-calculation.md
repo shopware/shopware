@@ -1,7 +1,7 @@
 ---
 title: Improve promotion calculation
 issue: #8329
-flag: CART_PERFORMANCE_IMPROVEMENT
+flag: PERFORMANCE_TWEAKS
 ---
 # Core
 * Changed `getTotalPriceAmount` and `getUnitPriceAmount` method visibilities to public in `\Shopware\Core\Checkout\Cart\Price\Struct\PriceCollection`

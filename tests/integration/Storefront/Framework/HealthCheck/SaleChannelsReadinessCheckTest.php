@@ -7,6 +7,7 @@ use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Defaults;
+use Shopware\Core\Framework\Routing\RequestTransformerInterface;
 use Shopware\Core\Framework\SystemCheck\Check\Status;
 use Shopware\Core\Framework\Test\TestCaseBase\DatabaseTransactionBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
@@ -101,7 +102,8 @@ class SaleChannelsReadinessCheckTest extends TestCase
             $kernel ?? static::getContainer()->get('kernel'),
             static::getContainer()->get('router'),
             $this->connection,
-            static::getContainer()->get('request_stack')
+            static::getContainer()->get('request_stack'),
+            static::getContainer()->get(RequestTransformerInterface::class),
         );
     }
 

@@ -18,14 +18,14 @@ use Symfony\Contracts\Service\ServiceSubscriberInterface;
 class Router implements RouterInterface, RequestMatcherInterface, WarmableInterface, ServiceSubscriberInterface
 {
     /**
-     * @internal only used for system checks
-     */
-    public static ?Request $fakeMainRequest = null;
-
-    /**
      * @var int Used to indicate the router that we only need the path info without the sales channel prefix
      */
     final public const PATH_INFO = 10;
+
+    /**
+     * @internal only used for system checks
+     */
+    public static ?Request $fakeMainRequest = null;
 
     /**
      * @internal

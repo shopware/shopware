@@ -540,7 +540,7 @@
             <argument type="service" id="Symfony\Component\Routing\RouterInterface" />
             <argument type="service" id="Doctrine\DBAL\Connection"/>
             <argument type="service" id="request_stack"/>
-            <argument type="service" id="Shopware\Storefront\Framework\Routing\RequestTransformer"/>
+            <argument type="service" id="Shopware\Core\Framework\Routing\RequestTransformerInterface"/>
 
             <tag name="shopware.system_check"/>
         </service>

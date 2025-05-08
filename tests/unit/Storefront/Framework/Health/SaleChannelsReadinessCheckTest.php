@@ -7,9 +7,10 @@ use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\SystemCheck\Check\SystemCheckExecutionContext;
 use Shopware\Core\Kernel;
+use Shopware\Storefront\Framework\Routing\RequestTransformer;
+use Shopware\Storefront\Framework\Routing\Router;
 use Shopware\Storefront\Framework\SystemCheck\SaleChannelsReadinessCheck;
 use Symfony\Component\HttpFoundation\RequestStack;
-use Symfony\Component\Routing\Router;
 
 /**
  * @internal
@@ -27,7 +28,8 @@ class SaleChannelsReadinessCheckTest extends TestCase
             $this->createMock(Kernel::class),
             $this->createMock(Router::class),
             $this->createMock(Connection::class),
-            $this->createMock(RequestStack::class)
+            $this->createMock(RequestStack::class),
+            $this->createMock(RequestTransformer::class),
         );
     }
 

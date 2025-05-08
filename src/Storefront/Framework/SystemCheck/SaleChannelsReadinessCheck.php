@@ -5,6 +5,7 @@ namespace Shopware\Storefront\Framework\SystemCheck;
 use Doctrine\DBAL\Connection;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\Routing\RequestTransformerInterface;
 use Shopware\Core\Framework\SystemCheck\BaseCheck;
 use Shopware\Core\Framework\SystemCheck\Check\Category;
 use Shopware\Core\Framework\SystemCheck\Check\Result;
@@ -13,7 +14,6 @@ use Shopware\Core\Framework\SystemCheck\Check\SystemCheckExecutionContext;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Kernel;
 use Shopware\Core\SalesChannelRequest;
-use Shopware\Storefront\Framework\Routing\RequestTransformer;
 use Shopware\Storefront\Framework\Routing\Router;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\RequestStack;
@@ -39,7 +39,7 @@ class SaleChannelsReadinessCheck extends BaseCheck
         private readonly RouterInterface $router,
         protected readonly Connection $connection,
         private readonly RequestStack $requestStack,
-        private readonly RequestTransformer $requestTransformer,
+        private readonly RequestTransformerInterface $requestTransformer,
     ) {
     }
 
@@ -106,6 +106,7 @@ class SaleChannelsReadinessCheck extends BaseCheck
                 'responseTime' => $responseTime,
             ];
         }
+        Router::$fakeMainRequest = null;
 
         $finalStatus = \count($requestStatus) === 1 ? current($requestStatus) : Status::ERROR;
 

@@ -218,7 +218,7 @@ class WishlistControllerTest extends TestCase
 
         static::assertSame(302, $response->getStatusCode());
         static::assertInstanceOf(RedirectResponse::class, $response);
-        static::assertSame('/', $response->getTargetUrl());
+        static::assertSame('/wishlist', $response->getTargetUrl());
 
         $session = $this->getSession();
         static::assertInstanceOf(Session::class, $session);

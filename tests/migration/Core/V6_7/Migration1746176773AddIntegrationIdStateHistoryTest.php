@@ -22,8 +22,8 @@ class Migration1746176773AddIntegrationIdStateHistoryTest extends TestCase
 
     public function testMigration(): void
     {
-        /** @var Connection $connection */
         $connection = self::getContainer()->get(Connection::class);
+        static::assertInstanceOf(Connection::class, $connection);
 
         $this->revertMigration($connection);
 
@@ -40,10 +40,10 @@ class Migration1746176773AddIntegrationIdStateHistoryTest extends TestCase
         $foreignKey = array_pop($filteredForeignKeys);
 
         static::assertNotNull($foreignKey);
-        static::assertEquals(['id'], $foreignKey->getForeignColumns());
+        static::assertSame(['id'], $foreignKey->getForeignColumns());
         static::assertArrayHasKey('integration_id', $columns);
         static::assertInstanceOf(BinaryType::class, $columns['integration_id']->getType());
-        static::assertEquals(16, $columns['integration_id']->getLength());
+        static::assertSame(16, $columns['integration_id']->getLength());
         static::assertFalse($columns['integration_id']->getNotnull());
     }
 

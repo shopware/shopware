@@ -178,41 +178,42 @@ EOF;
             'secretAccessKey' => TestDefaults::HASHED_PASSWORD,
         ];
 
-        /** @var EntityRepository $integrationRepo */
         $integrationRepo = self::getContainer()->get('integration.repository');
+        static::assertInstanceOf(EntityRepository::class, $integrationRepo);
         $integrationRepo->create([$integration], Context::createDefaultContext());
 
         static::assertNotNull($userId);
 
         $orderBuilder = new OrderBuilder($ids, 'o-1');
 
-        /** @var EntityRepository $orderRepo */
         $orderRepo = self::getContainer()->get('order.repository');
+        static::assertInstanceOf(EntityRepository::class, $orderRepo);
         $orderRepo->create([$orderBuilder->build()], Context::createCLIContext());
 
         $context = new Context(
             new AdminApiSource($userId, $ids->get('integration-1'))
         );
 
-        /** @var StateMachineRegistry $stateMachineRegistry */
         $stateMachineRegistry = self::getContainer()->get(StateMachineRegistry::class);
+        static::assertInstanceOf(StateMachineRegistry::class, $stateMachineRegistry);
         $stateMachineRegistry->transition(
             new Transition('order', $ids->get('o-1'), 'process', 'stateId'),
             $context
         );
 
-        /** @var Connection $connection */
         $connection = self::getContainer()->get(Connection::class);
+        static::assertInstanceOf(Connection::class, $connection);
 
-        /** @var array{integration_id: string, user_id: string}|false $historyData */
         $historyData = $connection->fetchAssociative('SELECT LOWER(HEX(integration_id)) as integration_id, LOWER(HEX(user_id)) as user_id FROM `state_machine_history` WHERE referenced_id = :id AND referenced_version_id = :version ORDER BY created_at DESC LIMIT 1', [
             'id' => Uuid::fromHexToBytes($ids->get('o-1')),
             'version' => Uuid::fromHexToBytes(Defaults::LIVE_VERSION),
         ]);
 
         static::assertNotFalse($historyData);
-        static::assertSame($ids->get('integration-1'), $historyData['integration_id']);
-        static::assertSame($userId, $historyData['user_id']);
+        static::assertSame([
+            'integration_id' => $ids->get('integration-1'),
+            'user_id' => $userId,
+        ], $historyData);
     }
 
     private function createOrderWithPartiallyReturnedDeliveryState(): string

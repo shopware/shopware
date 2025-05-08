@@ -7,8 +7,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\Gateway\Context\Command\AbstractContextGatewayCommand;
 use Shopware\Core\Framework\Gateway\Context\Command\ChangeLanguageCommand;
-use Shopware\Core\Framework\Gateway\Context\ContextGatewayException;
-use Shopware\Core\Framework\Log\ExceptionLogger;
+use Shopware\Core\Framework\Gateway\GatewayException;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
@@ -34,7 +33,7 @@ class ChangeLanguageCommandHandler extends AbstractContextGatewayCommandHandler
         $languageId = $this->languageRepository->searchIds($criteria, $context->getContext())->firstId();
 
         if ($languageId === null) {
-            throw ContextGatewayException::handlerException('Language with iso code {{ isoCode }} not found', ['isoCode' => $command->iso]);
+            throw GatewayException::handlerException('Language with iso code {{ isoCode }} not found', ['isoCode' => $command->iso]);
         }
 
         $parameters['languageId'] = $languageId;

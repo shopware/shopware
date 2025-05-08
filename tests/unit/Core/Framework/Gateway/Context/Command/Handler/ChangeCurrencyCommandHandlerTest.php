@@ -10,8 +10,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\IdSearchResult;
 use Shopware\Core\Framework\Gateway\Context\Command\ChangeCurrencyCommand;
 use Shopware\Core\Framework\Gateway\Context\Command\Handler\ChangeCurrencyCommandHandler;
-use Shopware\Core\Framework\Gateway\Context\ContextGatewayException;
-use Shopware\Core\Framework\Log\ExceptionLogger;
+use Shopware\Core\Framework\Gateway\GatewayException;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Test\Generator;
 
@@ -45,10 +44,7 @@ class ChangeCurrencyCommandHandlerTest extends TestCase
             ->with(static::equalTo($expectedCriteria), $context->getContext())
             ->willReturn($currencyResult);
 
-        $handler = new ChangeCurrencyCommandHandler(
-            $currencyRepo,
-            $this->createMock(ExceptionLogger::class),
-        );
+        $handler = new ChangeCurrencyCommandHandler($currencyRepo);
 
         $handler->handle($command, $context, $parameters);
 
@@ -78,17 +74,9 @@ class ChangeCurrencyCommandHandlerTest extends TestCase
             ->with(static::equalTo($expectedCriteria), $context->getContext())
             ->willReturn($currencyResult);
 
-        $logger = $this->createMock(ExceptionLogger::class);
-        $logger
-            ->expects($this->once())
-            ->method('logOrThrowException')
-            ->with(ContextGatewayException::handlerException('Currency with iso code {{ isoCode }} not found', ['isoCode' => 'EUR']));
+        $this->expectExceptionObject(GatewayException::handlerException('Currency with iso code {{ isoCode }} not found', ['isoCode' => 'EUR']));
 
-        $handler = new ChangeCurrencyCommandHandler(
-            $currencyRepo,
-            $logger
-        );
-
+        $handler = new ChangeCurrencyCommandHandler($currencyRepo);
         $handler->handle($command, $context, $parameters);
 
         static::assertSame([], $parameters);

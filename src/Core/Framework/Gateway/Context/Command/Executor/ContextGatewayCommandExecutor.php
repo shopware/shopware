@@ -2,16 +2,14 @@
 
 namespace Shopware\Core\Framework\Gateway\Context\Command\Executor;
 
-use Shopware\Core\Checkout\Customer\SalesChannel\CustomerResponse;
 use Shopware\Core\Framework\Gateway\Context\Command\ContextGatewayCommandCollection;
 use Shopware\Core\Framework\Gateway\Context\Command\LoginCustomerCommand;
 use Shopware\Core\Framework\Gateway\Context\Command\RegisterCustomerCommand;
 use Shopware\Core\Framework\Gateway\Context\Command\Registry\ContextGatewayCommandRegistry;
-use Shopware\Core\Framework\Gateway\Context\ContextGatewayException;
+use Shopware\Core\Framework\Gateway\GatewayException;
 use Shopware\Core\Framework\Log\ExceptionLogger;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
-use Shopware\Core\PlatformRequest;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextServiceInterface;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextServiceParameters;
 use Shopware\Core\System\SalesChannel\ContextTokenResponse;
@@ -39,7 +37,8 @@ class ContextGatewayCommandExecutor
 
         $parameters = [];
 
-        if ($tokenCommand = $commands->getTokenCommand()) {
+        if ($tokenCommand = $commands->getSingleTokenCommand()) {
+            /** @phpstan-ignore symplify.noDynamicName */
             $this->registry->get($tokenCommand::COMMAND_KEY)->handle($tokenCommand, $context, $parameters);
 
             $token = $parameters['token'];
@@ -56,7 +55,7 @@ class ContextGatewayCommandExecutor
             }
 
             if (!$this->registry->has($command::getDefaultKeyName())) {
-                $this->logger->logOrThrowException(ContextGatewayException::handlerNotFound($command::getDefaultKeyName()));
+                $this->logger->logOrThrowException(GatewayException::handlerNotFound($command::getDefaultKeyName()));
                 continue;
             }
 

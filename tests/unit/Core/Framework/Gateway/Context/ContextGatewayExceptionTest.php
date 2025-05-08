@@ -4,33 +4,33 @@ namespace Shopware\Tests\Unit\Core\Framework\Gateway\Context;
 
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
-use Shopware\Core\Framework\Gateway\Context\ContextGatewayException;
+use Shopware\Core\Framework\Gateway\GatewayException;
 use Shopware\Core\Framework\Log\Package;
 
 /**
  * @internal
  */
 #[Package('framework')]
-#[CoversClass(ContextGatewayException::class)]
+#[CoversClass(GatewayException::class)]
 class ContextGatewayExceptionTest extends TestCase
 {
     public function testCanBeThrown(): void
     {
-        $e = new ContextGatewayException(1, 'CONTEXT_TEST', 'test: {{ foo }}', ['foo' => 'bar']);
+        $e = new GatewayException(1, 'CONTEXT_TEST', 'test: {{ foo }}', ['foo' => 'bar']);
 
         static::assertSame(1, $e->getStatusCode());
         static::assertSame('test: bar', $e->getMessage());
         static::assertSame('CONTEXT_TEST', $e->getErrorCode());
         static::assertSame(['foo' => 'bar'], $e->getParameters());
 
-        static::expectException(ContextGatewayException::class);
+        static::expectException(GatewayException::class);
 
         throw $e;
     }
 
     public function testEmptyAppResponse(): void
     {
-        $exception = ContextGatewayException::emptyAppResponse('foo');
+        $exception = GatewayException::emptyAppResponse('foo');
 
         static::assertSame('App "foo" did not provide context gateway response', $exception->getMessage());
         static::assertSame('CONTEXT_GATEWAY__EMPTY_APP_RESPONSE', $exception->getErrorCode());
@@ -39,7 +39,7 @@ class ContextGatewayExceptionTest extends TestCase
 
     public function testPayloadInvalid(): void
     {
-        $exception = ContextGatewayException::payloadInvalid('test');
+        $exception = GatewayException::payloadInvalid('test');
 
         static::assertSame('Payload invalid for command "test"', $exception->getMessage());
         static::assertSame('CONTEXT_GATEWAY__PAYLOAD_INVALID', $exception->getErrorCode());
@@ -48,7 +48,7 @@ class ContextGatewayExceptionTest extends TestCase
 
     public function testPayloadInvalidWithoutCommandKey(): void
     {
-        $exception = ContextGatewayException::payloadInvalid();
+        $exception = GatewayException::payloadInvalid();
 
         static::assertSame('Payload invalid for command', $exception->getMessage());
         static::assertSame('CONTEXT_GATEWAY__PAYLOAD_INVALID', $exception->getErrorCode());
@@ -57,7 +57,7 @@ class ContextGatewayExceptionTest extends TestCase
 
     public function testHandlerNotFound(): void
     {
-        $exception = ContextGatewayException::handlerNotFound('test');
+        $exception = GatewayException::handlerNotFound('test');
 
         static::assertSame('Handler not found for command "test"', $exception->getMessage());
         static::assertSame('CONTEXT_GATEWAY__HANDLER_NOT_FOUND', $exception->getErrorCode());
@@ -66,7 +66,7 @@ class ContextGatewayExceptionTest extends TestCase
 
     public function testHandlerException(): void
     {
-        $exception = ContextGatewayException::handlerException('test', ['foo' => 'bar']);
+        $exception = GatewayException::handlerException('test', ['foo' => 'bar']);
 
         static::assertSame('test', $exception->getMessage());
         static::assertSame('CONTEXT_GATEWAY__HANDLER_EXCEPTION', $exception->getErrorCode());
@@ -75,7 +75,7 @@ class ContextGatewayExceptionTest extends TestCase
 
     public function testCommandValidationFailed(): void
     {
-        $exception = ContextGatewayException::commandValidationFailed('test', ['foo' => 'bar']);
+        $exception = GatewayException::commandValidationFailed('test', ['foo' => 'bar']);
 
         static::assertSame('test', $exception->getMessage());
         static::assertSame('CONTEXT_GATEWAY__COMMAND_VALIDATION_FAILED', $exception->getErrorCode());

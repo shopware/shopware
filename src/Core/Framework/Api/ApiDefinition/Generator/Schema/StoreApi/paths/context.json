@@ -100,7 +100,26 @@
             }
         },
         "/context/gateway": {
-            "get": {
+            "post": {
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": ["appName"],
+                                "properties": {
+                                    "appName": {
+                                        "type": "string"
+                                    },
+                                    "data": {
+                                        "type": "object"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
                 "tags": [
                     "Gateway"
                 ],

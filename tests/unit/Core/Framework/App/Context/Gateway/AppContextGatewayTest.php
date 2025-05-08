@@ -23,7 +23,7 @@ use Shopware\Core\Framework\Gateway\Context\Command\Executor\ContextGatewayComma
 use Shopware\Core\Framework\Gateway\Context\Command\Handler\ChangeCurrencyCommandHandler;
 use Shopware\Core\Framework\Gateway\Context\Command\Registry\ContextGatewayCommandRegistry;
 use Shopware\Core\Framework\Gateway\Context\Command\Struct\ContextGatewayPayloadStruct;
-use Shopware\Core\Framework\Gateway\Context\ContextGatewayException;
+use Shopware\Core\Framework\Gateway\GatewayException;
 use Shopware\Core\Framework\Log\ExceptionLogger;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
@@ -73,12 +73,7 @@ class AppContextGatewayTest extends TestCase
 
         $appResponse = new AppContextGatewayResponse([['command' => 'context_change-currency', 'payload' => ['iso' => 'EUR']]]);
 
-        $registry = new ContextGatewayCommandRegistry([
-            new ChangeCurrencyCommandHandler(
-                $this->createMock(EntityRepository::class),
-                $this->createMock(ExceptionLogger::class)
-            ),
-        ]);
+        $registry = new ContextGatewayCommandRegistry([new ChangeCurrencyCommandHandler($this->createMock(EntityRepository::class))]);
 
         $payloadService = $this->createMock(AppContextGatewayPayloadService::class);
         $payloadService
@@ -260,8 +255,7 @@ class AppContextGatewayTest extends TestCase
             $logger,
         );
 
-        $this->expectException(ContextGatewayException::class);
-        $this->expectExceptionMessage('App "app_test" did not provide context gateway response');
+        $this->expectExceptionObject(AppException::gatewayRequestFailed('app_test', 'context'));
 
         $gateway->process($payload);
     }
@@ -307,12 +301,7 @@ class AppContextGatewayTest extends TestCase
             $this->createMock(LoggerInterface::class),
         );
 
-        $registry = new ContextGatewayCommandRegistry([
-            new ChangeCurrencyCommandHandler(
-                $this->createMock(EntityRepository::class),
-                $this->createMock(ExceptionLogger::class)
-            ),
-        ]);
+        $registry = new ContextGatewayCommandRegistry([new ChangeCurrencyCommandHandler($this->createMock(EntityRepository::class))]);
 
         $payload = new ContextGatewayPayloadStruct($cart, $context, $data);
 
@@ -324,7 +313,7 @@ class AppContextGatewayTest extends TestCase
             $logger,
         );
 
-        $this->expectException(ContextGatewayException::class);
+        $this->expectException(GatewayException::class);
         $this->expectExceptionMessage('Payload invalid for command "context_change-currency"');
 
         $gateway->process($payload);
@@ -374,12 +363,7 @@ class AppContextGatewayTest extends TestCase
             $this->createMock(LoggerInterface::class),
         );
 
-        $registry = new ContextGatewayCommandRegistry([
-            new ChangeCurrencyCommandHandler(
-                $this->createMock(EntityRepository::class),
-                $this->createMock(ExceptionLogger::class)
-            ),
-        ]);
+        $registry = new ContextGatewayCommandRegistry([new ChangeCurrencyCommandHandler($this->createMock(EntityRepository::class))]);
 
         $payload = new ContextGatewayPayloadStruct($cart, $context, $data);
 
@@ -391,7 +375,7 @@ class AppContextGatewayTest extends TestCase
             $logger,
         );
 
-        $this->expectException(ContextGatewayException::class);
+        $this->expectException(GatewayException::class);
         $this->expectExceptionMessage('Handler not found for command "context_foo-bar"');
 
         $gateway->process($payload);
@@ -460,7 +444,7 @@ class AppContextGatewayTest extends TestCase
             $logger,
         );
 
-        $this->expectException(ContextGatewayException::class);
+        $this->expectException(GatewayException::class);
         $this->expectExceptionMessage('Handler not found for command "context_foo-bar"');
 
         $gateway->process($payload);
@@ -529,7 +513,7 @@ class AppContextGatewayTest extends TestCase
             $logger,
         );
 
-        $this->expectException(ContextGatewayException::class);
+        $this->expectException(GatewayException::class);
         $this->expectExceptionMessage('Payload invalid for command "context_foo-bar"');
 
         $gateway->process($payload);

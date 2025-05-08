@@ -8,7 +8,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\OrFilter;
 use Shopware\Core\Framework\Gateway\Context\Command\AbstractContextGatewayCommand;
 use Shopware\Core\Framework\Gateway\Context\Command\ChangeShippingLocationCommand;
-use Shopware\Core\Framework\Gateway\Context\ContextGatewayException;
+use Shopware\Core\Framework\Gateway\GatewayException;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
@@ -43,7 +43,7 @@ class ChangeShippingLocationCommandHandler extends AbstractContextGatewayCommand
             $countryId = $this->countryRepository->searchIds($criteria, $context->getContext())->firstId();
 
             if ($countryId === null) {
-                throw ContextGatewayException::handlerException('Country with iso code {{ isoCode }} not found', ['isoCode' => $command->countryIso]);
+                throw GatewayException::handlerException('Country with iso code {{ isoCode }} not found', ['isoCode' => $command->countryIso]);
             }
 
             $parameters['countryId'] = $countryId;
@@ -56,7 +56,7 @@ class ChangeShippingLocationCommandHandler extends AbstractContextGatewayCommand
             $stateId = $this->countryStateRepository->searchIds($criteria, $context->getContext())->firstId();
 
             if ($stateId === null) {
-                throw ContextGatewayException::handlerException('Country state with short code {{ shortCode }} not found', ['shortCode' => $command->countryStateIso]);
+                throw GatewayException::handlerException('Country state with short code {{ shortCode }} not found', ['shortCode' => $command->countryStateIso]);
             }
 
             $parameters['countryStateId'] = $stateId;

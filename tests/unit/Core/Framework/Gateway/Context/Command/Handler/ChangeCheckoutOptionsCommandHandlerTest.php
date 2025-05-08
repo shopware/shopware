@@ -11,8 +11,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\IdSearchResult;
 use Shopware\Core\Framework\Gateway\Context\Command\ChangePaymentMethodCommand;
 use Shopware\Core\Framework\Gateway\Context\Command\ChangeShippingMethodCommand;
 use Shopware\Core\Framework\Gateway\Context\Command\Handler\ChangeCheckoutOptionsCommandHandler;
-use Shopware\Core\Framework\Gateway\Context\ContextGatewayException;
-use Shopware\Core\Framework\Log\ExceptionLogger;
+use Shopware\Core\Framework\Gateway\GatewayException;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Test\Generator;
 
@@ -46,12 +45,7 @@ class ChangeCheckoutOptionsCommandHandlerTest extends TestCase
             ->with(static::equalTo($expectedCriteria), $context->getContext())
             ->willReturn($shippingMethodResult);
 
-        $handler = new ChangeCheckoutOptionsCommandHandler(
-            $this->createMock(EntityRepository::class),
-            $shippingMethodRepo,
-            $this->createMock(ExceptionLogger::class),
-        );
-
+        $handler = new ChangeCheckoutOptionsCommandHandler($this->createMock(EntityRepository::class), $shippingMethodRepo);
         $handler->handle($command, $context, $parameters);
 
         static::assertSame(['shippingMethodId' => 'shippingMethodId'], $parameters);
@@ -80,18 +74,9 @@ class ChangeCheckoutOptionsCommandHandlerTest extends TestCase
             ->with(static::equalTo($expectedCriteria), $context->getContext())
             ->willReturn($shippingMethodResult);
 
-        $logger = $this->createMock(ExceptionLogger::class);
-        $logger
-            ->expects($this->once())
-            ->method('logOrThrowException')
-            ->with(ContextGatewayException::handlerException('Shipping method with technical name {{ technicalName }} not found', ['technicalName' => 'test_app_shipping']));
+        $this->expectExceptionObject(GatewayException::handlerException('Shipping method with technical name {{ technicalName }} not found', ['technicalName' => 'test_app_shipping']));
 
-        $handler = new ChangeCheckoutOptionsCommandHandler(
-            $this->createMock(EntityRepository::class),
-            $shippingMethodRepo,
-            $logger
-        );
-
+        $handler = new ChangeCheckoutOptionsCommandHandler($this->createMock(EntityRepository::class), $shippingMethodRepo);
         $handler->handle($command, $context, $parameters);
 
         static::assertSame([], $parameters);
@@ -120,12 +105,7 @@ class ChangeCheckoutOptionsCommandHandlerTest extends TestCase
             ->with(static::equalTo($expectedCriteria), $context->getContext())
             ->willReturn($paymentMethodResult);
 
-        $handler = new ChangeCheckoutOptionsCommandHandler(
-            $paymentMethodRepo,
-            $this->createMock(EntityRepository::class),
-            $this->createMock(ExceptionLogger::class),
-        );
-
+        $handler = new ChangeCheckoutOptionsCommandHandler($paymentMethodRepo, $this->createMock(EntityRepository::class));
         $handler->handle($command, $context, $parameters);
 
         static::assertSame(['paymentMethodId' => 'paymentMethodId'], $parameters);
@@ -154,18 +134,9 @@ class ChangeCheckoutOptionsCommandHandlerTest extends TestCase
             ->with(static::equalTo($expectedCriteria), $context->getContext())
             ->willReturn($paymentMethodResult);
 
-        $logger = $this->createMock(ExceptionLogger::class);
-        $logger
-            ->expects($this->once())
-            ->method('logOrThrowException')
-            ->with(ContextGatewayException::handlerException('Payment method with technical name {{ technicalName }} not found', ['technicalName' => 'test_app_payment']));
+        $this->expectExceptionObject(GatewayException::handlerException('Payment method with technical name {{ technicalName }} not found', ['technicalName' => 'test_app_payment']));
 
-        $handler = new ChangeCheckoutOptionsCommandHandler(
-            $paymentMethodRepo,
-            $this->createMock(EntityRepository::class),
-            $logger
-        );
-
+        $handler = new ChangeCheckoutOptionsCommandHandler($paymentMethodRepo, $this->createMock(EntityRepository::class));
         $handler->handle($command, $context, $parameters);
 
         static::assertSame([], $parameters);

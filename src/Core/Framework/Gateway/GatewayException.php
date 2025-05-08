@@ -1,15 +1,14 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Core\Framework\Gateway\Context;
+namespace Shopware\Core\Framework\Gateway;
 
-use GuzzleHttp\Exception\GuzzleException;
 use GuzzleHttp\Exception\RequestException;
 use Shopware\Core\Framework\HttpException;
 use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\HttpFoundation\Response;
 
 #[Package('framework')]
-class ContextGatewayException extends HttpException
+class GatewayException extends HttpException
 {
     public const EMPTY_APP_RESPONSE_CODE = 'CONTEXT_GATEWAY__EMPTY_APP_RESPONSE';
     public const PAYLOAD_INVALID_CODE = 'CONTEXT_GATEWAY__PAYLOAD_INVALID';

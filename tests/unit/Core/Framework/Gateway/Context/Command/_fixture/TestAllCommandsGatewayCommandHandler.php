@@ -3,8 +3,6 @@
 namespace Shopware\Tests\Unit\Core\Framework\Gateway\Context\Command\_fixture;
 
 use PHPUnit\Framework\Attributes\CoversNothing;
-use Shopware\Core\Checkout\Customer\CustomerEntity;
-use Shopware\Core\Checkout\Customer\SalesChannel\CustomerResponse;
 use Shopware\Core\Framework\Gateway\Context\Command\AbstractContextGatewayCommand;
 use Shopware\Core\Framework\Gateway\Context\Command\ChangeBillingAddressCommand;
 use Shopware\Core\Framework\Gateway\Context\Command\ChangeCurrencyCommand;
@@ -17,7 +15,6 @@ use Shopware\Core\Framework\Gateway\Context\Command\Handler\AbstractContextGatew
 use Shopware\Core\Framework\Gateway\Context\Command\LoginCustomerCommand;
 use Shopware\Core\Framework\Gateway\Context\Command\RegisterCustomerCommand;
 use Shopware\Core\Framework\Log\Package;
-use Shopware\Core\PlatformRequest;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
 /**

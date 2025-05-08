@@ -17,7 +17,7 @@ use Shopware\Core\Framework\Gateway\Context\Command\Executor\ContextGatewayComma
 use Shopware\Core\Framework\Gateway\Context\Command\LoginCustomerCommand;
 use Shopware\Core\Framework\Gateway\Context\Command\RegisterCustomerCommand;
 use Shopware\Core\Framework\Gateway\Context\Command\Registry\ContextGatewayCommandRegistry;
-use Shopware\Core\Framework\Gateway\Context\ContextGatewayException;
+use Shopware\Core\Framework\Gateway\GatewayException;
 use Shopware\Core\Framework\Log\ExceptionLogger;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
@@ -152,7 +152,7 @@ class ContextGatewayCommandExecutorTest extends TestCase
         $logger
             ->expects($this->once())
             ->method('logOrThrowException')
-            ->with(ContextGatewayException::handlerNotFound(TestContextGatewayCommand::getDefaultKeyName()));
+            ->with(GatewayException::handlerNotFound(TestContextGatewayCommand::getDefaultKeyName()));
 
         $executor = new ContextGatewayCommandExecutor(
             $this->createMock(AbstractContextSwitchRoute::class),

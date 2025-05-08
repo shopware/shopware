@@ -8,7 +8,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\Gateway\Context\Command\AbstractContextGatewayCommand;
 use Shopware\Core\Framework\Gateway\Context\Command\ChangePaymentMethodCommand;
 use Shopware\Core\Framework\Gateway\Context\Command\ChangeShippingMethodCommand;
-use Shopware\Core\Framework\Gateway\Context\ContextGatewayException;
+use Shopware\Core\Framework\Gateway\GatewayException;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
@@ -38,7 +38,7 @@ class ChangeCheckoutOptionsCommandHandler extends AbstractContextGatewayCommandH
             $shippingMethodId = $this->shippingMethodRepository->searchIds($criteria, $context->getContext())->firstId();
 
             if ($shippingMethodId === null) {
-                throw ContextGatewayException::handlerException('Shipping method with technical name {{ technicalName }} not found', ['technicalName' => $technicalName]);
+                throw GatewayException::handlerException('Shipping method with technical name {{ technicalName }} not found', ['technicalName' => $technicalName]);
             }
 
             $parameters['shippingMethodId'] = $shippingMethodId;
@@ -48,7 +48,7 @@ class ChangeCheckoutOptionsCommandHandler extends AbstractContextGatewayCommandH
             $paymentMethodId = $this->paymentMethodRepository->searchIds($criteria, $context->getContext())->firstId();
 
             if ($paymentMethodId === null) {
-                throw ContextGatewayException::handlerException('Payment method with technical name {{ technicalName }} not found', ['technicalName' => $technicalName]);
+                throw GatewayException::handlerException('Payment method with technical name {{ technicalName }} not found', ['technicalName' => $technicalName]);
             }
 
             $parameters['paymentMethodId'] = $paymentMethodId;

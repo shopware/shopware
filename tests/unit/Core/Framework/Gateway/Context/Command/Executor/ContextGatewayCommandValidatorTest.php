@@ -16,7 +16,7 @@ use Shopware\Core\Framework\Gateway\Context\Command\ContextGatewayCommandCollect
 use Shopware\Core\Framework\Gateway\Context\Command\Executor\ContextGatewayCommandValidator;
 use Shopware\Core\Framework\Gateway\Context\Command\LoginCustomerCommand;
 use Shopware\Core\Framework\Gateway\Context\Command\RegisterCustomerCommand;
-use Shopware\Core\Framework\Gateway\Context\ContextGatewayException;
+use Shopware\Core\Framework\Gateway\GatewayException;
 use Shopware\Core\Framework\Log\ExceptionLogger;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Test\Generator;
@@ -52,7 +52,7 @@ class ContextGatewayCommandValidatorTest extends TestCase
 
     public function testValidateWithMultipleRegisterCommands(): void
     {
-        $expectedException = ContextGatewayException::commandValidationFailed('Only one register or login command is allowed');
+        $expectedException = GatewayException::commandValidationFailed('Only one register or login command is allowed');
 
         $logger = $this->createMock(ExceptionLogger::class);
         $logger
@@ -71,7 +71,7 @@ class ContextGatewayCommandValidatorTest extends TestCase
 
     public function testValidateWithMultipleLoginCommands(): void
     {
-        $expectedException = ContextGatewayException::commandValidationFailed('Only one register or login command is allowed');
+        $expectedException = GatewayException::commandValidationFailed('Only one register or login command is allowed');
 
         $logger = $this->createMock(ExceptionLogger::class);
         $logger
@@ -90,7 +90,7 @@ class ContextGatewayCommandValidatorTest extends TestCase
 
     public function testValidateWithLoginAndRegisterCommands(): void
     {
-        $expectedException = ContextGatewayException::commandValidationFailed('Only one register or login command is allowed');
+        $expectedException = GatewayException::commandValidationFailed('Only one register or login command is allowed');
 
         $logger = $this->createMock(ExceptionLogger::class);
         $logger
@@ -109,7 +109,7 @@ class ContextGatewayCommandValidatorTest extends TestCase
 
     public function testValidateWithDuplicateCommands(): void
     {
-        $expectedException = ContextGatewayException::commandValidationFailed('Duplicate commands of a type are not allowed');
+        $expectedException = GatewayException::commandValidationFailed('Duplicate commands of a type are not allowed');
 
         $logger = $this->createMock(ExceptionLogger::class);
         $logger

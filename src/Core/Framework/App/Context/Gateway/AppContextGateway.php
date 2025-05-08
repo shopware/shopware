@@ -15,7 +15,7 @@ use Shopware\Core\Framework\Gateway\Context\Command\ContextGatewayCommandCollect
 use Shopware\Core\Framework\Gateway\Context\Command\Executor\ContextGatewayCommandExecutor;
 use Shopware\Core\Framework\Gateway\Context\Command\Registry\ContextGatewayCommandRegistry;
 use Shopware\Core\Framework\Gateway\Context\Command\Struct\ContextGatewayPayloadStruct;
-use Shopware\Core\Framework\Gateway\Context\ContextGatewayException;
+use Shopware\Core\Framework\Gateway\GatewayException;
 use Shopware\Core\Framework\Log\ExceptionLogger;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\ContextTokenResponse;
@@ -38,7 +38,7 @@ class AppContextGateway
     public function process(ContextGatewayPayloadStruct $payload): ContextTokenResponse
     {
         if (!$payload->getData()->get('appName')) {
-            throw ContextGatewayException::payloadInvalid('\'appName\' not found in payload');
+            throw AppException::missingRequestParameter('appName');
         }
 
         $appName = $payload->getData()->get('appName');
@@ -51,7 +51,7 @@ class AppContextGateway
         $appResponse = $this->payloadService->request($checkoutGatewayUrl, $appPayload, $app);
 
         if (!$appResponse) {
-            throw ContextGatewayException::emptyAppResponse($app->getName());
+            throw AppException::gatewayRequestFailed($app->getName(), 'context');
         }
 
         $commands = $this->collectCommandsFromAppResponse($appResponse);
@@ -85,7 +85,7 @@ class AppContextGateway
 
         foreach ($response->getCommands() as $payload) {
             if (!isset($payload['command'], $payload['payload'])) {
-                $this->logger->logOrThrowException(ContextGatewayException::payloadInvalid($payload['command'] ?? null));
+                $this->logger->logOrThrowException(GatewayException::payloadInvalid($payload['command'] ?? null));
 
                 continue;
             }
@@ -93,7 +93,7 @@ class AppContextGateway
             $commandKey = $payload['command'];
 
             if (!$this->registry->hasAppCommand($commandKey)) {
-                $this->logger->logOrThrowException(ContextGatewayException::handlerNotFound($commandKey));
+                $this->logger->logOrThrowException(GatewayException::handlerNotFound($commandKey));
 
                 continue;
             }
@@ -101,7 +101,7 @@ class AppContextGateway
             $command = $this->registry->getAppCommand($commandKey);
 
             if (!\is_a($command, AbstractContextGatewayCommand::class, true)) {
-                $this->logger->logOrThrowException(ContextGatewayException::handlerNotFound($commandKey));
+                $this->logger->logOrThrowException(GatewayException::handlerNotFound($commandKey));
 
                 continue;
             }
@@ -111,7 +111,7 @@ class AppContextGateway
             try {
                 $executableCommand = $command::createFromPayload($commandPayload);
             } catch (\Throwable) {
-                $this->logger->logOrThrowException(ContextGatewayException::payloadInvalid($payload['command']));
+                $this->logger->logOrThrowException(GatewayException::payloadInvalid($payload['command']));
                 continue;
             }
 

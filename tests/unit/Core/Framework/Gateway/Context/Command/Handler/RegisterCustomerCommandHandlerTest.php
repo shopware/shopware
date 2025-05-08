@@ -32,6 +32,7 @@ class RegisterCustomerCommandHandlerTest extends TestCase
                 ],
             ]
         );
+
         $context = Generator::generateSalesChannelContext();
         $parameters = [];
 
@@ -46,6 +47,7 @@ class RegisterCustomerCommandHandlerTest extends TestCase
         );
 
         $response = new CustomerResponse(new CustomerEntity());
+        $response->headers->set('sw-context-token', 'hatoken');
 
         $registerRoute = $this->createMock(AbstractRegisterRoute::class);
         $registerRoute
@@ -57,7 +59,7 @@ class RegisterCustomerCommandHandlerTest extends TestCase
         $handler = new RegisterCustomerCommandHandler($registerRoute);
         $handler->handle($command, $context, $parameters);
 
-        static::assertSame(['customerResponse' => $response], $parameters);
+        static::assertSame(['token' => 'hatoken'], $parameters);
     }
 
     public function testSupportedCommands(): void

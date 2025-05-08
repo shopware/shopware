@@ -24,7 +24,8 @@ class ContextGatewayCommandCollectionTest extends TestCase
         $commands->add(self::getCommand(RegisterCustomerCommand::class, ['data' => ['foo' => 'bar']]));
         $commands->add(self::getCommand(RegisterCustomerCommand::class, ['data' => ['wow' => 'ser']]));
 
-        $registerCommand = $commands->getTokenCommand();
+        /** @var RegisterCustomerCommand $registerCommand */
+        $registerCommand = $commands->getSingleTokenCommand();
 
         static::assertNotNull($registerCommand);
         static::assertSame(['foo' => 'bar'], $registerCommand->data);
@@ -36,7 +37,8 @@ class ContextGatewayCommandCollectionTest extends TestCase
         $commands->add(self::getCommand(LoginCustomerCommand::class, ['customerEmail' => 'foo@bar.com']));
         $commands->add(self::getCommand(LoginCustomerCommand::class, ['customerEmail' => 'wow@ser.com']));
 
-        $loginCommand = $commands->getTokenCommand();
+        /** @var LoginCustomerCommand $loginCommand */
+        $loginCommand = $commands->getSingleTokenCommand();
 
         static::assertNotNull($loginCommand);
         static::assertSame('foo@bar.com', $loginCommand->customerEmail);
@@ -47,7 +49,7 @@ class ContextGatewayCommandCollectionTest extends TestCase
         $commands = new ContextGatewayCommandCollection();
         $commands->add(self::getCommand(ChangePaymentMethodCommand::class, ['technicalName' => 'test_payment']));
 
-        $tokenCommand = $commands->getTokenCommand();
+        $tokenCommand = $commands->getSingleTokenCommand();
 
         static::assertNull($tokenCommand);
     }

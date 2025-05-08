@@ -6,8 +6,8 @@ use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\Cart;
 use Shopware\Core\Checkout\Cart\SalesChannel\CartService;
-use Shopware\Core\Framework\Gateway\Context\ContextGatewayException;
 use Shopware\Core\Framework\Gateway\Context\SalesChannel\AbstractContextGatewayRoute;
+use Shopware\Core\Framework\Gateway\GatewayException;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestSessionStorage;
 use Shopware\Core\System\SalesChannel\ContextTokenResponse;
@@ -78,7 +78,7 @@ class ContextGatewayControllerTest extends TestCase
             ->expects($this->once())
             ->method('load')
             ->with($request, $cart, $context)
-            ->willThrowException(ContextGatewayException::emptyAppResponse('FOO'));
+            ->willThrowException(GatewayException::emptyAppResponse('FOO'));
 
         $container = $this->createStubContainerWithFlashBag();
 
@@ -116,7 +116,7 @@ class ContextGatewayControllerTest extends TestCase
             ->expects($this->once())
             ->method('load')
             ->with($request, $cart, $context)
-            ->willThrowException(ContextGatewayException::customerMessage('FOO'));
+            ->willThrowException(GatewayException::customerMessage('FOO'));
 
         $container = $this->createStubContainerWithFlashBag();
 

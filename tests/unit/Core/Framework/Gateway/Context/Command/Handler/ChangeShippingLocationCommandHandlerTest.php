@@ -11,8 +11,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\OrFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\IdSearchResult;
 use Shopware\Core\Framework\Gateway\Context\Command\ChangeShippingLocationCommand;
 use Shopware\Core\Framework\Gateway\Context\Command\Handler\ChangeShippingLocationCommandHandler;
-use Shopware\Core\Framework\Gateway\Context\ContextGatewayException;
-use Shopware\Core\Framework\Log\ExceptionLogger;
+use Shopware\Core\Framework\Gateway\GatewayException;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Test\Generator;
 
@@ -32,7 +31,6 @@ class ChangeShippingLocationCommandHandlerTest extends TestCase
         $handler = new ChangeShippingLocationCommandHandler(
             $this->createMock(EntityRepository::class),
             $this->createMock(EntityRepository::class),
-            $this->createMock(ExceptionLogger::class),
         );
 
         $handler->handle($command, $context, $parameters);
@@ -70,12 +68,7 @@ class ChangeShippingLocationCommandHandlerTest extends TestCase
             ->with(static::equalTo($expectedCriteria), $context->getContext())
             ->willReturn($countryResult);
 
-        $handler = new ChangeShippingLocationCommandHandler(
-            $countryRepo,
-            $this->createMock(EntityRepository::class),
-            $this->createMock(ExceptionLogger::class),
-        );
-
+        $handler = new ChangeShippingLocationCommandHandler($countryRepo, $this->createMock(EntityRepository::class));
         $handler->handle($command, $context, $parameters);
 
         static::assertSame(['countryId' => 'countryId'], $parameters);
@@ -111,18 +104,9 @@ class ChangeShippingLocationCommandHandlerTest extends TestCase
             ->with(static::equalTo($expectedCriteria), $context->getContext())
             ->willReturn($countryResult);
 
-        $logger = $this->createMock(ExceptionLogger::class);
-        $logger
-            ->expects($this->once())
-            ->method('logOrThrowException')
-            ->with(ContextGatewayException::handlerException('Country with iso code {{ isoCode }} not found', ['isoCode' => 'DE']));
+        $this->expectExceptionObject(GatewayException::handlerException('Country with iso code {{ isoCode }} not found', ['isoCode' => 'DE']));
 
-        $handler = new ChangeShippingLocationCommandHandler(
-            $countryRepo,
-            $this->createMock(EntityRepository::class),
-            $logger
-        );
-
+        $handler = new ChangeShippingLocationCommandHandler($countryRepo, $this->createMock(EntityRepository::class));
         $handler->handle($command, $context, $parameters);
 
         static::assertSame([], $parameters);
@@ -151,12 +135,7 @@ class ChangeShippingLocationCommandHandlerTest extends TestCase
             ->with(static::equalTo($expectedCriteria), $context->getContext())
             ->willReturn($countryStateResult);
 
-        $handler = new ChangeShippingLocationCommandHandler(
-            $this->createMock(EntityRepository::class),
-            $countryStateRepo,
-            $this->createMock(ExceptionLogger::class),
-        );
-
+        $handler = new ChangeShippingLocationCommandHandler($this->createMock(EntityRepository::class), $countryStateRepo);
         $handler->handle($command, $context, $parameters);
 
         static::assertSame(['countryStateId' => 'countryStateId'], $parameters);
@@ -185,18 +164,9 @@ class ChangeShippingLocationCommandHandlerTest extends TestCase
             ->with(static::equalTo($expectedCriteria), $context->getContext())
             ->willReturn($countryStateResult);
 
-        $logger = $this->createMock(ExceptionLogger::class);
-        $logger
-            ->expects($this->once())
-            ->method('logOrThrowException')
-            ->with(ContextGatewayException::handlerException('Country state with short code {{ shortCode }} not found', ['shortCode' => 'DE-BY']));
+        $this->expectExceptionObject(GatewayException::handlerException('Country state with short code {{ shortCode }} not found', ['shortCode' => 'DE-BY']));
 
-        $handler = new ChangeShippingLocationCommandHandler(
-            $this->createMock(EntityRepository::class),
-            $countryStateRepo,
-            $logger
-        );
-
+        $handler = new ChangeShippingLocationCommandHandler($this->createMock(EntityRepository::class), $countryStateRepo);
         $handler->handle($command, $context, $parameters);
 
         static::assertSame([], $parameters);
@@ -249,12 +219,7 @@ class ChangeShippingLocationCommandHandlerTest extends TestCase
             ->with(static::equalTo($expectedStateCriteria), $context->getContext())
             ->willReturn($countryStateResult);
 
-        $handler = new ChangeShippingLocationCommandHandler(
-            $countryRepo,
-            $countryStateRepo,
-            $this->createMock(ExceptionLogger::class),
-        );
-
+        $handler = new ChangeShippingLocationCommandHandler($countryRepo, $countryStateRepo);
         $handler->handle($command, $context, $parameters);
 
         static::assertSame(['countryId' => 'countryId', 'countryStateId' => 'countryStateId'], $parameters);

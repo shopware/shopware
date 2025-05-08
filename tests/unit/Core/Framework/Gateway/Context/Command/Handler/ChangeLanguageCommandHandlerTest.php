@@ -10,8 +10,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\IdSearchResult;
 use Shopware\Core\Framework\Gateway\Context\Command\ChangeLanguageCommand;
 use Shopware\Core\Framework\Gateway\Context\Command\Handler\ChangeLanguageCommandHandler;
-use Shopware\Core\Framework\Gateway\Context\ContextGatewayException;
-use Shopware\Core\Framework\Log\ExceptionLogger;
+use Shopware\Core\Framework\Gateway\GatewayException;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Test\Generator;
 
@@ -45,11 +44,7 @@ class ChangeLanguageCommandHandlerTest extends TestCase
             ->with(static::equalTo($expectedCriteria), $context->getContext())
             ->willReturn($languageResult);
 
-        $handler = new ChangeLanguageCommandHandler(
-            $languageRepo,
-            $this->createMock(ExceptionLogger::class),
-        );
-
+        $handler = new ChangeLanguageCommandHandler($languageRepo);
         $handler->handle($command, $context, $parameters);
 
         static::assertSame(['languageId' => 'languageId'], $parameters);
@@ -78,17 +73,9 @@ class ChangeLanguageCommandHandlerTest extends TestCase
             ->with(static::equalTo($expectedCriteria), $context->getContext())
             ->willReturn($languageResult);
 
-        $logger = $this->createMock(ExceptionLogger::class);
-        $logger
-            ->expects($this->once())
-            ->method('logOrThrowException')
-            ->with(ContextGatewayException::handlerException('Language with iso code {{ isoCode }} not found', ['isoCode' => 'de-DE']));
+        $this->expectExceptionObject(GatewayException::handlerException('Language with iso code {{ isoCode }} not found', ['isoCode' => 'de-DE']));
 
-        $handler = new ChangeLanguageCommandHandler(
-            $languageRepo,
-            $logger
-        );
-
+        $handler = new ChangeLanguageCommandHandler($languageRepo);
         $handler->handle($command, $context, $parameters);
 
         static::assertSame([], $parameters);

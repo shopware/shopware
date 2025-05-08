@@ -339,18 +339,18 @@ class Kernel extends HttpKernel
     protected function dumpContainer(ConfigCache $cache, ContainerBuilder $container, string $class, string $baseClass): void
     {
         parent::dumpContainer($cache, $container, $class, $baseClass);
+
         $cacheDir = $container->getParameter('kernel.cache_dir');
+        $rootCacheDir = \dirname($cacheDir);
+
+        $fileSystem = new Filesystem();
+        $fileSystem->dumpFile($rootCacheDir . \DIRECTORY_SEPARATOR . 'CACHEDIR.TAG', 'Signature: 8a477f597d28d172789f06886806bc55');
 
         // Do not dump the preload file if the cache dir is a warmup dir.
         // See https://github.com/symfony/symfony/blob/v7.2.6/src/Symfony/Bundle/FrameworkBundle/Command/CacheClearCommand.php#L115-L117
         if (str_ends_with($cacheDir, '_')) {
             return;
         }
-
-        $fileSystem = new Filesystem();
-
-        $rootCacheDir = \dirname($cacheDir);
-        $fileSystem->dumpFile($rootCacheDir . \DIRECTORY_SEPARATOR . 'CACHEDIR.TAG', 'Signature: 8a477f597d28d172789f06886806bc55');
 
         $preloadFileName = $rootCacheDir . \DIRECTORY_SEPARATOR . 'opcache-preload.php';
         $cacheDirectoryName = basename($cacheDir);

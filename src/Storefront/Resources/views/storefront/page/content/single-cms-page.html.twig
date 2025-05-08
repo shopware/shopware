@@ -13,7 +13,7 @@
 {% endblock %}
 
 {% block single_cms_page_body %}
-    <body class="{% block single_cms_page_body_classes %}is-ctl-{{ controllerName|lower }} is-act-{{ controllerAction|lower }} is-active-route-{{ activeRoute|replace({'%this%': ".", '%that%': "-"}) }}{% endblock %}">
+    <body class="{% block single_cms_page_body_classes %}{# @deprecated tag:v6.8.0 - Will be removed, use activeRoute instead. #}is-ctl-{{ controllerName|lower }}{# @deprecated tag:v6.8.0 - Will be removed, use activeRoute instead. #} is-act-{{ controllerAction|lower }} is-active-route-{{ activeRoute|replace({'%this%': ".", '%that%': "-"}) }}{% endblock %}">
         {% block single_cms_page_body_inner %}
             {% block single_cms_page_noscript %}
                 <noscript class="noscript-main">

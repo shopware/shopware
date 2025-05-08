@@ -138,7 +138,6 @@ class MailService extends AbstractMailService
         $definition->add('contentHtml', new NotBlank(), new Type('string'));
         $definition->add('contentPlain', new NotBlank(), new Type('string'));
         $definition->add('subject', new NotBlank(), new Type('string'));
-        $definition->add('senderName', new NotBlank(), new Type('string'));
 
         return $definition;
     }
@@ -174,8 +173,11 @@ class MailService extends AbstractMailService
                 $templateData['order']['deepLinkCode'] = 'home';
             }
         }
-
-        foreach (['subject', 'senderName'] as $renderDataIndex) {
+        $mailOptions = ['subject'];
+        if (\is_string($data['senderName'])) {
+            $mailOptions[] = 'senderName';
+        }
+        foreach ($mailOptions as $renderDataIndex) {
             try {
                 $data[$renderDataIndex] = $this->templateRenderer->render($data[$renderDataIndex], $templateData, $context, false);
             } catch (\Throwable $e) {

@@ -232,7 +232,7 @@ class MailServiceTest extends TestCase
         $data = [
             'recipients' => [],
             'subject' => 'Test email',
-            'senderName' => 'me@shopware.com',
+            'senderName' => null,
             'contentPlain' => 'Content plain',
             'contentHtml' => 'Content html',
             'salesChannelId' => $salesChannelId,

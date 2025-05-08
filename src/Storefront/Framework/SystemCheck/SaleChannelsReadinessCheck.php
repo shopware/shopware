@@ -91,6 +91,8 @@ class SaleChannelsReadinessCheck extends BaseCheck
         foreach ($domains as $domain) {
             $url = $this->generateDomainUrl($domain);
             $request = $this->requestTransformer->transform(Request::create($url));
+            // bypass maintenance mode for health check
+            $request->attributes->set(SalesChannelRequest::ATTRIBUTE_SALES_CHANNEL_MAINTENANCE, false);
             // set fake main request to avoid the router to use the main request for generating the URL,
             // as that is an API request and not a storefront request
             Router::$fakeMainRequest = $request;

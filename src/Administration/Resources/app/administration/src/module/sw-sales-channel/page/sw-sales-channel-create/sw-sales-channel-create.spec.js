@@ -43,6 +43,11 @@ async function createWrapper() {
                 exportTemplateService: {
                     getProductExportTemplateRegistry: () => ({}),
                 },
+                systemConfigApiService: {
+                    getValues: () => {
+                        return Promise.resolve({});
+                    },
+                },
             },
             mocks: {
                 $route: {

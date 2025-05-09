@@ -23,25 +23,34 @@ use Symfony\Component\Filesystem\Filesystem as SymfonyFilesystem;
 #[CoversClass(Kernel::class)]
 class KernelTest extends TestCase
 {
+    private string $tmpProjectDir;
+
+    protected function setUp(): void
+    {
+        $this->tmpProjectDir = __DIR__ . '/tmpToBeRemoved';
+    }
+
+    protected function tearDown(): void
+    {
+        (new SymfonyFilesystem())->remove($this->tmpProjectDir);
+    }
+
     public function testGetCacheDir(): void
     {
-        static::assertStringStartsWith('www/shopware/var/cache/fooBar_h', $this->createKernel()->getCacheDir());
+        static::assertStringStartsWith($this->tmpProjectDir . '/var/cache/fooBar_h', $this->createKernel()->getCacheDir());
     }
 
     public function testDumpContainerDumpsPreloadFile(): void
     {
         $fileSystem = new Filesystem(new InMemoryFilesystemAdapter());
-        $kernel = $this->createKernel($fileSystem);
-
-        $tmpDir = __DIR__ . '/tmpToBeRemoved';
 
         $containerBuilder = new ContainerBuilder();
-        $containerBuilder->setParameter('kernel.cache_dir', 'www/shopware/var/cache/fooBar_h123abc');
+        $containerBuilder->setParameter('kernel.cache_dir', $this->tmpProjectDir . '/var/cache/fooBar_h123abc');
         $containerBuilder->compile();
 
         ReflectionHelper::getMethod(Kernel::class, 'dumpContainer')->invoke(
-            $kernel,
-            new ConfigCache($tmpDir . '/cache', true),
+            $this->createKernel($fileSystem),
+            new ConfigCache($this->tmpProjectDir . '/cache-file', true),
             $containerBuilder,
             'Shopware_Core_KernelDevDebugContainer',
             'Container',
@@ -49,35 +58,49 @@ class KernelTest extends TestCase
 
         static::assertTrue($fileSystem->fileExists('CACHEDIR.TAG'));
         static::assertTrue($fileSystem->fileExists('opcache-preload.php'));
+    }
 
-        (new SymfonyFilesystem())->remove($tmpDir);
+    public function testDumpContainerDumpsPreloadFileWithoutGivenFileSystem(): void
+    {
+        $containerBuilder = new ContainerBuilder();
+        $containerBuilder->setParameter('kernel.cache_dir', $this->tmpProjectDir . '/var/cache/fooBar_h123abc');
+        $containerBuilder->compile();
+
+        ReflectionHelper::getMethod(Kernel::class, 'dumpContainer')->invoke(
+            $this->createKernel(),
+            new ConfigCache($this->tmpProjectDir . '/cache-file', true),
+            $containerBuilder,
+            'Shopware_Core_KernelDevDebugContainer',
+            'Container',
+        );
+
+        $fileSystem = new SymfonyFilesystem();
+
+        static::assertTrue($fileSystem->exists($this->tmpProjectDir . '/var/cache/CACHEDIR.TAG'));
+        static::assertTrue($fileSystem->exists($this->tmpProjectDir . '/var/cache/opcache-preload.php'));
     }
 
     public function testDumpContainerDoesNotDumpPreloadFileIfWarmupCacheDirIsGiven(): void
     {
         $fileSystem = new Filesystem(new InMemoryFilesystemAdapter());
-        $kernel = $this->createKernel($fileSystem);
-
-        $tmpDir = __DIR__ . '/tmpToBeRemoved';
 
         $containerBuilder = new ContainerBuilder();
         // An underscore at the end indicates a warmup cache directory
-        $containerBuilder->setParameter('kernel.cache_dir', 'www/shopware/var/cache/fooBar_h123abc_');
+        $containerBuilder->setParameter('kernel.cache_dir', $this->tmpProjectDir . '/var/cache/fooBar_h123abc_');
         $containerBuilder->compile();
 
         ReflectionHelper::getMethod(Kernel::class, 'dumpContainer')->invoke(
-            $kernel,
-            new ConfigCache($tmpDir . '/cache', true),
+            $this->createKernel($fileSystem),
+            new ConfigCache($this->tmpProjectDir . '/cache', true),
             $containerBuilder,
             'Shopware_Core_KernelDevDebugContainer',
             'Container',
         );
 
         static::assertTrue($fileSystem->fileExists('CACHEDIR.TAG'));
+
         // Do not create the preload file in warmup cache
         static::assertFalse($fileSystem->fileExists('opcache-preload.php'));
-
-        (new SymfonyFilesystem())->remove($tmpDir);
     }
 
     private function createKernel(?FilesystemOperator $filesystem = null): Kernel
@@ -89,7 +112,7 @@ class KernelTest extends TestCase
             'cacheId',
             '6.6.6',
             $this->createMock(Connection::class),
-            'www/shopware',
+            $this->tmpProjectDir,
             $filesystem,
         );
     }

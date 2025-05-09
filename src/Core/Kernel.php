@@ -5,6 +5,9 @@ namespace Shopware\Core;
 use Composer\Autoload\ClassLoader;
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\Exception as DBALException;
+use League\Flysystem\Filesystem;
+use League\Flysystem\FilesystemOperator;
+use League\Flysystem\Local\LocalFilesystemAdapter;
 use Shopware\Core\DevOps\Environment\EnvironmentHelper;
 use Shopware\Core\Framework\Adapter\Database\MySQLFactory;
 use Shopware\Core\Framework\Api\Controller\FallbackController;
@@ -20,7 +23,6 @@ use Symfony\Bundle\FrameworkBundle\Kernel\MicroKernelTrait;
 use Symfony\Component\Config\ConfigCache;
 use Symfony\Component\Config\Loader\LoaderInterface;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
-use Symfony\Component\Filesystem\Filesystem;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Bundle\Bundle;
@@ -36,7 +38,6 @@ class Kernel extends HttpKernel
     use MicroKernelTrait;
 
     final public const CONFIG_EXTS = '.{php,xml,yaml,yml}';
-
     /**
      * @var string Fallback version if nothing is provided via kernel constructor
      */
@@ -50,6 +51,10 @@ class Kernel extends HttpKernel
 
     private bool $rebooting = false;
 
+    private FilesystemOperator $filesystem;
+
+    private string $cacheRootDir;
+
     /**
      * @internal
      */
@@ -60,7 +65,8 @@ class Kernel extends HttpKernel
         private string $cacheId,
         string $version,
         Connection $connection,
-        protected string $projectDir
+        protected string $projectDir,
+        ?FilesystemOperator $filesystem = null,
     ) {
         date_default_timezone_set('UTC');
 
@@ -70,6 +76,8 @@ class Kernel extends HttpKernel
         $versionArray = VersionParser::parseShopwareVersion($version);
         $this->shopwareVersion = $versionArray['version'];
         $this->shopwareVersionRevision = $versionArray['revision'];
+        $this->cacheRootDir = EnvironmentHelper::getVariable('APP_CACHE_DIR', $this->getProjectDir()) . '/var/cache';
+        $this->filesystem = $filesystem ?? new Filesystem(new LocalFilesystemAdapter($this->cacheRootDir));
     }
 
     /**
@@ -176,8 +184,8 @@ class Kernel extends HttpKernel
     public function getCacheDir(): string
     {
         return \sprintf(
-            '%s/var/cache/%s_h%s',
-            EnvironmentHelper::getVariable('APP_CACHE_DIR', $this->getProjectDir()),
+            '%s/%s_h%s',
+            $this->cacheRootDir,
             $this->getEnvironment(),
             $this->getCacheHash(),
         );
@@ -261,7 +269,6 @@ class Kernel extends HttpKernel
 
     /**
      * {@inheritdoc}
-     *
      * @return array<string, mixed>
      */
     protected function getKernelParameters(): array
@@ -326,7 +333,8 @@ class Kernel extends HttpKernel
      */
     protected function initializeDatabaseConnectionVariables(): void
     {
-        Feature::triggerDeprecationOrThrow('v6.8.0.0', 'The method initializeDatabaseConnectionVariables is deprecated and will be removed in 6.8.0.0. All MySQL connection variables are configured in ' . MySQLFactory::class);
+        Feature::triggerDeprecationOrThrow('v6.8.0.0',
+            'The method initializeDatabaseConnectionVariables is deprecated and will be removed in 6.8.0.0. All MySQL connection variables are configured in ' . MySQLFactory::class);
 
         self::$connection = self::getConnection();
     }
@@ -338,19 +346,15 @@ class Kernel extends HttpKernel
     {
         parent::dumpContainer($cache, $container, $class, $baseClass);
 
+        $this->filesystem->write('CACHEDIR.TAG', 'Signature: 8a477f597d28d172789f06886806bc55');
+
         $cacheDir = $container->getParameter('kernel.cache_dir');
-        $rootCacheDir = \dirname($cacheDir);
-
-        $fileSystem = new Filesystem();
-        $fileSystem->dumpFile($rootCacheDir . \DIRECTORY_SEPARATOR . 'CACHEDIR.TAG', 'Signature: 8a477f597d28d172789f06886806bc55');
-
         // Do not dump the preload file if the cache dir is a warmup dir.
         // See https://github.com/symfony/symfony/blob/v7.2.6/src/Symfony/Bundle/FrameworkBundle/Command/CacheClearCommand.php#L115-L117
         if (str_ends_with($cacheDir, '_')) {
             return;
         }
 
-        $preloadFileName = $rootCacheDir . \DIRECTORY_SEPARATOR . 'opcache-preload.php';
         $cacheDirectoryName = basename($cacheDir);
         $containerPreloadFileName = $container->getParameter('kernel.container_class') . '.preload.php';
 
@@ -360,8 +364,8 @@ class Kernel extends HttpKernel
 require_once __DIR__ . '/#CACHE_PATH#';
 PHP;
 
-        $fileSystem->dumpFile(
-            $preloadFileName,
+        $this->filesystem->write(
+            'opcache-preload.php',
             str_replace(
                 '#CACHE_PATH#',
                 $cacheDirectoryName . \DIRECTORY_SEPARATOR . $containerPreloadFileName,

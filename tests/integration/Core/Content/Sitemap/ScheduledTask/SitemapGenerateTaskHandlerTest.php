@@ -80,6 +80,9 @@ class SitemapGenerateTaskHandlerTest extends TestCase
                 'currencyId' => Defaults::CURRENCY,
                 'snippetSetId' => $this->getSnippetSetIdForLocale('en-GB'),
                 'url' => 'https://test.com',
+                'measurementSystemId' => Uuid::fromStringToHex('metric'),
+                'lengthUnitId' => Uuid::fromStringToHex('metric-mm'),
+                'massUnitId' => Uuid::fromStringToHex('metric-kg'),
             ],
             [
                 'salesChannelId' => $salesChannelContext->getSalesChannelId(),
@@ -87,6 +90,9 @@ class SitemapGenerateTaskHandlerTest extends TestCase
                 'currencyId' => Defaults::CURRENCY,
                 'snippetSetId' => $this->getSnippetSetIdForLocale('en-GB'),
                 'url' => 'https://test.de',
+                'measurementSystemId' => Uuid::fromStringToHex('metric'),
+                'lengthUnitId' => Uuid::fromStringToHex('metric-mm'),
+                'massUnitId' => Uuid::fromStringToHex('metric-kg'),
             ],
         ], Context::createDefaultContext());
 
@@ -132,6 +138,9 @@ class SitemapGenerateTaskHandlerTest extends TestCase
                 'currencyId' => Defaults::CURRENCY,
                 'snippetSetId' => $this->getSnippetSetIdForLocale('en-GB'),
                 'url' => 'https://test.com',
+                'measurementSystemId' => Uuid::fromStringToHex('metric'),
+                'lengthUnitId' => Uuid::fromStringToHex('metric-mm'),
+                'massUnitId' => Uuid::fromStringToHex('metric-kg'),
             ],
             [
                 'salesChannelId' => $newSalesChannelId,
@@ -139,6 +148,9 @@ class SitemapGenerateTaskHandlerTest extends TestCase
                 'currencyId' => Defaults::CURRENCY,
                 'snippetSetId' => $this->getSnippetSetIdForLocale('en-GB'),
                 'url' => 'https://test.de',
+                'measurementSystemId' => Uuid::fromStringToHex('metric'),
+                'lengthUnitId' => Uuid::fromStringToHex('metric-mm'),
+                'massUnitId' => Uuid::fromStringToHex('metric-kg'),
                 'salesChannel' => [
                     'id' => $newSalesChannelId,
                     'typeId' => Defaults::SALES_CHANNEL_TYPE_STOREFRONT,
@@ -155,6 +167,9 @@ class SitemapGenerateTaskHandlerTest extends TestCase
                     'currencies' => [['id' => Defaults::CURRENCY]],
                     'languages' => [['id' => Defaults::LANGUAGE_SYSTEM]],
                     'customerGroupId' => TestDefaults::FALLBACK_CUSTOMER_GROUP,
+                    'measurementSystemId' => Uuid::fromStringToHex('metric'),
+                    'lengthUnitId' => Uuid::fromStringToHex('metric-mm'),
+                    'massUnitId' => Uuid::fromStringToHex('metric-kg'),
                 ],
             ],
         ], Context::createDefaultContext());

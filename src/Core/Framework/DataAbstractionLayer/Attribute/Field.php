@@ -12,12 +12,14 @@ class Field
 
     /**
      * @param bool|array{admin-api: bool, store-api: bool} $api
+     * @param bool|array<string> $runtime
      */
     public function __construct(
         public string $type,
         public bool $translated = false,
         public bool|array $api = false,
         public ?string $column = null,
+        public bool|array $runtime = false,
     ) {
     }
 }

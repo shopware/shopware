@@ -26,9 +26,13 @@ use Shopware\Core\Framework\DataAbstractionLayer\Pricing\Price;
 use Shopware\Core\Framework\DataAbstractionLayer\Pricing\PriceCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Struct\ArrayEntity;
+use Shopware\Core\Framework\Struct\ArrayStruct;
 use Shopware\Core\Framework\Test\TestCaseBase\BasicTestDataBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\DatabaseTransactionBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
+use Shopware\Core\Framework\Uuid\Uuid;
+use Shopware\Core\System\SalesChannel\Api\ResponseFields;
+use Shopware\Core\System\SalesChannel\Api\StructEncoder;
 use Shopware\Core\Test\Stub\Framework\IdsCollection;
 use Shopware\Core\Test\TestDefaults;
 use Shopware\Tests\Integration\Core\Framework\DataAbstractionLayer\fixture\AttributeEntity;
@@ -121,6 +125,23 @@ class AttributeEntityIntegrationTest extends TestCase
         static::assertSame('attribute_entity_id', $field->getStorageName());
         static::assertSame('id', $field->getReferenceField());
         static::assertSame('attribute_entity', $field->getReferenceEntity());
+    }
+
+    public function testEncodingWithRuntimeField(): void
+    {
+        $entity = new AttributeEntity();
+        $entity->assign([
+            'id' => Uuid::randomHex(),
+            'object' => new ArrayStruct([
+                'foo' => 'bar',
+            ]),
+        ]);
+
+        $data = $this->getContainer()->get(StructEncoder::class)->encode($entity, new ResponseFields([]));
+
+        static::assertArrayHasKey('object', $data);
+        static::assertArrayHasKey('foo', $data['object']);
+        static::assertSame('bar', $data['object']['foo']);
     }
 
     public function testCrudRoot(): void
@@ -336,6 +357,7 @@ class AttributeEntityIntegrationTest extends TestCase
             'customFields' => null,
             'emptyString' => '',
             'htmlString' => '<p class="text-size-lg">Awesome string with <strong>HTML</strong>!</p>',
+            'notEncoded' => 'will be not encoded in api',
         ], $json);
     }
 

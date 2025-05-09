@@ -4,7 +4,6 @@ namespace Shopware\Tests\Integration\Core\Framework\DataAbstractionLayer\fixture
 
 use Shopware\Core\Checkout\Order\OrderEntity;
 use Shopware\Core\Checkout\Order\OrderStates;
-use Shopware\Core\Framework\DataAbstractionLayer\Attribute\AllowEmptyString;
 use Shopware\Core\Framework\DataAbstractionLayer\Attribute\AllowHtml;
 use Shopware\Core\Framework\DataAbstractionLayer\Attribute\AutoIncrement;
 use Shopware\Core\Framework\DataAbstractionLayer\Attribute\Entity;
@@ -28,6 +27,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\FieldSerializer\PriceFieldSeria
 use Shopware\Core\Framework\DataAbstractionLayer\FieldType\DateInterval;
 use Shopware\Core\Framework\DataAbstractionLayer\Pricing\PriceCollection;
 use Shopware\Core\Framework\Struct\ArrayEntity;
+use Shopware\Core\Framework\Struct\Struct;
 use Shopware\Core\System\Currency\CurrencyEntity;
 use Shopware\Core\System\StateMachine\Aggregation\StateMachineState\StateMachineStateEntity;
 
@@ -170,4 +170,9 @@ class AttributeEntity extends EntityStruct
     #[Field(type: FieldType::STRING)]
     #[AllowHtml]
     public string $htmlString;
+
+    #[Field(type: FieldType::OBJECT, runtime: true)]
+    public ?Struct $object;
+
+    public string $notEncoded = 'will be not encoded in api';
 }

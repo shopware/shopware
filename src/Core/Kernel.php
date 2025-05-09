@@ -26,7 +26,6 @@ use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Bundle\Bundle;
-use Symfony\Component\HttpKernel\Bundle\BundleInterface;
 use Symfony\Component\HttpKernel\HttpKernelInterface;
 use Symfony\Component\HttpKernel\Kernel as HttpKernel;
 use Symfony\Component\Routing\Loader\Configurator\RoutingConfigurator;
@@ -80,9 +79,6 @@ class Kernel extends HttpKernel
         $this->filesystem = $filesystem ?? new Filesystem(new LocalFilesystemAdapter($this->cacheRootDir));
     }
 
-    /**
-     * @return iterable<BundleInterface>
-     */
     public function registerBundles(): iterable
     {
         /** @var array<class-string<Bundle>, array<string, bool>> $bundles */
@@ -268,8 +264,7 @@ class Kernel extends HttpKernel
     }
 
     /**
-     * {@inheritdoc}
-     * @return array<string, mixed>
+     * @return array<string, array<string, mixed>|bool|string|int|float|\UnitEnum|null>
      */
     protected function getKernelParameters(): array
     {
@@ -333,15 +328,14 @@ class Kernel extends HttpKernel
      */
     protected function initializeDatabaseConnectionVariables(): void
     {
-        Feature::triggerDeprecationOrThrow('v6.8.0.0',
-            'The method initializeDatabaseConnectionVariables is deprecated and will be removed in 6.8.0.0. All MySQL connection variables are configured in ' . MySQLFactory::class);
+        Feature::triggerDeprecationOrThrow(
+            'v6.8.0.0',
+            'The method initializeDatabaseConnectionVariables is deprecated and will be removed in 6.8.0.0. All MySQL connection variables are configured in ' . MySQLFactory::class
+        );
 
         self::$connection = self::getConnection();
     }
 
-    /**
-     * Dumps the preload file to an always known location outside the generated cache folder name
-     */
     protected function dumpContainer(ConfigCache $cache, ContainerBuilder $container, string $class, string $baseClass): void
     {
         parent::dumpContainer($cache, $container, $class, $baseClass);
@@ -349,6 +343,7 @@ class Kernel extends HttpKernel
         $this->filesystem->write('CACHEDIR.TAG', 'Signature: 8a477f597d28d172789f06886806bc55');
 
         $cacheDir = $container->getParameter('kernel.cache_dir');
+
         // Do not dump the preload file if the cache dir is a warmup dir.
         // See https://github.com/symfony/symfony/blob/v7.2.6/src/Symfony/Bundle/FrameworkBundle/Command/CacheClearCommand.php#L115-L117
         if (str_ends_with($cacheDir, '_')) {
@@ -356,7 +351,7 @@ class Kernel extends HttpKernel
         }
 
         $cacheDirectoryName = basename($cacheDir);
-        $containerPreloadFileName = $container->getParameter('kernel.container_class') . '.preload.php';
+        $containerPreloadFileName = $class . '.preload.php';
 
         $preloadFileContent = <<<PHP
 <?php
@@ -364,6 +359,7 @@ class Kernel extends HttpKernel
 require_once __DIR__ . '/#CACHE_PATH#';
 PHP;
 
+        // Dumps the preload file to an always known location outside the generated cache folder name
         $this->filesystem->write(
             'opcache-preload.php',
             str_replace(

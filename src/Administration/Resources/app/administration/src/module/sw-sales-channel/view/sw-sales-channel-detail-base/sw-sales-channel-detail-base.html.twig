@@ -199,6 +199,14 @@
             property-name-in-domain="languageId"
         />
         {% endblock %}
+
+        <sw-sales-channel-measurement
+            v-if="!isProductComparison"
+            :sales-channel="salesChannel"
+            :label-unit-system="$tc('sw-sales-channel.detail.measurementSystem.labelDefaultUnitSystem')"
+            :label-length-unit="$tc('sw-sales-channel.detail.measurementSystem.labelDefaultLengthUnit')"
+            :label-weight-unit="$tc('sw-sales-channel.detail.measurementSystem.labelDefaultWeightUnit')"
+        />
     </mt-card>
     {% endblock %}
 

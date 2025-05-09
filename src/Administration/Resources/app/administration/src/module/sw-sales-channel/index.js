@@ -66,6 +66,8 @@ Shopware.Component.register(
     () => import('./component/sw-sales-channel-product-assignment-categories'),
 );
 Shopware.Component.register('sw-sales-channel-menu', () => import('./component/structure/sw-sales-channel-menu'));
+
+Shopware.Component.register('sw-sales-channel-measurement', () => import('./component/sw-sales-channel-measurement'));
 /* eslint-enable max-len, sw-deprecation-rules/private-feature-declarations */
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations

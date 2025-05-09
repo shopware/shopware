@@ -7,7 +7,7 @@ const { Component, Mixin } = Shopware;
  * @sw-package framework
  * @private
  */
-Component.register('sw-settings-shopware-updates-wizard', {
+export default Component.wrapComponentConfig({
     template,
 
     inject: ['updateService'],
@@ -21,7 +21,22 @@ Component.register('sw-settings-shopware-updates-wizard', {
         Mixin.getByName('notification'),
     ],
 
-    data() {
+    data(): {
+        updateInfo: {
+            version: unknown;
+            changelog: unknown;
+        };
+        requirements: Array<{ result: boolean }>;
+        plugins: Array<{ statusName: string }>;
+        isLoading: boolean;
+        checkedBackupCheckbox: boolean;
+        updateRunning: boolean;
+        progressbarValue: number;
+        step: string;
+        updaterIsRunning: boolean;
+        updateModalShown: boolean;
+        chosenPluginBehaviour: string;
+    } {
         return {
             updateInfo: {
                 version: null,
@@ -108,11 +123,11 @@ Component.register('sw-settings-shopware-updates-wizard', {
 
     methods: {
         createdComponent() {
-            this.updateService.checkForUpdates().then((response) => {
+            void this.updateService.checkForUpdates().then((response) => {
                 this.updateInfo = response;
 
                 if (response.version) {
-                    this.updateService.checkRequirements().then((requirementsStore) => {
+                    void this.updateService.checkRequirements().then((requirementsStore) => {
                         this.onRequirementsResponse(requirementsStore);
                     });
                 } else {
@@ -121,9 +136,9 @@ Component.register('sw-settings-shopware-updates-wizard', {
             });
         },
 
-        onRequirementsResponse(requirementsStore) {
+        onRequirementsResponse(requirementsStore: Array<{ result: boolean }>) {
             this.requirements = requirementsStore;
-            this.updateService.extensionCompatibility().then((plugins) => {
+            void this.updateService.extensionCompatibility().then((plugins) => {
                 this.plugins = plugins;
 
                 if (this.displayUnknownPluginsWarning && this.displayIncompatiblePluginsWarning) {
@@ -156,9 +171,9 @@ Component.register('sw-settings-shopware-updates-wizard', {
             });
         },
 
-        downloadRecovery(offset) {
+        downloadRecovery() {
             this.updateService
-                .downloadRecovery(offset)
+                .downloadRecovery()
                 .then(() => {
                     this.progressbarValue = 0;
                     this.deactivatePlugins(0);
@@ -170,7 +185,7 @@ Component.register('sw-settings-shopware-updates-wizard', {
                 });
         },
 
-        deactivatePlugins(offset) {
+        deactivatePlugins(offset: number) {
             this.step = 'deactivate';
             this.updateService
                 .deactivatePlugins(offset, this.chosenPluginBehaviour)
@@ -183,7 +198,7 @@ Component.register('sw-settings-shopware-updates-wizard', {
                         this.deactivatePlugins(response.offset);
                     }
                 })
-                .catch((e) => {
+                .catch((e: ShopwareApiError) => {
                     this.stopUpdateProcess();
 
                     const context = {
@@ -193,13 +208,15 @@ Component.register('sw-settings-shopware-updates-wizard', {
 
                     if (context.code === 'FRAMEWORK__PLUGIN_HAS_DEPENDANTS') {
                         this.createNotificationWarning({
-                            message: this.$tc('sw-extension.errors.messageDeactivationFailedDependencies', null, null, {
+                            // @ts-expect-error
+                            message: this.$t('sw-extension.errors.messageDeactivationFailedDependencies', null, null, {
                                 dependency: context.meta.parameters.dependency,
                                 dependantNames: context.meta.parameters.dependantNames,
                             }),
                         });
                     } else if (context.code === 'THEME__THEME_ASSIGNMENT') {
                         this.createNotificationWarning({
+                            // @ts-expect-error
                             message: this.$tc('sw-extension.errors.messageDeactivationFailedThemeAssignment', null, null, {
                                 themeName: context.meta.parameters.themeName,
                                 assignments: context.meta.parameters.assignments,
@@ -213,7 +230,7 @@ Component.register('sw-settings-shopware-updates-wizard', {
                 });
         },
 
-        redirectToPage(url) {
+        redirectToPage(url: string) {
             window.location.href = url;
         },
     },

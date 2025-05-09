@@ -5,14 +5,13 @@
 import template from './sw-category-tree-field.html.twig';
 import './sw-category-tree-field.scss';
 
-const { Component } = Shopware;
 const utils = Shopware.Utils;
 const { Criteria } = Shopware.Data;
 
 /**
  * @private
  */
-Component.register('sw-category-tree-field', {
+export default {
     template,
 
     inject: ['repositoryFactory'],
@@ -715,4 +714,4 @@ Component.register('sw-category-tree-field', {
             });
         },
     },
-});
+};

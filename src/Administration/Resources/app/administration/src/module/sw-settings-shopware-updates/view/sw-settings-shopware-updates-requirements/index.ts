@@ -1,12 +1,10 @@
 import template from './sw-shopware-updates-requirements.html.twig';
 
-const { Component } = Shopware;
-
 /**
  * @sw-package framework
  * @private
  */
-Component.register('sw-settings-shopware-updates-requirements', {
+export default Shopware.Component.wrapComponentConfig({
     template,
 
     props: {

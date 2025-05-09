@@ -1,7 +1,6 @@
 import template from './sw-many-to-many-assignment-card.html.twig';
 import './sw-many-to-many-assignment-card.scss';
 
-const { Component } = Shopware;
 const { debounce, get } = Shopware.Utils;
 const { Criteria, EntityCollection } = Shopware.Data;
 
@@ -19,7 +18,7 @@ const { Criteria, EntityCollection } = Shopware.Data;
  *     :searchableFields="['entity.fieldName', 'entity.otherFieldName']">
  * </sw-many-to-many-assignment-card>
  */
-Component.register('sw-many-to-many-assignment-card', {
+export default {
     template,
 
     inheritAttrs: false,
@@ -406,4 +405,4 @@ Component.register('sw-many-to-many-assignment-card', {
             });
         },
     },
-});
+};

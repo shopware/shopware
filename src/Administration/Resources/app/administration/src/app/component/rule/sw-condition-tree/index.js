@@ -3,14 +3,13 @@ import { computed } from 'vue';
 import template from './sw-condition-tree.html.twig';
 import './sw-condition-tree.scss';
 
-const { Component } = Shopware;
 const { EntityCollection } = Shopware.Data;
 
 /**
  * @private
  * @sw-package fundamentals@after-sales
  */
-Component.register('sw-condition-tree', {
+export default {
     template,
 
     inject: [
@@ -357,4 +356,4 @@ Component.register('sw-condition-tree', {
             });
         },
     },
-});
+};

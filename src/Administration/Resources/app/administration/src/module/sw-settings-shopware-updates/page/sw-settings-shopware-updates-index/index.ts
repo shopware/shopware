@@ -7,7 +7,7 @@ const { Component, Mixin } = Shopware;
  * @sw-package framework
  * @private
  */
-Component.register('sw-settings-shopware-updates-index', {
+export default Component.wrapComponentConfig({
     template,
 
     inject: ['updateService'],
@@ -15,7 +15,16 @@ Component.register('sw-settings-shopware-updates-index', {
     mixins: [
         Mixin.getByName('notification'),
     ],
-    data() {
+    data(): {
+        isLoading: boolean;
+        isSaveSuccessful: boolean;
+        isSearchingForUpdates: boolean;
+        updateModalShown: boolean;
+        updateInfo: null | {
+            version: unknown;
+            changelog: unknown;
+        };
+    } {
         return {
             isLoading: false,
             isSaveSuccessful: false,
@@ -40,7 +49,7 @@ Component.register('sw-settings-shopware-updates-index', {
     methods: {
         searchForUpdates() {
             this.isSearchingForUpdates = true;
-            this.updateService.checkForUpdates().then((response) => {
+            void this.updateService.checkForUpdates().then((response) => {
                 this.isSearchingForUpdates = false;
 
                 if (response.version) {
@@ -57,8 +66,8 @@ Component.register('sw-settings-shopware-updates-index', {
         openUpdateWizard() {
             this.updateModalShown = false;
 
-            this.$nextTick(() => {
-                this.$router.push({
+            void this.$nextTick(() => {
+                void this.$router.push({
                     name: 'sw.settings.shopware.updates.wizard',
                 });
             });
@@ -72,13 +81,17 @@ Component.register('sw-settings-shopware-updates-index', {
             this.isSaveSuccessful = false;
             this.isLoading = true;
 
+            // @ts-expect-error
+            // eslint-disable-next-line @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-member-access
             this.$refs.systemConfig
                 .saveAll()
+                // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
                 .then(() => {
                     this.isLoading = false;
                     this.isSaveSuccessful = true;
                 })
-                .catch((err) => {
+                // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
+                .catch((err: string) => {
                     this.isLoading = false;
                     this.createNotificationError({
                         message: err,
@@ -86,7 +99,7 @@ Component.register('sw-settings-shopware-updates-index', {
                 });
         },
 
-        onLoadingChanged(loading) {
+        onLoadingChanged(loading: boolean) {
             this.isLoading = loading;
         },
     },

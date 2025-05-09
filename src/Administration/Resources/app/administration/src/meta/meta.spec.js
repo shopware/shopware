@@ -6,7 +6,6 @@ import * as fs from 'fs';
 import * as path from 'path';
 import { globSync } from 'glob';
 import { missingTests, positionIdentifiers, dataSetIds } from './baseline';
-import packageJson from '../../package.json';
 import blocksList from '../../blocks-list.json';
 import { extractBlocks } from '../../scripts/generate-block-list/extract-blocks';
 

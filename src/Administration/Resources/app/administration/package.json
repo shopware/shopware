@@ -200,10 +200,6 @@
     "vue-sfc-parser": "^0.1.2",
     "xml2js": "0.6.2"
   },
-  "engines": {
-    "node": "^20.0.0 || ^21.0.0 || ^22.0.0 || ^23.0.0",
-    "npm": ">=10.0.0"
-  },
   "dependenciesComments": {
     "vuex": "Vuex is deprecated and will be removed with Shopware 6.8.0"
   },

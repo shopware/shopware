@@ -96,17 +96,6 @@ describe('Administration meta tests', () => {
         });
     });
 
-    describe('check package.json', () => {
-        it('should have engine information in package.json', () => {
-            expect(typeof packageJson).toBe('object');
-            expect(packageJson.hasOwnProperty('engines')).toBe(true);
-            expect(packageJson.engines.hasOwnProperty('node')).toBe(true);
-            expect(packageJson.engines.node).toBe('^20.0.0 || ^21.0.0 || ^22.0.0 || ^23.0.0');
-            expect(packageJson.engines.hasOwnProperty('npm')).toBe(true);
-            expect(packageJson.engines.npm).toBe('>=10.0.0');
-        });
-    });
-
     describe('check extension sdk public api', () => {
         it('should not break position identifiers', () => {
             const result = [];

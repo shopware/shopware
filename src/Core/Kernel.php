@@ -75,6 +75,7 @@ class Kernel extends HttpKernel
         $versionArray = VersionParser::parseShopwareVersion($version);
         $this->shopwareVersion = $versionArray['version'];
         $this->shopwareVersionRevision = $versionArray['revision'];
+
         $this->cacheRootDir = EnvironmentHelper::getVariable('APP_CACHE_DIR', $this->getProjectDir()) . '/var/cache';
         $this->filesystem = $filesystem ?? new Filesystem(new LocalFilesystemAdapter($this->cacheRootDir));
     }

@@ -53,7 +53,7 @@ class KernelTest extends TestCase
         (new SymfonyFilesystem())->remove($tmpDir);
     }
 
-    public function testDumpContainerDoesNotDumpPreloadFile(): void
+    public function testDumpContainerDoesNotDumpPreloadFileIfWarmupCacheDirIsGiven(): void
     {
         $fileSystem = new Filesystem(new InMemoryFilesystemAdapter());
         $kernel = $this->createKernel($fileSystem);
@@ -61,6 +61,7 @@ class KernelTest extends TestCase
         $tmpDir = __DIR__ . '/tmpToBeRemoved';
 
         $containerBuilder = new ContainerBuilder();
+        // An underscore at the end indicates a warmup cache directory
         $containerBuilder->setParameter('kernel.cache_dir', 'www/shopware/var/cache/fooBar_h123abc_');
         $containerBuilder->compile();
 
@@ -73,6 +74,7 @@ class KernelTest extends TestCase
         );
 
         static::assertTrue($fileSystem->fileExists('CACHEDIR.TAG'));
+        // Do not create the preload file in warmup cache
         static::assertFalse($fileSystem->fileExists('opcache-preload.php'));
 
         (new SymfonyFilesystem())->remove($tmpDir);

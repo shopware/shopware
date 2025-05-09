@@ -84,6 +84,7 @@
     "indexLinkService": "Service/help",
     "searchNoResult": "No results found.",
     "wishlist": "Wishlist",
+    "wishlistAriaLiveTemplate": "You have %counter% wishlist items",
     "navigationAriaLabel": "Main navigation",
     "topBarAriaLabel": "Shop settings",
     "languageTrigger": "Change language (%lang% is the current language)",

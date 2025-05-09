@@ -90,20 +90,14 @@ class Kernel extends HttpKernel
         parent::__construct($environment, $debug);
         self::$connection = $connection;
 
-<<<<<<< HEAD
         $this->pluginLoader = $pluginLoader;
 
-        $version = VersionParser::parseShopwareVersion($version);
-        $this->shopwareVersion = $version['version'];
-        $this->shopwareVersionRevision = $version['revision'];
-=======
         $versionArray = VersionParser::parseShopwareVersion($version);
         $this->shopwareVersion = $versionArray['version'];
         $this->shopwareVersionRevision = $versionArray['revision'];
 
         $this->cacheRootDir = EnvironmentHelper::getVariable('APP_CACHE_DIR', $this->getProjectDir()) . '/var/cache';
         $this->filesystem = $filesystem ?? new Filesystem(new LocalFilesystemAdapter($this->cacheRootDir));
->>>>>>> 0ff5f8c753 (fix: Do not dump opcache preload file if warmup directory is used (#9200))
     }
 
     public function registerBundles(): iterable
@@ -144,16 +138,12 @@ class Kernel extends HttpKernel
             }
         }
 
-<<<<<<< HEAD
         if ((!Feature::has('v6.7.0.0') || !Feature::isActive('v6.7.0.0')) && !isset($bundles[Service::class])) {
             Feature::triggerDeprecationOrThrow('v6.7.0.0', \sprintf('The %s bundle should be added to config/bundles.php', Service::class));
             yield new Service();
         }
 
-        yield from $this->pluginLoader->getBundles($kernelParameters, $instanciatedBundleNames);
-=======
         yield from $this->pluginLoader->getBundles($kernelParameters, $instantiatedBundleNames);
->>>>>>> 0ff5f8c753 (fix: Do not dump opcache preload file if warmup directory is used (#9200))
     }
 
     public function getProjectDir(): string
@@ -218,13 +208,8 @@ class Kernel extends HttpKernel
     public function getCacheDir(): string
     {
         return \sprintf(
-<<<<<<< HEAD
-            '%s/var/cache/%s_h%s%s',
-            EnvironmentHelper::getVariable('APP_CACHE_DIR', $this->getProjectDir()),
-=======
-            '%s/%s_h%s',
+            '%s/%s_h%s%s',
             $this->cacheRootDir,
->>>>>>> 0ff5f8c753 (fix: Do not dump opcache preload file if warmup directory is used (#9200))
             $this->getEnvironment(),
             $this->getCacheHash(),
             EnvironmentHelper::getVariable('TEST_TOKEN') ?? ''
@@ -369,18 +354,10 @@ class Kernel extends HttpKernel
 
     protected function initializeDatabaseConnectionVariables(): void
     {
-<<<<<<< HEAD
         /**
          * @deprecated tag:v6.7.0 - remove if-clause, we have already SQL_SET_DEFAULT_SESSION_VARIABLES which is documented does the same
          */
         $shopwareSkipConnectionVariables = EnvironmentHelper::getVariable('SHOPWARE_SKIP_CONNECTION_VARIABLES', false);
-=======
-        Feature::triggerDeprecationOrThrow(
-            'v6.8.0.0',
-            'The method initializeDatabaseConnectionVariables is deprecated and will be removed in 6.8.0.0. All MySQL connection variables are configured in ' . MySQLFactory::class
-        );
->>>>>>> 0ff5f8c753 (fix: Do not dump opcache preload file if warmup directory is used (#9200))
-
         if ($shopwareSkipConnectionVariables) {
             return;
         }

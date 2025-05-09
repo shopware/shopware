@@ -780,6 +780,9 @@ class OrderServiceTest extends TestCase
                 'currencyId' => Defaults::CURRENCY,
                 'snippetSetId' => $this->getSnippetSetIdForLocale('en-GB'),
                 'url' => $domain,
+                'measurementSystemId' => Uuid::fromStringToHex('metric'),
+                'lengthUnitId' => Uuid::fromStringToHex('metric-mm'),
+                'massUnitId' => Uuid::fromStringToHex('metric-kg'),
             ]],
         ];
 

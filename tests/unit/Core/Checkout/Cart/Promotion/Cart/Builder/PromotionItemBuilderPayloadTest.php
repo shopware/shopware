@@ -96,6 +96,7 @@ class PromotionItemBuilderPayloadTest extends TestCase
             'setGroups' => [],
             'groupId' => '',
             'filter' => [
+                'considerAdvancedRules' => true,
                 'sorterKey' => 'sorter-key',
                 'applierKey' => 'applier-key',
                 'usageKey' => 'usage-key',
@@ -149,6 +150,7 @@ class PromotionItemBuilderPayloadTest extends TestCase
             'setGroups' => [],
             'groupId' => '',
             'filter' => [
+                'considerAdvancedRules' => false,
                 'sorterKey' => null,
                 'applierKey' => null,
                 'usageKey' => null,
@@ -201,6 +203,7 @@ class PromotionItemBuilderPayloadTest extends TestCase
             'setGroups' => [],
             'groupId' => '',
             'filter' => [
+                'considerAdvancedRules' => false,
                 'sorterKey' => null,
                 'applierKey' => null,
                 'usageKey' => null,
@@ -303,6 +306,7 @@ class PromotionItemBuilderPayloadTest extends TestCase
             ],
             'groupId' => '',
             'filter' => [
+                'considerAdvancedRules' => false,
                 'sorterKey' => null,
                 'applierKey' => null,
                 'usageKey' => null,

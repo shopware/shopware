@@ -12,7 +12,7 @@ import parentsInjectionKey from '../sw-block/parents-injection-key';
  * @private
  *
  */
-Shopware.Component.register('sw-block-parent', {
+export default Shopware.Component.wrapComponentConfig({
     setup() {
         const parent = inject(parentsInjectionKey, null)?.value.pop();
 

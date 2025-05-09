@@ -9,7 +9,7 @@ const { Component } = Shopware;
 /**
  * @private
  */
-Component.register('sw-login-recovery-info', {
+export default Component.wrapComponentConfig({
     template,
 
     emits: ['is-not-loading'],

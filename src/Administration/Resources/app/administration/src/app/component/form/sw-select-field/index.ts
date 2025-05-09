@@ -1,7 +1,5 @@
 import template from './sw-select-field.html.twig';
 
-const { Component } = Shopware;
-
 /**
  * @sw-package framework
  *
@@ -11,7 +9,7 @@ const { Component } = Shopware;
  *
  * @deprecated tag:v6.8.0 - Will be removed, use mt-select instead.
  */
-Component.register('sw-select-field', {
+export default Shopware.Component.wrapComponentConfig({
     template,
 
     props: {

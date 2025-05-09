@@ -9,7 +9,8 @@ const { Filter } = Shopware;
 /**
  * @sw-package fundamentals@after-sales
  */
-Component.extend('sw-condition-line-item-custom-field', 'sw-condition-base-line-item', {
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
+export default {
     template,
 
     inject: ['repositoryFactory'],
@@ -165,4 +166,4 @@ Component.extend('sw-condition-line-item-custom-field', 'sw-condition-base-line-
             this.renderedFieldValue = null;
         },
     },
-});
+};

@@ -47,3 +47,8 @@ shopware:
         major: true
         toggleable: false
         description: "Rework of http cache and store api cache"
+      - name: PERFORMANCE_TWEAKS
+        default: false
+        major: false
+        toggleable: true
+        description: "Experimental! Contains Performance Tweaks for future changes"

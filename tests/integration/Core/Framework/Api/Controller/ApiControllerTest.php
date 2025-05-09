@@ -2463,6 +2463,9 @@ EOF;
             'countries' => [['id' => $this->getValidCountryId()]],
             'name' => 'first sales-channel',
             'customerGroupId' => TestDefaults::FALLBACK_CUSTOMER_GROUP,
+            'measurementSystemId' => Uuid::fromStringToHex('metric'),
+            'lengthUnitId' => Uuid::fromStringToHex('metric-mm'),
+            'massUnitId' => Uuid::fromStringToHex('metric-kg'),
         ];
     }
 

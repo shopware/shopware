@@ -74,7 +74,7 @@ class PropertyGroupOptionDefinition extends EntityDefinition
             (new TranslatedField('position'))->addFlags(new ApiAware()),
             (new StringField('color_hex_code', 'colorHexCode'))->addFlags(new ApiAware()),
             (new FkField('media_id', 'mediaId', MediaDefinition::class))->addFlags(new ApiAware()),
-            (new BoolField('combinable', 'combinable'))->addFlags(new ApiAware(), new Required(), new Runtime()),
+            (new BoolField('combinable', 'combinable'))->addFlags(new ApiAware(), new Runtime()),
             (new TranslatedField('customFields'))->addFlags(new ApiAware()),
             (new ManyToOneAssociationField('media', 'media_id', MediaDefinition::class, 'id'))->addFlags(new ApiAware()),
             (new ManyToOneAssociationField('group', 'property_group_id', PropertyGroupDefinition::class, 'id'))->addFlags(new ApiAware()),

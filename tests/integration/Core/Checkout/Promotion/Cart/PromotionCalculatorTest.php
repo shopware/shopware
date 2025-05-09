@@ -237,6 +237,31 @@ class PromotionCalculatorTest extends TestCase
         static::assertSame('Promotion PHPUnit not eligible for cart!', $toCalculate->getErrors()->first()->getMessage());
     }
 
+    public function testFixedUnitPricePromotions(): void
+    {
+        $promotionId = $this->getPromotionId(type: PromotionDiscountEntity::TYPE_FIXED_UNIT);
+        $discountItem = $this->getDiscountItem($promotionId, PromotionDiscountEntity::TYPE_FIXED_UNIT);
+        $discountItem->setPayloadValue('filter', ['considerAdvancedRules' => true, 'applierKey' => 'ALL']);
+
+        $discountItems = new LineItemCollection([$discountItem]);
+        $original = new Cart(Uuid::randomHex());
+
+        $productLineItem = new LineItem(Uuid::randomHex(), LineItem::PRODUCT_LINE_ITEM_TYPE);
+        $productLineItem->setPrice(new CalculatedPrice(20, 20, new CalculatedTaxCollection(), new TaxRuleCollection()));
+        $productLineItem->setStackable(true);
+
+        $toCalculate = new Cart(Uuid::randomHex());
+        $toCalculate->add($productLineItem);
+        $toCalculate->setPrice(new CartPrice(20, 20, 20, new CalculatedTaxCollection(), new TaxRuleCollection(), CartPrice::TAX_STATE_GROSS));
+
+        $this->promotionCalculator->calculate($discountItems, $original, $toCalculate, $this->salesChannelContext, new CartBehavior());
+
+        static::assertNotNull($toCalculate->getErrors()->first());
+        static::assertSame('Discount PHPUnit has been added', $toCalculate->getErrors()->first()->getMessage());
+        static::assertSame(10.0, $toCalculate->getPrice()->getTotalPrice());
+        static::assertCount(2, $toCalculate->getLineItems());
+    }
+
     private function getPromotionId(bool $preventCombination = false, int $priority = 1, bool $useCodes = true, string $type = PromotionDiscountEntity::TYPE_ABSOLUTE): string
     {
         $promotionId = Uuid::randomHex();

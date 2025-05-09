@@ -151,11 +151,11 @@ class DeliveryCalculator
         $end = $shippingMethodPrice->getQuantityEnd();
 
         $value = match ($shippingMethodPrice->getCalculation()) {
-            self::CALCULATION_BY_PRICE => $delivery->getPositions()->getWithoutDeliveryFree()->getPrices()->sum()->getTotalPrice(),
+            self::CALCULATION_BY_PRICE => $delivery->getPositions()->getWithoutDeliveryFree()->getPrices()->getTotalPriceAmount(),
             self::CALCULATION_BY_LINE_ITEM_COUNT => $delivery->getPositions()->getWithoutDeliveryFree()->getQuantity(),
             self::CALCULATION_BY_WEIGHT => $delivery->getPositions()->getWithoutDeliveryFree()->getWeight(),
             self::CALCULATION_BY_VOLUME => $delivery->getPositions()->getWithoutDeliveryFree()->getVolume(),
-            default => $delivery->getPositions()->getWithoutDeliveryFree()->getLineItems()->getPrices()->sum()->getTotalPrice() / 100,
+            default => $delivery->getPositions()->getWithoutDeliveryFree()->getLineItems()->getPrices()->getTotalPriceAmount() / 100,
         };
 
         // $end (optional) exclusive
@@ -181,8 +181,9 @@ class DeliveryCalculator
 
                 // no break
             default:
-                $rules = $this->percentageTaxRuleBuilder->buildRules(
-                    $calculatedLineItems->getPrices()->sum()
+                $rules = $this->percentageTaxRuleBuilder->buildCollectionRules(
+                    $calculatedLineItems->getPrices()->getCalculatedTaxes(),
+                    $calculatedLineItems->getPrices()->getTotalPriceAmount(),
                 );
         }
 

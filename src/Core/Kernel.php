@@ -52,8 +52,6 @@ class Kernel extends HttpKernel
 
     /**
      * @internal
-     *
-     * {@inheritdoc}
      */
     public function __construct(
         string $environment,
@@ -69,9 +67,9 @@ class Kernel extends HttpKernel
         parent::__construct($environment, $debug);
         self::$connection = $connection;
 
-        $version = VersionParser::parseShopwareVersion($version);
-        $this->shopwareVersion = $version['version'];
-        $this->shopwareVersionRevision = $version['revision'];
+        $versionArray = VersionParser::parseShopwareVersion($version);
+        $this->shopwareVersion = $versionArray['version'];
+        $this->shopwareVersionRevision = $versionArray['revision'];
     }
 
     /**
@@ -81,7 +79,7 @@ class Kernel extends HttpKernel
     {
         /** @var array<class-string<Bundle>, array<string, bool>> $bundles */
         $bundles = require $this->getProjectDir() . '/config/bundles.php';
-        $instanciatedBundleNames = [];
+        $instantiatedBundleNames = [];
 
         $kernelParameters = $this->getKernelParameters();
 
@@ -90,11 +88,11 @@ class Kernel extends HttpKernel
                 /** @var ShopwareBundle|Bundle $bundle */
                 $bundle = new $class();
 
-                if ($this->isBundleRegistered($bundle, $instanciatedBundleNames)) {
+                if ($this->isBundleRegistered($bundle, $instantiatedBundleNames)) {
                     continue;
                 }
 
-                $instanciatedBundleNames[] = $bundle->getName();
+                $instantiatedBundleNames[] = $bundle->getName();
 
                 yield $bundle;
 
@@ -105,17 +103,17 @@ class Kernel extends HttpKernel
                 $classLoader = new ClassLoader();
                 $parameters = new AdditionalBundleParameters($classLoader, new KernelPluginCollection(), $kernelParameters);
                 foreach ($bundle->getAdditionalBundles($parameters) as $additionalBundle) {
-                    if ($this->isBundleRegistered($additionalBundle, $instanciatedBundleNames)) {
+                    if ($this->isBundleRegistered($additionalBundle, $instantiatedBundleNames)) {
                         continue;
                     }
 
-                    $instanciatedBundleNames[] = $additionalBundle->getName();
+                    $instantiatedBundleNames[] = $additionalBundle->getName();
                     yield $additionalBundle;
                 }
             }
         }
 
-        yield from $this->pluginLoader->getBundles($kernelParameters, $instanciatedBundleNames);
+        yield from $this->pluginLoader->getBundles($kernelParameters, $instantiatedBundleNames);
     }
 
     public function getProjectDir(): string
@@ -134,7 +132,7 @@ class Kernel extends HttpKernel
 
     public function boot(): void
     {
-        if ($this->booted === true) {
+        if ($this->booted) {
             if ($this->debug) {
                 $this->startTime = microtime(true);
             }
@@ -407,11 +405,11 @@ PHP;
     }
 
     /**
-     * @param array<int, string> $instanciatedBundleNames
+     * @param array<int, string> $instantiatedBundleNames
      */
-    private function isBundleRegistered(Bundle|ShopwareBundle $bundle, array $instanciatedBundleNames): bool
+    private function isBundleRegistered(Bundle|ShopwareBundle $bundle, array $instantiatedBundleNames): bool
     {
-        return \array_key_exists($bundle->getName(), $instanciatedBundleNames)
+        return \array_key_exists($bundle->getName(), $instantiatedBundleNames)
             || \array_key_exists($bundle->getName(), $this->bundles);
     }
 }

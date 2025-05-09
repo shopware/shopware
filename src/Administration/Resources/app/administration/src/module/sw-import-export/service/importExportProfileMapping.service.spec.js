@@ -329,7 +329,6 @@ describe('module/sw-import-export/service/importExportProfileMapping.service.spe
 
         expect(Object.keys(systemRequiredFields)).toEqual([
             'id',
-            'combinable',
             'group.id',
             'translations.DEFAULT.name',
         ]);
@@ -340,7 +339,6 @@ describe('module/sw-import-export/service/importExportProfileMapping.service.spe
 
         expect(Object.keys(systemRequiredFields)).toEqual([
             'id',
-            'combinable',
             'group.id',
             'group.displayType',
             'group.sortingType',
@@ -381,7 +379,6 @@ describe('module/sw-import-export/service/importExportProfileMapping.service.spe
             'product.tax.position',
             'product.translations.DEFAULT.name',
             'option.id',
-            'option.combinable',
             'option.group.id',
             'option.group.displayType',
             'option.group.sortingType',

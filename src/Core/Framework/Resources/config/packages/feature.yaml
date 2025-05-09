@@ -47,8 +47,8 @@ shopware:
         major: true
         toggleable: false
         description: "Rework of http cache and store api cache"
-      - name: PERFORMANCE_TWEAKS
+      - name: PERFORMANCE_TWEAKS_CART
         default: false
         major: false
         toggleable: true
-        description: "Experimental! Contains Performance Tweaks for future changes"
+        description: "Experimental! Contains Performance Tweaks for future changes. Will be moved to feature flag PERFORMANCE_TWEAKS after major update"

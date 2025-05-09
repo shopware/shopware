@@ -408,6 +408,7 @@ const missingTests = [
     'src/module/sw-settings-logging/index.js',
     'src/module/sw-settings-login-registration/index.js',
     'src/module/sw-settings-mailer/index.js',
+    'src/module/sw-settings-measurement/index.js',
     'src/module/sw-settings-newsletter/index.js',
     'src/module/sw-settings-number-range/index.js',
     'src/module/sw-settings-payment/component/sw-plugin-box/index.js',

@@ -115,7 +115,6 @@ Component.register('sw-rule-modal', {
                 languageId: Shopware.State.get('session').languageId,
             };
             const criteria = new Criteria(1, 500);
-            criteria.addAssociation('appScriptCondition');
 
             return Promise.all([
                 this.appScriptConditionRepository.search(criteria, context),

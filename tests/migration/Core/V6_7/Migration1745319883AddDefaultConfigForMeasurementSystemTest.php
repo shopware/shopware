@@ -9,6 +9,7 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelLifecycleManager;
 use Shopware\Core\Framework\Uuid\Uuid;
+use Shopware\Core\Migration\V6_7\Migration1742199548MeasurementSystem;
 use Shopware\Core\Migration\V6_7\Migration1745319883AddDefaultConfigForMeasurementSystem;
 
 /**
@@ -21,6 +22,8 @@ class Migration1745319883AddDefaultConfigForMeasurementSystemTest extends TestCa
     private Connection $connection;
 
     private Migration1745319883AddDefaultConfigForMeasurementSystem $migration;
+
+    private Migration1742199548MeasurementSystem $migrationMeasurementSystem;
 
     protected function setUp(): void
     {
@@ -35,11 +38,14 @@ class Migration1745319883AddDefaultConfigForMeasurementSystemTest extends TestCa
             "core.measurementSystem.massUnitId"
         )');
 
+        $this->migrationMeasurementSystem = new Migration1742199548MeasurementSystem();
         $this->migration = new Migration1745319883AddDefaultConfigForMeasurementSystem();
     }
 
     public function testUpdate(): void
     {
+        $this->migrationMeasurementSystem->update($this->connection);
+
         // Ensure the keys do not exist before the migration
         static::assertFalse($this->configExists('core.measurementSystem.typeId'));
         static::assertFalse($this->configExists('core.measurementSystem.lengthUnitId'));

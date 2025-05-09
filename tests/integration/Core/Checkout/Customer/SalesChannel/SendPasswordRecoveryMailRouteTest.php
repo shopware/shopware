@@ -252,6 +252,9 @@ class SendPasswordRecoveryMailRouteTest extends TestCase
             'url' => $url,
             'currencyId' => Defaults::CURRENCY,
             'snippetSetId' => $snippetSetId,
+            'measurementSystemId' => Uuid::fromStringToHex('metric'),
+            'lengthUnitId' => Uuid::fromStringToHex('metric-mm'),
+            'massUnitId' => Uuid::fromStringToHex('metric-kg'),
         ];
 
         static::getContainer()->get('sales_channel_domain.repository')

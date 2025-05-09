@@ -15,6 +15,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\SalesChannelApiTestBehaviour;
+use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Test\Stub\Framework\IdsCollection;
 use Shopware\Tests\Integration\Core\Content\Category\SalesChannel\fixtures\CategoryRouteInheritanceFixtures;
 use Symfony\Bundle\FrameworkBundle\KernelBrowser;
@@ -325,6 +326,9 @@ class CategoryRouteTest extends TestCase
             'salesChannelId' => $this->ids->get('sales-channel'),
             'currencyId' => Defaults::CURRENCY,
             'snippetSetId' => $this->getSnippetSetIdForLocale('en-GB'),
+            'measurementSystemId' => Uuid::fromStringToHex('metric'),
+            'lengthUnitId' => Uuid::fromStringToHex('metric-mm'),
+            'massUnitId' => Uuid::fromStringToHex('metric-kg'),
         ];
 
         $url = 'http://localhost:8000';
@@ -347,6 +351,9 @@ class CategoryRouteTest extends TestCase
             'salesChannelId' => $this->ids->get('sales-channel'),
             'currencyId' => Defaults::CURRENCY,
             'snippetSetId' => $this->getSnippetSetIdForLocale('en-GB'),
+            'measurementSystemId' => Uuid::fromStringToHex('metric'),
+            'lengthUnitId' => Uuid::fromStringToHex('metric-mm'),
+            'massUnitId' => Uuid::fromStringToHex('metric-kg'),
         ];
 
         $url = 'http://localhost:8000';

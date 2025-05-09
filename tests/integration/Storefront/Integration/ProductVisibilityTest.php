@@ -276,12 +276,18 @@ class ProductVisibilityTest extends TestCase
             'countries' => [['id' => $this->getValidCountryId()]],
             'name' => 'first sales-channel',
             'customerGroupId' => TestDefaults::FALLBACK_CUSTOMER_GROUP,
+            'measurementSystemId' => Uuid::fromStringToHex('metric'),
+            'lengthUnitId' => Uuid::fromStringToHex('metric-mm'),
+            'massUnitId' => Uuid::fromStringToHex('metric-kg'),
             'domains' => [
                 [
                     'languageId' => Defaults::LANGUAGE_SYSTEM,
                     'url' => 'test.de/' . $id,
                     'currencyId' => Defaults::CURRENCY,
                     'snippetSetId' => Uuid::fromBytesToHex($snippetSetId),
+                    'measurementSystemId' => Uuid::fromStringToHex('metric'),
+                    'lengthUnitId' => Uuid::fromStringToHex('metric-mm'),
+                    'massUnitId' => Uuid::fromStringToHex('metric-kg'),
                 ],
             ],
         ];

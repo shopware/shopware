@@ -10,7 +10,7 @@ const { Component } = Shopware;
 /**
  * @private
  */
-Component.register('sw-login-recovery', {
+export default Component.wrapComponentConfig({
     template,
 
     inject: ['userRecoveryService'],
@@ -29,7 +29,9 @@ Component.register('sw-login-recovery', {
 
     methods: {
         mountedComponent() {
-            const emailField = this.$refs.swLoginRecoveryEmailField.$el.querySelector('input');
+            // @ts-expect-error
+            // eslint-disable-next-line @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-member-access
+            const emailField = this.$refs.swLoginRecoveryEmailField.$el.querySelector('input') as HTMLInputElement;
 
             emailField.focus();
         },
@@ -46,7 +48,10 @@ Component.register('sw-login-recovery', {
                 .then(() => {
                     this.displayRecoveryInfo();
                 })
-                .catch((error) => {
+                .catch((error: unknown) => {
+                    // @ts-expect-error
+                    // eslint-disable-next-line max-len
+                    // eslint-disable-next-line @typescript-eslint/no-unsafe-argument, @typescript-eslint/no-unsafe-member-access
                     this.displayRecoveryInfo(error.response.data);
                 });
         },
@@ -55,16 +60,22 @@ Component.register('sw-login-recovery', {
             let seconds = 0;
 
             if (data !== null) {
-                let error = data?.errors;
+                // @ts-expect-error
+                let error = data?.errors as unknown;
 
                 error = Array.isArray(error) ? error[0] : error;
 
+                // @ts-expect-error
+                // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
                 if (parseInt(error?.status, 10) === 429) {
+                    // @ts-expect-error
+                    // eslint-disable-next-line max-len
+                    // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-member-access
                     seconds = error?.meta?.parameters?.seconds;
                 }
             }
 
-            this.$router.push({
+            void this.$router.push({
                 name: 'sw.login.index.recoveryInfo',
                 params: {
                     waitTime: seconds,

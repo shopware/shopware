@@ -1,7 +1,5 @@
 import template from './sw-alert.html.twig';
 
-const { Component } = Shopware;
-
 /**
  * @sw-package framework
  *
@@ -11,7 +9,7 @@ const { Component } = Shopware;
  *
  * @deprecated tag:v6.8.0 - Will be removed, use mt-banner instead
  */
-Component.register('sw-alert', {
+export default Shopware.Component.wrapComponentConfig({
     template,
     props: {
         deprecated: {

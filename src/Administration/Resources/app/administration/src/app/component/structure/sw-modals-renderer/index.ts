@@ -2,15 +2,13 @@ import type { buttonProps } from '@shopware-ag/meteor-admin-sdk/es/ui/modal';
 import type { ModalItemEntry } from 'src/app/store/modals.store';
 import template from './sw-modals-renderer.html.twig';
 
-const { Component } = Shopware;
-
 /**
  * @sw-package framework
  *
  * @private
  */
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
-Component.register('sw-modals-renderer', {
+export default Shopware.Component.wrapComponentConfig({
     template,
 
     computed: {

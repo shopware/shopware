@@ -7,7 +7,7 @@ const { Component } = Shopware;
  * @sw-package framework
  * @private
  */
-Component.register('sw-inactivity-login', {
+export default Component.wrapComponentConfig({
     template,
 
     inject: [

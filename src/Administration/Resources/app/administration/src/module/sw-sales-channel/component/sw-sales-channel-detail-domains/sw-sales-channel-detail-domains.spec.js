@@ -46,6 +46,7 @@ async function createWrapper(customProps = {}, domains = []) {
                     'sw-select-result': true,
                     'sw-provide': { template: `<slot/>`, inheritAttrs: false },
                     'mt-url-field': MtUrlField,
+                    'sw-sales-channel-measurement': true,
                 },
                 provide: {
                     repositoryFactory: {
@@ -91,6 +92,12 @@ function getExampleDomains() {
             snippetSet: {
                 name: 'BASE de-DE',
             },
+            measurementSystem: {
+                name: 'Metric',
+                translated: {
+                    name: 'Metric',
+                },
+            },
             isNew: () => false,
         },
         {
@@ -107,6 +114,12 @@ function getExampleDomains() {
             },
             snippetSet: {
                 name: 'BASE de-DE',
+            },
+            measurementSystem: {
+                name: 'Metric',
+                translated: {
+                    name: 'Metric',
+                },
             },
             isNew: () => false,
         },
@@ -346,6 +359,12 @@ describe('src/module/sw-sales-channel/component/sw-sales-channel-detail-domains'
                         name: 'Euro',
                     },
                 },
+                measurementSystem: {
+                    name: 'Metric',
+                    translated: {
+                        name: 'Metric',
+                    },
+                },
                 snippetSet: {
                     name: 'BASE de-DE',
                 },
@@ -386,6 +405,12 @@ describe('src/module/sw-sales-channel/component/sw-sales-channel-detail-domains'
                     name: 'Euro',
                     translated: {
                         name: 'Euro',
+                    },
+                },
+                measurementSystem: {
+                    name: 'Metric',
+                    translated: {
+                        name: 'Metric',
                     },
                 },
                 snippetSet: {

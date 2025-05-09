@@ -201,6 +201,7 @@
       "modalDescription": "Wähle den Verkaufskanal, in dem Du Dich als {firstname} {lastname} anmelden möchtest.",
       "modalInfo": "Bitte denke daran, Dich {logout}, nachdem du Deine Arbeit erledigt hast.",
       "modalInfoLogout": "abzumelden",
+      "modalInfoNoDomains": "Keine aktive Domain gefunden. Bitte überprüfe die Verkaufskanaleinstellungen.",
       "labelCancel": "Schließen"
     },
     "addressForm": {

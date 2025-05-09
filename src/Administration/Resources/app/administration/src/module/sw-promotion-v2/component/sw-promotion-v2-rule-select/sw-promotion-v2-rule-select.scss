@@ -8,4 +8,9 @@
     &__add-new-rule.sw-select-result {
         color: $color-darkgray-200;
     }
+
+    .sw-block-field__block {
+        min-height: 48px;
+        height: auto;
+    }
 }

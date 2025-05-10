@@ -2,13 +2,13 @@
 
 namespace Shopware\Core\Framework\Adapter\Twig\Extension;
 
-use Shopware\Core\Content\Category\CategoryCollection;
 use Shopware\Core\Content\Category\CategoryEntity;
+use Shopware\Core\Content\Category\SalesChannel\SalesChannelCategoryEntity;
 use Shopware\Core\Content\Category\Service\CategoryBreadcrumbBuilder;
-use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\System\SalesChannel\Entity\SalesChannelRepository;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Twig\Extension\AbstractExtension;
 use Twig\TwigFunction;
@@ -19,35 +19,28 @@ class BuildBreadcrumbExtension extends AbstractExtension
     /**
      * @internal
      *
-     * @param EntityRepository<CategoryCollection> $categoryRepository
+     * @param SalesChannelRepository<EntityCollection<SalesChannelCategoryEntity>> $categoryRepository
      */
     public function __construct(
         private readonly CategoryBreadcrumbBuilder $categoryBreadcrumbBuilder,
-        private readonly EntityRepository $categoryRepository
+        private readonly SalesChannelRepository $categoryRepository,
     ) {
     }
 
     public function getFunctions(): array
     {
         return [
-            new TwigFunction('sw_breadcrumb_full', $this->getFullBreadcrumb(...), ['needs_context' => true]),
-            new TwigFunction('sw_breadcrumb_full_by_id', $this->getFullBreadcrumbById(...), ['needs_context' => true]),
+            new TwigFunction('sw_breadcrumb_full', $this->getFullBreadcrumb(...)),
+            new TwigFunction('sw_breadcrumb_full_by_id', $this->getFullBreadcrumbById(...)),
         ];
     }
 
     /**
-     * @param array<string, mixed> $twigContext
-     *
-     * @return array<string, CategoryEntity>
+     * @return array<string, SalesChannelCategoryEntity>
      */
-    public function getFullBreadcrumb(array $twigContext, CategoryEntity $category, Context $context): array
+    public function getFullBreadcrumb(CategoryEntity $category, SalesChannelContext $context): array
     {
-        $salesChannel = null;
-        if (\array_key_exists('context', $twigContext) && $twigContext['context'] instanceof SalesChannelContext) {
-            $salesChannel = $twigContext['context']->getSalesChannel();
-        }
-
-        $seoBreadcrumb = $this->categoryBreadcrumbBuilder->build($category, $salesChannel);
+        $seoBreadcrumb = $this->categoryBreadcrumbBuilder->build($category, $context->getSalesChannel());
         if ($seoBreadcrumb === null) {
             return [];
         }
@@ -74,17 +67,15 @@ class BuildBreadcrumbExtension extends AbstractExtension
     }
 
     /**
-     * @param array<string, mixed> $twigContext
-     *
-     * @return array<string, CategoryEntity>
+     * @return array<string, SalesChannelCategoryEntity>
      */
-    public function getFullBreadcrumbById(array $twigContext, string $categoryId, Context $context): array
+    public function getFullBreadcrumbById(string $categoryId, SalesChannelContext $context): array
     {
         $category = $this->categoryRepository->search(new Criteria([$categoryId]), $context)->getEntities()->first();
-        if (!$category instanceof CategoryEntity) {
+        if ($category === null) {
             return [];
         }
 
-        return $this->getFullBreadcrumb($twigContext, $category, $context);
+        return $this->getFullBreadcrumb($category, $context);
     }
 }

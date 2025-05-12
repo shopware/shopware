@@ -126,7 +126,7 @@ class TaskRegistryTest extends TestCase
             FooMessage::class
         ));
         $registry = new TaskRegistry(
-            /** @phpstan-ignore-next-line argument.type (for test purpose) */
+            /** @phpstan-ignore argument.type (for test purpose) */
             [
                 new FooMessage(),
             ],

@@ -59,7 +59,7 @@ class CopyBatchTest extends TestCase
     public function testConstructorThrowsAnExceptionWithNoResource(): void
     {
         static::expectException(AdapterException::class);
-        /** @phpstan-ignore-next-line argument.type (for test purpose) */
+        /** @phpstan-ignore argument.type (for test purpose) */
         new CopyBatchInput(null, []);
     }
 }

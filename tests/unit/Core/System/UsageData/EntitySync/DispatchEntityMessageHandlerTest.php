@@ -621,7 +621,7 @@ class DispatchEntityMessageHandlerTest extends TestCase
         $serializerMock->method('decode')
             ->willReturn('decoded_value');
 
-        /** @phpstan-ignore-next-line shopware.mockingSimpleObjects (for test purpose) */
+        /** @phpstan-ignore shopware.mockingSimpleObjects (for test purpose) */
         $idFieldMock = $this->createMock(ManyToManyIdField::class);
         $idFieldMock->method('getSerializer')
             ->willReturn($serializerMock);

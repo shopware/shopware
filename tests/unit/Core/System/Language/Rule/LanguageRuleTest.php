@@ -80,19 +80,10 @@ class LanguageRuleTest extends TestCase
 
     public function testCallingMatchWithoutValueThrowsException(): void
     {
-        $value = null;
-
-        try {
-            $salesChannelContext = $this->createMock(SalesChannelContext::class);
-            $scope = new CheckoutRuleScope($salesChannelContext);
-            $rule = new LanguageRule(Rule::OPERATOR_EQ, $value);
-            $rule->match($scope);
-            static::fail('Exception was not thrown');
-        } catch (LanguageException $exception) {
-            static::assertSame(
-                \sprintf('Unsupported value of type %s in %s', \gettype($value), LanguageRule::class),
-                $exception->getMessage()
-            );
-        }
+        $this->expectExceptionObject(LanguageException::unsupportedValue(\gettype(null), LanguageRule::class));
+        $salesChannelContext = $this->createMock(SalesChannelContext::class);
+        $scope = new CheckoutRuleScope($salesChannelContext);
+        $rule = new LanguageRule(Rule::OPERATOR_EQ, null);
+        $rule->match($scope);
     }
 }

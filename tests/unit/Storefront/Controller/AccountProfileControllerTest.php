@@ -57,7 +57,7 @@ class AccountProfileControllerTest extends TestCase
             new Request()
         );
 
-        static::assertEquals('frontend.account.profile.page', $response->headers->get('X-Forwarded-Route'));
+        static::assertSame('frontend.account.profile.page', $response->headers->get('X-Forwarded-Route'));
     }
 
     public function testSavePasswordWithDefaultRedirect(): void

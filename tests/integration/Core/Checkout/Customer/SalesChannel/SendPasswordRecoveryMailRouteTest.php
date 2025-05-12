@@ -62,8 +62,9 @@ class SendPasswordRecoveryMailRouteTest extends TestCase
 
         $response = json_decode($this->browser->getResponse()->getContent() ?: '', true, 512, \JSON_THROW_ON_ERROR);
 
-        static::assertArrayHasKey('errors', $response);
-        static::assertSame('CHECKOUT__CUSTOMER_NOT_FOUND', $response['errors'][0]['code']);
+        static::assertArrayHasKey('apiAlias', $response);
+        static::assertArrayHasKey('success', $response);
+        static::assertTrue($response['success']);
     }
 
     public function testResetWithInvalidUrl(): void
@@ -123,11 +124,13 @@ class SendPasswordRecoveryMailRouteTest extends TestCase
                 ]
             );
 
-        static::assertSame(404, $this->browser->getResponse()->getStatusCode());
+        static::assertSame(200, $this->browser->getResponse()->getStatusCode());
 
         $response = json_decode($this->browser->getResponse()->getContent() ?: '', true, 512, \JSON_THROW_ON_ERROR);
 
-        static::assertSame('CHECKOUT__CUSTOMER_NOT_FOUND', $response['errors'][0]['code']);
+        static::assertArrayHasKey('apiAlias', $response);
+        static::assertArrayHasKey('success', $response);
+        static::assertTrue($response['success']);
     }
 
     /**

@@ -551,7 +551,6 @@ class SalesChannelContextTest extends TestCase
         $ids = static::getContainer()->get('country.repository')->searchIds($criteria, Context::createDefaultContext())->getIds();
         static::assertContainsOnlyString($ids);
 
-        /** @phpstan-ignore return.type (PHPUnit needs a proper PHPStan assert annotation to detect that the array only contains strings) */
         return $ids;
     }
 

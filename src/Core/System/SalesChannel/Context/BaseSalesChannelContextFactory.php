@@ -9,11 +9,14 @@ use Shopware\Core\Checkout\Payment\PaymentMethodCollection;
 use Shopware\Core\Checkout\Payment\PaymentMethodEntity;
 use Shopware\Core\Checkout\Shipping\ShippingMethodCollection;
 use Shopware\Core\Checkout\Shipping\ShippingMethodEntity;
+use Shopware\Core\Content\MeasurementSystem\Entity\MeasurementDisplayUnitEntity;
+use Shopware\Core\Content\MeasurementSystem\MeasurementSystemInfo;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Pricing\CashRoundingConfig;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\MultiFilter;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\Country\Aggregate\CountryState\CountryStateCollection;
@@ -59,6 +62,7 @@ class BaseSalesChannelContextFactory extends AbstractBaseSalesChannelContextFact
         private readonly EntityRepository $countryStateRepository,
         private readonly EntityRepository $currencyCountryRepository,
         private readonly ContextFactory $contextFactory,
+        private readonly EntityRepository $measurementUnitRepository,
     ) {
     }
 
@@ -73,12 +77,20 @@ class BaseSalesChannelContextFactory extends AbstractBaseSalesChannelContextFact
         $criteria->setTitle('base-context-factory::sales-channel');
         $criteria->addAssociation('currency');
         $criteria->addAssociation('domains');
+
+        $criteria->addAssociations([
+            'currency',
+            'domains',
+            'domains',
+        ]);
+
         $criteria->getAssociation('languages')
             ->addFilter(new EqualsFilter('id', $context->getLanguageId()))
             ->addAssociation('translationCode')
             ->addAssociation('locale');
 
         $salesChannel = $this->salesChannelRepository->search($criteria, $context)->getEntities()->get($salesChannelId);
+
         if (!$salesChannel instanceof SalesChannelEntity) {
             throw SalesChannelException::salesChannelNotFound($salesChannelId);
         }
@@ -141,6 +153,8 @@ class BaseSalesChannelContextFactory extends AbstractBaseSalesChannelContextFact
             $itemRounding
         );
 
+        $domainId = \is_string($options[SalesChannelContextService::DOMAIN_ID] ?? null) ? $options[SalesChannelContextService::DOMAIN_ID] : null;
+
         return new BaseSalesChannelContext(
             $context,
             $salesChannel,
@@ -153,6 +167,7 @@ class BaseSalesChannelContextFactory extends AbstractBaseSalesChannelContextFact
             $itemRounding,
             $totalRounding,
             $this->getLanguageInfo($salesChannel->getLanguages(), $context->getLanguageId()),
+            $this->getMeasurementSystemInfo($salesChannelId, $domainId),
         );
     }
 
@@ -293,5 +308,45 @@ class BaseSalesChannelContextFactory extends AbstractBaseSalesChannelContextFact
             $currentLanguage->getTranslation('name') ?? $currentLanguage->getName(),
             $locale->getCode(),
         );
+    }
+
+    /**
+     * @description load active sales channel domain's measurement units, fallback to sales channel measurement units
+     */
+    private function getMeasurementSystemInfo(string $salesChannelId, ?string $domainId): MeasurementSystemInfo
+    {
+        $criteria = new Criteria();
+        $criteria->setLimit(2);
+        $criteria->setTitle('base-context-factory::measurement-system');
+        $criteria->addAssociation('measurementSystem');
+
+        if ($domainId) {
+            $criteria->addFilter(new MultiFilter(
+                MultiFilter::CONNECTION_OR,
+                [
+                    new EqualsFilter('weightSalesChannelDomains.id', $domainId),
+                    new EqualsFilter('lengthSalesChannelDomains.id', $domainId),
+                ]
+            ));
+        } else {
+            $criteria->addFilter(new MultiFilter(
+                MultiFilter::CONNECTION_OR,
+                [
+                    new EqualsFilter('weightSalesChannels.id', $salesChannelId),
+                    new EqualsFilter('lengthSalesChannels.id', $salesChannelId),
+                ]
+            ));
+        }
+
+        $units = $this->measurementUnitRepository->search($criteria, Context::createDefaultContext())->getEntities();
+
+        $weightUnit = $units->filter(fn (MeasurementDisplayUnitEntity $unit) => $unit->type === 'weight')->first();
+        $lengthUnit = $units->filter(fn (MeasurementDisplayUnitEntity $unit) => $unit->type === 'length')->first();
+        $measurementSystem = $units->first()->measurementSystem ?? null;
+
+        return new MeasurementSystemInfo($measurementSystem?->name ?? MeasurementSystemInfo::DEFAULT_SYSTEM, [
+            'weight' => $weightUnit instanceof MeasurementDisplayUnitEntity ? $weightUnit->shortName : MeasurementSystemInfo::DEFAULT_WEIGHT_UNIT,
+            'length' => $lengthUnit instanceof MeasurementDisplayUnitEntity ? $lengthUnit->shortName : MeasurementSystemInfo::DEFAULT_LENGTH_UNIT,
+        ]);
     }
 }

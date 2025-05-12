@@ -11,5 +11,24 @@
         <service id="Shopware\Core\Content\MeasurementSystem\Entity\MeasurementDisplayUnitEntity">
             <tag name="shopware.entity"/>
         </service>
+
+        <service id="Shopware\Core\Content\MeasurementSystem\Service\MeasurementUnitProvider">
+            <argument type="service" id="Doctrine\DBAL\Connection"/>
+        </service>
+
+        <service id="Shopware\Core\Content\MeasurementSystem\Service\MeasurementUnitConverter">
+            <argument type="service" id="Shopware\Core\Content\MeasurementSystem\Service\MeasurementUnitProvider"/>
+        </service>
+
+        <service id="Shopware\Core\Content\MeasurementSystem\Service\ProductMeasurementUnitBuilder">
+            <argument type="service" id="Shopware\Core\Content\MeasurementSystem\Service\MeasurementUnitConverter"/>
+        </service>
+
+        <service id="Shopware\Core\Content\MeasurementSystem\TwigExtension\MeasurementConvertTwigFilter" public="false">
+            <argument type="service" id="Shopware\Core\Content\MeasurementSystem\Service\MeasurementUnitProvider"/>
+            <argument type="service" id="Shopware\Core\Content\MeasurementSystem\Service\MeasurementUnitConverter"/>
+            <tag name="twig.extension"/>
+        </service>
+
     </services>
 </container>

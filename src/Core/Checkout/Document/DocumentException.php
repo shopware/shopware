@@ -31,6 +31,8 @@ class DocumentException extends HttpException
 
     public const FILE_EXTENSION_NOT_SUPPORTED = 'DOCUMENT__FILE_EXTENSION_NOT_SUPPORTED';
 
+    public const CANNOT_CREATE_ZIP_FILE = 'DOCUMENT__CANNOT_CREATE_ZIP_FILE';
+
     public static function invalidDocumentGeneratorType(string $type): self
     {
         return new self(
@@ -168,6 +170,16 @@ class DocumentException extends HttpException
                 'counter' => $count,
                 'violations' => $violations,
             ]
+        );
+    }
+
+    public static function cannotCreateZipFile(string $filePath): self
+    {
+        return new self(
+            Response::HTTP_INTERNAL_SERVER_ERROR,
+            self::CANNOT_CREATE_ZIP_FILE,
+            'Cannot create ZIP file at "{{ filePath }}"',
+            ['filePath' => $filePath]
         );
     }
 }

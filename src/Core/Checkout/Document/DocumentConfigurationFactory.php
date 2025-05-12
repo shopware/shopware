@@ -3,6 +3,7 @@
 namespace Shopware\Core\Checkout\Document;
 
 use Shopware\Core\Checkout\Document\Aggregate\DocumentBaseConfig\DocumentBaseConfigEntity;
+use Shopware\Core\Content\Media\MediaEntity;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\Country\CountryEntity;
 
@@ -51,6 +52,8 @@ class DocumentConfigurationFactory
                     $baseConfig->__set('custom', array_merge((array) $baseConfig->__get('custom'), [$customKey => $value]));
                 } elseif ($key === 'companyCountry' && \is_array($value)) {
                     $baseConfig->setCompanyCountry((new CountryEntity())->assign($value));
+                } elseif ($key === 'logo' && \is_array($value)) {
+                    $baseConfig->setLogo((new MediaEntity())->assign($value));
                 } else {
                     $baseConfig->__set($key, $value);
                 }

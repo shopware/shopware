@@ -2,11 +2,13 @@
 
 namespace Shopware\Core\Checkout\Document\Service;
 
+use setasign\Fpdi\FpdiException;
 use setasign\Fpdi\PdfParser\StreamReader;
 use setasign\Fpdi\Tfpdf\Fpdi;
 use Shopware\Core\Checkout\Document\DocumentCollection;
 use Shopware\Core\Checkout\Document\DocumentConfigurationFactory;
 use Shopware\Core\Checkout\Document\DocumentEntity;
+use Shopware\Core\Checkout\Document\DocumentException;
 use Shopware\Core\Checkout\Document\Renderer\RenderedDocument;
 use Shopware\Core\Checkout\Document\Struct\DocumentGenerateOperation;
 use Shopware\Core\Content\Media\MediaService;
@@ -46,7 +48,6 @@ final class DocumentMerger
             ->addAssociation('documentType')
             ->addSorting(new FieldSorting('order.orderNumber'));
 
-        /** @var DocumentCollection $documents */
         $documents = $this->documentRepository->search($criteria, $context)->getEntities();
 
         if ($documents->count() === 0) {
@@ -73,40 +74,11 @@ final class DocumentMerger
             return $renderedDocument;
         }
 
-        $totalPage = 0;
-
-        foreach ($documents as $document) {
-            $documentMediaId = $this->ensureDocumentMediaFileGenerated($document, $context);
-            if ($documentMediaId === null) {
-                continue;
-            }
-
-            $config = DocumentConfigurationFactory::createConfiguration($document->getConfig());
-
-            $media = $context->scope(Context::SYSTEM_SCOPE, fn (Context $context): string => $this->mediaService->loadFileStream($documentMediaId, $context)->getContents());
-
-            $numPages = $this->fpdi->setSourceFile(StreamReader::createByString($media));
-
-            $totalPage += $numPages;
-            for ($i = 1; $i <= $numPages; ++$i) {
-                $template = $this->fpdi->importPage($i);
-                $size = $this->fpdi->getTemplateSize($template);
-                if (!\is_array($size)) {
-                    continue;
-                }
-                $this->fpdi->AddPage($config->getPageOrientation() ?? 'portrait', $config->getPageSize());
-                $this->fpdi->useTemplate($template);
-            }
+        try {
+            return $this->mergeWithFpdi($documents, $context, $renderedDocument);
+        } catch (FpdiException $e) {
+            return $this->createDocumentsZip($documents, $context);
         }
-
-        if ($totalPage === 0) {
-            return null;
-        }
-
-        $renderedDocument->setContent($this->fpdi->Output($fileName, 'S'));
-        $renderedDocument->setContentType(PdfRenderer::FILE_CONTENT_TYPE);
-
-        return $renderedDocument;
     }
 
     private function ensureDocumentMediaFileGenerated(DocumentEntity $document, Context $context): ?string
@@ -147,5 +119,102 @@ final class DocumentMerger
         \assert($document !== null);
 
         return $document->getDocumentMediaFileId();
+    }
+
+    private function mergeWithFpdi(DocumentCollection $documents, Context $context, RenderedDocument $renderedDocument): ?RenderedDocument
+    {
+        $totalPage = 0;
+
+        foreach ($documents as $document) {
+            $documentMediaId = $this->ensureDocumentMediaFileGenerated($document, $context);
+            if ($documentMediaId === null) {
+                continue;
+            }
+
+            $config = DocumentConfigurationFactory::createConfiguration($document->getConfig());
+
+            $media = $context->scope(Context::SYSTEM_SCOPE, fn (Context $context): string => $this->mediaService->loadFileStream($documentMediaId, $context)->getContents());
+
+            $numPages = $this->fpdi->setSourceFile(StreamReader::createByString($media));
+
+            $totalPage += $numPages;
+            for ($i = 1; $i <= $numPages; ++$i) {
+                $template = $this->fpdi->importPage($i);
+                $size = $this->fpdi->getTemplateSize($template);
+                if (!\is_array($size)) {
+                    continue;
+                }
+                $this->fpdi->AddPage($config->getPageOrientation() ?? 'portrait', $config->getPageSize());
+                $this->fpdi->useTemplate($template);
+            }
+        }
+
+        if ($totalPage === 0) {
+            return null;
+        }
+
+        $renderedDocument->setContent($this->fpdi->Output($renderedDocument->getName(), 'S'));
+        $renderedDocument->setContentType(PdfRenderer::FILE_CONTENT_TYPE);
+
+        return $renderedDocument;
+    }
+
+    private function createDocumentsZip(DocumentCollection $documents, Context $context): ?RenderedDocument
+    {
+        $tempFile = tempnam(sys_get_temp_dir(), 'sw_documents_');
+        $zip = new \ZipArchive();
+
+        if ($zip->open($tempFile, \ZipArchive::CREATE | \ZipArchive::OVERWRITE) !== true) {
+            throw DocumentException::cannotCreateZipFile($tempFile);
+        }
+
+        $totalDocuments = 0;
+
+        foreach ($documents as $document) {
+            $documentMediaId = $this->ensureDocumentMediaFileGenerated($document, $context);
+            if ($documentMediaId === null) {
+                continue;
+            }
+
+            $fileContent = $context->scope(Context::SYSTEM_SCOPE, function (Context $context) use ($documentMediaId) {
+                return $this->mediaService->loadFile($documentMediaId, $context);
+            });
+
+            $name = $document->getDocumentType()?->getTechnicalName() ?? 'unknown'
+                . '_'
+                . $document->getOrderId()
+                . '.'
+                . PdfRenderer::FILE_EXTENSION;
+
+            $zip->addFromString($name, $fileContent);
+
+            ++$totalDocuments;
+        }
+
+        $zip->close();
+
+        if ($totalDocuments === 0) {
+            unlink($tempFile);
+
+            return null;
+        }
+
+        $fileName = Random::getAlphanumericString(32) . '.zip';
+
+        $renderedDocument = new RenderedDocument(
+            name: $fileName,
+            fileExtension: 'zip',
+            contentType: 'application/zip'
+        );
+
+        $fileContent = file_get_contents($tempFile);
+
+        if ($fileContent === false) {
+            return null;
+        }
+
+        $renderedDocument->setContent($fileContent);
+
+        return $renderedDocument;
     }
 }

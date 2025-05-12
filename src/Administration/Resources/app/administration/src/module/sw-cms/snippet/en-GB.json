@@ -813,6 +813,7 @@
         "rename": "Rename",
         "delete": "Delete",
         "duplicate": "Duplicate",
+        "view": "View",
         "addPreviewImage": "Add preview image",
         "setAsDefaultProductList": "Set as product listing default",
         "setAsDefaultProductDetail": "Set as product page default",

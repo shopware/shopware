@@ -131,6 +131,8 @@ import type { SwProfileStore } from './module/sw-profile/store/sw-profile.store'
 import type { SwPromotionDetailStore } from './module/sw-promotion-v2/page/sw-promotion-v2-detail/store';
 import type { SwFlowStore } from './module/sw-flow/store/flow.store';
 import type { SwBulkStore } from './app/store/sw-bulk-edit.store';
+// eslint-disable-next-line max-len
+import type createTextEditorDataMappingButton from './app/component/meteor-wrapper/mt-text-editor/sw-text-editor-toolbar-button-cms-data-mapping';
 
 // trick to make it an "external module" to support global type extension
 
@@ -355,6 +357,7 @@ declare global {
         mapSystemConfigErrors: typeof mapErrors.mapSystemConfigErrors;
         mapCollectionPropertyErrors: typeof mapErrors.mapCollectionPropertyErrors;
         mapPageErrors: typeof mapErrors.mapPageErrors;
+        createTextEditorDataMappingButton: typeof createTextEditorDataMappingButton;
     }
 
     /**

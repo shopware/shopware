@@ -24,7 +24,7 @@ const { handleMtFloatingUi } = require("./no-deprecated-component-usage-checks/m
 /* eslint-disable max-len */
 
 /**
- * @package admin
+ * @sw-package framework
  *
  * This rule checks if converted components still use the old logic, props, etc.
  *

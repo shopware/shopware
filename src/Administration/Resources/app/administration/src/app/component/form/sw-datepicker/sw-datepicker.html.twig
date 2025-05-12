@@ -1,0 +1,39 @@
+{% block sw_datepicker %}
+<mt-datepicker
+    v-if="!deprecated"
+    v-bind="$attrs"
+    v-model="realValue"
+    :placeholder="placeholder"
+>
+    <template
+        v-for="(index, name) in getSlots()"
+        #[name]="data"
+    >
+        <slot
+            :name="name"
+            v-bind="data || {}"
+        >
+        </slot>
+    </template>
+</mt-datepicker>
+{% endblock %}
+
+{# Deprecated component #}
+<sw-datepicker-deprecated
+    v-else
+    v-bind="$attrs"
+    v-model:value="realValue"
+    :placeholder="placeholder"
+>
+    <template
+        v-for="(index, name) in getSlots()"
+        #[name]="data"
+    >
+        <slot
+            :name="name"
+            v-bind="data || {}"
+        >
+        </slot>
+    </template>
+</sw-datepicker-deprecated>
+

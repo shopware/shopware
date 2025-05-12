@@ -39,7 +39,7 @@ class ResolvedConfigLoader extends AbstractResolvedConfigLoader
         }
 
         foreach ($config['fields'] as $key => $data) {
-            if ($data['type'] === 'media' && $data['value'] && Uuid::isValid($data['value'])) {
+            if (isset($data['type']) && $data['type'] === 'media' && $data['value'] && Uuid::isValid($data['value'])) {
                 $mediaItems[$data['value']][] = $key;
             }
             $resolvedConfig[$key] = $data['value'];

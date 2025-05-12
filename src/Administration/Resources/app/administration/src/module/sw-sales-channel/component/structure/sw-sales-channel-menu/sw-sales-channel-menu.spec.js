@@ -491,4 +491,18 @@ describe('src/module/sw-sales-channel/component/structure/sw-sales-channel-menu'
 
         expect(wrapper.vm.salesChannelRepository.search).toHaveBeenCalledTimes(1);
     });
+
+    it.each([
+        'sw-sales-channel-detail-base-sales-channel-change',
+        'sw-sales-channel-list-add-new-channel',
+    ])('should show the sales channel modal when "%s" event is triggered', async (eventName) => {
+        const wrapper = await createWrapper();
+
+        expect(wrapper.find('sw-sales-channel-modal-stub').exists()).toBe(false);
+
+        Shopware.Utils.EventBus.emit(eventName);
+        await flushPromises();
+
+        expect(wrapper.find('sw-sales-channel-modal-stub').exists()).toBe(true);
+    });
 });

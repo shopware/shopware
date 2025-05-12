@@ -445,7 +445,7 @@ export default {
             this.discount.value = discountHandler.getFixedValue(this.discount.value, this.discount.type);
         },
 
-        onDiscountValueChanged: Utils.debounce(function debounceBla(value) {
+        onDiscountValueChanged: Utils.debounce(function debounceUpdateValue(value) {
             this.discount.value = discountHandler.getFixedValue(value, this.discount.type);
 
             this.recalculatePrices();
@@ -455,7 +455,7 @@ export default {
         // so the value cannot be cleared anymore.
         // If the user removes the value, it will be 0 and converted
         // into NULL, which means no max value applies anymore.
-        onMaxValueChanged: Utils.debounce(function debounceBla(value) {
+        onMaxValueChanged: Utils.debounce(function debounceUpdateMaxValue(value) {
             if (value === 0) {
                 // clear max value
                 this.discount.maxValue = null;
@@ -494,7 +494,7 @@ export default {
                 if (currencyMapping[price.currencyId] === undefined) {
                     this.discount.promotionDiscountPrices.remove(price.id);
                 } else {
-                    const setPrice = (basePrice ?? discountHandler.getMinValue()) * (currencyMapping[price.currencyId] ?? 0);
+                    const setPrice = (basePrice ?? discountHandler.getMinValue()) * currencyMapping[price.currencyId];
 
                     price.price = setPrice < discountHandler.getMinValue() ? discountHandler.getMinValue() : setPrice;
                 }

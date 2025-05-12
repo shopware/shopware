@@ -25,12 +25,7 @@ import AssetPlugin from './vite-plugins/asset-plugin';
 import AssetPathPlugin from './vite-plugins/asset-path-plugin';
 import ExternalsPlugin from './vite-plugins/externals-plugin';
 import OverrideComponentRegisterPlugin from './vite-plugins/override-component-register';
-import {
-    loadExtensions,
-    findAvailablePorts,
-    isInsideDockerContainer,
-    getContainerIP
-} from './vite-plugins/utils';
+import { loadExtensions, findAvailablePorts, isInsideDockerContainer, getContainerIP } from './vite-plugins/utils';
 import type { ExtensionDefinition } from './vite-plugins/utils';
 import injectHtml from './vite-plugins/inject-html';
 
@@ -199,8 +194,7 @@ const main = async () => {
 
             if (extension.isPlugin) {
                 swPluginDevJsonData[extension.technicalName].js = `http://${host}:${availablePorts[index]}/${fileName}`;
-                swPluginDevJsonData[extension.technicalName].hmrSrc =
-                    `http://${host}:${availablePorts[index]}/@vite/client`;
+                swPluginDevJsonData[extension.technicalName].hmrSrc = `http://${host}:${availablePorts[index]}/@vite/client`;
             }
         });
 
@@ -278,8 +272,12 @@ const main = async () => {
                 }
             } catch (error) {
                 hasFailedBuilds = true;
-                // @ts-expect-error
-                console.error(colors.red(`# Failed to build ${extension.isPlugin ? 'plugin' : 'app'} "${extension.name}": ${error?.message}`));
+                console.error(
+                    colors.red(
+                        // @ts-expect-error
+                        `# Failed to build ${extension.isPlugin ? 'plugin' : 'app'} "${extension.name}": ${error?.message}`,
+                    ),
+                );
             }
         }
     }

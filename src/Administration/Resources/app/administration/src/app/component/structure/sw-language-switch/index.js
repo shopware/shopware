@@ -1,7 +1,6 @@
 import template from './sw-language-switch.html.twig';
 import './sw-language-switch.scss';
 
-const { Component } = Shopware;
 const { warn } = Shopware.Utils.debug;
 const { Criteria } = Shopware.Data;
 
@@ -17,7 +16,7 @@ const { Criteria } = Shopware.Data;
  * <sw-language-switch></sw-language-switch>
  */
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
-Component.register('sw-language-switch', {
+export default {
     template,
 
     emits: ['on-change'],
@@ -169,4 +168,4 @@ Component.register('sw-language-switch', {
             this.emitChange();
         },
     },
-});
+};

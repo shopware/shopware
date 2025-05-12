@@ -26,7 +26,7 @@ interface TreeItem {
  *
  * @private
  */
-Component.register('sw-settings-country-new-snippet-modal', {
+export default Component.wrapComponentConfig({
     template,
 
     props: {

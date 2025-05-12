@@ -1,13 +1,11 @@
 import template from './sw-condition-operator-select.html.twig';
 import './sw-condition-operator-select.scss';
 
-const { Component } = Shopware;
-
 /**
  * @private
  * @sw-package fundamentals@after-sales
  */
-Component.register('sw-condition-operator-select', {
+export default {
     template: template,
     emits: ['change'],
     props: {
@@ -80,4 +78,4 @@ Component.register('sw-condition-operator-select', {
             this.$emit('change', this.condition);
         },
     },
-});
+};

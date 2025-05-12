@@ -1,23 +1,26 @@
-import {mount} from "@vue/test-utils";
+import { mount } from '@vue/test-utils';
 import { ui } from '@shopware-ag/meteor-admin-sdk';
 import initializeSidebar from 'src/app/init/sidebar.init';
 
 describe('src/app/component/structure/sw-sidebar-renderer', () => {
     async function createWrapper() {
-        return mount(await wrapTestComponent('sw-sidebar-renderer', {
-            sync: true,
-        }), {
-            global: {
-                stubs: {
-                    'sw-iframe-renderer': true,
+        return mount(
+            await wrapTestComponent('sw-sidebar-renderer', {
+                sync: true,
+            }),
+            {
+                global: {
+                    stubs: {
+                        'sw-iframe-renderer': true,
+                    },
+                    provide: {},
                 },
-                provide: {},
             },
-        });
+        );
     }
 
     beforeAll(() => {
-       // Start initalizer
+        // Start initalizer
         initializeSidebar();
     });
 
@@ -35,7 +38,7 @@ describe('src/app/component/structure/sw-sidebar-renderer', () => {
             integrationId: '123',
             active: true,
         });
-    })
+    });
 
     it('should be a Vue.js component', async () => {
         const wrapper = await createWrapper();

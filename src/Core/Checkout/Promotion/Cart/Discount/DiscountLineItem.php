@@ -4,13 +4,14 @@ namespace Shopware\Core\Checkout\Promotion\Cart\Discount;
 
 use Shopware\Core\Checkout\Cart\CartException;
 use Shopware\Core\Checkout\Cart\Price\Struct\PriceDefinitionInterface;
+use Shopware\Core\Checkout\Promotion\Cart\Discount\Filter\MaxUsage\MaxUsage;
 use Shopware\Core\Framework\Log\Package;
 
 #[Package('checkout')]
 class DiscountLineItem
 {
     /**
-     * @var array<mixed>
+     * @var array<string, string|array<mixed>>
      */
     private array $payload;
 
@@ -26,8 +27,10 @@ class DiscountLineItem
 
     private readonly string $filterPickerKey;
 
+    private readonly bool $considerAdvancedRules;
+
     /**
-     * @param array<mixed> $payload
+     * @param array<string, string|array<mixed>> $payload
      */
     public function __construct(
         private readonly string $label,
@@ -35,6 +38,9 @@ class DiscountLineItem
         array $payload,
         private readonly ?string $code
     ) {
+        \assert(\is_string($payload['discountScope']));
+        \assert(\is_string($payload['discountType']));
+
         $this->scope = $payload['discountScope'];
         $this->type = $payload['discountType'];
         $this->payload = $payload;
@@ -43,6 +49,7 @@ class DiscountLineItem
         $this->filterApplierKey = $payload['filter']['applierKey'] ?? '';
         $this->filterUsageKey = $payload['filter']['usageKey'] ?? '';
         $this->filterPickerKey = $payload['filter']['pickerKey'] ?? '';
+        $this->considerAdvancedRules = $payload['filter']['considerAdvancedRules'] ?? false;
     }
 
     /**
@@ -145,5 +152,15 @@ class DiscountLineItem
     public function getFilterPickerKey(): string
     {
         return $this->filterPickerKey;
+    }
+
+    public function isConsiderAdvancedRules(): bool
+    {
+        return $this->considerAdvancedRules;
+    }
+
+    public function isProductRestricted(): bool
+    {
+        return $this->considerAdvancedRules && $this->filterApplierKey !== MaxUsage::APPLIER_ALL;
     }
 }

@@ -38,6 +38,7 @@ class Kernel extends HttpKernel
     use MicroKernelTrait;
 
     final public const CONFIG_EXTS = '.{php,xml,yaml,yml}';
+
     /**
      * @var string Fallback version if nothing is provided via kernel constructor
      */
@@ -358,6 +359,7 @@ class Kernel extends HttpKernel
          * @deprecated tag:v6.7.0 - remove if-clause, we have already SQL_SET_DEFAULT_SESSION_VARIABLES which is documented does the same
          */
         $shopwareSkipConnectionVariables = EnvironmentHelper::getVariable('SHOPWARE_SKIP_CONNECTION_VARIABLES', false);
+
         if ($shopwareSkipConnectionVariables) {
             return;
         }

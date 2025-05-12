@@ -117,10 +117,11 @@ describe('src/module/sw-order/page/sw-order-detail', () => {
 
     it('should contain manual label', async () => {
         wrapper = await createWrapper();
-        await wrapper.setData({ identifier: '1', createdById: '2' });
+        await wrapper.setData({ identifier: '1' });
 
         Shopware.Store.get('swOrderDetail').order = {
             orderNumber: 1,
+            createdById: '2',
         };
         await nextTick();
 
@@ -230,7 +231,7 @@ describe('src/module/sw-order/page/sw-order-detail', () => {
         expect(convertedProductLineItems).toContainEqual(previouslyConvertedLineItem);
     });
 
-    it('should apply promotions on save and recalculate', async () => {
+    it('should not apply promotions on save and recalculate', async () => {
         const lineItemWithExistingProduct = {
             id: 'lineItemId',
             type: 'product',
@@ -276,10 +277,10 @@ describe('src/module/sw-order/page/sw-order-detail', () => {
 
         await wrapper.vm.onSaveAndRecalculate();
         expect(wrapper.vm.orderService.recalculateOrder).toHaveBeenCalled();
-        expect(wrapper.vm.orderService.toggleAutomaticPromotions).toHaveBeenCalled();
+        expect(wrapper.vm.orderService.toggleAutomaticPromotions).not.toHaveBeenCalled();
     });
 
-    it('should apply promotions on recalculate and reload', async () => {
+    it('should not apply promotions on recalculate and reload', async () => {
         const lineItemWithExistingProduct = {
             id: 'lineItemId',
             type: 'product',
@@ -325,10 +326,10 @@ describe('src/module/sw-order/page/sw-order-detail', () => {
 
         await wrapper.vm.onRecalculateAndReload();
 
-        expect(wrapper.vm.promotionsToDelete).toHaveLength(1);
-        expect(wrapper.vm.deliveryDiscountsToDelete).toHaveLength(1);
+        expect(wrapper.vm.promotionsToDelete).toHaveLength(0);
+        expect(wrapper.vm.deliveryDiscountsToDelete).toHaveLength(0);
         expect(wrapper.vm.orderService.recalculateOrder).toHaveBeenCalled();
-        expect(wrapper.vm.orderService.toggleAutomaticPromotions).toHaveBeenCalled();
+        expect(wrapper.vm.orderService.toggleAutomaticPromotions).not.toHaveBeenCalled();
     });
 
     it('should delete promotions on save edits', async () => {

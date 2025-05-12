@@ -1,6 +1,7 @@
 import Plugin from 'src/plugin-system/plugin.class';
 import OffCanvas from 'src/plugin/offcanvas/offcanvas.plugin';
 import LoadingIndicator from 'src/utility/loading-indicator/loading-indicator.util';
+/** @deprecated tag:v6.8.0 - HttpClient is deprecated. Use native fetch API instead. */
 import HttpClient from 'src/service/http-client.service';
 
 /**
@@ -24,6 +25,8 @@ export default class OffcanvasMenuPlugin extends Plugin {
 
     init() {
         this._cache = {};
+
+        /** @deprecated tag:v6.8.0 - HttpClient is deprecated. Use native fetch API instead. */
         this._client = new HttpClient();
         this._content = LoadingIndicator.getTemplate();
 
@@ -51,7 +54,11 @@ export default class OffcanvasMenuPlugin extends Plugin {
                     });
                 });
             });
+            // initialize the plugins again, after Off-Canvas init, otherwise you will miss the JS event listener
+            window.PluginManager.initializePlugins();
         }
+        // re-open the menu if the url parameter is set
+        this._openMenuViaUrlParameter();
     }
 
     /**
@@ -66,6 +73,22 @@ export default class OffcanvasMenuPlugin extends Plugin {
         OffCanvas.setAdditionalClassName(this.options.additionalOffcanvasClass);
 
         this.$emitter.publish('openMenu');
+    }
+
+    /**
+     * opens the menu via url parameter (offcanvas=menu)
+     * @private
+     */
+    _openMenuViaUrlParameter() {
+        const urlParams = new URLSearchParams(window.location.search);
+        if (urlParams.has('offcanvas') && urlParams.get('offcanvas') === 'menu') {
+            document.querySelector('[data-off-canvas-menu="true"]')?.click();
+            if (window.history.replaceState) {
+                const url = new URL(window.location);
+                url.searchParams.delete('offcanvas');
+                window.history.replaceState({}, document.title, url);
+            }
+        }
     }
 
     /**
@@ -184,12 +207,16 @@ export default class OffcanvasMenuPlugin extends Plugin {
 
         this.$emitter.publish('beforeFetchMenu');
 
-        this._client.get(link, (res) => {
-            this._cache[link] = res;
-            if (typeof cb === 'function') {
-                cb(res);
-            }
-        });
+        fetch(link, {
+            headers: { 'X-Requested-With': 'XMLHttpRequest' },
+        })
+            .then(res => res.text())
+            .then(content => {
+                this._cache[link] = content;
+                if (typeof cb === 'function') {
+                    cb(content);
+                }
+            });
     }
 
     /**

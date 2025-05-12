@@ -4,6 +4,7 @@
     :class="swFieldClasses"
     v-bind="$attrs"
     :disabled="disabled"
+    :size="size"
 >
     <template #sw-field-input="{ identification, error, disabled, size, setFocusClass, removeFocusClass }">
         <!-- eslint-disable-next-line vuejs-accessibility/no-static-element-interactions -->
@@ -48,8 +49,8 @@
                 class="sw-select__select-indicator sw-select__select-indicator-expand"
                 :class="{ 'sw-select__select-indicator-expand--rotated': !expanded }"
                 name="regular-chevron-up-xs"
-                size="16px"
-                @click.stop="toggleExpand"
+                size="10px"
+                @click="toggleExpand"
             />
         </div>
 

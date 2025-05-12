@@ -12,11 +12,10 @@
     .btn > .icon {
         vertical-align: top;
     }
-}
 
-.account-address {
     .account-address-back {
-        &:hover, &:focus {
+        &:hover,
+        &:focus {
             span.icon {
                 color: $white;
             }

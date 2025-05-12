@@ -589,7 +589,7 @@ class ProductRepositoryTest extends TestCase
 
         // check nested events are triggered
         $listener = $this->getMockBuilder(CallableClass::class)->getMock();
-        $listener->expects(static::exactly(2))->method('__invoke');
+        $listener->expects($this->exactly(2))->method('__invoke');
         $this->eventDispatcher->addListener('product.written', $listener);
         $this->eventDispatcher->addListener('product_manufacturer.written', $listener);
 
@@ -607,7 +607,7 @@ class ProductRepositoryTest extends TestCase
 
         // validate that nested events are triggered
         $listener = $this->getMockBuilder(CallableClass::class)->getMock();
-        $listener->expects(static::exactly(2))->method('__invoke');
+        $listener->expects($this->exactly(2))->method('__invoke');
         $this->eventDispatcher->addListener('product.loaded', $listener);
         $this->eventDispatcher->addListener('product_manufacturer.loaded', $listener);
 
@@ -1688,6 +1688,80 @@ class ProductRepositoryTest extends TestCase
         $row = $this->connection->fetchAssociative('SELECT category_tree, categories FROM product WHERE id = :id', ['id' => Uuid::fromHexToBytes($greenId)]);
         static::assertContains($greenCategory, json_decode($row['category_tree'], true, 512, \JSON_THROW_ON_ERROR));
         static::assertSame($greenId, Uuid::fromBytesToHex($row['categories']));
+    }
+
+    public function testVariantInheritanceWithCategoriesAndFilters(): void
+    {
+        $redId = Uuid::randomHex();
+        $greenId = Uuid::randomHex();
+        $parentId = Uuid::randomHex();
+
+        $parentCategory = Uuid::randomHex();
+        $greenCategory = Uuid::randomHex();
+
+        $products = [
+            [
+                'id' => $parentId,
+                'productNumber' => Uuid::randomHex(),
+                'stock' => 10,
+                'name' => 'T-shirt',
+                'price' => [['currencyId' => Defaults::CURRENCY, 'gross' => 10, 'net' => 9, 'linked' => false]],
+                'tax' => ['name' => 'test', 'taxRate' => 15],
+                'manufacturer' => ['name' => 'test'],
+                'categories' => [
+                    ['id' => $parentCategory, 'name' => 'parent'],
+                ],
+            ],
+            [
+                'id' => $redId,
+                'productNumber' => Uuid::randomHex(),
+                'stock' => 10,
+                'parentId' => $parentId,
+                'name' => 'red',
+            ],
+            [
+                'id' => $greenId,
+                'productNumber' => Uuid::randomHex(),
+                'stock' => 10,
+                'parentId' => $parentId,
+                'name' => 'green',
+                'categories' => [
+                    ['id' => $greenCategory, 'name' => 'green'],
+                ],
+            ],
+        ];
+
+        $context = Context::createDefaultContext();
+        $context->setConsiderInheritance(true);
+
+        $this->repository->create($products, $context);
+
+        $criteria = new Criteria([$redId, $greenId]);
+        $categoryCriteria = $criteria->getAssociation('categories');
+        $categoryCriteria->setLimit(1);
+        $products = $this->repository->search($criteria, $context)->getEntities();
+
+        $criteria = new Criteria([$parentId]);
+        $criteria->addAssociation('categories');
+        $parents = $this->repository->search($criteria, $context)->getEntities();
+
+        static::assertTrue($parents->has($parentId));
+        static::assertTrue($products->has($redId));
+        static::assertTrue($products->has($greenId));
+
+        $parent = $parents->get($parentId);
+        $green = $products->get($greenId);
+        $red = $products->get($redId);
+
+        $parentCategories = $parent->getCategories();
+        static::assertInstanceOf(CategoryCollection::class, $parentCategories);
+        static::assertSame([$parentCategory], array_values($parentCategories->getIds()));
+        $redCategories = $red->getCategories();
+        static::assertInstanceOf(CategoryCollection::class, $redCategories);
+        static::assertSame([$parentCategory], array_values($redCategories->getIds()));
+        $greenCategories = $green->getCategories();
+        static::assertInstanceOf(CategoryCollection::class, $greenCategories);
+        static::assertSame([$greenCategory], array_values($greenCategories->getIds()));
     }
 
     public function testSearchByInheritedName(): void

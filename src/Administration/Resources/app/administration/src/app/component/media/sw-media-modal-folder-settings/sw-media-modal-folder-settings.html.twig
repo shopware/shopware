@@ -1,0 +1,255 @@
+{% block sw_media_modal_folder_settings %}
+<sw-modal
+    v-if="!!mediaFolder"
+    class="sw-media-modal-folder-settings"
+    :class="modalClass"
+    :title="mediaFolder.name"
+    variant="large"
+    @modal-close="closeModal"
+>
+
+    {% block sw_media_modal_folder_settings_tabs %}
+    <sw-tabs
+        position-identifier="sw-media-modal-folder-settings"
+        :is-small="false"
+        default-item="settings"
+    >
+        <template #default="{ active }">
+            {% block sw_media_modal_folder_settings_tab_item_settings %}
+            <sw-tabs-item
+                class="sw-media-folder-settings__settings-tab"
+                name="settings"
+                :active-tab="active"
+                :has-error="!!mediaFolderNameError"
+                :native="true"
+            >
+                {{ $tc('global.sw-media-modal-folder-settings.labelSettings') }}
+            </sw-tabs-item>
+            {% endblock %}
+
+            {% block sw_media_modal_folder_settings_tab_item_thumbnails %}
+            <sw-tabs-item
+                class="sw-media-folder-settings__thumbnails-tab"
+                name="thumbnails"
+                :active-tab="active"
+                :native="true"
+            >
+                {{ $tc('global.sw-media-modal-folder-settings.labelThumbnails') }}
+            </sw-tabs-item>
+            {% endblock %}
+        </template>
+
+        <template
+            #content="{ active }"
+        >
+            {% block sw_media_modal_folder_settings_tab_content_settings %}
+            <sw-container
+                v-if="active === 'settings'"
+                columns="1fr 1fr"
+                gap="32px"
+            >
+                {% block sw_media_modal_folder_settings_name_field %}
+
+                <mt-text-field
+                    v-model="mediaFolder.name"
+                    :disabled="disabled"
+                    :error="mediaFolderNameError"
+                    :label="$tc('global.sw-media-modal-folder-settings.labelFolderName')"
+                />
+                {% endblock %}
+
+                {% block sw_media_modal_folder_settings_default_folder %}
+                <sw-entity-single-select
+                    id="defaultFolder"
+                    :disabled="disabled"
+                    entity="media_default_folder"
+                    :placeholder="$tc('global.sw-media-modal-folder-settings.placeholderDefaultFolder')"
+                    :value="mediaFolder.defaultFolderId ? mediaFolder.defaultFolderId : ''"
+                    :label="$tc('global.sw-media-modal-folder-settings.labelDefaultFolder')"
+                    show-clearable-button
+                    @update:value="onInputDefaultFolder"
+                >
+
+                    <template #selection-label-property="{ item: item }">
+                        {{ getItemName(item) }}
+                    </template>
+
+                    <template #result-item="{ isSelected, setValue, item, index, searchTerm, highlightSearchTerm }">
+                        <sw-select-result
+                            :selected="isSelected(item)"
+                            v-bind="{ item, index }"
+                            @item-select="setValue"
+                        >
+                            <sw-highlight-text
+                                v-if="highlightSearchTerm"
+                                :text="getItemName(item)"
+                                :search-term="searchTerm"
+                            />
+                            <template v-else>
+                                {{ getItemName(item) }}
+                            </template>
+                        </sw-select-result>
+                    </template>
+                </sw-entity-single-select>
+                {% endblock %}
+            </sw-container>
+            {% endblock %}
+
+            {% block sw_media_modal_folder_settings_tab_content_thumbnails %}
+            <sw-container
+                v-if="active === 'thumbnails'"
+                class="sw-media-modal-folder-settings__thumbnails-container"
+                columns="1fr 1fr"
+                gap="32px"
+            >
+
+                {% block sw_media_modal_folder_settings_tab_content_thumbnails_left_container %}
+                <div class="sw-media-modal-folder-settings__thumbnails-left-container">
+                    {% block sw_media_modal_folder_settings_inherit_settings_field %}
+                    <mt-switch
+                        v-model="mediaFolder.useParentConfiguration"
+                        :label="$tc('global.sw-media-modal-folder-settings.labelInheritSettings')"
+                        :disabled="mediaFolder.parentId === null"
+                        @update:model-value="onChangeInheritance"
+                    />
+                    {% endblock %}
+
+                    {% block sw_media_modal_folder_settings_generate_thumbnails_field %}
+                    <mt-switch
+                        v-model="configuration.createThumbnails"
+                        :label="$tc('global.sw-media-modal-folder-settings.labelGenerateThumbnails')"
+                        :disabled="mediaFolder.useParentConfiguration || disabled"
+                    />
+                    {% endblock %}
+
+                    {% block sw_media_modal_folder_settings_keep_proportions_field %}
+
+                    <mt-switch
+                        v-model="configuration.keepAspectRatio"
+                        :label="$tc('global.sw-media-modal-folder-settings.labelKeepProportions')"
+                        :disabled="notEditable"
+                    />
+                    {% endblock %}
+
+                    {% block sw_media_modal_folder_settings_thumbnails_quality_field %}
+                    <mt-number-field
+                        v-model="configuration.thumbnailQuality"
+                        number-type="int"
+                        :label="$tc('global.sw-media-modal-folder-settings.labelThumbnailQuality')"
+                        :min="0"
+                        :max="100"
+                        :step="1"
+                        :disabled="notEditable"
+                        autocomplete="off"
+                    />
+                    {% endblock %}
+                </div>
+                {% endblock %}
+
+                {% block sw_media_modal_folder_settings_tab_content_thumbnails_right_container %}
+                <div class="sw-media-modal-folder-settings__thumbnails-right-container">
+                    {% block sw_media_modal_folder_settings_thumbnail_list_caption %}
+                    <div class="sw-media-modal-folder-settings__thumbnails-list-caption">
+                        <!-- eslint-disable-next-line vuejs-accessibility/label-has-for -->
+                        <label>{{ $tc('global.sw-media-modal-folder-settings.labelThumbnailSize') }}</label>
+                    </div>
+                    {% endblock %}
+
+                    {% block sw_media_modal_folder_settings_thumbnail_list_container %}
+                    <div class="sw-media-modal-folder-settings__thumbnails-list-container">
+                        <sw-media-add-thumbnail-form
+                            v-if="!notEditable"
+                            :disabled="disabled"
+                            @on-input="checkIfThumbnailExists"
+                            @thumbnail-form-size-add="addThumbnail"
+                        />
+
+                        {% block sw_media_modal_folder_settings_thumbnail_list %}
+                        <ul class="sw-media-modal-folder-settings__thumbnails-list">
+
+                            {% block sw_media_modal_folder_settings_thumbnail_size %}
+                            <li
+                                v-for="(size, index) in thumbnailSizes"
+                                :key="`thumbnail-size-${index}`"
+                                class="sw-media-modal-folder-settings__thumbnail-size-entry"
+                                :class="'sw-media-modal-folder-settings__entry--' + index"
+                            >
+
+                                {% block sw_media_modal_folder_settings_thumbnail_size_switch %}
+
+                                <mt-switch
+                                    :model-value="isThumbnailSizeActive(size)"
+                                    :name="thumbnailSizeCheckboxName(size)"
+                                    :label="thumbnailSizeFilter(size)"
+                                    :disabled="notEditable"
+                                    @update:model-value="onChangeThumbnailSize($event, size)"
+                                />
+                                {% endblock %}
+
+                                {% block sw_media_modal_folder_settings_thumbnail_size_delete_button %}
+                                <button
+                                    v-tooltip="{
+                                        message: $tc('global.sw-media-modal-folder-settings.tooltipCanNotDeleteThumbnailSize'),
+                                        disabled: size.deletable,
+                                        showOnDisabledElements: true
+                                    }"
+                                    class="sw-media-modal-folder-settings__delete-thumbnail"
+                                    :title="$tc('global.default.delete')"
+                                    :aria-label="$tc('global.default.delete')"
+                                    :disabled="!size.deletable"
+                                    @click="deleteThumbnail(size)"
+                                >
+                                    <mt-icon
+                                        name="regular-times-s"
+                                        size="12px"
+                                    />
+                                </button>
+                                {% endblock %}
+                            </li>
+                            {% endblock %}
+                        </ul>
+                        {% endblock %}
+                    </div>
+                    {% endblock %}
+                </div>
+                {% endblock %}
+            </sw-container>
+            {% endblock %}
+        </template>
+    </sw-tabs>
+    {% endblock %}
+
+    {% block sw_media_modal_folder_settings_footer %}
+    <template #modal-footer>
+
+        {% block sw_media_modal_folder_settings_cancel_button %}
+        <mt-button
+            size="small"
+            variant="secondary"
+            @click="onClickCancel"
+        >
+            {{ $tc('global.default.cancel') }}
+        </mt-button>
+        {% endblock %}
+
+        {% block sw_media_modal_folder_settings_confirm_button %}
+        <mt-button
+            v-tooltip="{
+                message: $tc('sw-privileges.tooltip.warning'),
+                disabled: !disabled,
+                showOnDisabledElements: true
+            }"
+            class="sw-media-modal-folder-settings__confirm"
+            size="small"
+            :disabled="disabled"
+            variant="primary"
+            @click="onClickSave"
+        >
+            {{ $tc('global.default.save') }}
+        </mt-button>
+        {% endblock %}
+
+    </template>
+    {% endblock %}
+</sw-modal>
+{% endblock %}

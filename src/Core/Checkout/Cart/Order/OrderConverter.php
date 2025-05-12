@@ -66,9 +66,10 @@ class OrderConverter
         ProductCartProcessor::SKIP_PRODUCT_RECALCULATION => true,
         DeliveryProcessor::SKIP_DELIVERY_PRICE_RECALCULATION => true,
         DeliveryProcessor::SKIP_DELIVERY_TAX_RECALCULATION => true,
-        PromotionCollector::SKIP_PROMOTION => true,
         ProductCartProcessor::SKIP_PRODUCT_STOCK_VALIDATION => true,
         ProductCartProcessor::KEEP_INACTIVE_PRODUCT => true,
+        PromotionCollector::PIN_MANUAL_PROMOTIONS => true,
+        PromotionCollector::PIN_AUTOMATIC_PROMOTIONS => true,
     ];
 
     /**
@@ -83,7 +84,6 @@ class OrderConverter
         protected AbstractSalesChannelContextFactory $salesChannelContextFactory,
         protected EventDispatcherInterface $eventDispatcher,
         private readonly NumberRangeValueGeneratorInterface $numberRangeValueGenerator,
-        private readonly OrderDefinition $orderDefinition,
         private readonly EntityRepository $orderAddressRepository,
         private readonly InitialStateIdLoader $initialStateIdLoader,
         private readonly LineItemDownloadLoader $downloadLoader,
@@ -193,7 +193,7 @@ class OrderConverter
             $data['orderNumber'] = $orderNumberStruct->getId();
         } else {
             $data['orderNumber'] = $this->numberRangeValueGenerator->getValue(
-                $this->orderDefinition->getEntityName(),
+                OrderDefinition::ENTITY_NAME,
                 $context->getContext(),
                 $context->getSalesChannelId()
             );

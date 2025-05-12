@@ -60,10 +60,15 @@ $sw-media-sidebar-color-quick-action-danger: $color-crimson-500;
     }
 
     .sw-media-sidebar__metadata-list {
+        .mt-field {
+            margin-bottom: 0;
+        }
+
         @media screen and (min-width: 769px) {
             display: grid;
             grid-template-columns: auto 1fr;
-            grid-auto-rows: 40px;
+            grid-auto-rows: minmax(24px, auto);
+            grid-row-gap: 12px;
             grid-column-gap: 16px;
             align-items: center;
             overflow: visible;

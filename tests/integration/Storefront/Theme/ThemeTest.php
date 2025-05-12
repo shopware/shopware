@@ -6,7 +6,6 @@ use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\Constraint\Callback;
 use PHPUnit\Framework\Constraint\IsEqual;
 use PHPUnit\Framework\TestCase;
-use Shopware\Administration\Notification\NotificationService;
 use Shopware\Core\Content\Media\MediaCollection;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\App\ActiveAppsLoader;
@@ -15,6 +14,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\OrFilter;
+use Shopware\Core\Framework\Notification\NotificationService;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Kernel;
@@ -39,6 +39,8 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Bundle\BundleInterface;
 use Symfony\Component\HttpKernel\KernelInterface;
+
+use function Symfony\Component\String\u;
 
 /**
  * @internal
@@ -126,6 +128,7 @@ class ThemeTest extends TestCase
         $themeConfiguration = $this->themeService->getThemeConfiguration($theme->getId(), false, $this->context);
 
         $themeConfigFix = ThemeFixtures::getThemeConfig($this->faviconId, $this->demoStoreLogoId);
+        $themeConfigFix['themeTechnicalName'] = $themeConfiguration['themeTechnicalName'];
         foreach ($themeConfigFix['fields'] as $key => $field) {
             if ($field['type'] === 'media') {
                 $themeConfigFix['fields'][$key]['value'] = $themeConfiguration['fields'][$key]['value'];
@@ -133,20 +136,6 @@ class ThemeTest extends TestCase
         }
 
         static::assertEquals($themeConfigFix, $themeConfiguration);
-    }
-
-    public function testDefaultThemeConfigTranslated(): void
-    {
-        $theme = $this->themeRepository->search(new Criteria(), $this->context)->getEntities()->first();
-        static::assertNotNull($theme);
-
-        $themeConfiguration = $this->themeService->getThemeConfiguration($theme->getId(), true, $this->context);
-
-        static::assertGreaterThan(0, \count($themeConfiguration));
-
-        foreach ($themeConfiguration['fields'] as $item) {
-            static::assertStringNotContainsString('sw-theme', $item['label']);
-        }
     }
 
     public function testDefaultThemeConfigStructuredFields(): void
@@ -197,12 +186,15 @@ class ThemeTest extends TestCase
         $criteria->addFilter(new EqualsFilter('name', $name));
 
         $childTheme = $this->themeRepository->search($criteria, $this->context)->getEntities()->first();
-        static::assertNotNull($childTheme);
+        static::assertInstanceOf(ThemeEntity::class, $childTheme);
 
         $childThemeFields = $this->themeService->getThemeConfigurationStructuredFields($childTheme->getId(), true, $this->context);
+
+        $technicalName = $childTheme->getTechnicalName();
+        static::assertIsString($technicalName);
         static::assertSame(
-            'Primary colour',
-            $childThemeFields['tabs']['default']['blocks']['themeColors']['sections']['default']['fields']['sw-color-brand-primary']['label']
+            implode('.', ['sw-theme', u($technicalName)->kebab(), 'default.themeColors.default.sw-color-brand-primary.label']),
+            $childThemeFields['tabs']['default']['blocks']['themeColors']['sections']['default']['fields']['sw-color-brand-primary']['labelSnippetKey']
         );
     }
 
@@ -248,10 +240,13 @@ class ThemeTest extends TestCase
         $childTheme = $this->themeRepository->search($criteria, $this->context)->getEntities()->first();
         static::assertNotNull($childTheme);
 
+        $technicalName = $childTheme->getTechnicalName();
+        static::assertIsString($technicalName);
+
         $childThemeFields = $this->themeService->getThemeConfigurationStructuredFields($childTheme->getId(), true, $this->context);
         static::assertSame(
-            'Primary colour',
-            $childThemeFields['tabs']['default']['blocks']['themeColors']['sections']['default']['fields']['sw-color-brand-primary']['label']
+            implode('.', ['sw-theme', u($technicalName)->kebab(), 'default.themeColors.default.sw-color-brand-primary.label']),
+            $childThemeFields['tabs']['default']['blocks']['themeColors']['sections']['default']['fields']['sw-color-brand-primary']['labelSnippetKey']
         );
     }
 
@@ -315,6 +310,7 @@ class ThemeTest extends TestCase
             'fullWidth' => null,
         ];
 
+        $themeInheritedConfig['themeTechnicalName'] = $theme['themeTechnicalName'];
         $themeInheritedConfig['fields']['some-custom'] = $someCustom;
         $themeInheritedConfig['currentFields']['some-custom'] = ['value' => null, 'isInherited' => false];
         $themeInheritedConfig['baseThemeFields']['some-custom'] = ['value' => null, 'isInherited' => true];
@@ -364,6 +360,7 @@ class ThemeTest extends TestCase
         $theme = $this->themeService->getThemeConfiguration($childTheme->getId(), false, $this->context);
         $themeInheritedConfig = ThemeFixtures::getThemeInheritedBlankConfig($this->faviconId, $this->demoStoreLogoId);
 
+        $themeInheritedConfig['themeTechnicalName'] = $theme['themeTechnicalName'];
         $themeInheritedConfig['currentFields']['sw-color-brand-primary']['value'] = '#ff00ff';
         $themeInheritedConfig['currentFields']['sw-color-brand-primary']['isInherited'] = false;
 
@@ -435,6 +432,7 @@ class ThemeTest extends TestCase
                 $themeInheritedConfig['fields'][$key]['value'] = $theme['fields'][$key]['value'];
             }
         }
+        $themeInheritedConfig['themeTechnicalName'] = $theme['themeTechnicalName'];
         $themeInheritedConfig['currentFields']['sw-color-brand-secondary']['value'] = '#474a57';
 
         static::assertEquals($themeInheritedConfig, $theme);
@@ -538,7 +536,7 @@ class ThemeTest extends TestCase
         $_expectedColor = '';
         $_expectedTheme = '';
         $themeCompilerMock = $this->createMock(ThemeCompiler::class);
-        $themeCompilerMock->expects(static::exactly(2))
+        $themeCompilerMock->expects($this->exactly(2))
             ->method('compileTheme')
             ->with(
                 new IsEqual(TestDefaults::SALES_CHANNEL),
@@ -825,7 +823,6 @@ class ThemeTest extends TestCase
         $theme = $themes->first();
         static::assertNotNull($theme);
         static::assertSame('Storefront', $theme->getTechnicalName());
-        static::assertNotEmpty($theme->getLabels());
     }
 
     public function testResetTheme(): void

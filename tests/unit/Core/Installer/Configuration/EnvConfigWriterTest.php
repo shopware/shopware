@@ -24,7 +24,7 @@ class EnvConfigWriterTest extends TestCase
     public function testWriteConfig(): void
     {
         $idGenerator = $this->createMock(UniqueIdGenerator::class);
-        $idGenerator->expects(static::once())->method('getUniqueId')
+        $idGenerator->expects($this->once())->method('getUniqueId')
             ->willReturn('1234567890');
 
         $writer = new EnvConfigWriter(__DIR__ . '/_fixtures', $idGenerator);
@@ -68,7 +68,7 @@ class EnvConfigWriterTest extends TestCase
     public function testWriteWithSSLConfig(): void
     {
         $idGenerator = $this->createMock(UniqueIdGenerator::class);
-        $idGenerator->expects(static::once())->method('getUniqueId')
+        $idGenerator->expects($this->once())->method('getUniqueId')
             ->willReturn('1234567890');
 
         $writer = new EnvConfigWriter(__DIR__ . '/_fixtures', $idGenerator);

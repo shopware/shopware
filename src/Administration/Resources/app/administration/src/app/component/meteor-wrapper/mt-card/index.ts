@@ -9,13 +9,15 @@ import template from './mt-card.html.twig';
  * @description Wrapper component for mt-card. Adds the component sections
  *  to the slots. Need to be matched with the original mt-card component.
  */
-Shopware.Component.register('mt-card', {
+export default Shopware.Component.wrapComponentConfig({
     template,
 
     components: {
         // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
         'mt-card-original': MtCard,
     },
+
+    inheritAttrs: false,
 
     props: {
         positionIdentifier: {

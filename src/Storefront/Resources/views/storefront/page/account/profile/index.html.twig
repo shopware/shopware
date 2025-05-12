@@ -30,9 +30,9 @@
                                       method="post"
                                       action="{{ path('frontend.account.profile.save') }}"
                                       data-form-handler="true">
-
                                     {% block page_account_profile_personal_fields %}
                                         {% sw_include '@Storefront/storefront/component/address/address-personal.html.twig' with {
+                                            prefix: '',
                                             showBirthdayField: config('core.loginRegistration.showBirthdayField'),
                                             showVatIdField: true,
                                             data: context.customer,
@@ -125,7 +125,6 @@
                                               method="post"
                                               action="{{ path('frontend.account.profile.email.save') }}"
                                               data-form-handler="true">
-
                                             {% block page_account_profile_mail_title %}
                                                 <div class="card-title">
                                                     {{ 'account.profileMailTitle'|trans|sw_sanitize }}
@@ -143,7 +142,7 @@
                                                             autocomplete: 'section-personal email',
                                                             violationPath: '/email',
                                                             validationRules: 'required,email',
-                                                            additionalClass: 'col',
+                                                            additionalClass: 'col-sm-6',
                                                         } %}
                                                     {% endblock %}
 
@@ -156,7 +155,7 @@
                                                             autocomplete: 'section-personal email',
                                                             violationPath: '/email',
                                                             validationRules: 'required,confirmation',
-                                                            additionalClass: 'col',
+                                                            additionalClass: 'col-sm-6',
                                                         } %}
                                                     {% endblock %}
                                                 </div>
@@ -174,7 +173,7 @@
                                                         autocomplete: 'current-password',
                                                         violationPath: '/password',
                                                         validationRules: 'required',
-                                                        additionalClass: 'col-6',
+                                                        additionalClass: 'col-sm-6',
                                                     } %}
                                                 </div>
                                             {% endblock %}
@@ -211,7 +210,6 @@
                                               method="post"
                                               action="{{ path('frontend.account.profile.password.save') }}"
                                               data-form-handler="true">
-
                                             {% block page_account_profile_password_title %}
                                                 <div class="card-title">
                                                     {{ 'account.profilePasswordTitle'|trans|sw_sanitize }}
@@ -240,7 +238,7 @@
                                                             violationPath: '/newPassword',
                                                             validationRules: 'required,minLength',
                                                             minlength: config('core.loginRegistration.passwordMinLength'),
-                                                            additionalClass: 'col',
+                                                            additionalClass: 'col-sm-6',
                                                         } %}
                                                     {% endblock %}
 
@@ -253,7 +251,7 @@
                                                             autocomplete: 'new-password',
                                                             violationPath: '/passwordConfirmation',
                                                             validationRules: 'required,confirmation',
-                                                            additionalClass: 'col',
+                                                            additionalClass: 'col-sm-6',
                                                         } %}
                                                     {% endblock %}
                                                 </div>
@@ -271,7 +269,7 @@
                                                         autocomplete: 'current-password',
                                                         violationPath: '/password',
                                                         validationRules: 'required',
-                                                        additionalClass: 'col-6',
+                                                        additionalClass: 'col-sm-6',
                                                     } %}
                                                 </div>
                                             {% endblock %}

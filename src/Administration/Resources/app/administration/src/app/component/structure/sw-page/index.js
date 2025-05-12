@@ -1,7 +1,6 @@
 import template from './sw-page.html.twig';
 import './sw-page.scss';
 
-const { Component } = Shopware;
 const { dom } = Shopware.Utils;
 
 /**
@@ -42,7 +41,7 @@ const { dom } = Shopware.Utils;
  * </sw-page>
  */
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
-Component.register('sw-page', {
+export default {
     template,
 
     provide() {
@@ -174,6 +173,10 @@ Component.register('sw-page', {
                 'grid-row': rowNumber,
             };
         },
+
+        sidebars() {
+            return Shopware.Store.get('sidebar').sidebars;
+        },
     },
 
     created() {
@@ -251,5 +254,9 @@ Component.register('sw-page', {
                 this.previousRoute = this.$router.resolve({ path: this.previousPath }).name;
             }
         },
+
+        setActiveSidebar(locationId) {
+            Shopware.Store.get('sidebar').setActiveSidebar(locationId);
+        },
     },
-});
+};

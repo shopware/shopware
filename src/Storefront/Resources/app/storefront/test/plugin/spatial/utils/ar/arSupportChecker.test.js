@@ -121,7 +121,21 @@ describe('arSupportChecker', () => {
             expect(supported).toBe(false); // false due to navigator.xr mock to be false
         });
 
-        test('should return true/false is immersive session is supported or not', async() => {
+        test('should return false if xr api is not in navigator', async() => {
+            const restoreWindowIsSecureContext = window.isSecureContext;
+            window.isSecureContext = true;
+
+            navigator.xr = undefined;
+            let supported = await supportWebXR();
+            expect(supported).toBe(false);
+
+            window.isSecureContext = restoreWindowIsSecureContext;
+        });
+
+        test('should return true/false is immersive session is supported or not or throws', async() => {
+            const restoreWindowIsSecureContext = window.isSecureContext;
+            window.isSecureContext = true;
+
             navigator.xr = {
                 isSessionSupported: jest.fn().mockReturnValue(true)
             };
@@ -135,11 +149,23 @@ describe('arSupportChecker', () => {
 
             expect(navigator.xr.isSessionSupported).toHaveBeenCalledWith('immersive-ar');
             expect(supported).toBe(false);
+
+            const reason = 'reason';
+            navigator.xr.isSessionSupported = jest.fn().mockRejectedValue(new Error(reason));
+            supported = await supportWebXR();
+            expect(supported).toBe(false);
+
+            window.isSecureContext = restoreWindowIsSecureContext;
         });
+
+
     });
 
     describe('supportsAr', () => {
         test('should return true if webxr or iosquicklook is supported', async () => {
+            const restoreWindowIsSecureContext = window.isSecureContext;
+            window.isSecureContext = true;
+
             expect(await supportsAr()).toBe(false);
 
             supportsMock = jest.spyOn(anchor.relList, 'supports').mockReturnValue(true);
@@ -152,6 +178,8 @@ describe('arSupportChecker', () => {
             };
 
             expect(await supportsAr()).toBe(true);
+
+            window.isSecureContext = restoreWindowIsSecureContext;
         });
     });
 });

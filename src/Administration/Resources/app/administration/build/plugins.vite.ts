@@ -25,7 +25,7 @@ import AssetPlugin from './vite-plugins/asset-plugin';
 import AssetPathPlugin from './vite-plugins/asset-path-plugin';
 import ExternalsPlugin from './vite-plugins/externals-plugin';
 import OverrideComponentRegisterPlugin from './vite-plugins/override-component-register';
-import { loadExtensions, findAvailablePorts } from './vite-plugins/utils';
+import { loadExtensions, findAvailablePorts, isInsideDockerContainer, getContainerIP } from './vite-plugins/utils';
 import type { ExtensionDefinition } from './vite-plugins/utils';
 import injectHtml from './vite-plugins/inject-html';
 
@@ -34,6 +34,7 @@ const isDev = VITE_MODE === 'development';
 
 // This env variable is provided by the symfony recipes
 const hasAdminRootEnv = !!process.env.ADMIN_ROOT;
+const host = process.env.VITE_HOST || (isInsideDockerContainer() ? getContainerIP() : undefined) || 'localhost';
 
 const extensionEntries = loadExtensions();
 
@@ -61,9 +62,11 @@ const getBaseConfig = (extension: ExtensionDefinition, isProd = false) => {
 
         customLogger: logger,
 
+        cacheDir: path.resolve(extension.path, '..', '.tmp/vite'),
+
         plugins: [
             TwigPlugin(),
-            AssetPlugin(!isDev, __dirname),
+            AssetPlugin(!isDev, path.resolve(extension.basePath, 'Resources/app/administration')),
             AssetPathPlugin(extension.technicalFolderName),
             svgLoader(),
             OverrideComponentRegisterPlugin({
@@ -159,6 +162,8 @@ const getBaseConfig = (extension: ExtensionDefinition, isProd = false) => {
 
 // Main function to handle both dev and build modes
 const main = async () => {
+    let hasFailedBuilds = false;
+
     if (isDev) {
         const availablePorts = await findAvailablePorts(5333, extensionEntries.length);
 
@@ -184,13 +189,12 @@ const main = async () => {
             }
 
             if (extension.isApp) {
-                swPluginDevJsonData[extension.technicalName].html = `http://localhost:${availablePorts[index]}/index.html`;
+                swPluginDevJsonData[extension.technicalName].html = `http://${host}:${availablePorts[index]}/index.html`;
             }
 
             if (extension.isPlugin) {
-                swPluginDevJsonData[extension.technicalName].js = `http://localhost:${availablePorts[index]}/${fileName}`;
-                swPluginDevJsonData[extension.technicalName].hmrSrc =
-                    `http://localhost:${availablePorts[index]}/@vite/client`;
+                swPluginDevJsonData[extension.technicalName].js = `http://${host}:${availablePorts[index]}/${fileName}`;
+                swPluginDevJsonData[extension.technicalName].hmrSrc = `http://${host}:${availablePorts[index]}/@vite/client`;
             }
         });
 
@@ -211,18 +215,26 @@ const main = async () => {
                 // For apps
                 server = await createServer({
                     root: extension.path,
-                    server: { port },
+                    server: {
+                        port,
+                        host,
+                        cors: true,
+                    },
                 });
 
-                extensionInfoDebug(colors.green(`# App "${extension.name}": Injected successfully`));
+                console.log(colors.green(`# App "${extension.name}": Injected successfully`));
             } else {
                 // For plugins
                 server = await createServer({
                     ...getBaseConfig(extension),
-                    server: { port },
+                    server: {
+                        port,
+                        host,
+                        cors: true,
+                    },
                 });
 
-                extensionInfoDebug(colors.green(`# Plugin "${extension.name}": Injected successfully`));
+                console.log(colors.green(`# Plugin "${extension.name}": Injected successfully`));
             }
 
             await server.listen();
@@ -231,35 +243,49 @@ const main = async () => {
     } else {
         // Build mode
         for (const extension of extensionEntries) {
-            const extensionInfoDebug = debug(`vite:${extension.isPlugin ? 'plugin' : 'app'}:${extension.technicalName}`);
-
-            if (extension.isApp) {
-                extensionInfoDebug(colors.green(`# Building app "${extension.name}"`));
-                // For apps
-                await build({
-                    root: extension.path,
-                    base: '',
-                    build: {
-                        outDir: path.resolve(extension.basePath, 'Resources/public/meteor-app'),
-                    },
-                    plugins: [
-                        injectHtml([
-                            {
-                                tag: 'base',
-                                attrs: {
-                                    href: '__$ASSET_BASE_PATH$__',
+            try {
+                if (extension.isApp) {
+                    console.log(colors.green(`# Building app "${extension.name}"`));
+                    // For apps
+                    await build({
+                        root: extension.path,
+                        base: '',
+                        build: {
+                            outDir: path.resolve(extension.basePath, 'Resources/public/meteor-app'),
+                        },
+                        plugins: [
+                            injectHtml([
+                                {
+                                    tag: 'base',
+                                    attrs: {
+                                        href: '__$ASSET_BASE_PATH$__',
+                                    },
+                                    injectTo: 'head-prepend',
                                 },
-                                injectTo: 'head-prepend',
-                            },
-                        ]),
-                    ],
-                });
-            } else {
-                extensionInfoDebug(colors.green(`# Building plugin "${extension.name}"`));
-                // For plugins
-                await build(getBaseConfig(extension));
+                            ]),
+                        ],
+                    });
+                } else {
+                    console.log(colors.green(`# Building plugin "${extension.name}"`));
+                    // For plugins
+                    await build(getBaseConfig(extension));
+                }
+            } catch (error) {
+                hasFailedBuilds = true;
+                console.error(
+                    colors.red(
+                        // @ts-expect-error
+                        `# Failed to build ${extension.isPlugin ? 'plugin' : 'app'} "${extension.name}": ${error?.message}`,
+                    ),
+                );
             }
         }
+    }
+
+    // Exit with code 1 if any builds failed
+    if (hasFailedBuilds) {
+        console.error(colors.red('One or more builds failed. Check the logs above for details.'));
+        process.exit(1);
     }
 };
 

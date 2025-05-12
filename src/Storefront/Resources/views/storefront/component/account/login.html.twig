@@ -15,7 +15,6 @@
                       method="post"
                       data-form-handler="true"
                       data-form-validation="true">
-
                     {% block component_account_login_form_redirect %}
                         <input type="hidden"
                                name="redirectTo"
@@ -64,7 +63,7 @@
                                     autocomplete: 'username webauthn',
                                     error: loginError,
                                     validationRules: 'required,email',
-                                    additionalClass: 'col-md-6',
+                                    additionalClass: 'col-sm-6 col-lg-12',
                                 } %}
                             {% endblock %}
 
@@ -77,7 +76,7 @@
                                     autocomplete: 'current-password',
                                     error: loginError,
                                     validationRules: 'required',
-                                    additionalClass: 'col-md-6',
+                                    additionalClass: 'col-sm-6 col-lg-12',
                                 } %}
                             {% endblock %}
                         </div>

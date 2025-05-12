@@ -100,7 +100,7 @@ class ThemeScriptsTest extends TestCase
 
         $themeFileResolver = $this->createMock(ThemeFileResolver::class);
         $themeFileResolver
-            ->expects(static::once())
+            ->expects($this->once())
             ->method('resolveFiles')
             ->willReturn([
                 ThemeFileResolver::SCRIPT_FILES => new FileCollection([

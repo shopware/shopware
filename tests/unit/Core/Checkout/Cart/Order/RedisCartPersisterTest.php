@@ -12,6 +12,7 @@ use Shopware\Core\Checkout\Cart\CartSerializationCleaner;
 use Shopware\Core\Checkout\Cart\Exception\CartTokenNotFoundException;
 use Shopware\Core\Checkout\Cart\LineItem\LineItem;
 use Shopware\Core\Checkout\Cart\RedisCartPersister;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
@@ -23,6 +24,7 @@ use Symfony\Component\EventDispatcher\EventDispatcher;
  * @internal
  */
 #[CoversClass(RedisCartPersister::class)]
+#[Package('checkout')]
 class RedisCartPersisterTest extends TestCase
 {
     public function testDecorated(): void

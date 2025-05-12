@@ -30,15 +30,23 @@ class PagingListingProcessor extends AbstractListingProcessor
         $limit = $this->getLimit($criteria, $context);
 
         $page = $this->getPage($request);
+        if ($page !== null) {
+            $criteria->setOffset(($page - 1) * $limit);
+        }
+        if ($criteria->getOffset() === null || $criteria->getOffset() < 0) {
+            $criteria->setOffset(0);
+        }
 
-        $criteria->setOffset(($page - 1) * $limit);
         $criteria->setLimit($limit);
         $criteria->setTotalCountMode(Criteria::TOTAL_COUNT_MODE_EXACT);
     }
 
     public function process(Request $request, ProductListingResult $result, SalesChannelContext $context): void
     {
-        $result->setPage($this->getPage($request));
+        $page = $this->getPage($request);
+        if ($page !== null) {
+            $result->setPage($page);
+        }
 
         $limit = $result->getCriteria()->getLimit() ?? $this->getLimit($result->getCriteria(), $context);
         $result->setLimit($limit);
@@ -55,14 +63,14 @@ class PagingListingProcessor extends AbstractListingProcessor
         return $limit <= 0 ? 24 : $limit;
     }
 
-    private function getPage(Request $request): int
+    private function getPage(Request $request): ?int
     {
-        $page = $request->query->getInt('p', 1);
+        $page = $request->query->has('p') ? $request->query->getInt('p') : null;
 
         if ($request->isMethod(Request::METHOD_POST)) {
-            $page = $request->request->getInt('p', $page);
+            $page = $request->request->has('p') ? $request->request->getInt('p') : null;
         }
 
-        return $page <= 0 ? 1 : $page;
+        return $page;
     }
 }

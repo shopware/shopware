@@ -65,9 +65,10 @@ class PromotionDeliveryCalculator
             return $b->getPayloadValue('priority') <=> $a->getPayloadValue('priority');
         });
 
-        $notDiscountedDeliveriesValue = $toCalculate->getDeliveries()->getShippingCosts()->sum()->getTotalPrice();
+        $notDiscountedDeliveriesValue = $toCalculate->getDeliveries()->getShippingCosts()->getTotalPriceAmount();
 
         // reduce discount lineItems if fixed price discounts are in collection
+        $this->restorePriceDefinitions($discountLineItems);
         $checkedDiscountLineItems = $this->reduceDiscountLineItemsIfFixedPresent($discountLineItems);
 
         $exclusions = $this->buildExclusions($checkedDiscountLineItems, $toCalculate, $context);
@@ -116,6 +117,39 @@ class PromotionDeliveryCalculator
             } else {
                 $this->addPromotionDeletedNotice($original, $toCalculate, $discountItem);
             }
+        }
+    }
+
+    /**
+     * Any delivery discount will be replaced by a proper delivery and a fake line item ({@see addFakeLineitem}).
+     * To be able to recalculate a cart with copied discount line items,
+     * the original price definitions need to be restored.
+     */
+    private function restorePriceDefinitions(LineItemCollection $items): void
+    {
+        foreach ($items as $item) {
+            if (!$item->getPriceDefinition() instanceof QuantityPriceDefinition) {
+                continue;
+            }
+
+            if ($item->getPayloadValue('discountScope') !== PromotionDiscountEntity::SCOPE_DELIVERY) {
+                continue;
+            }
+
+            $type = $item->getPayloadValue('discountType');
+            $value = $item->getPayloadValue('value');
+
+            if (!$type || !$value) {
+                continue;
+            }
+
+            $definition = match ($type) {
+                PromotionDiscountEntity::TYPE_ABSOLUTE, PromotionDiscountEntity::TYPE_FIXED_UNIT => new AbsolutePriceDefinition((float) $value),
+                PromotionDiscountEntity::TYPE_PERCENTAGE => new PercentagePriceDefinition((float) $value),
+                default => $item->getPriceDefinition(),
+            };
+
+            $item->setPriceDefinition($definition);
         }
     }
 
@@ -211,8 +245,7 @@ class PromotionDeliveryCalculator
                 throw PromotionException::invalidPriceDefinition((string) $discountB->getLabel(), $discountB->getReferencedId());
             }
 
-            // NEXT-21735 - This is covered randomly
-            // @codeCoverageIgnoreStart
+            // @codeCoverageIgnoreStart - This is covered randomly
             if ($priceDefA->getPrice() === $priceDefB->getPrice()) {
                 return 0;
             }
@@ -312,7 +345,7 @@ class PromotionDeliveryCalculator
         $reduceValue = abs($definition->getPrice());
 
         // get shipping costs
-        $maxReducedPrice = $deliveries->getShippingCosts()->sum()->getTotalPrice();
+        $maxReducedPrice = $deliveries->getShippingCosts()->getTotalPriceAmount();
 
         // make sure that discount value is not higher than shipping costs, reduce them if necessary
         if ($reduceValue > $maxReducedPrice) {
@@ -368,7 +401,7 @@ class PromotionDeliveryCalculator
         $reduceValue = abs($definition->getPercentage());
 
         // we may only discount the available shipping costs (these may be reduced by another discount before)
-        $maxReducedPrice = $deliveries->getShippingCosts()->sum()->getTotalPrice();
+        $maxReducedPrice = $deliveries->getShippingCosts()->getTotalPriceAmount();
 
         if ($maxValue !== '') {
             $castedMaxValue = (float) $maxValue;
@@ -408,7 +441,7 @@ class PromotionDeliveryCalculator
         $fixedPrice = abs($definition->getPrice());
 
         // get shipping costs and set them as maximum value that may be discounted
-        $maxReducedPrice = $deliveries->getShippingCosts()->sum()->getTotalPrice();
+        $maxReducedPrice = $deliveries->getShippingCosts()->getTotalPriceAmount();
 
         if ($maxReducedPrice <= $fixedPrice) {
             return $deliveryAdded;

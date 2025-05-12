@@ -1,7 +1,6 @@
 import template from './sw-grid-row.html.twig';
 import './sw-grid-row.scss';
 
-const { Component } = Shopware;
 const utils = Shopware.Utils;
 
 /**
@@ -9,7 +8,7 @@ const utils = Shopware.Utils;
  *
  * @private
  */
-Component.register('sw-grid-row', {
+export default {
     template,
 
     inject: {
@@ -35,6 +34,10 @@ Component.register('sw-grid-row', {
         },
         swGridSetColumns: {
             from: 'swGridSetColumns',
+            default: null,
+        },
+        swGridColumns: {
+            from: 'swGridColumns',
             default: null,
         },
     },
@@ -65,7 +68,6 @@ Component.register('sw-grid-row', {
 
     data() {
         return {
-            columns: [],
             isEditingActive: false,
             inlineEditingCls: 'is--inline-editing',
             id: utils.createId(),
@@ -93,8 +95,6 @@ Component.register('sw-grid-row', {
 
     methods: {
         createdComponent() {
-            this.swGridSetColumns(this.columns);
-
             this.swRegisterGridDisableInlineEditListener(this.onInlineEditCancel);
         },
 
@@ -107,7 +107,7 @@ Component.register('sw-grid-row', {
 
             // If inline editing is already enabled, or no column has
             // the property "editable" we don't have to enable it.
-            this.columns.forEach((column) => {
+            this.swGridColumns.forEach((column) => {
                 if (column.editable || isInlineEditingConfigured) {
                     isInlineEditingConfigured = true;
                 }
@@ -140,4 +140,4 @@ Component.register('sw-grid-row', {
             this.onInlineEditStart();
         },
     },
-});
+};

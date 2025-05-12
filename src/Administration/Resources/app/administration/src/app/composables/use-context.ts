@@ -39,6 +39,7 @@ export interface ContextState {
             version: null | string;
             versionRevision: null | string;
             inAppPurchases: Record<string, string[]>;
+            shopId: null | string;
         };
         environment: null | 'development' | 'production' | 'testing';
         fallbackLocale: null | string;
@@ -48,6 +49,7 @@ export interface ContextState {
         firstRunWizard: null | boolean;
         systemCurrencyISOCode: null | string;
         systemCurrencyId: null | string;
+        windowId: null | string;
     };
     api: {
         apiPath: null | string;
@@ -80,6 +82,7 @@ const state: ContextState = reactive({
             version: null,
             versionRevision: null,
             inAppPurchases: {},
+            shopId: null,
         },
         environment: null,
         fallbackLocale: null,
@@ -87,6 +90,7 @@ const state: ContextState = reactive({
         firstRunWizard: null,
         systemCurrencyId: null,
         systemCurrencyISOCode: null,
+        windowId: null,
     },
     api: {
         apiPath: null,

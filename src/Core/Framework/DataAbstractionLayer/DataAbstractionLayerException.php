@@ -54,6 +54,7 @@ class DataAbstractionLayerException extends HttpException
     public const DECODE_HANDLED_BY_HYDRATOR = 'FRAMEWORK__DECODE_HANDLED_BY_HYDRATOR';
     public const ATTRIBUTE_NOT_FOUND = 'FRAMEWORK__ATTRIBUTE_NOT_FOUND';
     public const EXPECTED_ARRAY_WITH_TYPE = 'FRAMEWORK__EXPECTED_ARRAY_WITH_TYPE';
+    public const EXPECTED_FIELD_VALUE_TYPE_WITH_VALUE = 'FRAMEWORK__EXPECTED_FIELD_VALUE_TYPE_WITH_VALUE';
     public const INVALID_AGGREGATION_NAME = 'FRAMEWORK__INVALID_AGGREGATION_NAME';
     public const MISSING_FIELD_VALUE = 'FRAMEWORK__MISSING_FIELD_VALUE';
     public const NOT_CUSTOM_FIELDS_SUPPORT = 'FRAMEWORK__NOT_CUSTOM_FIELDS_SUPPORT';
@@ -415,6 +416,19 @@ class DataAbstractionLayerException extends HttpException
             self::EXPECTED_ARRAY_WITH_TYPE,
             \sprintf('Expected data at %s to be of the type array, %s given', $path, $type),
             ['path' => $path, 'type' => $type]
+        );
+    }
+
+    public static function expectedFieldValueOfTypeWithValue(
+        Field $field,
+        string $expectedType,
+        string $actualValue
+    ): self {
+        return new self(
+            Response::HTTP_BAD_REQUEST,
+            self::EXPECTED_FIELD_VALUE_TYPE_WITH_VALUE,
+            'Expected value of {{ fieldClass }} to be of type "{{ expectedType }}", got "{{ actualValue }}".',
+            ['fieldClass' => $field::class, 'expectedType' => $expectedType, 'actualValue' => $actualValue]
         );
     }
 

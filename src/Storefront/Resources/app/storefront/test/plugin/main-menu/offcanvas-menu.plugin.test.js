@@ -1,6 +1,8 @@
 import OffCanvasMenuPlugin from 'src/plugin/main-menu/offcanvas-menu.plugin';
 
-jest.mock('src/service/http-client.service', () => {
+describe('OffCanvasMenuPlugin tests', () => {
+    let plugin;
+
     const offCanvasMenuSubCategory = `
         <div class="navigation-offcanvas-container">
             <div class="navigation-offcanvas-content">
@@ -49,23 +51,19 @@ jest.mock('src/service/http-client.service', () => {
         </div>
     `;
 
-    return function () {
-        return {
-            get: (url, callback) => {
-                if (url.endsWith('navigationId=0188fd3e4ffb7079959622b2785167eb')) {
-                    return callback(offCanvasMenuSubCategory);
-                } else {
-                    return callback(offCanvasMenuInitialContent);
-                }
-            },
-        };
-    };
-});
-
-describe('OffCanvasMenuPlugin tests', () => {
-    let plugin;
-
     beforeEach(() => {
+        global.fetch = jest.fn((url) => {
+            if (url.endsWith('navigationId=0188fd3e4ffb7079959622b2785167eb')) {
+                return Promise.resolve({
+                    text: () => Promise.resolve(offCanvasMenuSubCategory),
+                });
+            } else {
+                return Promise.resolve({
+                    text: () => Promise.resolve(offCanvasMenuInitialContent),
+                });
+            }
+        });
+
         document.body.innerHTML = `
             <button class="btn nav-main-toggle-btn header-actions-btn" type="button" data-offcanvas-menu="true">
                 <span class="icon icon-stack"></span>
@@ -88,24 +86,21 @@ describe('OffCanvasMenuPlugin tests', () => {
             setFocus: jest.fn(),
         };
 
+        window.PluginManager.register = jest.fn();
+        window.PluginManager.initializePlugins = jest.fn(() => Promise.resolve());
+        window.history.replaceState = jest.fn(() => Promise.resolve());
+
         plugin = new OffCanvasMenuPlugin(el);
-
-        jest.useFakeTimers();
-    });
-
-    afterEach(() => {
-        jest.useRealTimers();
     });
 
     test('Creates plugin instance', () => {
         expect(typeof plugin).toBe('object');
     });
 
-    test('Open OffCanvas menu on click with initial content from DOM', () => {
+    test('Open OffCanvas menu on click with initial content from DOM', async () => {
         // Open OffCanvas menu
         plugin.el.dispatchEvent(new Event('click'));
-
-        jest.runAllTimers();
+        await new Promise(process.nextTick);
 
         const categoryLinks = document.querySelectorAll('.navigation-offcanvas .navigation-offcanvas-link');
 
@@ -114,19 +109,39 @@ describe('OffCanvasMenuPlugin tests', () => {
         expect(categoryLinks[1].textContent).toContain('Automotive');
     });
 
-    test('Fetch and render next category after click on category link', () => {
+    test('Fetch and render next category after click on category link', async () => {
         // Open OffCanvas menu
         plugin.el.dispatchEvent(new Event('click', { bubbles: true }));
+        await new Promise(process.nextTick);
 
         const link = document.querySelector('.js-navigation-offcanvas-link');
         plugin._getLinkEventHandler(new MouseEvent('click', { bubbles: true }), link);
+        await new Promise(process.nextTick);
 
-        jest.runAllTimers();
+        // jest.runAllTimers();
 
         const subCategoryLinks = document.querySelectorAll('.navigation-offcanvas .navigation-offcanvas-link');
 
         // Ensure sub-categories are rendered
         expect(subCategoryLinks[0].textContent).toContain('Cars');
         expect(subCategoryLinks[1].textContent).toContain('Smartphones');
+    });
+
+    test('Open the OffCanvas menu via URL parameter', async () => {
+        // Simulate URL parameter
+        window.history.pushState({}, '', '?offcanvas=menu');
+
+        // Open OffCanvas menu
+        plugin._openMenuViaUrlParameter();
+        await new Promise(process.nextTick);
+
+        const offCanvasMenuButton = document.querySelector('[data-offcanvas-menu="true"]');
+        offCanvasMenuButton.click();
+        await new Promise(process.nextTick);
+
+        // Ensure JS events are registered
+        expect(window.PluginManager.initializePlugins).toHaveBeenCalled();
+        // Ensure the parameter is removed from the URL
+        expect(window.history.replaceState).toHaveBeenCalled();
     });
 });

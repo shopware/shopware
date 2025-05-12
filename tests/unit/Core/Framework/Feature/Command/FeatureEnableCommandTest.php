@@ -67,7 +67,7 @@ class FeatureEnableCommandTest extends TestCase
         }
 
         $cacheClearer = $this->createMock(CacheClearer::class);
-        $cacheClearer->expects(static::once())->method('clear');
+        $cacheClearer->expects($this->once())->method('clear');
 
         $storage = new ArrayKeyValueStorage();
         $registry = new FeatureFlagRegistry($storage, new EventDispatcher(), [], true);

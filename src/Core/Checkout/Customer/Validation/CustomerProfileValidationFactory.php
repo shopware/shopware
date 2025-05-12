@@ -25,7 +25,6 @@ class CustomerProfileValidationFactory implements DataValidationFactoryInterface
      * @internal
      */
     public function __construct(
-        private readonly SalutationDefinition $salutationDefinition,
         private readonly SystemConfigService $systemConfigService,
         private readonly array $accountTypes
     ) {
@@ -52,7 +51,7 @@ class CustomerProfileValidationFactory implements DataValidationFactoryInterface
     private function addConstraints(DataValidationDefinition $definition, SalesChannelContext $context): void
     {
         $definition
-            ->add('salutationId', new EntityExists(['entity' => $this->salutationDefinition->getEntityName(), 'context' => $context->getContext()]))
+            ->add('salutationId', new EntityExists(['entity' => SalutationDefinition::ENTITY_NAME, 'context' => $context->getContext()]))
             ->add('title', new Length(['max' => CustomerDefinition::MAX_LENGTH_TITLE]))
             ->add('firstName', new NotBlank(), new Length(['max' => CustomerDefinition::MAX_LENGTH_FIRST_NAME]))
             ->add('lastName', new NotBlank(), new Length(['max' => CustomerDefinition::MAX_LENGTH_LAST_NAME]))

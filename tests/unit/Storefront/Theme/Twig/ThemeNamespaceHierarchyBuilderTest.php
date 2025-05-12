@@ -86,7 +86,7 @@ class ThemeNamespaceHierarchyBuilderTest extends TestCase
         ];
         $connectionMock = $this->createMock(Connection::class);
         if (\array_key_exists('context', $parameters)) {
-            $connectionMock->expects(static::exactly(1))->method('fetchAssociative')->willReturn($expectedDB);
+            $connectionMock->expects($this->exactly(1))->method('fetchAssociative')->willReturn($expectedDB);
         }
         $cachedThemeLoader = new DatabaseSalesChannelThemeLoader($connectionMock);
 

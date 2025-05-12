@@ -42,7 +42,7 @@ async function createWrapper() {
                     'router-link': true,
                     'sw-app-actions': true,
                     'sw-sales-channel-switch': true,
-
+                    'sw-context-menu-item': true,
                     'sw-form-field-renderer': true,
                     'sw-inherit-wrapper': true,
                     'sw-ai-copilot-badge': true,
@@ -169,15 +169,5 @@ describe('module/sw-settings-media/page/sw-settings-media', () => {
 
         await wrapper.vm.$nextTick();
         expect(wrapper.find('.sw-card-view').find('.sw-system-config').find('.mt-card').exists()).toBeTruthy();
-    });
-
-    it('should change the slider value', async () => {
-        const wrapper = await createWrapper();
-        await flushPromises();
-
-        await wrapper.vm.$nextTick();
-        wrapper.vm.onSliderChange(50);
-
-        expect(wrapper.vm.sliderValue).toBe(50);
     });
 });

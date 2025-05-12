@@ -77,7 +77,7 @@ describe('module/sw-settings-payment/component/sw-payment-card', () => {
         await wrapper.vm.$nextTick();
 
         const activeToggle = wrapper.findComponent('.mt-switch');
-        await activeToggle.vm.$emit('change', false);
+        await activeToggle.vm.$emit('update:modelValue', false);
 
         const expectedPaymentMethod = {
             id: '5e6f7g8h',

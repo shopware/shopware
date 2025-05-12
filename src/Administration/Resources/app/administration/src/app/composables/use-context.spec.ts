@@ -21,6 +21,7 @@ describe('use-context', () => {
                     version: null,
                     versionRevision: null,
                     inAppPurchases: {},
+                    shopId: null,
                 },
                 environment: null,
                 fallbackLocale: null,
@@ -28,6 +29,7 @@ describe('use-context', () => {
                 firstRunWizard: null,
                 systemCurrencyId: null,
                 systemCurrencyISOCode: null,
+                windowId: null,
             }),
         );
 

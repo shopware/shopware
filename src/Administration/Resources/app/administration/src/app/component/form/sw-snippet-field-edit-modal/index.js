@@ -1,8 +1,6 @@
 import Sanitizer from 'src/core/helper/sanitizer.helper';
 import template from './sw-snippet-field-edit-modal.html.twig';
 
-const { Component } = Shopware;
-
 /**
  * @sw-package framework
  *
@@ -20,7 +18,7 @@ const { Component } = Shopware;
  *     \@save="onSave">
  * </sw-snippet-field-edit-modal>
  */
-Component.register('sw-snippet-field-edit-modal', {
+export default {
     template,
 
     inject: [
@@ -176,4 +174,4 @@ Component.register('sw-snippet-field-edit-modal', {
             });
         },
     },
-});
+};

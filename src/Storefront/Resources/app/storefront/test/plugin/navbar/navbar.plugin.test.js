@@ -1,4 +1,5 @@
 import NavbarPlugin from 'src/plugin/navbar/navbar.plugin';
+import FocusHandler from 'src/helper/focus-handler.helper';
 
 describe('NavbarPlugin', () => {
     let navbarPlugin;
@@ -10,6 +11,7 @@ describe('NavbarPlugin', () => {
         mockElement = document.createElement('div');
         mockLink = document.createElement('a');
         mockLink.classList.add('main-navigation-link');
+        mockLink.href = '#';
         mockElement.appendChild(mockLink);
 
         // Spy on addEventListener method and window open method
@@ -38,6 +40,34 @@ describe('NavbarPlugin', () => {
 
         expect(navbarPlugin._topLevelLinks).not.toBeNull();
         expect(mockLink.addEventListener).toHaveBeenCalledTimes(3);
+    });
+
+    test('init should omit click event for elements without a reference', () => {
+        // Create a new instance of NavbarPlugin inside the test
+        navbarPlugin = new NavbarPlugin(mockElement, {}, false);
+        mockLink.removeAttribute('href');
+        navbarPlugin._topLevelLinks = [mockLink];
+
+        // Clear the mock history of addEventListener
+        mockLink.addEventListener.mockClear();
+
+        navbarPlugin.init();
+
+        const addedEvents = {};
+        mockLink.addEventListener.mock.calls.forEach(call => {
+            addedEvents[call[0]] = call[1];
+        });
+
+        expect(navbarPlugin._topLevelLinks).not.toBeNull();
+        expect(mockLink.addEventListener).toHaveBeenCalledTimes(2);
+
+        expect(addedEvents['mouseenter']).toBeDefined();
+        expect(typeof addedEvents['mouseenter']).toBe('function');
+
+        expect(addedEvents['mouseleave']).toBeDefined();
+        expect(typeof addedEvents['mouseleave']).toBe('function');
+
+        expect(addedEvents).not.toContain('click');
     });
 
     test('_toggleNavbar should handle mouseenter and mouseleave events', () => {
@@ -182,5 +212,47 @@ describe('NavbarPlugin', () => {
         navbarPlugin._setAriaCurrentPage();
 
         expect(mockLink.getAttribute('aria-current')).toBe('page');
+    });
+
+    test('_restoreFocusAfterBtnClose should focus related dropdown top level link', () => {
+        window.focusHandler = new FocusHandler();
+
+        const mockNavItem = document.createElement('div');
+        mockNavItem.classList.add('nav-item');
+        const mockLink = document.createElement('a');
+        mockLink.classList.add('main-navigation-link');
+        mockLink.focus = jest.fn();
+        mockNavItem.appendChild(mockLink);
+        const mockDropdown = document.createElement('div');
+        mockNavItem.appendChild(mockDropdown);
+
+        const mockEvent = {
+            target: mockDropdown,
+            relatedTarget: null,
+        };
+
+        navbarPlugin._restoreFocusAfterBtnClose(mockEvent);
+
+        expect(mockLink.focus).toHaveBeenCalled();
+    });
+
+    test('_restoreFocusAfterBtnClose should skip events dispatched for top level links', () => {
+        window.focusHandler = new FocusHandler();
+
+        const mockNavItem = document.createElement('div');
+        mockNavItem.classList.add('nav-item');
+        const mockLink = document.createElement('a');
+        mockLink.classList.add('main-navigation-link');
+        mockLink.focus = jest.fn();
+        mockNavItem.appendChild(mockLink);
+
+        const mockEvent = {
+            target: mockLink,
+            relatedTarget: null,
+        };
+
+        navbarPlugin._restoreFocusAfterBtnClose(mockEvent);
+
+        expect(mockLink.focus).not.toHaveBeenCalled();
     });
 });

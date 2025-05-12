@@ -15,14 +15,6 @@ All blocks of this template are available in the template which renders this tem
     <div class="letter-header">
         <div class="recipient-address-container" tabindex="0">
             {% block document_recipient %}
-                {% set address %}
-                    <span class="company-address-small">{{ addressParts|join(' - ') }}</span><br><br>
-                {% endset %}
-
-                {% if config.displayCompanyAddress and address is not empty %}
-                    {{ address }}
-                {% endif %}
-
                 {% sw_include '@Framework/snippets/render.html.twig' with {
                     format: billingAddress.country.translated.addressFormat,
                     address: billingAddress

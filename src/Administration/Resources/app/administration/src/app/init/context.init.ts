@@ -177,4 +177,16 @@ export default function initializeContext(): void {
             fallbackLocale: contextStore.app.fallbackLocale ?? '',
         });
     });
+
+    Shopware.ExtensionAPI.handle('windowGetId', () => {
+        if (!contextStore.app.windowId) {
+            contextStore.app.windowId = Shopware.Utils.createId();
+        }
+
+        return contextStore.app.windowId;
+    });
+
+    Shopware.ExtensionAPI.handle('contextShopId', () => {
+        return contextStore.app.config.shopId;
+    });
 }

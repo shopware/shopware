@@ -31,10 +31,10 @@ class PluginManagementServiceTest extends TestCase
         $client = $this->createClient([new Response()]);
 
         $pluginService = $this->createMock(PluginService::class);
-        $pluginService->expects(static::once())->method('refreshPlugins');
+        $pluginService->expects($this->once())->method('refreshPlugins');
 
         $extractor = $this->createMock(PluginExtractor::class);
-        $extractor->expects(static::once())
+        $extractor->expects($this->once())
             ->method('extract');
 
         $pluginManagementService = new PluginManagementService(
@@ -60,18 +60,18 @@ class PluginManagementServiceTest extends TestCase
         $pluginService = $this->createMock(PluginService::class);
 
         $pluginZipDetector = $this->createMock(PluginZipDetector::class);
-        $pluginZipDetector->expects(static::once())
+        $pluginZipDetector->expects($this->once())
             ->method('detect')
             ->with('/some/zip/file.zip')
             ->willReturn(PluginManagementService::PLUGIN);
 
         $extractor = $this->createMock(PluginExtractor::class);
-        $extractor->expects(static::once())
+        $extractor->expects($this->once())
             ->method('extract')
             ->with('/some/zip/file.zip');
 
         $cacheClearer = $this->createMock(CacheClearer::class);
-        $cacheClearer->expects(static::once())
+        $cacheClearer->expects($this->once())
             ->method('clearContainerCache');
 
         $pluginManagementService = new PluginManagementService(
@@ -96,13 +96,13 @@ class PluginManagementServiceTest extends TestCase
         $pluginService = $this->createMock(PluginService::class);
 
         $pluginZipDetector = $this->createMock(PluginZipDetector::class);
-        $pluginZipDetector->expects(static::once())
+        $pluginZipDetector->expects($this->once())
             ->method('detect')
             ->with('/some/zip/file.zip')
             ->willReturn(PluginManagementService::APP);
 
         $extractor = $this->createMock(PluginExtractor::class);
-        $extractor->expects(static::once())
+        $extractor->expects($this->once())
             ->method('extract')
             ->with('/some/zip/file.zip');
 
@@ -126,7 +126,7 @@ class PluginManagementServiceTest extends TestCase
         $client = $this->createClient([new Response()]);
 
         $pluginService = $this->createMock(PluginService::class);
-        $pluginService->expects(static::never())
+        $pluginService->expects($this->never())
             ->method('refreshPlugins');
 
         $pluginManagementService = new PluginManagementService(

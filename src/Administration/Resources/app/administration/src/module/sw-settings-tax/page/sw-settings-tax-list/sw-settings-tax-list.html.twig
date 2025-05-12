@@ -246,7 +246,8 @@
                                 :disabled="isLoading"
                                 :is-loading="isLoading"
                                 :process-success="false"
-                                variant="ghost"
+                                variant="primary"
+                                ghost
                                 @click="showSortingModal = true"
                             >
                                 {{ $tc('sw-settings-tax.list.taxProvider.changePriorityButton') }}
@@ -290,8 +291,8 @@
                                     <mt-switch
                                         :label="$tc('sw-settings-tax.list.taxProvider.labelActive')"
                                         :disabled="!acl.can('tax.editor') || undefined"
-                                        :checked="taxProvider.active"
-                                        @change="onChangeTaxProviderActive(taxProvider)"
+                                        :model-value="taxProvider.active"
+                                        @update:model-value="onChangeTaxProviderActive(taxProvider)"
                                     />
                                 </div>
                             </template>

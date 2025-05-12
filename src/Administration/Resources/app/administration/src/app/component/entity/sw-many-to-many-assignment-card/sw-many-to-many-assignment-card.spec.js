@@ -38,6 +38,7 @@ async function createWrapper(customPropsData = {}) {
                     'sw-select-result': true,
                     'sw-select-result-list': true,
                     'sw-pagination': true,
+                    'sw-product-variant-info': true,
                 },
                 provide: {
                     repositoryFactory: {},

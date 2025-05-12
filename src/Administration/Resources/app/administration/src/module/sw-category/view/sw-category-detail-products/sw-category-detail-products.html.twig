@@ -4,6 +4,7 @@
     {% block sw_category_detail_product_assignment %}
     <sw-many-to-many-assignment-card
         v-if="category.type !== 'folder'"
+        display-variants
         :title="$tc('sw-category.base.products.productAssignmentHeadline')"
         :entity-collection="category.products"
         :columns="productColumns"
@@ -98,7 +99,7 @@
                 :to="{ name: column.routerLink, params: { id: item.id } }"
             >
                 <sw-product-variant-info :variations="item.variation">
-                    {{ item.name || item.translated.name }}
+                    {{ getItemName(item) }}
                 </sw-product-variant-info>
             </router-link>
         </template>
@@ -125,7 +126,7 @@
             >
                 <template #icon>
                     <img
-                        :src="assetFilter('/administration/static/img/empty-states/products-empty-state.svg')"
+                        :src="assetFilter('/administration/administration/static/img/empty-states/products-empty-state.svg')"
                         :alt="$tc('sw-category.base.products.productAssignmentEmptyStateDescription')"
                     >
                 </template>

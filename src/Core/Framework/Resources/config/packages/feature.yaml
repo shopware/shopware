@@ -31,12 +31,13 @@ shopware:
         major: false
         toggleable: true
         description: "Experimental! Enable OpenTelemetry metrics"
-      - name: ENABLE_METEOR_COMPONENTS
-        default: false
-        major: false
-        toggleable: false
       - name: FLOW_EXECUTION_AFTER_BUSINESS_PROCESS
         default: false
         major: false
         toggleable: true
         description: "Experimental! Execute flows after the main unit of work has concluded"
+      - name: PERFORMANCE_TWEAKS
+        default: false
+        major: false
+        toggleable: true
+        description: "Experimental! Contains Performance Tweaks for future changes"

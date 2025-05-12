@@ -135,6 +135,27 @@ class SystemInstallCommandTest extends TestCase
         static::assertSame(0, $result);
     }
 
+    public function testSkipFirstRunWizardOption(): void
+    {
+        $command = $this->prepareCommandInstance([
+            'database:migrate',
+            'database:migrate-destructive',
+            'system:configure-shop',
+            'dal:refresh:index',
+            'scheduled-task:register',
+            'plugin:refresh',
+            'theme:refresh',
+            'theme:compile',
+            'assets:install',
+            'system:config:set',
+            'cache:clear',
+        ]);
+
+        $result = $command->run(new ArrayInput(['--skip-first-run-wizard' => true]), new BufferedOutput());
+
+        static::assertSame(0, $result);
+    }
+
     /**
      * Test that sub commands of the system:install fire the correct lifecycle events, instead of testing
      * them all, we just test one: database:migrate. If it works for one it most likely works for all.

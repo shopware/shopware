@@ -378,7 +378,6 @@ return (new Config())
             $composerContent = json_decode($composerFile->getContent(), true);
             $requirements = array_merge(
                 $composerContent['require'] ?? [],
-                $composerContent['require-dev'] ?? []
             );
 
             foreach ($requirements as $package => $constraint) {

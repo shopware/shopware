@@ -177,7 +177,7 @@ class WishlistController extends StorefrontController
             $this->addFlash(self::DANGER, $this->trans('error.message-default'));
         }
 
-        return $this->redirectToRoute('frontend.home.page');
+        return $this->redirectToRoute('frontend.wishlist.page');
     }
 
     #[Route(path: '/wishlist/merge', name: 'frontend.wishlist.product.merge', options: ['seo' => false], defaults: ['XmlHttpRequest' => true, '_loginRequired' => true], methods: ['POST'])]

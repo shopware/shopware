@@ -103,6 +103,7 @@ async function createWrapper() {
                 'sw-extension-component-section': true,
                 'router-link': true,
                 'sw-loader': true,
+                'sw-number-field-deprecated': true,
             },
             mocks: {
                 $tc: (key, value) => {

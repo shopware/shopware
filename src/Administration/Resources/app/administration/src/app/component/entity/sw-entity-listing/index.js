@@ -4,13 +4,12 @@
 
 import template from './sw-entity-listing.html.twig';
 
-const { Component } = Shopware;
 const { Criteria } = Shopware.Data;
 
 /**
  * @private
  */
-Component.extend('sw-entity-listing', 'sw-data-grid', {
+export default {
     template,
 
     inject: ['feature'],
@@ -348,4 +347,4 @@ Component.extend('sw-entity-listing', 'sw-data-grid', {
             this.$emit('bulk-edit-modal-close');
         },
     },
-});
+};

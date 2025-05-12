@@ -36,6 +36,7 @@ use Shopware\Core\Test\TestDefaults;
 use Symfony\Bundle\FrameworkBundle\KernelBrowser;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\PasswordHasher\PasswordHasherInterface;
 
 /**
  * @internal
@@ -1338,6 +1339,32 @@ class RegisterRouteTest extends TestCase
         static::assertSame(200, $this->browser->getResponse()->getStatusCode());
 
         static::assertSame('teg-reg@xn--exmple-cua.com', $fetchMail);
+    }
+
+    public function testRegisterWithTooLongPassword(): void
+    {
+        $registrationData = $this->getRegistrationData();
+        $registrationData['password'] = \str_repeat('a', PasswordHasherInterface::MAX_PASSWORD_LENGTH + 1);
+        $this->browser
+            ->request(
+                'POST',
+                '/store-api/account/register',
+                [],
+                [],
+                ['CONTENT_TYPE' => 'application/json'],
+                json_encode($registrationData, \JSON_THROW_ON_ERROR)
+            );
+
+        $response = json_decode((string) $this->browser->getResponse()->getContent(), true, 512, \JSON_THROW_ON_ERROR);
+
+        static::assertSame(400, $this->browser->getResponse()->getStatusCode());
+        static::assertArrayHasKey('errors', $response);
+
+        $error = $response['errors'][0];
+
+        static::assertSame('VIOLATION::TOO_LONG_ERROR', $error['code']);
+        static::assertSame('/password', $error['source']['pointer']);
+        static::assertSame(':PASSWORD_IS_TOO_LONG', $error['detail']);
     }
 
     /**

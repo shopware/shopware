@@ -26,11 +26,14 @@ use Shopware\Core\Framework\Validation\WriteConstraintViolationException;
 use Shopware\Core\System\SalesChannel\Context\CartRestorer;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
+use Symfony\Component\PasswordHasher\Hasher\CheckPasswordLengthTrait;
 use Symfony\Component\Validator\ConstraintViolation;
 
 #[Package('checkout')]
 class AccountService
 {
+    use CheckPasswordLengthTrait;
+
     /**
      * @internal
      *
@@ -112,6 +115,10 @@ class AccountService
      */
     public function getCustomerByLogin(string $email, string $password, SalesChannelContext $context): CustomerEntity
     {
+        if ($this->isPasswordTooLong($password)) {
+            throw CustomerException::badCredentials();
+        }
+
         $customer = $this->getCustomerByEmail($email, $context);
 
         if ($customer->hasLegacyPassword()) {

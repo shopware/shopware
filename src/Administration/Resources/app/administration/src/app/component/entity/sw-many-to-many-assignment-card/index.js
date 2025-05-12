@@ -1,7 +1,6 @@
 import template from './sw-many-to-many-assignment-card.html.twig';
 import './sw-many-to-many-assignment-card.scss';
 
-const { Component } = Shopware;
 const { debounce, get } = Shopware.Utils;
 const { Criteria, EntityCollection } = Shopware.Data;
 
@@ -19,7 +18,7 @@ const { Criteria, EntityCollection } = Shopware.Data;
  *     :searchableFields="['entity.fieldName', 'entity.otherFieldName']">
  * </sw-many-to-many-assignment-card>
  */
-Component.register('sw-many-to-many-assignment-card', {
+export default {
     template,
 
     inheritAttrs: false,
@@ -100,6 +99,12 @@ Component.register('sw-many-to-many-assignment-card', {
         },
 
         disabled: {
+            type: Boolean,
+            required: false,
+            default: false,
+        },
+
+        displayVariants: {
             type: Boolean,
             required: false,
             default: false,
@@ -256,23 +261,28 @@ Component.register('sw-many-to-many-assignment-card', {
             });
         },
 
-        searchItems() {
-            return this.searchRepository.search(this.searchCriteria, this.context).then((result) => {
-                if (!this.localMode) {
-                    const criteria = new Criteria(1, this.searchCriteria.limit);
-                    criteria.setIds(result.getIds());
+        async searchItems() {
+            return this.searchRepository
+                .search(this.searchCriteria, {
+                    ...this.context,
+                    inheritance: this.displayVariants,
+                })
+                .then((result) => {
+                    if (!this.localMode) {
+                        const criteria = new Criteria(1, this.searchCriteria.limit);
+                        criteria.setIds(result.getIds());
 
-                    this.assignmentRepository.searchIds(criteria, this.context).then(({ data }) => {
-                        data.forEach((id) => {
-                            if (!this.isSelected({ id })) {
-                                this.selectedIds.push(id);
-                            }
+                        this.assignmentRepository.searchIds(criteria, this.context).then(({ data }) => {
+                            data.forEach((id) => {
+                                if (!this.isSelected({ id })) {
+                                    this.selectedIds.push(id);
+                                }
+                            });
                         });
-                    });
-                }
+                    }
 
-                return result;
-            });
+                    return result;
+                });
         },
 
         onItemSelect(item) {
@@ -395,4 +405,4 @@ Component.register('sw-many-to-many-assignment-card', {
             });
         },
     },
-});
+};

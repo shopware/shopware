@@ -9,6 +9,7 @@ async function createWrapper(additionalOptions = {}) {
         global: {
             stubs: {
                 'mt-checkbox': true,
+                'sw-checkbox-field-deprecated': true,
             },
         },
         props: {},

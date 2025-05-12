@@ -7,10 +7,6 @@ import './product-export-templates';
 import './service/domain-link.service';
 import './service/sales-channel-favorites.service';
 import './component/structure/sw-admin-menu-extension';
-import './component/structure/sw-sales-channel-menu';
-import './component/sw-sales-channel-products-assignment-single-products';
-import './component/sw-sales-channel-product-assignment-categories';
-import './component/sw-sales-channel-products-assignment-dynamic-product-groups';
 import './acl';
 
 import defaultSearchConfiguration from './default-search-configuration';
@@ -57,6 +53,19 @@ Shopware.Component.register(
     'sw-sales-channel-products-assignment-modal',
     () => import('./component/sw-sales-channel-products-assignment-modal'),
 );
+Shopware.Component.register(
+    'sw-sales-channel-products-assignment-single-products',
+    () => import('./component/sw-sales-channel-products-assignment-single-products'),
+);
+Shopware.Component.register(
+    'sw-sales-channel-products-assignment-dynamic-product-groups',
+    () => import('./component/sw-sales-channel-products-assignment-dynamic-product-groups'),
+);
+Shopware.Component.register(
+    'sw-sales-channel-product-assignment-categories',
+    () => import('./component/sw-sales-channel-product-assignment-categories'),
+);
+Shopware.Component.register('sw-sales-channel-menu', () => import('./component/structure/sw-sales-channel-menu'));
 /* eslint-enable max-len, sw-deprecation-rules/private-feature-declarations */
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations

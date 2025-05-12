@@ -8,7 +8,7 @@ const { Component } = Shopware;
  *
  * @private
  */
-Component.register('sw-admin', {
+export default Shopware.Component.wrapComponentConfig({
     template,
 
     inject: [

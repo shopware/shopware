@@ -1,3 +1,5 @@
+import type { AxiosInstance } from 'axios';
+import type { LoginService } from '../login.service';
 import ApiService from '../api.service';
 
 /**
@@ -6,14 +8,17 @@ import ApiService from '../api.service';
  * @extends ApiService
  * @sw-package fundamentals@framework
  */
-class UserRecoveryApiService extends ApiService {
-    constructor(httpClient, loginService, apiEndpoint = 'user') {
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
+export default class UserRecoveryApiService extends ApiService {
+    context: unknown;
+
+    constructor(httpClient: AxiosInstance, loginService: LoginService, apiEndpoint = 'user') {
         super(httpClient, loginService, apiEndpoint);
         this.name = 'userRecoveryService';
         this.context = Shopware.Context;
     }
 
-    createRecovery(email) {
+    createRecovery(email: string) {
         const apiRoute = `/_action/${this.getApiBasePath()}/user-recovery`;
 
         return this.httpClient
@@ -32,7 +37,7 @@ class UserRecoveryApiService extends ApiService {
             });
     }
 
-    checkHash(hash) {
+    checkHash(hash: string) {
         const apiRoute = `/_action/${this.getApiBasePath()}/user-recovery/hash`;
 
         return this.httpClient
@@ -45,7 +50,7 @@ class UserRecoveryApiService extends ApiService {
             });
     }
 
-    updateUserPassword(hash, password, passwordConfirm) {
+    updateUserPassword(hash: string, password: string, passwordConfirm: string) {
         const apiRoute = `/_action/${this.getApiBasePath()}/user-recovery/password`;
 
         return this.httpClient
@@ -66,6 +71,3 @@ class UserRecoveryApiService extends ApiService {
             });
     }
 }
-
-// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
-export default UserRecoveryApiService;

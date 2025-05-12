@@ -19,7 +19,7 @@ const { Criteria, EntityCollection } = Shopware.Data;
  * @status ready
  * @description Custom link button for the Meteor text editor.
  */
-Shopware.Component.register('sw-text-editor-toolbar-button-link', {
+export default Shopware.Component.wrapComponentConfig({
     template,
 
     inject: [

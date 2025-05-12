@@ -8,7 +8,7 @@ const { Component, Mixin } = Shopware;
  * @private
  * @sw-package discovery
  */
-Component.register('sw-cms-el-config-location-renderer', {
+export default Component.wrapComponentConfig({
     template,
 
     mixins: [

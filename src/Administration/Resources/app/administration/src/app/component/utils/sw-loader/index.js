@@ -1,7 +1,5 @@
 import template from './sw-loader.html.twig';
 
-const { Component } = Shopware;
-
 /**
  * @sw-package framework
  *
@@ -9,7 +7,7 @@ const { Component } = Shopware;
  * @status ready
  * @description Wrapper component for sw-loader and mt-loader. Autoswitches between the two components.
  */
-Component.register('sw-loader', {
+export default {
     template,
 
     props: {
@@ -51,4 +49,4 @@ Component.register('sw-loader', {
             return this.$slots;
         },
     },
-});
+};

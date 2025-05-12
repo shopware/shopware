@@ -11,7 +11,7 @@ const { Component } = Shopware;
  * @private
  * @sw-package framework
  */
-Component.register('sw-login', {
+export default Component.wrapComponentConfig({
     template,
 
     props: {
@@ -57,7 +57,7 @@ Component.register('sw-login', {
     },
 
     methods: {
-        setLoading(val) {
+        setLoading(val: boolean) {
             this.isLoading = val;
         },
 

@@ -225,8 +225,7 @@ jobs:
       matrix:
         update:
           - version: ${{ needs.tested-update-versions.outputs.lts-latest-version }}
-          # fix with #9031
-          # - version: ${{ needs.tested-update-versions.outputs.first-version }}
+          - version: ${{ needs.tested-update-versions.outputs.first-version }}
           - version: ${{ needs.tested-update-versions.outputs.latest-version }}
     env:
       SHOPWARE_HTTP_CACHE_ENABLED: 0

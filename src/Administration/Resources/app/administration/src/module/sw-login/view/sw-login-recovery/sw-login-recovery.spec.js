@@ -14,7 +14,7 @@ async function createWrapper() {
     delete config.global.mocks.$router;
     delete config.global.$route;
 
-    return mount(await Shopware.Component.build('sw-login-recovery'), {
+    return mount(await wrapTestComponent('sw-login-recovery', { sync: true }), {
         global: {
             mocks: {
                 $tc: (...args) => JSON.stringify([...args]),

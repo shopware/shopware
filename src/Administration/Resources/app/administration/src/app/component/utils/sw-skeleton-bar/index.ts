@@ -1,7 +1,5 @@
 import template from './sw-skeleton-bar.html.twig';
 
-const { Component } = Shopware;
-
 /**
  * @sw-package framework
  *
@@ -9,7 +7,7 @@ const { Component } = Shopware;
  * @status ready
  * @description Wrapper component for sw-skeleton-bar and mt-skeleton-bar. Autoswitches between the two components.
  */
-Component.register('sw-skeleton-bar', {
+export default Shopware.Component.wrapComponentConfig({
     template,
 
     computed: {

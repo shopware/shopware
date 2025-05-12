@@ -12,7 +12,7 @@ import type { TabItemEntry } from '../../../store/tabs.store';
  * @description Wrapper component for mt-tabs. Adds the component sections
  *  to the slots. Need to be matched with the original mt-tabs component.
  */
-Shopware.Component.register('mt-tabs', {
+export default Shopware.Component.wrapComponentConfig({
     template,
 
     components: {

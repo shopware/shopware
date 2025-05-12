@@ -5,14 +5,13 @@
 import template from './sw-property-search.html.twig';
 import './sw-property-search.scss';
 
-const { Component } = Shopware;
 const { Criteria } = Shopware.Data;
 const utils = Shopware.Utils;
 
 /**
  * @private
  */
-Component.register('sw-property-search', {
+export default {
     template,
 
     inject: ['repositoryFactory'],
@@ -312,4 +311,4 @@ Component.register('sw-property-search', {
             });
         },
     },
-});
+};

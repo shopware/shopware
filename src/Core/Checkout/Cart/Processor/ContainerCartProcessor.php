@@ -116,7 +116,7 @@ class ContainerCartProcessor implements CartProcessorInterface
             }
         }
 
-        $total = $item->getChildren()->getPrices()->sum()->getTotalPrice();
+        $total = $item->getChildren()->getPrices()->getTotalPriceAmount();
 
         if (FloatComparator::lessThan($total, 0)) {
             return false;

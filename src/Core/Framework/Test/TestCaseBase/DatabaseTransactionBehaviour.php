@@ -37,7 +37,7 @@ trait DatabaseTransactionBehaviour
         $connection = static::getContainer()
             ->get(Connection::class);
 
-        self::assertEquals(
+        self::assertSame(
             1,
             $connection->getTransactionNestingLevel(),
             'Too many Nesting Levels.

@@ -1,7 +1,7 @@
 import { inject } from 'vue';
 import template from './sw-text-field-deprecated.html.twig';
 
-const { Component, Mixin } = Shopware;
+const { Mixin } = Shopware;
 
 /**
  * @sw-package framework
@@ -14,7 +14,7 @@ const { Component, Mixin } = Shopware;
  * <sw-text-field label="Name" placeholder="placeholder goes here..."></sw-text-field>
  * @deprecated tag:v6.8.0 - Will be removed, use mt-text-field instead
  */
-Component.register('sw-text-field-deprecated', {
+export default {
     template,
 
     inheritAttrs: false,
@@ -133,4 +133,4 @@ Component.register('sw-text-field-deprecated', {
             return `${identification}-${this.idSuffix}`;
         },
     },
-});
+};

@@ -164,7 +164,7 @@ class FlexMigratorTest extends TestCase
 
         $composerJson = json_decode((string) file_get_contents($tmpDir . '/composer.json'), true);
 
-        static::assertEquals(
+        static::assertSame(
             [
                 'require' => [
                     'symfony/flex' => '^2',

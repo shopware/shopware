@@ -1,7 +1,6 @@
 import template from './sw-grid-row.html.twig';
 import './sw-grid-row.scss';
 
-const { Component } = Shopware;
 const utils = Shopware.Utils;
 
 /**
@@ -9,7 +8,7 @@ const utils = Shopware.Utils;
  *
  * @private
  */
-Component.register('sw-grid-row', {
+export default {
     template,
 
     inject: {
@@ -141,4 +140,4 @@ Component.register('sw-grid-row', {
             this.onInlineEditStart();
         },
     },
-});
+};

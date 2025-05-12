@@ -1,7 +1,7 @@
 import template from './sw-select-field-deprecated.html.twig';
 import './sw-select-field.scss';
 
-const { Component, Mixin } = Shopware;
+const { Mixin } = Shopware;
 
 /**
  * @sw-package framework
@@ -19,7 +19,7 @@ const { Component, Mixin } = Shopware;
  *     <option value="value5">Label #5</option>
  * </sw-select-field-deprecated>
  */
-Component.register('sw-select-field-deprecated', {
+export default {
     template,
 
     inheritAttrs: false,
@@ -117,4 +117,4 @@ Component.register('sw-select-field-deprecated', {
             this.$emit('update:value', this.currentValue);
         },
     },
-});
+};

@@ -4,12 +4,12 @@
 
 import template from './sw-verify-user-modal.html.twig';
 
-const { Component, Mixin } = Shopware;
+const { Mixin } = Shopware;
 
 /**
  * @private
  */
-Component.register('sw-verify-user-modal', {
+export default {
     template,
 
     inject: [
@@ -75,4 +75,4 @@ Component.register('sw-verify-user-modal', {
             this.$emit('close');
         },
     },
-});
+};

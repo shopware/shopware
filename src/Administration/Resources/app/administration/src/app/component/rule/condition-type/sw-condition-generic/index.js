@@ -1,7 +1,7 @@
 import template from './sw-condition-generic.html.twig';
 import './sw-condition-generic.scss';
 
-const { Component, Mixin } = Shopware;
+const { Mixin } = Shopware;
 const { getPlaceholderSnippet } = Shopware.Utils.genericRuleCondition;
 
 /**
@@ -13,7 +13,8 @@ const { getPlaceholderSnippet } = Shopware.Utils.genericRuleCondition;
  * @component-example
  * <sw-condition-generic :condition="condition" :level="0"></sw-condition-generic>
  */
-Component.extend('sw-condition-generic', 'sw-condition-base', {
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
+export default {
     template,
     inheritAttrs: false,
 
@@ -32,4 +33,4 @@ Component.extend('sw-condition-generic', 'sw-condition-base', {
             return this.$tc(getPlaceholderSnippet(fieldType));
         },
     },
-});
+};

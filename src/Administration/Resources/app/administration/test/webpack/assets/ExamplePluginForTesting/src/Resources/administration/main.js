@@ -2,4 +2,4 @@
  * @sw-package framework
  */
 
-import './src/app/component/dummy-component';
+Shopware.Component.register('dummy-component', () => import('./src/app/component/dummy-component'));

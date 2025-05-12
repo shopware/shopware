@@ -1,6 +1,9 @@
-import './component';
-import './config';
-import './preview';
+/** @private */
+Shopware.Component.register('sw-cms-el-preview-location-renderer', () => import('./preview/index'));
+/** @private */
+Shopware.Component.register('sw-cms-el-config-location-renderer', () => import('./config'));
+/** @private */
+Shopware.Component.register('sw-cms-el-location-renderer', () => import('./component'));
 
 /**
  * @private

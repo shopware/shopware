@@ -1,8 +1,6 @@
 import template from './sw-product-variant-info.html.twig';
 import './sw-product-variant-info.scss';
 
-const { Component } = Shopware;
-
 /**
  * @sw-package framework
  *
@@ -13,7 +11,7 @@ const { Component } = Shopware;
  * @component-example
  * <sw-product-variant-info :variations="variations"></sw-product-variant-info>
  */
-Component.register('sw-product-variant-info', {
+export default {
     template,
 
     inject: ['feature'],
@@ -112,4 +110,4 @@ Component.register('sw-product-variant-info', {
             }
         },
     },
-});
+};

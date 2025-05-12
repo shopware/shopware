@@ -195,7 +195,7 @@ export function loadExtensions(): ExtensionDefinition[] {
                     isPlugin: true,
                     isApp: false,
                     technicalName: technicalName,
-                    technicalFolderName: technicalName.replace(/(-)/g, '').toLowerCase(),
+                    technicalFolderName: name.replace(/(-)/g, '').toLowerCase(),
                     basePath: path.resolve(process.env.PROJECT_ROOT as string, definition.basePath),
                     path: path.resolve(
                         process.env.PROJECT_ROOT as string,
@@ -250,13 +250,12 @@ export async function findAvailablePorts(startPort = 5173, requiredPorts = 1): P
  * This function returns the IP address of the container
  * if the application is running in a Docker container.
  */
-export const getContainerIP = (): string|undefined => {
+export const getContainerIP = (): string | undefined => {
     const interfaces = os.networkInterfaces();
 
     return Object.values(interfaces)
-        .flatMap(ifaces => ifaces || [])
-        .find(iface => !iface.internal && iface.family === 'IPv4')
-        ?.address;
+        .flatMap((ifaces) => ifaces || [])
+        .find((iface) => !iface.internal && iface.family === 'IPv4')?.address;
 };
 
 /**
@@ -266,4 +265,4 @@ export const getContainerIP = (): string|undefined => {
 export const isInsideDockerContainer = (): boolean => {
     // Resolve root path
     return fs.existsSync('/.dockerenv');
-}
+};

@@ -1,15 +1,15 @@
 import template from './sw-number-field.html.twig';
 
-const { Component } = Shopware;
-
 /**
  * @sw-package framework
  *
  * @private
  * @status ready
  * @description Wrapper component for sw-number-field and mt-number-field. Autoswitches between the two components.
+ *
+ * @deprecated tag:v6.8.0 - Will be removed, use mt-number-field instead.
  */
-Component.register('sw-number-field', {
+export default Shopware.Component.wrapComponentConfig({
     template,
 
     props: {
@@ -26,6 +26,12 @@ Component.register('sw-number-field', {
             type: Number,
             required: false,
             default: undefined,
+        },
+
+        deprecated: {
+            type: Boolean,
+            required: false,
+            default: false,
         },
     },
 

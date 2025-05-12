@@ -71,9 +71,9 @@ async function createWrapper(privileges = []) {
                   </div>
                 `,
                 },
-                'sw-empty-state': await Shopware.Component.build('sw-empty-state'),
+                'sw-empty-state': await wrapTestComponent('sw-empty-state'),
                 'sw-context-menu-item': true,
-                'sw-loader': await Shopware.Component.build('sw-loader'),
+                'sw-loader': await wrapTestComponent('sw-loader'),
                 'sw-modal': true,
                 'sw-skeleton': true,
                 'sw-product-variants-overview': true,

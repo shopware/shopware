@@ -1,15 +1,15 @@
 import template from './sw-button.html.twig';
 
-const { Component } = Shopware;
-
 /**
  * @sw-package framework
  *
  * @private
  * @status ready
  * @description Wrapper component for sw-button and mt-button. Autoswitches between the two components.
+ *
+ * @deprecated tag:v6.8.0 - Will be removed, use mt-button instead
  */
-Component.register('sw-button', {
+export default {
     template,
 
     props: {
@@ -20,6 +20,12 @@ Component.register('sw-button', {
             ],
             default: null,
             required: false,
+        },
+
+        deprecated: {
+            type: Boolean,
+            required: false,
+            default: false,
         },
     },
 
@@ -35,4 +41,4 @@ Component.register('sw-button', {
             }
         },
     },
-});
+};

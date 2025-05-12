@@ -40,7 +40,7 @@ class ChangelogCreateCommand extends Command
             ->addOption('flag', null, InputOption::VALUE_OPTIONAL, 'Feature Flag ID')
             ->addOption('author', null, InputOption::VALUE_OPTIONAL, 'The author of code changes')
             ->addOption('author-email', null, InputOption::VALUE_OPTIONAL, 'The author email of code changes')
-            ->addOption('author-github', null, InputOption::VALUE_OPTIONAL, 'The author email of code changes')
+            ->addOption('author-github', null, InputOption::VALUE_OPTIONAL, 'The author Github name of code changes, without leading "@"')
             ->addOption('dry-run', null, InputOption::VALUE_NONE, 'Use the --dry-run argument to preview the changelog content and prevent actually writing to file.');
     }
 

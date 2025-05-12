@@ -355,7 +355,6 @@ class AttributeEntityIntegrationTest extends TestCase
             'orders' => null,
             'translations' => null,
             'customFields' => null,
-            'emptyString' => '',
             'htmlString' => '<p class="text-size-lg">Awesome string with <strong>HTML</strong>!</p>',
             'notEncoded' => 'will be not encoded in api',
         ], $json);

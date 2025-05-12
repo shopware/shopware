@@ -130,6 +130,8 @@ import type { SwProfileStore } from './module/sw-profile/store/sw-profile.store'
 import type { SwPromotionDetailStore } from './module/sw-promotion-v2/page/sw-promotion-v2-detail/store';
 import type { SwFlowStore } from './module/sw-flow/store/flow.store';
 import type { SwBulkStore } from './app/store/sw-bulk-edit.store';
+import type SaasSettingsService from "./core/service/api/saas-settings.service";
+import type SaasInvitationService from "./core/service/api/saas-invitation.service";
 
 // trick to make it an "external module" to support global type extension
 
@@ -272,6 +274,8 @@ declare global {
         importExport: ImportExportService;
         fileValidationService: FileValidationService;
         businessEventService: BusinessEventsApiService;
+        saasSettingsService: SaasSettingsService;
+        saasInvitationService: SaasInvitationService;
     }
 
     interface MixinContainer {

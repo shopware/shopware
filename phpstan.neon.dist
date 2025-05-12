@@ -235,7 +235,9 @@ parameters:
 
         - # For testing we need to provide different array data than expected to ensure the validation is working correct
             message: '#Parameter \#1 \$rawConfig of class Shopware\\Administration\\Login\\Config\\LoginConfigService constructor expects array\{.*\}, array\{\} given#'
-            path: tests/unit/Administration/Login/Config/LoginConfigServiceTest.php
+            paths:
+                - tests/unit/Administration/Login/Config/LoginConfigServiceTest.php
+                - tests/unit/Core/Saas/SaasServiceTest.php
 
         - # PhpStan does not recognize that the LoginException is thrown deeper in the stack
             message: '#Dead catch - Shopware\\Administration\\Login\\Exception\\LoginException is never thrown in the try block.#'

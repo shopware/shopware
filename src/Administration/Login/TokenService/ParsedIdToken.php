@@ -20,6 +20,9 @@ final class ParsedIdToken
         public readonly string $sub,
         public readonly string $email,
         public readonly \DateTimeInterface $expiry,
+        public readonly string $username,
+        public readonly string $givenName,
+        public readonly string $familyName,
     ) {
     }
 
@@ -31,6 +34,9 @@ final class ParsedIdToken
             $dataSet->get('sub'),
             $dataSet->get('email'),
             $dataSet->get('exp'),
+            $dataSet->get('preferred_username'),
+            $dataSet->get('given_name'),
+            $dataSet->get('family_name'),
         );
     }
 
@@ -54,6 +60,9 @@ final class ParsedIdToken
         $constraints = new Collection([
             'exp' => new NotBlank(null, 'is empty'),
             'sub' => new NotBlank(null, 'is empty'),
+            'preferred_username' => new NotBlank(null, 'is empty'),
+            'given_name' => new NotBlank(null, 'is empty'),
+            'family_name' => new NotBlank(null, 'is empty'),
             'email' => [
                 new NotBlank(null, 'is empty'),
                 new Email(null, 'is a invalid email address'),

@@ -48,6 +48,11 @@ Shopware.Component.register(
     'sw-users-permissions-role-view-detailed',
     () => import('./view/sw-users-permissions-role-view-detailed'),
 );
+Shopware.Component.register('sw-saas-users-permission-user-detail', () => import('./page/sw-saas-users-permission-user-detail'));
+Shopware.Component.register('sw-user-saas-invitation-modal', () => import('./components/sw-user-saas-invitation-modal'))
+Shopware.Component.register('sw-user-saas-status-label', () => import('./components/sw-user-saas-status-label'))
+Shopware.Component.register('sw-user-saas-access-key-create-modal', () => import('./components/sw-user-saas-access-key-create-modal'))
+
 /* eslint-enable max-len, sw-deprecation-rules/private-feature-declarations */
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
@@ -75,6 +80,14 @@ Shopware.Module.register('sw-users-permissions', {
         'user.detail': {
             component: 'sw-users-permissions-user-detail',
             path: 'user.detail/:id?',
+            meta: {
+                parentPath: 'sw.users.permissions.index',
+                privilege: 'users_and_permissions.viewer',
+            },
+        },
+        'user.saas.detail': {
+            component: 'sw-saas-users-permission-user-detail',
+            path: 'user.saas.detail/:id?',
             meta: {
                 parentPath: 'sw.users.permissions.index',
                 privilege: 'users_and_permissions.viewer',

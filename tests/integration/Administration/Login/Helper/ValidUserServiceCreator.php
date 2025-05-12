@@ -52,7 +52,9 @@ class ValidUserServiceCreator
         $validatorProperty->setAccessible(true);
         $validatorProperty->setValue($idTokenParser, $validator);
 
-        return new UserService($connection, $idTokenParser);
+        $userRepository = $this->getContainer()->get('user.repository');
+
+        return new UserService($connection, $idTokenParser, $userRepository);
     }
 
     private function createClient(): HttpClientInterface
@@ -83,6 +85,7 @@ class ValidUserServiceCreator
             'token_path' => '/token',
             'jwks_path' => '/jwks.json',
             'scope' => 'scope',
+            'register_url' => 'https://register.url',
         ];
 
         return new LoginConfigService($rawConfig, 'local.host', '/admin');

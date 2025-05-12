@@ -125,7 +125,7 @@ class AccountProfileControllerTest extends TestCase
             $request
         );
 
-        static::assertEquals('frontend.account.home.page', $response->headers->get('X-Forward-Route'));
+        static::assertSame('frontend.account.home.page', $response->headers->get('X-Forward-Route'));
     }
 
     private function createAccountProfileController(bool $throwConstraintViolation = false): AccountProfileController

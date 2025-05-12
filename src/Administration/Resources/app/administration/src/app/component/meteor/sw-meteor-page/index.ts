@@ -4,8 +4,6 @@ import type { ModuleManifest } from 'src/core/factory/module.factory';
 import template from './sw-meteor-page.html.twig';
 import './sw-meteor-page.scss';
 
-const { Component } = Shopware;
-
 type ComponentData = {
     module: ModuleManifest | null;
     parentRoute: string | null;
@@ -16,10 +14,8 @@ type ComponentData = {
  *
  * @private
  */
-Component.register('sw-meteor-page', {
+export default Shopware.Component.wrapComponentConfig({
     template,
-
-    compatConfig: Shopware.compatConfig,
 
     props: {
         fullWidth: {
@@ -60,24 +56,10 @@ Component.register('sw-meteor-page', {
         },
 
         hasIconOrIconSlot(): boolean {
-            if (this.isCompatEnabled('INSTANCE_SCOPED_SLOTS')) {
-                return (
-                    this.hasIcon ||
-                    typeof this.$slots['smart-bar-icon'] !== 'undefined' ||
-                    typeof this.$scopedSlots['smart-bar-icon'] !== 'undefined'
-                );
-            }
-
             return this.hasIcon || typeof this.$slots['smart-bar-icon'] !== 'undefined';
         },
 
         hasTabs(): boolean {
-            if (this.isCompatEnabled('INSTANCE_SCOPED_SLOTS')) {
-                return (
-                    typeof this.$slots['page-tabs'] !== 'undefined' || typeof this.$scopedSlots['page-tabs'] !== 'undefined'
-                );
-            }
-
             return typeof this.$slots['page-tabs'] !== 'undefined';
         },
 
@@ -87,7 +69,7 @@ Component.register('sw-meteor-page', {
     },
 
     beforeUnmount(): void {
-        void Shopware.State.dispatch('error/resetApiErrors');
+        void Shopware.Store.get('error').resetApiErrors();
     },
 
     mounted(): void {

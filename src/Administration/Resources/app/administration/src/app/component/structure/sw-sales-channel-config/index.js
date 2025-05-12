@@ -3,16 +3,13 @@
  */
 import template from './sw-sales-channel-config.html.twig';
 
-const { Component } = Shopware;
 const { Criteria } = Shopware.Data;
 
 /**
  * @private
  */
-Component.register('sw-sales-channel-config', {
+export default {
     template,
-
-    compatConfig: Shopware.compatConfig,
 
     inject: [
         'systemConfigApiService',
@@ -132,4 +129,4 @@ Component.register('sw-sales-channel-config', {
             return Promise.resolve(this.allConfigs);
         },
     },
-});
+};

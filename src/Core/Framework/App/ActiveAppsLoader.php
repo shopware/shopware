@@ -35,11 +35,6 @@ class ActiveAppsLoader implements ResetInterface
      */
     public function getActiveApps(): array
     {
-        // @deprecated tag:v6.7.0 - remove if condition
-        if (EnvironmentHelper::getVariable('DISABLE_EXTENSIONS', false)) {
-            return [];
-        }
-
         if ($this->activeApps === null) {
             $this->activeApps = $this->loadApps();
         }
@@ -71,7 +66,7 @@ class ActiveAppsLoader implements ResetInterface
                 'selfManaged' => (bool) $app['self_managed'],
             ], $data);
         } catch (\Throwable $e) {
-            if (\defined('\STDERR')) {
+            if (\defined('\STDERR') && !EnvironmentHelper::getVariable('TESTS_RUNNING')) {
                 fwrite(\STDERR, 'Warning: Failed to load apps. Loading apps from local. Message: ' . $e->getMessage() . \PHP_EOL);
             }
 

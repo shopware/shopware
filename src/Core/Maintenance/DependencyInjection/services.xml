@@ -21,20 +21,12 @@
             <tag name="console.command"/>
         </service>
 
-        <service id="Shopware\Core\Maintenance\System\Command\SystemGenerateJwtSecretCommand">
-            <argument>%kernel.project_dir%</argument>
-            <argument type="service" id="Shopware\Core\Maintenance\System\Service\JwtCertificateGenerator"/>
-            <argument>%shopware.api.jwt_key.use_app_secret%</argument>
-            <tag name="console.command"/>
-        </service>
-
         <service id="Shopware\Core\Maintenance\System\Command\SystemGenerateAppSecretCommand">
             <tag name="console.command"/>
         </service>
 
         <service id="Shopware\Core\Maintenance\System\Command\SystemSetupCommand">
             <argument>%kernel.project_dir%</argument>
-            <argument type="service" id="Shopware\Core\Maintenance\System\Service\JwtCertificateGenerator"/>
             <argument type="service" id="Symfony\Component\Dotenv\Command\DotenvDumpCommand"/>
             <tag name="console.command"/>
         </service>
@@ -68,8 +60,6 @@
 
             <tag name="console.command"/>
         </service>
-
-        <service id="Shopware\Core\Maintenance\System\Service\JwtCertificateGenerator"/>
 
         <service id="Shopware\Core\Maintenance\System\Service\AppUrlVerifier">
             <argument type="service" id="shopware.maintenance.client"/>

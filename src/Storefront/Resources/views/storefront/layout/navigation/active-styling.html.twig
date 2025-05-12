@@ -1,4 +1,5 @@
 {# Styles the current active navigation and the parent navigations #}
+
 {# The style tag is different for each navigation and will be cached accordingly #}
 {% block layout_navigation_active_styling %}
     {% set navigationId = shopware.navigation.id %}
@@ -11,7 +12,7 @@
         }
 
         .nav-item-{{ id }}-link.root:first-of-type {
-            color: var(--bs-gray-800);
+            color: var(--bs-body-color);
             font-weight: 700;
 
             .main-navigation-link-text {
@@ -27,7 +28,7 @@
         }
 
         .nav-item-{{ navigationId }}-link.root:first-of-type {
-            color: var(--bs-gray-800);
+            color: var(--bs-body-color);
             font-weight: 700;
 
             .main-navigation-link-text {

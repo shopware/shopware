@@ -2,8 +2,6 @@ import type { PropType } from 'vue';
 import template from './sw-sortable-list.html.twig';
 import './sw-sortable-list.scss';
 
-const { Component } = Shopware;
-
 interface DragConfig {
     delay: number;
     dragGroup: number | string;
@@ -60,10 +58,8 @@ const defaultScrollOnDragConf = {
  * </sw-sortable-list>
  */
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
-Component.register('sw-sortable-list', {
+export default Shopware.Component.wrapComponentConfig({
     template,
-
-    compatConfig: Shopware.compatConfig,
 
     props: {
         items: {

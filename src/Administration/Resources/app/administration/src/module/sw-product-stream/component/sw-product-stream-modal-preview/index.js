@@ -2,6 +2,7 @@
  * @sw-package inventory
  */
 
+import shuffle from 'lodash/shuffle';
 import template from './sw-product-stream-modal-preview.html.twig';
 import './sw-product-stream-modal-preview.scss';
 
@@ -14,8 +15,6 @@ const PRODUCT_COMPARISON_SALES_CHANNEL_TYPE_ID = 'ed535e5722134ac1aa6524f73e2688
  */
 export default {
     template,
-
-    compatConfig: Shopware.compatConfig,
 
     inject: [
         'repositoryFactory',
@@ -75,11 +74,15 @@ export default {
             const criteria = new Criteria(this.page, this.limit).setTerm(this.searchTerm);
 
             if (this.sorting) {
-                const [
-                    field,
-                    direction,
-                ] = this.sorting.split(':');
-                criteria.addSorting(Criteria.sort(field, direction));
+                if (this.sorting === 'random') {
+                    this.addRandomSort(criteria);
+                } else {
+                    const [
+                        field,
+                        direction,
+                    ] = this.sorting.split(':');
+                    criteria.addSorting(Criteria.sort(field, direction));
+                }
             }
 
             return criteria;
@@ -276,6 +279,27 @@ export default {
 
         isNotEqualToAnyType(type, parentType) {
             return type === 'equalsAny' && parentType === 'not';
+        },
+
+        addRandomSort(criteria) {
+            let fields = [
+                'name',
+                'createdAt',
+                'cheapestPrice',
+                'releaseDate',
+            ];
+
+            fields = shuffle(fields);
+            const selectedFields = fields.slice(0, 2);
+            const directions = [
+                'ASC',
+                'DESC',
+            ];
+            const randomDirection = directions[Math.floor(Math.random() * directions.length)];
+
+            selectedFields.forEach((field) => {
+                criteria.addSorting(Criteria.sort(field, randomDirection));
+            });
         },
     },
 };

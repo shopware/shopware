@@ -1,17 +1,13 @@
 import template from './sw-data-grid-column-boolean.html.twig';
 import './sw-data-grid-column-boolean.scss';
 
-const { Component } = Shopware;
-
 /**
  * @sw-package framework
  *
  * @private
  */
-Component.register('sw-data-grid-column-boolean', {
+export default {
     template,
-
-    compatConfig: Shopware.compatConfig,
 
     emits: ['update:value'],
 
@@ -43,4 +39,4 @@ Component.register('sw-data-grid-column-boolean', {
             },
         },
     },
-});
+};

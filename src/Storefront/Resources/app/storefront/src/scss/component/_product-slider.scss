@@ -10,9 +10,6 @@ based on "base-slider" component and "tiny-slider" (https://github.com/ganlanyua
     &.has-border {
         border: 1px solid $border-color;
         border-radius: $border-radius;
-    }
-
-    &.has-border {
         padding: 25px;
     }
 
@@ -36,8 +33,8 @@ based on "base-slider" component and "tiny-slider" (https://github.com/ganlanyua
     border: 0;
     background: none;
 
-    &.is-arrow-prev-inside,
-    &.is-arrow-next-inside {
+    &.is-nav-prev-inside,
+    &.is-nav-next-inside {
         background: var(--bs-gray-200);
     }
 }
@@ -49,8 +46,8 @@ based on "base-slider" component and "tiny-slider" (https://github.com/ganlanyua
         left: 0;
     }
 
-    &.is-arrow-prev-inside {
-        left: 20px;
+    &.is-nav-prev-inside {
+        left: 0;
 
         &.has-border {
             left: 30px;
@@ -65,8 +62,8 @@ based on "base-slider" component and "tiny-slider" (https://github.com/ganlanyua
         right: 0;
     }
 
-    &.is-arrow-next-inside {
-        right: 20px;
+    &.is-nav-next-inside {
+        right: 0;
 
         &.has-border {
             right: 30px;

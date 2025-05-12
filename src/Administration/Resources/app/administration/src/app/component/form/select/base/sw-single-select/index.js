@@ -5,16 +5,14 @@
 import './sw-single-select.scss';
 import template from './sw-single-select.html.twig';
 
-const { Component, Mixin } = Shopware;
+const { Mixin } = Shopware;
 const { debounce, get } = Shopware.Utils;
 
 /**
  * @private
  */
-Component.register('sw-single-select', {
+export default {
     template,
-
-    compatConfig: Shopware.compatConfig,
 
     inject: ['feature'],
 
@@ -154,15 +152,6 @@ Component.register('sw-single-select', {
         visibleResults() {
             return this.results.filter((result) => !result.hidden);
         },
-
-        listeners() {
-            // eslint-disable-next-line @typescript-eslint/no-unsafe-call,@typescript-eslint/no-unsafe-member-access
-            if (this.isCompatEnabled('INSTANCE_LISTENERS')) {
-                return this.$listeners;
-            }
-
-            return {};
-        },
     },
 
     methods: {
@@ -262,4 +251,4 @@ Component.register('sw-single-select', {
             this.setValue(null);
         },
     },
-});
+};

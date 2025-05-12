@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Checkout\Cart\Delivery\Struct;
 
+use Shopware\Core\Checkout\Cart\CartException;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Struct\Struct;
@@ -10,19 +11,9 @@ use Shopware\Core\System\DeliveryTime\DeliveryTimeEntity;
 #[Package('checkout')]
 class DeliveryDate extends Struct
 {
-    /**
-     * @var \DateTimeImmutable
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $earliest;
+    protected \DateTimeImmutable $earliest;
 
-    /**
-     * @var \DateTimeImmutable
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $latest;
+    protected \DateTimeImmutable $latest;
 
     public function __construct(
         \DateTimeInterface $earliest,
@@ -58,7 +49,7 @@ class DeliveryDate extends Struct
                 self::create('P' . $deliveryTime->getMin() . 'Y'),
                 self::create('P' . $deliveryTime->getMax() . 'Y')
             ),
-            default => throw new \RuntimeException(\sprintf('Not supported unit %s', $deliveryTime->getUnit())),
+            default => throw CartException::deliveryDateNotSupportedUnit($deliveryTime->getUnit()),
         };
     }
 

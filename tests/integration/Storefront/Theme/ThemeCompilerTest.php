@@ -3,6 +3,7 @@
 namespace Shopware\Tests\Integration\Storefront\Theme;
 
 use Doctrine\DBAL\Exception;
+use Doctrine\DBAL\Platforms\Exception\InvalidPlatformVersion;
 use League\Flysystem\Filesystem;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
@@ -15,12 +16,12 @@ use Shopware\Core\Framework\App\ActiveAppsLoader;
 use Shopware\Core\Framework\App\Source\SourceResolver;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Feature;
-use Shopware\Core\Framework\Feature\FeatureException;
 use Shopware\Core\Framework\Plugin;
 use Shopware\Core\Framework\Test\TestCaseBase\DatabaseTransactionBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\EnvTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelLifecycleManager;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
+use Shopware\Core\Framework\Test\TestCaseHelper\ReflectionHelper;
 use Shopware\Core\Kernel;
 use Shopware\Core\System\SystemConfig\Service\AppConfigReader;
 use Shopware\Core\System\SystemConfig\Service\ConfigurationService;
@@ -37,7 +38,6 @@ use Shopware\Storefront\Theme\StorefrontPluginConfiguration\StorefrontPluginConf
 use Shopware\Storefront\Theme\StorefrontPluginConfiguration\StorefrontPluginConfigurationCollection;
 use Shopware\Storefront\Theme\StorefrontPluginConfiguration\StorefrontPluginConfigurationFactory;
 use Shopware\Storefront\Theme\StorefrontPluginRegistry;
-use Shopware\Storefront\Theme\StorefrontPluginRegistryInterface;
 use Shopware\Storefront\Theme\Subscriber\ThemeCompilerEnrichScssVarSubscriber;
 use Shopware\Storefront\Theme\ThemeCompiler;
 use Shopware\Storefront\Theme\ThemeFileResolver;
@@ -48,7 +48,6 @@ use Shopware\Tests\Integration\Storefront\Theme\fixtures\SimplePlugin\SimplePlug
 use Symfony\Component\Asset\UrlPackage;
 use Symfony\Component\Asset\VersionStrategy\EmptyVersionStrategy;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
-use Symfony\Component\Messenger\MessageBus;
 
 /**
  * @internal
@@ -62,8 +61,6 @@ class ThemeCompilerTest extends TestCase
     use KernelTestBehaviour;
 
     private ThemeCompiler $themeCompiler;
-
-    private ThemeCompiler $themeCompilerAutoPrefix;
 
     private string $mockSalesChannelId;
 
@@ -92,27 +89,8 @@ class ThemeCompilerTest extends TestCase
             $this->createMock(LoggerInterface::class),
             new MD5ThemePathBuilder(),
             static::getContainer()->get(ScssPhpCompiler::class),
-            new MessageBus(),
-            0,
+            [],
             false
-        );
-
-        $this->themeCompilerAutoPrefix = new ThemeCompiler(
-            $mockFilesystem,
-            $mockFilesystem,
-            new CopyBatchInputFactory(),
-            $themeFileResolver,
-            true,
-            $this->eventDispatcher,
-            static::getContainer()->get(ThemeFilesystemResolver::class),
-            ['theme' => new UrlPackage(['http://localhost'], new EmptyVersionStrategy())],
-            static::getContainer()->get(CacheInvalidator::class),
-            $this->createMock(LoggerInterface::class),
-            new MD5ThemePathBuilder(),
-            static::getContainer()->get(ScssPhpCompiler::class),
-            new MessageBus(),
-            0,
-            true
         );
     }
 
@@ -124,17 +102,13 @@ class ThemeCompilerTest extends TestCase
 
     public function testVariablesArrayConvertsToNonAssociativeArrayWithValidScssSyntax(): void
     {
-        $themeCompilerReflection = new \ReflectionClass(ThemeCompiler::class);
-        $formatVariables = $themeCompilerReflection->getMethod('formatVariables');
-        $formatVariables->setAccessible(true);
-
         $variables = [
             'sw-color-brand-primary' => '#008490',
             'sw-color-brand-secondary' => '#526e7f',
             'sw-border-color' => '#bcc1c7',
         ];
 
-        $actual = $formatVariables->invoke($this->themeCompiler, $variables);
+        $actual = ReflectionHelper::getMethod(ThemeCompiler::class, 'formatVariables')->invoke($this->themeCompiler, $variables);
 
         $expected = [
             '$sw-color-brand-primary: #008490;',
@@ -147,10 +121,6 @@ class ThemeCompilerTest extends TestCase
 
     public function testDumpVariablesFindsConfigFieldsAndReturnsStringWithScssVariables(): void
     {
-        $themeCompilerReflection = new \ReflectionClass(ThemeCompiler::class);
-        $dumpVariables = $themeCompilerReflection->getMethod('dumpVariables');
-        $dumpVariables->setAccessible(true);
-
         $mockConfig = [
             'fields' => [
                 'sw-color-brand-primary' => [
@@ -210,7 +180,13 @@ class ThemeCompilerTest extends TestCase
             ],
         ];
 
-        $actual = $dumpVariables->invoke($this->themeCompiler, $mockConfig, 'themeId', $this->mockSalesChannelId, Context::createDefaultContext());
+        $actual = ReflectionHelper::getMethod(ThemeCompiler::class, 'dumpVariables')->invoke(
+            $this->themeCompiler,
+            $mockConfig,
+            'themeId',
+            $this->mockSalesChannelId,
+            Context::createDefaultContext()
+        );
 
         $expected = <<<PHP_EOL
 // ATTENTION! This file is auto generated by the Shopware\Storefront\Theme\ThemeCompiler and should not be edited.
@@ -232,10 +208,6 @@ PHP_EOL;
 
     public function testDumpVariablesIgnoresFieldsWithScssConfigPropertySetToFalse(): void
     {
-        $themeCompilerReflection = new \ReflectionClass(ThemeCompiler::class);
-        $dumpVariables = $themeCompilerReflection->getMethod('dumpVariables');
-        $dumpVariables->setAccessible(true);
-
         $mockConfig = [
             'fields' => [
                 'sw-color-brand-primary' => [
@@ -258,7 +230,13 @@ PHP_EOL;
             ],
         ];
 
-        $actual = $dumpVariables->invoke($this->themeCompiler, $mockConfig, 'themeId', $this->mockSalesChannelId, Context::createDefaultContext());
+        $actual = ReflectionHelper::getMethod(ThemeCompiler::class, 'dumpVariables')->invoke(
+            $this->themeCompiler,
+            $mockConfig,
+            'themeId',
+            $this->mockSalesChannelId,
+            Context::createDefaultContext()
+        );
 
         $expected = <<<PHP_EOL
 // ATTENTION! This file is auto generated by the Shopware\Storefront\Theme\ThemeCompiler and should not be edited.
@@ -275,10 +253,6 @@ PHP_EOL;
 
     public function testDumpVariablesHasNoConfigFieldsAndReturnsOnlyAssetUrl(): void
     {
-        $themeCompilerReflection = new \ReflectionClass(ThemeCompiler::class);
-        $dumpVariables = $themeCompilerReflection->getMethod('dumpVariables');
-        $dumpVariables->setAccessible(true);
-
         // Config without `fields`
         $mockConfig = [
             'blocks' => [
@@ -297,7 +271,13 @@ PHP_EOL;
             ],
         ];
 
-        $actual = $dumpVariables->invoke($this->themeCompiler, $mockConfig, 'themeId', $this->mockSalesChannelId, Context::createDefaultContext());
+        $actual = ReflectionHelper::getMethod(ThemeCompiler::class, 'dumpVariables')->invoke(
+            $this->themeCompiler,
+            $mockConfig,
+            'themeId',
+            $this->mockSalesChannelId,
+            Context::createDefaultContext()
+        );
 
         static::assertSame('// ATTENTION! This file is auto generated by the Shopware\Storefront\Theme\ThemeCompiler and should not be edited.
 
@@ -308,14 +288,10 @@ $sw-asset-theme-url: \'http://localhost\';
 
     public function testScssVariablesMayHaveZeroValueButNotNull(): void
     {
-        $themeCompilerReflection = new \ReflectionClass(ThemeCompiler::class);
-        $dumpVariables = $themeCompilerReflection->getMethod('dumpVariables');
-        $dumpVariables->setAccessible(true);
-
         $mockConfig = [
             'fields' => [
                 'sw-zero-margin' => [
-                    'name' => 'sw-null-margin',
+                    'name' => 'sw-zero-margin',
                     'type' => 'text',
                     'value' => 0,
                 ],
@@ -336,16 +312,22 @@ $sw-asset-theme-url: \'http://localhost\';
             ],
         ];
 
-        $actual = $dumpVariables->invoke($this->themeCompiler, $mockConfig, 'themeId', $this->mockSalesChannelId, Context::createDefaultContext());
+        $actual = ReflectionHelper::getMethod(ThemeCompiler::class, 'dumpVariables')->invoke(
+            $this->themeCompiler,
+            $mockConfig,
+            'themeId',
+            $this->mockSalesChannelId,
+            Context::createDefaultContext()
+        );
 
         $expected = <<<PHP_EOL
 // ATTENTION! This file is auto generated by the Shopware\Storefront\Theme\ThemeCompiler and should not be edited.
 
 \$theme-id: themeId;
 \$sw-zero-margin: 0;
-\$sw-null-margin: 0;
-\$sw-unset-margin: 0;
-\$sw-empty-margin: 0;
+\$sw-null-margin: null;
+\$sw-unset-margin: null;
+\$sw-empty-margin: null;
 \$sw-asset-theme-url: 'http://localhost';
 
 PHP_EOL;
@@ -391,7 +373,7 @@ PHP_EOL;
 
         $expected = $styles . MockThemeCompilerConcatenatedSubscriber::STYLES_CONCAT;
 
-        static::assertEquals($expected, $actual);
+        static::assertSame($expected, $actual);
     }
 
     public function testDBException(): void
@@ -409,7 +391,6 @@ PHP_EOL;
         );
 
         $subscriber = new ThemeCompilerEnrichScssVarSubscriber($configService, $storefrontPluginRegistry);
-        $stderr = fopen('php://stderr', 'w');
 
         $subscriber->enrichExtensionVars(new ThemeCompilerEnrichScssVariablesEvent([], TestDefaults::SALES_CHANNEL, Context::createDefaultContext()));
     }
@@ -451,8 +432,7 @@ PHP_EOL;
             $this->createMock(LoggerInterface::class),
             new MD5ThemePathBuilder(),
             static::getContainer()->get(ScssPhpCompiler::class),
-            new MessageBus(),
-            0,
+            [],
             false
         );
 
@@ -466,10 +446,10 @@ PHP_EOL;
                 Context::createDefaultContext()
             );
         } catch (\Throwable $throwable) {
-            static::fail('ThemeCompiler->compile() should be executable without a database connection. But following Excpetion was thrown: ' . $throwable->getMessage());
+            static::fail('ThemeCompiler->compile() should be executable without a database connection. But following Exception was thrown: ' . $throwable->getMessage());
         } finally {
             $this->resetEnvVars();
-            KernelLifecycleManager::bootKernel(true);
+            KernelLifecycleManager::bootKernel();
             $this->startTransactionBefore();
             rmdir($testFolder);
         }
@@ -478,9 +458,6 @@ PHP_EOL;
     public function testOutputsPluginCss(): void
     {
         $this->loadAppsFromDir(__DIR__ . '/fixtures/Apps/noThemeCustomCss');
-        $themeCompilerReflection = new \ReflectionClass(ThemeCompiler::class);
-        $compileStyles = $themeCompilerReflection->getMethod('compileStyles');
-        $compileStyles->setAccessible(true);
 
         $testScss = <<<PHP_EOL
 .test-selector-plugin {
@@ -496,17 +473,21 @@ PHP_EOL;
 
 PHP_EOL;
 
+        /**
+         * The border property is omitted because it has a nullish value.
+         * It has no default value and is not set like the background color down in the test.
+         * The behaviour of the ThemeCompiler will still ad variables with a null value,
+         * but SCSS omits property definitions if they reference a variable with null value.
+         */
         $expectedCssOutput = <<<PHP_EOL
 .test-selector-plugin {
 \tbackground: #fff;
 \tcolor: #eee;
-\tborder: 0;
 }
 
 .test-selector-app {
 \tbackground: #aaa;
 \tcolor: #eee;
-\tborder: 0;
 }
 PHP_EOL;
 
@@ -514,12 +495,10 @@ PHP_EOL;
 .test-selector-plugin {
   background: #fff;
   color: #eee;
-  border: 0;
 }
 .test-selector-app {
   background: #aaa;
   color: #eee;
-  border: 0;
 }
 PHP_EOL;
 
@@ -539,11 +518,11 @@ PHP_EOL;
 
         $this->eventDispatcher->addSubscriber($subscriber);
 
-        /** @var SystemConfigService $sysConfService */
         $sysConfService = static::getContainer()->get(SystemConfigService::class);
         $sysConfService->set('SimplePlugin.config.simplePluginBackgroundcolor', '#fff');
         $sysConfService->set('SwagNoThemeCustomCss.config.noThemeCustomCssBackGroundcolor', '#aaa');
 
+        $compileStyles = ReflectionHelper::getMethod(ThemeCompiler::class, 'compileStyles');
         try {
             $actual = $compileStyles->invoke(
                 $this->themeCompiler,
@@ -559,31 +538,6 @@ PHP_EOL;
         }
 
         static::assertSame($expectedCssOutputNoAutoPrefix, trim((string) $actual));
-
-        $subscriber = new ThemeCompilerEnrichScssVarSubscriber($configService, $storefrontPluginRegistry);
-
-        $this->eventDispatcher->addSubscriber($subscriber);
-
-        if (Feature::isActive('v6.7.0.0')) {
-            $this->expectException(FeatureException::class);
-            $this->expectExceptionMessage('Tried to access deprecated functionality: Autoprefixer is deprecated and will be removed without replacement, including the config storefront.theme.auto_prefix_css.');
-        }
-
-        try {
-            $actual = $compileStyles->invoke(
-                $this->themeCompilerAutoPrefix,
-                $testScss,
-                new StorefrontPluginConfiguration('test'),
-                [],
-                '1337',
-                'themeId',
-                Context::createDefaultContext()
-            );
-        } finally {
-            $this->eventDispatcher->removeSubscriber($subscriber);
-        }
-
-        static::assertSame($expectedCssOutput, trim((string) $actual));
     }
 
     public function testOutputsOnlyExpectedCssWhenUsingFeatureFlagFunction(): void
@@ -591,10 +545,6 @@ PHP_EOL;
         if (EnvironmentHelper::getVariable('FEATURE_ALL')) {
             static::markTestSkipped('Skipped because fixture feature `FEATURE_ALL` should be false.');
         }
-
-        $themeCompilerReflection = new \ReflectionClass(ThemeCompiler::class);
-        $compileStyles = $themeCompilerReflection->getMethod('compileStyles');
-        $compileStyles->setAccessible(true);
 
         Feature::registerFeatures([
             'FEATURE_NEXT_1' => ['default' => true],
@@ -646,7 +596,7 @@ Example:
 }
 PHP_EOL;
 
-        $actual = $compileStyles->invoke(
+        $actual = ReflectionHelper::getMethod(ThemeCompiler::class, 'compileStyles')->invoke(
             $this->themeCompiler,
             $featureMixin . $testScss,
             new StorefrontPluginConfiguration('test'),
@@ -661,10 +611,6 @@ PHP_EOL;
 
     public function testVendorImportFiles(): void
     {
-        $themeCompilerReflection = new \ReflectionClass(ThemeCompiler::class);
-        $compileStyles = $themeCompilerReflection->getMethod('compileStyles');
-        $compileStyles->setAccessible(true);
-
         $testScss = <<<PHP_EOL
 @import '~vendor/library.min'; // Test import for plain CSS without extension
 @import '~vendor/library.min.css'; // Test import for plain CSS with explicit extension (deprecated)
@@ -687,7 +633,7 @@ PHP_EOL;
 }
 PHP_EOL;
 
-        $actual = $compileStyles->invoke(
+        $actual = ReflectionHelper::getMethod(ThemeCompiler::class, 'compileStyles')->invoke(
             $this->themeCompiler,
             $testScss,
             new StorefrontPluginConfiguration('test'),
@@ -733,10 +679,10 @@ PHP_EOL;
     /**
      * @param array<int, Plugin> $plugins
      */
-    private function getStorefrontPluginRegistry(array $plugins): StorefrontPluginRegistryInterface
+    private function getStorefrontPluginRegistry(array $plugins): StorefrontPluginRegistry
     {
         $kernel = $this->createMock(Kernel::class);
-        $kernel->expects(static::any())
+        $kernel
             ->method('getBundles')
             ->willReturn($plugins);
 
@@ -758,6 +704,6 @@ class ConfigurationServiceException extends ConfigurationService
      */
     public function checkConfiguration(string $domain, Context $context): bool
     {
-        throw Exception::invalidPlatformType('any');
+        throw new InvalidPlatformVersion('any');
     }
 }

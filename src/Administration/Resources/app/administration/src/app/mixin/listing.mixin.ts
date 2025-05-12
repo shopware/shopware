@@ -115,10 +115,15 @@ export default Shopware.Mixin.register(
             }
         },
 
+        beforeRouteLeave() {
+            Shopware.Store.get('shopwareApps').selectedIds = [];
+            Shopware.Store.get('swBulkEdit').selectedIds = [];
+        },
+
         watch: {
             // Watch for changes in query parameters and update listing
             $route(newRoute, oldRoute) {
-                if (this.disableRouteParams || this.previousRouteName !== newRoute.name) {
+                if (this.disableRouteParams || oldRoute.name !== newRoute.name) {
                     return;
                 }
 
@@ -145,7 +150,8 @@ export default Shopware.Mixin.register(
             },
 
             selection() {
-                Shopware.State.commit('shopwareApps/setSelectedIds', Object.keys(this.selection));
+                Shopware.Store.get('shopwareApps').selectedIds = Object.keys(this.selection);
+                Shopware.Store.get('swBulkEdit').selectedIds = Object.keys(this.selection);
             },
 
             term(newValue) {

@@ -1,8 +1,6 @@
 import template from './sw-confirm-field.html.twig';
 import './sw-confirm-field.scss';
 
-const { Component } = Shopware;
-
 /**
  * @sw-package framework
  *
@@ -13,10 +11,8 @@ const { Component } = Shopware;
  * @component-example
  * <sw-confirm-field placeholder="Enter value..."></sw-confirm-field>
  */
-Component.register('sw-confirm-field', {
+export default {
     template,
-
-    compatConfig: Shopware.compatConfig,
 
     emits: [
         'remove-error',
@@ -149,4 +145,4 @@ Component.register('sw-confirm-field', {
             this.$emit('remove-error');
         },
     },
-});
+};

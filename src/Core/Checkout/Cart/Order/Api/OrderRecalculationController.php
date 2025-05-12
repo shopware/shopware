@@ -11,6 +11,7 @@ use Shopware\Core\Checkout\Cart\Rule\LineItemOfTypeRule;
 use Shopware\Core\Checkout\Cart\SalesChannel\CartResponse;
 use Shopware\Core\Checkout\Order\OrderAddressService;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Routing\RoutingException;
 use Shopware\Core\Framework\Rule\Rule;
@@ -36,7 +37,11 @@ class OrderRecalculationController extends AbstractController
     #[Route(path: '/api/_action/order/{orderId}/recalculate', name: 'api.action.order.recalculate', methods: ['POST'])]
     public function recalculateOrder(string $orderId, Context $context): Response
     {
-        $this->recalculationService->recalculateOrder($orderId, $context);
+        $errors = $this->recalculationService->recalculate($orderId, $context);
+
+        if ($errors->count() > 0) {
+            return new JsonResponse(['errors' => $errors]);
+        }
 
         return new Response(null, Response::HTTP_NO_CONTENT);
     }
@@ -58,33 +63,7 @@ class OrderRecalculationController extends AbstractController
         $quantity = $request->request->getInt('quantity', 1);
 
         $lineItem = new LineItem($identifier, $type, null, $quantity);
-        $label = $request->request->get('label');
-        $description = $request->request->get('description');
-        $removeable = (bool) $request->request->get('removeable', true);
-        $stackable = (bool) $request->request->get('stackable', true);
-        $payload = $request->request->all('payload');
-        $priceDefinition = $request->request->all('priceDefinition');
-
-        if ($label !== null && !\is_string($label)) {
-            throw RoutingException::invalidRequestParameter('label');
-        }
-
-        if ($description !== null && !\is_string($description)) {
-            throw RoutingException::invalidRequestParameter('description');
-        }
-
-        $lineItem->setLabel($label);
-        $lineItem->setDescription($description);
-        $lineItem->setRemovable($removeable);
-        $lineItem->setStackable($stackable);
-        $lineItem->setPayload($payload);
-
-        $lineItem->setPriceDefinition(
-            new AbsolutePriceDefinition(
-                (float) $priceDefinition['price'],
-                new LineItemOfTypeRule(Rule::OPERATOR_NEQ, $type)
-            )
-        );
+        $this->updateLineItemByRequest($request, $lineItem, true);
 
         $this->recalculationService->addCustomLineItem($orderId, $lineItem, $context);
 
@@ -118,14 +97,30 @@ class OrderRecalculationController extends AbstractController
         return new CartResponse($cart);
     }
 
+    /**
+     * @deprecated tag:v6.8.0 - Will be removed. Use {@see applyAutomaticPromotions} instead.
+     */
     #[Route(path: '/api/_action/order/{orderId}/toggleAutomaticPromotions', name: 'api.action.order.toggle-automatic-promotions', methods: ['POST'])]
     public function toggleAutomaticPromotions(string $orderId, Request $request, Context $context): Response
     {
+        Feature::triggerDeprecationOrThrow(
+            'v6.8.0.0',
+            'Route "api.action.order.toggle-automatic-promotions" is deprecated and will be removed in v6.8.0.0. Use "api.action.order.apply-automatic-promotions" instead.',
+        );
+
         $skipAutomaticPromotions = (bool) $request->request->get('skipAutomaticPromotions', true);
 
         $cart = $this->recalculationService->toggleAutomaticPromotion($orderId, $context, $skipAutomaticPromotions);
 
         return new CartResponse($cart);
+    }
+
+    #[Route(path: '/api/_action/order/{orderId}/applyAutomaticPromotions', name: 'api.action.order.apply-automatic-promotions', methods: ['POST'])]
+    public function applyAutomaticPromotions(string $orderId, Request $request, Context $context): Response
+    {
+        $errors = $this->recalculationService->applyAutomaticPromotions($orderId, $context);
+
+        return new JsonResponse(['errors' => $errors]);
     }
 
     #[Route(path: '/api/_action/order-address/{orderAddressId}/customer-address/{customerAddressId}', name: 'api.action.order.replace-order-address', methods: ['POST'])]
@@ -146,32 +141,46 @@ class OrderRecalculationController extends AbstractController
         return new JsonResponse(null, Response::HTTP_NO_CONTENT);
     }
 
-    /**
-     * @throws CartException
-     */
-    private function updateLineItemByRequest(Request $request, LineItem $lineItem): void
+    private function updateLineItemByRequest(Request $request, LineItem $lineItem, bool $absolute = false): void
     {
         $label = $request->request->get('label');
         $description = $request->request->get('description');
-        $removeable = (bool) $request->request->get('removeable', true);
+        $removable = (bool) $request->request->get('removeable', true);
         $stackable = (bool) $request->request->get('stackable', true);
         $payload = $request->request->all('payload');
         $priceDefinition = $request->request->all('priceDefinition');
 
         if ($label !== null && !\is_string($label)) {
-            throw RoutingException::invalidRequestParameter('label');
+            // @deprecated tag:v6.8.0 - remove this if block
+            if (!Feature::isActive('v6.8.0.0')) {
+                throw RoutingException::invalidRequestParameter('label'); // @phpstan-ignore shopware.domainException
+            }
+            throw CartException::invalidRequestParameter('label');
         }
 
         if ($description !== null && !\is_string($description)) {
-            throw RoutingException::invalidRequestParameter('description');
+            // @deprecated tag:v6.8.0 - remove this if block
+            if (!Feature::isActive('v6.8.0.0')) {
+                throw RoutingException::invalidRequestParameter('description'); // @phpstan-ignore shopware.domainException
+            }
+            throw CartException::invalidRequestParameter('description');
         }
 
         $lineItem->setLabel($label);
         $lineItem->setDescription($description);
-        $lineItem->setRemovable($removeable);
+        $lineItem->setRemovable($removable);
         $lineItem->setStackable($stackable);
         $lineItem->setPayload($payload);
 
-        $lineItem->setPriceDefinition(QuantityPriceDefinition::fromArray($priceDefinition));
+        if (!$absolute) {
+            $lineItem->setPriceDefinition(QuantityPriceDefinition::fromArray($priceDefinition));
+        } else {
+            $lineItem->setPriceDefinition(
+                new AbsolutePriceDefinition(
+                    (float) $priceDefinition['price'],
+                    new LineItemOfTypeRule(Rule::OPERATOR_NEQ, LineItem::CREDIT_LINE_ITEM_TYPE)
+                )
+            );
+        }
     }
 }

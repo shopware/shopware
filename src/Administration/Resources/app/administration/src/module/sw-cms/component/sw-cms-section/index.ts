@@ -29,8 +29,6 @@ type SlotConfigErrorObject = {
 export default Shopware.Component.wrapComponentConfig({
     template,
 
-    compatConfig: Shopware.compatConfig,
-
     inject: [
         'cmsService',
         'repositoryFactory',
@@ -218,9 +216,8 @@ export default Shopware.Component.wrapComponentConfig({
 
     methods: {
         createdComponent() {
-            if (!this.section.backgroundMediaMode) {
-                this.section.backgroundMediaMode = 'cover';
-            }
+            this.section.backgroundMediaMode ??= 'cover';
+            this.section.backgroundColor ??= '';
         },
 
         openBlockBar() {

@@ -19,7 +19,6 @@
             :item="firstEntity"
             :editable="editable"
             v-bind="filteredAttributes"
-            v-on="listeners"
             @update:item="onFirstItemUpdated"
         />
 
@@ -28,7 +27,6 @@
             :media-folder="firstEntity"
             :editable="editable"
             v-bind="filteredAttributes"
-            v-on="listeners"
         />
 
         <sw-media-quickinfo-multiple
@@ -36,7 +34,6 @@
             :editable="editable"
             :items="items"
             v-bind="filteredAttributes"
-            v-on="listeners"
         />
 
         <sw-media-folder-info
@@ -45,7 +42,6 @@
             :editable="editable"
             v-bind="filteredAttributes"
             @media-folder-renamed="onMediaFolderRenamed"
-            v-on="listeners"
         />
 
         <sw-empty-state
@@ -54,7 +50,7 @@
         >
             <template #icon>
                 <img
-                    :src="assetFilter('/administration/static/img/empty-states/media-empty-state.svg')"
+                    :src="assetFilter('/administration/administration/static/img/empty-states/media-empty-state.svg')"
                     :alt="$tc('sw-media.sidebar.labelNoMediaSelected')"
                 >
             </template>

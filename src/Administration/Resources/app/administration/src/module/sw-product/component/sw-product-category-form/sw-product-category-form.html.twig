@@ -52,14 +52,18 @@
             :inherited-value="parentProduct.active"
         >
             <template #content="props">
-                <sw-switch-field
+
+                <mt-switch
                     class="sw-field--product-active no-margin"
                     :error="productActiveError"
-                    :map-inheritance="props"
+                    :is-inheritance-field="props.isInheritField"
+                    :is-inherited="props.isInherited"
                     :label="$tc('sw-product.settingsForm.labelActive')"
                     :disabled="props.isInherited || !allowEdit"
-                    :value="props.currentValue"
-                    @update:value="props.updateCurrentValue"
+                    :model-value="props.currentValue"
+                    @update:model-value="props.updateCurrentValue"
+                    @inheritance-restore="props.restoreInheritance"
+                    @inheritance-remove="props.removeInheritance"
                 />
             </template>
         </sw-inherit-wrapper>
@@ -73,9 +77,10 @@
             @click="displayAdvancedVisibility"
             @keydown.enter="displayAdvancedVisibility"
         >
-            {{ $tc('sw-product.visibility.linkAdvancedVisibility') }} <sw-icon
+            {{ $tc('sw-product.visibility.linkAdvancedVisibility') }}
+            <mt-icon
                 name="regular-long-arrow-right"
-                small
+                size="16px"
             />
         </a>
     </sw-container>
@@ -92,13 +97,13 @@
         <sw-product-visibility-detail :disabled="!allowEdit" />
 
         <template #modal-footer>
-            <sw-button
+            <mt-button
                 variant="primary"
                 size="small"
                 @click="closeAdvancedVisibility"
             >
                 {{ $tc('global.default.apply') }}
-            </sw-button>
+            </mt-button>
         </template>
     </sw-modal>
     {% endblock %}

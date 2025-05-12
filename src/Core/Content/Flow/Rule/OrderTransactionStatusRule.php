@@ -13,7 +13,10 @@ use Shopware\Core\Framework\Rule\RuleConstraints;
 use Shopware\Core\Framework\Rule\RuleScope;
 use Shopware\Core\System\StateMachine\Aggregation\StateMachineState\StateMachineStateDefinition;
 
-#[Package('after-sales')]
+/**
+ * @final
+ */
+#[Package('fundamentals@after-sales')]
 class OrderTransactionStatusRule extends FlowRule
 {
     public const RULE_NAME = 'orderTransactionStatus';
@@ -24,9 +27,9 @@ class OrderTransactionStatusRule extends FlowRule
     protected array $salutationIds = [];
 
     /**
-     * @internal
-     *
      * @param list<string> $stateIds
+     *
+     * @internal
      */
     public function __construct(
         public string $operator = Rule::OPERATOR_EQ,

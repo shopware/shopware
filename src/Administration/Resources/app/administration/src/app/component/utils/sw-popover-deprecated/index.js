@@ -5,8 +5,6 @@
 import template from './sw-popover.html.twig';
 import './sw-popover.scss';
 
-const { Component } = Shopware;
-
 /**
  * @private
  * @description Renders a popover
@@ -16,10 +14,8 @@ const { Component } = Shopware;
  * <sw-popover></sw-popover>
  */
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
-Component.register('sw-popover-deprecated', {
+export default {
     template,
-
-    compatConfig: Shopware.compatConfig,
 
     props: {
         zIndex: {
@@ -68,4 +64,4 @@ Component.register('sw-popover-deprecated', {
             };
         },
     },
-});
+};

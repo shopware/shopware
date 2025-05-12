@@ -18,12 +18,13 @@ class SCSSValidator
      */
     public static function validate(AbstractScssCompiler $compiler, array $data, array $customAllowedRegex = [], bool $sanitize = false): mixed
     {
-        if (!isset($data['value']) && !$sanitize) {
-            throw ThemeException::InvalidScssValue('', $data['type'] ?? 'undefined', $data['name'] ?? 'undefined');
-        }
-
-        if (!\array_key_exists('value', $data) || (empty($data['value']) && $data['value'] !== 0)) {
-            $data['value'] = 'inherit';
+        // Empty values are allowed and will be set as a "null" value in SCSS.
+        // In addition, 0 or "0" can be valid values, for example for setting margins.
+        if (!\array_key_exists('value', $data)
+            || !isset($data['value'])
+            || $data['value'] === ''
+            || $data['value'] === false) {
+            return null;
         }
 
         if (\is_string($data['value']) && self::validateCustom($data['value'], $customAllowedRegex)) {

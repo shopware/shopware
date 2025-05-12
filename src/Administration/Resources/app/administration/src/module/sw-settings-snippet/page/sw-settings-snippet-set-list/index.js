@@ -13,8 +13,6 @@ const {
 export default {
     template,
 
-    compatConfig: Shopware.compatConfig,
-
     inject: [
         'snippetSetService',
         'repositoryFactory',
@@ -72,6 +70,16 @@ export default {
         dateFilter() {
             return Shopware.Filter.getByName('date');
         },
+
+        baseFileOptions() {
+            return this.baseFiles.map((file, index) => {
+                return {
+                    id: index,
+                    value: file.name,
+                    label: file.name,
+                };
+            });
+        },
     },
 
     methods: {
@@ -105,25 +113,7 @@ export default {
             }
 
             this.$nextTick(() => {
-                let foundRow = this.$refs.snippetSetList.$children.find((vueComponent) => {
-                    if (vueComponent.$options.name === 'AsyncComponentWrapper') {
-                        vueComponent = vueComponent?.$children[0];
-                    }
-
-                    return vueComponent?.item !== undefined && vueComponent.item.id === newSnippetSet.id;
-                });
-
-                if (!foundRow) {
-                    return false;
-                }
-
-                if (foundRow.$options.name === 'AsyncComponentWrapper') {
-                    foundRow = foundRow.$children[0];
-                }
-
-                foundRow.isEditingActive = true;
-
-                return true;
+                this.$refs.snippetSetList?.startInlineEditing();
             });
         },
 
@@ -262,7 +252,7 @@ export default {
 
         createInlineSuccessNote(name) {
             this.createNotificationSuccess({
-                message: this.$tc('sw-settings-snippet.setList.inlineEditSuccessMessage', 0, { name }),
+                message: this.$tc('sw-settings-snippet.setList.inlineEditSuccessMessage', { name }, 0),
             });
         },
 

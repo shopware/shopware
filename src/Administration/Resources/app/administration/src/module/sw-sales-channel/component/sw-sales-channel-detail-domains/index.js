@@ -13,8 +13,6 @@ const { ShopwareError } = Shopware.Classes;
 export default {
     template,
 
-    compatConfig: Shopware.compatConfig,
-
     inject: [
         'repositoryFactory',
     ],
@@ -67,7 +65,7 @@ export default {
                 return this.$t('sw-sales-channel.detail.titleCreateDomain');
             }
 
-            return this.$t('sw-sales-channel.detail.titleEditDomain', 0, {
+            return this.$t('sw-sales-channel.detail.titleEditDomain', {
                 name: this.unicodeUriFilter(this.currentDomainBackup.url),
             });
         },
@@ -314,9 +312,13 @@ export default {
         onConfirmDeleteDomain(domain) {
             if (domain.productExports.length > 0) {
                 this.createNotificationError({
-                    message: this.$tc('sw-sales-channel.detail.messageDeleteDomainError', 0, {
-                        url: this.unicodeUriFilter(domain.url),
-                    }),
+                    message: this.$tc(
+                        'sw-sales-channel.detail.messageDeleteDomainError',
+                        {
+                            url: this.unicodeUriFilter(domain.url),
+                        },
+                        0,
+                    ),
                 });
 
                 this.deleteDomain = null;

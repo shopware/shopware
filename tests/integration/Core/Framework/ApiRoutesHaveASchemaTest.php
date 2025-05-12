@@ -100,7 +100,6 @@ class ApiRoutesHaveASchemaTest extends TestCase
         // src/Core/Framework/Api/ApiDefinition/Generator/Schema/StoreApi/paths
         static::assertSame([
             '/_info/open-api-schema.json',
-            '/_info/swagger.html',
             '/_info/stoplightio.html',
             '/context',
             '/account/customer',
@@ -234,6 +233,8 @@ class ApiRoutesHaveASchemaTest extends TestCase
         $whitelist = [
             '/store-api/shipping-method:onlyAvailable',
             '/store-api/checkout/cart/line-item:ids',
+            '/store-api/product-listing/{categoryId}:p',
+            '/store-api/search:p',
         ];
 
         foreach ($schema as $operation) {

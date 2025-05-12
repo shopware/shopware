@@ -7,7 +7,7 @@
     {% block sw_flow_list_smart_bar_actions %}{% endblock %}
 
     {% block sw_flow_list_content %}
-    <sw-card
+    <mt-card
         class="sw-flow-list-card"
         position-identifier="sw-flow-list-card"
     >
@@ -37,7 +37,7 @@
             {% block sw_flow_list_grid_columns_active %}
             <template #column-active="{ item }">
                 {% block sw_flow_list_columns_active_label %}
-                <sw-icon
+                <mt-icon
                     size="12px"
                     :color="item.active ? `#37d046` : `#de294c`"
                     :name="item.active ? `regular-checkmark-xs` : `regular-times-s`"
@@ -108,26 +108,27 @@
                     @modal-close="onCloseDeleteModal"
                 >
                     {% block sw_flow_list_grid_action_modal_confirm_delete_text %}
-                    <sw-alert variant="warning">
+                    <mt-banner variant="attention">
                         {{ deleteWarningMessage() }}
-                    </sw-alert>
+                    </mt-banner>
                     {% endblock %}
 
                     <template #modal-footer>
                         {% block sw_flow_list_grid_action_modal_buttons %}
-                        <sw-button
+                        <mt-button
                             size="small"
+                            variant="secondary"
                             @click="onCloseDeleteModal"
                         >
                             {{ $tc('global.default.cancel') }}
-                        </sw-button>
-                        <sw-button
+                        </mt-button>
+                        <mt-button
                             size="small"
-                            variant="danger"
+                            variant="critical"
                             @click="onConfirmDelete(item)"
                         >
                             {{ $tc('global.default.delete') }}
-                        </sw-button>
+                        </mt-button>
                         {% endblock %}
                     </template>
                 </sw-modal>
@@ -136,9 +137,9 @@
 
             {% block sw_flow_list_grid_bulk_modal_delete_confirm_text %}
             <template #bulk-modal-delete-confirm-text="{ selectionCount }">
-                <sw-alert variant="warning">
+                <mt-banner variant="attention">
                     {{ bulkDeleteWarningMessage(selectionCount) }}
-                </sw-alert>
+                </mt-banner>
             </template>
             {% endblock %}
         </sw-entity-listing>
@@ -147,6 +148,7 @@
         <sw-empty-state
             v-if="!total && !isLoading"
             class="sw-flow-list__empty-state"
+            :absolute="false"
             :title="$tc('sw-flow.list.emptyStateTitle')"
             :subline="$tc('sw-flow.list.emptyStateSubTitle')"
         >
@@ -154,7 +156,7 @@
             <template #icon>
                 <img
                     :alt="$tc('sw-flow.list.emptyStateTitle')"
-                    :src="assetFilter('/administration/static/img/empty-states/settings-empty-state.svg')"
+                    :src="assetFilter('/administration/administration/static/img/empty-states/settings-empty-state.svg')"
                 >
             </template>
             {% endblock %}
@@ -163,7 +165,7 @@
 
         {% block sw_flow_list_modal_content_custom %}
         {% endblock %}
-    </sw-card>
+    </mt-card>
     {% endblock %}
 </div>
 {% endblock %}

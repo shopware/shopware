@@ -17,16 +17,17 @@
             :key="updatePossible"
             v-tooltip="updateButtonTooltip"
         >
-            <sw-button
+            <mt-button
                 v-if="updateInfo.version"
                 :disabled="!updatePossible"
                 :is-loading="updaterIsRunning"
                 variant="primary"
                 class="sw-settings-shopware-updates-wizard__start-update"
+                size="default"
                 @click="updateModalShown = true"
             >
                 {{ $t('sw-settings-shopware-updates.infos.startUpdate') }}
-            </sw-button>
+            </mt-button>
         </div>
     </template>
     {% endblock %}
@@ -62,8 +63,8 @@
             class="sw-shopware-updates-progressbar"
         >
             <div class="progress-wrapper">
-                <sw-progress-bar
-                    :value="progressbarValue"
+                <mt-progress-bar
+                    :model-value="progressbarValue"
                     :max-value="100"
                 />
                 <span class="progress-title">
@@ -81,19 +82,19 @@
             variant="small"
             @modal-close="updateModalShown = false"
         >
-            <sw-alert
+            <mt-banner
                 v-if="displayUnknownPluginsWarning"
-                variant="warning"
+                variant="attention"
             >
                 {{ $tc('sw-settings-shopware-updates.updateModal.messageNotInStore') }}
-            </sw-alert>
+            </mt-banner>
 
-            <sw-alert
+            <mt-banner
                 v-if="displayIncompatiblePluginsWarning"
-                variant="warning"
+                variant="attention"
             >
                 {{ $tc('sw-settings-shopware-updates.updateModal.messageIncompatible') }}
-            </sw-alert>
+            </mt-banner>
 
             <sw-radio-field
                 v-if="displayIncompatiblePluginsWarning"
@@ -109,21 +110,22 @@
             </template>
 
             <template #modal-footer>
-                <sw-checkbox-field
-                    v-model:value="checkedBackupCheckbox"
+                <mt-checkbox
+                    v-model:checked="checkedBackupCheckbox"
                     class="sw-settings-shopware-updates-check__start-update-backup-checkbox"
                     :label="$tc('sw-settings-shopware-updates.updateModal.backupLabel')"
                 />
 
                 <div class="sw-settings-shopware-updates-check__start-update-actions">
-                    <sw-button
+                    <mt-button
                         size="small"
+                        variant="secondary"
                         @click="updateModalShown = false"
                     >
                         {{ $tc('global.default.cancel') }}
-                    </sw-button>
+                    </mt-button>
 
-                    <sw-button
+                    <mt-button
                         :disabled="!checkedBackupCheckbox"
                         variant="primary"
                         size="small"
@@ -131,7 +133,7 @@
                         @click="startUpdateProcess()"
                     >
                         {{ $tc('sw-settings-shopware-updates.updateModal.actions.install') }}
-                    </sw-button>
+                    </mt-button>
                 </div>
             </template>
         </sw-modal>

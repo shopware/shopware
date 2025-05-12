@@ -4,16 +4,13 @@ namespace Shopware\Tests\Unit\Core\Framework\MessageQueue\Middleware;
 
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
-use Shopware\Core\Content\Product\DataAbstractionLayer\ProductIndexingMessage;
-use Shopware\Core\Framework\DataAbstractionLayer\Indexing\EntityIndexingMessage;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\MessageQueue\AsyncMessageInterface;
 use Shopware\Core\Framework\MessageQueue\LowPriorityMessageInterface;
 use Shopware\Core\Framework\MessageQueue\Middleware\RoutingOverwriteMiddleware;
 use Symfony\Component\Mailer\Messenger\SendEmailMessage;
 use Symfony\Component\Messenger\Envelope;
-use Symfony\Component\Messenger\Stamp\DelayStamp;
+use Symfony\Component\Messenger\Stamp\BusNameStamp;
 use Symfony\Component\Messenger\Stamp\ReceivedStamp;
 use Symfony\Component\Messenger\Stamp\StampInterface;
 use Symfony\Component\Messenger\Stamp\TransportNamesStamp;
@@ -29,7 +26,7 @@ class RoutingOverwriteMiddlewareTest extends MiddlewareTestCase
     public function testMessageIsForwardedWhenItIsBeingHandledByWorked(): void
     {
         // message should get async stamp, but is skipped because it has received stamp
-        $middleware = new RoutingOverwriteMiddleware([], [
+        $middleware = new RoutingOverwriteMiddleware([
             AsyncMessage::class => 'async',
             AsyncMessageInterface::class => 'async',
             LowPriorityMessageInterface::class => 'low_priority',
@@ -52,11 +49,7 @@ class RoutingOverwriteMiddlewareTest extends MiddlewareTestCase
     #[DataProvider('dispatchProvider')]
     public function testDispatch(object $message, array $config, array $providedStamps, array $expectedStamps): void
     {
-        if (Feature::isActive('v6.7.0.0')) {
-            $middleware = new RoutingOverwriteMiddleware([], $config);
-        } else {
-            $middleware = new RoutingOverwriteMiddleware($config, []);
-        }
+        $middleware = new RoutingOverwriteMiddleware($config);
 
         $message = Envelope::wrap($message, $providedStamps);
         $envelope = $middleware->handle($message, $this->getStackMock());
@@ -65,21 +58,6 @@ class RoutingOverwriteMiddlewareTest extends MiddlewareTestCase
             $expectedStamps,
             array_merge(...array_values($envelope->all()))
         );
-    }
-
-    public function testOverwrite(): void
-    {
-        Feature::skipTestIfActive('v6.7.0.0', $this);
-
-        $middleware = new RoutingOverwriteMiddleware([
-            EntityIndexingMessage::class => 'low_priority',
-        ], []);
-
-        $message = new ProductIndexingMessage([]);
-
-        $envelope = $middleware->handle(Envelope::wrap($message), $this->getStackMock());
-
-        static::assertSame(['low_priority'], $envelope->last(TransportNamesStamp::class)?->getTransportNames());
     }
 
     public static function dispatchProvider(): \Generator
@@ -153,7 +131,7 @@ class RoutingOverwriteMiddlewareTest extends MiddlewareTestCase
         ];
 
         yield 'Default config, no stamps, message in envelope, envelope with stamp' => [
-            'message' => (new Envelope(new AsyncMessage()))->with(new DelayStamp(5)),
+            'message' => (new Envelope(new AsyncMessage()))->with(new BusNameStamp('test')),
             'config' => [
                 AsyncMessageInterface::class => 'async',
                 LowPriorityMessageInterface::class => 'low_priority',
@@ -161,7 +139,7 @@ class RoutingOverwriteMiddlewareTest extends MiddlewareTestCase
             ],
             'providedStamps' => [],
             'expectedStamps' => [
-                new DelayStamp(5),
+                new BusNameStamp('test'),
             ],
         ];
     }

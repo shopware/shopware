@@ -8,8 +8,6 @@ import template from './sw-settings-logging-entry-info.html.twig';
 export default {
     template,
 
-    compatConfig: Shopware.compatConfig,
-
     emits: ['close'],
 
     props: {
@@ -27,7 +25,7 @@ export default {
 
     computed: {
         displayString() {
-            return JSON.stringify(this.logEntry.context, null, 2);
+            return this.logEntry.context ? JSON.stringify(this.logEntry.context, null, 2) : '';
         },
     },
 

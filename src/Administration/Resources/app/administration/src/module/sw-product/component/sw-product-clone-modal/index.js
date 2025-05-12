@@ -11,8 +11,6 @@ const { Criteria } = Shopware.Data;
 export default {
     template,
 
-    compatConfig: Shopware.compatConfig,
-
     inject: [
         'repositoryFactory',
         'numberRangeService',
@@ -36,6 +34,7 @@ export default {
     },
 
     computed: {
+        // @deprecated tag:v6.8.0 - Will be removed, no longer needed
         progressInPercentage() {
             return 100 / (this.cloneMaxProgress * this.cloneProgress);
         },

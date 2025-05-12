@@ -5,17 +5,13 @@
 import './sw-wizard-page.scss';
 import template from './sw-wizard-page.html.twig';
 
-const { Component } = Shopware;
-
 /**
  * See `sw-wizard` for an example.
  *
  * @private
  */
-Component.register('sw-wizard-page', {
+export default {
     template,
-
-    compatConfig: Shopware.compatConfig,
 
     inject: [
         'feature',
@@ -65,19 +61,11 @@ Component.register('sw-wizard-page', {
 
     methods: {
         createdComponent() {
-            if (this.isCompatEnabled('INSTANCE_CHILDREN')) {
-                this.$parent.$parent.$parent.$emit('page-add', this);
-            } else {
-                this.swWizardPageAdd(this);
-            }
+            this.swWizardPageAdd(this);
         },
 
         destroyedComponent() {
-            if (this.isCompatEnabled('INSTANCE_CHILDREN')) {
-                this.$parent.$parent.$parent.$emit('page-remove', this);
-            } else {
-                this.swWizardPageRemove(this);
-            }
+            this.swWizardPageRemove(this);
         },
     },
-});
+};

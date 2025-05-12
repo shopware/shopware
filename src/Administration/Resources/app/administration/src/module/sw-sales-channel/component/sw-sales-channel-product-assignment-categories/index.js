@@ -5,14 +5,12 @@
 import template from './sw-sales-channel-product-assignment-categories.html.twig';
 import './sw-sales-channel-product-assignment-categories.scss';
 
-const { Component, Context, Mixin } = Shopware;
+const { Context, Mixin } = Shopware;
 const { EntityCollection, Criteria } = Shopware.Data;
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
-Component.register('sw-sales-channel-product-assignment-categories', {
+export default {
     template,
-
-    compatConfig: Shopware.compatConfig,
 
     inject: ['repositoryFactory'],
 
@@ -258,4 +256,4 @@ Component.register('sw-sales-channel-product-assignment-categories', {
             return this.productRepository.search(this.productCriteria(categories), Shopware.Context.api);
         },
     },
-});
+};

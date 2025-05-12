@@ -5,14 +5,11 @@
 import template from './sw-product-visibility-detail.html.twig';
 import './sw-product-visibility-detail.scss';
 
-const { mapState } = Shopware.Component.getComponentHelper();
 const { Filter } = Shopware;
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default {
     template,
-
-    compatConfig: Shopware.compatConfig,
 
     props: {
         disabled: {
@@ -32,9 +29,9 @@ export default {
     },
 
     computed: {
-        ...mapState('swProductDetail', [
-            'product',
-        ]),
+        product() {
+            return Shopware.Store.get('swProductDetail').product;
+        },
 
         truncateFilter() {
             return Filter.getByName('truncate');

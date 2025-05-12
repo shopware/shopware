@@ -41,7 +41,7 @@ class TransportConfigProviderTest extends TestCase
 
         $metricConfigProvider = $this->createMock(MetricConfigProvider::class);
 
-        $metricConfigProvider->expects(static::once())
+        $metricConfigProvider->expects($this->once())
             ->method('all')
             ->willReturn($configs);
 

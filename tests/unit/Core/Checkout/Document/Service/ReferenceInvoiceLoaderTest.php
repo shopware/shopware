@@ -34,7 +34,7 @@ class ReferenceInvoiceLoaderTest extends TestCase
         $deepLinkCode = 'uojRco91RO5hZ1l6VihVDjKZpWydHVqb';
         $referenceDocumentId = Uuid::randomHex();
 
-        $this->connection->expects(static::once())->method('createQueryBuilder')->willReturn(
+        $this->connection->expects($this->once())->method('createQueryBuilder')->willReturn(
             new FakeQueryBuilder($this->connection, [[
                 'id' => Uuid::randomHex(),
                 'orderId' => $orderId,

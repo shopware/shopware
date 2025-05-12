@@ -8,7 +8,6 @@
     <sw-contextual-field
         v-bind="$attrs"
         class="sw-category-tree-field__main-wrapper"
-        v-on="listeners"
     >
 
         {% block sw_category_tree_field_input %}
@@ -41,7 +40,7 @@
 
                 {% block sw_category_tree_field_input_labels_dismiss_icon %}
                 <template #dismiss-icon>
-                    <sw-icon name="regular-times-s" />
+                    <mt-icon name="regular-times-s" />
                 </template>
                 {% endblock %}
 
@@ -162,8 +161,8 @@
                     >
 
                         {% block sw_category_tree_field_input_results_search_results_item_checkbox %}
-                        <sw-checkbox-field
-                            :value="isSearchItemChecked(item.id)"
+                        <mt-checkbox
+                            :checked="isSearchItemChecked(item.id)"
                             class="sw-category-tree-field__search-results-checkbox"
                         />
                         {% endblock %}
@@ -174,9 +173,9 @@
                             class="sw-category-tree-field__search-results-icon"
                         >
                             {% block sw_category_tree_field_input_results_search_results_item_folder_icon %}
-                            <sw-icon
+                            <mt-icon
                                 name="regular-folder"
-                                small
+                                size="16px"
                             />
                             {% endblock %}
                         </div>
@@ -188,7 +187,7 @@
                             class="sw-category-tree-field__search-results-icon"
                         >
                             {% block sw_category_tree_field_input_results_search_results_item_endpoint_icon %}
-                            <sw-icon
+                            <mt-icon
                                 name="regular-circle-xxs"
                                 size="18"
                             />

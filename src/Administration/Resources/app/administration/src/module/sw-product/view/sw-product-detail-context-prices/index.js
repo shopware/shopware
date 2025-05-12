@@ -7,13 +7,10 @@ import './sw-product-detail-context-prices.scss';
 
 const { Mixin } = Shopware;
 const { Criteria } = Shopware.Data;
-const { mapState, mapGetters } = Shopware.Component.getComponentHelper();
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default {
     template,
-
-    compatConfig: Shopware.compatConfig,
 
     inject: [
         'repositoryFactory',
@@ -49,20 +46,41 @@ export default {
     },
 
     computed: {
-        ...mapState('swProductDetail', [
-            'product',
-            'parentProduct',
-            'taxes',
-            'currencies',
-        ]),
+        product() {
+            return Shopware.Store.get('swProductDetail').product;
+        },
 
-        ...mapGetters('swProductDetail', [
-            'isLoading',
-            'defaultCurrency',
-            'defaultPrice',
-            'productTaxRate',
-            'isChild',
-        ]),
+        parentProduct() {
+            return Shopware.Store.get('swProductDetail').parentProduct;
+        },
+
+        taxes() {
+            return Shopware.Store.get('swProductDetail').taxes;
+        },
+
+        currencies() {
+            return Shopware.Store.get('swProductDetail').currencies;
+        },
+
+        isLoading() {
+            return Shopware.Store.get('swProductDetail').isLoading;
+        },
+
+        defaultCurrency() {
+            return Shopware.Store.get('swProductDetail').defaultCurrency;
+        },
+
+        defaultPrice() {
+            return Shopware.Store.get('swProductDetail').defaultPrice;
+        },
+
+        productTaxRate() {
+            return Shopware.Store.get('swProductDetail').productTaxRate;
+        },
+
+        isChild() {
+            return Shopware.Store.get('swProductDetail').isChild;
+        },
 
         priceRepository() {
             if (this.product && this.product.prices) {
@@ -222,7 +240,7 @@ export default {
             );
 
             if (this.canSetLoadingRules) {
-                Shopware.State.commit('swProductDetail/setLoading', [
+                Shopware.Store.get('swProductDetail').setLoading([
                     'rules',
                     true,
                 ]);
@@ -231,7 +249,7 @@ export default {
                 this.rules = res;
                 this.totalRules = res.total;
 
-                Shopware.State.commit('swProductDetail/setLoading', [
+                Shopware.Store.get('swProductDetail').setLoading([
                     'rules',
                     false,
                 ]);
@@ -415,7 +433,7 @@ export default {
             }
 
             // add price to rule.price
-            this.$set(rule.price, rule.price.length, newPrice);
+            rule.price[rule.price.length] = newPrice;
         },
 
         isPriceFieldInherited(rule, currency) {
@@ -504,7 +522,7 @@ export default {
             newPriceRule.price = [];
 
             referencePrice.price.forEach((price, index) => {
-                this.$set(newPriceRule.price, index, { ...price });
+                newPriceRule.price[index] = { ...price };
             });
 
             this.product.prices.add(newPriceRule);
@@ -525,7 +543,7 @@ export default {
         },
 
         onChangeShowListPrices(value, ruleId) {
-            this.$set(this.showListPrices, ruleId, value);
+            this.showListPrices[ruleId] = value;
         },
 
         getStartQuantityTooltip(itemIndex, quantity) {

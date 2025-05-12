@@ -1,7 +1,5 @@
 import template from './sw-collapse.html.twig';
 
-const { Component } = Shopware;
-
 /**
  * @sw-package framework
  *
@@ -15,10 +13,8 @@ const { Component } = Shopware;
  *     <div #content>Content slot</div>
  * </sw-collapse>
  */
-Component.register('sw-collapse', {
+export default {
     template,
-
-    compatConfig: Shopware.compatConfig,
 
     props: {
         expandOnLoading: {
@@ -39,4 +35,4 @@ Component.register('sw-collapse', {
             this.expanded = !this.expanded;
         },
     },
-});
+};

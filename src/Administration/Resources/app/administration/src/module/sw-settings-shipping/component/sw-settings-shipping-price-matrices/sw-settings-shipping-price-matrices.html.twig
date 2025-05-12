@@ -14,7 +14,7 @@
     {% block sw_settings_shipping_detail_advanced_prices_actions %}
     <div class="sw-settings-shipping-price-matrices__actions">
         {% block sw_settings_shipping_detail_advanced_prices_actions_add_button %}
-        <sw-button
+        <mt-button
             v-tooltip="{
                 showDelay: 300,
                 showOnDisabledElements: true,
@@ -23,10 +23,11 @@
             }"
             :disabled="newPriceMatrixExists || disabled || undefined"
             class="sw-settings-shipping-price-matrices__actions-add-matrix"
+            variant="secondary"
             @click="onAddNewPriceGroup"
         >
             {{ $tc('sw-settings-shipping.priceMatrix.buttonAddAdditionalPriceMatrix') }}
-        </sw-button>
+        </mt-button>
         {% endblock %}
     </div>
     {% endblock %}

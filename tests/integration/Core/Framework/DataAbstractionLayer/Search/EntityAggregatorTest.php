@@ -13,6 +13,7 @@ use Shopware\Core\DevOps\Environment\EnvironmentHelper;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\DataAbstractionLayerException;
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\InvalidAggregationQueryException;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Aggregation\Bucket\BucketAggregation;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Aggregation\Bucket\DateHistogramAggregation;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Aggregation\Bucket\FilterAggregation;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Aggregation\Bucket\TermsAggregation;
@@ -1252,7 +1253,7 @@ class EntityAggregatorTest extends TestCase
                     '2020-09-30 00:00:00' => 1,
                     '2021-12-10 00:00:00' => 1,
                     '2024-12-12 00:00:00' => 1,
-                ], null, 'Asia/Saigon'),
+                ], null, 'Asia/Ho_Chi_Minh'),
             ] : [],
         ]);
     }
@@ -1345,6 +1346,19 @@ class EntityAggregatorTest extends TestCase
 
         $criteria = new Criteria();
         $criteria->addAggregation(new SumAggregation('foo?foo', 'taxRate'));
+
+        static::expectExceptionObject(DataAbstractionLayerException::invalidAggregationName('foo?foo'));
+
+        $this->aggregator->aggregate(static::getContainer()->get(TaxDefinition::class), $criteria, $context);
+    }
+
+    public function testAggregationNameWithDisallowedNameNested(): void
+    {
+        $context = Context::createDefaultContext();
+
+        $criteria = new Criteria();
+
+        $criteria->addAggregation(new BucketAggregation('bla', 'test', new SumAggregation('foo?foo', 'taxRate')));
 
         static::expectExceptionObject(DataAbstractionLayerException::invalidAggregationName('foo?foo'));
 

@@ -11,14 +11,13 @@ const { Criteria } = Shopware.Data;
 export default {
     template,
 
-    compatConfig: Shopware.compatConfig,
-
     inject: [
         'acl',
         'repositoryFactory',
         'orderStateMachineService',
         'stateMachineService',
         'stateStyleDataProviderService',
+        'swOrderDetailAskAndSaveEdits',
     ],
 
     emits: [
@@ -59,6 +58,11 @@ export default {
             required: false,
             default: false,
         },
+        position: {
+            type: String,
+            required: false,
+            default: '',
+        },
     },
 
     data() {
@@ -98,6 +102,7 @@ export default {
             criteria.addFilter(Criteria.equals('referencedId', this.entity.id));
             criteria.addFilter(Criteria.equals('entityName', this.entityName));
             criteria.addAssociation('user');
+            criteria.addAssociation('integration');
             criteria.addSorting({ field: 'createdAt', order: 'DESC' });
 
             return criteria;
@@ -129,6 +134,26 @@ export default {
                 default:
                     return null;
             }
+        },
+
+        cardPosition() {
+            if (!this.position) {
+                return 'sw-order-details-state';
+            }
+
+            return `sw-order-details-state-${this.position}`;
+        },
+
+        lastChangeAuthorLabel() {
+            if (this.lastStateChange?.user) {
+                return `${this.lastStateChange.user.firstName} ${this.lastStateChange.user.lastName}`;
+            }
+            if (this.lastStateChange?.integration) {
+                const integrationLabel = this.lastStateChange.integration.label;
+                return `${integrationLabel} (${this.$t('sw-order.stateCard.labelIntegration')})`;
+            }
+
+            return this.$t('sw-order.stateCard.labelSystemUser');
         },
     },
 
@@ -184,9 +209,14 @@ export default {
             return options;
         },
 
-        onStateSelected(stateType, actionName) {
+        async onStateSelected(stateType, actionName) {
             if (!stateType || !actionName) {
                 this.createStateChangeErrorNotification(this.$tc('sw-order.stateCard.labelErrorNoAction'));
+                return;
+            }
+
+            const proceed = await this.swOrderDetailAskAndSaveEdits();
+            if (!proceed) {
                 return;
             }
 

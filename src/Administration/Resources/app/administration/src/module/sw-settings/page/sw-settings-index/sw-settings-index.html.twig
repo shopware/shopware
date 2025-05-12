@@ -6,105 +6,55 @@
 
     {% block sw_settings_content %}
     <template #content>
-        <sw-card-view>
-            {% block sw_settings_content_tabs %}
-            <sw-tabs
-                class="sw-settings__tabs"
+        <sw-card-view class="sw-settings-index__card-view">
+            {% block sw_settings_content_card_view %}
+            <mt-card
+                hero
+                class="sw-settings__card--hero"
                 position-identifier="sw-settings-index"
-                :is-vertical="true"
-                :small="false"
             >
-                <template #default="{ active }">
-                    {% block sw_settings_content_tab_shop %}
-                    <sw-tabs-item
-                        v-if="settingsGroups['shop']"
-                        class="sw-settings__tab-shop"
-                        :route="{ name: 'sw.settings.index.shop'}"
-                        name="shop"
-                        :active-tab="active"
-                        :title="$tc('sw-settings.index.tabShop')"
-                    >
-                        {{ $tc('sw-settings.index.tabShop') }}
-                    </sw-tabs-item>
-                    {% endblock %}
+                {% block sw_settings_content_card_view_header %}
+                <h1 class="sw-settings__content-header">
+                    {{ $tc('sw-settings.index.title') }}
+                </h1>
+                {% endblock %}
 
-                    {% block sw_settings_content_tab_system %}
-                    <sw-tabs-item
-                        v-if="settingsGroups['system']"
-                        class="sw-settings__tab-system"
-                        name="system"
-                        :route="{ name: 'sw.settings.index.system'}"
-                        :active-tab="active"
-                        :title="$tc('sw-settings.index.tabSystem')"
+                {% block sw_settings_content_card_content_grid %}
+                <div
+                    class="sw-settings__content-grid"
+                    position-identifier="sw-settings-index-content"
+                >
+                    <div
+                        v-for="(settingsItems, settingsGroup) in settingsGroups"
+                        :id="`sw-settings__content-group-${settingsGroup}`"
+                        :key="settingsGroup"
+                        class="sw-settings__content-group"
                     >
-                        {{ $tc('sw-settings.index.tabSystem') }}
-                    </sw-tabs-item>
-                    {% endblock %}
+                        <h2>{{ getGroupLabel(settingsGroup) }}</h2>
 
-                    {% block sw_settings_content_tab_plugins %}
-                    <sw-tabs-item
-                        v-if="hasPluginConfig()"
-                        class="sw-settings__tab-plugins"
-                        name="plugins"
-                        :route="{ name: 'sw.settings.index.plugins'}"
-                        :active-tab="active"
-                        :title="$tc('sw-settings.index.tabPlugins')"
-                    >
-                        {{ $tc('sw-settings.index.tabPlugins') }}
-                    </sw-tabs-item>
-                    {% endblock %}
-                </template>
-
-                <template #content="{ active }">
-                    {% block sw_settings_content_card %}
-                    {% block sw_settings_content_header %}
-                    <h1 class="sw-settings__content-header">
-                        {{ $tc('sw-settings.index.title') }}
-                    </h1>
-                    {% endblock %}
-
-                    <sw-card
-                        class="sw-settings__card"
-                        position-identifier="sw-settings-index-content"
-                    >
-                        {% block sw_settings_content_card_content %}
-                        <slot
-                            v-for="(settingsItems, settingsGroup) in settingsGroups"
-                            :key="settingsGroup"
-                            :name="settingsGroup"
-                            :aria-label="$tc('sw-settings.index.title')"
+                        <sw-settings-item
+                            v-for="settingsItem in settingsItems"
+                            :id="settingsItem.id"
+                            :key="settingsItem.name"
+                            :label="getLabel(settingsItem)"
+                            :to="getRouteConfig(settingsItem)"
                         >
-                            <nav
-                                v-show="active === settingsGroup"
-                                :id="`sw-settings__content-grid-${settingsGroup}`"
-                                class="sw-settings__content-grid"
-                            >
-                                <sw-settings-item
-                                    v-for="settingsItem in settingsItems"
-                                    :id="settingsItem.id"
-                                    :key="settingsItem.name"
-                                    :label="getLabel(settingsItem)"
-                                    :to="getRouteConfig(settingsItem)"
-                                    :background-enabled="settingsItem.backgroundEnabled"
-                                >
-                                    <template #icon>
-                                        <component
-                                            :is="settingsItem.iconComponent"
-                                            v-if="settingsItem.iconComponent"
-                                        />
-                                        <sw-icon
-                                            v-else
-                                            :name="settingsItem.icon"
-                                        />
-                                    </template>
-                                </sw-settings-item>
-                            </nav>
-                        </slot>
-                        {% endblock %}
-                    </sw-card>
-                    {% endblock %}
-                </template>
-            </sw-tabs>
+                            <template #icon>
+                                <component
+                                    :is="settingsItem.iconComponent"
+                                    v-if="settingsItem.iconComponent"
+                                />
+                                <mt-icon
+                                    v-else
+                                    :name="settingsItem.icon"
+                                    size="16px"
+                                />
+                            </template>
+                        </sw-settings-item>
+                    </div>
+                </div>
+                {% endblock %}
+            </mt-card>
             {% endblock %}
         </sw-card-view>
     </template>

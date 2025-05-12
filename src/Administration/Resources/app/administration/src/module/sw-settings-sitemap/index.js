@@ -31,7 +31,7 @@ Module.register('sw-settings-sitemap', {
     },
 
     settingsItem: {
-        group: 'shop',
+        group: 'content',
         to: 'sw.settings.sitemap.index',
         icon: 'regular-map',
         privilege: 'system.system_config',

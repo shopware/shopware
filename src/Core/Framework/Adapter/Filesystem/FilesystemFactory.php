@@ -7,9 +7,9 @@ use League\Flysystem\Filesystem as LeagueFilesystem;
 use League\Flysystem\FilesystemOperator;
 use League\Flysystem\Visibility;
 use Shopware\Core\DevOps\Environment\EnvironmentHelper;
+use Shopware\Core\Framework\Adapter\AdapterException;
 use Shopware\Core\Framework\Adapter\Filesystem\Adapter\AdapterFactoryInterface;
 use Shopware\Core\Framework\Adapter\Filesystem\Exception\AdapterFactoryNotFoundException;
-use Shopware\Core\Framework\Adapter\Filesystem\Exception\DuplicateFilesystemFactoryException;
 use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\OptionsResolver\OptionsResolver;
@@ -23,11 +23,9 @@ class FilesystemFactory
     private readonly iterable $adapterFactories;
 
     /**
-     * @internal
-     *
      * @param AdapterFactoryInterface[]|iterable $adapterFactories
      *
-     * @throws DuplicateFilesystemFactoryException
+     * @internal
      */
     public function __construct(iterable $adapterFactories)
     {
@@ -88,13 +86,11 @@ class FilesystemFactory
             }
         }
 
-        throw new AdapterFactoryNotFoundException($type);
+        throw AdapterException::filesystemFactoryNotFound($type);
     }
 
     /**
      * @param AdapterFactoryInterface[]|iterable $adapterFactories
-     *
-     * @throws DuplicateFilesystemFactoryException
      */
     private function checkDuplicates(iterable $adapterFactories): void
     {
@@ -102,7 +98,7 @@ class FilesystemFactory
         foreach ($adapterFactories as $adapter) {
             $type = mb_strtolower($adapter->getType());
             if (\array_key_exists($type, $dupes)) {
-                throw new DuplicateFilesystemFactoryException($type);
+                throw AdapterException::duplicateFilesystemFactory($type);
             }
 
             $dupes[$type] = 1;
@@ -137,7 +133,9 @@ class FilesystemFactory
 
     private function getFallbackUrl(): string
     {
-        $request = Request::createFromGlobals();
+        // Change from use Request::createFromGlobals because files in $_FILES could be deleted
+        $request = new Request(query: $_GET, server: $_SERVER);
+
         $basePath = $request->getSchemeAndHttpHost() . $request->getBasePath();
         $requestUrl = rtrim($basePath, '/') . '/';
 

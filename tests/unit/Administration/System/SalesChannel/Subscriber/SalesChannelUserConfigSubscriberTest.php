@@ -48,7 +48,7 @@ class SalesChannelUserConfigSubscriberTest extends TestCase
         $context = Context::createDefaultContext();
         $event = new EntityDeletedEvent('testEntity', [], $context);
 
-        $this->userConfigRepository->expects(static::once())
+        $this->userConfigRepository->expects($this->once())
             ->method('search')
                 ->willReturn(new EntitySearchResult(
                     UserConfigDefinition::ENTITY_NAME,
@@ -59,7 +59,7 @@ class SalesChannelUserConfigSubscriberTest extends TestCase
                     $context
                 ));
 
-        $this->userConfigRepository->expects(static::once())
+        $this->userConfigRepository->expects($this->once())
             ->method('upsert')
             ->with([], $context);
         $this->salesChannelUserConfigSubscriber->onSalesChannelDeleted($event);
@@ -73,7 +73,7 @@ class SalesChannelUserConfigSubscriberTest extends TestCase
         $context = Context::createDefaultContext();
         $event = new EntityDeletedEvent('testEntity', [], $context);
 
-        $this->userConfigRepository->expects(static::once())
+        $this->userConfigRepository->expects($this->once())
             ->method('search')
             ->willReturn(new EntitySearchResult(
                 UserConfigDefinition::ENTITY_NAME,
@@ -84,7 +84,7 @@ class SalesChannelUserConfigSubscriberTest extends TestCase
                 $context
             ));
 
-        $this->userConfigRepository->expects(static::once())
+        $this->userConfigRepository->expects($this->once())
             ->method('upsert')
             ->with([], $context);
         $this->salesChannelUserConfigSubscriber->onSalesChannelDeleted($event);
@@ -94,11 +94,11 @@ class SalesChannelUserConfigSubscriberTest extends TestCase
     {
         $userConfig = new UserConfigEntity();
         $userConfig->setUniqueIdentifier('user-config-id');
-        $userConfig->setValue(['']);
+        $userConfig->setValue(['test' => '']);
         $context = Context::createDefaultContext();
         $event = new EntityDeletedEvent('testEntity', [], $context);
 
-        $this->userConfigRepository->expects(static::once())
+        $this->userConfigRepository->expects($this->once())
             ->method('search')
             ->willReturn(new EntitySearchResult(
                 UserConfigDefinition::ENTITY_NAME,
@@ -109,7 +109,7 @@ class SalesChannelUserConfigSubscriberTest extends TestCase
                 $context
             ));
 
-        $this->userConfigRepository->expects(static::once())
+        $this->userConfigRepository->expects($this->once())
             ->method('upsert')
             ->with([], $context);
 
@@ -120,7 +120,7 @@ class SalesChannelUserConfigSubscriberTest extends TestCase
     {
         $userConfig = new UserConfigEntity();
         $userConfig->setUniqueIdentifier('user-config-id');
-        $userConfig->setValue(['test-deleted']);
+        $userConfig->setValue(['test' => 'test-deleted']);
         $userConfig->setId('test-deleted');
         $context = Context::createDefaultContext();
         $event = new EntityDeletedEvent(
@@ -135,7 +135,7 @@ class SalesChannelUserConfigSubscriberTest extends TestCase
             $context
         );
 
-        $this->userConfigRepository->expects(static::once())
+        $this->userConfigRepository->expects($this->once())
             ->method('search')
             ->willReturn(new EntitySearchResult(
                 UserConfigDefinition::ENTITY_NAME,
@@ -146,7 +146,7 @@ class SalesChannelUserConfigSubscriberTest extends TestCase
                 $context
             ));
 
-        $this->userConfigRepository->expects(static::once())
+        $this->userConfigRepository->expects($this->once())
             ->method('upsert')
             ->with([['id' => 'test-deleted', 'value' => []]], $context);
         $this->salesChannelUserConfigSubscriber->onSalesChannelDeleted($event);

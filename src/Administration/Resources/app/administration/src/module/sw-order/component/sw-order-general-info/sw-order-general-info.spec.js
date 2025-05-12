@@ -1,5 +1,6 @@
 import { mount } from '@vue/test-utils';
 import EntityCollection from 'src/core/data/entity-collection.data';
+import { createPinia, setActivePinia } from 'pinia';
 
 /**
  * @sw-package checkout
@@ -153,17 +154,7 @@ describe('src/module/sw-order/component/sw-order-general-info', () => {
     let wrapper;
 
     beforeAll(() => {
-        Shopware.State.registerModule('swOrderDetail', {
-            namespaced: true,
-            state: {
-                isLoading: false,
-                isSavedSuccessful: false,
-                versionContext: {},
-            },
-            mutations: {
-                setLoading() {},
-            },
-        });
+        setActivePinia(createPinia());
     });
 
     beforeEach(async () => {

@@ -47,6 +47,7 @@ class ProductSubscriberTest extends TestCase
             $config,
         );
 
+        /** @var EntityLoadedEvent<ProductEntity|PartialEntity> $event */
         $event = new EntityLoadedEvent(
             $this->createMock(ProductDefinition::class),
             [$entity],
@@ -70,6 +71,7 @@ class ProductSubscriberTest extends TestCase
             $config,
         );
 
+        /** @var SalesChannelEntityLoadedEvent<ProductEntity|PartialEntity> $event */
         $event = new SalesChannelEntityLoadedEvent(
             $this->createMock(SalesChannelProductDefinition::class),
             [$entity],
@@ -162,19 +164,19 @@ class ProductSubscriberTest extends TestCase
     public function testEnsureServicesAreCalled(): void
     {
         $isNewDetector = $this->createMock(IsNewDetector::class);
-        $isNewDetector->expects(static::once())->method('isNew');
+        $isNewDetector->expects($this->once())->method('isNew');
 
         $maxPurchaseCalculator = $this->createMock(ProductMaxPurchaseCalculator::class);
-        $maxPurchaseCalculator->expects(static::once())->method('calculate');
+        $maxPurchaseCalculator->expects($this->once())->method('calculate');
 
         $calculator = $this->createMock(AbstractProductPriceCalculator::class);
-        $calculator->expects(static::once())->method('calculate');
+        $calculator->expects($this->once())->method('calculate');
 
         $productVariationBuilder = $this->createMock(ProductVariationBuilder::class);
-        $productVariationBuilder->expects(static::once())->method('build');
+        $productVariationBuilder->expects($this->once())->method('build');
 
         $propertyGroupSorter = $this->createMock(AbstractPropertyGroupSorter::class);
-        $propertyGroupSorter->expects(static::once())->method('sort');
+        $propertyGroupSorter->expects($this->once())->method('sort');
 
         $subscriber = new ProductSubscriber(
             $productVariationBuilder,
@@ -193,13 +195,14 @@ class ProductSubscriberTest extends TestCase
             'cheapestPrice' => $cheapestPrice,
         ]);
 
-        $subscriber->salesChannelLoaded(
-            new SalesChannelEntityLoadedEvent(
-                $this->createMock(ProductDefinition::class),
-                [$entity],
-                $this->createMock(SalesChannelContext::class)
-            )
+        /** @var SalesChannelEntityLoadedEvent<ProductEntity|PartialEntity> $event */
+        $event = new SalesChannelEntityLoadedEvent(
+            $this->createMock(ProductDefinition::class),
+            [$entity],
+            $this->createMock(SalesChannelContext::class)
         );
+
+        $subscriber->salesChannelLoaded($event);
     }
 
     public function testEnsurePartialsEventsConsidered(): void

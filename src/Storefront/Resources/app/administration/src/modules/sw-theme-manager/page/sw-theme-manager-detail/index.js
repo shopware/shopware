@@ -1,7 +1,7 @@
 import template from './sw-theme-manager-detail.html.twig';
 import './sw-theme-manager-detail.scss';
 /**
- * @package buyers-experience
+ * @package discovery
  */
 
 const { Component, Mixin } = Shopware;
@@ -18,15 +18,6 @@ Component.register('sw-theme-manager-detail', {
         Mixin.getByName('theme'),
         Mixin.getByName('notification')
     ],
-
-    filters: {
-        cssValue: function (value) {
-            // Be careful what to filter here because many characters are allowed
-            if (!value) return ''
-            value = value.toString()
-            return value.replace(/`|´/g, '');
-        }
-    },
 
     data() {
         return {
@@ -126,7 +117,7 @@ Component.register('sw-theme-manager-detail', {
         deleteDisabledToolTip() {
             return {
                 showDelay: 300,
-                message: this.$tc('sw-theme-manager.actions.deleteDisabledToolTip'),
+                message: this.$t('sw-theme-manager.actions.deleteDisabledToolTip'),
                 disabled: this.theme.salesChannels.length === 0
             };
         },
@@ -162,6 +153,13 @@ Component.register('sw-theme-manager-detail', {
         createdComponent() {
             this.getTheme();
             this.setPageContext();
+        },
+
+        cssValue(value) {
+            // Be careful what to filter here because many characters are allowed
+            if (!value) return ''
+            value = value.toString()
+            return value.replace(/`|´/g, '');
         },
 
         getTheme() {
@@ -362,8 +360,8 @@ Component.register('sw-theme-manager-detail', {
             return this.themeService.validateFields(deepMergeObject(this.themeConfig, allValues)).then(() => {
                 this.isLoading = false;
                 this.createNotificationSuccess({
-                    title: this.$tc('sw-theme-manager.detail.validate.success'),
-                    message: this.$tc('sw-theme-manager.detail.validate.successMessage'),
+                    title: this.$t('sw-theme-manager.detail.validate.success'),
+                    message: this.$t('sw-theme-manager.detail.validate.successMessage'),
                     autoClose: true,
                 });
             }).catch((error) => {
@@ -372,11 +370,11 @@ Component.register('sw-theme-manager-detail', {
                 const errorObject = error.response.data.errors[0];
                 if (errorObject.code === 'THEME__INVALID_SCSS_VAR') {
                     this.createNotificationError({
-                        title: this.$tc('sw-theme-manager.detail.validate.failed'),
-                        message: this.$tc('sw-theme-manager.detail.validate.failedMessage'),
+                        title: this.$t('sw-theme-manager.detail.validate.failed'),
+                        message: this.$t('sw-theme-manager.detail.validate.failedMessage'),
                         autoClose: false,
                         actions: [{
-                            label: this.$tc('sw-theme-manager.detail.showFullError'),
+                            label: this.$t('sw-theme-manager.detail.showFullError'),
                             method: function showFullError() {
                                 this.errorModalMessage = errorObject.detail;
                             }.bind(this),
@@ -387,7 +385,6 @@ Component.register('sw-theme-manager-detail', {
                 }
 
                 this.createNotificationError({
-                    title: this.$tc('global.default.error'),
                     message: errorObject.detail ?? error.toString(),
                     autoClose: true,
                 });
@@ -410,11 +407,11 @@ Component.register('sw-theme-manager-detail', {
                 const errorObject = error.response.data.errors[0];
                 if (errorObject.code === 'THEME__COMPILING_ERROR' || errorObject.code === 'THEME__INVALID_SCSS_VAR') {
                     this.createNotificationError({
-                        title: this.$tc('sw-theme-manager.detail.error.themeCompile.title'),
-                        message: this.$tc('sw-theme-manager.detail.error.themeCompile.message'),
+                        title: this.$t('sw-theme-manager.detail.error.themeCompile.title'),
+                        message: this.$t('sw-theme-manager.detail.error.themeCompile.message'),
                         autoClose: false,
                         actions: [{
-                            label: this.$tc('sw-theme-manager.detail.showFullError'),
+                            label: this.$t('sw-theme-manager.detail.showFullError'),
                             method: function showFullError() {
                                 this.errorModalMessage = errorObject.detail;
                             }.bind(this),
@@ -425,7 +422,6 @@ Component.register('sw-theme-manager-detail', {
                 }
 
                 this.createNotificationError({
-                    title: this.$tc('global.default.error'),
                     message: errorObject.detail ?? error.toString(),
                     autoClose: true,
                 });
@@ -636,11 +632,9 @@ Component.register('sw-theme-manager-detail', {
         getBind(field) {
             const config = Object.assign({}, field);
 
-            if (config?.type !== 'switch' &&
-                config?.type !== 'checkbox' &&
-                config.custom?.componentName !== 'sw-switch-field' &&
-                config.custom?.componentName !== 'sw-checkbox-field'
-            ) {
+            const isCheckboxType = ['switch', 'checkbox'].includes(config?.type);
+            const isCheckboxField = ['sw-switch-field', 'sw-checkbox-field'].includes(config.custom?.componentName);
+            if (!isCheckboxType && !isCheckboxField) {
                 config.label = '';
             }
 
@@ -648,11 +642,56 @@ Component.register('sw-theme-manager-detail', {
 
             Object.assign(config, config.custom);
 
+            if (['sw-single-select', 'sw-multi-select'].includes(config.custom?.componentName)) {
+                config.custom.options.forEach((option) => {
+                    /** @deprecated tag:v6.8.0 - Theme config labels will be removed entirely, use `this.$t` instead */
+                    option.label = this.getSnippet(option.labelSnippetKey, option.label);
+                });
+            }
+
             if (config.custom?.componentName !== 'sw-switch-field' && config.custom?.componentName !== 'sw-checkbox-field') {
                 delete config.custom;
             }
 
-            return { type: field.type, config: config };
+            return { type: field.type, config };
+        },
+
+        /**
+         * @deprecated tag:v6.8.0 - Theme config labels will be removed entirely, use `this.$t` instead.
+         */
+        getSnippet(key, fallback = '') {
+            if (this.$t(key) !== key) {
+                return this.$t(key);
+            }
+
+            console.warn(`[DEPRECATED] v6.8.0 - Theme config labels will be removed entirely, use snippet translation for key "${key}" instead.`);
+
+            return fallback;
+        },
+
+        /**
+         * @deprecated tag:v6.8.0 - `fallback` will be removed and return `null` instead, since theme config helpTexts will be removed entirely.
+         */
+        getHelpText(key, fallback = null) {
+            if (this.$t(key) !== key) {
+                return this.$t(key);
+            }
+
+            console.warn(`[DEPRECATED] v6.8.0 - Theme config helpTexts will be removed entirely, use snippet translation for key "${key}" instead.`);
+
+            return fallback;
+        },
+
+        /**
+         * @deprecated tag:v6.8.0 - Parameter `fallback` will be removed
+         */
+        getTabLabel(key, fallback = '') {
+            const snippet = this.getSnippet(key, fallback);
+            if (snippet.length >= 1) {
+                return snippet;
+            }
+
+            return this.$t('sw-theme-manager.general.defaultTab');
         },
 
         selectionDisablingMethod(selection) {

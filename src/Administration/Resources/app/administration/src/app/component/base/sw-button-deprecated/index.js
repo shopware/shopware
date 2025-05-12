@@ -1,8 +1,6 @@
 import './sw-button.scss';
 import template from './sw-button.html.twig';
 
-const { Component } = Shopware;
-
 /**
  * @sw-package framework
  *
@@ -15,17 +13,13 @@ const { Component } = Shopware;
  * <sw-button>
  *     Button
  * </sw-button>
+ *
+ * @deprecated tag:v6.8.0 - Will be removed, use mt-button instead.
  */
-Component.register('sw-button-deprecated', {
+export default {
     template,
 
     inheritAttrs: false,
-
-    compatConfig: {
-        ...Shopware.compatConfig,
-        // Needed so that Button classes are bound correctly via `v-bind="$attrs"`
-        INSTANCE_ATTRS_CLASS_STYLE: false,
-    },
 
     props: {
         disabled: {
@@ -122,15 +116,6 @@ Component.register('sw-button-deprecated', {
             };
         },
 
-        listeners() {
-            // eslint-disable-next-line @typescript-eslint/no-unsafe-call,@typescript-eslint/no-unsafe-member-access
-            if (this.isCompatEnabled('INSTANCE_LISTENERS')) {
-                return this.$listeners;
-            }
-
-            return {};
-        },
-
         filteredAttributes() {
             const attributes = { ...this.$attrs };
 
@@ -142,4 +127,4 @@ Component.register('sw-button-deprecated', {
             return attributes;
         },
     },
-});
+};

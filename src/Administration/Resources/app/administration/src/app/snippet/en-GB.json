@@ -821,90 +821,37 @@
         "customerBirthdayRule": "Customer date of birth",
         "customerCreatedByAdminRule": "Customer created by admin",
         "customerSalutationRule": "Customer salutation",
-        "customerDefaultPaymentMethodRule": "Customer with default payment method",
         "lineItemPropertyValueRule": "Item with property value",
         "lineItemVariantValueRule": "Item with variant value"
       }
     },
     "sw-condition-generic": {
-      "customerDaysSinceLastLogin": {
-        "daysPassed": {
-          "placeholder": "@:sw-product.settingsForm.placeholderTime"
-        }
-      },
-      "customerDaysSinceFirstLogin": {
-        "daysPassed": {
-          "placeholder": "@:sw-product.settingsForm.placeholderTime"
-        }
-      },
-      "customerDaysSinceLastOrder": {
-        "daysPassed": {
-          "placeholder": "@:sw-product.settingsForm.placeholderTime"
-        }
-      },
-      "customerEmail": {
-        "email": {
-          "placeholder": "@:global.sw-condition.condition.emailRule.placeholder"
-        }
-      },
-      "cartLineItemDimensionWidth": {
-        "amount": {
-          "placeholder": "@:sw-product.settingsForm.placeholderWidth"
-        }
-      },
-      "cartLineItemDimensionHeight": {
-        "amount": {
-          "placeholder": "@:sw-product.settingsForm.placeholderHeight"
-        }
-      },
-      "cartLineItemDimensionLength": {
-        "amount": {
-          "placeholder": "@:sw-product.settingsForm.placeholderLength"
-        }
-      },
-      "cartTaxDisplay": {
-        "taxDisplay": {
-          "options": {
-            "gross": "@:global.sw-condition.condition.cartTaxDisplay.gross",
-            "net": "@:global.sw-condition.condition.cartTaxDisplay.net"
-          }
-        }
-      },
       "dayOfWeek": {
         "dayOfWeek": {
           "options": {
-            "1": "@:global.day-of-week.monday",
-            "2": "@:global.day-of-week.tuesday",
-            "3": "@:global.day-of-week.wednesday",
-            "4": "@:global.day-of-week.thursday",
-            "5": "@:global.day-of-week.friday",
-            "6": "@:global.day-of-week.saturday",
-            "7": "@:global.day-of-week.sunday"
+            "1": "Monday",
+            "2": "Tuesday",
+            "3": "Wednesday",
+            "4": "Thursday",
+            "5": "Friday",
+            "6": "Saturday",
+            "7": "Sunday"
           }
         }
       },
       "cartLineItemOfType": {
         "lineItemType": {
           "options": {
-            "product": "@:global.sw-condition.condition.lineItemOfTypeRule.product",
-            "promotion": "@:global.sw-condition.condition.lineItemOfTypeRule.discount_surcharge"
+            "product": "Product",
+            "promotion": "Discount / surcharge"
           }
         }
       },
-      "promotionCodeOfType": {
-        "promotionCodeType": {
+      "cartTaxDisplay": {
+        "taxDisplay": {
           "options": {
-            "global": "@:global.sw-condition.condition.promotionCodeOfTypeRule.global",
-            "fixed": "@:global.sw-condition.condition.promotionCodeOfTypeRule.fixed",
-            "individual": "@:global.sw-condition.condition.promotionCodeOfTypeRule.individual"
-          }
-        }
-      },
-      "cartLineItemProductStates": {
-        "productState": {
-          "options": {
-            "is-physical": "Physical",
-            "is-download": "Digital"
+            "gross": "Gross",
+            "net": "Net"
           }
         }
       },
@@ -913,8 +860,24 @@
           "options": {
             "gross": "Gross",
             "net": "Net"
-          },
-          "placeholder": "Select operator..."
+          }
+        }
+      },
+      "promotionCodeOfType": {
+        "promotionCodeType": {
+          "options": {
+            "global": "None",
+            "fixed": "Fixed",
+            "individual": "Individual"
+          }
+        }
+      },
+      "cartLineItemProductStates": {
+        "productState": {
+          "options": {
+            "is-download": "Digital",
+            "is-physical": "Physical"
+          }
         }
       },
       "units": {
@@ -969,32 +932,6 @@
           "mm3": "mm³",
           "in3": "in³",
           "ft3": "ft³"
-        }
-      },
-      "orderCreatedByAdmin": {
-        "shouldOrderBeCreatedByAdmin": {
-          "placeholder": "Select condition..."
-        }
-      },
-      "adminSalesChannelSource": {
-        "hasAdminSalesChannelSource": {
-          "placeholder": "Select condition..."
-        }
-      },
-      "orderTransactionStatus": {
-        "stateIds": {
-          "placeholder": "Select state..."
-        },
-        "operator": {
-          "placeholder": "Select operator..."
-        }
-      },
-      "orderStatus": {
-        "stateIds": {
-          "placeholder": "Select state..."
-        },
-        "operator": {
-          "placeholder": "Select operator..."
         }
       }
     },
@@ -1263,6 +1200,41 @@
       "code-switch": "Switch edit modes"
     }
   },
+  "mt-text-editor-toolbar-button-link": {
+    "label": "Link"
+  },
+  "sw-text-editor-toolbar-button-link": {
+    "modalTitle": "Insert/Edit link",
+    "linkTo": "Link to",
+    "linkUrl": "URL",
+    "linkPhone": "Phone number",
+    "linkPhonePrefix": "tel:",
+    "linkDetail": "Product",
+    "linkEmail": "Email",
+    "linkEmailPlaceholder": "Enter email address...",
+    "detailPlaceholder": "Select a product...",
+    "categoryPlaceholder": "Select a category...",
+    "displayAsButton": "Display as button",
+    "openInNewTab": "Open in new tab",
+    "applyLink": "Apply",
+    "linkType": "Link type",
+    "removeLink": "Remove link",
+    "linkOptions": {
+      "link": "URL",
+      "product": "Product",
+      "category": "Category",
+      "media": "File",
+      "email": "Email",
+      "phoneNumber": "Phone number"
+    },
+    "buttonVariantPrimary": "Primary",
+    "buttonVariantSecondary": "Secondary",
+    "buttonVariantPrimarySmall": "Primary (small)",
+    "buttonVariantSecondarySmall": "Secondary (small)"
+  },
+  "sw-text-editor-toolbar-button-cms-data-mapping": {
+    "label": "Insert variable"
+  },
   "sw-tree": {
     "general": {
       "placeholderSearch": "Search...",
@@ -1529,15 +1501,15 @@
       "sw-app-app-url-changed-modal": {
         "move-shop-permanently": {
           "name": "Migrate apps to new domain",
-          "description": "Make your apps use the new domain instead of the old domain. This will assign all apps and app data to your new domain and remove the assignment from the old domain."
+          "description": "This is typically the right option if you have permanently moved your shop from an old to a new domain. Shopware will notify app servers about the new domain (i.e. re-register at the app servers) and apps remain installed. The shop identifier remains unchanged."
         },
         "reinstall-apps": {
           "name": "Copy apps to current domain",
-          "description": "If you want to keep your apps working on both domains, this re-installs all apps on your new domain. Note: App data on your old domain will still be available, non-free apps may require additional charges for each domain."
+          "description": "This is typically the right option if you have made a copy of your shop (e.g. a staging or testing environment of a production shop) and you do want to use the apps in this copy. Shopware will re-install the apps and newly register at the app servers using the new domain. A new shop identifier will be generated."
         },
         "uninstall-apps": {
           "name": "Uninstall apps",
-          "description": "Keeps app data on old domain and uninstalls all apps from the new domain."
+          "description": "This is typically the right option if you have made a copy of your shop (e.g. a staging or testing environment of a production shop) and you don’t want to use the apps in this copy. Shopware will delete the apps without notifying the app servers. A new shop identifier will be generated."
         },
         "title": "Domain change detected",
         "oldLabel": "Old domain: ",
@@ -1552,7 +1524,6 @@
         "title": "Wrongly configured APP_URL",
         "explanationHeader": "Error with the connection to your extensions.",
         "explanation": "Extensions are not able to establish a connection to your shop, due to a wrong configuration in your system.",
-        "textGetSupport": "Try contacting your hoster to get support.",
         "textDetails": "Technical details: Wrong APP_URL configuration.",
         "labelLearnMoreButton": "Learn more",
         "linkToDocsArticle": "https://docs.shopware.com/en/shopware-6-en/tutorials-and-faq/notes-to-the-APP-URL"
@@ -1577,6 +1548,11 @@
     "placeholder": "All",
     "active": "Active",
     "inactive": "Inactive"
+  },
+  "sw-date-filter": {
+    "selectTimeframe": {
+      "placeholder": "Select timeframe"
+    }
   },
   "sw-existence-filter": {
     "placeholder": "All",
@@ -1633,6 +1609,10 @@
   },
   "sw-in-app-purchase-checkout": {
     "exsTitle": "Activate the Shopware Extension Store"
+  },
+  "sidebar": {
+    "ariaLabelButtonClose": "Close sidebar",
+    "ariaLabelButtonOpen": "Open sidebar"
   },
   "help-center": {
     "sidebar": {

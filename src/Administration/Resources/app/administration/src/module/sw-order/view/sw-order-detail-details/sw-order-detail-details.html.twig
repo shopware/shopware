@@ -4,6 +4,7 @@
     {% block sw_order_detail_details_payment %}
     <sw-order-details-state-card
         v-if="transaction"
+        position="transaction"
         :title="$tc('sw-order.detailsTab.labelTransactionCard')"
         :order="order"
         :entity="transaction"
@@ -44,6 +45,7 @@
     {% block sw_order_detail_details_shipping %}
     <sw-order-details-state-card
         v-if="delivery"
+        position="delivery"
         :title="$tc('sw-order.detailsTab.labelDeliveryCard')"
         :order="order"
         :entity="delivery"
@@ -77,23 +79,26 @@
         />
         {% endblock %}
 
+        {# @deprecated tag:v6.8.0 - Will be removed, use shipping cost in general view instead. #}
+        {# file: src/Administration/Resources/app/administration/src/module/sw-order/view/sw-order-detail-general/sw-order-detail-general.html.twig #}
         {% block sw_order_detail_details_shipping_costs %}
-        <sw-number-field
-            v-model:value="shippingCosts"
+        <mt-number-field
+            v-if="!feature.isActive('v6.8.0.0')"
+            v-model="shippingCosts"
             class="sw-order-detail-details__shipping-cost"
             :disabled="!acl.can('order.editor')"
-            fill-digits
+            :step="1"
             :label="$tc('sw-order.detailDeliveries.labelShippingCosts')"
         >
             <template #suffix>
                 {{ order.currency.symbol }}
             </template>
-        </sw-number-field>
+        </mt-number-field>
         {% endblock %}
 
         {% block sw_order_detail_details_shipping_date %}
-        <sw-datepicker
-            v-model:value="delivery.shippingDateEarliest"
+        <mt-datepicker
+            v-model="delivery.shippingDateEarliest"
             disabled
             hide-hint
             :label="$tc('sw-order.detailDeliveries.labelDeliveryDate')"
@@ -124,6 +129,7 @@
 
     {% block sw_order_detail_details_order %}
     <sw-order-details-state-card
+        position="order"
         :title="$tc('sw-order.detailsTab.labelOrderCard')"
         :order="order"
         :entity="order"
@@ -134,8 +140,9 @@
     >
 
         {% block sw_order_detail_details_order_email %}
-        <sw-text-field
-            v-model:value="order.orderCustomer.email"
+
+        <mt-text-field
+            v-model="order.orderCustomer.email"
             class="sw-order-detail-details__email"
             :disabled="!acl.can('order.editor') || undefined"
             :label="$tc('sw-order.createBase.detailsBody.labelEmail')"
@@ -146,8 +153,9 @@
         {% endblock %}
 
         {% block sw_order_detail_details_order_phone_number %}
-        <sw-text-field
-            v-model:value="order.addresses.get(order.billingAddressId).phoneNumber"
+
+        <mt-text-field
+            v-model="order.addresses.get(order.billingAddressId).phoneNumber"
             class="sw-order-detail-details__phone-number"
             :disabled="!acl.can('order.editor') || undefined"
             :label="$tc('sw-order.createBase.detailsBody.labelPhoneNumber')"
@@ -179,8 +187,9 @@
         {% endblock %}
 
         {% block sw_order_detail_details_order_affiliate %}
-        <sw-text-field
-            v-model:value="order.affiliateCode"
+
+        <mt-text-field
+            v-model="order.affiliateCode"
             class="sw-order-detail-details__affiliate-code"
             :disabled="!acl.can('order.editor') || undefined"
             :label="$tc('sw-order.detailBase.labelAffiliateCode')"
@@ -188,8 +197,9 @@
         {% endblock %}
 
         {% block sw_order_detail_details_order_campaign %}
-        <sw-text-field
-            v-model:value="order.campaignCode"
+
+        <mt-text-field
+            v-model="order.campaignCode"
             class="sw-order-detail-details__campaign-code"
             :disabled="!acl.can('order.editor') || undefined"
             :label="$tc('sw-order.detailBase.labelCampaignCode')"
@@ -197,21 +207,47 @@
         {% endblock %}
 
         {% block sw_order_detail_details_order_customer_comment %}
-        <sw-textarea-field
-            v-model:value="order.customerComment"
+        <mt-textarea
+            v-model="order.customerComment"
             class="sw-order-detail-details__customer-comment"
             :disabled="!acl.can('order.editor')"
             :label="$tc('sw-order.detailBase.labelCustomerComment')"
-        />
+        >
+            <template #hint>
+                <div class="sw-order-detail-details__field-hint">
+                    <mt-icon
+                        size="12"
+                        name="solid-info-circle"
+                        class="sw-order-detail-details__field-hint__icon"
+                    />
+                    <p>{{ $tc('sw-order.detailBase.helpTextCustomerComment') }}</p>
+                </div>
+            </template>
+        </mt-textarea>
         {% endblock %}
 
+        {% block sw_order_detail_details_order_internal_comment %}
+        <mt-textarea
+            v-model="order.internalComment"
+            class="sw-order-detail-details__internal-comment"
+            :disabled="!acl.can('order.editor')"
+            :label="$tc('sw-order.detailBase.labelInternalComment')"
+        >
+            <template #hint>
+                <div class="sw-order-detail-details__field-hint">
+                    <mt-icon
+                        size="12"
+                        name="solid-info-circle"
+                        class="sw-order-detail-details__field-hint__icon"
+                    />
+                    <p>{{ $tc('sw-order.detailBase.helpTextInternalComment') }}</p>
+                </div>
+            </template>
+        </mt-textarea>
+        {% endblock %}
+
+        <!-- @deprecated tag:v6.8.0 - Block will be removed -->
         {% block sw_order_detail_details_order_promotion %}
-        <sw-order-promotion-field
-            class="sw-order-detail-details__promotion"
-            @loading-change="updateLoading"
-            @reload-entity-data="reloadEntityData"
-            @error="showError"
-        />
         {% endblock %}
 
     </sw-order-details-state-card>
@@ -222,7 +258,7 @@
         position-identifier="sw-order-detail-base-custom-fields__before"
     />
 
-    <sw-card
+    <mt-card
         v-if="customFieldSets.length > 0"
         position-identifier="sw-order-detail-details-custom-fields"
         :title="$tc('sw-settings-custom-field.general.mainMenuItemGeneral')"
@@ -232,7 +268,7 @@
             :disabled="!acl.can('order.editor')"
             :sets="customFieldSets"
         />
-    </sw-card>
+    </mt-card>
 
     <sw-extension-component-section
         position-identifier="sw-order-detail-base-custom-fields__after"

@@ -1,17 +1,14 @@
 import template from './sw-condition-modal.html.twig';
 import './sw-condition-modal.scss';
 
-const { Component } = Shopware;
 const { EntityCollection } = Shopware.Data;
 
 /**
  * @private
  * @sw-package fundamentals@after-sales
  */
-Component.register('sw-condition-modal', {
+export default {
     template,
-
-    compatConfig: Shopware.compatConfig,
 
     inject: ['repositoryFactory'],
 
@@ -119,4 +116,4 @@ Component.register('sw-condition-modal', {
             this.$emit('modal-close');
         },
     },
-});
+};

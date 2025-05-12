@@ -151,6 +151,9 @@
         "usage_data": {
             "type": "object",
             "additionalProperties": false,
+            "collection_enabled": {
+                "type": "boolean"
+            },
             "properties": {
                 "gateway": {
                     "type": "object",
@@ -386,9 +389,6 @@
                 },
                 "rate_limiter": {
                     "$ref": "#/definitions/rate_limiter"
-                },
-                "jwt_key": {
-                    "$ref": "#/definitions/jwt_key"
                 }
             },
             "title": "API"
@@ -490,28 +490,6 @@
                 }
             },
             "title": "API store"
-        },
-        "jwt_key": {
-            "type": "object",
-            "additionalProperties": false,
-            "properties": {
-                "use_app_secret": {
-                    "type": "boolean",
-                    "default": false
-                },
-                "private_key_path": {
-                    "type": "string",
-                    "description": "Path to the private key file."
-                },
-                "private_key_passphrase": {
-                    "type": "string",
-                    "description": "Passphrase for the private key file."
-                },
-                "public_key_path": {
-                    "type": "string",
-                    "description": "Path to the public key file."
-                }
-            }
         },
         "auto_update": {
             "type": "object",
@@ -978,8 +956,11 @@
                         "php",
                         "x-sendfile",
                         "x-accel"
-                    ],
-                    "type": "string"
+                    ]
+                },
+                "private_local_path_prefix": {
+                    "type": "string",
+                    "description": "Path prefix to be prepended to the path when using a local download strategy"
                 }
             },
             "title": "Filesystem"
@@ -1261,11 +1242,6 @@
                         },
                         "available_theme_provider": {
                             "type": "string"
-                        },
-                        "file_delete_delay": {
-                            "type": "integer",
-                            "description": "Delay in seconds until old theme files will be deleted after a new theme compile",
-                            "default": 900
                         }
                     },
                     "title": "Theme loader configuration"

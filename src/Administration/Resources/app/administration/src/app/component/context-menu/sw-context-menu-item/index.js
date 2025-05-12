@@ -1,14 +1,12 @@
 import template from './sw-context-menu-item.html.twig';
 import './sw-context-menu-item.scss';
 
-const { Component } = Shopware;
-
 /**
  * @sw-package framework
  *
  * @private
  */
-Component.register('sw-context-menu-item', {
+export default {
     template,
 
     props: {
@@ -62,13 +60,14 @@ Component.register('sw-context-menu-item', {
                 'sw-context-menu-item--icon': this.icon,
             };
         },
+    },
 
-        contextListeners() {
-            if (this.isCompatEnabled('INSTANCE_LISTENERS')) {
-                return this.disabled || this.variant === 'headline' ? {} : this.$listeners;
+    methods: {
+        // the listener has the `capture` modifier in the template to prevent parent listeners from being called
+        handleClick(event) {
+            if (this.disabled) {
+                event.stopPropagation();
             }
-
-            return {};
         },
     },
-});
+};

@@ -14,6 +14,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\ManyToOneAssociationField
 use Shopware\Core\Framework\DataAbstractionLayer\Field\OneToManyAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Struct\Struct;
 
@@ -103,8 +104,13 @@ abstract class AbstractCmsElementResolver implements CmsElementResolverInterface
         return $path;
     }
 
+    /**
+     * @deprecated tag:v6.8.0 - Will be removed without replacement
+     */
     protected function resolveDefinitionField(EntityDefinition $definition, string $path): ?Field
     {
+        Feature::triggerDeprecationOrThrow('v6.8.0.0', 'Function will be removed without replacement');
+
         $value = null;
         $parts = explode('.', $path);
         $fields = $definition->getFields();
@@ -131,10 +137,15 @@ abstract class AbstractCmsElementResolver implements CmsElementResolverInterface
         return $value;
     }
 
+    /**
+     * @deprecated tag:v6.8.0 - Will be removed without replacement
+     */
     protected function resolveCriteriaForLazyLoadedRelations(
         EntityResolverContext $resolverContext,
         FieldConfig $config
     ): ?Criteria {
+        Feature::triggerDeprecationOrThrow('v6.8.0.0', 'Function will be removed without replacement');
+
         $field = $this->resolveDefinitionField($resolverContext->getDefinition(), $config->getStringValue());
         if ($field === null) {
             return null;

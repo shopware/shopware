@@ -1,8 +1,6 @@
 import template from './sw-internal-link.html.twig';
 import './sw-internal-link.scss';
 
-const { Component } = Shopware;
-
 /**
  * @sw-package framework
  *
@@ -17,10 +15,8 @@ const { Component } = Shopware;
  * </sw-internal-link>
  */
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
-Component.register('sw-internal-link', {
+export default {
     template,
-
-    compatConfig: Shopware.compatConfig,
 
     emits: ['click'],
 
@@ -73,4 +69,4 @@ Component.register('sw-internal-link', {
             };
         },
     },
-});
+};

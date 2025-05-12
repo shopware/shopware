@@ -1,8 +1,6 @@
 import template from './sw-context-button.html.twig';
 import './sw-context-button.scss';
 
-const { Component } = Shopware;
-
 /**
  * @sw-package framework
  *
@@ -16,10 +14,8 @@ const { Component } = Shopware;
  *     </sw-context-menu-item>
  * </sw-context-button>
  */
-Component.register('sw-context-button', {
+export default {
     template,
-
-    compatConfig: Shopware.compatConfig,
 
     inject: ['feature'],
 
@@ -72,6 +68,12 @@ Component.register('sw-context-button', {
             type: String,
             required: false,
             default: 'solid-ellipsis-h-s',
+        },
+
+        iconSize: {
+            type: String,
+            required: false,
+            default: '16px',
         },
 
         disabled: {
@@ -209,4 +211,4 @@ Component.register('sw-context-button', {
             document.removeEventListener('click', this.handleClickEvent);
         },
     },
-});
+};

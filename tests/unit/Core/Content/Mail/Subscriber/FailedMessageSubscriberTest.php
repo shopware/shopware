@@ -27,7 +27,7 @@ class FailedMessageSubscriberTest extends TestCase
     {
         $connection = $this->createMock(Connection::class);
 
-        $connection->expects(static::once())
+        $connection->expects($this->once())
             ->method('insert')
             ->with(
                 static::equalTo('log_entry'),
@@ -48,6 +48,7 @@ class FailedMessageSubscriberTest extends TestCase
                     static::assertSame('Test Exception', $context['error']);
 
                     $extra = json_decode($entry['extra'], true);
+                    static::assertIsArray($extra);
                     static::assertArrayHasKey('exception', $extra);
                     static::assertArrayHasKey('trace', $extra);
 
@@ -69,7 +70,7 @@ class FailedMessageSubscriberTest extends TestCase
     {
         $connection = $this->createMock(Connection::class);
 
-        $matcher = static::exactly(2);
+        $matcher = $this->exactly(2);
 
         $connection->expects($matcher)
             ->method('insert')
@@ -80,11 +81,13 @@ class FailedMessageSubscriberTest extends TestCase
 
                         static::assertArrayHasKey('context', $data);
                         $context = json_decode($data['context'], true);
+                        static::assertIsArray($context);
                         static::assertArrayHasKey('error', $context);
                         static::assertArrayHasKey('rawMessage', $context);
 
                         static::assertArrayHasKey('extra', $data);
                         $extra = json_decode($data['extra'], true);
+                        static::assertIsArray($extra);
                         static::assertArrayHasKey('exception', $extra);
                         static::assertArrayHasKey('trace', $extra);
 
@@ -92,6 +95,7 @@ class FailedMessageSubscriberTest extends TestCase
                     case 2:
                         static::assertSame('log_entry', $table);
 
+                        static::assertIsArray($data);
                         static::assertArrayHasKey('context', $data);
                         $context = json_decode($data['context'], true);
                         static::assertSame([], $context);

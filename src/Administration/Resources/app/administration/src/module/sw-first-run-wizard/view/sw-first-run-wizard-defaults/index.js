@@ -9,8 +9,6 @@ import './sw-first-run-wizard-defaults.scss';
 export default {
     template,
 
-    compatConfig: Shopware.compatConfig,
-
     inject: ['repositoryFactory'],
 
     emits: [
@@ -51,12 +49,12 @@ export default {
                 },
             ];
 
-            if (!Shopware.State.get('context').app.config.settings.disableExtensionManagement) {
+            if (!Shopware.Store.get('context').app.config.settings.disableExtensionManagement) {
                 buttons.unshift({
                     key: 'back',
                     label: this.$tc('sw-first-run-wizard.general.buttonBack'),
                     position: 'left',
-                    variant: null,
+                    variant: 'secondary',
                     action: 'sw.first.run.wizard.index.data-import',
                     disabled: false,
                 });

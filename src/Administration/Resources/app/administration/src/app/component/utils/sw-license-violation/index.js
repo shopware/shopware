@@ -5,15 +5,11 @@
 import template from './sw-license-violation.html.twig';
 import './sw-license-violation.scss';
 
-const { mapState } = Shopware.Component.getComponentHelper();
-
 /**
  * @private
  */
-Shopware.Component.register('sw-license-violation', {
+export default {
     template,
-
-    compatConfig: Shopware.compatConfig,
 
     inject: [
         'cacheApiService',
@@ -38,10 +34,13 @@ Shopware.Component.register('sw-license-violation', {
     },
 
     computed: {
-        ...mapState('licenseViolation', [
-            'violations',
-            'warnings',
-        ]),
+        violations() {
+            return Shopware.Store.get('licenseViolation').violations;
+        },
+
+        warnings() {
+            return Shopware.Store.get('licenseViolation').warnings;
+        },
 
         visible() {
             if (!this.showViolation) {
@@ -96,9 +95,10 @@ Shopware.Component.register('sw-license-violation', {
             return this.licenseViolationService
                 .checkForLicenseViolations()
                 .then(({ violations, warnings, other }) => {
-                    Shopware.State.commit('licenseViolation/setViolations', violations);
-                    Shopware.State.commit('licenseViolation/setWarnings', warnings);
-                    Shopware.State.commit('licenseViolation/setOther', other);
+                    const licenseViolationStore = Shopware.Store.get('licenseViolation');
+                    licenseViolationStore.violations = violations;
+                    licenseViolationStore.warnings = warnings;
+                    licenseViolationStore.other = other;
                 })
                 .finally(() => {
                     this.finishLoading('getPluginViolation');
@@ -189,4 +189,4 @@ Shopware.Component.register('sw-license-violation', {
             this.loading = this.loading.filter((value) => value !== key);
         },
     },
-});
+};

@@ -12,54 +12,22 @@ class ProductSortingEntity extends Entity
 {
     use EntityIdTrait;
 
-    /**
-     * @var string
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $key;
+    protected string $key;
 
-    /**
-     * @var int
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $priority;
+    protected int $priority;
 
-    /**
-     * @var bool
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $active;
+    protected bool $active;
 
     /**
      * @var array<array{field: string, priority: int, order: ?string, naturalSorting: bool|int|null}>
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
      */
-    protected $fields;
+    protected array $fields = [];
 
-    /**
-     * @var string|null
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $label;
+    protected ?string $label = null;
 
-    /**
-     * @var ProductSortingTranslationCollection|null
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $translations;
+    protected ?ProductSortingTranslationCollection $translations = null;
 
-    /**
-     * @var bool
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $locked;
+    protected bool $locked;
 
     /**
      * @return array<FieldSorting>
@@ -69,10 +37,6 @@ class ProductSortingEntity extends Entity
         $sorting = [];
 
         $fields = $this->fields;
-
-        if (!\is_array($fields)) {
-            $fields = [];
-        }
 
         usort($fields, fn ($a, $b) => $b['priority'] <=> $a['priority']);
 

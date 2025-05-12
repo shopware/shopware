@@ -3,22 +3,28 @@
         {% set showRemoveColumn = true %}
     {% endif %}
 
-    {% set infoColumnClass = 'col-6' %}
-
-    {% if showRemoveColumn %}
-        {% set infoColumnClass = 'col-5' %}
+    {% if showSubtotal is not defined %}
+        {% set showSubtotal = true %}
     {% endif %}
 
+    {% set subtotalColumnSize = 2 %}
+    {% set infoColumnSize = 8 %}
+    {% if showSubtotal %}
+        {% set infoColumnSize = infoColumnSize - subtotalColumnSize %}
+    {% endif %}
+    {% if showRemoveColumn %}
+        {% set infoColumnSize = infoColumnSize - 1 %}
+    {% endif %}
+
+    {# @deprecated tag:v6.8.0 - Will be removed, use infoColumnSize with a prefix instead. #}
+    {% set infoColumnClass = 'col-' ~ infoColumnSize %}
+
     {% block component_checkout_cart_header_element %}
-        {# @deprecated tag:v6.7.0 - Cart header will be `<li>` element instead of `<div>` #}
-        {%- if feature('ACCESSIBILITY_TWEAKS') -%}
-            <li class="card-title cart-table-header" aria-hidden="true">
-        {%- else -%}
-            <div class="card-title cart-table-header" role="listitem" aria-hidden="true">
-        {%- endif -%}
+        <li class="card-title cart-table-header" aria-hidden="true">
+
             <div class="row cart-header-row">
                 {% block component_checkout_cart_header_product_info %}
-                    <div class="{{ infoColumnClass }} cart-header-info">
+                    <div class="col-{{ infoColumnSize }} cart-header-info">
                         {{ 'checkout.cartHeaderInfo'|trans|sw_sanitize }}
                     </div>
                 {% endblock %}
@@ -30,15 +36,17 @@
                 {% endblock %}
 
                 {% if showTaxPrice %}
-                    <div class="col-2 cart-header-tax-price">
-                        {% if context.salesChannel.taxCalculationType == 'horizontal' %}
-                            {% if context.taxState == 'gross' %}
-                                {{ 'checkout.cartHeaderTaxIncludeVat'|trans|sw_sanitize }}
-                            {% else %}
-                                {{ 'checkout.cartHeaderTaxExcludeVat'|trans|sw_sanitize }}
+                    {% block component_checkout_cart_header_tax_price %}
+                        <div class="col-2 cart-header-tax-price">
+                            {% if context.salesChannel.taxCalculationType == 'horizontal' %}
+                                {% if context.taxState == 'gross' %}
+                                    {{ 'checkout.cartHeaderTaxIncludeVat'|trans|sw_sanitize }}
+                                {% else %}
+                                    {{ 'checkout.cartHeaderTaxExcludeVat'|trans|sw_sanitize }}
+                                {% endif %}
                             {% endif %}
-                        {% endif %}
-                    </div>
+                        </div>
+                    {% endblock %}
                 {% else %}
                     {% block component_checkout_cart_header_unit_price %}
                         <div class="col-2 cart-header-unit-price">
@@ -48,16 +56,13 @@
                 {% endif %}
 
                 {% block component_checkout_cart_header_total_price %}
-                    <div class="col-2 cart-header-total-price">
-                        {{ 'checkout.cartHeaderTotalPrice'|trans|sw_sanitize }}
-                    </div>
+                    {% if showSubtotal %}
+                        <div class="col-{{ subtotalColumnSize }} cart-header-total-price">
+                            {{ 'checkout.cartHeaderTotalPrice'|trans|sw_sanitize }}
+                        </div>
+                    {% endif %}
                 {% endblock %}
             </div>
-        {# @deprecated tag:v6.7.0 - Cart header will be `<li>` element instead of `<div>` #}
-        {%- if not feature('ACCESSIBILITY_TWEAKS') -%}
-            </div>
-        {%- else -%}
-            </li>
-        {%- endif -%}
+        </li>
     {% endblock %}
 {% endblock %}

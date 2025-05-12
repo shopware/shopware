@@ -36,8 +36,8 @@ class CachedSnippetFinderTest extends TestCase
         $cacheItem = $this->buildCacheItem(false, true);
         $cacheItem->set(null);
 
-        $this->cache->expects(static::once())->method('getItem')->willReturn($cacheItem);
-        $this->snippetFinder->expects(static::once())->method('findSnippets')->willReturn($snippets);
+        $this->cache->expects($this->once())->method('getItem')->willReturn($cacheItem);
+        $this->snippetFinder->expects($this->once())->method('findSnippets')->willReturn($snippets);
 
         $cachedSnippetFinder = new CachedSnippetFinder($this->snippetFinder, $this->cache);
         $result = $cachedSnippetFinder->findSnippets('test');
@@ -53,8 +53,8 @@ class CachedSnippetFinderTest extends TestCase
         $cacheItem = $this->buildCacheItem(true, false);
         $cacheItem->set($snippets);
 
-        $this->cache->expects(static::once())->method('getItem')->willReturn($cacheItem);
-        $this->snippetFinder->expects(static::never())->method('findSnippets');
+        $this->cache->expects($this->once())->method('getItem')->willReturn($cacheItem);
+        $this->snippetFinder->expects($this->never())->method('findSnippets');
 
         $cachedSnippetFinder = new CachedSnippetFinder($this->snippetFinder, $this->cache);
         $result = $cachedSnippetFinder->findSnippets('test');

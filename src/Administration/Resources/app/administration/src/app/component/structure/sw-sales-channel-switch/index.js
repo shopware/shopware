@@ -3,7 +3,6 @@
  */
 import template from './sw-sales-channel-switch.html.twig';
 
-const { Component } = Shopware;
 const { debug } = Shopware.Utils;
 
 /**
@@ -16,10 +15,8 @@ const { debug } = Shopware.Utils;
  * <sw-sales-channel-switch></sw-sales-channel-switch>
  */
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
-Component.register('sw-sales-channel-switch', {
+export default {
     template,
-
-    compatConfig: Shopware.compatConfig,
 
     emits: ['change-sales-channel-id'],
 
@@ -116,4 +113,4 @@ Component.register('sw-sales-channel-switch', {
             this.emitChange();
         },
     },
-});
+};

@@ -176,7 +176,8 @@ class ProductSearchQueryBuilderTest extends TestCase
         $this->setSearchConfiguration(false, $config);
         $this->setSearchScores([]);
 
-        $criteria = new Criteria();
+        // Reduce the possible products to only those, which are set up in this test class. This makes sure other tests do not interfere.
+        $criteria = new Criteria(array_values($ids->all()));
         $criteria->addState(Criteria::STATE_ELASTICSEARCH_AWARE);
         $criteria->setTerm($term);
         $criteria->addSorting(new FieldSorting('name', FieldSorting::ASCENDING));
@@ -186,10 +187,14 @@ class ProductSearchQueryBuilderTest extends TestCase
         /** @var array<string> $resultIds */
         $resultIds = $result->getIds();
 
-        static::assertCount(\count($expectedProducts), $resultIds, 'Product count mismatch, Got ' . $ids->getKeys($resultIds));
+        static::assertCount(\count($expectedProducts), $resultIds, \sprintf('Product count mismatch, Got "%s"', $ids->getKeys($resultIds)));
 
         foreach ($expectedProducts as $key => $expectedProduct) {
-            static::assertEquals($ids->get($expectedProduct), $resultIds[$key], \sprintf('Expected product %s at position %d to be there, but got %s', $expectedProduct, $key, $ids->getKey($resultIds[$key])));
+            static::assertSame(
+                $ids->get($expectedProduct),
+                $resultIds[$key],
+                \sprintf('Expected product %s at position %d to be there, but got %s', $expectedProduct, $key, $ids->getKey($resultIds[$key]))
+            );
         }
     }
 

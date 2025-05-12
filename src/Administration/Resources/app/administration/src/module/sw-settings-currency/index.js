@@ -61,7 +61,7 @@ Module.register('sw-settings-currency', {
     },
 
     settingsItem: {
-        group: 'shop',
+        group: 'localization',
         to: 'sw.settings.currency.index',
         icon: 'regular-euro',
         privilege: 'currencies.viewer',

@@ -25,7 +25,7 @@
         "symfony/polyfill-php80": "*",
         "symfony/polyfill-php81": "*",
         "symfony/polyfill-php82": "*",
-        "paragonie/random_compat": "*"
+        "paragonie/random_compat": ">=2"
     },
     "support": {
         "issues": "https://github.com/shopware/shopware/issues",
@@ -40,8 +40,8 @@
             "forward-command": false
         },
         "branch-alias": {
-            "dev-master": "6.6.x-dev",
-            "dev-trunk": "6.6.x-dev"
+            "dev-master": "6.7.x-dev",
+            "dev-trunk": "6.7.x-dev"
         }
     },
     "config": {
@@ -53,8 +53,9 @@
         "allow-plugins": {
             "bamarni/composer-bin-plugin": true,
             "composer/package-versions-deprecated": true,
-            "phpstan/extension-installer": true,
             "cweagans/composer-patches": true,
+            "php-http/discovery": false,
+            "phpstan/extension-installer": true,
             "symfony/runtime": true
         }
     },
@@ -79,27 +80,28 @@
         "composer-runtime-api": "^2.1",
         "async-aws/core": "^1.22",
         "cocur/slugify": "^4.3.0",
-        "composer/composer": "^2.8.0",
+        "composer/composer": "^2.8.5",
         "composer/semver": "^3.4.0",
-        "doctrine/dbal": "^3.9",
+        "doctrine/dbal": "^4.2",
         "doctrine/inflector": "^2.0",
-        "dompdf/dompdf": "2.0.4",
+        "dompdf/dompdf": "3.1.0",
         "dragonmantank/cron-expression": "^3.3",
         "erusev/parsedown-extra": "^0.8.1",
         "ezyang/htmlpurifier": "^4.16",
         "guzzlehttp/guzzle": "^7.5.0",
         "guzzlehttp/psr7": "^2.4",
+        "horstoeko/zugferd": "^1.0.104",
         "lcobucci/clock": "^3.1.0",
         "lcobucci/jwt": "^5.5",
         "league/flysystem": "^3.10.3",
+        "league/flysystem-local": "^3.29.0",
         "league/flysystem-memory": "^3.10.3",
         "league/mime-type-detection": "^1.13.0",
-        "league/oauth2-server": "^8.5",
-        "meyfa/php-svg": "^0.14.0",
+        "league/oauth2-server": "^9.1",
+        "meyfa/php-svg": "^0.16.1",
         "monolog/monolog": "^3.3.1",
         "nyholm/psr7": "^1.5",
         "opensearch-project/opensearch-php": "^2.3.1",
-        "padaliyajay/php-autoprefixer": "^1.4",
         "pentatrion/vite-bundle": "^7.0",
         "psr/cache": "^3.0.0",
         "psr/event-dispatcher": "^1.0.0",
@@ -110,7 +112,7 @@
         "scssphp/scssphp": "v1.12.0",
         "setasign/fpdi": "^2.3.7",
         "setasign/tfpdf": "^1.33",
-        "shopware/conflicts": "0.4.0",
+        "shopware/conflicts": "0.5.0",
         "shyim/opensearch-php-dsl": "^1.0.5",
         "squirrelphp/twig-php-syntax": "^1.8.0",
         "symfony/asset": "~7.2.0",
@@ -175,28 +177,27 @@
         "ext-tokenizer": "*",
         "ext-xmlwriter": "*",
         "bamarni/composer-bin-plugin": "^1.8.2",
-        "brianium/paratest": "^7.3",
         "dominikb/composer-license-checker": "^2.5",
         "ergebnis/phpunit-slow-test-detector": "^2.4",
-        "friendsofphp/php-cs-fixer": "3.64.0",
+        "friendsofphp/php-cs-fixer": "3.72.0",
         "jdorn/sql-formatter": "^1.2.17",
         "league/construct-finder": "^1.1",
         "league/flysystem-async-aws-s3": "^3.29.0",
         "league/flysystem-google-cloud-storage": "^3.10.3",
-        "nikic/php-parser": "^4.16.0",
+        "nikic/php-parser": "^5.4.0",
         "opis/json-schema": "^2.3.0",
         "phpbench/phpbench": "^1.2.15",
         "phpdocumentor/reflection-docblock": "^5.3.0",
         "phpdocumentor/type-resolver": "^1.7.1",
         "phpstan/extension-installer": "^1.4.3",
-        "phpstan/phpdoc-parser": "1.33.0",
-        "phpstan/phpstan": "1.12.12",
-        "phpstan/phpstan-deprecation-rules": "1.2.1",
-        "phpstan/phpstan-phpunit": "1.4.1",
-        "phpstan/phpstan-symfony": "1.4.12",
-        "phpunit/phpunit": "^10.5.38",
+        "phpstan/phpdoc-parser": "2.0.0",
+        "phpstan/phpstan": "2.1.8",
+        "phpstan/phpstan-deprecation-rules": "2.0.1",
+        "phpstan/phpstan-phpunit": "2.0.4",
+        "phpstan/phpstan-symfony": "2.0.2",
+        "phpunit/phpunit": "^11.5.17",
         "predis/predis": "^2.2",
-        "rector/type-perfect": "1.0.0",
+        "rector/type-perfect": "2.0.2",
         "shopware/dev-tools": "^1.3",
         "smalot/pdfparser": "^2.2.2",
         "symfony/browser-kit": "~7.2.0",
@@ -205,7 +206,7 @@
         "symfony/expression-language": "~7.2.0",
         "symfony/phpunit-bridge": "~7.2.0",
         "symfony/var-dumper": "~7.2.0",
-        "symplify/phpstan-rules": "13.0.1"
+        "symplify/phpstan-rules": "14.3.5"
     },
     "suggest": {
         "shopware/dev-tools": "For development tools, profiler, faker, etc",
@@ -228,9 +229,7 @@
         "admin:generate-position-identifier-list": "Generate the list of all position identifiers. Used to track breaking changes.",
         "admin:generate-data-set-list": "Generate the list of all data sets. Used to track breaking changes.",
         "admin:unit": "Launches the jest unit test-suite for the Admin",
-        "admin:unit:disabled-compat": "Launches the jest unit test-suite for the Admin with disabled compat mode",
         "admin:unit:watch": "Launches the interactive jest unit test-suite watcher for the Admin",
-        "admin:unit:watch:disabled-compat": "Launches the interactive jest unit test-suite watcher for the Admin with disabled compat mode",
         "bc-check": "Checks for backwards compatibility breaks in the current branch",
         "build:js": "Builds Administration & Storefront",
         "build:js:admin": "Builds the Administration",
@@ -267,7 +266,6 @@
         "npm:storefront": " ",
         "npm:storefront:bin": " ",
         "npm:storefront:check-license": "Check thrid-party dependency licenses for storefront",
-        "paratest": " ",
         "phpbench": " ",
         "phpstan": "Launches the PHP static analysis tool",
         "phpstan-errors-by-area": "Shows the ignored errors defined in the phpstan-baseline.neon by area",
@@ -313,20 +311,9 @@
             "@npm:admin run unit-setup",
             "@npm:admin run unit-watch"
         ],
-        "admin:unit:disabled-compat": [
-            "Composer\\Config::disableProcessTimeout",
-            "@framework:schema:dump",
-            "@npm:admin run unit-setup",
-            "@npm:admin run unit:disabled-compat"
-        ],
-        "admin:unit:watch:disabled-compat": [
-            "Composer\\Config::disableProcessTimeout",
-            "@framework:schema:dump",
-            "@npm:admin run unit-watch:disabled-compat"
-        ],
         "bc-check": [
             "@php vendor-bin/roave-backward-compatibility-check/bin/verify-version.php",
-            "roave-backward-compatibility-check --install-development-dependencies --from=$(git tag -l --sort -version:refname | head -n 1)"
+            "roave-backward-compatibility-check --install-development-dependencies --from=$(git tag -l --sort -version:refname | grep \"^v$(sed -n 's/.*\"dev-trunk\": \"\\([0-9]*\\.[0-9]*\\).*\"/\\1/p' composer.json).\" | head -n 1)"
         ],
         "build:js": [
             "@build:js:admin",
@@ -385,7 +372,7 @@
             "export PROJECT_ROOT=\"$PWD\"; \"$PROJECT_ROOT\"/bin/install-extension-npm"
         ],
         "init:testdb": [
-            "FORCE_INSTALL=true vendor/bin/phpunit --group=none"
+            "FORCE_INSTALL=true vendor/bin/phpunit --group=none --testsuite migration,unit,integration,devops"
         ],
         "lint": [
             "@stylelint",
@@ -409,9 +396,6 @@
         "npm:storefront": "@npm:storefront:bin npm",
         "npm:storefront:bin": "export PROJECT_ROOT=\"$PWD\"; cd src/Storefront/Resources/app/storefront; export PATH=\"$PWD/node_modules/.bin/:$PATH\"; \"$PROJECT_ROOT\"/bin/exec-with-env ",
         "npm:storefront:check-license": "export ALLOWED_LICENSES=\"$(sed -z 's/\\n/;/g' .allowed-licenses)\"; cd src/Storefront/Resources/app/storefront; bash -c \"node_modules/.bin/license-checker-rseidelsohn --onlyAllow \\\"$ALLOWED_LICENSES\\\" --excludePrivatePackages\"",
-        "paratest": [
-            "paratest --configuration phpunit.xml.dist --testsuite=paratest --exclude-group=skip-paratest,needsWebserver --processes $(getconf _NPROCESSORS_ONLN)"
-        ],
         "phpbench": "phpbench run --report=compressed",
         "phpstan": [
             "Composer\\Config::disableProcessTimeout",
@@ -443,7 +427,6 @@
         ],
         "setup": [
             "@composer install -o",
-            "mkdir -p config/jwt || true",
             "mkdir -p custom/plugins || true",
             "@init:db",
             "@init:js",

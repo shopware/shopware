@@ -22,10 +22,8 @@ const defaultRanges = [
  * All further attributes on this component are passed down to the child "sw-chart".
  * Please refer to the documentation of "sw-chart" for proper configuration.
  */
-Shopware.Component.register('sw-chart-card', {
+export default {
     template,
-
-    compatConfig: Shopware.compatConfig,
 
     emits: ['sw-chart-card-range-update'],
 
@@ -88,4 +86,4 @@ Shopware.Component.register('sw-chart-card', {
             this.$emit('sw-chart-card-range-update', this.selectedRange);
         },
     },
-});
+};

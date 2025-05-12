@@ -1,6 +1,6 @@
 import template from './sw-multi-select.html.twig';
 
-const { Component, Mixin } = Shopware;
+const { Mixin } = Shopware;
 const { debounce, get } = Shopware.Utils;
 
 /**
@@ -24,10 +24,8 @@ const { debounce, get } = Shopware.Utils;
  *     value="">
  * </sw-multi-select>
  */
-Component.register('sw-multi-select', {
+export default {
     template,
-
-    compatConfig: Shopware.compatConfig,
 
     inheritAttrs: false,
 
@@ -171,15 +169,6 @@ Component.register('sw-multi-select', {
 
             return this.options;
         },
-
-        listeners() {
-            // eslint-disable-next-line @typescript-eslint/no-unsafe-call,@typescript-eslint/no-unsafe-member-access
-            if (this.isCompatEnabled('INSTANCE_LISTENERS')) {
-                return this.$listeners;
-            }
-
-            return {};
-        },
     },
 
     methods: {
@@ -262,4 +251,4 @@ Component.register('sw-multi-select', {
             return get(object, keyPath, defaultValue);
         },
     },
-});
+};

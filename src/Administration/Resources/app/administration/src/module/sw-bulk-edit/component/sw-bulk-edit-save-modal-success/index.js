@@ -10,8 +10,6 @@ const { Criteria } = Shopware.Data;
 export default {
     template,
 
-    compatConfig: Shopware.compatConfig,
-
     inject: [
         'repositoryFactory',
         'orderDocumentApiService',
@@ -52,11 +50,11 @@ export default {
         },
 
         selectedIds() {
-            return Shopware.State.get('shopwareApps').selectedIds;
+            return Shopware.Store.get('swBulkEdit').selectedIds;
         },
 
         downloadOrderDocuments() {
-            return Shopware.State.get('swBulkEdit')?.orderDocuments?.download;
+            return Shopware.Store.get('swBulkEdit')?.orderDocuments?.download;
         },
 
         latestDocumentsCriteria() {
@@ -172,11 +170,7 @@ export default {
                 return Promise.resolve();
             }
 
-            if (this.isCompatEnabled('INSTANCE_SET')) {
-                this.$set(this.document[documentType], 'isDownloading', true);
-            } else {
-                this.document[documentType].isDownloading = true;
-            }
+            this.document[documentType].isDownloading = true;
             return this.orderDocumentApiService
                 .download(documentIds)
                 .then((response) => {
@@ -197,11 +191,7 @@ export default {
                     });
                 })
                 .finally(() => {
-                    if (this.isCompatEnabled('INSTANCE_SET')) {
-                        this.$set(this.document[documentType], 'isDownloading', false);
-                    } else {
-                        this.document[documentType].isDownloading = false;
-                    }
+                    this.document[documentType].isDownloading = false;
                 });
         },
     },

@@ -11,8 +11,6 @@ const { Criteria } = Shopware.Data;
 export default {
     template,
 
-    compatConfig: Shopware.compatConfig,
-
     inject: [
         'repositoryFactory',
         'acl',
@@ -254,17 +252,6 @@ export default {
             criteria.addAggregation(linkedLayoutsFilter);
         },
 
-        /**
-         * @deprecated tag:v6.7.0 - Will be removed
-         */
-        addPageAggregations(criteria) {
-            return criteria
-                .addAggregation(Criteria.terms('products', 'id', null, null, Criteria.count('productCount', 'products.id')))
-                .addAggregation(
-                    Criteria.terms('categories', 'id', null, null, Criteria.count('categoryCount', 'categories.id')),
-                );
-        },
-
         showDefaultLayoutContextMenu(cmsPage) {
             if (!this.acl.can('system_config:read')) {
                 return false;
@@ -349,7 +336,7 @@ export default {
         },
 
         onChangeLanguage(languageId) {
-            Shopware.State.commit('context/setApiLanguageId', languageId);
+            Shopware.Store.get('context').setApiLanguageId(languageId);
             this.resetList();
         },
 
@@ -591,23 +578,14 @@ export default {
             return isDefault ? `${defaultText} - ${typeLabel}` : typeLabel;
         },
 
-        /**
-         * @deprecated tag:v6.7.0 - Will be removed
-         */
         getPageCategoryCount(page) {
             return page.categories.length;
         },
 
-        /**
-         * @deprecated tag:v6.7.0 - Will be removed
-         */
         getPageProductCount(page) {
             return page.products.length;
         },
 
-        /**
-         * @deprecated tag:v6.7.0 - Will be removed
-         */
         getPageCount(page) {
             const pageCount = this.getPageCategoryCount(page) + this.getPageProductCount(page);
             return pageCount > 0 ? pageCount : '-';

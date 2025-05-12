@@ -15,13 +15,13 @@ use Shopware\Core\Checkout\Order\Aggregate\OrderTransaction\OrderTransactionDefi
 use Shopware\Core\Checkout\Order\Event\OrderStateMachineStateChangeEvent;
 use Shopware\Core\Checkout\Order\OrderDefinition;
 use Shopware\Core\Checkout\Payment\Cart\PaymentHandler\PrePayment;
+use Shopware\Core\Checkout\Payment\PaymentMethodCollection;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Pricing\CashRoundingConfig;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseHelper\CallableClass;
@@ -56,7 +56,7 @@ class OrderStateChangeEventListenerTest extends TestCase
                 new Transition(
                     OrderTransactionDefinition::ENTITY_NAME,
                     $ids->get('transaction'),
-                    StateMachineTransitionActions::ACTION_DO_PAY,
+                    StateMachineTransitionActions::ACTION_PROCESS,
                     'stateId'
                 ),
                 Context::createDefaultContext()
@@ -110,7 +110,7 @@ class OrderStateChangeEventListenerTest extends TestCase
     private function assertEvent(string $event): void
     {
         $listener = $this->getMockBuilder(CallableClass::class)->getMock();
-        $listener->expects(static::once())->method('__invoke');
+        $listener->expects($this->once())->method('__invoke');
 
         static::getContainer()
             ->get('event_dispatcher')
@@ -240,10 +240,6 @@ class OrderStateChangeEventListenerTest extends TestCase
             ],
         ];
 
-        if (!Feature::isActive('v6.7.0.0')) {
-            $customer['defaultPaymentMethodId'] = $this->getValidPaymentMethodId();
-        }
-
         static::getContainer()
             ->get('customer.repository')
             ->upsert([$customer], Context::createDefaultContext());
@@ -253,7 +249,7 @@ class OrderStateChangeEventListenerTest extends TestCase
 
     private function getPrePaymentMethodId(): string
     {
-        /** @var EntityRepository $repository */
+        /** @var EntityRepository<PaymentMethodCollection> $repository */
         $repository = static::getContainer()->get('payment_method.repository');
 
         $criteria = (new Criteria())
@@ -287,6 +283,7 @@ class OrderStateChangeEventListenerTest extends TestCase
 /**
  * @internal
  */
+#[Package('checkout')]
 class RuleValidator extends CallableClass
 {
     public ?OrderStateMachineStateChangeEvent $event;

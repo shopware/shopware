@@ -13,8 +13,6 @@ const { EntityDefinition } = Shopware;
 export default {
     template,
 
-    compatConfig: Shopware.compatConfig,
-
     inject: [
         'createCondition',
         'insertNodeIntoTree',

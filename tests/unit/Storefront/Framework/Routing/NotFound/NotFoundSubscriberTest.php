@@ -5,7 +5,6 @@ namespace Shopware\Tests\Unit\Storefront\Framework\Routing\NotFound;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
-use Shopware\Core\Framework\Adapter\Cache\AbstractCacheTracer;
 use Shopware\Core\Framework\Adapter\Cache\CacheInvalidator;
 use Shopware\Core\Framework\DataAbstractionLayer\Cache\EntityCacheKeyGenerator;
 use Shopware\Core\Kernel;
@@ -40,7 +39,6 @@ class NotFoundSubscriberTest extends TestCase
             $this->createMock(SalesChannelContextServiceInterface::class),
             true,
             $this->createMock(CacheInterface::class),
-            $this->createMock(AbstractCacheTracer::class),
             $this->createMock(EntityCacheKeyGenerator::class),
             $this->createMock(CacheInvalidator::class),
             new EventDispatcher()
@@ -61,15 +59,9 @@ class NotFoundSubscriberTest extends TestCase
     {
         $httpKernel = $this->createMock(HttpKernelInterface::class);
         $httpKernel
-            ->expects(static::once())
+            ->expects($this->once())
             ->method('handle')
             ->willReturn(new Response());
-
-        $cacheTracer = $this->createMock(AbstractCacheTracer::class);
-        $cacheTracer
-            ->expects(static::once())
-            ->method('trace')
-            ->willReturnCallback(fn (string $name, \Closure $closure) => $closure());
 
         $requestStack = $this->createMock(RequestStack::class);
         $requestStack->method('getMainRequest')->willReturn(new Request());
@@ -79,7 +71,6 @@ class NotFoundSubscriberTest extends TestCase
             $this->createMock(SalesChannelContextServiceInterface::class),
             false,
             new TagAwareAdapter(new ArrayAdapter(), new ArrayAdapter()),
-            $cacheTracer,
             $this->createMock(EntityCacheKeyGenerator::class),
             $this->createMock(CacheInvalidator::class),
             new EventDispatcher()
@@ -107,15 +98,9 @@ class NotFoundSubscriberTest extends TestCase
         $response->headers->setCookie(new Cookie('extension-cookie', '1'));
         $response->headers->setCookie(new Cookie('session-', '1'));
         $httpKernel
-            ->expects(static::once())
+            ->expects($this->once())
             ->method('handle')
             ->willReturn($response);
-
-        $cacheTracer = $this->createMock(AbstractCacheTracer::class);
-        $cacheTracer
-            ->expects(static::once())
-            ->method('trace')
-            ->willReturnCallback(fn (string $name, \Closure $closure) => $closure());
 
         $requestStack = $this->createMock(RequestStack::class);
         $requestStack->method('getMainRequest')->willReturn(new Request());
@@ -126,7 +111,6 @@ class NotFoundSubscriberTest extends TestCase
             $this->createMock(SalesChannelContextServiceInterface::class),
             false,
             new TagAwareAdapter($arrayAdapter, $arrayAdapter),
-            $cacheTracer,
             $this->createMock(EntityCacheKeyGenerator::class),
             $this->createMock(CacheInvalidator::class),
             new EventDispatcher(),
@@ -161,14 +145,9 @@ class NotFoundSubscriberTest extends TestCase
     {
         $httpKernel = $this->createMock(HttpKernelInterface::class);
         $httpKernel
-            ->expects(static::once())
+            ->expects($this->once())
             ->method('handle')
             ->willReturn(new Response());
-
-        $cacheTracer = $this->createMock(AbstractCacheTracer::class);
-        $cacheTracer
-            ->expects(static::never())
-            ->method('trace');
 
         $requestStack = $this->createMock(RequestStack::class);
         $requestStack->method('getMainRequest')->willReturn(new Request());
@@ -178,7 +157,6 @@ class NotFoundSubscriberTest extends TestCase
             $this->createMock(SalesChannelContextServiceInterface::class),
             false,
             new TagAwareAdapter(new ArrayAdapter(), new ArrayAdapter()),
-            $cacheTracer,
             $this->createMock(EntityCacheKeyGenerator::class),
             $this->createMock(CacheInvalidator::class),
             new EventDispatcher()
@@ -203,7 +181,7 @@ class NotFoundSubscriberTest extends TestCase
     {
         $httpKernel = $this->createMock(HttpKernelInterface::class);
         $httpKernel
-            ->expects(static::once())
+            ->expects($this->once())
             ->method('handle')
             ->with(static::callback(function (Request $request) {
                 return $request->attributes->get(PlatformRequest::ATTRIBUTE_CAPTCHA) === false;
@@ -215,7 +193,7 @@ class NotFoundSubscriberTest extends TestCase
 
         $eventDispatcher = $this->createMock(EventDispatcher::class);
         $eventDispatcher
-            ->expects(static::once())
+            ->expects($this->once())
             ->method('dispatch')
             ->with(static::isInstanceOf(ErrorRedirectRequestEvent::class));
 
@@ -224,7 +202,6 @@ class NotFoundSubscriberTest extends TestCase
             $this->createMock(SalesChannelContextServiceInterface::class),
             false,
             new TagAwareAdapter(new ArrayAdapter(), new ArrayAdapter()),
-            $this->createMock(AbstractCacheTracer::class),
             $this->createMock(EntityCacheKeyGenerator::class),
             $this->createMock(CacheInvalidator::class),
             $eventDispatcher,
@@ -248,7 +225,7 @@ class NotFoundSubscriberTest extends TestCase
     {
         $cacheInvalidator = $this->createMock(CacheInvalidator::class);
         $cacheInvalidator
-            ->expects($shouldInvalidate ? static::once() : static::never())
+            ->expects($shouldInvalidate ? $this->once() : $this->never())
             ->method('invalidate');
 
         $subscriber = new NotFoundSubscriber(
@@ -256,7 +233,6 @@ class NotFoundSubscriberTest extends TestCase
             $this->createMock(SalesChannelContextServiceInterface::class),
             true,
             $this->createMock(CacheInterface::class),
-            $this->createMock(AbstractCacheTracer::class),
             $this->createMock(EntityCacheKeyGenerator::class),
             $cacheInvalidator,
             new EventDispatcher()

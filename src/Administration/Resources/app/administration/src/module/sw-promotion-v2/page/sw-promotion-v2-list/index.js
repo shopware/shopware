@@ -11,8 +11,6 @@ const { Criteria } = Shopware.Data;
 export default {
     template,
 
-    compatConfig: Shopware.compatConfig,
-
     inject: [
         'repositoryFactory',
         'acl',
@@ -145,6 +143,8 @@ export default {
                         individualCodePattern: '',
                         individualCodes: null,
                         active: false,
+                        orderCount: 0,
+                        ordersPerCustomerCount: null,
                     },
                 };
                 const clone = await this.promotionRepository.clone(referencePromotion.id, behavior, Shopware.Context.api);
@@ -164,6 +164,14 @@ export default {
             } finally {
                 this.isLoading = false;
             }
+        },
+
+        deleteDisabledTooltip(promotion) {
+            return {
+                showDelay: 300,
+                message: this.$tc('sw-promotion-v2.list.deleteDisabledToolTip'),
+                disabled: promotion.orderCount === 0,
+            };
         },
     },
 };

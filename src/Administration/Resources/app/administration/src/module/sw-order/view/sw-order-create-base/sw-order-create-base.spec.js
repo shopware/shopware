@@ -3,7 +3,6 @@
  */
 
 import { mount } from '@vue/test-utils';
-import orderStore from 'src/module/sw-order/state/order.store';
 
 async function createWrapper() {
     return mount(await wrapTestComponent('sw-order-create-base', { sync: true }), {
@@ -12,7 +11,7 @@ async function createWrapper() {
                 'sw-card-view': await wrapTestComponent('sw-card-view', {
                     sync: true,
                 }),
-                'sw-card': {
+                'mt-card': {
                     template: `
                         <div class="sw-card__content">
                             <slot name="grid"></slot>
@@ -24,13 +23,10 @@ async function createWrapper() {
                     sync: true,
                 }),
                 'sw-order-state-select': true,
+                'sw-number-field': await wrapTestComponent('sw-number-field', { sync: true }),
                 'sw-card-section': await wrapTestComponent('sw-card-section', { sync: true }),
                 'sw-description-list': await wrapTestComponent('sw-description-list', { sync: true }),
                 'sw-order-saveable-field': await wrapTestComponent('sw-order-saveable-field', { sync: true }),
-                'sw-button': await wrapTestComponent('sw-button'),
-                'sw-button-deprecated': await wrapTestComponent('sw-button-deprecated'),
-                'sw-number-field': await wrapTestComponent('sw-number-field'),
-                'sw-number-field-deprecated': await wrapTestComponent('sw-number-field-deprecated'),
                 'sw-contextual-field': await wrapTestComponent('sw-contextual-field'),
                 'sw-block-field': await wrapTestComponent('sw-block-field'),
                 'sw-base-field': await wrapTestComponent('sw-base-field'),
@@ -47,13 +43,13 @@ async function createWrapper() {
                 'sw-order-create-details-footer': true,
                 'sw-order-promotion-tag-field': true,
                 'sw-order-line-items-grid-sales-channel': true,
-                'sw-switch-field': true,
+
                 'sw-order-create-address-modal': true,
                 'sw-order-create-promotion-modal': true,
                 'sw-error-summary': true,
-                'sw-icon': true,
                 'sw-loader': true,
                 'router-link': true,
+                'sw-number-field-deprecated': true,
             },
             provide: {
                 repositoryFactory: {
@@ -70,11 +66,7 @@ async function createWrapper() {
 
 describe('src/module/sw-order/view/sw-order-create-base', () => {
     beforeEach(() => {
-        if (Shopware.State.get('swOrder')) {
-            Shopware.State.unregisterModule('swOrder');
-        }
-
-        Shopware.State.registerModule('swOrder', orderStore);
+        Shopware.Store.get('swOrder').$reset();
     });
 
     it('should be show successful notification', async () => {
@@ -82,7 +74,7 @@ describe('src/module/sw-order/view/sw-order-create-base', () => {
 
         wrapper.vm.createNotificationSuccess = jest.fn();
 
-        Shopware.State.commit('swOrder/setCart', {
+        Shopware.Store.get('swOrder').setCart({
             token: null,
             lineItems: [],
             errors: {
@@ -108,7 +100,7 @@ describe('src/module/sw-order/view/sw-order-create-base', () => {
 
         wrapper.vm.createNotificationError = jest.fn();
 
-        Shopware.State.commit('swOrder/setCart', {
+        Shopware.Store.get('swOrder').setCart({
             token: null,
             lineItems: [],
             errors: {
@@ -134,7 +126,7 @@ describe('src/module/sw-order/view/sw-order-create-base', () => {
 
         wrapper.vm.createNotificationWarning = jest.fn();
 
-        Shopware.State.commit('swOrder/setCart', {
+        Shopware.Store.get('swOrder').setCart({
             token: null,
             lineItems: [],
             errors: {
@@ -158,7 +150,7 @@ describe('src/module/sw-order/view/sw-order-create-base', () => {
     it('should only display Total row when status is tax free', async () => {
         const wrapper = await createWrapper();
 
-        Shopware.State.commit('swOrder/setCart', {
+        Shopware.Store.get('swOrder').setCart({
             token: null,
             lineItems: [],
             price: {
@@ -176,7 +168,7 @@ describe('src/module/sw-order/view/sw-order-create-base', () => {
     it('should display Total excluding VAT and Total including VAT row when tax status is not tax free', async () => {
         const wrapper = await createWrapper();
 
-        Shopware.State.commit('swOrder/setCart', {
+        Shopware.Store.get('swOrder').setCart({
             token: null,
             lineItems: [],
         });
@@ -192,7 +184,7 @@ describe('src/module/sw-order/view/sw-order-create-base', () => {
     it('should able to edit shipping cost', async () => {
         const wrapper = await createWrapper();
 
-        Shopware.State.commit('swOrder/setCart', {
+        Shopware.Store.get('swOrder').setCart({
             token: null,
             lineItems: [],
             price: {
@@ -220,7 +212,7 @@ describe('src/module/sw-order/view/sw-order-create-base', () => {
         await saveableField.setValue(20);
         await saveableField.trigger('input');
 
-        button = wrapper.find('.sw-order-saveable-field .sw-button--primary');
+        button = wrapper.findByAriaLabel('button', 'global.default.save');
         await button.trigger('click');
 
         expect(wrapper.vm.cartDelivery.shippingCosts.totalPrice).toBe(20);

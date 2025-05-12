@@ -5,15 +5,11 @@
 import template from './sw-shortcut-overview-item.html.twig';
 import './sw-shortcut-overview-item.scss';
 
-const { Component } = Shopware;
-
 /**
  * @private
  */
-Component.register('sw-shortcut-overview-item', {
+export default {
     template,
-
-    compatConfig: Shopware.compatConfig,
 
     inject: ['acl'],
 
@@ -42,4 +38,4 @@ Component.register('sw-shortcut-overview-item', {
             return this.content.split(' ') || [];
         },
     },
-});
+};

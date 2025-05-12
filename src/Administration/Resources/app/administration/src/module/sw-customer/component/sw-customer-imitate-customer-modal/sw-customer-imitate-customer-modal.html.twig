@@ -6,26 +6,40 @@
     @modal-close="onCancel"
 >
     {% block sw_customer_imitate_customer_modal_alert %}
-    <sw-alert>
+    <mt-banner
+        v-if="hasSalesChannelDomains"
+    >
         <i18n-t
             keypath="sw-customer.imitateCustomerModal.modalInfo"
             tag="p"
+            scope="local"
         >
             <template #logout>
                 <b>{{ $tc('sw-customer.imitateCustomerModal.modalInfoLogout') }}</b>
             </template>
         </i18n-t>
-    </sw-alert>
+    </mt-banner>
+
+    <mt-banner
+        v-else
+        variant="attention"
+    >
+        {{ $tc('sw-customer.imitateCustomerModal.modalInfoNoDomains') }}
+    </mt-banner>
     {% endblock %}
 
     {% block sw_customer_imitate_customer_modal_description %}
-    <div class="imitate-customer-modal-description">
+    <div
+        v-if="hasSalesChannelDomains"
+        class="imitate-customer-modal-description"
+    >
         {{ modalDescription }}
     </div>
     {% endblock %}
 
     {% block sw_customer_imitate_customer_modal_body %}
     <sw-container
+        v-if="hasSalesChannelDomains"
         class="imitate-customer-modal-container"
         columns="1fr"
         gap="8px 0px"
@@ -49,7 +63,7 @@
                 <div class="imitate-customer-modal-item-url">
                     {{ salesChannelDomain.url }}
                 </div>
-                <sw-icon
+                <mt-icon
                     name="regular-external-link-s"
                     size="16px"
                 />
@@ -63,12 +77,13 @@
     <template #modal-footer>
         <div>
             {% block sw_customer_imitate_customer_modal_footer_cancel %}
-            <sw-button
+            <mt-button
                 size="small"
+                variant="secondary"
                 @click="onCancel"
             >
                 {{ $tc('sw-customer.imitateCustomerModal.labelCancel') }}
-            </sw-button>
+            </mt-button>
             {% endblock %}
         </div>
     </template>

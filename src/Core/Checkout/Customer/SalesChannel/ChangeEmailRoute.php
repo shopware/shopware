@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Checkout\Customer\SalesChannel;
 
+use Shopware\Core\Checkout\Customer\CustomerCollection;
 use Shopware\Core\Checkout\Customer\CustomerEntity;
 use Shopware\Core\Checkout\Customer\Service\EmailIdnConverter;
 use Shopware\Core\Checkout\Customer\Validation\Constraint\CustomerEmailUnique;
@@ -31,6 +32,8 @@ class ChangeEmailRoute extends AbstractChangeEmailRoute
 {
     /**
      * @internal
+     *
+     * @param EntityRepository<CustomerCollection> $customerRepository
      */
     public function __construct(
         private readonly EntityRepository $customerRepository,
@@ -66,7 +69,7 @@ class ChangeEmailRoute extends AbstractChangeEmailRoute
     {
         $validation = new DataValidationDefinition('customer.email.update');
 
-        $options = ['context' => $context->getContext(), 'salesChannelContext' => $context];
+        $options = ['salesChannelContext' => $context];
 
         $validation
             ->add(
@@ -75,7 +78,7 @@ class ChangeEmailRoute extends AbstractChangeEmailRoute
                 new EqualTo(['propertyPath' => 'emailConfirmation']),
                 new CustomerEmailUnique($options)
             )
-            ->add('password', new CustomerPasswordMatches(['context' => $context]));
+            ->add('password', new CustomerPasswordMatches($options));
 
         $this->dispatchValidationEvent($validation, $data, $context->getContext());
 

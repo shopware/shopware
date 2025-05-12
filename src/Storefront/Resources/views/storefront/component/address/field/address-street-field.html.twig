@@ -1,0 +1,26 @@
+{% block component_address_field_street %}
+    {% if formViolations.getViolations('/street') is not empty %}
+        {% set violationPath = '/street' %}
+    {% elseif formViolations.getViolations("/#{prefix}/street") is not empty %}
+        {% set violationPath = "/#{prefix}/street" %}
+    {% endif %}
+
+    {% set streetAutocomplete = 'address-line1' %}
+
+    {% if prefix == 'shippingAddress' %}
+        {% set streetAutocomplete = 'shipping address-line1' %}
+    {% elseif prefix == 'billingAddress' %}
+        {% set streetAutocomplete = 'billing address-line1' %}
+    {% endif %}
+
+    {% sw_include '@Storefront/storefront/component/form/form-input.html.twig' with {
+        label: 'address.streetLabel'|trans|sw_sanitize,
+        id: idPrefix ~ prefix ~ '-AddressStreet',
+        name: prefix ~ '[street]',
+        value: data.get('street'),
+        autocomplete: streetAutocomplete,
+        violationPath: violationPath,
+        validationRules: 'required',
+        additionalClass: additionalClass ?? 'col-md-6',
+    } %}
+{% endblock %}

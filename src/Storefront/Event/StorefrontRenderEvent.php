@@ -13,46 +13,24 @@ use Symfony\Component\HttpFoundation\Request;
 class StorefrontRenderEvent extends NestedEvent implements ShopwareSalesChannelEvent
 {
     /**
-     * @var string
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $view;
-
-    /**
      * @var array<string, mixed>
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
      */
-    protected $parameters;
-
-    /**
-     * @var Request
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $request;
-
-    /**
-     * @var SalesChannelContext
-     *
-     * @deprecated tag:v6.7.0 - Will be natively typed
-     */
-    protected $context;
+    protected array $parameters;
 
     /**
      * @param array<string, mixed> $parameters
      */
     public function __construct(
-        string $view,
+        protected string $view,
         array $parameters,
-        Request $request,
-        SalesChannelContext $context
+        protected Request $request,
+        protected SalesChannelContext $context,
     ) {
-        $this->view = $view;
-        $this->parameters = array_merge(['context' => $context], $parameters);
-        $this->request = $request;
-        $this->context = $context;
+        $this->parameters = array_merge([
+            'context' => $context,
+            'headerParameters' => [],
+            'footerParameters' => [],
+        ], $parameters);
     }
 
     public function getSalesChannelContext(): SalesChannelContext
@@ -75,6 +53,11 @@ class StorefrontRenderEvent extends NestedEvent implements ShopwareSalesChannelE
         return $this->view;
     }
 
+    public function getRequest(): Request
+    {
+        return $this->request;
+    }
+
     /**
      * @return array<string, mixed>
      */
@@ -83,15 +66,12 @@ class StorefrontRenderEvent extends NestedEvent implements ShopwareSalesChannelE
         return $this->parameters;
     }
 
-    public function getRequest(): Request
+    public function getParameter(string $key): mixed
     {
-        return $this->request;
+        return $this->parameters[$key] ?? null;
     }
 
-    /**
-     * @param mixed $value
-     */
-    public function setParameter(string $key, $value): void
+    public function setParameter(string $key, mixed $value): void
     {
         $this->parameters[$key] = $value;
     }

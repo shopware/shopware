@@ -16,6 +16,7 @@ $sw-field--radio-color-border: $color-gray-300;
 
     &__toolbar {
         display: flex;
+        width: 100%;
 
         .sw-card-filter {
             flex-grow: 1;
@@ -30,7 +31,7 @@ $sw-field--radio-color-border: $color-gray-300;
         width: 100%;
     }
 
-    &__add-customer.sw-button {
+    &__add-customer.mt-button {
         margin-left: 22px;
     }
 

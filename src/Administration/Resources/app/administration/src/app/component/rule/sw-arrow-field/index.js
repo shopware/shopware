@@ -1,15 +1,11 @@
 import './sw-arrow-field.scss';
 import { h } from 'vue';
 
-const { Component } = Shopware;
-
 /**
  * @private
  * @sw-package fundamentals@after-sales
  */
-Component.register('sw-arrow-field', {
-    compatConfig: Shopware.compatConfig,
-
+export default {
     render() {
         return h(
             'div',
@@ -88,4 +84,4 @@ Component.register('sw-arrow-field', {
             );
         },
     },
-});
+};

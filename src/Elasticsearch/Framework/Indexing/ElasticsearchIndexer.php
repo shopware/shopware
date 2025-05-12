@@ -8,7 +8,6 @@ use Psr\Log\LoggerInterface;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\Common\IteratorFactory;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Elasticsearch\ElasticsearchException;
@@ -178,7 +177,7 @@ class ElasticsearchIndexer
             $errors[] = [
                 'index' => $item['_index'],
                 'id' => $item['_id'],
-                'type' => $item['error']['type'] ?? $item['_type'],
+                'type' => $item['error']['type'] ?? ($item['_type'] ?? 'n/a'),
                 'reason' => $item['error']['reason'] ?? $item['result'],
             ];
 
@@ -267,10 +266,7 @@ class ElasticsearchIndexer
         }
 
         if ($documents === []) {
-            if (Feature::isActive('v6.7.0.0')) {
-                throw ElasticsearchException::emptyIndexingRequest();
-            }
-            Feature::triggerDeprecationOrThrow('v6.7.0.0', 'Since v6.7.0.0 ElasticsearchException will be thrown if no documents are provided for indexing.');
+            throw ElasticsearchException::emptyIndexingRequest();
         }
 
         $arguments = [
@@ -283,7 +279,9 @@ class ElasticsearchIndexer
         if (\is_array($result) && isset($result['errors']) && $result['errors']) {
             $errors = $this->parseErrors($result);
 
-            throw ElasticsearchException::indexingError($errors);
+            $this->helper->logAndThrowException(
+                ElasticsearchException::indexingError($errors)
+            );
         }
     }
 

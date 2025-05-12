@@ -110,22 +110,14 @@
 
                             <p class="product-detail-tax">
                                 {% block buy_widget_tax_link %}
-                                    {% if feature('ACCESSIBILITY_TWEAKS') %}
-                                        {% set cmsPath = path('frontend.cms.page.full', { id: config('core.basicInformation.shippingPaymentInfoPage') }) %}
-                                    {% else %}
-                                        {% set cmsPath = path('frontend.cms.page', { id: config('core.basicInformation.shippingPaymentInfoPage') }) %}
-                                    {% endif %}
+                                    {% set cmsPath = path('frontend.cms.page', { id: config('core.basicInformation.shippingPaymentInfoPage') }) %}
 
-                                    <a
-                                        href="{{ cmsPath }}"
-                                        title="{{ taxText }}"
-                                        {%- if not feature('ACCESSIBILITY_TWEAKS') -%}
+                                    <button class="btn btn-link-inline product-detail-tax-link"
+                                            type="button"
                                             data-ajax-modal="true"
-                                            data-url="{{ cmsPath }}"
-                                        {%- endif -%}
-                                    >
+                                            data-url="{{ cmsPath }}">
                                         {{ taxText }}
-                                    </a>
+                                    </button>
                                 {% endblock %}
                             </p>
                         </div>
@@ -146,6 +138,8 @@
                                 {% set reviewTabHref = '#review-tab-' ~ product.id ~ '-pane' %}
                             {% endif %}
 
+                            {% set reviewTabContent = 'review-tab-' ~ product.id ~ '-pane' %}
+
                             <div class="product-detail-reviews">
 
                                 {% sw_include '@Storefront/storefront/component/review/rating.html.twig' with {
@@ -153,13 +147,12 @@
                                     style: 'text-primary'
                                 } %}
                                 <a
-                                    data-bs-toggle="tab"
                                     class="product-detail-reviews-link"
                                     data-off-canvas-tabs="true"
                                     data-remote-click="true"
                                     data-remote-click-options="{{ remoteClickOptions|json_encode }}"
                                     href="{{ reviewTabHref }}"
-                                    aria-controls="review-tab-pane"
+                                    aria-controls="{{ reviewTabContent }}"
                                 >
                                     {{ totalReviews }}
                                     {{ 'detail.reviewLinkText'|trans({'%count%': totalReviews})|sw_sanitize }}

@@ -2,14 +2,13 @@
  * @sw-package fundamentals@framework
  */
 import template from './sw-users-permissions-role-detail.html.twig';
+import './sw-users-permissions-role-detail.scss';
 
 const { Mixin } = Shopware;
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default {
     template,
-
-    compatConfig: Shopware.compatConfig,
 
     inject: [
         'repositoryFactory',
@@ -63,7 +62,7 @@ export default {
         },
 
         languageId() {
-            return Shopware.State.get('session').languageId;
+            return Shopware.Store.get('session').languageId;
         },
 
         roleRepository() {
@@ -173,9 +172,13 @@ export default {
                 })
                 .catch(() => {
                     this.createNotificationError({
-                        message: this.$tc('global.notification.notificationSaveErrorMessage', 0, {
-                            entityName: this.role.name,
-                        }),
+                        message: this.$tc(
+                            'global.notification.notificationSaveErrorMessage',
+                            {
+                                entityName: this.role.name,
+                            },
+                            0,
+                        ),
                     });
 
                     this.role.privileges = this.privileges.filterPrivilegesRoles(this.role.privileges);
@@ -190,7 +193,7 @@ export default {
                 const data = response.data;
                 delete data.password;
 
-                return Shopware.State.commit('setCurrentUser', data);
+                return Shopware.Store.get('session').setCurrentUser(data);
             });
         },
 

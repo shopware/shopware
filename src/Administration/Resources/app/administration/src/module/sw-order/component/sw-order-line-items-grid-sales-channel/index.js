@@ -6,16 +6,12 @@ import './sw-order-line-items-grid-sales-channel.scss';
  * @sw-package checkout
  */
 
-const { Utils, State, Service } = Shopware;
+const { Utils, Store, Service } = Shopware;
 const { get, format } = Utils;
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default {
     template,
-
-    compatConfig: Shopware.compatConfig,
-
-    inject: ['feature'],
 
     emits: [
         'on-save-item',
@@ -83,7 +79,7 @@ export default {
         },
 
         isCartTokenAvailable() {
-            return State.getters['swOrder/isCartTokenAvailable'];
+            return Store.get('swOrder').isCartTokenAvailable;
         },
 
         isAddNewItemButtonDisabled() {
@@ -228,7 +224,7 @@ export default {
             const item = this.createNewOrderLineItem();
             item.type = this.lineItemTypes.PRODUCT;
             this.cartLineItems.unshift(item);
-            State.commit('swOrder/setCartLineItems', this.cartLineItems);
+            Store.get('swOrder').setCartLineItems(this.cartLineItems);
         },
 
         onInsertBlankItem() {
@@ -236,7 +232,7 @@ export default {
             item.description = 'custom line item';
             item.type = this.lineItemTypes.CUSTOM;
             this.cartLineItems.unshift(item);
-            State.commit('swOrder/setCartLineItems', this.cartLineItems);
+            Store.get('swOrder').setCartLineItems(this.cartLineItems);
         },
 
         onInsertCreditItem() {
@@ -244,7 +240,7 @@ export default {
             item.description = 'credit line item';
             item.type = this.lineItemTypes.CREDIT;
             this.cartLineItems.unshift(item);
-            State.commit('swOrder/setCartLineItems', this.cartLineItems);
+            Store.get('swOrder').setCartLineItems(this.cartLineItems);
         },
 
         onSelectionChanged(selection) {
@@ -256,7 +252,7 @@ export default {
 
             Object.keys(this.selectedItems).forEach((key) => {
                 if (this.selectedItems[key].label === '') {
-                    State.commit('swOrder/removeEmptyLineItem', key);
+                    Store.get('swOrder').removeEmptyLineItem(key);
                 } else {
                     selectedIds.push(key);
                 }
@@ -321,10 +317,14 @@ export default {
             });
 
             const decorateTaxes = sortTaxes.map((taxItem) => {
-                return this.$tc('sw-order.createBase.taxDetail', 0, {
-                    taxRate: taxItem.taxRate,
-                    tax: format.currency(taxItem.tax, this.currency.isoCode),
-                });
+                return this.$tc(
+                    'sw-order.createBase.taxDetail',
+                    {
+                        taxRate: taxItem.taxRate,
+                        tax: format.currency(taxItem.tax, this.currency.isoCode),
+                    },
+                    0,
+                );
             });
 
             return {

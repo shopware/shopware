@@ -7,10 +7,11 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\CartException;
 use Shopware\Core\Checkout\Cart\SalesChannel\CartService;
 use Shopware\Core\Checkout\Promotion\Aggregate\PromotionDiscount\PromotionDiscountEntity;
+use Shopware\Core\Checkout\Promotion\PromotionCollection;
+use Shopware\Core\Content\Product\ProductCollection;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Util\Random;
@@ -31,10 +32,16 @@ class PromotionAbsoluteCalculationTest extends TestCase
     use PromotionIntegrationTestBehaviour;
     use PromotionTestFixtureBehaviour;
 
+    /**
+     * @var EntityRepository<ProductCollection>
+     */
     protected EntityRepository $productRepository;
 
     protected CartService $cartService;
 
+    /**
+     * @var EntityRepository<PromotionCollection>
+     */
     protected EntityRepository $promotionRepository;
 
     protected function setUp(): void
@@ -217,10 +224,6 @@ class PromotionAbsoluteCalculationTest extends TestCase
                 ],
             ],
         ];
-
-        if (!Feature::isActive('v6.7.0.0')) {
-            $customer['defaultPaymentMethodId'] = $this->getValidPaymentMethodId();
-        }
 
         static::getContainer()
             ->get('customer.repository')

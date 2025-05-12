@@ -10,8 +10,6 @@ const { Mixin } = Shopware;
 export default {
     template,
 
-    compatConfig: Shopware.compatConfig,
-
     inject: ['repositoryFactory'],
 
     emits: ['element-update'],
@@ -60,6 +58,21 @@ export default {
             }
 
             return this.element.config.previewMedia.value;
+        },
+
+        displayModeOptions() {
+            return [
+                {
+                    id: 1,
+                    value: 'standard',
+                    label: this.$tc('sw-cms.elements.general.config.label.displayModeStandard'),
+                },
+                {
+                    id: 2,
+                    value: 'streched',
+                    label: this.$tc('sw-cms.elements.general.config.label.displayModeStretch'),
+                },
+            ];
         },
     },
 
@@ -181,13 +194,8 @@ export default {
         },
 
         updateElementData(media = null) {
-            if (this.isCompatEnabled('INSTANCE_SET')) {
-                this.$set(this.element.data, 'previewMediaId', media === null ? null : media.id);
-                this.$set(this.element.data, 'previewMedia', media);
-            } else {
-                this.element.data.previewMediaId = media === null ? null : media.id;
-                this.element.data.previewMedia = media;
-            }
+            this.element.data.previewMediaId = media === null ? null : media.id;
+            this.element.data.previewMedia = media;
         },
 
         onOpenMediaModal() {

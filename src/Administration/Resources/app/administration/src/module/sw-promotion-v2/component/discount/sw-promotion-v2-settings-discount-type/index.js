@@ -10,8 +10,6 @@ const { Criteria } = Shopware.Data;
 export default {
     template,
 
-    compatConfig: Shopware.compatConfig,
-
     inject: [
         'acl',
         'repositoryFactory',
@@ -123,6 +121,26 @@ export default {
 
         showMaxValueAdvancedPrices() {
             return this.discount.type === 'percentage' && this.discount.maxValue !== null;
+        },
+
+        discountTypeOptions() {
+            return this.getApplyDiscountToSelection().map((discountType) => {
+                return {
+                    id: discountType.value,
+                    value: discountType.value,
+                    label: discountType.display,
+                };
+            });
+        },
+
+        applierOptions() {
+            return this.getApplyDiscountToSelection().map((discountType) => {
+                return {
+                    id: discountType.value,
+                    value: discountType.value,
+                    label: discountType.display,
+                };
+            });
         },
     },
 

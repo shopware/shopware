@@ -1,44 +1,21 @@
 import template from './sw-alert.html.twig';
 
-const { Component } = Shopware;
-
 /**
  * @sw-package framework
  *
  * @private
  * @status ready
  * @description Wrapper component for sw-alert and mt-banner. Switches between the two components.
+ *
+ * @deprecated tag:v6.8.0 - Will be removed, use mt-banner instead
  */
-Component.register('sw-alert', {
+export default Shopware.Component.wrapComponentConfig({
     template,
-
-    compatConfig: Shopware.compatConfig,
-
-    computed: {
-        useMeteorComponent() {
-            // Use new meteor component in major
-            if (Shopware.Feature.isActive('v6.7.0.0')) {
-                return true;
-            }
-
-            // Throw warning when deprecated component is used
-            Shopware.Utils.debug.warn(
-                'sw-alert',
-                // eslint-disable-next-line max-len
-                'The old usage of "sw-alert" is deprecated and will be removed in v6.7.0.0. Please use "mt-banner" instead.',
-            );
-
-            return false;
-        },
-
-        // eslint-disable-next-line @typescript-eslint/no-unsafe-function-type
-        listeners(): Record<string, Function | Function[]> {
-            // eslint-disable-next-line @typescript-eslint/no-unsafe-call,@typescript-eslint/no-unsafe-member-access
-            if (this.isCompatEnabled('INSTANCE_LISTENERS')) {
-                return this.$listeners;
-            }
-
-            return {};
+    props: {
+        deprecated: {
+            type: Boolean,
+            required: false,
+            default: false,
         },
     },
 });

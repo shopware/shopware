@@ -198,6 +198,7 @@ frame-ancestors 'none';
 
         <service id="Shopware\Core\Framework\Routing\CoreSubscriber">
             <argument>%shopware.security.csp_templates%</argument>
+            <argument type="service" id="Shopware\Core\Framework\Script\Execution\ScriptExecutor"/>
             <tag name="kernel.event_subscriber"/>
         </service>
 
@@ -240,7 +241,6 @@ frame-ancestors 'none';
             <argument type="service" id="Shopware\Core\System\CustomEntity\Schema\CustomEntitySchemaUpdater"/>
             <argument type="service" id="Shopware\Core\System\CustomEntity\Xml\Config\CustomEntityEnrichmentService"/>
             <argument type="service" id="Shopware\Core\System\CustomEntity\Xml\CustomEntityXmlSchemaValidator"/>
-            <argument>%kernel.project_dir%</argument>
             <argument type="service" id="Shopware\Core\Framework\App\Source\SourceResolver"/>
         </service>
 
@@ -254,17 +254,9 @@ frame-ancestors 'none';
             <argument type="service" id="Doctrine\DBAL\Connection"/>
             <argument type="service" id="Shopware\Core\System\Locale\LanguageLocaleCodeProvider"/>
             <argument type="service" id="Shopware\Core\System\Snippet\SnippetService"/>
-            <argument>%shopware.cache.tagging.each_snippet%</argument>
             <argument type="service" id="event_dispatcher"/>
 
             <tag name="monolog.logger"/>
-        </service>
-
-        <service id="Shopware\Core\Framework\Adapter\Translation\TranslatorCacheInvalidate">
-            <argument type="service" id="Shopware\Core\Framework\Adapter\Cache\CacheInvalidator"/>
-            <argument type="service" id="Doctrine\DBAL\Connection"/>
-
-            <tag name="kernel.event_subscriber"/>
         </service>
 
         <!-- Snippets -->
@@ -275,6 +267,7 @@ frame-ancestors 'none';
             <argument type="service" id="snippet_set.repository"/>
             <argument type="service" id="Shopware\Core\System\Snippet\Filter\SnippetFilterFactory"/>
             <argument type="service" id="service_container" />
+            <argument type="service" id="Shopware\Core\Framework\Extensions\ExtensionDispatcher"/>
             <argument type="service" id="Shopware\Storefront\Theme\DatabaseSalesChannelThemeLoader" on-invalid="null"/>
         </service>
 
@@ -547,6 +540,7 @@ frame-ancestors 'none';
             <argument type="service" id="filesystem"/>
             <argument>%kernel.project_dir%</argument>
             <argument>%shopware.feature.flags%</argument>
+            <argument>%kernel.environment%</argument>
         </service>
 
         <service id="Shopware\Core\Framework\Changelog\Processor\ChangelogReleaseCreator">
@@ -555,6 +549,7 @@ frame-ancestors 'none';
             <argument type="service" id="filesystem"/>
             <argument>%kernel.project_dir%</argument>
             <argument>%shopware.feature.flags%</argument>
+            <argument>%kernel.environment%</argument>
         </service>
 
         <service id="Shopware\Core\Framework\Changelog\Processor\ChangelogReleaseExporter">
@@ -563,6 +558,7 @@ frame-ancestors 'none';
             <argument type="service" id="filesystem"/>
             <argument>%kernel.project_dir%</argument>
             <argument>%shopware.feature.flags%</argument>
+            <argument>%kernel.environment%</argument>
         </service>
 
         <service id="Shopware\Core\Framework\Changelog\Processor\ChangelogValidator">
@@ -571,6 +567,7 @@ frame-ancestors 'none';
             <argument type="service" id="filesystem"/>
             <argument>%kernel.project_dir%</argument>
             <argument>%shopware.feature.flags%</argument>
+            <argument>%kernel.environment%</argument>
         </service>
 
         <service id="Shopware\Core\Framework\Changelog\ChangelogParser" public="false" />
@@ -668,7 +665,6 @@ frame-ancestors 'none';
 
         <service id="Shopware\Core\Framework\Adapter\Redis\RedisConnectionProvider">
             <argument />  <!-- $serviceLocator will be set in the compiler pass -->
-            <argument type="service" id="Shopware\Core\Framework\Adapter\Cache\RedisConnectionFactory"/>
         </service>
 
 
@@ -678,10 +674,6 @@ frame-ancestors 'none';
 
         <service id="Shopware\Core\Framework\Adapter\Storage\AbstractKeyValueStorage" class="Shopware\Core\Framework\Adapter\Storage\MySQLKeyValueStorage" public="true">
             <argument type="service" id="Doctrine\DBAL\Connection"/>
-        </service>
-
-        <service id="messenger.bus.shopware" alias="messenger.default_bus">
-            <deprecated package="shopware/core" version="6.7.0.0">tag:v6.7.0 - The %alias_id% service will be removed in v6.7.0.0 use messenger.default_bus instead</deprecated>
         </service>
 
         <service id="http_kernel" class="Shopware\Core\Framework\Adapter\Kernel\HttpKernel" public="true">
@@ -711,7 +703,6 @@ frame-ancestors 'none';
             <argument type="service" id="cache.http"/>
             <argument type="service" id="Shopware\Core\Framework\Adapter\Cache\Http\CacheStateValidator"/>
             <argument type="service" id="event_dispatcher"/>
-            <argument type="service" id="Shopware\Core\Framework\Adapter\Cache\CacheTracer"/>
             <argument type="service" id="Shopware\Core\Framework\Adapter\Cache\Http\HttpCacheKeyGenerator"/>
             <argument type="service" id="Shopware\Core\Framework\Routing\MaintenanceModeResolver"/>
             <argument>%session.storage.options%</argument>

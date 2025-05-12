@@ -3,8 +3,6 @@
 namespace Shopware\Core\Framework\Api\Controller;
 
 use Doctrine\DBAL\Connection;
-use League\Flysystem\FilesystemException;
-use League\Flysystem\FilesystemOperator;
 use Shopware\Administration\Framework\Twig\ViteFileAccessorDecorator;
 use Shopware\Core\Content\Flow\Api\FlowActionCollector;
 use Shopware\Core\Framework\Api\ApiDefinition\DefinitionService;
@@ -13,10 +11,11 @@ use Shopware\Core\Framework\Api\ApiDefinition\Generator\OpenApi3Generator;
 use Shopware\Core\Framework\Api\ApiException;
 use Shopware\Core\Framework\Api\Route\ApiRouteInfoResolver;
 use Shopware\Core\Framework\Api\Route\RouteInfo;
+use Shopware\Core\Framework\App\Exception\AppUrlChangeDetectedException;
+use Shopware\Core\Framework\App\ShopId\ShopIdProvider;
 use Shopware\Core\Framework\Bundle;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Event\BusinessEventCollector;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Increment\Exception\IncrementGatewayNotFoundException;
 use Shopware\Core\Framework\Increment\IncrementGatewayRegistry;
 use Shopware\Core\Framework\Log\Package;
@@ -28,8 +27,8 @@ use Shopware\Core\Maintenance\System\Service\AppUrlVerifier;
 use Shopware\Core\PlatformRequest;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
-use Symfony\Component\Asset\Packages;
 use Symfony\Component\DependencyInjection\ParameterBag\ParameterBagInterface;
+use Symfony\Component\Filesystem\Filesystem;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -50,7 +49,6 @@ class InfoController extends AbstractController
         private readonly DefinitionService $definitionService,
         private readonly ParameterBagInterface $params,
         private readonly Kernel $kernel,
-        private readonly Packages $packages,
         private readonly BusinessEventCollector $eventCollector,
         private readonly IncrementGatewayRegistry $incrementGatewayRegistry,
         private readonly Connection $connection,
@@ -60,7 +58,9 @@ class InfoController extends AbstractController
         private readonly SystemConfigService $systemConfigService,
         private readonly ApiRouteInfoResolver $apiRouteInfoResolver,
         private readonly InAppPurchase $inAppPurchase,
-        private readonly FilesystemOperator $filesystem,
+        private readonly ?ViteFileAccessorDecorator $viteFileAccessorDecorator,
+        private readonly Filesystem $filesystem,
+        private readonly ShopIdProvider $shopIdProvider,
     ) {
     }
 
@@ -132,42 +132,6 @@ class InfoController extends AbstractController
         return new JsonResponse($events);
     }
 
-    /**
-     * @deprecated tag:v6.7.0 - Will be removed in v6.7.0. Use api.info.stoplightio instead
-     */
-    #[Route(
-        path: '/api/_info/swagger.html',
-        name: 'api.info.swagger',
-        defaults: ['auth_required' => '%shopware.api.api_browser.auth_required_str%'],
-        methods: ['GET']
-    )]
-    public function infoHtml(Request $request): Response
-    {
-        Feature::triggerDeprecationOrThrow(
-            'v6.7.0.0',
-            'Route "/api/_info/swagger.html" is deprecated. Use "/api/_info/stoplightio.html" instead.'
-        );
-
-        $nonce = $request->attributes->get(PlatformRequest::ATTRIBUTE_CSP_NONCE);
-        $apiType = $request->query->getAlpha('type', DefinitionService::TYPE_JSON);
-        $response = $this->render(
-            '@Framework/swagger.html.twig',
-            [
-                'schemaUrl' => 'api.info.openapi3',
-                'cspNonce' => $nonce,
-                'apiType' => $apiType,
-            ]
-        );
-
-        $cspTemplate = trim($this->params->get('shopware.security.csp_templates')['administration'] ?? '');
-        if ($cspTemplate !== '') {
-            $csp = str_replace(['%nonce%', "\n", "\r"], [$nonce, ' ', ' '], $cspTemplate);
-            $response->headers->set('Content-Security-Policy', $csp);
-        }
-
-        return $response;
-    }
-
     #[Route(
         path: '/api/_info/stoplightio.html',
         name: 'api.info.stoplightio',
@@ -201,6 +165,7 @@ class InfoController extends AbstractController
     {
         return new JsonResponse([
             'version' => $this->getShopwareVersion(),
+            'shopId' => $this->getShopId(),
             'versionRevision' => $this->params->get('kernel.shopware_version_revision'),
             'adminWorker' => [
                 'enableAdminWorker' => $this->params->get('shopware.admin_worker.enable_admin_worker'),
@@ -272,53 +237,22 @@ class InfoController extends AbstractController
     private function getBundles(): array
     {
         $assets = [];
-        $package = $this->packages->getPackage('asset');
 
         foreach ($this->kernel->getBundles() as $bundle) {
             if (!$bundle instanceof Bundle) {
                 continue;
             }
 
-            $bundleDirectoryName = preg_replace('/bundle$/', '', mb_strtolower($bundle->getName()));
-            if ($bundleDirectoryName === null) {
-                throw ApiException::unableGenerateBundle($bundle->getName());
+            if (!$this->viteFileAccessorDecorator) {
+                // Admin bundle is not there, admin assets are not available
+                continue;
             }
 
-            $viteEntryPoints = [];
-            if (Feature::isActive('ADMIN_VITE')) {
-                try {
-                    $viteEntryPoints = \json_decode(
-                        $this->filesystem->read(\sprintf('bundles/%s/administration/.vite/%s', $bundleDirectoryName, ViteFileAccessorDecorator::FILES[ViteFileAccessorDecorator::ENTRYPOINTS])),
-                        true,
-                        flags: \JSON_THROW_ON_ERROR
-                    );
-                } catch (FilesystemException|\JsonException $e) {
-                    // ignore
-                }
-            }
+            $viteEntryPoints = $this->viteFileAccessorDecorator->getBundleData($bundle);
 
-            $styles = [];
-            if (Feature::isActive('ADMIN_VITE') && !empty($viteEntryPoints)) {
-                $styles = $viteEntryPoints['entryPoints'][$this->getTechnicalBundleName($bundle)]['css'] ?? [];
-            } else {
-                $styles = array_map(static function (string $filename) use ($package, $bundleDirectoryName) {
-                    $url = 'bundles/' . $bundleDirectoryName . '/' . $filename;
-
-                    return $package->getUrl($url);
-                }, $this->getAdministrationStyles($bundle));
-            }
-
-            $scripts = [];
-            if (Feature::isActive('ADMIN_VITE') && !empty($viteEntryPoints)) {
-                $scripts = $viteEntryPoints['entryPoints'][$this->getTechnicalBundleName($bundle)]['js'] ?? [];
-            } else {
-                $scripts = array_map(static function (string $filename) use ($package, $bundleDirectoryName) {
-                    $url = 'bundles/' . $bundleDirectoryName . '/' . $filename;
-
-                    return $package->getUrl($url);
-                }, $this->getAdministrationScripts($bundle));
-            }
-
+            $technicalBundleName = $this->getTechnicalBundleName($bundle);
+            $styles = $viteEntryPoints['entryPoints'][$technicalBundleName]['css'] ?? [];
+            $scripts = $viteEntryPoints['entryPoints'][$technicalBundleName]['js'] ?? [];
             $baseUrl = $this->getBaseUrl($bundle);
 
             if (empty($styles) && empty($scripts) && $baseUrl === null) {
@@ -348,36 +282,6 @@ class InfoController extends AbstractController
         return $assets;
     }
 
-    /**
-     * @return list<string>
-     */
-    private function getAdministrationStyles(Bundle $bundle): array
-    {
-        $path = \sprintf('administration/css/%s.css', $this->getTechnicalBundleName($bundle));
-        $bundlePath = $bundle->getPath();
-
-        if (!file_exists($bundlePath . '/Resources/public/' . $path) && !file_exists($bundlePath . '/Resources/.administration-css')) {
-            return [];
-        }
-
-        return [$path];
-    }
-
-    /**
-     * @return list<string>
-     */
-    private function getAdministrationScripts(Bundle $bundle): array
-    {
-        $path = \sprintf('administration/js/%s.js', $this->getTechnicalBundleName($bundle));
-        $bundlePath = $bundle->getPath();
-
-        if (!file_exists($bundlePath . '/Resources/public/' . $path) && !file_exists($bundlePath . '/Resources/.administration-js')) {
-            return [];
-        }
-
-        return [$path];
-    }
-
     private function getBaseUrl(Bundle $bundle): ?string
     {
         if (!$bundle instanceof Plugin) {
@@ -388,16 +292,7 @@ class InfoController extends AbstractController
             return $bundle->getAdminBaseUrl();
         }
 
-        $defaultEntryFile = 'administration/index.html';
-        $bundlePath = $bundle->getPath();
-
-        if (!Feature::isActive('ADMIN_VITE') && !file_exists($bundlePath . '/Resources/public/' . $defaultEntryFile)) {
-            return null;
-        }
-
-        if (Feature::isActive('ADMIN_VITE')
-            && !$this->filesystem->fileExists(\sprintf('bundles/%s/meteor-app/index.html', mb_strtolower($bundle->getName())))
-        ) {
+        if (!$this->filesystem->exists($bundle->getPath() . '/Resources/public/meteor-app/index.html')) {
             return null;
         }
 
@@ -465,5 +360,14 @@ WHERE app.active = 1 AND app.base_app_url is not null');
     private function getTechnicalBundleName(Bundle $bundle): string
     {
         return str_replace('_', '-', $bundle->getContainerPrefix());
+    }
+
+    private function getShopId(): string
+    {
+        try {
+            return $this->shopIdProvider->getShopId();
+        } catch (AppUrlChangeDetectedException $e) {
+            return $e->getShopId();
+        }
     }
 }

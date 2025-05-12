@@ -4,7 +4,7 @@
 import { mount } from '@vue/test-utils';
 
 // Turn off known errors
-import { missingGetListMethod } from 'src/../test/_helper_/allowedErrors';
+import { missingGetListMethod } from 'test/_helper_/allowedErrors';
 
 global.allowedErrors.push(missingGetListMethod);
 
@@ -46,12 +46,10 @@ async function createWrapper() {
                     'sw-context-button': true,
                     'sw-context-menu-item': await wrapTestComponent('sw-context-menu-item'),
                     'sw-single-select': true,
-                    'sw-number-field': true,
+                    'mt-number-field': true,
                     'sw-checkbox-field': true,
                     'sw-data-grid-column-boolean': true,
                     'sw-bulk-edit-modal': true,
-                    'sw-button': true,
-                    'sw-icon': true,
                     'sw-data-grid-settings': true,
                     'sw-data-grid-inline-edit': true,
                     'router-link': true,

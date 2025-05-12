@@ -12,8 +12,6 @@ const { Filter, Store } = Shopware;
 export default Shopware.Component.wrapComponentConfig({
     template,
 
-    compatConfig: Shopware.compatConfig,
-
     emits: ['block-overlay-click'],
 
     props: {
@@ -146,9 +144,8 @@ export default Shopware.Component.wrapComponentConfig({
 
     methods: {
         createdComponent() {
-            if (!this.block.backgroundMediaMode) {
-                this.block.backgroundMediaMode = 'cover';
-            }
+            this.block.backgroundMediaMode ??= 'cover';
+            this.block.backgroundColor ??= '';
         },
 
         onBlockOverlayClick() {

@@ -53,7 +53,7 @@ describe('src/app/component/structure/sw-search-bar', () => {
     let spyLoadTypeSearchResultsByService;
 
     async function createWrapper(props, searchTypes = searchTypeServiceTypes, privileges = []) {
-        swSearchBarComponent = await Shopware.Component.build('sw-search-bar');
+        swSearchBarComponent = await wrapTestComponent('sw-search-bar');
         spyLoadResults = jest.spyOn(swSearchBarComponent.methods, 'loadResults');
         spyLoadTypeSearchResults = jest.spyOn(swSearchBarComponent.methods, 'loadTypeSearchResults');
         spyLoadTypeSearchResultsByService = jest.spyOn(swSearchBarComponent.methods, 'loadTypeSearchResultsByService');
@@ -61,11 +61,10 @@ describe('src/app/component/structure/sw-search-bar', () => {
         return mount(swSearchBarComponent, {
             global: {
                 stubs: {
-                    'sw-icon': true,
                     'sw-version': true,
                     'sw-loader': true,
                     'sw-search-more-results': true,
-                    'sw-search-bar-item': await Shopware.Component.build('sw-search-bar-item'),
+                    'sw-search-bar-item': await wrapTestComponent('sw-search-bar-item', { sync: true }),
                     'sw-search-preferences-modal': true,
                     'router-link': true,
                     'sw-highlight-text': true,
@@ -292,7 +291,7 @@ describe('src/app/component/structure/sw-search-bar', () => {
     }
 
     beforeAll(async () => {
-        swSearchBarComponent = await Shopware.Component.build('sw-search-bar');
+        swSearchBarComponent = await wrapTestComponent('sw-search-bar');
         spyLoadResults = jest.spyOn(swSearchBarComponent.methods, 'loadResults');
         spyLoadTypeSearchResults = jest.spyOn(swSearchBarComponent.methods, 'loadTypeSearchResults');
         spyLoadTypeSearchResultsByService = jest.spyOn(swSearchBarComponent.methods, 'loadTypeSearchResultsByService');
@@ -311,9 +310,9 @@ describe('src/app/component/structure/sw-search-bar', () => {
     });
 
     beforeEach(async () => {
-        Shopware.State.get('session').currentUser = {
+        Shopware.Store.get('session').setCurrentUser({
             id: 'id',
-        };
+        });
         Module.getModuleRegistry().clear();
     });
 
@@ -678,7 +677,7 @@ describe('src/app/component/structure/sw-search-bar', () => {
         register('sw-order', {
             title: 'Orders',
             color: '#A092F0',
-            icon: 'default-shopping-paper-bag',
+            icon: 'regular-shopping-bag',
             entity: 'order',
 
             routes: {
@@ -739,7 +738,7 @@ describe('src/app/component/structure/sw-search-bar', () => {
         register('sw-category', {
             title: 'Categories',
             color: '#57D9A3',
-            icon: 'default-symbol-products',
+            icon: 'regular-products',
             entity: 'category',
 
             searchMatcher: (regex, labelType, manifest) => {
@@ -868,7 +867,7 @@ describe('src/app/component/structure/sw-search-bar', () => {
             register(`sw-${term}`, {
                 title: `${term}s`,
                 color: '#A092F0',
-                icon: 'default-shopping-paper-bag',
+                icon: 'regular-shopping-bag',
                 entity: term,
 
                 routes: {
@@ -926,7 +925,7 @@ describe('src/app/component/structure/sw-search-bar', () => {
             register(`sw-${term}`, {
                 title: `${term}s`,
                 color: '#A092F0',
-                icon: 'default-shopping-paper-bag',
+                icon: 'regular-shopping-bag',
                 entity: term,
 
                 routes: {
@@ -976,7 +975,7 @@ describe('src/app/component/structure/sw-search-bar', () => {
             expect(module.entity).toBe('module');
             expect(module.total).toBe(1);
 
-            expect(module.entities[0].icon).toBe('default-shopping-paper-bag');
+            expect(module.entities[0].icon).toBe('regular-shopping-bag');
             expect(module.entities[0].color).toBe('#A092F0');
             expect(module.entities[0].label).toBe(`${term}s`);
             expect(module.entities[0].entity).toBe(term);
@@ -1240,7 +1239,7 @@ describe('src/app/component/structure/sw-search-bar', () => {
         register('sw-dashboard', {
             title: 'sw-dashboard.general.mainMenuItemGeneral',
             color: '#6AD6F0',
-            icon: 'default-device-dashboard',
+            icon: 'regular-dashboard',
             name: 'dashboard',
 
             routes: {
@@ -1280,7 +1279,7 @@ describe('src/app/component/structure/sw-search-bar', () => {
         const { route, ...frequently } = frequentlyUsed.entities[0];
         expect(frequently).toEqual({
             color: '#6AD6F0',
-            icon: 'default-device-dashboard',
+            icon: 'regular-dashboard',
             title: 'sw-dashboard.general.mainMenuItemGeneral',
             name: 'dashboard',
             privilege: undefined,
@@ -1497,7 +1496,7 @@ describe('src/app/component/structure/sw-search-bar', () => {
         register(`sw-${term}`, {
             title: `${term}s`,
             color: '#A092F0',
-            icon: 'default-shopping-paper-bag',
+            icon: 'regular-shopping-bag',
             entity: term,
 
             routes: {
@@ -1529,8 +1528,7 @@ describe('src/app/component/structure/sw-search-bar', () => {
         await flushPromises();
 
         // should use correct icon
-        const shoppingBagIcon = wrapper.find('.sw-search-bar__type-item sw-icon-stub[name="default-shopping-paper-bag"]');
-        expect(shoppingBagIcon.exists()).toBe(true);
+        expect(wrapper.find('.sw-search-bar__type-item .mt-icon.icon--regular-shopping-bag')).toBeDefined();
     });
 
     it('should not call the search service when the search term reaches the maximum length', async () => {

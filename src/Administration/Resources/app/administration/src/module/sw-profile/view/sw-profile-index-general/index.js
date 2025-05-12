@@ -9,8 +9,6 @@ const { mapPropertyErrors } = Shopware.Component.getComponentHelper();
 export default {
     template,
 
-    compatConfig: Shopware.compatConfig,
-
     inject: ['acl'],
 
     emits: [
@@ -89,6 +87,16 @@ export default {
             set(newPasswordConfirm) {
                 this.$emit('new-password-confirm-change', newPasswordConfirm);
             },
+        },
+
+        localeOptions() {
+            return this.languages.map((language) => {
+                return {
+                    id: language.locale.id,
+                    value: language.locale.id,
+                    label: language.customLabel,
+                };
+            });
         },
     },
 

@@ -8,7 +8,7 @@
     {% block sw_duplicated_media_v2_body %}
     {% block sw_duplicated_media_v2_body_description %}
     <p class="sw-duplicated-media-v2__description">
-        {{ $tc('global.sw-duplicated-media-v2.description', 1, { fileName: `${currentTask.fileName}.${currentTask.extension}` }) }}
+        {{ $tc('global.sw-duplicated-media-v2.description', { fileName: `${currentTask.fileName}.${currentTask.extension}` }, 1) }}
     </p>
     {% endblock %}
 
@@ -68,7 +68,7 @@
         {%  endblock %}
 
         {% block sw_duplicated_media_v2_body_preview_separator %}
-        <sw-icon
+        <mt-icon
             class="sw-duplicated-media-v2__preview-separator"
             name="regular-long-arrow-right"
         />
@@ -100,26 +100,27 @@
     {% block sw_duplicated_media_v2_footer %}
     <template #modal-footer>
         {% block sw_duplicated_media_v2_save_selection %}
-        <sw-checkbox-field
+        <mt-checkbox
             v-if="!isLoading && hasAdditionalErrors"
-            v-model:value="shouldSaveSelection"
+            v-model:checked="shouldSaveSelection"
             class="sw-duplicated-media-v2__additional-error-count"
             :label="$tc('global.sw-duplicated-media-v2.labelSaveSelection', additionalErrorCount)"
         />
         {% endblock %}
 
         {% block sw_duplicated_media_v2_cancel_button %}
-        <sw-button
+        <mt-button
             size="small"
             :disabled="isLoading"
+            variant="secondary"
             @click="skipCurrentFile"
         >
             {{ $tc('global.default.cancel') }}
-        </sw-button>
+        </mt-button>
         {% endblock %}
 
         {% block sw_duplicated_media_v2_upload_button %}
-        <sw-button
+        <mt-button
             class="sw-duplicated-media-v2__upload"
             :disabled="isLoading"
             size="small"
@@ -127,7 +128,7 @@
             @click="solveDuplicate"
         >
             {{ buttonLabel }}
-        </sw-button>
+        </mt-button>
         {% endblock %}
     </template>
     {% endblock %}

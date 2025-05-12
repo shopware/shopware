@@ -14,12 +14,13 @@ use Shopware\Core\Checkout\Promotion\Aggregate\PromotionDiscountPrice\PromotionD
 use Shopware\Core\Checkout\Promotion\Aggregate\PromotionSetGroup\PromotionSetGroupCollection;
 use Shopware\Core\Checkout\Promotion\Aggregate\PromotionSetGroup\PromotionSetGroupEntity;
 use Shopware\Core\Checkout\Promotion\Cart\PromotionItemBuilder;
-use Shopware\Core\Checkout\Promotion\Exception\UnknownPromotionDiscountTypeException;
 use Shopware\Core\Checkout\Promotion\PromotionEntity;
+use Shopware\Core\Checkout\Promotion\PromotionException;
 use Shopware\Core\Content\Rule\RuleCollection;
 use Shopware\Core\Content\Rule\RuleEntity;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Util\FloatComparator;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\Currency\CurrencyEntity;
@@ -29,6 +30,7 @@ use Shopware\Core\System\SalesChannel\SalesChannelContext;
  * @internal
  */
 #[CoversClass(PromotionItemBuilder::class)]
+#[Package('checkout')]
 class PromotionItemBuilderPayloadTest extends TestCase
 {
     private PromotionEntity $promotion;
@@ -70,6 +72,10 @@ class PromotionItemBuilderPayloadTest extends TestCase
         $discount->setValue(50);
         $discount->setConsiderAdvancedRules(true);
         $discount->setScope(PromotionDiscountEntity::SCOPE_CART);
+        $discount->setSorterKey('sorter-key');
+        $discount->setApplierKey('applier-key');
+        $discount->setUsageKey('usage-key');
+        $discount->setPickerKey('picker-key');
 
         $currencyFactor = 0.3;
 
@@ -90,10 +96,11 @@ class PromotionItemBuilderPayloadTest extends TestCase
             'setGroups' => [],
             'groupId' => '',
             'filter' => [
-                'sorterKey' => null,
-                'applierKey' => null,
-                'usageKey' => null,
-                'pickerKey' => null,
+                'considerAdvancedRules' => true,
+                'sorterKey' => 'sorter-key',
+                'applierKey' => 'applier-key',
+                'usageKey' => 'usage-key',
+                'pickerKey' => 'picker-key',
             ],
             'exclusions' => [],
             'preventCombination' => false,
@@ -109,7 +116,7 @@ class PromotionItemBuilderPayloadTest extends TestCase
      * a new line item for our cart.
      *
      * @throws CartException
-     * @throws UnknownPromotionDiscountTypeException
+     * @throws PromotionException
      */
     #[Group('promotions')]
     public function testPayloadPercentageWithoutAdvancedPrices(): void
@@ -122,6 +129,7 @@ class PromotionItemBuilderPayloadTest extends TestCase
         $discount->setValue(50);
         $discount->setMaxValue(23.0);
         $discount->setScope(PromotionDiscountEntity::SCOPE_CART);
+        $discount->setConsiderAdvancedRules(false);
 
         // Set promotion code to type individual
         $this->promotion->setUseIndividualCodes(true);
@@ -142,6 +150,7 @@ class PromotionItemBuilderPayloadTest extends TestCase
             'setGroups' => [],
             'groupId' => '',
             'filter' => [
+                'considerAdvancedRules' => false,
                 'sorterKey' => null,
                 'applierKey' => null,
                 'usageKey' => null,
@@ -161,7 +170,7 @@ class PromotionItemBuilderPayloadTest extends TestCase
      * a new line item for our cart.
      *
      * @throws CartException
-     * @throws UnknownPromotionDiscountTypeException
+     * @throws PromotionException
      */
     #[Group('promotions')]
     public function testPayloadPercentageWithoutAdvancedPricesWithCurrencyFactor(): void
@@ -174,6 +183,7 @@ class PromotionItemBuilderPayloadTest extends TestCase
         $discount->setValue(50);
         $discount->setMaxValue($maxValue);
         $discount->setScope(PromotionDiscountEntity::SCOPE_CART);
+        $discount->setConsiderAdvancedRules(false);
 
         $builder = new PromotionItemBuilder();
 
@@ -193,6 +203,7 @@ class PromotionItemBuilderPayloadTest extends TestCase
             'setGroups' => [],
             'groupId' => '',
             'filter' => [
+                'considerAdvancedRules' => false,
                 'sorterKey' => null,
                 'applierKey' => null,
                 'usageKey' => null,
@@ -212,7 +223,7 @@ class PromotionItemBuilderPayloadTest extends TestCase
      * The group id will be used from the scope suffix. e.g. "setgroup-id123"
      *
      * @throws CartException
-     * @throws UnknownPromotionDiscountTypeException
+     * @throws PromotionException
      */
     #[Group('promotions')]
     public function testPayloadHasGroupIdOnSetGroupScope(): void
@@ -226,6 +237,7 @@ class PromotionItemBuilderPayloadTest extends TestCase
         $discount->setValue(10);
         $discount->setType(PromotionDiscountEntity::TYPE_ABSOLUTE);
         $discount->setScope(PromotionDiscountEntity::SCOPE_SETGROUP . '-' . $groupId);
+        $discount->setConsiderAdvancedRules(false);
 
         $builder = new PromotionItemBuilder();
 
@@ -241,7 +253,7 @@ class PromotionItemBuilderPayloadTest extends TestCase
      * and make sure it has the correct structure in our payload.
      *
      * @throws CartException
-     * @throws UnknownPromotionDiscountTypeException
+     * @throws PromotionException
      */
     #[Group('promotions')]
     public function testPayloadWithSetGroup(): void
@@ -253,6 +265,7 @@ class PromotionItemBuilderPayloadTest extends TestCase
         $discount->setType(PromotionDiscountEntity::TYPE_PERCENTAGE);
         $discount->setValue(0);
         $discount->setScope(PromotionDiscountEntity::SCOPE_CART);
+        $discount->setConsiderAdvancedRules(false);
 
         $rule = new RuleEntity();
         $rule->setId('R1');
@@ -293,6 +306,7 @@ class PromotionItemBuilderPayloadTest extends TestCase
             ],
             'groupId' => '',
             'filter' => [
+                'considerAdvancedRules' => false,
                 'sorterKey' => null,
                 'applierKey' => null,
                 'usageKey' => null,
@@ -312,7 +326,7 @@ class PromotionItemBuilderPayloadTest extends TestCase
      * our discount entity.
      *
      * @throws CartException
-     * @throws UnknownPromotionDiscountTypeException
+     * @throws PromotionException
      */
     #[Group('promotions')]
     public function testPayloadPercentageMaxValueWithAdvancedPrices(): void
@@ -325,6 +339,7 @@ class PromotionItemBuilderPayloadTest extends TestCase
         $discount->setValue(40);
         $discount->setMaxValue(30.0);
         $discount->setScope(PromotionDiscountEntity::SCOPE_CART);
+        $discount->setConsiderAdvancedRules(false);
 
         $currency = new CurrencyEntity();
         $currency->setId('currency');
@@ -350,7 +365,7 @@ class PromotionItemBuilderPayloadTest extends TestCase
      * for absolute discounts - only percentage discounts.
      *
      * @throws CartException
-     * @throws UnknownPromotionDiscountTypeException
+     * @throws PromotionException
      */
     #[Group('promotions')]
     public function testPayloadAbsoluteMaxValueIsNull(): void
@@ -363,6 +378,7 @@ class PromotionItemBuilderPayloadTest extends TestCase
         $discount->setValue(40);
         $discount->setMaxValue(30.0);
         $discount->setScope(PromotionDiscountEntity::SCOPE_CART);
+        $discount->setConsiderAdvancedRules(false);
 
         $builder = new PromotionItemBuilder();
 
@@ -377,7 +393,7 @@ class PromotionItemBuilderPayloadTest extends TestCase
      * We use a factor of 2.0 and make sure we have the doubled value in the payload.
      *
      * @throws CartException
-     * @throws UnknownPromotionDiscountTypeException
+     * @throws PromotionException
      */
     #[Group('promotions')]
     public function testPayloadMaxValueUsesCurrencyFactor(): void
@@ -390,6 +406,7 @@ class PromotionItemBuilderPayloadTest extends TestCase
         $discount->setValue(40);
         $discount->setMaxValue(30.0);
         $discount->setScope(PromotionDiscountEntity::SCOPE_CART);
+        $discount->setConsiderAdvancedRules(false);
 
         $builder = new PromotionItemBuilder();
 

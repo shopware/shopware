@@ -10,8 +10,6 @@ const { Criteria } = Shopware.Data;
 export default {
     template,
 
-    compatConfig: Shopware.compatConfig,
-
     inject: ['repositoryFactory'],
 
     props: {
@@ -58,9 +56,13 @@ export default {
         this.createdComponent();
     },
 
+    beforeRouteLeave() {
+        Shopware.Store.get('shopwareApps').selectedIds = [];
+    },
+
     methods: {
         createdComponent() {
-            Shopware.State.commit('shopwareApps/setSelectedIds', this.customer.id ? [this.customer.id] : []);
+            Shopware.Store.get('shopwareApps').selectedIds = this.customer.id ? [this.customer.id] : [];
 
             this.customFieldSetRepository.search(this.customFieldSetCriteria).then((customFieldSets) => {
                 this.customerCustomFieldSets = customFieldSets;

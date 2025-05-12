@@ -13,10 +13,8 @@ const { mapPropertyErrors } = Component.getComponentHelper();
  * @component-example
  * <sw-condition-base :condition="condition"></sw-condition-base>
  */
-Component.register('sw-condition-base', {
+export default {
     template,
-
-    compatConfig: Shopware.compatConfig,
 
     inheritAttrs: false,
 
@@ -91,17 +89,11 @@ Component.register('sw-condition-base', {
     watch: {
         value() {
             if (this.hasError) {
-                this.$store.commit('error/removeApiError', {
-                    expression: this.valueErrorPath,
-                });
+                Shopware.Store.get('error').removeApiError(this.valueErrorPath);
             }
             if (this.isEmpty && !!this.inputKey) {
-                if (this.isCompatEnabled('INSTANCE_DELETE')) {
-                    this.$delete(this.condition.value, this.inputKey);
-                } else {
-                    // eslint-disable-next-line vue/no-mutating-props
-                    delete this.condition.value[this.inputKey];
-                }
+                // eslint-disable-next-line vue/no-mutating-props
+                delete this.condition.value[this.inputKey];
             }
         },
     },
@@ -126,4 +118,4 @@ Component.register('sw-condition-base', {
             }
         },
     },
-});
+};

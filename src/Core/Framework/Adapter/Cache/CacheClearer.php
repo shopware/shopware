@@ -4,7 +4,7 @@ namespace Shopware\Core\Framework\Adapter\Cache;
 
 use Psr\Cache\CacheItemPoolInterface;
 use Psr\Log\LoggerInterface;
-use Shopware\Core\DevOps\Environment\EnvironmentHelper;
+use Shopware\Core\Framework\Adapter\AdapterException;
 use Shopware\Core\Framework\Adapter\Cache\Message\CleanupOldCacheFolders;
 use Shopware\Core\Framework\Adapter\Cache\ReverseProxy\AbstractReverseProxyGateway;
 use Shopware\Core\Framework\Log\Package;
@@ -45,6 +45,10 @@ class CacheClearer
             $adapter->clear();
         }
 
+        if ($clearHttp) {
+            $this->reverseProxyCache?->banAll();
+        }
+
         try {
             $this->invalidator->invalidateExpired();
         } catch (\Throwable $e) {
@@ -53,7 +57,7 @@ class CacheClearer
         }
 
         if (!is_writable($this->cacheDir)) {
-            throw new \RuntimeException(\sprintf('Unable to write in the "%s" directory', $this->cacheDir));
+            throw AdapterException::cacheDirectoryError($this->cacheDir);
         }
 
         $this->cacheClearer->clear($this->cacheDir);
@@ -68,10 +72,6 @@ class CacheClearer
         $this->cleanupUrlGeneratorCacheFiles();
 
         $this->cleanupOldContainerCacheDirectories();
-
-        if ($clearHttp) {
-            $this->reverseProxyCache?->banAll();
-        }
     }
 
     public function clearContainerCache(): void
@@ -118,10 +118,6 @@ class CacheClearer
 
     public function cleanupOldContainerCacheDirectories(): void
     {
-        // Don't delete other folders while paratest is running
-        if (EnvironmentHelper::getVariable('TEST_TOKEN')) {
-            return;
-        }
         if ($this->clusterMode) {
             // In cluster mode we can't delete caches on the filesystem
             // because this only runs on one node in the cluster

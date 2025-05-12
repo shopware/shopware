@@ -54,8 +54,8 @@
                     :key="ratingGroup.rating"
                 >
                     {% block sw_extension_ratings_summary_grid_rating_progress_bars_progress_bar_rows_progress_bar %}
-                    <sw-progress-bar
-                        :value="ratingGroup.count"
+                    <mt-progress-bar
+                        :model-value="ratingGroup.count"
                         :max-value="maxProgressValue"
                     />
                     {% endblock %}

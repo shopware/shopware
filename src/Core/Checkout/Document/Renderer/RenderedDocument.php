@@ -11,8 +11,6 @@ use Shopware\Core\Framework\Struct\Struct;
 #[Package('after-sales')]
 final class RenderedDocument extends Struct
 {
-    private string $content;
-
     private string $template = '';
 
     private ?OrderEntity $order = null;
@@ -20,15 +18,20 @@ final class RenderedDocument extends Struct
     private ?Context $context = null;
 
     /**
+     * @var array<string, mixed>
+     */
+    private array $parameters = [];
+
+    /**
      * @param array<string, mixed> $config
      */
     public function __construct(
-        private readonly string $html = '',
         private readonly string $number = '',
         private string $name = '',
         private string $fileExtension = PdfRenderer::FILE_EXTENSION,
         private readonly array $config = [],
         private ?string $contentType = PdfRenderer::FILE_CONTENT_TYPE,
+        private string $content = ''
     ) {
     }
 
@@ -45,11 +48,6 @@ final class RenderedDocument extends Struct
     public function setName(string $name): void
     {
         $this->name = $name;
-    }
-
-    public function getHtml(): string
-    {
-        return $this->html;
     }
 
     public function getContent(): string
@@ -128,5 +126,26 @@ final class RenderedDocument extends Struct
     public function setTemplate(string $template): void
     {
         $this->template = $template;
+    }
+
+    /**
+     * @param array<string, mixed> $parameters
+     */
+    public function setParameters(array $parameters): void
+    {
+        $this->parameters = $parameters;
+    }
+
+    /**
+     * @return array<string, mixed>
+     */
+    public function getParameters(): array
+    {
+        return $this->parameters;
+    }
+
+    public function addParameter(string $key, mixed $value): void
+    {
+        $this->parameters[$key] = $value;
     }
 }

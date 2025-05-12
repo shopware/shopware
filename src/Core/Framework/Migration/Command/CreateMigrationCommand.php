@@ -12,6 +12,7 @@ use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
+use Symfony\Component\Filesystem\Filesystem;
 
 #[AsCommand(
     name: 'database:create-migration',
@@ -52,7 +53,7 @@ class CreateMigrationCommand extends Command
         $directory = (string) $input->getArgument('directory');
         $namespace = (string) $input->getArgument('namespace');
         $name = $input->getOption('name') ?? '';
-        $package = $input->getOption('package') ?? 'core';
+        $package = $input->getOption('package') ?? 'framework';
 
         if (!preg_match('/^[a-zA-Z0-9\_]*$/', (string) $name)) {
             throw MigrationException::invalidArgument('Migration name contains forbidden characters!');
@@ -125,9 +126,8 @@ class CreateMigrationCommand extends Command
         $pluginBundle = array_values($pluginBundles)[0];
 
         $directory = $pluginBundle->getMigrationPath();
-        if (!is_dir($directory) && !mkdir($directory) && !is_dir($directory)) {
-            throw MigrationException::migrationDirectoryNotCreated($directory);
-        }
+
+        (new Filesystem())->mkdir($directory);
 
         $namespace = $pluginBundle->getMigrationNamespace();
 
@@ -160,6 +160,8 @@ class CreateMigrationCommand extends Command
         if ($template === false) {
             return;
         }
+
+        $params['%%timestamp%%'] = (string) $params['%%timestamp%%'];
 
         fwrite($file, str_replace(array_keys($params), array_values($params), $template));
         fclose($file);

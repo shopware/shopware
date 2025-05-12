@@ -1,18 +1,16 @@
 import template from './sw-checkbox-field.html.twig';
 
-const { Component } = Shopware;
-
 /**
  * @sw-package framework
  *
  * @private
  * @status ready
- * @description Wrapper component for sw-checkbox-field and mt-checkbox-field. Autoswitches between the two components.
+ * @description Wrapper component for sw-checkbox-field and mt-checkbox. Autoswitches between the two components.
+ *
+ * @deprecated tag:v6.8.0 - Will be removed, use mt-checkbox instead.
  */
-Component.register('sw-checkbox-field', {
+export default Shopware.Component.wrapComponentConfig({
     template,
-
-    compatConfig: Shopware.compatConfig,
 
     props: {
         modelValue: {
@@ -26,34 +24,15 @@ Component.register('sw-checkbox-field', {
             required: false,
             default: null,
         },
+
+        deprecated: {
+            type: Boolean,
+            required: false,
+            default: false,
+        },
     },
 
     computed: {
-        useMeteorComponent() {
-            // Use new meteor component in major
-            if (Shopware.Feature.isActive('v6.7.0.0')) {
-                return true;
-            }
-
-            // Throw warning when deprecated component is used
-            Shopware.Utils.debug.warn(
-                'sw-checkbox-field',
-                // eslint-disable-next-line max-len
-                'The old usage of "sw-checkbox-field" is deprecated and will be removed in v6.7.0.0. Please use "mt-checkbox" instead.',
-            );
-
-            return false;
-        },
-
-        listeners() {
-            // eslint-disable-next-line @typescript-eslint/no-unsafe-call,@typescript-eslint/no-unsafe-member-access
-            if (this.isCompatEnabled('INSTANCE_LISTENERS')) {
-                return this.$listeners;
-            }
-
-            return {};
-        },
-
         compatValue: {
             get() {
                 if (this.value === null || this.value === undefined) {
@@ -72,12 +51,6 @@ Component.register('sw-checkbox-field', {
     methods: {
         getSlots() {
             // eslint-disable-next-line @typescript-eslint/no-unsafe-call,@typescript-eslint/no-unsafe-member-access
-            if (this.isCompatEnabled('INSTANCE_SCOPED_SLOTS')) {
-                return {
-                    ...this.$slots,
-                    ...this.$scopedSlots,
-                };
-            }
 
             return this.$slots;
         },

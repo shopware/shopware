@@ -1,7 +1,5 @@
 import template from './sw-skeleton-bar.html.twig';
 
-const { Component } = Shopware;
-
 /**
  * @sw-package framework
  *
@@ -9,15 +7,13 @@ const { Component } = Shopware;
  * @status ready
  * @description Wrapper component for sw-skeleton-bar and mt-skeleton-bar. Autoswitches between the two components.
  */
-Component.register('sw-skeleton-bar', {
+export default Shopware.Component.wrapComponentConfig({
     template,
-
-    compatConfig: Shopware.compatConfig,
 
     computed: {
         useMeteorComponent() {
             // Use new meteor component in major
-            if (Shopware.Feature.isActive('v6.7.0.0')) {
+            if (Shopware.Feature.isActive('ENABLE_METEOR_COMPONENTS')) {
                 return true;
             }
 
@@ -29,15 +25,6 @@ Component.register('sw-skeleton-bar', {
             );
 
             return false;
-        },
-
-        listeners() {
-            // eslint-disable-next-line @typescript-eslint/no-unsafe-call,@typescript-eslint/no-unsafe-member-access
-            if (this.isCompatEnabled('INSTANCE_LISTENERS')) {
-                return this.$listeners;
-            }
-
-            return {};
         },
     },
 });

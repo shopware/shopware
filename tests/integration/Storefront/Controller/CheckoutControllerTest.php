@@ -6,6 +6,7 @@ use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\Cart;
+use Shopware\Core\Checkout\Cart\CartPersister;
 use Shopware\Core\Checkout\Cart\Error\Error;
 use Shopware\Core\Checkout\Cart\Error\ErrorCollection;
 use Shopware\Core\Checkout\Cart\LineItem\LineItem;
@@ -18,6 +19,7 @@ use Shopware\Core\Checkout\Cart\Transaction\Struct\TransactionCollection;
 use Shopware\Core\Checkout\Order\Exception\PaymentMethodNotAvailableException;
 use Shopware\Core\Checkout\Order\OrderCollection;
 use Shopware\Core\Checkout\Order\OrderEntity;
+use Shopware\Core\Checkout\Order\OrderException;
 use Shopware\Core\Checkout\Order\SalesChannel\OrderService;
 use Shopware\Core\Checkout\Promotion\Cart\Error\PromotionNotFoundError;
 use Shopware\Core\Content\Product\Aggregate\ProductVisibility\ProductVisibilityDefinition;
@@ -36,6 +38,7 @@ use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
 use Shopware\Core\PlatformRequest;
+use Shopware\Core\SalesChannelRequest;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextService;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
@@ -122,7 +125,11 @@ class CheckoutControllerTest extends TestCase
 
     public function testOrderWithInactivePaymentMethod(): void
     {
-        $this->expectException(PaymentMethodNotAvailableException::class);
+        if (!Feature::isActive('v6.8.0.0')) {
+            $this->expectException(PaymentMethodNotAvailableException::class);
+        } else {
+            $this->expectException(OrderException::class);
+        }
 
         $this->performOrder('', false);
     }
@@ -368,8 +375,7 @@ class CheckoutControllerTest extends TestCase
             [
                 new ErrorCollection(
                     [
-                        new PaymentMethodChangedError('Paid in advance', 'Direct Debit'),
-                        new PaymentMethodChangedError('Direct Debit', 'Invoice'),
+                        new PaymentMethodChangedError('Paid in advance', 'Invoice'),
                         new PaymentMethodChangedError('Invoice', 'Cash On Delivery'),
                         new PaymentMethodChangedError('Cash On Delivery', 'Paid in advance'),
                     ]
@@ -451,8 +457,9 @@ class CheckoutControllerTest extends TestCase
         $contextToken = Uuid::randomHex();
 
         $cart = $this->fillCart($contextToken);
-
         $salesChannelContext = $this->createSalesChannelContext($contextToken, $cart->getTransactions()->first()?->getPaymentMethodId());
+        static::getContainer()->get(CartPersister::class)->save($cart, $salesChannelContext);
+
         $request = $this->createRequest($salesChannelContext);
 
         static::getContainer()->get(CheckoutController::class)->confirmPage($request, $salesChannelContext);
@@ -486,6 +493,7 @@ class CheckoutControllerTest extends TestCase
 
         $content = json_decode((string) $response->getContent(), true);
 
+        static::assertIsArray($content);
         static::assertArrayHasKey('price', $content);
         static::assertArrayHasKey('lineItems', $content);
         static::assertArrayHasKey('deliveries', $content);
@@ -543,8 +551,6 @@ class CheckoutControllerTest extends TestCase
 
     public function testCheckoutInfoWidgetSkipsCalculationAndRenderIfCartIsEmpty(): void
     {
-        Feature::skipTestIfInActive('v6.5.0.0', $this);
-
         $contextToken = Uuid::randomHex();
 
         $cartService = static::getContainer()->get(CartService::class);
@@ -710,10 +716,6 @@ class CheckoutControllerTest extends TestCase
             'customerNumber' => '12345',
         ];
 
-        if (!Feature::isActive('v6.7.0.0')) {
-            $customer['defaultPaymentMethodId'] = $this->getValidPaymentMethodId();
-        }
-
         static::getContainer()->get('customer.repository')->create([$customer], Context::createDefaultContext());
 
         return $this->customerId;
@@ -820,11 +822,12 @@ class CheckoutControllerTest extends TestCase
 
     private function createRequest(?SalesChannelContext $context = null): Request
     {
-        $request = new Request();
+        $request = Request::create((string) EnvironmentHelper::getVariable('APP_URL'));
         $request->setSession($this->getSession());
 
         $request->attributes->add([
             RequestTransformer::STOREFRONT_URL => EnvironmentHelper::getVariable('APP_URL'),
+            SalesChannelRequest::ATTRIBUTE_IS_SALES_CHANNEL_REQUEST => true,
         ]);
 
         if ($context instanceof SalesChannelContext) {

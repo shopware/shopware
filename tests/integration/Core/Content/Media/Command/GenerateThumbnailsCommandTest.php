@@ -253,7 +253,7 @@ class GenerateThumbnailsCommandTest extends TestCase
         $thumbnailServiceMock = $this->getMockBuilder(ThumbnailService::class)
             ->disableOriginalConstructor()->getMock();
 
-        $thumbnailServiceMock->expects(static::exactly(\count($this->initialMediaIds) + $newMedia->count()))
+        $thumbnailServiceMock->expects($this->exactly(\count($this->initialMediaIds) + $newMedia->count()))
             ->method('updateThumbnails')
             ->with(static::anything(), $this->context, true);
 
@@ -261,7 +261,7 @@ class GenerateThumbnailsCommandTest extends TestCase
             $thumbnailServiceMock,
             $this->mediaRepository,
             $this->mediaFolderRepository,
-            static::getContainer()->get('messenger.bus.shopware')
+            static::getContainer()->get('messenger.default_bus')
         );
 
         $commandTester = new CommandTester($command);
@@ -276,7 +276,7 @@ class GenerateThumbnailsCommandTest extends TestCase
         $thumbnailServiceMock = $this->getMockBuilder(ThumbnailService::class)
             ->disableOriginalConstructor()->getMock();
 
-        $thumbnailServiceMock->expects(static::exactly(\count($this->initialMediaIds) + $newMedia->count()))
+        $thumbnailServiceMock->expects($this->exactly(\count($this->initialMediaIds) + $newMedia->count()))
             ->method('updateThumbnails')
             ->with(static::anything(), $this->context, false);
 
@@ -284,7 +284,7 @@ class GenerateThumbnailsCommandTest extends TestCase
             $thumbnailServiceMock,
             $this->mediaRepository,
             $this->mediaFolderRepository,
-            static::getContainer()->get('messenger.bus.shopware')
+            static::getContainer()->get('messenger.default_bus')
         );
 
         $commandTester = new CommandTester($command);

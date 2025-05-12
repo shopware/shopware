@@ -13,16 +13,19 @@
     {% block sw_discard_changes_modal_footer %}
     <template #modal-footer>
         {% block sw_discard_changes_modal_discard_changes_modal_cancel %}
-        <sw-button @click="keepEditing">
+        <mt-button
+            variant="secondary"
+            @click="keepEditing"
+        >
             {{ $t('sw-discard-changes-modal.actions.keepEditing') }}
-        </sw-button>
+        </mt-button>
 
-        <sw-button
-            variant="danger"
+        <mt-button
+            variant="critical"
             @click="discardChanges"
         >
             {{ $t('sw-discard-changes-modal.actions.discard') }}
-        </sw-button>
+        </mt-button>
         {% endblock %}
     </template>
     {% endblock %}

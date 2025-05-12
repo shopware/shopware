@@ -8,7 +8,10 @@ use Shopware\Core\Framework\Rule\Exception\UnsupportedOperatorException;
 use Shopware\Core\Framework\Rule\FlowRule;
 use Shopware\Core\Framework\Rule\RuleScope;
 
-#[Package('after-sales')]
+/**
+ * @final
+ */
+#[Package('fundamentals@after-sales')]
 class OrderCustomFieldRule extends FlowRule
 {
     final public const RULE_NAME = 'orderCustomField';

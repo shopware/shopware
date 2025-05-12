@@ -1,6 +1,5 @@
 import template from './sw-bulk-edit-customer.html.twig';
 import './sw-bulk-edit-customer.scss';
-import swBulkEditState from '../../state/sw-bulk-edit.state';
 
 const { Mixin } = Shopware;
 const { Criteria } = Shopware.Data;
@@ -15,10 +14,7 @@ const { cloneDeep } = Shopware.Utils.object;
 export default {
     template,
 
-    compatConfig: Shopware.compatConfig,
-
     inject: [
-        'feature',
         'bulkEditApiFactory',
         'repositoryFactory',
     ],
@@ -47,7 +43,7 @@ export default {
 
     computed: {
         selectedIds() {
-            return Shopware.State.get('shopwareApps').selectedIds;
+            return Shopware.Store.get('swBulkEdit').selectedIds;
         },
 
         customFieldSetRepository() {
@@ -88,7 +84,7 @@ export default {
         },
 
         accountFormFields() {
-            const fields = [
+            return [
                 {
                     name: 'groupId',
                     config: {
@@ -127,20 +123,6 @@ export default {
                     },
                 },
             ];
-
-            if (this.feature.isActive('v6.7.0.0')) {
-                fields.splice(1, 0, {
-                    name: 'defaultPaymentMethodId',
-                    config: {
-                        componentName: 'sw-entity-single-select',
-                        entity: 'payment_method',
-                        changeLabel: this.$tc('sw-bulk-edit.customer.account.defaultPaymentMethod.label'),
-                        placeholder: this.$tc('sw-bulk-edit.customer.account.defaultPaymentMethod.placeholder'),
-                    },
-                });
-            }
-
-            return fields;
         },
 
         tagsFormFields() {
@@ -162,23 +144,15 @@ export default {
         },
     },
 
-    beforeCreate() {
-        Shopware.State.registerModule('swBulkEdit', swBulkEditState);
-    },
-
     created() {
         this.createdComponent();
-    },
-
-    beforeUnmount() {
-        Shopware.State.unregisterModule('swBulkEdit');
     },
 
     methods: {
         createdComponent() {
             this.setRouteMetaModule();
-            if (!Shopware.State.getters['context/isSystemDefaultLanguage']) {
-                Shopware.State.commit('context/resetLanguageToDefault');
+            if (!Shopware.Store.get('context').isSystemDefaultLanguage) {
+                Shopware.Store.get('context').resetLanguageToDefault();
             }
 
             this.isLoading = true;
@@ -202,17 +176,12 @@ export default {
         },
 
         setRouteMetaModule() {
-            if (this.isCompatEnabled('INSTANCE_SET')) {
-                this.$set(this.$route.meta.$module, 'color', '#F88962');
-                this.$set(this.$route.meta.$module, 'icon', 'regular-users');
-            } else {
-                if (!this.$route.meta.$module) {
-                    this.$route.meta.$module = {};
-                }
-
-                this.$route.meta.$module.color = '#F88962';
-                this.$route.meta.$module.icon = 'regular-users';
+            if (!this.$route.meta.$module) {
+                this.$route.meta.$module = {};
             }
+
+            this.$route.meta.$module.color = '#F88962';
+            this.$route.meta.$module.icon = 'regular-users';
         },
 
         defineBulkEditData(name, value = null, type = 'overwrite', isChanged = false) {
@@ -220,19 +189,11 @@ export default {
                 return;
             }
 
-            if (this.isCompatEnabled('INSTANCE_SET')) {
-                this.$set(this.bulkEditData, name, {
-                    isChanged: isChanged,
-                    type: type,
-                    value: value,
-                });
-            } else {
-                this.bulkEditData[name] = {
-                    isChanged: isChanged,
-                    type: type,
-                    value: value,
-                };
-            }
+            this.bulkEditData[name] = {
+                isChanged: isChanged,
+                type: type,
+                value: value,
+            };
         },
 
         loadBulkEditData() {
@@ -247,17 +208,10 @@ export default {
                 });
             });
 
-            if (this.isCompatEnabled('INSTANCE_SET')) {
-                this.$set(this.bulkEditData, 'customFields', {
-                    type: 'overwrite',
-                    value: null,
-                });
-            } else {
-                this.bulkEditData.customFields = {
-                    type: 'overwrite',
-                    value: null,
-                };
-            }
+            this.bulkEditData.customFields = {
+                type: 'overwrite',
+                value: null,
+            };
         },
 
         loadCustomFieldSets() {
@@ -351,7 +305,7 @@ export default {
         },
 
         onChangeLanguage(languageId) {
-            Shopware.State.commit('context/setApiLanguageId', languageId);
+            Shopware.Store.get('context').setApiLanguageId(languageId);
         },
     },
 };

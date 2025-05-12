@@ -29,11 +29,11 @@ Shopware.Service('cmsService').registerCmsBlock({
     defaultConfig: {
         marginBottom: '20px',
         marginTop: '20px',
-        marginLeft: '20px',
-        marginRight: '20px',
+        marginLeft: null,
+        marginRight: null,
         sizingMode: 'boxed',
         backgroundMedia: {
-            url: '/administration/static/img/cms/preview_mountain_large.jpg',
+            url: '/administration/administration/static/img/cms/preview_mountain_large.jpg',
         },
     },
     slots: {

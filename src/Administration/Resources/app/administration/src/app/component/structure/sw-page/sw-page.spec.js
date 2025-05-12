@@ -12,10 +12,11 @@ async function createWrapper() {
                 'sw-search-bar': true,
                 'sw-notification-center': true,
                 'router-link': true,
-                'sw-icon': true,
                 'sw-app-actions': true,
                 'sw-help-center': true,
                 'sw-help-center-v2': true,
+                'sw-context-button': true,
+                'sw-context-menu-item': true,
                 'sw-app-topbar-button': true,
             },
             mocks: {

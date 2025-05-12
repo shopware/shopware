@@ -2,7 +2,7 @@
 <div class="sw-product-detail-variants">
 
     {% block sw_product_detail_variants_sw_card_generated_variants %}
-    <sw-card
+    <mt-card
         class="sw-product-detail-variants__generated-variants"
         position-identifier="sw-product-detail-variants-generated-variants"
         :class="{'is--loading': isLoading}"
@@ -56,7 +56,7 @@
             <template #icon>
                 {% block sw_product_properties_empty_state_image %}
                 <img
-                    :src="assetFilter('/administration/static/img/empty-states/products-empty-state.svg')"
+                    :src="assetFilter('/administration/administration/static/img/empty-states/products-empty-state.svg')"
                     :alt="$tc('sw-product.properties.titleEmptyState')"
                 >
                 {% endblock %}
@@ -64,18 +64,19 @@
 
             <template #actions>
                 {% block sw_product_properties_empty_state_button_property %}
-                <sw-button
+                <mt-button
                     v-tooltip="{
                         message: $tc('sw-privileges.tooltip.warning'),
                         disabled: acl.can('product.editor'),
                         showOnDisabledElements: true
                     }"
-                    variant="ghost"
+                    ghost
                     :disabled="!acl.can('product.editor')"
+                    variant="secondary"
                     @click="openAddPropertiesModal"
                 >
                     {{ $tc('sw-product.properties.buttonAddProperties') }}
-                </sw-button>
+                </mt-button>
                 {% endblock %}
             </template>
         </sw-empty-state>
@@ -93,7 +94,7 @@
             <template #icon>
                 {% block sw_product_properties_empty_state_image %}
                 <img
-                    :src="assetFilter('/administration/static/img/empty-states/products-empty-state.svg')"
+                    :src="assetFilter('/administration/administration/static/img/empty-states/products-empty-state.svg')"
                     :alt="$tc('sw-product.properties.titleEmptyState')"
                 >
                 {% endblock %}
@@ -101,19 +102,20 @@
 
             <template #actions>
                 {% block sw_product_properties_empty_state_button %}
-                <sw-button
+                <mt-button
                     v-tooltip="{
                         message: $tc('sw-privileges.tooltip.warning'),
                         disabled: acl.can('product.creator'),
                         showOnDisabledElements: true
                     }"
                     class="sw-product-detail-variants__generated-variants-empty-state-button"
-                    variant="ghost"
+                    ghost
                     :disabled="!acl.can('product.creator')"
+                    variant="secondary"
                     @click="openModal('variantGeneration')"
                 >
                     {{ $tc('sw-product.variations.emptyStateButton') }}
-                </sw-button>
+                </mt-button>
                 {% endblock %}
             </template>
         </sw-empty-state>
@@ -134,7 +136,7 @@
         />
         {% endblock %}
 
-    </sw-card>
+    </mt-card>
     {% endblock %}
 
     {% block sw_product_detail_variants_modal_variant_generation %}

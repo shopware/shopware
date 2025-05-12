@@ -1,5 +1,5 @@
 {% block sw_order_detail_base_order_overview %}
-<sw-card
+<mt-card
     class="sw-order-user-card"
     position-identifier="sw-order-user-card"
     :title="$tc('sw-order.detailBase.cardTitleDetails')"
@@ -119,14 +119,15 @@
                         {% block sw_order_detail_base_order_overview_billing_address %}
                         <dt>
                             {{ $tc('sw-order.detailBase.headlineBillingAddress') }}
-                            <sw-button
+                            <mt-button
                                 v-if="isEditing"
                                 class="sw-order-user-card__address-edit-button"
                                 size="small"
+                                variant="secondary"
                                 @click="onEditBillingAddress"
                             >
                                 {{ $tc('sw-order.detailBase.buttonEditAddress') }}
-                            </sw-button>
+                            </mt-button>
                         </dt>
                         <dd
                             role="button"
@@ -180,29 +181,31 @@
                         {% block sw_order_detail_base_order_overview_shipping_address %}
                         <dt>
                             {{ $tc('sw-order.detailBase.headlineDeliveryAddress') }}
-                            <sw-button
+                            <mt-button
                                 v-show="hasDifferentBillingAndShippingAddress && isEditing"
                                 class="sw-order-user-card__address-edit-button"
                                 size="small"
+                                variant="secondary"
                                 @click="onEditDeliveryAddress"
                             >
                                 {{ $tc('sw-order.detailBase.buttonEditAddress') }}
-                            </sw-button>
+                            </mt-button>
                         </dt>
 
                         <dd v-if="!hasDifferentBillingAndShippingAddress && hasDeliveries">
                             <span>
                                 {{ $tc('sw-order.detailBase.labelSameDeliveryAndBillingAddress') }}
                             </span>
-                            <sw-button
+                            <mt-button
                                 v-show="!hasDifferentBillingAndShippingAddress && isEditing"
                                 class="sw-order-user-card__address-add-button"
                                 size="small"
                                 block
+                                variant="secondary"
                                 @click="onAddNewDeliveryAddress"
                             >
                                 {{ $tc('sw-order.detailBase.buttonAddDeliveryAddress') }}
-                            </sw-button>
+                            </mt-button>
                         </dd>
 
                         <dd
@@ -341,14 +344,15 @@
                             </dt>
                             <dd>
                                 {% block sw_order_detail_base_secondary_info_tracking_codes_display_content %}
-                                <sw-button
+                                <mt-button
                                     v-for="trackingCode in delivery.trackingCodes"
                                     :key="trackingCode"
                                     class="sw-order-user-card__tracking-code-link"
                                     size="x-small"
                                     :link="renderTrackingUrl(trackingCode, delivery.shippingMethod)"
                                     :disabled="!renderTrackingUrl(trackingCode, delivery.shippingMethod)"
-                                >{{ trackingCode }}</sw-button>
+                                    variant="secondary"
+                                >{{ trackingCode }}</mt-button>
                                 {% endblock %}
                             </dd>
                             {% endblock %}
@@ -392,6 +396,6 @@
 
         </sw-container>
     </template>
-</sw-card>
+</mt-card>
 
 {% endblock %}

@@ -8,7 +8,7 @@
         <div class="sw-first-run-wizard-data-import__card">
             <img
                 class="sw-first-run-wizard-data-import__icon-demodata"
-                :src="assetFilter('/administration/static/img/first-run-wizard/plugin-demodata-set.svg')"
+                :src="assetFilter('/administration/administration/static/img/first-run-wizard/plugin-demodata-set.svg')"
                 alt=""
             >
             <h5 class="sw-first-run-wizard-data-import__headline">
@@ -36,7 +36,7 @@
                 class="plugin-status"
             >
                 <span class="plugin-installed">
-                    <sw-icon
+                    <mt-icon
                         name="regular-check-circle-s"
                         size="16"
                     />
@@ -48,7 +48,7 @@
         <div class="sw-first-run-wizard-data-import__card">
             <img
                 class="sw-first-run-wizard-data-import__icon-migration"
-                :src="assetFilter('/administration/static/img/first-run-wizard/plugin-migration-assistant.svg')"
+                :src="assetFilter('/administration/administration/static/img/first-run-wizard/plugin-migration-assistant.svg')"
                 alt=""
             >
             <h5 class="sw-first-run-wizard-import-data__headline">
@@ -76,7 +76,7 @@
                 class="plugin-status"
             >
                 <span class="plugin-installed">
-                    <sw-icon
+                    <mt-icon
                         name="regular-check-circle-s"
                         size="16"
                     />
@@ -101,13 +101,12 @@
         v-if="installationError"
         class="sw-first-run-wizard-plugin-installation__error"
     >
-        <sw-alert
+        <mt-banner
             :title="pluginError.title"
-            variant="error"
-            appearance="notification"
+            variant="critical"
         >
             {{ pluginError.detail }}
-        </sw-alert>
+        </mt-banner>
     </div>
 </div>
 {% endblock %}

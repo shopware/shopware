@@ -1,8 +1,6 @@
 import template from './sw-tree-input-field.html.twig';
 import './sw-tree-input-field.scss';
 
-const { Component } = Shopware;
-
 /**
  * @sw-package framework
  *
@@ -13,10 +11,8 @@ const { Component } = Shopware;
  * <sw-tree-input-field>
  * </sw-tree-input-field>
  */
-Component.register('sw-tree-input-field', {
+export default {
     template,
-
-    compatConfig: Shopware.compatConfig,
 
     emits: ['new-item-create'],
 
@@ -46,4 +42,4 @@ Component.register('sw-tree-input-field', {
             this.$emit('new-item-create', itemName);
         },
     },
-});
+};

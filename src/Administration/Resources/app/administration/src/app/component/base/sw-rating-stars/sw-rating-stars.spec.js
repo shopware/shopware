@@ -12,11 +12,6 @@ async function createWrapper(props = {}) {
             },
             ...props,
         },
-        global: {
-            stubs: {
-                'sw-icon': true,
-            },
-        },
     });
 }
 

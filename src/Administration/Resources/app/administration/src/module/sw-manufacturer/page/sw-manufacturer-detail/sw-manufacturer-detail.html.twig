@@ -12,13 +12,15 @@
     <template #smart-bar-actions>
 
         {% block sw_manufacturer_detail_actions_abort %}
-        <sw-button
+        <mt-button
             v-tooltip.bottom="tooltipCancel"
             :disabled="manufacturerIsLoading || undefined"
+            variant="secondary"
+            size="default"
             @click="onCancel"
         >
             {{ $tc('global.default.cancel') }}
-        </sw-button>
+        </mt-button>
         {% endblock %}
 
         {% block sw_manufacturer_detail_actions_save %}
@@ -66,7 +68,7 @@
                 {% endblock %}
 
                 {% block sw_manufacturer_detail_base_basic_info_card %}
-                <sw-card
+                <mt-card
                     position-identifier="sw-manufacturer-detail-basic-info"
                     :title="$tc('sw-manufacturer.detail.cardTitleManufacturerInfo')"
                 >
@@ -78,8 +80,9 @@
                         <div class="sw-manufacturer-detail__base-info-wrapper">
 
                             {% block sw_manufacturer_detail_base_info_field_name %}
-                            <sw-text-field
-                                v-model:value="manufacturer.name"
+
+                            <mt-text-field
+                                v-model="manufacturer.name"
                                 :label="$tc('sw-manufacturer.detail.labelName')"
                                 :placeholder="placeholder(manufacturer, 'name', $tc('sw-manufacturer.detail.placeholderName'))"
                                 name="name"
@@ -91,8 +94,9 @@
                             {% endblock %}
 
                             {% block sw_manufacturer_detail_base_info_field_link %}
-                            <sw-text-field
-                                v-model:value="manufacturer.link"
+
+                            <mt-text-field
+                                v-model="manufacturer.link"
                                 :label="$tc('sw-manufacturer.detail.labelLink')"
                                 :placeholder="$tc('sw-manufacturer.detail.placeholderLink')"
                                 name="link"
@@ -125,8 +129,8 @@
                     </sw-container>
 
                     {% block sw_manufacturer_detail_base_info_field_description %}
-                    <sw-text-editor
-                        v-model:value="manufacturer.description"
+                    <mt-text-editor
+                        v-model="manufacturer.description"
                         :label="$tc('sw-manufacturer.detail.labelDescription')"
                         :placeholder="placeholder(manufacturer, 'description', $tc('sw-manufacturer.detail.placeholderDescription'))"
                         name="description"
@@ -135,11 +139,11 @@
                         :disabled="!acl.can('product_manufacturer.editor') || undefined"
                     />
                     {% endblock %}
-                </sw-card>
+                </mt-card>
                 {% endblock %}
 
                 {% block sw_manufacturer_detail_custom_field_sets %}
-                <sw-card
+                <mt-card
                     v-if="customFieldSets.length > 0"
                     position-identifier="sw-manufacturer-detail-custom-field-sets"
                     :title="$tc('sw-settings-custom-field.general.mainMenuItemGeneral')"
@@ -151,7 +155,7 @@
                         :sets="customFieldSets"
                         :disabled="!acl.can('product_manufacturer.editor') || undefined"
                     />
-                </sw-card>
+                </mt-card>
                 {% endblock %}
             </template>
         </sw-card-view>

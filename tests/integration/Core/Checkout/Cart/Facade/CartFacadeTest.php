@@ -24,9 +24,7 @@ use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Pricing\Price;
 use Shopware\Core\Framework\DataAbstractionLayer\Pricing\PriceCollection;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
-use Shopware\Core\Framework\Script\Exception\HookInjectionException;
 use Shopware\Core\Framework\Script\Execution\Script;
 use Shopware\Core\Framework\Script\Execution\ScriptExecutor;
 use Shopware\Core\Framework\Test\Script\Execution\TestHook;
@@ -111,7 +109,7 @@ class CartFacadeTest extends TestCase
         $split = $product->take(1);
         static::assertInstanceOf(ItemFacade::class, $split);
         $container->add($split);
-        $container->discount('my-discount', 'percentage', -10, 'Fanzy discount');
+        $container->discount('my-discount', 'percentage', -10, 'Fancy discount');
 
         $surcharge = new PriceCollection([new Price(Defaults::CURRENCY, 2, 2, false)]);
         $container->surcharge('my-surcharge', 'absolute', $surcharge, 'unit test');
@@ -175,11 +173,7 @@ class CartFacadeTest extends TestCase
 
     public function testDependency(): void
     {
-        if (!Feature::isActive('v6.7.0.0')) {
-            $this->expectException(HookInjectionException::class);
-        } else {
-            $this->expectException(CartException::class);
-        }
+        $this->expectException(CartException::class);
 
         $service = static::getContainer()->get(CartFacadeHookFactory::class);
         $service->factory(new TestHook('test', Context::createDefaultContext()), $this->script);
@@ -458,6 +452,7 @@ class CartFacadeTest extends TestCase
 /**
  * @internal
  */
+#[Package('checkout')]
 class ExpectedPrice extends CalculatedPrice
 {
     public function __construct(

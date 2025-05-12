@@ -6,14 +6,12 @@ import './sw-order-create-promotion-modal.scss';
  * @sw-package checkout
  */
 
-const { State, Utils, Service } = Shopware;
+const { Store, Utils, Service } = Shopware;
 const { format } = Utils;
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default {
     template,
-
-    compatConfig: Shopware.compatConfig,
 
     emits: [
         'close',
@@ -40,7 +38,7 @@ export default {
 
     computed: {
         cart() {
-            return State.get('swOrder').cart;
+            return Store.get('swOrder').cart;
         },
 
         cartAutomaticPromotionItems() {

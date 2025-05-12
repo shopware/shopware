@@ -1,8 +1,6 @@
 import template from './sw-description-list.html.twig';
 import './sw-description-list.scss';
 
-const { Component } = Shopware;
-
 /**
  * @sw-package framework
  *
@@ -20,10 +18,8 @@ const { Component } = Shopware;
  *     <dd>Lorem ipsum dolor sit amet, consetetur sadipscing elitr</dd>
  * </sw-description-list>
  */
-Component.register('sw-description-list', {
+export default {
     template,
-
-    compatConfig: Shopware.compatConfig,
 
     props: {
         grid: {
@@ -40,4 +36,4 @@ Component.register('sw-description-list', {
             };
         },
     },
-});
+};

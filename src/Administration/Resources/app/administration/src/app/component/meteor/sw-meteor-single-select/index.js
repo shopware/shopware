@@ -5,16 +5,14 @@
 import './sw-meteor-single-select.scss';
 import template from './sw-meteor-single-select.html.twig';
 
-const { Component, Mixin } = Shopware;
+const { Mixin } = Shopware;
 const { debounce, get } = Shopware.Utils;
 
 /**
  * @private
  */
-Component.register('sw-meteor-single-select', {
+export default {
     template,
-
-    compatConfig: Shopware.compatConfig,
 
     inject: ['feature'],
 
@@ -187,4 +185,4 @@ Component.register('sw-meteor-single-select', {
             return get(object, keyPath, defaultValue);
         },
     },
-});
+};

@@ -12,21 +12,24 @@
         >
             <template #content="props">
 
-                <sw-number-field
-                    :map-inheritance="props"
+                <mt-number-field
+                    :is-inheritance-field="props.isInheritField"
+                    :is-inherited="props.isInherited"
                     :label="$tc('sw-product.settingsForm.labelWidth')"
                     :placeholder="$tc('sw-product.settingsForm.placeholderWidth')"
                     allow-empty
                     :min="0"
                     :error="productWidthError"
                     :disabled="props.isInherited || !allowEdit"
-                    :value="props.currentValue"
-                    @update:value="props.updateCurrentValue"
+                    :model-value="props.currentValue"
+                    @update:model-value="props.updateCurrentValue"
+                    @inheritance-restore="props.restoreInheritance"
+                    @inheritance-remove="props.removeInheritance"
                 >
                     <template #suffix>
                         <span>mm</span>
                     </template>
-                </sw-number-field>
+                </mt-number-field>
 
             </template>
         </sw-inherit-wrapper>
@@ -40,21 +43,24 @@
         >
             <template #content="props">
 
-                <sw-number-field
-                    :map-inheritance="props"
+                <mt-number-field
+                    :is-inheritance-field="props.isInheritField"
+                    :is-inherited="props.isInherited"
                     :label="$tc('sw-product.settingsForm.labelHeight')"
                     :placeholder="$tc('sw-product.settingsForm.placeholderHeight')"
                     allow-empty
                     :min="0"
                     :error="productHeightError"
                     :disabled="props.isInherited || !allowEdit"
-                    :value="props.currentValue"
-                    @update:value="props.updateCurrentValue"
+                    :model-value="props.currentValue"
+                    @update:model-value="props.updateCurrentValue"
+                    @inheritance-restore="props.restoreInheritance"
+                    @inheritance-remove="props.removeInheritance"
                 >
                     <template #suffix>
                         <span>mm</span>
                     </template>
-                </sw-number-field>
+                </mt-number-field>
 
             </template>
         </sw-inherit-wrapper>
@@ -68,21 +74,24 @@
         >
             <template #content="props">
 
-                <sw-number-field
-                    :map-inheritance="props"
+                <mt-number-field
+                    :is-inheritance-field="props.isInheritField"
+                    :is-inherited="props.isInherited"
                     :label="$tc('sw-product.settingsForm.labelLength')"
                     :placeholder="$tc('sw-product.settingsForm.placeholderLength')"
                     allow-empty
                     :min="0"
                     :error="productLengthError"
                     :disabled="props.isInherited || !allowEdit"
-                    :value="props.currentValue"
-                    @update:value="props.updateCurrentValue"
+                    :model-value="props.currentValue"
+                    @update:model-value="props.updateCurrentValue"
+                    @inheritance-restore="props.restoreInheritance"
+                    @inheritance-remove="props.removeInheritance"
                 >
                     <template #suffix>
                         <span>mm</span>
                     </template>
-                </sw-number-field>
+                </mt-number-field>
 
             </template>
         </sw-inherit-wrapper>
@@ -100,8 +109,9 @@
         >
             <template #content="props">
 
-                <sw-number-field
-                    :map-inheritance="props"
+                <mt-number-field
+                    :is-inheritance-field="props.isInheritField"
+                    :is-inherited="props.isInherited"
                     :label="$tc('sw-product.settingsForm.labelWeight')"
                     :placeholder="$tc('sw-product.settingsForm.placeholderWeight')"
                     allow-empty
@@ -109,13 +119,15 @@
                     :digits="3"
                     :error="productWeightError"
                     :disabled="props.isInherited || !allowEdit"
-                    :value="props.currentValue"
-                    @update:value="props.updateCurrentValue"
+                    :model-value="props.currentValue"
+                    @update:model-value="props.updateCurrentValue"
+                    @inheritance-restore="props.restoreInheritance"
+                    @inheritance-remove="props.removeInheritance"
                 >
                     <template #suffix>
                         <span>kg</span>
                     </template>
-                </sw-number-field>
+                </mt-number-field>
 
             </template>
         </sw-inherit-wrapper>
@@ -130,9 +142,10 @@
         >
             <template #content="props">
 
-                <sw-number-field
+                <mt-number-field
                     class="sw-product-packaging-form__purchase-unit-field"
-                    :map-inheritance="props"
+                    :is-inheritance-field="props.isInheritField"
+                    :is-inherited="props.isInherited"
                     number-type="float"
                     allow-empty
                     :min="0"
@@ -142,8 +155,10 @@
                     :disabled="props.isInherited || !allowEdit"
                     :placeholder="$tc('sw-product.priceForm.placeholderPurchaseUnit')"
                     :help-text="$tc('sw-product.packagingForm.purchaseUnitHelpText')"
-                    :value="props.currentValue"
-                    @update:value="props.updateCurrentValue"
+                    :model-value="props.currentValue"
+                    @update:model-value="props.updateCurrentValue"
+                    @inheritance-restore="props.restoreInheritance"
+                    @inheritance-remove="props.removeInheritance"
                 />
 
             </template>
@@ -189,16 +204,19 @@
         >
             <template #content="props">
 
-                <sw-text-field
+                <mt-text-field
                     class="sw-product-packaging-form__pack-unit-field"
-                    :map-inheritance="props"
+                    :is-inheritance-field="props.isInheritField"
+                    :is-inherited="props.isInherited"
                     :error="productPackUnitError"
                     :label="$tc('sw-product.priceForm.labelPackUnit')"
                     :placeholder="$tc('sw-product.priceForm.placeholderPackUnit')"
                     :disabled="props.isInherited || !allowEdit"
                     :help-text="$tc('sw-product.packagingForm.packUnitHelpText')"
-                    :value="props.currentValue"
-                    @update:value="props.updateCurrentValue"
+                    :model-value="props.currentValue"
+                    @update:model-value="props.updateCurrentValue"
+                    @inheritance-restore="props.restoreInheritance"
+                    @inheritance-remove="props.removeInheritance"
                 />
 
             </template>
@@ -214,16 +232,19 @@
         >
             <template #content="props">
 
-                <sw-text-field
+                <mt-text-field
                     class="sw-product-packaging-form__pack-unit-plural-field"
-                    :map-inheritance="props"
+                    :is-inheritance-field="props.isInheritField"
+                    :is-inherited="props.isInherited"
                     :error="productPackUnitPluralError"
                     :label="$tc('sw-product.priceForm.labelPackUnitPlural')"
                     :placeholder="$tc('sw-product.priceForm.placeholderPackUnitPlural')"
                     :disabled="props.isInherited || !allowEdit"
                     :help-text="$tc('sw-product.packagingForm.packUnitPluralHelpText')"
-                    :value="props.currentValue"
-                    @update:value="props.updateCurrentValue"
+                    :model-value="props.currentValue"
+                    @update:model-value="props.updateCurrentValue"
+                    @inheritance-restore="props.restoreInheritance"
+                    @inheritance-remove="props.removeInheritance"
                 />
 
             </template>
@@ -239,9 +260,10 @@
         >
             <template #content="props">
 
-                <sw-number-field
+                <mt-number-field
                     class="sw-product-packaging-form__reference-unit-field"
-                    :map-inheritance="props"
+                    :is-inheritance-field="props.isInheritField"
+                    :is-inherited="props.isInherited"
                     number-type="float"
                     allow-empty
                     :min="0"
@@ -250,9 +272,11 @@
                     :disabled="props.isInherited || !allowEdit"
                     :placeholder="$tc('sw-product.priceForm.placeholderReferenceUnit')"
                     :label="$tc('sw-product.priceForm.labelReferenceUnit')"
-                    :value="props.currentValue"
+                    :model-value="props.currentValue"
                     :help-text="$tc('sw-product.packagingForm.referenceUnitHelpText')"
-                    @update:value="props.updateCurrentValue"
+                    @update:model-value="props.updateCurrentValue"
+                    @inheritance-restore="props.restoreInheritance"
+                    @inheritance-remove="props.removeInheritance"
                 />
 
             </template>

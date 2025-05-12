@@ -25,9 +25,9 @@
                         class="sw-grid-column"
                     >
                         <div class="sw-grid__cell-content">
-                            <sw-checkbox-field
-                                v-model:value="allSelectedChecked"
-                                @update:value="selectAll"
+                            <mt-checkbox
+                                v-model:checked="allSelectedChecked"
+                                @update:checked="selectAll"
                             />
                         </div>
                     </div>
@@ -51,7 +51,7 @@
                                 v-if="column.iconLabel"
                                 class="sw-grid__cell-label"
                             >
-                                <sw-icon
+                                <mt-icon
                                     :name="column.iconLabel"
                                     :title="column.label"
                                 />
@@ -70,12 +70,12 @@
                                 v-if="column.sortable && sort === column.dataIndex"
                                 class="sw-grid_cell-sortable"
                             >
-                                <sw-icon
+                                <mt-icon
                                     v-if="sortDir === 'ASC'"
                                     name="regular-chevron-down-xxs"
                                     size="16px"
                                 />
-                                <sw-icon
+                                <mt-icon
                                     v-else
                                     name="regular-chevron-up-xxs"
                                     size="16px"
@@ -104,6 +104,7 @@
                     >
                         {% block sw_grid_body_slot_items %}
                         <sw-grid-row
+                            ref="rowRefs"
                             :style="columnFlex"
                             :item="item"
                             :index="index"
@@ -119,12 +120,9 @@
                                 class="sw-grid-column"
                             >
                                 <div class="sw-grid__cell-content">
-                                    {# @deprecated tag:v6.7.0 - The property :disabled will be removed #}
-                                    <sw-checkbox-field
-                                        :id="item.id"
-                                        :value="isSelected(item.id)"
-                                        :disabled="isGridDisabled(item.id)"
-                                        @update:value="selectItem($event, item)"
+                                    <mt-checkbox
+                                        :checked="isSelected(item.id)"
+                                        @update:checked="selectItem($event, item)"
                                     />
                                 </div>
                             </div>

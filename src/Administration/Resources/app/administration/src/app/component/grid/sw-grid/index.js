@@ -1,7 +1,7 @@
+import { computed } from 'vue';
 import template from './sw-grid.html.twig';
 import './sw-grid.scss';
 
-const { Component } = Shopware;
 const { dom } = Shopware.Utils;
 
 /**
@@ -29,10 +29,8 @@ const { dom } = Shopware.Utils;
  * </sw-grid>
  */
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
-Component.register('sw-grid', {
+export default {
     template,
-
-    compatConfig: Shopware.compatConfig,
 
     provide() {
         return {
@@ -42,7 +40,7 @@ Component.register('sw-grid', {
             swRegisterGridDisableInlineEditListener: this.registerGridDisableInlineEditListener,
             swUnregisterGridDisableInlineEditListener: this.unregisterGridDisableInlineEditListener,
             swGridSetColumns: this.setColumns,
-            swGridColumns: this.columns,
+            swGridColumns: computed(() => this.columns),
         };
     },
 
@@ -115,6 +113,12 @@ Component.register('sw-grid', {
         },
     },
 
+    expose: [
+        'startInlineEditing',
+        'selectAll',
+        'selectItem',
+    ],
+
     data() {
         return {
             columns: [],
@@ -123,6 +127,7 @@ Component.register('sw-grid', {
             editing: null,
             allSelectedChecked: false,
             swGridDisableInlineEditListener: [],
+            rowRefs: [],
         };
     },
 
@@ -220,12 +225,6 @@ Component.register('sw-grid', {
 
         registerInlineEditingEvents() {
             // New way is using the provide/inject
-            if (this.isCompatEnabled('INSTANCE_EVENT_EMITTER')) {
-                // eslint-disable-next-line vue/no-deprecated-events-api
-                this.$on('sw-row-inline-edit-start', this.inlineEditingStart);
-                // eslint-disable-next-line vue/no-deprecated-events-api
-                this.$on('sw-row-inline-edit-cancel', this.disableActiveInlineEditing);
-            }
         },
 
         inlineEditingStart(id) {
@@ -276,13 +275,6 @@ Component.register('sw-grid', {
 
         isSelected(itemId) {
             return typeof this.selection[itemId] !== 'undefined';
-        },
-
-        /**
-         * @deprecated tag:v6.7.0 - isGridDisabled function will be removed.
-         */
-        isGridDisabled(itemId) {
-            return this.isSelected(itemId) && this.selection[itemId].gridDisabled;
         },
 
         checkSelection() {
@@ -340,5 +332,9 @@ Component.register('sw-grid', {
 
             return item.id;
         },
+
+        startInlineEditing() {
+            this.$refs.rowRefs.at(-1).startInlineEditing();
+        },
     },
-});
+};

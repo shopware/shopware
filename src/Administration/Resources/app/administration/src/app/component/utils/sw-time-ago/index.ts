@@ -1,8 +1,6 @@
 import type { PropType } from 'vue';
 import template from './sw-time-ago.html.twig';
 
-const { Component } = Shopware;
-
 /**
  * @private
  * @sw-package checkout
@@ -13,10 +11,8 @@ const { Component } = Shopware;
  * <sw-time-ago date=""2021-08-25T11:08:48.940+00:00""></sw-time-ago>
  */
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
-Component.register('sw-time-ago', {
+export default Shopware.Component.wrapComponentConfig({
     template,
-
-    compatConfig: Shopware.compatConfig,
 
     props: {
         date: {
@@ -129,7 +125,7 @@ Component.register('sw-time-ago', {
                 }
 
                 if (this.lessThanOneHour) {
-                    return this.$tc('global.sw-time-ago.minutesAgo', minutesAgo, { minutesAgo });
+                    return this.$tc('global.sw-time-ago.minutesAgo', { minutesAgo }, minutesAgo);
                 }
             } else {
                 if (this.lessThanOneMinuteFromNow) {
@@ -138,7 +134,7 @@ Component.register('sw-time-ago', {
 
                 if (this.lessThanOneHourFromNow) {
                     const minutesFromNow = Math.abs(minutesAgo);
-                    return this.$tc('global.sw-time-ago.minutesFromNow', minutesFromNow, { minutesFromNow });
+                    return this.$tc('global.sw-time-ago.minutesFromNow', { minutesFromNow }, minutesFromNow);
                 }
             }
 

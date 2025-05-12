@@ -100,9 +100,6 @@ class PdfRendererTest extends TestCase
 
         $rendered = $processedTemplate->getSuccess()[$orderId];
 
-        static::assertStringContainsString('<html lang="en-GB">', $rendered->getHtml());
-        static::assertStringContainsString('</html>', $rendered->getHtml());
-
         $generatorOutput = $this->pdfRenderer->render($rendered);
         static::assertNotEmpty($generatorOutput);
 

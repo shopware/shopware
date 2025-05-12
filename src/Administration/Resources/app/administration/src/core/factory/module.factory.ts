@@ -65,7 +65,16 @@ interface Navigation {
 }
 
 interface SettingsItem {
-    group: 'shop' | 'system' | 'plugins';
+    group:
+        | 'general'
+        | 'localization'
+        | 'customer'
+        | 'commerce'
+        | 'content'
+        | 'automation'
+        | 'system'
+        | 'account'
+        | 'plugins';
     to: string;
     icon?: string;
     iconComponent?: unknown;
@@ -525,7 +534,7 @@ function addSettingsItemsToStore(moduleId: string, module: ModuleManifest): void
                 settingsItem.label = module.title;
             }
 
-            Shopware.State.commit('settingsItems/addItem', settingsItem);
+            Shopware.Store.get('settingsItems').addItem(settingsItem);
         } else {
             warn(
                 'ModuleFactory',
@@ -550,7 +559,7 @@ function addEntryRouteToExtensionRouteStore(config: { extensionName: string; rou
         return;
     }
 
-    Shopware.State.commit('extensionEntryRoutes/addItem', config);
+    Shopware.Store.get('extensionEntryRoutes').addItem(config);
 }
 
 /**

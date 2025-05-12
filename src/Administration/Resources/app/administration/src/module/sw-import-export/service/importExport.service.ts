@@ -104,7 +104,7 @@ export default class ImportExportService extends ApiService {
 
         return this.httpClient
             .post('/_action/import-export/mapping-from-template', formData, {
-                headers: this.getBasicHeaders(),
+                headers: this.getBasicHeaders({ 'Content-Type': 'multipart/form-data' }),
             })
             .then((response) => {
                 if (!response.data) {
@@ -150,7 +150,7 @@ export default class ImportExportService extends ApiService {
         );
 
         const createdLog = await this.httpClient.post('/_action/import-export/prepare', formData, {
-            headers: this.getBasicHeaders(),
+            headers: this.getBasicHeaders({ 'Content-Type': 'multipart/form-data' }),
         });
 
         return this.trackProgress(createdLog, callback);

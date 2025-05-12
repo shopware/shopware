@@ -48,14 +48,11 @@ interface ComponentData {
 
 /**
  * @sw-package after-sales
- * @deprecated tag:v6.7.0 - Will be removed without replacement
  *
- * @private
+ * @private might get removed with any update (even minor!) as it likely gets replaced by shopware analytics
  */
 export default Shopware.Component.wrapComponentConfig({
     template,
-
-    compatConfig: Shopware.compatConfig,
 
     inject: [
         'repositoryFactory',
@@ -273,7 +270,7 @@ export default Shopware.Component.wrapComponentConfig({
         },
 
         isSessionLoaded() {
-            return !Shopware.State.get('session')?.userPending;
+            return !Shopware.Store.get('session')?.userPending;
         },
 
         currencyFilter() {
@@ -363,7 +360,7 @@ export default Shopware.Component.wrapComponentConfig({
 
             const initContainer = Shopware.Application.getContainer('init');
             const httpClient = initContainer.httpClient;
-            const timezone = Shopware.State.get('session').currentUser?.timeZone ?? 'UTC';
+            const timezone = Shopware.Store.get('session').currentUser?.timeZone ?? 'UTC';
 
             return httpClient
                 .get<
@@ -524,6 +521,6 @@ export default Shopware.Component.wrapComponentConfig({
 });
 
 /**
- * @private
+ * @private might get removed with any update (even minor!) as it likely gets replaced by shopware analytics
  */
 export type { HistoryDateRange };

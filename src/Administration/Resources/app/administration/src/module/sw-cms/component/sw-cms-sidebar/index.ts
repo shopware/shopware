@@ -50,8 +50,6 @@ type DropObject = {
 export default Shopware.Component.wrapComponentConfig({
     template,
 
-    compatConfig: Shopware.compatConfig,
-
     inject: [
         'acl',
         'cmsService',
@@ -123,6 +121,17 @@ export default Shopware.Component.wrapComponentConfig({
     computed: {
         pageTypes() {
             return this.cmsPageTypeService.getTypes();
+        },
+
+        pageTypesOptions() {
+            return this.pageTypes.map((pageType) => {
+                return {
+                    id: pageType.name,
+                    label: this.$tc(pageType.title),
+                    value: pageType.name,
+                    disabled: this.isDisabledPageType(pageType) || undefined,
+                };
+            });
         },
 
         blockRepository() {
@@ -214,10 +223,6 @@ export default Shopware.Component.wrapComponentConfig({
                     return;
                 }
 
-                if (this.isDuplicateCategory(category)) {
-                    return;
-                }
-
                 defaultCategories.push({
                     value: category,
                     label: `apps.sw-cms.detail.label.blockCategory.${category}`,
@@ -225,6 +230,15 @@ export default Shopware.Component.wrapComponentConfig({
             });
 
             return defaultCategories;
+        },
+
+        cmsBlockCategoriesOptions() {
+            return this.cmsBlockCategories.map((category) => {
+                return {
+                    value: category.value,
+                    label: this.$tc(category.label),
+                };
+            });
         },
 
         mediaRepository() {
@@ -316,6 +330,10 @@ export default Shopware.Component.wrapComponentConfig({
             return result.filter((block) => block && block.category === this.currentBlockCategory);
         },
 
+        isLayoutAssignmentDisabled() {
+            return this.disabled || this.page.locked;
+        },
+
         ...mapPropertyErrors('page', ['name']),
     },
 
@@ -367,7 +385,7 @@ export default Shopware.Component.wrapComponentConfig({
 
         blockIsRemovable(block: Entity<'cms_block'>) {
             const cmsBlocks = this.cmsService.getCmsBlockRegistry();
-            return cmsBlocks[block.type]?.removable && this.isSystemDefaultLanguage;
+            return cmsBlocks[block.type]?.removable !== false && this.isSystemDefaultLanguage;
         },
 
         blockIsUnique(block: Entity<'cms_block'>) {
@@ -717,21 +735,6 @@ export default Shopware.Component.wrapComponentConfig({
 
         onVisibilityChange(selectedBlock: Entity<'cms_block'>, viewport: string, isVisible: boolean) {
             (selectedBlock.visibility as { [key: string]: boolean })[viewport] = isVisible;
-        },
-
-        /**
-         * @deprecated tag:v6.7.0 - Remove the duplicate category check and all usages.
-         * Use the auto-generated category label instead of the hardcoded option
-         * value inside the template.
-         */
-        isDuplicateCategory(categoryValue: string) {
-            /**
-             * This method is a unusual hack to prevent the category from being added twice.
-             * Recommended for plugin developer is to remove the hardcoded option value
-             * inside the template and use the auto-generated category label instead.
-             * */
-            const swCmsSidebarTemplate = Shopware.Template.getRenderedTemplate('sw-cms-sidebar');
-            return swCmsSidebarTemplate?.includes(`value="${categoryValue}"`);
         },
     },
 });

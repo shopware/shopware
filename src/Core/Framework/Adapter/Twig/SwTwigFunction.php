@@ -16,7 +16,7 @@ use Twig\Template;
 
 #[Package('framework')]
 /**
- * @deprecated tag:v6.7.0 - reason:becomes-internal - Will be internal
+ * @internal
  */
 class SwTwigFunction
 {
@@ -42,8 +42,8 @@ class SwTwigFunction
     public static function getAttribute(Environment $env, Source $source, mixed $object, mixed $item, array $arguments = [], $type = /* Template::ANY_CALL */ 'any', $isDefinedTest = false, $ignoreStrictCheck = false, bool $sandboxed = false, int $lineno = -1)
     {
         try {
-            FieldVisibility::$isInTwigRenderingContext = true;
             if ($object instanceof Struct) {
+                FieldVisibility::$isInTwigRenderingContext = true;
                 if ($type === Template::METHOD_CALL) {
                     // @phpstan-ignore-next-line
                     return $object->$item(...$arguments);
@@ -107,27 +107,6 @@ class SwTwigFunction
         }
 
         $strings[$string][$strategy] = $result;
-
-        return $result;
-    }
-
-    /**
-     * @param array<array-key, mixed> $args
-     * @param array<array-key, mixed> $context
-     *
-     * @return mixed
-     *
-     * @deprecated tag:v6.7.0 - Will be removed
-     */
-    public static function callMacro(Template $template, string $method, array $args, int $lineno, array $context, Source $source)
-    {
-        Feature::triggerDeprecationOrThrow('v6.7.0.0', Feature::deprecatedMethodMessage(__CLASS__, __METHOD__, 'v6.7.0.0'));
-        $result = CoreExtension::callMacro($template, $method, $args, $lineno, $context, $source);
-
-        if (self::$macroResult !== null) {
-            $result = self::$macroResult;
-            self::$macroResult = null;
-        }
 
         return $result;
     }

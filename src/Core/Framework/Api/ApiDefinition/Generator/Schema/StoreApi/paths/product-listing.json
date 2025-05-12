@@ -1,5 +1,5 @@
 {
-    "openapi": "3.0.0",
+    "openapi": "3.1.0",
     "info": [],
     "paths": {
         "/product-listing/{categoryId}": {
@@ -16,6 +16,15 @@
                         "required": true,
                         "schema": {
                             "type": "string"
+                        }
+                    },
+                    {
+                        "name": "p",
+                        "in": "query",
+                        "description": "The page number to fetch.",
+                        "required": false,
+                        "schema": {
+                            "type": "integer"
                         }
                     },
                     {

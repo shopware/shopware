@@ -1,26 +1,11 @@
 /**
  * @sw-package framework
- */
-
-import { compatUtils } from '@vue/compat';
-
-const { Component } = Shopware;
-
-/**
  * @private
  */
-Component.register('sw-vnode-renderer', {
+export default {
     ...(() => {
-        if (compatUtils.isCompatEnabled('COMPONENT_FUNCTIONAL')) {
-            return {
-                functional: true,
-            };
-        }
-
         return {};
     })(),
-
-    compatConfig: Shopware.compatConfig,
 
     render(firstArgument, secondArgument) {
         const h = firstArgument;
@@ -42,4 +27,4 @@ Component.register('sw-vnode-renderer', {
             required: true,
         },
     },
-});
+};

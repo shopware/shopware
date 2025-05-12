@@ -8,8 +8,6 @@ import './sw-settings-item.scss';
 export default {
     template,
 
-    compatConfig: Shopware.compatConfig,
-
     props: {
         label: {
             required: true,
@@ -26,12 +24,6 @@ export default {
             required: false,
             type: Boolean,
             default: false,
-        },
-        backgroundEnabled: {
-            required: false,
-            type: Boolean,
-            // eslint-disable-next-line vue/no-boolean-default
-            default: true,
         },
     },
 

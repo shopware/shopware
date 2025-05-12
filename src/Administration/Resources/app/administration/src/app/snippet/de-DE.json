@@ -204,7 +204,7 @@
     "sw-gtc-checkbox": {
       "label": "Ich akzeptiere die",
       "link": "AGB.",
-      "url": "https://www.shopware.com/de/gtc"
+      "url": "https://www.shopware.com/de/agb"
     },
     "sw-price-field": {
       "labelPriceGross": "Preis (Brutto)",
@@ -821,90 +821,37 @@
         "customerBirthdayRule": "Kundengeburtstag",
         "customerCreatedByAdminRule": "Kunde vom Administrator erstellt",
         "customerSalutationRule": "Kundenanrede",
-        "customerDefaultPaymentMethodRule": "Kunde mit Standardzahlungsart",
         "lineItemPropertyValueRule": "Position mit Eigenschaftsausprägung",
         "lineItemVariantValueRule": "Position mit Variantenausprägung"
       }
     },
     "sw-condition-generic": {
-      "customerDaysSinceLastLogin": {
-        "daysPassed": {
-          "placeholder": "@:sw-product.settingsForm.placeholderTime"
-        }
-      },
-      "customerDaysSinceFirstLogin": {
-        "daysPassed": {
-          "placeholder": "@:sw-product.settingsForm.placeholderTime"
-        }
-      },
-      "customerDaysSinceLastOrder": {
-        "daysPassed": {
-          "placeholder": "@:sw-product.settingsForm.placeholderTime"
-        }
-      },
-      "customerEmail": {
-        "email": {
-          "placeholder": "@:global.sw-condition.condition.emailRule.placeholder"
-        }
-      },
-      "cartLineItemDimensionWidth": {
-        "amount": {
-          "placeholder": "@:sw-product.settingsForm.placeholderWidth"
-        }
-      },
-      "cartLineItemDimensionHeight": {
-        "amount": {
-          "placeholder": "@:sw-product.settingsForm.placeholderHeight"
-        }
-      },
-      "cartLineItemDimensionLength": {
-        "amount": {
-          "placeholder": "@:sw-product.settingsForm.placeholderLength"
-        }
-      },
-      "cartTaxDisplay": {
-        "taxDisplay": {
-          "options": {
-            "gross": "@:global.sw-condition.condition.cartTaxDisplay.gross",
-            "net": "@:global.sw-condition.condition.cartTaxDisplay.net"
-          }
-        }
-      },
       "dayOfWeek": {
         "dayOfWeek": {
           "options": {
-            "1": "@:global.day-of-week.monday",
-            "2": "@:global.day-of-week.tuesday",
-            "3": "@:global.day-of-week.wednesday",
-            "4": "@:global.day-of-week.thursday",
-            "5": "@:global.day-of-week.friday",
-            "6": "@:global.day-of-week.saturday",
-            "7": "@:global.day-of-week.sunday"
+            "1": "Montag",
+            "2": "Dienstag",
+            "3": "Mittwoch",
+            "4": "Donnerstag",
+            "5": "Freitag",
+            "6": "Samstag",
+            "7": "Sonntag"
           }
         }
       },
       "cartLineItemOfType": {
         "lineItemType": {
           "options": {
-            "product": "@:global.sw-condition.condition.lineItemOfTypeRule.product",
-            "promotion": "@:global.sw-condition.condition.lineItemOfTypeRule.discount_surcharge"
+            "product": "Produkt",
+            "promotion": "Rabatt / Aufschlag"
           }
         }
       },
-      "promotionCodeOfType": {
-        "promotionCodeType": {
+      "cartTaxDisplay": {
+        "taxDisplay": {
           "options": {
-            "global": "@:global.sw-condition.condition.promotionCodeOfTypeRule.global",
-            "fixed": "@:global.sw-condition.condition.promotionCodeOfTypeRule.fixed",
-            "individual": "@:global.sw-condition.condition.promotionCodeOfTypeRule.individual"
-          }
-        }
-      },
-      "cartLineItemProductStates": {
-        "productState": {
-          "options": {
-            "is-physical": "Physisch",
-            "is-download": "Digital"
+            "gross": "Brutto",
+            "net": "Netto"
           }
         }
       },
@@ -913,8 +860,24 @@
           "options": {
             "gross": "Brutto",
             "net": "Netto"
-          },
-          "placeholder": "Operator auswählen ..."
+          }
+        }
+      },
+      "promotionCodeOfType": {
+        "promotionCodeType": {
+          "options": {
+            "global": "Keiner",
+            "fixed": "Festgelegt",
+            "individual": "Individuell"
+          }
+        }
+      },
+      "cartLineItemProductStates": {
+        "productState": {
+          "options": {
+            "is-download": "Digital",
+            "is-physical": "Physisch"
+          }
         }
       },
       "units": {
@@ -922,7 +885,7 @@
         "weight": "kg",
         "volume": "mm³",
         "age": "Jahre",
-        "kg": "Killogramm",
+        "kg": "Kilogramm",
         "g": "Gramm",
         "mg": "Milligramm",
         "oz": "Unze",
@@ -969,32 +932,6 @@
           "mm3": "mm³",
           "in3": "in³",
           "ft3": "ft³"
-        }
-      },
-      "orderCreatedByAdmin": {
-        "shouldOrderBeCreatedByAdmin": {
-          "placeholder": "Condition auswählen ..."
-        }
-      },
-      "adminSalesChannelSource": {
-        "hasAdminSalesChannelSource": {
-          "placeholder": "Bedingung auswählen ..."
-        }
-      },
-      "orderTransactionStatus": {
-        "stateIds": {
-          "placeholder": "State auswählen ..."
-        },
-        "operator": {
-          "placeholder": "Operator auswählen ..."
-        }
-      },
-      "orderStatus": {
-        "stateIds": {
-          "placeholder": "State auswählen ..."
-        },
-        "operator": {
-          "placeholder": "Operator auswählen ..."
         }
       }
     },
@@ -1200,6 +1137,41 @@
     "sw-page": {
       "backButton": "Zurückgehen"
     }
+  },
+  "mt-text-editor-toolbar-button-link": {
+    "label": "Link"
+  },
+  "sw-text-editor-toolbar-button-link": {
+    "modalTitle": "Link einfügen oder bearbeiten",
+    "linkTo": "Link zu",
+    "linkUrl": "URL",
+    "linkPhone": "Telefonnummer",
+    "linkPhonePrefix": "tel:",
+    "linkDetail": "Produkt",
+    "linkEmail": "E-Mail-Adresse",
+    "linkEmailPlaceholder": "E-Mail-Adresse eingeben ...",
+    "detailPlaceholder": "Produkt auswählen ...",
+    "categoryPlaceholder": "Kategorie auswählen ...",
+    "displayAsButton": "Link als Button darstellen",
+    "openInNewTab": "In neuem Tab öffnen",
+    "applyLink": "Link einfügen",
+    "linkType": "Link-Typ",
+    "removeLink": "Link entfernen",
+    "linkOptions": {
+      "link": "URL",
+      "product": "Produkt",
+      "category": "Kategorie",
+      "media": "Datei",
+      "email": "E-Mail-Adresse",
+      "phoneNumber": "Telefonnummer"
+    },
+    "buttonVariantPrimary": "Primär",
+    "buttonVariantSecondary": "Sekundär",
+    "buttonVariantPrimarySmall": "Primär (klein)",
+    "buttonVariantSecondarySmall": "Sekundär (klein)"
+  },
+  "sw-text-editor-toolbar-button-cms-data-mapping": {
+    "label": "Variable einfügen"
   },
   "sw-text-editor-toolbar": {
     "link": {
@@ -1529,15 +1501,15 @@
       "sw-app-app-url-changed-modal": {
         "move-shop-permanently": {
           "name": "Migriere Deine Apps zur neuen Domain",
-          "description": "Verbindet Deine Apps mit der neuen Domain. Dadurch werden alle Apps für die alte Domain deaktiviert."
+          "description": "Dies ist in der Regel die richtige Option, wenn du deinen Shop dauerhaft von einer alten zu einer neuen Domain umgezogen hast. Shopware benachrichtigt die App-Server über die neue Domain (d.h. sie registrieren sich neu bei den App-Servern) und die Apps bleiben installiert. Die Shop-ID bleibt unverändert."
         },
         "reinstall-apps": {
           "name": "Installiere Deine Apps neu",
-          "description": "Verbindet Deine Apps mit der neuen und der alten Domain. Für kostenpflichtige Apps können zusätzliche Gebühren anfallen."
+          "description": "Dies ist in der Regel die richtige Option, wenn du eine Kopie deines Shops erstellt hast (z. B. eine Staging- oder Testumgebung eines Produktionsshops) und du die Apps in dieser Kopie verwenden möchtest. Shopware installiert die Apps neu und registriert sich mit der neuen Domain bei den App-Servern. Es wird eine neue Shop-ID generiert."
         },
         "uninstall-apps": {
           "name": "Deinstalliere Deine Apps",
-          "description": "Löscht alle App-Daten der neuen Domain. Die mit der alten Domain verbundenen Apps funktionieren weiterhin."
+          "description": "Dies ist normalerweise die richtige Option, wenn du eine Kopie deines Shops erstellt hast (z.B. eine Staging- oder Testumgebung eines Produktionsshops) und du die Apps in dieser Kopie nicht verwenden möchtest. Shopware löscht die Apps, ohne die App-Server zu benachrichtigen. Es wird eine neue Shop-ID generiert."
         },
         "title": "Domain-Änderung wurde festgestellt",
         "oldLabel": "Alte Domain: ",
@@ -1552,7 +1524,6 @@
         "title": "Fehlerhaft konfigurierte APP_URL",
         "explanationHeader": "Fehler bei der Verbindung mit deinen Erweiterungen.",
         "explanation": "Erweiterungen können keine Verbindung zu deinem Shop aufbauen, aufgrund einer Fehlkonfiguration in deinem System.",
-        "textGetSupport": "Kontaktiere deinen Hoster um Hilfe zu bekommen.",
         "textDetails": "Technische Details: Die Konfiguration der APP_URL ist fehlerhaft.",
         "labelLearnMoreButton": "Lerne mehr",
         "linkToDocsArticle": "https://docs.shopware.com/de/shopware-6-de/tutorials-und-faq/hinweise-zur-app-url"
@@ -1577,6 +1548,11 @@
     "placeholder": "Alle",
     "active": "Aktiv",
     "inactive": "Inaktiv"
+  },
+  "sw-date-filter": {
+    "selectTimeframe": {
+      "placeholder": "Zeitraum auswählen"
+    }
   },
   "sw-existence-filter": {
     "placeholder": "Alle",
@@ -1633,6 +1609,10 @@
   },
   "sw-in-app-purchase-checkout": {
     "exsTitle": "Shopware Extension Store aktivieren"
+  },
+  "sidebar": {
+    "ariaLabelButtonClose": "Seitenleiste schließen",
+    "ariaLabelButtonOpen": "Seitenleiste öffnen"
   },
   "help-center": {
     "sidebar": {

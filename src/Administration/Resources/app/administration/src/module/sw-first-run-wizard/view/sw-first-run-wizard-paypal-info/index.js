@@ -8,8 +8,6 @@ import './sw-first-run-wizard-paypal-info.scss';
 export default {
     template,
 
-    compatConfig: Shopware.compatConfig,
-
     inject: ['extensionStoreActionService'],
 
     emits: [
@@ -54,7 +52,7 @@ export default {
                     key: 'back',
                     label: this.$tc('sw-first-run-wizard.general.buttonBack'),
                     position: 'left',
-                    variant: null,
+                    variant: 'secondary',
                     action: 'sw.first.run.wizard.index.mailer.selection',
                     disabled: false,
                 },
@@ -62,7 +60,7 @@ export default {
                     key: 'skip',
                     label: this.$tc('sw-first-run-wizard.general.buttonSkip'),
                     position: 'right',
-                    variant: null,
+                    variant: 'secondary',
                     action: 'sw.first.run.wizard.index.plugins',
                     disabled: false,
                 },

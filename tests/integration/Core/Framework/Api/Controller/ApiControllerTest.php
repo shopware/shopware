@@ -24,7 +24,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\MultiFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\NotFilter;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Test\TestCaseBase\AdminApiTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\BasicTestDataBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\FilesystemBehaviour;
@@ -189,6 +188,7 @@ EOF;
         $responseData = json_decode((string) $response->getContent(), true, 512, \JSON_THROW_ON_ERROR);
         static::assertSame(Response::HTTP_OK, $response->getStatusCode());
 
+        static::assertIsArray($responseData);
         static::assertArrayHasKey('data', $responseData);
         static::assertCount(1, $responseData['data'], \sprintf('Expected country %s has only one state', $id));
 
@@ -581,6 +581,7 @@ EOF;
         $browser->request('POST', '/api/_action/version/product/' . $id);
         $response = json_decode((string) $browser->getResponse()->getContent(), true, 512, \JSON_THROW_ON_ERROR);
         static::assertSame(Response::HTTP_OK, $browser->getResponse()->getStatusCode(), (string) $browser->getResponse()->getContent());
+        static::assertIsArray($response);
         static::assertArrayHasKey('versionId', $response);
         static::assertArrayHasKey('versionName', $response);
         static::assertArrayHasKey('id', $response);
@@ -1219,6 +1220,7 @@ EOF;
         $responseData = json_decode((string) $this->getBrowser()->getResponse()->getContent(), true, 512, \JSON_THROW_ON_ERROR);
         static::assertSame(Response::HTTP_OK, $this->getBrowser()->getResponse()->getStatusCode(), print_r($responseData, true));
 
+        static::assertIsArray($responseData);
         static::assertArrayHasKey('meta', $responseData);
         static::assertArrayHasKey('total', $responseData['meta']);
         static::assertSame(2, $responseData['meta']['total']);
@@ -1239,6 +1241,7 @@ EOF;
         $responseData = json_decode((string) $this->getBrowser()->getResponse()->getContent(), true, 512, \JSON_THROW_ON_ERROR);
 
         static::assertSame(Response::HTTP_OK, $this->getBrowser()->getResponse()->getStatusCode(), print_r($responseData, true));
+        static::assertIsArray($responseData);
         static::assertArrayHasKey('meta', $responseData);
         static::assertArrayHasKey('total', $responseData['meta']);
         static::assertSame(1, $responseData['meta']['total']);
@@ -1383,6 +1386,7 @@ EOF;
         $responseData = json_decode((string) $this->getBrowser()->getResponse()->getContent(), true, 512, \JSON_THROW_ON_ERROR);
         static::assertSame(Response::HTTP_OK, $this->getBrowser()->getResponse()->getStatusCode(), print_r($responseData, true));
 
+        static::assertIsArray($responseData);
         static::assertArrayHasKey('meta', $responseData);
         static::assertArrayHasKey('total', $responseData['meta']);
         static::assertSame(2, $responseData['meta']['total']);
@@ -1435,6 +1439,7 @@ EOF;
         $responseData = json_decode((string) $this->getBrowser()->getResponse()->getContent(), true, 512, \JSON_THROW_ON_ERROR);
         static::assertSame(Response::HTTP_OK, $this->getBrowser()->getResponse()->getStatusCode(), print_r($responseData, true));
 
+        static::assertIsArray($responseData);
         static::assertArrayHasKey('meta', $responseData);
         static::assertArrayHasKey('total', $responseData['meta']);
         static::assertSame(2, $responseData['meta']['total']);
@@ -1455,6 +1460,7 @@ EOF;
         $responseData = json_decode((string) $this->getBrowser()->getResponse()->getContent(), true, 512, \JSON_THROW_ON_ERROR);
 
         static::assertSame(Response::HTTP_OK, $this->getBrowser()->getResponse()->getStatusCode(), print_r($responseData, true));
+        static::assertIsArray($responseData);
         static::assertArrayHasKey('meta', $responseData);
         static::assertArrayHasKey('total', $responseData['meta']);
         static::assertSame(1, $responseData['meta']['total']);
@@ -1497,6 +1503,7 @@ EOF;
         $responseData = json_decode((string) $this->getBrowser()->getResponse()->getContent(), true, 512, \JSON_THROW_ON_ERROR);
         static::assertSame(Response::HTTP_OK, $this->getBrowser()->getResponse()->getStatusCode(), print_r($responseData, true));
 
+        static::assertIsArray($responseData);
         static::assertArrayHasKey('total', $responseData);
         static::assertSame(2, $responseData['total']);
         static::assertArrayHasKey('data', $responseData);
@@ -1766,6 +1773,7 @@ EOF;
 
         $respData = json_decode((string) $response->getContent(), true, 512, \JSON_THROW_ON_ERROR);
 
+        static::assertIsArray($respData);
         static::assertArrayHasKey('data', $respData);
         static::assertArrayHasKey('links', $respData);
         static::assertArrayHasKey('included', $respData);
@@ -1807,6 +1815,7 @@ EOF;
         static::assertSame(Response::HTTP_OK, $response->getStatusCode(), (string) $response->getContent());
 
         $respData = json_decode((string) $response->getContent(), true, 512, \JSON_THROW_ON_ERROR);
+        static::assertIsArray($respData);
         static::assertArrayHasKey('data', $respData);
         static::assertArrayHasKey('links', $respData);
         static::assertArrayHasKey('included', $respData);
@@ -2514,10 +2523,6 @@ EOF;
                 ],
             ],
         ];
-
-        if (!Feature::isActive('v6.7.0.0')) {
-            $data['defaultPaymentMethodId'] = $this->getValidPaymentMethodId();
-        }
 
         static::getContainer()->get('customer.repository')
             ->create([$data], Context::createDefaultContext());

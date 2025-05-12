@@ -1,7 +1,4 @@
 import { mount } from '@vue/test-utils';
-import state from 'src/module/sw-settings-shipping/page/sw-settings-shipping-detail/state';
-
-Shopware.State.registerModule('swShippingDetail', state);
 
 /**
  * @sw-package checkout
@@ -14,18 +11,15 @@ const createWrapper = async () => {
         {
             global: {
                 renderStubDefaultSlot: true,
-                store: Shopware.State._store,
                 stubs: {
-                    'sw-card': true,
                     'sw-container': true,
                     'sw-select-rule-create': true,
-                    'sw-button': true,
                     'sw-context-button': true,
                     'sw-data-grid': true,
                     'sw-context-menu-item': true,
-                    'sw-alert': true,
+
                     'sw-price-rule-modal': true,
-                    'sw-number-field': true,
+                    'mt-number-field': true,
                     'sw-inheritance-switch': true,
                     'sw-inherit-wrapper': true,
                     'sw-single-select': true,
@@ -83,11 +77,11 @@ const createWrapper = async () => {
 
 describe('module/sw-settings-shipping/component/sw-settings-shipping-price-matrix', () => {
     beforeEach(async () => {
-        Shopware.State.commit('swShippingDetail/setCurrencies', [
+        Shopware.Store.get('swShippingDetail').shippingMethod = [
             { id: 'euro', translated: { name: 'Euro' }, isSystemDefault: true },
             { id: 'dollar', translated: { name: 'Dollar' } },
             { id: 'pound', translated: { name: 'Pound' } },
-        ]);
+        ];
     });
 
     it('should be a Vue.js component', async () => {
@@ -96,28 +90,38 @@ describe('module/sw-settings-shipping/component/sw-settings-shipping-price-matri
         expect(wrapper.vm).toBeTruthy();
     });
 
-    it('should add conditions association', async () => {
-        if (Shopware.Feature.isActive('v6.7.0.0')) {
-            return;
-        }
-
-        const wrapper = await createWrapper();
-        const ruleFilterCriteria = wrapper.vm.ruleFilterCriteria;
-        const shippingRuleFilterCriteria = wrapper.vm.shippingRuleFilterCriteria;
-
-        expect(ruleFilterCriteria.hasAssociation('conditions')).toBeTruthy();
-        expect(shippingRuleFilterCriteria.hasAssociation('conditions')).toBeTruthy();
-    });
-
     it('should not add conditions association', async () => {
-        global.activeFeatureFlags = ['v6.7.0.0'];
-
         const wrapper = await createWrapper();
         const ruleFilterCriteria = wrapper.vm.ruleFilterCriteria;
         const shippingRuleFilterCriteria = wrapper.vm.shippingRuleFilterCriteria;
 
         expect(ruleFilterCriteria.hasAssociation('conditions')).toBeFalsy();
         expect(shippingRuleFilterCriteria.hasAssociation('conditions')).toBeFalsy();
+    });
+
+    it('should have price and deprecated shipping filter option', async () => {
+        global.activeFeatureFlags = [];
+
+        const wrapper = await createWrapper();
+        const shippingRuleFilterCriteria = wrapper.vm.shippingRuleFilterCriteria;
+
+        expect(shippingRuleFilterCriteria.filters[0].queries).toHaveLength(3);
+        expect(shippingRuleFilterCriteria.filters[0].queries[0].value).toBe('shipping');
+        expect(shippingRuleFilterCriteria.filters[0].queries[1].value).toBe('price');
+        expect(shippingRuleFilterCriteria.filters[0].queries[2].value).toBeNull();
+    });
+
+    it('should have price filter option', async () => {
+        global.activeFeatureFlags = ['v6.8.0.0'];
+
+        const wrapper = await createWrapper();
+
+        // shippingRuleFilterCriteria is deprecated and will be removed. Use ruleFilterCriteria instead
+        const shippingRuleFilterCriteria = wrapper.vm.shippingRuleFilterCriteria;
+
+        expect(shippingRuleFilterCriteria.filters[0].queries).toHaveLength(2);
+        expect(shippingRuleFilterCriteria.filters[0].queries[0].value).toBe('price');
+        expect(shippingRuleFilterCriteria.filters[0].queries[1].value).toBeNull();
     });
 
     it('should show all prices', async () => {

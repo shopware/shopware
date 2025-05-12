@@ -12,8 +12,6 @@ import type { NavigationGuardNext, RouteLocationNormalizedLoaded, RouteLocationR
 import '@shopware-ag/meteor-admin-sdk';
 import type FeatureService from 'src/app/service/feature.service';
 import type { LoginService } from 'src/core/service/login.service';
-import type { ContextState } from 'src/app/state/context.store';
-import type { ExtensionComponentSectionsState } from 'src/app/state/extension-component-sections.store';
 import type { AxiosInstance } from 'axios';
 import type { ShopwareClass } from 'src/core/shopware';
 import type RepositoryFactory from 'src/core/data/repository-factory.data';
@@ -31,30 +29,29 @@ import type UserApiService from 'src/core/service/api/user.api.service';
 import type ApiServiceFactory from 'src/core/factory/api-service.factory';
 import type { ComponentInternalInstance } from 'vue';
 import type { I18n } from 'vue-i18n';
-import type { Slots } from '@vue/runtime-core';
-import type { Store, mapActions, mapGetters, mapMutations, mapState } from 'vuex';
+import type {
+    Store,
+    mapActions as mapVuexActions,
+    mapGetters as mapVuexGetters,
+    mapMutations as mapVuexMutations,
+    mapState as mapVuexState,
+} from 'vuex';
+import type { mapActions, mapState } from 'pinia';
 import type * as mapErrors from 'src/app/service/map-errors.service';
 import type JsonApiParserService from 'src/core/service/jsonapi-parser.service';
-import type { ExtensionsState } from './app/state/extensions.store';
+/* eslint-disable @typescript-eslint/no-unused-vars */
+// Needed for the Editor types
+import type { Editor as CoreEditor, EditorOptions } from '@tiptap/core';
+import type Link from '@tiptap/extension-link';
+/* eslint-enable @typescript-eslint/no-unused-vars */
 import type { ComponentConfig } from './core/factory/async-component.factory';
-import type { TabsState } from './app/state/tabs.store';
-import type { MenuItemState } from './app/state/menu-item.store';
-import type { ModalsState } from './app/state/modals.store';
-import type { ExtensionSdkModuleState } from './app/state/extension-sdk-module.store';
-import type { MainModuleState } from './app/state/main-module.store';
-import type { ActionButtonState } from './app/state/action-button.store';
 import type StoreApiService from './core/service/api/store.api.service';
 import type ShopwareDiscountCampaignService from './app/service/discount-campaign.service';
 import type AppModulesService from './core/service/api/app-modules.service';
-import type { ShopwareExtensionsState } from './module/sw-extension/store/extensions.store';
-import type { PaymentOverviewCardState } from './module/sw-settings-payment/state/overview-cards.store';
-import type { SwOrderState } from './module/sw-order/state/order.store';
 import type AclService from './app/service/acl.service';
-import type { ShopwareAppsState } from './app/state/shopware-apps.store';
 import type EntityValidationService from './app/service/entity-validation.service';
 import type CustomEntityDefinitionService from './app/service/custom-entity-definition.service';
 import type CmsPageTypeService from './module/sw-cms/service/cms-page-type.service';
-import type { SdkLocationState } from './app/state/sdk-location.store';
 import type StoreContextService from './core/service/api/store-context.api.service';
 import type OrderStateMachineApiService from './core/service/api/order-state-machine.api.service';
 import type cmsElementFavoritesService from './module/sw-cms/service/cms-element-favorites.service';
@@ -66,6 +63,8 @@ import type FilterFactory from './core/factory/filter.factory';
 import type StateStyleService from './app/service/state-style.service';
 import type RuleConditionService from './app/service/rule-condition.service';
 import type SystemConfigApiService from './core/service/api/system-config.api.service';
+import type UpdateApiService from './core/service/api/update.api.service';
+import type UserRecoveryApiService from './core/service/api/user-recovery.api.service';
 import type { UsageDataApiService } from './core/service/api/usage-data.api.service';
 import type ConfigApiService from './core/service/api/config.api.service';
 import type ImportExportService from './module/sw-import-export/service/importExport.service';
@@ -88,9 +87,8 @@ import type GenericConditionMixin from './app/mixin/generic-condition.mixin';
 import type SwFormFieldMixin from './app/mixin/form-field.mixin';
 import type DiscardDetailPageChangesMixin from './app/mixin/discard-detail-page-changes.mixin';
 import type PrivilegesService from './app/service/privileges.service';
-import type { UsageDataModuleState } from './app/state/usage-data.store';
+import type BusinessEventsApiService from './core/service/api/business-events.api.service';
 import type { FileValidationService } from './app/service/file-validation.service';
-import type { AdminHelpCenterState } from './app/state/admin-help-center.store';
 import type { DevtoolComponent } from './app/adapter/view/sw-vue-devtools';
 import type { CmsPageStore } from './module/sw-cms/store/cms-page.store';
 import type { TopBarButtonStore } from './app/store/topbar-button.store';
@@ -98,7 +96,44 @@ import type { TeaserPopoverStore } from './app/store/teaser-popover.store';
 import type { AdminMenuStore } from './app/store/admin-menu.store';
 import type { InAppPurchasesStore } from './app/store/in-app-purchase-checkout.store';
 import type { CmsService } from './module/sw-cms/service/cms.service';
+import type { ExtensionComponentSectionsStore } from './app/store/extension-component-sections.store';
 import type { BlockOverrideStore } from './app/store/block-override.store';
+import type { ExtensionEntryRoutes } from './app/store/extension-entry-routes.store';
+import type { ExtensionSdkModules } from './app/store/extension-sdk-module.store';
+import type { Extensions } from './app/store/extensions.store';
+import type { ErrorStore } from './app/store/error.store';
+import type { AdminHelpCenterStore } from './app/store/admin-help-center.store';
+import type { ActionButtonsStore } from './app/store/action-buttons.store';
+import type { ContextStore } from './app/store/context.store';
+import type { LicenseViolationStore } from './app/store/license-violation.store';
+import type { ExtensionMainModules } from './app/store/main-module.store';
+import type { MarketingStore } from './app/store/marketing.store';
+import type { SdkLocation } from './app/store/sdk-location.store';
+import type { RuleConditionsConfig } from './app/store/rule-conditions-config.store';
+import type { SettingsItems } from './app/store/settings-item.store';
+import type { ShopwareApps } from './app/store/shopware-apps.store';
+import type { System } from './app/store/system.store';
+import type { ModalsStore } from './app/store/modals.store';
+import type { SidebarStore } from './app/store/sidebar.store';
+import type { MenuItemStore } from './app/store/menu-item.store';
+import type { NotificationStore } from './app/store/notification.store';
+import type { TabsStore } from './app/store/tabs.store';
+import type { UsageData } from './app/store/usage-data.store';
+import type { SessionStore } from './app/store/session.store';
+import type { SwCategoryDetailStore } from './module/sw-category/page/sw-category-detail/store';
+import type { SwSeoUrlStore } from './module/sw-settings-seo/component/sw-seo-url/store';
+import type { ShopwareExtensionsStore } from './module/sw-extension/store/extensions.store';
+import type { SwOrderDetailStore } from './module/sw-order/store/order-detail.store';
+import type { SwOrderStore } from './module/sw-order/store/order.store';
+import type { SwShippingDetailStore } from './module/sw-settings-shipping/page/sw-settings-shipping-detail/store';
+import type { PaymentOverviewCardStore } from './module/sw-settings-payment/store/overview-cards.store';
+import type { SwProductDetailStore } from './module/sw-product/page/sw-product-detail/store';
+import type { SwProfileStore } from './module/sw-profile/store/sw-profile.store';
+import type { SwPromotionDetailStore } from './module/sw-promotion-v2/page/sw-promotion-v2-detail/store';
+import type { SwFlowStore } from './module/sw-flow/store/flow.store';
+import type { SwBulkStore } from './app/store/sw-bulk-edit.store';
+// eslint-disable-next-line max-len
+import type createTextEditorDataMappingButton from './app/component/meteor-wrapper/mt-text-editor/sw-text-editor-toolbar-button-cms-data-mapping';
 
 // trick to make it an "external module" to support global type extension
 
@@ -153,26 +188,25 @@ declare global {
      */
     type Remove<T, K extends keyof T> = T & { [P in K]?: never };
 
+    interface CustomShopwareProperties {}
+
     /**
      * Make the Shopware object globally available
      */
-    const Shopware: ShopwareClass;
+    const Shopware: ShopwareClass & CustomShopwareProperties;
 
     type Entity<EntityName extends keyof EntitySchema.Entities> = EntitySchema.Entity<EntityName>;
     type EntityCollection<EntityName extends keyof EntitySchema.Entities> = EntitySchema.EntityCollection<EntityName>;
 
-    // eslint-disable-next-line @typescript-eslint/no-empty-object-type
-    interface CustomShopwareProperties {}
-
     interface Window {
-        Shopware: ShopwareClass;
+        Shopware: ShopwareClass & CustomShopwareProperties;
         _features_: {
             [featureName: string]: boolean;
         };
         _inAppPurchases_: Record<string, string>;
         processingInactivityLogout?: boolean;
         _sw_extension_component_collection: DevtoolComponent[];
-        // Only available with Vite
+        _swLoginOverrides?: Array<() => void>;
         startApplication: () => void;
     }
 
@@ -187,60 +221,63 @@ declare global {
      */
     // eslint-disable-next-line @typescript-eslint/no-empty-interface
     interface ServiceContainer extends SubContainer<'service'> {
-        loginService: LoginService;
-        feature: FeatureService;
-        menuService: $TSFixMe;
-        privileges: PrivilegesService;
-        customEntityDefinitionService: CustomEntityDefinitionService;
-        cmsPageTypeService: CmsPageTypeService;
         acl: AclService;
-        jsonApiParserService: typeof JsonApiParserService;
-        validationService: $TSFixMe;
-        entityValidationService: EntityValidationService;
-        timezoneService: $TSFixMe;
-        ruleConditionDataProviderService: RuleConditionService;
-        productStreamConditionService: $TSFixMe;
-        customFieldDataProviderService: $TSFixMe;
-        extensionHelperService: ExtensionHelperService;
-        languageAutoFetchingService: $TSFixMe;
-        stateStyleDataProviderService: StateStyleService;
-        searchTypeService: $TSFixMe;
-        localeToLanguageService: $TSFixMe;
-        entityMappingService: $TSFixMe;
-        shortcutService: $TSFixMe;
-        licenseViolationService: $TSFixMe;
-        localeHelper: $TSFixMe;
-        filterService: $TSFixMe;
-        mediaDefaultFolderService: $TSFixMe;
         appAclService: $TSFixMe;
         appCmsService: $TSFixMe;
-        entityHydrator: $TSFixMe;
-        entityFactory: $TSFixMe;
-        userService: UserApiService;
-        shopwareDiscountCampaignService: ShopwareDiscountCampaignService;
-        cmsService: CmsService;
-        cmsElementFavorites: cmsElementFavoritesService;
-        cmsBlockFavorites: cmsBlockFavoritesService;
-        searchRankingService: $TSFixMe;
-        searchPreferencesService: $TSFixMe;
-        storeService: StoreApiService;
-        contextStoreService: StoreContextService;
-        checkoutStoreService: CheckoutStoreService;
-        orderStateMachineService: OrderStateMachineApiService;
-        repositoryFactory: RepositoryFactory;
-        snippetService: $TSFixMe;
-        recentlySearchService: $TSFixMe;
-        extensionSdkService: ExtensionSdkService;
         appModulesService: AppModulesService;
+        businessEventService: BusinessEventsApiService;
         cartStoreService: CartStoreService;
-        customSnippetApiService: CustomSnippetApiService;
-        userActivityService: UserActivityService;
-        filterFactory: FilterFactoryData;
-        systemConfigApiService: SystemConfigApiService;
-        usageDataService: UsageDataApiService;
+        checkoutStoreService: CheckoutStoreService;
+        cmsBlockFavorites: cmsBlockFavoritesService;
+        cmsElementFavorites: cmsElementFavoritesService;
+        cmsPageTypeService: CmsPageTypeService;
+        cmsService: CmsService;
         configService: ConfigApiService;
-        importExport: ImportExportService;
+        contextStoreService: StoreContextService;
+        customEntityDefinitionService: CustomEntityDefinitionService;
+        customFieldDataProviderService: $TSFixMe;
+        customSnippetApiService: CustomSnippetApiService;
+        entityFactory: $TSFixMe;
+        entityHydrator: $TSFixMe;
+        entityMappingService: $TSFixMe;
+        entityValidationService: EntityValidationService;
+        extensionHelperService: ExtensionHelperService;
+        extensionSdkService: ExtensionSdkService;
+        feature: FeatureService;
         fileValidationService: FileValidationService;
+        filterFactory: FilterFactoryData;
+        filterService: $TSFixMe;
+        importExport: ImportExportService;
+        jsonApiParserService: typeof JsonApiParserService;
+        languageAutoFetchingService: $TSFixMe;
+        licenseViolationService: $TSFixMe;
+        localeHelper: $TSFixMe;
+        localeToLanguageService: $TSFixMe;
+        loginService: LoginService;
+        mediaDefaultFolderService: $TSFixMe;
+        menuService: $TSFixMe;
+        orderStateMachineService: OrderStateMachineApiService;
+        privileges: PrivilegesService;
+        productStreamConditionService: $TSFixMe;
+        recentlySearchService: $TSFixMe;
+        repositoryFactory: RepositoryFactory;
+        ruleConditionDataProviderService: RuleConditionService;
+        searchPreferencesService: $TSFixMe;
+        searchRankingService: $TSFixMe;
+        searchTypeService: $TSFixMe;
+        shopwareDiscountCampaignService: ShopwareDiscountCampaignService;
+        shortcutService: $TSFixMe;
+        snippetService: $TSFixMe;
+        stateStyleDataProviderService: StateStyleService;
+        storeService: StoreApiService;
+        systemConfigApiService: SystemConfigApiService;
+        timezoneService: $TSFixMe;
+        updateService: UpdateApiService;
+        usageDataService: UsageDataApiService;
+        userActivityService: UserActivityService;
+        userRecoveryService: UserRecoveryApiService;
+        userService: UserApiService;
+        validationService: $TSFixMe;
     }
 
     interface MixinContainer {
@@ -311,13 +348,16 @@ declare global {
 
     interface ComponentHelper {
         mapState: typeof mapState;
-        mapMutations: typeof mapMutations;
-        mapGetters: typeof mapGetters;
         mapActions: typeof mapActions;
+        mapVuexState: typeof mapVuexState;
+        mapVuexMutations: typeof mapVuexMutations;
+        mapVuexGetters: typeof mapVuexGetters;
+        mapVuexActions: typeof mapVuexActions;
         mapPropertyErrors: typeof mapErrors.mapPropertyErrors;
         mapSystemConfigErrors: typeof mapErrors.mapSystemConfigErrors;
         mapCollectionPropertyErrors: typeof mapErrors.mapCollectionPropertyErrors;
         mapPageErrors: typeof mapErrors.mapPageErrors;
+        createTextEditorDataMappingButton: typeof createTextEditorDataMappingButton;
     }
 
     /**
@@ -326,30 +366,7 @@ declare global {
      */
     // eslint-disable-next-line @typescript-eslint/no-empty-interface
     interface VuexRootState {
-        context: ContextState;
-        extensions: ExtensionsState;
-        tabs: TabsState;
-        extensionComponentSections: ExtensionComponentSectionsState;
-        paymentOverviewCardState: PaymentOverviewCardState;
-        swOrder: SwOrderState;
-        session: {
-            currentUser: EntitySchema.Entities['user'];
-            userPending: boolean;
-            languageId: string;
-            currentLocale: string | null;
-        };
         swCategoryDetail: $TSFixMe;
-        menuItem: MenuItemState;
-        extensionSdkModules: ExtensionSdkModuleState;
-        extensionMainModules: MainModuleState;
-        modals: ModalsState;
-        actionButtons: ActionButtonState;
-        shopwareExtensions: ShopwareExtensionsState;
-        extensionEntryRoutes: $TSFixMe;
-        shopwareApps: ShopwareAppsState;
-        sdkLocation: SdkLocationState;
-        usageData: UsageDataModuleState;
-        adminHelpCenter: AdminHelpCenterState;
     }
 
     interface PiniaRootState {
@@ -358,7 +375,42 @@ declare global {
         teaserPopover: TeaserPopoverStore;
         adminMenu: AdminMenuStore;
         inAppPurchaseCheckout: InAppPurchasesStore;
+        extensionComponentSections: ExtensionComponentSectionsStore;
         blockOverride: BlockOverrideStore;
+        extensionEntryRoutes: ExtensionEntryRoutes;
+        extensionSdkModules: ExtensionSdkModules;
+        extensions: Extensions;
+        error: ErrorStore;
+        context: ContextStore;
+        adminHelpCenter: AdminHelpCenterStore;
+        actionButtons: ActionButtonsStore;
+        licenseViolation: LicenseViolationStore;
+        extensionMainModules: ExtensionMainModules;
+        marketing: MarketingStore;
+        sdkLocation: SdkLocation;
+        ruleConditionsConfig: RuleConditionsConfig;
+        settingsItems: SettingsItems;
+        shopwareApps: ShopwareApps;
+        system: System;
+        modals: ModalsStore;
+        sidebar: SidebarStore;
+        menuItem: MenuItemStore;
+        notification: NotificationStore;
+        tabs: TabsStore;
+        usageData: UsageData;
+        session: SessionStore;
+        swCategoryDetail: SwCategoryDetailStore;
+        swSeoUrl: SwSeoUrlStore;
+        shopwareExtensions: ShopwareExtensionsStore;
+        swOrderDetail: SwOrderDetailStore;
+        swOrder: SwOrderStore;
+        swShippingDetailStore: SwShippingDetailStore;
+        paymentOverviewCard: PaymentOverviewCardStore;
+        swProductDetail: SwProductDetailStore;
+        swProfile: SwProfileStore;
+        swPromotionDetail: SwPromotionDetailStore;
+        swFlow: SwFlowStore;
+        swBulkEdit: SwBulkStore;
     }
 
     /**
@@ -366,9 +418,9 @@ declare global {
      */
     type VueComponent = ComponentConfig;
 
-    type apiContext = ContextState['api'];
+    type apiContext = ContextStore['api'];
 
-    type appContext = ContextState['app'];
+    type appContext = ContextStore['app'];
 
     /**
      * @see Shopware\Core\Framework\Api\EventListener\ErrorResponseFactory
@@ -386,6 +438,30 @@ declare global {
             previous?: ShopwareHttpError;
         };
         trace?: { [key: string]: string };
+    }
+
+    interface ShopwareErrorMeta {
+        parameters: {
+            dependency: string;
+            dependantNames: string;
+            themeName: string;
+            assignments: string;
+            [key: string]: unknown;
+        };
+        [key: string]: unknown;
+    }
+
+    interface ShopwareError {
+        code: string;
+        meta: ShopwareErrorMeta;
+    }
+
+    interface ShopwareApiError {
+        response: {
+            data: {
+                errors: ShopwareError[];
+            };
+        };
     }
 
     interface StoreApiException extends ShopwareHttpError {
@@ -418,29 +494,13 @@ declare module 'bottlejs' {
     }
 }
 
-/**
- * @deprecated tag:v6.7.0 - will be removed when Vue compat gets removed
- */
-interface LegacyPublicProperties {
-    $set(target: object, key: string, value: any): void;
-    $delete(target: object, key: string): void;
-    $mount(el?: string | Element): this;
-    $destroy(): void;
-    $scopedSlots: Slots;
-    $on(event: string | string[], fn: Function): this;
-    $once(event: string, fn: Function): this;
-    $off(event?: string | string[], fn?: Function): this;
-    $children: LegacyPublicProperties[];
-    $listeners: Record<string, Function | Function[]>;
-    isCompatEnabled: (key: string) => boolean;
-}
-
-interface CustomProperties extends ServiceContainer, LegacyPublicProperties {
+interface CustomProperties extends ServiceContainer {
     $createTitle: (identifier?: string | null) => string;
     $router: Router;
     $store: Store<VuexRootState>;
     $route: RouteLocationNormalizedLoaded;
-    $tc: I18n<{}, {}, {}, string, true>['global']['tc'];
+    $te: I18n<{}, {}, {}, string, true>['global']['te'];
+    $tc: I18n<{}, {}, {}, string, true>['global']['t'];
     $t: I18n<{}, {}, {}, string, true>['global']['t'];
     $dataScope: () => ComponentInternalInstance['proxy'];
 }

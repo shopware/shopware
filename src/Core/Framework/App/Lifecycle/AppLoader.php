@@ -8,7 +8,6 @@ use Shopware\Core\Framework\App\AppException;
 use Shopware\Core\Framework\App\Exception\AppXmlParsingException;
 use Shopware\Core\Framework\App\Manifest\Manifest;
 use Shopware\Core\Framework\Log\Package;
-use Shopware\Core\System\SystemConfig\Exception\XmlParsingException;
 use Symfony\Component\Filesystem\Filesystem;
 use Symfony\Component\Finder\Finder;
 
@@ -72,7 +71,7 @@ class AppLoader
                 $manifest = Manifest::createFromXmlFile($xml->getPathname());
 
                 $manifests[$manifest->getMetadata()->getName()] = $manifest;
-            } catch (AppXmlParsingException|XmlParsingException $exception) {
+            } catch (AppXmlParsingException $exception) {
                 $this->logger->error('Manifest XML parsing error. Reason: ' . $exception->getMessage(), ['trace' => $exception->getTrace()]);
             }
         }
@@ -90,7 +89,7 @@ class AppLoader
                 $manifest = Manifest::createFromXmlFile($xml->getPathname());
 
                 $manifests[$manifest->getMetadata()->getName()] = $manifest;
-            } catch (AppXmlParsingException|XmlParsingException $exception) {
+            } catch (AppXmlParsingException $exception) {
                 $this->logger->error('Local manifest XML parsing error. Reason: ' . $exception->getMessage(), ['trace' => $exception->getTrace()]);
             }
         }
@@ -114,7 +113,7 @@ class AppLoader
                     $manifest->setManagedByComposer(true);
 
                     $manifests[$manifest->getMetadata()->getName()] = $manifest;
-                } catch (AppXmlParsingException|XmlParsingException $exception) {
+                } catch (AppXmlParsingException $exception) {
                     $this->logger->error('Manifest XML parsing error. Reason: ' . $exception->getMessage(), ['trace' => $exception->getTrace()]);
                 }
             }

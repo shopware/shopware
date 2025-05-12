@@ -19,7 +19,6 @@ use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Routing\RoutingException;
 use Shopware\Core\Framework\Test\TestCaseBase\CountryAddToSalesChannelTestBehaviour;
@@ -37,6 +36,7 @@ use Shopware\Core\Test\TestDefaults;
 use Symfony\Bundle\FrameworkBundle\KernelBrowser;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\PasswordHasher\PasswordHasherInterface;
 
 /**
  * @internal
@@ -529,11 +529,7 @@ class RegisterRouteTest extends TestCase
 
         $customer = json_decode((string) $this->browser->getResponse()->getContent(), true, 512, \JSON_THROW_ON_ERROR);
         static::assertArrayHasKey('errors', $customer);
-        if (Feature::isActive('v6.7.0.0')) {
-            static::assertSame(RoutingException::CUSTOMER_NOT_LOGGED_IN_CODE, $customer['errors'][0]['code']);
-        } else {
-            static::assertSame('CHECKOUT__CUSTOMER_NOT_LOGGED_IN', $customer['errors'][0]['code']);
-        }
+        static::assertSame(RoutingException::CUSTOMER_NOT_LOGGED_IN_CODE, $customer['errors'][0]['code']);
     }
 
     public function testDoubleOptinWithHeaderToken(): void
@@ -567,11 +563,7 @@ class RegisterRouteTest extends TestCase
 
         $customer = json_decode((string) $this->browser->getResponse()->getContent(), true, 512, \JSON_THROW_ON_ERROR);
         static::assertArrayHasKey('errors', $customer);
-        if (Feature::isActive('v6.7.0.0')) {
-            static::assertSame(RoutingException::CUSTOMER_NOT_LOGGED_IN_CODE, $customer['errors'][0]['code']);
-        } else {
-            static::assertSame('CHECKOUT__CUSTOMER_NOT_LOGGED_IN', $customer['errors'][0]['code']);
-        }
+        static::assertSame(RoutingException::CUSTOMER_NOT_LOGGED_IN_CODE, $customer['errors'][0]['code']);
 
         $customerId = $response['id'];
 
@@ -1349,6 +1341,32 @@ class RegisterRouteTest extends TestCase
         static::assertSame('teg-reg@xn--exmple-cua.com', $fetchMail);
     }
 
+    public function testRegisterWithTooLongPassword(): void
+    {
+        $registrationData = $this->getRegistrationData();
+        $registrationData['password'] = \str_repeat('a', PasswordHasherInterface::MAX_PASSWORD_LENGTH + 1);
+        $this->browser
+            ->request(
+                'POST',
+                '/store-api/account/register',
+                [],
+                [],
+                ['CONTENT_TYPE' => 'application/json'],
+                json_encode($registrationData, \JSON_THROW_ON_ERROR)
+            );
+
+        $response = json_decode((string) $this->browser->getResponse()->getContent(), true, 512, \JSON_THROW_ON_ERROR);
+
+        static::assertSame(400, $this->browser->getResponse()->getStatusCode());
+        static::assertArrayHasKey('errors', $response);
+
+        $error = $response['errors'][0];
+
+        static::assertSame('VIOLATION::TOO_LONG_ERROR', $error['code']);
+        static::assertSame('/password', $error['source']['pointer']);
+        static::assertSame(':PASSWORD_IS_TOO_LONG', $error['detail']);
+    }
+
     /**
      * @return array<string, mixed>
      */
@@ -1426,10 +1444,6 @@ class RegisterRouteTest extends TestCase
                 ],
             ],
         ];
-
-        if (!Feature::isActive('v6.7.0.0')) {
-            $customer['defaultPaymentMethodId'] = $this->getValidPaymentMethodId();
-        }
 
         static::getContainer()
             ->get('customer.repository')

@@ -11,7 +11,6 @@ use Shopware\Core\Content\Product\Aggregate\ProductVisibility\ProductVisibilityD
 use Shopware\Core\Content\Product\SalesChannel\Review\ProductReviewSaveRoute;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Routing\RoutingException;
 use Shopware\Core\Framework\Test\TestCaseBase\EventDispatcherBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
@@ -61,11 +60,7 @@ class ProductReviewSaveRouteTest extends TestCase
 
         $response = json_decode((string) $this->browser->getResponse()->getContent(), true, 512, \JSON_THROW_ON_ERROR);
 
-        if (Feature::isActive('v6.7.0.0')) {
-            static::assertEquals($response['errors'][0]['code'], RoutingException::CUSTOMER_NOT_LOGGED_IN_CODE);
-        } else {
-            static::assertEquals($response['errors'][0]['code'], 'CHECKOUT__CUSTOMER_NOT_LOGGED_IN');
-        }
+        static::assertEquals($response['errors'][0]['code'], RoutingException::CUSTOMER_NOT_LOGGED_IN_CODE);
     }
 
     #[DataProvider('provideContentData')]

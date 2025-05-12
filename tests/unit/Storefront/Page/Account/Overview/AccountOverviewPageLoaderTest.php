@@ -83,7 +83,7 @@ class AccountOverviewPageLoaderTest extends TestCase
         );
 
         $this->orderRoute
-            ->expects(static::once())
+            ->expects($this->once())
             ->method('load')
             ->willReturn($orderResponse);
 
@@ -92,12 +92,12 @@ class AccountOverviewPageLoaderTest extends TestCase
         $page->getMetaInformation()?->setMetaTitle('testshop');
 
         $this->genericPageLoader
-            ->expects(static::once())
+            ->expects($this->once())
             ->method('load')
             ->willReturn($page);
 
         $this->translator
-            ->expects(static::once())
+            ->expects($this->once())
             ->method('trans')
             ->willReturn('translated');
 
@@ -115,7 +115,7 @@ class AccountOverviewPageLoaderTest extends TestCase
         static::assertInstanceOf(AccountOverviewPageLoadedEvent::class, $events[1]);
     }
 
-    public function testSetStandardMetaDataIfTranslatorIsSet(): void
+    public function testSetStandardMetaData(): void
     {
         $pageLoader = new TestAccountOverviewPageLoader(
             $this->createMock(GenericPageLoader::class),
@@ -133,26 +133,6 @@ class AccountOverviewPageLoaderTest extends TestCase
         $pageLoader->setMetaInformationAccess($page);
 
         static::assertInstanceOf(MetaInformation::class, $page->getMetaInformation());
-    }
-
-    public function testNotSetStandardMetaDataIfTranslatorIsNotSet(): void
-    {
-        $pageLoader = new TestAccountOverviewPageLoader(
-            $this->createMock(GenericPageLoader::class),
-            $this->eventDispatcher,
-            $this->orderRoute,
-            $this->createMock(CustomerRoute::class),
-            $this->createMock(NewsletterAccountPageletLoader::class),
-            null
-        );
-
-        $page = new AccountOverviewPage();
-
-        static::assertNull($page->getMetaInformation());
-
-        $pageLoader->setMetaInformationAccess($page);
-
-        static::assertNull($page->getMetaInformation());
     }
 }
 

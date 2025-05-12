@@ -12,7 +12,7 @@
 
     <meta property="og:description"
           content="{{ metaDescription }}">
-    <meta property="og:image"
+    <meta property="og:{{ page.product.cover.media.getMediaType().getName() === 'VIDEO' ? 'video' : 'image' }}"
           content="{{ page.product.cover.media.url }}">
 
     {% if page.product.manufacturer %}

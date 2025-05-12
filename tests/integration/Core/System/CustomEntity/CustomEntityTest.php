@@ -37,7 +37,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\Pricing\PriceCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Validation\RestrictDeleteViolationException;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Struct\ArrayEntity;
 use Shopware\Core\Framework\Test\TestCaseBase\AdminApiTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelLifecycleManager;
@@ -63,7 +62,6 @@ use Shopware\Core\System\CustomEntity\Xml\Field\OneToOneField;
 use Shopware\Core\System\CustomEntity\Xml\Field\PriceField;
 use Shopware\Core\System\CustomEntity\Xml\Field\StringField;
 use Shopware\Core\System\CustomEntity\Xml\Field\TextField;
-use Shopware\Core\System\SystemConfig\Exception\XmlParsingException;
 use Shopware\Core\Test\AppSystemTestBehaviour;
 use Shopware\Core\Test\Stub\Framework\IdsCollection;
 use Symfony\Component\DependencyInjection\ContainerInterface;
@@ -228,7 +226,7 @@ class CustomEntityTest extends TestCase
 
     public function testInvalidDefaultTypesParsedCorrectly(): void
     {
-        static::expectException(Feature::isActive('v6.7.0.0') ? CustomEntityXmlParsingException::class : XmlParsingException::class);
+        static::expectException(CustomEntityXmlParsingException::class);
         CustomEntityXmlSchema::createFromXmlFile(__DIR__ . '/_fixtures/default-value/Resources/invalid-default-value-entities.xml');
     }
 
@@ -622,11 +620,10 @@ class CustomEntityTest extends TestCase
     {
         static::assertTrue($schema->hasTable($table), \sprintf('Table %s do not exists', $table));
 
-        $existing = \array_keys($schema->getTable($table)->getColumns());
+        $table = $schema->getTable($table);
 
         foreach ($columns as $column) {
-            // strtolower required for assertContains
-            static::assertContains(\strtolower($column), $existing, 'Column ' . $column . ' not found in table ' . $table . ': ' . \print_r($existing, true));
+            static::assertTrue($table->hasColumn($column), 'Column ' . $column . ' not found in table ' . $table->getName());
         }
     }
 
@@ -829,6 +826,8 @@ class CustomEntityTest extends TestCase
         $response = $client->getResponse();
         $body = json_decode((string) $response->getContent(), true, \JSON_THROW_ON_ERROR, \JSON_THROW_ON_ERROR);
         static::assertSame(Response::HTTP_OK, $response->getStatusCode(), print_r($body, true));
+
+        static::assertIsArray($body);
         static::assertArrayHasKey('total', $body);
         static::assertArrayHasKey('data', $body);
         static::assertArrayHasKey('aggregations', $body);
@@ -851,6 +850,8 @@ class CustomEntityTest extends TestCase
         $response = $client->getResponse();
         $body = json_decode((string) $response->getContent(), true, \JSON_THROW_ON_ERROR, \JSON_THROW_ON_ERROR);
         static::assertSame(Response::HTTP_OK, $response->getStatusCode(), print_r($body, true));
+
+        static::assertIsArray($body);
         static::assertArrayHasKey('data', $body);
         static::assertSame('update', $body['data']['title']);
         static::assertSame($ids->get('blog-1'), $body['data']['id']);
@@ -869,6 +870,8 @@ class CustomEntityTest extends TestCase
         $response = $client->getResponse();
         $body = json_decode((string) $response->getContent(), true, \JSON_THROW_ON_ERROR, \JSON_THROW_ON_ERROR);
         static::assertSame(Response::HTTP_OK, $response->getStatusCode(), print_r($body, true));
+
+        static::assertIsArray($body);
         static::assertArrayHasKey('total', $body);
         static::assertArrayHasKey('data', $body);
         static::assertArrayHasKey('aggregations', $body);
@@ -891,6 +894,8 @@ class CustomEntityTest extends TestCase
         $response = $client->getResponse();
         $body = json_decode((string) $response->getContent(), true, \JSON_THROW_ON_ERROR, \JSON_THROW_ON_ERROR);
         static::assertSame(Response::HTTP_OK, $response->getStatusCode(), print_r($body, true));
+
+        static::assertIsArray($body);
         static::assertArrayHasKey('total', $body);
         static::assertArrayHasKey('data', $body);
         static::assertCount(1, $body['data']);

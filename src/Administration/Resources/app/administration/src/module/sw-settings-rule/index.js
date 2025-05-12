@@ -115,7 +115,7 @@ Module.register('sw-settings-rule', {
     },
 
     settingsItem: {
-        group: 'shop',
+        group: 'automation',
         to: 'sw.settings.rule.index',
         icon: 'regular-rule',
         privilege: 'rule.viewer',

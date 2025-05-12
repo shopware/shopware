@@ -1,7 +1,6 @@
 import template from './sw-tree.html.twig';
 import './sw-tree.scss';
 
-const { Component } = Shopware;
 const { debounce, sort } = Shopware.Utils;
 
 /**
@@ -42,20 +41,12 @@ const { debounce, sort } = Shopware.Utils;
  * </sw-tree>
  */
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
-Component.register('sw-tree', {
+export default {
     template,
 
     inject: ['feature'],
 
-    compatConfig: Shopware.compatConfig,
-
     provide() {
-        if (this.isCompatEnabled('INSTANCE_CHILDREN')) {
-            return {
-                getItems: this.getItems,
-            };
-        }
-
         return {
             getItems: this.getItems,
             startDrag: this.startDrag,
@@ -353,7 +344,7 @@ Component.register('sw-tree', {
 
         handleFocusIn(event) {
             // Check if focus in already in the tree on any tree item
-            if (event.target.classList.contains('sw-tree-item')) {
+            if (event.target.classList.contains('sw-tree-item') || event.target.classList.contains('sw-tree-item__toggle')) {
                 // If focus is already on a tree item, do nothing
                 return;
             }
@@ -365,18 +356,16 @@ Component.register('sw-tree', {
             }
 
             /* Check recursively if any tree item is active, if yes, focus on it.
-             * If no tree item is active, focus on the first tree item
+             * If no tree item is active, focus on the tree item closest to the event target.
              */
             const activeTreeItem = this.$el.querySelector('.sw-tree-item[aria-current="page"]');
 
             if (activeTreeItem) {
                 activeTreeItem.focus();
             } else {
-                const firstTreeItem = this.$el.querySelector('.sw-tree-item');
+                const closestTreeItem = event.target.closest('.sw-tree-item') || this.$el.querySelector('.sw-tree-item');
 
-                if (firstTreeItem) {
-                    firstTreeItem.focus();
-                }
+                closestTreeItem?.focus();
             }
         },
 
@@ -943,6 +932,8 @@ Component.register('sw-tree', {
 
         onFinishNameingElement(draft, event) {
             if (this.createdItem) {
+                this.createdItem.data.name = draft;
+
                 this.createdItem.data.save().then(() => {
                     this.createdItem = null;
                     this.saveItems();
@@ -960,9 +951,7 @@ Component.register('sw-tree', {
                 return;
             }
 
-            const batchDeleteIsFunction = this.isCompatEnabled('INSTANCE_LISTENERS')
-                ? typeof this.$listeners['batch-delete'] === 'function'
-                : typeof this.$attrs.onBatchDelete === 'function';
+            const batchDeleteIsFunction = typeof this.$attrs.onBatchDelete === 'function';
 
             if (batchDeleteIsFunction) {
                 this.$emit('batch-delete', this.checkedElements);
@@ -986,21 +975,13 @@ Component.register('sw-tree', {
                 if (item.childCount > 0) {
                     this.checkedElementsChildCount += 1;
                 }
-                if (this.isCompatEnabled('INSTANCE_SET')) {
-                    this.$set(this.checkedElements, item.id, item.id);
-                } else {
-                    this.checkedElements[item.id] = item.id;
-                }
+                this.checkedElements[item.id] = item.id;
                 this.checkedElementsCount += 1;
             } else {
                 if (item.childCount > 0) {
                     this.checkedElementsChildCount -= 1;
                 }
-                if (this.isCompatEnabled('INSTANCE_DELETE')) {
-                    this.$delete(this.checkedElements, item.id);
-                } else {
-                    delete this.checkedElements[item.id];
-                }
+                delete this.checkedElements[item.id];
                 this.checkedElementsCount -= 1;
             }
 
@@ -1031,4 +1012,4 @@ Component.register('sw-tree', {
             this.toDeleteItem = null;
         },
     },
-});
+};

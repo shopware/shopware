@@ -16,8 +16,6 @@ const { Criteria } = Shopware.Data;
 export default {
     template,
 
-    compatConfig: Shopware.compatConfig,
-
     inject: [
         'acl',
         'contextStoreService',
@@ -126,7 +124,15 @@ export default {
                 return false;
             }
 
+            if (!this.customer.active) {
+                return false;
+            }
+
             if (this.customer.boundSalesChannel) {
+                if (!this.customer.boundSalesChannel.active) {
+                    return false;
+                }
+
                 if (this.customer.boundSalesChannel.typeId !== Defaults.storefrontSalesChannelTypeId) {
                     return false;
                 }
@@ -139,12 +145,38 @@ export default {
             return this.acl.can('api_proxy_imitate-customer');
         },
 
+        customerImitationWarning() {
+            if (this.customer.guest) {
+                return this.$tc('sw-customer.card.tooltipImitateCustomerGuest');
+            }
+
+            if (!this.customer.active) {
+                return this.$tc('sw-customer.card.tooltipImitateCustomerInactive');
+            }
+
+            if (this.customer.boundSalesChannel) {
+                if (!this.customer.boundSalesChannel.active) {
+                    return this.$tc('sw-customer.card.tooltipImitateCustomerInactiveSalesChannel');
+                }
+
+                if (this.customer.boundSalesChannel.typeId !== Defaults.storefrontSalesChannelTypeId) {
+                    return this.$tc('sw-customer.card.tooltipImitateCustomerNoStorefront');
+                }
+
+                if (!this.customer.boundSalesChannel.domains?.length) {
+                    return this.$tc('sw-customer.card.tooltipImitateCustomerNoDomain');
+                }
+            }
+
+            return this.$tc('sw-privileges.tooltip.warning');
+        },
+
         hasSingleBoundSalesChannelUrl() {
             return this.customer.boundSalesChannel?.domains?.length === 1;
         },
 
         currentUser() {
-            return Shopware.State.get('session').currentUser;
+            return Shopware.Store.get('session').currentUser;
         },
 
         emailIdnFilter() {
@@ -158,9 +190,7 @@ export default {
                 return;
             }
 
-            Shopware.State.dispatch('error/removeApiError', {
-                expression: `customer.${this.customer.id}.company`,
-            });
+            Shopware.Store.get('error').removeApiError(`customer.${this.customer.id}.company`);
         },
     },
 

@@ -5,15 +5,11 @@
 import template from './sw-number-filter.html.twig';
 import './sw-number-filter.scss';
 
-const { Component } = Shopware;
-
 /**
  * @private
  */
-Component.register('sw-number-filter', {
+export default {
     template,
-
-    compatConfig: Shopware.compatConfig,
 
     emits: [
         'filter-reset',
@@ -87,4 +83,4 @@ Component.register('sw-number-filter', {
             this.$emit('filter-reset', this.filter.name, this.numberValue);
         },
     },
-});
+};

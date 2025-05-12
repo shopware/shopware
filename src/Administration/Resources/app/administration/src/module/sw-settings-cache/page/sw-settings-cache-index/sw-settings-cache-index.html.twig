@@ -7,9 +7,9 @@
         <h2>
             {% block sw_settings_cache_smart_bar_header_title_text %}
             {{ $tc('sw-settings.index.title') }}
-            <sw-icon
+            <mt-icon
                 name="regular-chevron-right-xs"
-                small
+                size="16px"
             />
             {{ $tc('sw-settings-cache.general.mainMenuItemGeneral') }}
             {% endblock %}
@@ -26,7 +26,7 @@
                 <sw-skeleton />
             </template>
 
-            <sw-card
+            <mt-card
                 v-else
                 position-identifier="sw-settings-cache-content"
                 :title="$tc('sw-settings-cache.general.mainMenuItemGeneral')"
@@ -92,10 +92,7 @@
                 {% endblock %}
 
                 {% block sw_settings_cache_content_clear_data_cache_row %}
-                <sw-card-section
-                    v-if="feature.isActive('cache_rework')"
-                    divider="bottom"
-                >
+                <sw-card-section divider="bottom">
                     <sw-container
                         align="center"
                         columns="1fr auto"
@@ -115,7 +112,7 @@
 
                         {% block sw_settings_cache_content_clear_data_cache_row_button %}
                         <sw-button-process
-                            variant="ghost"
+                            ghost
                             :is-loading="processes.normalClearCache"
                             :process-success="processSuccess.normalClearCache"
                             @update:process-success="resetButtons"
@@ -150,7 +147,7 @@
 
                         {% block sw_settings_cache_content_clear_cache_row_button %}
                         <sw-button-process
-                            variant="ghost"
+                            ghost
                             :is-loading="processes.normalClearCache"
                             :process-success="processSuccess.normalClearCache"
                             @update:process-success="resetButtons"
@@ -182,20 +179,14 @@
                         justify="end"
                         align="end"
                     >
-                        <sw-select-field
-                            v-model:value="indexingMethod"
+                        <mt-select
+                            v-model="indexingMethod"
                             name="indexingMethod"
                             class="sw-settings-cache__skip-indexers-select"
                             :label="$tc('sw-settings-cache.section.indexingModeLabel')"
                             :disabled="processes.updateIndexes"
-                        >
-                            <option value="skip">
-                                {{ $tc('sw-settings-cache.section.indexingModeOptionSkipLabel') }}
-                            </option>
-                            <option value="only">
-                                {{ $tc('sw-settings-cache.section.indexingModeOptionOnlyLabel') }}
-                            </option>
-                        </sw-select-field>
+                            :options="indexingMethodOptions"
+                        />
 
                         {% block sw_settings_cache_content_indexes_row_skip_select %}
                         <sw-select-base
@@ -229,28 +220,27 @@
                                                 v-for="(updaters, indexer) in item"
                                                 :key="indexer"
                                             >
-                                                <sw-checkbox-field
+                                                <mt-checkbox
                                                     class="sw-settings-cache__indexers-entry"
-                                                    :value="indexerSelection.includes(indexer)"
+                                                    :checked="indexerSelection.includes(indexer)"
                                                     :label="indexer"
                                                     :name="indexer"
                                                     size="small"
-                                                    @update:value="changeSelection($event, indexer)"
+                                                    @update:checked="changeSelection($event, indexer)"
                                                 />
                                                 <ul>
                                                     <li
                                                         v-for="(updater, index) in updaters"
                                                         :key="index"
                                                     >
-                                                        <sw-checkbox-field
+                                                        <mt-checkbox
                                                             class="sw-settings-cache__indexers-entry"
-                                                            :value="indexerSelection.includes(updater) || indexerSelection.includes(indexer)"
+                                                            :checked="indexerSelection.includes(updater) || indexerSelection.includes(indexer)"
                                                             :label="updater"
                                                             :name="updater"
                                                             size="small"
                                                             :disabled="indexerSelection.includes(indexer)"
-                                                            @click.prevent
-                                                            @update:value="changeSelection($event, updater)"
+                                                            @update:checked="changeSelection($event, updater)"
                                                         />
                                                     </li>
                                                 </ul>
@@ -266,7 +256,8 @@
                         <sw-button-process
                             name="updateIndexesButton"
                             class="sw-button--large"
-                            variant="ghost"
+                            ghost
+                            size="large"
                             :is-loading="processes.updateIndexes"
                             :process-success="processSuccess.updateIndexes"
                             @update:process-success="resetButtons"
@@ -278,7 +269,7 @@
                     </sw-container>
                 </sw-card-section>
         {% endblock %}
-            </sw-card>
+            </mt-card>
         </sw-card-view>
     </template>
     {% endblock %}

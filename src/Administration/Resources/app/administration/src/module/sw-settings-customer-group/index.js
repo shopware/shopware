@@ -64,7 +64,7 @@ Module.register('sw-settings-customer-group', {
     },
 
     settingsItem: {
-        group: 'shop',
+        group: 'customer',
         to: 'sw.settings.customer.group.index',
         icon: 'regular-users',
         privilege: 'customer_groups.viewer',

@@ -1,17 +1,13 @@
 import template from './sw-data-grid-inline-edit.html.twig';
 import './sw-data-grid-inline-edit.scss';
 
-const { Component } = Shopware;
-
 /**
  * @sw-package framework
  *
  * @private
  */
-Component.register('sw-data-grid-inline-edit', {
+export default {
     template,
-
-    compatConfig: Shopware.compatConfig,
 
     inject: [
         'feature',
@@ -60,20 +56,13 @@ Component.register('sw-data-grid-inline-edit', {
         this.createdComponent();
     },
 
-    beforeUnmount() {
-        this.beforeDestroyComponent();
-    },
-
     methods: {
         createdComponent() {
             this.currentValue = this.value;
-        },
-
-        beforeDestroyComponent() {
         },
 
         emitInput() {
             this.$emit('update:value', this.currentValue);
         },
     },
-});
+};

@@ -1,9 +1,8 @@
-import type { NotificationType } from 'src/app/mixin/notification.mixin';
+import type { NotificationVariant } from 'src/app/store/notification.store';
 import type { PropType } from 'vue';
 import template from './sw-alert-deprecated.html.twig';
 import './sw-alert-deprecated.scss';
 
-const { Component } = Shopware;
 type AppearanceType = 'default' | 'notification' | 'system';
 type CssClassesObject = { [key: string]: boolean };
 type CssClasses = Array<string | CssClassesObject> | CssClassesObject;
@@ -22,15 +21,14 @@ type CssClasses = Array<string | CssClassesObject> | CssClassesObject;
  * <sw-alert variant="info" title="Example title" :closable="true">
  *    Sample text
  * </sw-alert>
+ * @deprecated tag:v6.8.0 - Will be removed, use mt-banner instead.
  */
-Component.register('sw-alert-deprecated', {
+export default Shopware.Component.wrapComponentConfig({
     template,
-
-    compatConfig: Shopware.compatConfig,
 
     props: {
         variant: {
-            type: String as PropType<NotificationType>,
+            type: String as PropType<NotificationVariant>,
             required: false,
             default: 'info',
             validValues: [

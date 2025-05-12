@@ -10,15 +10,18 @@ use Shopware\Core\Framework\Rule\RuleConstraints;
 use Shopware\Core\Framework\Rule\RuleScope;
 use Shopware\Core\System\Currency\CurrencyDefinition;
 
+/**
+ * @final
+ */
 #[Package('fundamentals@after-sales')]
 class CurrencyRule extends Rule
 {
     final public const RULE_NAME = 'currency';
 
     /**
-     * @internal
-     *
      * @param list<string>|null $currencyIds
+     *
+     * @internal
      */
     public function __construct(
         protected string $operator = self::OPERATOR_EQ,

@@ -3,7 +3,6 @@ import type RepositoryType from 'src/core/data/repository.data';
 import template from './sw-text-editor-link-menu.html.twig';
 import './sw-text-editor-link-menu.scss';
 
-const { Component } = Shopware;
 const { Criteria, EntityCollection } = Shopware.Data;
 
 type ButtonVariant = 'primary' | 'primary-sm' | 'secondary' | 'secondary-sm';
@@ -23,13 +22,12 @@ interface TextEditorLinkMenuConfig {
 
 /**
  * @sw-package framework
+ * @deprecated tag:v6.8.0 - Will be removed, use mt-text-editor instead.
  *
  * @private
  */
-Component.register('sw-text-editor-link-menu', {
+export default Shopware.Component.wrapComponentConfig({
     template,
-
-    compatConfig: Shopware.compatConfig,
 
     inject: [
         'repositoryFactory',
@@ -105,6 +103,41 @@ Component.register('sw-text-editor-link-menu', {
 
         categoryRepository(): RepositoryType<'category'> {
             return this.repositoryFactory.create('category');
+        },
+
+        linkCategoryOptions() {
+            return [
+                {
+                    id: 1,
+                    value: 'link',
+                    label: this.$tc('sw-text-editor-toolbar.link.labelUrl'),
+                },
+                {
+                    id: 2,
+                    value: 'detail',
+                    label: this.$tc('sw-text-editor-toolbar.link.labelProduct'),
+                },
+                {
+                    id: 3,
+                    value: 'navigation',
+                    label: this.$tc('sw-text-editor-toolbar.link.labelCategory'),
+                },
+                {
+                    id: 4,
+                    value: 'media',
+                    label: this.$tc('sw-text-editor-toolbar.link.labelMedia'),
+                },
+                {
+                    id: 5,
+                    value: 'email',
+                    label: this.$tc('sw-text-editor-toolbar.link.labelEmail'),
+                },
+                {
+                    id: 6,
+                    value: 'phone',
+                    label: this.$tc('sw-text-editor-toolbar.link.labelPhoneNumber'),
+                },
+            ];
         },
     },
 

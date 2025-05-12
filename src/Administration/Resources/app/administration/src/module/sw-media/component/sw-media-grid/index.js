@@ -8,8 +8,6 @@ import './sw-media-grid.scss';
 export default {
     template,
 
-    compatConfig: Shopware.compatConfig,
-
     emits: ['media-grid-selection-clear'],
 
     props: {
@@ -84,9 +82,7 @@ export default {
         },
 
         isEmittedFromChildren(target) {
-            return this.$children.some((child) => {
-                return child.$el === target || child.$el.contains(target);
-            });
+            return this.$refs.componentRef?.contains(target) ?? false;
         },
 
         emitSelectionCleared(originalDomEvent) {

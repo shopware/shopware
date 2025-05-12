@@ -49,9 +49,9 @@ async function createWrapper(privileges = []) {
                     },
                 },
                 stubs: {
-                    'sw-card': {
+                    'mt-card': {
                         template: `
-                    <div class="sw-card">
+                    <div class="mt-card">
                         <slot name="title"></slot>
                         <slot name="tabs"></slot>
                         <slot name="toolbar"></slot>
@@ -76,7 +76,7 @@ async function createWrapper(privileges = []) {
                     </div>
                 `,
                     },
-                    'sw-number-field': true,
+                    'mt-number-field': true,
                     'sw-data-grid': {
                         props: ['dataSource'],
                         template: `
@@ -89,7 +89,6 @@ async function createWrapper(privileges = []) {
                 `,
                     },
                     'sw-context-menu-item': true,
-                    'sw-button': true,
                     'sw-pagination': true,
                     'sw-settings-tax-rule-modal': true,
                 },
@@ -153,7 +152,7 @@ describe('module/sw-settings-tax/component/sw-tax-rule-card', () => {
         it('should not be able to add a new country from data grid', async () => {
             const addButton = wrapper.find('.sw-tax-rule-grid-button');
 
-            expect(addButton.attributes().disabled).toBeTruthy();
+            expect(addButton.attributes('disabled')).toBeDefined();
         });
 
         it('should not be able to edit a country from data grid', async () => {
@@ -201,7 +200,7 @@ describe('module/sw-settings-tax/component/sw-tax-rule-card', () => {
         it('should not be able to add a new country from empty card', async () => {
             const addButton = wrapper.find('.sw-settings-tax-rule-card__empty-state--button');
 
-            expect(addButton.attributes().disabled).toBeTruthy();
+            expect(addButton.attributes('disabled')).toBeDefined();
         });
     });
 
@@ -214,7 +213,7 @@ describe('module/sw-settings-tax/component/sw-tax-rule-card', () => {
 
         const taxRuleDataGrid = wrapper.find('.sw-data-grid');
 
-        const taxRateField = taxRuleDataGrid.find('sw-number-field-stub');
+        const taxRateField = taxRuleDataGrid.find('mt-number-field-stub');
 
         expect(taxRateField.attributes('digits')).toBe('3');
     });

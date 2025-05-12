@@ -2,25 +2,18 @@
 
 namespace Shopware\Elasticsearch\Product;
 
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 
 #[Package('framework')]
 class SearchFieldConfig
 {
-    private float $ranking;
-
     public function __construct(
         private readonly string $field,
-        int|float $ranking,
+        private float $ranking,
         private readonly bool $tokenize,
-        private readonly bool $andLogic = false
+        private readonly bool $andLogic = false,
+        private readonly bool $prefixMatch = true
     ) {
-        if (Feature::isActive('v6.7.0.0') && \is_int($ranking)) {
-            Feature::throwException('v6.7.0.0', 'The ranking property in SearchFieldConfig is now a float.');
-        }
-
-        $this->ranking = (float) $ranking;
     }
 
     public function tokenize(): bool
@@ -28,10 +21,7 @@ class SearchFieldConfig
         return $this->tokenize;
     }
 
-    /**
-     * @deprecated tag:v6.7.0 - reason:return-type-change -  Return type will be changed to float
-     */
-    public function getRanking(): int|float
+    public function getRanking(): float
     {
         return $this->ranking;
     }
@@ -54,5 +44,10 @@ class SearchFieldConfig
     public function setRanking(float $ranking): void
     {
         $this->ranking = $ranking;
+    }
+
+    public function usePrefixMatch(): bool
+    {
+        return $this->prefixMatch;
     }
 }

@@ -10,13 +10,15 @@
     {% block sw_settings_currency_detail_actions %}
     <template #smart-bar-actions>
         {% block sw_settings_currency_detail_actions_abort %}
-        <sw-button
+        <mt-button
             v-tooltip.bottom="tooltipCancel"
             :disabled="isLoading"
+            variant="secondary"
+            size="default"
             @click="onCancel"
         >
             {{ $tc('global.default.cancel') }}
-        </sw-button>
+        </mt-button>
         {% endblock %}
 
         {% block sw_settings_currency_detail_actions_save %}
@@ -64,7 +66,7 @@
                 {% endblock %}
 
                 {% block sw_settings_currency_detail_content_card %}
-                <sw-card
+                <mt-card
                     position-identifier="sw-settings-currency-detail-content"
                     :is-loading="isLoading"
                     :title="$tc('sw-settings-currency.detail.titleCard')"
@@ -75,8 +77,9 @@
                     >
 
                         {% block sw_settings_currency_detail_content_field_name %}
-                        <sw-text-field
-                            v-model:value="currency.name"
+
+                        <mt-text-field
+                            v-model="currency.name"
                             name="sw-field--currency-name"
                             required
                             :disabled="!acl.can('currencies.editor')"
@@ -87,8 +90,9 @@
                         {% endblock %}
 
                         {% block sw_settings_currency_detail_content_field_iso_code %}
-                        <sw-text-field
-                            v-model:value="currency.isoCode"
+
+                        <mt-text-field
+                            v-model="currency.isoCode"
                             name="sw-field--currency-isoCode"
                             required
                             :disabled="!acl.can('currencies.editor')"
@@ -99,8 +103,9 @@
                         {% endblock %}
 
                         {% block sw_settings_currency_detail_content_field_short_name %}
-                        <sw-text-field
-                            v-model:value="currency.shortName"
+
+                        <mt-text-field
+                            v-model="currency.shortName"
                             name="sw-field--currency-shortName"
                             required
                             :disabled="!acl.can('currencies.editor')"
@@ -111,8 +116,9 @@
                         {% endblock %}
 
                         {% block sw_settings_currency_detail_content_field_symbol %}
-                        <sw-text-field
-                            v-model:value="currency.symbol"
+
+                        <mt-text-field
+                            v-model="currency.symbol"
                             name="sw-field--currency-symbol"
                             required
                             :disabled="!acl.can('currencies.editor')"
@@ -123,8 +129,8 @@
                         {% endblock %}
 
                         {% block sw_settings_currency_detail_content_field_factor %}
-                        <sw-number-field
-                            v-model:value="currency.factor"
+                        <mt-number-field
+                            v-model="currency.factor"
                             name="sw-field--currency-factor"
                             required
                             :digits="14"
@@ -136,26 +142,26 @@
                         {% endblock %}
 
                         {% block sw_settings_currency_detail_content_field_tax_free_from %}
-                        <sw-number-field
-                            v-model:value="currency.taxFreeFrom"
+                        <mt-number-field
+                            v-model="currency.taxFreeFrom"
                             name="sw-field--currency-taxFreeFrom"
                             :min="0"
                             :label="$tc('sw-settings-currency.detail.taxFreeFrom')"
-                            :help-text="$tc('sw-settings-currency.detail.taxFreeFromHelpText', 0 , { currencyName: `${currency.name}` })"
+                            :help-text="$tc('sw-settings-currency.detail.taxFreeFromHelpText', { currencyName: `${currency.name}` }, 0)"
                             :disabled="!currency.factor"
                         >
                             <template #suffix>
                                 {{ currency.symbol }}
                             </template>
-                        </sw-number-field>
+                        </mt-number-field>
                         {% endblock %}
 
                     </sw-container>
-                </sw-card>
+                </mt-card>
                 {% endblock %}
 
                 {% block sw_settings_currency_detail_content_card_price_rounding %}
-                <sw-card
+                <mt-card
                     position-identifier="sw-settings-currency-detail-price-rounding"
                     :is-loading="isLoading"
                     :title="$tc('sw-settings-currency.detail.titleRoundingCard')"
@@ -164,11 +170,11 @@
                         :item-rounding="currency.itemRounding"
                         :total-rounding="currency.totalRounding"
                     />
-                </sw-card>
+                </mt-card>
                 {% endblock %}
 
                 {% block sw_settings_currency_detail_content_card_country_price_rounding %}
-                <sw-card
+                <mt-card
                     position-identifier="sw-settings-currency-detail-country-price-rounding"
                     :title="$tc('sw-settings-currency.detail.titleCountryRoundingCard')"
                     :is-loading="currencyCountryLoading"
@@ -186,14 +192,15 @@
                             />
                             {% endblock %}
                             {% block sw_settings_currency_detail_content_card_country_price_rounding_toolbar_button %}
-                            <sw-button
-                                variant="ghost"
+                            <mt-button
+                                ghost
                                 class="sw-settings-currency-detail__currency-country-toolbar-button"
                                 size="small"
+                                variant="secondary"
                                 @click="onAddCountry"
                             >
                                 {{ $tc('sw-settings-currency.detail.buttonAddCountry') }}
-                            </sw-button>
+                            </mt-button>
                             {% endblock %}
                         </div>
                         {% endblock %}
@@ -208,7 +215,7 @@
                         :columns="currencyCountryColumns"
                         identifier="sw-settings-currency-detail-currency-country-list"
                         :repository="currencyCountryRoundingRepository"
-                        @item-deleted="loadCurrencyCountryRoundings"
+                        @delete-item-finish="loadCurrencyCountryRoundings"
                         @items-delete-finish="loadCurrencyCountryRoundings"
                     >
                         {% block sw_settings_currency_detail_content_card_country_price_rounding_listing_country_column %}
@@ -276,7 +283,7 @@
                         :subline="emptyStateText"
                     />
                     {% endblock %}
-                </sw-card>
+                </mt-card>
                 {% block sw_settings_currency_detail_content_card_country_price_rounding_modal %}
                 <sw-settings-currency-country-modal
                     v-if="currentCurrencyCountry"
@@ -288,7 +295,7 @@
                 {% endblock %}
 
                 {% block sw_settings_currency_detail_custom_field_sets %}
-                <sw-card
+                <mt-card
                     v-if="showCustomFields"
                     position-identifier="sw-settings-currency-detail-custom-field-sets"
                     :title="$tc('sw-settings-custom-field.general.mainMenuItemGeneral')"
@@ -299,7 +306,7 @@
                         :disabled="!acl.can('currencies.editor')"
                         :sets="customFieldSets"
                     />
-                </sw-card>
+                </mt-card>
                 {% endblock %}
             </template>
         </sw-card-view>

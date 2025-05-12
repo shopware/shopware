@@ -5,7 +5,6 @@ namespace Shopware\Core\Framework\Adapter\Twig\TokenParser;
 use Shopware\Core\Framework\Log\Package;
 use Twig\Token;
 
-#[Package('framework')]
 /**
  * @internal
  *
@@ -14,6 +13,7 @@ use Twig\Token;
  *
  * @codeCoverageIgnore - Covered by @see \Shopware\Tests\Integration\Core\Framework\Adapter\Twig\ReturnNodeTest
  */
+#[Package('framework')]
 class MacroOverrideTokenParserMacro extends SwMacroFunctionTokenParser
 {
     public function decideBlockEnd(Token $token): bool

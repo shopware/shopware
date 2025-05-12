@@ -1,7 +1,6 @@
 import template from './sw-condition-script.html.twig';
 import './sw-condition-script.scss';
 
-const { Component } = Shopware;
 const { Criteria } = Shopware.Data;
 
 /**
@@ -13,7 +12,8 @@ const { Criteria } = Shopware.Data;
  * @component-example
  * <sw-condition-script :condition="condition" :level="0"></sw-condition-script>
  */
-Component.extend('sw-condition-script', 'sw-condition-base', {
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
+export default {
     template,
     inheritAttrs: false,
 
@@ -76,7 +76,7 @@ Component.extend('sw-condition-script', 'sw-condition-base', {
                     return;
                 }
 
-                const errorProperty = Shopware.State.getters['error/getApiError'](this.condition, `value.${config.name}`);
+                const errorProperty = Shopware.Store.get('error').getApiError(this.condition, `value.${config.name}`);
 
                 if (errorProperty) {
                     error = errorProperty;
@@ -127,12 +127,7 @@ Component.extend('sw-condition-script', 'sw-condition-base', {
         },
 
         updateFieldValue(fieldName, value) {
-            if (this.isCompatEnabled('INSTANCE_SET')) {
-                this.$set(this.values, fieldName, value);
-                return;
-            }
-
             this.values[fieldName] = value;
         },
     },
-});
+};

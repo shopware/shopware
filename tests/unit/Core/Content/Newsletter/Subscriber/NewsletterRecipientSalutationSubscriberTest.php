@@ -57,7 +57,7 @@ class NewsletterRecipientSalutationSubscriberTest extends TestCase
             [],
         );
 
-        $this->connection->expects(static::never())->method('executeUpdate');
+        $this->connection->expects($this->never())->method('executeStatement');
 
         $this->salutationSubscriber->setDefaultSalutation($event);
     }
@@ -75,9 +75,9 @@ class NewsletterRecipientSalutationSubscriberTest extends TestCase
             [],
         );
 
-        $this->connection->expects(static::once())
+        $this->connection->expects($this->once())
             ->method('executeStatement')
-            ->willReturnCallback(function ($sql, $params) use ($newsletterRecipientId): void {
+            ->willReturnCallback(function ($sql, $params) use ($newsletterRecipientId): int {
                 static::assertSame($params, [
                     'id' => Uuid::fromHexToBytes($newsletterRecipientId),
                     'notSpecified' => 'not_specified',
@@ -93,6 +93,8 @@ class NewsletterRecipientSalutationSubscriberTest extends TestCase
                 )
                 WHERE `id` = :id AND `salutation_id` is NULL
             ', $sql);
+
+                return 1;
             });
 
         $this->salutationSubscriber->setDefaultSalutation($event);

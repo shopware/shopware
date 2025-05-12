@@ -1,8 +1,6 @@
 import template from './sw-product-image.html.twig';
 import './sw-product-image.scss';
 
-const { Component } = Shopware;
-
 /**
  * @sw-package framework
  *
@@ -13,10 +11,8 @@ const { Component } = Shopware;
  * @component-example
  * <sw-image :item="item" isCover="true"></sw-image>
  */
-Component.register('sw-product-image', {
+export default {
     template,
-
-    compatConfig: Shopware.compatConfig,
 
     emits: [
         'sw-product-image-cover',
@@ -76,4 +72,4 @@ Component.register('sw-product-image', {
             };
         },
     },
-});
+};

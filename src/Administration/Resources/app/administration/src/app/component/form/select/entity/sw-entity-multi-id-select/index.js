@@ -4,18 +4,16 @@
 
 import template from './sw-entity-multi-id-select.html.twig';
 
-const { Component, Context, Mixin } = Shopware;
+const { Context, Mixin } = Shopware;
 const { EntityCollection, Criteria } = Shopware.Data;
 
 /**
  * @private
  */
-Component.register('sw-entity-multi-id-select', {
+export default {
     template,
 
     inheritAttrs: false,
-
-    compatConfig: Shopware.compatConfig,
 
     inject: ['feature'],
 
@@ -66,24 +64,6 @@ Component.register('sw-entity-multi-id-select', {
         return {
             collection: null,
         };
-    },
-
-    computed: {
-        getListeners() {
-            if (this.isCompatEnabled('INSTANCE_LISTENERS')) {
-                const listeners = {};
-
-                Object.keys(this.$listeners).forEach((listener) => {
-                    if (listener !== 'change') {
-                        listeners[listener] = this.$listeners[listener];
-                    }
-                });
-
-                return listeners;
-            }
-
-            return {};
-        },
     },
 
     watch: {
@@ -140,4 +120,4 @@ Component.register('sw-entity-multi-id-select', {
             this.$emit('update:value', collection.getIds());
         },
     },
-});
+};

@@ -1,9 +1,8 @@
 import Plugin from 'src/plugin-system/plugin.class';
 import OffCanvas from 'src/plugin/offcanvas/offcanvas.plugin';
 import LoadingIndicator from 'src/utility/loading-indicator/loading-indicator.util';
+/** @deprecated tag:v6.8.0 - HttpClient is deprecated. Use native fetch API instead. */
 import HttpClient from 'src/service/http-client.service';
-import DomAccess from 'src/helper/dom-access.helper';
-import Iterator from 'src/helper/iterator.helper';
 
 /**
  * @sw-package framework
@@ -13,37 +12,24 @@ export default class OffcanvasMenuPlugin extends Plugin {
     static options = {
         navigationUrl: window.router['frontend.menu.offcanvas'],
         position: 'left',
-        /** @deprecated tag:v6.7.0 - property "tiggerEvent" will be removed. Use "triggerEvent" instead */
-        tiggerEvent: 'click',
         triggerEvent: 'click',
 
         additionalOffcanvasClass: 'navigation-offcanvas',
         linkSelector: '.js-navigation-offcanvas-link',
         loadingIconSelector: '.js-navigation-offcanvas-loading-icon',
         linkLoadingClass: 'is-loading',
-        menuSelector: '.js-navigation-offcanvas',
-        overlayContentSelector: '.js-navigation-offcanvas-overlay-content',
+        menuSelector: '.navigation-offcanvas-container',
         initialContentSelector: '.js-navigation-offcanvas-initial-content',
-
-        homeBtnClass: 'is-home-link',
-        backBtnClass: 'is-back-link',
-        transitionClass: 'has-transition',
-        overlayClass: '.navigation-offcanvas-overlay',
-        placeholderClass: '.navigation-offcanvas-placeholder',
-
-        forwardAnimationType: 'forwards',
-        backwardAnimationType: 'backwards',
+        currentCategorySelector: 'a.is-current-category',
     };
 
     init() {
         this._cache = {};
+
+        /** @deprecated tag:v6.8.0 - HttpClient is deprecated. Use native fetch API instead. */
         this._client = new HttpClient();
         this._content = LoadingIndicator.getTemplate();
 
-        /** @deprecated tag:v6.7.0 - Remove if condition completely, as "tiggerEvent" will be removed */
-        if (this.options.tiggerEvent !== this.options.triggerEvent) {
-            this.options.triggerEvent = this.options.tiggerEvent;
-        }
         this._registerEvents();
     }
 
@@ -59,16 +45,20 @@ export default class OffcanvasMenuPlugin extends Plugin {
         if (OffCanvas.exists()) {
             const offCanvasElements = OffCanvas.getOffCanvas();
 
-            Iterator.iterate(offCanvasElements, offcanvas => {
+            offCanvasElements.forEach(offcanvas => {
                 const links = offcanvas.querySelectorAll(this.options.linkSelector);
-                Iterator.iterate(links, link => {
+                links.forEach(link => {
                     OffcanvasMenuPlugin._resetLoader(link);
                     link.addEventListener('click', (event) => {
                         this._getLinkEventHandler(event, link);
                     });
                 });
             });
+            // initialize the plugins again, after Off-Canvas init, otherwise you will miss the JS event listener
+            window.PluginManager.initializePlugins();
         }
+        // re-open the menu if the url parameter is set
+        this._openMenuViaUrlParameter();
     }
 
     /**
@@ -86,6 +76,22 @@ export default class OffcanvasMenuPlugin extends Plugin {
     }
 
     /**
+     * opens the menu via url parameter (offcanvas=menu)
+     * @private
+     */
+    _openMenuViaUrlParameter() {
+        const urlParams = new URLSearchParams(window.location.search);
+        if (urlParams.has('offcanvas') && urlParams.get('offcanvas') === 'menu') {
+            document.querySelector('[data-off-canvas-menu="true"]')?.click();
+            if (window.history.replaceState) {
+                const url = new URL(window.location);
+                url.searchParams.delete('offcanvas');
+                window.history.replaceState({}, document.title, url);
+            }
+        }
+    }
+
+    /**
      * returns the handler for the passed navigation link
      *
      * @param {Event} event
@@ -93,30 +99,20 @@ export default class OffcanvasMenuPlugin extends Plugin {
      * @private
      */
     _getLinkEventHandler(event, link) {
+
+        // Initial navigation
         if (!link) {
-            const initialContentElement = DomAccess.querySelector(document, this.options.initialContentSelector);
-            this._content = initialContentElement.innerHTML;
+            const initialContentElement = document.querySelector(this.options.initialContentSelector);
+            const url = `${this.options.navigationUrl}?navigationId=${window.activeNavigationId}`;
 
-            if (window.Feature.isActive('CACHE_REWORK')) {
-                const url = `${this.options.navigationUrl}?navigationId=${window.activeNavigationId}`;
+            return this._fetchMenu(url, (htmlResponse) => {
+                const navigationContainer = initialContentElement.querySelector(this.options.menuSelector);
+                navigationContainer.innerHTML = htmlResponse;
 
-                return this._fetchMenu(url, (htmlResponse) => {
-                    const navigationContainer = DomAccess.querySelector(initialContentElement, this.options.menuSelector);
-                    navigationContainer.innerHTML = htmlResponse;
+                this._content = initialContentElement.innerHTML;
 
-                    this._content = initialContentElement.innerHTML;
-
-                    return this._openMenu(event);
-                });
-            } else {
-                if (initialContentElement.classList.contains('is-root')) {
-                    this._cache[this.options.navigationUrl] = this._content;
-                } else {
-                    // fetch home menu to warm the cache
-                    this._fetchMenu(this.options.navigationUrl);
-                }
                 return this._openMenu(event);
-            }
+            });
         }
 
         OffcanvasMenuPlugin._stopEvent(event);
@@ -126,20 +122,15 @@ export default class OffcanvasMenuPlugin extends Plugin {
 
         OffcanvasMenuPlugin._setLoader(link);
 
-        const url = DomAccess.getAttribute(link, 'data-href', false) || DomAccess.getAttribute(link, 'href', false);
+        const url = link.getAttribute('data-href') || link.getAttribute('href');
 
         if (!url) {
             return;
         }
 
-        let animationType = this.options.forwardAnimationType;
-        if (link.classList.contains(this.options.homeBtnClass) || link.classList.contains(this.options.backBtnClass)) {
-            animationType = this.options.backwardAnimationType;
-        }
-
         this.$emitter.publish('getLinkEventHandler');
 
-        this._fetchMenu(url, this._updateOverlay.bind(this, animationType));
+        this._fetchMenu(url, this._updateContent.bind(this));
     }
 
     /**
@@ -173,212 +164,27 @@ export default class OffcanvasMenuPlugin extends Plugin {
     }
 
     /**
-     * update the overlay content with the
-     * subcategory navigation
+     * Update the content with the current navigation.
      *
-     * @param {string} animationType
      * @param {string} content
      * @private
      */
-    _updateOverlay(animationType, content) {
+    _updateContent(content) {
         this._content = content;
 
         if (OffCanvas.exists()) {
-            const offcanvasMenu = OffcanvasMenuPlugin._getOffcanvasMenu();
+            const container = OffcanvasMenuPlugin._getOffcanvasMenu();
 
-            // if there is no content present
-            // insert the whole response into the offcanvas
-            if (!offcanvasMenu) {
-                this._replaceOffcanvasContent(content);
-            }
+            container.innerHTML = content;
 
-            this._createOverlayElements();
-            const currentContent = OffcanvasMenuPlugin._getOverlayContent(offcanvasMenu);
-            const menuContent = OffcanvasMenuPlugin._getMenuContentFromResponse(content);
+            // Focus the current category
+            const currentCategory = container.querySelector(this.options.currentCategorySelector);
+            window.focusHandler.setFocus(currentCategory, { focusVisible: true });
 
-            this._replaceOffcanvasMenuContent(animationType, menuContent, currentContent);
             this._registerEvents();
         }
 
-        this.$emitter.publish('updateOverlay');
-    }
-
-    /**
-     * grab only the menu from the response
-     * and replace it within the created
-     * menu elements
-     *
-     * @param animationType
-     * @param menuContent
-     * @param currentContent
-     * @private
-     */
-    _replaceOffcanvasMenuContent(animationType, menuContent, currentContent) {
-
-        if (animationType === this.options.forwardAnimationType) {
-            this._animateForward(menuContent, currentContent);
-            return;
-        }
-
-        if (animationType === this.options.backwardAnimationType) {
-            this._animateBackward(menuContent, currentContent);
-            return;
-        }
-
-        this._animateInstant(menuContent, currentContent);
-
-        this.$emitter.publish('replaceOffcanvasMenuContent');
-    }
-
-    /**
-     * instantly replaces the ovleray content
-     *
-     * @param menuContent
-     * @private
-     */
-    _animateInstant(menuContent) {
-        this._overlay.innerHTML = menuContent;
-
-        this.$emitter.publish('animateInstant');
-    }
-
-    /**
-     * replaces the content and
-     * animates the overlay to slide in
-     *
-     * @param menuContent
-     * @param currentContent
-     * @private
-     */
-    _animateForward(menuContent, currentContent) {
-        if (this._placeholder.innerHTML === '') {
-            this._placeholder.innerHTML = currentContent;
-        }
-        this._overlay.classList.remove(this.options.transitionClass);
-        this._overlay.style.left = '100%';
-        this._overlay.innerHTML = menuContent;
-        setTimeout(() => {
-            this._overlay.classList.add(this.options.transitionClass);
-            this._overlay.style.left = '0%';
-        }, 1);
-
-        this.$emitter.publish('animateForward');
-    }
-
-    /**
-     * replaces the content and
-     * animates the overlay to slide out
-     *
-     * @param menuContent
-     * @param currentContent
-     * @private
-     */
-    _animateBackward(menuContent, currentContent) {
-        if (this._overlay.innerHTML === '') {
-            this._overlay.innerHTML = currentContent;
-        }
-        this._placeholder.innerHTML = menuContent;
-        this._overlay.classList.remove(this.options.transitionClass);
-        this._overlay.style.left = '0%';
-        setTimeout(() => {
-            this._overlay.classList.add(this.options.transitionClass);
-            this._overlay.style.left = '100%';
-        }, 1);
-
-        this.$emitter.publish('animateBackward');
-    }
-
-    /**
-     * returns the menu content
-     * form the complete offcanvas response
-     *
-     * @param content
-     * @returns {string}
-     * @private
-     */
-    static _getMenuContentFromResponse(content) {
-        const html = new DOMParser().parseFromString(content, 'text/html');
-        return OffcanvasMenuPlugin._getOverlayContent(html);
-    }
-
-    /**
-     * returns the content
-     * from the overlay content container
-     *
-     * @param element
-     * @returns {string}
-     * @private
-     */
-    static _getOverlayContent(element) {
-        if (!element) {
-            return '';
-        }
-
-        const contentElement = element.querySelector(this.options.overlayContentSelector);
-        if (!contentElement) {
-            return '';
-        }
-
-        return contentElement.innerHTML;
-    }
-
-    /**
-     * creates the overlay
-     * elements to be able to animate the menu
-     *
-     * @private
-     */
-    _createOverlayElements() {
-        const offcanvasMenu = OffcanvasMenuPlugin._getOffcanvasMenu();
-
-        if (offcanvasMenu) {
-            this._placeholder = OffcanvasMenuPlugin._createPlaceholder(offcanvasMenu);
-            this._overlay = OffcanvasMenuPlugin._createNavigationOverlay(offcanvasMenu);
-        }
-
-        this.$emitter.publish('createOverlayElements');
-    }
-
-    /**
-     * @param {HTMLElement} container
-     *
-     * @returns {HTMLElement}
-     * @private
-     */
-    static _createNavigationOverlay(container) {
-        const offcanvas = OffcanvasMenuPlugin._getOffcanvas();
-        const currentOverlay = offcanvas.querySelector(this.options.overlayClass);
-        if (currentOverlay) {
-            return currentOverlay;
-        }
-
-        const overlay = document.createElement('div');
-        overlay.classList.add(this.options.overlayClass.substr(1));
-        overlay.style.minHeight = `${offcanvas.clientHeight}px`;
-        container.appendChild(overlay);
-
-        return overlay;
-    }
-
-    /**
-     * @param {HTMLElement} container
-     *
-     * @returns {HTMLElement}
-     * @private
-     */
-    static _createPlaceholder(container) {
-        const offcanvas = OffcanvasMenuPlugin._getOffcanvas();
-        const currentPlaceholder = offcanvas.querySelector(this.options.placeholderClass);
-        if (currentPlaceholder) {
-            return currentPlaceholder;
-        }
-
-        const placeholder = document.createElement('div');
-        placeholder.classList.add(this.options.placeholderClass.substr(1));
-        placeholder.style.minHeight = `${offcanvas.clientHeight}px`;
-        container.appendChild(placeholder);
-
-        return placeholder;
+        this.$emitter.publish('updateContent');
     }
 
     /**
@@ -401,26 +207,16 @@ export default class OffcanvasMenuPlugin extends Plugin {
 
         this.$emitter.publish('beforeFetchMenu');
 
-        this._client.get(link, (res) => {
-            this._cache[link] = res;
-            if (typeof cb === 'function') {
-                cb(res);
-            }
-        });
-    }
-
-    /**
-     * replaces the offcanvas content
-     *
-     * @param {string} content
-     * @private
-     */
-    _replaceOffcanvasContent(content) {
-        this._content = content;
-        OffCanvas.setContent(this._content);
-        this._registerEvents();
-
-        this.$emitter.publish('replaceOffcanvasContent');
+        fetch(link, {
+            headers: { 'X-Requested-With': 'XMLHttpRequest' },
+        })
+            .then(res => res.text())
+            .then(content => {
+                this._cache[link] = content;
+                if (typeof cb === 'function') {
+                    cb(content);
+                }
+            });
     }
 
     /**

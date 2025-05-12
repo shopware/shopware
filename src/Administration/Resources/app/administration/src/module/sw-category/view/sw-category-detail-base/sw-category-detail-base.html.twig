@@ -1,7 +1,7 @@
 {% block sw_category_detail_base %}
 <div class="sw-category-detail-base">
     {% block sw_category_detail_information %}
-    <sw-card
+    <mt-card
         position-identifier="sw-category-detail-base"
         :title="$tc('sw-category.base.general.headlineInformationCard')"
         :is-loading="isLoading"
@@ -11,8 +11,9 @@
             gap="0px 30px"
         >
             {% block sw_category_detail_information_name %}
-            <sw-text-field
-                v-model:value="category.name"
+
+            <mt-text-field
+                v-model="category.name"
                 required
                 name="categoryName"
                 validation="required"
@@ -24,8 +25,9 @@
             {% endblock %}
 
             {% block sw_category_detail_information_active %}
-            <sw-switch-field
-                v-model:value="category.active"
+
+            <mt-switch
+                v-model="category.active"
                 :disabled="!acl.can('category.editor')"
                 name="categoryActive"
                 class="sw-category-detail-base__active"
@@ -64,12 +66,12 @@
         </div>
         {% endblock %}
 
-    </sw-card>
+    </mt-card>
     {% endblock %}
 
     {% block sw_category_detail_entry_point %}
     <sw-category-entry-point-card
-        v-if="(category.type === 'folder' || category.type === 'page') && !category.isColumn"
+        v-if="(category.type === 'folder' || category.type === 'page') && !isCategoryColumn"
         v-bind="{ category, isLoading }"
     />
     {% endblock %}
@@ -88,7 +90,7 @@
     </template>
 
     {% block sw_category_detail_attribute_sets %}
-    <sw-card
+    <mt-card
         v-if="customFieldSetsArray.length > 0"
         position-identifier="sw-category-detail-attribute-sets"
         :title="$tc('sw-settings-custom-field.general.mainMenuItemGeneral')"
@@ -98,7 +100,7 @@
             :entity="category"
             :sets="customFieldSetsArray"
         />
-    </sw-card>
+    </mt-card>
     {% endblock %}
 </div>
 {% endblock %}

@@ -5,18 +5,12 @@
         {% set level = 0 %}
     {% endif %}
 
-    {# @deprecated tag:v6.7.0 - variable `activeId` and `activePath` will be removed #}
-    {% if not feature('v6.7.0.0') %}
-        {% set activeId = shopware.navigation.id %}
-        {% set activePath = '|' ~ shopware.navigation.pathIdList|join('|') ~ '|' %}
-    {% endif %}
-
     <div class="{% if level == 0 %}row {% endif %}navigation-flyout-categories is-level-{{ level }}">
         {% for treeItem in navigationTree %}
             {% set category = treeItem.category %}
             {% set id = category.id %}
             {% set name = category.translated.name %}
-            {% set link = category_url(category) %}
+            {% set link = category.seoLink %}
 
             {% block layout_navbar_categories_item %}
                 <div class="{% if level == 0 %}{% if navigationMedia %}col-4 {% else %}col-3 {% endif %}{% endif %}{% if ((loop.index % 4 != 0) and (loop.index != 1)) %}navigation-flyout-col{% endif %}">
@@ -30,7 +24,7 @@
                             <a class="nav-item nav-item-{{ id }} nav-link nav-item-{{ id }}-link navigation-flyout-link is-level-{{ level }}"
                                href="{{ link }}"
                                itemprop="url"
-                               {% if category_linknewtab(category) %}target="_blank"
+                               {% if category.shouldOpenInNewTab %}target="_blank"
                                {% if category.linkType == 'external' %}rel="noopener noreferrer"{% endif %}
                                 {% endif %}
                                title="{{ name }}">
@@ -40,7 +34,7 @@
                     {% endblock %}
 
                     {% block layout_navbar_categories_recoursion %}
-                        {% if level < navigationMaxDepth %}
+                        {% if level < navigationMaxDepth and treeItem.children %}
                             {% sw_include '@Storefront/storefront/layout/navbar/categories.html.twig' with {
                                 navigationTree: treeItem.children,
                                 level: level + 1,

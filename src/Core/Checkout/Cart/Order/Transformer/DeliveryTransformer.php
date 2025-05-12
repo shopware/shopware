@@ -16,7 +16,7 @@ class DeliveryTransformer
 {
     /**
      * @param array<string, array<string, mixed>> $lineItems
-     * @param array<string, mixed> $addresses
+     * @param array<int|string, array<string, string|array<mixed>>> $addresses
      *
      * @return array<int, array<string, mixed>>
      */
@@ -37,7 +37,7 @@ class DeliveryTransformer
 
     /**
      * @param array<string, array<string, mixed>> $lineItems
-     * @param array<string, mixed> $addresses
+     * @param array<int|string, array<string, string|array<mixed>>> $addresses
      *
      * @return array<string, mixed>
      */
@@ -86,6 +86,10 @@ class DeliveryTransformer
         $deliveryData = array_filter($deliveryData, fn ($item) => $item !== null);
 
         foreach ($delivery->getPositions() as $position) {
+            if (!isset($lineItems[$position->getIdentifier()])) {
+                continue;
+            }
+
             $deliveryData['positions'][] = [
                 'id' => self::getId($position),
                 'price' => $position->getPrice(),

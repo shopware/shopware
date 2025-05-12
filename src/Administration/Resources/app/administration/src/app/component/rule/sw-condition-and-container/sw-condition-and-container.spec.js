@@ -29,12 +29,10 @@ describe('src/app/component/rule/sw-condition-and-container', () => {
         config.global = {
             ...config.global,
             stubs: {
-                'sw-button': await wrapTestComponent('sw-button'),
-                'sw-button-deprecated': await wrapTestComponent('sw-button-deprecated', { sync: true }),
+                ...config.global.stubs,
                 'sw-condition-tree-node': true,
                 'sw-loader': true,
                 'router-link': true,
-                'mt-button': true,
             },
             provide: {
                 conditionDataProviderService: {
@@ -96,7 +94,7 @@ describe('src/app/component/rule/sw-condition-and-container', () => {
     it('should have enabled buttons', async () => {
         const wrapper = await createWrapper();
 
-        const buttons = wrapper.findAllComponents('.sw-button');
+        const buttons = wrapper.findAllComponents('button');
 
         expect(buttons.length).toBeGreaterThan(0);
         buttons.forEach((button) => {
@@ -109,7 +107,7 @@ describe('src/app/component/rule/sw-condition-and-container', () => {
             disabled: true,
         });
 
-        const buttons = wrapper.findAllComponents('.sw-button');
+        const buttons = wrapper.findAllComponents('button');
 
         expect(buttons.length).toBeGreaterThan(0);
         buttons.forEach((button) => {
@@ -141,7 +139,7 @@ describe('src/app/component/rule/sw-condition-and-container', () => {
     it('creates a new or condition container and replaces placeholder child', async () => {
         const wrapper = await createWrapper();
 
-        const addNewOrContainerButton = wrapper.getComponent('.sw-button.sw-condition-and-container__actions--sub');
+        const addNewOrContainerButton = wrapper.findByText('button', 'global.sw-condition.condition.AddSubCondition');
 
         await addNewOrContainerButton.trigger('click');
 
@@ -165,7 +163,7 @@ describe('src/app/component/rule/sw-condition-and-container', () => {
             },
         });
 
-        const addNewOrContainerButton = wrapper.getComponent('.sw-button.sw-condition-and-container__actions--sub');
+        const addNewOrContainerButton = wrapper.findByText('button', 'global.sw-condition.condition.AddSubCondition');
 
         await addNewOrContainerButton.trigger('click');
 
@@ -195,7 +193,7 @@ describe('src/app/component/rule/sw-condition-and-container', () => {
             condition: andContainer,
         });
 
-        const deleteButton = wrapper.getComponent('.sw-button.sw-condition-and-container__actions--delete');
+        const deleteButton = wrapper.findByText('button', 'global.sw-condition.condition.deleteConditions');
 
         await deleteButton.trigger('click');
 

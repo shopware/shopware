@@ -4,11 +4,7 @@ test ('Shop customers should be able to view products in different languages.', 
     ShopCustomer,
     TestDataService,
     StorefrontHome,
-    InstanceMeta,
 }) => {
-
-    test.skip(InstanceMeta.features['V6_7_0_0'], 'This test is incompatible with V6_7_0_0 image file (NEXT-40190)');
-
     const salesChannelId = TestDataService.defaultSalesChannel.id;
     const language = await getLanguageData('de-DE', TestDataService.AdminApiClient);
     const snippetSetId = await getSnippetSetId('de-DE', TestDataService.AdminApiClient);

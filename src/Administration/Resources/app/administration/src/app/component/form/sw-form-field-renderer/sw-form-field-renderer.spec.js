@@ -21,7 +21,7 @@ async function createWrapper(additionalOptions = {}) {
             },
             global: {
                 stubs: {
-                    'sw-text-field': {
+                    'sw-text-field-deprecated': {
                         template: '<div class="sw-text-field"><slot name="label"></slot><slot></slot></div>',
                     },
                     'sw-contextual-field': true,
@@ -92,5 +92,30 @@ describe('components/form/sw-form-field-renderer', () => {
         });
 
         expect(wrapper.props().error).toBeInstanceOf(ShopwareError);
+    });
+
+    it('should init the current value when type is price without emit the update event', async () => {
+        const wrapper = await createWrapper({
+            props: {
+                type: 'price',
+                config: {
+                    customFieldType: 'price',
+                },
+                value: undefined,
+            },
+        });
+
+        expect(wrapper.vm.currentValue).toStrictEqual(
+            expect.arrayContaining([
+                expect.objectContaining({
+                    currencyId: null,
+                    gross: null,
+                    net: null,
+                    linked: true,
+                }),
+            ]),
+        );
+
+        expect(wrapper.emitted('update:value')).toBeUndefined();
     });
 });

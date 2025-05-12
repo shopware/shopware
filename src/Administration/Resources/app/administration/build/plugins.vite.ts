@@ -7,16 +7,17 @@
  * The environment variable VITE_MODE is automatically set by the npm commands in the package.json.
  * You can just run `composer build:js:admin` or `composer watch:admin` respectively.
  *
- * @package framework
+ * @sw-package framework
  */
 
-import { createServer, build, defineConfig, Plugin } from 'vite';
+import { createServer, build, defineConfig, createLogger } from 'vite';
 import path from 'path';
 import fs from 'fs';
-import chalk from 'chalk';
+import colors from 'picocolors';
 import vue from '@vitejs/plugin-vue';
 import svgLoader from 'vite-svg-loader';
 import symfonyPlugin from 'vite-plugin-symfony';
+import debug from 'debug';
 
 // Shopware imports
 import TwigPlugin from './vite-plugins/twigjs-plugin';
@@ -24,28 +25,53 @@ import AssetPlugin from './vite-plugins/asset-plugin';
 import AssetPathPlugin from './vite-plugins/asset-path-plugin';
 import ExternalsPlugin from './vite-plugins/externals-plugin';
 import OverrideComponentRegisterPlugin from './vite-plugins/override-component-register';
-import { loadExtensions, findAvailablePorts } from './vite-plugins/utils';
+import { loadExtensions, findAvailablePorts, isInsideDockerContainer, getContainerIP } from './vite-plugins/utils';
 import type { ExtensionDefinition } from './vite-plugins/utils';
 import injectHtml from './vite-plugins/inject-html';
 
 const VITE_MODE = process.env.VITE_MODE || 'development';
 const isDev = VITE_MODE === 'development';
 
+// This env variable is provided by the symfony recipes
+const hasAdminRootEnv = !!process.env.ADMIN_ROOT;
+const host = process.env.VITE_HOST || (isInsideDockerContainer() ? getContainerIP() : undefined) || 'localhost';
+
 const extensionEntries = loadExtensions();
 
 // Common configuration shared between dev and build
-const getBaseConfig = (plugin: ExtensionDefinition) =>
-    defineConfig({
-        root: plugin.path,
+const getBaseConfig = (extension: ExtensionDefinition, isProd = false) => {
+    const extensionInfoDebug = debug(`vite:${extension.isPlugin ? 'plugin' : 'app'}:${extension.technicalName}`);
+    const configInfoDebug = debug('vite:config');
+    const useSourceMap = !isProd && process.env.SHOPWARE_ADMIN_SKIP_SOURCEMAP_GENERATION !== '1';
+
+    const logger = createLogger();
+
+    logger.info = (msg) => {
+        if (msg.includes('vite:config')) {
+            configInfoDebug(msg);
+            return;
+        }
+
+        extensionInfoDebug(msg);
+    };
+
+    return defineConfig({
+        root: extension.path,
+
+        logLevel: isProd ? 'warn' : 'info',
+
+        customLogger: logger,
+
+        cacheDir: path.resolve(extension.path, '..', '.tmp/vite'),
 
         plugins: [
             TwigPlugin(),
-            AssetPlugin(!isDev, __dirname),
-            AssetPathPlugin(),
+            AssetPlugin(!isDev, path.resolve(extension.basePath, 'Resources/app/administration')),
+            AssetPathPlugin(extension.technicalFolderName),
             svgLoader(),
             OverrideComponentRegisterPlugin({
-                root: plugin.path,
-                pluginEntryFile: plugin.filePath,
+                root: extension.path,
+                pluginEntryFile: extension.filePath,
             }),
             vue({
                 template: {
@@ -72,21 +98,33 @@ const getBaseConfig = (plugin: ExtensionDefinition) =>
                     find: /^src\//,
                     replacement: '/src/',
                 },
-                {
-                    find: /^~scss\/(.*)/,
-                    replacement: `${process.env.PROJECT_ROOT}/src/Administration/Resources/app/administration/src/app/assets/scss/$1.scss`,
-                },
+
+                // In the symfony recipes, shopware lies in the vendor folder, therefore we can't use the PROJECT_ROOT
+                ...(hasAdminRootEnv
+                    ? [
+                          {
+                              find: /^~scss\/(.*)/,
+                              replacement: `${process.env.ADMIN_ROOT}/Resources/app/administration/src/app/assets/scss/$1.scss`,
+                          },
+                      ]
+                    : [
+                          {
+                              find: /^~scss\/(.*)/,
+                              replacement: `${process.env.PROJECT_ROOT}/src/Administration/Resources/app/administration/src/app/assets/scss/$1.scss`,
+                          },
+                      ]),
                 {
                     find: /^~(.*)$/,
                     replacement: '$1',
                 },
             ],
+            preserveSymlinks: true,
         },
 
         ...(isDev
             ? {}
             : {
-                  base: `/bundles/${plugin.technicalFolderName}/administration/`,
+                  base: `/bundles/${extension.technicalFolderName}/administration/`,
                   optimizeDeps: {
                       include: [
                           'vue-router',
@@ -106,13 +144,13 @@ const getBaseConfig = (plugin: ExtensionDefinition) =>
               }),
 
         build: {
-            outDir: path.resolve(plugin.basePath, 'Resources/public/administration'),
+            outDir: path.resolve(extension.basePath, 'Resources/public/administration'),
             emptyOutDir: true,
             manifest: true,
-            sourcemap: true,
+            sourcemap: useSourceMap,
             rollupOptions: {
                 input: {
-                    [plugin.technicalName]: plugin.filePath,
+                    [extension.technicalName]: extension.filePath,
                 },
                 output: {
                     entryFileNames: 'assets/[name]-[hash].js',
@@ -120,9 +158,12 @@ const getBaseConfig = (plugin: ExtensionDefinition) =>
             },
         },
     });
+};
 
 // Main function to handle both dev and build modes
 const main = async () => {
+    let hasFailedBuilds = false;
+
     if (isDev) {
         const availablePorts = await findAvailablePorts(5333, extensionEntries.length);
 
@@ -148,13 +189,12 @@ const main = async () => {
             }
 
             if (extension.isApp) {
-                swPluginDevJsonData[extension.technicalName].html = `http://localhost:${availablePorts[index]}/index.html`;
+                swPluginDevJsonData[extension.technicalName].html = `http://${host}:${availablePorts[index]}/index.html`;
             }
 
             if (extension.isPlugin) {
-                swPluginDevJsonData[extension.technicalName].js = `http://localhost:${availablePorts[index]}/${fileName}`;
-                swPluginDevJsonData[extension.technicalName].hmrSrc =
-                    `http://localhost:${availablePorts[index]}/@vite/client`;
+                swPluginDevJsonData[extension.technicalName].js = `http://${host}:${availablePorts[index]}/${fileName}`;
+                swPluginDevJsonData[extension.technicalName].hmrSrc = `http://${host}:${availablePorts[index]}/@vite/client`;
             }
         });
 
@@ -167,6 +207,7 @@ const main = async () => {
         for (let i = 0; i < extensionEntries.length; i++) {
             const extension = extensionEntries[i];
             const port = availablePorts[i];
+            const extensionInfoDebug = debug(`vite:${extension.isPlugin ? 'plugin' : 'app'}:${extension.technicalName}`);
 
             let server;
 
@@ -174,18 +215,26 @@ const main = async () => {
                 // For apps
                 server = await createServer({
                     root: extension.path,
-                    server: { port },
+                    server: {
+                        port,
+                        host,
+                        cors: true,
+                    },
                 });
 
-                console.log(chalk.green(`# App "${extension.name}": Injected successfully`));
+                console.log(colors.green(`# App "${extension.name}": Injected successfully`));
             } else {
                 // For plugins
                 server = await createServer({
                     ...getBaseConfig(extension),
-                    server: { port },
+                    server: {
+                        port,
+                        host,
+                        cors: true,
+                    },
                 });
 
-                console.log(chalk.green(`# Plugin "${extension.name}": Injected successfully`));
+                console.log(colors.green(`# Plugin "${extension.name}": Injected successfully`));
             }
 
             await server.listen();
@@ -194,33 +243,49 @@ const main = async () => {
     } else {
         // Build mode
         for (const extension of extensionEntries) {
-            if (extension.isApp) {
-                console.log(chalk.green(`# Building app "${extension.name}"`));
-                // For apps
-                await build({
-                    root: extension.path,
-                    base: '',
-                    build: {
-                        outDir: path.resolve(extension.basePath, 'Resources/public/meteor-app'),
-                    },
-                    plugins: [
-                        injectHtml([
-                            {
-                                tag: 'base',
-                                attrs: {
-                                    href: '__$ASSET_BASE_PATH$__',
+            try {
+                if (extension.isApp) {
+                    console.log(colors.green(`# Building app "${extension.name}"`));
+                    // For apps
+                    await build({
+                        root: extension.path,
+                        base: '',
+                        build: {
+                            outDir: path.resolve(extension.basePath, 'Resources/public/meteor-app'),
+                        },
+                        plugins: [
+                            injectHtml([
+                                {
+                                    tag: 'base',
+                                    attrs: {
+                                        href: '__$ASSET_BASE_PATH$__',
+                                    },
+                                    injectTo: 'head-prepend',
                                 },
-                                injectTo: 'head-prepend',
-                            },
-                        ]),
-                    ],
-                });
-            } else {
-                console.log(chalk.green(`# Building plugin "${extension.name}"`));
-                // For plugins
-                await build(getBaseConfig(extension));
+                            ]),
+                        ],
+                    });
+                } else {
+                    console.log(colors.green(`# Building plugin "${extension.name}"`));
+                    // For plugins
+                    await build(getBaseConfig(extension));
+                }
+            } catch (error) {
+                hasFailedBuilds = true;
+                console.error(
+                    colors.red(
+                        // @ts-expect-error
+                        `# Failed to build ${extension.isPlugin ? 'plugin' : 'app'} "${extension.name}": ${error?.message}`,
+                    ),
+                );
             }
         }
+    }
+
+    // Exit with code 1 if any builds failed
+    if (hasFailedBuilds) {
+        console.error(colors.red('One or more builds failed. Check the logs above for details.'));
+        process.exit(1);
     }
 };
 

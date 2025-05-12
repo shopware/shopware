@@ -19,7 +19,7 @@ const adminMenuStore = Shopware.Store.register({
         /**
          * The expanded state of the sidebar menu
          */
-        isExpanded: true,
+        isExpanded: localStorage.getItem('sw-admin-menu-expanded') !== 'false',
         /**
          * The entries that are currently expanded in the sidebar menu
          */
@@ -56,12 +56,14 @@ const adminMenuStore = Shopware.Store.register({
          */
         collapseSidebar() {
             this.isExpanded = false;
+            localStorage.setItem('sw-admin-menu-expanded', 'false');
         },
         /**
          * Collapses the sidebar menu
          */
         expandSidebar() {
             this.isExpanded = true;
+            localStorage.setItem('sw-admin-menu-expanded', 'true');
         },
     },
 
@@ -70,7 +72,7 @@ const adminMenuStore = Shopware.Store.register({
             const menuService = Shopware.Service('menuService') as MenuService;
             // eslint-disable-next-line no-warning-comments
             // TODO: Change this when `shopwareApps` store is converted to Pinia
-            const shopwareAppsState = Shopware.State.get('shopwareApps') as { apps: AppModuleDefinition[] };
+            const shopwareAppsState = Shopware.Store.get('shopwareApps') as { apps: AppModuleDefinition[] };
 
             return menuService?.getNavigationFromApps(shopwareAppsState.apps);
         },

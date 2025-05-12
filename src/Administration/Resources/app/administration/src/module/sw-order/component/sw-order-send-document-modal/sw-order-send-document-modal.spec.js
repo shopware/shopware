@@ -1,5 +1,5 @@
 import { mount } from '@vue/test-utils';
-import uuid from 'src/../test/_helper_/uuid';
+import uuid from 'test/_helper_/uuid';
 import EntityCollection from 'src/core/data/entity-collection.data';
 
 /**
@@ -119,6 +119,27 @@ const mockMailTemplates = [
         contentHtml: '<div>Delivery email template content.</div>\n',
         subject: 'And another template subject',
     },
+    {
+        id: uuid.get('personalized_order_mail'),
+        name: 'Test email 4',
+        description: 'Test email description 4',
+        mailTemplateType: {
+            name: 'Invoice note',
+            technicalName: 'invoice_mail',
+            templateData: {
+                order: {
+                    ...mockOrderWithoutMailHeaderFooter,
+                    orderCustomer: {
+                        email: 'personal@ema.il',
+                        firstName: 'Personal',
+                        lastName: 'Data',
+                    },
+                },
+            },
+        },
+        contentHtml: '<div>{{order.orderCustomer.firstName}} {{order.orderCustomer.lastName}}</div>\n',
+        subject: 'Personal data from order',
+    },
 ];
 
 const mockMailHeaderFooter = {
@@ -153,14 +174,22 @@ const defaultProps = {
     document: mockDocuments[0],
 };
 
+const replaceTemplateVariables = (template = '', variables = {}) => {
+    if (Object.keys(variables).length === 0) {
+        return template;
+    }
+    return template.replace(/\{\{(.*?)}}/g, (match, p1) => {
+        const keys = p1.trim().split('.');
+        return keys.reduce((acc, key) => (acc && acc[key] !== undefined ? acc[key] : ''), variables);
+    });
+};
+
 async function createWrapper(props = defaultProps, sendingSucceds = true, mailTemplates = mockMailTemplates) {
     return mount(await wrapTestComponent('sw-order-send-document-modal', { sync: true }), {
         global: {
             stubs: {
                 'sw-base-field': await wrapTestComponent('sw-base-field'),
                 'sw-block-field': await wrapTestComponent('sw-block-field'),
-                'sw-button': await wrapTestComponent('sw-button'),
-                'sw-button-deprecated': await wrapTestComponent('sw-button-deprecated'),
                 'sw-entity-single-select': await wrapTestComponent('sw-entity-single-select'),
                 'sw-highlight-text': await wrapTestComponent('sw-highlight-text'),
                 'sw-popover': await wrapTestComponent('sw-popover'),
@@ -174,7 +203,6 @@ async function createWrapper(props = defaultProps, sendingSucceds = true, mailTe
                 },
                 'sw-text-field': true,
                 'sw-product-variant-info': true,
-                'sw-icon': true,
                 'router-link': true,
                 'sw-loader': true,
                 'sw-inheritance-switch': true,
@@ -189,7 +217,10 @@ async function createWrapper(props = defaultProps, sendingSucceds = true, mailTe
                     },
                 },
                 mailService: {
-                    buildRenderPreview: (_, mailTemplate) => Promise.resolve(mailTemplate.contentHtml),
+                    buildRenderPreview: (_, mailTemplate) =>
+                        Promise.resolve(
+                            replaceTemplateVariables(mailTemplate.contentHtml, mailTemplate?.mailTemplateType?.templateData),
+                        ),
                     sendMailTemplate: jest.fn(sendingSucceds ? () => Promise.resolve() : () => Promise.reject()),
                 },
             },
@@ -212,9 +243,9 @@ describe('src/module/sw-order/component/sw-order-send-document-modal', () => {
             mockMailTemplates[0].mailTemplateType.name,
         );
 
-        const textFields = wrapper.findAll('sw-text-field-stub');
-        expect(textFields[0].attributes('value')).toBe(String(mockOrderWithMailHeaderFooter.orderCustomer.email));
-        expect(textFields[1].attributes('value')).toBe(mockMailTemplates[0].subject);
+        const textFields = wrapper.findAllComponents('.mt-text-field');
+        expect(textFields[0].props('modelValue')).toBe(String(mockOrderWithMailHeaderFooter.orderCustomer.email));
+        expect(textFields[1].props('modelValue')).toBe(mockMailTemplates[0].subject);
     });
 
     it('should display mail template select', async () => {
@@ -268,6 +299,25 @@ describe('src/module/sw-order/component/sw-order-send-document-modal', () => {
         expect(previewContent.element.innerHTML).toBe(mockMailTemplates[0].contentHtml);
     });
 
+    it('should replace mail template data with order data', async () => {
+        const wrapper = await createWrapper(
+            {
+                ...defaultProps,
+                document: mockDocuments[2],
+            },
+            true,
+            [mockMailTemplates[3]],
+        );
+        await flushPromises();
+
+        const previewContent = wrapper.find('.sw-order-send-document-modal__email-content');
+        expect(previewContent.element.innerHTML).toBe(
+            mockMailHeaderFooter.headerHtml +
+                replaceTemplateVariables(mockMailTemplates[3].contentHtml, defaultProps) +
+                mockMailHeaderFooter.footerHtml,
+        );
+    });
+
     it('should update the email template information when changing the email template', async () => {
         const wrapper = await createWrapper();
         await flushPromises();
@@ -282,8 +332,8 @@ describe('src/module/sw-order/component/sw-order-send-document-modal', () => {
             mockMailTemplates[1].mailTemplateType.name,
         );
 
-        const textFields = wrapper.findAll('sw-text-field-stub');
-        expect(textFields[1].attributes('value')).toBe(mockMailTemplates[1].subject);
+        const textFields = wrapper.findAllComponents('.mt-text-field');
+        expect(textFields[1].props('modelValue')).toBe(mockMailTemplates[1].subject);
 
         const previewContent = wrapper.find('.sw-order-send-document-modal__email-content');
         expect(previewContent.element.innerHTML).toBe(
@@ -295,7 +345,7 @@ describe('src/module/sw-order/component/sw-order-send-document-modal', () => {
         const wrapper = await createWrapper();
         await flushPromises();
 
-        await wrapper.find('.sw-button:nth-of-type(1)').trigger('click');
+        await wrapper.findByText('button', 'sw-order.documentSendModal.labelClose').trigger('click');
         await flushPromises();
 
         expect(wrapper.emitted('modal-close')).toHaveLength(1);
@@ -321,8 +371,8 @@ describe('src/module/sw-order/component/sw-order-send-document-modal', () => {
         await flushPromises();
 
         expect(wrapper.find('.sw-entity-single-select__selection-text').text()).toBe('');
-        expect(wrapper.find('sw-text-field-stub:nth-of-type(1)').text()).toBe('');
-        expect(wrapper.find('sw-text-field-stub:nth-of-type(2)').text()).toBe('');
+        expect(wrapper.findAll('.mt-text-field .mt-field__hint-wrapper')[0].text()).toBe('');
+        expect(wrapper.findAll('.mt-text-field .mt-field__hint-wrapper')[1].text()).toBe('');
         expect(wrapper.find('.sw-order-send-document-modal__email-content').text()).toBe('');
     });
 
@@ -336,8 +386,8 @@ describe('src/module/sw-order/component/sw-order-send-document-modal', () => {
         await wrapper.find('.sw-select-option--2').trigger('click');
         await flushPromises();
 
-        expect(wrapper.find('sw-text-field-stub:nth-of-type(1)').text()).toBe('');
-        expect(wrapper.find('sw-text-field-stub:nth-of-type(2)').text()).toBe('');
+        expect(wrapper.findAll('.mt-text-field .mt-field__hint-wrapper')[0].text()).toBe('');
+        expect(wrapper.findAll('.mt-text-field .mt-field__hint-wrapper')[1].text()).toBe('');
         expect(wrapper.find('.sw-order-send-document-modal__email-content').text()).toBe('');
     });
 
@@ -345,7 +395,7 @@ describe('src/module/sw-order/component/sw-order-send-document-modal', () => {
         const wrapper = await createWrapper();
         await flushPromises();
 
-        await wrapper.find('.sw-button:nth-of-type(2)').trigger('click');
+        await wrapper.findByText('button', 'sw-order.documentCard.labelSendDocument').trigger('click');
         await flushPromises();
 
         expect(wrapper.vm.mailService.sendMailTemplate).toHaveBeenCalledTimes(1);
@@ -395,7 +445,7 @@ describe('src/module/sw-order/component/sw-order-send-document-modal', () => {
         wrapper.vm.createNotificationError = jest.fn();
         await flushPromises();
 
-        await wrapper.find('.sw-button:nth-of-type(2)').trigger('click');
+        await wrapper.findByText('button', 'sw-order.documentCard.labelSendDocument').trigger('click');
         await flushPromises();
 
         expect(wrapper.vm.createNotificationError).toHaveBeenCalledTimes(1);

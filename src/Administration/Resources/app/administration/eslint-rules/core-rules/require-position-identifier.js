@@ -1,5 +1,5 @@
 /**
- * @package admin
+ * @sw-package framework
  */
 
 // eslint-disable-next-line import/no-extraneous-dependencies
@@ -7,6 +7,21 @@ const utils = require('eslint-plugin-vue/lib/utils');
 
 /* eslint-disable max-len */
 module.exports = {
+    meta: {
+        schema: [
+            {
+                type: 'object',
+                properties: {
+                    components: {
+                        type: 'array',
+                        items: {
+                            type: 'string',
+                        },
+                    },
+                }
+            },
+        ],
+    },
     create(context) {
         // get components from the options
         const components = context.options[0].components;

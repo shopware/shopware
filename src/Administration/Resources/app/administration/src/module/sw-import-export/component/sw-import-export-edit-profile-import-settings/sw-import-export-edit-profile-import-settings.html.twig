@@ -7,22 +7,22 @@
     {% endblock %}
 
     {% block sw_import_export_edit_profile_import_settings_create_switch %}
-    <sw-switch-field
-        v-model:value="profile.config.createEntities"
+    <mt-switch
+        :model-value="profile.config.createEntities"
         class="sw-import-export-edit-profile-import-settings__create-switch"
         :label="$tc('sw-import-export.profile.createEntitiesLabel')"
         :disabled="profile.systemDefault"
-        @update:value="onChange($event, 'updateEntities')"
+        @update:model-value="onChange($event, 'createEntities')"
     />
     {% endblock %}
 
     {% block sw_import_export_edit_profile_import_settings_update_switch %}
-    <sw-switch-field
-        v-model:value="profile.config.updateEntities"
+    <mt-switch
+        :model-value="profile.config.updateEntities"
         class="sw-import-export-edit-profile-import-settings__update-switch"
         :label="$tc('sw-import-export.profile.updateEntitiesLabel')"
         :disabled="profile.systemDefault"
-        @update:value="onChange($event, 'createEntities')"
+        @update:model-value="onChange($event, 'updateEntities')"
     />
     {% endblock %}
 </div>

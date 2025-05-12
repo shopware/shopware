@@ -16,8 +16,8 @@
     <div class="offcanvas-cookie">
         <div class="offcanvas-cookie-description">
             <p>
-                {% set privacySnippetKey = feature('ACCESSIBILITY_TWEAKS') ? 'cookie.messageTextPage' : 'cookie.messageText' %}
-                {% set cmsPath = feature('ACCESSIBILITY_TWEAKS') ? 'frontend.cms.page.full' : 'frontend.cms.page' %}
+                {% set privacySnippetKey = 'cookie.messageTextPage' %}
+                {% set cmsPath = 'frontend.cms.page.full' %}
 
                 {{ privacySnippetKey|trans({
                     '%url%': path(cmsPath, { id: config('core.basicInformation.privacyPage') })

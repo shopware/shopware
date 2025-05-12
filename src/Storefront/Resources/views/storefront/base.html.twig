@@ -1,17 +1,14 @@
 {# @sw-package framework #}
-
-{# Set variable to "true" to enable HMR (hot page reloading) mode #}
-{% set isHMRMode = app.request.headers.get('hot-reload-mode') and app.environment == 'dev' %}
-
-{% block base_doctype %}
-<!DOCTYPE html>
-{% endblock %}
+{% block base_doctype %}<!DOCTYPE html>{% endblock %}
 
 {% block base_html %}
-<html lang="{{ context.saleschannel.languages.first.translationCode.code }}"
+<html lang="{{ context.languageInfo.localeCode }}"
       itemscope="itemscope"
       itemtype="https://schema.org/WebPage">
 {% endblock %}
+
+{# Set variable to "true" to enable HMR (hot page reloading) mode #}
+{% set isHMRMode = app.request.headers.get('hot-reload-mode') and app.environment == 'dev' %}
 
 {% block base_head %}
     {% sw_include '@Storefront/storefront/layout/meta.html.twig' %}
@@ -38,50 +35,13 @@
             </noscript>
         {% endblock %}
 
-        {% if feature('cache_rework') %}
-            {{ render_esi(url('frontend.header')) }}
+        {% block base_esi_header %}
+            {{ render_esi(url('frontend.header', { headerParameters: headerParameters })) }}
+        {% endblock %}
 
-            {% block base_navigation_styling %}
-                {% sw_include '@Storefront/storefront/layout/navigation/active-styling.html.twig' %}
-            {% endblock %}
-        {% else %}
-            {# @deprecated tag:v6.7.0 - Block will be moved to storefront/layout/header.html.twig #}
-            {% block base_header %}
-                {% sw_include '@Storefront/storefront/utilities/staging-info.html.twig' %}
-
-                <header class="header-main">
-                    {# @deprecated tag:v6.7.0 - Block will be moved to storefront/layout/header.html.twig #}
-                    {% block base_header_inner %}
-                        <div class="container">
-                            {% sw_include '@Storefront/storefront/layout/header/header.html.twig' %}
-                        </div>
-                    {% endblock %}
-                </header>
-            {% endblock %}
-
-            {# @deprecated tag:v6.7.0 - Block will be moved to storefront/layout/header.html.twig #}
-            {% block base_navigation %}
-                <div class="nav-main">
-                    {# @deprecated tag:v6.7.0 - Block will be moved to storefront/layout/header.html.twig #}
-                    {% block base_navigation_inner %}
-                        {# @deprecated tag:v6.7.0 - This template will be removed, use storefront/layout/navbar/navbar.html.twig #}
-                        {% sw_include '@Storefront/storefront/layout/navigation/navigation.html.twig' %}
-                    {% endblock %}
-                </div>
-            {% endblock %}
-
-            {# @deprecated tag:v6.7.0 - Block will be moved to storefront/layout/header.html.twig #}
-            {% block base_offcanvas_navigation %}
-                {% if page.header.navigation %}
-                    <div class="d-none js-navigation-offcanvas-initial-content{% if context.salesChannel.navigationCategoryId == page.header.navigation.active.id %} is-root{% endif %}">
-                        {# @deprecated tag:v6.7.0 - Block will be moved to storefront/layout/header.html.twig #}
-                        {% block base_offcanvas_navigation_inner %}
-                            {% sw_include '@Storefront/storefront/layout/navigation/offcanvas/navigation.html.twig' with { navigation: page.header.navigation } %}
-                        {% endblock %}
-                    </div>
-                {% endif %}
-            {% endblock %}
-        {% endif %}
+        {% block base_navigation_styling %}
+            {% sw_include '@Storefront/storefront/layout/navigation/active-styling.html.twig' %}
+        {% endblock %}
 
         {% block base_main %}
             <main class="content-main" id="content-main">
@@ -113,20 +73,10 @@
             </main>
         {% endblock %}
 
+        {% block base_esi_footer %}
+            {{ render_esi(url('frontend.footer', { footerParameters: footerParameters })) }}
+        {% endblock %}
 
-        {% if feature('cache_rework') %}
-            {{ render_esi(url('frontend.footer')) }}
-        {% else %}
-            {# @deprecated tag:v6.7.0 - Block will be moved to storefront/layout/footer.html.twig #}
-            {% block base_footer %}
-                <footer class="footer-main">
-                    {# @deprecated tag:v6.7.0 - Block will be moved to storefront/layout/footer.html.twig #}
-                    {% block base_footer_inner %}
-                        {% sw_include '@Storefront/storefront/layout/footer/footer.html.twig' %}
-                    {% endblock %}
-                </footer>
-            {% endblock %}
-        {% endif %}
     {% endblock %}
 
     {% block base_scroll_up %}

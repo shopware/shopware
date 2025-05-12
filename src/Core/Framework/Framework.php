@@ -2,12 +2,11 @@
 
 namespace Shopware\Core\Framework;
 
+use Shopware\Core\Framework\Adapter\Cache\CacheCompilerPass;
 use Shopware\Core\Framework\Adapter\Cache\CacheValueCompressor;
 use Shopware\Core\Framework\Adapter\Cache\ReverseProxy\ReverseProxyCompilerPass;
 use Shopware\Core\Framework\Adapter\Redis\RedisConnectionsCompilerPass;
 use Shopware\Core\Framework\DataAbstractionLayer\AttributeEntityCompiler;
-use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
-use Shopware\Core\Framework\DataAbstractionLayer\ExtensionRegistry;
 use Shopware\Core\Framework\DependencyInjection\CompilerPass\AssetBundleRegistrationCompilerPass;
 use Shopware\Core\Framework\DependencyInjection\CompilerPass\AssetRegistrationCompilerPass;
 use Shopware\Core\Framework\DependencyInjection\CompilerPass\AttributeEntityCompilerPass;
@@ -35,7 +34,6 @@ use Shopware\Core\Framework\MessageQueue\MessageHandlerCompilerPass;
 use Shopware\Core\Framework\Telemetry\Metrics\MeterProvider;
 use Shopware\Core\Framework\Test\DependencyInjection\CompilerPass\ContainerVisibilityCompilerPass;
 use Shopware\Core\Framework\Test\RateLimiter\DisableRateLimiterCompilerPass;
-use Shopware\Core\System\SalesChannel\Entity\SalesChannelDefinitionInstanceRegistry;
 use Symfony\Component\Config\FileLocator;
 use Symfony\Component\DependencyInjection\Compiler\PassConfig;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
@@ -93,6 +91,7 @@ class Framework extends Bundle
         $loader->load('flag.xml');
         $loader->load('health.xml');
         $loader->load('telemetry.xml');
+        $loader->load('notification.xml');
 
         if ($container->getParameter('kernel.environment') === 'test') {
             $loader->load('services_test.xml');
@@ -102,7 +101,7 @@ class Framework extends Bundle
         }
 
         // make sure to remove services behind a feature flag, before some other compiler passes may reference them, therefore the high priority
-        $container->addCompilerPass(new AttributeEntityCompilerPass(new AttributeEntityCompiler()), PassConfig::TYPE_BEFORE_REMOVING, 1000);
+        $container->addCompilerPass(new AttributeEntityCompilerPass(new AttributeEntityCompiler()), PassConfig::TYPE_BEFORE_OPTIMIZATION, 1000);
         $container->addCompilerPass(new FeatureFlagCompilerPass(), PassConfig::TYPE_BEFORE_OPTIMIZATION, 1000);
         $container->addCompilerPass(new EntityCompilerPass());
         $container->addCompilerPass(new DisableTwigCacheWarmerCompilerPass());
@@ -117,6 +116,7 @@ class Framework extends Bundle
         $container->addCompilerPass(new RateLimiterCompilerPass());
         $container->addCompilerPass(new IncrementerGatewayCompilerPass());
         $container->addCompilerPass(new ReverseProxyCompilerPass());
+        $container->addCompilerPass(new CacheCompilerPass());
         $container->addCompilerPass(new RedisPrefixCompilerPass(), PassConfig::TYPE_BEFORE_REMOVING, 0);
         $container->addCompilerPass(new AutoconfigureCompilerPass(), PassConfig::TYPE_BEFORE_OPTIMIZATION, 1000);
         $container->addCompilerPass(new HttpCacheConfigCompilerPass());
@@ -150,16 +150,6 @@ class Framework extends Bundle
         if ($this->container->getParameter('kernel.environment') !== 'test') {
             // Inject the meter early in the application lifecycle. This is needed to use the meter in special case (static contexts).
             MeterProvider::bindMeter($this->container);
-        }
-
-        // @deprecated tag:v6.7.0 - remove complete if condition
-        if (!Feature::isActive('v6.7.0.0')) {
-            $this->container
-                ->get(ExtensionRegistry::class)
-                ->configureExtensions(
-                    $this->container->get(DefinitionInstanceRegistry::class),
-                    $this->container->get(SalesChannelDefinitionInstanceRegistry::class)
-                );
         }
 
         CacheValueCompressor::$compress = $this->container->getParameter('shopware.cache.cache_compression');

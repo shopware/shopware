@@ -14,13 +14,12 @@ const defaultMailerSettings = {
     'core.mailerSettings.senderAddress': null,
     'core.mailerSettings.deliveryAddress': null,
     'core.mailerSettings.disableDelivery': false,
+    'core.mailerSettings.sendMailOptions': null,
 };
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default {
     template,
-
-    compatConfig: Shopware.compatConfig,
 
     inject: ['systemConfigApiService'],
 
@@ -63,6 +62,31 @@ export default {
                 'smtp+oauth',
             ].includes(this.mailerSettings['core.mailerSettings.emailAgent']);
         },
+
+        emailAgentOptions() {
+            return [
+                {
+                    id: 1,
+                    value: 'local',
+                    label: this.$tc('sw-settings-mailer.mailer-configuration.local-agent'),
+                },
+                {
+                    id: 2,
+                    value: 'smtp',
+                    label: this.$tc('sw-settings-mailer.mailer-configuration.smtp-server'),
+                },
+                {
+                    id: 3,
+                    value: 'smtp+oauth',
+                    label: this.$tc('sw-settings-mailer.mailer-configuration.smtp-server-oauth'),
+                },
+                {
+                    id: 3,
+                    value: '',
+                    label: this.$tc('sw-settings-mailer.mailer-configuration.env-file'),
+                },
+            ];
+        },
     },
 
     created() {
@@ -97,11 +121,6 @@ export default {
         async saveMailerSettings() {
             this.isLoading = true;
 
-            // Inputs cannot return null
-            if (this.mailerSettings['core.mailerSettings.emailAgent'] === '') {
-                this.mailerSettings['core.mailerSettings.emailAgent'] = null;
-            }
-
             // Validate smtp configuration
             if (this.isSmtpMode) {
                 this.validateSmtpConfiguration();
@@ -124,6 +143,8 @@ export default {
                 this.mailerSettings = {
                     ...defaultMailerSettings,
                     'core.mailerSettings.emailAgent': 'local',
+                    'core.mailerSettings.disableDelivery': this.mailerSettings['core.mailerSettings.disableDelivery'],
+                    'core.mailerSettings.sendMailOptions': this.mailerSettings['core.mailerSettings.sendMailOptions'],
                 };
             }
 

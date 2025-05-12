@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Content\Product\Subscriber;
 
+use Shopware\Core\Content\MeasurementSystem\Service\ProductMeasurementUnitBuilder;
 use Shopware\Core\Content\Product\AbstractIsNewDetector;
 use Shopware\Core\Content\Product\AbstractProductMaxPurchaseCalculator;
 use Shopware\Core\Content\Product\AbstractProductVariationBuilder;
@@ -34,7 +35,8 @@ class ProductSubscriber implements EventSubscriberInterface
         private readonly AbstractPropertyGroupSorter $propertyGroupSorter,
         private readonly AbstractProductMaxPurchaseCalculator $maxPurchaseCalculator,
         private readonly AbstractIsNewDetector $isNewDetector,
-        private readonly SystemConfigService $systemConfigService
+        private readonly SystemConfigService $systemConfigService,
+        private readonly ProductMeasurementUnitBuilder $measurementUnitBuilder
     ) {
     }
 
@@ -84,6 +86,8 @@ class ProductSubscriber implements EventSubscriberInterface
             $assigns['calculatedMaxPurchase'] = $this->maxPurchaseCalculator->calculate($product, $event->getSalesChannelContext());
 
             $assigns['isNew'] = $this->isNewDetector->isNew($product, $event->getSalesChannelContext());
+
+            $assigns['measurementUnits'] = $this->measurementUnitBuilder->build($product, $event->getSalesChannelContext());
 
             $product->assign($assigns);
 

@@ -1,4 +1,98 @@
 {
+  "sw-theme": {
+    "storefront": {
+      "default": {
+        "themeColors": {
+          "label": "Theme colours",
+          "default": {
+            "sw-color-brand-primary": {
+              "label": "Primary colour"
+            },
+            "sw-color-brand-secondary": {
+              "label": "Secondary colour"
+            },
+            "sw-border-color": {
+              "label": "Border"
+            },
+            "sw-background-color": {
+              "label": "Background"
+            }
+          }
+        },
+        "statusColors": {
+          "label": "Status messages",
+          "default": {
+            "sw-color-success": {
+              "label": "Success"
+            },
+            "sw-color-danger": {
+              "label": "Error"
+            },
+            "sw-color-warning": {
+              "label": "Notice"
+            },
+            "sw-color-info": {
+              "label": "Information"
+            }
+          }
+        },
+        "typography": {
+          "label": "Typography",
+          "default": {
+            "sw-font-family-base": {
+              "label": "Body text font"
+            },
+            "sw-text-color": {
+              "label": "Text colour"
+            },
+            "sw-font-family-headline": {
+              "label": "Headline font"
+            },
+            "sw-headline-color": {
+              "label": "Headline color"
+            }
+          }
+        },
+        "eCommerce": {
+          "label": "E-Commerce",
+          "default": {
+            "sw-color-price": {
+              "label": "Price"
+            },
+            "sw-color-buy-button": {
+              "label": "Buy button"
+            },
+            "sw-color-buy-button-text": {
+              "label": "Buy button text"
+            }
+          }
+        },
+        "media": {
+          "label": "Media",
+          "default": {
+            "sw-logo-desktop": {
+              "label": "Desktop",
+              "helpText": "Displayed on viewports above 991px and as a fallback on smaller viewports, if no other logo is set."
+            },
+            "sw-logo-tablet": {
+              "label": "Tablet",
+              "helpText": "Displayed on viewports between 767px and 991px."
+            },
+            "sw-logo-mobile": {
+              "label": "Mobile",
+              "helpText": "Displayed on viewports up to 767px."
+            },
+            "sw-logo-share": {
+              "label": "App & share icon"
+            },
+            "sw-logo-favicon": {
+              "label": "Favicon"
+            }
+          }
+        }
+      }
+    }
+  },
   "sw-theme-manager": {
     "general": {
       "mainMenuItemGeneral": "Themes",
@@ -39,7 +133,6 @@
       "textRenameInfo": "Enter a new name for the theme.",
       "labelRenameThemeName": "New theme name",
       "placeholderRenameThemeName": "Enter name",
-      "buttonRenameTheme": "Save",
       "modalTitleReset": "Reset theme",
       "modalTextResetInfo": "Are you sure you want to reset the theme to the default settings?",
       "modalTextResetAssigned": "This will change the appearance of your shop.",

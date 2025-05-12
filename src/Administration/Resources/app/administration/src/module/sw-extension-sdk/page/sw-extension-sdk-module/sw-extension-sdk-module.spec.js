@@ -25,6 +25,8 @@ async function createWrapper(back = null, push = jest.fn()) {
                 'sw-my-apps-error-page': true,
                 'sw-iframe-renderer': true,
                 'sw-language-switch': true,
+                'sw-context-menu-item': true,
+                'sw-context-button': true,
                 'router-link': {
                     props: {
                         to: {

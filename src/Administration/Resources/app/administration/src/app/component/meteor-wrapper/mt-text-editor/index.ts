@@ -13,7 +13,7 @@ import './mt-text-editor.scss';
  * @description Wrapper component for mt-text-editor. Replaces the link
  * button with a custom implementation specific to the Shopware admin.
  */
-Shopware.Component.register('mt-text-editor', {
+export default Shopware.Component.wrapComponentConfig({
     template,
 
     components: {

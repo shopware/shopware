@@ -1,7 +1,7 @@
 import template from './sw-condition-order-custom-field.html.twig';
 import './sw-condition-order-custom-field.scss';
 
-const { Component, Mixin } = Shopware;
+const { Component, Filter, Mixin } = Shopware;
 const { mapPropertyErrors } = Component.getComponentHelper();
 const { Criteria } = Shopware.Data;
 
@@ -14,7 +14,8 @@ const { Criteria } = Shopware.Data;
  * @component-example
  * <sw-condition-order-custom-field :condition="condition"></sw-condition-order-custom-field>
  */
-Component.extend('sw-condition-order-custom-field', 'sw-condition-base', {
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
+export default {
     template,
 
     inject: [
@@ -127,9 +128,17 @@ Component.extend('sw-condition-order-custom-field', 'sw-condition-base', {
                 this.conditionValueRenderedFieldValueError
             );
         },
+
+        truncateFilter() {
+            return Filter.getByName('truncate');
+        },
     },
 
     methods: {
+        getFieldDescription(item) {
+            return this.getInlineSnippet(item.customFieldSet.config.label) || item.customFieldSet.name;
+        },
+
         /**
          * Clear any further field's values if no custom field has been selected
          * @param id
@@ -146,4 +155,4 @@ Component.extend('sw-condition-order-custom-field', 'sw-condition-base', {
             this.renderedFieldValue = null;
         },
     },
-});
+};

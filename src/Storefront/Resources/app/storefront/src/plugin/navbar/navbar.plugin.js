@@ -8,6 +8,10 @@ export default class NavbarPlugin extends Plugin {
          */
         debounceTime: 125,
         /**
+         * Class to select the main navigation items, which contain both the top level link and the dropdown navigation.
+         */
+        navItemSelector: '.nav-item',
+        /**
          * Class to select the top level links.
          */
         topLevelLinksSelector: '.main-navigation-link',
@@ -28,6 +32,9 @@ export default class NavbarPlugin extends Plugin {
         const closeEvent = (DeviceDetection.isTouchDevice()) ? 'touchstart' : 'mouseleave';
         const clickEvent = (DeviceDetection.isTouchDevice()) ? 'touchstart' : 'click';
 
+        this.el.addEventListener('mouseleave', this._closeAllDropdowns.bind(this));
+        this.el.addEventListener('focusout', this._restoreFocusAfterBtnClose.bind(this));
+
         this._topLevelLinks.forEach(el => {
             el.addEventListener(openEvent, this._toggleNavbar.bind(this, el));
             el.addEventListener(closeEvent, this._toggleNavbar.bind(this, el));
@@ -35,6 +42,7 @@ export default class NavbarPlugin extends Plugin {
                 el.addEventListener(clickEvent, this._navigateToLinkOnClick.bind(this, el));
             }
         });
+
         window.addEventListener('load', () => {
             this._setAriaCurrentPage();
         });
@@ -47,7 +55,6 @@ export default class NavbarPlugin extends Plugin {
             this._debounce(() => {
                 if (this._isMouseOver && currentDropdown?._menu && !currentDropdown._menu.classList.contains('show')) {
                     this._closeAllDropdowns();
-                    this.$emitter.publish('closeAllDropdowns');
                     currentDropdown.show();
                     this.$emitter.publish('showDropdown');
                 }
@@ -64,6 +71,8 @@ export default class NavbarPlugin extends Plugin {
                 dropdown.hide();
             }
         });
+
+        this.$emitter.publish('closeAllDropdowns');
     }
 
     /**
@@ -120,5 +129,26 @@ export default class NavbarPlugin extends Plugin {
         if (activeNavItem) {
             activeNavItem.setAttribute('aria-current', 'page');
         }
+    }
+
+    /**
+     * Restores focus to the main-navigation link related to the currently active dropdown navigation.
+     * The focus state is lost when closing the dropdown via button using a keyboard.
+     *
+     * @param {FocusEvent} event
+     * @return {void}
+     */
+    _restoreFocusAfterBtnClose(event) {
+        if (event.relatedTarget || event.target.matches(this.options.topLevelLinksSelector)) {
+            return;
+        }
+
+        const link = event.target.closest(this.options.navItemSelector)?.querySelector(this.options.topLevelLinksSelector);
+
+        if (!link) {
+            return;
+        }
+
+        window.focusHandler.setFocus(link);
     }
 }

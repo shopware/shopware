@@ -18,6 +18,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\AttributeMappingDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\AttributeTranslationDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\DataAbstractionLayerException;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ManyToOneAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldType\DateInterval;
@@ -93,7 +94,9 @@ class AttributeEntityIntegrationTest extends TestCase
 
         static::assertInstanceOf(AttributeEntityDefinition::class, static::getContainer()->get('attribute_entity_with_hydrator.definition'));
         static::assertSame(EntityCollection::class, static::getContainer()->get('attribute_entity_with_hydrator.definition')->getCollectionClass());
-        static::assertSame(DummyHydrator::class, static::getContainer()->get('attribute_entity_with_hydrator.definition')->getHydratorClass());
+        $definition = static::getContainer()->get('attribute_entity_with_hydrator.definition');
+        static::assertInstanceOf(EntityDefinition::class, $definition);
+        static::assertSame(DummyHydrator::class, $definition->getHydratorClass());
 
         static::assertInstanceOf(AttributeMappingDefinition::class, static::getContainer()->get('attribute_entity_currency.definition'));
         static::assertInstanceOf(AttributeTranslationDefinition::class, static::getContainer()->get('attribute_entity_translation.definition'));

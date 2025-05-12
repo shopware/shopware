@@ -1,13 +1,8 @@
 /**
  * @sw-package framework
- */
-
-const { Component } = Shopware;
-
-/**
  * @private
  */
-Component.register('sw-vnode-renderer', {
+export default {
     ...(() => {
         return {};
     })(),
@@ -32,4 +27,4 @@ Component.register('sw-vnode-renderer', {
             required: true,
         },
     },
-});
+};

@@ -68,7 +68,7 @@ class AdvancedPackageRules extends SetGroupScopeFilter
     }
 
     /**
-     * @return array{array<string, LineItemQuantity>, array<string, LineItem>}
+     * @return array{array<int|string, LineItemQuantity>, array<int|string, LineItem>}
      */
     private function filterPackage(DiscountPackage $package, PriceDefinitionInterface $priceDefinition, SalesChannelContext $context): array
     {
@@ -96,8 +96,8 @@ class AdvancedPackageRules extends SetGroupScopeFilter
     }
 
     /**
-     * @param array<string, LineItemQuantity> $metaData
-     * @param array<string, LineItem> $cartItems
+     * @param array<int|string, LineItemQuantity> $metaData
+     * @param array<int|string, LineItem> $cartItems
      */
     private function createFilteredValuesPackage(array $metaData, array $cartItems): DiscountPackage
     {

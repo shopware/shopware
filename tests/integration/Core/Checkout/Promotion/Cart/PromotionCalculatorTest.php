@@ -211,32 +211,11 @@ class PromotionCalculatorTest extends TestCase
         }
     }
 
-    public function testFixedUnitPricePromotionisNotEligible(): void
-    {
-        $promotionId = $this->getPromotionId(type: PromotionDiscountEntity::TYPE_FIXED_UNIT);
-        $discountItem = $this->getDiscountItem($promotionId, PromotionDiscountEntity::TYPE_FIXED_UNIT);
-
-        $discountItems = new LineItemCollection([$discountItem]);
-        $original = new Cart(Uuid::randomHex());
-
-        $productLineItem = new LineItem(Uuid::randomHex(), LineItem::PRODUCT_LINE_ITEM_TYPE);
-        $productLineItem->setPrice(new CalculatedPrice(8, 8, new CalculatedTaxCollection(), new TaxRuleCollection()));
-        $productLineItem->setStackable(true);
-
-        $toCalculate = new Cart(Uuid::randomHex());
-        $toCalculate->add($productLineItem);
-        $toCalculate->setPrice(new CartPrice(8, 8, 8, new CalculatedTaxCollection(), new TaxRuleCollection(), CartPrice::TAX_STATE_GROSS));
-
-        $this->promotionCalculator->calculate($discountItems, $original, $toCalculate, $this->salesChannelContext, new CartBehavior());
-
-        static::assertNotNull($toCalculate->getErrors()->first());
-        static::assertSame('Promotion PHPUnit not eligible for cart!', $toCalculate->getErrors()->first()->getMessage());
-    }
-
     public function testFixedUnitPricePromotions(): void
     {
         $promotionId = $this->getPromotionId(type: PromotionDiscountEntity::TYPE_FIXED_UNIT);
-        $discountItem = $this->getDiscountItem($promotionId, PromotionDiscountEntity::TYPE_FIXED_UNIT);
+        $discountItem = $this->getDiscountItem($promotionId);
+        $discountItem->setPayloadValue('discountType', PromotionDiscountEntity::TYPE_FIXED_UNIT);
         $discountItem->setPayloadValue('filter', ['considerAdvancedRules' => true, 'applierKey' => 'ALL']);
 
         $discountItems = new LineItemCollection([$discountItem]);

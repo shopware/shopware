@@ -3,14 +3,12 @@ import type { PropType } from 'vue';
 import template from './sw-meteor-navigation.html.twig';
 import './sw-meteor-navigation.scss';
 
-const { Component } = Shopware;
-
 /**
  * @sw-package framework
  *
  * @private
  */
-Component.register('sw-meteor-navigation', {
+export default Shopware.Component.wrapComponentConfig({
     template,
 
     props: {

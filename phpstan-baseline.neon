@@ -2646,36 +2646,6 @@ parameters:
 			path: src/Storefront/Theme/AbstractResolvedConfigLoader.php
 
 		-
-			message: "#^Method Shopware\\\\Storefront\\\\Theme\\\\Aggregate\\\\ThemeTranslationEntity\\:\\:getHelpTexts\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Storefront/Theme/Aggregate/ThemeTranslationEntity.php
-
-		-
-			message: "#^Method Shopware\\\\Storefront\\\\Theme\\\\Aggregate\\\\ThemeTranslationEntity\\:\\:getLabels\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Storefront/Theme/Aggregate/ThemeTranslationEntity.php
-
-		-
-			message: "#^Method Shopware\\\\Storefront\\\\Theme\\\\Aggregate\\\\ThemeTranslationEntity\\:\\:setHelpTexts\\(\\) has parameter \\$helpTexts with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Storefront/Theme/Aggregate/ThemeTranslationEntity.php
-
-		-
-			message: "#^Method Shopware\\\\Storefront\\\\Theme\\\\Aggregate\\\\ThemeTranslationEntity\\:\\:setLabels\\(\\) has parameter \\$labels with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Storefront/Theme/Aggregate/ThemeTranslationEntity.php
-
-		-
-			message: "#^Property Shopware\\\\Storefront\\\\Theme\\\\Aggregate\\\\ThemeTranslationEntity\\:\\:\\$helpTexts type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Storefront/Theme/Aggregate/ThemeTranslationEntity.php
-
-		-
-			message: "#^Property Shopware\\\\Storefront\\\\Theme\\\\Aggregate\\\\ThemeTranslationEntity\\:\\:\\$labels type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Storefront/Theme/Aggregate/ThemeTranslationEntity.php
-
-		-
 			message: "#^Method Shopware\\\\Storefront\\\\Theme\\\\CachedResolvedConfigLoader\\:\\:load\\(\\) return type has no value type specified in iterable type array\\.$#"
 			count: 1
 			path: src/Storefront/Theme/CachedResolvedConfigLoader.php

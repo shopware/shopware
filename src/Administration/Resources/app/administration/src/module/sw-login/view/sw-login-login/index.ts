@@ -10,7 +10,7 @@ const { Component, Mixin } = Shopware;
 /**
  * @private
  */
-Component.register('sw-login-login', {
+export default Component.wrapComponentConfig({
     template,
 
     inject: [
@@ -47,7 +47,7 @@ Component.register('sw-login-login', {
 
     created() {
         if (!localStorage.getItem('sw-admin-locale')) {
-            Shopware.Store.get('session').setAdminLocale(navigator.language);
+            void Shopware.Store.get('session').setAdminLocale(navigator.language);
         }
     },
 
@@ -60,7 +60,7 @@ Component.register('sw-login-login', {
             return this.loginService
                 .loginByUsername(this.username, this.password)
                 .then(() => {
-                    this.handleLoginSuccess();
+                    void this.handleLoginSuccess();
                     this.$emit('is-not-loading');
                 })
                 .catch((response) => {
@@ -81,10 +81,12 @@ Component.register('sw-login-login', {
             });
 
             if (this.licenseViolationService) {
+                // eslint-disable-next-line @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-member-access
                 this.licenseViolationService.removeTimeFromLocalStorage(this.licenseViolationService.key.showViolationsKey);
             }
 
             return animationPromise.then(() => {
+                // @ts-expect-error
                 this.$parent.isLoginSuccess = false;
                 this.forwardLogin();
 
@@ -93,35 +95,41 @@ Component.register('sw-login-login', {
                 if (shouldReload) {
                     sessionStorage.removeItem('sw-login-should-reload');
                     // reload page to rebuild the administration with all dependencies
+                    // @ts-expect-error - force reload
                     window.location.reload(true);
                 }
             });
         },
 
         forwardLogin() {
-            const previousRoute = JSON.parse(sessionStorage.getItem('sw-admin-previous-route'));
+            // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+            const previousRoute = JSON.parse(sessionStorage.getItem('sw-admin-previous-route') as string);
             sessionStorage.removeItem('sw-admin-previous-route');
 
             const firstRunWizard = Shopware.Context.app.firstRunWizard;
 
             if (
                 firstRunWizard &&
+                // @ts-expect-error
+                // eslint-disable-next-line @typescript-eslint/no-unsafe-call
                 !this.$router?.currentRoute?.value?.name?.startsWith('sw.first.run.wizard') &&
                 this.$router.hasRoute('sw.first.run.wizard.index')
             ) {
-                this.$router.push({ name: 'sw.first.run.wizard.index' });
+                void this.$router.push({ name: 'sw.first.run.wizard.index' });
                 return;
             }
 
+            // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
             if (previousRoute?.fullPath) {
-                this.$router.push(previousRoute.fullPath);
+                // eslint-disable-next-line @typescript-eslint/no-unsafe-argument, @typescript-eslint/no-unsafe-member-access
+                void this.$router.push(previousRoute.fullPath);
                 return;
             }
 
-            this.$router.push({ name: 'core' });
+            void this.$router.push({ name: 'core' });
         },
 
-        handleLoginError(response) {
+        handleLoginError(response: unknown) {
             this.password = '';
 
             this.$emit('login-error');
@@ -132,7 +140,8 @@ Component.register('sw-login-login', {
             this.createNotificationFromResponse(response);
         },
 
-        createNotificationFromResponse(response) {
+        createNotificationFromResponse(response: unknown) {
+            // @ts-expect-error
             if (!response.response) {
                 this.createNotificationError({
                     message: this.$tc('sw-login.index.messageGeneralRequestError'),
@@ -140,10 +149,14 @@ Component.register('sw-login-login', {
                 return;
             }
 
+            /* eslint-disable @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-member-access */
+            // @ts-expect-error
             const url = response.config.url;
+            // @ts-expect-error
             let error = response.response.data.errors;
             error = Array.isArray(error) ? error[0] : error;
 
+            // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
             if (parseInt(error.status, 10) === 429) {
                 const seconds = error?.meta?.parameters?.seconds;
                 this.loginAlertMessage = this.$tc('sw-login.index.messageAuthThrottled', { seconds }, 0);
@@ -155,13 +168,19 @@ Component.register('sw-login-login', {
             }
 
             if (error.code?.length) {
-                const { message, title } = getErrorCode(parseInt(error.code, 10));
+                // eslint-disable-next-line max-len
+                const { message, title } = getErrorCode(parseInt(error.code as string, 10)) as {
+                    message: string;
+                    title: string;
+                };
 
                 this.createNotificationError({
                     title: this.$tc(title),
+                    // @ts-expect-error
                     message: this.$tc(message, 0, { url }),
                 });
             }
+            /* eslint-enable @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-member-access */
         },
     },
 });

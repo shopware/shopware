@@ -8,7 +8,7 @@ const { Component } = Shopware;
  * @private
  * @sw-package discovery
  */
-Component.register('sw-cms-el-preview-location-renderer', {
+export default Component.wrapComponentConfig({
     template,
 
     props: {

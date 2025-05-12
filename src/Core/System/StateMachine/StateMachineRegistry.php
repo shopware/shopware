@@ -152,6 +152,7 @@ class StateMachineRegistry implements ResetInterface
                 'toStateId' => $toPlace->getId(),
                 'transitionActionName' => $transition->getTransitionName(),
                 'userId' => $context->getSource() instanceof AdminApiSource ? $context->getSource()->getUserId() : null,
+                'integrationId' => $context->getSource() instanceof AdminApiSource ? $context->getSource()->getIntegrationId() : null,
                 'referencedId' => $transition->getEntityId(),
                 'referencedVersionId' => $context->getVersionId(),
             ];

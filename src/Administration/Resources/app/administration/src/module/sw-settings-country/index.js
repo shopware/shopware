@@ -1,10 +1,6 @@
 /**
  * @sw-package fundamentals@discovery
  */
-import './component/sw-settings-country-address-handling';
-import './component/sw-settings-country-new-snippet-modal';
-import './component/sw-multi-snippet-drag-and-drop';
-import './component/sw-settings-country-preview-template';
 
 import './acl';
 
@@ -29,6 +25,19 @@ Shopware.Component.register(
     'sw-settings-country-currency-hamburger-menu',
     () => import('./component/sw-settings-country-currency-hamburger-menu'),
 );
+Shopware.Component.register(
+    'sw-settings-country-preview-template',
+    () => import('./component/sw-settings-country-preview-template'),
+);
+Shopware.Component.register(
+    'sw-settings-country-new-snippet-modal',
+    () => import('./component/sw-settings-country-new-snippet-modal'),
+);
+Shopware.Component.register(
+    'sw-settings-country-address-handling',
+    () => import('./component/sw-settings-country-address-handling'),
+);
+Shopware.Component.register('sw-multi-snippet-drag-and-drop', () => import('./component/sw-multi-snippet-drag-and-drop'));
 /* eslint-enable max-len, sw-deprecation-rules/private-feature-declarations */
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations

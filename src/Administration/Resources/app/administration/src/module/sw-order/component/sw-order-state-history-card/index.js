@@ -113,6 +113,7 @@ export default {
             criteria.addAssociation('fromStateMachineState');
             criteria.addAssociation('toStateMachineState');
             criteria.addAssociation('user');
+            criteria.addAssociation('integration');
             criteria.addSorting({
                 field: 'state_machine_history.createdAt',
                 order: 'ASC',

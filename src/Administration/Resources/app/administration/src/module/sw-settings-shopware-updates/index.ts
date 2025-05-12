@@ -2,14 +2,23 @@
  * @sw-package framework
  */
 
-import './page/sw-settings-shopware-updates-wizard';
-import './page/sw-settings-shopware-updates-index';
-import './view/sw-settings-shopware-updates-info';
-import './view/sw-settings-shopware-updates-requirements';
-import './view/sw-settings-shopware-updates-plugins';
 import './acl';
 
-const { Module } = Shopware;
+const { Component, Module } = Shopware;
+
+/** @private */
+Component.register(
+    'sw-settings-shopware-updates-requirements',
+    () => import('./view/sw-settings-shopware-updates-requirements'),
+);
+/** @private */
+Component.register('sw-settings-shopware-updates-plugins', () => import('./view/sw-settings-shopware-updates-plugins'));
+/** @private */
+Component.register('sw-settings-shopware-updates-info', () => import('./view/sw-settings-shopware-updates-info'));
+/** @private */
+Component.register('sw-settings-shopware-updates-index', () => import('./page/sw-settings-shopware-updates-index'));
+/** @private */
+Component.register('sw-settings-shopware-updates-wizard', () => import('./page/sw-settings-shopware-updates-wizard'));
 
 /**
  * @private

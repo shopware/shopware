@@ -6,6 +6,7 @@ use Shopware\Core\Content\Category\Service\NavigationLoaderInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Routing\RoutingException;
 use Shopware\Core\System\Currency\CurrencyCollection;
@@ -50,20 +51,22 @@ class HeaderPageletLoader implements HeaderPageletLoaderInterface
             $salesChannel->getNavigationCategoryDepth()
         );
         $languages = $this->getLanguages($context, $request);
-        $currencies = $this->getCurrencies($request, $context);
-
-        $contextLanguage = $languages->get($context->getLanguageId());
-        if (!$contextLanguage) {
-            throw SalesChannelException::languageNotFound($context->getLanguageId());
-        }
 
         $page = new HeaderPagelet(
             $navigation,
             $languages,
-            $currencies,
-            $contextLanguage,
-            $context->getCurrency(),
+            $this->getCurrencies($request, $context),
         );
+
+        if (!Feature::isActive('v6.8.0.0')) {
+            $contextLanguage = $languages->get($context->getLanguageId());
+            if (!$contextLanguage) {
+                throw SalesChannelException::languageNotFound($context->getLanguageId());
+            }
+
+            $page->setActiveLanguage($contextLanguage);
+            $page->setActiveCurrency($context->getCurrency());
+        }
 
         $this->eventDispatcher->dispatch(new HeaderPageletLoadedEvent($page, $context, $request));
 

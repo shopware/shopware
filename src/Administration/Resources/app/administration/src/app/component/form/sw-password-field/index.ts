@@ -10,7 +10,7 @@ import template from './sw-password-field.html.twig';
  * @deprecated tag:v6.8.0 - Will be removed, use mt-password-field instead.
  */
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
-Shopware.Component.register('sw-password-field', {
+export default Shopware.Component.wrapComponentConfig({
     template,
 
     props: {

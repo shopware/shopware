@@ -4,13 +4,12 @@
 
 import template from './sw-one-to-many-grid.html.twig';
 
-const { Component } = Shopware;
 const { Criteria } = Shopware.Data;
 
 /**
  * @private
  */
-Component.extend('sw-one-to-many-grid', 'sw-data-grid', {
+export default {
     template,
 
     inject: ['repositoryFactory'],
@@ -40,7 +39,7 @@ Component.extend('sw-one-to-many-grid', 'sw-data-grid', {
             ],
             required: false,
             default(props) {
-                return (props.localMode && props.collection) ? props.collection : null;
+                return props.localMode && props.collection ? props.collection : null;
             },
         },
         allowDelete: {
@@ -254,4 +253,4 @@ Component.extend('sw-one-to-many-grid', 'sw-data-grid', {
             return this.load();
         },
     },
-});
+};

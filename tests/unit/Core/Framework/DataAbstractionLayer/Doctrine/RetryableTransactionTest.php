@@ -41,6 +41,6 @@ class RetryableTransactionTest extends TestCase
         }
 
         static::assertInstanceOf(RetryableException::class, $e);
-        static::assertEquals(11, $counter);
+        static::assertSame(11, $counter);
     }
 }

@@ -7,7 +7,8 @@ const { mapPropertyErrors } = Component.getComponentHelper();
 /**
  * @sw-package fundamentals@after-sales
  */
-Component.extend('sw-condition-line-item-purchase-price', 'sw-condition-base-line-item', {
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
+export default {
     template,
 
     inject: ['feature'],
@@ -58,4 +59,4 @@ Component.extend('sw-condition-line-item-purchase-price', 'sw-condition-base-lin
             }
         },
     },
-});
+};

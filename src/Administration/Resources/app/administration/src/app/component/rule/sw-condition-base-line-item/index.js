@@ -1,7 +1,6 @@
 import template from './sw-condition-base-line-item.html.twig';
 import './sw-condition-base-line-item.scss';
 
-const { Component } = Shopware;
 const { EntityCollection } = Shopware.Data;
 
 /**
@@ -13,7 +12,8 @@ const { EntityCollection } = Shopware.Data;
  * @component-example
  * <sw-condition-base-line-item :condition="condition"></sw-condition-base-line-item>
  */
-Component.extend('sw-condition-base-line-item', 'sw-condition-base', {
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
+export default {
     template,
 
     inject: [
@@ -116,4 +116,4 @@ Component.extend('sw-condition-base-line-item', 'sw-condition-base', {
             return entity;
         },
     },
-});
+};

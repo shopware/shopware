@@ -13,7 +13,7 @@ const { EntityCollection } = Shopware.Data;
  * @component-example
  * <sw-condition-all-line-items-container :condition="condition" :level="0"></sw-condition-all-line-items-container>
  */
-Component.register('sw-condition-all-line-items-container', {
+export default {
     template,
 
     provide() {
@@ -120,4 +120,4 @@ Component.register('sw-condition-all-line-items-container', {
             this.$emit('create-after');
         },
     },
-});
+};

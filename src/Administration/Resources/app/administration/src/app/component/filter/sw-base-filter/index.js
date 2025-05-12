@@ -5,12 +5,10 @@
 import template from './sw-base-filter.html.twig';
 import './sw-base-filter.scss';
 
-const { Component } = Shopware;
-
 /**
  * @private
  */
-Component.register('sw-base-filter', {
+export default {
     template,
 
     emits: ['filter-reset'],
@@ -43,4 +41,4 @@ Component.register('sw-base-filter', {
             this.$emit('filter-reset');
         },
     },
-});
+};

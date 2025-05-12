@@ -172,6 +172,11 @@ Component.register('sw-entity-single-select', {
             required: false,
             default: 'default',
         },
+        popoverClasses: {
+            type: Array,
+            required: false,
+            default: () => [],
+        },
     },
 
     data() {

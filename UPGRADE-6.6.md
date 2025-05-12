@@ -469,6 +469,42 @@ The SalesChannelId is now available in the SystemConfigChangedHook (`app.config.
 }
 ```
 
+## E-Invoice
+### New document config fields
+The current field “Company address” cannot be used for e-invoices, as it is a single field with values separated by " - ". Therefore, new atomic fields will be added and the old one will be marked as “deprecated”.
+To create a valid e-invoice document, these new fields must be filled in. However, the normal PDF invoice document still uses the old field, which will be replaced by the new ones in the next major version.
+
+### AbstractDocumentRenderer render workflow
+#### PDF renderer
+With the next major version, the PDF rendering will be moved from the `\Shopware\Core\Checkout\Document\Service\DocumentGenerator` to each renderer with a PDF document.
+Each implementation of the `\Shopware\Core\Checkout\Document\Renderer\AbstractDocumentRenderer` class needs to set the fully rendered file with `\Shopware\Core\Checkout\Document\Renderer\RenderedDocument::setContent()`.
+With this change, the `\Shopware\Core\Checkout\Document\Renderer\RenderedDocument::html` property is not needed anymore and will be removed.
+
+The content of a PDF document must be rendered within the renderer for the next major version.
+```php
+$doc = new RenderedDocument(
+    $html, // @deprecated html property will be removed 
+    $number,
+    $config->buildName(),
+    $operation->getFileType(),
+    $config->jsonSerialize(),
+);
+if (Feature::isActive('v6.7.0.0')) {
+    $doc->setContent($this->pdfRenderer->render($doc, $html));
+}
+```
+
+#### New document filetypes
+The new `\Shopware\Core\Checkout\Document\Service\DocumentFileRendererRegistry` allows creating other types of files besides `PDF`'s.
+As example, the `\Shopware\Core\Checkout\Document\Service\XmlRenderer` will be called, if the file type is "xml".
+
+New renderer need to extend `\Shopware\Core\Checkout\Document\Service\AbstractDocumentTypeRenderer` and the service need to have the file type as a service tag
+```xml
+<service id="Shopware\Core\Checkout\Document\Service\XmlRenderer">
+    <tag name="document_type.renderer" key="xml"/>
+</service>
+```
+
 # 6.6.9.0
 
 ## SCSS Values will be validated and sanitized

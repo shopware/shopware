@@ -7,7 +7,7 @@ const { Component } = Shopware;
  * @sw-package framework
  * @private
  */
-Component.register('sw-settings-shopware-updates-info', {
+export default Component.wrapComponentConfig({
     template,
 
     props: {

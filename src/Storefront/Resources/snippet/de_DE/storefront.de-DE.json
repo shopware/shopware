@@ -84,6 +84,7 @@
     "indexLinkService": "Service/Hilfe",
     "searchNoResult": "Keine Suchergebnisse gefunden.",
     "wishlist": "Merkzettel",
+    "wishlistAriaLiveTemplate": "Du hast %counter% Produkte auf dem Merkzettel",
     "navigationAriaLabel": "Hauptnavigation",
     "topBarAriaLabel": "Shop-Einstellungen",
     "languageTrigger": "Sprache ändern (%lang% ist die aktuelle Sprache)",

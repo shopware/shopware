@@ -2,7 +2,6 @@ import { computed } from 'vue';
 import template from './sw-grid.html.twig';
 import './sw-grid.scss';
 
-const { Component } = Shopware;
 const { dom } = Shopware.Utils;
 
 /**
@@ -30,7 +29,7 @@ const { dom } = Shopware.Utils;
  * </sw-grid>
  */
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
-Component.register('sw-grid', {
+export default {
     template,
 
     provide() {
@@ -338,4 +337,4 @@ Component.register('sw-grid', {
             this.$refs.rowRefs.at(-1).startInlineEditing();
         },
     },
-});
+};

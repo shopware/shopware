@@ -4,13 +4,12 @@
 
 import template from './sw-multi-select-filter.html.twig';
 
-const { Component } = Shopware;
 const { Criteria, EntityCollection } = Shopware.Data;
 
 /**
  * @private
  */
-Component.register('sw-multi-select-filter', {
+export default {
     template,
 
     inject: ['repositoryFactory'],
@@ -119,4 +118,4 @@ Component.register('sw-multi-select-filter', {
             this.$emit('filter-reset', this.filter.name);
         },
     },
-});
+};

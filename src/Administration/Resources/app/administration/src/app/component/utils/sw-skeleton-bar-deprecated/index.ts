@@ -5,11 +5,9 @@
 import template from './sw-skeleton-bar-deprecated.html.twig';
 import './sw-skeleton-bar.scss';
 
-const { Component } = Shopware;
-
 /**
  * @private
  */
-Component.register('sw-skeleton-bar-deprecated', {
+export default Shopware.Component.wrapComponentConfig({
     template,
 });

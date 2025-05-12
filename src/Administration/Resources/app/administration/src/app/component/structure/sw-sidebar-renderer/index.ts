@@ -6,12 +6,10 @@ import { computed } from 'vue';
 import template from './sw-sidebar-renderer.html.twig';
 import './sw-sidebar-renderer.scss';
 
-const { Component } = Shopware;
-
 /**
  * @private
  */
-Component.register('sw-sidebar-renderer', {
+export default Shopware.Component.wrapComponentConfig({
     template,
 
     setup() {

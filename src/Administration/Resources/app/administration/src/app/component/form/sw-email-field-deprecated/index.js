@@ -1,7 +1,5 @@
 import template from './sw-email-field-deprecated.html.twig';
 
-const { Component } = Shopware;
-
 /**
  * @sw-package framework
  *
@@ -12,11 +10,11 @@ const { Component } = Shopware;
  * @component-example
  * <sw-email-field label="Name" placeholder="The placeholder goes here..."></sw-email-field>
  */
-Component.extend('sw-email-field-deprecated', 'sw-text-field-deprecated', {
+export default {
     template,
 
     emits: [
         'inheritance-restore',
         'inheritance-remove',
     ],
-});
+};

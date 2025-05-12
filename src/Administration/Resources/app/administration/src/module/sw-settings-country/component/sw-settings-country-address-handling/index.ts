@@ -44,7 +44,7 @@ const DefaultAddressFormat = [
  *
  * @private
  */
-Component.register('sw-settings-country-address-handling', {
+export default Component.wrapComponentConfig({
     template,
 
     inject: [

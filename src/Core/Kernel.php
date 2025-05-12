@@ -5,9 +5,6 @@ namespace Shopware\Core;
 use Composer\Autoload\ClassLoader;
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\Exception as DBALException;
-use League\Flysystem\Filesystem;
-use League\Flysystem\FilesystemOperator;
-use League\Flysystem\Local\LocalFilesystemAdapter;
 use Shopware\Core\DevOps\Environment\EnvironmentHelper;
 use Shopware\Core\Framework\Adapter\Database\MySQLFactory;
 use Shopware\Core\Framework\Api\Controller\FallbackController;
@@ -24,6 +21,7 @@ use Symfony\Bundle\FrameworkBundle\Kernel\MicroKernelTrait;
 use Symfony\Component\Config\ConfigCache;
 use Symfony\Component\Config\Loader\LoaderInterface;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
+use Symfony\Component\Filesystem\Filesystem;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Bundle\Bundle;
@@ -69,8 +67,6 @@ class Kernel extends HttpKernel
 
     private bool $rebooting = false;
 
-    private FilesystemOperator $filesystem;
-
     private string $cacheRootDir;
 
     /**
@@ -84,7 +80,6 @@ class Kernel extends HttpKernel
         string $version,
         Connection $connection,
         protected string $projectDir,
-        ?FilesystemOperator $filesystem = null,
     ) {
         date_default_timezone_set('UTC');
 
@@ -98,7 +93,6 @@ class Kernel extends HttpKernel
         $this->shopwareVersionRevision = $versionArray['revision'];
 
         $this->cacheRootDir = EnvironmentHelper::getVariable('APP_CACHE_DIR', $this->getProjectDir()) . '/var/cache';
-        $this->filesystem = $filesystem ?? new Filesystem(new LocalFilesystemAdapter($this->cacheRootDir));
     }
 
     public function registerBundles(): iterable
@@ -395,7 +389,8 @@ class Kernel extends HttpKernel
     {
         parent::dumpContainer($cache, $container, $class, $baseClass);
 
-        $this->filesystem->write('CACHEDIR.TAG', 'Signature: 8a477f597d28d172789f06886806bc55');
+        $filesystem = new Filesystem();
+        $filesystem->dumpFile($this->cacheRootDir . \DIRECTORY_SEPARATOR . 'CACHEDIR.TAG', 'Signature: 8a477f597d28d172789f06886806bc55');
 
         $cacheDir = $container->getParameter('kernel.cache_dir');
 
@@ -415,8 +410,8 @@ require_once __DIR__ . '/#CACHE_PATH#';
 PHP;
 
         // Dumps the preload file to an always known location outside the generated cache folder name
-        $this->filesystem->write(
-            'opcache-preload.php',
+        $filesystem->dumpFile(
+            $this->cacheRootDir . \DIRECTORY_SEPARATOR . 'opcache-preload.php',
             str_replace(
                 '#CACHE_PATH#',
                 $cacheDirectoryName . \DIRECTORY_SEPARATOR . $containerPreloadFileName,

@@ -1,7 +1,7 @@
 {% block layout_navbar %}
     <div class="container">
         {% set navbarOptions = {
-            activeRootId: shopware.navigation.pathIdList[0],
+            activeRootId: shopware.navigation.getPathIdListFirst(),
         } %}
 
         <nav class="navbar navbar-expand-lg main-navigation-menu"

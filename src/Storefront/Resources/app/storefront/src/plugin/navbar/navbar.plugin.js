@@ -16,8 +16,8 @@ export default class NavbarPlugin extends Plugin {
          */
         ariaCurrentPageSelector: '.nav-item-{id}-link',
 
-        activeCLass: 'active',
-        activeRootCLass: 'active-root',
+        activeClass: 'active',
+        activeRootClass: 'active-root',
         activeRootId: '',
     };
 
@@ -43,7 +43,7 @@ export default class NavbarPlugin extends Plugin {
         });
 
         window.addEventListener('load', () => {
-            this._setAriaCurrentPage();
+            this._setCurrentPage();
         });
     }
 
@@ -118,23 +118,23 @@ export default class NavbarPlugin extends Plugin {
     }
 
     /**
-     * Sets the aria-current attribute on the configured selector.
+     * Sets the active class and aria-current attribute on the configured selectors.
      * @private
      */
-    _setAriaCurrentPage() {
+    _setCurrentPage() {
         if (!window.activeNavigationId) { return; }
-        const navItemselector = this.options.ariaCurrentPageSelector.replace('{id}', window.activeNavigationId);
+        const navItemSelector = this.options.ariaCurrentPageSelector.replace('{id}', window.activeNavigationId);
         const rootNavItemSelector = this.options.ariaCurrentPageSelector.replace('{id}', this.options.activeRootId);
-        const activeNavItem = this.el.querySelector(navItemselector);
-        const activeRootNavItem = this.el.querySelector(rootNavItemSelector)
-        
+        const activeNavItem = this.el.querySelector(navItemSelector);
+        const activeRootNavItem = this.el.querySelector(rootNavItemSelector);
+
         if (activeNavItem) {
             activeNavItem.setAttribute('aria-current', 'page');
-            activeNavItem.classList.add(this.options.activeCLass);
+            activeNavItem.classList.add(this.options.activeClass);
         }
 
         if (activeRootNavItem) {
-            activeRootNavItem.classList.add(this.options.activeRootCLass);
+            activeRootNavItem.classList.add(this.options.activeRootClass);
         }
     }
 }

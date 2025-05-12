@@ -12,6 +12,10 @@ parameters:
     checkFunctionNameCase: true
     checkInternalClassCaseSensitivity: true
 
+    # Would otherwise flag usage of internal classes from different namespaces
+    featureToggles:
+        internalTag: false
+
     type_perfect:
         no_mixed_property: true
         no_mixed_caller: true

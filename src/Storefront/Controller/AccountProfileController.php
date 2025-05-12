@@ -108,7 +108,7 @@ class AccountProfileController extends StorefrontController
     }
 
     #[Route(path: '/account/profile/password', name: 'frontend.account.profile.password.save', defaults: ['_loginRequired' => true], methods: ['POST'])]
-    public function savePassword(RequestDataBag $data, SalesChannelContext $context, CustomerEntity $customer): Response
+    public function savePassword(RequestDataBag $data, SalesChannelContext $context, CustomerEntity $customer, Request $request): Response
     {
         try {
             $passwordParam = $data->get('password');
@@ -122,6 +122,10 @@ class AccountProfileController extends StorefrontController
             $this->addFlash(self::DANGER, $this->trans('account.passwordChangeNoSuccess'));
 
             return $this->forwardToRoute('frontend.account.profile.page', ['formViolations' => $formViolations, 'passwordFormViolation' => true]);
+        }
+
+        if ($request->get('redirectTo') || $request->get('forwardTo')) {
+            return $this->createActionResponse($request);
         }
 
         return $this->redirectToRoute('frontend.account.profile.page');

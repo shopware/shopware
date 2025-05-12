@@ -490,15 +490,14 @@ export default {
                 currencyMapping[currency.id] = currency.factor;
             });
 
-            [...this.discount.promotionDiscountPrices].forEach((price) => {
-                if (currencyMapping[price.currencyId] === undefined) {
-                    this.discount.promotionDiscountPrices.remove(price.id);
-                } else {
+            this.discount.promotionDiscountPrices = this.discount.promotionDiscountPrices
+                .filter((price) => currencyMapping[price.currencyId] !== undefined)
+                .map((price) => {
                     const setPrice = (basePrice ?? discountHandler.getMinValue()) * currencyMapping[price.currencyId];
+                    price.price = Math.min(setPrice, discountHandler.getMinValue());
 
-                    price.price = setPrice < discountHandler.getMinValue() ? discountHandler.getMinValue() : setPrice;
-                }
-            });
+                    return price;
+                });
         },
 
         prepareAdvancedPrices(currency, basePrice) {

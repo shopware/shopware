@@ -138,6 +138,10 @@
       "labelAvailableStock": "Available stock",
       "labelPurchaseSteps": "Purchase steps"
     },
+    "measurementForm": {
+      "description": "Enter the product’s dimensions and weight as provided. They’ll be automatically converted into all supported measurement units.",
+      "note": "<b>Note:</b> The units displayed to customers are determined by the settings of the assigned Sales Channels."
+    },
     "packagingForm": {
       "description": "Define how the product is sold and packaged. This information is shown to customers in the storefront.",
       "labelProductUnit": "Product unit",
@@ -173,6 +177,7 @@
       "manageStockTooltip": "If the stock is not managed, the digital product is available for an infinite amount of transactions."
     },
     "specifications": {
+      "cardTitleMeasurement": "Product measurements",
       "cardTitleSellingPackaging": "Selling & Packaging Information",
       "cardTitleEssentialCharacteristics": "Essential Characteristics",
       "cardTitleCustomFields": "Custom fields",

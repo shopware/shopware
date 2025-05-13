@@ -5,14 +5,12 @@
 import template from './sw-app-wrong-app-url-modal.html.twig';
 import './sw-app-wrong-app-url-modal.scss';
 
-const { Component } = Shopware;
-
 const STORAGE_KEY_WAS_WRONG_APP_MODAL_SHOWN = 'sw-app-wrong-app-url-modal-shown';
 
 /**
  * @private
  */
-Component.register('sw-app-wrong-app-url-modal', {
+export default {
     template,
 
     emits: ['modal-close'],
@@ -82,4 +80,4 @@ Component.register('sw-app-wrong-app-url-modal', {
             Shopware.Store.get('notification').removeNotification(this.notification);
         },
     },
-});
+};

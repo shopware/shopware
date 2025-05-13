@@ -1,6 +1,6 @@
 import template from './sw-form-field-renderer.html.twig';
 
-const { Component, Mixin } = Shopware;
+const { Mixin } = Shopware;
 const { types } = Shopware.Utils;
 /**
  * @sw-package framework
@@ -67,7 +67,7 @@ const { types } = Shopware.Utils;
  *     }">
  * </sw-form-field-renderer>
  */
-Component.register('sw-form-field-renderer', {
+export default {
     template,
 
     inheritAttrs: false,
@@ -376,4 +376,4 @@ Component.register('sw-form-field-renderer', {
             return this.$slots;
         },
     },
-});
+};

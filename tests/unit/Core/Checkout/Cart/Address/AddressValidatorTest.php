@@ -177,8 +177,8 @@ class AddressValidatorTest extends TestCase
         $errorCollection = new ErrorCollection();
         $this->validator->validate($cart, $errorCollection, $context);
 
-        static::assertEquals(1, $errorCollection->count());
-        // @phpstan-ignore-next-line > Object will not be null since there is an object in the collection
+        static::assertCount(1, $errorCollection);
+        static::assertNotNull($errorCollection->first());
         static::assertEquals(BillingAddressSalutationMissingError::class, \get_class($errorCollection->first()));
     }
 
@@ -233,11 +233,11 @@ class AddressValidatorTest extends TestCase
         $errorCollection = new ErrorCollection();
         $this->validator->validate($cart, $errorCollection, $context);
 
-        static::assertEquals(2, $errorCollection->count());
-        // @phpstan-ignore-next-line > Object will not be null since there are 2 objects in the collection
-        static::assertEquals(BillingAddressCountryRegionMissingError::class, \get_class($errorCollection->first()));
-        // @phpstan-ignore-next-line > Object will not be null since there are 2 objects in the collection
-        static::assertEquals(ShippingAddressCountryRegionMissingError::class, \get_class($errorCollection->last()));
+        static::assertCount(2, $errorCollection);
+        static::assertNotNull($errorCollection->first());
+        static::assertNotNull($errorCollection->last());
+        static::assertSame(BillingAddressCountryRegionMissingError::class, \get_class($errorCollection->first()));
+        static::assertSame(ShippingAddressCountryRegionMissingError::class, \get_class($errorCollection->last()));
     }
 
     public function testValidateAddressWithState(): void

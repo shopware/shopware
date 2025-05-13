@@ -17,6 +17,8 @@ use Shopware\Core\Test\TestDefaults;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
 /**
+ * @codeCoverageIgnore
+ *
  * @internal
  */
 #[Package('checkout')]
@@ -392,8 +394,14 @@ trait PromotionTestFixtureBehaviour
      * function creates a promotion and a discount for it.
      * function returns the id of the new discount
      */
-    private function createTestFixtureFixedDiscountPromotion(string $promotionId, float $fixedPrice, string $scope, ?string $code, ContainerInterface $container, SalesChannelContext $context): string
-    {
+    private function createTestFixtureFixedDiscountPromotion(
+        string $promotionId,
+        float $fixedPrice,
+        string $scope,
+        ?string $code,
+        ContainerInterface $container,
+        SalesChannelContext $context
+    ): string {
         /** @var EntityRepository $promotionRepository */
         $promotionRepository = $container->get('promotion.repository');
 
@@ -404,17 +412,14 @@ trait PromotionTestFixtureBehaviour
             $context
         );
 
-        $discountId = $this->createTestFixtureDiscount(
+        return $this->createTestFixtureDiscount(
             $promotionId,
             PromotionDiscountEntity::TYPE_FIXED,
             $scope,
             $fixedPrice,
             null,
             static::getContainer(),
-            $context,
-            false
+            $context
         );
-
-        return $discountId;
     }
 }

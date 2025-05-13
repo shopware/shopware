@@ -117,14 +117,11 @@ class PluginLifecycleServiceTest extends TestCase
         );
     }
 
-    // +++++ InstallPlugin method ++++
-
     public function testInstallPlugin(): void
     {
         $pluginEntityMock = $this->getPluginEntityMock();
         $context = Context::createDefaultContext();
 
-        /** postInstall is called */
         $this->pluginMock->expects($this->once())->method('postInstall');
 
         $this->pluginLifecycleService->installPlugin($pluginEntityMock, $context);
@@ -542,10 +539,6 @@ class PluginLifecycleServiceTest extends TestCase
         $this->pluginLifecycleService->activatePlugin($pluginEntityMock, $context);
     }
 
-    // ------ ActivatePlugin -----
-
-    // +++++ DeactivatePlugin method ++++
-
     public function testDeactivatePlugin(): void
     {
         $pluginEntityMock = $this->getPluginEntityMock();
@@ -654,15 +647,10 @@ class PluginLifecycleServiceTest extends TestCase
         $this->pluginLifecycleService->deactivatePlugin($pluginEntityMock, $context);
     }
 
-    // ------ DeactivatePlugin -----
-
-    // ++++++ privates +++++++
-
     public function testPluginBaseClassNotSet(): void
     {
         $pluginEntityMock = new PluginEntity();
-        // @phpstan-ignore-next-line -> phpstan enforces correct base class strings
-        $pluginEntityMock->setBaseClass('MockPlugin');
+        $pluginEntityMock->setBaseClass(Plugin::class);
         $context = Context::createDefaultContext();
 
         $this->kernelPluginCollectionMock->method('get')->willReturn(null);

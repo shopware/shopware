@@ -5,8 +5,6 @@
 import template from './sw-notifications.html.twig';
 import './sw-notifications.scss';
 
-const { Component } = Shopware;
-
 /**
  * @private
  * @description
@@ -14,7 +12,7 @@ const { Component } = Shopware;
  * @status ready
  * @example-type code-only
  */
-Component.register('sw-notifications', {
+export default {
     template,
 
     inject: ['feature'],
@@ -130,4 +128,4 @@ Component.register('sw-notifications', {
             return 'neutral';
         },
     },
-});
+};

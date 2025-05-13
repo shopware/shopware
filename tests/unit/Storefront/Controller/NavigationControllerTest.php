@@ -11,9 +11,7 @@ use Shopware\Core\Content\Category\CategoryCollection;
 use Shopware\Core\Content\Category\Tree\Tree;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\Currency\CurrencyCollection;
-use Shopware\Core\System\Currency\CurrencyEntity;
 use Shopware\Core\System\Language\LanguageCollection;
-use Shopware\Core\System\Language\LanguageEntity;
 use Shopware\Core\Test\Generator;
 use Shopware\Storefront\Controller\NavigationController;
 use Shopware\Storefront\Page\Navigation\NavigationPage;
@@ -91,14 +89,15 @@ class NavigationControllerTest extends TestCase
 
     public function testHeaderRendersStorefront(): void
     {
-        $request = new Request();
+        $request = new Request(['headerParameters' => ['foo' => 'bar']]);
         $context = Generator::generateSalesChannelContext();
-        $headerPagelet = new HeaderPagelet(new Tree(null, []), new LanguageCollection(), new CurrencyCollection(), new LanguageEntity(), new CurrencyEntity());
+        $headerPagelet = new HeaderPagelet(new Tree(null, []), new LanguageCollection(), new CurrencyCollection());
 
         $this->headerLoader->expects($this->once())->method('load')->with($request, $context)->willReturn($headerPagelet);
 
         $this->controller->header($request, $context);
         static::assertSame('@Storefront/storefront/layout/header.html.twig', $this->controller->renderStorefrontView);
+        static::assertSame(['foo' => 'bar'], $this->controller->renderStorefrontParameters['headerParameters']);
 
         static::assertInstanceOf(HeaderPageletLoadedHook::class, $this->controller->calledHook);
         static::assertSame($headerPagelet, $this->controller->calledHook->getPage());
@@ -106,7 +105,7 @@ class NavigationControllerTest extends TestCase
 
     public function testFooterRendersStorefront(): void
     {
-        $request = new Request();
+        $request = new Request(['footerParameters' => ['foo' => 'bar']]);
         $context = Generator::generateSalesChannelContext();
         $footerPagelet = new FooterPagelet(null, new CategoryCollection(), new PaymentMethodCollection(), new ShippingMethodCollection());
 
@@ -114,6 +113,7 @@ class NavigationControllerTest extends TestCase
 
         $this->controller->footer($request, $context);
         static::assertSame('@Storefront/storefront/layout/footer.html.twig', $this->controller->renderStorefrontView);
+        static::assertSame(['foo' => 'bar'], $this->controller->renderStorefrontParameters['footerParameters']);
 
         static::assertInstanceOf(FooterPageletLoadedHook::class, $this->controller->calledHook);
         static::assertSame($footerPagelet, $this->controller->calledHook->getPage());

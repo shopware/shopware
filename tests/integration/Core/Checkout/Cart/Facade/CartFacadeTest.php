@@ -153,7 +153,7 @@ class CartFacadeTest extends TestCase
     {
         $this->loadAppsFromDir(__DIR__ . '/_fixtures');
 
-        $hook = $this->createTestHook($hook, $this->ids);
+        $hook = $this->createTestHook($hook);
 
         $service = static::getContainer()
             ->get(CartFacadeHookFactory::class)
@@ -408,19 +408,14 @@ class CartFacadeTest extends TestCase
         }
     }
 
-    /**
-     * @param array<string, mixed> $data
-     */
-    private function createTestHook(string $case, IdsCollection $ids, array $data = []): CartTestHook
+    private function createTestHook(string $case): CartTestHook
     {
         $context = static::getContainer()->get(SalesChannelContextFactory::class)
             ->create(Uuid::randomHex(), TestDefaults::SALES_CHANNEL, []);
 
         $cart = $this->createCart();
 
-        $data['ids'] = $ids;
-
-        return new CartTestHook($case, $cart, $context, $data, [CartFacadeHookFactory::class]);
+        return new CartTestHook($case, $cart, $context, $this->ids, [CartFacadeHookFactory::class]);
     }
 
     private function init(): IdsCollection

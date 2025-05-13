@@ -6,6 +6,11 @@ import './page/index';
 import deDE from "./snippet/de-DE.json";
 import enGB from "./snippet/en-GB.json";
 
+/**
+ * @private
+ */
+Shopware.Component.register('sw-sso-error-index', () => import('./page/index'));
+
 const { Module } = Shopware;
 
 /**

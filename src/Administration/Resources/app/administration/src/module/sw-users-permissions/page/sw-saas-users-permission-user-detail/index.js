@@ -245,9 +245,6 @@ export default {
             this.registerLoading();
 
             this.integrationService.generateKey({}, {}, true).then((response) => {
-                // TODO: REMOVE AFTER DEBUG
-                console.log(response);
-                // TODO: REMOVE AFTER DEBUG
                 this.newAccessKey = response.accessKey;
                 this.newSecretAccessKey = response.secretAccessKey;
 

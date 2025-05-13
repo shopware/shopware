@@ -137,7 +137,7 @@ describe('module/sw-users-permissions/components/sw-user-saas-invitation-modal/s
     });
 
     it('should throw "user-invited" event', async () => {
-        Shopware.Application.getContainer('service')['saasInvitationService'] = {
+        Shopware.Application.getContainer('service').saasInvitationService = {
             inviteUser: () => {
                 return Promise.resolve();
             },

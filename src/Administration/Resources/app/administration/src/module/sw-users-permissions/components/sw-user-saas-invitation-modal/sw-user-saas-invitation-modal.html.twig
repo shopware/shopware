@@ -1,32 +1,34 @@
-<sw-modal :title="$tc('sw-users-permissions.saas.modal.title')"
-          v-bind="$attrs"
-          @modal-close="closeModal()"
+<sw-modal
+    :title="$tc('sw-users-permissions.saas.modal.title')"
+    v-bind="$attrs"
+    @modal-close="closeModal()"
 >
 
     <template #default>
         <mt-text-field
+            v-model="email"
             class="sw-users-permissions-saas-modal-field-email"
             :label="$tc('sw-users-permissions.saas.modal.labelEmail')"
             :placeholder="$tc('sw-users-permissions.saas.modal.placeholderEmail')"
             :error="errors.errorEmail"
-            v-model="email">
-        </mt-text-field>
+        />
 
         <sw-single-select
+            v-model:value="languageId"
             class="sw-users-permissions-saas-modal-field-language"
             :options="languages"
-            labelProperty="name"
-            valueProperty="id"
+            label-property="name"
+            value-property="id"
             :label="$tc('sw-users-permissions.saas.modal.labelLanguage')"
             :placeholder="$tc('sw-users-permissions.saas.modal.placeholderLanguage')"
             :error="errors.errorLanguage"
-            v-model:value="languageId">
-        </sw-single-select>
+        />
     </template>
 
     <template #modal-footer>
         <mt-button
             class="sw-users-permissions-saas-modal-close-button"
+            variant="secondary"
             @click="closeModal()"
         >
             {{ $tc('global.default.cancel') }}
@@ -36,7 +38,8 @@
             variant="primary"
             class="sw-users-permissions-saas-modal-save-button"
             :disabled="hasError"
-            @click="sendInvitation">
+            @click="sendInvitation"
+        >
             {{ $tc('sw-users-permissions.saas.modal.labelButtonInvite') }}
         </mt-button>
     </template>

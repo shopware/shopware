@@ -22,16 +22,18 @@
 
             {% block sw_settings_user_list_actions_create_user %}
 
-            <mt-button v-if="isSaas"
+            <mt-button
+                v-if="isSaas"
                 size="small"
                 :disabled="!acl.can('users_and_permissions.creator') || undefined"
                 class="sw-users-permissions-user-listing__add-user-button"
                 variant="primary"
-               @click="openInvitationModal"
+                @click="openInvitationModal"
             >
                 {{ $tc('sw-users-permissions.saas.inviteButtonLabel') }}
             </mt-button>
-            <mt-button v-else
+            <mt-button
+                v-else
                 ghost
                 size="small"
                 :disabled="!acl.can('users_and_permissions.creator') || undefined"
@@ -42,11 +44,12 @@
                 {{ $tc('sw-users-permissions.users.general.labelCreateNewUser') }}
             </mt-button>
 
-            <sw-user-saas-invitation-modal v-if="showInvitationModal"
+            <sw-user-saas-invitation-modal
+                v-if="showInvitationModal"
                 @modal-close="closeInvitationModal"
                 @user-invited="onUserInvited"
-                @invitation-failed="invitationFailed">
-            </sw-user-saas-invitation-modal>
+                @invitation-failed="invitationFailed"
+            />
             {% endblock %}
             {% endblock %}
         </sw-container>
@@ -91,7 +94,8 @@
 
         {% block sw_settings_user_list_column_username_preview %}
         <template #preview-username="{ item, compact }">
-            <sw-avatar v-if="!isSaas"
+            <sw-avatar
+                v-if="!isSaas"
                 :size="compact ? '32px' : '48px'"
                 :first-name="item.firstName"
                 :last-name="item.lastName"
@@ -115,9 +119,9 @@
         {% endblock %}
 
         {% block sw_settings_user_list_column_status %}
-            <template #column-status="{item}">
-                <sw-user-saas-status-label :user="item"></sw-user-saas-status-label>
-            </template>
+        <template #column-status="{item}">
+            <sw-user-saas-status-label :user="item" />
+        </template>
         {% endblock %}
 
         {% block sw_settings_user_list_column_username_acl_roles %}

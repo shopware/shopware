@@ -53,7 +53,7 @@ describe('src/app/component/structure/sw-search-bar', () => {
     let spyLoadTypeSearchResultsByService;
 
     async function createWrapper(props, searchTypes = searchTypeServiceTypes, privileges = []) {
-        swSearchBarComponent = await Shopware.Component.build('sw-search-bar');
+        swSearchBarComponent = await wrapTestComponent('sw-search-bar');
         spyLoadResults = jest.spyOn(swSearchBarComponent.methods, 'loadResults');
         spyLoadTypeSearchResults = jest.spyOn(swSearchBarComponent.methods, 'loadTypeSearchResults');
         spyLoadTypeSearchResultsByService = jest.spyOn(swSearchBarComponent.methods, 'loadTypeSearchResultsByService');
@@ -64,7 +64,7 @@ describe('src/app/component/structure/sw-search-bar', () => {
                     'sw-version': true,
                     'sw-loader': true,
                     'sw-search-more-results': true,
-                    'sw-search-bar-item': await Shopware.Component.build('sw-search-bar-item'),
+                    'sw-search-bar-item': await wrapTestComponent('sw-search-bar-item', { sync: true }),
                     'sw-search-preferences-modal': true,
                     'router-link': true,
                     'sw-highlight-text': true,
@@ -291,7 +291,7 @@ describe('src/app/component/structure/sw-search-bar', () => {
     }
 
     beforeAll(async () => {
-        swSearchBarComponent = await Shopware.Component.build('sw-search-bar');
+        swSearchBarComponent = await wrapTestComponent('sw-search-bar');
         spyLoadResults = jest.spyOn(swSearchBarComponent.methods, 'loadResults');
         spyLoadTypeSearchResults = jest.spyOn(swSearchBarComponent.methods, 'loadTypeSearchResults');
         spyLoadTypeSearchResultsByService = jest.spyOn(swSearchBarComponent.methods, 'loadTypeSearchResultsByService');

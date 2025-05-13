@@ -25,7 +25,7 @@ interface TeaserPopoverConfig {
  * @component-example
  * <sw-extension-teaser-popover position-identifier="my-special-position" />
  */
-Shopware.Component.register('sw-extension-teaser-popover', {
+export default Shopware.Component.wrapComponentConfig({
     template,
 
     components: {

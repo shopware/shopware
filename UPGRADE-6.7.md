@@ -143,6 +143,43 @@ Make sure to adjust your template extensions to be compatible with the new struc
 The block names are still the same, so it just should be necessary to extend from the new templates.
 New blocks (`base_esi_header` and `base_esi_footer`) were added to the `base.html.twig` template to overwrite header and footer completely.
 This is e.g. used to show minimal header and footer during the checkout process.
+Additionally you can modify the header and footer by adding query parameters to the header and footer ESI requests:
+- Extending the `src/Storefront/Resources/views/storefront/base.html.twig` file:
+```twig
+{% sw_extends '@Storefront/storefront/base.html.twig' %}
+{% block base_esi_header %}
+    {% set headerParameters = headerParameters|merge({ 'vendorPrefixPluginName': { 'activeRoute': activeRoute } }) %}
+    {{ parent() }}
+{% endblock %}
+```
+
+- Within a plugin, you can also use the `Shopware\Storefront\Event\StorefrontRenderEvent`
+```php
+class StorefrontSubscriber
+{
+    public function __invoke(StorefrontRenderEvent $event): void
+    {
+        if ($event->getRequest()->attributes->get('_route') !== 'frontend.header') {
+            return;
+        }
+
+        $headerParameters = $event->getParameter('headerParameters') ?? [];
+        $headerParameters['vendorPrefixPluginName']['salesChannelId'] = $event->getSalesChannelContext()->getSalesChannelId();
+
+        $event->setParameter('headerParameters', $headerParameters);
+    }
+}
+```
+
+After that you can use this data to customize the header template:
+```twig
+{% sw_extends '@Storefront/storefront/layout/header.html.twig' %}
+{% block header %}
+    {{ dump(headerParameters.vendorPrefixPluginName.activeRoute) }}
+    {{ dump(headerParameters.vendorPrefixPluginName.salesChannelId) }}
+    {{ parent() }}
+{% endblock %}
+```
 
 # Major Library Updates
 We upgraded the following libraries to their latest versions:
@@ -2886,4 +2923,38 @@ The custom JWT secrets where removed, instead the JWTs will now be signed with t
 This means the `shopware.api.jwt_key.use_app_secret` configuration is no longer available, as that is the only behavior now.
 Additionally, the `system:generate-jwt-secret` command was removed, as it is not needed anymore.
 
+</details>
+
+# Document renderer structure change
+We made some changes in the document renderer structure, which might affect your project setups.
+<details>
+  <summary>Detailed Changes</summary>
+
+## AbstractDocumentRenderer render workflow
+With the next major version, the PDF rendering will be moved from the `\Shopware\Core\Checkout\Document\Service\DocumentGenerator` to each renderer with a PDF document.
+Each implementation of the `\Shopware\Core\Checkout\Document\Renderer\AbstractDocumentRenderer` class needs to set the fully rendered file with `\Shopware\Core\Checkout\Document\Renderer\RenderedDocument::setContent()`.
+With this change, the `\Shopware\Core\Checkout\Document\Renderer\RenderedDocument::html` property is not needed anymore and will be removed.
+The content of a PDF document must be rendered within the renderer.
+Before:
+```php
+// e.g. InvoiceRenderer
+$doc = new RenderedDocument(
+    $html,
+    $number,
+    $config->buildName(),
+    $operation->getFileType(),
+    $config->jsonSerialize(),
+);
+```
+After:
+```php
+// e.g. InvoiceRenderer
+$doc = new RenderedDocument(
+    $number,
+    $config->buildName(),
+    $operation->getFileType(),
+    $config->jsonSerialize(),
+);
+$doc->setContent($this->pdfRenderer->render($doc, $html));
+```
 </details>

@@ -54,7 +54,7 @@ class PluginCompatibilityTest extends TestCase
         $compat = new PluginCompatibility(__DIR__ . '/composer.json', '6.6');
         $compat->removeIncompatible();
 
-        static::assertEquals(
+        static::assertSame(
             [
                 'require' => [
                     'shopware/core' => '~v6.5.0',
@@ -80,7 +80,7 @@ class PluginCompatibilityTest extends TestCase
 
         static::assertFileDoesNotExist(__DIR__ . '/composer.json.bak');
 
-        static::assertEquals(
+        static::assertSame(
             [
                 'require' => [
                     'shopware/commercial' => '5.8.7',

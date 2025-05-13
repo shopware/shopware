@@ -31,22 +31,23 @@ class Migration1728040169AddPrimaryOrderDelivery extends MigrationStep
                 ADD COLUMN `primary_order_delivery_version_id` BINARY(16) NULL DEFAULT NULL,
                 ADD UNIQUE INDEX `uidx.order.primary_order_delivery` (`id`, `version_id`, `primary_order_delivery_id`)'
             );
+        }
 
-            $updateLimit = 1000;
+        $updateLimit = 1000;
 
-            do {
-                $ids = $connection->fetchFirstColumn(
-                    'SELECT `id` FROM `order` WHERE `primary_order_delivery_id` IS NULL LIMIT :limit',
-                    ['limit' => $updateLimit],
-                    ['limit' => ParameterType::INTEGER]
-                );
+        do {
+            $ids = $connection->fetchFirstColumn(
+                'SELECT `id` FROM `order` WHERE `primary_order_delivery_id` IS NULL LIMIT :limit',
+                ['limit' => $updateLimit],
+                ['limit' => ParameterType::INTEGER]
+            );
 
-                if (empty($ids)) {
-                    break;
-                }
+            if (empty($ids)) {
+                break;
+            }
 
-                $connection->executeStatement(
-                    'UPDATE `order`
+            $connection->executeStatement(
+                'UPDATE `order`
                     INNER JOIN `order_delivery` as `primary_order_delivery`
                         ON `primary_order_delivery`.`order_id` = `order`.`id`
                         AND `primary_order_delivery`.`order_version_id` = `order`.`version_id`
@@ -61,10 +62,9 @@ class Migration1728040169AddPrimaryOrderDelivery extends MigrationStep
                     SET `order`.`primary_order_delivery_id` = `primary_order_delivery`.`id`,
                         `order`.`primary_order_delivery_version_id` = `primary_order_delivery`.`version_id`
                     WHERE `order`.`id` IN (:ids)',
-                    ['ids' => $ids],
-                    ['ids' => ArrayParameterType::BINARY]
-                );
-            } while (\count($ids) === $updateLimit);
-        }
+                ['ids' => $ids],
+                ['ids' => ArrayParameterType::BINARY]
+            );
+        } while (\count($ids) === $updateLimit);
     }
 }

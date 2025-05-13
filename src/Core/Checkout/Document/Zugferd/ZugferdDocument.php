@@ -243,7 +243,7 @@ class ZugferdDocument
     protected function getPrice(CalculatedTax $tax): float
     {
         $price = $tax->getPrice();
-        if ($this->isGross ?? false) {
+        if ($this->isGross) {
             $price -= $tax->getTax();
         }
 

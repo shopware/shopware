@@ -1,7 +1,5 @@
 import template from './sw-button.html.twig';
 
-const { Component } = Shopware;
-
 /**
  * @sw-package framework
  *
@@ -11,7 +9,7 @@ const { Component } = Shopware;
  *
  * @deprecated tag:v6.8.0 - Will be removed, use mt-button instead
  */
-Component.register('sw-button', {
+export default {
     template,
 
     props: {
@@ -43,4 +41,4 @@ Component.register('sw-button', {
             }
         },
     },
-});
+};

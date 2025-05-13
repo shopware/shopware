@@ -29,7 +29,7 @@
 
         {% block sw_order_state_history_modal_content_columns_user %}
         <template #column-user="{ item }">
-            {{ item.user?.username ?? $tc('sw-order.stateHistoryModal.labelSystemUser') }}
+            {{ getStateChangeAuthor(item) }}
         </template>
         {% endblock %}
 

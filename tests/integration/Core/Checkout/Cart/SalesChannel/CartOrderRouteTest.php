@@ -258,7 +258,9 @@ class CartOrderRouteTest extends TestCase
                 ]
             );
 
-        $response = \json_decode($this->browser->getResponse()->getContent(), true, 512, \JSON_THROW_ON_ERROR);
+        $content = $this->browser->getResponse()->getContent();
+        static::assertIsString($content);
+        $response = \json_decode($content, true, 512, \JSON_THROW_ON_ERROR);
 
         static::assertSame('order', $response['apiAlias']);
         static::assertNull($response['affiliateCode']);

@@ -3,7 +3,7 @@ import template from './sw-promotion-discount-component.html.twig';
 import './sw-promotion-discount-component.scss';
 import DiscountHandler from './handler';
 
-const { Mixin } = Shopware;
+const { Mixin, Utils } = Shopware;
 const { Criteria } = Shopware.Data;
 const discountHandler = new DiscountHandler();
 
@@ -182,6 +182,7 @@ export default {
             return this.discount.type === DiscountTypes.PERCENTAGE && this.discount.maxValue !== null;
         },
 
+        /** @deprecated tag:v6.8.0 - Will be removed without replacement */
         maxValueAdvancedPricesTooltip() {
             if (
                 this.discount.type === DiscountTypes.PERCENTAGE &&
@@ -444,22 +445,26 @@ export default {
             this.discount.value = discountHandler.getFixedValue(this.discount.value, this.discount.type);
         },
 
-        onDiscountValueChanged(value) {
+        onDiscountValueChanged: Utils.debounce(function debounceUpdateValue(value) {
             this.discount.value = discountHandler.getFixedValue(value, this.discount.type);
-        },
+
+            this.recalculatePrices();
+        }, 500),
 
         // The number field does not allow a NULL input
         // so the value cannot be cleared anymore.
         // If the user removes the value, it will be 0 and converted
         // into NULL, which means no max value applies anymore.
-        onMaxValueChanged(value) {
+        onMaxValueChanged: Utils.debounce(function debounceUpdateMaxValue(value) {
             if (value === 0) {
                 // clear max value
                 this.discount.maxValue = null;
                 // clear any currency values if max value is gone
                 this.clearAdvancedPrices();
+            } else {
+                this.recalculatePrices();
             }
-        },
+        }, 500),
 
         onClickAdvancedPrices() {
             this.currencies.forEach((currency) => {
@@ -475,6 +480,24 @@ export default {
                 }
             });
             this.displayAdvancedPrices = true;
+        },
+
+        recalculatePrices() {
+            const basePrice = this.showMaxValueAdvancedPrices ? this.discount.maxValue : this.discount.value;
+
+            const currencyMapping = {};
+            this.currencies.forEach((currency) => {
+                currencyMapping[currency.id] = currency.factor;
+            });
+
+            this.discount.promotionDiscountPrices = this.discount.promotionDiscountPrices
+                .filter((price) => currencyMapping[price.currencyId] !== undefined)
+                .map((price) => {
+                    const setPrice = (basePrice ?? discountHandler.getMinValue()) * currencyMapping[price.currencyId];
+                    price.price = Math.min(setPrice, discountHandler.getMinValue());
+
+                    return price;
+                });
         },
 
         prepareAdvancedPrices(currency, basePrice) {

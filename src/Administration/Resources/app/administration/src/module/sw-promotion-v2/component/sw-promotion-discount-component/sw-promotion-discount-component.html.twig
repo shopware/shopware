@@ -142,7 +142,6 @@
             class="sw-promotion-discount-component__discount-value"
             validation="required"
             required
-            :digits="50"
             :model-value="discount.value"
             :label="$tc('sw-promotion.detail.main.discounts.labelValue')"
             :placeholder="$tc('sw-promotion.detail.main.discounts.placeholderValue')"
@@ -167,7 +166,7 @@
         <mt-number-field
             v-model="discount.maxValue"
             :label="$tc('sw-promotion.detail.main.discounts.labelMaxValue')"
-            :help-text="maxValueAdvancedPricesTooltip"
+            :help-text="$tc('sw-promotion.detail.main.discounts.helpTextMaxValueAdvancedPrices')"
             :disabled="isEditingDisabled"
             @update:model-value="onMaxValueChanged"
         >

@@ -3,6 +3,7 @@
  */
 
 import template from './sw-sales-channel-measurement.html.twig';
+import './sw-sales-channel-measurement.scss';
 
 const { Criteria } = Shopware.Data;
 

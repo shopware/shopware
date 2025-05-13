@@ -17,6 +17,7 @@ use Shopware\Core\Content\Product\SalesChannel\Listing\Filter\ShippingFreeListin
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\Struct\ArrayEntity;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Symfony\Component\HttpFoundation\Request;
@@ -67,12 +68,16 @@ class ProductListingCmsElementResolver extends AbstractCmsElementResolver
             $this->addDefaultSorting($request, $slot, $context);
         }
 
-        $this->addListingLimits($slot, $context);
-
         $navigationId = $this->getNavigationId($request, $context);
 
         $criteria = new Criteria();
         $criteria->setTitle('cms::product-listing');
+
+        $this->addListingLimits($slot, $context);
+        $allowedLimits = $slot->getConfig()['limits']['value'] ?? null;
+        if ($allowedLimits !== null) {
+            $criteria->addExtension('limits', new ArrayEntity(['limits' => $allowedLimits]));
+        }
 
         $listing = $this->listingRoute
             ->load($navigationId, $request, $context, $criteria)

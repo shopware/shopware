@@ -54,19 +54,26 @@ class PagingListingProcessor extends AbstractListingProcessor
 
     private function getLimit(Criteria $criteria, SalesChannelContext $context, Request $request): int
     {
-        /* TODO: Check if request limit is in system or element config */
-        $limit = $request->query->has('limit') ? $request->query->getInt('limit') : null;
-        if ($limit !== null && $limit > 0) {
-            return $limit;
+        $defaultLimit = $this->config->getInt('core.listing.productsPerPage', $context->getSalesChannelId());
+        $requestLimit = $request->query->has('limit') ? $request->query->getInt('limit') : null;
+        $allowedLimits = null;
+        if ($criteria->hasExtension('limits')) {
+            $allowedLimits = $criteria->getExtension('limits')->getVars()['limits'];
+        }
+
+        if ($requestLimit !== null && $requestLimit > 0 && $allowedLimits !== null) {
+            if (!\in_array($requestLimit, $allowedLimits, true)) {
+                return $defaultLimit <= 0 ? 24 : $defaultLimit;
+            }
+
+            return $requestLimit;
         }
 
         if ($criteria->getLimit() !== null && $criteria->getLimit() > 0) {
             return $criteria->getLimit();
         }
 
-        $limit = $this->config->getInt('core.listing.productsPerPage', $context->getSalesChannelId());
-
-        return $limit <= 0 ? 24 : $limit;
+        return $defaultLimit <= 0 ? 24 : $defaultLimit;
     }
 
     private function getPage(Request $request): ?int

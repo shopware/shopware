@@ -241,7 +241,7 @@ class LineItemTest extends TestCase
         $lineItem = new LineItem('abc', 'type', null, 5);
         $lineItem->setPayloadValue('test', 2);
 
-        static::assertEquals(2, $lineItem->getPayloadValue('test'));
+        static::assertSame(2, $lineItem->getPayloadValue('test'));
     }
 
     public function testReplacePayloadNonRecursively(): void
@@ -266,7 +266,7 @@ class LineItemTest extends TestCase
     {
         $lineItem = new LineItem($identifier, 'type');
 
-        static::assertEquals($identifier, $lineItem->getId());
+        static::assertSame($identifier, $lineItem->getId());
     }
 
     /**

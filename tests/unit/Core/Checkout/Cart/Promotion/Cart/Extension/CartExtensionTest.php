@@ -50,7 +50,7 @@ class CartExtensionTest extends TestCase
         $extension = new CartExtension();
         $extension->addCode('c123');
 
-        static::assertEquals(['c123'], $extension->getCodes());
+        static::assertSame(['c123'], $extension->getCodes());
     }
 
     /**
@@ -79,6 +79,6 @@ class CartExtensionTest extends TestCase
 
         $extension->removeCode('c123');
 
-        static::assertEquals(['c456'], $extension->getCodes());
+        static::assertSame(['c456'], $extension->getCodes());
     }
 }

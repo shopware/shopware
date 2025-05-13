@@ -22,9 +22,4 @@ final readonly class NavigationInfo
         public array $pathIdList,
     ) {
     }
-
-    public function getPathIdListFirst(): ?string
-    {
-        return $this->pathIdList[0] ?? null;
-    }
 }

@@ -16,9 +16,15 @@ export default class NavbarPlugin extends Plugin {
          */
         ariaCurrentPageSelector: '.nav-item-{id}-link',
 
+        /**
+         * Class to show the currently active category.
+         */
         activeClass: 'active',
-        activeRootClass: 'active-root',
-        activeRootId: '',
+
+        /**
+         * Array of ids representing the path to the currently active category.
+         */
+        pathIdList: [],
     };
 
     init() {
@@ -122,19 +128,23 @@ export default class NavbarPlugin extends Plugin {
      * @private
      */
     _setCurrentPage() {
-        if (!window.activeNavigationId) { return; }
-        const navItemSelector = this.options.ariaCurrentPageSelector.replace('{id}', window.activeNavigationId);
-        const rootNavItemSelector = this.options.ariaCurrentPageSelector.replace('{id}', this.options.activeRootId);
-        const activeNavItem = this.el.querySelector(navItemSelector);
-        const activeRootNavItem = this.el.querySelector(rootNavItemSelector);
+        if (window.activeNavigationId) {
+            const navItemSelector = this.options.ariaCurrentPageSelector.replace('{id}', window.activeNavigationId);
+            const activeNavItem = this.el.querySelector(navItemSelector);
 
-        if (activeNavItem) {
-            activeNavItem.setAttribute('aria-current', 'page');
-            activeNavItem.classList.add(this.options.activeClass);
+            if (activeNavItem) {
+                activeNavItem.setAttribute('aria-current', 'page');
+                activeNavItem.classList.add(this.options.activeClass);
+            }
         }
 
-        if (activeRootNavItem) {
-            activeRootNavItem.classList.add(this.options.activeRootClass);
-        }
+        this.options.pathIdList.forEach((id) => {
+            const navItemSelector = this.options.ariaCurrentPageSelector.replace('{id}', id);
+            const activeNavItem = this.el.querySelector(navItemSelector);
+
+            if (activeNavItem) {
+                activeNavItem.classList.add(this.options.activeClass);
+            }
+        });
     }
 }

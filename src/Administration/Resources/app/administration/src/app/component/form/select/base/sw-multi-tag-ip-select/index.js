@@ -1,6 +1,5 @@
 import template from './sw-multi-tag-ip-select.html.twig';
 
-const { Component } = Shopware;
 const { string } = Shopware.Utils;
 
 /**
@@ -15,7 +14,7 @@ const { string } = Shopware.Utils;
  *     :value="['127.0.0.1', '10.0.0.1', '::']"
  * ></sw-multi-tag-ip-select>
  */
-Component.extend('sw-multi-tag-ip-select', 'sw-multi-tag-select', {
+export default {
     template,
 
     props: {
@@ -74,4 +73,4 @@ Component.extend('sw-multi-tag-ip-select', 'sw-multi-tag-select', {
             return this.validKnownIps[index];
         },
     },
-});
+};

@@ -2924,3 +2924,37 @@ This means the `shopware.api.jwt_key.use_app_secret` configuration is no longer 
 Additionally, the `system:generate-jwt-secret` command was removed, as it is not needed anymore.
 
 </details>
+
+# Document renderer structure change
+We made some changes in the document renderer structure, which might affect your project setups.
+<details>
+  <summary>Detailed Changes</summary>
+
+## AbstractDocumentRenderer render workflow
+With the next major version, the PDF rendering will be moved from the `\Shopware\Core\Checkout\Document\Service\DocumentGenerator` to each renderer with a PDF document.
+Each implementation of the `\Shopware\Core\Checkout\Document\Renderer\AbstractDocumentRenderer` class needs to set the fully rendered file with `\Shopware\Core\Checkout\Document\Renderer\RenderedDocument::setContent()`.
+With this change, the `\Shopware\Core\Checkout\Document\Renderer\RenderedDocument::html` property is not needed anymore and will be removed.
+The content of a PDF document must be rendered within the renderer.
+Before:
+```php
+// e.g. InvoiceRenderer
+$doc = new RenderedDocument(
+    $html,
+    $number,
+    $config->buildName(),
+    $operation->getFileType(),
+    $config->jsonSerialize(),
+);
+```
+After:
+```php
+// e.g. InvoiceRenderer
+$doc = new RenderedDocument(
+    $number,
+    $config->buildName(),
+    $operation->getFileType(),
+    $config->jsonSerialize(),
+);
+$doc->setContent($this->pdfRenderer->render($doc, $html));
+```
+</details>

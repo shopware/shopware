@@ -1,7 +1,7 @@
 import template from './sw-multi-tag-select.html.twig';
 import './sw-multi-tag-select.scss';
 
-const { Component, Mixin } = Shopware;
+const { Mixin } = Shopware;
 const { get } = Shopware.Utils;
 
 /**
@@ -17,7 +17,7 @@ const { get } = Shopware.Utils;
  *     :value="['lorem', 'ipsum', 'dolor', 'sit', 'amet']"
  * ></sw-multi-tag-select>
  */
-Component.register('sw-multi-tag-select', {
+export default {
     template,
 
     inheritAttrs: false,
@@ -188,4 +188,4 @@ Component.register('sw-multi-tag-select', {
             this.limit += this.limit;
         },
     },
-});
+};

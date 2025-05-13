@@ -12,7 +12,7 @@ const { debounce, get } = Shopware.Utils;
 /**
  * @private
  */
-Component.register('sw-entity-single-select', {
+export default {
     template,
 
     inject: [
@@ -641,4 +641,4 @@ Component.register('sw-entity-single-select', {
             return '#d1d9e0';
         },
     },
-});
+};

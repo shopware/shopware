@@ -1,7 +1,5 @@
 import template from './sw-colorpicker.html.twig';
 
-const { Component } = Shopware;
-
 /**
  * @sw-package framework
  *
@@ -11,7 +9,7 @@ const { Component } = Shopware;
  *
  * @deprecated tag:v6.8.0 - Will be removed, use mt-colorpicker instead.
  */
-Component.register('sw-colorpicker', {
+export default Shopware.Component.wrapComponentConfig({
     template,
 
     props: {

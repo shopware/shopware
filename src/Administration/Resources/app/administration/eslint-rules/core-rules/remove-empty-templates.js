@@ -1,5 +1,5 @@
 /**
- * @package admin
+ * @sw-package framework
  *
  * Overview
  * This custom ESLint rule enforces that the template tags with no attributes are removed.

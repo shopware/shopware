@@ -11,7 +11,7 @@ import template from './sw-extension-component-section.html.twig';
  * @component-example
  * <sw-extension-component-section positionId="my-special-position" />
  */
-Shopware.Component.register('sw-extension-component-section', {
+export default Shopware.Component.wrapComponentConfig({
     template,
 
     extensionApiDevtoolInformation: {

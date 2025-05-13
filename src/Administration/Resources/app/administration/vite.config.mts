@@ -73,6 +73,10 @@ export default defineConfig(({ command }) => {
                     secure: false,
                 },
             },
+            // DDEV_PRIMARY_URL is initialised in ddev environment only
+            origin: process.env.DDEV_PRIMARY_URL
+                ? `${process.env.DDEV_PRIMARY_URL.replace(/:\d+$/, "")}:` + (Number(process.env.ADMIN_PORT) || 5173)
+                : undefined,
         },
 
         // IIFE to return different plugins for dev and  prod

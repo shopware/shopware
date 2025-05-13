@@ -10,7 +10,7 @@ const { mapPropertyErrors } = Component.getComponentHelper();
 /**
  * @private
  */
-Component.register('sw-login-recovery-recovery', {
+export default Component.wrapComponentConfig({
     template,
 
     inject: [
@@ -28,7 +28,15 @@ Component.register('sw-login-recovery-recovery', {
         },
     },
 
-    data() {
+    data(): {
+        user: {
+            id: string;
+            getEntityName: () => string;
+        };
+        newPassword: string;
+        newPasswordConfirm: string;
+        hashValid: boolean | null;
+    } {
         return {
             // Mock an empty user so that we can send out the error
             user: {
@@ -50,7 +58,12 @@ Component.register('sw-login-recovery-recovery', {
     watch: {
         hashValid(val) {
             if (val === true) {
-                this.$nextTick(() => this.$refs.swLoginRecoveryRecoveryNewPasswordField.$el.querySelector('input')?.focus());
+                void this.$nextTick(() =>
+                    // @ts-expect-error
+                    // eslint-disable-next-line max-len
+                    // eslint-disable-next-line @typescript-eslint/no-unsafe-return, @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-member-access
+                    this.$refs.swLoginRecoveryRecoveryNewPasswordField.$el.querySelector('input')?.focus(),
+                );
             }
         },
     },
@@ -88,15 +101,19 @@ Component.register('sw-login-recovery-recovery', {
                 this.userRecoveryService
                     .updateUserPassword(this.hash, this.newPassword, this.newPasswordConfirm)
                     .then(() => {
-                        this.$router.push({ name: 'sw.login.index' });
+                        void this.$router.push({ name: 'sw.login.index' });
                     })
                     .catch((error) => {
                         Shopware.Store.get('error').addApiError({
                             expression: `user.${this.hash}.password`,
+                            // eslint-disable-next-line max-len
+                            // eslint-disable-next-line @typescript-eslint/no-unsafe-argument, @typescript-eslint/no-unsafe-member-access
                             error: new Shopware.Classes.ShopwareError(error.response.data.errors[0]),
                         });
 
                         this.createNotificationError({
+                            // eslint-disable-next-line max-len
+                            // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-member-access
                             message: error.message,
                         });
                     });

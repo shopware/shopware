@@ -1,0 +1,15 @@
+@import "~scss/variables";
+
+.sw-sales-channel-measurement {
+    &__selection-popover {
+        .sw-select-result__result-item-text {
+            flex-direction: row;
+            gap: 8px;
+        }
+    }
+
+    &__length-unit-short-name,
+    &__mass-unit-short-name {
+        color: $color-gray-500;
+    }
+}

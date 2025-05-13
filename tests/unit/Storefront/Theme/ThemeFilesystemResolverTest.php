@@ -38,7 +38,7 @@ class ThemeFilesystemResolverTest extends TestCase
         $pluginConfig = new StorefrontPluginConfiguration('Storefront');
         $fs = $resolver->getFilesystemForStorefrontConfig($pluginConfig);
 
-        static::assertEquals($bundle->getPath(), $fs->location);
+        static::assertSame($bundle->getPath(), $fs->location);
     }
 
     public function testGetFilesystemDelegatesToAppSourceResolverForApps(): void
@@ -54,7 +54,7 @@ class ThemeFilesystemResolverTest extends TestCase
 
         $fs = $resolver->getFilesystemForStorefrontConfig($pluginConfig);
 
-        static::assertEquals('/app-root', $fs->location);
+        static::assertSame('/app-root', $fs->location);
     }
 
     public function testGetFilesystemForPluginUsesBundleBasePath(): void
@@ -79,6 +79,6 @@ class ThemeFilesystemResolverTest extends TestCase
 
         $fs = $resolver->getFilesystemForStorefrontConfig($pluginConfig);
 
-        static::assertEquals('/some/project/custom/plugins/CoolPlugin', $fs->location);
+        static::assertSame('/some/project/custom/plugins/CoolPlugin', $fs->location);
     }
 }

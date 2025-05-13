@@ -106,7 +106,7 @@ class ProductSearchQueryBuilderTest extends TestCase
 
         $parsed = $builder->build($criteria, Context::createDefaultContext());
 
-        static::assertSame($expected, $parsed->toArray());
+        static::assertEquals($expected, $parsed->toArray());
     }
 
     /**

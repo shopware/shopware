@@ -45,7 +45,7 @@ class IconTemplateLoaderTest extends TestCase
         $templates = $this->templateLoader->getTemplatePathsForApp($this->manifest);
         \sort($templates);
 
-        static::assertEquals(
+        static::assertSame(
             ['app/storefront/src/assets/icon-pack/custom-icons/activity.svg', 'storefront/layout/header/logo.html.twig'],
             $templates
         );

@@ -131,8 +131,8 @@ class AppStateServiceThemeTest extends TestCase
         $eventWasReceived = false;
         $onAppDeactivation = function (AppDeactivatedEvent $event) use (&$eventWasReceived, $appId, $context): void {
             $eventWasReceived = true;
-            static::assertEquals($appId, $event->getApp()->getId());
-            static::assertEquals($context, $event->getContext());
+            static::assertSame($appId, $event->getApp()->getId());
+            static::assertSame($context, $event->getContext());
         };
         $this->eventDispatcher->addListener(AppDeactivatedEvent::class, $onAppDeactivation);
 
@@ -144,7 +144,7 @@ class AppStateServiceThemeTest extends TestCase
         $criteria->addFilter(new EqualsFilter('appId', $appId));
         $criteria->addFilter(new EqualsFilter('active', true));
 
-        static::assertEquals(0, $this->templateRepo->search($criteria, $context)->getTotal());
+        static::assertSame(0, $this->templateRepo->search($criteria, $context)->getTotal());
 
         $this->eventDispatcher->removeListener(AppDeactivatedEvent::class, $onAppDeactivation);
     }
@@ -162,8 +162,8 @@ class AppStateServiceThemeTest extends TestCase
         $eventWasReceived = false;
         $onAppActivation = function (AppActivatedEvent $event) use (&$eventWasReceived, $appId, $context): void {
             $eventWasReceived = true;
-            static::assertEquals($appId, $event->getApp()->getId());
-            static::assertEquals($context, $event->getContext());
+            static::assertSame($appId, $event->getApp()->getId());
+            static::assertSame($context, $event->getContext());
         };
         $this->eventDispatcher->addListener(AppActivatedEvent::class, $onAppActivation);
 
@@ -177,7 +177,7 @@ class AppStateServiceThemeTest extends TestCase
 
         // We expect 1 storefront twig template and svg image to be stored in the DB
         $expectedTemplates = 2;
-        static::assertEquals($expectedTemplates, $this->templateRepo->search($criteria, $context)->getTotal());
+        static::assertSame($expectedTemplates, $this->templateRepo->search($criteria, $context)->getTotal());
 
         $this->eventDispatcher->removeListener(AppActivatedEvent::class, $onAppActivation);
     }

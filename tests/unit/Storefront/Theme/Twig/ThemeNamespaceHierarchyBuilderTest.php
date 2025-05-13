@@ -40,7 +40,7 @@ class ThemeNamespaceHierarchyBuilderTest extends TestCase
     {
         $events = $this->builder->getSubscribedEvents();
 
-        static::assertEquals([
+        static::assertSame([
             KernelEvents::REQUEST,
             KernelEvents::EXCEPTION,
             DocumentTemplateRendererParameterEvent::class,
@@ -149,7 +149,7 @@ class ThemeNamespaceHierarchyBuilderTest extends TestCase
 
         $hierarchy = $this->builder->buildNamespaceHierarchy(['a', 'b']);
 
-        static::assertEquals($bundles, $hierarchy);
+        static::assertSame($bundles, $hierarchy);
     }
 
     public function testItPassesBundlesAndThemesToBuilder(): void

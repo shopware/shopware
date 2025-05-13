@@ -94,10 +94,10 @@ class AuthControllerTest extends TestCase
         $session = $this->getSession();
 
         $newContextToken = $session->get('sw-context-token');
-        static::assertNotEquals($contextToken, $newContextToken);
+        static::assertNotSame($contextToken, $newContextToken);
 
         $newSessionId = $session->getId();
-        static::assertNotEquals($sessionId, $newSessionId);
+        static::assertNotSame($sessionId, $newSessionId);
 
         $oldCartExists = $connection->fetchOne('SELECT 1 FROM cart WHERE token = ?', [$contextToken]);
         static::assertFalse($oldCartExists);
@@ -126,7 +126,7 @@ class AuthControllerTest extends TestCase
 
         static::assertInstanceOf(RedirectResponse::class, $redirectResponse);
         static::assertStringStartsWith('/account/login', $redirectResponse->getTargetUrl());
-        static::assertNotEquals($contextToken, $this->getSession()->get('sw-context-token'));
+        static::assertNotSame($contextToken, $this->getSession()->get('sw-context-token'));
     }
 
     public function testDoNotLogoutWhenSalesChannelIdChangedIfCustomerScopeIsOff(): void
@@ -221,10 +221,10 @@ class AuthControllerTest extends TestCase
         $session = $this->getSession();
 
         $newContextToken = $session->get('sw-context-token');
-        static::assertNotEquals($contextToken, $newContextToken);
+        static::assertNotSame($contextToken, $newContextToken);
 
         $newSessionId = $session->getId();
-        static::assertNotEquals($sessionId, $newSessionId);
+        static::assertNotSame($sessionId, $newSessionId);
     }
 
     public function testOneUserUseOneContextAcrossSessions(): void
@@ -260,8 +260,8 @@ class AuthControllerTest extends TestCase
         $secondTimeLoginSessionId = $secondTimeLogin->getId();
         $secondTimeLoginContextToken = $secondTimeLogin->get(PlatformRequest::HEADER_CONTEXT_TOKEN);
 
-        static::assertNotEquals($firstTimeLoginSessionId, $secondTimeLoginSessionId);
-        static::assertNotEquals($firstTimeLoginContextToken, $secondTimeLoginContextToken);
+        static::assertNotSame($firstTimeLoginSessionId, $secondTimeLoginSessionId);
+        static::assertNotSame($firstTimeLoginContextToken, $secondTimeLoginContextToken);
     }
 
     public function testMergedHintIsAdded(): void

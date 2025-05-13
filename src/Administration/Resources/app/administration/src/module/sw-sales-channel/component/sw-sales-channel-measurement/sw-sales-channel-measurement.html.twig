@@ -5,9 +5,7 @@
     <sw-entity-single-select
         ref="measurementSystemSelect"
         v-model:value="salesChannel.measurementSystemId"
-        class="sw-sales-channel-detail__select-measurement-system"
         entity="measurement_system"
-        required
         :label="labelUnitSystem"
         :criteria="measurementSystemCriteria"
         @update:value="onMeasurementSystemChange"
@@ -16,24 +14,42 @@
     <sw-entity-single-select
         v-model:value="salesChannel.lengthUnitId"
         entity="measurement_display_unit"
-        required
+        :popover-classes="['sw-sales-channel-measurement__selection-popover']"
         :label="labelLengthUnit"
+        :label-callback="formatUnitLabel"
         :criteria="lengthUnitCriteria"
     >
         <template #selection-label-property="{ item }">
             {{ formatUnitLabel(item) }}
+        </template>
+
+        <template #result-label-property="{ item, searchTerm, highlightSearchTerm }">
+            <sw-highlight-text
+                :text="item.translated.name || item.name"
+                :search-term="searchTerm"
+            />
+            <span class="sw-sales-channel-measurement__length-unit-short-name"> {{ item.shortName }}</span>
         </template>
     </sw-entity-single-select>
 
     <sw-entity-single-select
         v-model:value="salesChannel.massUnitId"
         entity="measurement_display_unit"
-        required
+        :popover-classes="['sw-sales-channel-measurement__selection-popover']"
         :label="labelWeightUnit"
+        :label-callback="formatUnitLabel"
         :criteria="massUnitCriteria"
     >
         <template #selection-label-property="{ item }">
             {{ formatUnitLabel(item) }}
+        </template>
+
+        <template #result-label-property="{ item, searchTerm, highlightSearchTerm }">
+            <sw-highlight-text
+                :text="item.translated.name || item.name"
+                :search-term="searchTerm"
+            />
+            <span class="sw-sales-channel-measurement__mass-unit-short-name"> {{ item.shortName }}</span>
         </template>
     </sw-entity-single-select>
 </sw-container>

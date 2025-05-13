@@ -4,8 +4,6 @@
 
 import template from './sw-step-display.html.twig';
 
-const { Component } = Shopware;
-
 /**
  * @private
  * @description This step display component need flow-items inside it's slot to work.
@@ -31,7 +29,7 @@ const { Component } = Shopware;
  * </sw-step-display>
  */
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
-Component.register('sw-step-display', {
+export default {
     template,
 
     provide() {
@@ -118,4 +116,4 @@ Component.register('sw-step-display', {
             this.items[index].setActive(active);
         },
     },
-});
+};

@@ -19,7 +19,7 @@ const DEFAULT_MAX_LINES = 10 as number;
  *
  * @private
  */
-Component.register('sw-multi-snippet-drag-and-drop', {
+export default Component.wrapComponentConfig({
     template,
 
     inject: ['feature'],

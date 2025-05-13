@@ -14,7 +14,8 @@ const { Criteria } = Shopware.Data;
  * @component-example
  * <sw-condition-order-custom-field :condition="condition"></sw-condition-order-custom-field>
  */
-Component.extend('sw-condition-order-custom-field', 'sw-condition-base', {
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
+export default {
     template,
 
     inject: [
@@ -154,4 +155,4 @@ Component.extend('sw-condition-order-custom-field', 'sw-condition-base', {
             this.renderedFieldValue = null;
         },
     },
-});
+};

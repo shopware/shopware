@@ -1,7 +1,5 @@
 import template from './sw-icon.html.twig';
 
-const { Component } = Shopware;
-
 /**
  * @sw-package framework
  *
@@ -11,7 +9,7 @@ const { Component } = Shopware;
  *
  * @deprecated tag:v6.8.0 - Will be removed, use mt-icon instead.
  */
-Component.register('sw-icon', {
+export default {
     template,
 
     props: {
@@ -26,4 +24,4 @@ Component.register('sw-icon', {
             default: false,
         },
     },
-});
+};

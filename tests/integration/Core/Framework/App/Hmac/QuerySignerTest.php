@@ -76,8 +76,10 @@ class QuerySignerTest extends TestCase
         static::assertNotNull($this->app->getAppSecret());
 
         static::assertArrayHasKey('shopware-shop-signature', $signedQuery);
+        $appSecret = $this->app->getAppSecret();
+        static::assertIsString($appSecret);
         static::assertSame(
-            \hash_hmac('sha256', Uri::withoutQueryValue($signedUri, 'shopware-shop-signature')->getQuery(), $this->app->getAppSecret()),
+            \hash_hmac('sha256', Uri::withoutQueryValue($signedUri, 'shopware-shop-signature')->getQuery(), $appSecret),
             $signedQuery['shopware-shop-signature']
         );
     }

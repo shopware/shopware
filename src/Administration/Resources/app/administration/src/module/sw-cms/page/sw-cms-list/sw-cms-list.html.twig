@@ -308,7 +308,12 @@
                                             class="sw-cms-list__context-menu-item-edit"
                                             :disabled="!acl.can('cms.editor') || undefined"
                                         >
-                                            {{ $tc('sw-cms.components.cmsListItem.edit') }}
+                                            <template v-if="item.locked">
+                                                {{ $tc('sw-cms.components.cmsListItem.view') }}
+                                            </template>
+                                            <template v-else>
+                                                {{ $tc('sw-cms.components.cmsListItem.edit') }}
+                                            </template>
                                         </sw-context-menu-item>
                                         {% endblock %}
 

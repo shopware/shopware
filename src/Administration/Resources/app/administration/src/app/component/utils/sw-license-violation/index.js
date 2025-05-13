@@ -8,7 +8,7 @@ import './sw-license-violation.scss';
 /**
  * @private
  */
-Shopware.Component.register('sw-license-violation', {
+export default {
     template,
 
     inject: [
@@ -189,4 +189,4 @@ Shopware.Component.register('sw-license-violation', {
             this.loading = this.loading.filter((value) => value !== key);
         },
     },
-});
+};

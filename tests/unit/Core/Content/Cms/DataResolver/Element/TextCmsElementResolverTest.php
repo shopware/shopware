@@ -14,6 +14,7 @@ use Shopware\Core\Content\Cms\DataResolver\ResolverContext\ResolverContext;
 use Shopware\Core\Content\Cms\SalesChannel\Struct\TextStruct;
 use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Content\Product\ProductEntity;
+use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Util\HtmlSanitizer;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Component\HttpFoundation\Request;
@@ -292,7 +293,7 @@ class TextCmsElementResolverTest extends TestCase
         $actualReleaseDate = new \DateTime();
         $actualReleaseDate->setTimestamp((int) $formatter->parse($content));
 
-        static::assertEquals($releaseDate, $actualReleaseDate);
+        static::assertSame($releaseDate->format(Defaults::STORAGE_DATE_TIME_FORMAT), $actualReleaseDate->format(Defaults::STORAGE_DATE_TIME_FORMAT));
     }
 
     private function createSlot(): CmsSlotEntity

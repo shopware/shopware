@@ -102,7 +102,7 @@ class CreatePageCommandTest extends TestCase
         static::assertSame('landing_page', $cmsPage['type']);
         static::assertCount(4, $cmsPage['blocks']);
 
-        static::assertEquals([[
+        static::assertSame([[
             ['id' => 'deleted-page-id-1'],
             ['id' => 'deleted-page-id-2'],
             ['id' => 'deleted-page-id-3'],

@@ -122,7 +122,7 @@ class SortingListingProcessorTest extends TestCase
             $this->createMock(SalesChannelContext::class)
         );
 
-        static::assertEquals($expected, $result->getSorting());
+        static::assertSame($expected, $result->getSorting());
     }
 
     #[DataProvider('wrongSortingTypeProvider')]

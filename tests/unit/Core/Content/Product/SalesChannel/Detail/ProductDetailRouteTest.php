@@ -110,8 +110,8 @@ class ProductDetailRouteTest extends TestCase
 
         $result = $this->route->load('1', new Request(), $this->context, new Criteria());
 
-        static::assertEquals('4', $result->getProduct()->getCmsPageId());
-        static::assertEquals('mainVariant', $result->getProduct()->getUniqueIdentifier());
+        static::assertSame('4', $result->getProduct()->getCmsPageId());
+        static::assertSame('mainVariant', $result->getProduct()->getUniqueIdentifier());
     }
 
     public function testLoadBestVariant(): void
@@ -145,8 +145,8 @@ class ProductDetailRouteTest extends TestCase
 
         $result = $this->route->load($this->idsCollection->get('product1'), new Request(), $this->context, new Criteria());
 
-        static::assertEquals(4, $result->getProduct()->getCmsPageId());
-        static::assertEquals('BestVariant', $result->getProduct()->getUniqueIdentifier());
+        static::assertSame('4', $result->getProduct()->getCmsPageId());
+        static::assertSame('BestVariant', $result->getProduct()->getUniqueIdentifier());
         static::assertTrue($result->getProduct()->getAvailable());
     }
 
@@ -186,7 +186,7 @@ class ProductDetailRouteTest extends TestCase
 
         $result = $this->route->load($productId, new Request(), $this->context, new Criteria());
 
-        static::assertEquals('2', $result->getProduct()->getUniqueIdentifier());
+        static::assertSame('2', $result->getProduct()->getUniqueIdentifier());
         static::assertTrue($result->getProduct()->getAvailable());
     }
 
@@ -210,7 +210,7 @@ class ProductDetailRouteTest extends TestCase
             ->with(static::callback(function (Criteria $criteria) use ($variantId): bool {
                 $ids = $criteria->getIds();
                 static::assertCount(1, $ids);
-                static::assertEquals($variantId, reset($ids));
+                static::assertSame($variantId, reset($ids));
 
                 return true;
             }))
@@ -231,7 +231,7 @@ class ProductDetailRouteTest extends TestCase
 
         $result = $this->route->load(Uuid::randomHex(), new Request(), $this->context, new Criteria());
 
-        static::assertEquals($variantId, $result->getProduct()->getUniqueIdentifier());
+        static::assertSame($variantId, $result->getProduct()->getUniqueIdentifier());
         static::assertTrue($result->getProduct()->getAvailable());
     }
 
@@ -263,8 +263,8 @@ class ProductDetailRouteTest extends TestCase
 
         $result = $this->route->load($this->idsCollection->get('product2'), new Request(), $this->context, new Criteria());
 
-        static::assertEquals('4', $result->getProduct()->getCmsPageId());
-        static::assertEquals('BestVariant', $result->getProduct()->getUniqueIdentifier());
+        static::assertSame('4', $result->getProduct()->getCmsPageId());
+        static::assertSame('BestVariant', $result->getProduct()->getUniqueIdentifier());
     }
 
     public function testLoadProductNotFound(): void

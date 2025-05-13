@@ -98,8 +98,8 @@
                                 v-model:value="customerGroup.displayGross"
                                 bordered
                                 :label="$tc('sw-settings-customer-group.detail.fieldDisplayGrossLabel')"
-                                :label-option-true="$tc('sw-settings-customer-group.detail.fieldDisplayGrossValues', 1)"
-                                :label-option-false="$tc('sw-settings-customer-group.detail.fieldDisplayGrossValues', 0)"
+                                :label-option-true="$tc('sw-settings-customer-group.detail.fieldDisplayGrossValues', {}, 1)"
+                                :label-option-false="$tc('sw-settings-customer-group.detail.fieldDisplayGrossValues', {}, 0)"
                                 :disabled="!acl.can('customer_groups.editor') || undefined"
                             />
                             {% endblock %}

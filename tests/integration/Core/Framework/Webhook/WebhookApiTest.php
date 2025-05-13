@@ -28,6 +28,6 @@ class WebhookApiTest extends TestCase
 
         $response = $this->getBrowser()->getResponse();
 
-        static::assertEquals(204, $response->getStatusCode(), \print_r($response->getContent(), true));
+        static::assertSame(204, $response->getStatusCode(), \print_r($response->getContent(), true));
     }
 }

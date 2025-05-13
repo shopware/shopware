@@ -402,14 +402,14 @@ class PluginLifecycleServiceTest extends TestCase
             $dependants = $params['dependants'];
             $dependantNames = $params['dependantNames'];
 
-            static::assertEquals(self::PLUGIN_NAME, $dependencyName);
+            static::assertSame(self::PLUGIN_NAME, $dependencyName);
             static::assertCount(1, $dependants);
-            static::assertEquals(\sprintf('"%s"', self::DEPENDENT_PLUGIN_NAME), $dependantNames);
+            static::assertSame(\sprintf('"%s"', self::DEPENDENT_PLUGIN_NAME), $dependantNames);
 
             $dependant = array_pop($dependants);
 
             static::assertInstanceOf(PluginEntity::class, $dependant);
-            static::assertEquals(self::DEPENDENT_PLUGIN_NAME, $dependant->getName());
+            static::assertSame(self::DEPENDENT_PLUGIN_NAME, $dependant->getName());
 
             throw $exception;
         }

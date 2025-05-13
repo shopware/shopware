@@ -21,7 +21,7 @@ class TextAreaFieldTest extends TestCase
         static::assertSame('test_text_area_field', $textAreaField->getName());
         static::assertSame('html', $textAreaField->getType());
         static::assertTrue($textAreaField->isActive());
-        static::assertEquals([
+        static::assertSame([
             'label' => [
                 'en-GB' => 'Test text-area field',
             ],

@@ -64,6 +64,6 @@ class PhpSyntaxExtensionTest extends TestCase
             $expected .= '-jsonEncode' . $index;
         }
 
-        static::assertEquals($expected, $result, 'Failure in php syntax support in twig rendering');
+        static::assertSame($expected, $result, 'Failure in php syntax support in twig rendering');
     }
 }

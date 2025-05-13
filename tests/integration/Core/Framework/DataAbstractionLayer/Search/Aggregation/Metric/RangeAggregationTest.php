@@ -50,7 +50,7 @@ class RangeAggregationTest extends TestCase
 
         $aggregation = new RangeAggregation('test', 'test', []);
 
-        static::assertEquals($expectedKey, $method->invoke($aggregation, $from, $to));
+        static::assertSame($expectedKey, $method->invoke($aggregation, $from, $to));
     }
 
     /**
@@ -129,7 +129,7 @@ class RangeAggregationTest extends TestCase
         static::assertCount(\count($rangesDefinition), $rangesResult);
         foreach ($rangesResult as $key => $count) {
             static::assertArrayHasKey($key, $rangesExpectedResult);
-            static::assertEquals($rangesExpectedResult[$key], $count);
+            static::assertSame($rangesExpectedResult[$key], $count);
         }
     }
 }

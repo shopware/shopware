@@ -64,11 +64,8 @@ class CartOrderRoute extends AbstractCartOrderRoute
     #[Route(path: '/store-api/checkout/order', name: 'store-api.checkout.cart.order', methods: ['POST'], defaults: ['_loginRequired' => true, '_loginRequiredAllowGuest' => true])]
     public function order(Cart $cart, SalesChannelContext $context, RequestDataBag $data): CartOrderRouteResponse
     {
-        $hash = $data->getAlnum('hash');
-
-        if ($hash && !$this->cartContextHasher->isMatching($hash, $cart, $context)) {
-            throw CartException::hashMismatch($cart->getToken());
-        }
+        // we use this state in stock updater class, to prevent duplicate available stock updates
+        $context->addState('checkout-order-route');
 
         $lock = $this->lockFactory->createLock('cart-order-route-' . $cart->getToken(), self::LOCK_TTL);
         if (!$lock->acquire()) {
@@ -76,9 +73,6 @@ class CartOrderRoute extends AbstractCartOrderRoute
         }
 
         try {
-            // we use this state in stock updater class, to prevent duplicate available stock updates
-            $context->addState('checkout-order-route');
-
             $calculatedCart = $this->cartCalculator->calculate($cart, $context);
 
             $response = $this->checkoutGatewayRoute->load(new Request($data->all(), $data->all()), $cart, $context);
@@ -89,14 +83,9 @@ class CartOrderRoute extends AbstractCartOrderRoute
             $this->addCustomerComment($calculatedCart, $data);
             $this->addAffiliateTracking($calculatedCart, $data);
 
-            Profiler::trace('checkout-order::pre-payment', fn () => $this->paymentProcessor->validate($calculatedCart, $data, $context));
+            $preOrderPayment = Profiler::trace('checkout-order::pre-payment', fn () => $this->paymentProcessor->validate($calculatedCart, $data, $context));
 
             $orderId = Profiler::trace('checkout-order::order-persist', fn () => $this->orderPersister->persist($calculatedCart, $context));
-
-            if (Feature::isActive('v6.8.0.0')) {
-                // @deprecated tag:v6.8.0 - move the finally block to after this statement, after the cart is deleted, order persisting can be unlocked again
-                $this->cartPersister->delete($context->getToken(), $context);
-            }
 
             $criteria = new Criteria([$orderId]);
             $criteria
@@ -119,9 +108,8 @@ class CartOrderRoute extends AbstractCartOrderRoute
 
             $this->eventDispatcher->dispatch(new CheckoutOrderPlacedCriteriaEvent($criteria, $context));
 
-            $orderEntity = Profiler::trace('checkout-order::order-loading', function () use ($criteria, $context): ?OrderEntity {
-                return $this->orderRepository->search($criteria, $context->getContext())->getEntities()->first();
-            });
+            /** @var OrderEntity|null $orderEntity */
+            $orderEntity = Profiler::trace('checkout-order::order-loading', fn () => $this->orderRepository->search($criteria, $context->getContext())->first());
 
             if (!$orderEntity) {
                 throw CartException::invalidPaymentOrderNotStored($orderId);
@@ -133,10 +121,18 @@ class CartOrderRoute extends AbstractCartOrderRoute
                 $this->eventDispatcher->dispatch($event);
             });
 
-            if (!Feature::isActive('v6.8.0.0')) {
-                // cart will delete immediately after order is created to avoid inconsistencies.
-                $this->cartPersister->delete($context->getToken(), $context);
-            }
+            $this->cartPersister->delete($context->getToken(), $context);
+
+            // @deprecated tag:v6.7.0 - remove post payment completely
+            Feature::callSilentIfInactive('v6.7.0.0', function () use ($orderEntity, $data, $context, $orderId, $preOrderPayment): void {
+                try {
+                    Profiler::trace('checkout-order::post-payment', function () use ($orderEntity, $data, $context, $preOrderPayment): void {
+                        $this->preparedPaymentService->handlePostOrderPayment($orderEntity, $data, $context, $preOrderPayment);
+                    });
+                } catch (PaymentException) {
+                    throw CartException::invalidPaymentButOrderStored($orderId);
+                }
+            });
         } finally {
             $lock->release();
         }

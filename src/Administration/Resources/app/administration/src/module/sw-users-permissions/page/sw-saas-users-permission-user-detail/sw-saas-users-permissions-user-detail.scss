@@ -19,20 +19,20 @@ $sw-field-help-color: $color-darkgray-200;
 
         &.sw-detail-grid__information {
             grid-template-areas:
-            "FirstName LastName"
-            "EMail EMPTY";
+                "FirstName LastName"
+                "EMail EMPTY";
         }
 
         &.sw-detail-grid__user-interface {
             grid-template-areas:
-            "Language ProfilePicture"
-            "Timezone ProfilePicture";
+                "Language ProfilePicture"
+                "Timezone ProfilePicture";
         }
 
         &.sw-detail-grid__roles-and-permissions {
             grid-template-areas:
-            "AclRoles JobTitle"
-            "IsAdmin EMPTY";
+                "AclRoles JobTitle"
+                "IsAdmin EMPTY";
         }
     }
 

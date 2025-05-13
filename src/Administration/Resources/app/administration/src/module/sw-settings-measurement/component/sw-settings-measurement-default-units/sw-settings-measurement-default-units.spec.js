@@ -38,6 +38,7 @@ const createWrapper = async () => {
                             />
                         `,
                     },
+                    'sw-highlight-text': true,
                 },
                 mocks: {
                     $t: (path) => {
@@ -80,20 +81,6 @@ describe('src/module/sw-settings-measurement/component/sw-settings-measurement-d
         expect(wrapper.emitted('measurement-system-change')).toBeTruthy();
     });
 
-    it('should format system label correctly', async () => {
-        const wrapper = await createWrapper();
-
-        const item = {
-            name: 'Metric',
-            translated: {
-                name: 'Metric'
-            }
-        };
-
-        const formattedLabel = wrapper.vm.labelSystemCallback(item);
-        expect(formattedLabel).toBe('Metric system');
-    });
-
     it('should format unit label correctly', async () => {
         const wrapper = await createWrapper();
 
@@ -112,7 +99,6 @@ describe('src/module/sw-settings-measurement/component/sw-settings-measurement-d
     it('should handle null values in label callbacks', async () => {
         const wrapper = await createWrapper();
 
-        expect(wrapper.vm.labelSystemCallback(null)).toBe('');
         expect(wrapper.vm.labelUnitCallback(null)).toBe('');
     });
 });

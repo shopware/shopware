@@ -190,11 +190,10 @@
         "phpdocumentor/reflection-docblock": "^5.3.0",
         "phpdocumentor/type-resolver": "^1.7.1",
         "phpstan/extension-installer": "^1.4.3",
-        "phpstan/phpdoc-parser": "2.0.0",
-        "phpstan/phpstan": "2.1.8",
-        "phpstan/phpstan-deprecation-rules": "2.0.1",
-        "phpstan/phpstan-phpunit": "2.0.4",
-        "phpstan/phpstan-symfony": "2.0.2",
+        "phpstan/phpstan": "2.1.13",
+        "phpstan/phpstan-deprecation-rules": "2.0.2",
+        "phpstan/phpstan-phpunit": "2.0.6",
+        "phpstan/phpstan-symfony": "2.0.4",
         "phpunit/phpunit": "^11.5.17",
         "predis/predis": "^2.2",
         "rector/type-perfect": "2.0.2",
@@ -206,7 +205,7 @@
         "symfony/expression-language": "~7.2.0",
         "symfony/phpunit-bridge": "~7.2.0",
         "symfony/var-dumper": "~7.2.0",
-        "symplify/phpstan-rules": "14.3.5"
+        "symplify/phpstan-rules": "14.6.9"
     },
     "suggest": {
         "shopware/dev-tools": "For development tools, profiler, faker, etc",
@@ -269,7 +268,6 @@
         "phpbench": " ",
         "phpstan": "Launches the PHP static analysis tool",
         "phpstan-errors-by-area": "Shows the ignored errors defined in the phpstan-baseline.neon by area",
-        "phpstan-v66-errors-by-area": "Shows the ignored errors for versio 6.6 defined in the phpstan-v66-baseline.neon by area",
         "phpunit": "Launches the PHP unit test-suite",
         "post-install-cmd": " ",
         "post-update-cmd": " ",
@@ -404,9 +402,6 @@
         ],
         "phpstan-errors-by-area": [
             "php src/Core/DevOps/StaticAnalyze/print-ignored-errors-by-area.php phpstan-baseline.neon"
-        ],
-        "phpstan-v66-errors-by-area": [
-            "php src/Core/DevOps/StaticAnalyze/print-ignored-errors-by-area.php phpstan-v66-baseline.neon"
         ],
         "phpunit": [
             "phpunit"

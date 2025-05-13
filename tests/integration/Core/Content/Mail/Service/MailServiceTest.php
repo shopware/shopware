@@ -317,8 +317,8 @@ class MailServiceTest extends TestCase
         ]);
 
         static::assertInstanceOf(Email::class, $mail);
-        static::assertEquals('<a href="http://example.com/?foo&amp;bar=baz">&lt;foobar&gt;</a>', $mail->getHtmlBody());
-        static::assertEquals('<foobar> http://example.com/?foo&bar=baz', $mail->getTextBody());
+        static::assertSame('<a href="http://example.com/?foo&amp;bar=baz">&lt;foobar&gt;</a>', $mail->getHtmlBody());
+        static::assertSame('<foobar> http://example.com/?foo&bar=baz', $mail->getTextBody());
     }
 }
 

@@ -98,7 +98,7 @@ class ThumbnailServiceTest extends TestCase
 
         $thumbnails = $updatedMedia->getThumbnails();
         static::assertInstanceOf(MediaThumbnailCollection::class, $thumbnails);
-        static::assertEquals(2, $thumbnails->count());
+        static::assertCount(2, $thumbnails);
 
         foreach ($thumbnails as $thumbnail) {
             $thumbnailPath = $thumbnail->getPath();
@@ -204,7 +204,7 @@ class ThumbnailServiceTest extends TestCase
 
         $thumbnails = $updatedMedia->getThumbnails();
         static::assertInstanceOf(MediaThumbnailCollection::class, $thumbnails);
-        static::assertEquals(1, $thumbnails->count());
+        static::assertCount(1, $thumbnails);
 
         $thumbnail = $thumbnails->first();
         static::assertInstanceOf(MediaThumbnailEntity::class, $thumbnail);
@@ -240,7 +240,7 @@ class ThumbnailServiceTest extends TestCase
 
         $thumbnails = $updatedMedia->getThumbnails();
         static::assertInstanceOf(MediaThumbnailCollection::class, $thumbnails);
-        static::assertEquals(0, $thumbnails->count());
+        static::assertCount(0, $thumbnails);
     }
 
     public function testDeleteThumbnailsWithSavedThumbnails(): void
@@ -305,7 +305,9 @@ class ThumbnailServiceTest extends TestCase
         $media = $this->mediaRepository->search(new Criteria([$mediaId]), $this->context)->get($mediaId);
 
         static::assertInstanceOf(MediaEntity::class, $media);
-        static::assertSame(0, $media->getThumbnails()?->count());
+        $thumbnails = $media->getThumbnails();
+        static::assertNotNull($thumbnails);
+        static::assertCount(0, $thumbnails);
         static::assertTrue($this->getPublicFilesystem()->has($mediaUrl));
         foreach ($thumbnailUrls as $thumbnailUrl) {
             static::assertFalse($this->getPublicFilesystem()->has($thumbnailUrl));
@@ -322,7 +324,7 @@ class ThumbnailServiceTest extends TestCase
         $media = $this->getPng();
         $media->setMediaType(new DocumentType());
 
-        static::assertEquals(0, $this->thumbnailService->updateThumbnails(
+        static::assertSame(0, $this->thumbnailService->updateThumbnails(
             $media,
             $this->context,
             false
@@ -340,7 +342,7 @@ class ThumbnailServiceTest extends TestCase
         static::assertInstanceOf(MediaType::class, $media->getMediaType());
         $media->getMediaType()->addFlag(ImageType::VECTOR_GRAPHIC);
 
-        static::assertEquals(0, $this->thumbnailService->updateThumbnails($media, $this->context, false));
+        static::assertSame(0, $this->thumbnailService->updateThumbnails($media, $this->context, false));
     }
 
     public function testThumbnailGenerationThrowsExceptionIfFileIsAnimated(): void
@@ -354,7 +356,7 @@ class ThumbnailServiceTest extends TestCase
         static::assertInstanceOf(MediaType::class, $media->getMediaType());
         $media->getMediaType()->addFlag(ImageType::ANIMATED);
 
-        static::assertEquals(0, $this->thumbnailService->updateThumbnails($media, $this->context, false));
+        static::assertSame(0, $this->thumbnailService->updateThumbnails($media, $this->context, false));
     }
 
     public function testGenerateThumbnails(): void
@@ -407,12 +409,12 @@ class ThumbnailServiceTest extends TestCase
         $thumbnails = $media->getThumbnails();
 
         static::assertInstanceOf(MediaThumbnailCollection::class, $thumbnails);
-        static::assertEquals(2, $thumbnails->count());
+        static::assertCount(2, $thumbnails);
 
         $filteredThumbnails = $thumbnails->filter(fn (MediaThumbnailEntity $thumbnail) => ($thumbnail->getWidth() === 300 && $thumbnail->getHeight() === 300)
             || ($thumbnail->getWidth() === 150 && $thumbnail->getHeight() === 150));
 
-        static::assertEquals(2, $filteredThumbnails->count());
+        static::assertCount(2, $filteredThumbnails);
 
         /** @var MediaThumbnailEntity $thumbnail */
         foreach ($filteredThumbnails as $thumbnail) {
@@ -473,7 +475,7 @@ class ThumbnailServiceTest extends TestCase
         $thumbnails = $media->getThumbnails();
 
         static::assertInstanceOf(MediaThumbnailCollection::class, $thumbnails);
-        static::assertEquals(2, $thumbnails->count());
+        static::assertCount(2, $thumbnails);
 
         foreach ($thumbnails as $thumbnail) {
             $path = $thumbnail->getPath();
@@ -544,12 +546,12 @@ class ThumbnailServiceTest extends TestCase
         $thumbnails = $media->getThumbnails();
 
         static::assertInstanceOf(MediaThumbnailCollection::class, $thumbnails);
-        static::assertEquals(2, $thumbnails->count());
+        static::assertCount(2, $thumbnails);
 
         $filteredThumbnails = $thumbnails->filter(fn (MediaThumbnailEntity $thumbnail) => ($thumbnail->getWidth() === 300 && $thumbnail->getHeight() === 300)
             || ($thumbnail->getWidth() === 150 && $thumbnail->getHeight() === 150));
 
-        static::assertEquals(2, $filteredThumbnails->count());
+        static::assertCount(2, $filteredThumbnails);
 
         /** @var MediaThumbnailEntity $thumbnail */
         foreach ($filteredThumbnails as $thumbnail) {

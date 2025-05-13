@@ -56,7 +56,7 @@ class SitemapFileRouteTest extends TestCase
 
         $this->browser->request('POST', '/store-api/sitemap/' . $filePath);
 
-        static::assertEquals(200, $this->browser->getResponse()->getStatusCode());
+        static::assertSame(200, $this->browser->getResponse()->getStatusCode());
         static::assertSame('bar', $this->browser->getInternalResponse()->getContent());
     }
 

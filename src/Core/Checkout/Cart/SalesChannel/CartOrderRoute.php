@@ -40,16 +40,15 @@ class CartOrderRoute extends AbstractCartOrderRoute
      * @internal
      */
     public function __construct(
-        private readonly CartCalculator           $cartCalculator,
-        private readonly EntityRepository         $orderRepository,
-        private readonly OrderPersisterInterface  $orderPersister,
-        private readonly AbstractCartPersister    $cartPersister,
+        private readonly CartCalculator $cartCalculator,
+        private readonly EntityRepository $orderRepository,
+        private readonly OrderPersisterInterface $orderPersister,
+        private readonly AbstractCartPersister $cartPersister,
         private readonly EventDispatcherInterface $eventDispatcher,
-        private readonly PreparedPaymentService   $preparedPaymentService,
-        private readonly TaxProviderProcessor     $taxProviderProcessor,
-        private readonly LockFactory              $lockFactory
-    )
-    {
+        private readonly PreparedPaymentService $preparedPaymentService,
+        private readonly TaxProviderProcessor $taxProviderProcessor,
+        private readonly LockFactory $lockFactory
+    ) {
     }
 
     public function getDecorated(): AbstractCartOrderRoute
@@ -75,9 +74,9 @@ class CartOrderRoute extends AbstractCartOrderRoute
             $this->addCustomerComment($calculatedCart, $data);
             $this->addAffiliateTracking($calculatedCart, $data);
 
-            Profiler::trace('checkout-order::pre-payment', fn() => $this->preparedPaymentService->handlePreOrderPayment($calculatedCart, $data, $context));
+            $preOrderPayment = Profiler::trace('checkout-order::pre-payment', fn () => $this->preparedPaymentService->handlePreOrderPayment($calculatedCart, $data, $context));
 
-            $orderId = Profiler::trace('checkout-order::order-persist', fn() => $this->orderPersister->persist($calculatedCart, $context));
+            $orderId = Profiler::trace('checkout-order::order-persist', fn () => $this->orderPersister->persist($calculatedCart, $context));
 
             $criteria = new Criteria([$orderId]);
             $criteria->setTitle('order-route::order-loading');
@@ -101,7 +100,7 @@ class CartOrderRoute extends AbstractCartOrderRoute
             $this->eventDispatcher->dispatch(new CheckoutOrderPlacedCriteriaEvent($criteria, $context));
 
             /** @var OrderEntity|null $orderEntity */
-            $orderEntity = Profiler::trace('checkout-order::order-loading', fn() => $this->orderRepository->search($criteria, $context->getContext())->first());
+            $orderEntity = Profiler::trace('checkout-order::order-loading', fn () => $this->orderRepository->search($criteria, $context->getContext())->first());
 
             if (!$orderEntity) {
                 if (Feature::isActive('v6.6.0.0')) {
@@ -139,7 +138,7 @@ class CartOrderRoute extends AbstractCartOrderRoute
 
     private function addCustomerComment(Cart $cart, DataBag $data): void
     {
-        $customerComment = ltrim(rtrim((string)$data->get(OrderService::CUSTOMER_COMMENT_KEY, '')));
+        $customerComment = ltrim(rtrim((string) $data->get(OrderService::CUSTOMER_COMMENT_KEY, '')));
 
         if ($customerComment === '') {
             return;

@@ -40,7 +40,7 @@ class MaintenanceModeRequestEventTest extends TestCase
             true
         );
 
-        static::assertEquals(['192.168.0.1'], $event->getAllowedIps());
+        static::assertSame(['192.168.0.1'], $event->getAllowedIps());
     }
 
     public function testGetRequest(): void

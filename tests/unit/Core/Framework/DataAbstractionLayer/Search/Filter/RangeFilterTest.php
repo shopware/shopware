@@ -43,9 +43,9 @@ class RangeFilterTest extends TestCase
         ]);
         $clone = clone $filter;
 
-        static::assertEquals($filter->jsonSerialize(), $clone->jsonSerialize());
-        static::assertEquals($filter->getField(), $clone->getField());
-        static::assertEquals($filter->getFields(), $clone->getFields());
+        static::assertSame($filter->jsonSerialize(), $clone->jsonSerialize());
+        static::assertSame($filter->getField(), $clone->getField());
+        static::assertSame($filter->getFields(), $clone->getFields());
         static::assertNotSame($filter, $clone);
     }
 

@@ -56,20 +56,26 @@ class Migration1744203319MailTemplate extends MigrationStep
     private function createMailTemplateTypeTranslations(Connection $connection, string $mailTemplateTypeId, array $languages): void
     {
         $createdAt = (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT);
-        $translations = [
-            [
+
+        $translations = [];
+
+        if (\array_key_exists(self::ENGLISH_KEY, $languages)) {
+            $translations[] = [
                 'mail_template_type_id' => $mailTemplateTypeId,
                 'language_id' => $languages[self::ENGLISH_KEY],
                 'name' => 'Saas user invitation',
                 'created_at' => $createdAt,
-            ],
-            [
+            ];
+        }
+
+        if (\array_key_exists(self::GERMAN_KEY, $languages)) {
+            $translations[] = [
                 'mail_template_type_id' => $mailTemplateTypeId,
                 'language_id' => $languages[self::GERMAN_KEY],
                 'name' => 'Saas Benutzer einladung',
                 'created_at' => $createdAt,
-            ],
-        ];
+            ];
+        }
 
         foreach ($translations as $translation) {
             if ($this->mailTemplateTypeTranslationsExists($connection, $mailTemplateTypeId, $translation['language_id'])) {
@@ -114,8 +120,9 @@ class Migration1744203319MailTemplate extends MigrationStep
             }
         }
 
-        $translations = [
-            [
+        $translations = [];
+        if (\array_key_exists(self::ENGLISH_KEY, $languages)) {
+            $translations[] = [
                 'mail_template_id' => $mailTemplateId,
                 'language_id' => $languages[self::ENGLISH_KEY],
                 'sender_name' => 'Admin',
@@ -124,8 +131,11 @@ class Migration1744203319MailTemplate extends MigrationStep
                 'content_html' => $translationContent['html_en'],
                 'content_plain' => $translationContent['text_en'],
                 'created_at' => $createdAt,
-            ],
-            [
+            ];
+        }
+
+        if (\array_key_exists(self::GERMAN_KEY, $languages)) {
+            $translations[] = [
                 'mail_template_id' => $mailTemplateId,
                 'language_id' => $languages[self::GERMAN_KEY],
                 'sender_name' => 'Admin',
@@ -134,8 +144,8 @@ class Migration1744203319MailTemplate extends MigrationStep
                 'content_html' => $translationContent['html_de'],
                 'content_plain' => $translationContent['text_de'],
                 'created_at' => $createdAt,
-            ],
-        ];
+            ];
+        }
 
         foreach ($translations as $translation) {
             if ($this->mailTemplateTranslationExists($connection, $translation['mail_template_id'], $translation['language_id'])) {

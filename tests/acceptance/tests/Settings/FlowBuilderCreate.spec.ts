@@ -51,7 +51,8 @@ test('As an admin user, I want to create a new flow', { tag: '@Flow' }, async ({
         await ShopAdmin.expects(AdminFlowBuilderDetail.priorityField).toHaveValue(`${testConfig.priority}`);
         // Flow tab
         await AdminFlowBuilderDetail.flowTab.click();
-        const trigger = await AdminFlowBuilderDetail.getSelectedTrigger();
+        //const trigger = await AdminFlowBuilderDetail.getSelectedTrigger();
+        const trigger = await AdminFlowBuilderDetail.getTooltipText(AdminFlowBuilderDetail.triggerSelectField);
         ShopAdmin.expects(trigger).toEqual(`${testConfig.triggerLabel}`);
         await ShopAdmin.expects(AdminFlowBuilderDetail.conditionRule).toHaveText(`${testConfig.condition}`);
         await ShopAdmin.expects(AdminFlowBuilderDetail.sequenceSeparator).toBeVisible();

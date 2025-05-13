@@ -26,11 +26,27 @@ abstract class Error extends \Exception implements \JsonSerializable
     final public const LEVEL_ERROR = 20;
 
     /**
+     * The trace has to be cleaned up to remove service references that are not serializable.
+     *
      * @return array<string, mixed>
      */
     public function __serialize(): array
     {
-        return get_object_vars($this);
+        $ref = new \ReflectionClass($this);
+
+        $data = [];
+        foreach ($ref->getProperties() as $property) {
+            $data[$property->getName()] = $property->getValue($this);
+        }
+
+        $traces = $this->getTrace();
+        foreach ($traces as &$trace) {
+            $trace['args'] = [];
+        }
+
+        $data['trace'] = $traces;
+
+        return $data;
     }
 
     abstract public function getId(): string;

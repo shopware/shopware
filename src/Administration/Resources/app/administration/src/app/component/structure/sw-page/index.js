@@ -82,6 +82,8 @@ export default {
         return {
             module: null,
             parentRoute: null,
+            previousPath: null,
+            previousRoute: null,
             sidebarOffset: 0,
             scrollbarOffset: 0,
             hasFullWidthHeader: false,
@@ -90,6 +92,16 @@ export default {
     },
 
     computed: {
+        routerBack() {
+            if (this.previousPath && this.previousRoute === this.parentRoute) {
+                return this.previousPath;
+            }
+
+            return {
+                name: this.parentRoute,
+            };
+        },
+
         pageColor() {
             if (this.headerBorderColor) {
                 return this.headerBorderColor;
@@ -234,6 +246,12 @@ export default {
 
             if (this.$route.meta.parentPath) {
                 this.parentRoute = this.$route.meta.parentPath;
+            }
+
+            this.previousPath = this.$router.options?.history?.state?.back;
+
+            if (this.previousPath) {
+                this.previousRoute = this.$router.resolve({ path: this.previousPath }).name;
             }
         },
 

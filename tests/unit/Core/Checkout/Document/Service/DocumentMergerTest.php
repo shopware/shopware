@@ -146,7 +146,7 @@ class DocumentMergerTest extends TestCase
                 new Criteria(),
                 Context::createDefaultContext(),
             ),
-            // Second search is executed after a document was generated and returns the document WITH media
+            // The Second search is executed after a document was generated and returns the document WITH media
             new EntitySearchResult(
                 'document',
                 1,
@@ -187,7 +187,10 @@ class DocumentMergerTest extends TestCase
     {
         $fpdi = $this->createMock(Fpdi::class);
         $fpdi->expects($this->exactly(1))
-            ->method('setSourceFile');
+            ->method('setSourceFile')
+            ->willReturn(1);
+        $fpdi->method('Output')
+            ->willReturn(self::PDF_CONTENT);
 
         $firstDocument = $this->createDocument(true);
         $secondDocument = $this->createDocument(false, false);
@@ -204,8 +207,6 @@ class DocumentMergerTest extends TestCase
             ),
         ]);
 
-        $documentGenerator = $this->createMock(DocumentGenerator::class);
-
         $mediaService = $this->createMock(MediaService::class);
         $mediaService->expects($this->once())
             ->method('loadFileStream')
@@ -216,14 +217,18 @@ class DocumentMergerTest extends TestCase
         $documentMerger = new DocumentMerger(
             $documentRepository,
             $mediaService,
-            $documentGenerator,
+            $this->createMock(DocumentGenerator::class),
             $fpdi,
         );
 
-        $documentMerger->merge(
+        $result = $documentMerger->merge(
             [$firstDocument->getId(), $secondDocument->getId()],
             Context::createDefaultContext()
         );
+
+        static::assertNotNull($result);
+        static::assertEquals('pdf', $result->getFileExtension());
+        static::assertEquals(self::PDF_CONTENT, $result->getContent());
     }
 
     public function testMergeMultipleDocumentsWithFpdiFallbackToZipCreationWhenPdfMergeFails(): void
@@ -244,18 +249,13 @@ class DocumentMergerTest extends TestCase
             )
         );
 
-        $documentGenerator = $this->createMock(DocumentGenerator::class);
-
-        $mediaService = $this->createMock(MediaService::class);
-        $mediaService->method('loadFile')->willReturn(self::PDF_CONTENT);
-
         $fpdi = $this->createMock(Fpdi::class);
         $fpdi->method('setSourceFile')->willThrowException(new FpdiException('PDF merge failed'));
 
         $documentMerger = new DocumentMerger(
             $documentRepository,
-            $mediaService,
-            $documentGenerator,
+            $this->createMock(MediaService::class),
+            $this->createMock(DocumentGenerator::class),
             $fpdi
         );
 
@@ -265,8 +265,8 @@ class DocumentMergerTest extends TestCase
         );
 
         static::assertNotNull($result);
-        static::assertEquals('zip', $result->getFileExtension());
-        static::assertEquals('application/zip', $result->getContentType());
+        static::assertSame('zip', $result->getFileExtension());
+        static::assertSame('application/zip', $result->getContentType());
         static::assertNotEmpty($result->getContent());
     }
 

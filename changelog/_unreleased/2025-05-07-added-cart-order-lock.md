@@ -1,5 +1,6 @@
 ---
 title: Added locking mechanism to CartOrderRoute
+issue: 9337
 author: Max Stegmeyer
 author_email: m.stegmeyer@shopware.com
 author_github: @mstegmeyer

@@ -540,7 +540,7 @@ class NonStorageAwareField extends Field
 {
     protected function getSerializerClass(): string
     {
-        /** @phpstan-ignore-next-line Should be a class-string but we will never use this value */
+        /** @phpstan-ignore return.type (for test purpose) */
         return '';
     }
 }

@@ -3,8 +3,8 @@
  *
  * @sw-package after-sales
  */
-import createHTTPClient from '../../factory/http.factory';
 import MockAdapter from 'axios-mock-adapter';
+import createHTTPClient from '../../factory/http.factory';
 import createLoginService from '../login.service';
 import SaasInvitationService from './saas-invitation.service';
 

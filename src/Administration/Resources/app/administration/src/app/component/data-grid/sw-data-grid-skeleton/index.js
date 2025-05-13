@@ -1,14 +1,12 @@
 import template from './sw-data-grid-skeleton.html.twig';
 import './sw-data-grid-skeleton.scss';
 
-const { Component } = Shopware;
-
 /**
  * @sw-package framework
  *
  * @private
  */
-Component.register('sw-data-grid-skeleton', {
+export default {
     template,
 
     props: {
@@ -51,4 +49,4 @@ Component.register('sw-data-grid-skeleton', {
             return Math.floor(Math.random() * (max - min + 1)) + min;
         },
     },
-});
+};

@@ -1,4 +1,5 @@
 import NavbarPlugin from 'src/plugin/navbar/navbar.plugin';
+import FocusHandler from 'src/helper/focus-handler.helper';
 
 describe('NavbarPlugin', () => {
     let navbarPlugin;
@@ -211,5 +212,47 @@ describe('NavbarPlugin', () => {
         navbarPlugin._setAriaCurrentPage();
 
         expect(mockLink.getAttribute('aria-current')).toBe('page');
+    });
+
+    test('_restoreFocusAfterBtnClose should focus related dropdown top level link', () => {
+        window.focusHandler = new FocusHandler();
+
+        const mockNavItem = document.createElement('div');
+        mockNavItem.classList.add('nav-item');
+        const mockLink = document.createElement('a');
+        mockLink.classList.add('main-navigation-link');
+        mockLink.focus = jest.fn();
+        mockNavItem.appendChild(mockLink);
+        const mockDropdown = document.createElement('div');
+        mockNavItem.appendChild(mockDropdown);
+
+        const mockEvent = {
+            target: mockDropdown,
+            relatedTarget: null,
+        };
+
+        navbarPlugin._restoreFocusAfterBtnClose(mockEvent);
+
+        expect(mockLink.focus).toHaveBeenCalled();
+    });
+
+    test('_restoreFocusAfterBtnClose should skip events dispatched for top level links', () => {
+        window.focusHandler = new FocusHandler();
+
+        const mockNavItem = document.createElement('div');
+        mockNavItem.classList.add('nav-item');
+        const mockLink = document.createElement('a');
+        mockLink.classList.add('main-navigation-link');
+        mockLink.focus = jest.fn();
+        mockNavItem.appendChild(mockLink);
+
+        const mockEvent = {
+            target: mockLink,
+            relatedTarget: null,
+        };
+
+        navbarPlugin._restoreFocusAfterBtnClose(mockEvent);
+
+        expect(mockLink.focus).not.toHaveBeenCalled();
     });
 });

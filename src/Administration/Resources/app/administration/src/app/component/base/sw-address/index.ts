@@ -4,8 +4,6 @@ import type { Address } from 'src/core/service/api/custom-snippet.api.service';
 import template from './sw-address.html.twig';
 import './sw-address.scss';
 
-const { Component } = Shopware;
-
 /**
  * @sw-package framework
  *
@@ -25,7 +23,7 @@ const { Component } = Shopware;
  *     country: { name: 'Germany' }
  * }" :formattingAddress="First Name Last Name\nGermany"></sw-address>
  */
-Component.register('sw-address', {
+export default Shopware.Component.wrapComponentConfig({
     template,
 
     props: {

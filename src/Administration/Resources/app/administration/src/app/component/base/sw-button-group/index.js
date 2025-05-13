@@ -1,8 +1,6 @@
 import './sw-button-group.scss';
 import template from './sw-button-group.html.twig';
 
-const { Component } = Shopware;
-
 /**
  * @sw-package framework
  *
@@ -17,7 +15,7 @@ const { Component } = Shopware;
  *     <sw-button>Button 3</sw-button>
  * </sw-button-group>
  */
-Component.register('sw-button-group', {
+export default {
     template,
 
     props: {
@@ -42,4 +40,4 @@ Component.register('sw-button-group', {
             };
         },
     },
-});
+};

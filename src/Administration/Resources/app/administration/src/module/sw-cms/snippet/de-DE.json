@@ -813,6 +813,7 @@
         "rename": "Umbenennen",
         "delete": "Löschen",
         "duplicate": "Duplizieren",
+        "view": "Vorschau",
         "addPreviewImage": "Vorschau hinzufügen",
         "setAsDefaultProductList": "Als Standard für Kategorieseiten festlegen",
         "setAsDefaultProductDetail": "Als Standard für Produkseiten festlegen",

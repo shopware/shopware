@@ -57,4 +57,8 @@ $content-max-width: 960px;
     &__help-text {
         margin-left: 8px;
     }
+
+    .sw-block-field__block {
+        height: auto;
+    }
 }

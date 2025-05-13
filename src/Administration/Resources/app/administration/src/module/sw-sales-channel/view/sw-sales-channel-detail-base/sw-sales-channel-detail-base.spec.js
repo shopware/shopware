@@ -68,7 +68,7 @@ async function createWrapper() {
             },
             mocks: {
                 $t: jest.fn().mockImplementation((snippet) => snippet),
-                $router: { resolve: () => ({ href: '/sw/settings/payment/overview' }) }
+                $router: { resolve: () => ({ href: '/sw/settings/payment/overview' }) },
             },
         },
         props: {
@@ -1055,8 +1055,8 @@ describe('src/module/sw-sales-channel/view/sw-sales-channel-detail-base', () => 
         const wrapper = await createWrapper();
         const collection = [
             {
-                name: 'English'
-            }
+                name: 'English',
+            },
         ];
 
         const snippet = 'sw-sales-channel.detail.warningUnservedLanguage';
@@ -1065,9 +1065,9 @@ describe('src/module/sw-sales-channel/view/sw-sales-channel-detail-base', () => 
         expect(wrapper.vm.$t).toHaveBeenCalledWith(
             snippet,
             {
-                list: 'English'
+                list: 'English',
             },
-            1
+            1,
         );
 
         expect(result).toBe(snippet);
@@ -1077,22 +1077,22 @@ describe('src/module/sw-sales-channel/view/sw-sales-channel-detail-base', () => 
         const wrapper = await createWrapper();
         const collection = [
             {
-                name: 'English'
+                name: 'English',
             },
             {
-                name: 'German'
-            }
+                name: 'German',
+            },
         ];
 
         const snippet = 'sw-sales-channel.detail.warningUnservedLanguage';
-        const result =  wrapper.vm.buildUnservedLanguagesAlert(snippet, collection);
+        const result = wrapper.vm.buildUnservedLanguagesAlert(snippet, collection);
 
         expect(wrapper.vm.$t).toHaveBeenCalledWith(
             snippet,
             {
-                list: 'English, German'
+                list: 'English, German',
             },
-            2
+            2,
         );
 
         expect(result).toBe(snippet);
@@ -1101,7 +1101,7 @@ describe('src/module/sw-sales-channel/view/sw-sales-channel-detail-base', () => 
     it('should build payment alert with correct pluralization for single item', async () => {
         const wrapper = await createWrapper();
         const collection = [
-            { translated: { name: 'PayPal|Invoice' } }
+            { translated: { name: 'PayPal|Invoice' } },
         ];
 
         const snippet = 'sw-sales-channel.detail.warningDisabledPaymentMethod';
@@ -1112,9 +1112,9 @@ describe('src/module/sw-sales-channel/view/sw-sales-channel-detail-base', () => 
             snippet,
             {
                 separatedList: '<span>PayPal&vert;Invoice</span>',
-                paymentSettingsLink: '/sw/settings/payment/overview'
+                paymentSettingsLink: '/sw/settings/payment/overview',
             },
-            1
+            1,
         );
 
         expect(result).toBe(snippet);
@@ -1124,7 +1124,7 @@ describe('src/module/sw-sales-channel/view/sw-sales-channel-detail-base', () => 
         const wrapper = await createWrapper();
         const collection = [
             { translated: { name: 'PayPal|Invoice' } },
-            { translated: { name: 'Cash on delivery' } }
+            { translated: { name: 'Cash on delivery' } },
         ];
 
         const snippet = 'sw-sales-channel.detail.warningDisabledPaymentMethod';
@@ -1135,9 +1135,9 @@ describe('src/module/sw-sales-channel/view/sw-sales-channel-detail-base', () => 
             snippet,
             {
                 separatedList: '<span>PayPal&vert;Invoice</span>, <span>Cash on delivery</span>',
-                paymentSettingsLink: '/sw/settings/payment/overview'
+                paymentSettingsLink: '/sw/settings/payment/overview',
             },
-            2
+            2,
         );
 
         expect(result).toBe(snippet);
@@ -1158,9 +1158,9 @@ describe('src/module/sw-sales-channel/view/sw-sales-channel-detail-base', () => 
             snippet,
             {
                 name: 'Standard',
-                addition: 'Standard'
+                addition: 'Standard',
             },
-            1
+            1,
         );
 
         expect(result).toBe(snippet);
@@ -1176,15 +1176,15 @@ describe('src/module/sw-sales-channel/view/sw-sales-channel-detail-base', () => 
         collection.last = () => collection[1];
 
         const snippet = 'sw-sales-channel.detail.warningDisabledShippingMethod';
-        const result =  wrapper.vm.buildDisabledShippingAlert(snippet, collection);
+        const result = wrapper.vm.buildDisabledShippingAlert(snippet, collection);
 
         expect(wrapper.vm.$t).toHaveBeenCalledWith(
             snippet,
             {
                 name: 'Standard',
-                addition: 'Express'
+                addition: 'Express',
             },
-            2
+            2,
         );
 
         expect(result).toBe(snippet);

@@ -215,6 +215,7 @@ class ElasticsearchEntitySearcherTest extends TestCase
                 'index' => '',
                 'track_total_hits' => false,
                 'include_named_queries_score' => true,
+                'track_scores' => true,
                 'body' => [
                     'timeout' => '10s',
                     'from' => 0,

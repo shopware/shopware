@@ -12,7 +12,7 @@ const { Criteria, EntityCollection } = Shopware.Data;
 /**
  * @private
  */
-Component.register('sw-entity-multi-select', {
+export default {
     template,
 
     inheritAttrs: false,
@@ -450,4 +450,4 @@ Component.register('sw-entity-multi-select', {
             this.$refs.selectionList.blur();
         },
     },
-});
+};

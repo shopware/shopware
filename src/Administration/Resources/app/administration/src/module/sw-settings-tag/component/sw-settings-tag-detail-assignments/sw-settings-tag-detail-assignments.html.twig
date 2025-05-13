@@ -85,7 +85,7 @@
                                     class="associations-grid__count"
                                 >
                                     {{ getCount(item.assignment) }}
-                                    {{ $tc('sw-settings-tag.detail.assignments.assignments', getCount(item.assignment)) }}
+                                    {{ $tc('sw-settings-tag.detail.assignments.assignments', {}, getCount(item.assignment)) }}
                                 </span>
                             </mt-button>
                             {% endblock %}

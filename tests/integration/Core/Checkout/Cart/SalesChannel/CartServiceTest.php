@@ -140,7 +140,7 @@ class CartServiceTest extends TestCase
             $context
         );
 
-        /** @phpstan-ignore-next-line */
+        /** @phpstan-ignore staticMethod.impossibleType ($isMerged modified by listener) */
         static::assertTrue($isMerged);
     }
 

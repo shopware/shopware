@@ -33,6 +33,7 @@ use Symfony\Bundle\FrameworkBundle\KernelBrowser;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\HttpFoundation\Session\FlashBagAwareSessionInterface;
 
 /**
  * @internal
@@ -245,9 +246,9 @@ class AddressControllerTest extends TestCase
             ->getEntities()
             ->first();
 
+        static::assertInstanceOf(FlashBagAwareSessionInterface::class, $this->getSession());
         static::assertSame(
             ['success' => [static::getContainer()->get('translator')->trans('account.addressSaved')]],
-            // @phpstan-ignore method.notFound
             $this->getSession()->getFlashBag()->all()
         );
         static::assertTrue($response->isRedirect(), (string) $response->getContent());
@@ -371,9 +372,9 @@ class AddressControllerTest extends TestCase
         /** @var RedirectResponse $response */
         $response = $controller->switchDefaultAddress('foo', $customer->getDefaultBillingAddressId(), $context, $customer);
 
+        static::assertInstanceOf(FlashBagAwareSessionInterface::class, $this->getSession());
         static::assertSame(
             ['danger' => [static::getContainer()->get('translator')->trans('account.addressDefaultNotChanged')]],
-            // @phpstan-ignore method.notFound
             $this->getSession()->getFlashBag()->all()
         );
         static::assertTrue($response->isRedirect(), (string) $response->getContent());
@@ -414,9 +415,9 @@ class AddressControllerTest extends TestCase
         static::assertNotNull($customer);
         static::assertInstanceOf(CustomerEntity::class, $customer);
         static::assertTrue($response->isRedirect(), (string) $response->getContent());
+        static::assertInstanceOf(FlashBagAwareSessionInterface::class, $this->getSession());
         static::assertSame(
             ['success' => [static::getContainer()->get('translator')->trans('account.addressDefaultChanged')]],
-            // @phpstan-ignore method.notFound
             $this->getSession()->getFlashBag()->all()
         );
         static::assertSame($newDefaultShippingAddress, $customer->getDefaultShippingAddressId());
@@ -456,9 +457,10 @@ class AddressControllerTest extends TestCase
 
         static::assertNotNull($customer);
         static::assertInstanceOf(CustomerEntity::class, $customer);
+
+        static::assertInstanceOf(FlashBagAwareSessionInterface::class, $this->getSession());
         static::assertSame(
             ['success' => [static::getContainer()->get('translator')->trans('account.addressDefaultChanged')]],
-            // @phpstan-ignore method.notFound
             $this->getSession()->getFlashBag()->all()
         );
         static::assertTrue($response->isRedirect(), (string) $response->getContent());

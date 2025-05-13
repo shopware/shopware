@@ -104,7 +104,7 @@
                 </template>
 
                 <template #bulk-modal-delete-confirm-text="{ selectionCount }">
-                    {{ $tc('sw-settings-rule.detail.textModalBulkDelete', selectionCount, { count: selectionCount }) }}
+                    {{ $tc('sw-settings-rule.detail.textModalBulkDelete', { count: selectionCount }, selectionCount) }}
                 </template>
 
                 <template #bulk-modal-delete-items="{ isBulkLoading, deleteItems }">

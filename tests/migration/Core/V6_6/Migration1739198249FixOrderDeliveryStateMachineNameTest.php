@@ -59,7 +59,7 @@ class Migration1739198249FixOrderDeliveryStateMachineNameTest extends TestCase
         );
 
         foreach ($germanNames as $germanName) {
-            static::assertEquals('Versandstatus', $germanName);
+            static::assertSame('Versandstatus', $germanName);
         }
 
         $englishNames = $this->connection->fetchFirstColumn(
@@ -75,14 +75,14 @@ class Migration1739198249FixOrderDeliveryStateMachineNameTest extends TestCase
         );
 
         foreach ($englishNames as $englishName) {
-            static::assertEquals('Delivery state', $englishName);
+            static::assertSame('Delivery state', $englishName);
         }
     }
 
     private function executeMigration(): void
     {
         $migration = new Migration1739198249FixOrderDeliveryStateMachineName();
-        static::assertEquals($migration->getCreationTimestamp(), 1739198249);
+        static::assertSame($migration->getCreationTimestamp(), 1739198249);
 
         $this->rollback();
 

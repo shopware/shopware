@@ -16,10 +16,10 @@ class ServiceRegistryEntryTest extends TestCase
     {
         $entry = new ServiceRegistryEntry('MyCoolService', 'My Cool Service', 'https://some-service.com', '/service/lifecycle/choose-app');
 
-        static::assertEquals('MyCoolService', $entry->name);
-        static::assertEquals('https://some-service.com', $entry->host);
-        static::assertEquals('My Cool Service', $entry->description);
-        static::assertEquals('/service/lifecycle/choose-app', $entry->appEndpoint);
+        static::assertSame('MyCoolService', $entry->name);
+        static::assertSame('https://some-service.com', $entry->host);
+        static::assertSame('My Cool Service', $entry->description);
+        static::assertSame('/service/lifecycle/choose-app', $entry->appEndpoint);
     }
 
     public function testServiceRegistryEntryDefaultsToActivateOnInstall(): void

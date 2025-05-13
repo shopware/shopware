@@ -66,17 +66,17 @@ class ActiveRulesDataCollectorSubscriberTest extends TestCase
 
         $data = $subscriber->getData();
 
-        static::assertEquals(1, $subscriber->getMatchingRuleCount());
+        static::assertSame(1, $subscriber->getMatchingRuleCount());
         static::assertArrayHasKey($ruleId, $data);
 
         $rule = $data[$ruleId];
         static::assertInstanceOf(RuleEntity::class, $rule);
-        static::assertEquals(100, $rule->getPriority());
-        static::assertEquals('Demo rule', $rule->getName());
+        static::assertSame(100, $rule->getPriority());
+        static::assertSame('Demo rule', $rule->getName());
 
         $subscriber->reset();
 
-        static::assertEquals(0, $subscriber->getMatchingRuleCount());
+        static::assertSame(0, $subscriber->getMatchingRuleCount());
     }
 
     public function testEmptyRuleIds(): void
@@ -98,6 +98,6 @@ class ActiveRulesDataCollectorSubscriberTest extends TestCase
 
     public function testTemplate(): void
     {
-        static::assertEquals('@Profiling/Collector/rules.html.twig', ActiveRulesDataCollectorSubscriber::getTemplate());
+        static::assertSame('@Profiling/Collector/rules.html.twig', ActiveRulesDataCollectorSubscriber::getTemplate());
     }
 }

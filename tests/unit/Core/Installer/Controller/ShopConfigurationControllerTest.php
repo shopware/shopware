@@ -203,7 +203,7 @@ class ShopConfigurationControllerTest extends TestCase
         static::assertSame('/installer/finish', $response->getTargetUrl());
 
         static::assertFalse($session->has(DatabaseConnectionInformation::class));
-        static::assertEquals($expectedAdmin, $session->get('ADMIN_USER'));
+        static::assertSame($expectedAdmin, $session->get('ADMIN_USER'));
     }
 
     public function testPostConfigurationRouteOnError(): void
@@ -295,7 +295,7 @@ class ShopConfigurationControllerTest extends TestCase
         $this->translator->method('trans')->willReturnCallback(fn (string $key): string => $translations[$key]);
 
         $this->twig->expects($this->once())->method('render')->willReturnCallback(function (string $view, array $parameters): string {
-            static::assertEquals('@Installer/installer/shop-configuration.html.twig', $view);
+            static::assertSame('@Installer/installer/shop-configuration.html.twig', $view);
             static::assertArrayHasKey('countryIsos', $parameters);
 
             $countryIsos = $parameters['countryIsos'];

@@ -44,6 +44,9 @@ parameters:
         - src/Core/Test/Stub/Redis/RedisCompatibility.php
         - src/Core/Test/Stub/Redis/RedisMultiCompatibility.php
 
+    universalObjectCratesClasses:
+        - Shopware\Core\Content\Product\Hook\Pricing\ProductProxy
+
     ignoreErrors:
         # The symfony extension checks against the "normal" container, not the test container
         # Therefore some services in the tests are not found and the extension can not infer that all private services are public during test execution

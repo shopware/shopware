@@ -48,6 +48,7 @@ class CartException extends HttpException
     public const TAX_ID_PARAMETER_IS_MISSING = 'CHECKOUT__TAX_ID_PARAMETER_IS_MISSING';
     public const PRICE_PARAMETER_IS_MISSING = 'CHECKOUT__PRICE_PARAMETER_IS_MISSING';
     public const PRICES_PARAMETER_IS_MISSING = 'CHECKOUT__PRICES_PARAMETER_IS_MISSING';
+    public const CART_LOCKED = 'CHECKOUT__CART_LOCKED';
 
     public static function deserializeFailed(): self
     {
@@ -377,5 +378,15 @@ class CartException extends HttpException
     public static function addressNotFound(string $id): ShopwareHttpException
     {
         return new AddressNotFoundException($id);
+    }
+
+    public static function cartLocked(string $token): self
+    {
+        return new self(
+            Response::HTTP_CONFLICT,
+            self::CART_LOCKED,
+            'Cart with token {{ token }} is locked due to order creation. Please try again later.',
+            ['token' => $token]
+        );
     }
 }

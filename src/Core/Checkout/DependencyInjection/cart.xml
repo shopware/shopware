@@ -121,6 +121,7 @@
             <argument type="service" id="event_dispatcher"/>
             <argument type="service" id="Shopware\Core\Checkout\Payment\PreparedPaymentService"/>
             <argument type="service" id="Shopware\Core\Checkout\Cart\TaxProvider\TaxProviderProcessor"/>
+            <argument type="service" id="lock.factory"/>
         </service>
 
         <service id="Shopware\Core\Checkout\Cart\Price\QuantityPriceCalculator">

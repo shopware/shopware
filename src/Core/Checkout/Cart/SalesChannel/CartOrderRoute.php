@@ -26,6 +26,7 @@ use Shopware\Core\Framework\Validation\DataBag\DataBag;
 use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
 use Shopware\Core\Profiling\Profiler;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
+use Symfony\Component\Lock\LockFactory;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
@@ -33,18 +34,22 @@ use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 #[Package('checkout')]
 class CartOrderRoute extends AbstractCartOrderRoute
 {
+    private const LOCK_TTL = 30;
+
     /**
      * @internal
      */
     public function __construct(
-        private readonly CartCalculator $cartCalculator,
-        private readonly EntityRepository $orderRepository,
-        private readonly OrderPersisterInterface $orderPersister,
-        private readonly AbstractCartPersister $cartPersister,
+        private readonly CartCalculator           $cartCalculator,
+        private readonly EntityRepository         $orderRepository,
+        private readonly OrderPersisterInterface  $orderPersister,
+        private readonly AbstractCartPersister    $cartPersister,
         private readonly EventDispatcherInterface $eventDispatcher,
-        private readonly PreparedPaymentService $preparedPaymentService,
-        private readonly TaxProviderProcessor $taxProviderProcessor
-    ) {
+        private readonly PreparedPaymentService   $preparedPaymentService,
+        private readonly TaxProviderProcessor     $taxProviderProcessor,
+        private readonly LockFactory              $lockFactory
+    )
+    {
     }
 
     public function getDecorated(): AbstractCartOrderRoute
@@ -58,66 +63,75 @@ class CartOrderRoute extends AbstractCartOrderRoute
         // we use this state in stock updater class, to prevent duplicate available stock updates
         $context->addState('checkout-order-route');
 
-        $calculatedCart = $this->cartCalculator->calculate($cart, $context);
-        $this->taxProviderProcessor->process($calculatedCart, $context);
-
-        $this->addCustomerComment($calculatedCart, $data);
-        $this->addAffiliateTracking($calculatedCart, $data);
-
-        $preOrderPayment = Profiler::trace('checkout-order::pre-payment', fn () => $this->preparedPaymentService->handlePreOrderPayment($calculatedCart, $data, $context));
-
-        $orderId = Profiler::trace('checkout-order::order-persist', fn () => $this->orderPersister->persist($calculatedCart, $context));
-
-        $criteria = new Criteria([$orderId]);
-        $criteria->setTitle('order-route::order-loading');
-        $criteria
-            ->addAssociation('orderCustomer.customer')
-            ->addAssociation('orderCustomer.salutation')
-            ->addAssociation('deliveries.shippingMethod')
-            ->addAssociation('deliveries.shippingOrderAddress.country')
-            ->addAssociation('deliveries.shippingOrderAddress.countryState')
-            ->addAssociation('transactions.paymentMethod')
-            ->addAssociation('lineItems.cover')
-            ->addAssociation('lineItems.downloads.media')
-            ->addAssociation('currency')
-            ->addAssociation('addresses.country')
-            ->addAssociation('addresses.countryState')
-            ->addAssociation('stateMachineState')
-            ->addAssociation('deliveries.stateMachineState')
-            ->addAssociation('transactions.stateMachineState')
-            ->getAssociation('transactions')->addSorting(new FieldSorting('createdAt'));
-
-        $this->eventDispatcher->dispatch(new CheckoutOrderPlacedCriteriaEvent($criteria, $context));
-
-        /** @var OrderEntity|null $orderEntity */
-        $orderEntity = Profiler::trace('checkout-order::order-loading', fn () => $this->orderRepository->search($criteria, $context->getContext())->first());
-
-        if (!$orderEntity) {
-            if (Feature::isActive('v6.6.0.0')) {
-                throw CartException::invalidPaymentOrderNotStored($orderId);
-            }
-
-            throw new InvalidOrderException($orderId);
+        $lock = $this->lockFactory->createLock('cart-order-route-' . $cart->getToken(), self::LOCK_TTL);
+        if (!$lock->acquire()) {
+            throw CartException::cartLocked($cart->getToken());
         }
 
-        $event = new CheckoutOrderPlacedEvent(
-            $context->getContext(),
-            $orderEntity,
-            $context->getSalesChannel()->getId()
-        );
-
-        Profiler::trace('checkout-order::event-listeners', function () use ($event): void {
-            $this->eventDispatcher->dispatch($event);
-        });
-
-        $this->cartPersister->delete($context->getToken(), $context);
-
         try {
-            Profiler::trace('checkout-order::post-payment', function () use ($orderEntity, $data, $context, $preOrderPayment): void {
-                $this->preparedPaymentService->handlePostOrderPayment($orderEntity, $data, $context, $preOrderPayment);
+            $calculatedCart = $this->cartCalculator->calculate($cart, $context);
+            $this->taxProviderProcessor->process($calculatedCart, $context);
+
+            $this->addCustomerComment($calculatedCart, $data);
+            $this->addAffiliateTracking($calculatedCart, $data);
+
+            Profiler::trace('checkout-order::pre-payment', fn() => $this->preparedPaymentService->handlePreOrderPayment($calculatedCart, $data, $context));
+
+            $orderId = Profiler::trace('checkout-order::order-persist', fn() => $this->orderPersister->persist($calculatedCart, $context));
+
+            $criteria = new Criteria([$orderId]);
+            $criteria->setTitle('order-route::order-loading');
+            $criteria
+                ->addAssociation('orderCustomer.customer')
+                ->addAssociation('orderCustomer.salutation')
+                ->addAssociation('deliveries.shippingMethod')
+                ->addAssociation('deliveries.shippingOrderAddress.country')
+                ->addAssociation('deliveries.shippingOrderAddress.countryState')
+                ->addAssociation('transactions.paymentMethod')
+                ->addAssociation('lineItems.cover')
+                ->addAssociation('lineItems.downloads.media')
+                ->addAssociation('currency')
+                ->addAssociation('addresses.country')
+                ->addAssociation('addresses.countryState')
+                ->addAssociation('stateMachineState')
+                ->addAssociation('deliveries.stateMachineState')
+                ->addAssociation('transactions.stateMachineState')
+                ->getAssociation('transactions')->addSorting(new FieldSorting('createdAt'));
+
+            $this->eventDispatcher->dispatch(new CheckoutOrderPlacedCriteriaEvent($criteria, $context));
+
+            /** @var OrderEntity|null $orderEntity */
+            $orderEntity = Profiler::trace('checkout-order::order-loading', fn() => $this->orderRepository->search($criteria, $context->getContext())->first());
+
+            if (!$orderEntity) {
+                if (Feature::isActive('v6.6.0.0')) {
+                    throw CartException::invalidPaymentOrderNotStored($orderId);
+                }
+
+                throw new InvalidOrderException($orderId);
+            }
+
+            $event = new CheckoutOrderPlacedEvent(
+                $context->getContext(),
+                $orderEntity,
+                $context->getSalesChannel()->getId()
+            );
+
+            Profiler::trace('checkout-order::event-listeners', function () use ($event): void {
+                $this->eventDispatcher->dispatch($event);
             });
-        } catch (UnknownPaymentMethodException|PaymentException) {
-            throw CartException::invalidPaymentButOrderStored($orderId);
+
+            $this->cartPersister->delete($context->getToken(), $context);
+
+            try {
+                Profiler::trace('checkout-order::post-payment', function () use ($orderEntity, $data, $context, $preOrderPayment): void {
+                    $this->preparedPaymentService->handlePostOrderPayment($orderEntity, $data, $context, $preOrderPayment);
+                });
+            } catch (UnknownPaymentMethodException|PaymentException) {
+                throw CartException::invalidPaymentButOrderStored($orderId);
+            }
+        } finally {
+            $lock->release();
         }
 
         return new CartOrderRouteResponse($orderEntity);
@@ -125,7 +139,7 @@ class CartOrderRoute extends AbstractCartOrderRoute
 
     private function addCustomerComment(Cart $cart, DataBag $data): void
     {
-        $customerComment = ltrim(rtrim((string) $data->get(OrderService::CUSTOMER_COMMENT_KEY, '')));
+        $customerComment = ltrim(rtrim((string)$data->get(OrderService::CUSTOMER_COMMENT_KEY, '')));
 
         if ($customerComment === '') {
             return;

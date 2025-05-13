@@ -121,8 +121,7 @@ class ConnectionProfilerTest extends TestCase
         $c = unserialize(serialize($c));
         static::assertInstanceOf(ConnectionProfiler::class, $c);
 
-        $collectedQueries = $c->getQueries();
-        $collectedQueries = $collectedQueries['default'][0];
+        $collectedQueries = $c->getQueries()['default'][0];
 
         $collectedParam = $collectedQueries['params']->offsetGet(0);
         if ($collectedParam instanceof Data) {
@@ -191,8 +190,7 @@ class ConnectionProfilerTest extends TestCase
         $c = unserialize(serialize($c));
         static::assertInstanceOf(ConnectionProfiler::class, $c);
 
-        $collectedQueries = $c->getQueries();
-        $collectedQueries = $collectedQueries['default'][0];
+        $collectedQueries = $c->getQueries()['default'][0];
 
         $collectedParam = $collectedQueries['params']->offsetGet(0);
         if ($collectedParam instanceof Data) {

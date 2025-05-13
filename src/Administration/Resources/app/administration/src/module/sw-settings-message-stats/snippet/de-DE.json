@@ -17,9 +17,7 @@
             "emptyStateTitle": "Keine Statistiken verfügbar",
             "emptyStateSubline": "Es wurden noch keine Nachrichtenwarteschlange-Statistiken gesammelt.",
             "type": "Typ",
-            "count": "Anzahl",
-            "bannerTitle": "Verständnis der Nachrichtenwarteschlange-Statistiken",
-            "bannerDescription": "Diese Seite bietet Einblicke in die Leistung der Shopware-Nachrichtenwarteschlangen durch die Anzeige von Statistiken verarbeiteter Nachrichten. Jedes Mal, wenn eine Nachricht verarbeitet wird, zeichnet das System auf, wie lange die Nachricht in der Warteschlange verblieb. Die Statistiken werden basierend auf einem in den Systemeinstellungen konfigurierten gleitenden Fenster berechnet.\n\nWichtige angezeigte Statistiken:\n • Gesamtzahl der verarbeiteten Nachrichten: Wie viele Nachrichten innerhalb des Zeitfensters erfolgreich verarbeitet wurden.\n • Durchschnittliche Wartezeit in der Warteschlange: Die durchschnittliche Zeit (in Sekunden), die Nachrichten vor der Verarbeitung in der Warteschlange verbringen. Dies hilft Ihnen, Verzögerungen oder Engpässe zu erkennen.\n • Verarbeitungsfenster: Zeigt die Zeit der ältesten Nachricht an, die derzeit in den Statistiken enthalten ist. Wenn Ihr Statistikfenster beispielsweise auf 1 Stunde eingestellt ist, die Verarbeitung aber erst vor 5 Minuten begann, wird diese kürzere Dauer berücksichtigt.\n • Nachrichtentypen: Eine Aufschlüsselung der verschiedenen verarbeiteten Nachrichtentypen, einschließlich der Anzahl jedes Typs. Dies hilft Ihnen zu erkennen, ob bestimmte Nachrichtentypen die Warteschlange überlasten."
+            "count": "Anzahl"
         }
     }
 } 

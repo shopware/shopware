@@ -33,7 +33,7 @@ Module.register('sw-settings-message-stats', {
     settingsItem: {
         group: 'system',
         to: 'sw.settings.message.stats.index',
-        icon: 'regular-chart-line',
+        icon: 'regular-bars-square',
         privilege: 'system.system_config',
     },
 });

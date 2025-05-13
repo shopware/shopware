@@ -22,7 +22,6 @@ async function createWrapper() {
                 },
                 'mt-card': true,
                 'mt-data-table': true,
-                'mt-banner': true,
                 'sw-skeleton': true,
                 'sw-empty-state': true,
                 'sw-help-text': true,
@@ -44,17 +43,11 @@ describe('module/sw-settings-message-stats/page/sw-settings-message-stats', () =
     let wrapper;
 
     beforeEach(async () => {
-        if (localStorage.getItem('sw-message-stats-banner-hidden')) {
-            localStorage.removeItem('sw-message-stats-banner-hidden');
-        }
         wrapper = await createWrapper();
     });
 
     afterEach(() => {
         wrapper.unmount();
-        if (localStorage.getItem('sw-message-stats-banner-hidden')) {
-            localStorage.removeItem('sw-message-stats-banner-hidden');
-        }
     });
 
     it('should be a Vue.js component', async () => {
@@ -79,18 +72,5 @@ describe('module/sw-settings-message-stats/page/sw-settings-message-stats', () =
         expect(wrapper.vm.stats).toEqual(mockStats);
         expect(wrapper.vm.hasStats).toBe(true);
         expect(wrapper.vm.isLoading).toBe(false);
-    });
-
-    it('should handle banner closing correctly', async () => {
-        // Initially banner should be visible
-        expect(wrapper.vm.bannerHidden).toBe(false);
-        expect(localStorage.getItem('sw-message-stats-banner-hidden')).toBeNull();
-
-        // Close the banner
-        await wrapper.vm.onCloseBanner();
-
-        // Banner should be hidden and localStorage updated
-        expect(wrapper.vm.bannerHidden).toBe(true);
-        expect(localStorage.getItem('sw-message-stats-banner-hidden')).toBe('true');
     });
 });

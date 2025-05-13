@@ -14,7 +14,6 @@ export default {
         return {
             isLoading: false,
             stats: null,
-            bannerHidden: localStorage.getItem('sw-message-stats-banner-hidden') === 'true',
             columns: [
                 {
                     property: 'type',
@@ -52,10 +51,6 @@ export default {
                 second: 'numeric',
             });
         },
-
-        isBannerHidden() {
-            return this.bannerHidden;
-        },
     },
 
     created() {
@@ -65,11 +60,6 @@ export default {
     methods: {
         createdComponent() {
             this.loadStats();
-        },
-
-        onCloseBanner() {
-            localStorage.setItem('sw-message-stats-banner-hidden', 'true');
-            this.bannerHidden = true;
         },
 
         async loadStats() {

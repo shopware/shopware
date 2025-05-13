@@ -16,18 +16,6 @@
     </template>
 
     <template #content>
-        <mt-banner
-            v-if="!isBannerHidden"
-            :title="$tc('sw-settings-message-stats.general.bannerTitle')"
-            variant="info"
-            :closable="true"
-            @close="onCloseBanner"
-        >
-            <p style="white-space: pre-line">
-                {{ $tc('sw-settings-message-stats.general.bannerDescription') }}
-            </p>
-        </mt-banner>
-
         <sw-card-view>
             <template v-if="isLoading">
                 <sw-skeleton />

@@ -1,7 +1,8 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Tests\Integration\Storefront\Page;
+namespace Shopware\Tests\Unit\Storefront\Page;
 
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Product\ProductCollection;
@@ -27,6 +28,7 @@ use Symfony\Component\HttpFoundation\Request;
 /**
  * @internal
  */
+#[CoversClass(GuestWishlistPageletLoader::class)]
 class GuestWishlistPageletTest extends TestCase
 {
     use EventDispatcherBehaviour;
@@ -79,11 +81,14 @@ class GuestWishlistPageletTest extends TestCase
         // Mocks the load function
         $productRouteLoadClosure = function (Criteria $criteria, SalesChannelContext $context): ProductListResponse {
             $product1 = new ProductEntity();
-            $product1->setUniqueIdentifier($criteria->getIds()[0]); /** @phpstan-ignore-line */
+            static::assertIsString($criteria->getIds()[0]);
+            $product1->setUniqueIdentifier($criteria->getIds()[0]);
             $product2 = new ProductEntity();
-            $product2->setUniqueIdentifier($criteria->getIds()[1]); /** @phpstan-ignore-line */
+            static::assertIsString($criteria->getIds()[1]);
+            $product2->setUniqueIdentifier($criteria->getIds()[1]);
             $product3 = new ProductEntity();
-            $product3->setUniqueIdentifier($criteria->getIds()[2]); /** @phpstan-ignore-line */
+            static::assertIsString($criteria->getIds()[2]);
+            $product3->setUniqueIdentifier($criteria->getIds()[2]);
             $searchResult = new EntitySearchResult(
                 'product',
                 3,
@@ -101,17 +106,15 @@ class GuestWishlistPageletTest extends TestCase
         $context = $this->salesChannelContextMock;
 
         $eventDidRun = null;
-        $phpunit = $this;
         $listenerClosure = function (GuestWishlistPageletLoadedEvent $event) use (
             &$eventDidRun,
-            $phpunit,
             $context,
             $request
         ): void {
             $eventDidRun = true;
-            $phpunit->assertEquals($context, $event->getSalesChannelContext());
-            $phpunit->assertEquals($request, $event->getRequest());
-            $phpunit->assertEquals(3, $event->getPagelet()->getSearchResult()->getProducts()->count());
+            static::assertSame($context, $event->getSalesChannelContext());
+            static::assertSame($request, $event->getRequest());
+            static::assertCount(3, $event->getPagelet()->getSearchResult()->getProducts());
         };
 
         $this->addEventListener($this->eventDispatcher, GuestWishlistPageletLoadedEvent::class, $listenerClosure);
@@ -119,7 +122,7 @@ class GuestWishlistPageletTest extends TestCase
         $page = $this->getPageLoader()->load($request, $context);
 
         static::assertInstanceOf(GuestWishlistPagelet::class, $page);
-        $phpunit->assertEquals(3, $page->getSearchResult()->getProducts()->count());
+        static::assertCount(3, $page->getSearchResult()->getProducts());
         static::assertTrue($eventDidRun);
     }
 
@@ -135,10 +138,8 @@ class GuestWishlistPageletTest extends TestCase
             ->with('core.listing.hideCloseoutProductsWhenOutOfStock')->willReturn(true);
 
         $eventDidRun = null;
-        $phpunit = $this;
         $listenerClosure = function (GuestWishListPageletProductCriteriaEvent $event) use (
             &$eventDidRun,
-            $phpunit,
             $productId,
             $context
         ): void {
@@ -153,7 +154,7 @@ class GuestWishlistPageletTest extends TestCase
             $filter = $this->productCloseoutFilterFactory->create($context);
             $expectedCriteria->addFilter($filter);
 
-            $phpunit->assertEquals($expectedCriteria, $event->getCriteria());
+            static::assertEquals($expectedCriteria, $event->getCriteria());
         };
 
         $this->addEventListener($this->eventDispatcher, GuestWishListPageletProductCriteriaEvent::class, $listenerClosure);
@@ -175,7 +176,7 @@ class GuestWishlistPageletTest extends TestCase
         $page = $this->getPageLoader()->load($request, $context);
 
         static::assertInstanceOf(GuestWishlistPagelet::class, $page);
-        static::assertEquals(0, $page->getSearchResult()->getProducts()->count());
+        static::assertCount(0, $page->getSearchResult()->getProducts());
     }
 
     /**

@@ -27,7 +27,7 @@ in {
 
   languages.javascript = {
     enable = lib.mkDefault true;
-    package = lib.mkDefault pkgs.nodejs_20;
+    package = lib.mkDefault pkgs.nodejs_22;
   };
 
   languages.php = {

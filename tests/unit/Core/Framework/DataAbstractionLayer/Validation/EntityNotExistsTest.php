@@ -88,7 +88,7 @@ class EntityNotExistsTest extends TestCase
 
         static::expectException(FrameworkException::class);
 
-        /** @phpstan-ignore-next-line push wrong data to test */
+        /** @phpstan-ignore argument.type (for test purpose) */
         new EntityNotExists([
             'context' => $context,
             'criteria' => $criteria,
@@ -102,7 +102,7 @@ class EntityNotExistsTest extends TestCase
 
         static::expectException(FrameworkException::class);
 
-        /** @phpstan-ignore-next-line push wrong data to test */
+        /** @phpstan-ignore argument.type (for test purpose) */
         new EntityNotExists([
             'entity' => 'product_review',
             'criteria' => $criteria,
@@ -116,7 +116,7 @@ class EntityNotExistsTest extends TestCase
 
         static::expectException(FrameworkException::class);
 
-        /** @phpstan-ignore-next-line push wrong data to test */
+        /** @phpstan-ignore argument.type (for test purpose) */
         new EntityNotExists([
             'entity' => 'product_review',
             'context' => $context,
@@ -132,7 +132,7 @@ class EntityNotExistsTest extends TestCase
 
         static::expectException(FrameworkException::class);
 
-        /** @phpstan-ignore-next-line push wrong data to test */
+        /** @phpstan-ignore argument.type (for test purpose) */
         new EntityNotExists([
             'entity' => 'product_review',
             'context' => $context,

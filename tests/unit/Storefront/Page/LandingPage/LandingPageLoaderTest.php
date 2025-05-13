@@ -95,10 +95,9 @@ class LandingPageLoaderTest extends TestCase
 
         $page = $landingPageLoader->load($request, $salesChannelContext);
 
-        /** @phpstan-ignore-next-line */
-        $cmsPageLoaded = $page->getLandingPage()->getCmsPage();
-
-        static::assertSame($cmsPage, $cmsPageLoaded);
+        $cmsPageLoaded = $page->getLandingPage();
+        static::assertNotNull($cmsPageLoaded);
+        static::assertSame($cmsPage, $cmsPageLoaded->getCmsPage());
     }
 
     public function testItLoadsProperPageMetaInformation(): void

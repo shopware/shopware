@@ -25,8 +25,8 @@ class ColumnTest extends TestCase
         }
 
         $column = Column::fromXml($columnElement);
-        static::assertEquals($result, $column->isHidden());
-        static::assertEquals('column ref', $column->getRef());
+        static::assertSame($result, $column->isHidden());
+        static::assertSame('column ref', $column->getRef());
     }
 
     public static function provider(): \Generator

@@ -34,12 +34,12 @@ class SalesChannelContextTest extends TestCase
 
         $salesChannelContext->setAreaRuleIds($areaRuleIds);
 
-        static::assertEquals($areaRuleIds, $salesChannelContext->getAreaRuleIds());
+        static::assertSame($areaRuleIds, $salesChannelContext->getAreaRuleIds());
 
-        static::assertEquals([$idA, $idB], $salesChannelContext->getRuleIdsByAreas(['a']));
-        static::assertEquals([$idA, $idB, $idC, $idD], $salesChannelContext->getRuleIdsByAreas(['a', 'b']));
-        static::assertEquals([$idA, $idB], $salesChannelContext->getRuleIdsByAreas(['a', 'c']));
-        static::assertEquals([$idC], $salesChannelContext->getRuleIdsByAreas(['d']));
-        static::assertEquals([], $salesChannelContext->getRuleIdsByAreas(['f']));
+        static::assertSame([$idA, $idB], $salesChannelContext->getRuleIdsByAreas(['a']));
+        static::assertSame([$idA, $idB, $idC, $idD], $salesChannelContext->getRuleIdsByAreas(['a', 'b']));
+        static::assertSame([$idA, $idB], $salesChannelContext->getRuleIdsByAreas(['a', 'c']));
+        static::assertSame([$idC], $salesChannelContext->getRuleIdsByAreas(['d']));
+        static::assertSame([], $salesChannelContext->getRuleIdsByAreas(['f']));
     }
 }

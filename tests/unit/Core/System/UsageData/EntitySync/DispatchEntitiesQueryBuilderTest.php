@@ -211,7 +211,7 @@ class DispatchEntitiesQueryBuilderTest extends TestCase
         $parameters = $this->queryHelper->getQueryBuilder()->getParameters();
         static::assertCount(1, $parameters);
         static::assertArrayHasKey('lastApprovalDate', $parameters);
-        static::assertEquals($runDate->format(Defaults::STORAGE_DATE_TIME_FORMAT), $parameters['lastApprovalDate']);
+        static::assertSame($runDate->format(Defaults::STORAGE_DATE_TIME_FORMAT), $parameters['lastApprovalDate']);
     }
 
     public function testWithRunDateConstraintUpdatedOperation(): void
@@ -235,7 +235,7 @@ class DispatchEntitiesQueryBuilderTest extends TestCase
         $parameters = $this->queryHelper->getQueryBuilder()->getParameters();
         static::assertCount(1, $parameters);
         static::assertArrayHasKey('lastApprovalDate', $parameters);
-        static::assertEquals($runDate->format(Defaults::STORAGE_DATE_TIME_FORMAT), $parameters['lastApprovalDate']);
+        static::assertSame($runDate->format(Defaults::STORAGE_DATE_TIME_FORMAT), $parameters['lastApprovalDate']);
     }
 }
 

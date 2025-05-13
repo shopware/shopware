@@ -646,40 +646,71 @@ class RegisterRouteTest extends TestCase
     }
 
     /**
-     * @return array<int, array<int, bool|int>>
+     * @return array<int, array{isCustomerScoped: bool, hasGlobalAccount: bool, hasBoundAccount: bool, requestOnSameSalesChannel:bool, expectedStatus: int}>
      */
     public static function customerBoundToSalesChannelProvider(): array
     {
-        $isCustomerScoped = true;
-        $hasGlobalAccount = true; // Account which has bound_sales_channel_id = null
-        $hasBoundAccount = true; // Account which has bound_sales_channel_id not null
-        $requestOnSameSalesChannel = true;
-
-        $expectedSuccessStatus = 200;
-        $expectedEmailExistedStatus = 400;
-
-        return [
-            // @phpstan-ignore-next-line
-            [$isCustomerScoped, !$hasGlobalAccount, $hasBoundAccount, $requestOnSameSalesChannel, $expectedEmailExistedStatus],
-            // @phpstan-ignore-next-line
-            [$isCustomerScoped, !$hasGlobalAccount, $hasBoundAccount, !$requestOnSameSalesChannel, $expectedSuccessStatus],
-            // @phpstan-ignore-next-line
-            [$isCustomerScoped, $hasGlobalAccount, !$hasBoundAccount, $requestOnSameSalesChannel, $expectedEmailExistedStatus],
-            // @phpstan-ignore-next-line
-            [$isCustomerScoped, $hasGlobalAccount, !$hasBoundAccount, !$requestOnSameSalesChannel, $expectedEmailExistedStatus],
-            // @phpstan-ignore-next-line
-            [$isCustomerScoped, !$hasGlobalAccount, !$hasBoundAccount, $requestOnSameSalesChannel, $expectedSuccessStatus],
-            // @phpstan-ignore-next-line
-            [!$isCustomerScoped, !$hasGlobalAccount, $hasBoundAccount, $requestOnSameSalesChannel, $expectedEmailExistedStatus],
-            // @phpstan-ignore-next-line
-            [!$isCustomerScoped, !$hasGlobalAccount, $hasBoundAccount, !$requestOnSameSalesChannel, $expectedEmailExistedStatus],
-            // @phpstan-ignore-next-line
-            [!$isCustomerScoped, $hasGlobalAccount, !$hasBoundAccount, $requestOnSameSalesChannel, $expectedEmailExistedStatus],
-            // @phpstan-ignore-next-line
-            [!$isCustomerScoped, $hasGlobalAccount, !$hasBoundAccount, !$requestOnSameSalesChannel, $expectedEmailExistedStatus],
-            // @phpstan-ignore-next-line
-            [!$isCustomerScoped, !$hasGlobalAccount, !$hasBoundAccount, $requestOnSameSalesChannel, $expectedSuccessStatus],
-        ];
+        return [[
+            'isCustomerScoped' => true,
+            'hasGlobalAccount' => false,
+            'hasBoundAccount' => true, // Account which has bound_sales_channel_id not null
+            'requestOnSameSalesChannel' => true,
+            'expectedStatus' => 400, // Email existed status
+        ], [
+            'isCustomerScoped' => true,
+            'hasGlobalAccount' => false,
+            'hasBoundAccount' => true,
+            'requestOnSameSalesChannel' => false,
+            'expectedStatus' => 200, // Success status
+        ], [
+            'isCustomerScoped' => true,
+            'hasGlobalAccount' => true, // Account which has bound_sales_channel_id = null
+            'hasBoundAccount' => false,
+            'requestOnSameSalesChannel' => true,
+            'expectedStatus' => 400,
+        ], [
+            'isCustomerScoped' => true,
+            'hasGlobalAccount' => true,
+            'hasBoundAccount' => false,
+            'requestOnSameSalesChannel' => false,
+            'expectedStatus' => 400,
+        ], [
+            'isCustomerScoped' => true,
+            'hasGlobalAccount' => false,
+            'hasBoundAccount' => false,
+            'requestOnSameSalesChannel' => true,
+            'expectedStatus' => 200,
+        ], [
+            'isCustomerScoped' => false,
+            'hasGlobalAccount' => false,
+            'hasBoundAccount' => true,
+            'requestOnSameSalesChannel' => true,
+            'expectedStatus' => 400,
+        ], [
+            'isCustomerScoped' => false,
+            'hasGlobalAccount' => false,
+            'hasBoundAccount' => true,
+            'requestOnSameSalesChannel' => false,
+            'expectedStatus' => 400,
+        ], [
+            'isCustomerScoped' => false,
+            'hasGlobalAccount' => true,
+            'hasBoundAccount' => false,
+            'requestOnSameSalesChannel' => true,
+            'expectedStatus' => 400,
+        ], [
+            'isCustomerScoped' => false,
+            'hasGlobalAccount' => true,
+            'hasBoundAccount' => false,
+            'requestOnSameSalesChannel' => false,
+            'expectedStatus' => 400,
+        ], [
+            'isCustomerScoped' => false,
+            'hasGlobalAccount' => false,
+            'hasBoundAccount' => false,
+            'requestOnSameSalesChannel' => true,
+            'expectedStatus' => 200,
+        ]];
     }
 
     public function testRegistrationWithAllowedAccountType(): void

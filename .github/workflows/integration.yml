@@ -297,7 +297,7 @@ jobs:
 
       - uses: actions/setup-node@cdca7365b2dadb8aad0a33bc7601856ffabcc48e # 4
         with:
-          node-version: 20
+          node-version: 22
 
       - name: Install dependencies
         working-directory: new-shopware/tests/acceptance

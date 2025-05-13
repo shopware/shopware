@@ -64,6 +64,12 @@ class CartOrderRoute extends AbstractCartOrderRoute
     #[Route(path: '/store-api/checkout/order', name: 'store-api.checkout.cart.order', methods: ['POST'], defaults: ['_loginRequired' => true, '_loginRequiredAllowGuest' => true])]
     public function order(Cart $cart, SalesChannelContext $context, RequestDataBag $data): CartOrderRouteResponse
     {
+        $hash = $data->getAlnum('hash');
+
+        if ($hash && !$this->cartContextHasher->isMatching($hash, $cart, $context)) {
+            throw CartException::hashMismatch($cart->getToken());
+        }
+
         // we use this state in stock updater class, to prevent duplicate available stock updates
         $context->addState('checkout-order-route');
 

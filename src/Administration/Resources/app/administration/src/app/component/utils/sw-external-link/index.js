@@ -1,8 +1,6 @@
 import template from './sw-external-link.html.twig';
 import './sw-external-link.scss';
 
-const { Component } = Shopware;
-
 /**
  * @sw-package framework
  *
@@ -17,7 +15,7 @@ const { Component } = Shopware;
  * </sw-external-link>
  */
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
-Component.register('sw-external-link', {
+export default {
     template,
 
     inheritAttrs: false,
@@ -65,4 +63,4 @@ Component.register('sw-external-link', {
             this.$emit('click', event);
         },
     },
-});
+};

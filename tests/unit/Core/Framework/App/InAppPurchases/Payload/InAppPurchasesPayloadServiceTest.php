@@ -214,7 +214,7 @@ class InAppPurchasesPayloadServiceTest extends TestCase
                 'body' => '{"purchases":["purchase-1","purchase-2"]}',
             ]));
 
-        /** @phpstan-ignore shopware.mockingSimpleObjects (it is literally tested, if post method is used) */
+        /** @phpstan-ignore shopware.mockingSimpleObjects (for test purpose) */
         $client = $this->createMock(Client::class);
         $client
             ->expects($this->once())

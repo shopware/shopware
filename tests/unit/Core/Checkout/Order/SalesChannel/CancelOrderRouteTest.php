@@ -15,7 +15,6 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\System\StateMachine\Aggregation\StateMachineState\StateMachineStateEntity;
-use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Shopware\Core\Test\Stub\DataAbstractionLayer\StaticEntityRepository;
 use Shopware\Core\Test\Stub\SystemConfigService\StaticSystemConfigService;
 use Symfony\Component\HttpFoundation\ParameterBag;
@@ -40,7 +39,7 @@ class CancelOrderRouteTest extends TestCase
             ]),
         );
 
-        $route->cancel(new Request(), $this->createMock(SalesChannelContext::class));
+        $route->cancel(new Request(['orderId' => Uuid::randomHex()]), $this->createMock(SalesChannelContext::class));
     }
 
     public function testNoOrderId(): void
@@ -60,7 +59,7 @@ class CancelOrderRouteTest extends TestCase
 
     public function testNotLoggedIn(): void
     {
-        $this->expectException(OrderException::class);
+        $this->expectExceptionObject(OrderException::customerNotLoggedIn());
 
         $salesChannelContext = $this->createMock(SalesChannelContext::class);
         $salesChannelContext

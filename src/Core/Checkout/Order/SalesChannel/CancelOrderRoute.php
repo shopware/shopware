@@ -37,7 +37,7 @@ class CancelOrderRoute extends AbstractCancelOrderRoute
     #[Route(path: '/store-api/order/state/cancel', name: 'store-api.order.state.cancel', methods: ['POST'], defaults: ['_loginRequired' => true, '_loginRequiredAllowGuest' => true])]
     public function cancel(Request $request, SalesChannelContext $context): CancelOrderRouteResponse
     {
-        if ($this->systemConfigService->getBool('core.cart.enableOrderRefunds', $context->getSalesChannelId())) {
+        if (!$this->systemConfigService->getBool('core.cart.enableOrderRefunds', $context->getSalesChannelId())) {
             throw OrderException::orderNotCancellable();
         }
 

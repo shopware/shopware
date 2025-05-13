@@ -14,6 +14,11 @@ jobs:
         with:
           script: |
             console.debug(context.payload);
+            const issue = context.payload.issue || context.payload.pull_request;
+            if (issue && issue.state === "closed") {
+              console.debug("Issue or PR is closed. Skipping label management.");
+              return;
+            }
             const issue_number = context.payload.number ?? context.payload.issue.number;
 
             // get labels via api

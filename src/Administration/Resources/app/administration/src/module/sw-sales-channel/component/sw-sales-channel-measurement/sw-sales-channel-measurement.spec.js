@@ -17,6 +17,7 @@ async function createWrapper() {
             stubs: {
                 'sw-container': true,
                 'sw-entity-single-select': true,
+                'sw-highlight-text': true,
             },
             mocks: {
                 $t: (key) => key,

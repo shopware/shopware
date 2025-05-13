@@ -223,14 +223,14 @@
     {% block sw_custom_field_list_custom_field_delete %}
     <sw-modal
         v-if="deleteCustomField"
-        :title="$tc('sw-settings-custom-field.customField.list.titleDeleteAction', deleteCustomField.length)"
+        :title="$tc('sw-settings-custom-field.customField.list.titleDeleteAction', {}, deleteCustomField.length)"
         variant="small"
         @modal-close="onCancelDeleteCustomField"
     >
 
         {% block sw_custom_field_list_custom_field_delete_text %}
         <p class="sw-custom-field-delete__description">
-            {{ $tc('sw-settings-custom-field.customField.list.textDeleteActionConfirmation', deleteCustomField.length, { count: deleteCustomField.length }) }}
+            {{ $tc('sw-settings-custom-field.customField.list.textDeleteActionConfirmation', { count: deleteCustomField.length }, deleteCustomField.length) }}
         </p>
         {% endblock %}
 

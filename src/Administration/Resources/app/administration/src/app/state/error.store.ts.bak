@@ -1,0 +1,154 @@
+/**
+ * @package admin
+ */
+import type { Module } from 'vuex';
+import type { State } from 'src/core/data/error-store.data';
+
+const { Application } = Shopware;
+const { ErrorStore } = Shopware.Data;
+const utils = Shopware.Utils;
+
+type TVuexErrorStore = Module<State, VuexRootState>;
+
+class VuexErrorStore {
+    namespaced: TVuexErrorStore['namespaced'];
+
+    state: TVuexErrorStore['state'];
+
+    mutations: TVuexErrorStore['mutations'];
+
+    getters: TVuexErrorStore['getters'];
+
+    actions: TVuexErrorStore['actions'];
+
+    constructor() {
+        this.namespaced = true;
+
+        this.state = {
+            system: {},
+            api: {},
+        };
+
+        this.mutations = {
+            addApiError(state, { expression, error }: { error: ShopwareHttpError, expression: string }) {
+                error.selfLink = expression;
+                // eslint-disable-next-line @typescript-eslint/unbound-method
+                ErrorStore.addApiError(expression, error, state, Application.view?.setReactive);
+            },
+
+            removeApiError(state, { expression }: { expression: string }) {
+                // eslint-disable-next-line @typescript-eslint/unbound-method
+                ErrorStore.removeApiError(expression, state, Application.view.deleteReactive);
+            },
+
+            resetApiErrors(state) {
+                ErrorStore.resetApiErrors(state);
+            },
+
+            addSystemError(state, { error, id = utils.createId() }: { error: ShopwareHttpError, id: string }) {
+                ErrorStore.addSystemError(error, id, state, Application.view.setReactive);
+            },
+
+            removeSystemError(state, { id }: { id: string }) {
+                ErrorStore.removeSystemError(id, state, Application.view.deleteReactive);
+            },
+        };
+
+        this.getters = {
+            getErrorsForEntity: (state) => (entityName: string, id: string) => {
+                const entityStorage = state.api[entityName];
+                if (!entityStorage) {
+                    return null;
+                }
+
+                return entityStorage[id] || null;
+            },
+
+            getApiErrorFromPath: (state, getters) => (entityName: string, id: string, path: string[]) => {
+                return path.reduce((store, next) => {
+                    if (store === null) {
+                        return null;
+                    }
+
+                    if (store.hasOwnProperty(next)) {
+                        return store[next];
+                    }
+                    return null;
+                }, getters.getErrorsForEntity(entityName, id));
+            },
+
+            getApiError: (state, getters) => (entity, field: string) => {
+                const path = field.split('.');
+                return getters.getApiErrorFromPath(entity.getEntityName(), entity.id, path);
+            },
+
+            getSystemConfigApiError: (state, getters) => (entityName: string, saleChannelId: string, key) => {
+                const errors = getters.getErrorsForEntity(entityName, saleChannelId);
+
+                if (!errors) {
+                    return null;
+                }
+
+                if (errors.hasOwnProperty(key)) {
+                    return errors[key];
+                }
+
+                return null;
+            },
+
+            getAllApiErrors: (state) => () => {
+                return Object.values(state.api);
+            },
+
+            existsErrorInProperty: (state) => (entity, properties) => {
+                const entityErrors = state.api[entity];
+                if (!entityErrors) {
+                    return false;
+                }
+
+                return Object.keys(entityErrors).some((id) => {
+                    const instance = entityErrors[id];
+                    return Object.keys(instance).some((propWithError) => {
+                        return properties.includes(propWithError);
+                    });
+                });
+            },
+
+            getSystemError: (state) => (id) => {
+                return state.system[id] || null;
+            },
+
+            countSystemError: (state) => () => {
+                return Object.keys(state.system).length;
+            },
+        };
+
+        this.actions = {
+            addApiError({ commit }, { expression, error }) {
+                commit('addApiError', { expression, error });
+            },
+
+            removeApiError({ commit }, { expression }) {
+                commit('removeApiError', { expression });
+            },
+
+            resetApiErrors({ commit }) {
+                commit('resetApiErrors');
+            },
+
+            addSystemError({ commit }, { error, id = utils.createId() }) {
+                commit('addSystemError', { error, id });
+                return id;
+            },
+
+            removeSystemError({ commit }, { id }) {
+                commit('removeSystemError', { id });
+            },
+        };
+    }
+}
+
+/**
+ * @private
+ */
+export default new VuexErrorStore();

@@ -90,10 +90,10 @@ class PromotionSetGroupCalculationTest extends TestCase
             ->addDiscount(PromotionDiscountEntity::SCOPE_SET, PromotionDiscountEntity::TYPE_PERCENTAGE, 100.0, false, null);
         $cart = $this->getCart($promotionBuilder, $productId1, $productId2, $code);
 
-        static::assertEquals(65.0, $cart->getPrice()->getPositionPrice(), 'Position Total Price is wrong');
-        static::assertEquals(65.0, $cart->getPrice()->getTotalPrice(), 'Total Price is wrong');
-        static::assertEquals(54.62, $cart->getPrice()->getNetPrice(), 'Net Price is wrong');
-        static::assertEquals(10.38, $cart->getPrice()->getCalculatedTaxes()->getAmount(), 'Taxes are wrong');
+        static::assertSame(65.0, $cart->getPrice()->getPositionPrice(), 'Position Total Price is wrong');
+        static::assertSame(65.0, $cart->getPrice()->getTotalPrice(), 'Total Price is wrong');
+        static::assertSame(54.62, $cart->getPrice()->getNetPrice(), 'Net Price is wrong');
+        static::assertSame(10.38, $cart->getPrice()->getCalculatedTaxes()->getAmount(), 'Taxes are wrong');
     }
 
     /**
@@ -130,16 +130,16 @@ class PromotionSetGroupCalculationTest extends TestCase
         $cart = $this->getCart($promotionBuilder, $productId1, $productId2, $code);
 
         // total is the sum of p1 + p2 minus the absolute + the last product
-        $expectedTotal = (30 + 60 - 50) + 60;
+        $expectedTotal = (30.0 + 60.0 - 50.0) + 60.0;
         // net price is both prices of p1 and p2 minus 50 and their net value......+ the net price of the last product
-        $expectedNetPrice = ((30 + 60 - 50) / 119 * 100) + (60 / 119 * 100);
+        $expectedNetPrice = ((30.0 + 60.0 - 50.0) / 119.0 * 100.0) + (60.0 / 119.0 * 100.0);
         // taxes should be the difference
         $expectedTaxes = $expectedTotal - $expectedNetPrice;
 
-        static::assertEquals($expectedTotal, $cart->getPrice()->getPositionPrice(), 'Position Total Price is wrong');
-        static::assertEquals($expectedTotal, $cart->getPrice()->getTotalPrice(), 'Total Price is wrong');
-        static::assertEquals(round($expectedNetPrice, 2), $cart->getPrice()->getNetPrice(), 'Net Price is wrong');
-        static::assertEquals(round($expectedTaxes, 2), $cart->getPrice()->getCalculatedTaxes()->getAmount(), 'Taxes are wrong');
+        static::assertSame($expectedTotal, $cart->getPrice()->getPositionPrice(), 'Position Total Price is wrong');
+        static::assertSame($expectedTotal, $cart->getPrice()->getTotalPrice(), 'Total Price is wrong');
+        static::assertSame(round($expectedNetPrice, 2), $cart->getPrice()->getNetPrice(), 'Net Price is wrong');
+        static::assertSame(round($expectedTaxes, 2), $cart->getPrice()->getCalculatedTaxes()->getAmount(), 'Taxes are wrong');
     }
 
     /**
@@ -176,16 +176,16 @@ class PromotionSetGroupCalculationTest extends TestCase
         $cart = $this->getCart($promotionBuilder, $productId1, $productId2, $code);
 
         // total is the sum of p1 + p2 minus the absolute + the last product
-        $expectedTotal = (20 + 20) + 60;
+        $expectedTotal = (20.0 + 20.0) + 60.0;
         // net price is both prices of p1 and p2 minus 50 and their net value......+ the net price of the last product
-        $expectedNetPrice = ((20 + 20) / 119 * 100) + (60 / 119 * 100);
+        $expectedNetPrice = ((20.0 + 20.0) / 119.0 * 100.0) + (60.0 / 119.0 * 100.0);
         // taxes should be the difference
         $expectedTaxes = $expectedTotal - $expectedNetPrice;
 
-        static::assertEquals($expectedTotal, $cart->getPrice()->getPositionPrice(), 'Position Total Price is wrong');
-        static::assertEquals($expectedTotal, $cart->getPrice()->getTotalPrice(), 'Total Price is wrong');
-        static::assertEquals(round($expectedNetPrice, 2), $cart->getPrice()->getNetPrice(), 'Net Price is wrong');
-        static::assertEquals(round($expectedTaxes, 2), $cart->getPrice()->getCalculatedTaxes()->getAmount(), 'Taxes are wrong');
+        static::assertSame($expectedTotal, $cart->getPrice()->getPositionPrice(), 'Position Total Price is wrong');
+        static::assertSame($expectedTotal, $cart->getPrice()->getTotalPrice(), 'Total Price is wrong');
+        static::assertSame(round($expectedNetPrice, 2), $cart->getPrice()->getNetPrice(), 'Net Price is wrong');
+        static::assertSame(round($expectedTaxes, 2), $cart->getPrice()->getCalculatedTaxes()->getAmount(), 'Taxes are wrong');
     }
 
     /**
@@ -222,16 +222,16 @@ class PromotionSetGroupCalculationTest extends TestCase
         $cart = $this->getCart($promotionBuilder, $productId1, $productId2, $code);
 
         // total is the sum of p1 + p2 minus the absolute + the last product
-        $expectedTotal = 50 + 60;
+        $expectedTotal = 50.0 + 60.0;
         // net price is both prices of p1 and p2 minus 50 and their net value......+ the net price of the last product
-        $expectedNetPrice = (50 / 119 * 100) + (60 / 119 * 100);
+        $expectedNetPrice = (50.0 / 119.0 * 100.0) + (60.0 / 119.0 * 100.0);
         // taxes should be the difference
         $expectedTaxes = $expectedTotal - $expectedNetPrice;
 
-        static::assertEquals($expectedTotal, $cart->getPrice()->getPositionPrice(), 'Position Total Price is wrong');
-        static::assertEquals($expectedTotal, $cart->getPrice()->getTotalPrice(), 'Total Price is wrong');
-        static::assertEquals(round($expectedNetPrice, 2), $cart->getPrice()->getNetPrice(), 'Net Price is wrong');
-        static::assertEquals(round($expectedTaxes, 2), $cart->getPrice()->getCalculatedTaxes()->getAmount(), 'Taxes are wrong');
+        static::assertSame($expectedTotal, $cart->getPrice()->getPositionPrice(), 'Position Total Price is wrong');
+        static::assertSame($expectedTotal, $cart->getPrice()->getTotalPrice(), 'Total Price is wrong');
+        static::assertSame(round($expectedNetPrice, 2), $cart->getPrice()->getNetPrice(), 'Net Price is wrong');
+        static::assertSame(round($expectedTaxes, 2), $cart->getPrice()->getCalculatedTaxes()->getAmount(), 'Taxes are wrong');
     }
 
     protected function createPromotionFixtureBuilder(ContainerInterface $container): PromotionFixtureBuilder

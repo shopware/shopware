@@ -8,7 +8,7 @@ const createWrapper = async (options = {}) => {
     const mockMeasurementSystem = {
         'core.measurementSystem.typeId': 'metric',
         'core.measurementSystem.lengthUnitId': 'mm',
-        'core.measurementSystem.massUnitId': 'kg',
+        'core.measurementSystem.weightUnitId': 'kg',
     };
 
     const mockDefaultUnits = new EntityCollection(
@@ -18,7 +18,7 @@ const createWrapper = async (options = {}) => {
         { isShopwareContext: true },
         [
             { id: 'mm', type: 'length', measurementSystemId: 'metric' },
-            { id: 'kg', type: 'mass', measurementSystemId: 'metric' },
+            { id: 'kg', type: 'weight', measurementSystemId: 'metric' },
         ],
         2,
         null,
@@ -94,7 +94,7 @@ describe('src/module/sw-settings-measurement/page/sw-settings-measurement', () =
         expect(wrapper.vm.measurementSystem).toEqual({
             typeId: 'metric',
             lengthUnitId: 'mm',
-            massUnitId: 'kg',
+            weightUnitId: 'kg',
         });
         expect(wrapper.vm.defaultDisplayUnits).toHaveLength(2);
         expect(wrapper.vm.defaultDisplayUnits[0].id).toBe('mm');
@@ -106,7 +106,7 @@ describe('src/module/sw-settings-measurement/page/sw-settings-measurement', () =
             measurementSystem: {
                 typeId: 'imperial',
                 lengthUnitId: 'in',
-                massUnitId: 'lb',
+                weightUnitId: 'lb',
             },
         });
 
@@ -119,7 +119,7 @@ describe('src/module/sw-settings-measurement/page/sw-settings-measurement', () =
         expect(wrapper.vm.systemConfigApiService.saveValues).toHaveBeenCalledWith({
             'core.measurementSystem.typeId': 'imperial',
             'core.measurementSystem.lengthUnitId': 'in',
-            'core.measurementSystem.massUnitId': 'lb',
+            'core.measurementSystem.weightUnitId': 'lb',
         });
         expect(wrapper.vm.createNotificationSuccess).toHaveBeenCalledWith({
             title: 'global.default.success',
@@ -132,7 +132,7 @@ describe('src/module/sw-settings-measurement/page/sw-settings-measurement', () =
             measurementSystem: {
                 typeId: 'metric',
                 lengthUnitId: 'mm',
-                massUnitId: 'kg',
+                weightUnitId: 'kg',
             },
         });
 
@@ -156,7 +156,7 @@ describe('src/module/sw-settings-measurement/page/sw-settings-measurement', () =
             { isShopwareContext: true },
             [
                 { id: 'in', type: 'length', measurementSystemId: 'imperial' },
-                { id: 'lb', type: 'mass', measurementSystemId: 'imperial' },
+                { id: 'lb', type: 'weight', measurementSystemId: 'imperial' },
             ],
             2,
             null,
@@ -172,6 +172,6 @@ describe('src/module/sw-settings-measurement/page/sw-settings-measurement', () =
         wrapper.vm.onChangeMeasurementSystem();
 
         expect(wrapper.vm.measurementSystem.lengthUnitId).toBe('in');
-        expect(wrapper.vm.measurementSystem.massUnitId).toBe('lb');
+        expect(wrapper.vm.measurementSystem.weightUnitId).toBe('lb');
     });
 });

@@ -11,7 +11,7 @@
             "config": {
                 "type": "Unit system",
                 "lengthUnit": "Length unit",
-                "massUnit": "Weight unit"
+                "weightUnit": "Weight unit"
             }
         },
         "notification": {

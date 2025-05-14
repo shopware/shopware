@@ -13,10 +13,10 @@ const createWrapper = async () => {
                 measurementSystem: {
                     typeId: 'type-1',
                     lengthUnitId: 'length-1',
-                    massUnitId: 'mass-1',
+                    weightUnitId: 'weight-1',
                 },
                 lengthUnitCriteria: {},
-                massUnitCriteria: {},
+                weightUnitCriteria: {},
             },
             global: {
                 stubs: {
@@ -70,7 +70,7 @@ describe('src/module/sw-settings-measurement/component/sw-settings-measurement-d
 
         expect(swEntitySingleSelect[0].element.value).toBe('type-1');
         expect(swEntitySingleSelect[1].element.value).toBe('length-1');
-        expect(swEntitySingleSelect[2].element.value).toBe('mass-1');
+        expect(swEntitySingleSelect[2].element.value).toBe('weight-1');
     });
 
     it('should emit measurement-system-change event when measurement system changes', async () => {

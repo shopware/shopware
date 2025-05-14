@@ -45,7 +45,7 @@ class Migration1745319883AddDefaultConfigForMeasurementSystem extends MigrationS
         ]);
 
         foreach ($units as $id => $unitType) {
-            $configKey = $unitType === 'length' ? 'core.measurementSystem.lengthUnitId' : 'core.measurementSystem.massUnitId';
+            $configKey = $unitType === 'length' ? 'core.measurementSystem.lengthUnitId' : 'core.measurementSystem.weightUnitId';
             $connection->executeStatement($query, [
                 'id' => Uuid::randomBytes(),
                 'configKey' => $configKey,

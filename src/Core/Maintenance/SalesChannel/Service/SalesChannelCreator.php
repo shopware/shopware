@@ -97,7 +97,7 @@ class SalesChannelCreator
             'countries' => $countries,
             'measurementSystemId' => Uuid::fromStringToHex('metric'),
             'lengthUnitId' => Uuid::fromStringToHex('metric-mm'),
-            'massUnitId' => Uuid::fromStringToHex('metric-kg'),
+            'weightUnitId' => Uuid::fromStringToHex('metric-kg'),
         ];
 
         $data = array_replace_recursive($data, $overwrites);

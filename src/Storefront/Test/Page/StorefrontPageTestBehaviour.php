@@ -172,7 +172,7 @@ trait StorefrontPageTestBehaviour
             'countries' => [['id' => $countryId]],
             'measurementSystemId' => Uuid::fromStringToHex('metric'),
             'lengthUnitId' => Uuid::fromStringToHex('metric-mm'),
-            'massUnitId' => Uuid::fromStringToHex('metric-kg'),
+            'weightUnitId' => Uuid::fromStringToHex('metric-kg'),
             'domains' => [
                 [
                     'url' => 'http://test.com/' . Uuid::randomHex(),
@@ -181,7 +181,7 @@ trait StorefrontPageTestBehaviour
                     'snippetSetId' => $snippetSetId,
                     'measurementSystemId' => Uuid::fromStringToHex('metric'),
                     'lengthUnitId' => Uuid::fromStringToHex('metric-mm'),
-                    'massUnitId' => Uuid::fromStringToHex('metric-kg'),
+                    'weightUnitId' => Uuid::fromStringToHex('metric-kg'),
                 ],
             ],
         ];
@@ -217,7 +217,7 @@ trait StorefrontPageTestBehaviour
             'countries' => [['id' => $countryId]],
             'measurementSystemId' => Uuid::fromStringToHex('metric'),
             'lengthUnitId' => Uuid::fromStringToHex('metric-mm'),
-            'massUnitId' => Uuid::fromStringToHex('metric-kg'),
+            'weightUnitId' => Uuid::fromStringToHex('metric-kg'),
             'domains' => [
                 [
                     'url' => 'http://test.com/' . Uuid::randomHex(),
@@ -226,7 +226,7 @@ trait StorefrontPageTestBehaviour
                     'snippetSetId' => $snippetSetId,
                     'measurementSystemId' => Uuid::fromStringToHex('metric'),
                     'lengthUnitId' => Uuid::fromStringToHex('metric-mm'),
-                    'massUnitId' => Uuid::fromStringToHex('metric-kg'),
+                    'weightUnitId' => Uuid::fromStringToHex('metric-kg'),
                 ],
             ],
         ];
@@ -268,7 +268,7 @@ trait StorefrontPageTestBehaviour
             'countries' => [['id' => $countryId]],
             'measurementSystemId' => Uuid::fromStringToHex('metric'),
             'lengthUnitId' => Uuid::fromStringToHex('metric-mm'),
-            'massUnitId' => Uuid::fromStringToHex('metric-kg'),
+            'weightUnitId' => Uuid::fromStringToHex('metric-kg'),
             'domains' => [
                 [
                     'url' => 'http://test.com/' . Uuid::randomHex(),
@@ -277,7 +277,7 @@ trait StorefrontPageTestBehaviour
                     'snippetSetId' => $snippetSetId,
                     'measurementSystemId' => Uuid::fromStringToHex('metric'),
                     'lengthUnitId' => Uuid::fromStringToHex('metric-mm'),
-                    'massUnitId' => Uuid::fromStringToHex('metric-kg'),
+                    'weightUnitId' => Uuid::fromStringToHex('metric-kg'),
                 ],
             ],
         ];

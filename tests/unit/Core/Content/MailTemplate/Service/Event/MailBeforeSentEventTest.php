@@ -39,7 +39,7 @@ class MailBeforeSentEventTest extends TestCase
         $storer->restore($flow);
 
         static::assertArrayHasKey('data', $flow->data());
-        static::assertEquals(['foo' => 'bar'], $flow->data()['data']);
+        static::assertSame(['foo' => 'bar'], $flow->data()['data']);
     }
 
     public function testInstantiate(): void

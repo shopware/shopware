@@ -52,7 +52,7 @@ class CartScopeDiscountPackagerTest extends TestCase
 
         $ids = $packages->first()?->getMetaData()->map(fn (LineItemQuantity $item) => $item->getLineItemId());
 
-        static::assertEquals($expected, $ids);
+        static::assertSame($expected, $ids);
     }
 
     public static function buildPackagesProvider(): \Generator

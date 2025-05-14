@@ -54,7 +54,7 @@ class FirstRunWizardClientTest extends TestCase
             $firstRunWizardUserToken
         );
 
-        static::assertEquals(
+        static::assertSame(
             $firstRunWizardUserToken,
             $frwClient->frwLogin('j.doe@shopware.com', 'p4ssw0rd', $this->context)
         );
@@ -142,7 +142,7 @@ class FirstRunWizardClientTest extends TestCase
             $shopUserToken
         );
 
-        static::assertEquals(
+        static::assertSame(
             $shopUserToken,
             $frwClient->upgradeAccessToken($this->context)
         );
@@ -168,7 +168,7 @@ class FirstRunWizardClientTest extends TestCase
             $regions
         );
 
-        static::assertEquals(
+        static::assertSame(
             $regions,
             $frwClient->getRecommendationRegions($this->context)
         );
@@ -205,7 +205,7 @@ class FirstRunWizardClientTest extends TestCase
             $recommendations
         );
 
-        static::assertEquals(
+        static::assertSame(
             $recommendations,
             $frwClient->getRecommendations('us-west', 'payment', $this->context)
         );
@@ -231,7 +231,7 @@ class FirstRunWizardClientTest extends TestCase
             $languagePlugins
         );
 
-        static::assertEquals(
+        static::assertSame(
             $languagePlugins,
             $frwClient->getLanguagePlugins($this->context)
         );
@@ -257,7 +257,7 @@ class FirstRunWizardClientTest extends TestCase
             $languagePlugins
         );
 
-        static::assertEquals(
+        static::assertSame(
             $languagePlugins,
             $frwClient->getDemoDataPlugins($this->context)
         );
@@ -284,7 +284,7 @@ class FirstRunWizardClientTest extends TestCase
             $licenseDomains
         );
 
-        static::assertEquals(
+        static::assertSame(
             $licenseDomains,
             $frwClient->getLicenseDomains($this->context)
         );
@@ -335,7 +335,7 @@ class FirstRunWizardClientTest extends TestCase
             $verificationInfo
         );
 
-        static::assertEquals(
+        static::assertSame(
             $verificationInfo,
             $frwClient->fetchVerificationInfo('shopware.swag', $this->context)
         );

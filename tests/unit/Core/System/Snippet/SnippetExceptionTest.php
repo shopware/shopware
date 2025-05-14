@@ -19,17 +19,17 @@ class SnippetExceptionTest extends TestCase
     {
         $exception = SnippetException::invalidFilterName();
 
-        static::assertEquals(Response::HTTP_BAD_REQUEST, $exception->getStatusCode());
-        static::assertEquals(SnippetException::SNIPPET_INVALID_FILTER_NAME, $exception->getErrorCode());
-        static::assertEquals('Snippet filter name is invalid.', $exception->getMessage());
+        static::assertSame(Response::HTTP_BAD_REQUEST, $exception->getStatusCode());
+        static::assertSame(SnippetException::SNIPPET_INVALID_FILTER_NAME, $exception->getErrorCode());
+        static::assertSame('Snippet filter name is invalid.', $exception->getMessage());
     }
 
     public function testInvalidLimitQuery(): void
     {
         $exception = SnippetException::invalidLimitQuery(0);
 
-        static::assertEquals(Response::HTTP_BAD_REQUEST, $exception->getStatusCode());
-        static::assertEquals(SnippetException::SNIPPET_INVALID_LIMIT_QUERY, $exception->getErrorCode());
-        static::assertEquals('Limit must be bigger than 1, 0 given.', $exception->getMessage());
+        static::assertSame(Response::HTTP_BAD_REQUEST, $exception->getStatusCode());
+        static::assertSame(SnippetException::SNIPPET_INVALID_LIMIT_QUERY, $exception->getErrorCode());
+        static::assertSame('Limit must be bigger than 1, 0 given.', $exception->getMessage());
     }
 }

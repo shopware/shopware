@@ -62,10 +62,10 @@ class ChildCountIndexerTest extends TestCase
         static::assertNotNull($categories->get($categoryC));
         static::assertNotNull($categories->get($categoryD));
 
-        static::assertEquals(2, $categories->get($categoryA)->getChildCount());
-        static::assertEquals(0, $categories->get($categoryB)->getChildCount());
-        static::assertEquals(1, $categories->get($categoryC)->getChildCount());
-        static::assertEquals(0, $categories->get($categoryD)->getChildCount());
+        static::assertSame(2, $categories->get($categoryA)->getChildCount());
+        static::assertSame(0, $categories->get($categoryB)->getChildCount());
+        static::assertSame(1, $categories->get($categoryC)->getChildCount());
+        static::assertSame(0, $categories->get($categoryD)->getChildCount());
 
         $this->categoryRepository->update([[
             'id' => $categoryD,
@@ -85,10 +85,10 @@ class ChildCountIndexerTest extends TestCase
         static::assertNotNull($categories->get($categoryC));
         static::assertNotNull($categories->get($categoryD));
 
-        static::assertEquals(3, $categories->get($categoryA)->getChildCount());
-        static::assertEquals(0, $categories->get($categoryB)->getChildCount());
-        static::assertEquals(0, $categories->get($categoryC)->getChildCount());
-        static::assertEquals(0, $categories->get($categoryD)->getChildCount());
+        static::assertSame(3, $categories->get($categoryA)->getChildCount());
+        static::assertSame(0, $categories->get($categoryB)->getChildCount());
+        static::assertSame(0, $categories->get($categoryC)->getChildCount());
+        static::assertSame(0, $categories->get($categoryD)->getChildCount());
     }
 
     public function testChildCountCategoryMovingMultipleCategories(): void
@@ -118,11 +118,11 @@ class ChildCountIndexerTest extends TestCase
         static::assertNotNull($categories->get($categoryD));
         static::assertNotNull($categories->get($categoryE));
 
-        static::assertEquals(2, $categories->get($categoryA)->getChildCount());
-        static::assertEquals(1, $categories->get($categoryB)->getChildCount());
-        static::assertEquals(0, $categories->get($categoryC)->getChildCount());
-        static::assertEquals(1, $categories->get($categoryD)->getChildCount());
-        static::assertEquals(0, $categories->get($categoryE)->getChildCount());
+        static::assertSame(2, $categories->get($categoryA)->getChildCount());
+        static::assertSame(1, $categories->get($categoryB)->getChildCount());
+        static::assertSame(0, $categories->get($categoryC)->getChildCount());
+        static::assertSame(1, $categories->get($categoryD)->getChildCount());
+        static::assertSame(0, $categories->get($categoryE)->getChildCount());
 
         $this->categoryRepository->update([
             [
@@ -157,11 +157,11 @@ class ChildCountIndexerTest extends TestCase
         static::assertNotNull($categories->get($categoryD));
         static::assertNotNull($categories->get($categoryE));
 
-        static::assertEquals(2, $categories->get($categoryA)->getChildCount());
-        static::assertEquals(0, $categories->get($categoryB)->getChildCount());
-        static::assertEquals(2, $categories->get($categoryC)->getChildCount());
-        static::assertEquals(0, $categories->get($categoryD)->getChildCount());
-        static::assertEquals(0, $categories->get($categoryE)->getChildCount());
+        static::assertSame(2, $categories->get($categoryA)->getChildCount());
+        static::assertSame(0, $categories->get($categoryB)->getChildCount());
+        static::assertSame(2, $categories->get($categoryC)->getChildCount());
+        static::assertSame(0, $categories->get($categoryD)->getChildCount());
+        static::assertSame(0, $categories->get($categoryE)->getChildCount());
     }
 
     public function testChildCountIndexer(): void
@@ -195,7 +195,7 @@ class ChildCountIndexerTest extends TestCase
         $categories = $this->categoryRepository->search(new Criteria([$categoryA, $categoryB, $categoryC, $categoryD]), $this->context)->getEntities();
 
         foreach ($categories as $category) {
-            static::assertEquals(0, $category->getChildCount());
+            static::assertSame(0, $category->getChildCount());
         }
 
         $this->childCountIndexer->update(CategoryDefinition::ENTITY_NAME, [$categoryA, $categoryB, $categoryC, $categoryD], $this->context);
@@ -207,10 +207,10 @@ class ChildCountIndexerTest extends TestCase
         static::assertNotNull($categories->get($categoryC));
         static::assertNotNull($categories->get($categoryD));
 
-        static::assertEquals(2, $categories->get($categoryA)->getChildCount());
-        static::assertEquals(0, $categories->get($categoryB)->getChildCount());
-        static::assertEquals(1, $categories->get($categoryC)->getChildCount());
-        static::assertEquals(0, $categories->get($categoryD)->getChildCount());
+        static::assertSame(2, $categories->get($categoryA)->getChildCount());
+        static::assertSame(0, $categories->get($categoryB)->getChildCount());
+        static::assertSame(1, $categories->get($categoryC)->getChildCount());
+        static::assertSame(0, $categories->get($categoryD)->getChildCount());
     }
 
     public function testDeleteProductWithRecalculatedChildCount(): void
@@ -227,16 +227,16 @@ class ChildCountIndexerTest extends TestCase
 
         static::getContainer()->get('product.repository')->create($products, Context::createDefaultContext());
 
-        $count = $this->connection->fetchOne('SELECT child_count FROM product WHERE id = :id', ['id' => $ids->getBytes('parent')]);
-        static::assertEquals(2, $count);
+        $count = (int) $this->connection->fetchOne('SELECT child_count FROM product WHERE id = :id', ['id' => $ids->getBytes('parent')]);
+        static::assertSame(2, $count);
 
         static::getContainer()->get('product.repository')->delete([['id' => $ids->get('variant-1')]], Context::createDefaultContext());
-        $count = $this->connection->fetchOne('SELECT child_count FROM product WHERE id = :id', ['id' => $ids->getBytes('parent')]);
-        static::assertEquals(1, $count);
+        $count = (int) $this->connection->fetchOne('SELECT child_count FROM product WHERE id = :id', ['id' => $ids->getBytes('parent')]);
+        static::assertSame(1, $count);
 
         static::getContainer()->get('product.repository')->delete([['id' => $ids->get('variant-2')]], Context::createDefaultContext());
-        $count = $this->connection->fetchOne('SELECT child_count FROM product WHERE id = :id', ['id' => $ids->getBytes('parent')]);
-        static::assertEquals(0, $count);
+        $count = (int) $this->connection->fetchOne('SELECT child_count FROM product WHERE id = :id', ['id' => $ids->getBytes('parent')]);
+        static::assertSame(0, $count);
     }
 
     private function createCategory(?string $parentId = null): string

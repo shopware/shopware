@@ -16,6 +16,6 @@ class SpatialObjectTypeTest extends TestCase
 {
     public function testName(): void
     {
-        static::assertEquals('SPATIAL_OBJECT', (new SpatialObjectType())->getName());
+        static::assertSame('SPATIAL_OBJECT', (new SpatialObjectType())->getName());
     }
 }

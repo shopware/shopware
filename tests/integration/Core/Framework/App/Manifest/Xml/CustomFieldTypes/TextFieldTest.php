@@ -21,7 +21,7 @@ class TextFieldTest extends TestCase
         static::assertSame('test_text_field', $textField->getName());
         static::assertSame('text', $textField->getType());
         static::assertTrue($textField->isActive());
-        static::assertEquals([
+        static::assertSame([
             'type' => 'text',
             'label' => [
                 'en-GB' => 'Test text field',

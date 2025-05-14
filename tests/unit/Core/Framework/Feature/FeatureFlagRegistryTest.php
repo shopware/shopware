@@ -515,7 +515,7 @@ class FeatureFlagRegistryTest extends TestCase
 
         $service->register();
 
-        static::assertEquals([
+        static::assertSame([
             'FEATURE_STORED' => [
                 'active' => true,
                 'major' => false,
@@ -546,7 +546,7 @@ class FeatureFlagRegistryTest extends TestCase
 
         $service->register();
 
-        static::assertEquals($expected, Feature::getRegisteredFeatures());
+        static::assertSame($expected, Feature::getRegisteredFeatures());
     }
 
     /**

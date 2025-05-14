@@ -45,6 +45,6 @@ class ProductListingCriteriaExtensionTest extends TestCase
         );
 
         static::assertInstanceOf(Criteria::class, $result);
-        static::assertEquals([], $result->getFilters());
+        static::assertSame([], $result->getFilters());
     }
 }

@@ -23,7 +23,7 @@ class StateAwareTraitTest extends TestCase
         $struct->addState('bar');
 
         // contains foo and bar at this point
-        static::assertEquals(['foo', 'bar'], $struct->getStates(), 'States do not match');
+        static::assertSame(['foo', 'bar'], $struct->getStates(), 'States do not match');
 
         static::assertTrue($struct->hasState('foo'), 'foo should be set');
 
@@ -34,7 +34,7 @@ class StateAwareTraitTest extends TestCase
         $struct->removeState('foo');
 
         // contains only bar at this point
-        static::assertEquals(['bar'], $struct->getStates(), 'States do not match');
+        static::assertSame(['bar'], $struct->getStates(), 'States do not match');
 
         static::assertFalse($struct->hasState('foo'), 'foo should not be set');
 
@@ -53,7 +53,7 @@ class StateAwareTraitTest extends TestCase
 
         static::assertTrue($value, 'Baz was not added');
 
-        static::assertEquals(['bar'], $struct->getStates(), 'States do not match');
+        static::assertSame(['bar'], $struct->getStates(), 'States do not match');
 
         static::assertFalse($struct->hasState('baz'), 'baz should not be set outside');
 
@@ -67,7 +67,7 @@ class StateAwareTraitTest extends TestCase
 
         static::assertTrue($value, 'Baz or foo were not added');
 
-        static::assertEquals(['bar'], $struct->getStates(), 'States do not match');
+        static::assertSame(['bar'], $struct->getStates(), 'States do not match');
 
         $value = $struct->state(
             function (StateStruct $state) {
@@ -83,7 +83,7 @@ class StateAwareTraitTest extends TestCase
 
         static::assertTrue($value, 'Baz or foo were not added');
 
-        static::assertEquals(['bar'], $struct->getStates(), 'States do not match');
+        static::assertSame(['bar'], $struct->getStates(), 'States do not match');
     }
 }
 

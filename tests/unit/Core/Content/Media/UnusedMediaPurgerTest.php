@@ -83,7 +83,7 @@ class UnusedMediaPurgerTest extends TestCase
         $purger = new UnusedMediaPurger($repo, $this->createMock(Connection::class), new EventDispatcher());
         $media = array_merge([], ...iterator_to_array($purger->getNotUsedMedia()));
 
-        static::assertEquals([$media1, $media2], $media);
+        static::assertSame([$media1, $media2], $media);
     }
 
     public function testGetNotUsedMediaWithPaging(): void
@@ -109,8 +109,8 @@ class UnusedMediaPurgerTest extends TestCase
                     $filters = $criteria->getFilters();
 
                     self::assertCount(0, $filters);
-                    self::assertEquals(0, $criteria->getOffset());
-                    self::assertEquals(50, $criteria->getLimit());
+                    self::assertNull($criteria->getOffset());
+                    self::assertSame(50, $criteria->getLimit());
 
                     return [$id1, $id2];
                 },
@@ -123,8 +123,8 @@ class UnusedMediaPurgerTest extends TestCase
                     $filters = $criteria->getFilters();
 
                     self::assertCount(0, $filters);
-                    self::assertEquals(50, $criteria->getOffset());
-                    self::assertEquals(50, $criteria->getLimit());
+                    self::assertSame(50, $criteria->getOffset());
+                    self::assertSame(50, $criteria->getLimit());
 
                     return [$id3, $id4];
                 },
@@ -143,7 +143,7 @@ class UnusedMediaPurgerTest extends TestCase
         $purger = new UnusedMediaPurger($repo, $this->createMock(Connection::class), new EventDispatcher());
         $media = array_merge([], ...iterator_to_array($purger->getNotUsedMedia()));
 
-        static::assertEquals([$media1, $media2, $media3, $media4], $media);
+        static::assertSame([$media1, $media2, $media3, $media4], $media);
     }
 
     public function testGetNotUsedMediaOnlyFetchesSingleResultSetIfLimitAndOffsetSupplied(): void
@@ -184,7 +184,7 @@ class UnusedMediaPurgerTest extends TestCase
         $purger = new UnusedMediaPurger($repo, $this->createMock(Connection::class), new EventDispatcher());
         $media = array_merge([], ...iterator_to_array($purger->getNotUsedMedia(4, 0)));
 
-        static::assertEquals([$media1, $media2, $media3, $media4], $media);
+        static::assertSame([$media1, $media2, $media3, $media4], $media);
     }
 
     public function testGetNotUsedMediaCorrectlyAppliesOneToOneAssociationToCriteria(): void
@@ -212,7 +212,7 @@ class UnusedMediaPurgerTest extends TestCase
                     self::assertCount(1, $filters);
 
                     self::assertInstanceOf(EqualsFilter::class, $filters[0]);
-                    self::assertEquals('media.meta.id', $filters[0]->getField());
+                    self::assertSame('media.meta.id', $filters[0]->getField());
                     self::assertNull($filters[0]->getValue());
 
                     return [$id1, $id2];
@@ -230,7 +230,7 @@ class UnusedMediaPurgerTest extends TestCase
         $purger = new UnusedMediaPurger($repo, $this->createMock(Connection::class), new EventDispatcher());
         $media = array_merge([], ...iterator_to_array($purger->getNotUsedMedia()));
 
-        static::assertEquals([$media1, $media2], $media);
+        static::assertSame([$media1, $media2], $media);
     }
 
     public function testGetNotUsedMediaCorrectlyAppliesOneToManyAssociationToCriteria(): void
@@ -257,7 +257,7 @@ class UnusedMediaPurgerTest extends TestCase
                     self::assertCount(1, $filters);
 
                     self::assertInstanceOf(EqualsFilter::class, $filters[0]);
-                    self::assertEquals('media.productMedia.mediaId', $filters[0]->getField());
+                    self::assertSame('media.productMedia.mediaId', $filters[0]->getField());
                     self::assertNull($filters[0]->getValue());
 
                     return [$id1, $id2];
@@ -275,7 +275,7 @@ class UnusedMediaPurgerTest extends TestCase
         $purger = new UnusedMediaPurger($repo, $this->createMock(Connection::class), new EventDispatcher());
         $media = array_merge([], ...iterator_to_array($purger->getNotUsedMedia()));
 
-        static::assertEquals([$media1, $media2], $media);
+        static::assertSame([$media1, $media2], $media);
     }
 
     public function testGetNotUsedMediaCorrectlyAppliesManyToManyAssociationToCriteria(): void
@@ -309,7 +309,7 @@ class UnusedMediaPurgerTest extends TestCase
                     self::assertCount(1, $filters);
 
                     self::assertInstanceOf(EqualsFilter::class, $filters[0]);
-                    self::assertEquals('media.galleries.id', $filters[0]->getField());
+                    self::assertSame('media.galleries.id', $filters[0]->getField());
                     self::assertNull($filters[0]->getValue());
 
                     return [$id1, $id2];
@@ -327,7 +327,7 @@ class UnusedMediaPurgerTest extends TestCase
         $purger = new UnusedMediaPurger($repo, $this->createMock(Connection::class), new EventDispatcher());
         $media = array_merge([], ...iterator_to_array($purger->getNotUsedMedia()));
 
-        static::assertEquals([$media1, $media2], $media);
+        static::assertSame([$media1, $media2], $media);
     }
 
     public function testGetNotUsedMediaIgnoresAggregateEntities(): void
@@ -368,7 +368,7 @@ class UnusedMediaPurgerTest extends TestCase
         $purger = new UnusedMediaPurger($repo, $this->createMock(Connection::class), new EventDispatcher());
         $media = array_merge([], ...iterator_to_array($purger->getNotUsedMedia()));
 
-        static::assertEquals([$media1, $media2], $media);
+        static::assertSame([$media1, $media2], $media);
     }
 
     public function testGetNotUsedMediaAppliesFolderRestrictionToCriteriaIfPresent(): void
@@ -392,8 +392,8 @@ class UnusedMediaPurgerTest extends TestCase
                     self::assertCount(1, $filters);
 
                     self::assertInstanceOf(EqualsAnyFilter::class, $filters[0]);
-                    self::assertEquals('media.mediaFolder.id', $filters[0]->getField());
-                    self::assertEquals(['id1', 'id2', 'id3', 'id4'], $filters[0]->getValue());
+                    self::assertSame('media.mediaFolder.id', $filters[0]->getField());
+                    self::assertSame(['id1', 'id2', 'id3', 'id4'], $filters[0]->getValue());
 
                     return [$id1, $id2];
                 },
@@ -426,7 +426,7 @@ class UnusedMediaPurgerTest extends TestCase
         $purger = new UnusedMediaPurger($repo, $connection, new EventDispatcher());
         $media = array_merge([], ...iterator_to_array($purger->getNotUsedMedia(null, null, null, 'media_gallery')));
 
-        static::assertEquals([$media1, $media2], $media);
+        static::assertSame([$media1, $media2], $media);
     }
 
     public function testGetNotUsedMediaSkipsAssociationIfNoFkeyFound(): void
@@ -467,7 +467,7 @@ class UnusedMediaPurgerTest extends TestCase
         $purger = new UnusedMediaPurger($repo, $this->createMock(Connection::class), new EventDispatcher());
         $media = array_merge([], ...iterator_to_array($purger->getNotUsedMedia()));
 
-        static::assertEquals([$media1, $media2], $media);
+        static::assertSame([$media1, $media2], $media);
     }
 
     public function testGetNotUsedMediaSkipsNonValidAssociations(): void
@@ -507,7 +507,7 @@ class UnusedMediaPurgerTest extends TestCase
         $purger = new UnusedMediaPurger($repo, $this->createMock(Connection::class), new EventDispatcher());
         $media = array_merge([], ...iterator_to_array($purger->getNotUsedMedia()));
 
-        static::assertEquals([$media1, $media2], $media);
+        static::assertSame([$media1, $media2], $media);
     }
 
     public function testGetNotUsedMediaDoesNotFetchMediaIfRemovedByListener(): void
@@ -549,7 +549,7 @@ class UnusedMediaPurgerTest extends TestCase
         $purger = new UnusedMediaPurger($repo, $this->createMock(Connection::class), $eventDispatcher);
         $media = array_merge([], ...iterator_to_array($purger->getNotUsedMedia()));
 
-        static::assertEquals([$media2], $media);
+        static::assertSame([$media2], $media);
     }
 
     public function testGetNotUsedMediaDoesNotFetchAnyMediaIfAllRemovedByListener(): void
@@ -586,7 +586,7 @@ class UnusedMediaPurgerTest extends TestCase
         $purger = new UnusedMediaPurger($repo, $this->createMock(Connection::class), $eventDispatcher);
         $media = array_merge([], ...iterator_to_array($purger->getNotUsedMedia()));
 
-        static::assertEquals([], $media);
+        static::assertSame([], $media);
     }
 
     public function testDeleteNotUsedMediaOnlyAppliesValidAssociationsToCriteria(): void
@@ -617,7 +617,7 @@ class UnusedMediaPurgerTest extends TestCase
         $purger = new UnusedMediaPurger($repo, $this->createMock(Connection::class), new EventDispatcher());
         $purger->deleteNotUsedMedia();
 
-        static::assertEquals(
+        static::assertSame(
             [
                 [
                     ['id' => $media1->getId()],
@@ -654,8 +654,8 @@ class UnusedMediaPurgerTest extends TestCase
                     $filters = $criteria->getFilters();
 
                     self::assertCount(0, $filters);
-                    self::assertEquals(0, $criteria->getOffset());
-                    self::assertEquals(50, $criteria->getLimit());
+                    self::assertSame(0, $criteria->getOffset());
+                    self::assertSame(50, $criteria->getLimit());
 
                     return [$id1, $id2];
                 },
@@ -663,8 +663,8 @@ class UnusedMediaPurgerTest extends TestCase
                     $filters = $criteria->getFilters();
 
                     self::assertCount(0, $filters);
-                    self::assertEquals(50, $criteria->getOffset());
-                    self::assertEquals(50, $criteria->getLimit());
+                    self::assertSame(50, $criteria->getOffset());
+                    self::assertSame(50, $criteria->getLimit());
 
                     return [$id3, $id4];
                 },
@@ -676,7 +676,7 @@ class UnusedMediaPurgerTest extends TestCase
         $purger = new UnusedMediaPurger($repo, $this->createMock(Connection::class), new EventDispatcher());
         $purger->deleteNotUsedMedia();
 
-        static::assertEquals(
+        static::assertSame(
             [
                 [
                     ['id' => $media1->getId()],
@@ -723,7 +723,7 @@ class UnusedMediaPurgerTest extends TestCase
         $purger = new UnusedMediaPurger($repo, $this->createMock(Connection::class), new EventDispatcher());
         $purger->deleteNotUsedMedia(4, 0);
 
-        static::assertEquals(
+        static::assertSame(
             [
                 [
                     ['id' => $id1],
@@ -760,7 +760,7 @@ class UnusedMediaPurgerTest extends TestCase
                     self::assertCount(1, $filters);
 
                     self::assertInstanceOf(EqualsFilter::class, $filters[0]);
-                    self::assertEquals('media.meta.id', $filters[0]->getField());
+                    self::assertSame('media.meta.id', $filters[0]->getField());
                     self::assertNull($filters[0]->getValue());
 
                     return [$id1, $id2];
@@ -775,7 +775,7 @@ class UnusedMediaPurgerTest extends TestCase
         $purger = new UnusedMediaPurger($repo, $this->createMock(Connection::class), new EventDispatcher());
         $purger->deleteNotUsedMedia();
 
-        static::assertEquals(
+        static::assertSame(
             [
                 [
                     ['id' => $id1],
@@ -809,7 +809,7 @@ class UnusedMediaPurgerTest extends TestCase
                     self::assertCount(1, $filters);
 
                     self::assertInstanceOf(EqualsFilter::class, $filters[0]);
-                    self::assertEquals('media.productMedia.mediaId', $filters[0]->getField());
+                    self::assertSame('media.productMedia.mediaId', $filters[0]->getField());
                     self::assertNull($filters[0]->getValue());
 
                     return [$id1, $id2];
@@ -824,7 +824,7 @@ class UnusedMediaPurgerTest extends TestCase
         $purger = new UnusedMediaPurger($repo, $this->createMock(Connection::class), new EventDispatcher());
         $purger->deleteNotUsedMedia();
 
-        static::assertEquals(
+        static::assertSame(
             [
                 [
                     ['id' => $id1],
@@ -865,7 +865,7 @@ class UnusedMediaPurgerTest extends TestCase
                     self::assertCount(1, $filters);
 
                     self::assertInstanceOf(EqualsFilter::class, $filters[0]);
-                    self::assertEquals('media.galleries.id', $filters[0]->getField());
+                    self::assertSame('media.galleries.id', $filters[0]->getField());
                     self::assertNull($filters[0]->getValue());
 
                     return [$id1, $id2];
@@ -880,7 +880,7 @@ class UnusedMediaPurgerTest extends TestCase
         $purger = new UnusedMediaPurger($repo, $this->createMock(Connection::class), new EventDispatcher());
         $purger->deleteNotUsedMedia();
 
-        static::assertEquals(
+        static::assertSame(
             [
                 [
                     ['id' => $id1],
@@ -925,7 +925,7 @@ class UnusedMediaPurgerTest extends TestCase
         $purger = new UnusedMediaPurger($repo, $this->createMock(Connection::class), new EventDispatcher());
         $purger->deleteNotUsedMedia();
 
-        static::assertEquals(
+        static::assertSame(
             [
                 [
                     ['id' => $id1],
@@ -960,7 +960,7 @@ class UnusedMediaPurgerTest extends TestCase
         $purger = new UnusedMediaPurger($repo, $this->createMock(Connection::class), new EventDispatcher());
         $purger->deleteNotUsedMedia(null, null, null, 'product');
 
-        static::assertEquals(
+        static::assertSame(
             [
                 [
                     ['id' => $id1],
@@ -991,8 +991,8 @@ class UnusedMediaPurgerTest extends TestCase
                     self::assertCount(1, $filters);
 
                     self::assertInstanceOf(EqualsAnyFilter::class, $filters[0]);
-                    self::assertEquals('media.mediaFolder.id', $filters[0]->getField());
-                    self::assertEquals(['id1', 'id2', 'id3', 'id4'], $filters[0]->getValue());
+                    self::assertSame('media.mediaFolder.id', $filters[0]->getField());
+                    self::assertSame(['id1', 'id2', 'id3', 'id4'], $filters[0]->getValue());
 
                     return [$id1, $id2];
                 },
@@ -1022,7 +1022,7 @@ class UnusedMediaPurgerTest extends TestCase
         $purger = new UnusedMediaPurger($repo, $connection, new EventDispatcher());
         $purger->deleteNotUsedMedia(null, null, null, 'media_gallery');
 
-        static::assertEquals(
+        static::assertSame(
             [
                 [
                     ['id' => $id1],
@@ -1067,7 +1067,7 @@ class UnusedMediaPurgerTest extends TestCase
         $purger = new UnusedMediaPurger($repo, $this->createMock(Connection::class), new EventDispatcher());
         $purger->deleteNotUsedMedia();
 
-        static::assertEquals(
+        static::assertSame(
             [
                 [
                     ['id' => $id1],
@@ -1111,7 +1111,7 @@ class UnusedMediaPurgerTest extends TestCase
         $purger = new UnusedMediaPurger($repo, $this->createMock(Connection::class), new EventDispatcher());
         $purger->deleteNotUsedMedia();
 
-        static::assertEquals(
+        static::assertSame(
             [
                 [
                     ['id' => $id1],
@@ -1158,7 +1158,7 @@ class UnusedMediaPurgerTest extends TestCase
         $purger = new UnusedMediaPurger($repo, $this->createMock(Connection::class), $eventDispatcher);
         $purger->deleteNotUsedMedia();
 
-        static::assertEquals(
+        static::assertSame(
             [
                 [
                     ['id' => $id2],
@@ -1204,7 +1204,7 @@ class UnusedMediaPurgerTest extends TestCase
         $purger = new UnusedMediaPurger($repo, $this->createMock(Connection::class), $eventDispatcher);
         $purger->deleteNotUsedMedia();
 
-        static::assertEquals(
+        static::assertSame(
             [],
             $repo->deletes
         );
@@ -1228,7 +1228,7 @@ class UnusedMediaPurgerTest extends TestCase
                 fn (Criteria $criteria, Context $context) => new EntitySearchResult('media', 2, new MediaCollection(), null, $criteria, $context), // purgable media count query
                 [$id1, $id2],
                 function (Criteria $criteria) use ($id1, $id2) {
-                    static::assertEquals([$id1, $id2], $criteria->getIds());
+                    static::assertSame([$id1, $id2], $criteria->getIds());
 
                     return [$id1];
                 },
@@ -1240,7 +1240,7 @@ class UnusedMediaPurgerTest extends TestCase
         $purger = new UnusedMediaPurger($repo, $this->createMock(Connection::class), new EventDispatcher());
         $purger->deleteNotUsedMedia(null, null, 3);
 
-        static::assertEquals(
+        static::assertSame(
             [
                 [
                     ['id' => $media1->getId()],

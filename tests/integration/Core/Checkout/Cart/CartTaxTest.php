@@ -145,9 +145,9 @@ class CartTaxTest extends TestCase
         $response = json_decode((string) $this->browser->getResponse()->getContent(), true, 512, \JSON_THROW_ON_ERROR);
 
         if ($testCase === 'tax-free') {
-            static::assertEquals((500 * $quantity) + 10, $response['price']['totalPrice']);
+            static::assertSame((500 * $quantity) + 10, $response['price']['totalPrice']);
         } else {
-            static::assertEquals((550 * $quantity) + 11, $response['price']['totalPrice']);
+            static::assertSame((550 * $quantity) + 11, $response['price']['totalPrice']);
         }
     }
 
@@ -228,9 +228,9 @@ class CartTaxTest extends TestCase
         $response = json_decode((string) $this->browser->getResponse()->getContent(), true, 512, \JSON_THROW_ON_ERROR);
 
         if ($testCase === 'tax-free') {
-            static::assertEquals((550 * $quantity) + 11, $response['price']['totalPrice']);
+            static::assertSame((550 * $quantity) + 11, $response['price']['totalPrice']);
         } else {
-            static::assertEquals((605 * $quantity) + 12.1, $response['price']['totalPrice']);
+            static::assertSame((605 * $quantity) + 12.1, $response['price']['totalPrice']);
         }
     }
 
@@ -292,9 +292,9 @@ class CartTaxTest extends TestCase
         $response = json_decode((string) $this->browser->getResponse()->getContent(), true, 512, \JSON_THROW_ON_ERROR);
 
         if ($testCase === 'tax-free') {
-            static::assertEquals(FloatComparator::cast((585.43 * $quantity) + 11.71), $response['price']['totalPrice']);
+            static::assertSame(FloatComparator::cast((585.43 * $quantity) + 11.71), $response['price']['totalPrice']);
         } else {
-            static::assertEquals(FloatComparator::cast((643.97 * $quantity) + 12.88), $response['price']['totalPrice']);
+            static::assertSame(FloatComparator::cast((643.97 * $quantity) + 12.88), $response['price']['totalPrice']);
         }
     }
 

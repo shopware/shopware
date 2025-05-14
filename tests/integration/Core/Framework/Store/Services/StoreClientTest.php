@@ -65,14 +65,14 @@ class StoreClientTest extends TestCase
     {
         $this->getStoreRequestHandler()->append(new Response(200, [], '{"signature": "signed"}'));
 
-        static::assertEquals('signed', $this->storeClient->signPayloadWithAppSecret('[this can be anything]', 'testApp'));
+        static::assertSame('signed', $this->storeClient->signPayloadWithAppSecret('[this can be anything]', 'testApp'));
 
         $lastRequest = $this->getStoreRequestHandler()->getLastRequest();
         static::assertInstanceOf(RequestInterface::class, $lastRequest);
 
-        static::assertEquals('/swplatform/generatesignature', $lastRequest->getUri()->getPath());
+        static::assertSame('/swplatform/generatesignature', $lastRequest->getUri()->getPath());
 
-        static::assertEquals([
+        static::assertSame([
             'shopwareVersion' => $this->getShopwareVersion(),
             'language' => 'en-GB',
             'domain' => 'shopware-test',
@@ -98,7 +98,7 @@ class StoreClientTest extends TestCase
         $lastRequest = $this->getStoreRequestHandler()->getLastRequest();
         static::assertInstanceOf(RequestInterface::class, $lastRequest);
 
-        static::assertEquals([
+        static::assertSame([
             'shopwareVersion' => $this->getShopwareVersion(),
             'language' => 'en-GB',
             'domain' => 'shopware-test',
@@ -107,20 +107,20 @@ class StoreClientTest extends TestCase
         $contextSource = $this->storeContext->getSource();
         static::assertInstanceOf(AdminApiSource::class, $contextSource);
 
-        static::assertEquals([
+        static::assertSame([
             'shopwareId' => 'shopwareId',
             'password' => 'password',
             'shopwareUserId' => $contextSource->getUserId(),
         ], \json_decode($lastRequest->getBody()->getContents(), true, flags: \JSON_THROW_ON_ERROR));
 
         // token from login.json
-        static::assertEquals(
+        static::assertSame(
             'updated-token',
             $this->getStoreTokenFromContext($this->storeContext)
         );
 
         // secret from login.json
-        static::assertEquals(
+        static::assertSame(
             'shop.secret',
             $this->configService->get('core.store.shopSecret')
         );
@@ -140,17 +140,17 @@ class StoreClientTest extends TestCase
 
         $updateList = $this->storeClient->getExtensionUpdateList($pluginList, $this->storeContext);
 
-        static::assertEquals([], $updateList);
+        static::assertSame([], $updateList);
 
         $cachedList = $this->cache->get(StoreClient::EXTENSION_LIST_CACHE, fn () => null);
 
         static::assertIsArray($cachedList);
-        static::assertEquals([], $cachedList);
+        static::assertSame([], $cachedList);
 
         $lastRequest = $this->getStoreRequestHandler()->getLastRequest();
         static::assertInstanceOf(RequestInterface::class, $lastRequest);
 
-        static::assertEquals(
+        static::assertSame(
             $this->getStoreTokenFromContext($this->storeContext),
             $lastRequest->getHeader('X-Shopware-Platform-Token')[0],
         );
@@ -188,17 +188,17 @@ class StoreClientTest extends TestCase
         $updateList = $this->storeClient->getExtensionUpdateList($pluginList, $this->storeContext);
 
         static::assertCount(1, $updateList);
-        static::assertEquals('TestExtension', $updateList[0]->getName());
-        static::assertEquals('1.1.0', $updateList[0]->getVersion());
-        static::assertEquals('feature1,feature2', $updateList[0]->getInAppFeatures());
+        static::assertSame('TestExtension', $updateList[0]->getName());
+        static::assertSame('1.1.0', $updateList[0]->getVersion());
+        static::assertSame('feature1,feature2', $updateList[0]->getInAppFeatures());
 
         $cachedList = $this->cache->get(StoreClient::EXTENSION_LIST_CACHE, fn () => null);
 
         static::assertIsArray($cachedList);
         static::assertCount(1, $cachedList);
-        static::assertEquals('TestExtension', $cachedList[0]->getName());
-        static::assertEquals('1.1.0', $cachedList[0]->getVersion());
-        static::assertEquals('feature1,feature2', $cachedList[0]->getInAppFeatures());
+        static::assertSame('TestExtension', $cachedList[0]->getName());
+        static::assertSame('1.1.0', $cachedList[0]->getVersion());
+        static::assertSame('feature1,feature2', $cachedList[0]->getInAppFeatures());
 
         $lastRequest = $this->getStoreRequestHandler()->getLastRequest();
         static::assertInstanceOf(RequestInterface::class, $lastRequest);
@@ -221,9 +221,9 @@ class StoreClientTest extends TestCase
         $lastRequest = $this->getStoreRequestHandler()->getLastRequest();
         static::assertInstanceOf(RequestInterface::class, $lastRequest);
 
-        static::assertEquals('/swplatform/userinfo', $lastRequest->getUri()->getPath());
-        static::assertEquals('GET', $lastRequest->getMethod());
-        static::assertEquals($userInfo, $returnedUserInfo);
+        static::assertSame('/swplatform/userinfo', $lastRequest->getUri()->getPath());
+        static::assertSame('GET', $lastRequest->getMethod());
+        static::assertSame($userInfo, $returnedUserInfo);
     }
 
     public function testMissingConnectionBecauseYouAreInGermanCellularInternet(): void
@@ -259,8 +259,8 @@ class StoreClientTest extends TestCase
         $lastRequest = $this->getStoreRequestHandler()->getLastRequest();
         static::assertInstanceOf(RequestInterface::class, $lastRequest);
 
-        static::assertEquals('/swplatform/pluginlicenses/123/cancel', $lastRequest->getUri()->getPath());
-        static::assertEquals('POST', $lastRequest->getMethod());
+        static::assertSame('/swplatform/pluginlicenses/123/cancel', $lastRequest->getUri()->getPath());
+        static::assertSame('POST', $lastRequest->getMethod());
     }
 
     public function testCancelSubscriptionAlreadyCancelled(): void

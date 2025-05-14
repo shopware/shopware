@@ -26,7 +26,7 @@ class CurrencyRuleTest extends TestCase
     {
         $rule = new CurrencyRule();
 
-        static::assertEquals('currency', $rule->getName());
+        static::assertSame('currency', $rule->getName());
     }
 
     public function testGetConstraints(): void
@@ -44,7 +44,7 @@ class CurrencyRuleTest extends TestCase
         $rule = new CurrencyRule();
         $ruleConfig = $rule->getConfig();
 
-        static::assertEquals([
+        static::assertSame([
             'operatorSet' => [
                 'operators' => [
                     Rule::OPERATOR_EQ,

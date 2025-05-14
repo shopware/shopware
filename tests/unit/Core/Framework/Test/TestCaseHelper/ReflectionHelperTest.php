@@ -27,7 +27,7 @@ class ReflectionHelperTest extends TestCase
 
         $method = ReflectionHelper::getMethod(FakeClassForHelper::class, 'myPrivateMethod');
 
-        static::assertEquals(['one', 'none'], $method->invoke($class));
+        static::assertSame(['one', 'none'], $method->invoke($class));
     }
 
     public function testGetPropertyValueFromPrivateScope(): void

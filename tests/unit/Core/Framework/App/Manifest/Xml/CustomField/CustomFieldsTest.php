@@ -21,12 +21,12 @@ class CustomFieldsTest extends TestCase
         static::assertCount(1, $manifest->getCustomFields()->getCustomFieldSets());
 
         $customFieldSet = $manifest->getCustomFields()->getCustomFieldSets()[0];
-        static::assertEquals('custom_field_test', $customFieldSet->getName());
-        static::assertEquals([
+        static::assertSame('custom_field_test', $customFieldSet->getName());
+        static::assertSame([
             'en-GB' => 'Custom field test',
             'de-DE' => 'Zusatzfeld Test',
         ], $customFieldSet->getLabel());
-        static::assertEquals(['product', 'customer'], $customFieldSet->getRelatedEntities());
+        static::assertSame(['product', 'customer'], $customFieldSet->getRelatedEntities());
         static::assertTrue($customFieldSet->getGlobal());
 
         static::assertCount(2, $customFieldSet->getFields());

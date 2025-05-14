@@ -515,7 +515,7 @@ class AppLifecycleTest extends TestCase
             $appEntity->getIcon()
         );
         static::assertSame('1.0.0', $appEntity->getVersion());
-        static::assertNotEquals('test', $appEntity->getTranslation('label'));
+        static::assertNotSame('test', $appEntity->getTranslation('label'));
         static::assertTrue($appEntity->getAllowDisable());
 
         $this->assertDefaultActionButtons();
@@ -710,7 +710,7 @@ class AppLifecycleTest extends TestCase
         );
         static::assertSame('1.0.0', $appEntity->getVersion());
         static::assertSame('https://base-url.com', $appEntity->getBaseAppUrl());
-        static::assertNotEquals('test', $appEntity->getTranslation('label'));
+        static::assertNotSame('test', $appEntity->getTranslation('label'));
         static::assertTrue($appEntity->getAllowDisable());
 
         $this->assertDefaultActionButtons();
@@ -1794,7 +1794,7 @@ class AppLifecycleTest extends TestCase
     {
         static::assertCount(2, $app->getModules());
 
-        static::assertEquals([
+        static::assertSame([
             [
                 'name' => 'first-module',
                 'label' => [
@@ -1876,7 +1876,7 @@ class AppLifecycleTest extends TestCase
         static::assertContains('product', $relatedEntities);
         static::assertContains('customer', $relatedEntities);
 
-        static::assertEquals([
+        static::assertSame([
             'label' => [
                 'de-DE' => 'Zusatzfeld Test',
                 'en-GB' => 'Custom field test',
@@ -2288,7 +2288,7 @@ class AppLifecycleTest extends TestCase
         static::assertSame($appFlowAction['sw_icon'], 'default-communication-speech-bubbles');
         $parameters = json_decode((string) $appFlowAction['parameters'], true, 512, \JSON_THROW_ON_ERROR);
         static::assertNotFalse($parameters);
-        static::assertEquals(
+        static::assertSame(
             [
                 [
                     'name' => 'message',
@@ -2302,7 +2302,7 @@ class AppLifecycleTest extends TestCase
 
         $config = json_decode((string) $appFlowAction['config'], true, 512, \JSON_THROW_ON_ERROR);
         static::assertNotFalse($config);
-        static::assertEquals(
+        static::assertSame(
             [
                 [
                     'name' => 'text',
@@ -2330,7 +2330,7 @@ class AppLifecycleTest extends TestCase
 
         $headers = json_decode((string) $appFlowAction['headers'], true, 512, \JSON_THROW_ON_ERROR);
         static::assertNotFalse($headers);
-        static::assertEquals(
+        static::assertSame(
             [
                 [
                     'name' => 'content-type',
@@ -2344,7 +2344,7 @@ class AppLifecycleTest extends TestCase
 
         $requirements = json_decode((string) $appFlowAction['requirements'], true, 512, \JSON_THROW_ON_ERROR);
         static::assertNotFalse($requirements);
-        static::assertEquals(
+        static::assertSame(
             [
                 'orderAware',
                 'customerAware',

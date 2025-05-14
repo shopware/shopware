@@ -56,7 +56,7 @@ class EntityDefinitionServiceTest extends TestCase
         }
 
         // assert with an empty array in order to get the diff in the error message
-        static::assertEquals([], $problematicEntities, 'Expected that tagged entities with more than one primary key (without the VersionField) only have many-to-many associations with an corresponding ManyToManyIdField.');
+        static::assertSame([], $problematicEntities, 'Expected that tagged entities with more than one primary key (without the VersionField) only have many-to-many associations with an corresponding ManyToManyIdField.');
     }
 
     public function testTaggedEntitiesHaveCreatedAndUpdatedFields(): void
@@ -73,6 +73,6 @@ class EntityDefinitionServiceTest extends TestCase
         }
 
         // assert with an empty array in order to get the diff in the error message
-        static::assertEquals([], $problematicEntities, 'Expected that tagged entities have created_at and updated_at fields.');
+        static::assertSame([], $problematicEntities, 'Expected that tagged entities have created_at and updated_at fields.');
     }
 }

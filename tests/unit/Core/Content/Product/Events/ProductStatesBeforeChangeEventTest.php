@@ -21,12 +21,12 @@ class ProductStatesBeforeChangeEventTest extends TestCase
 
         $event = new ProductStatesBeforeChangeEvent($updatedStates, $context);
 
-        static::assertEquals($updatedStates, $event->getUpdatedStates());
-        static::assertEquals($context, $event->getContext());
+        static::assertSame($updatedStates, $event->getUpdatedStates());
+        static::assertSame($context, $event->getContext());
 
         $updatedStates = [new UpdatedStates('foobar', ['foo'], ['baz'])];
         $event->setUpdatedStates($updatedStates);
 
-        static::assertEquals($updatedStates, $event->getUpdatedStates());
+        static::assertSame($updatedStates, $event->getUpdatedStates());
     }
 }

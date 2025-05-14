@@ -458,7 +458,7 @@ class RulePayloadIndexerTest extends TestCase
             ->fetchAllAssociative();
 
         foreach ($rules as $rule) {
-            static::assertEquals(0, $rule['invalid']);
+            static::assertSame('0', $rule['invalid']);
             static::assertNull($rule['payload']);
             static::assertNotNull($rule['id']);
         }

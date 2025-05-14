@@ -106,7 +106,7 @@ class PasswordFieldSerializerTest extends TestCase
             $inputPasswordHashed = !empty(password_get_info($inputPassword)['algo']);
 
             if ($inputPasswordHashed) {
-                static::assertEquals($inputPassword, $result);
+                static::assertSame($inputPassword, $result);
             } else {
                 static::assertTrue(password_verify($inputPassword, $result));
             }

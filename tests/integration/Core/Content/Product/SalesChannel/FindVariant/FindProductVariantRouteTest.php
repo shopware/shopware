@@ -68,7 +68,7 @@ class FindProductVariantRouteTest extends TestCase
             $this->context
         );
 
-        static::assertEquals($this->ids->get('redXL'), $result->getFoundCombination()->getVariantId());
+        static::assertSame($this->ids->get('redXL'), $result->getFoundCombination()->getVariantId());
     }
 
     public function testFindToNotCombinable(): void
@@ -101,7 +101,7 @@ class FindProductVariantRouteTest extends TestCase
             $this->context
         );
 
-        static::assertEquals($this->ids->get('redL'), $result->getFoundCombination()->getVariantId());
+        static::assertSame($this->ids->get('redL'), $result->getFoundCombination()->getVariantId());
     }
 
     public function testFindNoCombinable(): void

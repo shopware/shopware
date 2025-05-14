@@ -118,7 +118,7 @@ class SalesChannelDefinition extends EntityDefinition
             (new FkField('mail_header_footer_id', 'mailHeaderFooterId', MailHeaderFooterDefinition::class))->addFlags(new ApiAware()),
             (new FkField('hreflang_default_domain_id', 'hreflangDefaultDomainId', SalesChannelDomainDefinition::class))->addFlags(new ApiAware()),
             (new FkField('measurement_system_id', 'measurementSystemId', 'measurement_system.definition'))->addFlags(new Required(), new ApiAware()),
-            (new FkField('mass_unit_id', 'massUnitId', 'measurement_display_unit.definition'))->addFlags(new Required(), new ApiAware()),
+            (new FkField('weight_unit_id', 'weightUnitId', 'measurement_display_unit.definition'))->addFlags(new Required(), new ApiAware()),
             (new FkField('length_unit_id', 'lengthUnitId', 'measurement_display_unit.definition'))->addFlags(new Required(), new ApiAware()),
             (new TranslatedField('name'))->addFlags(new ApiAware()),
             (new StringField('short_name', 'shortName'))->addFlags(new ApiAware()),
@@ -182,7 +182,7 @@ class SalesChannelDefinition extends EntityDefinition
             new OneToManyAssociationField('boundCustomers', CustomerDefinition::class, 'bound_sales_channel_id', 'id'),
             (new OneToManyAssociationField('wishlists', CustomerWishlistDefinition::class, 'sales_channel_id'))->addFlags(new CascadeDelete()),
             new ManyToOneAssociationField('measurementSystem', 'measurement_system_id', 'measurement_system.definition', 'id', false),
-            new ManyToOneAssociationField('massUnit', 'mass_unit_id', 'measurement_display_unit.definition', 'id', false),
+            new ManyToOneAssociationField('weightUnit', 'weight_unit_id', 'measurement_display_unit.definition', 'id', false),
             new ManyToOneAssociationField('lengthUnit', 'length_unit_id', 'measurement_display_unit.definition', 'id', false),
         ]);
     }

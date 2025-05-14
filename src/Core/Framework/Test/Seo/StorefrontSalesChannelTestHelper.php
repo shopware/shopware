@@ -92,7 +92,7 @@ trait StorefrontSalesChannelTestHelper
                 'url' => 'http://example.com/' . $name . '/' . $langId,
                 'measurementSystemId' => Uuid::fromStringToHex('metric'),
                 'lengthUnitId' => Uuid::fromStringToHex('metric-mm'),
-                'massUnitId' => Uuid::fromStringToHex('metric-kg'),
+                'weightUnitId' => Uuid::fromStringToHex('metric-kg'),
             ];
         }
 
@@ -118,7 +118,7 @@ trait StorefrontSalesChannelTestHelper
             'navigationCategoryId' => !$categoryEntrypoint ? $this->getValidCategoryId() : $categoryEntrypoint,
             'measurementSystemId' => Uuid::fromStringToHex('metric'),
             'lengthUnitId' => Uuid::fromStringToHex('metric-mm'),
-            'massUnitId' => Uuid::fromStringToHex('metric-kg'),
+            'weightUnitId' => Uuid::fromStringToHex('metric-kg'),
         ]], Context::createDefaultContext());
 
         /** @var SalesChannelEntity $salesChannel */

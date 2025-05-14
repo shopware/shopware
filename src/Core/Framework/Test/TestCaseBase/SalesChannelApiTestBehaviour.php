@@ -198,7 +198,7 @@ trait SalesChannelApiTestBehaviour
             'customerGroupId' => TestDefaults::FALLBACK_CUSTOMER_GROUP,
             'measurementSystemId' => Uuid::fromStringToHex('metric'),
             'lengthUnitId' => Uuid::fromStringToHex('metric-mm'),
-            'massUnitId' => Uuid::fromStringToHex('metric-kg'),
+            'weightUnitId' => Uuid::fromStringToHex('metric-kg'),
             'domains' => [
                 [
                     'languageId' => Defaults::LANGUAGE_SYSTEM,
@@ -207,7 +207,7 @@ trait SalesChannelApiTestBehaviour
                     'url' => 'http://localhost',
                     'measurementSystemId' => Uuid::fromStringToHex('metric'),
                     'lengthUnitId' => Uuid::fromStringToHex('metric-mm'),
-                    'massUnitId' => Uuid::fromStringToHex('metric-kg'),
+                    'weightUnitId' => Uuid::fromStringToHex('metric-kg'),
                 ],
             ],
             'countries' => [['id' => $this->getValidCountryId(null)]],

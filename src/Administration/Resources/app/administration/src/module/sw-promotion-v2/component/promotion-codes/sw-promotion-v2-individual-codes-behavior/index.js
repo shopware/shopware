@@ -60,9 +60,9 @@ export default {
                 return '';
             }
 
-            return this.$tc('sw-promotion-v2.detail.base.codes.individual.textDeleteConfirm', this.currentSelection.length, {
+            return this.$tc('sw-promotion-v2.detail.base.codes.individual.textDeleteConfirm', {
                 code: this.currentSelection[0].code || '',
-            });
+            }, this.currentSelection.length);
         },
 
         codeColumns() {

@@ -181,7 +181,7 @@ export default {
         },
 
         createErrorNotification(errors) {
-            let message = `<div>${this.$tc('sw-config-form-renderer.configLoadErrorMessage', errors.length)}</div><ul>`;
+            let message = `<div>${this.$tc('sw-config-form-renderer.configLoadErrorMessage', {}, errors.length)}</div><ul>`;
 
             errors.forEach((error) => {
                 message = `${message}<li>${error.detail}</li>`;

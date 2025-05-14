@@ -446,7 +446,7 @@ PHP_EOL,
 
         $expected = $styles . MockThemeCompilerConcatenatedSubscriber::STYLES_CONCAT;
 
-        static::assertEquals($expected, $actual);
+        static::assertSame($expected, $actual);
     }
 
     public function testCompileWithoutAssets(): void
@@ -462,7 +462,7 @@ PHP_EOL,
         $config->setAssetPaths(['bla']);
 
         $pathBuilder = new MD5ThemePathBuilder();
-        static::assertEquals('9a11a759d278b4a55cb5e2c3414733c1', $pathBuilder->assemblePath(TestDefaults::SALES_CHANNEL, 'test'));
+        static::assertSame('9a11a759d278b4a55cb5e2c3414733c1', $pathBuilder->assemblePath(TestDefaults::SALES_CHANNEL, 'test'));
 
         try {
             $pathBuilder->getDecorated();
@@ -512,7 +512,7 @@ PHP_EOL,
         $compiler = $this->getThemeCompiler();
 
         $pathBuilder = new MD5ThemePathBuilder();
-        static::assertEquals('9a11a759d278b4a55cb5e2c3414733c1', $pathBuilder->assemblePath(TestDefaults::SALES_CHANNEL, 'test'));
+        static::assertSame('9a11a759d278b4a55cb5e2c3414733c1', $pathBuilder->assemblePath(TestDefaults::SALES_CHANNEL, 'test'));
 
         try {
             $pathBuilder->getDecorated();
@@ -551,7 +551,7 @@ PHP_EOL,
         $config->setAssetPaths(['assets']);
 
         $pathBuilder = new MD5ThemePathBuilder();
-        static::assertEquals('9a11a759d278b4a55cb5e2c3414733c1', $pathBuilder->assemblePath(TestDefaults::SALES_CHANNEL, 'test'));
+        static::assertSame('9a11a759d278b4a55cb5e2c3414733c1', $pathBuilder->assemblePath(TestDefaults::SALES_CHANNEL, 'test'));
 
         $wasThrown = false;
 

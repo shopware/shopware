@@ -1,7 +1,8 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Tests\Integration\Storefront\Page;
+namespace Shopware\Tests\Unit\Storefront\Page;
 
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Product\ProductCollection;
@@ -17,7 +18,7 @@ use Shopware\Core\Framework\Test\TestCaseBase\EventDispatcherBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
-use Shopware\Storefront\Pagelet\Wishlist\GuestWishlistPagelet;
+use Shopware\Core\Test\Stub\SystemConfigService\StaticSystemConfigService;
 use Shopware\Storefront\Pagelet\Wishlist\GuestWishlistPageletLoadedEvent;
 use Shopware\Storefront\Pagelet\Wishlist\GuestWishlistPageletLoader;
 use Shopware\Storefront\Pagelet\Wishlist\GuestWishListPageletProductCriteriaEvent;
@@ -27,23 +28,15 @@ use Symfony\Component\HttpFoundation\Request;
 /**
  * @internal
  */
+#[CoversClass(GuestWishlistPageletLoader::class)]
 class GuestWishlistPageletTest extends TestCase
 {
     use EventDispatcherBehaviour;
 
-    /**
-     * @var MockObject|ProductListRoute
-     */
-    private ProductListRoute $productListRouteMock;
+    private ProductListRoute&MockObject $productListRouteMock;
 
-    /**
-     * @var MockObject|SystemConfigService
-     */
-    private SystemConfigService $systemConfigServiceMock;
+    private SystemConfigService $systemConfigServiceStub;
 
-    /**
-     * @var MockObject|SalesChannelContext
-     */
     private SalesChannelContext $salesChannelContextMock;
 
     private EventDispatcher $eventDispatcher;
@@ -53,7 +46,9 @@ class GuestWishlistPageletTest extends TestCase
     protected function setUp(): void
     {
         $this->productListRouteMock = $this->createMock(ProductListRoute::class);
-        $this->systemConfigServiceMock = $this->createMock(SystemConfigService::class);
+        $this->systemConfigServiceStub = new StaticSystemConfigService([
+            'core.listing.hideCloseoutProductsWhenOutOfStock' => true,
+        ]);
         $this->salesChannelContextMock = $this->createMock(SalesChannelContext::class);
         $this->eventDispatcher = new EventDispatcher();
         $this->productCloseoutFilterFactory = new ProductCloseoutFilterFactory();
@@ -61,7 +56,7 @@ class GuestWishlistPageletTest extends TestCase
 
     public function testItThrowsExceptionWithInvalidProductIds(): void
     {
-        static::expectException(RoutingException::class);
+        $this->expectException(RoutingException::class);
 
         $request = new Request();
 
@@ -77,13 +72,16 @@ class GuestWishlistPageletTest extends TestCase
         $request->attributes->set('productIds', [Uuid::randomHex(), Uuid::randomHex(), Uuid::randomHex()]);
 
         // Mocks the load function
-        $productRouteLoadClosure = function (Criteria $criteria, SalesChannelContext $context): ProductListResponse {
+        $productRouteLoadClosure = static function (Criteria $criteria, SalesChannelContext $context): ProductListResponse {
             $product1 = new ProductEntity();
-            $product1->setUniqueIdentifier($criteria->getIds()[0]); /** @phpstan-ignore-line */
+            static::assertIsString($criteria->getIds()[0]);
+            $product1->setUniqueIdentifier($criteria->getIds()[0]);
             $product2 = new ProductEntity();
-            $product2->setUniqueIdentifier($criteria->getIds()[1]); /** @phpstan-ignore-line */
+            static::assertIsString($criteria->getIds()[1]);
+            $product2->setUniqueIdentifier($criteria->getIds()[1]);
             $product3 = new ProductEntity();
-            $product3->setUniqueIdentifier($criteria->getIds()[2]); /** @phpstan-ignore-line */
+            static::assertIsString($criteria->getIds()[2]);
+            $product3->setUniqueIdentifier($criteria->getIds()[2]);
             $searchResult = new EntitySearchResult(
                 'product',
                 3,
@@ -101,25 +99,22 @@ class GuestWishlistPageletTest extends TestCase
         $context = $this->salesChannelContextMock;
 
         $eventDidRun = null;
-        $phpunit = $this;
-        $listenerClosure = function (GuestWishlistPageletLoadedEvent $event) use (
+        $listenerClosure = static function (GuestWishlistPageletLoadedEvent $event) use (
             &$eventDidRun,
-            $phpunit,
             $context,
             $request
         ): void {
             $eventDidRun = true;
-            $phpunit->assertEquals($context, $event->getSalesChannelContext());
-            $phpunit->assertEquals($request, $event->getRequest());
-            $phpunit->assertEquals(3, $event->getPagelet()->getSearchResult()->getProducts()->count());
+            static::assertSame($context, $event->getSalesChannelContext());
+            static::assertSame($request, $event->getRequest());
+            static::assertCount(3, $event->getPagelet()->getSearchResult()->getProducts());
         };
 
         $this->addEventListener($this->eventDispatcher, GuestWishlistPageletLoadedEvent::class, $listenerClosure);
 
         $page = $this->getPageLoader()->load($request, $context);
 
-        static::assertInstanceOf(GuestWishlistPagelet::class, $page);
-        $phpunit->assertEquals(3, $page->getSearchResult()->getProducts()->count());
+        static::assertCount(3, $page->getSearchResult()->getProducts());
         static::assertTrue($eventDidRun);
     }
 
@@ -131,14 +126,9 @@ class GuestWishlistPageletTest extends TestCase
 
         $context = $this->salesChannelContextMock;
 
-        $this->systemConfigServiceMock->expects($this->once())->method('getBool')
-            ->with('core.listing.hideCloseoutProductsWhenOutOfStock')->willReturn(true);
-
         $eventDidRun = null;
-        $phpunit = $this;
         $listenerClosure = function (GuestWishListPageletProductCriteriaEvent $event) use (
             &$eventDidRun,
-            $phpunit,
             $productId,
             $context
         ): void {
@@ -153,14 +143,13 @@ class GuestWishlistPageletTest extends TestCase
             $filter = $this->productCloseoutFilterFactory->create($context);
             $expectedCriteria->addFilter($filter);
 
-            $phpunit->assertEquals($expectedCriteria, $event->getCriteria());
+            static::assertEquals($expectedCriteria, $event->getCriteria());
         };
 
         $this->addEventListener($this->eventDispatcher, GuestWishListPageletProductCriteriaEvent::class, $listenerClosure);
 
-        $page = $this->getPageLoader()->load($request, $context);
+        $this->getPageLoader()->load($request, $context);
 
-        static::assertInstanceOf(GuestWishlistPagelet::class, $page);
         static::assertTrue($eventDidRun);
     }
 
@@ -170,22 +159,16 @@ class GuestWishlistPageletTest extends TestCase
 
         $request->attributes->set('productIds', []);
 
-        $context = $this->salesChannelContextMock;
+        $page = $this->getPageLoader()->load($request, $this->salesChannelContextMock);
 
-        $page = $this->getPageLoader()->load($request, $context);
-
-        static::assertInstanceOf(GuestWishlistPagelet::class, $page);
-        static::assertEquals(0, $page->getSearchResult()->getProducts()->count());
+        static::assertCount(0, $page->getSearchResult()->getProducts());
     }
 
-    /**
-     * @return GuestWishlistPageletLoader
-     */
-    protected function getPageLoader()
+    private function getPageLoader(): GuestWishlistPageletLoader
     {
         return new GuestWishlistPageletLoader(
             $this->productListRouteMock,
-            $this->systemConfigServiceMock,
+            $this->systemConfigServiceStub,
             $this->eventDispatcher,
             $this->productCloseoutFilterFactory
         );

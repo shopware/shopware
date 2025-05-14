@@ -79,8 +79,8 @@ class CartFacadeTest extends TestCase
         }
 
         static::assertInstanceOf(ItemFacade::class, $item);
-        static::assertEquals($this->ids->get($expected), $item->getReferencedId());
-        static::assertEquals(LineItem::PRODUCT_LINE_ITEM_TYPE, $item->getType());
+        static::assertSame($this->ids->get($expected), $item->getReferencedId());
+        static::assertSame(LineItem::PRODUCT_LINE_ITEM_TYPE, $item->getType());
     }
 
     public function testContainer(): void
@@ -122,7 +122,7 @@ class CartFacadeTest extends TestCase
 
         static::assertInstanceOf(ItemFacade::class, $container);
         static::assertInstanceOf(PriceFacade::class, $container->getPrice());
-        static::assertEquals(182, $container->getPrice()->getTotal());
+        static::assertSame(182.0, $container->getPrice()->getTotal());
     }
 
     public function testRemove(): void
@@ -136,8 +136,8 @@ class CartFacadeTest extends TestCase
         $item = $cart->products()->add($this->ids->get('p1'));
 
         static::assertInstanceOf(ItemFacade::class, $item);
-        static::assertEquals($this->ids->get('p1'), $item->getReferencedId());
-        static::assertEquals(LineItem::PRODUCT_LINE_ITEM_TYPE, $item->getType());
+        static::assertSame($this->ids->get('p1'), $item->getReferencedId());
+        static::assertSame(LineItem::PRODUCT_LINE_ITEM_TYPE, $item->getType());
 
         $cart->remove($item->getId());
 
@@ -153,7 +153,7 @@ class CartFacadeTest extends TestCase
     {
         $this->loadAppsFromDir(__DIR__ . '/_fixtures');
 
-        $hook = $this->createTestHook($hook, $this->ids);
+        $hook = $this->createTestHook($hook);
 
         $service = static::getContainer()
             ->get(CartFacadeHookFactory::class)
@@ -328,7 +328,7 @@ class CartFacadeTest extends TestCase
                 foreach ($expected as $key => $value) {
                     static::assertArrayHasKey($key, $item->getItem()->getPayload());
                     $actual = $item->getItem()->getPayload()[$key];
-                    static::assertEquals($value, $actual, \sprintf('Payload value %s does not match', $key));
+                    static::assertSame($value, $actual, \sprintf('Payload value %s does not match', $key));
                 }
             },
         ];
@@ -392,8 +392,8 @@ class CartFacadeTest extends TestCase
             if ($expected instanceof CalculatedPrice) {
                 static::assertInstanceOf(ItemFacade::class, $item);
                 static::assertInstanceOf(PriceFacade::class, $item->getPrice());
-                static::assertEquals($expected->getUnitPrice(), $item->getPrice()->getUnit());
-                static::assertEquals($expected->getTotalPrice(), $item->getPrice()->getTotal());
+                static::assertSame($expected->getUnitPrice(), $item->getPrice()->getUnit());
+                static::assertSame($expected->getTotalPrice(), $item->getPrice()->getTotal());
 
                 continue;
             }
@@ -401,26 +401,21 @@ class CartFacadeTest extends TestCase
             $price = $expected['price'];
             static::assertInstanceOf(ItemFacade::class, $item);
             static::assertInstanceOf(PriceFacade::class, $item->getPrice());
-            static::assertEquals($price->getUnitPrice(), $item->getPrice()->getUnit(), print_r($item->getItem(), true));
-            static::assertEquals($price->getTotalPrice(), $item->getPrice()->getTotal());
+            static::assertSame($price->getUnitPrice(), $item->getPrice()->getUnit(), print_r($item->getItem(), true));
+            static::assertSame($price->getTotalPrice(), $item->getPrice()->getTotal());
 
             $this->assertItems($item->getChildren(), $expected['children']);
         }
     }
 
-    /**
-     * @param array<string, mixed> $data
-     */
-    private function createTestHook(string $case, IdsCollection $ids, array $data = []): CartTestHook
+    private function createTestHook(string $case): CartTestHook
     {
         $context = static::getContainer()->get(SalesChannelContextFactory::class)
             ->create(Uuid::randomHex(), TestDefaults::SALES_CHANNEL, []);
 
         $cart = $this->createCart();
 
-        $data['ids'] = $ids;
-
-        return new CartTestHook($case, $cart, $context, $data, [CartFacadeHookFactory::class]);
+        return new CartTestHook($case, $cart, $context, $this->ids, [CartFacadeHookFactory::class]);
     }
 
     private function init(): IdsCollection

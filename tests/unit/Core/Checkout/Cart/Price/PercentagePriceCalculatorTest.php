@@ -53,9 +53,9 @@ class PercentagePriceCalculatorTest extends TestCase
         static::assertEquals($expected, $price);
         static::assertEquals($expected->getCalculatedTaxes(), $price->getCalculatedTaxes());
         static::assertEquals($expected->getTaxRules(), $price->getTaxRules());
-        static::assertEquals($expected->getTotalPrice(), $price->getTotalPrice());
-        static::assertEquals($expected->getUnitPrice(), $price->getUnitPrice());
-        static::assertEquals($expected->getQuantity(), $price->getQuantity());
+        static::assertSame($expected->getTotalPrice(), $price->getTotalPrice());
+        static::assertSame($expected->getUnitPrice(), $price->getUnitPrice());
+        static::assertSame($expected->getQuantity(), $price->getQuantity());
     }
 
     public static function grossPriceDataProvider(): \Generator

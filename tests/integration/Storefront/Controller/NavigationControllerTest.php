@@ -35,7 +35,7 @@ class NavigationControllerTest extends TestCase
     public function testNavigationPageLoadedHookScriptsAreExecuted(): void
     {
         $response = $this->request('GET', '/', []);
-        static::assertEquals(200, $response->getStatusCode());
+        static::assertSame(200, $response->getStatusCode());
 
         $traces = static::getContainer()->get(ScriptTraces::class)->getTraces();
 
@@ -46,7 +46,7 @@ class NavigationControllerTest extends TestCase
     {
         $response = $this->request('GET', '/my-navigation/', []);
 
-        static::assertEquals(200, $response->getStatusCode(), print_r($response->getContent(), true));
+        static::assertSame(200, $response->getStatusCode(), print_r($response->getContent(), true));
 
         $traces = static::getContainer()->get(ScriptTraces::class)->getTraces();
 
@@ -56,7 +56,7 @@ class NavigationControllerTest extends TestCase
     public function testMenuOffcanvasPageletLoadedHookScriptsAreExecuted(): void
     {
         $response = $this->request('GET', '/widgets/menu/offcanvas', []);
-        static::assertEquals(200, $response->getStatusCode());
+        static::assertSame(200, $response->getStatusCode());
 
         $traces = static::getContainer()->get(ScriptTraces::class)->getTraces();
 

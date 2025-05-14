@@ -57,7 +57,7 @@ class StaticKernelPluginLoaderTest extends TestCase
     public function testNonExistingPluginIsSkipped(): void
     {
         $active = $this->getActivePlugin();
-        // @phpstan-ignore-next-line -> phpstan enforces correct base class strings
+        /** @phpstan-ignore argument.type (for test purpose) */
         $active->setBaseClass('SomeNotExistingBaseClass');
 
         $plugins = [$active->jsonSerialize()];
@@ -236,7 +236,7 @@ class StaticKernelPluginLoaderTest extends TestCase
     public function testExpectExceptionWithFakePlugin(): void
     {
         $plugin = $this->getActivePlugin();
-        // @phpstan-ignore-next-line -> phpstan enforces correct base class strings
+        /** @phpstan-ignore argument.type (for test purpose) */
         $plugin->setBaseClass(SwagTestFake::class);
 
         $loader = new StaticKernelPluginLoader($this->classLoader, null, [$plugin->jsonSerialize()]);

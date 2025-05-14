@@ -62,7 +62,7 @@ class Migration1742484083TransitionToAddressInputFieldArrangementTest extends Te
             [Migration1742484083TransitionToAddressInputFieldArrangement::OLD_CONFIG_KEY]
         );
 
-        static::assertEquals([], $oldConfiguration);
+        static::assertSame([], $oldConfiguration);
     }
 
     public function testNotOverrideExistingConfig(): void
@@ -92,7 +92,7 @@ class Migration1742484083TransitionToAddressInputFieldArrangementTest extends Te
             $newConfiguration[$uuid]['configuration_value'] = json_decode($c['configuration_value'], true);
         }
 
-        static::assertEquals([
+        static::assertSame([
             '' => ['configuration_value' => ['_value' => 'city-state-zip']],
             Uuid::fromHexToBytes(TestDefaults::SALES_CHANNEL) => ['configuration_value' => ['_value' => 'city-zip-state']],
         ], $newConfiguration);
@@ -132,7 +132,7 @@ class Migration1742484083TransitionToAddressInputFieldArrangementTest extends Te
             $newConfiguration[$uuid]['configuration_value'] = json_decode($c['configuration_value'], true);
         }
 
-        static::assertEquals([
+        static::assertSame([
             '' => ['configuration_value' => ['_value' => 'zip-city-state']],
             Uuid::fromHexToBytes(TestDefaults::SALES_CHANNEL) => ['configuration_value' => ['_value' => 'city-zip-state']],
         ], $newConfiguration);

@@ -256,7 +256,7 @@
                                             data-bs-toggle="collapse"
                                             data-bs-target="#order{{ order.orderNumber }}"
                                             aria-expanded="false"
-                                            aria-controls="collapseExample">
+                                            aria-controls="order{{ order.orderNumber }}">
                                         {% block page_account_order_item_order_table_body_cell_toggle_order_details_button_text %}
                                             <span class="order-hide-btn-text">{{ 'account.orderActionHide'|trans|sw_sanitize }}</span>
                                             <span class="order-view-btn-text">{{ 'account.orderActionView'|trans|sw_sanitize }}</span>

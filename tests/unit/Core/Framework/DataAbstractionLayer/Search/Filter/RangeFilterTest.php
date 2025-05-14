@@ -59,8 +59,8 @@ class RangeFilterTest extends TestCase
             $this->expectException(InvalidRangeFilterParamException::class);
         }
 
-        $result = new RangeFilter('foo', $filter); // @phpstan-ignore-line we call it with invalid params to check the error handling
-
+        /** @phpstan-ignore argument.type (for test purpose) */
+        $result = new RangeFilter('foo', $filter);
         static::assertEquals($expectedFilter, $result);
     }
 

@@ -274,7 +274,7 @@ class InvoiceRendererTest extends TestCase
 
                 /** @var \RuntimeException $error */
                 $error = $errors[$orderId];
-                static::assertEquals(
+                static::assertSame(
                     'Errors happened while rendering',
                     $error->getMessage()
                 );
@@ -565,7 +565,7 @@ class InvoiceRendererTest extends TestCase
 
         $operationInvoice = new DocumentGenerateOperation($orderId);
 
-        static::assertEquals($operationInvoice->getOrderVersionId(), Defaults::LIVE_VERSION);
+        static::assertSame($operationInvoice->getOrderVersionId(), Defaults::LIVE_VERSION);
         static::assertTrue($this->orderVersionExists($orderId, $operationInvoice->getOrderVersionId()));
 
         $this->invoiceRenderer->render(
@@ -574,7 +574,7 @@ class InvoiceRendererTest extends TestCase
             new DocumentRendererConfig()
         );
 
-        static::assertNotEquals($operationInvoice->getOrderVersionId(), Defaults::LIVE_VERSION);
+        static::assertNotSame($operationInvoice->getOrderVersionId(), Defaults::LIVE_VERSION);
         static::assertTrue($this->orderVersionExists($orderId, $operationInvoice->getOrderVersionId()));
     }
 

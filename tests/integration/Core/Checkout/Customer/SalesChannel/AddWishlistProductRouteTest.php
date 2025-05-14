@@ -111,9 +111,9 @@ class AddWishlistProductRouteTest extends TestCase
         $response = json_decode((string) $this->browser->getResponse()->getContent(), true, 512, \JSON_THROW_ON_ERROR);
         $errors = $response['errors'][0];
         static::assertSame(403, $this->browser->getResponse()->getStatusCode());
-        static::assertEquals('CHECKOUT__WISHLIST_IS_NOT_ACTIVATED', $errors['code']);
-        static::assertEquals('Forbidden', $errors['title']);
-        static::assertEquals('Wishlist is not activated!', $errors['detail']);
+        static::assertSame('CHECKOUT__WISHLIST_IS_NOT_ACTIVATED', $errors['code']);
+        static::assertSame('Forbidden', $errors['title']);
+        static::assertSame('Wishlist is not activated!', $errors['detail']);
     }
 
     public function testAddProductShouldThrowCustomerNotLoggedInException(): void
@@ -130,8 +130,8 @@ class AddWishlistProductRouteTest extends TestCase
         $errors = $response['errors'][0];
         static::assertSame(403, $this->browser->getResponse()->getStatusCode());
         static::assertSame(RoutingException::CUSTOMER_NOT_LOGGED_IN_CODE, $response['errors'][0]['code']);
-        static::assertEquals('Forbidden', $errors['title']);
-        static::assertEquals('Customer is not logged in.', $errors['detail']);
+        static::assertSame('Forbidden', $errors['title']);
+        static::assertSame('Customer is not logged in.', $errors['detail']);
     }
 
     public function testAddProductShouldThrowDuplicateWishlistProductException(): void
@@ -150,7 +150,7 @@ class AddWishlistProductRouteTest extends TestCase
         unset($errors['meta']);
 
         static::assertSame(400, $this->browser->getResponse()->getStatusCode(), print_r($errors, true));
-        static::assertEquals('CHECKOUT__DUPLICATE_WISHLIST_PRODUCT', $errors['code']);
+        static::assertSame('CHECKOUT__DUPLICATE_WISHLIST_PRODUCT', $errors['code']);
     }
 
     public function testAddProductShouldThrowProductNotFoundException(): void
@@ -164,9 +164,9 @@ class AddWishlistProductRouteTest extends TestCase
         $response = json_decode((string) $this->browser->getResponse()->getContent(), true, 512, \JSON_THROW_ON_ERROR);
         $errors = $response['errors'][0];
         static::assertSame(404, $this->browser->getResponse()->getStatusCode());
-        static::assertEquals('CONTENT__PRODUCT_NOT_FOUND', $errors['code']);
-        static::assertEquals('Not Found', $errors['title']);
-        static::assertEquals('Product for id ' . $productId . ' not found.', $errors['detail']);
+        static::assertSame('CONTENT__PRODUCT_NOT_FOUND', $errors['code']);
+        static::assertSame('Not Found', $errors['title']);
+        static::assertSame('Product for id ' . $productId . ' not found.', $errors['detail']);
     }
 
     /**

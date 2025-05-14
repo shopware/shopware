@@ -157,9 +157,6 @@ class StructForTests extends Struct
 
     private string $value;
 
-    /**
-     * @phpstan-ignore-next-line
-     */
     private int $noGetter;
 
     public function isVisible(): bool
@@ -185,5 +182,8 @@ class StructForTests extends Struct
     public function setNoGetter(int $noGetter): void
     {
         $this->noGetter = $noGetter;
+        if ($this->noGetter > 0) {
+            $this->visible = true;
+        }
     }
 }

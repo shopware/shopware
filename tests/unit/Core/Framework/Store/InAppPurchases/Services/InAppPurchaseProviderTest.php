@@ -248,7 +248,7 @@ class InAppPurchaseProviderTest extends TestCase
         $builder = Builder::new(new JoseEncoder(), new class implements ClaimsFormatter {
             public function formatClaims(array $claims): array
             {
-                /** @phpstan-ignore-next-line */
+                /** @phpstan-ignore return.type (bypass the interface) */
                 return \array_values($claims);
             }
         });

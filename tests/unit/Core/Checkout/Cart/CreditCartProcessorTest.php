@@ -53,7 +53,7 @@ class CreditCartProcessorTest extends TestCase
         $processor->process($data, $original, $toCalculate, $context, $behavior);
 
         static::assertCount(1, $toCalculate->getLineItems());
-        static::assertEquals(10.0, $toCalculate->getLineItems()->first()?->getPrice()?->getTotalPrice());
+        static::assertSame(10.0, $toCalculate->getLineItems()->first()?->getPrice()?->getTotalPrice());
     }
 
     public function testNoneCreditItemsIgnored(): void

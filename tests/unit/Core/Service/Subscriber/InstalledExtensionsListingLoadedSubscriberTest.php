@@ -45,6 +45,6 @@ class InstalledExtensionsListingLoadedSubscriberTest extends TestCase
         static::assertCount(1, $event->extensionCollection);
         $ext = $event->extensionCollection->first();
         static::assertNotNull($ext);
-        static::assertEquals('Ext1', $ext->getName());
+        static::assertSame('Ext1', $ext->getName());
     }
 }

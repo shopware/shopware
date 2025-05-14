@@ -94,7 +94,7 @@ class CampaignCodeOfOrderRuleTest extends TestCase
         $order->setCampaignCode($orderCampaignCode);
         $scope = new FlowRuleScope($order, $cart, $salesChannelContext);
         $match = $rule->match($scope);
-        static::assertEquals($match, $isMatching);
+        static::assertSame($match, $isMatching);
     }
 
     /**

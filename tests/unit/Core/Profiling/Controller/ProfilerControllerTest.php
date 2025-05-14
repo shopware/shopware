@@ -38,7 +38,7 @@ class ProfilerControllerTest extends TestCase
             ->willReturn(null);
 
         $response = $controller->explainAction('some-token', 'some-panel', 'default', 5);
-        static::assertEquals('This profile does not exist.', $response->getContent());
+        static::assertSame('This profile does not exist.', $response->getContent());
     }
 
     public function testErrorIsReturnedIfPanelDoesNotExist(): void
@@ -55,7 +55,7 @@ class ProfilerControllerTest extends TestCase
             ->willReturn($profile);
 
         $response = $controller->explainAction('some-token', 'some-panel', 'default', 5);
-        static::assertEquals('This collector does not exist.', $response->getContent());
+        static::assertSame('This collector does not exist.', $response->getContent());
     }
 
     public function testErrorIsReturnedIfPanelIsIncorrect(): void
@@ -89,7 +89,7 @@ class ProfilerControllerTest extends TestCase
         });
 
         $response = $controller->explainAction('some-token', 'some-panel', 'default', 5);
-        static::assertEquals('This collector does not exist.', $response->getContent());
+        static::assertSame('This collector does not exist.', $response->getContent());
     }
 
     public function testErrorIsReturnedIfQueryDoesNotExist(): void
@@ -125,7 +125,7 @@ class ProfilerControllerTest extends TestCase
             5
         );
 
-        static::assertEquals('This query does not exist.', $response->getContent());
+        static::assertSame('This query does not exist.', $response->getContent());
     }
 
     public function testErrorIsReturnedIfQueryIsNotExplainable(): void
@@ -175,7 +175,7 @@ class ProfilerControllerTest extends TestCase
             0
         );
 
-        static::assertEquals('This query cannot be explained.', $response->getContent());
+        static::assertSame('This query cannot be explained.', $response->getContent());
     }
 
     public function testExplainQuery(): void
@@ -219,6 +219,6 @@ class ProfilerControllerTest extends TestCase
             0
         );
 
-        static::assertEquals('', $response->getContent());
+        static::assertSame('', $response->getContent());
     }
 }

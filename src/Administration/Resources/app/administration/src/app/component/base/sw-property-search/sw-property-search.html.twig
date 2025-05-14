@@ -92,7 +92,7 @@
                         class="sw-property-search__tree-selection__column-items-selected"
                         data-index="assignedOptions"
                     >
-                        <span v-if="item.optionCount > 0">{{ $tc('sw-property-search.selected', item.optionCount, { count: item.optionCount }) }}</span>
+                        <span v-if="item.optionCount > 0">{{ $tc('sw-property-search.selected', { count: item.optionCount }, item.optionCount) }}</span>
                     </sw-grid-column>
                     {% endblock %}
                 </template>

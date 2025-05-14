@@ -114,11 +114,11 @@ class ThemeLifecycleServiceTest extends TestCase
 
         static::assertTrue($themeEntity->isActive());
         static::assertInstanceOf(MediaCollection::class, $themeEntity->getMedia());
-        static::assertEquals(2, $themeEntity->getMedia()->count());
+        static::assertCount(2, $themeEntity->getMedia());
 
         $themeDefaultFolderId = $this->getThemeMediaDefaultFolderId();
         foreach ($themeEntity->getMedia() as $media) {
-            static::assertEquals($themeDefaultFolderId, $media->getMediaFolderId());
+            static::assertSame($themeDefaultFolderId, $media->getMediaFolderId());
         }
     }
 
@@ -134,7 +134,7 @@ class ThemeLifecycleServiceTest extends TestCase
         $parentThemeEntity = $this->getTheme($parentBundle);
         $themeEntity = $this->getTheme($bundle);
 
-        static::assertEquals($parentThemeEntity->getId(), $themeEntity->getParentThemeId());
+        static::assertSame($parentThemeEntity->getId(), $themeEntity->getParentThemeId());
     }
 
     public function testThemeRefreshWithParentTheme(): void
@@ -149,13 +149,13 @@ class ThemeLifecycleServiceTest extends TestCase
         $parentThemeEntity = $this->getTheme($parentBundle);
         $themeEntity = $this->getTheme($bundle);
 
-        static::assertEquals($parentThemeEntity->getId(), $themeEntity->getParentThemeId());
+        static::assertSame($parentThemeEntity->getId(), $themeEntity->getParentThemeId());
 
         $bundle->setConfigInheritance([]);
         $this->themeLifecycleService->refreshTheme($parentBundle, $this->context);
 
         $themeEntity = $this->getTheme($bundle);
-        static::assertEquals($parentThemeEntity->getId(), $themeEntity->getParentThemeId());
+        static::assertSame($parentThemeEntity->getId(), $themeEntity->getParentThemeId());
     }
 
     public function testYouCanUpdateConfigToAddNewMedia(): void
@@ -171,7 +171,7 @@ class ThemeLifecycleServiceTest extends TestCase
 
         static::assertTrue($themeEntity->isActive());
         static::assertInstanceOf(MediaCollection::class, $themeEntity->getMedia());
-        static::assertEquals(3, $themeEntity->getMedia()->count());
+        static::assertCount(3, $themeEntity->getMedia());
     }
 
     public function testItWontThrowIfMediaHasRestrictDeleteAssociation(): void
@@ -180,13 +180,13 @@ class ThemeLifecycleServiceTest extends TestCase
 
         $this->themeLifecycleService->refreshTheme($bundle, $this->context);
 
-        $shopwareLogoId = $this->getMedia('shopware_logo');
-        $this->createCmsPage($shopwareLogoId->getId());
+        $shopwareLogo = $this->getMedia('shopware_logo');
+        $this->createCmsPage($shopwareLogo->getId());
 
         $this->themeLifecycleService->refreshTheme($bundle, $this->context);
 
         // assert that the file shopware_logo was not deleted and is assigned to same media entity as before
-        static::assertEquals($shopwareLogoId, $this->getMedia('shopware_logo'));
+        static::assertEquals($shopwareLogo, $this->getMedia('shopware_logo'));
     }
 
     public function testItDontRenamesThemeMediaIfItExistsBeforeAndIsSame(): void
@@ -263,7 +263,7 @@ class ThemeLifecycleServiceTest extends TestCase
 
         static::assertTrue($themeEntity->isActive());
         static::assertInstanceOf(MediaCollection::class, $themeEntity->getMedia());
-        static::assertEquals(2, $themeEntity->getMedia()->count());
+        static::assertCount(2, $themeEntity->getMedia());
 
         foreach ($themeEntity->getMedia() as $media) {
             static::assertNull($media->getMediaFolderId());
@@ -294,7 +294,7 @@ class ThemeLifecycleServiceTest extends TestCase
         $this->themeLifecycleService->refreshTheme($bundle, $this->context);
 
         $theme = $this->getTheme($bundle);
-        static::assertEquals($previewMediaId, $theme->getPreviewMediaId());
+        static::assertSame($previewMediaId, $theme->getPreviewMediaId());
     }
 
     public function testItSkipsTranslationsIfLanguageIsNotAvailable(): void
@@ -308,13 +308,11 @@ class ThemeLifecycleServiceTest extends TestCase
 
         static::assertInstanceOf(ThemeTranslationCollection::class, $theme->getTranslations());
         static::assertCount(1, $theme->getTranslations());
-        static::assertEquals('en-GB', $theme->getTranslations()->first()?->getLanguage()?->getLocale()?->getCode());
-        static::assertEquals([
-            'fields.sw-image' => 'test label',
-        ], $theme->getTranslations()->first()?->getLabels());
-        static::assertEquals([
-            'fields.sw-image' => 'test help',
-        ], $theme->getTranslations()->first()?->getHelpTexts());
+        $firstTranslation = $theme->getTranslations()->first();
+        static::assertNotNull($firstTranslation);
+        static::assertSame('en-GB', $firstTranslation->getLanguage()?->getLocale()?->getCode());
+        static::assertSame(['fields.sw-image' => 'test label'], $firstTranslation->getLabels());
+        static::assertSame(['fields.sw-image' => 'test help'], $firstTranslation->getHelpTexts());
     }
 
     public function testItUsesEnglishTranslationsAsFallbackIfDefaultLanguageIsNotProvided(): void
@@ -329,18 +327,18 @@ class ThemeLifecycleServiceTest extends TestCase
         static::assertInstanceOf(ThemeTranslationCollection::class, $theme->getTranslations());
         static::assertCount(2, $theme->getTranslations());
         $translation = $this->getTranslationByLocale('xx-XX', $theme->getTranslations());
-        static::assertEquals([
+        static::assertSame([
             'fields.sw-image' => 'test label',
         ], $translation->getLabels());
-        static::assertEquals([
+        static::assertSame([
             'fields.sw-image' => 'test help',
         ], $translation->getHelpTexts());
 
         $germanTranslation = $this->getTranslationByLocale('de-DE', $theme->getTranslations());
-        static::assertEquals([
+        static::assertSame([
             'fields.sw-image' => 'Test label',
         ], $germanTranslation->getLabels());
-        static::assertEquals([
+        static::assertSame([
             'fields.sw-image' => 'Test Hilfe',
         ], $germanTranslation->getHelpTexts());
     }
@@ -357,11 +355,11 @@ class ThemeLifecycleServiceTest extends TestCase
         $ids = $themeMedia->getIds();
 
         static::assertTrue($themeEntity->isActive());
-        static::assertEquals(2, $themeMedia->count());
+        static::assertCount(2, $themeMedia);
 
         $themeDefaultFolderId = $this->getThemeMediaDefaultFolderId();
         foreach ($themeMedia as $media) {
-            static::assertEquals($themeDefaultFolderId, $media->getMediaFolderId());
+            static::assertSame($themeDefaultFolderId, $media->getMediaFolderId());
         }
 
         $this->themeLifecycleService->removeTheme($bundle->getTechnicalName(), $this->context);
@@ -382,7 +380,7 @@ class ThemeLifecycleServiceTest extends TestCase
 
         static::assertInstanceOf(ThemeCollection::class, $themeEntity->getDependentThemes());
         // check if we have no dependent Themes
-        static::assertEquals(0, $themeEntity->getDependentThemes()->count());
+        static::assertCount(0, $themeEntity->getDependentThemes());
 
         // clone theme and make it child
         $this->themeRepository->clone($themeEntity->getId(), $this->context, $childId, new CloneBehavior([
@@ -399,13 +397,13 @@ class ThemeLifecycleServiceTest extends TestCase
         $ids = $themeMedia->getIds();
 
         static::assertTrue($themeEntity->isActive());
-        static::assertEquals(2, $themeMedia->count());
+        static::assertCount(2, $themeMedia);
         static::assertInstanceOf(ThemeCollection::class, $themeEntity->getDependentThemes());
-        static::assertEquals(1, $themeEntity->getDependentThemes()->count());
+        static::assertCount(1, $themeEntity->getDependentThemes());
 
         $themeDefaultFolderId = $this->getThemeMediaDefaultFolderId();
         foreach ($themeMedia as $media) {
-            static::assertEquals($themeDefaultFolderId, $media->getMediaFolderId());
+            static::assertSame($themeDefaultFolderId, $media->getMediaFolderId());
         }
 
         $this->themeLifecycleService->removeTheme($bundle->getTechnicalName(), $this->context);
@@ -413,7 +411,7 @@ class ThemeLifecycleServiceTest extends TestCase
         // check whether the theme is no longer in the table and the associated media have been deleted
         static::assertFalse($this->hasTheme($bundle));
         static::assertCount(0, $this->mediaRepository->searchIds(new Criteria($ids), Context::createDefaultContext())->getIds());
-        static::assertEquals(0, $this->themeRepository->search(new Criteria([$childId, $themeEntity->getId()]), $this->context)->count());
+        static::assertCount(0, $this->themeRepository->search(new Criteria([$childId, $themeEntity->getId()]), $this->context));
     }
 
     private function getThemeConfig(): StorefrontPluginConfiguration

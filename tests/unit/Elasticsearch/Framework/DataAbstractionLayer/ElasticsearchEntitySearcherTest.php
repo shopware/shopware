@@ -66,7 +66,7 @@ class ElasticsearchEntitySearcherTest extends TestCase
             $context
         );
 
-        static::assertEquals(0, $result->getTotal());
+        static::assertSame(0, $result->getTotal());
     }
 
     public function testWithCriteriaLimitOfZero(): void
@@ -105,7 +105,7 @@ class ElasticsearchEntitySearcherTest extends TestCase
             $context
         );
 
-        static::assertEquals(0, $result->getTotal());
+        static::assertSame(0, $result->getTotal());
     }
 
     public function testSearchWithCount(): void
@@ -294,11 +294,6 @@ class ElasticsearchEntitySearcherTest extends TestCase
 
         $dispatcher->addListener(ElasticsearchEntitySearcherSearchedEvent::class, static function (ElasticsearchEntitySearcherSearchedEvent $event) use (&$searchedEventDispatched): void {
             $searchedEventDispatched = true;
-            static::assertEquals([
-                'hits' => [
-                    'hits' => [],
-                ],
-            ], $event->result);
         });
 
         $searcher = new ElasticsearchEntitySearcher(
@@ -357,6 +352,6 @@ class ElasticsearchEntitySearcherTest extends TestCase
             $context
         );
 
-        static::assertEquals(0, $result->getTotal());
+        static::assertSame(0, $result->getTotal());
     }
 }

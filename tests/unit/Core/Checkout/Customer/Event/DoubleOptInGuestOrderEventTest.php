@@ -36,6 +36,6 @@ class DoubleOptInGuestOrderEventTest extends TestCase
         $storer->restore($flow);
 
         static::assertArrayHasKey('confirmUrl', $flow->data());
-        static::assertEquals('my-confirm-url', $flow->data()['confirmUrl']);
+        static::assertSame('my-confirm-url', $flow->data()['confirmUrl']);
     }
 }

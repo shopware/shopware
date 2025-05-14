@@ -30,7 +30,7 @@ class ElasticsearchLanguageProviderTest extends TestCase
                 static::assertTrue($criteria->hasEqualsFilter('fooo'));
                 $sortings = $criteria->getSorting();
                 static::assertCount(1, $sortings);
-                static::assertEquals('id', $sortings[0]->getField());
+                static::assertSame('id', $sortings[0]->getField());
 
                 return new EntitySearchResult('foo', 0, new LanguageCollection(), null, $criteria, Context::createDefaultContext());
             });

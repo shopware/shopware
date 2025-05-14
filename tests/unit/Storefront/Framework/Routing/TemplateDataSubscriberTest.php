@@ -63,15 +63,15 @@ class TemplateDataSubscriberTest extends TestCase
         static::assertArrayHasKey('0', $events[StorefrontRenderEvent::class]);
         static::assertIsArray($events[StorefrontRenderEvent::class][0]);
         static::assertArrayHasKey('0', $events[StorefrontRenderEvent::class][0]);
-        static::assertEquals('addHreflang', $events[StorefrontRenderEvent::class][0][0]);
+        static::assertSame('addHreflang', $events[StorefrontRenderEvent::class][0][0]);
 
         static::assertArrayHasKey('1', $events[StorefrontRenderEvent::class]);
         static::assertIsArray($events[StorefrontRenderEvent::class][1]);
-        static::assertEquals('addShopIdParameter', $events[StorefrontRenderEvent::class][1][0]);
+        static::assertSame('addShopIdParameter', $events[StorefrontRenderEvent::class][1][0]);
 
         static::assertArrayHasKey('2', $events[StorefrontRenderEvent::class]);
         static::assertIsArray($events[StorefrontRenderEvent::class][2]);
-        static::assertEquals('addIconSetConfig', $events[StorefrontRenderEvent::class][2][0]);
+        static::assertSame('addIconSetConfig', $events[StorefrontRenderEvent::class][2][0]);
     }
 
     public function testAddHreflangWithNullRoute(): void
@@ -173,7 +173,7 @@ class TemplateDataSubscriberTest extends TestCase
 
         $this->subscriber->addShopIdParameter($event);
 
-        static::assertEquals('123', $event->getParameters()['appShopId']);
+        static::assertSame('123', $event->getParameters()['appShopId']);
     }
 
     public function testAddIconSetConfigWithNoTheme(): void

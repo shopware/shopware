@@ -54,7 +54,7 @@ class ProductReviewSubscriberTest extends TestCase
 
     public function testGetSubscribedEvents(): void
     {
-        static::assertEquals([
+        static::assertSame([
             'product_review.written' => 'createReview',
             EntityDeleteEvent::class => 'detectChangeset',
             'product_review.deleted' => 'onReviewDeleted',

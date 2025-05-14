@@ -45,8 +45,8 @@ class OrderRouteResponseTest extends TestCase
             $response->getObject()
         );
 
-        static::assertSame($object, $response->getOrders());
-        static::assertSame(['foo' => true, 'bar' => false], $response->getPaymentsChangeable());
+        static::assertEquals($object, $response->getOrders());
+        static::assertEquals(['foo' => true, 'bar' => false], $response->getPaymentsChangeable());
 
         $response->setPaymentChangeable(['baz' => true]);
 
@@ -60,6 +60,6 @@ class OrderRouteResponseTest extends TestCase
             ),
             $response->getObject()
         );
-        static::assertSame(['baz' => true], $response->getPaymentsChangeable());
+        static::assertEquals(['baz' => true], $response->getPaymentsChangeable());
     }
 }

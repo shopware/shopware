@@ -55,7 +55,7 @@ class AnyRuleLineItemMatcherTest extends TestCase
 
         $group = new LineItemGroupDefinition('test', 'COUNT', 1, 'PRICE_ASC', $ruleCollection);
 
-        static::assertEquals($expected, $this->matcher->isMatching($group, $lineItem, $this->context));
+        static::assertSame($expected, $this->matcher->isMatching($group, $lineItem, $this->context));
     }
 
     /**

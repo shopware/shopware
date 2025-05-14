@@ -49,7 +49,7 @@ class ElasticsearchIndexingUtilsTest extends TestCase
         $formatted = $utils->getCustomFieldTypes(ProductDefinition::ENTITY_NAME, new Context(new SystemSource()));
         $utils->getCustomFieldTypes(ProductDefinition::ENTITY_NAME, new Context(new SystemSource()));
 
-        static::assertEquals([
+        static::assertSame([
             'cf_bool' => 'bool',
             'cf_foo' => 'text',
             'cf_baz' => 'int',
@@ -61,20 +61,20 @@ class ElasticsearchIndexingUtilsTest extends TestCase
         $input1 = '<p>This is <b>bold</b> text.</p>';
         $expected1 = 'This is bold text.';
         $result1 = ElasticsearchIndexingUtils::stripText($input1);
-        static::assertEquals($expected1, $result1);
+        static::assertSame($expected1, $result1);
 
         $input2 = 'This is a short text.';
         $result2 = ElasticsearchIndexingUtils::stripText($input2);
-        static::assertEquals($input2, $result2);
+        static::assertSame($input2, $result2);
 
         $input3 = str_repeat('a', 32766);
         $result3 = ElasticsearchIndexingUtils::stripText($input3);
-        static::assertEquals($input3, $result3);
+        static::assertSame($input3, $result3);
 
         $input4 = str_repeat('a', 33000);
         $expected4 = mb_substr($input4, 0, 32766);
         $result4 = ElasticsearchIndexingUtils::stripText($input4);
-        static::assertEquals($expected4, $result4);
+        static::assertSame($expected4, $result4);
     }
 
     public function testParseJsonWithValidJson(): void
@@ -86,7 +86,7 @@ class ElasticsearchIndexingUtilsTest extends TestCase
 
         $result = ElasticsearchIndexingUtils::parseJson($record, $field);
 
-        static::assertEquals(['key' => 'value'], $result);
+        static::assertSame(['key' => 'value'], $result);
     }
 
     public function testParseJsonWithNonExistField(): void
@@ -96,7 +96,7 @@ class ElasticsearchIndexingUtilsTest extends TestCase
 
         $result = ElasticsearchIndexingUtils::parseJson($record, $field);
 
-        static::assertEquals([], $result);
+        static::assertSame([], $result);
     }
 
     public function testParseJsonWithInvalidJson(): void

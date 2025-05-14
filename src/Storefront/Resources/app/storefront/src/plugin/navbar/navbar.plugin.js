@@ -19,6 +19,16 @@ export default class NavbarPlugin extends Plugin {
          * Class to select the current page to add aria label current page to it.
          */
         ariaCurrentPageSelector: '.nav-item-{id}-link',
+
+        /**
+         * Class to show the currently active category.
+         */
+        activeClass: 'active',
+
+        /**
+         * Array of ids representing the path to the currently active category.
+         */
+        pathIdList: [],
     };
 
     init() {
@@ -44,7 +54,7 @@ export default class NavbarPlugin extends Plugin {
         });
 
         window.addEventListener('load', () => {
-            this._setAriaCurrentPage();
+            this._setCurrentPage();
         });
     }
 
@@ -119,16 +129,28 @@ export default class NavbarPlugin extends Plugin {
     }
 
     /**
-     * Sets the aria-current attribute on the configured selector.
+     * Sets the active class and aria-current attribute on the configured selectors.
      * @private
      */
-    _setAriaCurrentPage() {
-        if (!window.activeNavigationId) { return; }
-        const selector = this.options.ariaCurrentPageSelector.replace('{id}', window.activeNavigationId);
-        const activeNavItem = this.el.querySelector(selector);
-        if (activeNavItem) {
-            activeNavItem.setAttribute('aria-current', 'page');
+    _setCurrentPage() {
+        if (window.activeNavigationId) {
+            const navItemSelector = this.options.ariaCurrentPageSelector.replace('{id}', window.activeNavigationId);
+            const activeNavItem = this.el.querySelector(navItemSelector);
+
+            if (activeNavItem) {
+                activeNavItem.setAttribute('aria-current', 'page');
+                activeNavItem.classList.add(this.options.activeClass);
+            }
         }
+
+        this.options.pathIdList.forEach((id) => {
+            const navItemSelector = this.options.ariaCurrentPageSelector.replace('{id}', id);
+            const activeNavItem = this.el.querySelector(navItemSelector);
+
+            if (activeNavItem) {
+                activeNavItem.classList.add(this.options.activeClass);
+            }
+        });
     }
 
     /**

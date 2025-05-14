@@ -79,11 +79,11 @@ class DataCollectorTest extends TestCase
             new Response()
         );
 
-        static::assertEquals(1500, $collector->getTime());
-        static::assertEquals(5, $collector->getRequestAmount());
+        static::assertSame(1500.0, $collector->getTime());
+        static::assertSame(5, $collector->getRequestAmount());
         static::assertCount(5, $collector->getRequests());
-        static::assertEquals(['status' => 'green'], $collector->getClusterInfo());
-        static::assertEquals(['indices' => ['index1' => ['status' => 'green'], 'index2' => ['status' => 'green']]], $collector->getIndices());
+        static::assertSame(['status' => 'green'], $collector->getClusterInfo());
+        static::assertSame(['indices' => ['index1' => ['status' => 'green'], 'index2' => ['status' => 'green']]], $collector->getIndices());
     }
 
     public function testReset(): void
@@ -109,11 +109,11 @@ class DataCollectorTest extends TestCase
             new Response()
         );
 
-        static::assertEquals(1200, $collector->getTime());
+        static::assertSame(1200.0, $collector->getTime());
 
         $collector->reset();
         static::assertCount(0, $collector->getRequests());
-        static::assertEquals(0, $collector->getTime());
+        static::assertSame(0.0, $collector->getTime());
     }
 
     public function testDisabled(): void
@@ -135,7 +135,7 @@ class DataCollectorTest extends TestCase
             new Response()
         );
 
-        static::assertEquals(0, $collector->getTime());
+        static::assertSame(0.0, $collector->getTime());
     }
 
     public function testCollectAdminSource(): void
@@ -195,8 +195,8 @@ class DataCollectorTest extends TestCase
             new Response()
         );
 
-        static::assertEquals(900, $collector->getTime());
-        static::assertEquals(2, $collector->getRequestAmount());
+        static::assertSame(900.0, $collector->getTime());
+        static::assertSame(2, $collector->getRequestAmount());
         static::assertCount(2, $collector->getRequests());
 
         $client = $this->createMock(ClientProfiler::class);
@@ -228,8 +228,8 @@ class DataCollectorTest extends TestCase
             new Response()
         );
 
-        static::assertEquals(1500, $collector->getTime());
-        static::assertEquals(5, $collector->getRequestAmount());
+        static::assertSame(1500.0, $collector->getTime());
+        static::assertSame(5, $collector->getRequestAmount());
         static::assertCount(5, $collector->getRequests());
     }
 }

@@ -40,7 +40,7 @@
                         variant="secondary"
                         @click="openAddProductsModal"
                     >
-                        {{ $tc('sw-sales-channel.detail.products.buttonAddProducts', 0) }}
+                        {{ $tc('sw-sales-channel.detail.products.buttonAddProducts', {}, 0) }}
                     </mt-button>
                     {% endblock %}
                 </sw-container>
@@ -203,7 +203,7 @@
                 variant="secondary"
                 @click="openAddProductsModal"
             >
-                {{ $tc('sw-sales-channel.detail.products.buttonAddProducts', 0) }}
+                {{ $tc('sw-sales-channel.detail.products.buttonAddProducts', {}, 0) }}
             </mt-button>
             {% endblock %}
         </template>

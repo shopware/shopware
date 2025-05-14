@@ -77,6 +77,7 @@ class CartException extends HttpException
     public const LINE_ITEM_GROUP_PACKAGER_NOT_FOUND = 'CHECKOUT__GROUP_PACKAGER_NOT_FOUND';
     public const LINE_ITEM_GROUP_SORTER_NOT_FOUND = 'CHECKOUT__GROUP_SORTER_NOT_FOUND';
     public const UNEXPECTED_VALUE_EXCEPTION = 'CHECKOUT__UNEXPECTED_VALUE_EXCEPTION';
+    public const CART_LOCKED = 'CHECKOUT__CART_LOCKED';
 
     /**
      * @deprecated tag:v6.7.0 - reason:return-type-change - Will only return `self` in the future
@@ -623,6 +624,16 @@ class CartException extends HttpException
             Response::HTTP_BAD_REQUEST,
             self::UNEXPECTED_VALUE_EXCEPTION,
             $message
+        );
+    }
+
+    public static function cartLocked(string $token): self
+    {
+        return new self(
+            Response::HTTP_CONFLICT,
+            self::CART_LOCKED,
+            'Cart with token {{ token }} is locked due to order creation. Please try again later.',
+            ['token' => $token]
         );
     }
 }

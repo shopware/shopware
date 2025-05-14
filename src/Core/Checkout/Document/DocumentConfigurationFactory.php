@@ -3,9 +3,8 @@
 namespace Shopware\Core\Checkout\Document;
 
 use Shopware\Core\Checkout\Document\Aggregate\DocumentBaseConfig\DocumentBaseConfigEntity;
-use Shopware\Core\Content\Media\MediaEntity;
+use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\Log\Package;
-use Shopware\Core\System\Country\CountryEntity;
 
 #[Package('after-sales')]
 class DocumentConfigurationFactory
@@ -47,16 +46,37 @@ class DocumentConfigurationFactory
             if ($value !== null) {
                 if ($key === 'custom' && \is_array($value)) {
                     $baseConfig->__set('custom', array_merge((array) $baseConfig->__get('custom'), $value));
-                } elseif (str_starts_with($key, 'custom.')) {
+                    continue;
+                }
+
+                if (str_starts_with($key, 'custom.')) {
                     $customKey = mb_substr($key, 7);
                     $baseConfig->__set('custom', array_merge((array) $baseConfig->__get('custom'), [$customKey => $value]));
-                } elseif ($key === 'companyCountry' && \is_array($value)) {
-                    $baseConfig->setCompanyCountry((new CountryEntity())->assign($value));
-                } elseif ($key === 'logo' && \is_array($value)) {
-                    $baseConfig->setLogo((new MediaEntity())->assign($value));
-                } else {
-                    $baseConfig->__set($key, $value);
+                    continue;
                 }
+
+                if (!property_exists($baseConfig, $key)) {
+                    $baseConfig->__set($key, $value);
+                    continue;
+                }
+
+                $property = new \ReflectionProperty($baseConfig, $key);
+                $propertyType = $property->getType();
+
+                if ($propertyType instanceof \ReflectionNamedType) {
+                    $typeName = $propertyType->getName();
+                    if (is_subclass_of($typeName, Entity::class) && \is_array($value)) {
+                        $setterMethod = 'set' . ucfirst($key);
+                        if (method_exists($baseConfig, $setterMethod)) {
+                            $baseConfig->$setterMethod((new $typeName())->assign($value));
+                        } else {
+                            $baseConfig->{$key} = (new $typeName())->assign($value);
+                        }
+                        continue;
+                    }
+                }
+
+                $baseConfig->__set($key, $value);
             }
         }
 

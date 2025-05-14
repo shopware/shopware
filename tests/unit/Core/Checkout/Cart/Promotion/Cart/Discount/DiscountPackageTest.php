@@ -33,7 +33,7 @@ class DiscountPackageTest extends TestCase
     {
         $package = new DiscountPackage(new LineItemQuantityCollection());
 
-        static::assertEquals(0, $package->getMetaData()->count());
+        static::assertCount(0, $package->getMetaData());
     }
 
     /**
@@ -49,7 +49,7 @@ class DiscountPackageTest extends TestCase
 
         $package = new DiscountPackage(new LineItemQuantityCollection($items));
 
-        static::assertEquals(1, $package->getMetaData()->count());
+        static::assertCount(1, $package->getMetaData());
     }
 
     /**
@@ -61,7 +61,7 @@ class DiscountPackageTest extends TestCase
     {
         $package = new DiscountPackage(new LineItemQuantityCollection());
 
-        static::assertEquals(0, $package->getCartItems()->count());
+        static::assertCount(0, $package->getCartItems());
     }
 
     /**
@@ -78,11 +78,11 @@ class DiscountPackageTest extends TestCase
         $package = new DiscountPackage(new LineItemQuantityCollection());
         $package->setCartItems($cartItems);
 
-        static::assertEquals(1, $package->getCartItems()->count());
+        static::assertCount(1, $package->getCartItems());
     }
 
     /**
-     * This test verifies that we dont get an exception
+     * This test verifies that we don't get an exception
      * when requesting the price without any items.
      * We have to get 0,00 in this case.
      */
@@ -91,13 +91,13 @@ class DiscountPackageTest extends TestCase
     {
         $package = new DiscountPackage(new LineItemQuantityCollection());
 
-        static::assertEquals(0, $package->getTotalPrice());
+        static::assertSame(0.0, $package->getTotalPrice());
     }
 
     /**
-     * This test verifies that we dont get an exception
+     * This test verifies that we don't get an exception
      * when requesting the price without any assigned cart items.
-     * So we have our meta data with the quantity data, but no real
+     * So we have our metadata with the quantity data, but no real
      * cart items in there.
      * We have to get 0,00 in this case.
      */
@@ -109,7 +109,7 @@ class DiscountPackageTest extends TestCase
 
         $package = new DiscountPackage($items);
 
-        static::assertEquals(0, $package->getTotalPrice());
+        static::assertSame(0.0, $package->getTotalPrice());
     }
 
     /**
@@ -129,7 +129,7 @@ class DiscountPackageTest extends TestCase
         $package = new DiscountPackage($items);
         $package->setCartItems($cartItems);
 
-        static::assertEquals(29, $package->getTotalPrice());
+        static::assertSame(29.0, $package->getTotalPrice());
     }
 
     /**
@@ -141,7 +141,7 @@ class DiscountPackageTest extends TestCase
     {
         $package = new DiscountPackage(new LineItemQuantityCollection());
 
-        static::assertEquals(0, $package->getAffectedPrices()->count());
+        static::assertCount(0, $package->getAffectedPrices());
     }
 
     /**
@@ -162,7 +162,7 @@ class DiscountPackageTest extends TestCase
         $package = new DiscountPackage(new LineItemQuantityCollection());
         $package->setCartItems($cartItems);
 
-        static::assertEquals(2, $package->getAffectedPrices()->count());
+        static::assertCount(2, $package->getAffectedPrices());
     }
 
     /**

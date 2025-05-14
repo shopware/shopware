@@ -177,7 +177,7 @@ class LineItemTransformerTest extends TestCase
         $allLineItems = $nestedCollection->getFlat();
         static::assertCount(3, $allLineItems);
         foreach ($allLineItems as $item) {
-            static::assertNotEquals($noneExistingParent, $item->getId());
+            static::assertNotSame($noneExistingParent, $item->getId());
         }
     }
 
@@ -229,7 +229,7 @@ class LineItemTransformerTest extends TestCase
         $allLineItems = $nestedCollection->getFlat();
         static::assertCount(4, $allLineItems);
         foreach ($allLineItems as $item) {
-            static::assertNotEquals($noneExistingParent, $item->getId());
+            static::assertNotSame($noneExistingParent, $item->getId());
         }
     }
 

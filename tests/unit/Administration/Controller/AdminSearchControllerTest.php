@@ -97,7 +97,7 @@ class AdminSearchControllerTest extends TestCase
         $result = \json_decode($response->getContent(), true, 512, \JSON_THROW_ON_ERROR);
         static::assertNotFalse($result);
         static::assertArrayHasKey('data', $result);
-        static::assertEquals(
+        static::assertSame(
             [
                 ProductDefinition::class => [
                     'status' => '403',

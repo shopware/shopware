@@ -172,6 +172,17 @@ class ProductSearchKeywordAnalyzerTest extends TestCase
                 'customfield',
                 123456,
                 123456789,
+                'product description',
+                '123456789 category customfield',
+                '123456789 manufacturer customfield',
+                'metadescription test',
+                'metatitle test',
+                'search keyword update',
+                'tag1 tag2',
+                'test category',
+                'test ean',
+                'test product',
+                'tet customfield',
             ];
 
             foreach ($analyzer->getElements() as $keyword) {
@@ -250,6 +261,17 @@ class ProductSearchKeywordAnalyzerTest extends TestCase
                 123456,
                 123456789,
                 'manufacturer',
+                '123456789 category customfield',
+                '123456789 manufacturer customfield',
+                'metadescription test',
+                'metatitle test',
+                'product description',
+                'search keyword update',
+                'tag1 tag2',
+                'test category',
+                'test ean',
+                'test product',
+                'tet customfield',
             ];
 
             foreach ($analyzer->getElements() as $keyword) {

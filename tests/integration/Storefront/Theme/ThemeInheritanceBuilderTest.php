@@ -58,7 +58,7 @@ class ThemeInheritanceBuilderTest extends TestCase
             ['InheritanceWithConfig' => true, 'Storefront' => true]
         );
 
-        static::assertEquals(['InheritanceWithConfig', 'Storefront'], array_keys($inheritance));
+        static::assertSame(['InheritanceWithConfig', 'Storefront'], array_keys($inheritance));
     }
 
     public function testEnsurePlugins(): void
@@ -77,7 +77,7 @@ class ThemeInheritanceBuilderTest extends TestCase
             ['InheritanceWithConfig' => true, 'Storefront' => true]
         );
 
-        static::assertEquals(['PayPal', 'InheritanceWithConfig', 'Storefront'], array_keys($inheritance));
+        static::assertSame(['PayPal', 'InheritanceWithConfig', 'Storefront'], array_keys($inheritance));
     }
 
     public function testConfigWithoutStorefrontDefined(): void
@@ -96,7 +96,7 @@ class ThemeInheritanceBuilderTest extends TestCase
             ['ConfigWithoutStorefrontDefined' => true]
         );
 
-        static::assertEquals(['PayPal', 'ConfigWithoutStorefrontDefined'], array_keys($inheritance));
+        static::assertSame(['PayPal', 'ConfigWithoutStorefrontDefined'], array_keys($inheritance));
     }
 
     public function testPluginWildcardAndExplicit(): void
@@ -116,7 +116,7 @@ class ThemeInheritanceBuilderTest extends TestCase
             ['PluginWildcardAndExplicit' => true, 'Storefront' => true]
         );
 
-        static::assertEquals(['CustomProducts', 'PluginWildcardAndExplicit', 'PayPal', 'Storefront'], array_keys($inheritance));
+        static::assertSame(['CustomProducts', 'PluginWildcardAndExplicit', 'PayPal', 'Storefront'], array_keys($inheritance));
     }
 
     public function testThemeWithoutStorefront(): void
@@ -136,7 +136,7 @@ class ThemeInheritanceBuilderTest extends TestCase
             ['ThemeWithoutStorefront' => true, 'Storefront' => true]
         );
 
-        static::assertEquals(['CustomProducts', 'ThemeWithoutStorefront', 'PayPal'], array_keys($inheritance));
+        static::assertSame(['CustomProducts', 'ThemeWithoutStorefront', 'PayPal'], array_keys($inheritance));
     }
 
     public function testMultiInheritance(): void
@@ -163,7 +163,7 @@ class ThemeInheritanceBuilderTest extends TestCase
             ['ThemeWithMultiInheritance' => true]
         );
 
-        static::assertEquals(
+        static::assertSame(
             ['ThemeWithMultiInheritance', 'ThemeC', 'PayPal', 'ThemeB', 'ThemeA'],
             array_keys($inheritance)
         );

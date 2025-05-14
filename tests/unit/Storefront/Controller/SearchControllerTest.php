@@ -155,7 +155,7 @@ class SearchControllerTest extends TestCase
 
         $response = $this->searchController->search($context, $request);
 
-        static::assertEquals(Response::HTTP_OK, $response->getStatusCode());
+        static::assertSame(Response::HTTP_OK, $response->getStatusCode());
     }
 
     public function testSearchWithNoProductsFound(): void
@@ -222,7 +222,7 @@ class SearchControllerTest extends TestCase
 
         $response = $this->searchController->search($context, $request);
 
-        static::assertEquals(Response::HTTP_OK, $response->getStatusCode());
+        static::assertSame(Response::HTTP_OK, $response->getStatusCode());
     }
 
     public function testSearchWithoutSearchParameterShouldRedirectToHomePage(): void
@@ -324,11 +324,11 @@ class SearchControllerTest extends TestCase
         $response = $this->searchController->search($context, $request);
 
         static::assertInstanceOf(RedirectResponse::class, $response);
-        static::assertEquals(302, $response->getStatusCode());
+        static::assertSame(302, $response->getStatusCode());
         static::assertInstanceOf(StorefrontRedirectEvent::class, $redirectEvent);
-        static::assertEquals(Response::HTTP_FOUND, $redirectEvent->getStatus());
-        static::assertEquals('frontend.detail.page', $redirectEvent->getRoute());
-        static::assertEquals([
+        static::assertSame(Response::HTTP_FOUND, $redirectEvent->getStatus());
+        static::assertSame('frontend.detail.page', $redirectEvent->getRoute());
+        static::assertSame([
             'productId' => '123',
         ], $redirectEvent->getParameters());
     }

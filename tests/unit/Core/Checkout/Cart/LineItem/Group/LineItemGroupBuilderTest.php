@@ -174,7 +174,7 @@ class LineItemGroupBuilderTest extends TestCase
         static::assertCount(1, $items);
         static::assertInstanceOf(LineItemQuantity::class, $items[0]);
         static::assertSame($item1->getId(), $items[0]->getLineItemId());
-        static::assertEquals(3, $items[0]->getQuantity());
+        static::assertSame(3, $items[0]->getQuantity());
     }
 
     public function testShouldGroupsCorrectly(): void
@@ -219,34 +219,34 @@ class LineItemGroupBuilderTest extends TestCase
         static::assertCount(2, $items);
         static::assertInstanceOf(LineItemQuantity::class, $items[0]);
         static::assertInstanceOf(LineItemQuantity::class, $items[1]);
-        static::assertEquals($item1->getId(), $items[0]->getLineItemId());
-        static::assertEquals($item2->getId(), $items[1]->getLineItemId());
-        static::assertEquals(3, $items[0]->getQuantity());
-        static::assertEquals(2, $items[1]->getQuantity());
+        static::assertSame($item1->getId(), $items[0]->getLineItemId());
+        static::assertSame($item2->getId(), $items[1]->getLineItemId());
+        static::assertSame(3, $items[0]->getQuantity());
+        static::assertSame(2, $items[1]->getQuantity());
 
         static::assertInstanceOf(LineItemGroup::class, $groupCount[1]);
         $items = $groupCount[1]->getItems();
         static::assertCount(1, $items);
         static::assertInstanceOf(LineItemQuantity::class, $items[0]);
-        static::assertEquals($item2->getId(), $items[0]->getLineItemId());
-        static::assertEquals(4, $items[0]->getQuantity());
+        static::assertSame($item2->getId(), $items[0]->getLineItemId());
+        static::assertSame(4, $items[0]->getQuantity());
 
         static::assertInstanceOf(LineItemGroup::class, $groupCount[2]);
         $items = $groupCount[2]->getItems();
         static::assertCount(2, $items);
         static::assertInstanceOf(LineItemQuantity::class, $items[0]);
         static::assertInstanceOf(LineItemQuantity::class, $items[1]);
-        static::assertEquals($item2->getId(), $items[0]->getLineItemId());
-        static::assertEquals($item3->getId(), $items[1]->getLineItemId());
-        static::assertEquals(1, $items[0]->getQuantity());
-        static::assertEquals(2, $items[1]->getQuantity());
+        static::assertSame($item2->getId(), $items[0]->getLineItemId());
+        static::assertSame($item3->getId(), $items[1]->getLineItemId());
+        static::assertSame(1, $items[0]->getQuantity());
+        static::assertSame(2, $items[1]->getQuantity());
 
         static::assertInstanceOf(LineItemGroup::class, $groupCount[3]);
         $items = $groupCount[3]->getItems();
         static::assertCount(1, $items);
         static::assertInstanceOf(LineItemQuantity::class, $items[0]);
-        static::assertEquals($item3->getId(), $items[0]->getLineItemId());
-        static::assertEquals(2, $items[0]->getQuantity());
+        static::assertSame($item3->getId(), $items[0]->getLineItemId());
+        static::assertSame(2, $items[0]->getQuantity());
     }
 
     public function testBuildGroupCacheShouldWork(): void
@@ -281,8 +281,8 @@ class LineItemGroupBuilderTest extends TestCase
         $items = $groupCount[0]->getItems();
         static::assertCount(1, $items);
         static::assertInstanceOf(LineItemQuantity::class, $items[0]);
-        static::assertEquals($item1->getId(), $items[0]->getLineItemId());
-        static::assertEquals(3, $items[0]->getQuantity());
+        static::assertSame($item1->getId(), $items[0]->getLineItemId());
+        static::assertSame(3, $items[0]->getQuantity());
 
         $cachedResult = $this->lineItemGroupBuilder->findGroupPackages([$group], $cart, $this->context);
 

@@ -234,7 +234,7 @@ class RedisCartPersisterTest extends TestCase
 
         $movedCart = $persister->load($newToken, $context);
 
-        static::assertEquals(['test'], $movedCart->getRuleIds());
+        static::assertSame(['test'], $movedCart->getRuleIds());
     }
 
     public function testInvalidCartReplace(): void

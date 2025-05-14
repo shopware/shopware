@@ -61,7 +61,7 @@ class ShippingMethodValidatorTest extends TestCase
         $events = ShippingMethodValidator::getSubscribedEvents();
 
         static::assertCount(1, $events);
-        static::assertEquals('preValidate', $events[PreWriteValidationEvent::class]);
+        static::assertSame('preValidate', $events[PreWriteValidationEvent::class]);
     }
 
     public function testPreValidateWithInvalidCommands(): void
@@ -121,7 +121,7 @@ class ShippingMethodValidatorTest extends TestCase
 
         if (!$success) {
             static::assertNotNull($exception);
-            static::assertEquals(WriteConstraintViolationException::class, $exception->getExceptions()[0]::class);
+            static::assertSame(WriteConstraintViolationException::class, $exception->getExceptions()[0]::class);
         } else {
             static::assertNull($exception);
         }

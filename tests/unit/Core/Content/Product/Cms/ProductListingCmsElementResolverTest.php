@@ -20,6 +20,8 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Shopware\Core\Test\Generator;
 use Shopware\Core\Test\Stub\DataAbstractionLayer\StaticEntityRepository;
+use Shopware\Core\Test\Stub\SystemConfigService\StaticSystemConfigService;
+use Shopware\Core\Test\TestDefaults;
 use Symfony\Component\HttpFoundation\Request;
 
 /**
@@ -149,6 +151,83 @@ class ProductListingCmsElementResolverTest extends TestCase
         static::assertInstanceOf(ProductListingResult::class, $data->getListing());
 
         $this->assertRequestPayload($request);
+    }
+
+    public function testAddListingLimitsSystemConfig(): void
+    {
+        $systemConfigService = new StaticSystemConfigService([]);
+        $systemConfigService->set('core.listing.productsPerPage', 24, TestDefaults::SALES_CHANNEL);
+        $systemConfigService->set('core.listing.limits', '24|48|96|abc', TestDefaults::SALES_CHANNEL);
+
+        $slot = new CmsSlotEntity();
+        $slot->setId('slot-1');
+
+        $route = $this->createMock(AbstractProductListingRoute::class);
+        $repository = new StaticEntityRepository([]);
+
+        $request = new Request();
+        $context = new ResolverContext(Generator::generateSalesChannelContext(), $request);
+        $data = new ElementDataCollection();
+
+        $resolver = new ProductListingCmsElementResolver($route, $repository, $systemConfigService);
+        $resolver->enrich($slot, $context, $data);
+
+        $limits = $slot->getConfig()['limits']['value'] ?? null;
+        // productsPerPage + limits (unique + remove invalid values)
+        static::assertNotNull($limits);
+        static::assertCount(3, $limits);
+        static::assertEquals([24, 48, 96], $limits);
+    }
+
+    public function testAddListingLimitsCmsElementOverride(): void
+    {
+        $systemConfigService = new StaticSystemConfigService([]);
+        $systemConfigService->set('core.listing.productsPerPage', 24, TestDefaults::SALES_CHANNEL);
+        $systemConfigService->set('core.listing.limits', '24|48|96|abc', TestDefaults::SALES_CHANNEL);
+
+        $slot = new CmsSlotEntity();
+        $slot->setId('slot-1');
+        $slot->setConfig(['limits' => ['value' => '4|8|12|24|def']]);
+
+        $route = $this->createMock(AbstractProductListingRoute::class);
+        $repository = new StaticEntityRepository([]);
+
+        $request = new Request();
+        $context = new ResolverContext(Generator::generateSalesChannelContext(), $request);
+        $data = new ElementDataCollection();
+
+        $resolver = new ProductListingCmsElementResolver($route, $repository, $systemConfigService);
+        $resolver->enrich($slot, $context, $data);
+
+        $limits = $slot->getConfig()['limits']['value'] ?? null;
+        // productsPerPage + slotConfig (unique + remove invalid values)
+        static::assertNotNull($limits);
+        static::assertCount(4, $limits);
+        static::assertEquals([4, 8, 12, 24], $limits);
+    }
+
+    public function testAddListingLimitNullValues(): void
+    {
+        $systemConfigService = new StaticSystemConfigService([]);
+        $systemConfigService->set('core.listing.productsPerPage', null, TestDefaults::SALES_CHANNEL);
+        $systemConfigService->set('core.listing.limits', null, TestDefaults::SALES_CHANNEL);
+
+        $slot = new CmsSlotEntity();
+        $slot->setId('slot-1');
+        $slot->setConfig(['limits' => ['value' => null]]);
+
+        $route = $this->createMock(AbstractProductListingRoute::class);
+        $repository = new StaticEntityRepository([]);
+
+        $request = new Request();
+        $context = new ResolverContext(Generator::generateSalesChannelContext(), $request);
+        $data = new ElementDataCollection();
+
+        $resolver = new ProductListingCmsElementResolver($route, $repository, $systemConfigService);
+        $resolver->enrich($slot, $context, $data);
+
+        $limits = $slot->getConfig()['limits']['value'] ?? null;
+        static::assertNull($limits);
     }
 
     private function assertRequestPayload(Request $request): void

@@ -48,7 +48,7 @@ export default {
                 measurementSystem: null,
                 measurementSystemId: null,
                 lengthUnitId: null,
-                massUnitId: null,
+                weightUnitId: null,
             },
             isLoadingDomains: false,
             deleteDomain: null,
@@ -229,7 +229,7 @@ export default {
                 measurementSystem: domain.measurementSystem,
                 measurementSystemId: domain.measurementSystemId,
                 lengthUnitId: domain.lengthUnitId,
-                massUnitId: domain.massUnitId,
+                weightUnitId: domain.weightUnitId,
             };
         },
 
@@ -244,7 +244,7 @@ export default {
             this.currentDomain.measurementSystem = this.currentDomainBackup.measurementSystem;
             this.currentDomain.measurementSystemId = this.currentDomainBackup.measurementSystemId;
             this.currentDomain.lengthUnitId = this.currentDomainBackup.lengthUnitId;
-            this.currentDomain.massUnitId = this.currentDomainBackup.massUnitId;
+            this.currentDomain.weightUnitId = this.currentDomainBackup.weightUnitId;
         },
 
         setInitialCurrency(domain) {
@@ -278,7 +278,7 @@ export default {
             domain.measurementSystem = this.salesChannel.measurementSystem;
             domain.measurementSystemId = this.salesChannel.measurementSystemId;
             domain.lengthUnitId = this.salesChannel.lengthUnitId;
-            domain.massUnitId = this.salesChannel.massUnitId;
+            domain.weightUnitId = this.salesChannel.weightUnitId;
 
             this.currentDomain = domain;
             this.isEditingDomain = false;

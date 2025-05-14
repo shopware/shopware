@@ -60,13 +60,9 @@ export default {
     computed: {
         identifier() {
             return this.snippetSets
-                ? this.$tc(
-                      'sw-settings-snippet.list.identifier',
-                      {
-                          setName: this.metaName,
-                      },
-                      this.snippetSets.length,
-                  )
+                ? this.$tc('sw-settings-snippet.list.identifier', {
+                      setName: this.metaName,
+                  }, this.snippetSets.length)
                 : '';
         },
 
@@ -549,13 +545,9 @@ export default {
 
         createSuccessMessage(item) {
             const title = this.$tc('global.default.success');
-            const message = this.$tc(
-                'sw-settings-snippet.list.resetSuccessMessage',
-                {
-                    key: item.value,
-                },
-                !item.isCustomSnippet,
-            );
+            const message = this.$tc('sw-settings-snippet.list.resetSuccessMessage', {
+                key: item.value,
+            }, !item.isCustomSnippet);
 
             this.createNotificationSuccess({
                 title,
@@ -565,13 +557,9 @@ export default {
 
         createResetErrorNote(item) {
             const title = this.$tc('global.default.error');
-            const message = this.$tc(
-                'sw-settings-snippet.list.resetErrorMessage',
-                {
-                    key: item.value,
-                },
-                item.isCustomSnippet ? 2 : 0,
-            );
+            const message = this.$tc('sw-settings-snippet.list.resetErrorMessage', {
+                key: item.value,
+            }, item.isCustomSnippet ? 2 : 0);
 
             this.createNotificationError({
                 title,

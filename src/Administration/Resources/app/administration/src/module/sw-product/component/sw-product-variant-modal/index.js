@@ -541,13 +541,9 @@ export default {
                     this.isDeletionOver = true;
 
                     this.createNotificationError({
-                        message: this.$tc(
-                            'sw-product.list.notificationVariantDeleteErrorCanonicalUrl',
-                            {
-                                variantName,
-                            },
-                            amount,
-                        ),
+                        message: this.$tc('sw-product.list.notificationVariantDeleteErrorCanonicalUrl', {
+                            variantName,
+                        }, amount),
                     });
 
                     return;
@@ -557,14 +553,10 @@ export default {
                     .syncDeleted(variantIds)
                     .then(() => {
                         this.createNotificationSuccess({
-                            message: this.$tc(
-                                'sw-product.list.notificationVariantDeleteSuccess',
-                                {
-                                    variantName,
-                                    amount,
-                                },
+                            message: this.$tc('sw-product.list.notificationVariantDeleteSuccess', {
+                                variantName,
                                 amount,
-                            ),
+                            }, amount),
                         });
 
                         this.$refs.variantGrid.resetSelection();
@@ -573,14 +565,10 @@ export default {
                     })
                     .catch(() => {
                         this.createNotificationError({
-                            message: this.$tc(
-                                'sw-product.list.notificationVariantDeleteError',
-                                {
-                                    variantName,
-                                    amount,
-                                },
+                            message: this.$tc('sw-product.list.notificationVariantDeleteError', {
+                                variantName,
                                 amount,
-                            ),
+                            }, amount),
                         });
                     })
                     .finally(() => {

@@ -280,7 +280,7 @@ export default {
 
         createInlineErrorNote(name) {
             this.createNotificationError({
-                message: this.$t('sw-settings-snippet.setList.inlineEditErrorMessage', { name }, name !== null),
+                message: this.$tc('sw-settings-snippet.setList.inlineEditErrorMessage', { name }, name !== null),
             });
         },
 

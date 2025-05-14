@@ -30,7 +30,7 @@ export default {
             measurementSystem: {
                 typeId: null,
                 lengthUnitId: null,
-                massUnitId: null,
+                weightUnitId: null,
             },
             defaultDisplayUnits: [],
             isLoading: false,
@@ -50,9 +50,9 @@ export default {
             return criteria;
         },
 
-        massUnitCriteria() {
+        weightUnitCriteria() {
             const criteria = new Criteria(1, null);
-            criteria.addFilter(Criteria.equals('type', 'mass'));
+            criteria.addFilter(Criteria.equals('type', 'weight'));
             criteria.addFilter(Criteria.equals('measurementSystemId', this.measurementSystem.typeId));
 
             return criteria;
@@ -71,9 +71,9 @@ export default {
             });
         },
 
-        defaultMassUnit() {
+        defaultWeightUnit() {
             return this.defaultDisplayUnits.find((u) => {
-                return u.type === 'mass' && u.measurementSystemId === this.measurementSystem.typeId;
+                return u.type === 'weight' && u.measurementSystemId === this.measurementSystem.typeId;
             });
         },
     },
@@ -92,7 +92,7 @@ export default {
             this.measurementSystem = {
                 typeId: measurementSystem['core.measurementSystem.typeId'],
                 lengthUnitId: measurementSystem['core.measurementSystem.lengthUnitId'],
-                massUnitId: measurementSystem['core.measurementSystem.massUnitId'],
+                weightUnitId: measurementSystem['core.measurementSystem.weightUnitId'],
             };
             this.defaultDisplayUnits = defaultDisplayUnits;
         },
@@ -111,7 +111,7 @@ export default {
                 await this.systemConfigApiService.saveValues({
                     'core.measurementSystem.typeId': this.measurementSystem.typeId,
                     'core.measurementSystem.lengthUnitId': this.measurementSystem.lengthUnitId,
-                    'core.measurementSystem.massUnitId': this.measurementSystem.massUnitId,
+                    'core.measurementSystem.weightUnitId': this.measurementSystem.weightUnitId,
                 });
                 this.createNotificationSuccess({
                     title: this.$t('global.default.success'),
@@ -133,7 +133,7 @@ export default {
 
         onChangeMeasurementSystem() {
             this.measurementSystem.lengthUnitId = this.defaultLengthUnit.id;
-            this.measurementSystem.massUnitId = this.defaultMassUnit.id;
+            this.measurementSystem.weightUnitId = this.defaultWeightUnit.id;
         },
     },
 };

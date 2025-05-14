@@ -55,7 +55,7 @@ export default {
             this.salesChannel.active = false;
             this.salesChannel.measurementSystemId = this.measurementSystemConfig['core.measurementSystem.typeId'];
             this.salesChannel.lengthUnitId = this.measurementSystemConfig['core.measurementSystem.lengthUnitId'];
-            this.salesChannel.massUnitId = this.measurementSystemConfig['core.measurementSystem.massUnitId'];
+            this.salesChannel.weightUnitId = this.measurementSystemConfig['core.measurementSystem.weightUnitId'];
 
             this.$super('createdComponent');
         },

@@ -3,6 +3,7 @@
  */
 
 import template from './sw-sales-channel-measurement.html.twig';
+import './sw-sales-channel-measurement.scss';
 
 const { Criteria } = Shopware.Data;
 
@@ -63,9 +64,9 @@ export default Shopware.Component.wrapComponentConfig({
             return criteria;
         },
 
-        massUnitCriteria() {
+        weightUnitCriteria() {
             const criteria = new Criteria(1, null);
-            criteria.addFilter(Criteria.equals('type', 'mass'));
+            criteria.addFilter(Criteria.equals('type', 'weight'));
             if (this.salesChannel.measurementSystemId) {
                 criteria.addFilter(Criteria.equals('measurementSystem.id', this.salesChannel.measurementSystemId));
             }
@@ -95,7 +96,7 @@ export default Shopware.Component.wrapComponentConfig({
             this.defaultMeasurementSystem = {
                 measurementSystemId: this.salesChannel.measurementSystemId,
                 lengthUnitId: this.salesChannel.lengthUnitId,
-                massUnitId: this.salesChannel.massUnitId,
+                weightUnitId: this.salesChannel.weightUnitId,
             };
         },
 
@@ -111,14 +112,14 @@ export default Shopware.Component.wrapComponentConfig({
 
             if (measurementSystemId === this.defaultMeasurementSystem.measurementSystemId) {
                 this.salesChannel.lengthUnitId = this.defaultMeasurementSystem.lengthUnitId;
-                this.salesChannel.massUnitId = this.defaultMeasurementSystem.massUnitId;
+                this.salesChannel.weightUnitId = this.defaultMeasurementSystem.weightUnitId;
 
                 return;
             }
 
             this.salesChannel.lengthUnitId = measurementSystem?.units?.filter((unit) => unit.type === 'length').first()?.id;
 
-            this.salesChannel.massUnitId = measurementSystem?.units?.filter((unit) => unit.type === 'mass').first()?.id;
+            this.salesChannel.weightUnitId = measurementSystem?.units?.filter((unit) => unit.type === 'weight').first()?.id;
         },
 
         formatUnitLabel(item) {

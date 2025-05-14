@@ -10,13 +10,14 @@ async function createWrapper() {
             salesChannel: {
                 measurementSystemId: '1',
                 lengthUnitId: '2',
-                massUnitId: '3',
+                weightUnitId: '3',
             },
         },
         global: {
             stubs: {
                 'sw-container': true,
                 'sw-entity-single-select': true,
+                'sw-highlight-text': true,
             },
             mocks: {
                 $t: (key) => key,
@@ -43,7 +44,7 @@ describe('src/module/sw-sales-channel/component/sw-sales-channel-measurement', (
         expect(wrapper.vm.defaultMeasurementSystem).toEqual({
             measurementSystemId: '1',
             lengthUnitId: '2',
-            massUnitId: '3'
+            weightUnitId: '3'
         });
     });
 
@@ -110,12 +111,12 @@ describe('src/module/sw-sales-channel/component/sw-sales-channel-measurement', (
 
     it('should create correct criteria for mass units', async () => {
         const wrapper = await createWrapper();
-        const criteria = wrapper.vm.massUnitCriteria;
+        const criteria = wrapper.vm.weightUnitCriteria;
 
         expect(criteria.filters).toContainEqual({
             type: 'equals',
             field: 'type',
-            value: 'mass'
+            value: 'weight'
         });
 
         expect(criteria.filters).toContainEqual({

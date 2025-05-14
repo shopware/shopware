@@ -13,10 +13,10 @@ const createWrapper = async () => {
                 measurementSystem: {
                     typeId: 'type-1',
                     lengthUnitId: 'length-1',
-                    massUnitId: 'mass-1',
+                    weightUnitId: 'weight-1',
                 },
                 lengthUnitCriteria: {},
-                massUnitCriteria: {},
+                weightUnitCriteria: {},
             },
             global: {
                 stubs: {
@@ -38,6 +38,7 @@ const createWrapper = async () => {
                             />
                         `,
                     },
+                    'sw-highlight-text': true,
                 },
                 mocks: {
                     $t: (path) => {
@@ -69,7 +70,7 @@ describe('src/module/sw-settings-measurement/component/sw-settings-measurement-d
 
         expect(swEntitySingleSelect[0].element.value).toBe('type-1');
         expect(swEntitySingleSelect[1].element.value).toBe('length-1');
-        expect(swEntitySingleSelect[2].element.value).toBe('mass-1');
+        expect(swEntitySingleSelect[2].element.value).toBe('weight-1');
     });
 
     it('should emit measurement-system-change event when measurement system changes', async () => {
@@ -78,20 +79,6 @@ describe('src/module/sw-settings-measurement/component/sw-settings-measurement-d
 
         await selects[0].setValue('type-2');
         expect(wrapper.emitted('measurement-system-change')).toBeTruthy();
-    });
-
-    it('should format system label correctly', async () => {
-        const wrapper = await createWrapper();
-
-        const item = {
-            name: 'Metric',
-            translated: {
-                name: 'Metric'
-            }
-        };
-
-        const formattedLabel = wrapper.vm.labelSystemCallback(item);
-        expect(formattedLabel).toBe('Metric system');
     });
 
     it('should format unit label correctly', async () => {
@@ -112,7 +99,6 @@ describe('src/module/sw-settings-measurement/component/sw-settings-measurement-d
     it('should handle null values in label callbacks', async () => {
         const wrapper = await createWrapper();
 
-        expect(wrapper.vm.labelSystemCallback(null)).toBe('');
         expect(wrapper.vm.labelUnitCallback(null)).toBe('');
     });
 });

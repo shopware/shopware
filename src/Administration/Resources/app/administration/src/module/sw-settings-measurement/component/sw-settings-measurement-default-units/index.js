@@ -19,7 +19,7 @@ export default {
             type: Object,
             required: true,
         },
-        massUnitCriteria: {
+        weightUnitCriteria: {
             type: Object,
             required: true,
         },
@@ -28,17 +28,6 @@ export default {
     methods: {
         onChangeMeasurementSystem() {
             this.$emit('measurement-system-change');
-        },
-
-        labelSystemCallback(item) {
-            if (!item) {
-                return '';
-            }
-
-            const name = item.translated?.name || item.name;
-            const systemLabel = this.$t('sw-settings-measurement.defaultUnits.system');
-
-            return `${name} ${systemLabel}`.trim();
         },
 
         labelUnitCallback(item) {

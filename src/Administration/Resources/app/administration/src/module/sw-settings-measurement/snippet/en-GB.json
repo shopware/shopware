@@ -8,11 +8,10 @@
         "defaultUnits": {
             "title": "Default units",
             "description": "Set the default units for how measurements are displayed in the administration. What customers see is defined by the settings of the Sales Channels.",
-            "system": "system",
             "config": {
                 "type": "Unit system",
                 "lengthUnit": "Length unit",
-                "massUnit": "Weight unit"
+                "weightUnit": "Weight unit"
             }
         },
         "notification": {

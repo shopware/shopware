@@ -224,7 +224,7 @@ class PaymentControllerTest extends TestCase
         $response = $this->paymentProcessor->pay($orderId, new Request(), $salesChannelContext);
 
         static::assertNotNull($response);
-        static::assertEquals(TestPaymentHandler::REDIRECT_URL, $response->getTargetUrl());
+        static::assertSame(TestPaymentHandler::REDIRECT_URL, $response->getTargetUrl());
 
         $transaction = new OrderTransactionEntity();
         $transaction->setId($transactionId);

@@ -51,9 +51,9 @@ class BasicOrderProductTest extends TestCase
 
         $item = $this->assertProductInOrder($orderId, $product->id);
 
-        static::assertEquals(100, $item->getUnitPrice());
+        static::assertSame(100.0, $item->getUnitPrice());
 
-        static::assertEquals(100, $item->getTotalPrice());
+        static::assertSame(100.0, $item->getTotalPrice());
 
         $this->assertStock($product->id, 99, 99);
     }

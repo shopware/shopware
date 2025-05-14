@@ -197,7 +197,7 @@ class RegisterRouteTest extends TestCase
 
         $response = json_decode((string) $browser->getResponse()->getContent(), true, 512, \JSON_THROW_ON_ERROR);
 
-        static::assertEquals($expectedStatus, $browser->getResponse()->getStatusCode());
+        static::assertSame($expectedStatus, $browser->getResponse()->getStatusCode());
 
         if ($expectedStatus === 200) {
             static::assertSame('customer', $response['apiAlias']);
@@ -222,7 +222,7 @@ class RegisterRouteTest extends TestCase
             static::assertNotEmpty($contextToken);
         } else {
             static::assertNotEmpty($response['errors']);
-            static::assertEquals('VIOLATION::CUSTOMER_EMAIL_NOT_UNIQUE', $response['errors'][0]['code']);
+            static::assertSame('VIOLATION::CUSTOMER_EMAIL_NOT_UNIQUE', $response['errors'][0]['code']);
         }
     }
 
@@ -285,7 +285,7 @@ class RegisterRouteTest extends TestCase
 
         $response = json_decode((string) $browser->getResponse()->getContent(), true, 512, \JSON_THROW_ON_ERROR);
 
-        static::assertEquals(200, $browser->getResponse()->getStatusCode(), (string) $browser->getResponse()->getContent());
+        static::assertSame(200, $browser->getResponse()->getStatusCode(), (string) $browser->getResponse()->getContent());
 
         static::assertSame('customer', $response['apiAlias']);
         static::assertArrayNotHasKey('errors', $response);
@@ -796,11 +796,11 @@ class RegisterRouteTest extends TestCase
             );
 
         $response = json_decode((string) $this->browser->getResponse()->getContent(), true, 512, \JSON_THROW_ON_ERROR);
-        static::assertEquals(Response::HTTP_BAD_REQUEST, $this->browser->getResponse()->getStatusCode());
+        static::assertSame(Response::HTTP_BAD_REQUEST, $this->browser->getResponse()->getStatusCode());
         static::assertArrayHasKey('errors', $response);
         static::assertCount(1, $response['errors']);
         static::assertIsArray($response['errors'][0]);
-        static::assertEquals('VIOLATION::NO_SUCH_CHOICE_ERROR', $response['errors'][0]['code']);
+        static::assertSame('VIOLATION::NO_SUCH_CHOICE_ERROR', $response['errors'][0]['code']);
     }
 
     public function testRegistrationWithoutAccountTypeIsEmptyString(): void
@@ -1130,10 +1130,10 @@ class RegisterRouteTest extends TestCase
         sort($addressesCompany);
         sort($addressesDepartment);
 
-        static::assertEquals('Test Company 1', $addressesCompany[0]);
-        static::assertEquals('Test Company 2', $addressesCompany[1]);
-        static::assertEquals('Test Department 1', $addressesDepartment[0]);
-        static::assertEquals('Test Department 2', $addressesDepartment[1]);
+        static::assertSame('Test Company 1', $addressesCompany[0]);
+        static::assertSame('Test Company 2', $addressesCompany[1]);
+        static::assertSame('Test Department 1', $addressesDepartment[0]);
+        static::assertSame('Test Department 2', $addressesDepartment[1]);
 
         static::assertNotEmpty($this->browser->getResponse()->headers->get(PlatformRequest::HEADER_CONTEXT_TOKEN));
 
@@ -1236,7 +1236,7 @@ class RegisterRouteTest extends TestCase
         static::assertTrue($this->browser->getResponse()->headers->has(PlatformRequest::HEADER_CONTEXT_TOKEN));
         $newContextToken = $this->browser->getResponse()->headers->all(PlatformRequest::HEADER_CONTEXT_TOKEN);
         static::assertCount(1, $newContextToken);
-        static::assertNotEquals($contextToken, $newContextToken);
+        static::assertNotSame($contextToken, $newContextToken);
     }
 
     public function testRegistrationWithEmptyBillingAddress(): void
@@ -1276,7 +1276,7 @@ class RegisterRouteTest extends TestCase
         $response = json_decode((string) $this->browser->getResponse()->getContent(), true, 512, \JSON_THROW_ON_ERROR);
 
         static::assertNotEmpty($response['errors']);
-        static::assertEquals('VIOLATION::IS_BLANK_ERROR', $response['errors'][0]['code']);
+        static::assertSame('VIOLATION::IS_BLANK_ERROR', $response['errors'][0]['code']);
     }
 
     public function testRegistrationWithExistingNotSpecifiedSalutation(): void

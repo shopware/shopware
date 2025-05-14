@@ -1,0 +1,74 @@
+.sw-settings-services-hero {
+  container: sw-settings-services-hero / inline-size;
+
+  width: 100%;
+  background: var(--color-elevation-surface-default);
+
+  .sw-settings-services-hero__gradient {
+    position: relative;
+    z-index: 2;
+    background:
+            radial-gradient(34.32% 43.91% at bottom center, rgb(from var(--color-interaction-primary-default) r g b / 20%) 0%, rgb(from var(--color-elevation-surface-default) r g b / 20%) 100%);
+  }
+
+  .sw-settings-services-hero__content {
+    max-width: 960px;
+    margin: 0 auto;
+    padding: var(--scale-size-64) 1.25rem;
+  }
+
+  .h3, p, ul {
+    margin-bottom: var(--scale-size-24);
+  }
+
+  ul {
+    list-style: none;
+
+    li:not(:last-child) {
+      margin-bottom: var(--scale-size-12);
+    }
+  }
+
+  .icon--solid-check-circle {
+    margin-right: 0.5em;
+  }
+
+  .sw-settings-services-framed-icon {
+    position: absolute;
+    z-index: 0;
+
+    @container (max-width: 1600px) {
+        display: none;
+    }
+  }
+
+  .sw-settings-services-hero__image-editor-left {
+    left: 50px;
+    top: 90px;
+  }
+
+  .sw-settings-services-hero__copilot-left {
+    top: 175px;
+    left: 210px
+  }
+
+  .sw-settings-services-hero__preview-generator-left {
+    left: 50px;
+    top: 320px;
+  }
+
+  .sw-settings-services-hero__copilot-right {
+    top: 70px;
+    right: 300px
+  }
+
+  .sw-settings-services-preview-generator-right {
+    top: 160px;
+    right: 61px;
+  }
+
+  .sw-settings-services-hero__image-editor-right {
+    top: 275px;
+    right: 255px;
+  }
+}

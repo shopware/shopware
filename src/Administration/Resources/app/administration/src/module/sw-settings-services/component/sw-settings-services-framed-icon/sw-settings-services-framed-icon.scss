@@ -1,0 +1,30 @@
+.sw-settings-services-framed-icon {
+  .sw-settings-services-framed-icon__frame {
+    display: inline-block;
+    border-radius: var(--border-radius-default);
+    line-height: 0;
+    padding: 0.125em;
+  }
+
+  .sw-settings-services-framed-icon__outer-frame{
+    border: 1px solid var(--color-slate-50);
+    background: var(--color-elevation-surface-default);
+  }
+
+  .sw-settings-services-framed-icon__second-frame {
+    border: 1px solid var(--color-zinc-75);
+    background: var(--color-slate-50);
+  }
+
+  .sw-settings-services-framed-icon__inner-frame {
+    border: 1px solid var(--color-zinc-100);
+    background: var(--color-zinc-75);
+  }
+
+  .sw-settings-services-framed-icon__image {
+    border: 1px solid rgba(from var(--color-black) r g b / 0.1);
+    border-radius: var(--border-radius-default);
+    width: 1em;
+    height: 1em
+  }
+}

@@ -234,7 +234,6 @@ export default {
                 }
 
                 this.confirmPasswordModal = false;
-                // const context = { ...Shopware.Context.api };
                 context.authToken.access = verifiedToken;
             }
 

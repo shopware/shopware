@@ -23,6 +23,6 @@ class StorefrontPluginConfigurationTest extends TestCase
     {
         $config = new StorefrontPluginConfiguration('name');
 
-        static::assertEquals('name', $config->getTechnicalName());
+        static::assertSame('name', $config->getTechnicalName());
     }
 }

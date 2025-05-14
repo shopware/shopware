@@ -22,7 +22,7 @@ class CachedDomainLoaderInvalidatorTest extends TestCase
 {
     public function testGetSubscribedEvents(): void
     {
-        static::assertEquals(
+        static::assertSame(
             [EntityWrittenContainerEvent::class => [['invalidate', 2000]]],
             CachedDomainLoaderInvalidator::getSubscribedEvents()
         );
@@ -46,7 +46,7 @@ class CachedDomainLoaderInvalidatorTest extends TestCase
 
         $invalidationSubscriber->invalidate($event);
 
-        static::assertEquals([CachedDomainLoader::CACHE_KEY], $mockedInvalidator->getForceInvalidatedTags());
+        static::assertSame([CachedDomainLoader::CACHE_KEY], $mockedInvalidator->getForceInvalidatedTags());
     }
 
     public function testInvalidateIsNotCalledForNonSalesChannelWrites(): void
@@ -67,6 +67,6 @@ class CachedDomainLoaderInvalidatorTest extends TestCase
 
         $invalidationSubscriber->invalidate($event);
 
-        static::assertEquals([], $mockedInvalidator->getForceInvalidatedTags());
+        static::assertSame([], $mockedInvalidator->getForceInvalidatedTags());
     }
 }

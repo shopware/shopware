@@ -115,7 +115,7 @@ class SalesChannelCreateStorefrontCommandTest extends TestCase
 
         $status = $cmd->run($input, $output);
 
-        static::assertEquals(SalesChannelCreateStorefrontCommand::SUCCESS, $status);
+        static::assertSame(SalesChannelCreateStorefrontCommand::SUCCESS, $status);
     }
 
     /**

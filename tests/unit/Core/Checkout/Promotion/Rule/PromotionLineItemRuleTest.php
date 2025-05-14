@@ -51,7 +51,7 @@ class PromotionLineItemRuleTest extends TestCase
         $rule = new PromotionLineItemRule(Rule::OPERATOR_EQ, ['foo', 'bar']);
         $config = $rule->getConfig();
 
-        static::assertEquals([
+        static::assertSame([
             'operatorSet' => [
                 'operators' => [
                     Rule::OPERATOR_EQ,

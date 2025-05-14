@@ -27,7 +27,7 @@ class ConnectionProfilerTest extends TestCase
         $c->lateCollect();
         $c = unserialize(serialize($c));
         static::assertInstanceOf(ConnectionProfiler::class, $c);
-        static::assertEquals(['default'], $c->getConnections());
+        static::assertSame(['default'], $c->getConnections());
     }
 
     public function testCollectQueryCount(): void
@@ -36,7 +36,7 @@ class ConnectionProfilerTest extends TestCase
         $c->lateCollect();
         $c = unserialize(serialize($c));
         static::assertInstanceOf(ConnectionProfiler::class, $c);
-        static::assertEquals(0, $c->getQueryCount());
+        static::assertSame(0, $c->getQueryCount());
 
         $queries = [
             ['sql' => 'SELECT * FROM table1', 'params' => [], 'types' => [], 'executionMS' => 0],
@@ -45,7 +45,7 @@ class ConnectionProfilerTest extends TestCase
         $c->lateCollect();
         $c = unserialize(serialize($c));
         static::assertInstanceOf(ConnectionProfiler::class, $c);
-        static::assertEquals(1, $c->getQueryCount());
+        static::assertSame(1, $c->getQueryCount());
     }
 
     public function testCollectTime(): void
@@ -54,7 +54,7 @@ class ConnectionProfilerTest extends TestCase
         $c->lateCollect();
         $c = unserialize(serialize($c));
         static::assertInstanceOf(ConnectionProfiler::class, $c);
-        static::assertEquals(0, $c->getTime());
+        static::assertSame(0.0, $c->getTime());
 
         $queries = [
             ['sql' => 'SELECT * FROM table1', 'params' => [], 'types' => [], 'executionMS' => 10],
@@ -63,7 +63,7 @@ class ConnectionProfilerTest extends TestCase
         $c->lateCollect();
         $c = unserialize(serialize($c));
         static::assertInstanceOf(ConnectionProfiler::class, $c);
-        static::assertEquals(10, $c->getTime());
+        static::assertSame(10.0, $c->getTime());
 
         $queries = [
             ['sql' => 'SELECT * FROM table1', 'params' => [], 'types' => [], 'executionMS' => 10],
@@ -104,7 +104,7 @@ class ConnectionProfilerTest extends TestCase
         $c = unserialize(serialize($c));
         static::assertInstanceOf(ConnectionProfiler::class, $c);
 
-        static::assertEquals([], $c->getQueries());
+        static::assertSame([], $c->getQueries());
     }
 
     /**
@@ -134,7 +134,7 @@ class ConnectionProfilerTest extends TestCase
         } elseif (\is_string($expected)) {
             static::assertStringMatchesFormat($expected, $collectedParam);
         } else {
-            static::assertEquals($expected, $collectedParam);
+            static::assertSame($expected, $collectedParam);
         }
 
         static::assertTrue($collectedQueries['explainable']);
@@ -167,11 +167,11 @@ class ConnectionProfilerTest extends TestCase
 
         $collectedQueries = $c->getQueries();
         static::assertInstanceOf(Data::class, $collectedQueries['default'][0]['params']);
-        static::assertEquals([], $collectedQueries['default'][0]['params']->getValue());
+        static::assertSame([], $collectedQueries['default'][0]['params']->getValue());
         static::assertTrue($collectedQueries['default'][0]['explainable']);
         static::assertTrue($collectedQueries['default'][0]['runnable']);
         static::assertInstanceOf(Data::class, $collectedQueries['default'][1]['params']);
-        static::assertEquals([], $collectedQueries['default'][1]['params']->getValue());
+        static::assertSame([], $collectedQueries['default'][1]['params']->getValue());
         static::assertTrue($collectedQueries['default'][1]['explainable']);
         static::assertTrue($collectedQueries['default'][1]['runnable']);
     }
@@ -203,7 +203,7 @@ class ConnectionProfilerTest extends TestCase
         } elseif (\is_string($expected)) {
             static::assertStringMatchesFormat($expected, $collectedParam);
         } else {
-            static::assertEquals($expected, $collectedParam);
+            static::assertSame($expected, $collectedParam);
         }
 
         static::assertTrue($collectedQueries['explainable']);

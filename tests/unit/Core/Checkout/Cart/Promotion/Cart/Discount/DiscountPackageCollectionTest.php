@@ -36,7 +36,7 @@ class DiscountPackageCollectionTest extends TestCase
             ]
         );
 
-        static::assertEquals(2, $collection->count());
+        static::assertCount(2, $collection);
     }
 
     /**
@@ -57,7 +57,7 @@ class DiscountPackageCollectionTest extends TestCase
 
         $collection = new DiscountPackageCollection([$package1, $package2]);
 
-        static::assertEquals(2, $collection->getAffectedPrices()->count());
+        static::assertCount(2, $collection->getAffectedPrices());
     }
 
     /**
@@ -81,7 +81,7 @@ class DiscountPackageCollectionTest extends TestCase
 
         $collection = new DiscountPackageCollection([$package1, $package2]);
 
-        static::assertEquals(2, $collection->getAllLineMetaItems()->count());
+        static::assertCount(2, $collection->getAllLineMetaItems());
     }
 
     /**
@@ -106,15 +106,15 @@ class DiscountPackageCollectionTest extends TestCase
 
         $splitted = (new DiscountPackageCollection([$package1, $package2]))->splitPackages();
 
-        static::assertEquals(3, $splitted->count());
+        static::assertCount(3, $splitted);
 
         $package1 = $splitted->getElements()[0];
         $package2 = $splitted->getElements()[1];
         $package3 = $splitted->getElements()[2];
 
         // now test the content of each package. only 1 item has to be in there
-        static::assertEquals(1, $package1->getMetaData()->count());
-        static::assertEquals(1, $package2->getMetaData()->count());
-        static::assertEquals(1, $package3->getMetaData()->count());
+        static::assertCount(1, $package1->getMetaData());
+        static::assertCount(1, $package2->getMetaData());
+        static::assertCount(1, $package3->getMetaData());
     }
 }

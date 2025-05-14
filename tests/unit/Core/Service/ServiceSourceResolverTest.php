@@ -34,7 +34,7 @@ class ServiceSourceResolverTest extends TestCase
             $this->createMock(Filesystem::class),
             $this->createMock(EventDispatcherInterface::class)
         );
-        static::assertEquals('service', $source->name());
+        static::assertSame('service', $source->name());
     }
 
     public function testSupportsOnlyConsidersServiceTypes(): void
@@ -154,7 +154,7 @@ class ServiceSourceResolverTest extends TestCase
 
         $fs = $source->filesystem($app);
 
-        static::assertEquals('/some/tmp/path/MyCoolService', $fs->location);
+        static::assertSame('/some/tmp/path/MyCoolService', $fs->location);
     }
 
     #[DataProvider('appProvider')]
@@ -185,7 +185,7 @@ class ServiceSourceResolverTest extends TestCase
 
         $fs = $source->filesystem($app);
 
-        static::assertEquals('/some/tmp/path/MyCoolService', $fs->location);
+        static::assertSame('/some/tmp/path/MyCoolService', $fs->location);
     }
 
     public function testFilesystemForAppDownloadsServiceUsingClient(): void
@@ -228,7 +228,7 @@ class ServiceSourceResolverTest extends TestCase
 
         $fs = $source->filesystem($app);
 
-        static::assertEquals('/some/tmp/path/MyCoolService', $fs->location);
+        static::assertSame('/some/tmp/path/MyCoolService', $fs->location);
     }
 
     public function testIfLatestVersionIsNotInstalledServiceIsUpdatedFirst(): void
@@ -269,6 +269,6 @@ class ServiceSourceResolverTest extends TestCase
 
         $fs = $source->filesystem($app);
 
-        static::assertEquals('/some/tmp/path/MyCoolService', $fs->location);
+        static::assertSame('/some/tmp/path/MyCoolService', $fs->location);
     }
 }

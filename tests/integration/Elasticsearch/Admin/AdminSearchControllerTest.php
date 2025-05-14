@@ -72,7 +72,7 @@ class AdminSearchControllerTest extends TestCase
         $this->getBrowser()->request('POST', '/api/_admin/es-search', [], [], [], json_encode($data, \JSON_THROW_ON_ERROR) ?: null);
         $response = $this->getBrowser()->getResponse();
 
-        static::assertEquals(200, $response->getStatusCode());
+        static::assertSame(200, $response->getStatusCode());
 
         $content = json_decode($response->getContent() ?: '', true, 512, \JSON_THROW_ON_ERROR);
 
@@ -82,12 +82,12 @@ class AdminSearchControllerTest extends TestCase
 
         $content = $content['data']['promotion'];
 
-        static::assertEquals(\count($expectedPromotions), $content['total']);
+        static::assertSame(\count($expectedPromotions), $content['total']);
 
         foreach ($expectedPromotions as $expectedPromotion) {
             $id = $ids->get($expectedPromotion);
             static::assertNotEmpty($content['data'][$id]);
-            static::assertEquals($id, $content['data'][$id]['id']);
+            static::assertSame($id, $content['data'][$id]['id']);
         }
     }
 

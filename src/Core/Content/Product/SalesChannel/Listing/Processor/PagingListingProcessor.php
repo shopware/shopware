@@ -58,7 +58,7 @@ class PagingListingProcessor extends AbstractListingProcessor
         $requestLimit = $request->query->has('limit') ? $request->query->getInt('limit') : null;
         $allowedLimits = null;
         if ($criteria->hasExtension('limits')) {
-            $allowedLimits = $criteria->getExtension('limits')->getVars()['limits'];
+            $allowedLimits = $criteria->getExtension('limits')?->getVars()['limits'] ?? null;
         }
 
         if ($requestLimit !== null && $requestLimit > 0 && $allowedLimits !== null) {

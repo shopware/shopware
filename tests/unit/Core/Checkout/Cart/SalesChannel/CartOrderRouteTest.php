@@ -131,7 +131,7 @@ class CartOrderRouteTest extends TestCase
         $response = $this->route->order($cart, $this->context, $data);
 
         static::assertInstanceOf(OrderEntity::class, $response->getObject());
-        static::assertEquals(Response::HTTP_OK, $response->getStatusCode());
+        static::assertSame(Response::HTTP_OK, $response->getStatusCode());
     }
 
     public function testCheckoutOrderPlacedEventsDispatched(): void
@@ -195,7 +195,7 @@ class CartOrderRouteTest extends TestCase
         $response = $this->route->order($cart, $this->context, $data);
 
         static::assertInstanceOf(OrderEntity::class, $response->getObject());
-        static::assertEquals(Response::HTTP_OK, $response->getStatusCode());
+        static::assertSame(Response::HTTP_OK, $response->getStatusCode());
     }
 
     public function testOrderResponseWithValidHash(): void
@@ -248,7 +248,7 @@ class CartOrderRouteTest extends TestCase
         $response = $this->route->order($cart, $this->context, $data);
 
         static::assertInstanceOf(OrderEntity::class, $response->getObject());
-        static::assertEquals(Response::HTTP_OK, $response->getStatusCode());
+        static::assertSame(Response::HTTP_OK, $response->getStatusCode());
     }
 
     public function testHashMismatchException(): void

@@ -37,7 +37,7 @@ class NavigationPageSeoUrlRouteTest extends TestCase
         /** @var MultiFilter $multiFilter */
         $multiFilter = $filters[0];
         static::assertInstanceOf(MultiFilter::class, $multiFilter);
-        static::assertEquals('AND', $multiFilter->getOperator());
+        static::assertSame('AND', $multiFilter->getOperator());
         $multiFilterQueries = $multiFilter->getQueries();
 
         static::assertCount(2, $multiFilterQueries);
@@ -50,7 +50,7 @@ class NavigationPageSeoUrlRouteTest extends TestCase
 
         $notFilter = $multiFilterQueries[1];
         static::assertInstanceOf(NotFilter::class, $notFilter);
-        static::assertEquals('OR', $notFilter->getOperator());
+        static::assertSame('OR', $notFilter->getOperator());
 
         $notFilterQueries = $notFilter->getQueries();
         static::assertCount(2, $notFilterQueries);
@@ -61,7 +61,7 @@ class NavigationPageSeoUrlRouteTest extends TestCase
         string $field,
         string|bool $value
     ): void {
-        static::assertEquals($field, $equalsFilter->getField());
-        static::assertEquals($value, $equalsFilter->getValue());
+        static::assertSame($field, $equalsFilter->getField());
+        static::assertSame($value, $equalsFilter->getValue());
     }
 }

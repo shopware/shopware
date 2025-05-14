@@ -110,8 +110,8 @@ class MakeCoverageTestCommandTest extends TestCase
         static::assertTrue($fileSystem->exists($this->projectDir . '/tests/migration/Core/V6_5/Migration1670854818RemoveEventActionTableTest.php'));
         static::assertIsString($devOpsTest = file_get_contents($this->projectDir . '/tests/unit/Core/DevOps/DevOpsTest.php'));
         static::assertIsString($migrationTest = file_get_contents($this->projectDir . '/tests/migration/Core/V6_5/Migration1670854818RemoveEventActionTableTest.php'));
-        static::assertEquals($this->getDevOpsTestTemplate(), $devOpsTest);
-        static::assertEquals($this->getMigrationTestTemplate(), $migrationTest);
+        static::assertSame($this->getDevOpsTestTemplate(), $devOpsTest);
+        static::assertSame($this->getMigrationTestTemplate(), $migrationTest);
 
         static::assertFalse($fileSystem->exists($this->projectDir . '/tests/unit/Core/DevOps/Test/Command/not-a-classTest.php'));
         static::assertFalse($fileSystem->exists($this->projectDir . '/tests/unit/Core/Content/Cms/Subscriber/UnusedMediaSubscriberTest.php'));

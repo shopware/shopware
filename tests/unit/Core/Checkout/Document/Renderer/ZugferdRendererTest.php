@@ -44,7 +44,7 @@ class ZugferdRendererTest extends TestCase
             $this->createMock(NumberRangeValueGeneratorInterface::class)
         );
 
-        static::assertEquals('zugferd_invoice', $renderer->supports());
+        static::assertSame('zugferd_invoice', $renderer->supports());
     }
 
     public function testRender(): void
@@ -101,8 +101,8 @@ class ZugferdRendererTest extends TestCase
         )->getOrderSuccess(self::ORDER_ID);
 
         static::assertNotNull($rendered);
-        static::assertEquals(FileTypes::XML, $rendered->getFileExtension());
-        static::assertEquals('application/xml', $rendered->getContentType());
+        static::assertSame(FileTypes::XML, $rendered->getFileExtension());
+        static::assertSame('application/xml', $rendered->getContentType());
         static::assertStringStartsWith('<?xml ', $rendered->getContent());
     }
 }

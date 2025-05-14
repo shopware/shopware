@@ -161,7 +161,7 @@ class ProductPageTest extends TestCase
 
         $product = $context->getContext()->scope(Context::SYSTEM_SCOPE, fn (): ProductEntity => $this->getRandomProduct($context, 10, false, $productCmsPageData));
 
-        static::assertEquals($cmsPageId, $product->getCmsPageId());
+        static::assertSame($cmsPageId, $product->getCmsPageId());
         $request = new Request([], [], ['productId' => $product->getId()]);
 
         $event = null;
@@ -170,7 +170,7 @@ class ProductPageTest extends TestCase
         $page = $this->getPageLoader()->load($request, $context);
 
         static::assertInstanceOf(CmsPageEntity::class, $page->getCmsPage());
-        static::assertEquals($cmsPageId, $page->getCmsPage()->getId());
+        static::assertSame($cmsPageId, $page->getCmsPage()->getId());
 
         static::assertSame(StorefrontPageTestConstants::PRODUCT_NAME, $page->getProduct()->getName());
         self::assertPageEvent(ProductPageLoadedEvent::class, $event, $context, $request, $page);

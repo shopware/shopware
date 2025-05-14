@@ -6,7 +6,6 @@ use setasign\Fpdi\FpdiException;
 use setasign\Fpdi\PdfParser\StreamReader;
 use setasign\Fpdi\Tfpdf\Fpdi;
 use Shopware\Core\Checkout\Document\DocumentCollection;
-use Shopware\Core\Checkout\Document\DocumentConfigurationFactory;
 use Shopware\Core\Checkout\Document\DocumentEntity;
 use Shopware\Core\Checkout\Document\DocumentException;
 use Shopware\Core\Checkout\Document\Renderer\RenderedDocument;
@@ -131,8 +130,6 @@ final class DocumentMerger
                 continue;
             }
 
-            $config = DocumentConfigurationFactory::createConfiguration($document->getConfig());
-
             $media = $context->scope(Context::SYSTEM_SCOPE, fn (Context $context): string => $this->mediaService->loadFileStream($documentMediaId, $context)->getContents());
 
             $numPages = $this->fpdi->setSourceFile(StreamReader::createByString($media));
@@ -144,7 +141,13 @@ final class DocumentMerger
                 if (!\is_array($size)) {
                     continue;
                 }
-                $this->fpdi->AddPage($config->getPageOrientation() ?? 'portrait', $config->getPageSize());
+                $this->fpdi->AddPage(
+                    $size['orientation'],
+                    [
+                        $size[0], // width
+                        $size[1], // height
+                    ],
+                );
                 $this->fpdi->useTemplate($template);
             }
         }

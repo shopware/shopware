@@ -206,8 +206,8 @@ class ProductSerializerTest extends TestCase
         $result = $serializer->deserialize(new Config([], [], []), $productDefinition, $record);
         $result = \is_array($result) ? $result : iterator_to_array($result);
 
-        static::assertEquals($product->getMedia()?->first()?->getId(), $result['media'][0]['id']);
-        static::assertEquals($product->getMedia()?->first()?->getMedia()?->getId(), $result['media'][0]['media']['id']);
+        static::assertSame($product->getMedia()?->first()?->getId(), $result['media'][0]['id']);
+        static::assertSame($product->getMedia()?->first()?->getMedia()?->getId(), $result['media'][0]['media']['id']);
         static::assertArrayNotHasKey('url', $result['media'][0]['media']);
 
         static::assertArrayNotHasKey('id', $result['media'][1]);

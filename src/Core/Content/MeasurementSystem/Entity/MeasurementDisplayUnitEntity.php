@@ -58,7 +58,7 @@ class MeasurementDisplayUnitEntity extends EntityStruct
      * @var array<string, ProductEntity>|null
      */
     #[ManyToMany(entity: ProductDefinition::ENTITY_NAME, onDelete: OnDelete::CASCADE, api: true)]
-    public ?array $massProducts = null;
+    public ?array $weightProducts = null;
 
     /**
      * @var array<string, ProductEntity>|null
@@ -69,8 +69,8 @@ class MeasurementDisplayUnitEntity extends EntityStruct
     /**
      * @var array<string, SalesChannelDomainEntity>|null
      */
-    #[OneToMany(entity: SalesChannelDomainDefinition::ENTITY_NAME, ref: 'mass_unit_id', onDelete: OnDelete::CASCADE, api: true)]
-    public ?array $massSalesChannelDomains = null;
+    #[OneToMany(entity: SalesChannelDomainDefinition::ENTITY_NAME, ref: 'weight_unit_id', onDelete: OnDelete::CASCADE, api: true)]
+    public ?array $weightSalesChannelDomains = null;
 
     /**
      * @var array<string, SalesChannelDomainEntity>|null
@@ -81,8 +81,8 @@ class MeasurementDisplayUnitEntity extends EntityStruct
     /**
      * @var array<string, SalesChannelEntity>|null
      */
-    #[OneToMany(entity: SalesChannelDefinition::ENTITY_NAME, ref: 'mass_unit_id', onDelete: OnDelete::CASCADE, api: true)]
-    public ?array $massSalesChannels = null;
+    #[OneToMany(entity: SalesChannelDefinition::ENTITY_NAME, ref: 'weight_unit_id', onDelete: OnDelete::CASCADE, api: true)]
+    public ?array $weightSalesChannels = null;
 
     /**
      * @var array<string, SalesChannelEntity>|null

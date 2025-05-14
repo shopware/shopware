@@ -108,8 +108,8 @@ class Migration1742199548MeasurementSystem extends MigrationStep
             $this->importTranslation(
                 'measurement_system_translation',
                 new Translations(
-                    ['measurement_system_id' => $metricId, 'name' => 'Metrisch'],
-                    ['measurement_system_id' => $metricId, 'name' => 'Metric']
+                    ['measurement_system_id' => $metricId, 'name' => 'Metrisches System'],
+                    ['measurement_system_id' => $metricId, 'name' => 'Metric system']
                 ),
                 $connection
             );
@@ -129,8 +129,8 @@ class Migration1742199548MeasurementSystem extends MigrationStep
             $this->importTranslation(
                 'measurement_system_translation',
                 new Translations(
-                    ['measurement_system_id' => $imperialId, 'name' => 'Kaiserlich'],
-                    ['measurement_system_id' => $imperialId, 'name' => 'Imperial']
+                    ['measurement_system_id' => $imperialId, 'name' => 'Kaiserlich System'],
+                    ['measurement_system_id' => $imperialId, 'name' => 'Imperial system']
                 ),
                 $connection
             );
@@ -138,17 +138,16 @@ class Migration1742199548MeasurementSystem extends MigrationStep
 
         $units = [
             ['id' => Uuid::randomBytes(), 'measurement_system_id' => $metricId, 'default' => 0, 'type' => 'length', 'short_name' => 'm', 'factor' => 1000, 'name_en' => 'Meter', 'name_de' => 'Zähler'],
-            ['id' => Uuid::randomBytes(), 'measurement_system_id' => $metricId, 'default' => 0, 'type' => 'length', 'short_name' => 'km', 'factor' => 1000000, 'name_en' => 'Kilometer', 'name_de' => 'Kilometer'],
-            ['id' => Uuid::randomBytes(), 'measurement_system_id' => $metricId, 'default' => 0, 'type' => 'length', 'short_name' => 'dm', 'factor' => 100, 'name_en' => 'Decimeter', 'name_de' => 'Dezimeter'],
             ['id' => Uuid::randomBytes(), 'measurement_system_id' => $metricId, 'default' => 0, 'type' => 'length', 'short_name' => 'cm', 'factor' => 10, 'name_en' => 'Centimeter', 'name_de' => 'Zentimeter'],
             ['id' => Uuid::fromHexToBytes(Uuid::fromStringToHex('metric-mm')), 'measurement_system_id' => $metricId, 'default' => 1, 'type' => 'length', 'short_name' => 'mm', 'factor' => 1, 'name_en' => 'Millimeter', 'name_de' => 'Millimeter'],
-            ['id' => Uuid::fromHexToBytes(Uuid::fromStringToHex('metric-kg')), 'measurement_system_id' => $metricId, 'default' => 1, 'type' => 'mass', 'short_name' => 'kg', 'factor' => 1, 'name_en' => 'Kilogram', 'name_de' => 'Kilogramm'],
-            ['id' => Uuid::randomBytes(), 'measurement_system_id' => $metricId, 'default' => 0, 'type' => 'mass', 'short_name' => 'g', 'factor' => 0.001, 'name_en' => 'Gram', 'name_de' => 'Gramm'],
+            ['id' => Uuid::fromHexToBytes(Uuid::fromStringToHex('metric-kg')), 'measurement_system_id' => $metricId, 'default' => 1, 'type' => 'weight', 'short_name' => 'kg', 'factor' => 1, 'name_en' => 'Kilogram', 'name_de' => 'Kilogramm'],
+            ['id' => Uuid::randomBytes(), 'measurement_system_id' => $metricId, 'default' => 0, 'type' => 'weight', 'short_name' => 'g', 'factor' => 0.001, 'name_en' => 'Gram', 'name_de' => 'Gramm'],
 
             ['id' => Uuid::randomBytes(), 'measurement_system_id' => $imperialId, 'default' => 1, 'type' => 'length', 'short_name' => 'in', 'factor' => 25.4, 'name_en' => 'Inch', 'name_de' => 'Zoll'],
             ['id' => Uuid::randomBytes(), 'measurement_system_id' => $imperialId, 'default' => 0, 'type' => 'length', 'short_name' => 'ft', 'factor' => 304.8, 'name_en' => 'Foot', 'name_de' => 'Fuß'],
-            ['id' => Uuid::randomBytes(), 'measurement_system_id' => $imperialId, 'default' => 1, 'type' => 'mass', 'short_name' => 'lb', 'factor' => 0.453592, 'name_en' => 'Pound', 'name_de' => 'Pfund'],
-            ['id' => Uuid::randomBytes(), 'measurement_system_id' => $imperialId, 'default' => 0, 'type' => 'mass', 'short_name' => 'oz', 'factor' => 0.0283495, 'name_en' => 'Ounce', 'name_de' => 'Unze'],
+            ['id' => Uuid::randomBytes(), 'measurement_system_id' => $imperialId, 'default' => 0, 'type' => 'length', 'short_name' => 'yd', 'factor' => 914.4, 'name_en' => 'Yard', 'name_de' => 'Yard'],
+            ['id' => Uuid::randomBytes(), 'measurement_system_id' => $imperialId, 'default' => 1, 'type' => 'weight', 'short_name' => 'lb', 'factor' => 0.453592, 'name_en' => 'Pound', 'name_de' => 'Pfund'],
+            ['id' => Uuid::randomBytes(), 'measurement_system_id' => $imperialId, 'default' => 0, 'type' => 'weight', 'short_name' => 'oz', 'factor' => 0.0283495, 'name_en' => 'Ounce', 'name_de' => 'Unze'],
         ];
 
         $dbUnits = $connection->fetchOne('SELECT 1 FROM `measurement_display_unit`');
@@ -186,23 +185,23 @@ class Migration1742199548MeasurementSystem extends MigrationStep
     {
         if (
             $this->columnExists($connection, 'sales_channel_domain', 'measurement_system_id')
-            || $this->columnExists($connection, 'sales_channel_domain', 'mass_unit_id')
+            || $this->columnExists($connection, 'sales_channel_domain', 'weight_unit_id')
             || $this->columnExists($connection, 'sales_channel_domain', 'length_unit_id')
         ) {
             return;
         }
 
         $metricId = Uuid::fromHexToBytes(Uuid::fromStringToHex('metric'));
-        $massUnitId = Uuid::fromHexToBytes(Uuid::fromStringToHex('metric-kg'));
+        $weightUnitId = Uuid::fromHexToBytes(Uuid::fromStringToHex('metric-kg'));
         $lengthUnitId = Uuid::fromHexToBytes(Uuid::fromStringToHex('metric-mm'));
 
         $connection->executeStatement('
             ALTER TABLE `sales_channel_domain`
             ADD COLUMN `measurement_system_id` BINARY(16) NOT NULL DEFAULT \'' . $metricId . '\',
-            ADD COLUMN `mass_unit_id` BINARY(16) NOT NULL DEFAULT \'' . $massUnitId . '\',
+            ADD COLUMN `weight_unit_id` BINARY(16) NOT NULL DEFAULT \'' . $weightUnitId . '\',
             ADD COLUMN `length_unit_id` BINARY(16) NOT NULL DEFAULT \'' . $lengthUnitId . '\',
             ADD CONSTRAINT `fk.sales_channel_domain.measurement_system_id` FOREIGN KEY (`measurement_system_id`) REFERENCES `measurement_system` (`id`) ON DELETE RESTRICT ON UPDATE CASCADE,
-            ADD CONSTRAINT `fk.sales_channel_domain.mass_unit_id` FOREIGN KEY (`mass_unit_id`) REFERENCES `measurement_display_unit` (`id`) ON DELETE RESTRICT ON UPDATE CASCADE,
+            ADD CONSTRAINT `fk.sales_channel_domain.weight_unit_id` FOREIGN KEY (`weight_unit_id`) REFERENCES `measurement_display_unit` (`id`) ON DELETE RESTRICT ON UPDATE CASCADE,
             ADD CONSTRAINT `fk.sales_channel_domain.length_unit_id` FOREIGN KEY (`length_unit_id`) REFERENCES `measurement_display_unit` (`id`) ON DELETE RESTRICT ON UPDATE CASCADE;
         ');
     }
@@ -211,23 +210,23 @@ class Migration1742199548MeasurementSystem extends MigrationStep
     {
         if (
             $this->columnExists($connection, 'sales_channel', 'measurement_system_id')
-            || $this->columnExists($connection, 'sales_channel', 'mass_unit_id')
+            || $this->columnExists($connection, 'sales_channel', 'weight_unit_id')
             || $this->columnExists($connection, 'sales_channel', 'length_unit_id')
         ) {
             return;
         }
 
         $metricId = Uuid::fromHexToBytes(Uuid::fromStringToHex('metric'));
-        $massUnitId = Uuid::fromHexToBytes(Uuid::fromStringToHex('metric-kg'));
+        $weightUnitId = Uuid::fromHexToBytes(Uuid::fromStringToHex('metric-kg'));
         $lengthUnitId = Uuid::fromHexToBytes(Uuid::fromStringToHex('metric-mm'));
 
         $connection->executeStatement('
             ALTER TABLE `sales_channel`
             ADD COLUMN `measurement_system_id` BINARY(16) NOT NULL DEFAULT \'' . $metricId . '\',
-            ADD COLUMN `mass_unit_id` BINARY(16) NOT NULL DEFAULT \'' . $massUnitId . '\',
+            ADD COLUMN `weight_unit_id` BINARY(16) NOT NULL DEFAULT \'' . $weightUnitId . '\',
             ADD COLUMN `length_unit_id` BINARY(16) NOT NULL DEFAULT \'' . $lengthUnitId . '\',
                 ADD CONSTRAINT `fk.sales_channel.measurement_system_id` FOREIGN KEY (`measurement_system_id`) REFERENCES `measurement_system` (`id`) ON DELETE RESTRICT ON UPDATE CASCADE,
-            ADD CONSTRAINT `fk.sales_channel.mass_unit_id` FOREIGN KEY (`mass_unit_id`) REFERENCES `measurement_display_unit` (`id`) ON DELETE RESTRICT ON UPDATE CASCADE,
+            ADD CONSTRAINT `fk.sales_channel.weight_unit_id` FOREIGN KEY (`weight_unit_id`) REFERENCES `measurement_display_unit` (`id`) ON DELETE RESTRICT ON UPDATE CASCADE,
             ADD CONSTRAINT `fk.sales_channel.length_unit_id` FOREIGN KEY (`length_unit_id`) REFERENCES `measurement_display_unit` (`id`) ON DELETE RESTRICT ON UPDATE CASCADE;
         ');
     }

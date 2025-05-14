@@ -71,8 +71,8 @@ class DocumentMergerTest extends TestCase
         );
 
         static::assertNotNull($result);
-        static::assertEquals('pdf', $result->getFileExtension());
-        static::assertEquals(self::PDF_CONTENT, $result->getContent());
+        static::assertSame('pdf', $result->getFileExtension());
+        static::assertSame(self::PDF_CONTENT, $result->getContent());
     }
 
     public function testMergeMultipleDocumentsUsingFpdi(): void
@@ -121,8 +121,8 @@ class DocumentMergerTest extends TestCase
         );
 
         static::assertNotNull($result);
-        static::assertEquals('pdf', $result->getFileExtension());
-        static::assertEquals(self::PDF_CONTENT, $result->getContent());
+        static::assertSame('pdf', $result->getFileExtension());
+        static::assertSame(self::PDF_CONTENT, $result->getContent());
     }
 
     public function testMergeTriggersDocumentGenerationWhenMediaMissing(): void
@@ -180,7 +180,7 @@ class DocumentMergerTest extends TestCase
         );
 
         static::assertNotNull($result);
-        static::assertEquals('pdf', $result->getFileExtension());
+        static::assertSame('pdf', $result->getFileExtension());
     }
 
     public function testMergeMultipleDocumentsSkipsDocumentsWithoutMediaAndDocumentType(): void
@@ -227,8 +227,8 @@ class DocumentMergerTest extends TestCase
         );
 
         static::assertNotNull($result);
-        static::assertEquals('pdf', $result->getFileExtension());
-        static::assertEquals(self::PDF_CONTENT, $result->getContent());
+        static::assertSame('pdf', $result->getFileExtension());
+        static::assertSame(self::PDF_CONTENT, $result->getContent());
     }
 
     public function testMergeMultipleDocumentsWithFpdiFallbackToZipCreationWhenPdfMergeFails(): void

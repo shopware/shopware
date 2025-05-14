@@ -137,9 +137,7 @@ export default {
 
         confirmDeleteText() {
             const name = this.priceGroup.rule ? this.priceGroup.rule.name : '';
-            return this.$tc('sw-settings-shipping.priceMatrix.textDeleteConfirm', Number(!!this.priceGroup.rule), {
-                name: name,
-            });
+            return this.$tc('sw-settings-shipping.priceMatrix.textDeleteConfirm', { name }, Number(!!this.priceGroup.rule));
         },
 
         currencyColumns() {

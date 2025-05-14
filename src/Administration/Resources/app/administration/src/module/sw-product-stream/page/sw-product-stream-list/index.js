@@ -187,7 +187,7 @@ export default {
             }
 
             this.createNotificationError({
-                message: this.$tc('sw-product-stream.general.errorCategory', count, { name, count }),
+                message: this.$tc('sw-product-stream.general.errorCategory', { name, count }, count),
             });
         },
 

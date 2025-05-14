@@ -17,18 +17,18 @@ class BarTest extends TestCase
 
         $expected = new Response();
         // not allowed
-        static::assertEquals($expected, $response);
+        static::assertSame($expected, $response);
 
         $this->assertFoo($expected, $response);
 
         // allowed
-        static::assertEquals($expected->getStatusCode(), $response->getStatusCode());
+        static::assertSame($expected->getStatusCode(), $response->getStatusCode());
 
         // allowed
         AssertResponseHelper::assertResponseEquals($expected, $response);
 
         // allowed
-        static::assertEquals(Response::HTTP_BAD_REQUEST, $response->getStatusCode());
+        static::assertSame(Response::HTTP_BAD_REQUEST, $response->getStatusCode());
     }
 
     public function testRedirects(): void
@@ -44,6 +44,6 @@ class BarTest extends TestCase
     public function assertFoo(mixed $expected, mixed $actual): void
     {
         // allowed
-        static::assertEquals($expected, $actual);
+        static::assertSame($expected, $actual);
     }
 }

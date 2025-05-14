@@ -189,19 +189,19 @@ describe('NavbarPlugin', () => {
         expect(mockDropdown.hide).toHaveBeenCalled();
     });
 
-    test('_setAriaCurrentPage should be called on load event', () => {
+    test('current page is applied on load event', () => {
         const mockEvent = new Event('load');
-        jest.spyOn(navbarPlugin, '_setAriaCurrentPage'); // Spy on the method
+        jest.spyOn(navbarPlugin, '_setCurrentPage'); // Spy on the method
 
         window.addEventListener('load', () => {
-            navbarPlugin._setAriaCurrentPage();
+            navbarPlugin._setCurrentPage();
         });
         window.dispatchEvent(mockEvent);
 
-        expect(navbarPlugin._setAriaCurrentPage).toHaveBeenCalled();
+        expect(navbarPlugin._setCurrentPage).toHaveBeenCalled();
     });
 
-    test('if aria-current is set for one nav-item', () => {
+    test('active class and aria-current is set for one nav-item', () => {
         const mockLink = document.createElement('a');
         mockLink.classList.add('nav-item-1-link');
         mockLink.setAttribute('href', 'https://example.com');
@@ -209,9 +209,10 @@ describe('NavbarPlugin', () => {
 
         window.activeNavigationId = 1; // Set the activeNavigationId
 
-        navbarPlugin._setAriaCurrentPage();
+        navbarPlugin._setCurrentPage();
 
         expect(mockLink.getAttribute('aria-current')).toBe('page');
+        expect(mockLink.classList.contains('active')).toBe(true);
     });
 
     test('_restoreFocusAfterBtnClose should focus related dropdown top level link', () => {

@@ -34,7 +34,7 @@ class AdminSalesChannelSourceRuleTest extends TestCase
 
     public function testGetName(): void
     {
-        static::assertEquals('adminSalesChannelSource', $this->rule->getName());
+        static::assertSame('adminSalesChannelSource', $this->rule->getName());
     }
 
     public function testRuleConfig(): void
@@ -78,7 +78,7 @@ class AdminSalesChannelSourceRuleTest extends TestCase
         $scope = new CheckoutRuleScope($context);
 
         $match = $rule->match($scope);
-        static::assertEquals($match, $isMatching);
+        static::assertSame($match, $isMatching);
     }
 
     public static function getCaseTestMatchValues(): \Generator

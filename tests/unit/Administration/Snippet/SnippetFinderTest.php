@@ -44,7 +44,7 @@ class SnippetFinderTest extends TestCase
 
         $expectedSnippets = $this->getSnippetFixtures();
         $key = array_key_first($expectedSnippets);
-        static::assertEquals($expectedSnippets[$key], $snippets[$key]);
+        static::assertSame($expectedSnippets[$key], $snippets[$key]);
     }
 
     public function testNoSnippetsFound(): void
@@ -140,7 +140,7 @@ class SnippetFinderTest extends TestCase
         $result = $snippetFinder->findSnippets('en-GB');
         $result = array_intersect_key($result, $before); // filter out all others snippets
 
-        static::assertEquals($after, $result);
+        static::assertSame($after, $result);
     }
 
     /**

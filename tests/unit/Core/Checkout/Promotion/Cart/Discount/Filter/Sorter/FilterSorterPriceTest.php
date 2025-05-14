@@ -43,7 +43,7 @@ class FilterSorterPriceTest extends TestCase
 
         $ordered = $package->getMetaData()->fmap(fn (LineItemQuantity $item) => $item->getLineItemId());
 
-        static::assertEquals($expected, $ordered);
+        static::assertSame($expected, $ordered);
     }
 
     public static function sortingProvider(): \Generator

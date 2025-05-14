@@ -139,8 +139,8 @@ class CartRuleLoaderTest extends TestCase
             ->expects($this->exactly(3))
             ->method('process')
             ->with(static::isInstanceOf(Cart::class), static::callback(function (SalesChannelContext $context) use ($ruleIds, $areaRuleIds) {
-                static::assertEquals($ruleIds, $context->getRuleIds());
-                static::assertEquals($areaRuleIds, $context->getAreaRuleIds());
+                static::assertSame($ruleIds, $context->getRuleIds());
+                static::assertSame($areaRuleIds, $context->getAreaRuleIds());
 
                 return true;
             }), static::isInstanceOf(CartBehavior::class))

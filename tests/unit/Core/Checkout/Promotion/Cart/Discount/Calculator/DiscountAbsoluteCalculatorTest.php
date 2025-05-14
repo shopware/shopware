@@ -72,7 +72,7 @@ class DiscountAbsoluteCalculatorTest extends TestCase
 
         $price = $discountCalculator->calculate($discount, new DiscountPackageCollection([$package]), $context);
 
-        static::assertEquals($discountOut, $price->getPrice()->getTotalPrice());
+        static::assertSame($discountOut, $price->getPrice()->getTotalPrice());
     }
 
     public function testInvalidPriceDefinitionThrow(): void

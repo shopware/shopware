@@ -36,6 +36,6 @@ class KnownIpsCollectorTest extends TestCase
     public function testCollectIpsWithNoIpGiven(): void
     {
         $als = new KnownIpsCollector();
-        static::assertEquals([], $als->collectIps(new Request(server: [''])));
+        static::assertSame([], $als->collectIps(new Request(server: [''])));
     }
 }

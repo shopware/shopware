@@ -86,9 +86,13 @@ class SnippetFileLoader implements SnippetFileLoaderInterface
     {
         $finder = new Finder();
         $finder->in($snippetDir)
+            ->exclude('node_modules')
             ->files()
             ->path('/snippet/')
-            ->name('*.json');
+            ->name('*.json')
+            ->ignoreDotFiles(true)
+            ->ignoreVCS(true)
+            ->ignoreUnreadableDirs();
 
         $snippetFiles = [];
 

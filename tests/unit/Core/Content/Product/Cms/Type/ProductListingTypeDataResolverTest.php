@@ -18,6 +18,7 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
+use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Shopware\Core\Test\Stub\DataAbstractionLayer\StaticEntityRepository;
 use Symfony\Component\HttpFoundation\Request;
 
@@ -39,8 +40,9 @@ class ProductListingTypeDataResolverTest extends TestCase
         );
 
         $sortingRepository = new StaticEntityRepository([new ProductSortingCollection()]);
+        $systemConfigService = $this->createMock(SystemConfigService::class);
 
-        $this->listingResolver = new ProductListingCmsElementResolver($mock, $sortingRepository);
+        $this->listingResolver = new ProductListingCmsElementResolver($mock, $sortingRepository, $systemConfigService);
     }
 
     public function testGetType(): void

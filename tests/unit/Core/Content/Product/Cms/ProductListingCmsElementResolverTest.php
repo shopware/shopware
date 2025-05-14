@@ -17,6 +17,7 @@ use Shopware\Core\Content\Product\SalesChannel\Listing\ProductListingRouteRespon
 use Shopware\Core\Content\Product\SalesChannel\Sorting\ProductSortingCollection;
 use Shopware\Core\Content\Product\SalesChannel\Sorting\ProductSortingEntity;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Shopware\Core\Test\Generator;
 use Shopware\Core\Test\Stub\DataAbstractionLayer\StaticEntityRepository;
 use Symfony\Component\HttpFoundation\Request;
@@ -32,8 +33,9 @@ class ProductListingCmsElementResolverTest extends TestCase
     {
         $route = $this->createMock(AbstractProductListingRoute::class);
         $repository = new StaticEntityRepository([]);
+        $systemConfigService = $this->createMock(SystemConfigService::class);
 
-        $resolver = new ProductListingCmsElementResolver($route, $repository);
+        $resolver = new ProductListingCmsElementResolver($route, $repository, $systemConfigService);
         static::assertSame('product-listing', $resolver->getType());
     }
 
@@ -41,11 +43,12 @@ class ProductListingCmsElementResolverTest extends TestCase
     {
         $route = $this->createMock(AbstractProductListingRoute::class);
         $repository = new StaticEntityRepository([]);
+        $systemConfigService = $this->createMock(SystemConfigService::class);
 
         $slot = new CmsSlotEntity();
         $context = new ResolverContext(Generator::generateSalesChannelContext(), new Request());
 
-        $resolver = new ProductListingCmsElementResolver($route, $repository);
+        $resolver = new ProductListingCmsElementResolver($route, $repository, $systemConfigService);
         static::assertNull($resolver->collect($slot, $context));
     }
 
@@ -86,8 +89,9 @@ class ProductListingCmsElementResolverTest extends TestCase
         ]);
 
         $repository = new StaticEntityRepository([$sorting]);
+        $systemConfigService = $this->createMock(SystemConfigService::class);
 
-        $resolver = new ProductListingCmsElementResolver($route, $repository);
+        $resolver = new ProductListingCmsElementResolver($route, $repository, $systemConfigService);
         $resolver->enrich($slot, $context, $data);
 
         $data = $slot->getData();
@@ -135,8 +139,9 @@ class ProductListingCmsElementResolverTest extends TestCase
         ]);
 
         $repository = new StaticEntityRepository([$sorting]);
+        $systemConfigService = $this->createMock(SystemConfigService::class);
 
-        $resolver = new ProductListingCmsElementResolver($route, $repository);
+        $resolver = new ProductListingCmsElementResolver($route, $repository, $systemConfigService);
         $resolver->enrich($slot, $context, $data);
 
         $data = $slot->getData();

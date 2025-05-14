@@ -78,7 +78,7 @@ class LastNameRuleTest extends TestCase
         $operators = RuleConfig::OPERATOR_SET_STRING;
         $operators[] = Rule::OPERATOR_EMPTY;
 
-        static::assertEquals([
+        static::assertSame([
             'operators' => $operators,
             'isMatchAny' => false,
         ], $configData['operatorSet']);

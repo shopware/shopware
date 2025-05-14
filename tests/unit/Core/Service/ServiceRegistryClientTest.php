@@ -49,8 +49,8 @@ class ServiceRegistryClientTest extends TestCase
 
         $registryClient = new ServiceRegistryClient('https://www.shopware.com/services.json', $client);
 
-        static::assertEquals([], $registryClient->getAll());
-        static::assertEquals('https://www.shopware.com/services.json', $response->getRequestUrl());
+        static::assertSame([], $registryClient->getAll());
+        static::assertSame('https://www.shopware.com/services.json', $response->getRequestUrl());
     }
 
     public function testFailRequestReturnsEmptyListOfServices(): void
@@ -61,8 +61,8 @@ class ServiceRegistryClientTest extends TestCase
 
         $registryClient = new ServiceRegistryClient('https://www.shopware.com/services.json', $client);
 
-        static::assertEquals([], $registryClient->getAll());
-        static::assertEquals('https://www.shopware.com/services.json', $response->getRequestUrl());
+        static::assertSame([], $registryClient->getAll());
+        static::assertSame('https://www.shopware.com/services.json', $response->getRequestUrl());
     }
 
     public function testSuccessfulRequestReturnsListOfServices(): void
@@ -84,17 +84,17 @@ class ServiceRegistryClientTest extends TestCase
 
         static::assertCount(2, $entries);
         static::assertContainsOnlyInstancesOf(ServiceRegistryEntry::class, $entries);
-        static::assertEquals('MyCoolService1', $entries[0]->name);
-        static::assertEquals('My Cool Service 1', $entries[0]->description);
-        static::assertEquals('https://coolservice1.com', $entries[0]->host);
-        static::assertEquals('/app-endpoint', $entries[0]->appEndpoint);
+        static::assertSame('MyCoolService1', $entries[0]->name);
+        static::assertSame('My Cool Service 1', $entries[0]->description);
+        static::assertSame('https://coolservice1.com', $entries[0]->host);
+        static::assertSame('/app-endpoint', $entries[0]->appEndpoint);
         static::assertNull($entries[0]->licenseSyncEndPoint);
-        static::assertEquals('MyCoolService2', $entries[1]->name);
-        static::assertEquals('My Cool Service 2', $entries[1]->description);
-        static::assertEquals('https://coolservice2.com', $entries[1]->host);
-        static::assertEquals('/app-endpoint', $entries[1]->appEndpoint);
-        static::assertEquals('https://www.shopware.com/services.json', $response->getRequestUrl());
-        static::assertEquals('/license-sync-endpoint', $entries[1]->licenseSyncEndPoint);
+        static::assertSame('MyCoolService2', $entries[1]->name);
+        static::assertSame('My Cool Service 2', $entries[1]->description);
+        static::assertSame('https://coolservice2.com', $entries[1]->host);
+        static::assertSame('/app-endpoint', $entries[1]->appEndpoint);
+        static::assertSame('https://www.shopware.com/services.json', $response->getRequestUrl());
+        static::assertSame('/license-sync-endpoint', $entries[1]->licenseSyncEndPoint);
     }
 
     public function testServicesAreFetchedAndCached(): void

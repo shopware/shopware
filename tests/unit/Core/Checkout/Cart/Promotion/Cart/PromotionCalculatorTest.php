@@ -126,7 +126,7 @@ class PromotionCalculatorTest extends TestCase
         $error = $cart->getErrors()->first();
 
         static::assertInstanceOf(PromotionExcludedError::class, $error);
-        static::assertEquals('Promotion second-promotion was excluded for cart.', $error->getMessage());
+        static::assertSame('Promotion second-promotion was excluded for cart.', $error->getMessage());
     }
 
     public function testAddDiscountWithPackages(): void

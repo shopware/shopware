@@ -23,7 +23,7 @@ class ScssPhpCompilerTest extends TestCase
             '$background: #123456; background-color: $background;'
         );
 
-        static::assertEquals('background-color: #123456; ', preg_replace('/\r?\n$/', ' ', $compiled), $compiled);
+        static::assertSame('background-color: #123456; ', preg_replace('/\r?\n$/', ' ', $compiled), $compiled);
     }
 
     public function testCompilesWithConfig(): void
@@ -40,6 +40,6 @@ class ScssPhpCompilerTest extends TestCase
             '$background: #123456; background-color: $background;'
         );
 
-        static::assertEquals('background-color:#123456', preg_replace('/\r?\n$/', ' ', $compiled), $compiled);
+        static::assertSame('background-color:#123456', preg_replace('/\r?\n$/', ' ', $compiled), $compiled);
     }
 }

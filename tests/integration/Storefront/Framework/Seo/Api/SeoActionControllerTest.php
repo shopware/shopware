@@ -49,7 +49,7 @@ class SeoActionControllerTest extends TestCase
         $result = json_decode($content, true, 512, \JSON_THROW_ON_ERROR);
 
         static::assertNotEmpty($result['errors']);
-        static::assertEquals(400, $response->getStatusCode());
+        static::assertSame(400, $response->getStatusCode());
     }
 
     public function testValidateInvalidTwigSyntax(): void
@@ -67,7 +67,7 @@ class SeoActionControllerTest extends TestCase
         $result = json_decode($content, true, 512, \JSON_THROW_ON_ERROR);
 
         static::assertNotEmpty($result['errors'] ?? []);
-        static::assertEquals(400, $response->getStatusCode());
+        static::assertSame(400, $response->getStatusCode());
     }
 
     public function testValidateInvalidDataUsage(): void
@@ -85,7 +85,7 @@ class SeoActionControllerTest extends TestCase
         $result = json_decode($content, true, 512, \JSON_THROW_ON_ERROR);
 
         static::assertNotEmpty($result['errors'] ?? []);
-        static::assertEquals(400, $response->getStatusCode());
+        static::assertSame(400, $response->getStatusCode());
     }
 
     public function testValidateValid(): void
@@ -107,7 +107,7 @@ class SeoActionControllerTest extends TestCase
         $result = json_decode($content, true, 512, \JSON_THROW_ON_ERROR);
 
         static::assertArrayNotHasKey('errors', $result);
-        static::assertEquals(200, $response->getStatusCode());
+        static::assertSame(200, $response->getStatusCode());
     }
 
     public function testGetSeoContext(): void
@@ -140,7 +140,7 @@ class SeoActionControllerTest extends TestCase
         $this->getBrowser()->request('POST', '/api/_action/seo-url-template/context', [], [], [], json_encode($data, \JSON_THROW_ON_ERROR));
 
         $response = $this->getBrowser()->getResponse();
-        static::assertEquals(200, $response->getStatusCode());
+        static::assertSame(200, $response->getStatusCode());
 
         $content = $response->getContent();
         static::assertIsString($content);
@@ -163,12 +163,12 @@ class SeoActionControllerTest extends TestCase
 
         $response = $this->getBrowser()->getResponse();
 
-        static::assertEquals(200, $response->getStatusCode(), (string) $response->getContent());
+        static::assertSame(200, $response->getStatusCode(), (string) $response->getContent());
         $content = $response->getContent();
         static::assertIsString($content);
         $data = json_decode($content, true, 512, \JSON_THROW_ON_ERROR);
 
-        static::assertEquals('test', $data[0]['seoPathInfo']);
+        static::assertSame('test', $data[0]['seoPathInfo']);
     }
 
     public function testPreviewWithBrokenTemplate(): void
@@ -186,12 +186,12 @@ class SeoActionControllerTest extends TestCase
 
         $response = $this->getBrowser()->getResponse();
 
-        static::assertEquals(400, $response->getStatusCode(), (string) $response->getContent());
+        static::assertSame(400, $response->getStatusCode(), (string) $response->getContent());
         $content = $response->getContent();
         static::assertIsString($content);
         $data = json_decode($content, true, 512, \JSON_THROW_ON_ERROR);
 
-        static::assertEquals('FRAMEWORK__INVALID_SEO_TEMPLATE', $data['errors'][0]['code']);
+        static::assertSame('FRAMEWORK__INVALID_SEO_TEMPLATE', $data['errors'][0]['code']);
     }
 
     public function testPreviewWithSalesChannel(): void
@@ -213,7 +213,7 @@ class SeoActionControllerTest extends TestCase
         $this->getBrowser()->request('POST', '/api/_action/seo-url-template/preview', $data);
 
         $response = $this->getBrowser()->getResponse();
-        static::assertEquals(200, $response->getStatusCode(), (string) $response->getContent());
+        static::assertSame(200, $response->getStatusCode(), (string) $response->getContent());
         $content = $response->getContent();
         static::assertIsString($content);
 
@@ -238,9 +238,9 @@ class SeoActionControllerTest extends TestCase
         $result = json_decode($content, true, 512, \JSON_THROW_ON_ERROR);
 
         static::assertArrayHasKey('errors', $result);
-        static::assertEquals(404, $response->getStatusCode());
+        static::assertSame(404, $response->getStatusCode());
 
-        static::assertEquals(SeoUrlRouteNotFoundException::ERROR_CODE, $result['errors'][0]['code']);
+        static::assertSame(SeoUrlRouteNotFoundException::ERROR_CODE, $result['errors'][0]['code']);
     }
 
     public function testUpdateDefaultCanonical(): void
@@ -263,13 +263,13 @@ class SeoActionControllerTest extends TestCase
         // modify canonical
         $this->getBrowser()->request('PATCH', '/api/_action/seo-url/canonical', $seoUrl);
         $response = $this->getBrowser()->getResponse();
-        static::assertEquals(204, $response->getStatusCode(), (string) $response->getContent());
+        static::assertSame(204, $response->getStatusCode(), (string) $response->getContent());
 
         $seoUrls = $this->getSeoUrls($id, true, $salesChannelId);
         static::assertCount(1, $seoUrls);
         $seoUrl = $seoUrls[0]['attributes'];
         static::assertTrue($seoUrl['isModified']);
-        static::assertEquals($newSeoPathInfo, $seoUrl['seoPathInfo']);
+        static::assertSame($newSeoPathInfo, $seoUrl['seoPathInfo']);
 
         $productUpdate = [
             'id' => $id,
@@ -282,7 +282,7 @@ class SeoActionControllerTest extends TestCase
         static::assertCount(1, $seoUrls);
         $seoUrl = $seoUrls[0]['attributes'];
         static::assertTrue($seoUrl['isModified']);
-        static::assertEquals($newSeoPathInfo, $seoUrl['seoPathInfo']);
+        static::assertSame($newSeoPathInfo, $seoUrl['seoPathInfo']);
     }
 
     public function testUpdateCanonicalWithCustomSalesChannel(): void
@@ -306,13 +306,13 @@ class SeoActionControllerTest extends TestCase
         // modify canonical
         $this->getBrowser()->request('PATCH', '/api/_action/seo-url/canonical', $seoUrl);
         $response = $this->getBrowser()->getResponse();
-        static::assertEquals(204, $response->getStatusCode(), (string) $response->getContent());
+        static::assertSame(204, $response->getStatusCode(), (string) $response->getContent());
 
         $seoUrls = $this->getSeoUrls($id, true, $salesChannelId);
         static::assertCount(1, $seoUrls);
         $seoUrl = $seoUrls[0]['attributes'];
         static::assertTrue($seoUrl['isModified']);
-        static::assertEquals($newSeoPathInfo, $seoUrl['seoPathInfo']);
+        static::assertSame($newSeoPathInfo, $seoUrl['seoPathInfo']);
 
         $newProductNumber = Uuid::randomHex();
         $productUpdate = [
@@ -327,7 +327,7 @@ class SeoActionControllerTest extends TestCase
         static::assertCount(1, $seoUrls);
         $seoUrl = $seoUrls[0]['attributes'];
         static::assertTrue($seoUrl['isModified']);
-        static::assertEquals($newSeoPathInfo, $seoUrl['seoPathInfo']);
+        static::assertSame($newSeoPathInfo, $seoUrl['seoPathInfo']);
     }
 
     public function testUpdateDefaultCanonicalForHeadlessBehavesCorrectly(): void
@@ -352,7 +352,7 @@ class SeoActionControllerTest extends TestCase
         // modify canonical
         $this->getBrowser()->request('PATCH', '/api/_action/seo-url/canonical', $seoUrl);
         $response = $this->getBrowser()->getResponse();
-        static::assertEquals(204, $response->getStatusCode(), (string) $response->getContent());
+        static::assertSame(204, $response->getStatusCode(), (string) $response->getContent());
 
         $seoUrls = $this->getSeoUrls($id, true, $salesChannelId);
 
@@ -384,7 +384,7 @@ class SeoActionControllerTest extends TestCase
             ];
         }
         $this->getBrowser()->request('GET', '/api/product/' . $id . '/seoUrls', $params);
-        static::assertEquals(200, $this->getBrowser()->getResponse()->getStatusCode());
+        static::assertSame(200, $this->getBrowser()->getResponse()->getStatusCode());
 
         $content = $this->getBrowser()->getResponse()->getContent();
 

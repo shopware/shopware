@@ -126,7 +126,7 @@ class ElasticsearchIndexerTest extends TestCase
 
         $eventDispatcher->addListener(ElasticsearchIndexIteratorEvent::class, function (ElasticsearchIndexIteratorEvent $event) use (&$eventDispatched, $query): void {
             $eventDispatched = true;
-            static::assertEquals($query, $event->iterator);
+            static::assertSame($query, $event->iterator);
         });
 
         $indexer = $this->getIndexer(eventDispatcher: $eventDispatcher);

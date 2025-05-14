@@ -27,7 +27,7 @@ class TaxCalculatorTest extends TestCase
         $rules = new TaxRuleCollection([$taxRule]);
 
         $rounding = new CashRounding();
-        static::assertEquals(
+        static::assertSame(
             $expected,
             $rounding->cashRound(
                 $calculator->calculateGross($net, $rules),

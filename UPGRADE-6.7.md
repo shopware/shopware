@@ -176,6 +176,91 @@ After that you can use this data to customize the header template:
 {% endblock %}
 ```
 
+## Remove of sw- wrapper components
+All the sw- wrapper components will be removed in the next major version. The Meteor Components will be used directly instead of the sw- wrapper components.
+
+## Use `deprecated` prop
+This prop is used to use deprecated components to keep the same API and not breaking previous code. This way the same code is compatible with Shopware 6.6 and Shopware 6.7 as this new `deprecated` prop will be ignored in 6.6. This prop will be removed in the next major version together with the sw- wrapper components.
+
+```html
+<!-- Uses mt-button in 6.7 and sw-button-deprecated in 6.6 -->
+<template>
+    <sw-button />
+</template>
+
+
+<!-- Uses sw-button-deprecated in 6.6 and 6.7 -->
+<template>
+    <sw-button deprecated />
+</template>
+```
+## Improve extensibility of header and footer ESI templates
+
+With this change it is possible to add query parameters to the header/footer ESI requests.
+This could be used to customize the header/footer templates.
+
+- Extending the `src/Storefront/Resources/views/storefront/base.html.twig` file:
+```twig
+{% sw_extends '@Storefront/storefront/base.html.twig' %}
+
+{% block base_esi_header %}
+    {% set headerParameters = headerParameters|merge({ 'vendorPrefixPluginName': { 'activeRoute': activeRoute } }) %}
+
+    {{ parent() }}
+{% endblock %}
+```
+
+- Within a plugin, you can also use the `Shopware\Storefront\Event\StorefrontRenderEvent`
+```php
+class StorefrontSubscriber
+{
+    public function __invoke(StorefrontRenderEvent $event): void
+    {
+        if ($event->getRequest()->attributes->get('_route') !== 'frontend.header') {
+            return;
+        }
+
+        $headerParameters = $event->getParameter('headerParameters') ?? [];
+        $headerParameters['vendorPrefixPluginName']['salesChannelId'] = $event->getSalesChannelContext()->getSalesChannelId();
+
+        $event->setParameter('headerParameters', $headerParameters);
+    }
+}
+```
+
+After that you can use this data to customize the header template:
+```twig
+{% sw_extends '@Storefront/storefront/layout/header.html.twig' %}
+
+{% block header %}
+    {{ dump(headerParameters.vendorPrefixPluginName.activeRoute) }}
+    {{ dump(headerParameters.vendorPrefixPluginName.salesChannelId) }}
+
+    {{ parent() }}
+{% endblock %}
+```
+## Added the `createTextEditorDataMappingButton` method to the global Shopware component helper
+
+ This change is a breaking change. The `createTextEditorDataMappingButton` method is now available through the global Shopware component helper.
+    This method allows you to create a button that opens the text editor data mapping modal. The button can be used in your custom components to provide a consistent user experience when working with text editor data mapping.
+
+
+## Example usage
+
+```javascript
+const { createTextEditorDataMappingButton } = Component.getComponentHelper();
+
+const button = createTextEditorDataMappingButton({
+    data: {
+        text: 'Hello World',
+        html: '<p>Hello World</p>'
+    },
+    onSave: (data) => {
+        console.log('Data saved:', data);
+    }
+});
+```
+
 # Major Library Updates
 We upgraded the following libraries to their latest versions:
 * [DBAL 4.x](https://github.com/doctrine/dbal/blob/4.2.x/UPGRADE.md#upgrade-to-40): When you are using DBAL directly, please check the upgrade guide.

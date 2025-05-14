@@ -1,5 +1,19 @@
 # 6.8.0.0
+
 ## Introduced in 6.7.0.0
+
+* Deprecated the following snippet keys:
+    - `global.sw-condition.condition.cartTaxDisplay`
+    - `global.sw-condition.condition.lineItemOfTypeRule`
+    - `global.sw-condition.condition.promotionCodeOfTypeRule`
+    - `global.sw-condition.condition.dayOfWeekRule`
+
+* Added the following keys to `sw-condition-generic`:
+    - `promotionCodeOfType`
+    - `cartLineItemProductStates`
+
+  The old keys can be used until the next major version, where they will be removed.
+  
 ## Settings Menu Structure was changed 
 The menu structure on the settings page has changed from tab structure to a grid structure. The new structure groups settings into different categories for better usability. If you extend or customize the settings menu, ensure that your changes are compatible with the new structure.
 

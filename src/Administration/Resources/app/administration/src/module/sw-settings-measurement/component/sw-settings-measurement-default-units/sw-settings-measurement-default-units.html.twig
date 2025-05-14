@@ -45,10 +45,10 @@
         </sw-entity-single-select>
 
         <sw-entity-single-select
-            v-model:value="measurementSystem.massUnitId"
+            v-model:value="measurementSystem.weightUnitId"
             entity="measurement_display_unit"
-            :criteria="massUnitCriteria"
-            :label="$t('sw-settings-measurement.defaultUnits.config.massUnit')"
+            :criteria="weightUnitCriteria"
+            :label="$t('sw-settings-measurement.defaultUnits.config.weightUnit')"
             :popover-classes="['sw-settings-measurement-default-units__popover']"
         >
             <template #selection-label-property="{ item }">

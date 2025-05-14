@@ -33,12 +33,11 @@
     </sw-entity-single-select>
 
     <sw-entity-single-select
-        v-model:value="salesChannel.massUnitId"
+        v-model:value="salesChannel.weightUnitId"
         entity="measurement_display_unit"
         :popover-classes="['sw-sales-channel-measurement__selection-popover']"
         :label="labelWeightUnit"
-        :label-callback="formatUnitLabel"
-        :criteria="massUnitCriteria"
+        :criteria="weightUnitCriteria"
     >
         <template #selection-label-property="{ item }">
             {{ formatUnitLabel(item) }}

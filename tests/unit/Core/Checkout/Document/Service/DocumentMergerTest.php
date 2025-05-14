@@ -236,13 +236,12 @@ class DocumentMergerTest extends TestCase
         $firstDocument = $this->createDocument(true);
         $secondDocument = $this->createDocument(true);
 
-        $documentCollection = new DocumentCollection([$firstDocument, $secondDocument]);
         $documentRepository = $this->createMock(EntityRepository::class);
         $documentRepository->method('search')->willReturn(
             new EntitySearchResult(
                 'document',
                 2,
-                $documentCollection,
+                new DocumentCollection([$firstDocument, $secondDocument]),
                 null,
                 new Criteria(),
                 Context::createDefaultContext(),
@@ -268,6 +267,41 @@ class DocumentMergerTest extends TestCase
         static::assertSame('zip', $result->getFileExtension());
         static::assertSame('application/zip', $result->getContentType());
         static::assertNotEmpty($result->getContent());
+    }
+
+    public function testDocumentGenerationFailsReturnsNull(): void
+    {
+        $document = $this->createDocument(false);
+
+        $documentRepository = $this->createMock(EntityRepository::class);
+        $documentRepository->method('search')->willReturn(
+            new EntitySearchResult(
+                'document',
+                2,
+                new DocumentCollection([$document]),
+                null,
+                new Criteria(),
+                Context::createDefaultContext(),
+            )
+        );
+
+        $documentGenerator = $this->createMock(DocumentGenerator::class);
+        $documentGenerator->method('generate')
+            ->willReturn(new DocumentGenerationResult());
+
+        $documentMerger = new DocumentMerger(
+            $documentRepository,
+            $this->createMock(MediaService::class),
+            $documentGenerator,
+            $this->createMock(Fpdi::class)
+        );
+
+        $result = $documentMerger->merge(
+            [$document->getId()],
+            Context::createDefaultContext()
+        );
+
+        static::assertNull($result);
     }
 
     private function createDocument(bool $withMedia, bool $withDocumentType = true): DocumentEntity

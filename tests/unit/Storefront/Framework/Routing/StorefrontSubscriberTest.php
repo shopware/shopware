@@ -14,6 +14,7 @@ use Shopware\Core\Framework\Routing\KernelListenerPriorities;
 use Shopware\Core\Framework\Routing\RoutingException;
 use Shopware\Core\PlatformRequest;
 use Shopware\Core\SalesChannelRequest;
+use Shopware\Core\Test\Generator;
 use Shopware\Core\Test\Stub\SystemConfigService\StaticSystemConfigService;
 use Shopware\Storefront\Framework\Routing\MaintenanceModeResolver;
 use Shopware\Storefront\Framework\Routing\StorefrontRouteScope;
@@ -253,7 +254,7 @@ class StorefrontSubscriberTest extends TestCase
         $request = new Request(
             attributes: [
                 SalesChannelRequest::ATTRIBUTE_IS_SALES_CHANNEL_REQUEST => true,
-                PlatformRequest::ATTRIBUTE_SALES_CHANNEL_ID => 'test-sales-channel-id',
+                PlatformRequest::ATTRIBUTE_SALES_CHANNEL_CONTEXT_OBJECT => Generator::generateSalesChannelContext(),
             ],
             server: ['HTTP_X_REQUESTED_WITH' => 'XMLHttpRequest']
         );
@@ -298,5 +299,65 @@ class StorefrontSubscriberTest extends TestCase
         $subRequestContextToken = $subRequest->headers->get(PlatformRequest::HEADER_CONTEXT_TOKEN);
         static::assertSame(self::TEST_CONTEXT_TOKEN, $subRequestContextToken);
         static::assertSame($mainRequest->headers->get(PlatformRequest::HEADER_CONTEXT_TOKEN), $subRequestContextToken);
+    }
+
+    public function testUpdateSessionWithoutRequest(): void
+    {
+        $requestStack = new RequestStack();
+
+        (new StorefrontSubscriber(
+            $requestStack,
+            $this->createMock(RouterInterface::class),
+            $this->createMock(MaintenanceModeResolver::class),
+            new StaticSystemConfigService()
+        ))->updateSession(self::TEST_CONTEXT_TOKEN);
+
+        static::assertNull($requestStack->getCurrentRequest());
+    }
+
+    public function testUpdateSessionIsNoSalesChannelRequest(): void
+    {
+        $request = new Request();
+
+        (new StorefrontSubscriber(
+            new RequestStack([$request]),
+            $this->createMock(RouterInterface::class),
+            $this->createMock(MaintenanceModeResolver::class),
+            new StaticSystemConfigService()
+        ))->updateSession(self::TEST_CONTEXT_TOKEN);
+
+        static::assertNull($request->headers->get(PlatformRequest::HEADER_CONTEXT_TOKEN));
+    }
+
+    public function testUpdateSessionWithoutSession(): void
+    {
+        $request = new Request(attributes: [SalesChannelRequest::ATTRIBUTE_IS_SALES_CHANNEL_REQUEST => true]);
+        $requestStack = new RequestStack([$request]);
+
+        (new StorefrontSubscriber(
+            $requestStack,
+            $this->createMock(RouterInterface::class),
+            $this->createMock(MaintenanceModeResolver::class),
+            new StaticSystemConfigService()
+        ))->updateSession(self::TEST_CONTEXT_TOKEN);
+
+        static::assertNull($request->headers->get(PlatformRequest::HEADER_CONTEXT_TOKEN));
+    }
+
+    public function testUpdateSession(): void
+    {
+        $request = new Request(attributes: [SalesChannelRequest::ATTRIBUTE_IS_SALES_CHANNEL_REQUEST => true]);
+        $request->setSession(new Session(new MockArraySessionStorage()));
+        $requestStack = new RequestStack([$request]);
+
+        (new StorefrontSubscriber(
+            $requestStack,
+            $this->createMock(RouterInterface::class),
+            $this->createMock(MaintenanceModeResolver::class),
+            new StaticSystemConfigService()
+        ))->updateSession(self::TEST_CONTEXT_TOKEN);
+
+        static::assertSame(self::TEST_CONTEXT_TOKEN, $request->getSession()->get(PlatformRequest::HEADER_CONTEXT_TOKEN));
+        static::assertSame(self::TEST_CONTEXT_TOKEN, $request->headers->get(PlatformRequest::HEADER_CONTEXT_TOKEN));
     }
 }

@@ -4,7 +4,7 @@ import iosQuickLook from './utils/ar/iosQuickLook';
 import Plugin from 'src/plugin-system/plugin.class';
 import { supportQuickLook, supportsAr, supportWebXR } from './utils/ar/arSupportChecker';
 import WebXrView from './utils/ar/WebXrView';
-import { loadThreeJs } from './utils/spatial-threejs-load-util';
+import { loadDIVE } from './utils/spatial-dive-load-util';
 import type NativeEventEmitter from 'src/helper/emitter.helper';
 
 /**
@@ -28,7 +28,7 @@ export default class SpatialArViewerPlugin extends Plugin {
     $emitter: NativeEventEmitter;
 
     async init() {
-        await loadThreeJs();
+        await loadDIVE();
 
         // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-member-access
         this.modelUrl = this.options.modelUrl;

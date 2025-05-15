@@ -3,12 +3,11 @@ import SpatialObjectLoaderUtil from 'src/plugin/spatial/utils/spatial-object-loa
 import iosQuickLook from 'src/plugin/spatial/utils/ar/iosQuickLook';
 import WebXrView from 'src/plugin/spatial/utils/ar/WebXrView';
 import { supportQuickLook, supportsAr, supportWebXR } from 'src/plugin/spatial/utils/ar/arSupportChecker';
-import { loadThreeJs } from 'src/plugin/spatial/utils/spatial-threejs-load-util';
 jest.mock('src/plugin/spatial/utils/ar/arSupportChecker');
 jest.mock('src/plugin/spatial/utils/ar/WebXrView');
 jest.mock('src/plugin/spatial/utils/ar/iosQuickLook');
 jest.mock('src/plugin/spatial/utils/spatial-object-loader-util');
-jest.mock('src/plugin/spatial/utils/spatial-threejs-load-util');
+jest.mock('src/plugin/spatial/utils/spatial-dive-load-util');
 
 /**
  * @package innovation

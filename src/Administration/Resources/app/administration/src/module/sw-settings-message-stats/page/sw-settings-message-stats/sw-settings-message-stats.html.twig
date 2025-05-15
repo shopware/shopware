@@ -4,17 +4,6 @@
         <h2>{{ $tc('sw-settings-message-stats.general.mainMenuItemGeneral') }}</h2>
     </template>
 
-    <template #smart-bar-actions>
-        <mt-button
-            :is-loading="isLoading"
-            :disabled="isLoading"
-            variant="primary"
-            @click="loadStats"
-        >
-            {{ $tc('sw-settings-message-stats.general.refreshButton') }}
-        </mt-button>
-    </template>
-
     <template #content>
         <sw-card-view>
             <template v-if="isLoading">
@@ -45,97 +34,76 @@
                     :title="$tc('sw-settings-message-stats.general.statsCardTitle')"
                     :is-loading="isLoading"
                 >
+                    <template #headerRight>
+                        <mt-button
+                            :is-loading="isLoading"
+                            :disabled="isLoading"
+                            variant="secondary"
+                            size="small"
+                            @click="loadStats"
+                        >
+                            <mt-icon
+                                name="regular-sync"
+                                size="12px"
+                            />
+                            {{ $tc('sw-settings-message-stats.general.refreshButton') }}
+                        </mt-button>
+                    </template>
+
+                    <p class="sw-settings-message-stats__description">
+                        {{ $tc('sw-settings-message-stats.general.description') }}
+                    </p>
+
                     <div class="sw-settings-message-stats__stats-grid">
                         <div
+                            v-for="stat in statBlocks"
+                            :key="stat.key"
                             v-tooltip="{
-                                message: $tc('sw-settings-message-stats.general.totalMessagesHelp'),
-                                width: 400,
+                                message: stat.tooltip,
+                                width: 280
                             }"
                             class="sw-settings-message-stats__stat-item"
                         >
-                            <div class="sw-settings-message-stats__stat-header">
-                                <mt-icon name="regular-analytics" />
-                                {{ $tc('sw-settings-message-stats.general.totalMessages') }}
-                                <mt-icon
-                                    name="solid-question-circle"
-                                    size="16"
-                                    color="#189eff"
-                                />
+                            <div class="sw-settings-message-stats__stat-item-accent"></div>
+                            <div class="sw-settings-message-stats__stat-content">
+                                <div class="sw-settings-message-stats__stat-header">
+                                    {{ stat.label }}
+                                </div>
+                                <div class="sw-settings-message-stats__stat-value">
+                                    {{ stat.value }}
+                                </div>
                             </div>
-                            <p class="sw-settings-message-stats__value">
-                                {{ stats.totalMessagesProcessed }}
-                            </p>
-                        </div>
-
-                        <div
-                            v-tooltip="{
-                                message: $tc('sw-settings-message-stats.general.averageTimeHelp'),
-                                width: 400,
-                            }"
-                            class="sw-settings-message-stats__stat-item"
-                        >
-                            <div class="sw-settings-message-stats__stat-header">
-                                <mt-icon name="regular-clock" />
-                                {{ $tc('sw-settings-message-stats.general.averageTime') }}
-                                <mt-icon
-                                    name="solid-question-circle"
-                                    size="16"
-                                    color="#189eff"
-                                />
-                            </div>
-                            <p class="sw-settings-message-stats__value">
-                                {{ stats.averageTimeInQueue }}
-                            </p>
-                        </div>
-
-                        <div
-                            v-tooltip="{
-                                message: $tc('sw-settings-message-stats.general.processingWindowHelp'),
-                                width: 400,
-                            }"
-                            class="sw-settings-message-stats__stat-item"
-                        >
-                            <div class="sw-settings-message-stats__stat-header">
-                                <mt-icon name="regular-calendar" />
-                                {{ $tc('sw-settings-message-stats.general.processingWindow') }}
-                                <mt-icon
-                                    name="solid-question-circle"
-                                    size="16"
-                                    color="#189eff"
-                                />
-                            </div>
-                            <p class="sw-settings-message-stats__value">
-                                {{ formattedProcessedSince }}
-                            </p>
+                            <mt-icon
+                                class="sw-settings-message-stats__stat-icon"
+                                name="solid-question-circle"
+                                size="16"
+                                color="#189eff"
+                            />
                         </div>
                     </div>
-                </mt-card>
 
-                <mt-card
-                    position-identifier="sw-settings-message-stats-types"
-                    :title="$tc('sw-settings-message-stats.general.messageTypes')"
-                    :is-loading="isLoading"
-                >
-                    <template #headerRight>
-                        <sw-help-text :text="$tc('sw-settings-message-stats.general.messageTypesHelp')" />
-                    </template>
-                    <sw-data-grid
-                        :data-source="stats.messageTypeStats"
-                        :columns="columns"
-                        :show-selection="false"
-                        :show-actions="false"
-                    >
-                        <template #column-type="{ item }">
-                            <div>
-                                {{ item.type }}
-                            </div>
-                        </template>
-                        <template #column-count="{ item }">
-                            <div>
-                                {{ item.count }}
-                            </div>
-                        </template>
-                    </sw-data-grid>
+                    <hr class="sw-settings-message-stats__divider">
+
+                    <div class="sw-settings-message-stats__message-types">
+                        <sw-data-grid
+                            :data-source="stats.messageTypeStats"
+                            :columns="columns"
+                            :show-selection="false"
+                            :show-actions="false"
+                            :plain-appearance="true"
+                        >
+                            <template #column-type="{ item }">
+                                <div>
+                                    {{ item.type }}
+                                </div>
+                            </template>
+                            <template #column-count="{ item }">
+                                <div>
+                                    {{ item.count }}
+                                </div>
+                            </template>
+                        </sw-data-grid>
+                    </div>
                 </mt-card>
             </template>
         </sw-card-view>

@@ -16,18 +16,18 @@ export default {
             stats: null,
             columns: [
                 {
-                    property: 'type',
-                    label: 'sw-settings-message-stats.general.type',
-                    allowResize: true,
-                    primary: true,
-                    width: '70%',
-                },
-                {
                     property: 'count',
                     label: 'sw-settings-message-stats.general.count',
-                    allowResize: true,
-                    width: '30%',
+                    // allowResize: true,
+                    // width: '30%',
                     align: 'right',
+                },
+                {
+                    property: 'type',
+                    label: 'sw-settings-message-stats.general.type',
+                    // allowResize: true,
+                    // primary: true,
+                    // width: '70%',
                 },
             ],
         };
@@ -50,6 +50,29 @@ export default {
                 minute: 'numeric',
                 second: 'numeric',
             });
+        },
+
+        statBlocks() {
+            return [
+                {
+                    key: 'totalMessages',
+                    label: this.$tc('sw-settings-message-stats.general.totalMessages'),
+                    value: this.stats?.totalMessagesProcessed ?? '',
+                    tooltip: this.$tc('sw-settings-message-stats.general.totalMessagesHelp'),
+                },
+                {
+                    key: 'averageTime',
+                    label: this.$tc('sw-settings-message-stats.general.averageTime'),
+                    value: this.stats?.averageTimeInQueue ?? '',
+                    tooltip: this.$tc('sw-settings-message-stats.general.averageTimeHelp'),
+                },
+                {
+                    key: 'processingWindow',
+                    label: this.$tc('sw-settings-message-stats.general.processingWindow'),
+                    value: this.formattedProcessedSince,
+                    tooltip: this.$tc('sw-settings-message-stats.general.processingWindowHelp'),
+                },
+            ];
         },
     },
 

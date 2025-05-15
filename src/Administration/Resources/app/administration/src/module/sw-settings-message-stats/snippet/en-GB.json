@@ -4,20 +4,19 @@
             "mainMenuItemGeneral": "Message queue statistics",
             "descriptionTextModule": "View statistics about processed messages in the message queue system",
             "statsCardTitle": "Overview",
-            "totalMessages": "Total messages processed",
-            "totalMessagesHelp": "Shows how many messages have been successfully processed within the configured time window",
+            "description": "This view provides detailed insights into the performance of Shopware's message queue. For every processed message, the system logs how long it remained in the queue. These statistics are based on a sliding time window, which you can adjust in the system settings.",
+            "totalMessages": "Messages processed",
+            "totalMessagesHelp": "How many messages were successfully processed within the given time frame.",
             "averageTime": "Average time in queue",
-            "averageTimeHelp": "The average time (in seconds) messages spend waiting in the queue before processing. Helps identify delays or bottlenecks",
+            "averageTimeHelp": "The average time (in seconds) that messages wait in the queue before being processed. This helps to identify delays or bottlenecks.",
             "processingWindow": "Processing window",
-            "processingWindowHelp": "Shows the time of the oldest message currently included in the statistics. The window duration is configured in system settings",
-            "messageTypes": "Message types",
-            "messageTypesHelp": "Breakdown of different message types processed, showing how many of each type were handled. Helps identify if certain message types are overwhelming the queue",
-            "refreshButton": "Refresh",
+            "processingWindowHelp": "Displays the time of the oldest message currently included in the statistics. For example, if your statistics window is set to 1 hour, but processing started only 5 minutes ago, it will reflect this shorter duration.",
+            "refreshButton": "Refresh data",
             "errorTitle": "Error loading statistics",
             "emptyStateTitle": "No statistics available",
             "emptyStateSubline": "No message queue statistics have been collected yet.",
             "type": "Type",
-            "count": "Count"
+            "count": "Amount"
         }
     }
 }

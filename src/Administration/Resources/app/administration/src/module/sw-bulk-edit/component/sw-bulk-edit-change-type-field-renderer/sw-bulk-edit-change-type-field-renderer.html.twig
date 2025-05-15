@@ -103,6 +103,7 @@
                             :key="`formField-${index}`"
                             v-model:value="entity[formField.name]"
                             @update:value="onChangeValue($event, formField.name)"
+                            @update:default-unit="$emit('update:default-unit', $event)"
                         />
                     </template>
                 </slot>

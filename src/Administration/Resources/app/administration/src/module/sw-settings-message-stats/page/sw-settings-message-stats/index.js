@@ -1,6 +1,7 @@
 /**
  * @sw-package framework
  */
+import { sort } from 'src/core/service/util.service';
 import template from './sw-settings-message-stats.html.twig';
 import './sw-settings-message-stats.scss';
 
@@ -18,16 +19,11 @@ export default {
                 {
                     property: 'count',
                     label: 'sw-settings-message-stats.general.count',
-                    // allowResize: true,
-                    // width: '30%',
                     align: 'right',
                 },
                 {
                     property: 'type',
                     label: 'sw-settings-message-stats.general.type',
-                    // allowResize: true,
-                    // primary: true,
-                    // width: '70%',
                 },
             ],
         };
@@ -52,27 +48,46 @@ export default {
             });
         },
 
+        formattedAverageTime() {
+            if (!this.stats?.averageTimeInQueue) {
+                return '';
+            }
+            const formattedNumber = this.stats.averageTimeInQueue.toFixed(2);
+            return `${formattedNumber}${this.$tc('sw-settings-message-stats.general.seconds')}`;
+        },
+
         statBlocks() {
+            const emptyValue = '—';
             return [
                 {
                     key: 'totalMessages',
                     label: this.$tc('sw-settings-message-stats.general.totalMessages'),
-                    value: this.stats?.totalMessagesProcessed ?? '',
+                    value: this.hasStats ? this.stats?.totalMessagesProcessed : emptyValue,
                     tooltip: this.$tc('sw-settings-message-stats.general.totalMessagesHelp'),
                 },
                 {
                     key: 'averageTime',
                     label: this.$tc('sw-settings-message-stats.general.averageTime'),
-                    value: this.stats?.averageTimeInQueue ?? '',
+                    value: this.hasStats ? this.formattedAverageTime : emptyValue,
                     tooltip: this.$tc('sw-settings-message-stats.general.averageTimeHelp'),
                 },
                 {
                     key: 'processingWindow',
                     label: this.$tc('sw-settings-message-stats.general.processingWindow'),
-                    value: this.formattedProcessedSince,
+                    value: this.hasStats ? this.formattedProcessedSince : emptyValue,
                     tooltip: this.$tc('sw-settings-message-stats.general.processingWindowHelp'),
                 },
             ];
+        },
+
+        sortedMessageTypeStats() {
+            if (!this.stats?.messageTypeStats) {
+                return [];
+            }
+
+            return [...this.stats.messageTypeStats].sort((a, b) => {
+                return b.count - a.count;
+            });
         },
     },
 
@@ -89,6 +104,7 @@ export default {
             this.isLoading = true;
             try {
                 this.stats = await this.messageStatsService.getStats();
+                this.stats = {};
             } catch (error) {
                 this.createNotificationError({
                     title: this.$tc('sw-settings-message-stats.general.errorTitle'),

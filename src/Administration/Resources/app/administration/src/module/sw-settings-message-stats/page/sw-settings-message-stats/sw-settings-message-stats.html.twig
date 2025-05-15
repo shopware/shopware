@@ -11,23 +11,6 @@
                 <sw-skeleton />
             </template>
 
-            <template v-else-if="!hasStats">
-                <sw-empty-state
-                    :title="$tc('sw-settings-message-stats.general.emptyStateTitle')"
-                    :subline="$tc('sw-settings-message-stats.general.emptyStateSubline')"
-                    icon="regular-chart-line"
-                >
-                    <template #actions>
-                        <mt-button
-                            variant="primary"
-                            @click="loadStats"
-                        >
-                            {{ $tc('sw-settings-message-stats.general.refreshButton') }}
-                        </mt-button>
-                    </template>
-                </sw-empty-state>
-            </template>
-
             <template v-else>
                 <mt-card
                     position-identifier="sw-settings-message-stats-overview"
@@ -84,9 +67,9 @@
 
                     <hr class="sw-settings-message-stats__divider">
 
-                    <div class="sw-settings-message-stats__message-types">
+                    <div class="sw-settings-message-stats__message-types" v-if="hasStats">
                         <sw-data-grid
-                            :data-source="stats.messageTypeStats"
+                            :data-source="sortedMessageTypeStats"
                             :columns="columns"
                             :show-selection="false"
                             :show-actions="false"
@@ -104,6 +87,27 @@
                             </template>
                         </sw-data-grid>
                     </div>
+
+                    <sw-empty-state
+                        :title="$tc('sw-settings-message-stats.general.emptyStateTitle')"
+                        :subline="$tc('sw-settings-message-stats.general.emptyStateSubline')"
+                        icon="regular-bars-square"
+                        :absolute="false"
+                    >
+                        <template #actions>
+                            <mt-button
+                                variant="primary"
+                                @click="loadStats"
+                            >
+                                <mt-icon
+                                    name="regular-sync"
+                                    size="12px"
+                                />
+                                {{ $tc('sw-settings-message-stats.general.refreshButton') }}
+                            </mt-button>
+                        </template>
+                    </sw-empty-state>
+
                 </mt-card>
             </template>
         </sw-card-view>

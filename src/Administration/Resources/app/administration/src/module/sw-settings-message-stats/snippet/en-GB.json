@@ -16,7 +16,8 @@
             "emptyStateTitle": "No statistics available",
             "emptyStateSubline": "No message queue statistics have been collected yet.",
             "type": "Type",
-            "count": "Amount"
+            "count": "Amount",
+            "seconds": "s"
         }
     }
 }

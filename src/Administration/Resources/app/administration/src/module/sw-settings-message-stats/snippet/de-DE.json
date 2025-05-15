@@ -16,7 +16,8 @@
             "emptyStateTitle": "Keine Statistiken verfügbar",
             "emptyStateSubline": "Es wurden noch keine Nachrichtenwarteschlangen-Statistiken gesammelt.",
             "type": "Typ",
-            "count": "Anzahl"
+            "count": "Anzahl",
+            "seconds": "s"
         }
     }
 } 

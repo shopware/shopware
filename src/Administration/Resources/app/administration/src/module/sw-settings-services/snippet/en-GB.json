@@ -1,0 +1,27 @@
+{
+  "sw-settings-services": {
+    "general": {
+      "title": "Shopware Services",
+      "description": "Manage the services that are available in your Shopware instance."
+    },
+    "sw-settings-services-hero": {
+      "title": "Future proof your store with Shopware Services",
+      "intro": "Services are cloud-based extensions that add specific features to your Shopware store. Unlike traditional software components, services run independently of the core product and can be activated or updated without changes in the core product. They allow us to respond quickly to new needs while keeping your main system stable and streamlined.",
+      "bullet-point-integrated": "Seamlessly integrated and automatically updated",
+      "bullet-point-flexible": "Highly flexible and independent from the Shopware core",
+      "bullet-point-transparent": "Transparent and consent-based data usage",
+      "bullet-point-scalable": "Scalable and reliable for demanding workflows including AI and machine learning",
+      "give-feedback": "Give feedback",
+      "learn-more": "Learn more"
+    },
+    "service": {
+      "name": "Name",
+      "description": "Description",
+      "active": "Active",
+      "actions": {
+        "edit": "Edit",
+        "delete": "Delete"
+      }
+    }
+  }
+}

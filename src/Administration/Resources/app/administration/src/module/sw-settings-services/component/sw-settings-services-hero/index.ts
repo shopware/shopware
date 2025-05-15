@@ -21,13 +21,24 @@ export default Shopware.Component.wrapComponentConfig({
         swSettingsServicesFramedIcon,
     },
 
+    props: {
+        feedbackLink: {
+            type: String,
+            required: true,
+        },
+        documentationLink: {
+            type: String,
+            required: true,
+        },
+    },
+
     data() {
         return {
             assets: {
                 imageEditor,
                 previewGenerator,
-                copilot
-            }
+                copilot,
+            },
         };
     },
 

@@ -36,10 +36,10 @@
   .sw-settings-services-framed-icon {
     position: absolute;
     z-index: 0;
+  }
 
-    @container (max-width: 1600px) {
-        display: none;
-    }
+  .mt-button {
+    margin-right: var(--scale-size-20);
   }
 
   .sw-settings-services-hero__image-editor-left {
@@ -71,4 +71,21 @@
     top: 275px;
     right: 255px;
   }
+
+  .sw-settings-services-hero__copilot-left,
+  .sw-settings-services-hero__copilot-right,
+  .sw-settings-services-hero__image-editor-right {
+    @container (max-width: 1600px) {
+        display: none;
+    }
+  }
+
+  .sw-settings-services-hero__image-editor-left,
+  .sw-settings-services-hero__preview-generator-left,
+  .sw-settings-services-preview-generator-right {
+    @container (max-width: 1200px) {
+      display: none;
+    }
+  }
+
 }

@@ -50,6 +50,9 @@
                 :z-index="1100"
                 popover-class="sw-media-field__expanded-content"
                 class="sw-media-field__popover"
+                :popover-config-extension="{
+                    targetSelector: '.mt-modal__content-inner',
+                }"
             >
                 <div @click.stop>
                     {% block sw_media_field_action_bar %}

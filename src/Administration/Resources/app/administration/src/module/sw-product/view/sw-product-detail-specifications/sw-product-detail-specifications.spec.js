@@ -34,6 +34,7 @@ async function createWrapper(privileges = []) {
                     'mt-card': {
                         template: '<div class="mt-card"><slot></slot></div>',
                     },
+                    'sw-product-measurement-form': await wrapTestComponent('sw-product-measurement-form', { sync: true }),
                     'sw-product-packaging-form': await wrapTestComponent('sw-product-packaging-form', { sync: true }),
                     'sw-product-properties': true,
                     'sw-product-feature-set-form': true,
@@ -46,6 +47,7 @@ async function createWrapper(privileges = []) {
                     'sw-skeleton': true,
                     'sw-help-text': true,
                     'sw-inheritance-switch': true,
+                    'mt-unit-field': true,
                 },
             },
         },
@@ -60,6 +62,7 @@ describe('src/module/sw-product/view/sw-product-detail-specifications', () => {
             isNew: () => false,
         };
         store.modeSettings = [
+            'measurement',
             'selling_packaging',
             'properties',
             'essential_characteristics',
@@ -69,6 +72,12 @@ describe('src/module/sw-product/view/sw-product-detail-specifications', () => {
         store.advancedModeSetting = {
             value: {
                 settings: [
+                    {
+                        key: 'measurement',
+                        label: 'sw-product.specifications.cardTitleMeasurement',
+                        enabled: true,
+                        name: 'specifications',
+                    },
                     {
                         key: 'selling_packaging',
                         label: 'sw-product.specifications.cardTitleSellingPackaging',
@@ -149,6 +158,19 @@ describe('src/module/sw-product/view/sw-product-detail-specifications', () => {
 
             expect(inheritedField.attributes().style).toBe('display: none;');
         });
+    });
+
+    it('should hide Measurement card when measurement mode is unchecked', async () => {
+        const wrapper = await createWrapper();
+        const modeSettings = Shopware.Store.get('swProductDetail').modeSettings;
+
+        Shopware.Store.get('swProductDetail').modeSettings = [
+            ...modeSettings.filter((item) => item !== 'measurement'),
+        ];
+
+        await nextTick();
+
+        expect(wrapper.find('.sw-product-detail-specification__measurement').exists()).toBeFalsy();
     });
 
     it('should hide Selling Packaging card when selling_packaging mode is unchecked', async () => {
@@ -365,6 +387,23 @@ describe('src/module/sw-product/view/sw-product-detail-specifications', () => {
         await wrapper.vm.$nextTick();
 
         const cardElement = wrapper.find('.sw-product-detail-specification__selling-packaging');
+
+        expect(cardElement.exists()).toBeFalsy();
+    });
+
+    it('should not show Measurement card when product states includes is-download', async () => {
+        const wrapper = await createWrapper();
+
+        Shopware.Store.get('swProductDetail').product = {
+            isNew: () => false,
+            states: [
+                'is-download',
+            ],
+        };
+
+        await wrapper.vm.$nextTick();
+
+        const cardElement = wrapper.find('.sw-product-detail-specification__measurement');
 
         expect(cardElement.exists()).toBeFalsy();
     });

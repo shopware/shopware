@@ -24,17 +24,17 @@
         }
     }
 
-    .sw-card .sw-card__content {
+    .mt-card .mt-card__content {
         padding: 0;
 
-        .sw-card__quick-link {
+        .quick-link {
             text-align: right;
             display: block;
             padding-top: 14px;
             cursor: pointer;
         }
 
-        .sw-card__quick-link.is--disabled {
+        .quick-link.is--disabled {
             cursor: default;
             pointer-events: none;
             opacity: 0.5;

@@ -24,7 +24,7 @@
             <argument type="service" id="Shopware\Core\Content\MeasurementSystem\Service\MeasurementUnitConverter"/>
         </service>
 
-        <service id="Shopware\Core\Content\MeasurementSystem\TwigExtension\MeasurementConvertTwigFilter" public="false">
+        <service id="Shopware\Core\Content\MeasurementSystem\TwigExtension\MeasurementConvertUnitTwigFilter" public="false">
             <argument type="service" id="Shopware\Core\Content\MeasurementSystem\Service\MeasurementUnitProvider"/>
             <argument type="service" id="Shopware\Core\Content\MeasurementSystem\Service\MeasurementUnitConverter"/>
             <tag name="twig.extension"/>

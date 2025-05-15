@@ -16,7 +16,7 @@ interface MeasurementUnitProviderInterface
     public function getUnits(): array;
 
     /**
-     * @return MeasurementUnitsType
+     * @return array{ factor: string, type: string}
      */
     public function getUnitInfo(string $unit): array;
 }

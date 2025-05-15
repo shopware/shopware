@@ -11,7 +11,6 @@ use Shopware\Core\Checkout\Customer\CustomerCollection;
 use Shopware\Core\Checkout\Customer\CustomerEntity;
 use Shopware\Core\Checkout\Payment\PaymentMethodCollection;
 use Shopware\Core\Checkout\Payment\PaymentMethodEntity;
-use Shopware\Core\Content\MeasurementSystem\MeasurementSystemInfo;
 use Shopware\Core\Framework\Api\Context\SalesChannelApiSource;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
@@ -307,21 +306,5 @@ class SalesChannelContextFactory extends AbstractSalesChannelContextFactory
         }
 
         return [$context->getCurrency()->getItemRounding(), $context->getCurrency()->getTotalRounding()];
-    }
-
-    private function getMeasurementInfo(BaseSalesChannelContext $context, ?string $domainId = null): MeasurementSystemInfo
-    {
-        $salesChannel = $context->getSalesChannel();
-
-        if ($domainId !== null) {
-        }
-
-        return new MeasurementSystemInfo(
-            $salesChannel->getMeasurementSystem()?->technicalName ?? MeasurementSystemInfo::DEFAULT_SYSTEM,
-            [
-                'lengthUnit' => $salesChannel->getLengthUnit()?->shortName ?? MeasurementSystemInfo::DEFAULT_LENGTH_UNIT,
-                'weightUnit' => $salesChannel->getWeightUnit()?->shortName ?? MeasurementSystemInfo::DEFAULT_WEIGHT_UNIT,
-            ]
-        );
     }
 }

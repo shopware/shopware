@@ -10,7 +10,7 @@ use Twig\Extension\AbstractExtension;
 use Twig\TwigFilter;
 
 #[Package('inventory')]
-class MeasurementConvertTwigFilter extends AbstractExtension
+class MeasurementConvertUnitTwigFilter extends AbstractExtension
 {
     /**
      * @internal
@@ -24,7 +24,7 @@ class MeasurementConvertTwigFilter extends AbstractExtension
     public function getFilters(): array
     {
         return [
-            new TwigFilter('sw_convert', $this->convert(...), [
+            new TwigFilter('sw_convert_unit', $this->convert(...), [
                 'is_safe' => ['html'],
                 'needs_context' => true,
             ]),

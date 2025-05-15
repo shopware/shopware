@@ -4,9 +4,6 @@
   display: flex;
   flex-direction: column;
   row-gap: var(--scale-size-16);
-
-  /* TODO: Remove this line when the whole new UI frame is there */
-  background-color: var(--color-elevation-surface-sunken);
 }
 
 .sw-admin-menu__header {

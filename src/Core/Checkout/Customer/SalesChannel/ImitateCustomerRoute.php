@@ -53,13 +53,15 @@ class ImitateCustomerRoute extends AbstractImitateCustomerRoute
         $this->validateRequestDataFields($requestDataBag, $context->getContext());
 
         $customerId = $requestDataBag->getString(self::CUSTOMER_ID);
-
-        if ($context->getCustomerId() === $customerId) {
-            return new ContextTokenResponse($context->getToken());
-        }
-
         $token = $requestDataBag->getString(self::TOKEN);
         $userId = $requestDataBag->getString(self::USER_ID);
+
+        if (
+            $context->getCustomerId() === $customerId
+            && $context->getImitatingUserId() === $userId
+        ) {
+            return new ContextTokenResponse($context->getToken());
+        }
 
         $this->imitateCustomerTokenGenerator->validate($token, $context->getSalesChannelId(), $customerId, $userId);
 

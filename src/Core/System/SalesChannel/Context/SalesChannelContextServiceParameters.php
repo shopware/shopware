@@ -17,7 +17,6 @@ class SalesChannelContextServiceParameters extends Struct
         protected ?string $domainId = null,
         protected ?Context $originalContext = null,
         protected ?string $customerId = null,
-        protected ?string $imitatingUserId = null
     ) {
     }
 
@@ -54,10 +53,5 @@ class SalesChannelContextServiceParameters extends Struct
     public function getCustomerId(): ?string
     {
         return $this->customerId;
-    }
-
-    public function getImitatingUserId(): ?string
-    {
-        return $this->imitatingUserId;
     }
 }

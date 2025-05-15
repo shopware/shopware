@@ -87,10 +87,6 @@ class SalesChannelContextService implements SalesChannelContextServiceInterface
                 $session[self::CUSTOMER_ID] = $parameters->getCustomerId();
             }
 
-            if ($parameters->getImitatingUserId() !== null) {
-                $session[self::IMITATING_USER_ID] = $parameters->getImitatingUserId();
-            }
-
             $context = $this->factory->create($token, $parameters->getSalesChannelId(), $session);
             $this->eventDispatcher->dispatch(new SalesChannelContextCreatedEvent($context, $token, $session));
 

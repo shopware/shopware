@@ -49,8 +49,6 @@ class SalesChannelRequestContextResolver implements RequestContextResolverInterf
             $request->headers->set(PlatformRequest::HEADER_CONTEXT_TOKEN, Random::getAlphanumericString(32));
         }
 
-        $session = $request->hasSession() ? $request->getSession() : null;
-
         // Retrieve context for current request
         $usedContextToken = (string) $request->headers->get(PlatformRequest::HEADER_CONTEXT_TOKEN);
         $contextServiceParameters = new SalesChannelContextServiceParameters(
@@ -61,15 +59,8 @@ class SalesChannelRequestContextResolver implements RequestContextResolverInterf
             $request->attributes->get(SalesChannelRequest::ATTRIBUTE_DOMAIN_ID),
             $request->attributes->get(PlatformRequest::ATTRIBUTE_CONTEXT_OBJECT),
             null,
-            $session?->get(PlatformRequest::ATTRIBUTE_IMITATING_USER_ID)
         );
         $context = $this->contextService->get($contextServiceParameters);
-
-        // Remove imitating user id from session, if there is no customer
-        if ($session && $context->getImitatingUserId() && !$context->getCustomerId()) {
-            $session->remove(PlatformRequest::ATTRIBUTE_IMITATING_USER_ID);
-            $context->setImitatingUserId(null);
-        }
 
         // Validate if a customer login is required for the current request
         $this->validateLogin($request, $context);

@@ -33,9 +33,9 @@ class SalesChannelContextPersister
     /**
      * @param array<string, mixed> $newParameters
      */
-    public function save(string $token, array $newParameters, string $salesChannelId, ?string $customerId = null): void
+    public function save(string $token, array $newParameters, string $salesChannelId, ?string $customerId = null, ?string $adminUserId = null): void
     {
-        $existing = $this->load($token, $salesChannelId, $customerId);
+        $existing = $this->load($token, $salesChannelId, $customerId, $adminUserId);
 
         $parameters = array_replace_recursive($existing, $newParameters);
         if (isset($newParameters['permissions']) && $newParameters['permissions'] === []) {
@@ -44,14 +44,19 @@ class SalesChannelContextPersister
 
         unset($parameters['token']);
 
+        if ($customerId === null) {
+            $adminUserId = null;
+        }
+
         $this->connection->executeStatement(
-            'REPLACE INTO sales_channel_api_context (`token`, `payload`, `sales_channel_id`, `customer_id`, `updated_at`)
-                VALUES (:token, :payload, :salesChannelId, :customerId, :updatedAt)',
+            'REPLACE INTO sales_channel_api_context (`token`, `payload`, `sales_channel_id`, `customer_id`, `admin_user_id`, `updated_at`)
+                VALUES (:token, :payload, :salesChannelId, :customerId, :adminUserId, :updatedAt)',
             [
                 'token' => $token,
                 'payload' => json_encode($parameters, \JSON_THROW_ON_ERROR),
                 'salesChannelId' => $salesChannelId ? Uuid::fromHexToBytes($salesChannelId) : null,
                 'customerId' => $customerId ? Uuid::fromHexToBytes($customerId) : null,
+                'adminUserId' => $adminUserId ? Uuid::fromHexToBytes($adminUserId) : null,
                 'updatedAt' => (new \DateTimeImmutable())->format(Defaults::STORAGE_DATE_TIME_FORMAT),
             ]
         );
@@ -85,12 +90,14 @@ class SalesChannelContextPersister
 
         if ($affected === 0) {
             $customer = $context->getCustomer();
+            $adminUserId = $customer ? $context->getImitatingUserId() : null;
 
             $this->connection->insert('sales_channel_api_context', [
                 'token' => $newToken,
                 'payload' => json_encode([]),
                 'sales_channel_id' => Uuid::fromHexToBytes($context->getSalesChannelId()),
                 'customer_id' => $customer ? Uuid::fromHexToBytes($customer->getId()) : null,
+                'admin_user_id' => $adminUserId ? Uuid::fromHexToBytes($adminUserId) : null,
                 'updated_at' => (new \DateTimeImmutable())->format(Defaults::STORAGE_DATE_TIME_FORMAT),
             ]);
         }
@@ -106,7 +113,7 @@ class SalesChannelContextPersister
     /**
      * @return array<string, mixed>
      */
-    public function load(string $token, string $salesChannelId, ?string $customerId = null): array
+    public function load(string $token, string $salesChannelId, ?string $customerId = null, ?string $adminUserId = null): array
     {
         $qb = $this->connection->createQueryBuilder();
 
@@ -117,9 +124,11 @@ class SalesChannelContextPersister
         $qb->setParameter('salesChannelId', Uuid::fromHexToBytes($salesChannelId));
 
         if ($customerId !== null) {
-            $qb->andWhere('(token = :token OR customer_id = :customerId)');
+            $adminUserWhere = $adminUserId !== null ? 'admin_user_id = :adminUserId' : 'admin_user_id IS NULL';
+            $qb->andWhere(\sprintf('(token = :token OR (customer_id = :customerId AND %s))', $adminUserWhere));
             $qb->setParameter('token', $token);
             $qb->setParameter('customerId', Uuid::fromHexToBytes($customerId));
+            $qb->setParameter('adminUserId', $adminUserId ? Uuid::fromHexToBytes($adminUserId) : null);
             $qb->setMaxResults(2);
         } else {
             $qb->andWhere('token = :token');
@@ -150,6 +159,8 @@ class SalesChannelContextPersister
         }
 
         $payload['token'] = $context['token'];
+
+        $payload[SalesChannelContextService::IMITATING_USER_ID] = $context['admin_user_id'] ? Uuid::fromBytesToHex($context['admin_user_id']) : null;
 
         return $payload;
     }

@@ -152,11 +152,6 @@
             <tag name="kernel.event_subscriber"/>
         </service>
 
-        <service id="Shopware\Core\Checkout\Customer\Subscriber\CustomerLogoutSubscriber">
-            <argument type="service" id="Symfony\Component\HttpFoundation\RequestStack"/>
-            <tag name="kernel.event_subscriber"/>
-        </service>
-
         <service id="Shopware\Core\Checkout\Customer\SalesChannel\LoginRoute" public="true">
             <argument type="service" id="Shopware\Core\Checkout\Customer\SalesChannel\AccountService"/>
             <argument type="service" id="Symfony\Component\HttpFoundation\RequestStack"/>

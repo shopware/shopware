@@ -1,7 +1,7 @@
 {% block component_hidden_line_items_information %}
     <div class="d-none hidden-line-items-information"
          data-currency="{{ context.currency.translated.shortName }}"
-         data-shipping="{{ cart.deliveries.shippingCosts.sum().totalPrice }}"
+         data-shipping="{{ cart.shippingCosts.totalPrice }}"
          data-value="{{ cart.price.totalPrice }}"
          data-tax="{{ cart.price.calculatedTaxes.amount }}"
     >

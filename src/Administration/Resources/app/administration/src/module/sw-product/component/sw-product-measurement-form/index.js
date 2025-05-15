@@ -68,14 +68,26 @@ export default {
         },
 
         convertWidth(unit) {
+            if (!this.product.width) {
+                return;
+            }
+
             this.product.width = Utils.unitConversion.convert(this.product.width, this.lengthUnit, unit);
         },
 
         convertHeight(unit) {
+            if (!this.product.height) {
+                return;
+            }
+
             this.product.height = Utils.unitConversion.convert(this.product.height, this.lengthUnit, unit);
         },
 
         convertLength(unit) {
+            if (!this.product.length) {
+                return;
+            }
+
             this.product.length = Utils.unitConversion.convert(this.product.length, this.lengthUnit, unit);
         },
 

@@ -166,6 +166,8 @@ const main = async () => {
 
     if (isDev) {
         const availablePorts = await findAvailablePorts(5333, extensionEntries.length);
+        const extensionsServerScheme = process.env.VITE_EXTENSIONS_SERVER_SCHEME || 'http';
+        const extensionsServerHost = process.env.VITE_EXTENSIONS_SERVER_HOST || host || 'localhost';
 
         // Create sw-plugin-dev.json for development mode
         const swPluginDevJsonData = {
@@ -189,12 +191,12 @@ const main = async () => {
             }
 
             if (extension.isApp) {
-                swPluginDevJsonData[extension.technicalName].html = `http://${host}:${availablePorts[index]}/index.html`;
+                swPluginDevJsonData[extension.technicalName].html = `${extensionsServerScheme}://${extensionsServerHost}:${availablePorts[index]}/index.html`;
             }
 
             if (extension.isPlugin) {
-                swPluginDevJsonData[extension.technicalName].js = `http://${host}:${availablePorts[index]}/${fileName}`;
-                swPluginDevJsonData[extension.technicalName].hmrSrc = `http://${host}:${availablePorts[index]}/@vite/client`;
+                swPluginDevJsonData[extension.technicalName].js = `${extensionsServerScheme}://${extensionsServerHost}:${availablePorts[index]}/${fileName}`;
+                swPluginDevJsonData[extension.technicalName].hmrSrc = `${extensionsServerScheme}://${extensionsServerHost}:${availablePorts[index]}/@vite/client`;
             }
         });
 

@@ -66,7 +66,7 @@ class PromotionDeliveryCalculator
             return $b->getPayloadValue('priority') <=> $a->getPayloadValue('priority');
         });
 
-        $notDiscountedDeliveriesValue = $toCalculate->getDeliveries()->getShippingCosts()->sum()->getTotalPrice();
+        $notDiscountedDeliveriesValue = $toCalculate->getDeliveries()->getShippingCosts()->getTotalPriceAmount();
 
         // reduce discount lineItems if fixed price discounts are in collection
         $this->restorePriceDefinitions($discountLineItems);
@@ -347,7 +347,7 @@ class PromotionDeliveryCalculator
         $reduceValue = abs($definition->getPrice());
 
         // get shipping costs
-        $maxReducedPrice = $deliveries->getShippingCosts()->sum()->getTotalPrice();
+        $maxReducedPrice = $deliveries->getShippingCosts()->getTotalPriceAmount();
 
         // make sure that discount value is not higher than shipping costs, reduce them if necessary
         if ($reduceValue > $maxReducedPrice) {
@@ -403,7 +403,7 @@ class PromotionDeliveryCalculator
         $reduceValue = abs($definition->getPercentage());
 
         // we may only discount the available shipping costs (these may be reduced by another discount before)
-        $maxReducedPrice = $deliveries->getShippingCosts()->sum()->getTotalPrice();
+        $maxReducedPrice = $deliveries->getShippingCosts()->getTotalPriceAmount();
 
         if ($maxValue !== '') {
             $castedMaxValue = (float) $maxValue;
@@ -443,7 +443,7 @@ class PromotionDeliveryCalculator
         $fixedPrice = abs($definition->getPrice());
 
         // get shipping costs and set them as maximum value that may be discounted
-        $maxReducedPrice = $deliveries->getShippingCosts()->sum()->getTotalPrice();
+        $maxReducedPrice = $deliveries->getShippingCosts()->getTotalPriceAmount();
 
         if ($maxReducedPrice <= $fixedPrice) {
             return $deliveryAdded;

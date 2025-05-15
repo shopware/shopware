@@ -8,6 +8,8 @@ use Symfony\Component\HttpFoundation\Response;
 
 /**
  * @internal
+ *
+ * @codeCoverageIgnore
  */
 #[Package('after-sales')]
 class SaasUserException extends HttpException

@@ -70,7 +70,7 @@ class SaasUserInvitationMailService
         $mailData->set('contentHtml', $mailTemplate?->getTranslation('contentHtml'));
 
         $templateVariables = new DataBag();
-        $templateVariables->set('nameOfInviter', $this->createInvitorName($user));
+        $templateVariables->set('nameOfInviter', $this->createInviterName($user));
         $templateVariables->set('storeName', $shopName);
         $templateVariables->set('invitedEmailAddress', $recipientEmail);
         $templateVariables->set('signupUrl', $this->createSignupUrl($recipientEmail, $localeId, $context));
@@ -133,7 +133,7 @@ class SaasUserInvitationMailService
         return $this->mailTemplateRepository->search($criteria, $newContext)->first();
     }
 
-    private function createInvitorName(?UserEntity $user): string
+    private function createInviterName(?UserEntity $user): string
     {
         $firstName = $user?->getFirstName();
         $lastName = $user?->getLastName();

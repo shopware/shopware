@@ -11,9 +11,7 @@ use Shopware\Core\Content\Category\CategoryCollection;
 use Shopware\Core\Content\Category\Tree\Tree;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\Currency\CurrencyCollection;
-use Shopware\Core\System\Currency\CurrencyEntity;
 use Shopware\Core\System\Language\LanguageCollection;
-use Shopware\Core\System\Language\LanguageEntity;
 use Shopware\Core\Test\Generator;
 use Shopware\Storefront\Controller\NavigationController;
 use Shopware\Storefront\Page\Navigation\NavigationPage;
@@ -93,7 +91,7 @@ class NavigationControllerTest extends TestCase
     {
         $request = new Request(['headerParameters' => ['foo' => 'bar']]);
         $context = Generator::generateSalesChannelContext();
-        $headerPagelet = new HeaderPagelet(new Tree(null, []), new LanguageCollection(), new CurrencyCollection(), new LanguageEntity(), new CurrencyEntity());
+        $headerPagelet = new HeaderPagelet(new Tree(null, []), new LanguageCollection(), new CurrencyCollection());
 
         $this->headerLoader->expects($this->once())->method('load')->with($request, $context)->willReturn($headerPagelet);
 

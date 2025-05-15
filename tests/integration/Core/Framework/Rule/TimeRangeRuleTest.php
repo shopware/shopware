@@ -58,8 +58,8 @@ class TimeRangeRuleTest extends TestCase
         static::assertIsArray($value);
         static::assertArrayHasKey('toTime', $value);
         static::assertArrayHasKey('fromTime', $value);
-        static::assertEquals('12:00', $value['toTime']);
-        static::assertEquals('15:00', $value['fromTime']);
+        static::assertSame('12:00', $value['toTime']);
+        static::assertSame('15:00', $value['fromTime']);
 
         $ruleRepository->delete([['id' => $ruleId]], $context);
         $conditionRepository->delete([['id' => $id]], $context);

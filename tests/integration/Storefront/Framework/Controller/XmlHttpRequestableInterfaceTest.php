@@ -17,7 +17,7 @@ class XmlHttpRequestableInterfaceTest extends TestCase
         $client = $this->createSalesChannelBrowser(null, true);
         $client->request('GET', 'http://localhost/');
 
-        static::assertEquals(200, $client->getResponse()->getStatusCode());
+        static::assertSame(200, $client->getResponse()->getStatusCode());
     }
 
     public function testAccessDeniedForXmlHttpRequest(): void
@@ -26,7 +26,7 @@ class XmlHttpRequestableInterfaceTest extends TestCase
 
         $client->xmlHttpRequest('GET', 'http://localhost/');
 
-        static::assertEquals(403, $client->getResponse()->getStatusCode());
+        static::assertSame(403, $client->getResponse()->getStatusCode());
     }
 
     public function testPageletLoads(): void
@@ -35,7 +35,7 @@ class XmlHttpRequestableInterfaceTest extends TestCase
 
         $client->request('GET', 'http://localhost/checkout/offcanvas');
 
-        static::assertEquals(200, $client->getResponse()->getStatusCode());
+        static::assertSame(200, $client->getResponse()->getStatusCode());
     }
 
     public function testPageletLoadsForXmlHttpRequest(): void
@@ -44,6 +44,6 @@ class XmlHttpRequestableInterfaceTest extends TestCase
 
         $client->xmlHttpRequest('GET', 'http://localhost/checkout/offcanvas');
 
-        static::assertEquals(200, $client->getResponse()->getStatusCode());
+        static::assertSame(200, $client->getResponse()->getStatusCode());
     }
 }

@@ -174,7 +174,7 @@ class TokenQueryBuilderTest extends TestCase
         $query = $this->tokenQueryBuilder->build('product', $term, $config, $context);
 
         static::assertNotNull($query);
-        static::assertEquals($expected, $query->toArray());
+        static::assertSame($expected, $query->toArray());
     }
 
     /**

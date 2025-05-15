@@ -2,7 +2,6 @@
 
 use Danger\Config;
 use Danger\Context;
-use Danger\Platform\Github\Github;
 use Danger\Rule\Condition;
 use Danger\Struct\File;
 
@@ -13,7 +12,6 @@ const COMPOSER_PACKAGE_EXCEPTIONS = [
     ],
     'strict' => [
         '^phpstan\/phpstan.*$' => 'Even patch updates for PHPStan may lead to a red CI pipeline, because of new static analysis errors',
-        '^phpstan\/phpdoc-parser.*$' => 'Even patch updates for PHPStan plugins may lead to a red CI pipeline, because of no lock on their side',
         '^friendsofphp\/php-cs-fixer$' => 'Even patch updates for PHP-CS-Fixer may lead to a red CI pipeline, because of new style issues',
         '^symplify\/phpstan-rules$' => 'Even patch updates for PHPStan plugins may lead to a red CI pipeline, because of new static analysis errors',
         '^rector\/type-perfect$' => 'Even patch updates for PHPStan plugins may lead to a red CI pipeline, because of new static analysis errors',
@@ -35,9 +33,9 @@ const BaseTestClasses = [
 return (new Config())
     ->useThreadOn(Config::REPORT_LEVEL_WARNING)
     ->useRule(function (Context $context): void {
-         if ($context->platform->pullRequest->getFiles()->has('.danger.php')) {
-             $context->notice('Any changes to .danger.php will not be reflected in your pull request. Commit your changes separately.');
-         }
+        if ($context->platform->pullRequest->getFiles()->has('.danger.php')) {
+            $context->notice('Any changes to .danger.php will not be reflected in your pull request. Commit your changes separately.');
+        }
     })
     ->useRule(function (Context $context): void {
         $files = $context->platform->pullRequest->getFiles();

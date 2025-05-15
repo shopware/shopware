@@ -83,7 +83,7 @@
             ref="resultsList"
             :options="results"
             :is-loading="isLoading"
-            :empty-message="$tc('global.sw-single-select.messageNoResults', searchTerm, { term: searchTerm })"
+            :empty-message="$tc('global.sw-single-select.messageNoResults', { term: searchTerm })"
             :focus-el="$refs.swSelectInput"
             @paginate="paginate"
             @item-select="setValue"

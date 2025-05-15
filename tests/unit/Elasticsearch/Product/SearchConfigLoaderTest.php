@@ -48,7 +48,7 @@ class SearchConfigLoaderTest extends TestCase
 
         $result = $loader->load($context);
 
-        static::assertEquals($expectedResult, $result);
+        static::assertSame($expectedResult, $result);
     }
 
     public function testLoadWithNoResult(): void

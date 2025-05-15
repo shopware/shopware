@@ -68,7 +68,7 @@ class CountryStateRepositoryTest extends TestCase
 
         static::assertCount(2, $result->getIds());
 
-        static::assertEquals(
+        static::assertSame(
             [$recordA, $recordB],
             $result->getIds()
         );

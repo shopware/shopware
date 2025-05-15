@@ -70,7 +70,7 @@ class AfterSortTest extends TestCase
 
         $actualNames = array_map(fn (TestEntity $entity) => $entity->getName(), $afterSortCollection->getElements());
 
-        static::assertEquals($expectedNames, \array_values($actualNames));
+        static::assertSame($expectedNames, \array_values($actualNames));
     }
 
     public function testSortingInconsistentDataWithHole(): void
@@ -106,7 +106,7 @@ class AfterSortTest extends TestCase
 
         $actualNames = array_map(fn (TestEntity $entity) => $entity->getName(), $entities->getElements());
 
-        static::assertEquals($expectedNames, \array_values($actualNames));
+        static::assertSame($expectedNames, \array_values($actualNames));
     }
 
     public function testSortingInconsistentData(): void
@@ -142,7 +142,7 @@ class AfterSortTest extends TestCase
 
         $actualNames = array_map(fn (TestEntity $entity) => $entity->getName(), $entities->getElements());
 
-        static::assertEquals($expectedNames, \array_values($actualNames));
+        static::assertSame($expectedNames, \array_values($actualNames));
     }
 
     public function testSortingByAfterIdWithMultipleNullValues(): void
@@ -178,7 +178,7 @@ class AfterSortTest extends TestCase
 
         $actualNames = array_map(fn (TestEntity $entity) => $entity->getName(), $afterSortCollection->getElements());
 
-        static::assertEquals($expectedNames, $actualNames);
+        static::assertSame($expectedNames, $actualNames);
     }
 }
 

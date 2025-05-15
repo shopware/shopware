@@ -41,7 +41,7 @@ class ScriptApiRouteTest extends TestCase
         static::assertSame('some debug information', $traces['api-simple-script'][0]['output'][0]);
 
         static::assertArrayHasKey('foo', $response);
-        static::assertEquals('bar', $response['foo']);
+        static::assertSame('bar', $response['foo']);
     }
 
     public function testApiEndpointWithSlashInHookName(): void
@@ -61,7 +61,7 @@ class ScriptApiRouteTest extends TestCase
         static::assertSame('some debug information', $traces['api-simple-script'][0]['output'][0]);
 
         static::assertArrayHasKey('foo', $response);
-        static::assertEquals('bar', $response['foo']);
+        static::assertSame('bar', $response['foo']);
     }
 
     public function testAppNotAllowed(): void
@@ -74,19 +74,19 @@ class ScriptApiRouteTest extends TestCase
         static::assertNotFalse($browser->getResponse()->getContent());
         $response = \json_decode($browser->getResponse()->getContent(), true, 512, \JSON_THROW_ON_ERROR);
 
-        static::assertEquals(Response::HTTP_FORBIDDEN, $browser->getResponse()->getStatusCode());
+        static::assertSame(Response::HTTP_FORBIDDEN, $browser->getResponse()->getStatusCode());
         static::assertArrayHasKey('errors', $response);
-        static::assertEquals('FRAMEWORK__PERMISSION_DENIED', $response['errors'][0]['code']);
+        static::assertSame('FRAMEWORK__PERMISSION_DENIED', $response['errors'][0]['code']);
 
         $this->kernelBrowser = null;
         $browser = $this->getBrowser(true, [], ['app.all']);
         $browser->request('POST', '/api/script/simple-script');
-        static::assertEquals(Response::HTTP_OK, $browser->getResponse()->getStatusCode());
+        static::assertSame(Response::HTTP_OK, $browser->getResponse()->getStatusCode());
 
         $this->kernelBrowser = null;
         $browser = $this->getBrowser(true, [], ['app.api-endpoint-cases']);
         $browser->request('POST', '/api/script/simple-script');
-        static::assertEquals(Response::HTTP_OK, $browser->getResponse()->getStatusCode());
+        static::assertSame(Response::HTTP_OK, $browser->getResponse()->getStatusCode());
     }
 
     public function testRepositoryCall(): void
@@ -146,14 +146,14 @@ class ScriptApiRouteTest extends TestCase
         $browser = $this->getBrowser();
         $browser->request('POST', '/api/script/insufficient-permissions');
 
-        static::assertEquals(Response::HTTP_FORBIDDEN, $browser->getResponse()->getStatusCode());
+        static::assertSame(Response::HTTP_FORBIDDEN, $browser->getResponse()->getStatusCode());
         static::assertNotFalse($browser->getResponse()->getContent());
 
         $response = \json_decode($browser->getResponse()->getContent(), true, 512, \JSON_THROW_ON_ERROR);
 
         static::assertArrayHasKey('errors', $response);
         static::assertCount(1, $response['errors']);
-        static::assertEquals('Forbidden', $response['errors'][0]['title']);
+        static::assertSame('Forbidden', $response['errors'][0]['title']);
         static::assertStringContainsString('api-insufficient-permissions', $response['errors'][0]['detail']);
         static::assertStringContainsString('Missing privilege', $response['errors'][0]['detail']);
     }
@@ -173,8 +173,8 @@ class ScriptApiRouteTest extends TestCase
 
         static::assertArrayHasKey('errors', $response);
         static::assertCount(1, $response['errors']);
-        static::assertEquals('Forbidden', $response['errors'][0]['title']);
-        static::assertEquals('The user does not have the permission to do this action.', $response['errors'][0]['detail']);
+        static::assertSame('Forbidden', $response['errors'][0]['title']);
+        static::assertSame('The user does not have the permission to do this action.', $response['errors'][0]['detail']);
     }
 
     public function testAccessFromAppIntegrationIsAllowed(): void
@@ -246,6 +246,6 @@ class ScriptApiRouteTest extends TestCase
         $content = \json_decode($response->getContent(), true, 512, \JSON_THROW_ON_ERROR);
         static::assertArrayHasKey('errors', $content);
         static::assertCount(1, $content['errors']);
-        static::assertEquals('FRAMEWORK__ACCESS_FROM_SCRIPT_EXECUTION_NOT_ALLOWED', $content['errors'][0]['code']);
+        static::assertSame('FRAMEWORK__ACCESS_FROM_SCRIPT_EXECUTION_NOT_ALLOWED', $content['errors'][0]['code']);
     }
 }

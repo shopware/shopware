@@ -124,8 +124,8 @@ class DeliveryCalculatorTest extends TestCase
         $this->deliveryCalculator->calculate(new CartDataCollection(), new Cart('test'), new DeliveryCollection([$delivery]), $context);
 
         $newCosts = $delivery->getShippingCosts();
-        static::assertEquals(5, $newCosts->getUnitPrice());
-        static::assertEquals(5, $newCosts->getTotalPrice());
+        static::assertSame(5.0, $newCosts->getUnitPrice());
+        static::assertSame(5.0, $newCosts->getTotalPrice());
         static::assertCount(0, $newCosts->getTaxRules());
         static::assertCount(0, $newCosts->getCalculatedTaxes());
     }
@@ -1672,7 +1672,7 @@ class DeliveryCalculatorTest extends TestCase
         static::assertCount(1, $shippingCosts->getTaxRules());
         $taxRule = $shippingCosts->getTaxRules()->first();
         static::assertNotNull($taxRule);
-        static::assertEquals(20, $taxRule->getTaxRate());
+        static::assertSame(20.0, $taxRule->getTaxRate());
     }
 
     public function testCalculateByFixedTaxRate(): void
@@ -1740,7 +1740,7 @@ class DeliveryCalculatorTest extends TestCase
         static::assertCount(1, $shippingCosts->getTaxRules());
         $taxRule = $shippingCosts->getTaxRules()->first();
         static::assertNotNull($taxRule);
-        static::assertEquals(10, $taxRule->getTaxRate());
+        static::assertSame(10.0, $taxRule->getTaxRate());
     }
 
     #[DataProvider('mixedShippingProvider')]

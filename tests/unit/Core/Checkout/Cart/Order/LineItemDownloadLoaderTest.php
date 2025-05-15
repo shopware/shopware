@@ -38,7 +38,7 @@ class LineItemDownloadLoaderTest extends TestCase
     {
         $payload = $this->loader->load([], Context::createDefaultContext());
 
-        static::assertEquals([], $payload);
+        static::assertSame([], $payload);
     }
 
     public function testLineItemWithoutPayload(): void
@@ -51,7 +51,7 @@ class LineItemDownloadLoaderTest extends TestCase
 
         $payload = $this->loader->load($lineItems, Context::createDefaultContext());
 
-        static::assertEquals([], $payload);
+        static::assertSame([], $payload);
     }
 
     public function testNoPayloadContinue(): void
@@ -77,7 +77,7 @@ class LineItemDownloadLoaderTest extends TestCase
 
         $payload = $this->loader->load($lineItems, Context::createDefaultContext());
 
-        static::assertEquals([], $payload);
+        static::assertSame([], $payload);
     }
 
     public function testLoadDownloadsPayload(): void
@@ -108,7 +108,7 @@ class LineItemDownloadLoaderTest extends TestCase
 
         $payload = $this->loader->load($lineItems, Context::createDefaultContext());
 
-        static::assertEquals([
+        static::assertSame([
             [
                 [
                     'position' => 0,

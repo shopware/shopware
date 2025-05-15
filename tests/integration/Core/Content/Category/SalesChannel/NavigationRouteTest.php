@@ -140,11 +140,11 @@ class NavigationRouteTest extends TestCase
             foreach ($response as $category) {
                 switch ($category['id']) {
                     case $this->ids->get('category2'):
-                        static::assertEquals(1, $category['visibleChildCount'], 'Depth: ' . $depth);
+                        static::assertSame(1, $category['visibleChildCount'], 'Depth: ' . $depth);
 
                         break;
                     case $this->ids->get('category4'):
-                        static::assertEquals(0, $category['visibleChildCount'], 'Depth: ' . $depth);
+                        static::assertSame(0, $category['visibleChildCount'], 'Depth: ' . $depth);
 
                         break;
                 }

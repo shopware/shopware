@@ -21,6 +21,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Framework\Validation\DataValidator;
+use Shopware\Core\System\Locale\LanguageLocaleCodeProvider;
 use Shopware\Core\System\SalesChannel\SalesChannelCollection;
 use Shopware\Core\System\SalesChannel\SalesChannelEntity;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
@@ -86,6 +87,7 @@ class MailServiceTest extends TestCase
             $this->createMock(SystemConfigService::class),
             $this->eventDispatcher,
             $this->logger,
+            $this->createMock(LanguageLocaleCodeProvider::class)
         );
     }
 
@@ -197,7 +199,7 @@ class MailServiceTest extends TestCase
         static::assertNull($email);
         static::assertNotNull($beforeValidateEvent);
         static::assertInstanceOf(MailErrorEvent::class, $mailErrorEvent);
-        static::assertEquals(Level::Warning, $mailErrorEvent->getLogLevel());
+        static::assertSame(Level::Warning, $mailErrorEvent->getLogLevel());
         static::assertNotNull($mailErrorEvent->getMessage());
 
         $message = 'Could not render Mail-Subject with error message: cannot render';
@@ -232,7 +234,7 @@ class MailServiceTest extends TestCase
         $data = [
             'recipients' => [],
             'subject' => 'Test email',
-            'senderName' => 'me@shopware.com',
+            'senderName' => null,
             'contentPlain' => 'Content plain',
             'contentHtml' => 'Content html',
             'salesChannelId' => $salesChannelId,
@@ -323,7 +325,7 @@ class MailServiceTest extends TestCase
         static::assertNull($email);
         static::assertNotNull($beforeValidateEvent);
         static::assertInstanceOf(MailErrorEvent::class, $mailErrorEvent);
-        static::assertEquals(Level::Error, $mailErrorEvent->getLogLevel());
+        static::assertSame(Level::Error, $mailErrorEvent->getLogLevel());
         static::assertNotNull($mailErrorEvent->getMessage());
         static::assertSame('Could not send mail with error message: Mail sending failed', $mailErrorEvent->getMessage());
         static::assertSame('Content html', $mailErrorEvent->getTemplate());

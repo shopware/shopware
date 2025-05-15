@@ -33,7 +33,7 @@ class DiscountCalculatorResultTest extends TestCase
             []
         );
 
-        static::assertEquals(29, $result->getPrice()->getTotalPrice());
+        static::assertSame(29.0, $result->getPrice()->getTotalPrice());
     }
 
     /**

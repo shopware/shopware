@@ -855,6 +855,7 @@
     "property_group_option.customFields",
     "property_group_option.media",
     "property_group_option.group",
+    "property_group_option.combinable",
     "property_group_option.createdAt",
     "property_group_option.updatedAt",
     "property_group_option.translated",

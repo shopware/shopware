@@ -79,8 +79,8 @@ class EntityWriteGatewayTest extends TestCase
         $changeSet = $this->getChangeSet(ProductDefinition::ENTITY_NAME, $result);
 
         static::assertTrue($changeSet->hasChanged('stock'));
-        static::assertEquals(1, $changeSet->getBefore('stock'));
-        static::assertEquals(100, $changeSet->getAfter('stock'));
+        static::assertSame('1', $changeSet->getBefore('stock'));
+        static::assertSame(100, $changeSet->getAfter('stock'));
     }
 
     public function testUpdateWithSameValue(): void
@@ -104,7 +104,7 @@ class EntityWriteGatewayTest extends TestCase
         $changeSet = $this->getChangeSet(ProductDefinition::ENTITY_NAME, $result);
 
         static::assertFalse($changeSet->hasChanged('stock'));
-        static::assertEquals('1', $changeSet->getBefore('stock'));
+        static::assertSame('1', $changeSet->getBefore('stock'));
         static::assertNull($changeSet->getAfter('stock'));
     }
 
@@ -136,7 +136,7 @@ class EntityWriteGatewayTest extends TestCase
         $changeSet = $this->getChangeSet(ProductCategoryDefinition::ENTITY_NAME, $result);
 
         static::assertTrue($changeSet->hasChanged('product_id'));
-        static::assertEquals(Uuid::fromHexToBytes($id), $changeSet->getBefore('product_id'));
+        static::assertSame(Uuid::fromHexToBytes($id), $changeSet->getBefore('product_id'));
         static::assertNull($changeSet->getAfter('product_id'));
     }
 
@@ -161,8 +161,8 @@ class EntityWriteGatewayTest extends TestCase
         $changeSet = $this->getChangeSet(ProductTranslationDefinition::ENTITY_NAME, $result);
 
         static::assertTrue($changeSet->hasChanged('name'));
-        static::assertEquals('test', $changeSet->getBefore('name'));
-        static::assertEquals('updated', $changeSet->getAfter('name'));
+        static::assertSame('test', $changeSet->getBefore('name'));
+        static::assertSame('updated', $changeSet->getAfter('name'));
     }
 
     public function testChangeSetWithOneToMany(): void
@@ -191,8 +191,8 @@ class EntityWriteGatewayTest extends TestCase
         $changeSet = $this->getChangeSet(ProductVisibilityDefinition::ENTITY_NAME, $result);
 
         static::assertTrue($changeSet->hasChanged('visibility'));
-        static::assertEquals(ProductVisibilityDefinition::VISIBILITY_ALL, $changeSet->getBefore('visibility'));
-        static::assertEquals(ProductVisibilityDefinition::VISIBILITY_LINK, $changeSet->getAfter('visibility'));
+        static::assertSame(ProductVisibilityDefinition::VISIBILITY_ALL, (int) $changeSet->getBefore('visibility'));
+        static::assertSame(ProductVisibilityDefinition::VISIBILITY_LINK, (int) $changeSet->getAfter('visibility'));
     }
 
     public function testChangeSetWithManyToOne(): void
@@ -223,8 +223,8 @@ class EntityWriteGatewayTest extends TestCase
         $changeSet = $this->getChangeSet(ProductDefinition::ENTITY_NAME, $result);
 
         static::assertTrue($changeSet->hasChanged('product_manufacturer_id'));
-        static::assertEquals($id, Uuid::fromBytesToHex($changeSet->getBefore('product_manufacturer_id')));
-        static::assertEquals($newId, Uuid::fromBytesToHex($changeSet->getAfter('product_manufacturer_id')));
+        static::assertSame($id, Uuid::fromBytesToHex($changeSet->getBefore('product_manufacturer_id')));
+        static::assertSame($newId, Uuid::fromBytesToHex($changeSet->getAfter('product_manufacturer_id')));
     }
 
     public function testChangeSetWithMultipleCommandsForSameEntityType(): void
@@ -259,13 +259,13 @@ class EntityWriteGatewayTest extends TestCase
 
         static::assertNotNull($changeSetForProduct1);
         static::assertTrue($changeSetForProduct1->hasChanged('stock'));
-        static::assertEquals(1, $changeSetForProduct1->getBefore('stock'));
-        static::assertEquals(100, $changeSetForProduct1->getAfter('stock'));
+        static::assertSame('1', $changeSetForProduct1->getBefore('stock'));
+        static::assertSame(100, $changeSetForProduct1->getAfter('stock'));
 
         static::assertNotNull($changeSetForProduct2);
         static::assertTrue($changeSetForProduct2->hasChanged('stock'));
-        static::assertEquals(1, $changeSetForProduct2->getBefore('stock'));
-        static::assertEquals(50, $changeSetForProduct2->getAfter('stock'));
+        static::assertSame('1', $changeSetForProduct2->getBefore('stock'));
+        static::assertSame(50, $changeSetForProduct2->getAfter('stock'));
     }
 
     public function testCustomFieldsMergeWithIntegers(): void
@@ -353,7 +353,7 @@ class EntityWriteGatewayTest extends TestCase
         $event = $spy->event;
         static::assertInstanceOf(EntityDeleteEvent::class, $event);
         static::assertTrue($event->filled());
-        static::assertEquals([$id1, $id2], $event->getIds('product'));
+        static::assertSame([$id1, $id2], $event->getIds('product'));
     }
 
     public function testEntityDeleteEventSuccessCallbacksCalled(): void
@@ -464,7 +464,7 @@ class EntityWriteGatewayTest extends TestCase
         }
 
         static::assertInstanceOf(Exception::class, $exceptionThrown);
-        static::assertEquals('test', $exceptionThrown->getMessage());
+        static::assertSame('test', $exceptionThrown->getMessage());
 
         static::assertTrue($errorSpy->called);
         static::assertFalse($successSpy->called);
@@ -502,7 +502,7 @@ class EntityWriteGatewayTest extends TestCase
         };
 
         static::assertInstanceOf(EntityWriteEvent::class, $spy->event);
-        static::assertEquals([$id1, $id2], $spy->event->getIds('product'));
+        static::assertSame([$id1, $id2], $spy->event->getIds('product'));
     }
 
     /**
@@ -626,7 +626,7 @@ class EntityWriteGatewayTest extends TestCase
         }
 
         static::assertInstanceOf(Exception::class, $exceptionThrown);
-        static::assertEquals('test', $exceptionThrown->getMessage());
+        static::assertSame('test', $exceptionThrown->getMessage());
 
         static::assertTrue($errorSpy->called);
         static::assertFalse($successSpy->called);

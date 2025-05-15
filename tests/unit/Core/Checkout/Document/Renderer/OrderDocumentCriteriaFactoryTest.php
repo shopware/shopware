@@ -22,7 +22,7 @@ class OrderDocumentCriteriaFactoryTest extends TestCase
 
         $criteria = OrderDocumentCriteriaFactory::create([$id], 'test');
 
-        static::assertEquals($id, $criteria->getIds()[0]);
+        static::assertSame($id, $criteria->getIds()[0]);
 
         $associations = $criteria->getAssociations();
 

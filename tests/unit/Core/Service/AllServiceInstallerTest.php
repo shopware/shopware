@@ -46,8 +46,8 @@ class AllServiceInstallerTest extends TestCase
             ->method('install')
             ->willReturnCallback(function (ServiceRegistryEntry $serviceRegistryEntry) use ($matcher): bool {
                 match ($matcher->numberOfInvocations()) {
-                    1 => $this->assertEquals('Service1', $serviceRegistryEntry->name),
-                    2 => $this->assertEquals('Service2', $serviceRegistryEntry->name),
+                    1 => $this->assertSame('Service1', $serviceRegistryEntry->name),
+                    2 => $this->assertSame('Service2', $serviceRegistryEntry->name),
                     default => throw new \UnhandledMatchError(),
                 };
 
@@ -81,7 +81,7 @@ class AllServiceInstallerTest extends TestCase
             $serviceLifeCycle->expects($this->once())
                 ->method('install')
                 ->willReturnCallback(function (ServiceRegistryEntry $serviceRegistryEntry): bool {
-                    $this->assertEquals('Service1', $serviceRegistryEntry->name);
+                    $this->assertSame('Service1', $serviceRegistryEntry->name);
 
                     return true;
                 });
@@ -142,7 +142,7 @@ class AllServiceInstallerTest extends TestCase
         $serviceLifeCycle->expects($this->exactly(1))
             ->method('install')
             ->willReturnCallback(function (ServiceRegistryEntry $serviceRegistryEntry): bool {
-                $this->assertEquals('Service2', $serviceRegistryEntry->name);
+                $this->assertSame('Service2', $serviceRegistryEntry->name);
 
                 return true;
             });

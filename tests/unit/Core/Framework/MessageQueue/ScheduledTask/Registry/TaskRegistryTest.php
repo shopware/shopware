@@ -163,10 +163,10 @@ class TaskRegistryTest extends TestCase
             static::assertArrayHasKey('status', $scheduledTaskPayload);
             static::assertArrayHasKey('id', $queueTaskPayload);
             static::assertArrayHasKey('id', $scheduledTaskPayload);
-            static::assertEquals(ScheduledTaskDefinition::STATUS_SKIPPED, $queueTaskPayload['status']);
-            static::assertEquals('queuedTask', $queueTaskPayload['id']);
-            static::assertEquals(ScheduledTaskDefinition::STATUS_SKIPPED, $scheduledTaskPayload['status']);
-            static::assertEquals('scheduledTask', $scheduledTaskPayload['id']);
+            static::assertSame(ScheduledTaskDefinition::STATUS_SKIPPED, $queueTaskPayload['status']);
+            static::assertSame('queuedTask', $queueTaskPayload['id']);
+            static::assertSame(ScheduledTaskDefinition::STATUS_SKIPPED, $scheduledTaskPayload['status']);
+            static::assertSame('scheduledTask', $scheduledTaskPayload['id']);
 
             return new EntityWrittenContainerEvent($context, new NestedEventCollection(), []);
         });
@@ -225,10 +225,10 @@ class TaskRegistryTest extends TestCase
             static::assertArrayHasKey('status', $skippedTaskPayload);
             static::assertArrayHasKey('id', $queueTaskPayload);
             static::assertArrayHasKey('id', $skippedTaskPayload);
-            static::assertEquals(ScheduledTaskDefinition::STATUS_SCHEDULED, $queueTaskPayload['status']);
-            static::assertEquals('queuedTask', $queueTaskPayload['id']);
-            static::assertEquals(ScheduledTaskDefinition::STATUS_SCHEDULED, $skippedTaskPayload['status']);
-            static::assertEquals('skippedTask', $skippedTaskPayload['id']);
+            static::assertSame(ScheduledTaskDefinition::STATUS_SCHEDULED, $queueTaskPayload['status']);
+            static::assertSame('queuedTask', $queueTaskPayload['id']);
+            static::assertSame(ScheduledTaskDefinition::STATUS_SCHEDULED, $skippedTaskPayload['status']);
+            static::assertSame('skippedTask', $skippedTaskPayload['id']);
 
             return new EntityWrittenContainerEvent($context, new NestedEventCollection(), []);
         });
@@ -264,8 +264,8 @@ class TaskRegistryTest extends TestCase
 
             static::assertNotEmpty($data[0]);
 
-            static::assertEquals('cleanupTask', $data[0]['id']);
-            static::assertEquals(CleanupCartTask::getDefaultInterval(), $data[0]['defaultRunInterval']);
+            static::assertSame('cleanupTask', $data[0]['id']);
+            static::assertSame(CleanupCartTask::getDefaultInterval(), $data[0]['defaultRunInterval']);
             static::assertArrayNotHasKey('runInterval', $data[0]);
 
             return new EntityWrittenContainerEvent($context, new NestedEventCollection(), []);
@@ -302,9 +302,9 @@ class TaskRegistryTest extends TestCase
 
             static::assertNotEmpty($data[0]);
 
-            static::assertEquals('cleanupTask', $data[0]['id']);
-            static::assertEquals(CleanupCartTask::getDefaultInterval(), $data[0]['defaultRunInterval']);
-            static::assertEquals(CleanupCartTask::getDefaultInterval(), $data[0]['runInterval']);
+            static::assertSame('cleanupTask', $data[0]['id']);
+            static::assertSame(CleanupCartTask::getDefaultInterval(), $data[0]['defaultRunInterval']);
+            static::assertSame(CleanupCartTask::getDefaultInterval(), $data[0]['runInterval']);
 
             return new EntityWrittenContainerEvent($context, new NestedEventCollection(), []);
         });
@@ -327,6 +327,6 @@ class TaskRegistryTest extends TestCase
         $tasks = (new TaskRegistry([], $repository, new ParameterBag([])))->getAllTasks(Context::createDefaultContext());
 
         static::assertCount(1, $tasks);
-        static::assertEquals($taskEntity, $tasks->first());
+        static::assertSame($taskEntity, $tasks->first());
     }
 }

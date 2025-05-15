@@ -1,7 +1,7 @@
 import template from './sw-search-bar.html.twig';
 import './sw-search-bar.scss';
 
-const { Component, Application, Context } = Shopware;
+const { Application, Context } = Shopware;
 const { Criteria } = Shopware.Data;
 const utils = Shopware.Utils;
 const { cloneDeep } = utils.object;
@@ -16,7 +16,7 @@ const { cloneDeep } = utils.object;
  * @example-type code-only
  */
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
-Component.register('sw-search-bar', {
+export default {
     template,
 
     inject: [
@@ -1086,4 +1086,4 @@ Component.register('sw-search-bar', {
             };
         },
     },
-});
+};

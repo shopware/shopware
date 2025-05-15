@@ -34,7 +34,7 @@ class OrderSalutationSubscriberTest extends TestCase
 
     public function testGetSubscribedEvents(): void
     {
-        static::assertEquals([
+        static::assertSame([
             OrderEvents::ORDER_ADDRESS_WRITTEN_EVENT => 'setDefaultSalutation',
             OrderEvents::ORDER_CUSTOMER_WRITTEN_EVENT => 'setDefaultSalutation',
         ], $this->salutationSubscriber->getSubscribedEvents());

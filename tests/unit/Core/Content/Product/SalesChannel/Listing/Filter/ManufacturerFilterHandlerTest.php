@@ -48,21 +48,21 @@ class ManufacturerFilterHandlerTest extends TestCase
         $filter = $this->handler->create($request, $context);
 
         static::assertInstanceOf(Filter::class, $filter);
-        static::assertEquals('manufacturer', $filter->getName());
+        static::assertSame('manufacturer', $filter->getName());
         static::assertTrue($filter->isFiltered());
 
         $aggregations = $filter->getAggregations();
         static::assertCount(1, $aggregations);
         static::assertInstanceOf(EntityAggregation::class, $aggregations[0]);
-        static::assertEquals('manufacturer', $aggregations[0]->getName());
-        static::assertEquals('product.manufacturerId', $aggregations[0]->getField());
-        static::assertEquals('product_manufacturer', $aggregations[0]->getEntity());
+        static::assertSame('manufacturer', $aggregations[0]->getName());
+        static::assertSame('product.manufacturerId', $aggregations[0]->getField());
+        static::assertSame('product_manufacturer', $aggregations[0]->getEntity());
 
         $criteriaFilter = $filter->getFilter();
         static::assertInstanceOf(EqualsAnyFilter::class, $criteriaFilter);
-        static::assertEquals('product.manufacturerId', $criteriaFilter->getField());
-        static::assertEquals($manufacturerIds, $criteriaFilter->getValue());
-        static::assertEquals($manufacturerIds, $filter->getValues());
+        static::assertSame('product.manufacturerId', $criteriaFilter->getField());
+        static::assertSame($manufacturerIds, $criteriaFilter->getValue());
+        static::assertSame($manufacturerIds, $filter->getValues());
     }
 
     public function testCreateWithEmptyManufacturerIds(): void
@@ -76,19 +76,19 @@ class ManufacturerFilterHandlerTest extends TestCase
         $filter = $this->handler->create($request, $context);
 
         static::assertInstanceOf(Filter::class, $filter);
-        static::assertEquals('manufacturer', $filter->getName());
+        static::assertSame('manufacturer', $filter->getName());
         static::assertFalse($filter->isFiltered());
 
         $aggregations = $filter->getAggregations();
         static::assertCount(1, $aggregations);
         static::assertInstanceOf(EntityAggregation::class, $aggregations[0]);
-        static::assertEquals('manufacturer', $aggregations[0]->getName());
-        static::assertEquals('product.manufacturerId', $aggregations[0]->getField());
-        static::assertEquals('product_manufacturer', $aggregations[0]->getEntity());
+        static::assertSame('manufacturer', $aggregations[0]->getName());
+        static::assertSame('product.manufacturerId', $aggregations[0]->getField());
+        static::assertSame('product_manufacturer', $aggregations[0]->getEntity());
 
         $criteriaFilter = $filter->getFilter();
         static::assertInstanceOf(EqualsAnyFilter::class, $criteriaFilter);
-        static::assertEquals('product.manufacturerId', $criteriaFilter->getField());
+        static::assertSame('product.manufacturerId', $criteriaFilter->getField());
         static::assertEmpty($criteriaFilter->getValue());
 
         static::assertEmpty($filter->getValues());

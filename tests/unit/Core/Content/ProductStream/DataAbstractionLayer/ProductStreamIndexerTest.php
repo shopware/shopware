@@ -206,6 +206,6 @@ class ProductStreamIndexerTest extends TestCase
         $this->iteratorFactory->expects($this->once())->method('createIterator')->willReturn(new OffsetQuery($queryBuilder));
 
         $total = $this->indexer->getTotal();
-        static::assertEquals(1, $total);
+        static::assertSame(1, $total);
     }
 }

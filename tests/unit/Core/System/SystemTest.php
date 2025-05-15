@@ -16,6 +16,6 @@ class SystemTest extends TestCase
     {
         $system = new System();
 
-        static::assertEquals(-1, $system->getTemplatePriority());
+        static::assertSame(-1, $system->getTemplatePriority());
     }
 }

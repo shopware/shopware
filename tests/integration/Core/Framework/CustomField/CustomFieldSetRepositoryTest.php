@@ -134,8 +134,8 @@ class CustomFieldSetRepositoryTest extends TestCase
         $attributeSet = $result->first();
         static::assertNotNull($attributeSet);
 
-        static::assertEquals($id2, $attributeSet->getId());
-        static::assertEquals($attributeSets[1]['config'], $attributeSet->getConfig());
+        static::assertSame($id2, $attributeSet->getId());
+        static::assertSame($attributeSets[1]['config'], $attributeSet->getConfig());
     }
 
     public function testDelete(): void
@@ -180,7 +180,7 @@ class CustomFieldSetRepositoryTest extends TestCase
         $event = $result->getEventByEntityName(CustomFieldSetDefinition::ENTITY_NAME);
         static::assertNotNull($event);
         static::assertCount(1, $event->getIds());
-        static::assertEquals($id, $event->getIds()[0]);
+        static::assertSame($id, $event->getIds()[0]);
 
         $event = $result->getEventByEntityName(CustomFieldDefinition::ENTITY_NAME);
         static::assertNotNull($event);
@@ -237,7 +237,7 @@ class CustomFieldSetRepositoryTest extends TestCase
         $result = $this->repo->search(new Criteria([$id]), Context::createDefaultContext())->getEntities();
         $set = $result->first();
         static::assertNotNull($set);
-        static::assertEquals($update['config'], $set->getConfig());
+        static::assertSame($update['config'], $set->getConfig());
     }
 
     public function testSearchWithAssociations(): void

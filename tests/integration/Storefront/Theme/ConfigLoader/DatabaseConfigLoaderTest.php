@@ -113,7 +113,7 @@ class DatabaseConfigLoaderTest extends TestCase
             strrpos($themeConfig['fields']['media-field']['value'], '?') ?: null
         );
 
-        static::assertEquals($mediaURL, $entityUrlWithoutQueryString);
+        static::assertSame($mediaURL, $entityUrlWithoutQueryString);
     }
 
     public function testEmptyMediaConfigurationLoading(): void
@@ -155,7 +155,7 @@ class DatabaseConfigLoaderTest extends TestCase
 
         $mediaURL = null;
 
-        static::assertEquals($mediaURL, $themeConfig['fields']['media-field']['value']);
+        static::assertSame($mediaURL, $themeConfig['fields']['media-field']['value']);
     }
 
     public function testNonExistentMediaConfigurationLoading(): void
@@ -197,7 +197,7 @@ class DatabaseConfigLoaderTest extends TestCase
 
         $mediaURL = self::MEDIA_ID;
 
-        static::assertEquals($mediaURL, $themeConfig['fields']['media-field']['value']);
+        static::assertSame($mediaURL, $themeConfig['fields']['media-field']['value']);
     }
 
     /**
@@ -270,7 +270,7 @@ class DatabaseConfigLoaderTest extends TestCase
 
         foreach ($expected as $field => $value) {
             static::assertArrayHasKey($field, $fields);
-            static::assertEquals($value, $fields[$field]['value']);
+            static::assertSame($value, $fields[$field]['value']);
         }
     }
 

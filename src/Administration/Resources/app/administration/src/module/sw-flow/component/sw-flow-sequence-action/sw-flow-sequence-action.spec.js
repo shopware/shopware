@@ -668,6 +668,52 @@ describe('src/module/sw-flow/component/sw-flow-sequence-action', () => {
         expect(actionItems.at(1).text()).toBe('sw-flow.actions.group.tag');
     });
 
+    it('should remove duplicates of available actions based on action type', async () => {
+        const triggerActions = [
+            {
+                name: 'action.add.customer.tag',
+                requirements: ['Shopware\\Core\\Framework\\Event\\CustomerAware'],
+            },
+            {
+                name: 'action.add.order.tag',
+                requirements: ['Shopware\\Core\\Framework\\Event\\OrderAware'],
+            },
+            {
+                name: 'action.remove.customer.tag',
+                requirements: ['Shopware\\Core\\Framework\\Event\\CustomerAware'],
+            },
+            {
+                name: 'action.remove.order.tag',
+                requirements: ['Shopware\\Core\\Framework\\Event\\CustomerAware'],
+            },
+        ];
+
+        Shopware.State.commit('swFlowState/setTriggerEvent', {
+            name: 'checkout.customer.login',
+            aware: [
+                'Shopware\\Core\\Framework\\Event\\CustomerAware',
+                'Shopware\\Core\\Framework\\Event\\OrderAware',
+            ],
+        });
+
+        Shopware.State.commit('swFlowState/setTriggerActions', triggerActions);
+
+        const wrapper = await createWrapper();
+        await flushPromises();
+
+        const actionSelect = wrapper.find('.sw-single-select__selection');
+        await actionSelect.trigger('click');
+        await flushPromises();
+
+        const actionItems = wrapper.findAll('.sw-select-result');
+        const labels = actionItems.map(item => item.text());
+
+        expect(labels).toEqual([
+            'sw-flow.actions.addTag',
+            'sw-flow.actions.removeTag',
+        ]);
+    });
+
     it('should has actions from app flow actions in actions list', async () => {
         const appFlowResponse = [
             {

@@ -30,7 +30,7 @@ describe('src/module/sw-settings-message-stats/index.js', () => {
                     id: 'sw-settings-message-stats',
                     group: 'system',
                     to: 'sw.settings.message.stats.index',
-                    icon: 'regular-chart-line',
+                    icon: 'regular-bars-square',
                     privilege: 'system.system_config',
                     label: 'sw-settings-message-stats.general.mainMenuItemGeneral',
                     name: 'settings-message-stats',
@@ -57,4 +57,4 @@ describe('src/module/sw-settings-message-stats/index.js', () => {
             privilege: 'system.system_config',
         });
     });
-}); 
+});

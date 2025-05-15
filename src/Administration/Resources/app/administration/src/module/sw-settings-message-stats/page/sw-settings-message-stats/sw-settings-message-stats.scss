@@ -110,4 +110,47 @@
         font-weight: var(--font-weight-regular, 400);
         line-height: var(--font-line-height-xs, 22px);
     }
+
+    // Custom styles for the empty state in this module. Should be removed as soon as sw-empty-state is replaced by mt-empty-state meteor component.
+    .sw-empty-state__element {
+        text-align: left;
+        align-items: flex-start;
+        margin: 0;
+        padding: 0;
+    }
+
+    .sw-empty-state__icon {
+        display: flex;
+        width: 48px;
+        height: 48px;
+        padding: 12px;
+        align-items: center;
+        justify-content: center;
+        border-radius: var(--border-radius-xs, 4px);
+        background: var(--color-background-primary-disabled, #F2F3F8);
+        color: #2D2E32;
+    }
+
+    .sw-empty-state__title {
+        align-self: stretch;
+        color: var(--color-text-primary-default, #2D2E32);
+        font-family: var(--font-family-body, Inter);
+        font-size: var(--font-size-m, 18px);
+        font-style: normal;
+        font-weight: var(--font-weight-bold, 700);
+        line-height: var(--font-line-height-m, 28px);
+        margin-bottom: 8px;
+        text-align: left;
+    }
+
+    .sw-empty-state__description {
+        color: var(--color-text-secondary-default, #696A6E);
+        font-family: var(--font-family-body, Inter);
+        font-size: var(--font-size-xs, 14px);
+        font-style: normal;
+        font-weight: var(--font-weight-regular, 400);
+        line-height: var(--font-line-height-xs, 22px);
+        margin-bottom: 24px;
+        text-align: left;
+    }
 }

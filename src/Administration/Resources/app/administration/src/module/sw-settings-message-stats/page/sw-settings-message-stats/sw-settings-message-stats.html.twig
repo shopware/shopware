@@ -88,11 +88,15 @@
                         </sw-data-grid>
                     </div>
 
+                    {# element is styled to look lime mt-empty-state, don't forget to remove styles on update #}
                     <sw-empty-state
+                        v-else
                         :title="$tc('sw-settings-message-stats.general.emptyStateTitle')"
                         :subline="$tc('sw-settings-message-stats.general.emptyStateSubline')"
                         icon="regular-bars-square"
                         :absolute="false"
+                        color="#2D2E32"
+
                     >
                         <template #actions>
                             <mt-button

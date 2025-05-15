@@ -1,15 +1,20 @@
 /**
  * @sw-package framework
  */
-import { sort } from 'src/core/service/util.service';
 import template from './sw-settings-message-stats.html.twig';
 import './sw-settings-message-stats.scss';
+
+const { Mixin } = Shopware;
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default {
     template,
 
     inject: ['messageStatsService'],
+
+    mixins: [
+        Mixin.getByName('notification'),
+    ],
 
     data() {
         return {
@@ -104,7 +109,6 @@ export default {
             this.isLoading = true;
             try {
                 this.stats = await this.messageStatsService.getStats();
-                this.stats = {};
             } catch (error) {
                 this.createNotificationError({
                     title: this.$tc('sw-settings-message-stats.general.errorTitle'),

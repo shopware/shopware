@@ -12,7 +12,7 @@
             "processingWindow": "Processing window",
             "processingWindowHelp": "Displays the time of the oldest message currently included in the statistics. For example, if your statistics window is set to 1 hour, but processing started only 5 minutes ago, it will reflect this shorter duration.",
             "refreshButton": "Refresh data",
-            "errorTitle": "Error loading statistics",
+            "errorTitle": "Error loading message statistics",
             "emptyStateTitle": "No statistics available",
             "emptyStateSubline": "No message queue statistics have been collected yet.",
             "type": "Type",

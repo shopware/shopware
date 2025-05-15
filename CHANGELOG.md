@@ -45,6 +45,7 @@ This is the official changelog index of Shopware 6. Here you find a registry of 
 *  [9207 - Fixed misalignment of 'Add tags...' placeholder in order edit view](./changelog/release-6-7-0-0/2025-05-09-fixed-misalignment-of-add-tags-placeholder-in-order-edit-view.md) ([Mahesh Bohara](https://github.com/maheshbohara))
 *  [https://github.com/shopware/shopware/issues/8136 - Improve extensibility ESI templates](./changelog/release-6-7-0-0/2025-04-30-improve-extensibility-of-header-and-footer-esi-templates.md)
 *  [https://github.com/shopware/shopware/issues/9024 - Fix RetryableTransaction missing savepoint error](./changelog/release-6-7-0-0/2025-05-09-fix-retryabletransaction-missing-savepoint-error.md)
+*  [#9389 - Fix search result order](./changelog/release-6-7-0-0/2025-05-13-fix-search-result-order.md)
 
 ## 6.7.0.0-rc3
 *  [#4450 - OffCanvasSingleton does not remove hard-coded offcanvas from DOM](./changelog/release-6-7-0-0/2025-04-04-offcanvassingleton-does-not-remove-hard-coded-offcanvas-from-dom.md)

@@ -624,8 +624,8 @@ export default {
                     canInherit: this.isChild,
                     config: {
                         componentName: 'mt-number-field',
-                        changeLabel: this.$tc('sw-bulk-edit.product.measuresAndPackaging.widthTitle.changeLabel'),
-                        placeholder: this.$tc('sw-bulk-edit.product.measuresAndPackaging.widthTitle.placeholder'),
+                        changeLabel: this.$tc('sw-bulk-edit.product.measurements.width.changeLabel'),
+                        placeholder: this.$tc('sw-bulk-edit.product.measurements.width.placeholder'),
                         numberType: 'float',
                         suffixLabel: 'mm',
                         min: 0,
@@ -638,8 +638,8 @@ export default {
                     canInherit: this.isChild,
                     config: {
                         componentName: 'mt-number-field',
-                        changeLabel: this.$tc('sw-bulk-edit.product.measuresAndPackaging.heightTitle.changeLabel'),
-                        placeholder: this.$tc('sw-bulk-edit.product.measuresAndPackaging.heightTitle.placeholder'),
+                        changeLabel: this.$tc('sw-bulk-edit.product.measurements.height.changeLabel'),
+                        placeholder: this.$tc('sw-bulk-edit.product.measurements.height.placeholder'),
                         numberType: 'float',
                         suffixLabel: 'mm',
                         min: 0,
@@ -652,8 +652,8 @@ export default {
                     canInherit: this.isChild,
                     config: {
                         componentName: 'sw-number-field',
-                        changeLabel: this.$tc('sw-bulk-edit.product.measuresAndPackaging.lengthTitle.changeLabel'),
-                        placeholder: this.$tc('sw-bulk-edit.product.measuresAndPackaging.lengthTitle.placeholder'),
+                        changeLabel: this.$tc('sw-bulk-edit.product.measurements.length.changeLabel'),
+                        placeholder: this.$tc('sw-bulk-edit.product.measurements.length.placeholder'),
                         numberType: 'float',
                         suffixLabel: 'mm',
                         min: 0,
@@ -666,14 +666,19 @@ export default {
                     canInherit: this.isChild,
                     config: {
                         componentName: 'sw-number-field',
-                        changeLabel: this.$tc('sw-bulk-edit.product.measuresAndPackaging.weightTitle.changeLabel'),
-                        placeholder: this.$tc('sw-bulk-edit.product.measuresAndPackaging.weightTitle.placeholder'),
+                        changeLabel: this.$tc('sw-bulk-edit.product.measurements.weight.changeLabel'),
+                        placeholder: this.$tc('sw-bulk-edit.product.measurements.weight.placeholder'),
                         numberType: 'float',
                         suffixLabel: 'kg',
                         min: 0,
                         disabled: this.bulkEditProduct?.weight?.isInherited,
                     },
                 },
+            ];
+        },
+
+        sellingPackagingFields() {
+            return [
                 {
                     name: 'purchaseUnit',
                     type: 'float',
@@ -682,8 +687,8 @@ export default {
                         componentName: 'sw-number-field',
                         numberType: 'float',
                         min: 0,
-                        changeLabel: this.$tc('sw-bulk-edit.product.measuresAndPackaging.sellingUnitTitle.changeLabel'),
-                        placeholder: this.$tc('sw-bulk-edit.product.measuresAndPackaging.sellingUnitTitle.placeholder'),
+                        changeLabel: this.$tc('sw-bulk-edit.product.sellingPackaging.purchaseUnit.changeLabel'),
+                        placeholder: this.$tc('sw-bulk-edit.product.sellingPackaging.purchaseUnit.placeholder'),
                         disabled: this.bulkEditProduct?.purchaseUnit?.isInherited,
                     },
                 },
@@ -693,33 +698,9 @@ export default {
                     config: {
                         componentName: 'sw-entity-single-select',
                         entity: 'unit',
-                        changeLabel: this.$tc('sw-bulk-edit.product.measuresAndPackaging.scaleUnitTitle.changeLabel'),
-                        placeholder: this.$tc('sw-bulk-edit.product.measuresAndPackaging.scaleUnitTitle.placeholder'),
+                        changeLabel: this.$tc('sw-bulk-edit.product.sellingPackaging.unitId.changeLabel'),
+                        placeholder: this.$tc('sw-bulk-edit.product.sellingPackaging.unitId.placeholder'),
                         disabled: this.bulkEditProduct?.unitId?.isInherited,
-                    },
-                },
-                {
-                    name: 'packUnit',
-                    type: 'text',
-                    canInherit: this.isChild,
-                    config: {
-                        componentName: 'sw-field',
-                        type: 'text',
-                        changeLabel: this.$tc('sw-bulk-edit.product.measuresAndPackaging.packUnitTitle.changeLabel'),
-                        placeholder: this.$tc('sw-bulk-edit.product.measuresAndPackaging.packUnitTitle.placeholder'),
-                        disabled: this.bulkEditProduct?.packUnit?.isInherited,
-                    },
-                },
-                {
-                    name: 'packUnitPlural',
-                    type: 'text',
-                    canInherit: this.isChild,
-                    config: {
-                        componentName: 'sw-field',
-                        type: 'text',
-                        changeLabel: this.$tc('sw-bulk-edit.product.measuresAndPackaging.packUnitPluralTitle.changeLabel'),
-                        placeholder: this.$tc('sw-bulk-edit.product.measuresAndPackaging.packUnitPluralTitle.placeholder'),
-                        disabled: this.bulkEditProduct?.packUnitPlural?.isInherited,
                     },
                 },
                 {
@@ -730,9 +711,33 @@ export default {
                         componentName: 'sw-number-field',
                         numberType: 'float',
                         min: 0,
-                        changeLabel: this.$tc('sw-bulk-edit.product.measuresAndPackaging.basicUnitTitle.changeLabel'),
-                        placeholder: this.$tc('sw-bulk-edit.product.measuresAndPackaging.basicUnitTitle.placeholder'),
+                        changeLabel: this.$tc('sw-bulk-edit.product.sellingPackaging.referenceUnit.changeLabel'),
+                        placeholder: this.$tc('sw-bulk-edit.product.sellingPackaging.referenceUnit.placeholder'),
                         disabled: this.bulkEditProduct?.referenceUnit?.isInherited,
+                    },
+                },
+                {
+                    name: 'packUnit',
+                    type: 'text',
+                    canInherit: this.isChild,
+                    config: {
+                        componentName: 'sw-field',
+                        type: 'text',
+                        changeLabel: this.$tc('sw-bulk-edit.product.sellingPackaging.packUnit.changeLabel'),
+                        placeholder: this.$tc('sw-bulk-edit.product.sellingPackaging.packUnit.placeholder'),
+                        disabled: this.bulkEditProduct?.packUnit?.isInherited,
+                    },
+                },
+                {
+                    name: 'packUnitPlural',
+                    type: 'text',
+                    canInherit: this.isChild,
+                    config: {
+                        componentName: 'sw-field',
+                        type: 'text',
+                        changeLabel: this.$tc('sw-bulk-edit.product.sellingPackaging.packUnitPlural.changeLabel'),
+                        placeholder: this.$tc('sw-bulk-edit.product.sellingPackaging.packUnitPlural.placeholder'),
+                        disabled: this.bulkEditProduct?.packUnitPlural?.isInherited,
                     },
                 },
             ];
@@ -975,6 +980,7 @@ export default {
                 this.labellingFormFields,
                 this.seoFormFields,
                 this.measuresPackagingFields,
+                this.sellingPackagingFields,
                 this.essentialCharacteristicsFormFields,
             ];
 

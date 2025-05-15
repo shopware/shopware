@@ -1,89 +1,50 @@
 name: Visual Tests
 
-on: 
+# Once proven stable, this workflow can be integrated into the integration workflow
+# by adding "Visual" to the "name" matrix element.
+on:
   workflow_dispatch:
     inputs:
       update-snapshots:
-        description: "Update snapshots?"
+        description: 'Update snapshots?'
         type: boolean
-  
+        default: false
+      nightly:
+        description: 'Running as part of the nightly build?'
+        type: boolean
+        default: false
 
  # Allow updating snapshots during manual runs
   workflow_call:
     inputs:
       update-snapshots:
-        description: "Update snapshots?"
+        description: 'Update snapshots?'
         type: boolean
+        default: false
+      nightly:
+        description: 'Running as part of the nightly build?'
+        type: boolean
+        default: false
+
+  push: # TODO: remove this before merging
+    branches:
+      - feat/visual-tests-workflow
 
 jobs:
   visual-tests:
     runs-on: ubuntu-latest
-    strategy:
-      fail-fast: false
-      matrix:
-        project:
-          - name: Platform
-          - name: Install
-    env:
-      SHOPWARE_HTTP_CACHE_ENABLED: 0
-      SHOPWARE_DISABLE_UPDATE_CHECK: "true"
-      BLUE_GREEN_DEPLOYMENT: 1
-      COMPOSER_ROOT_VERSION: 6.7.9999999-dev
     steps:
-      - name: Setup Shopware
-        uses: shopware/setup-shopware@main
+      - name: Checkout
+        uses: actions/checkout@v4
         with:
-          shopware-version: ${{ github.ref }}
-          shopware-repository: ${{ github.repository }}
-          install: true
-          install-admin: true
-          install-storefront: true
-          env: prod
+          fetch-depth: 0
 
-      - name: Start web server
-        run: symfony server:start -d
-      - uses: actions/setup-node@v4
+      - uses: ./.github/actions/ats
         with:
-          node-version: 20
-      - name: Install dependencies
-        working-directory: tests/acceptance
-        run: npm ci
-      - name: Install Playwright Browsers
-        working-directory: tests/acceptance
-        run: npx playwright install --with-deps chromium
-
-      - name: Download snapshot artifact
-        if: github.event_name == 'pull_request' || inputs.update-snapshots != 'true'
-        uses: actions/download-artifact@v4
-        with:
-          name: visual-snapshots
-          path: tests/screenshots
-        continue-on-error: true
-
-      - name: Run Playwright tests
-        run: |
-          if [ "${{ github.event.inputs.update-snapshots }}" = "true" ]; then
-            echo "Running with snapshot update"
-            npx playwright test --project=Visual --update-snapshots --reporter html
-          else
-            echo "Running without snapshot update"
-            npx pwc --key @CURRENTS_RECORD_KEY --project-id @CURRENTS_PROJECT_ID  --project=Visual
-            if ${{ !contains(github.workflow_ref, 'nightly') }}
-              working-directory: tests/acceptance
-              run: npx pwc --project=Visual
-            fi
-          fi
-
-      - name: Upload updated snapshots
-        if: github.event.inputs.update-snapshots == 'true'
-        uses: actions/upload-artifact@v4
-        with: 
-          name: visual-snapshots
-          path: tests/screenshots
-
-      - uses: actions/upload-artifact@v4
-        if: always()
-        with:
-          name: playwright-report-${{ matrix.project.name }}
-          path: tests/acceptance/test-results/
-          retention-days: 3
+          project: 'Visual'
+          install: 'true'
+          extra-options: >- # TODO: remove push option before merging
+            ${{ ( inputs.update-snapshots || github.event_name == 'push' ) && '--update-snapshots' || '' }}
+          use-currents: ${{ inputs.nightly && 'true' || '' }}
+          currents-project-id: ${{ secrets.CURRENTS_PROJECT_ID_VISUAL }}
+          currents-record-key: ${{ secrets.CURRENTS_RECORD_KEY }}

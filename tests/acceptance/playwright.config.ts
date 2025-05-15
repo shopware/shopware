@@ -90,7 +90,7 @@ export default defineConfig({
                 },
             },
             dependencies: ['Setup'],
-            grepInvert: /@Install|@Update|@Setup.*/,
+            grepInvert: /@Install|@Update|@Visual|@Setup.*/,
         },
         {
             name: 'Install',

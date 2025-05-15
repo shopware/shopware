@@ -353,6 +353,7 @@
                     :form-fields="measuresPackagingFields"
                     :bulk-edit-data="bulkEditProduct"
                     :entity="product"
+                    @update:default-unit="onUpdateDefaultUnit"
                     @inheritance-restore="onInheritanceRestore"
                     @inheritance-remove="onInheritanceRemove"
                 />

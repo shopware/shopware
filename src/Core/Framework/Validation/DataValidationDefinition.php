@@ -71,6 +71,11 @@ class DataValidationDefinition
         return $this->properties;
     }
 
+    public function getProperty(string $name): array
+    {
+        return $this->properties[$name] ?? [];
+    }
+
     /**
      * @return DataValidationDefinition[]
      */
@@ -90,5 +95,22 @@ class DataValidationDefinition
     public function getName(): string
     {
         return $this->name;
+    }
+
+    public function merge(DataValidationDefinition $definition): self
+    {
+        foreach ($definition->getProperties() as $name => $constraints) {
+            $this->add($name, ...$constraints);
+        }
+
+        foreach ($definition->getSubDefinitions() as $name => $subDefinition) {
+            $this->addSub($name, $subDefinition);
+        }
+
+        foreach ($definition->getListDefinitions() as $name => $listDefinition) {
+            $this->addList($name, $listDefinition);
+        }
+
+        return $this;
     }
 }

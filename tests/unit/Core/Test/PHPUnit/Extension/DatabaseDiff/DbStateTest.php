@@ -26,12 +26,12 @@ class DbStateTest extends TestCase
         $dbState = new DbState($this->connection);
 
         $this->connection
-            ->expects(static::once())
+            ->expects($this->once())
             ->method('fetchAllAssociative')
             ->willReturn([['table1'], ['table2']]);
 
         $this->connection
-            ->expects(static::exactly(2))
+            ->expects($this->exactly(2))
             ->method('fetchOne')
             ->willReturnOnConsecutiveCalls(10, 20);
 
@@ -47,12 +47,12 @@ class DbStateTest extends TestCase
         $dbState->tableCounts = ['table1' => 10, 'table2' => 20];
 
         $this->connection
-            ->expects(static::once())
+            ->expects($this->once())
             ->method('fetchAllAssociative')
             ->willReturn([['table1'], ['table3']]);
 
         $this->connection
-            ->expects(static::exactly(2))
+            ->expects($this->exactly(2))
             ->method('fetchOne')
             ->willReturnOnConsecutiveCalls(15, 30);
 

@@ -66,6 +66,7 @@ export default {
             const criteria = new Criteria();
             criteria.addAssociation('salesChannel');
             criteria.addFilter(Criteria.equals('salesChannel.typeId', Shopware.Defaults.storefrontSalesChannelTypeId));
+            criteria.addFilter(Criteria.equals('salesChannel.active', true));
             criteria.addSorting(Criteria.sort('salesChannel.name', 'ASC'));
             criteria.addSorting(Criteria.sort('languageId', 'DESC'));
 
@@ -74,6 +75,10 @@ export default {
             }
 
             return criteria;
+        },
+
+        hasSalesChannelDomains() {
+            return this.salesChannelDomains !== null && this.salesChannelDomains.length > 0;
         },
     },
 

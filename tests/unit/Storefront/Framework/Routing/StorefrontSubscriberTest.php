@@ -99,7 +99,7 @@ class StorefrontSubscriberTest extends TestCase
     public function testRedirectLoginPageWhenCustomerNotLoggedInWithRoutingException(): void
     {
         $router = $this->createMock(RouterInterface::class);
-        $router->expects(static::once())
+        $router->expects($this->once())
             ->method('generate')
             ->with('frontend.account.login.page')
             ->willReturn('/login');
@@ -151,7 +151,7 @@ class StorefrontSubscriberTest extends TestCase
     public function testRedirectLoginPageWhenCustomerNotLoggedInWithCustomerNotLoggedInException(): void
     {
         $router = $this->createMock(RouterInterface::class);
-        $router->expects(static::once())
+        $router->expects($this->once())
             ->method('generate')
             ->with('frontend.account.login.page')
             ->willReturn('/login');
@@ -182,7 +182,7 @@ class StorefrontSubscriberTest extends TestCase
     public function testCustomerNotLoggedInHandlerWithoutRedirect(): void
     {
         $router = $this->createMock(RouterInterface::class);
-        $router->expects(static::never())
+        $router->expects($this->never())
             ->method('generate')
             ->with('frontend.account.login.page')
             ->willReturn('/login');

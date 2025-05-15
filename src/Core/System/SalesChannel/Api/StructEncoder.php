@@ -183,22 +183,6 @@ class StructEncoder implements ResetInterface
                 continue;
             }
 
-            if ($property === 'customFields' && $value) {
-                if ($this->blockedCustomFields === null) {
-                    $this->fetchBlockedCustomFields();
-                }
-
-                $blockedFields = $this->blockedCustomFields[$alias] ?? [];
-                $blockedFields = \array_merge($blockedFields, $this->blockedCustomFields['global'] ?? []);
-                if ($blockedFields) {
-                    $blockedFieldsLookup = \array_flip($blockedFields);
-
-                    $value = \array_filter($value, static function ($key) use ($blockedFieldsLookup) {
-                        return !isset($blockedFieldsLookup[$key]);
-                    }, \ARRAY_FILTER_USE_KEY);
-                }
-            }
-
             $data[$property] = $this->encodeNestedArray($struct->getApiAlias(), (string) $property, $value, $fields);
         }
 
@@ -214,6 +198,22 @@ class StructEncoder implements ResetInterface
      */
     private function encodeNestedArray(string $alias, string $prefix, array $data, ResponseFields $fields): array
     {
+        if ($prefix === 'customFields' && $data) {
+            if ($this->blockedCustomFields === null) {
+                $this->fetchBlockedCustomFields();
+            }
+
+            $blockedFields = $this->blockedCustomFields[$alias] ?? [];
+            $blockedFields = \array_merge($blockedFields, $this->blockedCustomFields['global'] ?? []);
+            if ($blockedFields) {
+                $blockedFieldsLookup = \array_flip($blockedFields);
+
+                $data = \array_filter($data, static function ($key) use ($blockedFieldsLookup) {
+                    return !isset($blockedFieldsLookup[$key]);
+                }, \ARRAY_FILTER_USE_KEY);
+            }
+        }
+
         if ($prefix !== 'translated' && !$fields->hasNested($alias, $prefix)) {
             return $data;
         }

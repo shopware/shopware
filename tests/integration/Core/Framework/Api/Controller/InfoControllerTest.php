@@ -409,16 +409,16 @@ class InfoControllerTest extends TestCase
 
         $assetPackage = $this->createMock(Package::class);
         $packagesMock
-            ->expects(static::exactly(1))
+            ->expects($this->exactly(1))
             ->method('getPackage')
             ->willReturn($assetPackage);
         $assetPackage
-            ->expects(static::exactly(1))
+            ->expects($this->exactly(1))
             ->method('getUrl')
             ->willReturnArgument(0);
 
         $kernelMock
-            ->expects(static::exactly(1))
+            ->expects($this->exactly(1))
             ->method('getBundles')
             ->willReturn([new BundleFixture('SomeFunctionalityBundle', __DIR__ . '/Fixtures/InfoController')]);
 
@@ -476,16 +476,16 @@ class InfoControllerTest extends TestCase
 
         $assetPackage = $this->createMock(Package::class);
         $packagesMock
-            ->expects(static::exactly(1))
+            ->expects($this->exactly(1))
             ->method('getPackage')
             ->willReturn($assetPackage);
         $assetPackage
-            ->expects(static::exactly(1))
+            ->expects($this->exactly(1))
             ->method('getUrl')
             ->willReturnArgument(0);
 
         $kernelMock
-            ->expects(static::exactly(1))
+            ->expects($this->exactly(1))
             ->method('getBundles')
             ->willReturn([new BundleFixture('SomeFunctionalityBundle', __DIR__ . '/Fixtures/InfoControllerWithMarker')]);
 
@@ -556,7 +556,7 @@ class InfoControllerTest extends TestCase
         $infoController->setContainer($this->createMock(Container::class));
 
         $kernelMock
-            ->expects(static::exactly(1))
+            ->expects($this->exactly(1))
             ->method('getBundles')
             ->willReturn([
                 new AdminExtensionApiPlugin(true, __DIR__ . '/Fixtures/InfoController'),

@@ -19,13 +19,13 @@ class WebhookCleanupTest extends TestCase
     public function testNothingIsRemovedIfLifetimeIsMinus1(): void
     {
         $config = $this->createMock(SystemConfigService::class);
-        $config->expects(static::once())
+        $config->expects($this->once())
             ->method('getInt')
             ->with('core.webhook.entryLifetimeSeconds')
             ->willReturn(-1);
 
         $conn = $this->createMock(Connection::class);
-        $conn->expects(static::never())
+        $conn->expects($this->never())
             ->method('executeStatement');
 
         $cleaner = new WebhookCleanup($config, $conn, new MockClock());
@@ -35,13 +35,13 @@ class WebhookCleanupTest extends TestCase
     public function testOldRecordsAreRemoved(): void
     {
         $config = $this->createMock(SystemConfigService::class);
-        $config->expects(static::once())
+        $config->expects($this->once())
             ->method('getInt')
             ->with('core.webhook.entryLifetimeSeconds')
             ->willReturn(86400);
 
         $conn = $this->createMock(Connection::class);
-        $conn->expects(static::once())
+        $conn->expects($this->once())
             ->method('executeStatement')
             ->with(
                 'DELETE FROM `webhook_event_log` WHERE `created_at` < :before AND (`delivery_status` = :success OR `delivery_status` = :failed) LIMIT :limit',
@@ -60,13 +60,13 @@ class WebhookCleanupTest extends TestCase
     public function testOldRecordsAreRemovedInBatched(): void
     {
         $config = $this->createMock(SystemConfigService::class);
-        $config->expects(static::once())
+        $config->expects($this->once())
             ->method('getInt')
             ->with('core.webhook.entryLifetimeSeconds')
             ->willReturn(86400);
 
         $conn = $this->createMock(Connection::class);
-        $conn->expects(static::exactly(2))
+        $conn->expects($this->exactly(2))
             ->method('executeStatement')
             ->with(
                 'DELETE FROM `webhook_event_log` WHERE `created_at` < :before AND (`delivery_status` = :success OR `delivery_status` = :failed) LIMIT :limit',

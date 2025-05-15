@@ -13,24 +13,55 @@ Contains custom styles for the footer located at the bottom of the page.
     display: flex;
     justify-content: space-between;
 
-    // control icon visibility via collapse show state
-    .footer-minus-icon {
-        display: none;
-    }
+    @if feature('ACCESSIBILITY_TWEAKS') {
 
-    &.show {
-        .footer-plus-icon {
+        // control icon visibility via collapse show state
+        .icon-footer-minus {
             display: none;
         }
 
+        .icon-footer-plus > svg,
+        .icon-footer-minus > svg {
+            top: 0.25em;
+        }
+
+        .footer-column-toggle[aria-expanded="true"] {
+            .icon-footer-plus {
+                display: none;
+            }
+
+            .icon-footer-minus {
+                display: inline-flex;
+            }
+        }
+
+    } @else {
+        // control icon visibility via collapse show state
         .footer-minus-icon {
-            display: block;
+            display: none;
+        }
+
+        &[aria-expanded="true"] {
+            .footer-plus-icon {
+                display: none;
+            }
+
+            .footer-minus-icon {
+                display: block;
+            }
         }
     }
 }
 
-.footer-column-toggle {
-    pointer-events: none;
+@if feature('ACCESSIBILITY_TWEAKS') {
+    .footer-column-toggle {
+        padding: 0;
+        --#{$prefix}btn-line-height: 1.375;
+    }
+} @else {
+    .footer-column-toggle {
+        pointer-events: none;
+    }
 }
 
 .footer-link-item {

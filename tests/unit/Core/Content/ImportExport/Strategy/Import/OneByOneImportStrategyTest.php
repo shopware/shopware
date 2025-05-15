@@ -39,9 +39,9 @@ class OneByOneImportStrategyTest extends ImportStrategyTestCase
 
         $writeResult = new EntityWrittenContainerEvent(Context::createDefaultContext(), new NestedEventCollection(), []);
 
-        $this->repository->expects(static::once())->method($method)->willReturn($writeResult);
+        $this->repository->expects($this->once())->method($method)->willReturn($writeResult);
 
-        $this->eventDispatcher->expects(static::once())->method('dispatch');
+        $this->eventDispatcher->expects($this->once())->method('dispatch');
 
         $progress = new Progress('logId', Progress::STATE_PROGRESS);
 
@@ -58,7 +58,7 @@ class OneByOneImportStrategyTest extends ImportStrategyTestCase
 
         $writeResult = new EntityWrittenContainerEvent(Context::createDefaultContext(), new NestedEventCollection(), []);
 
-        $this->repository->expects(static::once())->method('create')->willReturnCallback(
+        $this->repository->expects($this->once())->method('create')->willReturnCallback(
             function () use ($writeResult) {
                 static $counter = 0;
                 if ($counter++ === 0) {
@@ -69,7 +69,7 @@ class OneByOneImportStrategyTest extends ImportStrategyTestCase
             }
         );
 
-        $this->eventDispatcher->expects(static::once())
+        $this->eventDispatcher->expects($this->once())
             ->method('dispatch')
             ->with(static::isInstanceOf(ImportExportExceptionImportRecordEvent::class));
 

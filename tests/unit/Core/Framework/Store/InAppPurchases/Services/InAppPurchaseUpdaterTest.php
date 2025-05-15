@@ -39,7 +39,7 @@ class InAppPurchaseUpdaterTest extends TestCase
 
         $client = $this->createMock(ClientInterface::class);
 
-        $client->expects(static::once())
+        $client->expects($this->once())
             ->method('request')
             ->with('GET', 'https://test.com', ['query' => ['a'], 'headers' => ['b']])
             ->willReturn(new Response(200, [], $jwt));
@@ -51,10 +51,10 @@ class InAppPurchaseUpdaterTest extends TestCase
         ]);
 
         $optionsProvider = $this->createMock(AbstractStoreRequestOptionsProvider::class);
-        $optionsProvider->expects(static::once())
+        $optionsProvider->expects($this->once())
             ->method('getDefaultQueryParameters')
             ->willReturn(['a']);
-        $optionsProvider->expects(static::once())
+        $optionsProvider->expects($this->once())
             ->method('getAuthenticationHeader')
             ->willReturn(['b']);
 
@@ -62,12 +62,12 @@ class InAppPurchaseUpdaterTest extends TestCase
         $appId = Uuid::randomHex();
         $eventDispatcher = $this->createMock(EventDispatcherInterface::class);
         $eventDispatcher
-            ->expects(static::once())
+            ->expects($this->once())
             ->method('dispatch')
             ->with(static::equalTo(new InAppPurchaseChangedEvent('TestApp', '["test","test2"]', $appId, $context)));
 
         $connection = $this->createMock(Connection::class);
-        $connection->expects(static::once())
+        $connection->expects($this->once())
             ->method('fetchAllKeyValue')
             ->willReturn(['TestApp' => $appId]);
 

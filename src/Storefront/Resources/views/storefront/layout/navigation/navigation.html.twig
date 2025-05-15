@@ -48,6 +48,21 @@
                                                 <span itemprop="name">{{ name }}</span>
                                             </div>
                                         </div>
+                                        {% if feature('ACCESSIBILITY_TWEAKS') and (treeItem.children|length > 0) %}
+                                            <div class="navigation-flyouts position-absolute w-100 start-0">
+                                                <div class="navigation-flyout"
+                                                     data-flyout-menu-id="{{ treeItem.category.id }}">
+                                                    <div class="container">
+                                                        {% sw_include '@Storefront/storefront/layout/navigation/flyout.html.twig' with {
+                                                            themeIconConfig: themeIconConfig,
+                                                            navigationTree: treeItem,
+                                                            level: level+1,
+                                                            page: page
+                                                        } only %}
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        {% endif %}
                                     {% else %}
                                         {% set active = '' %}
                                         {% if category.id == shopware.navigation.id or category.id in activePath %}

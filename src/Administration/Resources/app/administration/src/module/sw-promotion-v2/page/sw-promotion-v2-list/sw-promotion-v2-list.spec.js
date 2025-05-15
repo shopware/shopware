@@ -249,6 +249,8 @@ describe('src/module/sw-promotion-v2/page/sw-promotion-v2-list', () => {
                     individualCodePattern: '',
                     individualCodes: null,
                     active: false,
+                    orderCount: 0,
+                    ordersPerCustomerCount: null,
                 },
             },
             Shopware.Context.api,

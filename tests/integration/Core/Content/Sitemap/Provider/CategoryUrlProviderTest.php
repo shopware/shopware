@@ -2,22 +2,18 @@
 
 namespace Shopware\Tests\Integration\Core\Content\Sitemap\Provider;
 
-use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Category\CategoryDefinition;
 use Shopware\Core\Content\Category\CategoryEntity;
 use Shopware\Core\Content\Sitemap\Provider\CategoryUrlProvider;
-use Shopware\Core\Content\Sitemap\Service\ConfigHandler;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\Dbal\Common\IteratorFactory;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\Seo\StorefrontSalesChannelTestHelper;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Storefront\Framework\Seo\SeoUrlRoute\ProductPageSeoUrlRoute;
-use Symfony\Component\Routing\RouterInterface;
 
 /**
  * @internal
@@ -91,13 +87,7 @@ class CategoryUrlProviderTest extends TestCase
 
     private function getCategoryUrlProvider(): CategoryUrlProvider
     {
-        return new CategoryUrlProvider(
-            static::getContainer()->get(ConfigHandler::class),
-            static::getContainer()->get(Connection::class),
-            static::getContainer()->get(CategoryDefinition::class),
-            static::getContainer()->get(IteratorFactory::class),
-            static::getContainer()->get(RouterInterface::class),
-        );
+        return $this->getContainer()->get(CategoryUrlProvider::class);
     }
 
     private function createRootCategoryData(): string

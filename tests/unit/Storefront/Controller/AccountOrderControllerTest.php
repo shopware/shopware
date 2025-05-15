@@ -235,13 +235,13 @@ class AccountOrderControllerTest extends TestCase
         );
 
         $this->orderRouteMock
-            ->expects(static::once())
+            ->expects($this->once())
             ->method('load')
             ->with($request = new Request(), $salesChannelContext, $criteria)
             ->willReturn($accountRouteResponse);
 
         $this->handlePaymentRouteMock
-            ->expects(static::once())
+            ->expects($this->once())
             ->method('load')
             ->with(static::isInstanceOf(Request::class), $salesChannelContext)
             ->willReturn(new HandlePaymentMethodRouteResponse(new RedirectResponse('http://doesnotexist.com')));

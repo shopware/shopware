@@ -496,7 +496,7 @@ class FeatureFlagRegistryTest extends TestCase
     {
         Feature::resetRegisteredFeatures();
         $storage = $this->createMock(AbstractKeyValueStorage::class);
-        $storage->expects(static::once())->method('get')->with(FeatureFlagRegistry::STORAGE_KEY, [])->willThrowException($this->createMock(ConnectionException::class));
+        $storage->expects($this->once())->method('get')->with(FeatureFlagRegistry::STORAGE_KEY, [])->willThrowException($this->createMock(ConnectionException::class));
 
         $service = new FeatureFlagRegistry(
             $storage,

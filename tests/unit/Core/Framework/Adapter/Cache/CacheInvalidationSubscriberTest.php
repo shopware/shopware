@@ -51,7 +51,7 @@ class CacheInvalidationSubscriberTest extends TestCase
         $salesChannelId = Uuid::randomHex();
 
         $cacheInvalidator = $this->createMock(CacheInvalidator::class);
-        $cacheInvalidator->expects(static::once())
+        $cacheInvalidator->expects($this->once())
             ->method('invalidate')
             ->with(
                 [
@@ -97,7 +97,7 @@ class CacheInvalidationSubscriberTest extends TestCase
     {
         Feature::skipTestIfActive('cache_rework', $this);
         $cacheInvalidator = $this->createMock(CacheInvalidator::class);
-        $cacheInvalidator->expects(static::once())
+        $cacheInvalidator->expects($this->once())
             ->method('invalidate')
             ->with(
                 $tags,
@@ -143,7 +143,7 @@ class CacheInvalidationSubscriberTest extends TestCase
         Feature::skipTestIfActive('cache_rework', $this);
 
         $cacheInvalidator = $this->createMock(CacheInvalidator::class);
-        $cacheInvalidator->expects(static::once())
+        $cacheInvalidator->expects($this->once())
             ->method('invalidate')
             ->with(
                 $tags,
@@ -177,7 +177,7 @@ class CacheInvalidationSubscriberTest extends TestCase
             ->willReturn([['product_id' => $productId, 'version_id' => null]]);
 
         if (Feature::isActive('cache_rework')) {
-            $this->cacheInvalidator->expects(static::once())
+            $this->cacheInvalidator->expects($this->once())
                 ->method('invalidate')
                 ->with(
                     [
@@ -186,7 +186,7 @@ class CacheInvalidationSubscriberTest extends TestCase
                     false
                 );
         } else {
-            $this->cacheInvalidator->expects(static::once())
+            $this->cacheInvalidator->expects($this->once())
                 ->method('invalidate')
                 ->with(
                     [
@@ -219,7 +219,7 @@ class CacheInvalidationSubscriberTest extends TestCase
             ]);
 
         if (Feature::isActive('cache_rework')) {
-            $this->cacheInvalidator->expects(static::once())
+            $this->cacheInvalidator->expects($this->once())
                 ->method('invalidate')
                 ->with(
                     [
@@ -230,7 +230,7 @@ class CacheInvalidationSubscriberTest extends TestCase
                     false
                 );
         } else {
-            $this->cacheInvalidator->expects(static::once())
+            $this->cacheInvalidator->expects($this->once())
                 ->method('invalidate')
                 ->with(
                     [

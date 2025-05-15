@@ -1,6 +1,6 @@
 import { test } from '@fixtures/AcceptanceTest';
 
-test('Guest customer is able to add and remove products to the wishlist',{ tag: '@Wishlist' }, async ({ 
+test('Guest customer is able to add and remove products to the wishlist',{ tag: '@Wishlist' }, async ({
     TestDataService,
     ShopCustomer,
     StorefrontHome,
@@ -20,7 +20,7 @@ test('Guest customer is able to add and remove products to the wishlist',{ tag: 
         await TestDataService.setSystemConfig({ 'core.basicInformation.acceptAllCookies': true });
         await ShopCustomer.goesTo(StorefrontHome.url());
         await StorefrontHome.consentAcceptAllCookiesButton.click();
-        await StorefrontHome.page.reload();
+        await ShopCustomer.expects(StorefrontHome.consentAcceptAllCookiesButton).not.toBeVisible();
     });
 
     await test.step('Add product1 to the wishlist and verify wishlist count updates to 1', async () => {
@@ -40,14 +40,14 @@ test('Guest customer is able to add and remove products to the wishlist',{ tag: 
 
     await test.step('Login as customer and verify product1 is still in wishlist', async () => {
         await ShopCustomer.attemptsTo(Login());
-        await ShopCustomer.goesTo(StorefrontHome.url());
         await ShopCustomer.expects(StorefrontHome.wishlistBasket).toHaveText('1');
-        await ShopCustomer.expects(product1Locators.wishlistAddedIcon).toBeVisible();       
+        await ShopCustomer.goesTo(StorefrontHome.url());
+        await ShopCustomer.expects(product1Locators.wishlistAddedIcon).toBeVisible();
     });
 
     await test.step('Add product2 to the wishlist and verify', async () => {
         await ShopCustomer.attemptsTo(AddProductToWishlist(product2));
-        await ShopCustomer.expects(product2Locators.wishlistAddedIcon).toBeVisible();   
+        await ShopCustomer.expects(product2Locators.wishlistAddedIcon).toBeVisible();
     });
 
     await test.step('Navigate to the wishlist and verify that the products are visible', async () => {

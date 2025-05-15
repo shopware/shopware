@@ -80,7 +80,7 @@ class ServiceClientTest extends TestCase
     public function testLatestInfoThrowsExceptionWhenRequestFails(): void
     {
         $response = static::createMock(ResponseInterface::class);
-        $response->expects(static::any())->method('getStatusCode')->willReturn(Response::HTTP_BAD_REQUEST);
+        $response->expects($this->any())->method('getStatusCode')->willReturn(Response::HTTP_BAD_REQUEST);
 
         static::expectExceptionObject(ServiceException::requestFailed($response));
 
@@ -194,7 +194,7 @@ class ServiceClientTest extends TestCase
         ]);
         $fs = static::createMock(Filesystem::class);
 
-        $matcher = static::exactly(4);
+        $matcher = $this->exactly(4);
 
         $fs->expects($matcher)->method('appendToFile')->willReturnCallback(function (string $filename, string $content) use ($matcher): void {
             $expectedContent = match ($matcher->numberOfInvocations()) {
@@ -250,7 +250,7 @@ class ServiceClientTest extends TestCase
     public function testDownloadAppZipForVersionThrowsExceptionWhenRequestFails(): void
     {
         $response = static::createMock(ResponseInterface::class);
-        $response->expects(static::any())->method('getStatusCode')->willReturn(Response::HTTP_BAD_REQUEST);
+        $response->expects($this->any())->method('getStatusCode')->willReturn(Response::HTTP_BAD_REQUEST);
 
         static::expectExceptionObject(ServiceException::requestFailed($response));
 

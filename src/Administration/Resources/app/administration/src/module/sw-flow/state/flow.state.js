@@ -310,7 +310,7 @@ export default {
         },
 
         fetchTriggerActions({ commit }) {
-            Service('businessEventService')
+            return Service('businessEventService')
                 .getBusinessEvents()
                 .then((result) => {
                     commit('setTriggerEvents', result);

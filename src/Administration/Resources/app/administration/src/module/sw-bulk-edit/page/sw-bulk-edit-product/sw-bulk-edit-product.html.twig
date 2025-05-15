@@ -376,6 +376,22 @@
             </mt-card>
             {% endblock %}
 
+            {% block sw_bulk_edit_product_content_selling_packaging_card %}
+            <mt-card
+                class="sw-bulk-edit-product-base__selling-packaging"
+                position-identifier="sw-bulk-edit-product-selling-packaging"
+                :title="$tc('sw-bulk-edit.product.sellingPackaging.cardTitle')"
+            >
+                <sw-bulk-edit-change-type-field-renderer
+                    :form-fields="sellingPackagingFields"
+                    :bulk-edit-data="bulkEditProduct"
+                    :entity="product"
+                    @inheritance-restore="onInheritanceRestore"
+                    @inheritance-remove="onInheritanceRemove"
+                />
+            </mt-card>
+            {% endblock %}
+
             {% block sw_bulk_edit_product_content_essential_card %}
             <mt-card
                 class="sw-bulk-edit-product-base___essential"

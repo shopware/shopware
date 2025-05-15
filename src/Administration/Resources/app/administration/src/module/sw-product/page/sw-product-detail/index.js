@@ -338,6 +338,12 @@ export default {
         getModeSettingSpecificationsTab() {
             return [
                 {
+                    key: 'measurement',
+                    label: 'sw-product.specifications.cardTitleMeasurement',
+                    enabled: true,
+                    name: 'specifications',
+                },
+                {
                     key: 'selling_packaging',
                     label: 'sw-product.specifications.cardTitleSellingPackaging',
                     enabled: true,

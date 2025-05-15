@@ -29,7 +29,7 @@ class DocumentConfigurationFactory
     }
 
     /**
-     * @param DocumentBaseConfigEntity|DocumentConfiguration|array<string, bool|int|string|array<array-key, mixed>|null> $additionalConfig
+     * @param DocumentBaseConfigEntity|DocumentConfiguration|array<string, mixed> $additionalConfig
      */
     public static function mergeConfiguration(DocumentConfiguration $baseConfig, DocumentBaseConfigEntity|DocumentConfiguration|array $additionalConfig): DocumentConfiguration
     {
@@ -67,9 +67,16 @@ class DocumentConfigurationFactory
                     $typeName = $propertyType->getName();
                     if (is_subclass_of($typeName, Entity::class) && \is_array($value)) {
                         $setterMethod = 'set' . ucfirst($key);
+                        /*
+                        Using dynamic access to handle entity properties generically, which improves maintainability by
+                        automatically supporting new entity properties without code changes with a static
+                        switch/if-else approach.
+                        */
                         if (method_exists($baseConfig, $setterMethod)) {
+                            // @phpstan-ignore symplify.noDynamicName
                             $baseConfig->$setterMethod((new $typeName())->assign($value));
                         } else {
+                            // @phpstan-ignore symplify.noDynamicName
                             $baseConfig->{$key} = (new $typeName())->assign($value);
                         }
                         continue;

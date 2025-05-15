@@ -1,12 +1,12 @@
 name: Manage documentation tasks for GitHub Epics
 
 on:
-  workflow_dispatch:
   schedule: # Every 15 minutes
     - cron: '*/15 * * * *'
 
 jobs:
   manage-docs:
+    if: github.repository == 'shopware/shopware' && github.ref == 'refs/heads/trunk'
     runs-on: ubuntu-24.04
     permissions:
       id-token: write

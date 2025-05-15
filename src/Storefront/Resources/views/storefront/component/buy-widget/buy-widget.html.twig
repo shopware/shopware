@@ -26,7 +26,7 @@
             {% block buy_widget_rich_snippets_weight %}
                 {% if product.measurementUnits.type('weight') %}
                     {% set weightUnit = product.measurementUnits.type('weight').unit %}
-                    {% set weightValue =product.measurementUnits.type('weight').value %}
+                    {% set weightValue = product.measurementUnits.type('weight').value %}
                 {% else %}
                     {% set weightUnit = 'kg' %}
                     {% set weightValue = product.weight %}
@@ -41,7 +41,7 @@
             {% block buy_widget_rich_snippets_height %}
                 {% if product.measurementUnits.type('height') %}
                     {% set heightUnit = product.measurementUnits.type('height').unit %}
-                    {% set heightValue =product.measurementUnits.type('height').value %}
+                    {% set heightValue = product.measurementUnits.type('height').value %}
                 {% else %}
                     {% set heightUnit = 'mm' %}
                     {% set heightValue = product.height %}
@@ -56,7 +56,7 @@
             {% block buy_widget_rich_snippets_width %}
                 {% if product.measurementUnits.type('width') %}
                     {% set widthUnit = product.measurementUnits.type('width').unit %}
-                    {% set widthValue =product.measurementUnits.type('width').value %}
+                    {% set widthValue = product.measurementUnits.type('width').value %}
                 {% else %}
                     {% set widthUnit = 'mm' %}
                     {% set widthValue = product.width %}
@@ -71,7 +71,7 @@
             {% block buy_widget_rich_snippets_depth %}
                 {% if product.measurementUnits.type('length') %}
                     {% set lengthUnit = product.measurementUnits.type('length').unit %}
-                    {% set lengthValue =product.measurementUnits.type('length').value %}
+                    {% set lengthValue = product.measurementUnits.type('length').value %}
                 {% else %}
                     {% set lengthUnit = 'mm' %}
                     {% set lengthValue = product.length %}

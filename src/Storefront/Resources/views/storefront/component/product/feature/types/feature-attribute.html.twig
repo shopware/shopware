@@ -11,7 +11,7 @@
 
     {% if label == 'releaseDate' %}
         {{ value|sw_sanitize|date('Y-m-d') }}
-    {% elseif isDimension or isWeight %}
+    {% elseif usesMeasurementUnit %}
         {% if measurementUnits and measurementUnits[label] is defined %}
             {% set unit = measurementUnits[label].unit %}
             {% set value = measurementUnits[label].value %}

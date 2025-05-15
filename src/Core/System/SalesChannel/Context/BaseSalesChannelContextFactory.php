@@ -78,12 +78,6 @@ class BaseSalesChannelContextFactory extends AbstractBaseSalesChannelContextFact
         $criteria->addAssociation('currency');
         $criteria->addAssociation('domains');
 
-        $criteria->addAssociations([
-            'currency',
-            'domains',
-            'domains',
-        ]);
-
         $criteria->getAssociation('languages')
             ->addFilter(new EqualsFilter('id', $context->getLanguageId()))
             ->addAssociation('translationCode')

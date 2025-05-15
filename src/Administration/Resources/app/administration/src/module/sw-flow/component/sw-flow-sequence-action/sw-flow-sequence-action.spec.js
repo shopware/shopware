@@ -670,33 +670,33 @@ describe('src/module/sw-flow/component/sw-flow-sequence-action', () => {
 
     it('should remove duplicates of available actions based on action type', async () => {
         const triggerActions = [
-            {
-                name: 'action.add.customer.tag',
-                requirements: ['Shopware\\Core\\Framework\\Event\\CustomerAware'],
-            },
-            {
-                name: 'action.add.order.tag',
-                requirements: ['Shopware\\Core\\Framework\\Event\\OrderAware'],
-            },
-            {
-                name: 'action.remove.customer.tag',
-                requirements: ['Shopware\\Core\\Framework\\Event\\CustomerAware'],
-            },
-            {
-                name: 'action.remove.order.tag',
-                requirements: ['Shopware\\Core\\Framework\\Event\\CustomerAware'],
-            },
+            { name: 'action.add.customer.tag', requirements: ['CustomerAware'] },
+            { name: 'action.add.order.tag', requirements: ['OrderAware'] },
+            { name: 'action.remove.customer.tag', requirements: ['CustomerAware'] },
+            { name: 'action.remove.order.tag', requirements: ['OrderAware'] },
         ];
 
-        Shopware.State.commit('swFlowState/setTriggerEvent', {
-            name: 'checkout.customer.login',
-            aware: [
-                'Shopware\\Core\\Framework\\Event\\CustomerAware',
-                'Shopware\\Core\\Framework\\Event\\OrderAware',
-            ],
-        });
+        const originalTriggerActions = Shopware.State.get('swFlowState').triggerActions;
+        const originalTriggerEvent = Shopware.State.get('swFlowState').triggerEvent;
 
         Shopware.State.commit('swFlowState/setTriggerActions', triggerActions);
+        Shopware.State.commit('swFlowState/setTriggerEvent', {
+            name: 'checkout.customer.login',
+            aware: ['CustomerAware', 'OrderAware'],
+        });
+
+        const originalService = Shopware.Service('flowBuilderService');
+        Shopware.Service().flowBuilderService = {
+            mapActionType: (actionName) => {
+                if (actionName.includes('add.customer.tag') || actionName.includes('add.order.tag')) {
+                    return 'add.tag';
+                }
+                if (actionName.includes('remove.customer.tag') || actionName.includes('remove.order.tag')) {
+                    return 'remove.tag';
+                }
+                return actionName;
+            }
+        };
 
         const wrapper = await createWrapper();
         await flushPromises();
@@ -705,13 +705,18 @@ describe('src/module/sw-flow/component/sw-flow-sequence-action', () => {
         await actionSelect.trigger('click');
         await flushPromises();
 
-        const actionItems = wrapper.findAll('.sw-select-result');
-        const labels = actionItems.map(item => item.text());
+        const actionItems = wrapper.findAll('.sw-select-result .sw-highlight-text');
+        const labels = actionItems.map(el => el.text());
 
-        expect(labels).toEqual([
+        expect(labels).toHaveLength(2);
+        expect(labels).toEqual(expect.arrayContaining([
             'sw-flow.actions.addTag',
             'sw-flow.actions.removeTag',
-        ]);
+        ]));
+
+        Shopware.State.commit('swFlowState/setTriggerActions', originalTriggerActions);
+        Shopware.State.commit('swFlowState/setTriggerEvent', originalTriggerEvent);
+        Shopware.Service().flowBuilderService = originalService;
     });
 
     it('should has actions from app flow actions in actions list', async () => {

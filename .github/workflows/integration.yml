@@ -262,8 +262,10 @@ jobs:
           composer -d src/Elasticsearch config version ${SW_RECOVERY_NEXT_VERSION}
 
       - name: Build updater
-        working-directory: new-shopware/src/WebInstaller
+        working-directory: new-shopware/src/
         run: |
+          git clone https://github.com/shopware/web-installer.git WebInstaller
+          cd WebInstaller
           composer config platform.php 8.2
           composer install
           composer build-phar

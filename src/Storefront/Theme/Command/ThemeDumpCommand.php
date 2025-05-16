@@ -159,10 +159,11 @@ class ThemeDumpCommand extends Command
 
             if ($channelCount > 0) {
                 $choices[] =
-                    \sprintf('%s (✓ Assigned to: %s)',
-                    $themeName,
-                    $salesChannels ? implode(', ', $salesChannels->map(fn ($channel) => $channel->getName())) : ''
-                );
+                    \sprintf(
+                        '%s (✓ Assigned to: %s)',
+                        $themeName,
+                        $salesChannels ? implode(', ', $salesChannels->map(fn ($channel) => $channel->getName())) : ''
+                    );
                 continue;
             }
 

@@ -79,9 +79,10 @@ class ThemeDumpCommand extends Command
             if ($input->isInteractive() && \count($choices) > 1) {
                 $helper = $this->getHelper('question');
                 $question = new ChoiceQuestion('Please select a theme:', $choices);
-                $themeName = $helper->ask($input, $output, $question);
+                $selectedOption = $helper->ask($input, $output, $question);
 
-                \assert(\is_string($themeName));
+                \assert(\is_string($selectedOption));
+                $themeName = preg_replace('/\s+\(.*\)$/', '', $selectedOption);
 
                 $criteria->addFilter(new EqualsFilter('name', $themeName));
             }
@@ -147,13 +148,29 @@ class ThemeDumpCommand extends Command
     {
         $choices = [];
 
-        $themes = $this->themeRepository->search(new Criteria(), Context::createCLIContext())->getEntities();
+        $criteria = new Criteria();
+        $criteria->addAssociation('salesChannels');
+        $themes = $this->themeRepository->search($criteria, Context::createCLIContext())->getEntities();
+
+        $assignedThemes = [];
+        $unassignedThemes = [];
 
         foreach ($themes as $theme) {
-            $choices[] = $theme->getName();
+            $themeName = $theme->getName();
+            $salesChannels = $theme->getSalesChannels()?->filterByTypeId(Defaults::SALES_CHANNEL_TYPE_STOREFRONT);
+            $channelCount = $salesChannels ? $salesChannels->count() : 0;
+
+            if ($channelCount > 0) {
+                $assignedThemes[] = sprintf('%s (✓ Assigned to: %s)',
+                    $themeName,
+                    $salesChannels ? implode(', ', $salesChannels->map(fn ($channel) => $channel->getName())) : ''
+                );
+            } else {
+                $unassignedThemes[] = sprintf('%s (Not assigned to any storefront channel)', $themeName);
+            }
         }
 
-        return $choices;
+        return array_merge($assignedThemes, $unassignedThemes);
     }
 
     private function askForDomainUrlIfMoreThanOneExists(ThemeEntity $themeEntity, InputInterface $input, OutputInterface $output): ?string

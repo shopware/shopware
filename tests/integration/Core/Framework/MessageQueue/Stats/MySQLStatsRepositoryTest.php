@@ -24,7 +24,7 @@ class MySQLStatsRepositoryTest extends TestCase
     {
         parent::setUp();
 
-        $this->connection = $this->getContainer()->get('Doctrine\DBAL\Connection');
+        $this->connection = $this->getContainer()->get(Connection::class);
         $this->cleanTable();
     }
 
@@ -35,19 +35,27 @@ class MySQLStatsRepositoryTest extends TestCase
 
     public function testUpdateMessageStatsDeletesExpired(): void
     {
-        $repository = new MySQLStatsRepositoryTestable($this->connection, 20);
-
+        $timespan = 20;
         $now = 1726671956;
-        $repository->setNow($this->dateTimeFromTime($now - 21));
+        $dateInsideTimespan = $this->dateTimeFromTime($now - $timespan);
+        $dateOutsideTimespan = $this->dateTimeFromTime($now - $timespan - 1);
+
+        $repository = new MySQLStatsRepositoryTestable($this->connection, $timespan);
+
+        // inserting "old" record
+        $repository->setNow($dateOutsideTimespan);
         $repository->updateMessageStats('myclassname', 3);
 
-        $repository->setNow($this->dateTimeFromTime($now - 20));
+        // inserting tow records on the timespan edges
+        $repository->setNow($dateInsideTimespan);
         $repository->updateMessageStats('myclassname', 7);
 
+        // this insert should delete the first record
         $repository->setNow($this->dateTimeFromTime($now));
         $repository->updateMessageStats('myclassname', 0);
 
-        static::assertEquals(2, $this->countRecords($this->dateTimeFromTime($now - 21)));
+        // we count all records equal or newer than the date
+        static::assertSame(2, $this->countRecords($dateOutsideTimespan));
     }
 
     public function testGetStats(): void
@@ -66,15 +74,15 @@ class MySQLStatsRepositoryTest extends TestCase
 
         $stats = $repository->getStats();
 
-        static::assertEquals(2, $stats->totalMessagesProcessed);
+        static::assertSame(2, $stats->totalMessagesProcessed);
         static::assertEquals($now, $stats->processedSince);
-        static::assertEquals(5.5, $stats->averageTimeInQueue);
+        static::assertSame(5.5, $stats->averageTimeInQueue);
         static::assertCount(1, $stats->messageTypeStats);
 
         $typeStats = $stats->messageTypeStats->first();
         static::assertNotNull($typeStats);
-        static::assertEquals('test', $typeStats->type);
-        static::assertEquals(2, $typeStats->count);
+        static::assertSame('test', $typeStats->type);
+        static::assertSame(2, $typeStats->count);
     }
 
     private function countRecords(\DateTimeInterface $newerThan): int

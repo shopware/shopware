@@ -705,6 +705,7 @@ class InfoControllerTest extends TestCase
         static::assertArrayHasKey('messageTypeStats', $stats);
         static::assertIsArray($stats['messageTypeStats']);
         static::assertArrayHasKey('type', $stats['messageTypeStats'][0]);
+        static::assertSame('stdClass', $stats['messageTypeStats'][0]['type']);
         static::assertArrayHasKey('count', $stats['messageTypeStats'][0]);
     }
 

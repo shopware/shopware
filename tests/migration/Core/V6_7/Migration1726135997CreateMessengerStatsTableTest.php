@@ -2,13 +2,13 @@
 
 declare(strict_types=1);
 
-namespace Shopware\Tests\Migration\Core\V6_6;
+namespace Shopware\Tests\Migration\Core\V6_7;
 
 use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelLifecycleManager;
-use Shopware\Core\Migration\V6_6\Migration1726135997CreateMessengerStatsTable;
+use Shopware\Core\Migration\V6_7\Migration1726135997CreateMessengerStatsTable;
 
 /**
  * @internal
@@ -34,6 +34,7 @@ class Migration1726135997CreateMessengerStatsTableTest extends TestCase
         $this->rollback();
 
         $migration = new Migration1726135997CreateMessengerStatsTable();
+        $migration->update($this->connection);
         $migration->update($this->connection);
 
         $schemaManager = $this->connection->createSchemaManager();

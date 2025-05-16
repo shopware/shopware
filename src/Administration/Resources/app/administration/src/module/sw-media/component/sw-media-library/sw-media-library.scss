@@ -17,10 +17,15 @@ $sw-media-library-color-background: $color-white;
         grid-gap: 16px;
         justify-content: end;
         justify-items: end;
+        align-items: end;
         z-index: $z-index-overlay;
 
         @media (max-width: 1550px) {
             grid-auto-flow: row;
+        }
+
+        .mt-field {
+            margin-bottom: 0;
         }
     }
 

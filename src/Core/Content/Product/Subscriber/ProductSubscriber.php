@@ -2,7 +2,7 @@
 
 namespace Shopware\Core\Content\Product\Subscriber;
 
-use Shopware\Core\Content\MeasurementSystem\Service\ProductMeasurementUnitBuilder;
+use Shopware\Core\Content\MeasurementSystem\ProductMeasurement\ProductMeasurementUnitBuilder;
 use Shopware\Core\Content\Product\AbstractIsNewDetector;
 use Shopware\Core\Content\Product\AbstractProductMaxPurchaseCalculator;
 use Shopware\Core\Content\Product\AbstractProductVariationBuilder;

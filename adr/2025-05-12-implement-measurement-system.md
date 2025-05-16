@@ -167,10 +167,10 @@ Example product output:
 }
 ```
 
-We will also introduce a `MeasurementUnitConverter` interface to handle unit conversion.
+We will also introduce a `MeasurementUnitConverter` to handle unit conversion.
 
 ```php
-interface MeasurementUnitConverter
+abstract class AbstractMeasurementUnitConverter
 {
     public function convert(float $value, string $fromUnit = 'mm', string $toUnit = 'in'): ConvertedUnit;
 }
@@ -220,21 +220,21 @@ Storefront templates currently use fixed units (mm, kg):
 {{ product.weight }} kg
 ```
 
-With the new system:
+With the new system, the value and unit will be dynamically resolved based on the configured measurement system and units.
 
 ```twig
-{{ product.measurementUnits.width.value }} {{ product.measurementUnits.width.unit }}
-{{ product.measurementUnits.weight.value }} {{ product.measurementUnits.weight.unit }}
+{{ product.measurementUnits.type('width').value }} {{ product.measurementUnits.type('width').unit }}
+{{ product.measurementUnits.type('weight').value }} {{ product.measurementUnits.type('weight').unit }}
 ```
 
 #### New Twig Filters for On-the-Fly Conversion
 
-We will provide new Twig filters for on-the-fly unit conversion.
+We provide new Twig filters for on-the-fly unit conversion.
 
 ```twig
 {# Convert to domain-configured units (e.g., m and g) #}
-{{ 1500|sw_convert(from: 'mm') }}  {# Output: 1.5m #}
-{{ 1.2|sw_convert(from: 'kg') }}   {# Output: 1200g #}
+{{ 1500|sw_convert_unit(from: 'mm') }}  {# Output: 1.5m #}
+{{ 1.2|sw_convert_unit(from: 'kg') }}   {# Output: 1200g #}
 
 {# Convert to specific units #}
 {{ 100|sw_convert(from: 'kg', to: 'lb') }}  {# Output: 220.462 #}

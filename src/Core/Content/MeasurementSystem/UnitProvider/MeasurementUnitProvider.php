@@ -1,30 +1,31 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Core\Content\MeasurementSystem\Service;
+namespace Shopware\Core\Content\MeasurementSystem\UnitProvider;
 
 use Doctrine\DBAL\Connection;
 use Shopware\Core\Content\MeasurementSystem\MeasurementSystemException;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Symfony\Contracts\Service\ResetInterface;
 
 /**
- * @phpstan-import-type MeasurementUnitsType from MeasurementUnitProviderInterface
+ * @phpstan-import-type MeasurementUnitsType from AbstractMeasurementUnitProvider
  */
 #[Package('inventory')]
-class MeasurementUnitProvider implements MeasurementUnitProviderInterface, ResetInterface
+class MeasurementUnitProvider extends AbstractMeasurementUnitProvider implements ResetInterface
 {
     /**
-     * @var MeasurementUnitsType
+     * @var array<string, MeasurementUnitsType>
      */
-    private readonly array $units;
+    private array $units = [];
 
+    /**
+     * @internal
+     */
     public function __construct(private readonly Connection $connection)
     {
     }
 
-    /**
-     * @return array<string, MeasurementUnitsType>
-     */
     public function getUnits(): array
     {
         if (!empty($this->units)) {
@@ -33,6 +34,7 @@ class MeasurementUnitProvider implements MeasurementUnitProviderInterface, Reset
 
         $query = 'SELECT short_name, type, factor FROM measurement_display_unit';
 
+        /** @var array< string, array{ type: string, factor: string }> $units */
         $units = $this->connection->fetchAllAssociativeIndexed($query);
 
         return $this->units = array_map(
@@ -44,9 +46,6 @@ class MeasurementUnitProvider implements MeasurementUnitProviderInterface, Reset
         );
     }
 
-    /**
-     * @return MeasurementUnitsType
-     */
     public function getUnitInfo(string $unit): array
     {
         $units = $this->getUnits();
@@ -61,5 +60,10 @@ class MeasurementUnitProvider implements MeasurementUnitProviderInterface, Reset
     public function reset(): void
     {
         $this->units = [];
+    }
+
+    public function getDecorated(): AbstractMeasurementUnitProvider
+    {
+        throw new DecorationPatternException(self::class);
     }
 }

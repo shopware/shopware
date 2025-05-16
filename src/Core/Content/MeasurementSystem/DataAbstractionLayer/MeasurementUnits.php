@@ -2,7 +2,7 @@
 
 namespace Shopware\Core\Content\MeasurementSystem\DataAbstractionLayer;
 
-use Shopware\Core\Content\MeasurementSystem\Service\ConvertedUnit;
+use Shopware\Core\Content\MeasurementSystem\UnitConverter\ConvertedUnit;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Struct\Struct;
 

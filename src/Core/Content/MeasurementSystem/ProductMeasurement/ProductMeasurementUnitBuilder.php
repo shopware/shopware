@@ -1,18 +1,22 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Core\Content\MeasurementSystem\Service;
+namespace Shopware\Core\Content\MeasurementSystem\ProductMeasurement;
 
 use Shopware\Core\Content\MeasurementSystem\DataAbstractionLayer\MeasurementUnits;
 use Shopware\Core\Content\MeasurementSystem\MeasurementSystemInfo;
+use Shopware\Core\Content\MeasurementSystem\UnitConverter\AbstractMeasurementUnitConverter;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
+/**
+ * @internal
+ */
 #[Package('inventory')]
 class ProductMeasurementUnitBuilder
 {
     public function __construct(
-        private readonly MeasurementUnitConverterInterface $unitConverter
+        private readonly AbstractMeasurementUnitConverter $unitConverter
     ) {
     }
 

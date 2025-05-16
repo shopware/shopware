@@ -76,6 +76,11 @@ class DocumentConfigurationFactory
                 }
 
                 $setterMethod = 'set' . ucfirst($key);
+                /*
+                Using dynamic access to handle entity properties generically, which improves maintainability by
+                automatically supporting new entity properties without code changes with a static
+                switch/if-else approach.
+                */
                 if (method_exists($baseConfig, $setterMethod)) {
                     // @phpstan-ignore symplify.noDynamicName
                     $baseConfig->$setterMethod((new $typeName())->assign($value));

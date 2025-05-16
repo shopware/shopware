@@ -20,7 +20,7 @@ class MeasurementUnitConverter extends AbstractMeasurementUnitConverter
     {
     }
 
-    public function convert(float $value, string $fromUnit, string $toUnit, int $decimals = 2): ConvertedUnit
+    public function convert(float $value, string $fromUnit, string $toUnit, int $decimals = 3): ConvertedUnit
     {
         if ($fromUnit === $toUnit) {
             return new ConvertedUnit($value, $toUnit);

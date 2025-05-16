@@ -1,8 +1,8 @@
 ---
-**title**: Implement measurement system  
-**date**: 2025-05-14  
-**area**: inventory  
-**tags**: [measurement system]
+title: Implement measurement system  
+date: 2025-05-14  
+area: inventory  
+tags: [measurement system]
 ---
 
 ## Context

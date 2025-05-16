@@ -147,8 +147,7 @@ class ProductStreamUpdater extends AbstractProductStreamUpdater
         foreach ($ids as $id) {
             $message = new ProductStreamMappingIndexingMessage($id);
             $message->setIndexer($this->getName());
-            $this->handle($message);
-//            $this->messageBus->dispatch($message);
+            $this->messageBus->dispatch($message);
         }
 
         return null;
@@ -234,7 +233,6 @@ class ProductStreamUpdater extends AbstractProductStreamUpdater
 
         $filters = $this->replaceCheapestPriceFilters($filters);
         $parsed = [];
-
         foreach ($filters as $filter) {
             $parsed[] = QueryStringParser::fromArray($this->productDefinition, $filter, $exception, '');
         }
@@ -305,17 +303,8 @@ class ProductStreamUpdater extends AbstractProductStreamUpdater
         $accessors[0] = '';
         $accessors = implode('.', $accessors);
 
-        $priceFilter = [
-            'type' => 'multi',
-            'operator' => 'AND',
-            'queries' => [
-                [...$filter, ...['field' => $prefix . 'price' . $accessors]],
-                ['type' => 'equals', 'field' => $prefix . 'prices.price' . $accessors, 'value' => null],
-            ]
-        ];
-
         return [
-            $priceFilter,
+            [...$filter, ...['field' => $prefix . 'price' . $accessors]],
             [...$filter, ...['field' => $prefix . 'prices.price' . $accessors]],
         ];
     }

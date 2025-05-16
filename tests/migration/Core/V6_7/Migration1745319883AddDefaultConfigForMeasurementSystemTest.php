@@ -35,7 +35,7 @@ class Migration1745319883AddDefaultConfigForMeasurementSystemTest extends TestCa
         $this->connection->executeStatement('DELETE FROM system_config WHERE configuration_key IN (
             "core.measurementSystem.typeId",
             "core.measurementSystem.lengthUnitId",
-            "core.measurementSystem.massUnitId"
+            "core.measurementSystem.weightUnitId"
         )');
 
         $this->migrationMeasurementSystem = new Migration1742199548MeasurementSystem();
@@ -49,7 +49,7 @@ class Migration1745319883AddDefaultConfigForMeasurementSystemTest extends TestCa
         // Ensure the keys do not exist before the migration
         static::assertFalse($this->configExists('core.measurementSystem.typeId'));
         static::assertFalse($this->configExists('core.measurementSystem.lengthUnitId'));
-        static::assertFalse($this->configExists('core.measurementSystem.massUnitId'));
+        static::assertFalse($this->configExists('core.measurementSystem.weightUnitId'));
 
         // Run the migration
         $this->migration->update($this->connection);
@@ -67,7 +67,7 @@ class Migration1745319883AddDefaultConfigForMeasurementSystemTest extends TestCa
         static::assertNotEmpty($units);
 
         foreach ($units as $id => $unitType) {
-            $configKey = $unitType === 'length' ? 'core.measurementSystem.lengthUnitId' : 'core.measurementSystem.massUnitId';
+            $configKey = $unitType === 'length' ? 'core.measurementSystem.lengthUnitId' : 'core.measurementSystem.weightUnitId';
             $configValue = \sprintf('{"_value": "%s"}', Uuid::fromBytesToHex($id));
 
             $this->assertConfigValue($configKey, $configValue);

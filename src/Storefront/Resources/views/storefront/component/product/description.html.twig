@@ -3,18 +3,6 @@
 {% block utilities_offcanvas_content %}
     {% block component_product_description_container %}
         <div class="product-detail-description tab-pane-container">
-            <h3>convert 5.5cm to in: {{ '5.5'|sw_convert_unit(from: 'cm', to: 'in') }}</h3>
-            <h3>convert 10 in to cm: {{ '10'|sw_convert_unit(from: 'in', to: 'cm', decimals: 2) }}</h3>
-            <h3>convert from 5 kg to gram: {{ '5'|sw_convert_unit(from: 'kg', to: 'g') }}</h3>
-            <h3>convert from 5 kg to configured unit: {{ '5'|sw_convert_unit(from: 'kg') }}</h3>
-
-            <p>
-                Packaging size in US: {{ product.width|sw_convert_unit(from: 'mm', to: 'in') }} x {{ product.length|sw_convert(from: 'mm', to: 'in') }} x {{ product.height|sw_convert(from: 'mm', to: 'in') }}
-            </p>
-            <p>
-                Packaging size in EU: {{ product.width|sw_convert_unit(from: 'mm', to: 'cm') }} x {{ product.length|sw_convert(from: 'mm', to: 'cm') }} x {{ product.height|sw_convert(from: 'mm', to: 'cm') }}
-            </p>
-
             {% block component_product_description_title %}
                 <h2 class="product-detail-description-title">
                     {{ 'detail.descriptionTitle'|trans|sw_sanitize }} "{{ product.translated.name }}"

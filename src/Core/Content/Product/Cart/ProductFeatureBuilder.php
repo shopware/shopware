@@ -195,7 +195,7 @@ class ProductFeatureBuilder
             'label' => $name,
             'value' => $value,
             'type' => ProductFeatureSetDefinition::TYPE_PRODUCT_ATTRIBUTE,
-            'measurementUnits' => $product->getMeasurementUnits()->jsonSerialize() ?? null,
+            'measurementUnits' => $product->getMeasurementUnits()?->jsonSerialize() ?? null,
         ];
     }
 

@@ -312,7 +312,6 @@ class BaseSalesChannelContextFactory extends AbstractBaseSalesChannelContextFact
         $criteria = new Criteria();
         $criteria->setLimit(2);
         $criteria->setTitle('base-context-factory::measurement-system');
-        $criteria->addAssociation('measurementSystem');
 
         if ($domainId) {
             $criteria->addFilter(new MultiFilter(
@@ -336,9 +335,8 @@ class BaseSalesChannelContextFactory extends AbstractBaseSalesChannelContextFact
 
         $weightUnit = $units->filter(fn (MeasurementDisplayUnitEntity $unit) => $unit->type === 'weight')->first();
         $lengthUnit = $units->filter(fn (MeasurementDisplayUnitEntity $unit) => $unit->type === 'length')->first();
-        $measurementSystem = $units->first()->measurementSystem ?? null;
 
-        return new MeasurementSystemInfo($measurementSystem?->name ?? MeasurementSystemInfo::DEFAULT_SYSTEM, [
+        return new MeasurementSystemInfo([
             'weight' => $weightUnit instanceof MeasurementDisplayUnitEntity ? $weightUnit->shortName : MeasurementSystemInfo::DEFAULT_WEIGHT_UNIT,
             'length' => $lengthUnit instanceof MeasurementDisplayUnitEntity ? $lengthUnit->shortName : MeasurementSystemInfo::DEFAULT_LENGTH_UNIT,
         ]);

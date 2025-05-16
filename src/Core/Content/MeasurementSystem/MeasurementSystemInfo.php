@@ -8,8 +8,6 @@ use Shopware\Core\Framework\Struct\Struct;
 #[Package('inventory')]
 class MeasurementSystemInfo extends Struct
 {
-    public const DEFAULT_SYSTEM = 'metric';
-
     public const DEFAULT_LENGTH_UNIT = 'mm';
 
     public const DEFAULT_WEIGHT_UNIT = 'kg';
@@ -17,7 +15,7 @@ class MeasurementSystemInfo extends Struct
     /**
      * @param array<string, string> $units
      */
-    public function __construct(protected readonly string $name, protected array $units)
+    public function __construct(protected array $units)
     {
     }
 

@@ -46,7 +46,7 @@ class StoreClientFactoryTest extends TestCase
         $client = $storeClientFactory->create();
         $config = $this->getConfigFromClient($client);
 
-        static::assertEquals(self::TEST_STORE_URI, $config['base_uri']);
+        static::assertSame(self::TEST_STORE_URI, (string) $config['base_uri']);
 
         static::assertArrayHasKey('Content-Type', $config['headers']);
         static::assertSame('application/json', $config['headers']['Content-Type']);
@@ -54,8 +54,8 @@ class StoreClientFactoryTest extends TestCase
         static::assertArrayHasKey('Accept', $config['headers']);
         static::assertSame('application/vnd.api+json,application/json', $config['headers']['Accept']);
 
-        /** @var HandlerStack $stack */
         $stack = $config['handler'];
+        static::assertInstanceOf(HandlerStack::class, $stack);
 
         static::assertTrue($stack->hasHandler());
     }

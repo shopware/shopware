@@ -83,4 +83,23 @@ class DocumentConfigurationFactoryTest extends TestCase
         static::assertSame(10, $mergedConfig->__get('itemsPerPage'));
         static::assertSame(['pdf', 'html', 'xml'], $mergedConfig->getFileTypes());
     }
+
+    public function testMergeConfigurationWithCustomArray(): void
+    {
+        $baseConfig = new DocumentConfiguration();
+
+        $additionalConfig = [
+            'companyName' => 'Example Company',
+            'custom' => [
+                'invoiceNumber' => '1',
+            ],
+        ];
+
+        $mergedConfig = DocumentConfigurationFactory::mergeConfiguration($baseConfig, $additionalConfig);
+
+        static::assertSame('Example Company', $mergedConfig->getCompanyName());
+        $customData = $mergedConfig->__get('custom');
+        static::assertIsArray($customData);
+        static::assertSame('1', $customData['invoiceNumber']);
+    }
 }

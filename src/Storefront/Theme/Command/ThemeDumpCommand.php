@@ -8,6 +8,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\System\SalesChannel\SalesChannelEntity;
 use Shopware\Storefront\Theme\ConfigLoader\StaticFileConfigDumper;
 use Shopware\Storefront\Theme\StorefrontPluginRegistry;
 use Shopware\Storefront\Theme\ThemeCollection;
@@ -162,7 +163,7 @@ class ThemeDumpCommand extends Command
                     \sprintf(
                         '%s (✓ Assigned to: %s)',
                         $themeName,
-                        $salesChannels ? implode(', ', $salesChannels->map(fn ($channel) => $channel->getName())) : ''
+                        $salesChannels ? implode(', ', $salesChannels->map(fn (SalesChannelEntity $channel) => $channel->getName())) : ''
                     );
                 continue;
             }

@@ -11,12 +11,10 @@ use Shopware\Core\Framework\SystemCheck\Check\Result;
 use Shopware\Core\Framework\SystemCheck\Check\Status;
 use Shopware\Core\Framework\SystemCheck\Check\SystemCheckExecutionContext;
 use Shopware\Core\Framework\Uuid\Uuid;
-use Shopware\Core\Kernel;
-use Shopware\Core\SalesChannelRequest;
+use Shopware\Storefront\Framework\SystemCheck\Util\SalesChannelDomainUtil;
 use Symfony\Component\HttpFoundation\Request;
-use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Component\HttpFoundation\Response;
-use Symfony\Component\Routing\RouterInterface;
+use Symfony\Component\HttpKernel\KernelInterface;
 
 /**
  * @internal
@@ -33,17 +31,16 @@ class SaleChannelsReadinessCheck extends BaseCheck
      * @internal
      */
     public function __construct(
-        private readonly Kernel $kernel,
-        private readonly RouterInterface $router,
-        protected readonly Connection $connection,
-        private readonly RequestStack $requestStack
+        private readonly KernelInterface $kernel,
+        private readonly Connection $connection,
+        private readonly SalesChannelDomainUtil $util,
     ) {
     }
 
     public function run(): Result
     {
-        return $this->asASalesChannelRequest(
-            fn () => $this->whileTrustingAllHosts(
+        return $this->util->asASalesChannelRequest(
+            fn () => $this->util->whileTrustingAllHosts(
                 fn () => $this->doRun()
             )
         );
@@ -64,29 +61,13 @@ class SaleChannelsReadinessCheck extends BaseCheck
         return SystemCheckExecutionContext::readiness();
     }
 
-    /**
-     * @return array<string>
-     */
-    protected function fetchSalesChannelDomains(): array
-    {
-        $result = $this->connection->fetchAllAssociative(
-            'SELECT `url` FROM `sales_channel_domain`
-                    INNER JOIN `sales_channel` ON `sales_channel_domain`.`sales_channel_id` = `sales_channel`.`id`
-                    WHERE `sales_channel`.`type_id` = :typeId
-                    AND `sales_channel`.`active` = :active',
-            ['typeId' => Uuid::fromHexToBytes(Defaults::SALES_CHANNEL_TYPE_STOREFRONT), 'active' => 1]
-        );
-
-        return array_map(fn (array $row): string => $row['url'], $result);
-    }
-
     private function doRun(): Result
     {
         $domains = $this->fetchSalesChannelDomains();
         $extra = [];
         $requestStatus = [];
         foreach ($domains as $domain) {
-            $url = $this->generateDomainUrl($domain);
+            $url = $this->util->generateDomainUrl($domain, self::INDEX_PAGE);
             $request = Request::create($url);
             $requestStart = microtime(true);
             $response = $this->kernel->handle($request);
@@ -112,44 +93,19 @@ class SaleChannelsReadinessCheck extends BaseCheck
         );
     }
 
-    private function asASalesChannelRequest(callable $callback): Result
+    /**
+     * @return array<string>
+     */
+    private function fetchSalesChannelDomains(): array
     {
-        $mainRequest = $this->requestStack->getMainRequest();
-        // the requests originate from CLI, there is no HTTP request.
-        if ($mainRequest === null) {
-            return $callback();
-        }
-
-        // If the request originates from a parent request, regardless of the main request
-        // ensure it is treated as a sales channel request to access the storefront
-        $hasSalesChannelRequest = $mainRequest->attributes->get(SalesChannelRequest::ATTRIBUTE_IS_SALES_CHANNEL_REQUEST);
-        $mainRequest->attributes->set(SalesChannelRequest::ATTRIBUTE_IS_SALES_CHANNEL_REQUEST, true);
-
-        try {
-            return $callback();
-        } finally {
-            $mainRequest->attributes->set(SalesChannelRequest::ATTRIBUTE_IS_SALES_CHANNEL_REQUEST, $hasSalesChannelRequest);
-        }
-    }
-
-    private function generateDomainUrl(string $url): string
-    {
-        return rtrim($url, '/') . $this->router->generate(self::INDEX_PAGE);
-    }
-
-    private function whileTrustingAllHosts(callable $callback): Result
-    {
-        // Remove '{' from start and '}i' from end, applied by Request::setTrustedHosts.
-        $trustedHosts = array_map(
-            fn (string $pattern) => preg_replace('/^\{(.*)\}i$/', '$1', $pattern),
-            Request::getTrustedHosts()
+        $result = $this->connection->fetchAllAssociative(
+            'SELECT `url` FROM `sales_channel_domain`
+                    INNER JOIN `sales_channel` ON `sales_channel_domain`.`sales_channel_id` = `sales_channel`.`id`
+                    WHERE `sales_channel`.`type_id` = :typeId
+                    AND `sales_channel`.`active` = :active',
+            ['typeId' => Uuid::fromHexToBytes(Defaults::SALES_CHANNEL_TYPE_STOREFRONT), 'active' => 1]
         );
 
-        Request::setTrustedHosts([]);
-        try {
-            return $callback();
-        } finally {
-            Request::setTrustedHosts($trustedHosts);
-        }
+        return array_map(fn (array $row): string => $row['url'], $result);
     }
 }

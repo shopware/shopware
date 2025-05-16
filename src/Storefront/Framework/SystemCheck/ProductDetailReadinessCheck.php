@@ -1,0 +1,164 @@
+<?php declare(strict_types=1);
+
+namespace Shopware\Storefront\Framework\SystemCheck;
+
+use Doctrine\DBAL\ArrayParameterType;
+use Doctrine\DBAL\Connection;
+use Shopware\Core\Defaults;
+use Shopware\Core\Framework\DataAbstractionLayer\Doctrine\FetchModeHelper;
+use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\SystemCheck\BaseCheck;
+use Shopware\Core\Framework\SystemCheck\Check\Category;
+use Shopware\Core\Framework\SystemCheck\Check\Result;
+use Shopware\Core\Framework\SystemCheck\Check\Status;
+use Shopware\Core\Framework\SystemCheck\Check\SystemCheckExecutionContext;
+use Shopware\Core\Framework\Uuid\Uuid;
+use Shopware\Storefront\Framework\SystemCheck\Util\SalesChannelDomainUtil;
+use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\HttpKernel\KernelInterface;
+
+/**
+ * @internal
+ *
+ * @codeCoverageIgnore
+ * covered with integration tests/integration/Storefront/Framework/HealthCheck/ProductsReadinessCheckTest.php
+ *
+ * todo: For this it would be great if the system checks also checks a product detail and product listing page.
+ * To avoid flakiness, it should return the checked pages and at the same time allow to pass a list of pages that should be changed for any future checks
+ */
+#[Package('discovery')]
+class ProductDetailReadinessCheck extends BaseCheck
+{
+    private const DETAIL_PAGE = 'frontend.detail.page';
+
+    private const MESSAGE_SUCCESS = 'Product detail pages are OK for provided sales channels';
+
+    private const MESSAGE_FAILURE = 'Some or all product detail pages are unhealthy.';
+
+    public function __construct(
+        private readonly KernelInterface $kernel,
+        private readonly SalesChannelDomainUtil $util,
+        private readonly Connection $connection,
+    ) {
+    }
+
+    public function run(): Result
+    {
+        return $this->util->asASalesChannelRequest(
+            fn () => $this->util->whileTrustingAllHosts(
+                fn () => $this->doRun()
+            )
+        );
+    }
+
+    public function category(): Category
+    {
+        return Category::FEATURE;
+    }
+
+    public function name(): string
+    {
+        return 'ProductsReadiness';
+    }
+
+    protected function allowedSystemCheckExecutionContexts(): array
+    {
+        return SystemCheckExecutionContext::readiness();
+    }
+
+    private function doRun(): Result
+    {
+        $domains = $this->fetchSalesChannelDomains();
+        $salesChannelIds = array_keys($domains);
+        $productIds = $salesChannelIds ? $this->fetchProductIds($salesChannelIds) : null;
+
+        $extra = [];
+        $requestStatus = [];
+        foreach ($domains as $salesChannelId => $domain) {
+            $productId = $productIds[$salesChannelId] ?? null;
+
+            if ($productId === null) {
+                continue;
+            }
+
+            $url = $this->util->generateDomainUrl($domain, self::DETAIL_PAGE, [
+                'productId' => $productId,
+            ]);
+
+            $request = Request::create($url);
+            $requestStart = microtime(true);
+            $response = $this->kernel->handle($request);
+            $responseTime = microtime(true) - $requestStart;
+            $status = $response->getStatusCode() >= Response::HTTP_BAD_REQUEST ? Status::FAILURE : Status::OK;
+            $requestStatus[$status->name] = $status;
+
+            $extra[] = [
+                'storeFrontUrl' => $url,
+                'responseCode' => $response->getStatusCode(),
+                'responseTime' => $responseTime,
+            ];
+        }
+
+        $finalStatus = \count($requestStatus) === 1 ? current($requestStatus) : Status::ERROR;
+
+        return new Result(
+            $this->name(),
+            $finalStatus,
+            $finalStatus === Status::OK ? self::MESSAGE_SUCCESS : self::MESSAGE_FAILURE,
+            $finalStatus === Status::OK,
+            $extra
+        );
+    }
+
+    /**
+     * @param list<string> $salesChannelIds
+     *
+     * @return array<string, string>
+     */
+    private function fetchProductIds(array $salesChannelIds): array
+    {
+        // todo: we could also check if the config for only active or products with stock is active
+
+        $sql = <<<'SQL'
+            SELECT `product_visibility`.`sales_channel_id`,
+                   LOWER(HEX(`product`.`id`))
+            FROM `product`
+            INNER JOIN `product_visibility` ON `product`.`id` = `product_visibility`.`product_id`
+                AND `product`.`version_id` = `product_visibility`.`product_version_id`
+            WHERE `product`.`active` = 1
+                AND `product`.`stock` > 0
+                AND `product_visibility`.`sales_channel_id` IN (:salesChannelIds)
+        SQL;
+
+        $result = $this->connection->fetchAllAssociative(
+            $sql,
+            ['salesChannelIds' => $salesChannelIds],
+            ['salesChannelIds' => ArrayParameterType::BINARY]
+        );
+
+        return FetchModeHelper::keyPair($result);
+    }
+
+    /**
+     * @return array<string, string>
+     */
+    private function fetchSalesChannelDomains(): array
+    {
+        $sql = <<<'SQL'
+            SELECT `sales_channel`.`id`,
+                   `sales_channel_domain`.`url`
+            FROM `sales_channel_domain`
+            INNER JOIN `sales_channel` ON `sales_channel_domain`.`sales_channel_id` = `sales_channel`.`id`
+            WHERE `sales_channel`.`type_id` = :typeId
+            AND `sales_channel`.`active` = :active
+        SQL;
+
+        $result = $this->connection->fetchAllAssociative(
+            $sql,
+            ['typeId' => Uuid::fromHexToBytes(Defaults::SALES_CHANNEL_TYPE_STOREFRONT), 'active' => 1]
+        );
+
+        return FetchModeHelper::keyPair($result);
+    }
+}

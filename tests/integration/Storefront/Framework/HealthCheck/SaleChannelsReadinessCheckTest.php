@@ -99,9 +99,8 @@ class SaleChannelsReadinessCheckTest extends TestCase
     {
         return new SaleChannelsReadinessCheck(
             $kernel ?? static::getContainer()->get('kernel'),
-            static::getContainer()->get('router'),
             $this->connection,
-            static::getContainer()->get('request_stack')
+            static::getContainer()->get('Shopware\Storefront\Framework\SystemCheck\Util\SalesChannelDomainUtil'),
         );
     }
 

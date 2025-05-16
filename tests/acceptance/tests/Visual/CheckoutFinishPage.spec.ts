@@ -1,7 +1,7 @@
 import { test, expect } from '@fixtures/AcceptanceTest';
 import path from 'path';
 
-test('Visual: Final order page in the Storefront.', { tag: '@Visual' }, async ({
+test('Visual: Storefront checkout/finish page.', { tag: '@Visual' }, async ({
     ShopCustomer,
     TestDataService,
     StorefrontProductDetail,
@@ -17,7 +17,6 @@ test('Visual: Final order page in the Storefront.', { tag: '@Visual' }, async ({
     const product = await TestDataService.createBasicProduct();
 
     await ShopCustomer.attemptsTo(Login());
-
     await ShopCustomer.goesTo(StorefrontProductDetail.url(product));
     await ShopCustomer.attemptsTo(AddProductToCart(product));
     await ShopCustomer.attemptsTo(ProceedFromProductToCheckout());
@@ -29,12 +28,11 @@ test('Visual: Final order page in the Storefront.', { tag: '@Visual' }, async ({
     const orderId = StorefrontCheckoutFinish.getOrderId();
     TestDataService.addCreatedRecord('order', orderId);
 
-    await test.step('Creates a screenshot and compare it on final order page in storefront.', async () => {
+    await test.step('Create a screenshot from checkout/finish page in storefront.', async () => {
 
         await StorefrontCheckoutFinish.page.setViewportSize({ width: 1280, height: 1111});
 
         await expect(StorefrontCheckoutFinish.page).toHaveScreenshot({
-            maxDiffPixelRatio: 0.2,
             stylePath: path.resolve('./tests/Visual/screenshot.css'),
             mask: [
                 StorefrontCheckoutFinish.page.locator('.finish-ordernumber'),

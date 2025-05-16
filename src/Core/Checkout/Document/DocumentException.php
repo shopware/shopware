@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Checkout\Document;
 
+use PHPUnit\Framework\Attributes\CodeCoverageIgnore;
 use Shopware\Core\Checkout\Cart\CartException;
 use Shopware\Core\Checkout\Cart\Exception\CustomerNotLoggedInException;
 use Shopware\Core\Checkout\Order\Exception\GuestNotAuthenticatedException;
@@ -10,6 +11,7 @@ use Shopware\Core\Framework\HttpException;
 use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\HttpFoundation\Response;
 
+#[CodeCoverageIgnore]
 #[Package('after-sales')]
 class DocumentException extends HttpException
 {

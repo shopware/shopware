@@ -9,22 +9,25 @@ use Shopware\Core\Framework\Gateway\Context\Command\AbstractContextGatewayComman
 use Shopware\Core\Framework\Gateway\Context\Command\ChangeLanguageCommand;
 use Shopware\Core\Framework\Gateway\GatewayException;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\System\Language\LanguageCollection;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
+/**
+ * @extends AbstractContextGatewayCommandHandler<ChangeLanguageCommand>
+ */
 #[Package('framework')]
 class ChangeLanguageCommandHandler extends AbstractContextGatewayCommandHandler
 {
     /**
      * @internal
+     *
+     * @param EntityRepository<LanguageCollection> $languageRepository
      */
     public function __construct(
         private readonly EntityRepository $languageRepository,
     ) {
     }
 
-    /**
-     * @param ChangeLanguageCommand $command
-     */
     public function handle(AbstractContextGatewayCommand $command, SalesChannelContext $context, array &$parameters): void
     {
         $criteria = new Criteria();

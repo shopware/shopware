@@ -2,6 +2,8 @@
 
 namespace Shopware\Core\Framework\Gateway\Context\Command\Handler;
 
+use Shopware\Core\Checkout\Payment\PaymentMethodCollection;
+use Shopware\Core\Checkout\Shipping\ShippingMethodCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
@@ -12,10 +14,16 @@ use Shopware\Core\Framework\Gateway\GatewayException;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
+/**
+ * @extends AbstractContextGatewayCommandHandler<ChangeShippingMethodCommand|ChangePaymentMethodCommand>
+ */
 #[Package('framework')]
 class ChangeCheckoutOptionsCommandHandler extends AbstractContextGatewayCommandHandler
 {
     /**
+     * @param EntityRepository<PaymentMethodCollection> $paymentMethodRepository
+     * @param EntityRepository<ShippingMethodCollection> $shippingMethodRepository
+     *
      * @internal
      */
     public function __construct(
@@ -24,9 +32,6 @@ class ChangeCheckoutOptionsCommandHandler extends AbstractContextGatewayCommandH
     ) {
     }
 
-    /**
-     * @param ChangeShippingMethodCommand|ChangePaymentMethodCommand $command
-     */
     public function handle(AbstractContextGatewayCommand $command, SalesChannelContext $context, array &$parameters): void
     {
         $technicalName = $command->technicalName;

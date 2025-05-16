@@ -10,6 +10,8 @@ use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
 /**
  * @internal
+ *
+ * @extends AbstractContextGatewayCommandHandler<TestContextGatewayCommand>
  */
 #[CoversNothing]
 #[Package('framework')]

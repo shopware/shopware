@@ -10,13 +10,21 @@ use Shopware\Core\Framework\Gateway\Context\Command\AbstractContextGatewayComman
 use Shopware\Core\Framework\Gateway\Context\Command\ChangeShippingLocationCommand;
 use Shopware\Core\Framework\Gateway\GatewayException;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\System\Country\Aggregate\CountryState\CountryStateCollection;
+use Shopware\Core\System\Country\CountryCollection;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
+/**
+ * @extends AbstractContextGatewayCommandHandler<ChangeShippingLocationCommand>
+ */
 #[Package('framework')]
 class ChangeShippingLocationCommandHandler extends AbstractContextGatewayCommandHandler
 {
     /**
      * @internal
+     *
+     * @param EntityRepository<CountryCollection> $countryRepository
+     * @param EntityRepository<CountryStateCollection> $countryStateRepository
      */
     public function __construct(
         private readonly EntityRepository $countryRepository,
@@ -24,9 +32,6 @@ class ChangeShippingLocationCommandHandler extends AbstractContextGatewayCommand
     ) {
     }
 
-    /**
-     * @param ChangeShippingLocationCommand $command
-     */
     public function handle(AbstractContextGatewayCommand $command, SalesChannelContext $context, array &$parameters): void
     {
         if ($command->countryIso !== null) {

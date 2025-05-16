@@ -8,12 +8,12 @@ use Shopware\Core\Framework\Gateway\Context\Command\ChangeShippingAddressCommand
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
+/**
+ * @extends AbstractContextGatewayCommandHandler<ChangeBillingAddressCommand|ChangeShippingAddressCommand>
+ */
 #[Package('framework')]
 class ChangeCheckoutAddressCommandHandler extends AbstractContextGatewayCommandHandler
 {
-    /**
-     * @param ChangeBillingAddressCommand|ChangeShippingAddressCommand $command
-     */
     public function handle(AbstractContextGatewayCommand $command, SalesChannelContext $context, array &$parameters): void
     {
         if ($command instanceof ChangeBillingAddressCommand) {

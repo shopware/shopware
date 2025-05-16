@@ -24,7 +24,7 @@ class ContextGatewayPayloadStructTest extends TestCase
 
         $struct = new ContextGatewayPayloadStruct($cart, $context);
 
-        static::assertSame($context, $struct->getContext());
+        static::assertSame($context, $struct->getSalesChannelContext());
         static::assertSame($cart, $struct->getCart());
         static::assertEquals(new RequestDataBag(), $struct->getData());
     }
@@ -39,7 +39,7 @@ class ContextGatewayPayloadStructTest extends TestCase
 
         $struct = new ContextGatewayPayloadStruct($cart, $context, $data);
 
-        static::assertSame($context, $struct->getContext());
+        static::assertSame($context, $struct->getSalesChannelContext());
         static::assertSame($cart, $struct->getCart());
         static::assertSame($data, $struct->getData());
     }

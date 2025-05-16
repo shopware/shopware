@@ -23,4 +23,12 @@ class ContextGatewayCommandCollection extends Collection
     {
         return $this->filter(static fn (AbstractContextGatewayCommand $command) => $command instanceof LoginCustomerCommand || $command instanceof RegisterCustomerCommand);
     }
+
+    /**
+     * @return string[]
+     */
+    public function getCommandTypes(): array
+    {
+        return $this->map(static fn (AbstractContextGatewayCommand $command) => $command::getDefaultKeyName());
+    }
 }

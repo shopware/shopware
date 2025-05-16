@@ -8,6 +8,9 @@ use Shopware\Core\Framework\Gateway\Context\Command\LoginCustomerCommand;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
+/**
+ * @extends AbstractContextGatewayCommandHandler<LoginCustomerCommand>
+ */
 #[Package('framework')]
 class LoginCustomerCommandHandler extends AbstractContextGatewayCommandHandler
 {
@@ -19,9 +22,6 @@ class LoginCustomerCommandHandler extends AbstractContextGatewayCommandHandler
     ) {
     }
 
-    /**
-     * @param LoginCustomerCommand $command
-     */
     public function handle(AbstractContextGatewayCommand $command, SalesChannelContext $context, array &$parameters): void
     {
         $customer = $this->accountService->getCustomerByEmail($command->customerEmail, $context);

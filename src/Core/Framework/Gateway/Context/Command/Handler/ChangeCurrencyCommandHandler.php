@@ -9,22 +9,25 @@ use Shopware\Core\Framework\Gateway\Context\Command\AbstractContextGatewayComman
 use Shopware\Core\Framework\Gateway\Context\Command\ChangeCurrencyCommand;
 use Shopware\Core\Framework\Gateway\GatewayException;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\System\Currency\CurrencyCollection;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
+/**
+ * @extends AbstractContextGatewayCommandHandler<ChangeCurrencyCommand>
+ */
 #[Package('framework')]
 class ChangeCurrencyCommandHandler extends AbstractContextGatewayCommandHandler
 {
     /**
      * @internal
+     *
+     * @param EntityRepository<CurrencyCollection> $currencyRepository
      */
     public function __construct(
         private readonly EntityRepository $currencyRepository,
     ) {
     }
 
-    /**
-     * @param ChangeCurrencyCommand $command
-     */
     public function handle(AbstractContextGatewayCommand $command, SalesChannelContext $context, array &$parameters): void
     {
         $criteria = new Criteria();

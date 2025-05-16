@@ -9,7 +9,7 @@ use Shopware\Core\Framework\Migration\MigrationStep;
 /**
  * @internal
  */
-#[Package('framework')]
+#[Package('checkout')]
 class Migration1696515133AddCheckoutGatewayUrl extends MigrationStep
 {
     public function getCreationTimestamp(): int

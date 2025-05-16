@@ -11,6 +11,9 @@ use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
 use Shopware\Core\PlatformRequest;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
+/**
+ * @extends AbstractContextGatewayCommandHandler<RegisterCustomerCommand>
+ */
 #[Package('framework')]
 class RegisterCustomerCommandHandler extends AbstractContextGatewayCommandHandler
 {
@@ -22,9 +25,6 @@ class RegisterCustomerCommandHandler extends AbstractContextGatewayCommandHandle
     ) {
     }
 
-    /**
-     * @param RegisterCustomerCommand $command
-     */
     public function handle(AbstractContextGatewayCommand $command, SalesChannelContext $context, array &$parameters): void
     {
         /** @var array<string, mixed> $data */

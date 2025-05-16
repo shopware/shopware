@@ -24,10 +24,9 @@ class ContextGatewayCommandCollectionTest extends TestCase
         $commands->add(self::getCommand(RegisterCustomerCommand::class, ['data' => ['foo' => 'bar']]));
         $commands->add(self::getCommand(RegisterCustomerCommand::class, ['data' => ['wow' => 'ser']]));
 
-        /** @var RegisterCustomerCommand $registerCommand */
         $registerCommand = $commands->getSingleTokenCommand();
 
-        static::assertNotNull($registerCommand);
+        static::assertInstanceOf(RegisterCustomerCommand::class, $registerCommand);
         static::assertSame(['foo' => 'bar'], $registerCommand->data);
     }
 
@@ -37,10 +36,9 @@ class ContextGatewayCommandCollectionTest extends TestCase
         $commands->add(self::getCommand(LoginCustomerCommand::class, ['customerEmail' => 'foo@bar.com']));
         $commands->add(self::getCommand(LoginCustomerCommand::class, ['customerEmail' => 'wow@ser.com']));
 
-        /** @var LoginCustomerCommand $loginCommand */
         $loginCommand = $commands->getSingleTokenCommand();
 
-        static::assertNotNull($loginCommand);
+        static::assertInstanceOf(LoginCustomerCommand::class, $loginCommand);
         static::assertSame('foo@bar.com', $loginCommand->customerEmail);
     }
 

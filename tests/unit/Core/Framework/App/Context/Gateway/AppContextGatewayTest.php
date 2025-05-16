@@ -73,6 +73,7 @@ class AppContextGatewayTest extends TestCase
 
         $appResponse = new AppContextGatewayResponse([['command' => 'context_change-currency', 'payload' => ['iso' => 'EUR']]]);
 
+        /** @phpstan-ignore argument.type (PHPStan is not able to resolve this properly in an iterable) */
         $registry = new ContextGatewayCommandRegistry([new ChangeCurrencyCommandHandler($this->createMock(EntityRepository::class))]);
 
         $payloadService = $this->createMock(AppContextGatewayPayloadService::class);
@@ -106,7 +107,7 @@ class AppContextGatewayTest extends TestCase
         static::assertSame('hatoken', $response->getToken());
     }
 
-    public function testProcessWithAppNoCheckoutGatewayUrlConfigured(): void
+    public function testProcessWithAppNoContextGatewayUrlConfigured(): void
     {
         $cart = new Cart('hatoken');
         $context = Generator::generateSalesChannelContext();
@@ -301,6 +302,7 @@ class AppContextGatewayTest extends TestCase
             $this->createMock(LoggerInterface::class),
         );
 
+        /** @phpstan-ignore argument.type (PHPStan is not able to resolve this properly in an iterable) */
         $registry = new ContextGatewayCommandRegistry([new ChangeCurrencyCommandHandler($this->createMock(EntityRepository::class))]);
 
         $payload = new ContextGatewayPayloadStruct($cart, $context, $data);
@@ -363,6 +365,7 @@ class AppContextGatewayTest extends TestCase
             $this->createMock(LoggerInterface::class),
         );
 
+        /** @phpstan-ignore argument.type (PHPStan is not able to resolve this properly in an iterable) */
         $registry = new ContextGatewayCommandRegistry([new ChangeCurrencyCommandHandler($this->createMock(EntityRepository::class))]);
 
         $payload = new ContextGatewayPayloadStruct($cart, $context, $data);

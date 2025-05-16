@@ -20,6 +20,8 @@ use Shopware\Core\System\SalesChannel\SalesChannelContext;
 /**
  * @internal
  *
+ * @extends AbstractContextGatewayCommandHandler<AbstractContextGatewayCommand>
+ *
  * Just for testing purposes.
  * Simply puts anything into parameters, which is provided in the command's data.
  * Supports all commands.

@@ -8,12 +8,12 @@ use Shopware\Core\Framework\Gateway\GatewayException;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
+/**
+ * @extends AbstractContextGatewayCommandHandler<AddCustomerMessageCommand>
+ */
 #[Package('framework')]
 class AddCustomerMessageCommandHandler extends AbstractContextGatewayCommandHandler
 {
-    /**
-     * @param AddCustomerMessageCommand $command
-     */
     public function handle(AbstractContextGatewayCommand $command, SalesChannelContext $context, array &$parameters): void
     {
         throw GatewayException::customerMessage($command->message);

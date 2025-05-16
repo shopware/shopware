@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Framework\App\Context\Gateway;
 
+use Shopware\Core\Framework\App\AppCollection;
 use Shopware\Core\Framework\App\AppEntity;
 use Shopware\Core\Framework\App\AppException;
 use Shopware\Core\Framework\App\Context\Payload\AppContextGatewayPayload;
@@ -26,6 +27,9 @@ use Shopware\Core\System\SalesChannel\ContextTokenResponse;
 #[Package('framework')]
 class AppContextGateway
 {
+    /**
+     * @param EntityRepository<AppCollection> $appRepository
+     */
     public function __construct(
         private readonly AppContextGatewayPayloadService $payloadService,
         private readonly ContextGatewayCommandExecutor $executor,
@@ -42,13 +46,17 @@ class AppContextGateway
         }
 
         $appName = $payload->getData()->get('appName');
-        $app = $this->getApp($appName, $payload->getContext()->getContext());
+        $app = $this->getApp($appName, $payload->getSalesChannelContext()->getContext());
 
-        $appPayload = new AppContextGatewayPayload($payload->getContext(), $payload->getCart(), $payload->getData()->all());
+        $appPayload = new AppContextGatewayPayload($payload->getSalesChannelContext(), $payload->getCart(), $payload->getData()->all());
 
-        /** @var string $checkoutGatewayUrl */
-        $checkoutGatewayUrl = $app->getContextGatewayUrl();
-        $appResponse = $this->payloadService->request($checkoutGatewayUrl, $appPayload, $app);
+        $contextGatewayUrl = $app->getContextGatewayUrl();
+
+        if (!$contextGatewayUrl) {
+            throw AppException::gatewayNotConfigured($app->getName(), 'context');
+        }
+
+        $appResponse = $this->payloadService->request($contextGatewayUrl, $appPayload, $app);
 
         if (!$appResponse) {
             throw AppException::gatewayRequestFailed($app->getName(), 'context');
@@ -56,7 +64,7 @@ class AppContextGateway
 
         $commands = $this->collectCommandsFromAppResponse($appResponse);
 
-        return $this->executor->execute($commands, $payload->getContext());
+        return $this->executor->execute($commands, $payload->getSalesChannelContext());
     }
 
     private function getApp(string $appName, Context $context): AppEntity
@@ -65,8 +73,7 @@ class AppContextGateway
         $criteria->addFilter(new EqualsFilter('name', $appName));
         $criteria->addFilter(new EqualsFilter('active', true));
 
-        /** @var AppEntity|null $app */
-        $app = $this->appRepository->search($criteria, $context)->first();
+        $app = $this->appRepository->search($criteria, $context)->getEntities()->first();
 
         if (!$app) {
             throw AppException::appNotFoundByName($appName);

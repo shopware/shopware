@@ -57,7 +57,7 @@ class ContextGatewayControllerTest extends TestCase
         $newResponse = $controller->gateway($request, $context);
 
         static::assertInstanceOf(ContextTokenResponse::class, $newResponse);
-        static::assertEquals('newHatoken', $newResponse->getToken());
+        static::assertSame('newHatoken', $newResponse->getToken());
     }
 
     public function testGatewayWithGenericException(): void
@@ -88,10 +88,12 @@ class ContextGatewayControllerTest extends TestCase
         $newResponse = $controller->gateway($request, $context);
 
         static::assertInstanceOf(JsonResponse::class, $newResponse);
-        static::assertEquals(Response::HTTP_BAD_REQUEST, $newResponse->getStatusCode());
+        static::assertSame(Response::HTTP_BAD_REQUEST, $newResponse->getStatusCode());
 
-        /** @var FlashBagAwareSessionInterface $session */
         $session = $container->get('request_stack')->getSession();
+
+        static::assertInstanceOf(FlashBagAwareSessionInterface::class, $session);
+
         $flashBag = $session->getFlashBag();
         $errors = $flashBag->get('danger');
 
@@ -126,10 +128,12 @@ class ContextGatewayControllerTest extends TestCase
         $newResponse = $controller->gateway($request, $context);
 
         static::assertInstanceOf(JsonResponse::class, $newResponse);
-        static::assertEquals(Response::HTTP_BAD_REQUEST, $newResponse->getStatusCode());
+        static::assertSame(Response::HTTP_BAD_REQUEST, $newResponse->getStatusCode());
 
-        /** @var FlashBagAwareSessionInterface $session */
         $session = $container->get('request_stack')->getSession();
+
+        static::assertInstanceOf(FlashBagAwareSessionInterface::class, $session);
+
         $flashBag = $session->getFlashBag();
         $errors = $flashBag->get('danger');
 

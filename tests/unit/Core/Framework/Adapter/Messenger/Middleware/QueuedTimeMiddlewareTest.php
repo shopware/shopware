@@ -10,7 +10,7 @@ use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\Messenger\Envelope;
 use Symfony\Component\Messenger\Middleware\MiddlewareInterface;
 use Symfony\Component\Messenger\Middleware\StackInterface;
-use Symfony\Component\Messenger\Stamp\SentStamp;
+use Symfony\Component\Messenger\Stamp\ReceivedStamp;
 
 /**
  * @internal
@@ -40,10 +40,10 @@ class QueuedTimeMiddlewareTest extends TestCase
         static::assertSame($sentAt, $resultingEnvelope->last(SentAtStamp::class)->getSentAt());
     }
 
-    public function testDoesNotAddSentAtStampIfEnvelopeIsSent(): void
+    public function testDoesNotAddSentAtStampIfInReceiveStage(): void
     {
         $middleware = new QueuedTimeMiddleware();
-        $envelope = new Envelope(new \stdClass(), [new SentStamp('SenderClass')]);
+        $envelope = new Envelope(new \stdClass(), [new ReceivedStamp('TestTransport')]);
 
         $resultingEnvelope = $middleware->handle($envelope, $this->prepareStack());
         static::assertNull($resultingEnvelope->last(SentAtStamp::class));

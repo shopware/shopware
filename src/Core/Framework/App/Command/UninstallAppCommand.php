@@ -50,7 +50,7 @@ class UninstallAppCommand extends Command
         }
 
         $context = Context::createCLIContext();
-        if ($input->getOption('skip-theme-recompile')) {
+        if ($input->getOption('skip-theme-compile')) {
             $context->addState(ThemeLifecycleHandler::STATE_SKIP_THEME_COMPILATION);
         }
 
@@ -89,7 +89,7 @@ class UninstallAppCommand extends Command
             'Keep user data of the app'
         );
         $this->addOption(
-            'skip-theme-recompile',
+            'skip-theme-compile',
             null,
             InputOption::VALUE_NONE,
             'Use this option to skip recompiling of all themes'

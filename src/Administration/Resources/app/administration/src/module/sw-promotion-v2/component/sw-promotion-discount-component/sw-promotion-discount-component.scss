@@ -32,4 +32,8 @@
         overflow: visible;
         text-overflow: initial;
     }
+
+    .mt-block-field__block {
+        min-height: unset;
+    }
 }

@@ -1,7 +1,7 @@
 import { test, expect } from '@fixtures/AcceptanceTest';
 import path from 'path';
 
-test('Visual: Admin menu in the administration.', { tag: '@Visual' }, async ({
+test('Visual: Administration menu', { tag: '@Visual' }, async ({
 ShopAdmin,
 AdminDashboard,
 }) => {

@@ -30,7 +30,7 @@ class CustomEventTest extends TestCase
         foreach ($events->getElementsByTagName('flow-event') as $event) {
             $result = CustomEvent::fromXml($event);
             $result = $result->toArray('en-GB');
-            static::assertEquals($expected, $result);
+            static::assertSame($expected, $result);
         }
     }
 }

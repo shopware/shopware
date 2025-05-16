@@ -36,11 +36,11 @@ class CanonicalRedirectServiceTest extends TestCase
                 RedirectResponse::class,
                 $actual
             );
-            static::assertEquals(
+            static::assertSame(
                 $request->attributes->get(SalesChannelRequest::ATTRIBUTE_CANONICAL_LINK),
                 $actual->getTargetUrl()
             );
-            static::assertEquals(
+            static::assertSame(
                 Response::HTTP_MOVED_PERMANENTLY,
                 $actual->getStatusCode()
             );

@@ -5,6 +5,7 @@ namespace Shopware\Tests\Unit\Core\System\UsageData\EntitySync;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\UsageData\EntitySync\DispatchEntityMessage;
 use Shopware\Core\System\UsageData\EntitySync\Operation;
@@ -26,7 +27,7 @@ class DispatchEntityMessageTest extends TestCase
             []
         );
 
-        static::assertEquals($runDate, $message->runDate);
+        static::assertSame($runDate->format(Defaults::STORAGE_DATE_TIME_FORMAT), $message->runDate->format(Defaults::STORAGE_DATE_TIME_FORMAT));
     }
 
     /**

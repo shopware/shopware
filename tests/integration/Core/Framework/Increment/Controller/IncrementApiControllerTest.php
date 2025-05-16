@@ -60,9 +60,9 @@ class IncrementApiControllerTest extends TestCase
 
         static::assertIsArray($entries);
         static::assertArrayHasKey('foo', $entries);
-        static::assertEquals(2, $entries['foo']['count']);
+        static::assertSame(2, $entries['foo']['count']);
         static::assertArrayHasKey('bar', $entries);
-        static::assertEquals(1, $entries['bar']['count']);
+        static::assertSame(1, $entries['bar']['count']);
     }
 
     public function testEndpointWithoutCluster(): void
@@ -75,7 +75,7 @@ class IncrementApiControllerTest extends TestCase
 
         $errors = json_decode((string) $client->getResponse()->getContent(), true, 512, \JSON_THROW_ON_ERROR)['errors'];
 
-        static::assertEquals('Parameter "cluster" is missing.', $errors[0]['detail']);
+        static::assertSame('Parameter "cluster" is missing.', $errors[0]['detail']);
     }
 
     public function testIncrementEndpointWithInvalidPool(): void
@@ -92,7 +92,7 @@ class IncrementApiControllerTest extends TestCase
 
         $errors = json_decode((string) $client->getResponse()->getContent(), true, 512, \JSON_THROW_ON_ERROR)['errors'];
 
-        static::assertEquals('Increment gateway for pool "unknown-pool" was not found.', $errors[0]['detail']);
+        static::assertSame('Increment gateway for pool "unknown-pool" was not found.', $errors[0]['detail']);
     }
 
     public function testIncrementEndpoint(): void
@@ -114,7 +114,7 @@ class IncrementApiControllerTest extends TestCase
         $entries = $this->gateway->list($this->userId);
 
         static::assertArrayHasKey('foo', $entries);
-        static::assertEquals(1, $entries['foo']['count']);
+        static::assertSame(1, $entries['foo']['count']);
     }
 
     public function testDecrementEndpoint(): void
@@ -124,7 +124,7 @@ class IncrementApiControllerTest extends TestCase
         $entries = $this->gateway->list($this->userId);
 
         static::assertArrayHasKey('foo', $entries);
-        static::assertEquals(1, $entries['foo']['count']);
+        static::assertSame(1, $entries['foo']['count']);
 
         $url = '/api/_action/decrement/user_activity';
 
@@ -143,7 +143,7 @@ class IncrementApiControllerTest extends TestCase
         $entries = $this->gateway->list($this->userId);
 
         static::assertArrayHasKey('foo', $entries);
-        static::assertEquals(0, $entries['foo']['count']);
+        static::assertSame(0, $entries['foo']['count']);
     }
 
     public function testResetEndpoint(): void
@@ -156,8 +156,8 @@ class IncrementApiControllerTest extends TestCase
 
         static::assertArrayHasKey('foo', $entries);
         static::assertArrayHasKey('bar', $entries);
-        static::assertEquals(2, $entries['foo']['count']);
-        static::assertEquals(1, $entries['bar']['count']);
+        static::assertSame(2, $entries['foo']['count']);
+        static::assertSame(1, $entries['bar']['count']);
 
         $url = '/api/_action/reset-increment/user_activity';
 
@@ -176,8 +176,8 @@ class IncrementApiControllerTest extends TestCase
 
         static::assertArrayHasKey('foo', $entries);
         static::assertArrayHasKey('bar', $entries);
-        static::assertEquals(0, $entries['foo']['count']);
-        static::assertEquals(0, $entries['bar']['count']);
+        static::assertSame(0, $entries['foo']['count']);
+        static::assertSame(0, $entries['bar']['count']);
     }
 
     public function testIncrementEndpointWithCustomCluster(): void
@@ -202,7 +202,7 @@ class IncrementApiControllerTest extends TestCase
         $entries = $this->gateway->list($clusterName);
 
         static::assertArrayHasKey('foo', $entries);
-        static::assertEquals(1, $entries['foo']['count']);
+        static::assertSame(1, $entries['foo']['count']);
 
         $url = '/api/_action/increment/user_activity?cluster=' . $clusterName;
 
@@ -213,6 +213,6 @@ class IncrementApiControllerTest extends TestCase
 
         static::assertSame(Response::HTTP_OK, $client->getResponse()->getStatusCode());
         static::assertArrayHasKey('foo', $entries);
-        static::assertEquals(1, $entries['foo']['count']);
+        static::assertSame(1, $entries['foo']['count']);
     }
 }

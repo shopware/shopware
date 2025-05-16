@@ -34,7 +34,7 @@ class ThumbnailSizeCalculatorTest extends TestCase
         $thumbnailSizeCalculator = new ThumbnailSizeCalculator();
         $calculatedSize = $thumbnailSizeCalculator->calculate($imageSize, $thumbnailSizeEntity);
 
-        static::assertEquals($expectedSize, $calculatedSize);
+        static::assertSame($expectedSize, $calculatedSize);
     }
 
     /**

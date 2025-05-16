@@ -34,7 +34,7 @@ class OrderCreatedByAdminRuleTest extends TestCase
 
     public function testGetName(): void
     {
-        static::assertEquals('orderCreatedByAdmin', $this->rule->getName());
+        static::assertSame('orderCreatedByAdmin', $this->rule->getName());
     }
 
     public function testRuleConfig(): void
@@ -83,7 +83,7 @@ class OrderCreatedByAdminRuleTest extends TestCase
         );
 
         $match = $rule->match($scope);
-        static::assertEquals($match, $isMatching);
+        static::assertSame($match, $isMatching);
     }
 
     public static function getCaseTestMatchValues(): \Generator

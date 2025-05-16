@@ -336,7 +336,7 @@ class SearchKeywordUpdaterTest extends TestCase
             ]
         );
 
-        static::assertEquals($expectedKeywords, $dictionary);
+        static::assertSame($expectedKeywords, $dictionary);
     }
 
     private function assertLanguageHasNoDictionary(string $languageId): void

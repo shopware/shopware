@@ -61,8 +61,8 @@ class FirstRunWizardControllerTest extends TestCase
 
         $lastRequest = $this->getStoreRequestHandler()->getLastRequest();
         static::assertInstanceOf(Request::class, $lastRequest);
-        static::assertEquals('POST', $lastRequest->getMethod());
-        static::assertEquals('/swplatform/tracking/events', $lastRequest->getUri()->getPath());
+        static::assertSame('POST', $lastRequest->getMethod());
+        static::assertSame('/swplatform/tracking/events', $lastRequest->getUri()->getPath());
     }
 
     public function testFrwLoginStoresFrwUserToken(): void
@@ -89,7 +89,7 @@ class FirstRunWizardControllerTest extends TestCase
             $context
         );
 
-        static::assertEquals(
+        static::assertSame(
             $frwUserToken,
             $this->fetchUserConfig(FirstRunWizardService::USER_CONFIG_KEY_FRW_USER_TOKEN, FirstRunWizardService::USER_CONFIG_VALUE_FRW_USER_TOKEN)
         );
@@ -139,11 +139,11 @@ class FirstRunWizardControllerTest extends TestCase
         static::assertNull(
             $this->fetchUserConfig(FirstRunWizardService::USER_CONFIG_KEY_FRW_USER_TOKEN, FirstRunWizardService::USER_CONFIG_VALUE_FRW_USER_TOKEN)
         );
-        static::assertEquals(
+        static::assertSame(
             $shopUserToken,
             $this->fetchStoreToken($context)
         );
-        static::assertEquals(
+        static::assertSame(
             $shopSecret,
             static::getContainer()->get(SystemConfigService::class)->getString(StoreRequestOptionsProvider::CONFIG_KEY_STORE_SHOP_SECRET)
         );
@@ -192,7 +192,7 @@ class FirstRunWizardControllerTest extends TestCase
             $context,
         );
 
-        static::assertEquals(
+        static::assertSame(
             'shopware.swag',
             static::getContainer()->get(SystemConfigService::class)->getString(StoreRequestOptionsProvider::CONFIG_KEY_STORE_LICENSE_DOMAIN)
         );

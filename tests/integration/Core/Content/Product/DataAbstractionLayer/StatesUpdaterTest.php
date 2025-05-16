@@ -60,9 +60,9 @@ class StatesUpdaterTest extends TestCase
         static::assertInstanceOf(ProductEntity::class, $product1);
         static::assertInstanceOf(ProductEntity::class, $product2);
         static::assertInstanceOf(ProductEntity::class, $product3);
-        static::assertEquals([State::IS_DOWNLOAD], $product1->getStates());
-        static::assertEquals([State::IS_PHYSICAL], $product2->getStates());
-        static::assertEquals([State::IS_PHYSICAL], $product3->getStates());
+        static::assertSame([State::IS_DOWNLOAD], $product1->getStates());
+        static::assertSame([State::IS_PHYSICAL], $product2->getStates());
+        static::assertSame([State::IS_PHYSICAL], $product3->getStates());
     }
 
     public function prepareProducts(IdsCollection $ids): void

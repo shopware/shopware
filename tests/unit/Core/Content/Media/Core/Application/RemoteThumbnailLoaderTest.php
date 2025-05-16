@@ -55,7 +55,7 @@ class RemoteThumbnailLoaderTest extends TestCase
         $actual = [$entity->get('id') => $entity->get('url')];
 
         static::assertArrayHasKey($ids->get('media'), $actual);
-        static::assertEquals($expected['media'], $actual[$ids->get('media')]);
+        static::assertSame($expected['media'], $actual[$ids->get('media')]);
 
         if (\count($thumbnailSizes) > 0) {
             static::assertIsIterable($entity->get('thumbnails'));

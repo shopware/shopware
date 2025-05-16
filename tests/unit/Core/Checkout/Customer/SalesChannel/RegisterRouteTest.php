@@ -227,8 +227,8 @@ class RegisterRouteTest extends TestCase
                 $definition->add('zipcode', new Length(['max' => CustomerAddressDefinition::MAX_LENGTH_ZIPCODE]));
 
                 static::assertNull($event->getData()->get('shippingAddress'));
-                static::assertEquals($event->getData()->get('accountType'), CustomerEntity::ACCOUNT_TYPE_BUSINESS);
-                static::assertEquals($event->getDefinition()->getProperties(), $definition->getProperties());
+                static::assertSame(CustomerEntity::ACCOUNT_TYPE_BUSINESS, $event->getData()->get('accountType'));
+                static::assertEquals($definition->getProperties(), $event->getDefinition()->getProperties());
             }
 
             return $event;
@@ -300,8 +300,8 @@ class RegisterRouteTest extends TestCase
                 $definition->add('zipcode', new Length(['max' => CustomerAddressDefinition::MAX_LENGTH_ZIPCODE]));
 
                 static::assertNull($event->getData()->get('shippingAddress'));
-                static::assertEquals($event->getData()->get('accountType'), CustomerEntity::ACCOUNT_TYPE_BUSINESS);
-                static::assertEquals($event->getDefinition()->getProperties(), $definition->getProperties());
+                static::assertSame(CustomerEntity::ACCOUNT_TYPE_BUSINESS, $event->getData()->get('accountType'));
+                static::assertEquals($definition->getProperties(), $event->getDefinition()->getProperties());
             }
 
             return $event;

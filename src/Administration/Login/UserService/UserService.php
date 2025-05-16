@@ -107,7 +107,6 @@ final class UserService
             )
         );
 
-        // TODO: Remove DefaultContext and check how to create a context with SystemScope
         $user = Context::createDefaultContext()->scope(Context::SYSTEM_SCOPE, function (Context $context) use ($criteria) {
             return $this->userRepository->search($criteria, $context)->first();
         });
@@ -129,7 +128,6 @@ final class UserService
 
     private function updateUser(string $userId, string $newMail): void
     {
-        // TODO: Remove DefaultContext and check how to create a context with SystemScope
         Context::createDefaultContext()->scope(Context::SYSTEM_SCOPE, function (Context $context) use ($userId, $newMail): void {
             $this->userRepository->update([
                 [
@@ -186,7 +184,6 @@ final class UserService
             )
         );
 
-        // TODO: Remove DefaultContext and check how to create a context with SystemScope
         $user = Context::createDefaultContext()->scope(Context::SYSTEM_SCOPE, function (Context $context) use ($criteria) {
             return $this->userRepository->search($criteria, $context)->first();
         });
@@ -196,7 +193,6 @@ final class UserService
 
     private function activateInvitedUser(UserEntity $userEntity, ParsedIdToken $parsedIdToken): void
     {
-        // TODO: Remove DefaultContext and check how to create a context with SystemScope
         Context::createDefaultContext()->scope(Context::SYSTEM_SCOPE, function (Context $context) use ($userEntity, $parsedIdToken): void {
             $this->userRepository->update([[
                 'id' => $userEntity->getId(),

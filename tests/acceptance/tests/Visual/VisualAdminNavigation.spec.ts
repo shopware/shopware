@@ -6,12 +6,10 @@ ShopAdmin,
 AdminDashboard,
 }) => {
 
-    await test.step('Creates a screenshot and compare the admin menu.', async () => {
+    await test.step('Creates a screenshot of the fully expanded admin menu.', async () => {
 
         await ShopAdmin.goesTo(AdminDashboard.url());
         await AdminDashboard.page.locator('.sw-catalogue').click();
-        await AdminDashboard.page.locator('.sw-settings').click();
-        await AdminDashboard.page.locator('.sw-dashboard').click();
         await AdminDashboard.page.locator('.sw-order').click();
         await AdminDashboard.page.locator('.sw-customer').click();
         await AdminDashboard.page.locator('.sw-content').click();

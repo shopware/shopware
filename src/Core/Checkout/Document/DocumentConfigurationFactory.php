@@ -63,27 +63,26 @@ class DocumentConfigurationFactory
                 $property = new \ReflectionProperty($baseConfig, $key);
                 $propertyType = $property->getType();
 
-                if ($propertyType instanceof \ReflectionNamedType) {
-                    $typeName = $propertyType->getName();
-                    if (is_subclass_of($typeName, Entity::class) && \is_array($value)) {
-                        $setterMethod = 'set' . ucfirst($key);
-                        /*
-                        Using dynamic access to handle entity properties generically, which improves maintainability by
-                        automatically supporting new entity properties without code changes with a static
-                        switch/if-else approach.
-                        */
-                        if (method_exists($baseConfig, $setterMethod)) {
-                            // @phpstan-ignore symplify.noDynamicName
-                            $baseConfig->$setterMethod((new $typeName())->assign($value));
-                        } else {
-                            // @phpstan-ignore symplify.noDynamicName
-                            $baseConfig->{$key} = (new $typeName())->assign($value);
-                        }
-                        continue;
-                    }
+                if (!($propertyType instanceof \ReflectionNamedType)) {
+                    $baseConfig->__set($key, $value);
+                    continue;
                 }
 
-                $baseConfig->__set($key, $value);
+                $typeName = $propertyType->getName();
+
+                if (!is_subclass_of($typeName, Entity::class) || !\is_array($value)) {
+                    $baseConfig->__set($key, $value);
+                    continue;
+                }
+
+                $setterMethod = 'set' . ucfirst($key);
+                if (method_exists($baseConfig, $setterMethod)) {
+                    // @phpstan-ignore symplify.noDynamicName
+                    $baseConfig->$setterMethod((new $typeName())->assign($value));
+                } else {
+                    // @phpstan-ignore symplify.noDynamicName
+                    $baseConfig->{$key} = (new $typeName())->assign($value);
+                }
             }
         }
 

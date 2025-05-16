@@ -158,14 +158,15 @@ class ThemeDumpCommand extends Command
             $channelCount = $salesChannels ? $salesChannels->count() : 0;
 
             if ($channelCount > 0) {
-                $choices[] = sprintf('%s (✓ Assigned to: %s)',
+                $choices[] =
+                    \sprintf('%s (✓ Assigned to: %s)',
                     $themeName,
                     $salesChannels ? implode(', ', $salesChannels->map(fn ($channel) => $channel->getName())) : ''
                 );
                 continue;
             }
 
-            $choices[] = sprintf('%s (Not assigned to any storefront channel)', $themeName);
+            $choices[] = \sprintf('%s (Not assigned to any storefront channel)', $themeName);
         }
 
         return $choices;

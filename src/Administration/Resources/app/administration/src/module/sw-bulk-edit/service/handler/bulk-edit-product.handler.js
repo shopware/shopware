@@ -28,6 +28,9 @@ class BulkEditProductHandler extends BulkEditBaseHandler {
         const purchasePrices = payload.find((change) => change.field === 'purchasePrices')?.value;
         let updatedPricePayload = [];
 
+        const weightUnit = Shopware.Store.get('swProductDetail').weightUnit;
+        const lengthUnit = Shopware.Store.get('swProductDetail').lengthUnit;
+
         if (taxId || price || purchasePrices) {
             await this.getProducts();
         }
@@ -65,14 +68,18 @@ class BulkEditProductHandler extends BulkEditBaseHandler {
             return Promise.resolve({ data: [] });
         }
 
+        const header = {
+            'single-operation': 1,
+            'sw-language-id': Shopware.Context.api.languageId,
+            ...(weightUnit ? { 'sw-measurement-weight-unit': weightUnit } : {}),
+            ...(lengthUnit ? { 'sw-measurement-length-unit': lengthUnit } : {}),
+        }
+
         return RetryHelper.retry(() => {
             return this.syncService.sync(
                 syncPayload,
                 {},
-                {
-                    'single-operation': 1,
-                    'sw-language-id': Shopware.Context.api.languageId,
-                },
+                header,
             );
         });
     }

@@ -33,6 +33,8 @@ function mockContext() {
         authToken: {
             access: 'BwP_OL47uNW6k8iQzChh6SxE31XaleO_l4unyLNmFco',
         },
+        measurementLengthUnit: null,
+        measurementWeightUnit: null,
     };
 }
 

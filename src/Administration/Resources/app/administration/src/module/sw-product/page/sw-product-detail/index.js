@@ -384,6 +384,22 @@ export default {
         currentPage() {
             return Shopware.Store.get('cmsPage').currentPage;
         },
+
+        lengthUnit() {
+            return Shopware.Store.get('swProductDetail').lengthUnit;
+        },
+
+        weightUnit() {
+            return Shopware.Store.get('swProductDetail').weightUnit;
+        },
+
+        productApiContext() {
+            return {
+                ...Shopware.Context.api,
+                measurementWeightUnit: this.weightUnit,
+                measurementLengthUnit: this.lengthUnit,
+            };
+        },
     },
 
     watch: {
@@ -661,7 +677,7 @@ export default {
             ]);
 
             return this.productRepository
-                .get(this.productId || this.product.id, Shopware.Context.api, this.productCriteria)
+                .get(this.productId || this.product.id, this.productApiContext, this.productCriteria)
                 .then(async (product) => {
                     if (!product.purchasePrices?.length > 0 && !product.parentId) {
                         if (!this.defaultCurrency?.id) {
@@ -1061,7 +1077,7 @@ export default {
 
                 // save product
                 this.syncRepository
-                    .save(this.product)
+                    .save(this.product, this.productApiContext)
                     .then(() => {
                         this.loadAll().then(() => {
                             Shopware.Store.get('swProductDetail').setLoading([

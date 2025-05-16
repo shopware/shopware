@@ -354,7 +354,7 @@
                                                                                     :allowMultiSelect="false"
                                                                                     :disabled="!acl.can('theme.editor') || themeConfig[fieldName].editable === false"
                                                                                     @media-drop="onDropMedia($event, currentThemeConfig[fieldName])"
-                                                                                    @media-upload-sidebar-open="openMediaSidebar()"
+                                                                                    @media-upload-sidebar-open="onOpenMediaModal(fieldName)"
                                                                                     @media-upload-remove-image="removeMediaItem(fieldName, updateCurrentValue, isInherited, removeInheritance)">
                                                                                 </sw-media-upload-v2>
                                                                             </template>
@@ -691,16 +691,29 @@
                     {% endblock %}
                 </sw-modal>
             {% endblock %}
+
+            {% block sw_theme_manager_detail_media_modal %}
+                <sw-media-modal-v2
+                    v-if="showMediaModal"
+                    :initial-folder-id="defaultMediaFolderId"
+                    :allow-multi-select="false"
+                    @media-modal-selection-change="onMediaChange"
+                    @modal-close="onCloseMediaModal"
+                />
+            {% endblock %}
         </template>
 
+        {# @deprecated tag:v6.8.0 - Will be removed, use block sw_theme_manager_detail_media_modal instead. #}
         {% block sw_theme_manager_detail_sidebar %}
             <template #sidebar>
                 <sw-sidebar :propagateWidth="true">
+                    {# @deprecated tag:v6.8.0 - Will be removed. #}
                     {% block sw_theme_manager_detail_sidebar_media %}
                         <sw-sidebar-media-item
                             ref="mediaSidebarItem"
                             :initialFolderId="defaultMediaFolderId">
                             <template #context-menu-items="media">
+                                {# @deprecated tag:v6.8.0 - Will be removed. #}
                                 {% block sw_theme_manager_detail_sidebar_media_items %}
                                     <template v-if="shouldShowContent">
                                         <template v-for="tab in structuredThemeFields.tabs">

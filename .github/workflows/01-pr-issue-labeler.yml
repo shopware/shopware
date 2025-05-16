@@ -31,7 +31,7 @@ jobs:
         with:
           script: |
             const { cleanupNeedsTriage } = await import('${{ github.workspace }}/.github/bin/js/node_modules/@shopware-ag/gh-project-automation/dist/index.mjs')
-            await cleanupNeedsTriage({github, core, context}, true)
+            await cleanupNeedsTriage({github, core, context}, false)
 
   apply-team-label:
     runs-on: ubuntu-24.04

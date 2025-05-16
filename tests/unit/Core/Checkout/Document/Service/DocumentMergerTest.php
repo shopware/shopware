@@ -304,6 +304,93 @@ class DocumentMergerTest extends TestCase
         static::assertNull($result);
     }
 
+    public function testPageSizesAreUsedFromSourcePdfs(): void
+    {
+        $document1 = $this->createDocument(true);
+        $document2 = $this->createDocument(true);
+
+        $document1->setConfig(
+            [
+                'pageOrientation' => 'portrait',
+                'pageSize' => 'a4'
+            ]
+        );
+
+        $document1->setConfig(
+            [
+                'pageOrientation' => 'portrait',
+                'pageSize' => 'a4'
+            ]
+        );
+
+        $documentRepository = $this->createMock(EntityRepository::class);
+        $documentRepository->method('search')->willReturn(
+            new EntitySearchResult(
+                'document',
+                2,
+                new DocumentCollection([$document1, $document2]),
+                null,
+                new Criteria(),
+                Context::createDefaultContext(),
+            )
+        );
+
+        $mockFpdi = $this->createMock(Fpdi::class);
+
+        $mockFpdi->expects($this->exactly(2))
+            ->method('setSourceFile')
+            ->willReturn(1);
+
+        $mockFpdi->expects($this->exactly(2))
+            ->method('importPage')
+            ->willReturn('template');
+
+        $mockFpdi->expects($this->exactly(2))
+            ->method('getTemplateSize')
+            ->willReturnOnConsecutiveCalls(
+                ['0' => 420, '1' => 297, 'orientation' => 'L'],
+                ['0' => 215.9, '1' => 279.4, 'orientation' => 'P']
+            );
+
+        $matcher = $this->exactly(2);
+        $mockFpdi->expects($matcher)
+            ->method('AddPage')
+            ->willReturnCallback(function ($orientation, $size) use ($matcher) {
+                match ($matcher->numberOfInvocations()) {
+                    1 => [
+                        static::assertSame('L', $orientation, 'First call: orientation should be L'),
+                        static::assertSame([420, 297], $size, 'First call: size should match')
+                    ],
+                    2 => [
+                        static::assertSame('P', $orientation, 'Second call: orientation should be P'),
+                        static::assertSame([215.9, 279.4], $size, 'Second call: size should match')
+                    ],
+                    default => static::fail('Unexpected call number')
+                };
+            });
+
+        $mockFpdi->method('useTemplate');
+        $mockFpdi->method('Output')->willReturn(self::PDF_CONTENT);
+
+        $mediaService = $this->createMock(MediaService::class);
+        $mediaService->method('loadFileStream')
+            ->willReturn(Utils::streamFor());
+
+        $documentMerger = new DocumentMerger(
+            $documentRepository,
+            $mediaService,
+            $this->createMock(DocumentGenerator::class),
+            $mockFpdi
+        );
+
+        $result = $documentMerger->merge(
+            [$document1->getId(), $document2->getId()],
+            Context::createDefaultContext()
+        );
+
+        static::assertNotNull($result);
+    }
+
     private function createDocument(bool $withMedia, bool $withDocumentType = true): DocumentEntity
     {
         $document = new DocumentEntity();

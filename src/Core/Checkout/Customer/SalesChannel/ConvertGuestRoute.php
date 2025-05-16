@@ -65,7 +65,7 @@ class ConvertGuestRoute extends AbstractConvertGuestRoute
     private function validate(DataBag $data, SalesChannelContext $context): void
     {
         $definition = new DataValidationDefinition('customer.guest.convert');
-        $definition->merge($this->passwordValidationFactory->create($data->get('password')));
+        $definition->merge($this->passwordValidationFactory->create($context));
 
         $options = ['context' => $context->getContext(), 'salesChannelContext' => $context];
         $definition->add('email', new CustomerEmailUnique($options));

@@ -817,7 +817,7 @@ class RegisterRouteTest extends TestCase
 
                 $billingAddressDefinition = $subs['billingAddress'];
 
-                static::assertCount(5, $billingAddressDefinition->getProperties());
+                static::assertCount(4, $billingAddressDefinition->getProperties());
                 static::assertArrayNotHasKey('vatIds', $billingAddressDefinition->getProperties());
 
                 return true;

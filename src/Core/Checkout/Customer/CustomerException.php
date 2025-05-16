@@ -442,7 +442,7 @@ class CustomerException extends HttpException
         return new self(
             Response::HTTP_BAD_REQUEST,
             self::REGISTERED_CUSTOMER_CANNOT_BE_CONVERTED,
-            'Registered customer {{ customerId }} cannot be converted from a guest again',
+            'Customer with id "{{ customerId }}" is not a guest',
             ['customerId' => $customerId],
         );
     }

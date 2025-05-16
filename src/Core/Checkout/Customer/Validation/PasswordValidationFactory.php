@@ -42,7 +42,7 @@ class PasswordValidationFactory implements DataValidationFactoryInterface
 
     private function addConstraints(DataValidationDefinition $definition, SalesChannelContext $context): void
     {
-        $minLength = $this->systemConfigService->get('core.loginRegistration.passwordMinLength', $context->getSalesChannelId());
+        $minLength = $this->systemConfigService->getInt('core.loginRegistration.passwordMinLength', $context->getSalesChannelId());
         $definition->add('password', new NotBlank(), new Length(['min' => $minLength, 'max' => PasswordHasherInterface::MAX_PASSWORD_LENGTH, 'maxMessage' => 'VIOLATION::PASSWORD_IS_TOO_LONG']));
     }
 }

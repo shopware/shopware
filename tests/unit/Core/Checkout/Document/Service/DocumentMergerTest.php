@@ -312,14 +312,14 @@ class DocumentMergerTest extends TestCase
         $document1->setConfig(
             [
                 'pageOrientation' => 'portrait',
-                'pageSize' => 'a4'
+                'pageSize' => 'a4',
             ]
         );
 
         $document1->setConfig(
             [
                 'pageOrientation' => 'portrait',
-                'pageSize' => 'a4'
+                'pageSize' => 'a4',
             ]
         );
 
@@ -355,18 +355,17 @@ class DocumentMergerTest extends TestCase
         $matcher = $this->exactly(2);
         $mockFpdi->expects($matcher)
             ->method('AddPage')
-            ->willReturnCallback(function ($orientation, $size) use ($matcher) {
-                match ($matcher->numberOfInvocations()) {
-                    1 => [
-                        static::assertSame('L', $orientation, 'First call: orientation should be L'),
-                        static::assertSame([420, 297], $size, 'First call: size should match')
-                    ],
-                    2 => [
-                        static::assertSame('P', $orientation, 'Second call: orientation should be P'),
-                        static::assertSame([215.9, 279.4], $size, 'Second call: size should match')
-                    ],
-                    default => static::fail('Unexpected call number')
-                };
+            ->willReturnCallback(function ($orientation, $size) use ($matcher): void {
+                $invocation = $matcher->numberOfInvocations();
+                if ($invocation === 1) {
+                    static::assertSame('L', $orientation, 'First call: orientation should be L');
+                    static::assertSame([420, 297], $size, 'First call: size should match');
+                } elseif ($invocation === 2) {
+                    static::assertSame('P', $orientation, 'Second call: orientation should be P');
+                    static::assertSame([215.9, 279.4], $size, 'Second call: size should match');
+                } else {
+                    static::fail('Unexpected call number');
+                }
             });
 
         $mockFpdi->method('useTemplate');

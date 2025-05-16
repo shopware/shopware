@@ -22,6 +22,13 @@ use Shopware\Core\Framework\Util\Random;
 final class DocumentMerger
 {
     /**
+     * Cache of document media file IDs indexed by document ID
+     *
+     * @var array<string, string>
+     */
+    private array $documentMediaCache = [];
+
+    /**
      * @internal
      *
      * @param EntityRepository<DocumentCollection> $documentRepository
@@ -43,11 +50,7 @@ final class DocumentMerger
             return null;
         }
 
-        $criteria = (new Criteria($documentIds))
-            ->addAssociation('documentType')
-            ->addSorting(new FieldSorting('order.orderNumber'));
-
-        $documents = $this->documentRepository->search($criteria, $context)->getEntities();
+        $documents = $this->prepareDocumentsForMerge($documentIds, $context);
 
         if ($documents->count() === 0) {
             return null;
@@ -62,7 +65,7 @@ final class DocumentMerger
                 return null;
             }
 
-            $documentMediaId = $this->ensureDocumentMediaFileGenerated($document, $context);
+            $documentMediaId = $this->documentMediaCache[$document->getId()] ?? null;
             if ($documentMediaId === null) {
                 return null;
             }
@@ -120,12 +123,37 @@ final class DocumentMerger
         return $document->getDocumentMediaFileId();
     }
 
+    /**
+     * @param array<string> $documentIds
+     */
+    private function prepareDocumentsForMerge(array $documentIds, Context $context): DocumentCollection
+    {
+        $criteria = (new Criteria($documentIds))
+            ->addAssociation('documentType')
+            ->addSorting(new FieldSorting('order.orderNumber'));
+
+        $documents = $this->documentRepository->search($criteria, $context)->getEntities();
+
+        $mediaCache = [];
+
+        foreach ($documents as $document) {
+            $mediaId = $this->ensureDocumentMediaFileGenerated($document, $context);
+            if ($mediaId !== null) {
+                $mediaCache[$document->getId()] = $mediaId;
+            }
+        }
+
+        $this->documentMediaCache = $mediaCache;
+
+        return $documents;
+    }
+
     private function mergeWithFpdi(DocumentCollection $documents, Context $context, RenderedDocument $renderedDocument): ?RenderedDocument
     {
         $totalPage = 0;
 
         foreach ($documents as $document) {
-            $documentMediaId = $this->ensureDocumentMediaFileGenerated($document, $context);
+            $documentMediaId = $this->documentMediaCache[$document->getId()] ?? null;
             if ($documentMediaId === null) {
                 continue;
             }
@@ -174,7 +202,7 @@ final class DocumentMerger
         $totalDocuments = 0;
 
         foreach ($documents as $document) {
-            $documentMediaId = $this->ensureDocumentMediaFileGenerated($document, $context);
+            $documentMediaId = $this->documentMediaCache[$document->getId()] ?? null;
             if ($documentMediaId === null) {
                 continue;
             }

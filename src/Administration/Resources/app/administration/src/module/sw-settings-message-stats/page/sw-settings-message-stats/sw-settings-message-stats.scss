@@ -29,14 +29,14 @@
         box-sizing: border-box;
         overflow: hidden;
         padding: 16px 24px;
-
         background: $color-white;
-        border: 1px solid var(--color-border-primary-default, #CDCED4);
+        border: 1px solid var(--color-border-primary-default, #cdced4);
         border-radius: $border-radius-sm;
         cursor: pointer;
         transition: background 0.1s;
+
         &:hover {
-            background: var(--color-interaction-secondary-hover, #F2F3F8);
+            background: var(--color-interaction-secondary-hover, #f2f3f8);
         }
     }
 
@@ -47,7 +47,7 @@
         width: 4px;
         height: 44px;
         border-radius: 0 $border-radius-pill $border-radius-pill 0;
-        background: var(--color-border-brand-selected, #0870FF);
+        background: var(--color-border-brand-selected, #0870ff);
     }
 
     &__stat-content {
@@ -63,7 +63,7 @@
         white-space: nowrap;
         overflow: hidden;
         text-overflow: ellipsis;
-        color: var(--color-text-primary-default, #2D2E32);
+        color: var(--color-text-primary-default, #2d2e32);
         font-family: var(--font-family-body, Inter);
         font-size: var(--font-size-xs, 14px);
         font-style: normal;
@@ -76,7 +76,7 @@
         white-space: nowrap;
         overflow: hidden;
         text-overflow: ellipsis;
-        color: var(--color-text-primary-default, #2D2E32);
+        color: var(--color-text-primary-default, #2d2e32);
         font-family: var(--font-family-body, Inter);
         font-size: var(--font-size-xs, 14px);
         font-style: normal;
@@ -93,17 +93,16 @@
         border: 1px solid $color-gray-300;
         border-radius: $border-radius-lg;
     }
-    
-    &__divider {
-        margin: 24px 0 24px 0;
-        border: none;
-        border-top: 1px solid var(--color-border-primary-default, #CDCED4);
-    }
 
+    &__divider {
+        margin: 24px 0;
+        border: none;
+        border-top: 1px solid var(--color-border-primary-default, #cdced4);
+    }
 
     &__description {
         margin-bottom: 24px;
-        color: var(--color-text-primary-default, #2D2E32);
+        color: var(--color-text-primary-default, #2d2e32);
         font-family: var(--font-family-body, Inter);
         font-size: var(--font-size-xs, 14px);
         font-style: normal;
@@ -111,46 +110,7 @@
         line-height: var(--font-line-height-xs, 22px);
     }
 
-    // Custom styles for the empty state in this module. Should be removed as soon as sw-empty-state is replaced by mt-empty-state meteor component.
-    .sw-empty-state__element {
-        text-align: left;
-        align-items: flex-start;
-        margin: 0;
-        padding: 0;
-    }
-
-    .sw-empty-state__icon {
-        display: flex;
-        width: 48px;
-        height: 48px;
-        padding: 12px;
-        align-items: center;
-        justify-content: center;
-        border-radius: var(--border-radius-xs, 4px);
-        background: var(--color-background-primary-disabled, #F2F3F8);
-        color: #2D2E32;
-    }
-
-    .sw-empty-state__title {
-        align-self: stretch;
-        color: var(--color-text-primary-default, #2D2E32);
-        font-family: var(--font-family-body, Inter);
-        font-size: var(--font-size-m, 18px);
-        font-style: normal;
-        font-weight: var(--font-weight-bold, 700);
-        line-height: var(--font-line-height-m, 28px);
-        margin-bottom: 8px;
-        text-align: left;
-    }
-
-    .sw-empty-state__description {
-        color: var(--color-text-secondary-default, #696A6E);
-        font-family: var(--font-family-body, Inter);
-        font-size: var(--font-size-xs, 14px);
-        font-style: normal;
-        font-weight: var(--font-weight-regular, 400);
-        line-height: var(--font-line-height-xs, 22px);
-        margin-bottom: 24px;
-        text-align: left;
+    &__empty-state-button {
+        margin-top: 24px;
     }
 }

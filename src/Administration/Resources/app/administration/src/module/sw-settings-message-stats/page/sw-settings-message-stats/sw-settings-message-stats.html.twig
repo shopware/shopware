@@ -67,7 +67,10 @@
 
                     <hr class="sw-settings-message-stats__divider">
 
-                    <div class="sw-settings-message-stats__message-types" v-if="hasStats">
+                    <div
+                        v-if="hasStats"
+                        class="sw-settings-message-stats__message-types"
+                    >
                         <sw-data-grid
                             :data-source="sortedMessageTypeStats"
                             :columns="columns"
@@ -88,29 +91,25 @@
                         </sw-data-grid>
                     </div>
 
-                    {# element is styled to look lime mt-empty-state, don't forget to remove styles on update #}
-                    <sw-empty-state
-                        v-else
-                        :title="$tc('sw-settings-message-stats.general.emptyStateTitle')"
-                        :subline="$tc('sw-settings-message-stats.general.emptyStateSubline')"
-                        icon="regular-bars-square"
-                        :absolute="false"
-                        color="#2D2E32"
-
-                    >
-                        <template #actions>
-                            <mt-button
-                                variant="primary"
-                                @click="loadStats"
-                            >
-                                <mt-icon
-                                    name="regular-sync"
-                                    size="12px"
-                                />
-                                {{ $tc('sw-settings-message-stats.general.refreshButton') }}
-                            </mt-button>
-                        </template>
-                    </sw-empty-state>
+                    <div v-else>
+                        <mt-empty-state
+                            :headline="$tc('sw-settings-message-stats.general.emptyStateTitle')"
+                            :description="$tc('sw-settings-message-stats.general.emptyStateSubline')"
+                            icon="regular-bars-square"
+                        />
+                        {# rendering button separately as mt-empty-state does not support custom button icons #}
+                        <mt-button
+                            variant="primary"
+                            class="sw-settings-message-stats__empty-state-button"
+                            @click="loadStats"
+                        >
+                            <mt-icon
+                                name="regular-sync"
+                                size="12px"
+                            />
+                            {{ $tc('sw-settings-message-stats.general.refreshButton') }}
+                        </mt-button>
+                    </div>
 
                 </mt-card>
             </template>

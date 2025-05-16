@@ -112,7 +112,7 @@ export default {
             } catch (error) {
                 this.createNotificationError({
                     title: this.$tc('sw-settings-message-stats.general.errorTitle'),
-                    message: error.message,
+                    message: error?.message ?? this.$t('global.notification.notificationLoadingDataErrorMessage'),
                 });
             } finally {
                 this.isLoading = false;

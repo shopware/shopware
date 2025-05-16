@@ -23,7 +23,7 @@ class BlockTest extends TestCase
         static::assertSame('text-image', $firstBlock->getCategory());
         static::assertCount(3, $firstBlock->getSlots());
         static::assertCount(6, $firstBlock->getDefaultConfig()->toArray('en-GB'));
-        static::assertEquals(
+        static::assertSame(
             [
                 'en-GB' => 'First block from app',
                 'de-DE' => 'Erster Block einer App',
@@ -42,7 +42,7 @@ class BlockTest extends TestCase
         $slots = $firstBlock->getSlots();
         $defaultConfig = $firstBlock->getDefaultConfig();
 
-        static::assertEquals(
+        static::assertSame(
             [
                 'name' => 'first-block-name',
                 'category' => 'text-image',
@@ -60,7 +60,7 @@ class BlockTest extends TestCase
         $slots = $secondBlock->getSlots();
         $defaultConfig = $secondBlock->getDefaultConfig();
 
-        static::assertEquals(
+        static::assertSame(
             [
                 'name' => 'second-block-name',
                 'category' => 'text',

@@ -26,9 +26,9 @@ class VariantNotFoundExceptionTest extends TestCase
 
         $exception = new VariantNotFoundException($ids->get('productId'), $options);
 
-        static::assertEquals('CONTENT__PRODUCT_VARIANT_NOT_FOUND', $exception->getErrorCode());
-        static::assertEquals(Response::HTTP_NOT_FOUND, $exception->getStatusCode());
-        static::assertEquals(
+        static::assertSame('CONTENT__PRODUCT_VARIANT_NOT_FOUND', $exception->getErrorCode());
+        static::assertSame(Response::HTTP_NOT_FOUND, $exception->getStatusCode());
+        static::assertSame(
             'Variant for productId ' . $ids->get('productId') . ' with options ' . \json_encode($options, \JSON_THROW_ON_ERROR) . ' not found.',
             $exception->getMessage()
         );

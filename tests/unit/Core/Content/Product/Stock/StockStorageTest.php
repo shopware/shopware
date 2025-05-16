@@ -30,7 +30,7 @@ class StockStorageTest extends TestCase
 
         $stockStorage = new StockStorage($connection, $dispatcher);
 
-        static::assertEquals(
+        static::assertSame(
             [],
             $stockStorage->load(new StockLoadRequest(array_values($productIds)), $salesChannelContext)->all()
         );

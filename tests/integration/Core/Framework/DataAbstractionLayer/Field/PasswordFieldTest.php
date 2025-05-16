@@ -31,7 +31,7 @@ class PasswordFieldTest extends TestCase
     public function testGetStorage(): void
     {
         $field = new PasswordField('password', 'password');
-        static::assertEquals('password', $field->getStorageName());
+        static::assertSame('password', $field->getStorageName());
     }
 
     public function testNullableField(): void
@@ -54,7 +54,7 @@ class PasswordFieldTest extends TestCase
         ));
 
         $payload = iterator_to_array($payload);
-        static::assertEquals($kvPair->getValue(), $payload['password']);
+        static::assertSame($kvPair->getValue(), $payload['password']);
     }
 
     public function testEncoding(): void
@@ -77,7 +77,7 @@ class PasswordFieldTest extends TestCase
         ));
 
         $payload = iterator_to_array($payload);
-        static::assertNotEquals($kvPair->getValue(), $payload['password']);
+        static::assertNotSame($kvPair->getValue(), $payload['password']);
         static::assertTrue(password_verify((string) $kvPair->getValue(), (string) $payload['password']));
     }
 
@@ -163,6 +163,6 @@ class PasswordFieldTest extends TestCase
         ));
 
         $payload = iterator_to_array($payload);
-        static::assertEquals($kvPair->getValue(), $payload['password']);
+        static::assertSame($kvPair->getValue(), $payload['password']);
     }
 }

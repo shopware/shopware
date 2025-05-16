@@ -48,7 +48,7 @@ class SalesChannelEntityCompilerPassTest extends TestCase
 
         $methodCalls = $container->getDefinition('sales_channel_definition.' . ProductDefinition::class)->getMethodCalls();
         static::assertCount(2, $methodCalls);
-        static::assertEquals('addExtension', $methodCalls[1][0]);
+        static::assertSame('addExtension', $methodCalls[1][0]);
         static::assertInstanceOf(Reference::class, $methodCalls[1][1][0]);
         static::assertSame(ProductEntityExtension::class, (string) $methodCalls[1][1][0]);
     }
@@ -72,7 +72,7 @@ class SalesChannelEntityCompilerPassTest extends TestCase
 
         $methodCalls = $container->getDefinition('sales_channel_definition.' . ProductDefinition::class)->getMethodCalls();
         static::assertCount(2, $methodCalls);
-        static::assertEquals('addExtension', $methodCalls[1][0]);
+        static::assertSame('addExtension', $methodCalls[1][0]);
         static::assertInstanceOf(Definition::class, $methodCalls[1][1][0]);
         static::assertSame(FilteredBulkEntityExtension::class, $methodCalls[1][1][0]->getClass());
     }
@@ -109,7 +109,7 @@ class SalesChannelEntityCompilerPassTest extends TestCase
         $methodCalls = $container->getDefinition('sales_channel_definition.test_attribute_entity.definition')->getMethodCalls();
 
         static::assertCount(2, $methodCalls);
-        static::assertEquals('addExtension', $methodCalls[1][0]);
+        static::assertSame('addExtension', $methodCalls[1][0]);
         static::assertInstanceOf(Reference::class, $methodCalls[1][1][0]);
         static::assertSame(AttributeEntityExtension::class, (string) $methodCalls[1][1][0]);
     }

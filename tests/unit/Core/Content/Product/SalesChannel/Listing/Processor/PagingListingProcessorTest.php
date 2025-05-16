@@ -79,8 +79,8 @@ class PagingListingProcessorTest extends TestCase
 
         $processor->prepare($request, $criteria, $context);
 
-        static::assertEquals(($page - 1) * $limit, $criteria->getOffset());
-        static::assertEquals($limit, $criteria->getLimit());
+        static::assertSame(($page - 1) * $limit, $criteria->getOffset());
+        static::assertSame($limit, $criteria->getLimit());
     }
 
     public function testProcess(): void
@@ -100,7 +100,7 @@ class PagingListingProcessorTest extends TestCase
 
         $processor->process($request, $result, $context);
 
-        static::assertEquals(2, $result->getPage());
-        static::assertEquals(10, $result->getLimit());
+        static::assertSame(2, $result->getPage());
+        static::assertSame(10, $result->getLimit());
     }
 }

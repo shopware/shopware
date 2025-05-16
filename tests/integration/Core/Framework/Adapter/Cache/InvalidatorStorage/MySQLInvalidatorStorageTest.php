@@ -114,7 +114,7 @@ class MySQLInvalidatorStorageTest extends TestCase
 
         $tags = $storage->loadAndDelete();
 
-        static::assertEquals(['tag1', 'tag2', 'tag3'], $tags);
+        static::assertSame(['tag1', 'tag2', 'tag3'], $tags);
 
         $result = $this->connection->fetchFirstColumn('SELECT tag FROM invalidation_tags');
 
@@ -153,7 +153,7 @@ class MySQLInvalidatorStorageTest extends TestCase
         // 2. load tags on original connection (which will trigger callable from above to simulate parallel request loading tags)
         $tags = $storage1->loadAndDelete();
 
-        static::assertEquals(['tag1', 'tag2', 'tag3'], $tags);
+        static::assertSame(['tag1', 'tag2', 'tag3'], $tags);
 
         $result = $this->connection->fetchFirstColumn('SELECT tag FROM invalidation_tags');
 

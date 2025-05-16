@@ -59,7 +59,7 @@ class ProductListingLoaderExtensionsTests extends TestCase
 
         static::assertInstanceOf(IdSearchResult::class, $result);
 
-        static::assertEquals(['plugin-id'], $result->getIds());
+        static::assertSame(['plugin-id'], $result->getIds());
     }
 
     public function testResolveListingExtension(): void
@@ -103,6 +103,6 @@ class ProductListingLoaderExtensionsTests extends TestCase
 
         static::assertInstanceOf(EntitySearchResult::class, $result);
 
-        static::assertEquals(['plugin-id'], array_values($result->getIds()));
+        static::assertSame(['plugin-id'], array_values($result->getIds()));
     }
 }

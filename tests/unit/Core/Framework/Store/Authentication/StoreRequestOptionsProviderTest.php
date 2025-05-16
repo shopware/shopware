@@ -51,7 +51,7 @@ class StoreRequestOptionsProviderTest extends TestCase
         );
 
         static::assertArrayHasKey('X-Shopware-Shop-Secret', $authHeaders);
-        static::assertEquals('store-secret', $authHeaders['X-Shopware-Shop-Secret']);
+        static::assertSame('store-secret', $authHeaders['X-Shopware-Shop-Secret']);
     }
 
     public function testGetAuthenticationHeaderDoesNotContainsShopSecretIfNotExists(): void
@@ -96,7 +96,7 @@ class StoreRequestOptionsProviderTest extends TestCase
         );
 
         static::assertArrayHasKey('X-Shopware-Platform-Token', $authHeaders);
-        static::assertEquals('sbp-token', $authHeaders['X-Shopware-Platform-Token']);
+        static::assertSame('sbp-token', $authHeaders['X-Shopware-Platform-Token']);
     }
 
     public function testGetAuthenticationHeaderThrowsIfUserIdIsMissingInAdminApiSource(): void
@@ -151,7 +151,7 @@ class StoreRequestOptionsProviderTest extends TestCase
         );
 
         static::assertArrayHasKey('X-Shopware-Platform-Token', $authHeaders);
-        static::assertEquals('sbp-token', $authHeaders['X-Shopware-Platform-Token']);
+        static::assertSame('sbp-token', $authHeaders['X-Shopware-Platform-Token']);
     }
 
     public function testGetAuthenticationHeaderReturnsNullIfNoUserHasATokenSet(): void
@@ -203,10 +203,10 @@ class StoreRequestOptionsProviderTest extends TestCase
         $queries = $provider->getDefaultQueryParameters(Context::createDefaultContext());
 
         static::assertArrayHasKey('domain', $queries);
-        static::assertEquals('domain.shopware.store', $queries['domain']);
+        static::assertSame('domain.shopware.store', $queries['domain']);
 
         static::assertArrayHasKey('shopwareVersion', $queries);
-        static::assertEquals('sw-version', $queries['shopwareVersion']);
+        static::assertSame('sw-version', $queries['shopwareVersion']);
     }
 
     public function testGetDefaultQueryParametersDelegatesToLocaleProvider(): void
@@ -229,7 +229,7 @@ class StoreRequestOptionsProviderTest extends TestCase
         $queries = $provider->getDefaultQueryParameters($context);
 
         static::assertArrayHasKey('language', $queries);
-        static::assertEquals('locale-from-provider', $queries['language']);
+        static::assertSame('locale-from-provider', $queries['language']);
     }
 
     private function configureUserRepositorySearchMock(

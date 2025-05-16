@@ -56,7 +56,7 @@ class MigrateIncrementStorageCommandTest extends TestCase
 
         $after = $this->arrayStorage->list();
         static::assertNotEmpty($after);
-        static::assertEquals($this->sqlStorage->list(), $this->arrayStorage->list());
+        static::assertSame($this->sqlStorage->list(), $this->arrayStorage->list());
     }
 
     public function testMigrateWithUserAbort(): void
@@ -68,7 +68,7 @@ class MigrateIncrementStorageCommandTest extends TestCase
         $this->tester->setInputs(['no']);
         $this->tester->execute(['from' => 'SQL', 'to' => 'Array']);
 
-        static::assertEquals(Command::FAILURE, $this->tester->getStatusCode());
+        static::assertSame(Command::FAILURE, $this->tester->getStatusCode());
 
         static::assertEmpty($this->arrayStorage->list());
     }

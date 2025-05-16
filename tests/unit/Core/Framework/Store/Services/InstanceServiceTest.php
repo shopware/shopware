@@ -32,7 +32,7 @@ class InstanceServiceTest extends TestCase
             'i-am-unique'
         );
 
-        static::assertEquals('i-am-unique', $instanceService->getInstanceId());
+        static::assertSame('i-am-unique', $instanceService->getInstanceId());
     }
 
     public function testItReturnsSpecificShopwareVersion(): void
@@ -42,7 +42,7 @@ class InstanceServiceTest extends TestCase
             null
         );
 
-        static::assertEquals('6.1.0.0', $instanceService->getShopwareVersion());
+        static::assertSame('6.1.0.0', $instanceService->getShopwareVersion());
     }
 
     public function testItReturnsShopwareVersionStringIfVersionIsDeveloperVersion(): void
@@ -52,6 +52,6 @@ class InstanceServiceTest extends TestCase
             null
         );
 
-        static::assertEquals('___VERSION___', $instanceService->getShopwareVersion());
+        static::assertSame('___VERSION___', $instanceService->getShopwareVersion());
     }
 }

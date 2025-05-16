@@ -92,8 +92,8 @@ class ExtensionLoaderTest extends TestCase
         static::assertNull($extension->getLocalId());
         static::assertNull($extension->getLicense());
         static::assertNull($extension->getVersion());
-        static::assertEquals($listingResponse['name'], $extension->getName());
-        static::assertEquals($listingResponse['label'], $extension->getLabel());
+        static::assertSame($listingResponse['name'], $extension->getName());
+        static::assertSame($listingResponse['label'], $extension->getLabel());
 
         static::assertInstanceOf(VariantCollection::class, $extension->getVariants());
         static::assertInstanceOf(ImageCollection::class, $extension->getImages());
@@ -126,7 +126,7 @@ class ExtensionLoaderTest extends TestCase
         $extension = $extensions->get('AppStoreTestPlugin');
 
         static::assertInstanceOf(ExtensionStruct::class, $extension);
-        static::assertEquals('AppStoreTestPlugin', $extension->getName());
+        static::assertSame('AppStoreTestPlugin', $extension->getName());
         static::assertTrue($extension->isAllowUpdate());
 
         $pluginId = $extension->getLocalId();
@@ -146,7 +146,7 @@ class ExtensionLoaderTest extends TestCase
         $extension = $extensions->get('AppStoreTestPlugin');
 
         static::assertInstanceOf(ExtensionStruct::class, $extension);
-        static::assertEquals('AppStoreTestPlugin', $extension->getName());
+        static::assertSame('AppStoreTestPlugin', $extension->getName());
         // update still allowed, as the plugin is not loaded from vendor folder
         // this is the case for all plugins that `executeComposerCommands` but are still installed in /custom/plugins
         static::assertTrue($extension->isAllowUpdate());
@@ -165,7 +165,7 @@ class ExtensionLoaderTest extends TestCase
         $extension = $extensions->get('AppStoreTestPlugin');
 
         static::assertInstanceOf(ExtensionStruct::class, $extension);
-        static::assertEquals('AppStoreTestPlugin', $extension->getName());
+        static::assertSame('AppStoreTestPlugin', $extension->getName());
         // update not allowed when it is installed over composer (and not just required by composer)
         static::assertFalse($extension->isAllowUpdate());
     }
@@ -209,20 +209,18 @@ class ExtensionLoaderTest extends TestCase
             new AppCollection([$installedApp])
         );
 
-        static::assertEquals([
-            'German',
-            'British English',
-        ], $extensions->first()?->getLanguages());
-
-        static::assertSame($installedApp->getUpdatedAt(), $extensions->first()?->getUpdatedAt());
+        $firstExtension = $extensions->first();
+        static::assertNotNull($firstExtension);
+        static::assertSame(['German', 'British English'], $firstExtension->getLanguages());
+        static::assertSame($installedApp->getUpdatedAt(), $firstExtension->getUpdatedAt());
         static::assertEquals(new PermissionCollection([
             PermissionStruct::fromArray(['entity' => 'product', 'operation' => 'create']),
             PermissionStruct::fromArray(['entity' => 'product', 'operation' => 'read']),
             PermissionStruct::fromArray(['entity' => 'additional_privileges', 'operation' => 'additional:privilege']),
-        ]), $extensions->first()?->getPermissions());
+        ]), $firstExtension->getPermissions());
 
         foreach ($extensions as $extension) {
-            static::assertEquals(ExtensionStruct::EXTENSION_TYPE_APP, $extension->getType());
+            static::assertSame(ExtensionStruct::EXTENSION_TYPE_APP, $extension->getType());
         }
     }
 

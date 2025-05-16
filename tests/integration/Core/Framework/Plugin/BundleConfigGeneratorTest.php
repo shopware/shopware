@@ -49,19 +49,19 @@ class BundleConfigGeneratorTest extends TestCase
         static::assertArrayHasKey('SwagApp', $configs);
 
         $appConfig = $configs['SwagApp'];
-        static::assertEquals(
+        static::assertSame(
             $appPath,
             $appConfig['basePath']
         );
-        static::assertEquals(['Resources/views'], $appConfig['views']);
-        static::assertEquals('swag-app', $appConfig['technicalName']);
+        static::assertSame(['Resources/views'], $appConfig['views']);
+        static::assertSame('swag-app', $appConfig['technicalName']);
         static::assertArrayNotHasKey('administration', $appConfig);
 
         static::assertArrayHasKey('storefront', $appConfig);
         $storefrontConfig = $appConfig['storefront'];
 
-        static::assertEquals('Resources/app/storefront/src', $storefrontConfig['path']);
-        static::assertEquals('Resources/app/storefront/src/main.js', $storefrontConfig['entryFilePath']);
+        static::assertSame('Resources/app/storefront/src', $storefrontConfig['path']);
+        static::assertSame('Resources/app/storefront/src/main.js', $storefrontConfig['entryFilePath']);
         static::assertNull($storefrontConfig['webpack']);
 
         // Style files can and need only be imported if storefront is installed
@@ -71,7 +71,7 @@ class BundleConfigGeneratorTest extends TestCase
                 $appPath . 'Resources/app/storefront/src/scss/base.scss',
                 $appPath . 'Resources/app/storefront/src/scss/overrides.scss',
             ];
-            static::assertEquals([], array_diff($expectedStyles, $storefrontConfig['styleFiles']));
+            static::assertSame([], array_diff($expectedStyles, $storefrontConfig['styleFiles']));
         }
     }
 
@@ -86,19 +86,19 @@ class BundleConfigGeneratorTest extends TestCase
         static::assertArrayHasKey('SwagApp', $configs);
 
         $appConfig = $configs['SwagApp'];
-        static::assertEquals(
+        static::assertSame(
             realpath($appPath),
             realpath($projectDir . '/' . $appConfig['basePath'])
         );
-        static::assertEquals(['Resources/views'], $appConfig['views']);
-        static::assertEquals('swag-app', $appConfig['technicalName']);
+        static::assertSame(['Resources/views'], $appConfig['views']);
+        static::assertSame('swag-app', $appConfig['technicalName']);
         static::assertArrayNotHasKey('administration', $appConfig);
 
         static::assertArrayHasKey('storefront', $appConfig);
         $storefrontConfig = $appConfig['storefront'];
 
-        static::assertEquals('Resources/app/storefront/src', $storefrontConfig['path']);
-        static::assertEquals('Resources/app/storefront/src/main.js', $storefrontConfig['entryFilePath']);
+        static::assertSame('Resources/app/storefront/src', $storefrontConfig['path']);
+        static::assertSame('Resources/app/storefront/src/main.js', $storefrontConfig['entryFilePath']);
         static::assertNull($storefrontConfig['webpack']);
 
         // Style files can and need only be imported if storefront is installed
@@ -113,7 +113,7 @@ class BundleConfigGeneratorTest extends TestCase
                 $appPath . '/Resources/app/storefront/src/scss/base.scss',
             ];
 
-            static::assertEquals($expectedStyles, $storefrontConfig['styleFiles']);
+            static::assertSame($expectedStyles, $storefrontConfig['styleFiles']);
         }
     }
 
@@ -137,20 +137,20 @@ class BundleConfigGeneratorTest extends TestCase
         static::assertArrayHasKey('SwagTest', $configs);
 
         $appConfig = $configs['SwagTest'];
-        static::assertEquals(
+        static::assertSame(
             $appPath,
             static::getContainer()->getParameter('kernel.project_dir') . '/' . $appConfig['basePath']
         );
-        static::assertEquals(['Resources/views'], $appConfig['views']);
-        static::assertEquals('swag-test', $appConfig['technicalName']);
+        static::assertSame(['Resources/views'], $appConfig['views']);
+        static::assertSame('swag-test', $appConfig['technicalName']);
         static::assertArrayNotHasKey('administration', $appConfig);
 
         static::assertArrayHasKey('storefront', $appConfig);
         $storefrontConfig = $appConfig['storefront'];
 
-        static::assertEquals('Resources/app/storefront/src', $storefrontConfig['path']);
+        static::assertSame('Resources/app/storefront/src', $storefrontConfig['path']);
         static::assertNull($storefrontConfig['entryFilePath']);
-        static::assertEquals('Resources/app/storefront/build/webpack.config.js', $storefrontConfig['webpack']);
-        static::assertEquals([], $storefrontConfig['styleFiles']);
+        static::assertSame('Resources/app/storefront/build/webpack.config.js', $storefrontConfig['webpack']);
+        static::assertSame([], $storefrontConfig['styleFiles']);
     }
 }

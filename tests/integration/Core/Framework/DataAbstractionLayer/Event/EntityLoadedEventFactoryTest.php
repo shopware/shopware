@@ -70,7 +70,7 @@ class EntityLoadedEventFactoryTest extends TestCase
         $createdEvents = $events->getEvents()->map(fn (EntityLoadedEvent $event): string => $event->getName());
         sort($createdEvents);
 
-        static::assertEquals([
+        static::assertSame([
             'category.loaded',
             'language.loaded',
             'product.loaded',
@@ -88,7 +88,7 @@ class EntityLoadedEventFactoryTest extends TestCase
         $createdEvents = $events->getEvents()->map(fn (EntityLoadedEvent $event): string => $event->getName());
         sort($createdEvents);
 
-        static::assertEquals([
+        static::assertSame([
             'tax.loaded',
         ], $createdEvents);
     }

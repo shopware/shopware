@@ -49,11 +49,11 @@ class ProductDetailCmsElementResolverTest extends TestCase
         static::assertInstanceOf(OrFilter::class, $orFilter = $criteria->getFilters()[0]);
         static::assertCount(2, $queries = $orFilter->getQueries());
         static::assertInstanceOf(EqualsFilter::class, $firstQuery = $queries[0]);
-        static::assertEquals('product.parentId', $firstQuery->getField());
-        static::assertEquals('product123', $firstQuery->getValue());
+        static::assertSame('product.parentId', $firstQuery->getField());
+        static::assertSame('product123', $firstQuery->getValue());
         static::assertInstanceOf(EqualsFilter::class, $secondQuery = $queries[1]);
-        static::assertEquals('id', $secondQuery->getField());
-        static::assertEquals('product123', $secondQuery->getValue());
+        static::assertSame('id', $secondQuery->getField());
+        static::assertSame('product123', $secondQuery->getValue());
     }
 
     public function testCollectWithEmptyStaticConfig(): void
@@ -112,8 +112,8 @@ class ProductDetailCmsElementResolverTest extends TestCase
 
         static::assertNull($criteriaCollection);
         static::assertInstanceOf(FieldConfig::class, $productConfig = $fieldConfig->get('product'));
-        static::assertEquals(FieldConfig::SOURCE_MAPPED, $productConfig->getSource());
-        static::assertEquals($product->getId(), $productConfig->getValue());
+        static::assertSame(FieldConfig::SOURCE_MAPPED, $productConfig->getSource());
+        static::assertSame($product->getId(), $productConfig->getValue());
     }
 }
 

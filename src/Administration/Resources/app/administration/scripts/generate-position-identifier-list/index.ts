@@ -52,7 +52,7 @@ templateFiles.forEach((file) => {
     }
 
     // Find all position identifiers in the file and add them to the result
-    [...fileContent.matchAll(/position-identifier="(.*)"/gm)].map((match) => match[1]).forEach((match) => {
+    [...fileContent.matchAll(/position-identifier="(.+)"/gm)].map((match) => match[1]).forEach((match) => {
         result.push(match);
     });
 })

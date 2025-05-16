@@ -152,25 +152,23 @@ class ThemeDumpCommand extends Command
         $criteria->addAssociation('salesChannels');
         $themes = $this->themeRepository->search($criteria, Context::createCLIContext())->getEntities();
 
-        $assignedThemes = [];
-        $unassignedThemes = [];
-
         foreach ($themes as $theme) {
             $themeName = $theme->getName();
             $salesChannels = $theme->getSalesChannels()?->filterByTypeId(Defaults::SALES_CHANNEL_TYPE_STOREFRONT);
             $channelCount = $salesChannels ? $salesChannels->count() : 0;
 
             if ($channelCount > 0) {
-                $assignedThemes[] = sprintf('%s (✓ Assigned to: %s)',
+                $choices[] = sprintf('%s (✓ Assigned to: %s)',
                     $themeName,
                     $salesChannels ? implode(', ', $salesChannels->map(fn ($channel) => $channel->getName())) : ''
                 );
-            } else {
-                $unassignedThemes[] = sprintf('%s (Not assigned to any storefront channel)', $themeName);
+                continue;
             }
+
+            $choices[] = sprintf('%s (Not assigned to any storefront channel)', $themeName);
         }
 
-        return array_merge($assignedThemes, $unassignedThemes);
+        return $choices;
     }
 
     private function askForDomainUrlIfMoreThanOneExists(ThemeEntity $themeEntity, InputInterface $input, OutputInterface $output): ?string

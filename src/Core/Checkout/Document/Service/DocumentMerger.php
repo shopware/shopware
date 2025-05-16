@@ -83,6 +83,31 @@ final class DocumentMerger
         }
     }
 
+    /**
+     * @param array<string> $documentIds
+     */
+    private function prepareDocumentsForMerge(array $documentIds, Context $context): DocumentCollection
+    {
+        $criteria = (new Criteria($documentIds))
+            ->addAssociation('documentType')
+            ->addSorting(new FieldSorting('order.orderNumber'));
+
+        $documents = $this->documentRepository->search($criteria, $context)->getEntities();
+
+        $mediaCache = [];
+
+        foreach ($documents as $document) {
+            $mediaId = $this->ensureDocumentMediaFileGenerated($document, $context);
+            if ($mediaId !== null) {
+                $mediaCache[$document->getId()] = $mediaId;
+            }
+        }
+
+        $this->documentMediaCache = $mediaCache;
+
+        return $documents;
+    }
+
     private function ensureDocumentMediaFileGenerated(DocumentEntity $document, Context $context): ?string
     {
         $documentMediaId = $document->getDocumentMediaFileId();
@@ -121,31 +146,6 @@ final class DocumentMerger
         \assert($document !== null);
 
         return $document->getDocumentMediaFileId();
-    }
-
-    /**
-     * @param array<string> $documentIds
-     */
-    private function prepareDocumentsForMerge(array $documentIds, Context $context): DocumentCollection
-    {
-        $criteria = (new Criteria($documentIds))
-            ->addAssociation('documentType')
-            ->addSorting(new FieldSorting('order.orderNumber'));
-
-        $documents = $this->documentRepository->search($criteria, $context)->getEntities();
-
-        $mediaCache = [];
-
-        foreach ($documents as $document) {
-            $mediaId = $this->ensureDocumentMediaFileGenerated($document, $context);
-            if ($mediaId !== null) {
-                $mediaCache[$document->getId()] = $mediaId;
-            }
-        }
-
-        $this->documentMediaCache = $mediaCache;
-
-        return $documents;
     }
 
     private function mergeWithFpdi(DocumentCollection $documents, Context $context, RenderedDocument $renderedDocument): ?RenderedDocument

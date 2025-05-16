@@ -31,6 +31,9 @@ class MeasurementSystemException extends HttpException
         );
     }
 
+    /**
+     * @param array<string> $possibleUnits
+     */
     public static function unsupportedMeasurementUnit(string $unit, array $possibleUnits): self
     {
         return new self(
@@ -48,7 +51,7 @@ class MeasurementSystemException extends HttpException
     {
         return new self(
             Response::HTTP_BAD_REQUEST,
-            'CONTENT_INCOMPATIBLE_MEASUREMENT_UNITS',
+            self::INCOMPATIBLE_MEASUREMENT_UNITS,
             'The measurement units "{{ fromUnit }}" and "{{ toUnit }}" are incompatible.',
             [
                 'fromUnit' => $fromUnit,

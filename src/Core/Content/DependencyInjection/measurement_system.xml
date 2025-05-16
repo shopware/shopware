@@ -12,21 +12,21 @@
             <tag name="shopware.entity"/>
         </service>
 
-        <service id="Shopware\Core\Content\MeasurementSystem\Service\MeasurementUnitProvider">
+        <service id="Shopware\Core\Content\MeasurementSystem\UnitProvider\MeasurementUnitProvider">
             <argument type="service" id="Doctrine\DBAL\Connection"/>
         </service>
 
-        <service id="Shopware\Core\Content\MeasurementSystem\Service\MeasurementUnitConverter">
-            <argument type="service" id="Shopware\Core\Content\MeasurementSystem\Service\MeasurementUnitProvider"/>
+        <service id="Shopware\Core\Content\MeasurementSystem\UnitConverter\MeasurementUnitConverter">
+            <argument type="service" id="Shopware\Core\Content\MeasurementSystem\UnitProvider\MeasurementUnitProvider"/>
         </service>
 
-        <service id="Shopware\Core\Content\MeasurementSystem\Service\ProductMeasurementUnitBuilder">
-            <argument type="service" id="Shopware\Core\Content\MeasurementSystem\Service\MeasurementUnitConverter"/>
+        <service id="Shopware\Core\Content\MeasurementSystem\ProductMeasurement\ProductMeasurementUnitBuilder">
+            <argument type="service" id="Shopware\Core\Content\MeasurementSystem\UnitConverter\MeasurementUnitConverter"/>
         </service>
 
         <service id="Shopware\Core\Content\MeasurementSystem\TwigExtension\MeasurementConvertUnitTwigFilter" public="false">
-            <argument type="service" id="Shopware\Core\Content\MeasurementSystem\Service\MeasurementUnitProvider"/>
-            <argument type="service" id="Shopware\Core\Content\MeasurementSystem\Service\MeasurementUnitConverter"/>
+            <argument type="service" id="Shopware\Core\Content\MeasurementSystem\UnitProvider\MeasurementUnitProvider"/>
+            <argument type="service" id="Shopware\Core\Content\MeasurementSystem\UnitConverter\MeasurementUnitConverter"/>
             <tag name="twig.extension"/>
         </service>
 

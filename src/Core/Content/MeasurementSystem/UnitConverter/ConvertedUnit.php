@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Core\Content\MeasurementSystem\Service;
+namespace Shopware\Core\Content\MeasurementSystem\UnitConverter;
 
 use Shopware\Core\Framework\Log\Package;
 

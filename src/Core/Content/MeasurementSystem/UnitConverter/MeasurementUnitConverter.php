@@ -1,17 +1,22 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Core\Content\MeasurementSystem\Service;
+namespace Shopware\Core\Content\MeasurementSystem\UnitConverter;
 
 use Shopware\Core\Content\MeasurementSystem\MeasurementSystemException;
+use Shopware\Core\Content\MeasurementSystem\UnitProvider\AbstractMeasurementUnitProvider;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 
 /**
- * @phpstan-import-type MeasurementUnitsType from MeasurementUnitProviderInterface
+ * @phpstan-import-type MeasurementUnitsType from AbstractMeasurementUnitProvider
  */
 #[Package('inventory')]
-class MeasurementUnitConverter implements MeasurementUnitConverterInterface
+class MeasurementUnitConverter extends AbstractMeasurementUnitConverter
 {
-    public function __construct(private readonly MeasurementUnitProvider $unitProvider)
+    /**
+     * @internal
+     */
+    public function __construct(private readonly AbstractMeasurementUnitProvider $unitProvider)
     {
     }
 
@@ -33,5 +38,10 @@ class MeasurementUnitConverter implements MeasurementUnitConverterInterface
         $roundedValue = round($value, $decimals);
 
         return new ConvertedUnit($roundedValue, $toUnit);
+    }
+
+    public function getDecorated(): AbstractMeasurementUnitConverter
+    {
+        throw new DecorationPatternException(self::class);
     }
 }

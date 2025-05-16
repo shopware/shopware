@@ -2,8 +2,8 @@
 
 namespace Shopware\Core\Content\MeasurementSystem\TwigExtension;
 
-use Shopware\Core\Content\MeasurementSystem\Service\MeasurementUnitConverterInterface;
-use Shopware\Core\Content\MeasurementSystem\Service\MeasurementUnitProviderInterface;
+use Shopware\Core\Content\MeasurementSystem\UnitConverter\AbstractMeasurementUnitConverter;
+use Shopware\Core\Content\MeasurementSystem\UnitProvider\AbstractMeasurementUnitProvider;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Twig\Extension\AbstractExtension;
@@ -16,8 +16,8 @@ class MeasurementConvertUnitTwigFilter extends AbstractExtension
      * @internal
      */
     public function __construct(
-        private readonly MeasurementUnitProviderInterface $unitProvider,
-        private readonly MeasurementUnitConverterInterface $unitConverter
+        private readonly AbstractMeasurementUnitProvider $unitProvider,
+        private readonly AbstractMeasurementUnitConverter $unitConverter
     ) {
     }
 
@@ -31,10 +31,13 @@ class MeasurementConvertUnitTwigFilter extends AbstractExtension
         ];
     }
 
-    public function convert(array $twigContext, $value, ?string $from = 'mm', ?string $to = null, int $decimals = 2): ?string
+    /**
+     * @param array<string, mixed> $twigContext
+     */
+    public function convert(array $twigContext, float|string|null $value, string $from = 'mm', ?string $to = null, int $decimals = 2): ?string
     {
         if (!\is_numeric($value)) {
-            return null;
+            return $value;
         }
 
         // if the `to` unit is not set, automatically set it to the sales channel configured measurement unit
@@ -48,7 +51,7 @@ class MeasurementConvertUnitTwigFilter extends AbstractExtension
         }
 
         if ($to === null) {
-            return null;
+            return \sprintf('%s %s', $value, $from);
         }
 
         $value = (float) $value;

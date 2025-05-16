@@ -83,10 +83,10 @@ const proxyOptions = {
                     return;
                 }
                 // we only replace things when the request is a document
-                const isDocumentRequest = req.headers['sec-fetch-dest'] === 'document' || req.headers.accept.indexOf('text/html') !== -1;
-                const isHtmlRequests = req.url.indexOf('widgets/menu/offcanvas') !== -1 || req.url.indexOf('checkout/offcanvas') !== -1;
+                const isDocumentRequest = req.headers['sec-fetch-dest'] === 'document' || req.headers.accept?.indexOf('text/html') !== -1;
+                const isOffcanvasRequest = ['/widgets/menu/offcanvas', '/checkout/offcanvas'].some(path => req.url.includes(path));
 
-                if (isDocumentRequest || isHtmlRequests) {
+                if (isDocumentRequest || isOffcanvasRequest) {
                     body = Buffer.concat(body).toString();
                     // if we have the offcanvas=1 parameter in the url, we will attach a script to open the offcanvas cart
                     if (req.url.indexOf('offcanvas=1') !== -1) {

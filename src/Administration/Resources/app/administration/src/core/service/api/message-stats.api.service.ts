@@ -11,7 +11,7 @@ import ApiService from '../api.service';
  */
 export interface MessageStats {
     totalMessagesProcessed: number;
-    processedSince: Date;
+    processedSince: string;
     averageTimeInQueue: number;
     messageTypeStats: Array<{ count: number; type: string }>;
 }
@@ -40,11 +40,7 @@ class MessageStatsApiService extends ApiService {
                 headers,
             })
             .then((response) => {
-                const data = ApiService.handleResponse<MessageStats>(response);
-                if (data?.processedSince) {
-                    data.processedSince = new Date(data.processedSince);
-                }
-                return data;
+                return ApiService.handleResponse<MessageStats>(response);
             });
     }
 }

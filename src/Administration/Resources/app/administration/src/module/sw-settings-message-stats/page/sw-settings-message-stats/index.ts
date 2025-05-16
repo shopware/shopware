@@ -51,7 +51,7 @@ export default defineComponent({
             if (!this.stats?.processedSince) {
                 return '';
             }
-            return Shopware.Utils.format.date(this.stats.processedSince.toISOString(), {
+            return Shopware.Utils.format.date(this.stats.processedSince, {
                 year: 'numeric',
                 month: 'numeric',
                 day: 'numeric',

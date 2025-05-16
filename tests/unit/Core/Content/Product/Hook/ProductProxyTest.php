@@ -51,7 +51,7 @@ class ProductProxyTest extends TestCase
         static::assertInstanceOf(PriceFacade::class, $proxy->calculatedPrice, 'Proxy should return a facade for the calculated price');
         static::assertInstanceOf(PriceCollectionFacade::class, $proxy->calculatedPrices, 'Proxy should return a facade for the calculated prices');
         static::assertInstanceOf(PriceFacade::class, $proxy->calculatedCheapestPrice, 'Proxy should return a facade for the calculated cheapest price');
-        static::assertEquals('foo', $proxy->name, 'Proxy should return the same value as the original object');
+        static::assertSame('foo', $proxy->name, 'Proxy should return the same value as the original object');
 
         static::assertArrayHasKey('stock', $proxy, 'Proxy should be able to check if a property exists');
     }
@@ -64,10 +64,10 @@ class ProductProxyTest extends TestCase
             $this->createMock(ScriptPriceStubs::class)
         );
 
-        static::assertEquals('foo', $proxy->name, 'Proxy should return the same value as the original object');
+        static::assertSame('foo', $proxy->name, 'Proxy should return the same value as the original object');
 
-        static::expectException(ProductException::class);
-        static::expectExceptionMessage('Manipulation of pricing proxy field name is not allowed');
+        $this->expectException(ProductException::class);
+        $this->expectExceptionMessage('Manipulation of pricing proxy field name is not allowed');
 
         $proxy->offsetUnset('name');
     }
@@ -80,10 +80,10 @@ class ProductProxyTest extends TestCase
             $this->createMock(ScriptPriceStubs::class)
         );
 
-        static::assertEquals('foo', $proxy->name, 'Proxy should return the same value as the original object');
+        static::assertSame('foo', $proxy->name, 'Proxy should return the same value as the original object');
 
-        static::expectException(ProductException::class);
-        static::expectExceptionMessage('Manipulation of pricing proxy field name is not allowed');
+        $this->expectException(ProductException::class);
+        $this->expectExceptionMessage('Manipulation of pricing proxy field name is not allowed');
 
         $proxy->name = 'bar';
     }

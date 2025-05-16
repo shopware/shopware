@@ -94,6 +94,6 @@ class ProductReviewsWidgetLoadedHookTest extends TestCase
 
         $productReviewsWidgetLoadedHook = $this->controller->calledHook;
 
-        static::assertEquals($reviewResult, $productReviewsWidgetLoadedHook->getReviews());
+        static::assertSame($reviewResult, $productReviewsWidgetLoadedHook->getReviews());
     }
 }

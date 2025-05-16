@@ -66,10 +66,10 @@ class ApiRequestContextResolverTest extends TestCase
 
         $source = $context->getSource();
 
-        static::assertEquals($isAdmin, $source->isAdmin());
+        static::assertSame($isAdmin, $source->isAdmin());
 
         foreach ($expected as $privilege => $allowed) {
-            static::assertEquals($allowed, $source->isAllowed($privilege), $privilege);
+            static::assertSame($allowed, $source->isAllowed($privilege), $privilege);
         }
     }
 
@@ -100,10 +100,10 @@ class ApiRequestContextResolverTest extends TestCase
 
         $source = $context->getSource();
 
-        static::assertEquals($isAdmin, $source->isAdmin());
+        static::assertSame($isAdmin, $source->isAdmin());
 
         foreach ($expected as $privilege => $allowed) {
-            static::assertEquals($allowed, $source->isAllowed($privilege), $privilege);
+            static::assertSame($allowed, $source->isAllowed($privilege), $privilege);
         }
     }
 
@@ -212,7 +212,7 @@ class ApiRequestContextResolverTest extends TestCase
         ]);
         $response = json_decode((string) $browser->getResponse()->getContent(), true, 512, \JSON_THROW_ON_ERROR);
 
-        static::assertEquals(200, $browser->getResponse()->getStatusCode());
+        static::assertSame(200, $browser->getResponse()->getStatusCode());
         static::assertArrayHasKey('data', $response);
     }
 
@@ -265,7 +265,7 @@ class ApiRequestContextResolverTest extends TestCase
         ]);
         $response = json_decode((string) $browser->getResponse()->getContent(), true, 512, \JSON_THROW_ON_ERROR);
 
-        static::assertEquals(Response::HTTP_FORBIDDEN, $browser->getResponse()->getStatusCode(), \json_encode($response, \JSON_THROW_ON_ERROR));
+        static::assertSame(Response::HTTP_FORBIDDEN, $browser->getResponse()->getStatusCode(), \json_encode($response, \JSON_THROW_ON_ERROR));
         static::assertArrayHasKey('errors', $response);
     }
 
@@ -331,7 +331,7 @@ class ApiRequestContextResolverTest extends TestCase
         ]);
         $response = json_decode((string) $browser->getResponse()->getContent(), true, 512, \JSON_THROW_ON_ERROR);
 
-        static::assertEquals(Response::HTTP_FORBIDDEN, $browser->getResponse()->getStatusCode(), \json_encode($response, \JSON_THROW_ON_ERROR));
+        static::assertSame(Response::HTTP_FORBIDDEN, $browser->getResponse()->getStatusCode(), \json_encode($response, \JSON_THROW_ON_ERROR));
         static::assertArrayHasKey('errors', $response);
 
         $errors = $response['errors'];
@@ -395,7 +395,7 @@ class ApiRequestContextResolverTest extends TestCase
         ]);
         $response = json_decode((string) $browser->getResponse()->getContent(), true, 512, \JSON_THROW_ON_ERROR);
 
-        static::assertEquals(Response::HTTP_BAD_REQUEST, $browser->getResponse()->getStatusCode(), \json_encode($response, \JSON_THROW_ON_ERROR));
+        static::assertSame(Response::HTTP_BAD_REQUEST, $browser->getResponse()->getStatusCode(), \json_encode($response, \JSON_THROW_ON_ERROR));
         static::assertArrayHasKey('errors', $response);
 
         $errors = $response['errors'];
@@ -419,13 +419,13 @@ class ApiRequestContextResolverTest extends TestCase
             'limit' => 2,
         ]);
 
-        static::assertEquals(403, $browser->getResponse()->getStatusCode());
+        static::assertSame(403, $browser->getResponse()->getStatusCode());
 
         $response = json_decode((string) $browser->getResponse()->getContent(), true, 512, \JSON_THROW_ON_ERROR);
 
         static::assertArrayHasKey('errors', $response);
         $errors = $response['errors'];
-        static::assertEquals('{"message":"Missing privilege","missingPrivileges":["currency:read"]}', $errors[0]['detail']);
+        static::assertSame('{"message":"Missing privilege","missingPrivileges":["currency:read"]}', $errors[0]['detail']);
     }
 
     public function testIntegrationWithPrivileges(): void
@@ -444,7 +444,7 @@ class ApiRequestContextResolverTest extends TestCase
         ]);
         $response = json_decode((string) $browser->getResponse()->getContent(), true, 512, \JSON_THROW_ON_ERROR);
 
-        static::assertEquals(200, $browser->getResponse()->getStatusCode());
+        static::assertSame(200, $browser->getResponse()->getStatusCode());
         static::assertArrayHasKey('data', $response);
     }
 

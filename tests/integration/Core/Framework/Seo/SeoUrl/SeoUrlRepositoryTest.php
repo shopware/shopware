@@ -91,8 +91,8 @@ class SeoUrlRepositoryTest extends TestCase
             ->getEntities()
             ->first();
         static::assertInstanceOf(SeoUrlEntity::class, $first);
-        static::assertEquals($update['id'], $first->getId());
-        static::assertEquals($update['seoPathInfo'], $first->getSeoPathInfo());
+        static::assertSame($update['id'], $first->getId());
+        static::assertSame($update['seoPathInfo'], $first->getSeoPathInfo());
     }
 
     public function testDelete(): void
@@ -118,7 +118,7 @@ class SeoUrlRepositoryTest extends TestCase
         $result = $this->seoUrlRepository->delete([['id' => $id]], $context);
         $event = $result->getEventByEntityName(SeoUrlDefinition::ENTITY_NAME);
         static::assertNotNull($event);
-        static::assertEquals([$id], $event->getIds());
+        static::assertSame([$id], $event->getIds());
 
         $first = $this->seoUrlRepository->search(new Criteria([$id]), $context)->first();
         static::assertNull($first);

@@ -21,7 +21,7 @@ class BoolFieldTest extends TestCase
         static::assertSame('test_bool_field', $boolField->getName());
         static::assertSame('bool', $boolField->getType());
         static::assertTrue($boolField->isActive());
-        static::assertEquals([
+        static::assertSame([
             'type' => 'checkbox',
             'label' => [
                 'en-GB' => 'Test bool field',

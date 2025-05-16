@@ -21,7 +21,7 @@ class PriceFieldTest extends TestCase
         static::assertSame('test_price_field', $priceField->getName());
         static::assertSame('price', $priceField->getType());
         static::assertTrue($priceField->isActive());
-        static::assertEquals([
+        static::assertSame([
             'type' => 'price',
             'label' => [
                 'en-GB' => 'Test price field',

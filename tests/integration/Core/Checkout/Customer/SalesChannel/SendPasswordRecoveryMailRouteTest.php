@@ -168,7 +168,7 @@ class SendPasswordRecoveryMailRouteTest extends TestCase
                 ]
             );
 
-        static::assertEquals(200, $this->browser->getResponse()->getStatusCode());
+        static::assertSame(200, $this->browser->getResponse()->getStatusCode());
 
         /** @var CustomerAccountRecoverRequestEvent $caughtEvent */
         static::assertInstanceOf(CustomerAccountRecoverRequestEvent::class, $caughtEvent);
@@ -212,7 +212,7 @@ class SendPasswordRecoveryMailRouteTest extends TestCase
                 ]
             );
 
-        static::assertEquals(200, $this->browser->getResponse()->getStatusCode(), $this->browser->getResponse()->getContent() ?: '');
+        static::assertSame(200, $this->browser->getResponse()->getStatusCode(), $this->browser->getResponse()->getContent() ?: '');
 
         /** @var CustomerAccountRecoverRequestEvent $caughtEvent */
         static::assertInstanceOf(CustomerAccountRecoverRequestEvent::class, $caughtEvent);

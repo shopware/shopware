@@ -27,7 +27,7 @@ class ObjectTypeTest extends TestCase
             ],
         ];
 
-        static::assertEquals(
+        static::assertSame(
             $expected,
             (new ObjectType())
                 ->add('myBool', new ScalarValueType(ScalarValueType::TYPE_BOOL))

@@ -43,7 +43,7 @@ class CommandGeneratorTest extends TestCase
         (new CommandGenerator())
             ->addScaffoldConfig($configuration, $input, $io);
 
-        static::assertEquals($expectedHasOption, $configuration->hasOption(CommandGenerator::OPTION_NAME));
+        static::assertSame($expectedHasOption, $configuration->hasOption(CommandGenerator::OPTION_NAME));
     }
 
     public static function addScaffoldConfigProvider(): \Generator

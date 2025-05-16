@@ -95,7 +95,7 @@ class CustomerStorerTest extends TestCase
         $this->repository->expects($this->once())->method('search')->willReturn($result);
         $res = $storable->getData('customer');
 
-        static::assertEquals($res, $entity);
+        static::assertSame($res, $entity);
     }
 
     public function testLazyLoadNullEntity(): void
@@ -109,7 +109,7 @@ class CustomerStorerTest extends TestCase
         $this->repository->expects($this->once())->method('search')->willReturn($result);
         $res = $storable->getData('customer');
 
-        static::assertEquals($res, $entity);
+        static::assertSame($res, $entity);
     }
 
     public function testLazyLoadNullId(): void

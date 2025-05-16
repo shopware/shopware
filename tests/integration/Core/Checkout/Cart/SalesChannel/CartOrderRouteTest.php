@@ -325,7 +325,7 @@ class CartOrderRouteTest extends TestCase
         $this->browser->setServerParameter('HTTP_SW_CONTEXT_TOKEN', $guestToken);
 
         // we should get a new token and it should be different from the expired token context
-        static::assertNotEquals($originalToken, $guestToken);
+        static::assertNotSame($originalToken, $guestToken);
         static::assertNotFalse($response->getContent());
 
         $data = \json_decode($response->getContent(), true, 512, \JSON_THROW_ON_ERROR);

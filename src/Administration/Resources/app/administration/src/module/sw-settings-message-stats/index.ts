@@ -1,14 +1,11 @@
 /**
  * @sw-package framework
  */
-import './init/services.init';
-
-const { Module } = Shopware;
 
 /* eslint-disable max-len, sw-deprecation-rules/private-feature-declarations */
 Shopware.Component.register('sw-settings-message-stats', () => import('./page/sw-settings-message-stats/index'));
 
-Module.register('sw-settings-message-stats', {
+Shopware.Module.register('sw-settings-message-stats', {
     type: 'core',
     name: 'settings-message-stats',
     title: 'sw-settings-message-stats.general.mainMenuItemGeneral',
@@ -37,3 +34,5 @@ Module.register('sw-settings-message-stats', {
         privilege: 'system.system_config',
     },
 });
+
+export {};

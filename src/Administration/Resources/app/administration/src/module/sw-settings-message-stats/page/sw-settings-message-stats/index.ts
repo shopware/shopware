@@ -1,13 +1,21 @@
-/**
- * @sw-package framework
- */
+import { defineComponent } from 'vue';
+import type { MessageStats } from 'src/core/service/api/message-stats.api.service';
 import template from './sw-settings-message-stats.html.twig';
 import './sw-settings-message-stats.scss';
 
 const { Mixin } = Shopware;
 
-// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
-export default {
+interface Column {
+    property: string;
+    label: string;
+    align?: string;
+}
+
+/**
+ * @sw-package framework
+ * @private
+ */
+export default defineComponent({
     template,
 
     inject: ['messageStatsService'],
@@ -19,7 +27,7 @@ export default {
     data() {
         return {
             isLoading: false,
-            stats: null,
+            stats: null as MessageStats | null,
             columns: [
                 {
                     property: 'count',
@@ -30,20 +38,20 @@ export default {
                     property: 'type',
                     label: 'sw-settings-message-stats.general.type',
                 },
-            ],
+            ] as Column[],
         };
     },
 
     computed: {
-        hasStats() {
+        hasStats(): boolean {
             return this.stats !== null && this.stats.totalMessagesProcessed > 0;
         },
 
-        formattedProcessedSince() {
+        formattedProcessedSince(): string {
             if (!this.stats?.processedSince) {
                 return '';
             }
-            return Shopware.Utils.format.date(this.stats.processedSince, {
+            return Shopware.Utils.format.date(this.stats.processedSince.toISOString(), {
                 year: 'numeric',
                 month: 'numeric',
                 day: 'numeric',
@@ -53,7 +61,7 @@ export default {
             });
         },
 
-        formattedAverageTime() {
+        formattedAverageTime(): string {
             if (!this.stats?.averageTimeInQueue) {
                 return '';
             }
@@ -102,7 +110,7 @@ export default {
 
     methods: {
         createdComponent() {
-            this.loadStats();
+            void this.loadStats();
         },
 
         async loadStats() {
@@ -110,13 +118,19 @@ export default {
             try {
                 this.stats = await this.messageStatsService.getStats();
             } catch (error) {
+                let errorMessage: string;
+                if (error instanceof Error) {
+                    errorMessage = error.message;
+                } else {
+                    errorMessage = this.$t('global.notification.notificationLoadingDataErrorMessage');
+                }
                 this.createNotificationError({
                     title: this.$tc('sw-settings-message-stats.general.errorTitle'),
-                    message: error?.message ?? this.$t('global.notification.notificationLoadingDataErrorMessage'),
+                    message: errorMessage,
                 });
             } finally {
                 this.isLoading = false;
             }
         },
     },
-};
+});

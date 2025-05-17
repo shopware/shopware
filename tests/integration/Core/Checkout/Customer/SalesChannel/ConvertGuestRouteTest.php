@@ -3,6 +3,7 @@
 namespace Shopware\Tests\Integration\Core\Checkout\Customer\SalesChannel;
 
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Checkout\Customer\CustomerCollection;
 use Shopware\Core\Checkout\Customer\CustomerEntity;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
@@ -12,8 +13,7 @@ use Shopware\Core\Framework\Test\TestCaseBase\CountryAddToSalesChannelTestBehavi
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\SalesChannelApiTestBehaviour;
 use Shopware\Core\PlatformRequest;
-use Shopware\Core\System\SalesChannel\SalesChannelContext;
-use Shopware\Core\Test\Stub\Framework\IdsCollection;
+use Shopware\Core\Test\TestDefaults;
 use Symfony\Bundle\FrameworkBundle\KernelBrowser;
 
 /**
@@ -27,19 +27,18 @@ class ConvertGuestRouteTest extends TestCase
 
     private KernelBrowser $browser;
 
+    /**
+     * @var EntityRepository<CustomerCollection>
+     */
     private EntityRepository $customerRepository;
-
-    private SalesChannelContext $salesChannelContext;
 
     protected function setUp(): void
     {
-        $this->ids = new IdsCollection();
-
         $this->browser = $this->createCustomSalesChannelBrowser([
-            'id' => $this->ids->create('sales-channel'),
+            'id' => TestDefaults::SALES_CHANNEL,
         ]);
 
-        $this->addCountriesToSalesChannel([], $this->ids->get('sales-channel'));
+        $this->addCountriesToSalesChannel();
 
         $this->assignSalesChannelContext($this->browser);
         $this->customerRepository = $this->getContainer()->get('customer.repository');
@@ -51,19 +50,19 @@ class ConvertGuestRouteTest extends TestCase
         $this->register(true, 'guest@example.com');
 
         // Convert guest to registered customer
-        $this->browser
-            ->request(
-                'POST',
-                '/store-api/account/convert-guest',
-                [],
-                [],
-                ['CONTENT_TYPE' => 'application/json'],
-                json_encode([
-                    'password' => 'new-password',
-                ])
-            );
+        $this->browser->request(
+            'POST',
+            '/store-api/account/convert-guest',
+            [],
+            [],
+            ['CONTENT_TYPE' => 'application/json'],
+            json_encode(
+                ['password' => 'new-password'],
+                \JSON_THROW_ON_ERROR,
+            ),
+        );
 
-        $response = json_decode($this->browser->getResponse()->getContent(), true);
+        $response = json_decode($this->browser->getResponse()->getContent() ?: '', true);
 
         static::assertSame(200, $this->browser->getResponse()->getStatusCode());
         static::assertTrue($response['success']);
@@ -91,12 +90,13 @@ class ConvertGuestRouteTest extends TestCase
                 [],
                 [],
                 ['CONTENT_TYPE' => 'application/json'],
-                json_encode([
-                    'password' => 'new-password',
-                ])
+                json_encode(
+                    ['password' => 'new-password'],
+                    \JSON_THROW_ON_ERROR,
+                ),
             );
 
-        $response = json_decode($this->browser->getResponse()->getContent(), true);
+        $response = json_decode($this->browser->getResponse()->getContent() ?: '', true);
 
         static::assertSame(400, $this->browser->getResponse()->getStatusCode());
         static::assertStringContainsString('is not a guest', $response['errors'][0]['detail']);
@@ -115,12 +115,13 @@ class ConvertGuestRouteTest extends TestCase
                 [],
                 [],
                 ['CONTENT_TYPE' => 'application/json'],
-                json_encode([
-                    'password' => '', // Empty password should fail validation
-                ])
+                json_encode(
+                    ['password' => ''], // Empty password should fail validation
+                    \JSON_THROW_ON_ERROR,
+                ),
             );
 
-        $response = json_decode($this->browser->getResponse()->getContent(), true);
+        $response = json_decode($this->browser->getResponse()->getContent() ?: '', true);
 
         static::assertSame(400, $this->browser->getResponse()->getStatusCode());
         static::assertArrayHasKey('errors', $response);
@@ -157,13 +158,12 @@ class ConvertGuestRouteTest extends TestCase
                 [],
                 [],
                 ['CONTENT_TYPE' => 'application/json'],
-                json_encode($data)
+                json_encode($data, \JSON_THROW_ON_ERROR)
             );
 
-        $response = json_decode($this->browser->getResponse()->getContent(), true);
         static::assertSame(200, $this->browser->getResponse()->getStatusCode());
 
-        $contextToken = $this->browser->getResponse()->headers->get(PlatformRequest::HEADER_CONTEXT_TOKEN) ?? '';
+        $contextToken = $this->browser->getResponse()->headers->get(PlatformRequest::HEADER_CONTEXT_TOKEN);
         static::assertNotNull($contextToken);
 
         $this->browser->setServerParameter('HTTP_SW_CONTEXT_TOKEN', $contextToken);

@@ -814,8 +814,8 @@ SWTEST;1;' . $productName . ';9.35;10;0c17372fe6aa46059a97fc28b40f46c4;7;7%%;%s'
         $filesystem->dumpFile(__DIR__ . '/fixtures/' . $csvFileName, $csvContent);
 
         try {
-            static::assertTrue($filesystem->exists($this->projectDir . self::PUBLIC_MEDIA_PATH . '/' . $imageName));
-            static::assertTrue($filesystem->exists(__DIR__ . '/fixtures/' . $csvFileName));
+            static::assertTrue(\is_file($this->projectDir . self::PUBLIC_MEDIA_PATH . '/' . $imageName));
+            static::assertTrue(\is_file(__DIR__ . '/fixtures/' . $csvFileName));
 
             $progress = $this->import(
                 $context,

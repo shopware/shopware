@@ -82,7 +82,7 @@ class MakeCoverageTestCommand extends Command
             $folderPath = $testPath . '/' . implode('/', $namespaceParts);
             $testFileName = $folderPath . '/' . $reflection->getShortName() . 'Test.php';
 
-            if ($this->filesystem->exists($testFileName)) {
+            if (\is_file($testFileName)) {
                 $io->note(\sprintf('Test file %s already exists', $testFileName));
 
                 continue;
@@ -185,7 +185,7 @@ class MakeCoverageTestCommand extends Command
     {
         $class = str_replace('"', '', $rawClass);
 
-        if (str_ends_with($class, '.php') && $this->filesystem->exists($class)) {
+        if (str_ends_with($class, '.php') && \is_file($class)) {
             $content = (string) file_get_contents($class);
             preg_match('/namespace\s+([^;]+);/', $content, $matches);
             $namespace = $matches[1] ?? '';

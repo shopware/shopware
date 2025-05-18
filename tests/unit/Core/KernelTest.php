@@ -54,8 +54,8 @@ class KernelTest extends TestCase
             'Container',
         );
 
-        static::assertTrue($this->filesystem->exists($this->tmpProjectDir . '/var/cache/CACHEDIR.TAG'));
-        static::assertTrue($this->filesystem->exists($this->tmpProjectDir . '/var/cache/opcache-preload.php'));
+        static::assertTrue(\is_file($this->tmpProjectDir . '/var/cache/CACHEDIR.TAG'));
+        static::assertTrue(\is_file($this->tmpProjectDir . '/var/cache/opcache-preload.php'));
     }
 
     public function testDumpContainerDoesNotDumpPreloadFileIfWarmupCacheDirIsGiven(): void
@@ -73,10 +73,10 @@ class KernelTest extends TestCase
             'Container',
         );
 
-        static::assertTrue($this->filesystem->exists($this->tmpProjectDir . '/var/cache/CACHEDIR.TAG'));
+        static::assertTrue(\is_file($this->tmpProjectDir . '/var/cache/CACHEDIR.TAG'));
 
         // Do not create the preload file in warmup cache
-        static::assertFalse($this->filesystem->exists($this->tmpProjectDir . '/var/cache/opcache-preload.php'));
+        static::assertFalse(\is_file($this->tmpProjectDir . '/var/cache/opcache-preload.php'));
     }
 
     private function createKernel(): Kernel

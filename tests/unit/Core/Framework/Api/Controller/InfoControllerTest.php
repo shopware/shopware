@@ -224,7 +224,6 @@ class InfoControllerTest extends TestCase
                 $kernel,
                 new Filesystem(),
             ),
-            new Filesystem(),
             $this->shopIdProvider,
             $this->statsService,
         );

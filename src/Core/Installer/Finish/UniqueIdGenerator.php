@@ -19,10 +19,8 @@ class UniqueIdGenerator
 
     public function getUniqueId(): string
     {
-        if (file_exists($this->cacheFilePath)) {
-            if ($id = file_get_contents($this->cacheFilePath)) {
-                return $id;
-            }
+        if (\is_file($this->cacheFilePath) && $id = file_get_contents($this->cacheFilePath)) {
+            return $id;
         }
 
         $uniqueId = $this->generateUniqueId();

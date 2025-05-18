@@ -109,7 +109,7 @@ class PluginCreateCommand extends Command
         } catch (\Throwable $exception) {
             $io->error($exception->getMessage());
 
-            if (isset($directory) && $this->filesystem->exists($directory)) {
+            if (isset($directory) && \is_dir($directory)) {
                 $this->filesystem->remove($directory);
             }
 

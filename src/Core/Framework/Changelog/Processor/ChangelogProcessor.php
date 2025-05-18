@@ -138,7 +138,7 @@ class ChangelogProcessor
 
     protected function existedRelease(string $version): bool
     {
-        return $this->filesystem->exists($this->getTargetReleaseDir($version));
+        return \is_dir($this->getTargetReleaseDir($version));
     }
 
     protected function getTargetReleaseDir(string $version, bool $realPath = true): string

@@ -376,6 +376,6 @@ class DocumentMergerTest extends TestCase
 
         $zip->close();
         $filesystem->remove($tempFile);
-        static::assertFalse($filesystem->exists($tempFile), 'temporary zip file should have been deleted');
+        static::assertFalse(\is_file($tempFile), 'temporary zip file should have been deleted');
     }
 }

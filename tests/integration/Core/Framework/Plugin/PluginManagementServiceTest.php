@@ -85,9 +85,9 @@ class PluginManagementServiceTest extends TestCase
     {
         $this->getPluginManagementService()->extractPluginZip(self::PLUGIN_ZIP_FIXTURE_PATH);
 
-        $extractedPlugin = $this->filesystem->exists(self::PLUGIN_FASHION_THEME_PATH);
-        $extractedPluginBaseClass = $this->filesystem->exists(self::PLUGIN_FASHION_THEME_BASE_CLASS_PATH);
-        $pluginZipExists = $this->filesystem->exists(self::PLUGIN_ZIP_FIXTURE_PATH);
+        $extractedPlugin = \is_dir(self::PLUGIN_FASHION_THEME_PATH);
+        $extractedPluginBaseClass = \is_file(self::PLUGIN_FASHION_THEME_BASE_CLASS_PATH);
+        $pluginZipExists = \is_file(self::PLUGIN_ZIP_FIXTURE_PATH);
         static::assertTrue($extractedPlugin);
         static::assertTrue($extractedPluginBaseClass);
         static::assertFalse($pluginZipExists);
@@ -97,9 +97,9 @@ class PluginManagementServiceTest extends TestCase
     {
         $this->getPluginManagementService()->extractPluginZip(self::PLUGIN_ZIP_FIXTURE_PATH, false);
 
-        $extractedPlugin = $this->filesystem->exists(self::PLUGIN_FASHION_THEME_PATH);
-        $extractedPluginBaseClass = $this->filesystem->exists(self::PLUGIN_FASHION_THEME_BASE_CLASS_PATH);
-        $pluginZipExists = $this->filesystem->exists(self::PLUGIN_ZIP_FIXTURE_PATH);
+        $extractedPlugin = \is_dir(self::PLUGIN_FASHION_THEME_PATH);
+        $extractedPluginBaseClass = \is_file(self::PLUGIN_FASHION_THEME_BASE_CLASS_PATH);
+        $pluginZipExists = \is_file(self::PLUGIN_ZIP_FIXTURE_PATH);
         static::assertTrue($extractedPlugin);
         static::assertTrue($extractedPluginBaseClass);
         static::assertTrue($pluginZipExists);

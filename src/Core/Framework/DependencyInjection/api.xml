@@ -173,7 +173,6 @@
             <argument type="service" id="Shopware\Core\Framework\Api\Route\ApiRouteInfoResolver"/>
             <argument type="service" id="Shopware\Core\Framework\Store\InAppPurchase"/>
             <argument type="service" id="Shopware\Administration\Framework\Twig\ViteFileAccessorDecorator" on-invalid="null"/>
-            <argument type="service" id="filesystem"/>
             <argument type="service" id="Shopware\Core\Framework\App\ShopId\ShopIdProvider"/>
             <argument type="service" id="Shopware\Core\Framework\MessageQueue\Stats\StatsService"/>
 

@@ -3,6 +3,7 @@
 namespace Shopware\Core\Framework\Util;
 
 use Shopware\Core\Framework\Log\Package;
+use Symfony\Component\Filesystem\Exception\IOException;
 use Symfony\Component\Filesystem\Filesystem as Io;
 use Symfony\Component\Filesystem\Path;
 use Symfony\Component\Finder\Finder;
@@ -26,19 +27,29 @@ class Filesystem
 
     public function has(string ...$path): bool
     {
-        return $this->io->exists(Path::join($this->location, ...$path));
+        $path = $this->path(...$path);
+
+        return \is_dir($path) || \is_file($path);
     }
 
     public function hasFile(string ...$path): bool
     {
-        $path = Path::join($this->location, ...$path);
+        $path = $this->path(...$path);
 
-        return $this->io->exists($path) && !is_dir($path);
+        return \is_file($path);
     }
 
     public function path(string ...$path): string
     {
-        return Path::join($this->location, ...$path);
+        $maxPathLength = \PHP_MAXPATHLEN - 2;
+
+        $path = Path::join($this->location, ...$path);
+
+        if (\strlen($path) > $maxPathLength) {
+            throw new IOException(\sprintf('Could not check if file exist because path length exceeds %d characters.', $maxPathLength), 0, null, $path);
+        }
+
+        return $path;
     }
 
     public function realpath(string ...$path): string
@@ -47,7 +58,7 @@ class Filesystem
             throw UtilException::cannotFindFileInFilesystem(Path::join(...$path), $this->location);
         }
 
-        return (string) realpath(Path::join($this->location, ...$path));
+        return (string) realpath($this->path(...$path));
     }
 
     public function read(string ...$path): string
@@ -56,7 +67,7 @@ class Filesystem
             throw UtilException::cannotFindFileInFilesystem(Path::join(...$path), $this->location);
         }
 
-        return (string) file_get_contents(Path::join($this->location, ...$path));
+        return (string) file_get_contents($this->path(...$path));
     }
 
     /**
@@ -68,7 +79,7 @@ class Filesystem
     public function findFiles(string $name, string $in): array
     {
         $finder = new Finder();
-        $finder->in(Path::join($this->location, $in))
+        $finder->in($this->path($in))
             ->files()
             ->name($name);
 

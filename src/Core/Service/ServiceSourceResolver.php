@@ -63,9 +63,11 @@ class ServiceSourceResolver implements Source
 
         $name = $app instanceof Manifest ? $app->getMetadata()->getName() : $app->getName();
 
+        $appPath = Path::join($temporaryDirectory, $name);
+
         // app is already on the filesystem, use that
-        if ($this->io->exists(Path::join($temporaryDirectory, $name))) {
-            return new Filesystem(Path::join($temporaryDirectory, $name));
+        if ($this->io->exists($appPath)) {
+            return new Filesystem($appPath);
         }
 
         /** @var ServiceSourceConfig $sourceConfig */

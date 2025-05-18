@@ -176,7 +176,6 @@ class RemoteZipTest extends TestCase
         $fs->method('exists')
             ->with($dirFactory->path() . '/TestApp')
             ->willReturn(false);
-
         $source = new RemoteZip(
             $dirFactory,
             $downloader,

@@ -263,7 +263,6 @@ class DocumentMergerTest extends TestCase
         $fpdi->method('setSourceFile')->willThrowException(new FpdiException('PDF merge failed'));
 
         $filesystem = $this->createMock(Filesystem::class);
-        $filesystem->method('exists')->willReturn(true);
         $filesystem->method('readFile')->willReturn('zip file content');
         $filesystem->expects($this->once())->method('remove');
 
@@ -310,7 +309,6 @@ class DocumentMergerTest extends TestCase
         $filesystem->expects($this->once())
             ->method('readFile')
             ->willThrowException(new IOException('Failed to read file'));
-        $filesystem->expects($this->once())->method('exists')->willReturn(true);
         $filesystem->expects($this->once())->method('remove');
 
         $this->expectException(DocumentException::class);

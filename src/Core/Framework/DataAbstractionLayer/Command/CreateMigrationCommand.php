@@ -99,7 +99,7 @@ class CreateMigrationCommand extends Command
 
         $directory = $bundle->getMigrationPath();
 
-        if (!$this->filesystem->exists($directory)) {
+        if (!\is_dir($directory)) {
             $this->filesystem->mkdir($directory);
         }
 

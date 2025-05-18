@@ -66,8 +66,8 @@ class MakeCoverageTestCommandTest extends TestCase
 
         static::assertSame(Command::SUCCESS, $tester->getStatusCode());
 
-        static::assertFalse($fileSystem->exists($this->projectDir . '/tests/unit/Core/DevOps/Test/Command/not-a-classTest.php'));
-        static::assertFalse($fileSystem->exists($this->projectDir . '/tests/unit/Core/DevOps/NotAClassTest.php'));
+        static::assertFalse(\is_file($this->projectDir . '/tests/unit/Core/DevOps/Test/Command/not-a-classTest.php'));
+        static::assertFalse(\is_file($this->projectDir . '/tests/unit/Core/DevOps/NotAClassTest.php'));
     }
 
     public function testExecute(): void
@@ -105,27 +105,27 @@ class MakeCoverageTestCommandTest extends TestCase
         ]);
 
         static::assertSame(Command::SUCCESS, $tester->getStatusCode());
-        static::assertTrue($fileSystem->exists($this->projectDir . '/tests/unit/Core/DevOps/System/Command/SystemDumpDatabaseCommandTest.php'));
-        static::assertTrue($fileSystem->exists($this->projectDir . '/tests/unit/Core/DevOps/DevOpsTest.php'));
-        static::assertTrue($fileSystem->exists($this->projectDir . '/tests/migration/Core/V6_5/Migration1670854818RemoveEventActionTableTest.php'));
+        static::assertTrue(\is_file($this->projectDir . '/tests/unit/Core/DevOps/System/Command/SystemDumpDatabaseCommandTest.php'));
+        static::assertTrue(\is_file($this->projectDir . '/tests/unit/Core/DevOps/DevOpsTest.php'));
+        static::assertTrue(\is_file($this->projectDir . '/tests/migration/Core/V6_5/Migration1670854818RemoveEventActionTableTest.php'));
         static::assertIsString($devOpsTest = file_get_contents($this->projectDir . '/tests/unit/Core/DevOps/DevOpsTest.php'));
         static::assertIsString($migrationTest = file_get_contents($this->projectDir . '/tests/migration/Core/V6_5/Migration1670854818RemoveEventActionTableTest.php'));
         static::assertSame($this->getDevOpsTestTemplate(), $devOpsTest);
         static::assertSame($this->getMigrationTestTemplate(), $migrationTest);
 
-        static::assertFalse($fileSystem->exists($this->projectDir . '/tests/unit/Core/DevOps/Test/Command/not-a-classTest.php'));
-        static::assertFalse($fileSystem->exists($this->projectDir . '/tests/unit/Core/Content/Cms/Subscriber/UnusedMediaSubscriberTest.php'));
-        static::assertFalse($fileSystem->exists($this->projectDir . '/tests/unit/Core/Framework/ShopwareExceptionTest.php'));
-        static::assertFalse($fileSystem->exists($this->projectDir . '/tests/unit/Core/DevOps/NotAClassTest.php'));
-        static::assertFalse($fileSystem->exists($this->projectDir . '/tests/unit/Core/DevOps/System/Command/OpenApiValidationCommandTest.php'));
-        static::assertFalse($fileSystem->exists($this->projectDir . '/tests/unit/Core/Framework/ShopwareHttpExceptionTest.php'));
-        static::assertFalse($fileSystem->exists($this->projectDir . '/tests/unit/Core/Checkout/Cart/Event/CheckoutOrderPlacedEventTest.php'));
-        static::assertFalse($fileSystem->exists($this->projectDir . '/tests/unit/Core/Framework/Adapter/Twig/functionsTest.php'));
-        static::assertFalse($fileSystem->exists($this->projectDir . '/tests/unit/Core/Framework/Adapter/Twig/BundleFixtureTest.php'));
-        static::assertFalse($fileSystem->exists($this->projectDir . '/tests/unit/Core/Content/Product/ProductCollectionTest.php'));
-        static::assertFalse($fileSystem->exists($this->projectDir . '/tests/unit/Core/Content/Product/ProductDefinitionTest.php'));
-        static::assertFalse($fileSystem->exists($this->projectDir . '/tests/unit/Core/Content/Product/ProductEntityTest.php'));
-        static::assertFalse($fileSystem->exists($this->projectDir . '/tests/unit/Core/Checkout/Document/Struct/DocumentGenerateOperationTest.php'));
+        static::assertFalse(\is_file($this->projectDir . '/tests/unit/Core/DevOps/Test/Command/not-a-classTest.php'));
+        static::assertFalse(\is_file($this->projectDir . '/tests/unit/Core/Content/Cms/Subscriber/UnusedMediaSubscriberTest.php'));
+        static::assertFalse(\is_file($this->projectDir . '/tests/unit/Core/Framework/ShopwareExceptionTest.php'));
+        static::assertFalse(\is_file($this->projectDir . '/tests/unit/Core/DevOps/NotAClassTest.php'));
+        static::assertFalse(\is_file($this->projectDir . '/tests/unit/Core/DevOps/System/Command/OpenApiValidationCommandTest.php'));
+        static::assertFalse(\is_file($this->projectDir . '/tests/unit/Core/Framework/ShopwareHttpExceptionTest.php'));
+        static::assertFalse(\is_file($this->projectDir . '/tests/unit/Core/Checkout/Cart/Event/CheckoutOrderPlacedEventTest.php'));
+        static::assertFalse(\is_file($this->projectDir . '/tests/unit/Core/Framework/Adapter/Twig/functionsTest.php'));
+        static::assertFalse(\is_file($this->projectDir . '/tests/unit/Core/Framework/Adapter/Twig/BundleFixtureTest.php'));
+        static::assertFalse(\is_file($this->projectDir . '/tests/unit/Core/Content/Product/ProductCollectionTest.php'));
+        static::assertFalse(\is_file($this->projectDir . '/tests/unit/Core/Content/Product/ProductDefinitionTest.php'));
+        static::assertFalse(\is_file($this->projectDir . '/tests/unit/Core/Content/Product/ProductEntityTest.php'));
+        static::assertFalse(\is_file($this->projectDir . '/tests/unit/Core/Checkout/Document/Struct/DocumentGenerateOperationTest.php'));
 
         // execute again to test if the file is not rewrite
         $tester->execute([
@@ -144,16 +144,16 @@ class MakeCoverageTestCommandTest extends TestCase
 
         static::assertSame(Command::SUCCESS, $tester->getStatusCode());
 
-        static::assertTrue($fileSystem->exists($this->projectDir . '/tests/unit/Core/DevOps/System/Command/SystemDumpDatabaseCommandTest.php'));
-        static::assertTrue($fileSystem->exists($this->projectDir . '/tests/unit/Core/DevOps/DevOpsTest.php'));
-        static::assertTrue($fileSystem->exists($this->projectDir . '/tests/migration/Core/V6_5/Migration1670854818RemoveEventActionTableTest.php'));
+        static::assertTrue(\is_file($this->projectDir . '/tests/unit/Core/DevOps/System/Command/SystemDumpDatabaseCommandTest.php'));
+        static::assertTrue(\is_file($this->projectDir . '/tests/unit/Core/DevOps/DevOpsTest.php'));
+        static::assertTrue(\is_file($this->projectDir . '/tests/migration/Core/V6_5/Migration1670854818RemoveEventActionTableTest.php'));
 
-        static::assertFalse($fileSystem->exists($this->projectDir . '/tests/unit/Core/DevOps/Test/Command/not-a-classTest.php'));
-        static::assertFalse($fileSystem->exists($this->projectDir . '/tests/unit/Core/Content/Cms/Subscriber/UnusedMediaSubscriberTest.php'));
-        static::assertFalse($fileSystem->exists($this->projectDir . '/tests/unit/Core/Framework/ShopwareExceptionTest.php'));
-        static::assertFalse($fileSystem->exists($this->projectDir . '/tests/unit/Core/DevOps/NotAClassTest.php'));
-        static::assertFalse($fileSystem->exists($this->projectDir . '/tests/unit/Core/DevOps/System/Command/OpenApiValidationCommandTest.php'));
-        static::assertFalse($fileSystem->exists($this->projectDir . '/tests/unit/Core/Framework/ShopwareHttpExceptionTest.php'));
+        static::assertFalse(\is_file($this->projectDir . '/tests/unit/Core/DevOps/Test/Command/not-a-classTest.php'));
+        static::assertFalse(\is_file($this->projectDir . '/tests/unit/Core/Content/Cms/Subscriber/UnusedMediaSubscriberTest.php'));
+        static::assertFalse(\is_file($this->projectDir . '/tests/unit/Core/Framework/ShopwareExceptionTest.php'));
+        static::assertFalse(\is_file($this->projectDir . '/tests/unit/Core/DevOps/NotAClassTest.php'));
+        static::assertFalse(\is_file($this->projectDir . '/tests/unit/Core/DevOps/System/Command/OpenApiValidationCommandTest.php'));
+        static::assertFalse(\is_file($this->projectDir . '/tests/unit/Core/Framework/ShopwareHttpExceptionTest.php'));
     }
 
     private function getDevOpsTestTemplate(): string

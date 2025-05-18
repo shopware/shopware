@@ -167,7 +167,7 @@ class ChangelogReleaseCreator extends ChangelogProcessor
 
         $upgradeFile = $this->getTargetUpgradeFile($version);
         if (!$dryRun) {
-            if (!$this->filesystem->exists($upgradeFile)) {
+            if (!\is_file($upgradeFile)) {
                 $this->filesystem->touch($upgradeFile);
             }
 
@@ -223,7 +223,7 @@ class ChangelogReleaseCreator extends ChangelogProcessor
 
         $upgradeFile = $this->getTargetNextMajorUpgradeFile($version);
         if (!$dryRun) {
-            if (!$this->filesystem->exists($upgradeFile)) {
+            if (!\is_file($upgradeFile)) {
                 $this->filesystem->touch($upgradeFile);
             }
 

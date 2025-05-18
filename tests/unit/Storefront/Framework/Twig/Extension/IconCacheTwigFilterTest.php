@@ -113,7 +113,7 @@ class IconCacheTwigFilterTest extends TestCase
             $directory = $bundle->getPath() . '/Resources/views';
             $loader->addPath($directory);
             $loader->addPath($directory, $bundle->getName());
-            if (file_exists($directory . '/../app/storefront/dist')) {
+            if (\is_dir($directory . '/../app/storefront/dist')) {
                 $loader->addPath($directory . '/../app/storefront/dist', $bundle->getName());
             }
         }

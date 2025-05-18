@@ -414,7 +414,6 @@ class InfoControllerTest extends TestCase
                 $kernel,
                 new Filesystem(),
             ),
-            new Filesystem(),
             static::getContainer()->get(ShopIdProvider::class),
             $this->createMock(StatsService::class),
         );
@@ -486,7 +485,6 @@ class InfoControllerTest extends TestCase
                 $kernel,
                 new Filesystem(),
             ),
-            new Filesystem(),
             static::getContainer()->get(ShopIdProvider::class),
             $this->createMock(StatsService::class),
         );

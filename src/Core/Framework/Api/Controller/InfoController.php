@@ -29,7 +29,6 @@ use Shopware\Core\PlatformRequest;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\DependencyInjection\ParameterBag\ParameterBagInterface;
-use Symfony\Component\Filesystem\Filesystem;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -60,7 +59,6 @@ class InfoController extends AbstractController
         private readonly ApiRouteInfoResolver $apiRouteInfoResolver,
         private readonly InAppPurchase $inAppPurchase,
         private readonly ?ViteFileAccessorDecorator $viteFileAccessorDecorator,
-        private readonly Filesystem $filesystem,
         private readonly ShopIdProvider $shopIdProvider,
         private readonly StatsService $messageStatsService,
     ) {
@@ -304,7 +302,7 @@ class InfoController extends AbstractController
             return $bundle->getAdminBaseUrl();
         }
 
-        if (!$this->filesystem->exists($bundle->getPath() . '/Resources/public/meteor-app/index.html')) {
+        if (!\is_file($bundle->getPath() . '/Resources/public/meteor-app/index.html')) {
             return null;
         }
 

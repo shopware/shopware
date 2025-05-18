@@ -249,7 +249,7 @@ final class DocumentMerger
         } catch (IOException $e) {
             throw DocumentException::cannotReadZipFile($tempFile, $e);
         } finally {
-            if ($this->filesystem->exists($tempFile)) {
+            if (\is_file($tempFile)) {
                 $this->filesystem->remove($tempFile);
             }
         }

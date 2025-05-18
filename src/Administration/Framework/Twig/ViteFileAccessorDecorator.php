@@ -43,7 +43,7 @@ class ViteFileAccessorDecorator extends FileAccessor
             return false;
         }
 
-        return $this->filesystem->exists($bundle->getPath() . $this->getRelativeFileLocation($fileType));
+        return \is_file($bundle->getPath() . $this->getRelativeFileLocation($fileType));
     }
 
     /**
@@ -97,7 +97,7 @@ class ViteFileAccessorDecorator extends FileAccessor
         if (!isset($this->content[$bundle->getName()][$fileType])) {
             $viteEntryPointsPath = $bundle->getPath() . $this->getRelativeFileLocation($fileType);
 
-            if (!$this->filesystem->exists($viteEntryPointsPath)) {
+            if (!\is_file($viteEntryPointsPath)) {
                 return $this->content[$bundle->getName()][$fileType] = [];
             }
 

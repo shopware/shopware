@@ -144,12 +144,12 @@ class ThemeCompiler implements ThemeCompilerInterface
                     $filename = basename($originalPath);
                     $extension = $this->getImportFileExtension(pathinfo($filename, \PATHINFO_EXTENSION));
                     $path = $dirname . \DIRECTORY_SEPARATOR . $filename . $extension;
-                    if (file_exists($path)) {
+                    if (\is_file($path)) {
                         return $path;
                     }
 
                     $path = $dirname . \DIRECTORY_SEPARATOR . '_' . $filename . $extension;
-                    if (file_exists($path)) {
+                    if (\is_file($path)) {
                         return $path;
                     }
                 }
@@ -193,8 +193,9 @@ class ThemeCompiler implements ThemeCompilerInterface
 
             $targetPath = $themePath . '/js/' . $folderName;
             foreach ($files as $file) {
-                if (file_exists($file->getRealPath())) {
-                    $copyFiles[] = new CopyBatchInput($file->getRealPath(), [$targetPath . '/' . $file->getFilename()], $this->themeFilesystemConfig['visibility'] ?? Visibility::PUBLIC);
+                $filePath = $file->getRealPath();
+                if ($filePath) {
+                    $copyFiles[] = new CopyBatchInput($filePath, [$targetPath . '/' . $file->getFilename()], $this->themeFilesystemConfig['visibility'] ?? Visibility::PUBLIC);
                 }
             }
         }

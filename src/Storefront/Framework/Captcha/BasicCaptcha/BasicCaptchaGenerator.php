@@ -4,7 +4,6 @@ namespace Shopware\Storefront\Framework\Captcha\BasicCaptcha;
 
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Util\Random;
-use Symfony\Component\Filesystem\Filesystem;
 
 #[Package('framework')]
 class BasicCaptchaGenerator extends AbstractBasicCaptchaGenerator
@@ -20,9 +19,7 @@ class BasicCaptchaGenerator extends AbstractBasicCaptchaGenerator
     {
         $code = $this->createCaptchaCode($length);
 
-        $filesystem = new Filesystem();
-
-        if ($filesystem->exists($this->backgroundPath)) {
+        if (\is_file($this->backgroundPath)) {
             /** @var \GdImage $img */
             $img = imagecreatefrompng($this->backgroundPath);
         } else {
@@ -32,7 +29,7 @@ class BasicCaptchaGenerator extends AbstractBasicCaptchaGenerator
         }
 
         $codeColor = (int) imagecolorallocate($img, 0, 0, 0);
-        if ($filesystem->exists($this->fontPath)) {
+        if (\is_file($this->fontPath)) {
             imagettftext($img, 45, 0, 80, 55, $codeColor, $this->fontPath, $code);
         } else {
             imagestring($img, 5, 100, 20, $code, $codeColor);

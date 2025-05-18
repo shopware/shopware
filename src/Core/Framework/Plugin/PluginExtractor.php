@@ -131,7 +131,7 @@ class PluginExtractor
     private function findOldFile(string $destination, string $pluginName): string
     {
         $dir = $destination . \DIRECTORY_SEPARATOR . $pluginName;
-        if ($this->filesystem->exists($dir)) {
+        if (\is_dir($dir)) {
             return $dir;
         }
 

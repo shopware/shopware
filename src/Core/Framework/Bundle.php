@@ -67,7 +67,7 @@ abstract class Bundle extends SymfonyBundle
     {
         $confDir = $this->getPath() . '/Resources/config';
 
-        if (file_exists($confDir)) {
+        if (\is_dir($confDir)) {
             $routes->import($confDir . '/{routes}/*' . Kernel::CONFIG_EXTS, 'glob');
             $routes->import($confDir . '/{routes}/' . $environment . '/**/*' . Kernel::CONFIG_EXTS, 'glob');
             $routes->import($confDir . '/{routes}' . Kernel::CONFIG_EXTS, 'glob');
@@ -85,10 +85,9 @@ abstract class Bundle extends SymfonyBundle
 
     public function configureRouteOverwrites(RoutingConfigurator $routes, string $environment): void
     {
-        $fileSystem = new Filesystem();
         $confDir = $this->getPath() . '/Resources/config';
 
-        if ($fileSystem->exists($confDir)) {
+        if (\is_dir($confDir)) {
             $routes->import($confDir . '/{routes_overwrite}' . Kernel::CONFIG_EXTS, 'glob');
         }
     }
@@ -112,7 +111,7 @@ abstract class Bundle extends SymfonyBundle
     {
         $migrationPath = $this->getMigrationPath();
 
-        if (!is_dir($migrationPath)) {
+        if (!\is_dir($migrationPath)) {
             return;
         }
 

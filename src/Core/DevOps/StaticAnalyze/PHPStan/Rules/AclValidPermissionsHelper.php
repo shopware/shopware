@@ -44,7 +44,7 @@ class AclValidPermissionsHelper
 
     public function __construct(string $schemaPath = self::SCHEMA_FILE)
     {
-        if (!file_exists($schemaPath)) {
+        if (!\is_file($schemaPath)) {
             return;
         }
 

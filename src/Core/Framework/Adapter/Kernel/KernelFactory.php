@@ -85,7 +85,7 @@ class KernelFactory
         $dir = $r->getFileName();
 
         $dir = $rootDir = \dirname($dir);
-        while (!file_exists($dir . '/vendor')) {
+        while (!\is_dir($dir . '/vendor')) {
             if ($dir === \dirname($dir)) {
                 return $rootDir;
             }

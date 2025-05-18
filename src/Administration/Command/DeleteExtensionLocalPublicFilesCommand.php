@@ -44,11 +44,11 @@ class DeleteExtensionLocalPublicFilesCommand extends Command
                 continue;
             }
 
-            if (file_exists($bundlePath . '/Resources/public/administration/css')) {
+            if (\is_dir($bundlePath . '/Resources/public/administration/css')) {
                 touch($bundle->getPath() . '/Resources/.administration-css');
             }
 
-            if (file_exists($bundlePath . '/Resources/public/administration/js')) {
+            if (\is_dir($bundlePath . '/Resources/public/administration/js')) {
                 touch($bundle->getPath() . '/Resources/.administration-js');
             }
 

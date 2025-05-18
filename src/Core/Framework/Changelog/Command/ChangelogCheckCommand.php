@@ -40,7 +40,7 @@ class ChangelogCheckCommand extends Command
         $IOHelper->title('Check the validation of changelog files');
 
         $path = $input->getArgument('changelog') ?: '';
-        if (\is_string($path) && $path !== '' && !file_exists($path)) {
+        if (\is_string($path) && $path !== '' && !\is_file($path)) {
             $IOHelper->error('The given file NOT found');
 
             return self::FAILURE;

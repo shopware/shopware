@@ -65,7 +65,7 @@ class CustomEntityLifecycleService
     private function getXmlSchema(string $pathToCustomEntityFile): ?CustomEntityXmlSchema
     {
         $filePath = Path::join($pathToCustomEntityFile, CustomEntityXmlSchema::FILENAME);
-        if (!file_exists($filePath)) {
+        if (!\is_file($filePath)) {
             return null;
         }
 
@@ -79,7 +79,7 @@ class CustomEntityLifecycleService
     {
         $configPath = Path::join($pathToCustomEntityFile, 'config', AdminUiXmlSchema::FILENAME);
 
-        if (!file_exists($configPath)) {
+        if (!\is_file($configPath)) {
             return null;
         }
 

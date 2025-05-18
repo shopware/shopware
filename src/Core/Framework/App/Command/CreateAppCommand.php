@@ -299,7 +299,7 @@ class CreateAppCommand extends Command
      */
     private function createApp(string $appDirectory, array $details, bool $createThemeConfig): void
     {
-        if (file_exists($appDirectory)) {
+        if (\is_dir($appDirectory)) {
             throw AppException::directoryAlreadyExists($details['name']);
         }
 

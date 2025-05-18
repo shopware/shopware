@@ -30,7 +30,7 @@ class RefreshMigrationCommand extends Command
 
         $output->writeln('Updating timestamp of migration: ' . $filename);
 
-        if (!file_exists($path)) {
+        if (!\is_file($path)) {
             throw MigrationException::migrationFileDoesNotExist($path);
         }
 

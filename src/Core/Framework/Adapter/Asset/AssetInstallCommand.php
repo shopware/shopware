@@ -56,7 +56,7 @@ class AssetInstallCommand extends Command
 
         $publicDir = $this->kernel->getProjectDir() . '/public/';
 
-        if (!file_exists($publicDir . '/.htaccess') && file_exists($publicDir . '/.htaccess.dist')) {
+        if (!\is_file($publicDir . '/.htaccess') && \is_file($publicDir . '/.htaccess.dist')) {
             $io->writeln('Copying .htaccess.dist to .htaccess');
             copy($publicDir . '/.htaccess.dist', $publicDir . '/.htaccess');
         }

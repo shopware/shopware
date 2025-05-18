@@ -9,7 +9,7 @@ $_SERVER['SCRIPT_FILENAME'] = __FILE__;
 
 require_once __DIR__ . '/../vendor/autoload_runtime.php';
 
-if (!file_exists(__DIR__ . '/../.env') && !file_exists(__DIR__ . '/../.env.dist') && !file_exists(__DIR__ . '/../.env.local.php')) {
+if (!is_file(__DIR__ . '/../.env') && !is_file(__DIR__ . '/../.env.dist') && !is_file(__DIR__ . '/../.env.local.php')) {
     $_SERVER['APP_RUNTIME_OPTIONS']['disable_dotenv'] = true;
 }
 
@@ -18,7 +18,7 @@ $_SERVER['APP_RUNTIME_OPTIONS']['prod_envs'] = ['prod', 'e2e'];
 return function (array $context) {
     $classLoader = require __DIR__ . '/../vendor/autoload.php';
 
-    if (!file_exists(dirname(__DIR__) . '/install.lock')) {
+    if (!is_file(dirname(__DIR__) . '/install.lock')) {
         $baseURL = str_replace(basename(__FILE__), '', $_SERVER['SCRIPT_NAME']);
         $baseURL = rtrim($baseURL, '/');
 
@@ -32,7 +32,7 @@ return function (array $context) {
         header('Content-type: text/html; charset=utf-8', true, 503);
         header('Status: 503 Service Temporarily Unavailable');
         header('Retry-After: 1200');
-        if (file_exists(__DIR__ . '/maintenance.html')) {
+        if (is_file(__DIR__ . '/maintenance.html')) {
             readfile(__DIR__ . '/maintenance.html');
         } else {
             readfile(__DIR__ . '/recovery/update/maintenance.html');
@@ -44,7 +44,7 @@ return function (array $context) {
     $appEnv = $context['APP_ENV'] ?? 'dev';
     $debug = (bool) ($context['APP_DEBUG'] ?? ($appEnv !== 'prod'));
 
-    if (!file_exists(dirname(__DIR__) . '/install.lock')) {
+    if (!is_file(dirname(__DIR__) . '/install.lock')) {
         return new InstallerKernel($appEnv, $debug);
     }
 

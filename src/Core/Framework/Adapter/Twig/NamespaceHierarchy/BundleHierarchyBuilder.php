@@ -32,7 +32,7 @@ class BundleHierarchyBuilder implements TemplateNamespaceHierarchyBuilderInterfa
 
             $directory = $bundlePath . '/Resources/views';
 
-            if (!file_exists($directory)) {
+            if (!\is_dir($directory)) {
                 continue;
             }
 

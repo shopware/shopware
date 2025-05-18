@@ -115,7 +115,7 @@ class ThemeFileResolver
         foreach ($files as $file) {
             $filepath = $file->getFilepath();
             if (!$this->isInclude($filepath)) {
-                if (file_exists($filepath)) {
+                if (\is_file($filepath)) {
                     $resolvedFiles->add($file);
 
                     continue;

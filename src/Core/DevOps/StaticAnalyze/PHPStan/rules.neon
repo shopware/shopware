@@ -8,6 +8,7 @@ rules:
     - Shopware\Core\DevOps\StaticAnalyze\PHPStan\Rules\NoFlowEventAwareExtendsRule
     - Shopware\Core\DevOps\StaticAnalyze\PHPStan\Rules\NoFlowStoreFunctionRule
     - Shopware\Core\DevOps\StaticAnalyze\PHPStan\Rules\NoEnvironmentHelperInsideCompilerPassRule
+    - Shopware\Core\DevOps\StaticAnalyze\PHPStan\Rules\NoFileExistsRule
     - Shopware\Core\DevOps\StaticAnalyze\PHPStan\Rules\NoSuperGlobalsInsideCompilerPassRule
     - Shopware\Core\DevOps\StaticAnalyze\PHPStan\Rules\NoDALAutoload
     - Shopware\Core\DevOps\StaticAnalyze\PHPStan\Rules\DALFieldsMustBeRegisteredWithSchemaBuilder

@@ -39,12 +39,7 @@ abstract class Error extends \Exception implements \JsonSerializable
             $data[$property->getName()] = $property->getValue($this);
         }
 
-        $traces = $this->getTrace();
-        foreach ($traces as &$trace) {
-            $trace['args'] = [];
-        }
-
-        $data['trace'] = $traces;
+        unset($data['trace']);
 
         return $data;
     }

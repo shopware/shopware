@@ -4,7 +4,6 @@ namespace Shopware\Core\System\SalesChannel\Context;
 
 use Shopware\Core\Checkout\Cart\AbstractCartPersister;
 use Shopware\Core\Checkout\Cart\CartRuleLoader;
-use Shopware\Core\Checkout\Cart\RuleLoaderResult;
 use Shopware\Core\Checkout\Cart\SalesChannel\CartService;
 use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
@@ -100,9 +99,7 @@ class SalesChannelContextService implements SalesChannelContextServiceInterface
             if (Feature::isActive('DEFERRED_CART_ERRORS')) {
                 $result = $context->withPermissions(
                     [AbstractCartPersister::PERSIST_CART_ERROR_PERMISSION => true],
-                    function (SalesChannelContext $context) use ($token): RuleLoaderResult {
-                        return $this->ruleLoader->loadByToken($context, $token);
-                    },
+                    fn (SalesChannelContext $context) => $this->ruleLoader->loadByToken($context, $token),
                 );
             } else {
                 $result = $this->ruleLoader->loadByToken($context, $token);

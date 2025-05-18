@@ -212,6 +212,9 @@ jobs:
           shopware-version: ${{ github.ref }}
           shopware-repository: ${{ github.repository }}
 
+      - name: Dump composer autoloader
+        run: php vendor/bin/composer dump-autoload -o
+
       - name: Start Webserver
         run: symfony server:start -d
 

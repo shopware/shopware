@@ -222,11 +222,11 @@ class CartLoadRouteTest extends TestCase
 
         // Fetch context to simulate a non cart related request
         $this->browser->request('GET', '/store-api/context');
-        static::assertEquals(200, $this->browser->getResponse()->getStatusCode());
+        static::assertSame(200, $this->browser->getResponse()->getStatusCode());
 
         // Fetch cart, make sure the product is no longer in cart and an error is set
         $this->browser->request('GET', '/store-api/checkout/cart');
-        static::assertEquals(200, $this->browser->getResponse()->getStatusCode());
+        static::assertSame(200, $this->browser->getResponse()->getStatusCode());
 
         $cartResponse = json_decode((string) $this->browser->getResponse()->getContent(), true, 512, \JSON_THROW_ON_ERROR);
         static::assertEmpty($cartResponse['lineItems']);
@@ -234,7 +234,7 @@ class CartLoadRouteTest extends TestCase
 
         // Fetch cart again, error should not be present anymore
         $this->browser->request('GET', '/store-api/checkout/cart');
-        static::assertEquals(200, $this->browser->getResponse()->getStatusCode());
+        static::assertSame(200, $this->browser->getResponse()->getStatusCode());
 
         $cartResponse = json_decode((string) $this->browser->getResponse()->getContent(), true, 512, \JSON_THROW_ON_ERROR);
         static::assertEmpty($cartResponse['lineItems']);

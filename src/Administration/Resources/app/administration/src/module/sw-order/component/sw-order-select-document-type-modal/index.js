@@ -71,7 +71,12 @@ export default {
         documentCriteria() {
             const criteria = new Criteria(1, 100);
             criteria.addFilter(Criteria.equals('order.id', this.order.id));
-            criteria.addFilter(Criteria.equals('documentType.technicalName', 'invoice'));
+            criteria.addFilter(
+                Criteria.equalsAny('documentType.technicalName', [
+                    'invoice',
+                    'zugferd_embedded_invoice',
+                ]),
+            );
 
             return criteria;
         },

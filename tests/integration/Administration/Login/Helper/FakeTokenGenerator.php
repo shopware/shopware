@@ -23,6 +23,12 @@ class FakeTokenGenerator
 
     private ?string $email = 'fake@email.com';
 
+    private ?string $preferredUsername = 'preferred_username';
+
+    private ?string $givenName = 'given_name';
+
+    private ?string $familyName = 'family_name';
+
     private ?\DateTimeImmutable $issuedAt;
 
     private ?\DateTimeImmutable $expiresAt;
@@ -55,6 +61,9 @@ class FakeTokenGenerator
             'exp' => $this->expiresAt?->getTimestamp(),
             'sub' => $this->subject,
             'email' => $this->email,
+            'preferred_username' => $this->preferredUsername,
+            'given_name' => $this->givenName,
+            'family_name' => $this->familyName,
         ], \JSON_THROW_ON_ERROR));
 
         $singing = $this->base64UrlEncode(hash_hmac('sha256', $header . $content, (string) $this->secret, true));
@@ -110,6 +119,27 @@ class FakeTokenGenerator
     public function setEmail(?string $email): FakeTokenGenerator
     {
         $this->email = $email;
+
+        return $this;
+    }
+
+    public function setPreferredUsername(?string $preferredUsername): FakeTokenGenerator
+    {
+        $this->preferredUsername = $preferredUsername;
+
+        return $this;
+    }
+
+    public function setGivenName(?string $givenName): FakeTokenGenerator
+    {
+        $this->givenName = $givenName;
+
+        return $this;
+    }
+
+    public function setFamilyName(?string $familyName): FakeTokenGenerator
+    {
+        $this->familyName = $familyName;
 
         return $this;
     }

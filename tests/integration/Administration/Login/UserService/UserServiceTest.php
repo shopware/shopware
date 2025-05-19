@@ -6,10 +6,13 @@ use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Administration\Login\UserService\UserService;
+use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\DatabaseTransactionBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
+use Shopware\Core\System\User\UserEntity;
 use Shopware\Tests\Integration\Administration\Login\Helper\FakeTokenGenerator;
 use Shopware\Tests\Integration\Administration\Login\Helper\FakeUserInstaller;
 use Shopware\Tests\Integration\Administration\Login\Helper\ValidUserServiceCreator;
@@ -81,6 +84,40 @@ class UserServiceTest extends TestCase
         static::assertSame($refreshToken, $tokenUserData['refresh_token']);
         static::assertSame($subject, $tokenUserData['user_sub']);
         static::assertSame($userId, Uuid::fromBytesToHex($tokenUserData['user_id']));
+
+        // check user is activated
+        $user = $this->getContainer()->get('user.repository')->search(new Criteria([$externalAuthUser->userId]), Context::createDefaultContext())->first();
+        static::assertInstanceOf(UserEntity::class, $user);
+        static::assertTrue($user->getActive());
+        static::assertSame('given_name', $user->getFirstName());
+        static::assertSame('family_name', $user->getLastName());
+        static::assertSame('preferred_username', $user->getUsername());
+    }
+
+    public function testUserEmailIsUpdated(): void
+    {
+        $tokenEmail = 'token@email.com';
+        $localeEmail = 'locale@email.com';
+
+        $userId = Uuid::randomHex();
+        $subject = Uuid::randomHex();
+
+        $fakeUserInstaller = new FakeUserInstaller($this->getContainer()->get(Connection::class));
+        $fakeUserInstaller->installBaseUserData($userId, $localeEmail);
+        $fakeUserInstaller->installTokenUser($userId, $subject);
+
+        $idToken = (new FakeTokenGenerator())->setEmail($tokenEmail)->setSubject($subject)->generate(JwksIds::KEY_ID_ONE);
+        $refreshToken = Uuid::randomHex();
+
+        $externalAuthUser = $this->createUserService()->getUser($idToken, $refreshToken);
+        static::assertSame($userId, $externalAuthUser->userId);
+        static::assertSame($refreshToken, $externalAuthUser->refreshToken);
+        static::assertFalse($externalAuthUser->isNew);
+        static::assertSame($localeEmail, $externalAuthUser->email);
+
+        $user = $this->getContainer()->get('user.repository')->search(new Criteria([$userId]), Context::createDefaultContext())->first();
+        static::assertInstanceOf(UserEntity::class, $user);
+        static::assertSame($tokenEmail, $user->getEmail());
     }
 
     private function createUserService(): UserService

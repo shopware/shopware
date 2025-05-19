@@ -31,6 +31,16 @@
             </call>
         </service>
 
+        <service id="Shopware\Administration\Controller\AdminSaasController" public="true">
+            <argument type="service" id="Shopware\Core\Content\SaasUser\SaasUserService"/>
+            <argument type="service" id="Shopware\Core\Content\SaasUser\SaasUserInvitationMailService"/>
+            <argument type="service" id="Shopware\Core\Content\Saas\SaasService"/>
+
+            <call method="setContainer">
+                <argument type="service" id="service_container"/>
+            </call>
+        </service>
+
         <service id="Shopware\Administration\Controller\AdminExtensionApiController" public="true">
             <argument type="service" id="Shopware\Core\Framework\App\ActionButton\Executor"/>
             <argument type="service" id="Shopware\Core\Framework\App\Payload\AppPayloadServiceHelper"/>
@@ -191,6 +201,7 @@
         <service id="Shopware\Administration\Login\UserService\UserService">
             <argument type="service" id="Doctrine\DBAL\Connection"/>
             <argument type="service" id="Shopware\Administration\Login\TokenService\IdTokenParser"/>
+            <argument type="service" id="user.repository"/>
         </service>
 
         <service id="Shopware\Administration\Login\TokenService\ExternalTokenService">
@@ -222,5 +233,23 @@
 
         <service id="Shopware\Administration\Login\StateValidator" />
 
+        <service id="Shopware\Core\Content\SaasUser\SaasUserService">
+            <argument type="service" id="user.repository"/>
+        </service>
+
+        <service id="Shopware\Core\Content\SaasUser\SaasUserInvitationMailService">
+            <argument type="service" id="Shopware\Core\Content\Mail\Service\MailService"/>
+            <argument type="service" id="Shopware\Core\System\SystemConfig\SystemConfigService" />
+            <argument type="service" id="Shopware\Administration\Login\Config\LoginConfigService"/>
+            <argument type="service" id="mail_template.repository"/>
+            <argument type="service" id="mail_template_type.repository"/>
+            <argument type="service" id="user.repository"/>
+            <argument type="service" id="language.repository"/>
+            <argument type="service" id="locale.repository"/>
+        </service>
+
+        <service id="Shopware\Core\Content\Saas\SaasService">
+            <argument type="service" id="Shopware\Administration\Login\Config\LoginConfigService"/>
+        </service>
     </services>
 </container>

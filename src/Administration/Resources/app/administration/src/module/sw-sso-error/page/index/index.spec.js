@@ -42,9 +42,11 @@ async function createWrapper(useDefaultLogin) {
 }
 
 describe('src/module/sw-sso-error/page/index', () => {
-    it('should be available', () => {
+    it('should be available', async () => {
+        await createWrapper(false);
+
         const components = Component.getComponentRegistry();
-        expect(components.has('sw-sso-error-index')).toBe(true);
+        expect(components.has('sw-sso-error-index')).toBeTruthy();
     });
 
     it('should load the shopware logo', async () => {

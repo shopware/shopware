@@ -134,6 +134,7 @@ class ShopwareGrantTypeTest extends TestCase
                 'token_path' => '/token',
                 'jwks_path' => '/jwks.json',
                 'scope' => 'scope',
+                'register_url' => 'https://register.url',
             ],
             '',
             ''

@@ -5,12 +5,10 @@
 import template from './sw-sso-error-index.html.twig';
 import './sw-sso-error-index.scss';
 
-const { Component } = Shopware;
-
 /**
  * @private
  */
-Component.register('sw-sso-error-index', {
+export default {
     template,
 
     inject: [
@@ -49,7 +47,7 @@ Component.register('sw-sso-error-index', {
         },
 
         email() {
-            return this.loginService.getStorage().getItem('user')
+            return this.loginService.getStorage().getItem('user');
         },
     },
-});
+};

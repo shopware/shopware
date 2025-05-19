@@ -9,27 +9,37 @@
             >
         </div>
 
-        <mt-card class="sw-sso-error-card">
+        <mt-card
+            position-identifier="sw-sso-error-card"
+            class="sw-sso-error-card"
+        >
             <div class="lock-icon">
-                <mt-icon class="block"
-                         name="solid-lock"
-                         size="24px"
+                <mt-icon
+                    class="block"
+                    name="solid-lock"
+                    size="24px"
                 />
             </div>
 
-            <h1 class="sw-sso-error__title">{{ $tc('sw-sso-error.error-card.title') }}</h1>
-            <p class="sw-sso-error__description">{{ $tc('sw-sso-error.error-card.text') }}</p>
+            <h1 class="sw-sso-error__title">
+                {{ $tc('sw-sso-error.error-card.title') }}
+            </h1>
+            <p class="sw-sso-error__description">
+                {{ $tc('sw-sso-error.error-card.text') }}
+            </p>
 
             <div class="sw-sso-error-card__button-container">
-                <div v-if="isLoading"
-                     class="sw-sso-error__loading-indicator"
+                <div
+                    v-if="isLoading"
+                    class="sw-sso-error__loading-indicator"
                 >
                     <mt-loader />
                 </div>
 
-                <a v-else
-                   :href="url"
-                   class="sw-button sw-button--primary"
+                <a
+                    v-else
+                    :href="url"
+                    class="sw-button sw-button--primary"
                 >
                     {{ $tc('sw-sso-error.error-card.button') }}
                 </a>

@@ -134,6 +134,8 @@ import type { SwFlowStore } from './module/sw-flow/store/flow.store';
 import type { SwBulkStore } from './app/store/sw-bulk-edit.store';
 // eslint-disable-next-line max-len
 import type createTextEditorDataMappingButton from './app/component/meteor-wrapper/mt-text-editor/sw-text-editor-toolbar-button-cms-data-mapping';
+import type SaasSettingsService from "./core/service/api/saas-settings.service";
+import type SaasInvitationService from "./core/service/api/saas-invitation.service";
 
 // trick to make it an "external module" to support global type extension
 
@@ -278,6 +280,8 @@ declare global {
         userRecoveryService: UserRecoveryApiService;
         userService: UserApiService;
         validationService: $TSFixMe;
+        saasSettingsService: SaasSettingsService;
+        saasInvitationService: SaasInvitationService;
     }
 
     interface MixinContainer {

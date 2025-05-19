@@ -61,6 +61,7 @@ class ExternalTokenServiceTest extends TestCase
                 'token_path' => '/token',
                 'jwks_path' => '/json.json',
                 'scope' => 'scope',
+                'register_url' => 'https://register.url',
             ],
             '',
             ''

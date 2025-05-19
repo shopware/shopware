@@ -29,8 +29,8 @@ class CategorySubscriberTest extends TestCase
     public function testHasEvents(): void
     {
         $expectedEvents = [
-            CategoryEvents::CATEGORY_LOADED_EVENT => 'entityLoaded',
-            'sales_channel.' . CategoryEvents::CATEGORY_LOADED_EVENT => 'entityLoaded',
+            CategoryEvents::CATEGORY_LOADED_EVENT => 'categoryLoaded',
+            'sales_channel.' . CategoryEvents::CATEGORY_LOADED_EVENT => 'salesChannelCategoryLoaded',
         ];
 
         static::assertSame($expectedEvents, CategorySubscriber::getSubscribedEvents());
@@ -46,14 +46,19 @@ class CategorySubscriberTest extends TestCase
     ): void {
         $categorySubscriber = new CategorySubscriber($systemConfigService, $this->createMock(CategoryUrlGenerator::class));
 
+        static::assertSame($cmsPageIdBeforeEvent, $categoryEntity->getCmsPageId());
+
         if ($salesChannelId) {
             $event = new SalesChannelEntityLoadedEvent(new CategoryDefinition(), [$categoryEntity], $this->getSalesChannelContext($salesChannelId));
+
+            $categorySubscriber->categoryLoaded($event);
+            $categorySubscriber->salesChannelCategoryLoaded($event);
         } else {
             $event = new EntityLoadedEvent(new CategoryDefinition(), [$categoryEntity], Context::createDefaultContext());
+
+            $categorySubscriber->categoryLoaded($event);
         }
 
-        static::assertSame($cmsPageIdBeforeEvent, $categoryEntity->getCmsPageId());
-        $categorySubscriber->entityLoaded($event);
         static::assertSame($cmsPageIdAfterEvent, $categoryEntity->getCmsPageId());
     }
 

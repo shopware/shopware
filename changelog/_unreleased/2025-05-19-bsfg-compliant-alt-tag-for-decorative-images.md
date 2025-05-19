@@ -6,4 +6,4 @@ author_github: @wbm-sbasler
 ---
 ___
 # Storefront
-* Removed space in the alt tag of decorative images in `cms-emelement-image.html.twig` and `cms-emelement-image-slider.html.twig` as empty alt tag should be empty and not contain a space.
+* Removed space in the alt tag of decorative images in `cms-element-image.html.twig` and `cms-element-image-slider.html.twig` as empty alt tag should be empty and not contain a space.

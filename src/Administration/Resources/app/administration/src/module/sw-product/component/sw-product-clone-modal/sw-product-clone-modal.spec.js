@@ -54,6 +54,7 @@ describe('src/module/sw-product/component/sw-product-clone-modal', () => {
                 variantListingConfig: {
                     mainVariantId: '1a2b3c',
                 },
+                childCount: 1,
             },
         });
 
@@ -73,6 +74,7 @@ describe('src/module/sw-product/component/sw-product-clone-modal', () => {
                     variantListingConfig: {
                         mainVariantId: null,
                     },
+                    childCount: 1,
                 },
             },
             expect.anything(),

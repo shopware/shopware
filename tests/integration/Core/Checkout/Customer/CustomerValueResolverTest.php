@@ -174,7 +174,7 @@ class CustomerValueResolverTest extends TestCase
                     'snippetSetId' => $this->getSnippetSetIdForLocale('en-GB'),
                     'measurementSystemId' => Uuid::fromStringToHex('metric'),
                     'lengthUnitId' => Uuid::fromStringToHex('metric-mm'),
-                    'massUnitId' => Uuid::fromStringToHex('metric-kg'),
+                    'weightUnitId' => Uuid::fromStringToHex('metric-kg'),
                 ],
                 [
                     'id' => $this->ids->get('usd-domain'),
@@ -184,7 +184,7 @@ class CustomerValueResolverTest extends TestCase
                     'snippetSetId' => $this->getSnippetSetIdForLocale('en-GB'),
                     'measurementSystemId' => Uuid::fromStringToHex('metric'),
                     'lengthUnitId' => Uuid::fromStringToHex('metric-mm'),
-                    'massUnitId' => Uuid::fromStringToHex('metric-kg'),
+                    'weightUnitId' => Uuid::fromStringToHex('metric-kg'),
                 ],
             ],
         ]);

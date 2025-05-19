@@ -49,7 +49,7 @@ class ContextControllerContextTest extends TestCase
                 'url' => $this->defaultBaseUrl,
                 'measurementSystemId' => Uuid::fromStringToHex('metric'),
                 'lengthUnitId' => Uuid::fromStringToHex('metric-mm'),
-                'massUnitId' => Uuid::fromStringToHex('metric-kg'),
+                'weightUnitId' => Uuid::fromStringToHex('metric-kg'),
             ],
             [
                 'language' => [
@@ -68,7 +68,7 @@ class ContextControllerContextTest extends TestCase
                 'url' => $this->testBaseUrl,
                 'measurementSystemId' => Uuid::fromStringToHex('metric'),
                 'lengthUnitId' => Uuid::fromStringToHex('metric-mm'),
-                'massUnitId' => Uuid::fromStringToHex('metric-kg'),
+                'weightUnitId' => Uuid::fromStringToHex('metric-kg'),
             ],
         ];
 

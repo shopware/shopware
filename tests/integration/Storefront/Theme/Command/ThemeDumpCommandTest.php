@@ -256,7 +256,7 @@ class ThemeDumpCommandTest extends TestCase
                         'url' => 'http://localhost/1/' . $themeId,
                         'measurementSystemId' => Uuid::fromStringToHex('metric'),
                         'lengthUnitId' => Uuid::fromStringToHex('metric-mm'),
-                        'massUnitId' => Uuid::fromStringToHex('metric-kg'),
+                        'weightUnitId' => Uuid::fromStringToHex('metric-kg'),
                     ],
                     [
                         'languageId' => Defaults::LANGUAGE_SYSTEM,
@@ -265,7 +265,7 @@ class ThemeDumpCommandTest extends TestCase
                         'url' => 'http://localhost/2/' . $themeId,
                         'measurementSystemId' => Uuid::fromStringToHex('metric'),
                         'lengthUnitId' => Uuid::fromStringToHex('metric-mm'),
-                        'massUnitId' => Uuid::fromStringToHex('metric-kg'),
+                        'weightUnitId' => Uuid::fromStringToHex('metric-kg'),
                     ],
                 ],
             ]);

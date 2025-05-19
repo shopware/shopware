@@ -46,7 +46,7 @@ class LanguageRouteTest extends TestCase
                     'url' => 'http://example.com',
                     'measurementSystemId' => Uuid::fromStringToHex('metric'),
                     'lengthUnitId' => Uuid::fromStringToHex('metric-mm'),
-                    'massUnitId' => Uuid::fromStringToHex('metric-kg'),
+                    'weightUnitId' => Uuid::fromStringToHex('metric-kg'),
                 ],
                 [
                     'languageId' => $this->ids->get('language2'),
@@ -55,7 +55,7 @@ class LanguageRouteTest extends TestCase
                     'url' => 'http://example.com/second',
                     'measurementSystemId' => Uuid::fromStringToHex('metric'),
                     'lengthUnitId' => Uuid::fromStringToHex('metric-mm'),
-                    'massUnitId' => Uuid::fromStringToHex('metric-kg'),
+                    'weightUnitId' => Uuid::fromStringToHex('metric-kg'),
                 ],
             ],
         ]);

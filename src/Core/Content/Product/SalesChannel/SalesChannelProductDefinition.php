@@ -105,6 +105,10 @@ class SalesChannelProductDefinition extends ProductDefinition implements SalesCh
             (new ObjectField('sortedProperties', 'sortedProperties'))->addFlags(new Runtime(), new ApiAware())
         );
 
+        $fields->add(
+            (new ObjectField('measurementUnits', 'measurementUnits'))->addFlags(new Runtime(), new ApiAware())
+        );
+
         return $fields;
     }
 

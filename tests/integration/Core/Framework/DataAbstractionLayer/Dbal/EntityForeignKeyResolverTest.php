@@ -395,7 +395,7 @@ class EntityForeignKeyResolverTest extends TestCase
             'customerGroupId' => TestDefaults::FALLBACK_CUSTOMER_GROUP,
             'measurementSystemId' => Uuid::fromStringToHex('metric'),
             'lengthUnitId' => Uuid::fromStringToHex('metric-mm'),
-            'massUnitId' => Uuid::fromStringToHex('metric-kg'),
+            'weightUnitId' => Uuid::fromStringToHex('metric-kg'),
         ];
 
         $salesChannelRepository = static::getContainer()->get('sales_channel.repository');

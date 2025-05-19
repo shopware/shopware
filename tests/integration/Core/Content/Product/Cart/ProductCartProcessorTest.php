@@ -318,7 +318,7 @@ class ProductCartProcessorTest extends TestCase
      * @param array<string, mixed> $productData
      * @param array{type: string, value: array{price: string}, label: string} $expectedFeature
      */
-    #[DataProvider('productFeatureProdiver')]
+    #[DataProvider('productFeatureProvider')]
     #[Group('slow')]
     public function testProductFeaturesContainCorrectInformation(array $testedFeature, array $productData, array $expectedFeature): void
     {
@@ -357,7 +357,7 @@ class ProductCartProcessorTest extends TestCase
      *     2: array{type: string, value: mixed, label: string}
      *     }[]
      */
-    public static function productFeatureProdiver(): array
+    public static function productFeatureProvider(): array
     {
         return [
             [
@@ -382,6 +382,24 @@ class ProductCartProcessorTest extends TestCase
                     'label' => 'description',
                     'value' => 'Lorem ipsum dolor sit amet.',
                     'type' => ProductFeatureSetDefinition::TYPE_PRODUCT_ATTRIBUTE,
+                    'measurementUnits' => [
+                        'width' => [
+                            'value' => 102.0,
+                            'unit' => 'mm',
+                        ],
+                        'height' => [
+                            'value' => 101.0,
+                            'unit' => 'mm',
+                        ],
+                        'length' => [
+                            'value' => 103.0,
+                            'unit' => 'mm',
+                        ],
+                        'weight' => [
+                            'value' => 100.0,
+                            'unit' => 'kg',
+                        ],
+                    ],
                 ],
             ],
             [
@@ -398,6 +416,24 @@ class ProductCartProcessorTest extends TestCase
                     'label' => 'manufacturerNumber',
                     'value' => '22ee3d8063da',
                     'type' => ProductFeatureSetDefinition::TYPE_PRODUCT_ATTRIBUTE,
+                    'measurementUnits' => [
+                        'width' => [
+                            'value' => 102.0,
+                            'unit' => 'mm',
+                        ],
+                        'height' => [
+                            'value' => 101.0,
+                            'unit' => 'mm',
+                        ],
+                        'length' => [
+                            'value' => 103.0,
+                            'unit' => 'mm',
+                        ],
+                        'weight' => [
+                            'value' => 100.0,
+                            'unit' => 'kg',
+                        ],
+                    ],
                 ],
             ],
             [

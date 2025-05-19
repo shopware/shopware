@@ -472,7 +472,7 @@ class RequestTransformerTest extends TestCase
                 'customerGroupId' => TestDefaults::FALLBACK_CUSTOMER_GROUP,
                 'measurementSystemId' => Uuid::fromStringToHex('metric'),
                 'lengthUnitId' => Uuid::fromStringToHex('metric-mm'),
-                'massUnitId' => Uuid::fromStringToHex('metric-kg'),
+                'weightUnitId' => Uuid::fromStringToHex('metric-kg'),
             ];
 
             foreach ($salesChannelData['languages'] as &$language) {
@@ -489,7 +489,7 @@ class RequestTransformerTest extends TestCase
                 $domain = array_merge([
                     'measurementSystemId' => Uuid::fromStringToHex('metric'),
                     'lengthUnitId' => Uuid::fromStringToHex('metric-mm'),
-                    'massUnitId' => Uuid::fromStringToHex('metric-kg'),
+                    'weightUnitId' => Uuid::fromStringToHex('metric-kg'),
                 ], $domain);
 
                 if ($domain['languageId'] === self::LOCALE_DE_DE_ISO) {

@@ -8,6 +8,8 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelLifecycleManager;
 use Shopware\Core\Migration\V6_7\Migration1742199548MeasurementSystem;
+use Shopware\Core\System\SalesChannel\Aggregate\SalesChannelDomain\SalesChannelDomainDefinition;
+use Shopware\Core\System\SalesChannel\SalesChannelDefinition;
 
 /**
  * @internal
@@ -23,14 +25,14 @@ class Migration1742199548MeasurementSystemTest extends TestCase
         $this->connection = KernelLifecycleManager::getConnection();
 
         $foreignKeys = [
-            'sales_channel_domain' => [
+            SalesChannelDomainDefinition::ENTITY_NAME => [
                 'fk.sales_channel_domain.measurement_system_id',
-                'fk.sales_channel_domain.mass_unit_id',
+                'fk.sales_channel_domain.weight_unit_id',
                 'fk.sales_channel_domain.length_unit_id',
             ],
-            'sales_channel' => [
+            SalesChannelDefinition::ENTITY_NAME => [
                 'fk.sales_channel.measurement_system_id',
-                'fk.sales_channel.mass_unit_id',
+                'fk.sales_channel.weight_unit_id',
                 'fk.sales_channel.length_unit_id',
             ],
         ];
@@ -49,8 +51,8 @@ class Migration1742199548MeasurementSystemTest extends TestCase
         }
 
         $columns = [
-            'sales_channel_domain' => ['measurement_system_id', 'mass_unit_id', 'length_unit_id'],
-            'sales_channel' => ['measurement_system_id', 'mass_unit_id', 'length_unit_id'],
+            'sales_channel_domain' => ['measurement_system_id', 'weight_unit_id', 'length_unit_id'],
+            'sales_channel' => ['measurement_system_id', 'weight_unit_id', 'length_unit_id'],
         ];
 
         foreach ($columns as $table => $cols) {

@@ -83,7 +83,7 @@ const proxyOptions = {
                     return;
                 }
                 // we only replace things when the request is a document
-                const isDocumentRequest = req.headers['sec-fetch-dest'] === 'document' || req.headers.accept.indexOf('text/html') !== -1;
+                const isDocumentRequest = req.headers['sec-fetch-dest'] === 'document' || (req.headers.accept?.indexOf('text/html') ?? '') !== -1;
                 const isHtmlRequests = req.url.indexOf('widgets/menu/offcanvas') !== -1 || req.url.indexOf('checkout/offcanvas') !== -1;
 
                 if (isDocumentRequest || isHtmlRequests) {

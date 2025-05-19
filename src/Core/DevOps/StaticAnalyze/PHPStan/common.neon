@@ -17,10 +17,7 @@ parameters:
         internalTag: false
 
     # For stricter testing those should be set to true at some point
-    checkExplicitMixedMissingReturn: false
     reportMaybesInMethodSignatures: false
-    reportStaticMethodSignatures: false
-    reportMaybesInPropertyPhpDocTypes: false
     reportWrongPhpDocTypeInVarTag: false
 
     # For stricter testing those should be set to true at some point

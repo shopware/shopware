@@ -2,6 +2,7 @@
     &__button-wrapper {
         display: flex;
         justify-content: flex-end;
+        align-items: center;
     }
 
     .sw-order-state-change-modal-attach-documents__button {
@@ -16,6 +17,5 @@
 
     .sw-order-state-change-modal-attach-documents__button {
         height: 32px;
-        margin-top: 8px;
     }
 }

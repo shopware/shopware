@@ -5,9 +5,9 @@ $db = ['mysql:8.0'];
 
 $nightly = $_SERVER['argv'][1] ?? false;
 
-if ($nightly) {
-    $php = ['8.2', '8.4'];
-    $db = ['mysql:8.0', 'mariadb:11'];
+if ($nightly || true) {
+    $php = ['8.4'];
+    $db = ['mariadb:11.7.2', 'mariadb:11.7.1'];
 }
 
 echo \json_encode([

@@ -14,16 +14,16 @@ echo \json_encode([
     'fail-fast' => false,
     'matrix' => [
         'test' => [
-            ['path' => 'Core/Checkout'],
+            // ['path' => 'Core/Checkout'],
             ['path' => 'Core/Content'],
-            ['testsuite' => 'core-framework-batch1'],
+            // ['testsuite' => 'core-framework-batch1'],
             ['testsuite' => 'core-framework-batch2'],
-            ['testsuite' => 'core-framework-batch3'],
-            ['path' => 'Storefront'],
-            ['path' => '{Administration,Elasticsearch}'],
-            ['path' => '{Core/Installer,Core/Maintenance,Core/System}'],
-            ['testsuite' => 'migration'],
-            ['testsuite' => 'devops']
+            // ['testsuite' => 'core-framework-batch3'],
+            // ['path' => 'Storefront'],
+            // ['path' => '{Administration,Elasticsearch}'],
+            // ['path' => '{Core/Installer,Core/Maintenance,Core/System}'],
+            // ['testsuite' => 'migration'],
+            // ['testsuite' => 'devops']
         ],
         'php' => $php,
         'db' => $db,

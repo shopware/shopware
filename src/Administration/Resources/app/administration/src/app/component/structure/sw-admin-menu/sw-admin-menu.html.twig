@@ -16,9 +16,32 @@
     </div>
 
     <div class="sw-admin-menu__navigation">
-        <mt-text weight="medium" size="xs" color="color-text-secondary-default">
+        <mt-text weight="medium"
+             size="xs"
+             color="color-text-secondary-default"
+             class="sw-admin-menu__sales-channel-heading"
+        >
             Sales Channel
         </mt-text>
+
+        <ul class="sw-admin-menu__sales-channel-list">
+            <li v-for="salesChannel in salesChannels"
+                :key="salesChannel.id">
+                <router-link
+                    class="sw-admin-menu__sales-channel"
+                    :to="{
+                        name: 'sw.sales.channel.detail',
+                        params: { id: salesChannel.id }
+                    }">
+                    <mt-icon size="var(--scale-size-16)"
+                         name="regular-dashboard"
+                         color="#696A6E"
+                    />
+
+                    <span>{{ salesChannel.translated.name }}</span>
+                </router-link>
+            </li>
+        </ul>
     </div>
 
 

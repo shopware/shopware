@@ -7,7 +7,7 @@ $nightly = $_SERVER['argv'][1] ?? false;
 
 if ($nightly || true) {
     $php = ['8.4'];
-    $db = ['mariadb:11.7.2', 'mariadb:11.6.2', 'mariadb:11.4', 'mariadb:11.8-rc'];
+    $db = ['mariadb:11.7.2', 'mariadb:11.6.1', 'mariadb:11.4.4', 'mariadb:11.8-rc'];
 }
 
 echo \json_encode([

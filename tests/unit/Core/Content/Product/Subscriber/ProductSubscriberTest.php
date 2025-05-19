@@ -5,6 +5,8 @@ namespace Shopware\Tests\Unit\Core\Content\Product\Subscriber;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Content\MeasurementSystem\ProductMeasurement\ProductMeasurementUnitBuilder;
+use Shopware\Core\Content\MeasurementSystem\UnitConverter\AbstractMeasurementUnitConverter;
 use Shopware\Core\Content\Product\AbstractPropertyGroupSorter;
 use Shopware\Core\Content\Product\DataAbstractionLayer\CheapestPrice\CheapestPriceContainer;
 use Shopware\Core\Content\Product\IsNewDetector;
@@ -26,6 +28,7 @@ use Shopware\Core\System\SalesChannel\Entity\SalesChannelEntityLoadedEvent;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Shopware\Core\Test\Stub\SystemConfigService\StaticSystemConfigService;
+use Symfony\Component\HttpFoundation\RequestStack;
 
 /**
  * @internal
@@ -45,6 +48,9 @@ class ProductSubscriberTest extends TestCase
             $this->createMock(ProductMaxPurchaseCalculator::class),
             $this->createMock(IsNewDetector::class),
             $config,
+            $this->createMock(ProductMeasurementUnitBuilder::class),
+            $this->createMock(AbstractMeasurementUnitConverter::class),
+            new RequestStack(),
         );
 
         /** @var EntityLoadedEvent<ProductEntity|PartialEntity> $event */
@@ -69,6 +75,9 @@ class ProductSubscriberTest extends TestCase
             $this->createMock(ProductMaxPurchaseCalculator::class),
             $this->createMock(IsNewDetector::class),
             $config,
+            $this->createMock(ProductMeasurementUnitBuilder::class),
+            $this->createMock(AbstractMeasurementUnitConverter::class),
+            new RequestStack(),
         );
 
         /** @var SalesChannelEntityLoadedEvent<ProductEntity|PartialEntity> $event */
@@ -185,6 +194,9 @@ class ProductSubscriberTest extends TestCase
             $maxPurchaseCalculator,
             $isNewDetector,
             $this->createMock(SystemConfigService::class),
+            $this->createMock(ProductMeasurementUnitBuilder::class),
+            $this->createMock(AbstractMeasurementUnitConverter::class),
+            new RequestStack(),
         );
 
         $cheapestPrice = new CheapestPriceContainer([]);

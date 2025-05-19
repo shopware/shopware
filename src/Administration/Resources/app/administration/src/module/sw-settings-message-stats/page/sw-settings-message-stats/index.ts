@@ -1,5 +1,6 @@
 import { defineComponent } from 'vue';
 import type { MessageStats } from 'src/core/service/api/message-stats.api.service';
+import type MessageStatsApiService from 'src/core/service/api/message-stats.api.service';
 import template from './sw-settings-message-stats.html.twig';
 import './sw-settings-message-stats.scss';
 
@@ -116,14 +117,11 @@ export default defineComponent({
         async loadStats() {
             this.isLoading = true;
             try {
-                this.stats = await this.messageStatsService.getStats();
+                this.stats = await (this.messageStatsService as MessageStatsApiService).getStats();
             } catch (error) {
-                let errorMessage: string;
-                if (error instanceof Error) {
-                    errorMessage = error.message;
-                } else {
-                    errorMessage = this.$t('global.notification.notificationLoadingDataErrorMessage');
-                }
+                const errorMessage = error instanceof Error
+                    ? error.message
+                    : this.$t('global.notification.notificationLoadingDataErrorMessage');
                 this.createNotificationError({
                     title: this.$tc('sw-settings-message-stats.general.errorTitle'),
                     message: errorMessage,

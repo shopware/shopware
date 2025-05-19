@@ -17,7 +17,6 @@ parameters:
         internalTag: false
 
     # For stricter testing those should be set to false at some point
-    polluteScopeWithLoopInitialAssignments: true
     polluteScopeWithAlwaysIterableForeach: true
     polluteScopeWithBlock: true
 

@@ -120,7 +120,7 @@ class SalesChannelRepositoryTest extends TestCase
             'customerGroupId' => TestDefaults::FALLBACK_CUSTOMER_GROUP,
             'measurementSystemId' => Uuid::fromStringToHex('metric'),
             'lengthUnitId' => Uuid::fromStringToHex('metric-mm'),
-            'massUnitId' => Uuid::fromStringToHex('metric-kg'),
+            'weightUnitId' => Uuid::fromStringToHex('metric-kg'),
         ]], $context);
 
         $criteria1 = new Criteria([$salesChannelId]);
@@ -184,7 +184,7 @@ class SalesChannelRepositoryTest extends TestCase
             'languages' => [['id' => Defaults::LANGUAGE_SYSTEM]],
             'measurementSystemId' => Uuid::fromStringToHex('metric'),
             'lengthUnitId' => Uuid::fromStringToHex('metric-mm'),
-            'massUnitId' => Uuid::fromStringToHex('metric-kg'),
+            'weightUnitId' => Uuid::fromStringToHex('metric-kg'),
         ];
 
         $this->salesChannelRepository->create([$data], Context::createDefaultContext());

@@ -163,7 +163,7 @@ class SalesChannelDomainEntity extends Entity
 
     public function setWeightUnitId(string $weightUnitId): void
     {
-        $this->weightUnit = $weightUnitId;
+        $this->weightUnitId = $weightUnitId;
     }
 
     public function getWeightUnit(): ?MeasurementDisplayUnitEntity

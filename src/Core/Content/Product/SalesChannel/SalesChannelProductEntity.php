@@ -5,6 +5,7 @@ namespace Shopware\Core\Content\Product\SalesChannel;
 use Shopware\Core\Checkout\Cart\Price\Struct\CalculatedPrice;
 use Shopware\Core\Checkout\Cart\Price\Struct\PriceCollection;
 use Shopware\Core\Content\Category\CategoryEntity;
+use Shopware\Core\Content\MeasurementSystem\DataAbstractionLayer\MeasurementUnits;
 use Shopware\Core\Content\Product\DataAbstractionLayer\CheapestPrice\CalculatedCheapestPrice;
 use Shopware\Core\Content\Product\DataAbstractionLayer\CheapestPrice\CheapestPrice;
 use Shopware\Core\Content\Product\DataAbstractionLayer\CheapestPrice\CheapestPriceContainer;
@@ -36,6 +37,8 @@ class SalesChannelProductEntity extends ProductEntity
     protected CheapestPrice|CheapestPriceContainer|null $cheapestPrice = null;
 
     protected ?CheapestPriceContainer $cheapestPriceContainer = null;
+
+    protected ?MeasurementUnits $measurementUnits = null;
 
     public function setCalculatedPrices(PriceCollection $prices): void
     {
@@ -125,5 +128,15 @@ class SalesChannelProductEntity extends ProductEntity
     public function getCheapestPriceContainer(): ?CheapestPriceContainer
     {
         return $this->cheapestPriceContainer;
+    }
+
+    public function getMeasurementUnits(): ?MeasurementUnits
+    {
+        return $this->measurementUnits;
+    }
+
+    public function setMeasurementUnits(?MeasurementUnits $measurementUnits): void
+    {
+        $this->measurementUnits = $measurementUnits;
     }
 }

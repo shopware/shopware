@@ -82,7 +82,7 @@ class SitemapGenerateTaskHandlerTest extends TestCase
                 'url' => 'https://test.com',
                 'measurementSystemId' => Uuid::fromStringToHex('metric'),
                 'lengthUnitId' => Uuid::fromStringToHex('metric-mm'),
-                'massUnitId' => Uuid::fromStringToHex('metric-kg'),
+                'weightUnitId' => Uuid::fromStringToHex('metric-kg'),
             ],
             [
                 'salesChannelId' => $salesChannelContext->getSalesChannelId(),
@@ -92,7 +92,7 @@ class SitemapGenerateTaskHandlerTest extends TestCase
                 'url' => 'https://test.de',
                 'measurementSystemId' => Uuid::fromStringToHex('metric'),
                 'lengthUnitId' => Uuid::fromStringToHex('metric-mm'),
-                'massUnitId' => Uuid::fromStringToHex('metric-kg'),
+                'weightUnitId' => Uuid::fromStringToHex('metric-kg'),
             ],
         ], Context::createDefaultContext());
 
@@ -140,7 +140,7 @@ class SitemapGenerateTaskHandlerTest extends TestCase
                 'url' => 'https://test.com',
                 'measurementSystemId' => Uuid::fromStringToHex('metric'),
                 'lengthUnitId' => Uuid::fromStringToHex('metric-mm'),
-                'massUnitId' => Uuid::fromStringToHex('metric-kg'),
+                'weightUnitId' => Uuid::fromStringToHex('metric-kg'),
             ],
             [
                 'salesChannelId' => $newSalesChannelId,
@@ -150,7 +150,7 @@ class SitemapGenerateTaskHandlerTest extends TestCase
                 'url' => 'https://test.de',
                 'measurementSystemId' => Uuid::fromStringToHex('metric'),
                 'lengthUnitId' => Uuid::fromStringToHex('metric-mm'),
-                'massUnitId' => Uuid::fromStringToHex('metric-kg'),
+                'weightUnitId' => Uuid::fromStringToHex('metric-kg'),
                 'salesChannel' => [
                     'id' => $newSalesChannelId,
                     'typeId' => Defaults::SALES_CHANNEL_TYPE_STOREFRONT,
@@ -169,7 +169,7 @@ class SitemapGenerateTaskHandlerTest extends TestCase
                     'customerGroupId' => TestDefaults::FALLBACK_CUSTOMER_GROUP,
                     'measurementSystemId' => Uuid::fromStringToHex('metric'),
                     'lengthUnitId' => Uuid::fromStringToHex('metric-mm'),
-                    'massUnitId' => Uuid::fromStringToHex('metric-kg'),
+                    'weightUnitId' => Uuid::fromStringToHex('metric-kg'),
                 ],
             ],
         ], Context::createDefaultContext());
@@ -206,7 +206,7 @@ class SitemapGenerateTaskHandlerTest extends TestCase
                 'url' => 'http://valid.test',
                 'measurementSystemId' => Uuid::fromStringToHex('metric'),
                 'lengthUnitId' => Uuid::fromStringToHex('metric-mm'),
-                'massUnitId' => Uuid::fromStringToHex('metric-kg'),
+                'weightUnitId' => Uuid::fromStringToHex('metric-kg'),
             ]],
         ]);
         $this->createSalesChannel([
@@ -219,7 +219,7 @@ class SitemapGenerateTaskHandlerTest extends TestCase
                 'url' => 'http://api.test',
                 'measurementSystemId' => Uuid::fromStringToHex('metric'),
                 'lengthUnitId' => Uuid::fromStringToHex('metric-mm'),
-                'massUnitId' => Uuid::fromStringToHex('metric-kg'),
+                'weightUnitId' => Uuid::fromStringToHex('metric-kg'),
             ]],
         ]);
         $this->createSalesChannel([
@@ -232,7 +232,7 @@ class SitemapGenerateTaskHandlerTest extends TestCase
                 'url' => 'http://export.test',
                 'measurementSystemId' => Uuid::fromStringToHex('metric'),
                 'lengthUnitId' => Uuid::fromStringToHex('metric-mm'),
-                'massUnitId' => Uuid::fromStringToHex('metric-kg'),
+                'weightUnitId' => Uuid::fromStringToHex('metric-kg'),
             ]],
         ]);
 

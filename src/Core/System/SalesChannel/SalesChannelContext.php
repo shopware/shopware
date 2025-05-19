@@ -9,6 +9,7 @@ use Shopware\Core\Checkout\Customer\Aggregate\CustomerGroup\CustomerGroupEntity;
 use Shopware\Core\Checkout\Customer\CustomerEntity;
 use Shopware\Core\Checkout\Payment\PaymentMethodEntity;
 use Shopware\Core\Checkout\Shipping\ShippingMethodEntity;
+use Shopware\Core\Content\MeasurementSystem\MeasurementSystemInfo;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Pricing\CashRoundingConfig;
@@ -32,6 +33,8 @@ class SalesChannelContext extends Struct
     protected bool $permisionsLocked = false;
 
     protected ?string $imitatingUserId = null;
+
+    protected MeasurementSystemInfo $measurementSystem;
 
     /**
      * @internal
@@ -397,5 +400,18 @@ class SalesChannelContext extends Struct
     public function setLanguageInfo(LanguageInfo $languageInfo): void
     {
         $this->languageInfo = $languageInfo;
+    }
+
+    public function getMeasurementSystem(): MeasurementSystemInfo
+    {
+        return $this->measurementSystem ?? new MeasurementSystemInfo([
+            'length' => MeasurementSystemInfo::DEFAULT_LENGTH_UNIT,
+            'weight' => MeasurementSystemInfo::DEFAULT_WEIGHT_UNIT,
+        ]);
+    }
+
+    public function setMeasurementSystem(MeasurementSystemInfo $measurementSystem): void
+    {
+        $this->measurementSystem = $measurementSystem;
     }
 }

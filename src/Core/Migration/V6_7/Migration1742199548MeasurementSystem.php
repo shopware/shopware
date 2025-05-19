@@ -129,7 +129,7 @@ class Migration1742199548MeasurementSystem extends MigrationStep
             $this->importTranslation(
                 'measurement_system_translation',
                 new Translations(
-                    ['measurement_system_id' => $imperialId, 'name' => 'Kaiserlich System'],
+                    ['measurement_system_id' => $imperialId, 'name' => 'Angloamerikanisches Maßsystem'],
                     ['measurement_system_id' => $imperialId, 'name' => 'Imperial system']
                 ),
                 $connection

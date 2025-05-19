@@ -54,7 +54,6 @@ test('Visual: storefront:checkout/finish.', { tag: '@Visual' }, async ({
         await StorefrontCheckoutFinish.page.setViewportSize({ width: 1280, height: 1440});
 
         await expect(StorefrontCheckoutFinish.page).toHaveScreenshot({
-            // maxDiffPixelRatio: 0.2,
             stylePath: path.resolve('./tests/Visual/screenshot.css'),
             mask: [
                 StorefrontCheckoutFinish.page.locator('.finish-ordernumber'),

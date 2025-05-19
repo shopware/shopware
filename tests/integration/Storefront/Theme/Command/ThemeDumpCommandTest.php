@@ -8,6 +8,9 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\App\Source\SourceResolver;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
 use Shopware\Core\Framework\Test\TestCaseBase\SalesChannelFunctionalTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Test\Stub\Framework\Util\StaticFilesystem;
@@ -33,6 +36,8 @@ class ThemeDumpCommandTest extends TestCase
 
     private string $childThemeId;
 
+    private StaticFileConfigDumper&MockObject $staticFileConfigDumperMock;
+
     protected function tearDown(): void
     {
         static::getContainer()->get(SourceResolver::class)->reset();
@@ -47,11 +52,13 @@ class ThemeDumpCommandTest extends TestCase
         $themeFilesystemResolver = $this->createMock(ThemeFilesystemResolver::class);
         $themeFilesystemResolver->expects($this->once())->method('getFilesystemForStorefrontConfig')->willReturn(new StaticFilesystem());
 
+        $this->staticFileConfigDumperMock = $this->createMock(StaticFileConfigDumper::class);
+
         $themeDumpCommand = new ThemeDumpCommand(
             $this->getPluginRegistryMock(),
             $themeFileResolverMock,
             static::getContainer()->get('theme.repository'),
-            $this->createMock(StaticFileConfigDumper::class),
+            $this->staticFileConfigDumperMock,
             $themeFilesystemResolver
         );
 
@@ -74,11 +81,15 @@ class ThemeDumpCommandTest extends TestCase
         $themeFilesystemResolverMock = $this->createMock(ThemeFilesystemResolver::class);
         $themeFilesystemResolverMock->method('getFilesystemForStorefrontConfig')->willReturn(new StaticFilesystem());
 
+        $this->staticFileConfigDumperMock = $this->createMock(StaticFileConfigDumper::class);
+        $this->staticFileConfigDumperMock->expects($this->once())->method('dumpConfigInVar');
+        $this->staticFileConfigDumperMock->expects($this->once())->method('dumpConfig');
+
         $themeDumpCommand = new ThemeDumpCommand(
             $this->getPluginRegistryMock(),
             $themeFileResolverMock,
             static::getContainer()->get('theme.repository'),
-            $this->createMock(StaticFileConfigDumper::class),
+            $this->staticFileConfigDumperMock,
             $themeFilesystemResolverMock
         );
 
@@ -112,17 +123,160 @@ class ThemeDumpCommandTest extends TestCase
         $themeFilesystemResolverMock = $this->createMock(ThemeFilesystemResolver::class);
         $themeFilesystemResolverMock->method('getFilesystemForStorefrontConfig')->willReturn(new StaticFilesystem());
 
+        $this->staticFileConfigDumperMock = $this->createMock(StaticFileConfigDumper::class);
+
         $themeDumpCommand = new ThemeDumpCommand(
             $this->getPluginRegistryMock(),
             $themeFileResolverMock,
             static::getContainer()->get('theme.repository'),
-            $this->createMock(StaticFileConfigDumper::class),
+            $this->staticFileConfigDumperMock,
             $themeFilesystemResolverMock
         );
         $themeDumpCommand->setHelperSet(new HelperSet([new QuestionHelper()]));
 
         $commandTester = new CommandTester($themeDumpCommand);
         $commandTester->execute([], ['interactive' => false]);
+
+        $commandTester->assertCommandIsSuccessful();
+    }
+
+    public function testThemeNameOption(): void
+    {
+        $this->setUpExampleThemes();
+
+        $themeFileResolverMock = new ThemeFileResolverMock();
+        $themeFilesystemResolverMock = $this->createMock(ThemeFilesystemResolver::class);
+        $themeFilesystemResolverMock->method('getFilesystemForStorefrontConfig')->willReturn(new StaticFilesystem());
+
+        $this->staticFileConfigDumperMock = $this->createMock(StaticFileConfigDumper::class);
+        $this->staticFileConfigDumperMock->expects($this->once())->method('dumpConfigInVar');
+        $this->staticFileConfigDumperMock->expects($this->once())->method('dumpConfig');
+
+        $themeDumpCommand = new ThemeDumpCommand(
+            $this->getPluginRegistryMock(),
+            $themeFileResolverMock,
+            static::getContainer()->get('theme.repository'),
+            $this->staticFileConfigDumperMock,
+            $themeFilesystemResolverMock
+        );
+
+        // Add HelperSet and execute with non-interactive mode
+        $themeDumpCommand->setHelperSet(new HelperSet([new QuestionHelper()]));
+
+        $commandTester = new CommandTester($themeDumpCommand);
+        $commandTester->execute(['--theme-name' => 'parentTheme'], ['interactive' => false]);
+
+        $commandTester->assertCommandIsSuccessful();
+    }
+
+    public function testNoThemeFoundConnectedToStorefront(): void
+    {
+        // Create a proper EntitySearchResult mock instead of EntityCollection
+        $emptyCollection = new EntityCollection();
+        $entitySearchResult = $this->createMock(EntitySearchResult::class);
+        $entitySearchResult->method('getEntities')->willReturn($emptyCollection);
+
+        $themeRepository = $this->createMock(EntityRepository::class);
+        $themeRepository->method('search')->willReturn($entitySearchResult);
+
+        $themeDumpCommand = new ThemeDumpCommand(
+            $this->getPluginRegistryMock(),
+            $this->createMock(ThemeFileResolver::class),
+            $themeRepository,
+            $this->createMock(StaticFileConfigDumper::class),
+            $this->createMock(ThemeFilesystemResolver::class)
+        );
+
+        $themeDumpCommand->setHelperSet(new HelperSet([new QuestionHelper()]));
+
+        $commandTester = new CommandTester($themeDumpCommand);
+        $exitCode = $commandTester->execute([], ['interactive' => false]);
+
+        static::assertSame(1, $exitCode);
+        static::assertStringContainsString('No theme found which is connected to a storefront sales channel', $commandTester->getDisplay());
+    }
+
+    public function testNoThemeConfigFound(): void
+    {
+        $this->setUpExampleThemes();
+
+        $pluginRegistry = $this->createMock(StorefrontPluginRegistry::class);
+        $pluginRegistry->method('getConfigurations')->willReturn(new StorefrontPluginConfigurationCollection([]));
+
+        $themeDumpCommand = new ThemeDumpCommand(
+            $pluginRegistry,
+            $this->createMock(ThemeFileResolver::class),
+            static::getContainer()->get('theme.repository'),
+            $this->createMock(StaticFileConfigDumper::class),
+            $this->createMock(ThemeFilesystemResolver::class)
+        );
+
+        $themeDumpCommand->setHelperSet(new HelperSet([new QuestionHelper()]));
+
+        $commandTester = new CommandTester($themeDumpCommand);
+        $exitCode = $commandTester->execute([], ['interactive' => false]);
+
+        static::assertSame(1, $exitCode);
+        static::assertStringContainsString('No theme config found for theme', $commandTester->getDisplay());
+    }
+
+    public function testNonExistentThemeId(): void
+    {
+        $this->setUpExampleThemes();
+
+        $themeDumpCommand = new ThemeDumpCommand(
+            $this->getPluginRegistryMock(),
+            $this->createMock(ThemeFileResolver::class),
+            static::getContainer()->get('theme.repository'),
+            $this->createMock(StaticFileConfigDumper::class),
+            $this->createMock(ThemeFilesystemResolver::class)
+        );
+
+        $themeDumpCommand->setHelperSet(new HelperSet([new QuestionHelper()]));
+
+        $commandTester = new CommandTester($themeDumpCommand);
+        $exitCode = $commandTester->execute(['theme-id' => Uuid::randomHex()], ['interactive' => false]);
+
+        static::assertSame(1, $exitCode);
+        static::assertStringContainsString('No theme found which is connected to a storefront sales channel', $commandTester->getDisplay());
+    }
+
+    public function testVerifyCorrectDataPassedToDumper(): void
+    {
+        $this->setUpExampleThemes();
+        $domainUrl = 'http://localhost/1/' . $this->parentThemeId;
+
+        $themeFileResolverMock = new ThemeFileResolverMock();
+        $themeFilesystemResolverMock = $this->createMock(ThemeFilesystemResolver::class);
+        $themeFilesystemResolverMock->method('getFilesystemForStorefrontConfig')->willReturn(new StaticFilesystem());
+
+        $this->staticFileConfigDumperMock = $this->createMock(StaticFileConfigDumper::class);
+        $this->staticFileConfigDumperMock->expects($this->once())
+            ->method('dumpConfigInVar')
+            ->with(
+                'theme-files.json',
+                static::callback(function ($dump) use ($domainUrl) {
+                    return isset($dump['themeId'])
+                        && isset($dump['technicalName'])
+                        && $dump['domainUrl'] === $domainUrl;
+                })
+            );
+
+        $this->staticFileConfigDumperMock->expects($this->once())->method('dumpConfig');
+
+        $themeDumpCommand = new ThemeDumpCommand(
+            $this->getPluginRegistryMock(),
+            $themeFileResolverMock,
+            static::getContainer()->get('theme.repository'),
+            $this->staticFileConfigDumperMock,
+            $themeFilesystemResolverMock
+        );
+
+        $commandTester = new CommandTester($themeDumpCommand);
+        $commandTester->execute([
+            'theme-id' => $this->parentThemeId,
+            'domain-url' => $domainUrl,
+        ]);
 
         $commandTester->assertCommandIsSuccessful();
     }

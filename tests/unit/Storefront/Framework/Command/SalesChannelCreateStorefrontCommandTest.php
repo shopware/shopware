@@ -75,7 +75,7 @@ class SalesChannelCreateStorefrontCommandTest extends TestCase
                             'currencyId' => 'currencyId',
                             'measurementSystemId' => Uuid::fromStringToHex('metric'),
                             'lengthUnitId' => Uuid::fromStringToHex('metric-mm'),
-                            'massUnitId' => Uuid::fromStringToHex('metric-kg'),
+                            'weightUnitId' => Uuid::fromStringToHex('metric-kg'),
                         ],
                     ],
                     'navigationCategoryDepth' => 3,

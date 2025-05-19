@@ -59,7 +59,7 @@ class SitemapGenerateCommandTest extends TestCase
                 'url' => 'http://valid.test',
                 'measurementSystemId' => Uuid::fromStringToHex('metric'),
                 'lengthUnitId' => Uuid::fromStringToHex('metric-mm'),
-                'massUnitId' => Uuid::fromStringToHex('metric-kg'),
+                'weightUnitId' => Uuid::fromStringToHex('metric-kg'),
             ]],
         ]);
         $this->createSalesChannel([
@@ -72,7 +72,7 @@ class SitemapGenerateCommandTest extends TestCase
                 'url' => 'http://api.test',
                 'measurementSystemId' => Uuid::fromStringToHex('metric'),
                 'lengthUnitId' => Uuid::fromStringToHex('metric-mm'),
-                'massUnitId' => Uuid::fromStringToHex('metric-kg'),
+                'weightUnitId' => Uuid::fromStringToHex('metric-kg'),
             ]],
         ]);
         $this->createSalesChannel([
@@ -85,7 +85,7 @@ class SitemapGenerateCommandTest extends TestCase
                 'url' => 'http://export.test',
                 'measurementSystemId' => Uuid::fromStringToHex('metric'),
                 'lengthUnitId' => Uuid::fromStringToHex('metric-mm'),
-                'massUnitId' => Uuid::fromStringToHex('metric-kg'),
+                'weightUnitId' => Uuid::fromStringToHex('metric-kg'),
             ]],
         ]);
 

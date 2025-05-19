@@ -85,7 +85,7 @@ class HreflangLoaderTest extends TestCase
         $domain->setUrl('https://test.de');
         $domain->setHreflangUseOnlyLocale(false);
         $domain->setLanguageId($languageId);
-        $domain->setMassUnitId(Uuid::fromStringToHex('metric-kg'));
+        $domain->setWeightUnitId(Uuid::fromStringToHex('metric-kg'));
         $domain->setMeasurementSystemId(Uuid::fromStringToHex('metric'));
         $domain->setLengthUnitId(Uuid::fromStringToHex('metric-mm'));
 
@@ -128,7 +128,7 @@ class HreflangLoaderTest extends TestCase
                 'currencyId' => Defaults::CURRENCY,
                 'measurementSystemId' => Uuid::fromStringToHex('metric'),
                 'lengthUnitId' => Uuid::fromStringToHex('metric-mm'),
-                'massUnitId' => Uuid::fromStringToHex('metric-kg'),
+                'weightUnitId' => Uuid::fromStringToHex('metric-kg'),
             ],
             [
                 'url' => 'https://test.de/en',
@@ -139,7 +139,7 @@ class HreflangLoaderTest extends TestCase
                 'currencyId' => Defaults::CURRENCY,
                 'measurementSystemId' => Uuid::fromStringToHex('metric'),
                 'lengthUnitId' => Uuid::fromStringToHex('metric-mm'),
-                'massUnitId' => Uuid::fromStringToHex('metric-kg'),
+                'weightUnitId' => Uuid::fromStringToHex('metric-kg'),
             ],
         ], $this->salesChannelContext->getContext());
 
@@ -209,7 +209,7 @@ class HreflangLoaderTest extends TestCase
                 'currencyId' => Defaults::CURRENCY,
                 'measurementSystemId' => Uuid::fromStringToHex('metric'),
                 'lengthUnitId' => Uuid::fromStringToHex('metric-mm'),
-                'massUnitId' => Uuid::fromStringToHex('metric-kg'),
+                'weightUnitId' => Uuid::fromStringToHex('metric-kg'),
             ],
             [
                 'url' => 'https://test.de/en',
@@ -220,7 +220,7 @@ class HreflangLoaderTest extends TestCase
                 'currencyId' => Defaults::CURRENCY,
                 'measurementSystemId' => Uuid::fromStringToHex('metric'),
                 'lengthUnitId' => Uuid::fromStringToHex('metric-mm'),
-                'massUnitId' => Uuid::fromStringToHex('metric-kg'),
+                'weightUnitId' => Uuid::fromStringToHex('metric-kg'),
             ],
         ], $this->salesChannelContext->getContext());
 
@@ -296,7 +296,7 @@ class HreflangLoaderTest extends TestCase
                 'currencyId' => Defaults::CURRENCY,
                 'measurementSystemId' => Uuid::fromStringToHex('metric'),
                 'lengthUnitId' => Uuid::fromStringToHex('metric-mm'),
-                'massUnitId' => Uuid::fromStringToHex('metric-kg'),
+                'weightUnitId' => Uuid::fromStringToHex('metric-kg'),
             ],
             [
                 'url' => 'https://test.de/en',
@@ -307,7 +307,7 @@ class HreflangLoaderTest extends TestCase
                 'currencyId' => Defaults::CURRENCY,
                 'measurementSystemId' => Uuid::fromStringToHex('metric'),
                 'lengthUnitId' => Uuid::fromStringToHex('metric-mm'),
-                'massUnitId' => Uuid::fromStringToHex('metric-kg'),
+                'weightUnitId' => Uuid::fromStringToHex('metric-kg'),
             ],
         ], $this->salesChannelContext->getContext());
 
@@ -372,7 +372,7 @@ class HreflangLoaderTest extends TestCase
                 'currencyId' => Defaults::CURRENCY,
                 'measurementSystemId' => Uuid::fromStringToHex('metric'),
                 'lengthUnitId' => Uuid::fromStringToHex('metric-mm'),
-                'massUnitId' => Uuid::fromStringToHex('metric-kg'),
+                'weightUnitId' => Uuid::fromStringToHex('metric-kg'),
             ],
             [
                 'url' => 'https://test.de/en',
@@ -383,7 +383,7 @@ class HreflangLoaderTest extends TestCase
                 'currencyId' => Defaults::CURRENCY,
                 'measurementSystemId' => Uuid::fromStringToHex('metric'),
                 'lengthUnitId' => Uuid::fromStringToHex('metric-mm'),
-                'massUnitId' => Uuid::fromStringToHex('metric-kg'),
+                'weightUnitId' => Uuid::fromStringToHex('metric-kg'),
             ],
         ], $this->salesChannelContext->getContext());
 
@@ -432,7 +432,7 @@ class HreflangLoaderTest extends TestCase
                 'currencyId' => Defaults::CURRENCY,
                 'measurementSystemId' => Uuid::fromStringToHex('metric'),
                 'lengthUnitId' => Uuid::fromStringToHex('metric-mm'),
-                'massUnitId' => Uuid::fromStringToHex('metric-kg'),
+                'weightUnitId' => Uuid::fromStringToHex('metric-kg'),
             ],
             [
                 'url' => 'https://test.de/en',
@@ -443,7 +443,7 @@ class HreflangLoaderTest extends TestCase
                 'currencyId' => Defaults::CURRENCY,
                 'measurementSystemId' => Uuid::fromStringToHex('metric'),
                 'lengthUnitId' => Uuid::fromStringToHex('metric-mm'),
-                'massUnitId' => Uuid::fromStringToHex('metric-kg'),
+                'weightUnitId' => Uuid::fromStringToHex('metric-kg'),
             ],
         ], $this->salesChannelContext->getContext());
 

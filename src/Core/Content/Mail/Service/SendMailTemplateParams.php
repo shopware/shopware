@@ -21,7 +21,8 @@ class SendMailTemplateParams extends Struct
         public array $recipients,
         public array $data,
         public array $attachments = [],
-        public ?string $salesChannelId = null
+        public ?string $salesChannelId = null,
+        public ?string $senderName = null,
     ) {
     }
 }

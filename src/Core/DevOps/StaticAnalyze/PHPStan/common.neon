@@ -16,12 +16,7 @@ parameters:
     featureToggles:
         internalTag: false
 
-    # For stricter testing those should be set to false at some point
-    polluteScopeWithAlwaysIterableForeach: true
-    polluteScopeWithBlock: true
-
     # For stricter testing those should be set to true at some point
-    checkDynamicProperties: false
     checkExplicitMixedMissingReturn: false
     reportMaybesInMethodSignatures: false
     reportStaticMethodSignatures: false

@@ -164,7 +164,7 @@ class ThemeDumpCommand extends Command
 
         $criteria = new Criteria();
         $criteria->addAssociation('salesChannels');
-        $themes = $this->themeRepository->search($criteria, Context::createCLIContext())->getEntities();
+        $themes = $this->themeRepository->search($criteria, $this->context)->getEntities();
 
         foreach ($themes as $theme) {
             $themeName = $theme->getName();

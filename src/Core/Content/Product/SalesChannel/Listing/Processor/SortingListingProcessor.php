@@ -41,7 +41,7 @@ class SortingListingProcessor extends AbstractListingProcessor
     public function prepare(Request $request, Criteria $criteria, SalesChannelContext $context): void
     {
         if (!$request->get('order')) {
-            $key = $request->query->has('search') ? 'core.listing.defaultSearchResultSorting' : 'core.listing.defaultSorting';
+            $key = $request->get('search') ? 'core.listing.defaultSearchResultSorting' : 'core.listing.defaultSorting';
             $request->request->set('order', $this->getDefaultSortingKey($key, $context));
         }
 

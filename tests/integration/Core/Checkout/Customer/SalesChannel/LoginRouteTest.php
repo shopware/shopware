@@ -234,7 +234,7 @@ class LoginRouteTest extends TestCase
                     'snippetSetId' => $this->getRandomId('snippet_set'),
                     'measurementSystemId' => Uuid::fromStringToHex('metric'),
                     'lengthUnitId' => Uuid::fromStringToHex('metric-mm'),
-                    'massUnitId' => Uuid::fromStringToHex('metric-kg'),
+                    'weightUnitId' => Uuid::fromStringToHex('metric-kg'),
                 ],
             ],
         ]);
@@ -249,7 +249,7 @@ class LoginRouteTest extends TestCase
                     'snippetSetId' => $this->getRandomId('snippet_set'),
                     'measurementSystemId' => Uuid::fromStringToHex('metric'),
                     'lengthUnitId' => Uuid::fromStringToHex('metric-mm'),
-                    'massUnitId' => Uuid::fromStringToHex('metric-kg'),
+                    'weightUnitId' => Uuid::fromStringToHex('metric-kg'),
                 ],
             ],
         ]);

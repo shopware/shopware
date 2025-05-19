@@ -202,7 +202,7 @@ class StorefrontRoutingTest extends TestCase
             ],
             'measurementSystemId' => Uuid::fromStringToHex('metric'),
             'lengthUnitId' => Uuid::fromStringToHex('metric-mm'),
-            'massUnitId' => Uuid::fromStringToHex('metric-kg'),
+            'weightUnitId' => Uuid::fromStringToHex('metric-kg'),
             'domains' => [
                 [
                     'id' => Uuid::randomHex(),
@@ -212,7 +212,7 @@ class StorefrontRoutingTest extends TestCase
                     'snippetSetId' => $this->getSnippetSetIdForLocale('en-GB'),
                     'measurementSystemId' => Uuid::fromStringToHex('metric'),
                     'lengthUnitId' => Uuid::fromStringToHex('metric-mm'),
-                    'massUnitId' => Uuid::fromStringToHex('metric-kg'),
+                    'weightUnitId' => Uuid::fromStringToHex('metric-kg'),
                 ],
             ],
         ];

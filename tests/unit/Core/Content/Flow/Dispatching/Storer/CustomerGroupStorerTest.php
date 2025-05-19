@@ -77,9 +77,9 @@ class CustomerGroupStorerTest extends TestCase
         $this->storer->restore($storable);
         $entity = new CustomerGroupEntity();
         $result = $this->createMock(EntitySearchResult::class);
-        $result->expects(static::once())->method('get')->willReturn($entity);
+        $result->expects($this->once())->method('get')->willReturn($entity);
 
-        $this->repository->expects(static::once())->method('search')->willReturn($result);
+        $this->repository->expects($this->once())->method('search')->willReturn($result);
         $customerGroup = $storable->getData('customerGroup');
 
         static::assertEquals($customerGroup, $entity);
@@ -91,9 +91,9 @@ class CustomerGroupStorerTest extends TestCase
         $this->storer->restore($storable);
         $entity = null;
         $result = $this->createMock(EntitySearchResult::class);
-        $result->expects(static::once())->method('get')->willReturn($entity);
+        $result->expects($this->once())->method('get')->willReturn($entity);
 
-        $this->repository->expects(static::once())->method('search')->willReturn($result);
+        $this->repository->expects($this->once())->method('search')->willReturn($result);
         $customerGroup = $storable->getData('customerGroup');
 
         static::assertEquals($customerGroup, $entity);
@@ -111,7 +111,7 @@ class CustomerGroupStorerTest extends TestCase
     public function testDispatchBeforeLoadStorableFlowDataEvent(): void
     {
         $this->dispatcher
-            ->expects(static::once())
+            ->expects($this->once())
             ->method('dispatch')
             ->with(
                 static::isInstanceOf(BeforeLoadStorableFlowDataEvent::class),

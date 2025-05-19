@@ -122,15 +122,18 @@ class ProductSearchKeywordAnalyzerTest extends TestCase
                 ],
             ],
             [
-                20,
+                '20',
                 'awesome',
+                'awesome product',
                 'description',
                 'long',
                 'manu_001',
                 'pink',
                 'product',
                 'tag',
+                'tag yellow pink',
                 'this',
+                'this long description',
                 'yellow',
             ],
         ];
@@ -181,6 +184,7 @@ class ProductSearchKeywordAnalyzerTest extends TestCase
                 self::getLongTextPart2(),
                 'awesome',
                 'product',
+                'awesome product',
             ],
         ];
 
@@ -228,6 +232,8 @@ class ProductSearchKeywordAnalyzerTest extends TestCase
                 'part-a',
                 'part-b',
                 'product',
+                'awesome product',
+                'part-a part-b',
             ],
         ];
     }

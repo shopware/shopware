@@ -87,7 +87,7 @@ class StoreSessionExpiredMiddlewareTest extends TestCase
         $requestStack->push($request);
 
         $connection = $this->createMock(Connection::class);
-        $connection->expects(static::once())
+        $connection->expects($this->once())
             ->method('executeStatement')
             ->with(static::anything(), ['userId' => Uuid::fromHexToBytes($adminUser->getId())]);
 

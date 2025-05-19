@@ -96,14 +96,14 @@ class OrderStateChangeEventListenerTest extends TestCase
 
         $repo = $this->createMock(EntityRepository::class);
         $repo
-            ->expects(static::once())
+            ->expects($this->once())
             ->method('search')
             ->with(static::equalTo($expectedCriteria), $context)
             ->willReturn($result);
 
         $orderRepo = $this->createMock(EntityRepository::class);
         $orderRepo
-            ->expects(static::exactly(2))
+            ->expects($this->exactly(2))
             ->method('search')
             ->willReturn(new EntitySearchResult('order', 1, new OrderCollection([$order]), null, new Criteria(['order_id']), $context));
 
@@ -111,7 +111,7 @@ class OrderStateChangeEventListenerTest extends TestCase
 
         $dispatcher = $this->createMock(EventDispatcherInterface::class);
         $dispatcher
-            ->expects(static::exactly(2))
+            ->expects($this->exactly(2))
             ->method('dispatch')
             ->with(static::callback(function ($event) use ($expectedEvent): bool {
                 if ($event instanceof OrderStateMachineStateChangeEvent) {
@@ -146,7 +146,7 @@ class OrderStateChangeEventListenerTest extends TestCase
 
         $repo = $this->createMock(EntityRepository::class);
         $repo
-            ->expects(static::once())
+            ->expects($this->once())
             ->method('search')
             ->willReturn($result);
 
@@ -197,7 +197,7 @@ class OrderStateChangeEventListenerTest extends TestCase
 
         $repo = $this->createMock(EntityRepository::class);
         $repo
-            ->expects(static::once())
+            ->expects($this->once())
             ->method('search')
             ->willReturn($result);
 
@@ -266,14 +266,14 @@ class OrderStateChangeEventListenerTest extends TestCase
 
         $repo = $this->createMock(EntityRepository::class);
         $repo
-            ->expects(static::once())
+            ->expects($this->once())
             ->method('search')
             ->with(static::equalTo($expectedCriteria), $context)
             ->willReturn($result);
 
         $orderRepo = $this->createMock(EntityRepository::class);
         $orderRepo
-            ->expects(static::exactly(2))
+            ->expects($this->exactly(2))
             ->method('search')
             ->willReturn(new EntitySearchResult('order', 1, new OrderCollection([$order]), null, new Criteria(['order_id']), $context));
 
@@ -281,7 +281,7 @@ class OrderStateChangeEventListenerTest extends TestCase
 
         $dispatcher = $this->createMock(EventDispatcherInterface::class);
         $dispatcher
-            ->expects(static::exactly(2))
+            ->expects($this->exactly(2))
             ->method('dispatch')
             ->with(static::callback(function ($event) use ($expectedEvent): bool {
                 if ($event instanceof OrderStateMachineStateChangeEvent) {
@@ -332,7 +332,7 @@ class OrderStateChangeEventListenerTest extends TestCase
 
         $repo = $this->createMock(EntityRepository::class);
         $repo
-            ->expects(static::once())
+            ->expects($this->once())
             ->method('search')
             ->willReturn($result);
 
@@ -382,7 +382,7 @@ class OrderStateChangeEventListenerTest extends TestCase
 
         $repo = $this->createMock(EntityRepository::class);
         $repo
-            ->expects(static::once())
+            ->expects($this->once())
             ->method('search')
             ->willReturn($result);
 
@@ -433,7 +433,7 @@ class OrderStateChangeEventListenerTest extends TestCase
 
         $repo = $this->createMock(EntityRepository::class);
         $repo
-            ->expects(static::once())
+            ->expects($this->once())
             ->method('search')
             ->willReturn($result);
 
@@ -479,7 +479,7 @@ class OrderStateChangeEventListenerTest extends TestCase
 
         $orderRepo = $this->createMock(EntityRepository::class);
         $orderRepo
-            ->expects(static::exactly(2))
+            ->expects($this->exactly(2))
             ->method('search')
             ->willReturn(new EntitySearchResult('order', 1, new OrderCollection([$order]), null, new Criteria(['order_id']), Context::createDefaultContext()));
 
@@ -487,7 +487,7 @@ class OrderStateChangeEventListenerTest extends TestCase
 
         $dispatcher = $this->createMock(EventDispatcherInterface::class);
         $dispatcher
-            ->expects(static::exactly(2))
+            ->expects($this->exactly(2))
             ->method('dispatch')
             ->with(static::callback(function ($event) use ($expectedEvent): bool {
                 if ($event instanceof OrderStateMachineStateChangeEvent) {
@@ -556,7 +556,7 @@ class OrderStateChangeEventListenerTest extends TestCase
 
         $stateRepo = $this->createMock(EntityRepository::class);
         $stateRepo
-            ->expects(static::once())
+            ->expects($this->once())
             ->method('search')
             ->with(static::equalTo($expectedCriteria), $context)
             ->willReturn($states);
@@ -569,7 +569,7 @@ class OrderStateChangeEventListenerTest extends TestCase
 
         $collector = $this->createMock(BusinessEventCollector::class);
         $collector
-            ->expects(static::exactly(2))
+            ->expects($this->exactly(2))
             ->method('define')
             ->with(OrderStateMachineStateChangeEvent::class, static::logicalOr(static::equalTo('state_enter.order.paid'), static::equalTo('state_leave.order.paid')))
             ->willReturnCallback(function (string $class, string $name): BusinessEventDefinition {

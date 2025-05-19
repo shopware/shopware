@@ -14,16 +14,21 @@
                     {% block layout_header_search_input_group %}
                         <div class="input-group">
                             {% block layout_header_search_input %}
-                                <input type="search"
-                                       id="header-main-search-input"
-                                       name="search"
-                                       class="form-control header-search-input"
-                                       autocomplete="off"
-                                       autocapitalize="off"
-                                       placeholder="{{ 'header.searchPlaceholder'|trans|striptags }}"
-                                       aria-label="{{ 'header.searchPlaceholder'|trans|striptags }}"
-                                       value="{{ page.searchTerm }}"
-                                >
+                                <input
+                                    type="search"
+                                    id="header-main-search-input"
+                                    name="search"
+                                    class="form-control header-search-input"
+                                    autocomplete="off"
+                                    autocapitalize="off"
+                                    placeholder="{{ 'header.searchPlaceholder'|trans|striptags }}"
+                                    aria-label="{{ 'header.searchPlaceholder'|trans|striptags }}"
+                                    role="combobox"
+                                    aria-autocomplete="list"
+                                    aria-controls="search-suggest-listbox"
+                                    aria-expanded="false"
+                                    aria-describedby="search-suggest-result-info"
+                                    value="{{ page.searchTerm }}">
                             {% endblock %}
 
                             {% block layout_header_search_button %}

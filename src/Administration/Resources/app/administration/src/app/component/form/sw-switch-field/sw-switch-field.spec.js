@@ -52,4 +52,38 @@ describe('src/app/component/base/sw-switch-field', () => {
         await wrapper.setProps({ checked: true, value: null });
         expect(wrapper.vm.checkedValue).toBe(true);
     });
+
+    it('should filter out update:value event listener', async () => {
+        const baseComponent = {
+            template: `
+            <div>
+                <sw-switch-field @update:value="test" @test-event="test"></sw-switch-field>
+            </div>,            
+        `,
+            methods: {
+                test() {}
+            }
+        };
+
+        const switchField = await wrapTestComponent('sw-switch-field', { sync: true });
+        const wrapper = mount(baseComponent, {
+            global: {
+                stubs: {
+                    'sw-switch-field': switchField,
+                    'sw-switch-field-deprecated': true,
+                    'mt-switch': true,
+                },
+            }
+        });
+
+        const listeners = wrapper.findComponent(switchField).vm.listeners;
+
+        if (!wrapper.findComponent(switchField).vm.isCompatEnabled('INSTANCE_LISTENERS')) {
+            // eslint-disable-next-line jest/no-conditional-expect
+            expect(listeners).toEqual({});
+        } else {
+            // eslint-disable-next-line jest/no-conditional-expect
+            expect(Object.keys(listeners)).toEqual(['testEvent']);
+        }
+    });
 });

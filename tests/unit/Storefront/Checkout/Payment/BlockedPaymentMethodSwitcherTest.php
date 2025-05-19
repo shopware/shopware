@@ -221,7 +221,7 @@ class BlockedPaymentMethodSwitcherTest extends TestCase
 
         $paymentMethodResponse = $this->createMock(PaymentMethodRouteResponse::class);
         $paymentMethodResponse
-            ->expects(static::once())
+            ->expects($this->once())
             ->method('getPaymentMethods')
             ->willReturn($collection);
 
@@ -242,7 +242,7 @@ class BlockedPaymentMethodSwitcherTest extends TestCase
 
         $paymentMethodResponse = $this->createMock(PaymentMethodRouteResponse::class);
         $paymentMethodResponse
-            ->expects(static::once())
+            ->expects($this->once())
             ->method('getPaymentMethods')
             ->willReturn($collection);
 

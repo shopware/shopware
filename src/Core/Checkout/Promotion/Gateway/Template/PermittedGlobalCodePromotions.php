@@ -23,13 +23,12 @@ class PermittedGlobalCodePromotions extends MultiFilter
         array $codes,
         string $salesChannelId
     ) {
-        $activeDateRange = new ActiveDateRange();
-
         parent::__construct(
             MultiFilter::CONNECTION_AND,
-            [new EqualsFilter('active', true),
+            [
+                new EqualsFilter('active', true),
                 new EqualsFilter('promotion.salesChannels.salesChannelId', $salesChannelId),
-                $activeDateRange,
+                new ActiveDateRange(),
                 new EqualsFilter('useCodes', true),
                 new EqualsFilter('useIndividualCodes', false),
                 new EqualsAnyFilter('code', $codes),

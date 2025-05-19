@@ -90,7 +90,7 @@ class CachedPaymentMethodRoute extends AbstractPaymentMethodRoute
         $parts = [
             $this->generator->getCriteriaHash($criteria),
             $this->generator->getSalesChannelContextHash($context, [RuleAreas::PAYMENT_AREA]),
-            $request->query->getBoolean('onlyAvailable', false),
+            $request->query->getBoolean('onlyAvailable') || $request->request->getBoolean('onlyAvailable'),
         ];
 
         $event = new PaymentMethodRouteCacheKeyEvent($parts, $request, $context, $criteria);

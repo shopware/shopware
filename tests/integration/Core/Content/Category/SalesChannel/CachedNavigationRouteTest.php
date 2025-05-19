@@ -62,7 +62,7 @@ class CachedNavigationRouteTest extends TestCase
         $route = static::getContainer()->get(NavigationRoute::class);
 
         $listener = $this->getMockBuilder(CallableClass::class)->getMock();
-        $listener->expects(static::exactly($calls))->method('__invoke');
+        $listener->expects($this->exactly($calls))->method('__invoke');
 
         $this->addEventListener(
             static::getContainer()->get('event_dispatcher'),

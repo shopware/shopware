@@ -678,7 +678,7 @@ EOT,
         $customFieldService = $this->createMock(CustomFieldService::class);
 
         if ($customField instanceof Field) {
-            $customFieldService->expects(static::once())->method('getCustomField')->willReturn($customField);
+            $customFieldService->expects($this->once())->method('getCustomField')->willReturn($customField);
         }
 
         $fieldSort = (new CriteriaParser(

@@ -67,7 +67,7 @@ class AnnotatePackageProcessorTest extends TestCase
         $request = new Request();
         $request->attributes->set('_controller', 'test.controller::load');
         $requestStack->push($request);
-        $container->expects(static::once())
+        $container->expects($this->once())
             ->method('get')
             ->with('test.controller', ContainerInterface::NULL_ON_INVALID_REFERENCE)
             ->willReturn(new TestController());
@@ -102,7 +102,7 @@ class AnnotatePackageProcessorTest extends TestCase
         $request = new Request();
         $request->attributes->set('_controller', 'test.controller::load');
         $requestStack->push($request);
-        $container->expects(static::once())
+        $container->expects($this->once())
             ->method('get')
             ->with('test.controller', ContainerInterface::NULL_ON_INVALID_REFERENCE)
             ->willReturn(null);

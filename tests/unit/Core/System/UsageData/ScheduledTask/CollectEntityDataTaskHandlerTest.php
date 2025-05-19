@@ -21,7 +21,7 @@ class CollectEntityDataTaskHandlerTest extends TestCase
     public function testItStartsCollectingData(): void
     {
         $entityDispatchService = $this->createMock(EntityDispatchService::class);
-        $entityDispatchService->expects(static::once())
+        $entityDispatchService->expects($this->once())
             ->method('dispatchCollectEntityDataMessage');
 
         $taskHandler = new CollectEntityDataTaskHandler(

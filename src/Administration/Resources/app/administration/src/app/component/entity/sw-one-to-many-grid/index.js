@@ -39,6 +39,9 @@ Component.extend('sw-one-to-many-grid', 'sw-data-grid', {
                 Object,
             ],
             required: false,
+            default(props) {
+                return (props.localMode && props.collection) ? props.collection : null;
+            },
         },
         allowDelete: {
             type: Boolean,

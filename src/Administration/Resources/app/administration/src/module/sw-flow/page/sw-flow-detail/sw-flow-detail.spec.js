@@ -86,7 +86,11 @@ const mockBusinessEvents = [
     },
 ];
 
-async function createWrapper(query = {}, config = {}, flowId = null, saveSuccess = true, param = {}) {
+const businessEventServiceMock = {
+    getBusinessEvents: () => Promise.resolve(mockBusinessEvents),
+};
+
+async function createWrapper(query = {}, config = {}, flowId = null, saveSuccess = true, param = {}, customProvides = {}) {
     return mount(
         await wrapTestComponent('sw-flow-detail', {
             sync: true,
@@ -176,6 +180,8 @@ async function createWrapper(query = {}, config = {}, flowId = null, saveSuccess
                     ruleConditionDataProviderService: {
                         getRestrictedRules: () => Promise.resolve([]),
                     },
+                    businessEventService: businessEventServiceMock,
+                    ...customProvides,
                 },
                 mocks: {
                     $route: { params: param, query: query },
@@ -233,6 +239,10 @@ async function createWrapper(query = {}, config = {}, flowId = null, saveSuccess
 
 describe('module/sw-flow/page/sw-flow-detail', () => {
     beforeAll(() => {
+        Shopware.Service().register('businessEventService', () => {
+            return businessEventServiceMock;
+        });
+
         Shopware.State.registerModule('swFlowState', {
             ...flowState,
             state: {
@@ -244,12 +254,6 @@ describe('module/sw-flow/page/sw-flow-detail', () => {
                 appActions: [],
                 triggerEvents: [],
             },
-        });
-
-        Shopware.Service().register('businessEventService', () => {
-            return {
-                getBusinessEvents: () => Promise.resolve(mockBusinessEvents),
-            };
         });
     });
 
@@ -582,5 +586,71 @@ describe('module/sw-flow/page/sw-flow-detail', () => {
         expect(sequences).toHaveLength(4);
         expect(sequences[0]).toHaveProperty('rule');
         expect(sequences[0].rule).toEqual({ id: '1111', name: 'test rule' });
+    });
+
+    it('should wait for FlowData and TriggerEventsData requests before executing getDataForActionDescription', async () => {
+        global.activeAclRoles = ['flow.editor'];
+
+        let resolveEvents;
+        const eventsPromise = new Promise(resolve => {
+            resolveEvents = () => resolve(mockBusinessEvents);
+        });
+
+        let resolveFlowData;
+        const flowDataPromise = new Promise(resolve => {
+            resolveFlowData = () => resolve({
+                id: ID_FLOW,
+                name: 'Flow 1',
+                eventName: 'checkout.customer',
+                sequences: getSequencesCollection([])
+            });
+        });
+
+        // custom services with controlled promises
+        const customBusinessEventServiceMock = {
+            getBusinessEvents: jest.fn().mockReturnValue(eventsPromise)
+        };
+
+        const customRepositoryFactoryMock = {
+            create: (entity) => {
+                if (entity === 'flow') {
+                    return {
+                        get: () => flowDataPromise
+                    };
+                }
+                return {
+                    create: () => ({}),
+                    search: () => Promise.resolve([])
+                };
+            }
+        };
+
+        const wrapper = await createWrapper(
+            {},
+            {},
+            ID_FLOW,
+            true,
+            {},
+            {
+                businessEventService: customBusinessEventServiceMock,
+                repositoryFactory: customRepositoryFactoryMock
+            }
+        );
+
+        await flushPromises();
+
+        const actionDescriptionSpy = jest.spyOn(wrapper.vm, 'getDataForActionDescription');
+
+        expect(actionDescriptionSpy).not.toHaveBeenCalled();
+
+        resolveEvents();
+        await flushPromises();
+        expect(actionDescriptionSpy).not.toHaveBeenCalled();
+
+        resolveFlowData();
+        await flushPromises();
+        expect(actionDescriptionSpy).toHaveBeenCalled();
+
+        actionDescriptionSpy.mockRestore();
     });
 });

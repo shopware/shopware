@@ -3,6 +3,7 @@ declare(strict_types=1);
 
 namespace Shopware\Core\Framework\DataAbstractionLayer\FieldSerializer;
 
+use Doctrine\DBAL\Types\Types;
 use Shopware\Core\Framework\DataAbstractionLayer\DataAbstractionLayerException;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\EnumField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Field;
@@ -48,8 +49,13 @@ class EnumFieldSerializer extends AbstractFieldSerializer
     public function decode(Field $field, mixed $value): ?\BackedEnum
     {
         $field = $this->checkFieldTypeOrThrowInvalidFieldException($field);
+        $fieldValue = $this->castValueToFieldTypeValue($field, $value);
 
-        return ($value !== null) ? $field->getEnum()::tryFrom($value) : null;
+        if ($fieldValue === null) {
+            return null;
+        }
+
+        return $field->getEnum()::tryFrom($fieldValue);
     }
 
     /**
@@ -81,5 +87,26 @@ class EnumFieldSerializer extends AbstractFieldSerializer
         }
 
         return $field;
+    }
+
+    private function castValueToFieldTypeValue(EnumField $field, string|int|null $value): string|int|null
+    {
+        if ($value === null) {
+            return null;
+        }
+
+        return match ($field->getType()) {
+            Types::STRING => (string) $value,
+            Types::INTEGER => $this->castToIntOrThrow($field, $value),
+            default => throw DataAbstractionLayerException::fieldHasNoType(static::class),
+        };
+    }
+
+    private function castToIntOrThrow(EnumField $field, mixed $value): int
+    {
+        if (is_numeric($value)) {
+            return (int) $value;
+        }
+        throw DataAbstractionLayerException::expectedFieldValueOfTypeWithValue($field, Types::INTEGER, $value);
     }
 }

@@ -50,12 +50,26 @@ Component.register('sw-switch-field', {
         },
 
         listeners() {
-            // eslint-disable-next-line @typescript-eslint/no-unsafe-call,@typescript-eslint/no-unsafe-member-access
+            const listeners = {};
+
             if (this.isCompatEnabled('INSTANCE_LISTENERS')) {
-                return this.$listeners;
+                /**
+                 * Do not pass "update:value" listeners to the input elements
+                 * because the component implements its own listeners for this event types.
+                 * The callback methods will emit the corresponding event to the parent.
+                 */
+                Object.keys(this.$listeners).forEach((key) => {
+                    if (
+                        ![
+                            'update:value',
+                        ].includes(key)
+                    ) {
+                        listeners[key] = this.$listeners[key];
+                    }
+                });
             }
 
-            return {};
+            return listeners;
         },
     },
 

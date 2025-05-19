@@ -2,7 +2,10 @@
 
 namespace Shopware\Core\Framework\Routing;
 
+use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\Script\Api\ResponseHook;
+use Shopware\Core\Framework\Script\Execution\ScriptExecutor;
 use Shopware\Core\PlatformRequest;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use Symfony\Component\HttpKernel\Event\RequestEvent;
@@ -20,7 +23,7 @@ readonly class CoreSubscriber implements EventSubscriberInterface
      *
      * @internal
      */
-    public function __construct(private array $cspTemplates)
+    public function __construct(private array $cspTemplates, private readonly ScriptExecutor $scriptExecutor)
     {
     }
 
@@ -74,5 +77,15 @@ readonly class CoreSubscriber implements EventSubscriberInterface
                 $response->headers->set('Content-Security-Policy', $csp);
             }
         }
+
+        $context = $event->getRequest()->attributes->get(PlatformRequest::ATTRIBUTE_CONTEXT_OBJECT) ?? Context::createDefaultContext();
+        \assert($context instanceof Context);
+
+        $this->scriptExecutor->execute(new ResponseHook(
+            $response,
+            $event->getRequest()->attributes->get('_route', ''),
+            $scopes,
+            $context
+        ));
     }
 }

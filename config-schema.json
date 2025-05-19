@@ -151,6 +151,9 @@
         "usage_data": {
             "type": "object",
             "additionalProperties": false,
+            "collection_enabled": {
+                "type": "boolean"
+            },
             "properties": {
                 "gateway": {
                     "type": "object",
@@ -1261,11 +1264,6 @@
                         },
                         "available_theme_provider": {
                             "type": "string"
-                        },
-                        "file_delete_delay": {
-                            "type": "integer",
-                            "description": "Delay in seconds until old theme files will be deleted after a new theme compile",
-                            "default": 900
                         }
                     },
                     "title": "Theme loader configuration"

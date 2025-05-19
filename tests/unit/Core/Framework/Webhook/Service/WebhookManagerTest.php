@@ -11,7 +11,9 @@ use GuzzleHttp\Psr7\Response;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
+use Psr\EventDispatcher\EventDispatcherInterface;
 use Psr\Http\Message\RequestInterface;
+use Shopware\Core\Checkout\Customer\CustomerDefinition;
 use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\App\AppLocaleProvider;
@@ -28,6 +30,7 @@ use Shopware\Core\Framework\Webhook\Hookable\HookableEventFactory;
 use Shopware\Core\Framework\Webhook\Message\WebhookEventMessage;
 use Shopware\Core\Framework\Webhook\Service\WebhookLoader;
 use Shopware\Core\Framework\Webhook\Service\WebhookManager;
+use Shopware\Core\Framework\Webhook\Webhook;
 use Shopware\Core\Test\Stub\DataAbstractionLayer\StaticEntityRepository;
 use Shopware\Core\Test\Stub\MessageBus\CollectingMessageBus;
 use Symfony\Component\Messenger\Envelope;
@@ -35,13 +38,13 @@ use Symfony\Contracts\EventDispatcher\Event;
 
 /**
  * @internal
- *
- * @phpstan-import-type Webhook from WebhookLoader
  */
 #[CoversClass(WebhookManager::class)]
 class WebhookManagerTest extends TestCase
 {
     private WebhookLoader&MockObject $webhookLoader;
+
+    private EventDispatcherInterface&MockObject $eventDispatcher;
 
     private Connection&MockObject $connection;
 
@@ -56,6 +59,7 @@ class WebhookManagerTest extends TestCase
     protected function setUp(): void
     {
         $this->webhookLoader = $this->createMock(WebhookLoader::class);
+        $this->eventDispatcher = $this->createMock(EventDispatcherInterface::class);
         $this->connection = $this->createMock(Connection::class);
         $this->clientMock = new MockHandler([new Response(200)]);
         $this->client = new Client(['handler' => HandlerStack::create($this->clientMock)]);
@@ -69,7 +73,7 @@ class WebhookManagerTest extends TestCase
         $event2 = new class('foobar.event', ['foo' => 'bar'], ['foo' => 'bar']) extends AppFlowActionEvent {};
 
         $this->eventFactory
-            ->expects(static::exactly(2))
+            ->expects($this->exactly(2))
             ->method('createHookablesFor')
             ->willReturn([$event1], [$event2]);
 
@@ -113,7 +117,7 @@ class WebhookManagerTest extends TestCase
             'foo' => 'bar',
             'source' => [
                 'url' => 'https://example.com',
-                'appVersion' => $webhook['appVersion'],
+                'appVersion' => $webhook->appVersion,
                 'shopId' => 'foobar',
                 'action' => $event->getName(),
                 'inAppPurchases' => null,
@@ -121,11 +125,11 @@ class WebhookManagerTest extends TestCase
         ], $payload);
 
         static::assertEquals($message->getLanguageId(), Defaults::LANGUAGE_SYSTEM);
-        static::assertEquals($message->getAppId(), $webhook['appId']);
-        static::assertEquals($message->getSecret(), $webhook['appSecret']);
+        static::assertEquals($message->getAppId(), $webhook->appId);
+        static::assertEquals($message->getSecret(), $webhook->appSecret);
         static::assertEquals($message->getShopwareVersion(), '0.0.0');
         static::assertEquals($message->getUrl(), 'https://foo.bar');
-        static::assertEquals($message->getWebhookId(), $webhook['webhookId']);
+        static::assertEquals($message->getWebhookId(), $webhook->id);
     }
 
     public function testWebhookSettingForLiveVersionOnlyIsIgnoredIfEventTypeDoesNotMatch(): void
@@ -147,7 +151,7 @@ class WebhookManagerTest extends TestCase
     public function testWebhooksForLiveVersionOnlyAreCalledIfPayloadHasLiveVersion(): void
     {
         $event = $this->prepareHookableEvent();
-        $this->prepareWebhook('product.written', true, withAcl: true);
+        $this->prepareWebhook('product.written', true);
 
         $this->getWebhookManager(false)->dispatch($event);
 
@@ -161,9 +165,24 @@ class WebhookManagerTest extends TestCase
         static::assertInstanceOf(WebhookEventMessage::class, $message);
     }
 
-    public function testWebhooksForLiveVersionOnlyAreIgnoredIfPayloadDoesNotHaveLiveVersion(): void
+    public function testWebhooksAreNotDispatchedIfPrivilegesAreMissing(): void
     {
         $event = $this->prepareHookableEvent();
+        $this->prepareWebhook('product.written', true, []);
+
+        $this->getWebhookManager(false)->dispatch($event);
+        $messages = $this->bus->getMessages();
+        static::assertEmpty($messages);
+    }
+
+    public function testWebhooksForLiveVersionOnlyAreIgnoredIfPayloadHasDifferentVersion(): void
+    {
+        $event = $this->prepareHookableEvent([
+            [
+                'id' => Uuid::randomHex(),
+                'versionId' => Uuid::randomHex(),
+            ],
+        ]);
 
         $this->prepareWebhook('product.written', true);
 
@@ -173,10 +192,39 @@ class WebhookManagerTest extends TestCase
         static::assertEmpty($messages);
     }
 
+    public function testWebhooksForLiveVersionOnlyAreSentIfPayloadDoesNotHaveAnyVersionId(): void
+    {
+        $entityRepository = new StaticEntityRepository([], new CustomerDefinition());
+
+        $event = $entityRepository->create([
+            [
+                'id' => Uuid::randomHex(),
+            ],
+        ], Context::createDefaultContext());
+
+        $eventByEntityName = $event->getEventByEntityName('customer');
+        static::assertInstanceOf(EntityWrittenEvent::class, $eventByEntityName);
+        $hookableEvent = HookableEntityWrittenEvent::fromWrittenEvent($eventByEntityName);
+
+        $this->eventFactory->expects($this->once())->method('createHookablesFor')->with($event)->willReturn([$hookableEvent]);
+
+        $this->prepareWebhook('customer.written', true, ['customer:read']);
+
+        $this->getWebhookManager(false)->dispatch($event);
+
+        $messages = $this->bus->getMessages();
+        static::assertCount(1, $messages);
+
+        $envelop = $messages[0];
+        static::assertInstanceOf(Envelope::class, $envelop);
+        $message = $envelop->getMessage();
+        static::assertInstanceOf(WebhookEventMessage::class, $message);
+    }
+
     public function testWebhooksAreCalledForNonLiveVersionConfig(): void
     {
         $event = $this->prepareHookableEvent();
-        $this->prepareWebhook('product.written', withAcl: true);
+        $this->prepareWebhook('product.written');
 
         $this->getWebhookManager(false)->dispatch($event);
 
@@ -205,7 +253,7 @@ class WebhookManagerTest extends TestCase
         ];
 
         $event = $this->prepareHookableEvent($payloads);
-        $this->prepareWebhook('product.written', true, withAcl: true);
+        $this->prepareWebhook('product.written', true);
 
         $this->getWebhookManager(false)->dispatch($event);
 
@@ -240,7 +288,7 @@ class WebhookManagerTest extends TestCase
         ];
 
         $event = $this->prepareHookableEvent($payloads);
-        $this->prepareWebhook('product.written', withAcl: true);
+        $this->prepareWebhook('product.written');
 
         $this->getWebhookManager(false)->dispatch($event);
 
@@ -259,14 +307,11 @@ class WebhookManagerTest extends TestCase
         static::assertStringContainsString($secondId, json_encode($payload));
     }
 
-    /**
-     * @param Webhook $webhook
-     */
-    private function assertSyncWebhookIsSent(array $webhook, AppFlowActionEvent $event, ?WebhookManager $webhookManager = null): void
+    private function assertSyncWebhookIsSent(Webhook $webhook, AppFlowActionEvent $event, ?WebhookManager $webhookManager = null): void
     {
         $expectedRequest = new Request(
             'POST',
-            $webhook['webhookUrl'],
+            $webhook->url,
             [
                 'foo' => 'bar',
                 'Content-Type' => 'application/json',
@@ -278,7 +323,7 @@ class WebhookManagerTest extends TestCase
                 'foo' => 'bar',
                 'source' => [
                     'url' => 'https://example.com',
-                    'appVersion' => $webhook['appVersion'],
+                    'appVersion' => $webhook->appVersion,
                     'shopId' => 'foobar',
                     'action' => $event->getName(),
                     'inAppPurchases' => null,
@@ -314,7 +359,7 @@ class WebhookManagerTest extends TestCase
         $event = new AppFlowActionEvent('foobar', ['foo' => 'bar'], ['foo' => 'bar']);
 
         $this->eventFactory
-            ->expects(static::once())
+            ->expects($this->once())
             ->method('createHookablesFor')
             ->with($event)
             ->willReturn([$event]);
@@ -336,33 +381,30 @@ class WebhookManagerTest extends TestCase
             ],
         ], Context::createDefaultContext());
 
-        /** @var EntityWrittenEvent $eventByEntityName */
         $eventByEntityName = $event->getEventByEntityName('product');
+        static::assertInstanceOf(EntityWrittenEvent::class, $eventByEntityName);
         $hookableEvent = HookableEntityWrittenEvent::fromWrittenEvent($eventByEntityName);
 
-        $this->eventFactory->expects(static::once())->method('createHookablesFor')->with($event)->willReturn([$hookableEvent]);
+        $this->eventFactory->expects($this->once())->method('createHookablesFor')->with($event)->willReturn([$hookableEvent]);
 
         return $event;
     }
 
     /**
-     * @return Webhook
+     * @param list<string> $acl
      */
-    private function prepareWebhook(string $eventName, bool $onlyLiveVersion = false, bool $withAcl = false): array
+    private function prepareWebhook(string $eventName, bool $onlyLiveVersion = false, array $acl = ['product:read']): Webhook
     {
         $webhook = $this->getWebhook($eventName, $onlyLiveVersion);
 
-        $this->webhookLoader->expects(static::once())
+        $this->webhookLoader->expects($this->once())
             ->method('getWebhooks')
             ->willReturn([$webhook]);
 
-        if ($withAcl) {
-            $this->webhookLoader
-                ->expects(static::once())
-                ->method('getPrivilegesForRoles')
-                ->with([$webhook['appAclRoleId']])
-                ->willReturn([$webhook['appAclRoleId'] => new AclPrivilegeCollection(['product:read'])]);
-        }
+        $this->webhookLoader
+            ->method('getPrivilegesForRoles')
+            ->with([$webhook->appAclRoleId])
+            ->willReturn([$webhook->appAclRoleId => new AclPrivilegeCollection($acl)]);
 
         return $webhook;
     }
@@ -370,10 +412,11 @@ class WebhookManagerTest extends TestCase
     private function getWebhookManager(bool $isAdminWorkerEnabled): WebhookManager
     {
         $appPayloadServiceHelper = $this->createMock(AppPayloadServiceHelper::class);
-        $appPayloadServiceHelper->expects(static::any())->method('buildSource')->willReturn(new Source('https://example.com', 'foobar', '0.0.0'));
+        $appPayloadServiceHelper->expects($this->any())->method('buildSource')->willReturn(new Source('https://example.com', 'foobar', '0.0.0'));
 
         return new WebhookManager(
             $this->webhookLoader,
+            $this->eventDispatcher,
             $this->connection,
             $this->eventFactory,
             $this->createMock(AppLocaleProvider::class),
@@ -386,23 +429,21 @@ class WebhookManagerTest extends TestCase
         );
     }
 
-    /**
-     * @return Webhook
-     */
-    private function getWebhook(string $eventName, bool $onlyLiveVersion = false): array
+    private function getWebhook(string $eventName, bool $onlyLiveVersion = false): Webhook
     {
-        return [
-            'webhookId' => Uuid::randomHex(),
-            'webhookName' => 'Cool Webhook',
-            'eventName' => $eventName,
-            'webhookUrl' => 'https://foo.bar',
-            'onlyLiveVersion' => $onlyLiveVersion,
-            'appId' => Uuid::randomHex(),
-            'appName' => 'Cool App',
-            'appActive' => true,
-            'appVersion' => '0.0.0',
-            'appSecret' => 'verysecret',
-            'appAclRoleId' => Uuid::randomHex(),
-        ];
+        return new Webhook(
+            Uuid::randomHex(),
+            'Cool Webhook',
+            $eventName,
+            'https://foo.bar',
+            $onlyLiveVersion,
+            Uuid::randomHex(),
+            'Cool App',
+            'local',
+            true,
+            '0.0.0',
+            'verysecret',
+            Uuid::randomHex()
+        );
     }
 }

@@ -32,13 +32,13 @@ class RequirementsControllerTest extends TestCase
         $checks = new RequirementsCheckCollection([new PathCheck('check', RequirementCheck::STATUS_SUCCESS)]);
 
         $validator = $this->createMock(RequirementsValidatorInterface::class);
-        $validator->expects(static::once())
+        $validator->expects($this->once())
             ->method('validateRequirements')
             ->with(static::isInstanceOf(RequirementsCheckCollection::class))
             ->willReturn($checks);
 
         $twig = $this->createMock(Environment::class);
-        $twig->expects(static::once())->method('render')
+        $twig->expects($this->once())->method('render')
             ->with(
                 '@Installer/installer/requirements.html.twig',
                 array_merge($this->getDefaultViewParams(), [
@@ -48,7 +48,7 @@ class RequirementsControllerTest extends TestCase
             ->willReturn('checks');
 
         $jwtCertificateGenerator = $this->createMock(JwtCertificateGenerator::class);
-        $jwtCertificateGenerator->expects(static::never())->method('generate');
+        $jwtCertificateGenerator->expects($this->never())->method('generate');
 
         $controller = new RequirementsController([$validator], $jwtCertificateGenerator, __DIR__);
         $controller->setContainer($this->getInstallerContainer($twig));
@@ -65,21 +65,21 @@ class RequirementsControllerTest extends TestCase
         $checks = new RequirementsCheckCollection([new PathCheck('check', RequirementCheck::STATUS_SUCCESS)]);
 
         $validator = $this->createMock(RequirementsValidatorInterface::class);
-        $validator->expects(static::once())
+        $validator->expects($this->once())
             ->method('validateRequirements')
             ->with(static::isInstanceOf(RequirementsCheckCollection::class))
             ->willReturn($checks);
 
         $twig = $this->createMock(Environment::class);
-        $twig->expects(static::never())->method('render');
+        $twig->expects($this->never())->method('render');
 
         $router = $this->createMock(RouterInterface::class);
-        $router->expects(static::once())->method('generate')
+        $router->expects($this->once())->method('generate')
             ->with('installer.license', [], UrlGeneratorInterface::ABSOLUTE_PATH)
             ->willReturn('/installer/license');
 
         $jwtCertificateGenerator = $this->createMock(JwtCertificateGenerator::class);
-        $jwtCertificateGenerator->expects(static::once())->method('generate')
+        $jwtCertificateGenerator->expects($this->once())->method('generate')
             ->with(__DIR__ . '/config/jwt/private.pem', __DIR__ . '/config/jwt/public.pem');
 
         $controller = new RequirementsController([$validator], $jwtCertificateGenerator, __DIR__);
@@ -98,13 +98,13 @@ class RequirementsControllerTest extends TestCase
         $checks = new RequirementsCheckCollection([new PathCheck('check', RequirementCheck::STATUS_ERROR)]);
 
         $validator = $this->createMock(RequirementsValidatorInterface::class);
-        $validator->expects(static::once())
+        $validator->expects($this->once())
             ->method('validateRequirements')
             ->with(static::isInstanceOf(RequirementsCheckCollection::class))
             ->willReturn($checks);
 
         $twig = $this->createMock(Environment::class);
-        $twig->expects(static::once())->method('render')
+        $twig->expects($this->once())->method('render')
             ->with(
                 '@Installer/installer/requirements.html.twig',
                 array_merge($this->getDefaultViewParams(), [
@@ -114,7 +114,7 @@ class RequirementsControllerTest extends TestCase
             ->willReturn('checks');
 
         $jwtCertificateGenerator = $this->createMock(JwtCertificateGenerator::class);
-        $jwtCertificateGenerator->expects(static::never())->method('generate');
+        $jwtCertificateGenerator->expects($this->never())->method('generate');
 
         $controller = new RequirementsController([$validator], $jwtCertificateGenerator, __DIR__);
         $controller->setContainer($this->getInstallerContainer($twig));

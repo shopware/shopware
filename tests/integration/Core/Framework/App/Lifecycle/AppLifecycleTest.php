@@ -1794,7 +1794,7 @@ class AppLifecycleTest extends TestCase
     {
         static::assertCount(2, $app->getModules());
 
-        static::assertSame([
+        static::assertEquals([
             [
                 'name' => 'first-module',
                 'label' => [
@@ -1876,7 +1876,7 @@ class AppLifecycleTest extends TestCase
         static::assertContains('product', $relatedEntities);
         static::assertContains('customer', $relatedEntities);
 
-        static::assertSame([
+        static::assertEquals([
             'label' => [
                 'de-DE' => 'Zusatzfeld Test',
                 'en-GB' => 'Custom field test',

@@ -42,6 +42,9 @@ class CategorySubscriber implements EventSubscriberInterface
     public function categoryLoaded(EntityLoadedEvent $event): void
     {
         $systemDefaultLayout = $this->systemConfigService->getString(CategoryDefinition::CONFIG_KEY_DEFAULT_CMS_PAGE_CATEGORY);
+        if ($systemDefaultLayout === '') {
+            return;
+        }
 
         foreach ($event->getEntities() as $category) {
             if (!$category->getCmsPageId()) {

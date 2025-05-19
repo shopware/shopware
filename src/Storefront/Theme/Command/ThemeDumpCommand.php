@@ -79,11 +79,11 @@ class ThemeDumpCommand extends Command
 
             if ($input->isInteractive() && \count($choices) > 1) {
                 $helper = $this->getHelper('question');
+                $this->io->note($this->getThemeAssignmentInfos());
                 $question = new ChoiceQuestion('Please select a theme:', $choices);
-                $selectedOption = $helper->ask($input, $output, $question);
+                $themeName = $helper->ask($input, $output, $question);
 
-                \assert(\is_string($selectedOption));
-                $themeName = trim(explode(' || ', $selectedOption)[0]);
+                \assert(\is_string($themeName));
 
                 $criteria->addFilter(new EqualsFilter('name', $themeName));
             }
@@ -149,6 +149,19 @@ class ThemeDumpCommand extends Command
     {
         $choices = [];
 
+        $themes = $this->themeRepository->search(new Criteria(), Context::createCLIContext())->getEntities();
+
+        foreach ($themes as $theme) {
+            $choices[] = $theme->getName();
+        }
+
+        return $choices;
+    }
+
+    protected function getThemeAssignmentInfos(): string
+    {
+        $choices = 'Theme assignment:' . \PHP_EOL;
+
         $criteria = new Criteria();
         $criteria->addAssociation('salesChannels');
         $themes = $this->themeRepository->search($criteria, Context::createCLIContext())->getEntities();
@@ -159,16 +172,18 @@ class ThemeDumpCommand extends Command
             $channelCount = $salesChannels ? $salesChannels->count() : 0;
 
             if ($channelCount > 0) {
-                $choices[] =
+                $choices .=
                     \sprintf(
                         '%s || Assigned to: %s',
                         $themeName,
                         $salesChannels ? implode(', ', $salesChannels->map(fn (SalesChannelEntity $channel) => $channel->getName())) : ''
                     );
+                $choices .= \PHP_EOL;
                 continue;
             }
 
-            $choices[] = \sprintf('%s || Not assigned to any storefront channel', $themeName);
+            $choices .= \sprintf('%s || Not assigned to any storefront channel', $themeName);
+            $choices .= \PHP_EOL;
         }
 
         return $choices;

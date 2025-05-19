@@ -14,12 +14,8 @@ test('Visual: Administration category page', { tag: '@Visual' }, async ({
 
         await AdminCategories.page.setViewportSize({ width: 1440, height: 2200});
 
-        await expect(AdminCategories.page).toHaveScreenshot({
+        await expect(AdminCategories.page.locator('.sw-desktop__content')).toHaveScreenshot({
             stylePath: path.resolve('./tests/Visual/screenshot.css'),
-            mask: [
-                AdminCategories.page.locator('.sw-admin-menu__user-name'),
-                AdminCategories.page.locator('.sw-avatar'),
-            ],
         });
     });
     await test.step('Creates a screenshot of the category page on the products tab.', async () => {
@@ -30,27 +26,19 @@ test('Visual: Administration category page', { tag: '@Visual' }, async ({
 
         await AdminCategories.page.setViewportSize({ width: 1440, height: 1280});
 
-        await expect(AdminCategories.page).toHaveScreenshot({
+        await expect(AdminCategories.page.locator('.sw-desktop__content')).toHaveScreenshot({
             stylePath: path.resolve('./tests/Visual/screenshot.css'),
-            mask: [
-                AdminCategories.page.locator('.sw-admin-menu__user-name'),
-                AdminCategories.page.locator('.sw-avatar'),
-            ],
         });
     });
-    await test.step('Creates a screenshot of the category page on the Layout tab.', async () => {
+    await test.step('Creates a screenshot of the category page on the layout tab.', async () => {
 
         await AdminCategories.page.locator('.sw-tabs__content').getByText('Layout').click();
         await ShopAdmin.expects(AdminCategories.page.locator('.sw-tabs__slider')).toBeVisible();
 
         await AdminCategories.page.setViewportSize({ width: 1440, height: 3660});
 
-        await expect(AdminCategories.page).toHaveScreenshot({
+        await expect(AdminCategories.page.locator('.sw-desktop__content')).toHaveScreenshot({
             stylePath: path.resolve('./tests/Visual/screenshot.css'),
-            mask: [
-                AdminCategories.page.locator('.sw-admin-menu__user-name'),
-                AdminCategories.page.locator('.sw-avatar'),
-            ],
         });
     });
     await test.step('Creates a screenshot of the category page on the SEO tab.', async () => {
@@ -60,12 +48,8 @@ test('Visual: Administration category page', { tag: '@Visual' }, async ({
 
         await AdminCategories.page.setViewportSize({ width: 1440, height: 1280});
 
-        await expect(AdminCategories.page).toHaveScreenshot({
+        await expect(AdminCategories.page.locator('.sw-desktop__content')).toHaveScreenshot({
             stylePath: path.resolve('./tests/Visual/screenshot.css'),
-            mask: [
-                AdminCategories.page.locator('.sw-admin-menu__user-name'),
-                AdminCategories.page.locator('.sw-avatar'),
-            ],
         });
     });
 });

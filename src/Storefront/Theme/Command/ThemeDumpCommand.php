@@ -158,7 +158,7 @@ class ThemeDumpCommand extends Command
         return $choices;
     }
 
-    protected function getThemeAssignmentInfos(): string
+    private function getThemeAssignmentInfos(): string
     {
         $choices = 'Theme assignment:' . \PHP_EOL;
 

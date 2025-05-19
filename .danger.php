@@ -221,10 +221,6 @@ return (new Config())
         $addedLegacyTests = [];
 
         foreach ($addedFiles->matches('src/**/*Test.php') as $file) {
-            if (str_contains($file->name, 'src/WebInstaller/')) {
-                continue;
-            }
-
             $content = $file->getContent();
 
             if (str_contains($content, 'extends TestCase')) {
@@ -367,7 +363,6 @@ return (new Config())
 
         foreach ($composerFiles as $composerFile) {
             if ($composerFile->status === File::STATUS_REMOVED
-                || str_contains((string) $composerFile->name, 'src/WebInstaller')
                 || str_contains((string) $composerFile->name, '/Test/')
             ) {
                 continue;

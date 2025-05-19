@@ -119,7 +119,7 @@ describe('Administration meta tests', () => {
                 }
 
                 // Find all position identifiers in the file and add them to the result
-                [...fileContent.matchAll(/position-identifier="(.*)"/gm)]
+                [...fileContent.matchAll(/position-identifier="(.+)"/gm)]
                     .map((match) => match[1])
                     .forEach((match) => {
                         if (match !== '' && match !== 'null') {

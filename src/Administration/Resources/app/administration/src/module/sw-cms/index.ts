@@ -16,9 +16,9 @@ import './acl';
 /**
  * @private
  */
-Shopware.Service().register('cmsPageTypeService', (() => {
+Shopware.Service().register('cmsPageTypeService', () => {
     return new CmsPageTypeService();
-}) as unknown as CmsPageTypeService);
+});
 
 initCmsPageTypes();
 

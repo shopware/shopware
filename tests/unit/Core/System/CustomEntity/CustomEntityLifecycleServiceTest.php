@@ -28,10 +28,10 @@ class CustomEntityLifecycleServiceTest extends TestCase
     public function testResultIsNullIfThereIsNoExtension(): void
     {
         $customEntityPersister = $this->createMock(CustomEntityPersister::class);
-        $customEntityPersister->expects(static::never())->method('update');
+        $customEntityPersister->expects($this->never())->method('update');
 
         $customEntitySchemaUpdater = $this->createMock(CustomEntitySchemaUpdater::class);
-        $customEntitySchemaUpdater->expects(static::never())->method('update');
+        $customEntitySchemaUpdater->expects($this->never())->method('update');
 
         $adminUiXmlSchemaValidator = new AdminUiXmlSchemaValidator();
         $customEntityEnrichmentService = new CustomEntityEnrichmentService($adminUiXmlSchemaValidator);
@@ -68,10 +68,10 @@ class CustomEntityLifecycleServiceTest extends TestCase
         Feature::skipTestIfActive('v6.7.0.0', $this);
 
         $customEntityPersister = $this->createMock(CustomEntityPersister::class);
-        $customEntityPersister->expects(static::once())->method('update');
+        $customEntityPersister->expects($this->once())->method('update');
 
         $customEntitySchemaUpdater = $this->createMock(CustomEntitySchemaUpdater::class);
-        $customEntitySchemaUpdater->expects(static::once())->method('update');
+        $customEntitySchemaUpdater->expects($this->once())->method('update');
 
         $adminUiXmlSchemaValidator = new AdminUiXmlSchemaValidator();
         $customEntityEnrichmentService = new CustomEntityEnrichmentService($adminUiXmlSchemaValidator);
@@ -99,10 +99,10 @@ class CustomEntityLifecycleServiceTest extends TestCase
     public function testUpdateAppOnlyCustomEntities(): void
     {
         $customEntityPersister = $this->createMock(CustomEntityPersister::class);
-        $customEntityPersister->expects(static::once())->method('update');
+        $customEntityPersister->expects($this->once())->method('update');
 
         $customEntitySchemaUpdater = $this->createMock(CustomEntitySchemaUpdater::class);
-        $customEntitySchemaUpdater->expects(static::once())->method('update');
+        $customEntitySchemaUpdater->expects($this->once())->method('update');
 
         $adminUiXmlSchemaValidator = new AdminUiXmlSchemaValidator();
         $customEntityEnrichmentService = new CustomEntityEnrichmentService($adminUiXmlSchemaValidator);
@@ -137,10 +137,10 @@ class CustomEntityLifecycleServiceTest extends TestCase
         Feature::skipTestIfActive('v6.7.0.0', $this);
 
         $customEntityPersister = $this->createMock(CustomEntityPersister::class);
-        $customEntityPersister->expects(static::once())->method('update');
+        $customEntityPersister->expects($this->once())->method('update');
 
         $customEntitySchemaUpdater = $this->createMock(CustomEntitySchemaUpdater::class);
-        $customEntitySchemaUpdater->expects(static::once())->method('update');
+        $customEntitySchemaUpdater->expects($this->once())->method('update');
 
         $adminUiXmlSchemaValidator = new AdminUiXmlSchemaValidator();
         $customEntityEnrichmentService = new CustomEntityEnrichmentService($adminUiXmlSchemaValidator);
@@ -168,10 +168,10 @@ class CustomEntityLifecycleServiceTest extends TestCase
     public function testUpdateAppCustomEntitiesWithAdminUi(): void
     {
         $customEntityPersister = $this->createMock(CustomEntityPersister::class);
-        $customEntityPersister->expects(static::once())->method('update');
+        $customEntityPersister->expects($this->once())->method('update');
 
         $customEntitySchemaUpdater = $this->createMock(CustomEntitySchemaUpdater::class);
-        $customEntitySchemaUpdater->expects(static::once())->method('update');
+        $customEntitySchemaUpdater->expects($this->once())->method('update');
 
         $adminUiXmlSchemaValidator = new AdminUiXmlSchemaValidator();
         $customEntityEnrichmentService = new CustomEntityEnrichmentService($adminUiXmlSchemaValidator);

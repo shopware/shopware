@@ -76,7 +76,7 @@ class RedisConnectionProviderTest extends TestCase
     #[DisabledFeatures(['v6.7.0.0'])]
     public function testGetOrCreateFromDsnWithConnectionName(): void
     {
-        $this->redisConnectionFactory->expects(static::never())->method('create');
+        $this->redisConnectionFactory->expects($this->never())->method('create');
         $connection = $this->redisConnectionProvider->getOrCreateFromDsn('ephemeral', 'redis://localhost:6379');
         static::assertSame($this->connections['ephemeral'], $connection);
     }
@@ -89,7 +89,7 @@ class RedisConnectionProviderTest extends TestCase
     {
         $dsn = 'redis://localhost:6379';
         $connection = new \stdClass();
-        $this->redisConnectionFactory->expects(static::once())->method('create')->with($dsn)->willReturn($connection);
+        $this->redisConnectionFactory->expects($this->once())->method('create')->with($dsn)->willReturn($connection);
         $result = $this->redisConnectionProvider->getOrCreateFromDsn(null, $dsn);
         static::assertSame($connection, $result);
     }

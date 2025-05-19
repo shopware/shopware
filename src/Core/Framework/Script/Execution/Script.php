@@ -11,6 +11,10 @@ use Shopware\Core\Framework\Struct\Struct;
 #[Package('framework')]
 class Script extends Struct
 {
+    /**
+     * @param array<string, mixed> $twigOptions
+     * @param list<Script> $includes
+     */
     public function __construct(
         protected string $name,
         protected string $script,
@@ -32,6 +36,9 @@ class Script extends Struct
         return $this->script;
     }
 
+    /**
+     * @return array<string, mixed>
+     */
     public function getTwigOptions(): array
     {
         return $this->twigOptions;

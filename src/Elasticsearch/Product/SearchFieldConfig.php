@@ -14,7 +14,8 @@ class SearchFieldConfig
         private readonly string $field,
         int|float $ranking,
         private readonly bool $tokenize,
-        private readonly bool $andLogic = false
+        private readonly bool $andLogic = false,
+        private readonly bool $prefixMatch = true
     ) {
         if (Feature::isActive('v6.7.0.0') && \is_int($ranking)) {
             Feature::throwException('v6.7.0.0', 'The ranking property in SearchFieldConfig is now a float.');
@@ -54,5 +55,10 @@ class SearchFieldConfig
     public function setRanking(float $ranking): void
     {
         $this->ranking = $ranking;
+    }
+
+    public function usePrefixMatch(): bool
+    {
+        return $this->prefixMatch;
     }
 }

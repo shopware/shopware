@@ -111,6 +111,9 @@ final class DeliveryNoteRenderer extends AbstractDocumentRenderer
                         ],
                     ]);
 
+                    // create version of order to ensure the document stays the same even if the order changes
+                    $operation->setOrderVersionId($this->orderRepository->createVersion($orderId, $context, 'document'));
+
                     if ($operation->isStatic()) {
                         // @deprecated tag:v6.7.0 - html argument will be removed
                         $doc = new RenderedDocument('', $number, $config->buildName(), $operation->getFileType(), $config->jsonSerialize());

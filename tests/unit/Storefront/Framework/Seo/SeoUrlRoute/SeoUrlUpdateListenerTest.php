@@ -39,8 +39,8 @@ class SeoUrlUpdateListenerTest extends TestCase
         $childUuid = Uuid::randomHex();
         $event = new CategoryIndexerEvent([$childUuid], Context::createDefaultContext(), [], true);
 
-        $this->connection->expects(static::never())->method('createQueryBuilder');
-        $this->seoUrlUpdater->expects(static::once())
+        $this->connection->expects($this->never())->method('createQueryBuilder');
+        $this->seoUrlUpdater->expects($this->once())
             ->method('update')
             ->with(
                 NavigationPageSeoUrlRoute::ROUTE_NAME,
@@ -66,7 +66,7 @@ class SeoUrlUpdateListenerTest extends TestCase
         $queryBuilder->method('executeQuery')->willReturn($result);
         $this->connection->method('createQueryBuilder')->willReturn($queryBuilder);
 
-        $this->seoUrlUpdater->expects(static::once())
+        $this->seoUrlUpdater->expects($this->once())
             ->method('update')
             ->with(
                 NavigationPageSeoUrlRoute::ROUTE_NAME,

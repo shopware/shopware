@@ -89,7 +89,7 @@ class CachedShippingMethodRoute extends AbstractShippingMethodRoute
         $parts = [
             $this->generator->getCriteriaHash($criteria),
             $this->generator->getSalesChannelContextHash($context, [RuleAreas::SHIPPING_AREA]),
-            $request->query->getBoolean('onlyAvailable', false),
+            $request->query->getBoolean('onlyAvailable') || $request->request->getBoolean('onlyAvailable'),
         ];
 
         $event = new ShippingMethodRouteCacheKeyEvent($parts, $request, $context, $criteria);

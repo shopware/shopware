@@ -138,7 +138,7 @@ class AddressControllerTest extends TestCase
         $customer->setId(Uuid::randomHex());
 
         $this->abstractUpsertAddressRoute
-            ->expects(static::once())
+            ->expects($this->once())
             ->method('upsert')
             ->willThrowException(new ConstraintViolationException(new ConstraintViolationList(), []));
 
@@ -169,7 +169,7 @@ class AddressControllerTest extends TestCase
         $customer->setId(Uuid::randomHex());
 
         $this->abstractUpsertAddressRoute
-            ->expects(static::once())
+            ->expects($this->once())
             ->method('upsert')
             ->willThrowException(new \Exception());
 
@@ -263,19 +263,19 @@ class AddressControllerTest extends TestCase
         $customer->setId(Uuid::randomHex());
 
         $this->accountService
-            ->expects(static::once())
+            ->expects($this->once())
             ->method('setDefaultShippingAddress');
 
         $this->accountService
-            ->expects(static::never())
+            ->expects($this->never())
             ->method('setDefaultBillingAddress');
 
         $this->contextSwitchRoute
-            ->expects(static::once())
+            ->expects($this->once())
             ->method('switchContext');
 
         $this->salesChannelContextService
-            ->expects(static::once())
+            ->expects($this->once())
             ->method('get');
 
         $response = $this->controller->checkoutSwitchDefaultAddress($dataBag, $context, $customer);
@@ -296,19 +296,19 @@ class AddressControllerTest extends TestCase
         $customer->setId(Uuid::randomHex());
 
         $this->accountService
-            ->expects(static::once())
+            ->expects($this->once())
             ->method('setDefaultBillingAddress');
 
         $this->accountService
-            ->expects(static::never())
+            ->expects($this->never())
             ->method('setDefaultShippingAddress');
 
         $this->contextSwitchRoute
-            ->expects(static::once())
+            ->expects($this->once())
             ->method('switchContext');
 
         $this->salesChannelContextService
-            ->expects(static::once())
+            ->expects($this->once())
             ->method('get');
 
         $response = $this->controller->checkoutSwitchDefaultAddress($dataBag, $context, $customer);
@@ -326,7 +326,7 @@ class AddressControllerTest extends TestCase
         $dataBag->set(SalesChannelContextService::SHIPPING_ADDRESS_ID, $id);
 
         $this->contextSwitchRoute
-            ->expects(static::once())
+            ->expects($this->once())
             ->method('switchContext')
             ->with(
                 static::callback(function ($arg) use ($id) {
@@ -348,11 +348,11 @@ class AddressControllerTest extends TestCase
         $customer->setId(Uuid::randomHex());
 
         $this->accountService
-            ->expects(static::once())
+            ->expects($this->once())
             ->method('setDefaultBillingAddress');
 
         $this->accountService
-            ->expects(static::never())
+            ->expects($this->never())
             ->method('setDefaultShippingAddress');
 
         $this->controller->switchDefaultAddress('billing', Uuid::randomHex(), Generator::generateSalesChannelContext(), $customer);
@@ -367,7 +367,7 @@ class AddressControllerTest extends TestCase
         $dataBag->set(SalesChannelContextService::BILLING_ADDRESS_ID, $id);
 
         $this->contextSwitchRoute
-            ->expects(static::once())
+            ->expects($this->once())
             ->method('switchContext')
             ->with(
                 static::callback(function ($arg) use ($id) {
@@ -401,11 +401,11 @@ class AddressControllerTest extends TestCase
         $customer->setId(Uuid::randomHex());
 
         $this->accountService
-            ->expects(static::once())
+            ->expects($this->once())
             ->method('setDefaultShippingAddress');
 
         $this->accountService
-            ->expects(static::never())
+            ->expects($this->never())
             ->method('setDefaultBillingAddress');
 
         $this->controller->switchDefaultAddress('shipping', Uuid::randomHex(), Generator::generateSalesChannelContext(), $customer);
@@ -473,7 +473,7 @@ class AddressControllerTest extends TestCase
         $dataBag->set('address', new DataBag(['id' => Uuid::randomHex()]));
 
         $this->abstractUpsertAddressRoute
-            ->expects(static::once())
+            ->expects($this->once())
             ->method('upsert')
             ->willThrowException(new ConstraintViolationException(new ConstraintViolationList(), []));
 
@@ -492,7 +492,7 @@ class AddressControllerTest extends TestCase
         $dataBag->set('address', new DataBag(['foo' => 'foo']));
 
         $this->abstractUpsertAddressRoute
-            ->expects(static::once())
+            ->expects($this->once())
             ->method('upsert')
             ->willThrowException(new ConstraintViolationException(new ConstraintViolationList(), []));
 
@@ -518,7 +518,7 @@ class AddressControllerTest extends TestCase
         $customer->setId(Uuid::randomHex());
 
         $this->deleteAddressRoute
-            ->expects(static::once())
+            ->expects($this->once())
             ->method('delete');
 
         /** @var RedirectResponse $response */
@@ -541,7 +541,7 @@ class AddressControllerTest extends TestCase
         $customer->setId(Uuid::randomHex());
 
         $this->deleteAddressRoute
-            ->expects(static::once())
+            ->expects($this->once())
             ->method('delete')
             ->willThrowException(new CannotDeleteDefaultAddressException($addressId));
 
@@ -602,12 +602,12 @@ class AddressControllerTest extends TestCase
         $listAddressRouteResponse = $this->createMock(ListAddressRouteResponse::class);
 
         $this->listAddressRoute
-            ->expects(static::once())
+            ->expects($this->once())
             ->method('load')
             ->willReturn($listAddressRouteResponse);
 
         $listAddressRouteResponse
-            ->expects(static::once())
+            ->expects($this->once())
             ->method('getAddressCollection')
             ->willReturn($customerAddressCollection);
 
@@ -641,12 +641,12 @@ class AddressControllerTest extends TestCase
         $listAddressRouteResponse = $this->createMock(ListAddressRouteResponse::class);
 
         $this->listAddressRoute
-            ->expects(static::once())
+            ->expects($this->once())
             ->method('load')
             ->willReturn($listAddressRouteResponse);
 
         $listAddressRouteResponse
-            ->expects(static::once())
+            ->expects($this->once())
             ->method('getAddressCollection')
             ->willReturn($customerAddressCollection);
 
@@ -680,17 +680,17 @@ class AddressControllerTest extends TestCase
         $listAddressRouteResponse = $this->createMock(ListAddressRouteResponse::class);
 
         $this->listAddressRoute
-            ->expects(static::once())
+            ->expects($this->once())
             ->method('load')
             ->willReturn($listAddressRouteResponse);
 
         $listAddressRouteResponse
-            ->expects(static::once())
+            ->expects($this->once())
             ->method('getAddressCollection')
             ->willReturn($customerAddressCollection);
 
         $this->abstractUpsertAddressRoute
-            ->expects(static::once())
+            ->expects($this->once())
             ->method('upsert')
             ->willThrowException(new ConstraintViolationException(new ConstraintViolationList(), []));
 
@@ -719,17 +719,17 @@ class AddressControllerTest extends TestCase
         $listAddressRouteResponse = $this->createMock(ListAddressRouteResponse::class);
 
         $this->listAddressRoute
-            ->expects(static::once())
+            ->expects($this->once())
             ->method('load')
             ->willReturn($listAddressRouteResponse);
 
         $listAddressRouteResponse
-            ->expects(static::once())
+            ->expects($this->once())
             ->method('getAddressCollection')
             ->willReturn($customerAddressCollection);
 
         $this->abstractUpsertAddressRoute
-            ->expects(static::once())
+            ->expects($this->once())
             ->method('upsert')
             ->willThrowException(new \Exception());
 

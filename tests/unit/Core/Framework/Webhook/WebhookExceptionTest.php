@@ -30,4 +30,18 @@ class WebhookExceptionTest extends TestCase
         static::assertEquals('FRAMEWORK__WEBHOOK_FAILED', $e->getErrorCode());
         static::assertEquals(Response::HTTP_INTERNAL_SERVER_ERROR, $e->getStatusCode());
     }
+
+    public function testInvalidDataMapping(): void
+    {
+        $exception = WebhookException::invalidDataMapping('propertyName', 'classString');
+
+        static::assertSame('Invalid available DataMapping, could not get property "propertyName" on instance of classString', $exception->getMessage());
+    }
+
+    public function testUnknownEventDataType(): void
+    {
+        $exception = WebhookException::unknownEventDataType('invalidType');
+
+        static::assertSame('Unknown EventDataType: invalidType', $exception->getMessage());
+    }
 }

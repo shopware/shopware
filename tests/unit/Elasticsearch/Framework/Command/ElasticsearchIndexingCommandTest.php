@@ -22,7 +22,7 @@ class ElasticsearchIndexingCommandTest extends TestCase
 
         $bus = $this->createMock(MessageBusInterface::class);
         $aliasHandler = $this->createMock(CreateAliasTaskHandler::class);
-        $aliasHandler->expects(static::never())->method('run');
+        $aliasHandler->expects($this->never())->method('run');
 
         $commandTester = new CommandTester(new ElasticsearchIndexingCommand($oldIndexer, $bus, $aliasHandler, true));
         $commandTester->execute([]);
@@ -36,7 +36,7 @@ class ElasticsearchIndexingCommandTest extends TestCase
 
         $bus = $this->createMock(MessageBusInterface::class);
         $aliasHandler = $this->createMock(CreateAliasTaskHandler::class);
-        $aliasHandler->expects(static::once())->method('run');
+        $aliasHandler->expects($this->once())->method('run');
 
         $commandTester = new CommandTester(new ElasticsearchIndexingCommand($oldIndexer, $bus, $aliasHandler, true));
         $commandTester->execute(['--no-queue' => true]);
@@ -50,7 +50,7 @@ class ElasticsearchIndexingCommandTest extends TestCase
 
         $bus = $this->createMock(MessageBusInterface::class);
         $aliasHandler = $this->createMock(CreateAliasTaskHandler::class);
-        $aliasHandler->expects(static::never())->method('run');
+        $aliasHandler->expects($this->never())->method('run');
 
         $commandTester = new CommandTester(new ElasticsearchIndexingCommand($oldIndexer, $bus, $aliasHandler, false));
         $commandTester->execute(['--no-queue' => true], ['capture_stderr_separately' => true]);
@@ -66,7 +66,7 @@ class ElasticsearchIndexingCommandTest extends TestCase
 
         $bus = $this->createMock(MessageBusInterface::class);
         $aliasHandler = $this->createMock(CreateAliasTaskHandler::class);
-        $aliasHandler->expects(static::never())->method('run');
+        $aliasHandler->expects($this->never())->method('run');
 
         $commandTester = new CommandTester(new ElasticsearchIndexingCommand($oldIndexer, $bus, $aliasHandler, true));
         $commandTester->execute(['--only' => 'product,category']);

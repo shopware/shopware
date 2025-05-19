@@ -60,7 +60,7 @@ class UninstallAppsStrategyTest extends TestCase
         $themeLifecycleHandler = null;
         if (class_exists(ThemeAppLifecycleHandler::class)) {
             $themeLifecycleHandler = $this->createMock(ThemeAppLifecycleHandler::class);
-            $themeLifecycleHandler->expects(static::once())
+            $themeLifecycleHandler->expects($this->once())
                 ->method('handleUninstall')
                 ->with(
                     static::callback(fn (AppDeactivatedEvent $event) => $event->getApp()->getName() === $app->getName())

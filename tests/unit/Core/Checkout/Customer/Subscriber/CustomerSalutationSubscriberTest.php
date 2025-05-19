@@ -56,7 +56,7 @@ class CustomerSalutationSubscriberTest extends TestCase
             [],
         );
 
-        $this->connection->expects(static::never())->method('executeUpdate');
+        $this->connection->expects($this->never())->method('executeUpdate');
 
         $this->salutationSubscriber->setDefaultSalutation($event);
     }
@@ -74,7 +74,7 @@ class CustomerSalutationSubscriberTest extends TestCase
             [],
         );
 
-        $this->connection->expects(static::once())
+        $this->connection->expects($this->once())
             ->method('executeStatement')
             ->willReturnCallback(function ($sql, $params) use ($customerId): void {
                 static::assertSame($params, [

@@ -196,7 +196,7 @@ class EntityReader implements EntityReaderInterface
                 continue;
             }
 
-            // many to one associations can be directly fetched in same query
+            // many-to-one associations can be directly fetched in same query
             if ($field instanceof ManyToOneAssociationField || $field instanceof OneToOneAssociationField) {
                 $reference = $field->getReferenceDefinition();
 
@@ -204,12 +204,19 @@ class EntityReader implements EntityReaderInterface
 
                 $this->queryHelper->resolveField($field, $definition, $root, $query, $context);
 
-                $alias = $root . '.' . $field->getPropertyName();
+                $fieldPropertyName = $field->getPropertyName();
+                $alias = $root . '.' . $fieldPropertyName;
 
                 $joinCriteria = null;
-                if ($criteria && $criteria->hasAssociation($field->getPropertyName())) {
-                    $joinCriteria = $criteria->getAssociation($field->getPropertyName());
+                if ($criteria && $criteria->hasAssociation($fieldPropertyName)) {
+                    $joinCriteria = $criteria->getAssociation($fieldPropertyName);
                     $basics = $this->addAssociationFieldsToCriteria($joinCriteria, $reference, $basics);
+                }
+
+                $referenceField = $reference->getFields()->getByStorageName($field->getReferenceField());
+                if ($isPartial && $referenceField && !isset($partial[$fieldPropertyName][$referenceField->getPropertyName()])) {
+                    $partial[$fieldPropertyName] = $partial[$fieldPropertyName] ?? [];
+                    $partial[$fieldPropertyName][$referenceField->getPropertyName()] = [];
                 }
 
                 $this->joinBasic($reference, $context, $alias, $query, $basics, $joinCriteria, $partial[$field->getPropertyName()] ?? []);
@@ -219,7 +226,7 @@ class EntityReader implements EntityReaderInterface
 
             // add sub select for many to many field
             if ($field instanceof ManyToManyAssociationField) {
-                if ($this->isAssociationRestricted($criteria, $field->getPropertyName())) {
+                if ($this->isAssociationRestricted($criteria, $field->getPropertyName()) && !$field->is(Inherited::class)) {
                     continue;
                 }
 
@@ -794,8 +801,13 @@ class EntityReader implements EntityReaderInterface
                 $condition
             );
 
-        $query->andWhere($root . '.' . $localColumn . ' IN (:localIds)');
-        $query->setParameter('localIds', Uuid::fromHexToBytesList($collection->getIds()), ArrayParameterType::BINARY);
+        if (!$association->is(Inherited::class)) {
+            $query->andWhere($root . '.' . $localColumn . ' IN (:localIds)');
+            $query->setParameter('localIds', Uuid::fromHexToBytesList($collection->getIds()), ArrayParameterType::BINARY);
+        } else {
+            $query->andWhere($root . '.' . $referenceColumn . ' IN (:mappingIds)');
+            $query->setParameter('mappingIds', Uuid::fromHexToBytesList($this->collectManyToManyIds($collection, $association)), ArrayParameterType::BINARY);
+        }
 
         $orderBy = '';
         $parts = $query->getQueryPart('orderBy');

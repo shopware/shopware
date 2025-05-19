@@ -540,7 +540,7 @@
             {% else %}
                 {# @deprecated tag:v6.7.0 - Block will be removed. Form field is replaced by a central component. #}
                 {% block component_address_personal_fields_birthday_label %}
-                    <label for="{{ idPrefix ~ prefix }}personalBirthday">
+                    <label class="form-label" for="{{ idPrefix ~ prefix }}personalBirthday">
                         {{ "account.personalBirthdayLabel"|trans|sw_sanitize }}{{ config('core.loginRegistration.birthdayFieldRequired') ? "general.required"|trans|sw_sanitize }}
                     </label>
                 {% endblock %}

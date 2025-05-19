@@ -45,7 +45,7 @@ class ThemeDumpCommandTest extends TestCase
         $themeFileResolverMock = new ThemeFileResolverMock();
 
         $themeFilesystemResolver = $this->createMock(ThemeFilesystemResolver::class);
-        $themeFilesystemResolver->expects(static::once())->method('getFilesystemForStorefrontConfig')->willReturn(new StaticFilesystem());
+        $themeFilesystemResolver->expects($this->once())->method('getFilesystemForStorefrontConfig')->willReturn(new StaticFilesystem());
 
         $themeDumpCommand = new ThemeDumpCommand(
             $this->getPluginRegistryMock(),

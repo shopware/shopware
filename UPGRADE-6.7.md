@@ -2588,6 +2588,11 @@ Make sure to pass it to the constructor.
   Extend `\Shopware\Storefront\Pagelet\Header\HeaderPageletLoader` or `\Shopware\Storefront\Pagelet\Footer\FooterPageletLoader` instead.
 * The properties `header`, `footer`, `salesChannelShippingMethods` and `salesChannelPaymentMethods` and their getter and setter Methods in `\Shopware\Storefront\Page\Page` were removed.
   Extend `\Shopware\Storefront\Pagelet\Header\HeaderPagelet` or `\Shopware\Storefront\Pagelet\Footer\FooterPagelet` instead.
+  Use the following alternatives in templates instead:
+    * `context.currency` instead of `page.header.activeCurrency`
+    * `shopware.navigation.id` instead of `page.header.navigation.active.id`
+    * `shopware.navigation.pathIdList` instead of `page.header.navigation.active.path`
+    * `context.languageInfo` instead of `page.header.activeLanguage`
 * The property `serviceMenu` and its getter and setter Methods in `\Shopware\Storefront\Pagelet\Header\HeaderPagelet` were removed.
   Extend it via the `\Shopware\Storefront\Pagelet\Footer\FooterPagelet` instead.
 * The `navigationId` request parameter in `\Shopware\Storefront\Pagelet\Header\HeaderPageletLoader::load` was removed.
@@ -2612,6 +2617,11 @@ Make sure to pass it to the constructor.
 * The template variables `activeId` and `activePath` in `src/Storefront/Resources/views/storefront/layout/navbar/categories.html.twig` were removed.
 * The template variable `activePath` in `src/Storefront/Resources/views/storefront/layout/navbar/navbar.html.twig` was removed.
 * The parameter `activeResult` of `src/Storefront/Resources/views/storefront/layout/sidebar/category-navigation.html.twig` was removed.
+* The global `showStagingBanner` Twig variable was removed. Use `shopware.showStagingBanner` instead.
+
+## FooterPagelet changes
+The former optional parameter `serviceMenu` of type `\Shopware\Core\Content\Category\CategoryCollection` in `\Shopware\Storefront\Pagelet\Footer\FooterPagelet` is now required.
+Make sure to pass it to the constructor.
 
 ## ThemeFileImporterInterface & ThemeFileImporter Removal
 Both `\Shopware\Storefront\Theme\ThemeFileImporterInterface` & `\Shopware\Storefront\Theme\ThemeFileImporter` are removed without replacement. These classes are already not used as of v6.6.5.0 and therefore this extension point is removed with no planned replacement.
@@ -2778,4 +2788,38 @@ Alternatively you can use the `cache:clear:all` command to clear all caches (inc
 
 Prior Shopware 6.7, the cache ID was loaded by the database from the `app_config` table and created complete different caches using that. This was used in earlier Shopware versions to clear the cache rapidly without having to clear the whole cache.
 You can still set `SHOPWARE_CACHE_ID` as an environment variable to set the cache ID.
+</details>
+
+# Document renderer structure change
+We made some changes in the document renderer structure, which might affect your project setups.
+<details>
+  <summary>Detailed Changes</summary>
+
+## AbstractDocumentRenderer render workflow
+With the next major version, the PDF rendering will be moved from the `\Shopware\Core\Checkout\Document\Service\DocumentGenerator` to each renderer with a PDF document.
+Each implementation of the `\Shopware\Core\Checkout\Document\Renderer\AbstractDocumentRenderer` class needs to set the fully rendered file with `\Shopware\Core\Checkout\Document\Renderer\RenderedDocument::setContent()`.
+With this change, the `\Shopware\Core\Checkout\Document\Renderer\RenderedDocument::html` property is not needed anymore and will be removed.
+The content of a PDF document must be rendered within the renderer.
+Before:
+```php
+// e.g. InvoiceRenderer
+$doc = new RenderedDocument(
+    $html,
+    $number,
+    $config->buildName(),
+    $operation->getFileType(),
+    $config->jsonSerialize(),
+);
+```
+After:
+```php
+// e.g. InvoiceRenderer
+$doc = new RenderedDocument(
+    $number,
+    $config->buildName(),
+    $operation->getFileType(),
+    $config->jsonSerialize(),
+);
+$doc->setContent($this->pdfRenderer->render($doc, $html));
+```
 </details>

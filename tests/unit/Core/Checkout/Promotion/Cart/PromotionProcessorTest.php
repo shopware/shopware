@@ -49,7 +49,7 @@ class PromotionProcessorTest extends TestCase
             [new LineItem('B', PromotionProcessor::LINE_ITEM_TYPE, Uuid::randomHex(), 1)],
         ));
 
-        $promotionCalculatorMock->expects(static::once())
+        $promotionCalculatorMock->expects($this->once())
             ->method('calculate')
             ->with(
                 static::callback(function (LineItemCollection $data) {
@@ -88,7 +88,7 @@ class PromotionProcessorTest extends TestCase
             [(new LineItem('B', PromotionProcessor::LINE_ITEM_TYPE, Uuid::randomHex(), 1))->setPayload(['promotionCodeType' => PromotionItemBuilder::PROMOTION_TYPE_GLOBAL])],
         ));
 
-        $promotionCalculatorMock->expects(static::never())
+        $promotionCalculatorMock->expects($this->never())
             ->method('calculate');
 
         $promotionProcessor->process($data, $originalCart, $toCalculateCart, $context, $behavior);
@@ -118,7 +118,7 @@ class PromotionProcessorTest extends TestCase
             [(new LineItem('B', PromotionProcessor::LINE_ITEM_TYPE, Uuid::randomHex(), 1))->setPayload(['promotionCodeType' => PromotionItemBuilder::PROMOTION_TYPE_FIXED])],
         ));
 
-        $promotionCalculatorMock->expects(static::never())
+        $promotionCalculatorMock->expects($this->never())
             ->method('calculate');
 
         $promotionProcessor->process($data, $originalCart, $toCalculateCart, $context, $behavior);

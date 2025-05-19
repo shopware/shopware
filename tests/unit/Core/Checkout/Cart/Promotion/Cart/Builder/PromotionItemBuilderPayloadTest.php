@@ -90,10 +90,11 @@ class PromotionItemBuilderPayloadTest extends TestCase
             'setGroups' => [],
             'groupId' => '',
             'filter' => [
-                'sorterKey' => null,
-                'applierKey' => null,
-                'usageKey' => null,
-                'pickerKey' => null,
+                'considerAdvancedRules' => true,
+                'sorterKey' => '',
+                'applierKey' => '',
+                'usageKey' => '',
+                'pickerKey' => '',
             ],
             'exclusions' => [],
             'preventCombination' => false,
@@ -142,6 +143,7 @@ class PromotionItemBuilderPayloadTest extends TestCase
             'setGroups' => [],
             'groupId' => '',
             'filter' => [
+                'considerAdvancedRules' => false,
                 'sorterKey' => null,
                 'applierKey' => null,
                 'usageKey' => null,
@@ -193,6 +195,7 @@ class PromotionItemBuilderPayloadTest extends TestCase
             'setGroups' => [],
             'groupId' => '',
             'filter' => [
+                'considerAdvancedRules' => false,
                 'sorterKey' => null,
                 'applierKey' => null,
                 'usageKey' => null,
@@ -293,6 +296,7 @@ class PromotionItemBuilderPayloadTest extends TestCase
             ],
             'groupId' => '',
             'filter' => [
+                'considerAdvancedRules' => false,
                 'sorterKey' => null,
                 'applierKey' => null,
                 'usageKey' => null,

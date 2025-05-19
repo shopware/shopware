@@ -83,7 +83,7 @@ class ThemeDumpCommand extends Command
                 $selectedOption = $helper->ask($input, $output, $question);
 
                 \assert(\is_string($selectedOption));
-                $themeName = preg_replace('/\s+\(.*\)$/', '', $selectedOption);
+                $themeName = trim(explode(' || ', $selectedOption)[0]);
 
                 $criteria->addFilter(new EqualsFilter('name', $themeName));
             }
@@ -161,14 +161,14 @@ class ThemeDumpCommand extends Command
             if ($channelCount > 0) {
                 $choices[] =
                     \sprintf(
-                        '%s (✓ Assigned to: %s)',
+                        '%s || Assigned to: %s',
                         $themeName,
                         $salesChannels ? implode(', ', $salesChannels->map(fn (SalesChannelEntity $channel) => $channel->getName())) : ''
                     );
                 continue;
             }
 
-            $choices[] = \sprintf('%s (Not assigned to any storefront channel)', $themeName);
+            $choices[] = \sprintf('%s || Not assigned to any storefront channel', $themeName);
         }
 
         return $choices;

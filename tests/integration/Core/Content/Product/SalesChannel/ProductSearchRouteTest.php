@@ -829,7 +829,7 @@ class ProductSearchRouteTest extends TestCase
                         'url' => $_SERVER['APP_URL'] . '/de',
                         'measurementSystemId' => Uuid::fromStringToHex('metric'),
                         'lengthUnitId' => Uuid::fromStringToHex('metric-mm'),
-                        'massUnitId' => Uuid::fromStringToHex('metric-kg'),
+                        'weightUnitId' => Uuid::fromStringToHex('metric-kg'),
                     ],
                 ],
             ],

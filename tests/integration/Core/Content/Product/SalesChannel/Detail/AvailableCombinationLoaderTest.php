@@ -48,7 +48,7 @@ class AvailableCombinationLoaderTest extends TestCase
                     'url' => 'http://test.to',
                     'measurementSystemId' => Uuid::fromStringToHex('metric'),
                     'lengthUnitId' => Uuid::fromStringToHex('metric-mm'),
-                    'massUnitId' => Uuid::fromStringToHex('metric-kg'),
+                    'weightUnitId' => Uuid::fromStringToHex('metric-kg'),
                 ],
             ],
         ]);

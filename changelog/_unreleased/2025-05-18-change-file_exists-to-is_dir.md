@@ -1,6 +1,6 @@
 ---
 title: Change file_exists to is_dir
-issue: NEXT-40109
+issue: https://github.com/shopware/shopware/issues/5913
 author: tinect
 author_email: s.koenig@tinect.de
 author_github: tinect

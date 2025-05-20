@@ -34,6 +34,7 @@ class SlotConfigFieldSerializer extends JsonFieldSerializer
                             new NotBlank(),
                         ],
                         'value' => [],
+                        'contentSchema' => [],
                     ],
                 ]),
             ]),

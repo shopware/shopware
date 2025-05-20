@@ -9,6 +9,7 @@ type CmsSlotConfig = {
     [key: string]: {
         source: 'mapped' | 'static' | 'default';
         value: string;
+        contentSchema?: string;
         required?: boolean;
         type?: unknown;
         entity?: {

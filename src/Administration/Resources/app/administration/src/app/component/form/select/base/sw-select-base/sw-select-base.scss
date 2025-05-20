@@ -16,7 +16,7 @@ $sw-select-focus-transition: all ease-in-out 0.2s;
         position: relative;
         padding: 0 8px;
         border: none;
-        font-size: $font-size-xs;
+        font-size: var(--font-size-xs);
         line-height: 22px;
         color: var(--color-text-primary-default);
         outline: none;

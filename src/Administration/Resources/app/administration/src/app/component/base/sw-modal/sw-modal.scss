@@ -175,6 +175,7 @@ $sw-modal-transition-timing-function: cubic-bezier(0.68, -0.55, 0.26, 1.55);
 
     .sw-modal__footer {
         border-radius: 0 0 $border-radius-lg $border-radius-lg;
+        background-color: var(--color-elevation-surface-overlay);
         border-top: 1px solid var(--color-border-primary-default);
         display: grid;
         grid-auto-columns: min-content;

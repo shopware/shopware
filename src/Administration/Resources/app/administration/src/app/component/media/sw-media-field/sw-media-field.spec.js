@@ -120,4 +120,28 @@ describe('src/app/component/media/sw-media-field', () => {
         expect(wrapper.vm.limit).toBe(5);
         expect(wrapper.vm.fetchSuggestions).toHaveBeenCalled();
     });
+
+    it('returns empty config when picker is false', async () => {
+        const wrapper = await createWrapper();
+
+        expect(wrapper.vm.popoverConfig).toEqual({});
+    });
+
+    it('returns empty config when not inside a modal', async () => {
+        const wrapper = await createWrapper();
+        await wrapper.setData({ showPicker: true });
+
+        wrapper.vm.$el = { closest: () => null };
+        expect(wrapper.vm.popoverConfig).toEqual({});
+    });
+
+    it('returns modal targetSelector when picker open inside modal', async () => {
+        const wrapper = await createWrapper();
+        await wrapper.setData({ showPicker: true });
+
+        wrapper.vm.$el = { closest: (sel) => sel === '.mt-modal' ? {} : null };
+        expect(wrapper.vm.popoverConfig).toEqual({
+            targetSelector: '.mt-modal__content-inner',
+        });
+    });
 });

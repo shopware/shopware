@@ -48,15 +48,11 @@ const modalsStore = Shopware.Store.register({
         },
 
         closeLastModalWithoutLocationId(): void {
-            let modalsWithoutLocationId = this.modals.filter((modal) => !modal.locationId);
-            const modalsWithLocationId = this.modals.filter((modal) => modal.locationId);
-            const lastModal = modalsWithoutLocationId[modalsWithoutLocationId.length - 1];
+            const lastModalWithoutLocationId = this.modals.filter((modal) => !modal.locationId).at(- 1);
 
-            if (lastModal) {
-                modalsWithoutLocationId = modalsWithoutLocationId.filter((modal) => modal !== lastModal);
+            if (lastModalWithoutLocationId) {
+                this.modals = this.modals.filter((modal) => modal !== lastModalWithoutLocationId);
             }
-
-            this.modals = [...modalsWithoutLocationId, ...modalsWithLocationId];
         },
     },
 });

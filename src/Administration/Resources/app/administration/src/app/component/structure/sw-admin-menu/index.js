@@ -19,8 +19,30 @@ const MODULES = [
         icon: 'tag',
         to: 'sw.product.index',
         match(route) {
+            if (route.name.startsWith('sw.product.stream')) {
+                return 'none';
+            }
+
             return route.name.startsWith('sw.product') ? 'exact' : 'none';
-        }
+        },
+        children: [
+            {
+                id: 'reviews',
+                name: 'Reviews',
+                to: 'sw.review.index',
+                match(route) {
+                    return route.name.startsWith('sw.review') ? 'exact' : 'none';
+                }
+            },
+            {
+                id: 'dynamic-product-groups',
+                name: 'Dynamic Product Groups',
+                to: 'sw.product.stream.index',
+                match(route) {
+                    return route.name.startsWith('sw.product.stream') ? 'exact' : 'none';
+                }
+            }
+        ]
     },
     {
         id: 'orders',

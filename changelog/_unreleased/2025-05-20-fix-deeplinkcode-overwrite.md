@@ -4,5 +4,5 @@ author: Max Stegmeyer
 author_email: m.stegmeyer@shopware.com
 author_github: @mstegmeyer
 ---
-# Code
+# Core
 * Changed `CartTransformer` to not overwrite the `deeplinkCode` of an order when not requested.

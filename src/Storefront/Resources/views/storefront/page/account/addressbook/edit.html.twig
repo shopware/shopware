@@ -42,7 +42,16 @@
                             {% endblock %}
 
                             {% block page_account_address_action_buttons %}
-                                <div class="address-form-actions">
+                                <div class="address-form-actions d-flex justify-content-between">
+                                    {% block page_account_address_action_button_back %}
+                                        <a href="{{ path('frontend.account.address.page') }}"
+                                           class="account-address-back btn btn-outline-secondary"
+                                           aria-label="{{ 'general.back'|trans|striptags }}">
+                                            {% sw_icon 'arrow-left' %}
+                                            <span class="d-none d-sm-inline">{{ 'general.back'|trans|sw_sanitize }}</span>
+                                        </a>
+                                    {% endblock %}
+
                                     {% block page_account_address_action_button_send %}
                                         <button type="submit"
                                                 class="address-form-submit btn btn-primary"

@@ -22,11 +22,13 @@ use Shopware\Core\Framework\Api\Context\AdminApiSource;
 use Shopware\Core\Framework\Api\Context\AdminSalesChannelApiSource;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\Util\Json;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\Country\CountryEntity;
 use Shopware\Core\System\Currency\CurrencyEntity;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\System\SalesChannel\SalesChannelEntity;
+use Shopware\Core\Test\Generator;
 
 /**
  * @internal
@@ -37,52 +39,52 @@ class CartTransformerTest extends TestCase
 {
     public function testCartTransformation(): void
     {
-        $adminUserId = '123467890';
         $stateId = Uuid::randomHex();
-
         $cart = $this->createCart();
-        $salesChannelContextMock = $this->createSalesChannelMock($adminUserId);
+        $salesChannelContext = Generator::generateSalesChannelContext();
 
-        $cartTransformer = CartTransformer::transform($cart, $salesChannelContextMock, $stateId);
-
-        $currency = $salesChannelContextMock->getCurrency();
-
-        $expected = [
-            'price' => new CartPrice(
-                100.0,
-                100.0,
-                100.0,
-                new CalculatedTaxCollection([new CalculatedTax(0.0, 38.0, 100.0),
-                ]),
-                new TaxRuleCollection(),
-                CartPrice::TAX_STATE_GROSS
-            ),
-            'shippingCosts' => new CalculatedPrice(5, 5, new CalculatedTaxCollection(), new TaxRuleCollection(), 1),
-            'stateId' => $stateId,
-            'currencyId' => $currency->getId(),
-            'currencyFactor' => $currency->getFactor(),
-            'salesChannelId' => $salesChannelContextMock->getSalesChannelId(),
-            'lineItems' => [],
-            'deliveries' => [],
-            'customerComment' => 'customerCommentTest',
-            'affiliateCode' => 'AffiliateCodeTest',
-            'campaignCode' => 'campaignCodeTest',
-            'source' => 'sourceTest',
-            'createdById' => $adminUserId,
-            'itemRounding' => [],
-            'totalRounding' => [],
-        ];
+        $cartTransformer = CartTransformer::transform($cart, $salesChannelContext, $stateId);
 
         static::assertIsString($cartTransformer['deepLinkCode']);
         static::assertIsString($cartTransformer['orderDateTime']);
-
         unset($cartTransformer['deepLinkCode']);
         unset($cartTransformer['orderDateTime']);
 
-        static::assertEquals($expected, $cartTransformer);
+        static::assertEquals($this->getExpectedBaseData($stateId, $salesChannelContext), $cartTransformer);
     }
 
-    public function createCart(): Cart
+    public function testCartTransformationWithCreatedByUserId(): void
+    {
+        $adminUserId = '123467890';
+        $stateId = Uuid::randomHex();
+        $cart = $this->createCart();
+        $context = Context::createDefaultContext(new AdminSalesChannelApiSource(Uuid::randomHex(), Context::createDefaultContext(new AdminApiSource($adminUserId))));
+        $salesChannelContext = Generator::generateSalesChannelContext($context);
+
+        $cartTransformer = CartTransformer::transform($cart, $salesChannelContext, $stateId, false);
+
+        static::assertArrayHasKey('createdById', $cartTransformer);
+        static::assertSame($adminUserId, $cartTransformer['createdById']);
+        unset($cartTransformer['createdById']);
+
+        static::assertEquals($this->getExpectedBaseData($stateId, $salesChannelContext), $cartTransformer);
+    }
+
+    public function testCartTransformationWithoutOrderData(): void
+    {
+        $stateId = Uuid::randomHex();
+        $cart = $this->createCart();
+        $salesChannelContext = Generator::generateSalesChannelContext();
+
+        $cartTransformer = CartTransformer::transform($cart, $salesChannelContext, $stateId, false);
+
+        static::assertArrayNotHasKey('deepLinkCode', $cartTransformer);
+        static::assertArrayNotHasKey('orderDateTime', $cartTransformer);
+
+        static::assertEquals($this->getExpectedBaseData($stateId, $salesChannelContext), $cartTransformer);
+    }
+
+    private function createCart(): Cart
     {
         $cart = new Cart('test');
         $cart->setPrice(
@@ -118,27 +120,38 @@ class CartTransformerTest extends TestCase
         return $cart;
     }
 
-    public function createSalesChannelMock(string $adminUserId): SalesChannelContext&MockObject
+    /**
+     * @param string $stateId
+     * @param CurrencyEntity $currency
+     * @param SalesChannelContext $salesChannelContext
+     * @return array
+     * @throws \JsonException
+     */
+    public function getExpectedBaseData(string $stateId, SalesChannelContext $salesChannelContext): array
     {
-        $salesChannelContextMock = $this->createMock(SalesChannelContext::class);
-        $contextSourceMock = $this->createMock(AdminSalesChannelApiSource::class);
-        $sourceTest = $this->createMock(AdminApiSource::class);
-
-        $contextMockAdminSales = new Context($contextSourceMock);
-        $contextMockAdminApi = new Context($sourceTest);
-
-        $contextSourceMock->method('getOriginalContext')->willReturn($contextMockAdminApi);
-        $sourceTest->method('getUserId')->willReturn($adminUserId);
-        $salesChannelContextMock->method('getContext')->willReturn($contextMockAdminSales);
-        $currency = new CurrencyEntity();
-        $currency->setId('12345');
-        $currency->setFactor(1);
-
-        $salesChannelContextMock->method('getCurrency')->willReturn($currency);
-        $salesChannelEntity = new SalesChannelEntity();
-        $salesChannelEntity->setId('123');
-        $salesChannelContextMock->method('getSalesChannel')->willReturn($salesChannelEntity);
-
-        return $salesChannelContextMock;
+        return [
+            'price' => new CartPrice(
+                100.0,
+                100.0,
+                100.0,
+                new CalculatedTaxCollection([new CalculatedTax(0.0, 38.0, 100.0),
+                ]),
+                new TaxRuleCollection(),
+                CartPrice::TAX_STATE_GROSS
+            ),
+            'shippingCosts' => new CalculatedPrice(5, 5, new CalculatedTaxCollection(), new TaxRuleCollection(), 1),
+            'stateId' => $stateId,
+            'currencyId' => $salesChannelContext->getCurrencyId(),
+            'currencyFactor' => $salesChannelContext->getCurrency()->getFactor(),
+            'salesChannelId' => $salesChannelContext->getSalesChannelId(),
+            'lineItems' => [],
+            'deliveries' => [],
+            'customerComment' => 'customerCommentTest',
+            'affiliateCode' => 'AffiliateCodeTest',
+            'campaignCode' => 'campaignCodeTest',
+            'source' => 'sourceTest',
+            'itemRounding' => json_decode(Json::encode($salesChannelContext->getItemRounding()), true, 512, \JSON_THROW_ON_ERROR),
+            'totalRounding' => json_decode(Json::encode($salesChannelContext->getTotalRounding()), true, 512, \JSON_THROW_ON_ERROR),
+        ];
     }
 }

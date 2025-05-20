@@ -57,6 +57,7 @@ describe('module/sw-settings-snippet/page/sw-settings-snippet-set-list', () => {
                         $route: {
                             query: 'test',
                         },
+                        $t: (key) => key,
                     },
                     provide: {
                         acl: {
@@ -77,6 +78,7 @@ describe('module/sw-settings-snippet/page/sw-settings-snippet-set-list', () => {
                         },
                         repositoryFactory: {
                             create: () => ({
+                                create: () => Promise.resolve(getSnippetSetData()[0]),
                                 search: () => Promise.resolve(getSnippetSetData()),
                             }),
                         },
@@ -84,7 +86,10 @@ describe('module/sw-settings-snippet/page/sw-settings-snippet-set-list', () => {
                     },
                     stubs: {
                         'sw-page': {
-                            template: '<div class="sw-page"><slot name="content"></slot></div>',
+                            template: `<div class="sw-page">
+                                <slot name="smart-bar-actions"></slot>
+                                <slot name="content"></slot>
+                            </div>`,
                         },
                         'sw-icon': true,
                         'sw-button': true,
@@ -94,25 +99,23 @@ describe('module/sw-settings-snippet/page/sw-settings-snippet-set-list', () => {
                         'sw-card-view': {
                             template: '<div><slot></slot></div>',
                         },
-                        'sw-button-group': true,
-                        'sw-container': {
-                            template: '<div><slot></slot></div>',
-                        },
                         'sw-context-menu-item': await wrapTestComponent('sw-context-menu-item'),
                         'sw-context-menu': await wrapTestComponent('sw-context-menu'),
-                        'sw-context-button': await wrapTestComponent('sw-context-button'),
-                        'sw-context-menu-divider': true,
-                        'sw-card-section': true,
+                        'sw-confirm-modal': await wrapTestComponent('sw-confirm-modal'),
+                        'sw-entity-listing': await wrapTestComponent('sw-entity-listing'),
                         'sw-pagination': true,
-                        'sw-grid': await wrapTestComponent('sw-grid'),
-                        'sw-select-field': true,
-                        'sw-checkbox-field': true,
-                        'sw-text-field': true,
-                        'sw-grid-row': await wrapTestComponent('sw-grid-row'),
-                        'sw-grid-column': await wrapTestComponent('sw-grid-column'),
-                        'router-link': true,
                         'sw-popover': true,
                         'sw-search-bar': true,
+                        'sw-bulk-edit-modal': true,
+                        'sw-context-button': true,
+                        'sw-data-grid-settings': true,
+                        'sw-data-grid-column-boolean': true,
+                        'sw-data-grid-inline-edit': true,
+                        'sw-data-grid-skeleton': true,
+                        'sw-provide': true,
+                        'mt-select': true,
+                        'mt-text-field': true,
+                        'router-link': true,
                     },
                 },
             },
@@ -127,35 +130,7 @@ describe('module/sw-settings-snippet/page/sw-settings-snippet-set-list', () => {
 
     it.each([
         [
-            'snippet.viewer',
-            false,
-        ],
-        [
-            'snippet.viewer, snippet.editor',
             true,
-        ],
-        [
-            'snippet.viewer, snippet.editor, snippet.editor',
-            true,
-        ],
-        [
-            'snippet.viewer, snippet.editor, snippet.deleter',
-            true,
-        ],
-    ])('should display checkboxes depending on role: %s', async (role, displayCheckboxes) => {
-        const roles = role.split(', ');
-        const wrapper = await createWrapper(roles);
-
-        await flushPromises();
-
-        const gridCheckboxes = wrapper.find('.sw-grid .sw-grid__header sw-checkbox-field-stub');
-
-        expect(gridCheckboxes.exists()).toBe(displayCheckboxes);
-    });
-
-    it.each([
-        [
-            'true',
             'snippet.viewer',
         ],
         [
@@ -181,95 +156,36 @@ describe('module/sw-settings-snippet/page/sw-settings-snippet-set-list', () => {
         expect(createSetButton.attributes('disabled')).toBe(state);
     });
 
-    it.each([
-        [
-            true,
-            'snippet.viewer',
-        ],
-        [
-            true,
-            'snippet.viewer, snippet.editor',
-        ],
-        [
-            true,
-            'snippet.viewer, snippet.editor, snippet.creator',
-        ],
-        [
-            false,
-            'snippet.viewer, snippet.editor, snippet.deleter',
-        ],
-    ])('should have a delete button with a disabled state of %p when having role: %s', async (state, role) => {
-        const roles = role.split(', ');
-        const wrapper = await createWrapper(roles);
-
+    it('should add a new snippet set', async () => {
+        const wrapper = await createWrapper(['snippet.creator']);
         await flushPromises();
 
-        const contextMenuButton = wrapper.find('.sw-grid__row--0 .sw-context-button');
-        await contextMenuButton.trigger('click');
+        expect(saveSpy).not.toHaveBeenCalledWith(expect.objectContaining({ name: 'sw-settings-snippet.setList.newSnippetName' }));
 
-        await flushPromises();
+        const createSetButton = wrapper.findByText('button', 'sw-settings-snippet.setList.buttonAddSet');
+        await createSetButton.trigger('click');
 
-        // open context menu button
-        const contextMenuItems = wrapper.findAll('.sw-context-menu-item');
-        const [
-            ,
-            ,
-            deleteButton,
-        ] = contextMenuItems;
-
-        if (!state) {
-            // eslint-disable-next-line jest/no-conditional-expect
-            expect(deleteButton.classes()).not.toContain('is--disabled');
-
-            return;
-        }
-
-        expect(deleteButton.classes()).toContain('is--disabled');
+        expect(saveSpy).toHaveBeenCalledWith(expect.objectContaining({ name: 'sw-settings-snippet.setList.newSnippetName' }));
     });
 
-    it.each([
-        [
-            true,
-            'snippet.viewer',
-        ],
-        [
-            true,
-            'snippet.viewer, snippet.editor',
-        ],
-        [
-            false,
-            'snippet.viewer, snippet.editor, snippet.creator',
-        ],
-        [
-            true,
-            'snippet.viewer, snippet.editor, snippet.deleter',
-        ],
-    ])('should have a duplicate button with the disabled state of %p when having role: %s', async (state, role) => {
-        const roles = role.split(', ');
-        const wrapper = await createWrapper(roles);
-
+    it('should add a new snippet set twice with unique names', async () => {
+        const wrapper = await createWrapper(['snippet.creator']);
         await flushPromises();
 
-        const contextMenuButton = wrapper.find('.sw-grid__row--0 .sw-context-button');
+        wrapper.vm.snippetSets = [
+            ...wrapper.vm.snippetSets,
+            {
+                name: 'sw-settings-snippet.setList.newSnippetName',
+                iso: 'de-DE',
+                path: 'development/platform/src/Core/Framework/Resources/snippet/de_DE/messages.de-DE.base.json',
+                author: 'Shopware',
+                isBase: true,
+            },
+        ];
 
-        // open context menu button
-        await contextMenuButton.trigger('click');
+        const createSetButton = wrapper.findByText('button', 'sw-settings-snippet.setList.buttonAddSet');
+        await createSetButton.trigger('click');
 
-        await flushPromises();
-
-        const contextMenuItems = wrapper.findAll('.sw-context-menu-item');
-        const [
-            ,
-            duplicateButton,
-        ] = contextMenuItems;
-
-        if (!state) {
-            // eslint-disable-next-line jest/no-conditional-expect
-            expect(duplicateButton.classes()).not.toContain('is--disabled');
-
-            return;
-        }
-
-        expect(duplicateButton.classes()).toContain('is--disabled');
+        expect(saveSpy).toHaveBeenCalledWith(expect.objectContaining({ name: `sw-settings-snippet.setList.newSnippetName (2)` }));
     });
 });

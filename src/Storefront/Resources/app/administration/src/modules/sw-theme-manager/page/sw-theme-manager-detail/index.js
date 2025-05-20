@@ -44,7 +44,9 @@ Component.register('sw-theme-manager-detail', {
             salesChannelsWithTheme: null,
             newAssignedSalesChannels: [],
             overwrittenSalesChannelAssignments: [],
-            removedSalesChannels: []
+            removedSalesChannels: [],
+            showMediaModal: false,
+            activeMediaField: null,
         };
     },
 
@@ -243,6 +245,9 @@ Component.register('sw-theme-manager-detail', {
             });
         },
 
+        /**
+         * @deprecated tag:v6.8.0 - This method will be removed.
+         */
         openMediaSidebar() {
             this.$refs.mediaSidebarItem.openContent();
         },
@@ -705,5 +710,23 @@ Component.register('sw-theme-manager-detail', {
         isThemeCompatible(item) {
             return this.themeCompatibleSalesChannels.includes(item.id);
         },
+
+        onOpenMediaModal(fieldName) {
+            this.showMediaModal = true;
+            this.activeMediaField = fieldName;
+        },
+
+        onCloseMediaModal() {
+            this.showMediaModal = false;
+            this.activeMediaField = null;
+        },
+
+        onMediaChange(items) {
+            if (!items || !items.length) {
+                return;
+            }
+
+            this.onAddMediaToTheme(items[0], this.currentThemeConfig[this.activeMediaField]);
+        }
     }
 });

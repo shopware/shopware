@@ -24,7 +24,7 @@ test('As an admin, I want to create documents and make sure they contain certain
         await ShopAdmin.attemptsTo(CreateInvoice(orderId));
         await ShopAdmin.goesTo(AdminDocumentListing.url());
         await AdminDocumentListing.invoiceLink.click();
-        await ShopAdmin.expects(AdminDocumentDetail.page.getByText('Document type Invoice')).toBeVisible();
+        await ShopAdmin.expects(AdminDocumentDetail.documentTypeSelect).toContainText('Invoice');
         await AdminDocumentDetail.showInAccountSwitch.check();
         await AdminDocumentDetail.saveButton.click();
         await ShopAdmin.expects(AdminDocumentDetail.saveButton).not.toBeDisabled();
@@ -32,18 +32,18 @@ test('As an admin, I want to create documents and make sure they contain certain
 
     await test.step('Go to order detail page and check for credit item', async () => {
         await ShopAdmin.goesTo(AdminOrderDetail.url(order.id, 'general'));
-        await ShopAdmin.expects(AdminDocumentDetail.page.locator('.sw-data-grid__row--1')).toContainText('CreditItem');
+        await ShopAdmin.expects(AdminOrderDetail.firstLineItem).toContainText('CreditItem');
         });
 
     await test.step('Go to documents tab and send invoice', async () => {
-        await ShopAdmin.goesTo(AdminOrderDetail.url(order.id, 'documents'));
-        await ShopAdmin.expects(AdminOrderDetail.page.locator('.sw-data-grid__table')).toContainText('Invoice');
-        await AdminOrderDetail.page.getByLabel('Open actions menu').click();
-        await ShopAdmin.expects(AdminOrderDetail.page.locator('.sw-context-menu')).toBeVisible();
-        await AdminOrderDetail.page.locator('.sw-context-menu').getByText('Send document').click();
-        await ShopAdmin.expects(AdminOrderDetail.page.locator('.sw-order-send-document-modal')).toBeVisible();
-        await AdminOrderDetail.page.getByRole('button').getByText('Send document').click();
-        await ShopAdmin.expects(AdminOrderDetail.page.getByTestId('mt-icon__regular-checkmark-xs')).toBeVisible();
+        await ShopAdmin.goesTo(AdminOrderDetail.url(orderId, 'documents'));
+        await ShopAdmin.expects(AdminOrderDetail.lineItems).toContainText('Invoice');
+        await AdminOrderDetail.contextMenuButton.click();
+        await ShopAdmin.expects(AdminOrderDetail.contextMenu).toBeVisible();
+        await AdminOrderDetail.contextMenuSendDocument.click();
+        await ShopAdmin.expects(AdminOrderDetail.sendDocumentModal).toBeVisible();
+        await AdminOrderDetail.sendDocumentButton.click();
+        await ShopAdmin.expects(AdminOrderDetail.sentCheckmark).toBeVisible();
         });
 
     await test.step('Log in to customer account and check the order document', async () => {
@@ -51,8 +51,8 @@ test('As an admin, I want to create documents and make sure they contain certain
         await ShopCustomer.goesTo(StorefrontAccountOrder.url());
         await ShopCustomer.expects(StorefrontAccountOrder.orderExpandButton).toBeVisible();
         await StorefrontAccountOrder.orderExpandButton.click();
-        await ShopCustomer.expects(StorefrontAccountOrder.page.locator('.document-detail-content-header')).toBeVisible();
-        await StorefrontAccountOrder.page.getByRole('link', { name: '.html' }).click();
-        await ShopCustomer.expects(StorefrontAccountOrder.page.locator('.line-item:has-text("CreditItem")')).toContainText('-€1.00');
+        await ShopCustomer.expects(StorefrontAccountOrder.documentDetails).toBeVisible();
+        await StorefrontAccountOrder.invoiceHTML.click();
+        await ShopCustomer.expects(StorefrontAccountOrder.creditItem).toContainText('-€1.00');
     });
 });

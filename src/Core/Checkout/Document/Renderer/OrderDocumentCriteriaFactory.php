@@ -25,6 +25,7 @@ final class OrderDocumentCriteriaFactory
         $criteria = new Criteria($ids);
 
         $criteria->addAssociations([
+            'primaryOrderDelivery',
             'lineItems',
             'transactions.paymentMethod',
             'currency',

@@ -78,10 +78,14 @@ export default {
                     successOverall: 'global.sw-media-modal-delete.notification.successOverall.message.media',
                     errorOverall: this.$tc('global.sw-media-modal-delete.notification.errorOverall.message.media'),
                     modalTitle: this.$tc('global.default.warning'),
-                    deleteMessage: this.$tc('global.sw-media-modal-delete.deleteMessage.media', {
-                        name: this.mediaNameFilter(this.mediaItems[0]),
-                        count: this.mediaItems.length,
-                    }, this.mediaItems.length),
+                    deleteMessage: this.$tc(
+                        'global.sw-media-modal-delete.deleteMessage.media',
+                        {
+                            name: this.mediaNameFilter(this.mediaItems[0]),
+                            count: this.mediaItems.length,
+                        },
+                        this.mediaItems.length,
+                    ),
                 };
             }
 
@@ -89,10 +93,14 @@ export default {
                 successOverall: 'global.sw-media-modal-delete.notification.successOverall.message.folder',
                 errorOverall: this.$tc('global.sw-media-modal-delete.notification.errorOverall.message.folder'),
                 modalTitle: this.$tc('global.default.warning'),
-                deleteMessage: this.$tc('global.sw-media-modal-delete.deleteMessage.folder', {
-                    name: this.folders[0].name,
-                    count: this.folders.length,
-                }, this.folders.length),
+                deleteMessage: this.$tc(
+                    'global.sw-media-modal-delete.deleteMessage.folder',
+                    {
+                        name: this.folders[0].name,
+                        count: this.folders.length,
+                    },
+                    this.folders.length,
+                ),
             };
         },
 

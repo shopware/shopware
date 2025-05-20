@@ -45,8 +45,10 @@ export default {
 
         invoices() {
             return this.order.documents.filter((document) => {
-                return document.documentType.technicalName === 'invoice'
-                    || document.documentType.technicalName === 'zugferd_embedded_invoice';
+                return (
+                    document.documentType.technicalName === 'invoice' ||
+                    document.documentType.technicalName === 'zugferd_embedded_invoice'
+                );
             });
         },
 

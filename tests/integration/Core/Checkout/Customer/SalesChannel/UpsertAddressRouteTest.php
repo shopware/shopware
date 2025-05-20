@@ -111,7 +111,7 @@ class UpsertAddressRouteTest extends TestCase
         $response = $this->browser->getResponse();
         $content = \json_decode((string) $response->getContent(), true, 512, \JSON_THROW_ON_ERROR);
 
-        static::assertEquals(Response::HTTP_OK, $response->getStatusCode());
+        static::assertSame(Response::HTTP_OK, $response->getStatusCode());
         static::assertArrayHasKey('id', $content);
 
         foreach ($data as $key => $val) {

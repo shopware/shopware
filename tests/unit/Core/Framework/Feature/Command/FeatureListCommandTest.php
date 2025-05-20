@@ -31,7 +31,7 @@ class FeatureListCommandTest extends TestCase
         $exitCode = $commandTester->execute([]);
 
         static::assertStringContainsString('[INFO] No features are registered', $commandTester->getDisplay());
-        static::assertEquals(Command::SUCCESS, $exitCode);
+        static::assertSame(Command::SUCCESS, $exitCode);
     }
 
     public function testFeatureTable(): void
@@ -72,6 +72,6 @@ class FeatureListCommandTest extends TestCase
         static::assertMatchesRegularExpression('/FEATURE_TWO\s+Feature 2\s+This is another feature\s+Disabled\s+\n/', $display);
         static::assertMatchesRegularExpression('/FEATURE_THREE\s+Feature 3\s+\s+Enabled\s+\n/', $display);
 
-        static::assertEquals(Command::SUCCESS, $exitCode);
+        static::assertSame(Command::SUCCESS, $exitCode);
     }
 }

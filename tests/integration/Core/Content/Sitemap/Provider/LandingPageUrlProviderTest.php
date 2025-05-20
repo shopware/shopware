@@ -203,12 +203,12 @@ class LandingPageUrlProviderTest extends TestCase
         // first run
         $urlResult = $this->landingPageUrlProvider->getUrls($this->salesChannelContext, 3);
         static::assertCount(3, $urlResult->getUrls());
-        static::assertEquals(3, $urlResult->getNextOffset());
+        static::assertSame(3, $urlResult->getNextOffset());
 
         // 1+n run
         $urlResult = $this->landingPageUrlProvider->getUrls($this->salesChannelContext, 2, $urlResult->getNextOffset());
         static::assertCount(2, $urlResult->getUrls());
-        static::assertEquals(5, $urlResult->getNextOffset());
+        static::assertSame(5, $urlResult->getNextOffset());
 
         // last run
         $urlResult = $this->landingPageUrlProvider->getUrls($this->salesChannelContext, 100, $urlResult->getNextOffset()); // test with high number to get last chunk

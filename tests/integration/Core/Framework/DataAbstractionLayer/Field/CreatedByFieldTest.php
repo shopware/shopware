@@ -94,7 +94,7 @@ class CreatedByFieldTest extends TestCase
         )->getEntities()->first();
 
         static::assertNotNull($result);
-        static::assertEquals($userId, $result->getCreatedById());
+        static::assertSame($userId, $result->getCreatedById());
     }
 
     private function getAdminContext(string $userId): Context

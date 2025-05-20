@@ -79,9 +79,9 @@ class EntitySearcherTest extends TestCase
 
         $result = static::getContainer()->get('product.repository')->searchIds($criteria, Context::createDefaultContext());
 
-        static::assertEquals(100, $result->getScore($ids->get('john')));
-        static::assertEquals(200, $result->getScore($ids->get('john.doe')));
-        static::assertEquals(100, $result->getScore($ids->get('doe')));
+        static::assertSame(100.0, $result->getScore($ids->get('john')));
+        static::assertSame(200.0, $result->getScore($ids->get('john.doe')));
+        static::assertSame(100.0, $result->getScore($ids->get('doe')));
     }
 
     public function testIdSearchResultHelpers(): void
@@ -113,7 +113,7 @@ class EntitySearcherTest extends TestCase
         }
         static::assertInstanceOf(\RuntimeException::class, $exception);
 
-        static::assertEquals([], $result->getDataOfId('not-exists'));
+        static::assertSame([], $result->getDataOfId('not-exists'));
         static::assertSame($context, $result->getContext());
         static::assertEquals($criteria, $result->getCriteria());
     }
@@ -150,8 +150,8 @@ class EntitySearcherTest extends TestCase
         static::assertArrayHasKey($ids->get('p2'), $data);
         static::assertArrayHasKey('productNumber', $data[$ids->get('p2')]);
         static::assertArrayHasKey('autoIncrement', $data[$ids->get('p2')]);
-        static::assertEquals($increments[$ids->get('p1')], $data[$ids->get('p1')]['autoIncrement']);
-        static::assertEquals($increments[$ids->get('p2')], $data[$ids->get('p2')]['autoIncrement']);
+        static::assertSame((int) $increments[$ids->get('p1')], $data[$ids->get('p1')]['autoIncrement']);
+        static::assertSame((int) $increments[$ids->get('p2')], $data[$ids->get('p2')]['autoIncrement']);
     }
 
     public function testTotalCountWithSearchTerm(): void
@@ -480,7 +480,7 @@ class EntitySearcherTest extends TestCase
 
         $result = $searcher->search(static::getContainer()->get(TaxDefinition::class), $criteria, Context::createDefaultContext());
 
-        static::assertEquals($expected, $result->getIds());
+        static::assertSame($expected, $result->getIds());
     }
 
     public function testSortingWithToMany(): void
@@ -524,7 +524,7 @@ class EntitySearcherTest extends TestCase
         $result = static::getContainer()->get('product.repository')
             ->searchIds($criteria, Context::createDefaultContext());
 
-        static::assertEquals(
+        static::assertSame(
             [$ids->get('product-2'), $ids->get('product-1')],
             $result->getIds()
         );
@@ -614,6 +614,6 @@ class EntitySearcherTest extends TestCase
             Context::createDefaultContext()
         );
 
-        static::assertEquals(0, $result->getTotal());
+        static::assertSame(0, $result->getTotal());
     }
 }

@@ -121,10 +121,10 @@ class DocumentRouteTest extends TestCase
 
         $headers = $response->headers;
 
-        static::assertEquals(Response::HTTP_OK, $response->getStatusCode());
+        static::assertSame(Response::HTTP_OK, $response->getStatusCode());
         static::assertNotEmpty($response->getContent());
-        static::assertEquals('inline; filename=invoice_1000.pdf', $headers->get('content-disposition'));
-        static::assertEquals('application/pdf', $headers->get('content-type'));
+        static::assertSame('inline; filename=invoice_1000.pdf', $headers->get('content-disposition'));
+        static::assertSame('application/pdf', $headers->get('content-type'));
     }
 
     public static function documentDownloadRouteDataProvider(): \Generator

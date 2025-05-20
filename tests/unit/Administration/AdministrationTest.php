@@ -25,7 +25,7 @@ class AdministrationTest extends TestCase
     {
         $administration = new Administration();
 
-        static::assertEquals(-1, $administration->getTemplatePriority());
+        static::assertSame(-1, $administration->getTemplatePriority());
     }
 
     public function testBundle(): void

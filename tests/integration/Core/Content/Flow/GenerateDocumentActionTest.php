@@ -170,7 +170,7 @@ class GenerateDocumentActionTest extends TestCase
 
         static::assertNotEmpty($handler->getRecords());
         static::assertNotEmpty($record = $handler->getRecords()[0]);
-        static::assertEquals(
+        static::assertSame(
             \sprintf(
                 'Unable to generate document. Can not generate %s document because no invoice document exists. OrderId: %s',
                 str_replace('_', ' ', $documentType),
@@ -320,7 +320,7 @@ class GenerateDocumentActionTest extends TestCase
         );
         $response = $this->getBrowser()->getResponse();
 
-        static::assertEquals(Response::HTTP_NO_CONTENT, $response->getStatusCode());
+        static::assertSame(Response::HTTP_NO_CONTENT, $response->getStatusCode());
         static::assertEmpty($response->getContent());
 
         // read versioned order
@@ -342,11 +342,11 @@ class GenerateDocumentActionTest extends TestCase
         );
         $response = $this->getBrowser()->getResponse();
 
-        static::assertEquals(Response::HTTP_OK, $response->getStatusCode());
+        static::assertSame(Response::HTTP_OK, $response->getStatusCode());
         $content = json_decode($response->getContent() ?: '', true, 512, \JSON_THROW_ON_ERROR);
         $versionId = $content['versionId'];
-        static::assertEquals($orderId, $content['id']);
-        static::assertEquals('order', $content['entity']);
+        static::assertSame($orderId, $content['id']);
+        static::assertSame('order', $content['entity']);
         static::assertTrue(Uuid::isValid($versionId));
 
         return $versionId;

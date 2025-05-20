@@ -228,7 +228,7 @@ class PaymentMethodRepositoryTest extends TestCase
         } catch (WriteException $e) {
             $constraintViolation = $e->getExceptions()[0];
             static::assertInstanceOf(WriteConstraintViolationException::class, $constraintViolation);
-            static::assertEquals('/name', $constraintViolation->getViolations()->get(0)->getPropertyPath());
+            static::assertSame('/name', $constraintViolation->getViolations()->get(0)->getPropertyPath());
         }
     }
 

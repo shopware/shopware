@@ -1,5 +1,5 @@
 {
   "dependencies": {
-    "@shopware-ag/gh-project-automation": "^1.2.0"
+    "@shopware-ag/gh-project-automation": "^1.3.0"
   }
 }

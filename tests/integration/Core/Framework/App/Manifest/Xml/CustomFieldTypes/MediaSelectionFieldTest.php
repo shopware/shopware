@@ -21,7 +21,7 @@ class MediaSelectionFieldTest extends TestCase
         static::assertSame('test_media_selection_field', $mediaSelectionField->getName());
         static::assertSame('text', $mediaSelectionField->getType());
         static::assertTrue($mediaSelectionField->isActive());
-        static::assertEquals([
+        static::assertSame([
             'label' => [
                 'en-GB' => 'Test media-selection field',
             ],

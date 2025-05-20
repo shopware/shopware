@@ -45,9 +45,9 @@ class PromotionExclusionIndexerTest extends TestCase
 
         $promotions = $this->promotionRepository->search(new Criteria([$promotionA, $promotionB, $promotionC]), $this->context)->getEntities();
 
-        static::assertEquals([$promotionB, $promotionC], $promotions->get($promotionA)?->getExclusionIds(), 'Exclusion Promotion A has errors after creation');
-        static::assertEquals([$promotionA, $promotionC], $promotions->get($promotionB)?->getExclusionIds(), 'Exclusion Promotion B has errors after creation');
-        static::assertEquals([$promotionA, $promotionB], $promotions->get($promotionC)?->getExclusionIds(), 'Exclusion Promotion C has errors after creation');
+        static::assertSame([$promotionB, $promotionC], $promotions->get($promotionA)?->getExclusionIds(), 'Exclusion Promotion A has errors after creation');
+        static::assertSame([$promotionA, $promotionC], $promotions->get($promotionB)?->getExclusionIds(), 'Exclusion Promotion B has errors after creation');
+        static::assertSame([$promotionA, $promotionB], $promotions->get($promotionC)?->getExclusionIds(), 'Exclusion Promotion C has errors after creation');
 
         $this->promotionRepository->update([[
             'id' => $promotionC,
@@ -56,9 +56,9 @@ class PromotionExclusionIndexerTest extends TestCase
 
         $promos = $this->promotionRepository->search(new Criteria(), $this->context)->getEntities();
 
-        static::assertEquals([$promotionB], $promos->get($promotionA)?->getExclusionIds(), 'Exclusion Promotion A has errors after update');
-        static::assertEquals([$promotionA], $promos->get($promotionB)?->getExclusionIds(), 'Exclusion Promotion B has errors after update');
-        static::assertEquals([], $promos->get($promotionC)?->getExclusionIds(), 'Exclusion Promotion C has errors after update');
+        static::assertSame([$promotionB], $promos->get($promotionA)?->getExclusionIds(), 'Exclusion Promotion A has errors after update');
+        static::assertSame([$promotionA], $promos->get($promotionB)?->getExclusionIds(), 'Exclusion Promotion B has errors after update');
+        static::assertSame([], $promos->get($promotionC)?->getExclusionIds(), 'Exclusion Promotion C has errors after update');
     }
 
     /**
@@ -75,9 +75,9 @@ class PromotionExclusionIndexerTest extends TestCase
 
         $promotions = $this->promotionRepository->search(new Criteria([$promotionA, $promotionB, $promotionC]), $this->context)->getEntities();
 
-        static::assertEquals([$promotionB, $promotionC], $promotions->get($promotionA)?->getExclusionIds(), 'Exclusion Promotion A has errors after creation');
-        static::assertEquals([$promotionA, $promotionC], $promotions->get($promotionB)?->getExclusionIds(), 'Exclusion Promotion B has errors after creation');
-        static::assertEquals([$promotionA, $promotionB], $promotions->get($promotionC)?->getExclusionIds(), 'Exclusion Promotion C has errors after creation');
+        static::assertSame([$promotionB, $promotionC], $promotions->get($promotionA)?->getExclusionIds(), 'Exclusion Promotion A has errors after creation');
+        static::assertSame([$promotionA, $promotionC], $promotions->get($promotionB)?->getExclusionIds(), 'Exclusion Promotion B has errors after creation');
+        static::assertSame([$promotionA, $promotionB], $promotions->get($promotionC)?->getExclusionIds(), 'Exclusion Promotion C has errors after creation');
 
         $this->promotionRepository->delete([[
             'id' => $promotionC,
@@ -85,8 +85,8 @@ class PromotionExclusionIndexerTest extends TestCase
 
         $promos = $this->promotionRepository->search(new Criteria(), $this->context)->getEntities();
 
-        static::assertEquals([$promotionB], $promos->get($promotionA)?->getExclusionIds(), 'Exclusion Promotion A has errors after delete');
-        static::assertEquals([$promotionA], $promos->get($promotionB)?->getExclusionIds(), 'Exclusion Promotion B has errors after delete');
+        static::assertSame([$promotionB], $promos->get($promotionA)?->getExclusionIds(), 'Exclusion Promotion A has errors after delete');
+        static::assertSame([$promotionA], $promos->get($promotionB)?->getExclusionIds(), 'Exclusion Promotion B has errors after delete');
     }
 
     /**

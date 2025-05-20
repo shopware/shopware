@@ -167,7 +167,7 @@ class OrderRouteTest extends TestCase
         static::assertArrayHasKey('elements', $response['orders']);
         static::assertArrayHasKey(0, $response['orders']['elements']);
         static::assertArrayHasKey('id', $response['orders']['elements'][0]);
-        static::assertEquals($this->orderId, $response['orders']['elements'][0]['id']);
+        static::assertSame($this->orderId, $response['orders']['elements'][0]['id']);
     }
 
     public function testGetOrderGuest(): void
@@ -211,7 +211,7 @@ class OrderRouteTest extends TestCase
         static::assertArrayHasKey('elements', $response['orders']);
         static::assertArrayHasKey(0, $response['orders']['elements']);
         static::assertArrayHasKey('id', $response['orders']['elements'][0]);
-        static::assertEquals($this->orderId, $response['orders']['elements'][0]['id']);
+        static::assertSame($this->orderId, $response['orders']['elements'][0]['id']);
     }
 
     public function testGetOrderGuestWrongDeepLink(): void
@@ -358,7 +358,7 @@ class OrderRouteTest extends TestCase
         static::assertArrayHasKey('elements', $response['orders']);
         static::assertArrayHasKey(0, $response['orders']['elements']);
         static::assertArrayHasKey('id', $response['orders']['elements'][0]);
-        static::assertEquals($this->orderId, $response['orders']['elements'][0]['id']);
+        static::assertSame($this->orderId, $response['orders']['elements'][0]['id']);
         static::assertIsArray($response);
         static::assertArrayHasKey('paymentChangeable', $response);
         static::assertCount(1, $response['paymentChangeable']);
@@ -393,7 +393,7 @@ class OrderRouteTest extends TestCase
         static::assertNotNull($order);
         static::assertNotNull($transactions = $order->getTransactions());
         static::assertNotNull($transaction = $transactions->last());
-        static::assertEquals($this->defaultPaymentMethodId, $transaction->getPaymentMethodId());
+        static::assertSame($this->defaultPaymentMethodId, $transaction->getPaymentMethodId());
     }
 
     public function testSetAnotherPaymentMethodToOrder(): void
@@ -514,7 +514,7 @@ class OrderRouteTest extends TestCase
         $response = json_decode((string) $this->browser->getResponse()->getContent(), true, 512, \JSON_THROW_ON_ERROR);
 
         static::assertArrayHasKey('technicalName', $response);
-        static::assertEquals('cancelled', $response['technicalName']);
+        static::assertSame('cancelled', $response['technicalName']);
     }
 
     public function testOrderSalesChannelRestriction(): void
@@ -557,8 +557,8 @@ class OrderRouteTest extends TestCase
         static::assertArrayHasKey(0, $response['orders']['elements']);
         static::assertCount(1, $response['orders']['elements']);
         static::assertArrayHasKey('id', $response['orders']['elements'][0]);
-        static::assertEquals($this->orderId, $response['orders']['elements'][0]['id']);
-        static::assertEquals(TestDefaults::SALES_CHANNEL, $response['orders']['elements'][0]['salesChannelId']);
+        static::assertSame($this->orderId, $response['orders']['elements'][0]['id']);
+        static::assertSame(TestDefaults::SALES_CHANNEL, $response['orders']['elements'][0]['salesChannelId']);
     }
 
     protected function getValidPaymentMethods(): PaymentMethodCollection

@@ -16,7 +16,6 @@ use Shopware\Core\Framework\Test\TestCaseBase\DatabaseTransactionBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Framework\Validation\Constraint\ArrayOfUuid;
-use Shopware\Tests\Unit\Core\Checkout\Cart\SalesChannel\Helper\CartRuleHelperTrait;
 use Symfony\Component\Validator\Constraints\NotBlank;
 use Symfony\Component\Validator\Constraints\Type;
 
@@ -26,7 +25,6 @@ use Symfony\Component\Validator\Constraints\Type;
 #[Package('fundamentals@after-sales')]
 class LineItemTagRuleTest extends TestCase
 {
-    use CartRuleHelperTrait;
     use DatabaseTransactionBehaviour;
     use KernelTestBehaviour;
 

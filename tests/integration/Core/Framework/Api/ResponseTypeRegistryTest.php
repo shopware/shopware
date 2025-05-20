@@ -48,11 +48,11 @@ class ResponseTypeRegistryTest extends TestCase
         $context = $this->getAdminContext();
         $response = $this->getDetailResponse($context, $id, '/api/category/' . $id, $accept, false);
 
-        static::assertEquals($accept, $response->headers->get('content-type'));
+        static::assertSame($accept, $response->headers->get('content-type'));
         $content = $response->getContent();
         static::assertIsString($content);
         $content = json_decode($content, true, 512, \JSON_THROW_ON_ERROR);
-        static::assertEquals($id, $content['data']['name']);
+        static::assertSame($id, $content['data']['name']);
     }
 
     public function testAdminJsonApi(): void
@@ -63,15 +63,15 @@ class ResponseTypeRegistryTest extends TestCase
         $context = $this->getAdminContext();
         $response = $this->getDetailResponse($context, $id, $self, $accept, false);
 
-        static::assertEquals($accept, $response->headers->get('content-type'));
+        static::assertSame($accept, $response->headers->get('content-type'));
         $content = $response->getContent();
         static::assertIsString($content);
         $content = json_decode($content, true, 512, \JSON_THROW_ON_ERROR);
 
         $this->assertDetailJsonApiStructure($content);
-        static::assertEquals($id, $content['data']['attributes']['name']);
-        static::assertEquals($self, $content['links']['self']);
-        static::assertEquals($self, $content['data']['links']['self']);
+        static::assertSame($id, $content['data']['attributes']['name']);
+        static::assertSame($self, $content['links']['self']);
+        static::assertSame($self, $content['data']['links']['self']);
     }
 
     public function testAdminJsonApiDefault(): void
@@ -82,15 +82,15 @@ class ResponseTypeRegistryTest extends TestCase
         $context = $this->getAdminContext();
         $response = $this->getDetailResponse($context, $id, $self, $accept, false);
 
-        static::assertEquals('application/vnd.api+json', $response->headers->get('content-type'));
+        static::assertSame('application/vnd.api+json', $response->headers->get('content-type'));
         $content = $response->getContent();
         static::assertIsString($content);
         $content = json_decode($content, true, 512, \JSON_THROW_ON_ERROR);
 
         $this->assertDetailJsonApiStructure($content);
-        static::assertEquals($id, $content['data']['attributes']['name']);
-        static::assertEquals($self, $content['links']['self']);
-        static::assertEquals($self, $content['data']['links']['self']);
+        static::assertSame($id, $content['data']['attributes']['name']);
+        static::assertSame($self, $content['links']['self']);
+        static::assertSame($self, $content['data']['links']['self']);
     }
 
     public function testAdminApiUnsupportedContentType(): void
@@ -111,16 +111,16 @@ class ResponseTypeRegistryTest extends TestCase
         $context = $this->getAdminContext();
         $response = $this->getListResponse($context, $id, $self, $accept);
 
-        static::assertEquals($accept, $response->headers->get('content-type'));
+        static::assertSame($accept, $response->headers->get('content-type'));
         $content = $response->getContent();
         static::assertIsString($content);
         $content = json_decode($content, true, 512, \JSON_THROW_ON_ERROR);
 
         $this->assertDetailJsonApiStructure($content);
         static::assertNotEmpty($content['data']);
-        static::assertEquals($id, $content['data'][0]['attributes']['name']);
-        static::assertEquals($self, $content['links']['self']);
-        static::assertEquals($self . '/' . $id, $content['data'][0]['links']['self']);
+        static::assertSame($id, $content['data'][0]['attributes']['name']);
+        static::assertSame($self, $content['links']['self']);
+        static::assertSame($self . '/' . $id, $content['data'][0]['links']['self']);
     }
 
     /**

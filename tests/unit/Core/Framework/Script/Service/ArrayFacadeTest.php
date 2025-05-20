@@ -70,6 +70,6 @@ class ArrayFacadeTest extends TestCase
         $a = new ArrayFacade($aArray);
         $a->replace(['foo' => 'baz']);
 
-        static::assertEquals('baz', $a['foo']);
+        static::assertSame('baz', $a['foo']);
     }
 }

@@ -242,13 +242,13 @@ class CacheResponseSubscriberTest extends TestCase
 
                 foreach (self::$hashes as $name => $value) {
                     if ($hashName === $name) {
-                        static::assertEquals(
+                        static::assertSame(
                             $value,
                             $cookie->getValue(),
                             \sprintf('Hashes for state "%s" did not match, got "%s", but expected "%s"', $hashName, $cookie->getValue(), $value)
                         );
                     } else {
-                        static::assertNotEquals(
+                        static::assertNotSame(
                             $value,
                             $cookie->getValue(),
                             \sprintf('Hashes for state "%s" and state "%s" should not match, but did match.', $hashName, $name)
@@ -719,7 +719,7 @@ class CacheResponseSubscriberTest extends TestCase
             $response->headers->getCookies(),
             $assertCountErrorMessage
         );
-        static::assertEquals(
+        static::assertSame(
             $cookieName,
             $response->headers->getCookies()[$cookiesAmount - 1]->getName(),
             $assertEqualsErrorMessage

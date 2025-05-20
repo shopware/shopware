@@ -73,8 +73,8 @@ class AddOrderAffiliateAndCampaignCodeActionTest extends TestCase
         /** @var OrderEntity $order */
         $order = static::getContainer()->get('order.repository')->search(new Criteria([$this->ids->get('order')]), Context::createDefaultContext())->first();
 
-        static::assertEquals($order->getAffiliateCode(), $expectData['affiliateCode']);
-        static::assertEquals($order->getCampaignCode(), $expectData['campaignCode']);
+        static::assertSame($order->getAffiliateCode(), $expectData['affiliateCode']);
+        static::assertSame($order->getCampaignCode(), $expectData['campaignCode']);
     }
 
     /**

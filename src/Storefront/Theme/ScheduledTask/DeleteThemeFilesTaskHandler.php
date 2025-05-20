@@ -76,7 +76,13 @@ final class DeleteThemeFilesTaskHandler extends ScheduledTaskHandler
         );
 
         $themePaths = [];
+        foreach (array_unique(array_column($salesChannelThemeMappings, 'themeId')) as $themeId) {
+            // Add path with themeId (for assets)
+            $themePaths[] = 'theme' . \DIRECTORY_SEPARATOR . $themeId;
+        }
+
         foreach ($salesChannelThemeMappings as $salesChannelThemeMapping) {
+            // Add path with themePrefix (for CSS and JS files)
             $themePaths[] = 'theme' . \DIRECTORY_SEPARATOR . $this->themePathBuilder->assemblePath($salesChannelThemeMapping['salesChannelId'], $salesChannelThemeMapping['themeId']);
         }
 

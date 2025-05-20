@@ -98,7 +98,7 @@ class OrderTransactionStatusRuleTest extends TestCase
         static::assertArrayHasKey('operatorSet', $configData);
         $operators = RuleConfig::OPERATOR_SET_STRING;
 
-        static::assertEquals([
+        static::assertSame([
             'operators' => $operators,
             'isMatchAny' => true,
         ], $configData['operatorSet']);

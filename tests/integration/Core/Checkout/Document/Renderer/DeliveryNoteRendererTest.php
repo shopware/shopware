@@ -120,8 +120,8 @@ class DeliveryNoteRendererTest extends TestCase
         yield 'render delivery_note with document number' => [
             'DELIVERY_NOTE_9999',
             function (string $deliveryNoteNumber, string $orderNumber, RenderedDocument $rendered): void {
-                static::assertEquals('DELIVERY_NOTE_9999', $rendered->getNumber());
-                static::assertEquals('delivery_note_DELIVERY_NOTE_9999', $rendered->getName());
+                static::assertSame('DELIVERY_NOTE_9999', $rendered->getNumber());
+                static::assertSame('delivery_note_DELIVERY_NOTE_9999', $rendered->getName());
 
                 static::assertStringContainsString("Delivery note $deliveryNoteNumber for Order $orderNumber", $rendered->getContent());
                 static::assertStringContainsString("Delivery note $deliveryNoteNumber for Order $orderNumber", $rendered->getContent());

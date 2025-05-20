@@ -155,7 +155,7 @@ class JsonEntityEncoderTest extends TestCase
 
         $actual = $encoder->encode(new Criteria(), $definition, $struct, SerializationFixture::API_BASE_URL);
 
-        static::assertEquals($output, array_intersect_key($output, $actual));
+        static::assertSame($output, array_intersect_key($output, $actual));
     }
 
     /**

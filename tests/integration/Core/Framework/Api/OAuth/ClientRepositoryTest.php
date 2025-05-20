@@ -46,14 +46,14 @@ class ClientRepositoryTest extends TestCase
         ];
 
         $browser->request('POST', '/api/oauth/token', $authPayload, [], [], json_encode($authPayload, \JSON_THROW_ON_ERROR));
-        static::assertEquals(Response::HTTP_UNAUTHORIZED, $browser->getResponse()->getStatusCode());
+        static::assertSame(Response::HTTP_UNAUTHORIZED, $browser->getResponse()->getStatusCode());
     }
 
     public function testDoesntAffectLoggedInUser(): void
     {
         $this->getBrowser()->request('GET', '/api/product');
 
-        static::assertEquals(200, $this->getBrowser()->getResponse()->getStatusCode());
+        static::assertSame(200, $this->getBrowser()->getResponse()->getStatusCode());
     }
 
     private function fetchApp(string $appName): ?AppEntity

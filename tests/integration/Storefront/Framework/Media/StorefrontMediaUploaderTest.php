@@ -33,7 +33,7 @@ class StorefrontMediaUploaderTest extends TestCase
         $result = $this->getUploadService()->upload($file, 'test', 'documents', Context::createDefaultContext());
 
         $repo = static::getContainer()->get('media.repository');
-        static::assertEquals(1, $repo->search(new Criteria([$result]), Context::createDefaultContext())->getTotal());
+        static::assertSame(1, $repo->search(new Criteria([$result]), Context::createDefaultContext())->getTotal());
         $this->removeMedia($result);
     }
 
@@ -61,7 +61,7 @@ class StorefrontMediaUploaderTest extends TestCase
         $result = $this->getUploadService()->upload($file, 'test', 'images', Context::createDefaultContext());
 
         $repo = static::getContainer()->get('media.repository');
-        static::assertEquals(1, $repo->search(new Criteria([$result]), Context::createDefaultContext())->getTotal());
+        static::assertSame(1, $repo->search(new Criteria([$result]), Context::createDefaultContext())->getTotal());
         $this->removeMedia($result);
     }
 

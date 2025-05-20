@@ -94,10 +94,10 @@ class StorefrontRoutingTest extends TestCase
         static::assertSame($case->getPathInfo(), $pathInfo, var_export($case, true));
 
         $matches = $this->router->matchRequest($transformedRequest);
-        static::assertEquals($case->route, $matches['_route']);
+        static::assertSame($case->route, $matches['_route']);
 
         $matches = $this->router->match($transformedRequest->getPathInfo());
-        static::assertEquals($case->route, $matches['_route']);
+        static::assertSame($case->route, $matches['_route']);
 
         // test seo url generation
         $host = $transformedRequest->attributes->get(RequestTransformer::SALES_CHANNEL_ABSOLUTE_BASE_URL)

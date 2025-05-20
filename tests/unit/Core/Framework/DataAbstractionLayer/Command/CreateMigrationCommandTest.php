@@ -68,8 +68,8 @@ class CreateMigrationCommandTest extends TestCase
             ->expects($fileRendererInvocation)
             ->method('render')
             ->willReturnCallback(function (string $namespace, string $className) use ($expectedNamespaces, $expectedClassNames, $fileRendererInvocation) {
-                static::assertEquals($expectedNamespaces[$fileRendererInvocation->numberOfInvocations() - 1], $namespace);
-                static::assertEquals($expectedClassNames[$fileRendererInvocation->numberOfInvocations() - 1], $className);
+                static::assertSame($expectedNamespaces[$fileRendererInvocation->numberOfInvocations() - 1], $namespace);
+                static::assertSame($expectedClassNames[$fileRendererInvocation->numberOfInvocations() - 1], $className);
 
                 return 'Migration file content';
             });
@@ -80,7 +80,7 @@ class CreateMigrationCommandTest extends TestCase
             ->expects($filesystemInvocation)
             ->method('dumpFile')
             ->willReturnCallback(function (string $path) use ($filesystemInvocation, $expectedPaths): void {
-                static::assertEquals($expectedPaths[$filesystemInvocation->numberOfInvocations() - 1], $path);
+                static::assertSame($expectedPaths[$filesystemInvocation->numberOfInvocations() - 1], $path);
             });
 
         $input = [

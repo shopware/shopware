@@ -103,8 +103,8 @@ class IterateEntityMessageHandlerTest extends TestCase
 
         static::assertInstanceOf(DispatchEntityMessage::class, $entitySyncMessage);
 
-        static::assertEquals('product', $entitySyncMessage->entityName);
-        static::assertEquals([
+        static::assertSame('product', $entitySyncMessage->entityName);
+        static::assertSame([
             ['id' => $productIds->get('product-from-the-past')],
             ['id' => $productIds->get('product-created-on-last-run-date')],
             ['id' => $productIds->get('product-created-today')],
@@ -157,8 +157,8 @@ class IterateEntityMessageHandlerTest extends TestCase
 
         static::assertInstanceOf(DispatchEntityMessage::class, $entitySyncMessage);
 
-        static::assertEquals('product', $entitySyncMessage->entityName);
-        static::assertEquals([
+        static::assertSame('product', $entitySyncMessage->entityName);
+        static::assertSame([
             ['id' => $productIds->get('product-created-on-last-run-date')],
             ['id' => $productIds->get('product-created-today')],
         ], array_values($entitySyncMessage->primaryKeys));
@@ -213,7 +213,7 @@ class IterateEntityMessageHandlerTest extends TestCase
         $entitySyncMessage = $dispatchedMessages[0]->getMessage();
 
         static::assertInstanceOf(DispatchEntityMessage::class, $entitySyncMessage);
-        static::assertEquals(
+        static::assertSame(
             [
                 ['id' => $ids->get('product-from-the-past')],
             ],
@@ -280,25 +280,25 @@ class IterateEntityMessageHandlerTest extends TestCase
 
         $connection = static::getContainer()->get(Connection::class);
 
-        static::assertEquals(1, $connection->update(
+        static::assertSame(1, $connection->update(
             '`product`',
             ['`created_at`' => '2023-05-24', '`updated_at`' => null],
             ['`product_number`' => 'product-from-the-past'],
         ));
 
-        static::assertEquals(1, $connection->update(
+        static::assertSame(1, $connection->update(
             '`product`',
             ['`created_at`' => '2023-08-02', '`updated_at`' => null],
             ['`product_number`' => 'product-created-on-last-run-date'],
         ));
 
-        static::assertEquals(1, $connection->update(
+        static::assertSame(1, $connection->update(
             '`product`',
             ['`created_at`' => '2023-08-03', '`updated_at`' => null],
             ['`product_number`' => 'product-created-today'],
         ));
 
-        static::assertEquals(1, $connection->update(
+        static::assertSame(1, $connection->update(
             '`product`',
             ['`created_at`' => '2022-08-02', '`updated_at`' => '2023-08-02'],
             ['`product_number`' => 'product-updated-today'],

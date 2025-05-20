@@ -1,4 +1,4 @@
-import {expect, test} from '@fixtures/AcceptanceTest';
+import { test } from '@fixtures/AcceptanceTest';
 
 test('As an admin, I want to create documents and make sure they contain certain infos.', { tag: '@Documents' }, async ({
     ShopAdmin,
@@ -9,71 +9,25 @@ test('As an admin, I want to create documents and make sure they contain certain
     AdminOrderDetail,
     ShopCustomer,
     StorefrontAccountOrder,
-    StorefrontAccountLogin,
     Login,
-    AdminApiContext,
+    AddCreditItem,
+    CreateInvoice,
 
     }) => {
 
     const product = await TestDataService.createBasicProduct();
     const order = await TestDataService.createOrder([{ product, quantity: 1 }], DefaultSalesChannel.customer);
-    const creditItem = {
-        'identifier': order.id,
-        'orderId': order.id,
-        'quantity': 1,
-        'label': 'CreditItem',
-        'payload': [],
-        'good': true,
-        'removable': true,
-        'stackable': true,
-        'position': 2,
-        'states': [],
-        'price': {
-            'unitPrice': -1.0,
-            'totalPrice': -1.0,
-            'calculatedTaxes': [
-                {
-                    'extensions': [],
-                    'tax': -0.16,
-                    'taxRate': 19.0,
-                    'price': -1.0,
-
-                },
-            ],
-            'taxRules': [
-                {
-                    'extensions': [],
-                    'taxRate': 19.0,
-                    'percentage': 100.0,
-                },
-            ],
-            'quantity': 1,
-        },
-    }
-    const productResponse = await AdminApiContext.post('order-line-item', {
-        data: creditItem,
-    });
-    ShopAdmin.expects(productResponse.ok()).toBeTruthy();
-
-    const orderInvoice = {
-        'data':
-        {
-            'orderId': order.id,
-            'config': {
-                'name': 'invoice',
-            },
-        },
-    }
-    const orderResponse = await AdminApiContext.post('_action/order/document/invoice/create', {
-        data: orderInvoice,
-    });
-    ShopAdmin.expects(orderResponse.ok()).toBeTruthy();
+    const orderId = order.id;
 
     await test.step('Go to documents settings page and activate documents in customer accounts', async () => {
+        await ShopAdmin.attemptsTo(AddCreditItem(orderId));
+        await ShopAdmin.attemptsTo(CreateInvoice(orderId));
         await ShopAdmin.goesTo(AdminDocumentListing.url());
         await AdminDocumentListing.invoiceLink.click();
         await ShopAdmin.expects(AdminDocumentDetail.page.getByText('Document type Invoice')).toBeVisible();
         await AdminDocumentDetail.showInAccountSwitch.check();
+        await AdminDocumentDetail.saveButton.click();
+        await ShopAdmin.expects(AdminDocumentDetail.saveButton).not.toBeDisabled();
         });
 
     await test.step('Go to order detail page and check for credit item', async () => {
@@ -82,16 +36,6 @@ test('As an admin, I want to create documents and make sure they contain certain
         });
 
     await test.step('Go to documents tab and send invoice', async () => {
-        await AdminDocumentDetail.page.addStyleTag({
-            content: `
-            .sf-toolbar {
-            width: 0 !important;
-            height: 0 !important;
-            display: none !important;
-            pointer-events: none !important;
-            }
-            `.trim(),
-        });
         await ShopAdmin.goesTo(AdminOrderDetail.url(order.id, 'documents'));
         await ShopAdmin.expects(AdminOrderDetail.page.locator('.sw-data-grid__table')).toContainText('Invoice');
         await AdminOrderDetail.page.getByLabel('Open actions menu').click();
@@ -102,8 +46,7 @@ test('As an admin, I want to create documents and make sure they contain certain
         await ShopAdmin.expects(AdminOrderDetail.page.getByTestId('mt-icon__regular-checkmark-xs')).toBeVisible();
         });
 
-    await test.step('Go to customer account in Storefront and check the order document', async () => {
-        await ShopCustomer.goesTo(StorefrontAccountLogin.url());
+    await test.step('Log in to customer account and check the order document', async () => {
         await ShopCustomer.attemptsTo(Login());
         await ShopCustomer.goesTo(StorefrontAccountOrder.url());
         await ShopCustomer.expects(StorefrontAccountOrder.orderExpandButton).toBeVisible();

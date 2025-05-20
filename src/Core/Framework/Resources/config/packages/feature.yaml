@@ -42,7 +42,7 @@ shopware:
         toggleable: true
         description: "Experimental! Contains Performance Tweaks for future changes"
       - name: DEFERRED_CART_ERRORS
-        default: true
+        default: false
         major: false
         toggleable: true
         description: "Defers cart errors that happen during SalesChannelContext creation"

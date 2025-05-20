@@ -1,3 +1,15 @@
+:root {
+  --admin-menu-item-background-selected: #fff;
+  --admin-menu-item-background-hover: #F2F3F8;
+  --admin-menu-item-background-active: #E2E3E9;
+}
+
+[data-theme="dark"] {
+  --admin-menu-item-background-selected: #2d2e32;
+  --admin-menu-item-background-hover: #26262b;
+  --admin-menu-item-background-active: #141418;
+}
+
 .sw-admin-menu {
   padding: var(--scale-size-20);
   min-width: 280px;
@@ -46,16 +58,16 @@
   }
 
   &:hover {
-    background-color: #F2F3F8;
+    background-color: var(--admin-menu-item-background-hover);
   }
 
   &:active {
-    background-color: #E2E3E9;
+    background-color: var(--admin-menu-item-background-active);
   }
 
   &.router-link-active {
     font-weight: var(--font-weight-bold);
-    background-color: #fff;
+    background-color: var(--admin-menu-item-background-selected);
   }
 }
 
@@ -92,16 +104,16 @@
   }
 
   &:hover {
-    background-color: #F2F3F8;
+    background-color: var(--admin-menu-item-background-hover);
   }
 
   &:active {
-    background-color: #E2E3E9;
+    background-color: var(--admin-menu-item-background-active);
   }
 
   &.router-link-active {
     font-weight: var(--font-weight-bold);
-    background-color: #fff;
+    background-color: var(--admin-menu-item-background-selected);
   }
 }
 

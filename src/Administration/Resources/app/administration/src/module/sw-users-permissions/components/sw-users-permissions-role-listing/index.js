@@ -129,10 +129,10 @@ export default {
             this.isLoading = true;
             this.onCloseDeleteModal();
 
-            this.saasSettingsService.isSaas().then((isSaas) => {
+            this.saasSettingsService.isSaas().then((response) => {
                 this.isLoading = false;
 
-                if (isSaas.isSaas) {
+                if (response.isSaas) {
                     this.deleteRole({ ...Shopware.Context.api });
 
                     return;

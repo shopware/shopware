@@ -142,8 +142,8 @@ export default {
 
         onSave() {
             this.isLoading = true;
-            this.saasSettingsService.isSaas().then((isSaas) => {
-                if (isSaas.isSaas) {
+            this.saasSettingsService.isSaas().then((response) => {
+                if (response.isSaas) {
                     this.isLoading = false;
                     this.saveRole({ ...Shopware.Context.api });
 

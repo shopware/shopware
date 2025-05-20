@@ -242,8 +242,8 @@ export default {
                 return;
             }
 
-            this.saasSettingsService.isSaas().then((isSaas) => {
-                if (isSaas.isSaas) {
+            this.saasSettingsService.isSaas().then((response) => {
+                if (response.isSaas) {
                     this.saveUser();
 
                     return;

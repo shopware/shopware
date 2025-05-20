@@ -459,8 +459,6 @@ export default {
             this.initState();
 
             this.initAdvancedModeSettings();
-
-            this.initProductMeasurementUnits();
         },
 
         initState() {

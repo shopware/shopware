@@ -5,6 +5,7 @@ namespace Shopware\Tests\Integration\Core\Checkout\Document\Service;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\TestCase;
+use setasign\Fpdi\FpdiException;
 use setasign\Fpdi\Tfpdf\Fpdi;
 use Shopware\Core\Checkout\Document\DocumentCollection;
 use Shopware\Core\Checkout\Document\DocumentGenerationResult;
@@ -281,5 +282,98 @@ class DocumentMergerTest extends TestCase
                 static::assertSame(PdfRenderer::FILE_CONTENT_TYPE, $mergeResult->getContentType());
             },
         ];
+    }
+
+    public function testMergeWithFpdiFallbackCreatesZipWithCorrectContent(): void
+    {
+        $filesystem = static::getContainer()->get('filesystem');
+
+        $docIds = [];
+        $orderIds = [];
+
+        for ($i = 0; $i < 2; ++$i) {
+            $cart = $this->generateDemoCart(1);
+            $orderIds[] = $this->persistCart($cart);
+        }
+
+        // create static documents with media
+        for ($i = 0; $i < 2; ++$i) {
+            $deliveryOperation = new DocumentGenerateOperation(
+                $orderIds[$i],
+                FileTypes::PDF,
+                [],
+                null,
+                true
+            );
+
+            $result = $this->documentGenerator->generate(
+                DeliveryNoteRenderer::TYPE,
+                [$orderIds[$i] => $deliveryOperation],
+                $this->context
+            )->getSuccess()->first();
+
+            static::assertNotNull($result);
+            $docIds[] = $result->getId();
+
+            $staticFileContent = 'PDF content for document ' . $i;
+            $uploadFileRequest = new Request(
+                [
+                    'extension' => FileTypes::PDF,
+                    'fileName' => 'document' . $i . '.pdf',
+                ],
+                [],
+                [],
+                [],
+                [],
+                [
+                    'HTTP_CONTENT_LENGTH' => \strlen($staticFileContent),
+                    'HTTP_CONTENT_TYPE' => 'application/pdf',
+                ],
+                $staticFileContent
+            );
+
+            $this->documentGenerator->upload($result->getId(), $this->context, $uploadFileRequest);
+        }
+
+        // force zip creation
+        $mockFpdi = $this->createMock(Fpdi::class);
+        $mockFpdi->method('setSourceFile')
+            ->willThrowException(new FpdiException('PDF merge failed'));
+
+        $documentMerger = new DocumentMerger(
+            $this->documentRepository,
+            static::getContainer()->get(MediaService::class),
+            $this->documentGenerator,
+            $mockFpdi,
+            $filesystem,
+        );
+
+        $result = $documentMerger->merge($docIds, $this->context);
+
+        static::assertNotNull($result);
+        static::assertSame('zip', $result->getFileExtension());
+        static::assertSame('application/zip', $result->getContentType());
+
+        // save content to a temporary zip file
+        $filesystem = static::getContainer()->get('filesystem');
+        $tempFile = tempnam(sys_get_temp_dir(), 'test_zip');
+        $filesystem->dumpFile($tempFile, $result->getContent());
+
+        $zip = new \ZipArchive();
+        static::assertTrue($zip->open($tempFile), 'failed to open zip file');
+        static::assertSame(2, $zip->numFiles, 'zip should contain exactly 2 files');
+
+        for ($i = 0; $i < $zip->numFiles; ++$i) {
+            $fileInfo = $zip->statIndex($i);
+            static::assertNotFalse($fileInfo);
+            static::assertSame(
+                DeliveryNoteRenderer::TYPE . '_' . $orderIds[$i] . '.' . FileTypes::PDF,
+                $fileInfo['name']
+            );
+        }
+
+        $zip->close();
+        $filesystem->remove($tempFile);
+        static::assertFalse($filesystem->exists($tempFile), 'temporary zip file should have been deleted');
     }
 }

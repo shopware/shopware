@@ -5,6 +5,7 @@ namespace Shopware\Core\Checkout\Document;
 use Shopware\Core\Checkout\Document\Aggregate\DocumentBaseConfig\DocumentBaseConfigEntity;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\Struct\Struct;
 
 #[Package('after-sales')]
 class DocumentConfigurationFactory
@@ -70,7 +71,7 @@ class DocumentConfigurationFactory
 
                 $typeName = $propertyType->getName();
 
-                if (!is_subclass_of($typeName, Entity::class) || !\is_array($value)) {
+                if (!is_subclass_of($typeName, Struct::class) || !\is_array($value)) {
                     $baseConfig->__set($key, $value);
                     continue;
                 }

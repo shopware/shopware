@@ -214,11 +214,8 @@ final class DocumentMerger
                 return $this->mediaService->loadFile($documentMediaId, $context);
             });
 
-            $name = $document->getDocumentType()?->getTechnicalName() ?? 'unknown'
-                . '_'
-                . $document->getOrderId()
-                . '.'
-                . PdfRenderer::FILE_EXTENSION;
+            $technicalName = $document->getDocumentType()?->getTechnicalName() ?? 'unknown';
+            $name = $technicalName . '_' . $document->getOrderId() . '.' . PdfRenderer::FILE_EXTENSION;
 
             $zip->addFromString($name, $fileContent);
 

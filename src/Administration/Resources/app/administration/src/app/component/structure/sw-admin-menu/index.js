@@ -8,41 +8,49 @@ const MODULES = [
         id: 'dashboard',
         name: 'Dashboard',
         icon: 'dashboard',
+        to: 'sw.dashboard.index',
     },
     {
         id: 'products',
         name: 'Products',
         icon: 'tag',
+        to: 'sw.product.index',
     },
     {
         id: 'orders',
         name: 'Orders',
-        icon: 'shopping-bag'
+        icon: 'shopping-bag',
+        to: 'sw.order.index'
     },
     {
         id: 'customers',
         name: 'Customers',
-        icon: 'users'
+        icon: 'users',
+        to: 'sw.customer.index'
     },
     {
         id: 'content',
         name: 'Content',
-        icon: 'image-text'
+        icon: 'image-text',
+        to: 'sw.cms.index'
     },
     {
         id: 'marketing',
         name: 'Marketing',
-        icon: 'megaphone'
+        icon: 'megaphone',
+        to: 'sw.promotion.v2.index'
     },
     {
         id: 'extensions',
         name: 'Extensions',
-        icon: 'puzzle-piece'
+        icon: 'puzzle-piece',
+        to: 'sw.extension.my-extensions.listing'
     },
     {
         id: 'settings',
         name: 'Settings',
-        icon: 'cog'
+        icon: 'cog',
+        to: 'sw.settings.index'
     },
 ];
 

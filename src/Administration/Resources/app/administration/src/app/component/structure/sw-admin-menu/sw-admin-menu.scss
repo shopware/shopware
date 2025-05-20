@@ -37,11 +37,20 @@
   border-radius: var(--border-radius-xs);
   padding-inline-start: var(--scale-size-10);
   padding-inline-end: var(--scale-size-16);
+  text-decoration: none;
 
   &:focus-visible {
     outline-offset: var(--scale-size-2);
     outline-width: var(--scale-size-2);
     outline-color: var(--color-border-brand-selected);
+  }
+
+  &:hover {
+    background-color: #fff;
+  }
+
+  &:active {
+    background-color: #F2F3F8;
   }
 }
 

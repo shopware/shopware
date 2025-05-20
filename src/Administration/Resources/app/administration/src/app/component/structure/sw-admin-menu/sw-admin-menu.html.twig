@@ -20,16 +20,19 @@
             <ul class="sw-admin-menu__modules">
                 <li
                     v-for="module in MODULES"
-                    :key="module.id"
-                    class="sw-admin-menu__nav-item">
+                    :key="module.id">
+                    <router-link
+                        :to="{ name: module.to }"
+                        class="sw-admin-menu__nav-item">
 
-                    <mt-icon
-                        size="var(--scale-size-16)"
-                        :name="`regular-${module.icon}`"
-                        color="#696A6E"
-                    />
+                        <mt-icon
+                            size="var(--scale-size-16)"
+                            :name="`regular-${module.icon}`"
+                            color="#696A6E"
+                        />
 
-                    <span>{{ module.name }}</span>
+                        <span>{{ module.name }}</span>
+                    </router-link>
                 </li>
             </ul>
         </div>

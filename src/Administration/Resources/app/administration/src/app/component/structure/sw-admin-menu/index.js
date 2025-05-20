@@ -9,48 +9,72 @@ const MODULES = [
         name: 'Dashboard',
         icon: 'dashboard',
         to: 'sw.dashboard.index',
+        match(route) {
+            return route.name === 'sw.dashboard.index' ? 'exact' : 'none';
+        }
     },
     {
         id: 'products',
         name: 'Products',
         icon: 'tag',
         to: 'sw.product.index',
+        match(route) {
+            return route.name.startsWith('sw.product') ? 'exact' : 'none';
+        }
     },
     {
         id: 'orders',
         name: 'Orders',
         icon: 'shopping-bag',
-        to: 'sw.order.index'
+        to: 'sw.order.index',
+        match(route) {
+            return route.name.startsWith('sw.order') ? 'exact' : 'none';
+        }
     },
     {
         id: 'customers',
         name: 'Customers',
         icon: 'users',
-        to: 'sw.customer.index'
+        to: 'sw.customer.index',
+        match(route) {
+            return route.name.startsWith('sw.customer') ? 'exact' : 'none';
+        }
     },
     {
         id: 'content',
         name: 'Content',
         icon: 'image-text',
-        to: 'sw.cms.index'
+        to: 'sw.cms.index',
+        match() {
+            return 'none';
+        }
     },
     {
         id: 'marketing',
         name: 'Marketing',
         icon: 'megaphone',
-        to: 'sw.promotion.v2.index'
+        to: 'sw.promotion.v2.index',
+        match() {
+            return 'none';
+        }
     },
     {
         id: 'extensions',
         name: 'Extensions',
         icon: 'puzzle-piece',
-        to: 'sw.extension.my-extensions.listing'
+        to: 'sw.extension.my-extensions.listing',
+        match() {
+            return 'none';
+        }
     },
     {
         id: 'settings',
         name: 'Settings',
         icon: 'cog',
-        to: 'sw.settings.index'
+        to: 'sw.settings.index',
+        match(route) {
+            return route.name.startsWith('sw.settings.index') ? 'exact' : 'none';
+        }
     },
 ];
 
@@ -68,6 +92,7 @@ export default {
 
     inject: [
         'repositoryFactory',
+        'menuService',
     ],
 
     data() {
@@ -95,6 +120,8 @@ export default {
         this.salesChannelRepository.search(this.salesChannelCriteria).then((response) => {
             this.salesChannels = response;
         });
+
+        console.log('foo', this.menuService.getNavigationFromAdminModules())
     },
 
     computed: {

@@ -23,12 +23,15 @@
                     :key="module.id">
                     <router-link
                         :to="{ name: module.to }"
-                        class="sw-admin-menu__nav-item">
+                        class="sw-admin-menu__nav-item"
+                        :class="{
+                            'router-link-active': module.match($route) === 'exact'
+                        }">
 
                         <mt-icon
                             size="var(--scale-size-16)"
-                            :name="`regular-${module.icon}`"
-                            color="#696A6E"
+                            :name="`${module.match($route) === 'none' ? 'regular' : 'solid'}-${module.icon}`"
+                            :color="module.match($route) === 'exact' ? 'var(--color-icon-brand-default)' : '#696A6E'"
                         />
 
                         <span>{{ module.name }}</span>

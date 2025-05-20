@@ -46,11 +46,16 @@
   }
 
   &:hover {
-    background-color: #fff;
+    background-color: #F2F3F8;
   }
 
   &:active {
-    background-color: #F2F3F8;
+    background-color: #E2E3E9;
+  }
+
+  &.router-link-active {
+    font-weight: var(--font-weight-bold);
+    background-color: #fff;
   }
 }
 
@@ -87,15 +92,16 @@
   }
 
   &:hover {
-    background-color: #fff;
+    background-color: #F2F3F8;
   }
 
   &:active {
-    background-color: #F2F3F8;
+    background-color: #E2E3E9;
   }
 
   &.router-link-active {
     font-weight: var(--font-weight-bold);
+    background-color: #fff;
   }
 }
 

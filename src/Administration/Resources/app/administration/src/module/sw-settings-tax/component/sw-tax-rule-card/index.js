@@ -134,10 +134,11 @@ export default {
         getList() {
             this.taxRulesLoading = true;
 
-            this.taxRuleRepository.search(this.taxRuleCriteria).then((response) => {
+            return this.taxRuleRepository.search(this.taxRuleCriteria).then((response) => {
                 this.total = response.total;
                 this.taxRules = response;
                 this.taxRulesLoading = false;
+                return Promise.resolve();
             });
         },
 
@@ -185,7 +186,7 @@ export default {
         onConfirmDelete(id) {
             this.showDeleteModal = false;
 
-            this.taxRuleRepository.delete(id).then(() => {
+            return this.taxRuleRepository.delete(id).then(() => {
                 this.getList();
             });
         },

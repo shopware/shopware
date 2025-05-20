@@ -17,7 +17,9 @@
             "emptyStateSubline": "No message queue statistics have been collected yet.",
             "type": "Type",
             "count": "Amount",
-            "seconds": "s"
+            "seconds": "s",
+            "statsDisabledTitle": "Message queue statistics are disabled",
+            "statsDisabledContent": "To enable message queue statistics, set the key \"shopware.messenger.stats.enabled\" to true in your shopware.yaml configuration file and restart workers."
         }
     }
 }

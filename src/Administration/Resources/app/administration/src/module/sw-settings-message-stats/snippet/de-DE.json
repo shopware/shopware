@@ -17,7 +17,9 @@
             "emptyStateSubline": "Es wurden noch keine Nachrichtenwarteschlangen-Statistiken gesammelt.",
             "type": "Typ",
             "count": "Anzahl",
-            "seconds": "s"
+            "seconds": "s",
+            "statsDisabledTitle": "Nachrichtenwarteschlangen-Statistiken sind deaktiviert",
+            "statsDisabledContent": "Um Nachrichtenwarteschlangen-Statistiken zu aktivieren, setzen Sie den Schlüssel \"shopware.messenger.stats.enabled\" in Ihrer shopware.yaml-Konfigurationsdatei auf true und starten Sie die Worker neu."
         }
     }
-} 
+}

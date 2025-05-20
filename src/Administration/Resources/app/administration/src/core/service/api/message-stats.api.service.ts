@@ -17,6 +17,14 @@ export interface MessageStats {
 }
 
 /**
+ * @private
+ */
+export interface MessageStatsResponse {
+    enabled: boolean;
+    stats: MessageStats | null;
+}
+
+/**
  * Gateway for the API end point "message-stats"
  * @class
  * @extends ApiService
@@ -30,17 +38,17 @@ class MessageStatsApiService extends ApiService {
     /**
      * Get message statistics
      *
-     * @returns {Promise<MessageStats>}
+     * @returns {Promise<MessageStatsResponse>}
      */
-    getStats(): Promise<MessageStats> {
+    getStats(): Promise<MessageStatsResponse> {
         const headers = this.getBasicHeaders();
 
         return this.httpClient
-            .get<MessageStats>('/_info/message-stats.json', {
+            .get<MessageStatsResponse>('/_info/message-stats.json', {
                 headers,
             })
             .then((response) => {
-                return ApiService.handleResponse<MessageStats>(response);
+                return ApiService.handleResponse<MessageStatsResponse>(response);
             });
     }
 }

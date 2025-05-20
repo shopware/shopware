@@ -22,27 +22,60 @@ describe('messageStatsApiService', () => {
         expect(messageStatsApiService).toBeInstanceOf(MessageStatsApiService);
     });
 
-    it('gets message statistics correctly', async () => {
+    it('gets message statistics correctly when enabled and stats are available', async () => {
         const { messageStatsApiService, clientMock } = createMessageStatsApiService();
 
         const mockResponse = {
-            totalMessagesProcessed: 6,
-            processedSince: '2025-05-02T15:25:32.000+00:00',
-            averageTimeInQueue: 7.5,
-            messageTypeStats: [
-                {
-                    type: 'Shopware\\Core\\Framework\\Adapter\\Cache\\InvalidateCacheTask',
-                    count: 2
-                },
-                {
-                    type: 'Shopware\\Core\\Content\\ProductExport\\ScheduledTask\\ProductExportGenerateTask',
-                    count: 2
-                },
-                {
-                    type: 'Shopware\\Elasticsearch\\Framework\\Indexing\\CreateAliasTask',
-                    count: 1
-                }
-            ]
+            enabled: true,
+            stats: {
+                totalMessagesProcessed: 6,
+                processedSince: '2025-05-02T15:25:32.000+00:00',
+                averageTimeInQueue: 7.5,
+                messageTypeStats: [
+                    {
+                        type: 'Shopware\\Core\\Framework\\Adapter\\Cache\\InvalidateCacheTask',
+                        count: 2
+                    },
+                    {
+                        type: 'Shopware\\Core\\Content\\ProductExport\\ScheduledTask\\ProductExportGenerateTask',
+                        count: 2
+                    },
+                    {
+                        type: 'Shopware\\Elasticsearch\\Framework\\Indexing\\CreateAliasTask',
+                        count: 1
+                    }
+                ]
+            }
+        };
+
+        clientMock.onGet('/_info/message-stats.json').reply(200, mockResponse);
+
+        const stats = await messageStatsApiService.getStats();
+
+        expect(stats).toEqual(mockResponse);
+    });
+
+    it('gets message statistics correctly when enabled but no stats are available', async () => {
+        const { messageStatsApiService, clientMock } = createMessageStatsApiService();
+
+        const mockResponse = {
+            enabled: true,
+            stats: null
+        };
+
+        clientMock.onGet('/_info/message-stats.json').reply(200, mockResponse);
+
+        const stats = await messageStatsApiService.getStats();
+
+        expect(stats).toEqual(mockResponse);
+    });
+
+    it('gets message statistics correctly when disabled', async () => {
+        const { messageStatsApiService, clientMock } = createMessageStatsApiService();
+
+        const mockResponse = {
+            enabled: false,
+            stats: null
         };
 
         clientMock.onGet('/_info/message-stats.json').reply(200, mockResponse);

@@ -12,6 +12,17 @@
             </template>
 
             <template v-else>
+                <template v-if="isStatsDisabled">
+                    <div class="sw-settings-message-stats__banner-container">
+                        <mt-banner
+                            variant="attention"
+                            :title="$tc('sw-settings-message-stats.general.statsDisabledTitle')"
+                        >
+                            {{  $tc('sw-settings-message-stats.general.statsDisabledContent') }}
+                        </mt-banner>
+                    </div>
+                </template>
+
                 <mt-card
                     position-identifier="sw-settings-message-stats-overview"
                     :title="$tc('sw-settings-message-stats.general.statsCardTitle')"

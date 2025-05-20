@@ -113,4 +113,17 @@
     &__empty-state-button {
         margin-top: 24px;
     }
+
+    &__banner-container {
+        margin-bottom: 40px;
+        width: 100%;
+        max-width: 960px;
+        margin-left: auto;
+        margin-right: auto;
+
+        @media screen and (max-width: 1360px) {
+            max-width: 770px;
+            margin-bottom: 15px;
+        }
+    }
 }

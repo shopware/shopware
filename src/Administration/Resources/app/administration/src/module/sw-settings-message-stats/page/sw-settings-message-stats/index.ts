@@ -1,5 +1,5 @@
 import { defineComponent } from 'vue';
-import type { MessageStats } from 'src/core/service/api/message-stats.api.service';
+import type { MessageStatsResponse } from 'src/core/service/api/message-stats.api.service';
 import type MessageStatsApiService from 'src/core/service/api/message-stats.api.service';
 import template from './sw-settings-message-stats.html.twig';
 import './sw-settings-message-stats.scss';
@@ -28,7 +28,7 @@ export default defineComponent({
     data() {
         return {
             isLoading: false,
-            stats: null as MessageStats | null,
+            statsResponse: null as MessageStatsResponse | null,
             columns: [
                 {
                     property: 'count',
@@ -44,15 +44,24 @@ export default defineComponent({
     },
 
     computed: {
+        statsData() {
+            return this.statsResponse?.stats ?? null;
+        },
+
         hasStats(): boolean {
-            return this.stats !== null && this.stats.totalMessagesProcessed > 0;
+            return this.statsResponse?.enabled === true
+                && this.statsData !== null && this.statsData.totalMessagesProcessed > 0;
+        },
+
+        isStatsDisabled(): boolean {
+            return this.statsResponse?.enabled === false;
         },
 
         formattedProcessedSince(): string {
-            if (!this.stats?.processedSince) {
+            if (!this.statsData?.processedSince) {
                 return '';
             }
-            return Shopware.Utils.format.date(this.stats.processedSince, {
+            return Shopware.Utils.format.date(this.statsData.processedSince, {
                 year: 'numeric',
                 month: 'numeric',
                 day: 'numeric',
@@ -63,10 +72,10 @@ export default defineComponent({
         },
 
         formattedAverageTime(): string {
-            if (!this.stats?.averageTimeInQueue) {
+            if (!this.statsData?.averageTimeInQueue) {
                 return '';
             }
-            const formattedNumber = this.stats.averageTimeInQueue.toFixed(2);
+            const formattedNumber = this.statsData.averageTimeInQueue.toFixed(2);
             return `${formattedNumber}${this.$tc('sw-settings-message-stats.general.seconds')}`;
         },
 
@@ -76,7 +85,7 @@ export default defineComponent({
                 {
                     key: 'totalMessages',
                     label: this.$tc('sw-settings-message-stats.general.totalMessages'),
-                    value: this.hasStats ? this.stats?.totalMessagesProcessed : emptyValue,
+                    value: this.hasStats ? this.statsData?.totalMessagesProcessed : emptyValue,
                     tooltip: this.$tc('sw-settings-message-stats.general.totalMessagesHelp'),
                 },
                 {
@@ -95,11 +104,11 @@ export default defineComponent({
         },
 
         sortedMessageTypeStats() {
-            if (!this.stats?.messageTypeStats) {
+            if (!this.statsData?.messageTypeStats) {
                 return [];
             }
 
-            return [...this.stats.messageTypeStats].sort((a, b) => {
+            return [...this.statsData.messageTypeStats].sort((a, b) => {
                 return b.count - a.count;
             });
         },
@@ -117,7 +126,7 @@ export default defineComponent({
         async loadStats() {
             this.isLoading = true;
             try {
-                this.stats = await (this.messageStatsService as MessageStatsApiService).getStats();
+                this.statsResponse = await (this.messageStatsService as MessageStatsApiService).getStats();
             } catch (error) {
                 const errorMessage = error instanceof Error
                     ? error.message

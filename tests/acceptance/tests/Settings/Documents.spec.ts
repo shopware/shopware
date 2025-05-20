@@ -46,7 +46,7 @@ test('As an admin, I want to create documents and make sure they contain certain
         await ShopAdmin.expects(AdminOrderDetail.sentCheckmark).toBeVisible();
         });
 
-    await test.step('Log in to customer account and check the order document', async () => {
+    await test.step('Log into customer account and check the order document', async () => {
         await ShopCustomer.attemptsTo(Login());
         await ShopCustomer.goesTo(StorefrontAccountOrder.url());
         await ShopCustomer.expects(StorefrontAccountOrder.orderExpandButton).toBeVisible();
@@ -56,3 +56,4 @@ test('As an admin, I want to create documents and make sure they contain certain
         await ShopCustomer.expects(StorefrontAccountOrder.creditItem).toContainText('-€1.00');
     });
 });
+

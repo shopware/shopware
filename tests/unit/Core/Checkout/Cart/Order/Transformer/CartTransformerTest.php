@@ -3,7 +3,6 @@
 namespace Shopware\Tests\Unit\Core\Checkout\Cart\Order\Transformer;
 
 use PHPUnit\Framework\Attributes\CoversClass;
-use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\Cart;
 use Shopware\Core\Checkout\Cart\Delivery\Struct\Delivery;
@@ -25,9 +24,7 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Util\Json;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\Country\CountryEntity;
-use Shopware\Core\System\Currency\CurrencyEntity;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
-use Shopware\Core\System\SalesChannel\SalesChannelEntity;
 use Shopware\Core\Test\Generator;
 
 /**
@@ -84,6 +81,37 @@ class CartTransformerTest extends TestCase
         static::assertEquals($this->getExpectedBaseData($stateId, $salesChannelContext), $cartTransformer);
     }
 
+    /**
+     * @return array<string, mixed>
+     */
+    public function getExpectedBaseData(string $stateId, SalesChannelContext $salesChannelContext): array
+    {
+        return [
+            'price' => new CartPrice(
+                100.0,
+                100.0,
+                100.0,
+                new CalculatedTaxCollection([new CalculatedTax(0.0, 38.0, 100.0),
+                ]),
+                new TaxRuleCollection(),
+                CartPrice::TAX_STATE_GROSS
+            ),
+            'shippingCosts' => new CalculatedPrice(5, 5, new CalculatedTaxCollection(), new TaxRuleCollection(), 1),
+            'stateId' => $stateId,
+            'currencyId' => $salesChannelContext->getCurrencyId(),
+            'currencyFactor' => $salesChannelContext->getCurrency()->getFactor(),
+            'salesChannelId' => $salesChannelContext->getSalesChannelId(),
+            'lineItems' => [],
+            'deliveries' => [],
+            'customerComment' => 'customerCommentTest',
+            'affiliateCode' => 'AffiliateCodeTest',
+            'campaignCode' => 'campaignCodeTest',
+            'source' => 'sourceTest',
+            'itemRounding' => json_decode(Json::encode($salesChannelContext->getItemRounding()), true, 512, \JSON_THROW_ON_ERROR),
+            'totalRounding' => json_decode(Json::encode($salesChannelContext->getTotalRounding()), true, 512, \JSON_THROW_ON_ERROR),
+        ];
+    }
+
     private function createCart(): Cart
     {
         $cart = new Cart('test');
@@ -118,40 +146,5 @@ class CartTransformerTest extends TestCase
         $cart->setSource('sourceTest');
 
         return $cart;
-    }
-
-    /**
-     * @param string $stateId
-     * @param CurrencyEntity $currency
-     * @param SalesChannelContext $salesChannelContext
-     * @return array
-     * @throws \JsonException
-     */
-    public function getExpectedBaseData(string $stateId, SalesChannelContext $salesChannelContext): array
-    {
-        return [
-            'price' => new CartPrice(
-                100.0,
-                100.0,
-                100.0,
-                new CalculatedTaxCollection([new CalculatedTax(0.0, 38.0, 100.0),
-                ]),
-                new TaxRuleCollection(),
-                CartPrice::TAX_STATE_GROSS
-            ),
-            'shippingCosts' => new CalculatedPrice(5, 5, new CalculatedTaxCollection(), new TaxRuleCollection(), 1),
-            'stateId' => $stateId,
-            'currencyId' => $salesChannelContext->getCurrencyId(),
-            'currencyFactor' => $salesChannelContext->getCurrency()->getFactor(),
-            'salesChannelId' => $salesChannelContext->getSalesChannelId(),
-            'lineItems' => [],
-            'deliveries' => [],
-            'customerComment' => 'customerCommentTest',
-            'affiliateCode' => 'AffiliateCodeTest',
-            'campaignCode' => 'campaignCodeTest',
-            'source' => 'sourceTest',
-            'itemRounding' => json_decode(Json::encode($salesChannelContext->getItemRounding()), true, 512, \JSON_THROW_ON_ERROR),
-            'totalRounding' => json_decode(Json::encode($salesChannelContext->getTotalRounding()), true, 512, \JSON_THROW_ON_ERROR),
-        ];
     }
 }

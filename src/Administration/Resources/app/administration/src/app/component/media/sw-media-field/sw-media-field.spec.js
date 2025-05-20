@@ -131,7 +131,7 @@ describe('src/app/component/media/sw-media-field', () => {
         const wrapper = await createWrapper();
         await wrapper.setData({ showPicker: true });
 
-        wrapper.vm.$el = { closest: () => null };
+        wrapper.element.closest = jest.fn(() => null);
         expect(wrapper.vm.popoverConfig).toEqual({});
     });
 
@@ -139,8 +139,11 @@ describe('src/app/component/media/sw-media-field', () => {
         const wrapper = await createWrapper();
         await wrapper.setData({ showPicker: true });
 
-        wrapper.vm.$el = { closest: (sel) => sel === '.mt-modal' ? {} : null };
-        expect(wrapper.vm.popoverConfig).toEqual({
+        const el = wrapper.element;
+        el.closest = jest.fn(selector => selector === '.mt-modal' ? el : null);
+
+        const config = wrapper.vm.$options.computed.popoverConfig.call(wrapper.vm);
+        expect(config).toEqual({
             targetSelector: '.mt-modal__content-inner',
         });
     });

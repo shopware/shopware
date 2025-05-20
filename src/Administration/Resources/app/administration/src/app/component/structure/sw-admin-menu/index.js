@@ -3,6 +3,49 @@ import './sw-admin-menu.scss';
 import { MtText } from '@shopware-ag/meteor-component-library';
 const { Criteria } = Shopware.Data;
 
+const MODULES = [
+    {
+        id: 'dashboard',
+        name: 'Dashboard',
+        icon: 'dashboard',
+    },
+    {
+        id: 'products',
+        name: 'Products',
+        icon: 'tag',
+    },
+    {
+        id: 'orders',
+        name: 'Orders',
+        icon: 'shopping-bag'
+    },
+    {
+        id: 'customers',
+        name: 'Customers',
+        icon: 'users'
+    },
+    {
+        id: 'content',
+        name: 'Content',
+        icon: 'image-text'
+    },
+    {
+        id: 'marketing',
+        name: 'Marketing',
+        icon: 'megaphone'
+    },
+    {
+        id: 'extensions',
+        name: 'Extensions',
+        icon: 'puzzle-piece'
+    },
+    {
+        id: 'settings',
+        name: 'Settings',
+        icon: 'cog'
+    },
+];
+
 /**
  * @sw-package framework
  *
@@ -22,7 +65,8 @@ export default {
     data() {
         return {
             isDarkMode: false,
-            salesChannels: []
+            salesChannels: [],
+            MODULES
         };
     },
 

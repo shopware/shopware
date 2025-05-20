@@ -14,6 +14,35 @@
 
 .sw-admin-menu__navigation {
   flex-grow: 1;
+  display: flex;
+  flex-direction: column;
+  gap: var(--scale-size-16);
+}
+
+.sw-admin-menu__modules {
+  list-style: none;
+  margin-inline-start: calc(var(--scale-size-10) * -1);
+}
+
+.sw-admin-menu__nav-item {
+  font-size: var(--font-size-xs);
+  line-height: var(--font-line-height-xs);
+  font-weight: var(--font-weight-medium);
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  column-gap: var(--scale-size-10);
+  color: var(--color-text-primary-default);
+  min-height: var(--scale-size-36);
+  border-radius: var(--border-radius-xs);
+  padding-inline-start: var(--scale-size-10);
+  padding-inline-end: var(--scale-size-16);
+
+  &:focus-visible {
+    outline-offset: var(--scale-size-2);
+    outline-width: var(--scale-size-2);
+    outline-color: var(--color-border-brand-selected);
+  }
 }
 
 .sw-admin-menu__sales-channel-list {

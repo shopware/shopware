@@ -37,7 +37,7 @@ class CategorySubscriber implements EventSubscriberInterface
     }
 
     /**
-     * @param EntityLoadedEvent<CategoryEntity> $event
+     * @param EntityLoadedEvent<covariant CategoryEntity> $event
      */
     public function categoryLoaded(EntityLoadedEvent $event): void
     {

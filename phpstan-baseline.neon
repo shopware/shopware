@@ -2749,9 +2749,3 @@ parameters:
 			message: "#^Expected domain exception class Shopware\\\\Core\\\\Framework\\\\Notification\\\\NotificationException, got Shopware\\\\Core\\\\Framework\\\\Api\\\\ApiException$#"
 			count: 2
 			path: src/Core/Framework/Notification/Api/NotificationController.php
-
-		-
-			message: '#^Parameter \#1 \$event of method Shopware\\Core\\Content\\Category\\Subscriber\\CategorySubscriber\:\:categoryLoaded\(\) expects Shopware\\Core\\Framework\\DataAbstractionLayer\\Event\\EntityLoadedEvent\<Shopware\\Core\\Content\\Category\\CategoryEntity\>, Shopware\\Core\\System\\SalesChannel\\Entity\\SalesChannelEntityLoadedEvent\<Shopware\\Core\\Content\\Category\\SalesChannel\\SalesChannelCategoryEntity\> given\.$#'
-			identifier: argument.type
-			count: 1
-			path: tests/unit/Core/Content/Category/Subscriber/CategorySubscriberTest.php

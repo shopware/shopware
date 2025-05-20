@@ -3,7 +3,7 @@
  */
 import { mount } from '@vue/test-utils';
 
-async function createWrapper(privileges = []) {
+async function createWrapper(privileges = [], isSaas = { isSaas: false }, deleteFunction = () => {}) {
     return mount(
         await wrapTestComponent('sw-users-permissions-role-listing', {
             sync: true,
@@ -15,6 +15,7 @@ async function createWrapper(privileges = []) {
                     repositoryFactory: {
                         create: () => ({
                             search: () => Promise.resolve([]),
+                            delete: deleteFunction,
                         }),
                     },
                     acl: {
@@ -27,6 +28,11 @@ async function createWrapper(privileges = []) {
                         },
                     },
                     searchRankingService: {},
+                    saasSettingsService: {
+                        isSaas: () => {
+                            return Promise.resolve(isSaas);
+                        }
+                    },
                 },
                 mocks: {
                     $route: { query: '' },
@@ -41,6 +47,7 @@ async function createWrapper(privileges = []) {
 <div>
     <template v-for="item in dataSource">
         <slot name="actions" v-bind="{ item }"></slot>
+        <slot name="action-modals" v-bind="{ item }"></slot>
     </template>
 </div>
 `,
@@ -49,6 +56,12 @@ async function createWrapper(privileges = []) {
                     'sw-verify-user-modal': true,
                     'router-link': true,
                     'sw-pagination': true,
+                    'sw-modal': {
+                        template: `<div class="modal">
+                            <slot></slot>
+                            <slot name="modal-footer"></slot>
+                        </div>`,
+                    }
                 },
             },
         },
@@ -137,5 +150,58 @@ describe('module/sw-users-permissions/components/sw-users-permissions-role-listi
 
         const emittedGetList = wrapper.emitted('get-list');
         expect(emittedGetList.length).toBeGreaterThan(0);
+    });
+
+    it('should open password confirm modal', async () => {
+        const deleteFunction = jest.fn().mockReturnValue(Promise.resolve());
+        wrapper = await createWrapper(['users_and_permissions.deleter', 'users_and_permissions.editor'], { isSaas: false }, deleteFunction);
+
+        await wrapper.setData({
+            roles: [
+                {
+                    id: 'anyId',
+                    name: 'anyName',
+                },
+            ],
+        });
+
+        await flushPromises();
+
+        const contextMenuItemDelete = wrapper.find('.sw-users-permissions-role-listing__context-menu-delete');
+        await contextMenuItemDelete.trigger('click');
+        await flushPromises();
+
+        const confirmButton = wrapper.find('.sw-users-permissions-role-listing__confirm-delete-button');
+        await confirmButton.trigger('click');
+        await flushPromises();
+
+        expect(wrapper.find('sw-verify-user-modal-stub').exists()).toBeTruthy()
+        expect(deleteFunction).not.toHaveBeenCalled();
+    });
+
+    it('should delete role without pw confirmation', async () => {
+        const deleteFunction = jest.fn().mockReturnValue(Promise.resolve());
+        wrapper = await createWrapper(['users_and_permissions.deleter', 'users_and_permissions.editor'], { isSaas: true }, deleteFunction);
+
+        await wrapper.setData({
+            roles: [
+                {
+                    id: 'anyId',
+                    name: 'anyName',
+                },
+            ],
+        });
+
+        await flushPromises();
+
+        const contextMenuItemDelete = wrapper.find('.sw-users-permissions-role-listing__context-menu-delete');
+        await contextMenuItemDelete.trigger('click');
+        await flushPromises();
+
+        const confirmButton = wrapper.find('.sw-users-permissions-role-listing__confirm-delete-button');
+        await confirmButton.trigger('click');
+        await flushPromises();
+
+        expect(deleteFunction).toHaveBeenCalled();
     });
 });

@@ -48,13 +48,16 @@
                             </li>
                         {% endblock %}
 
-                        {% block layout_breadcrumb_placeholder %}
-                            {% if key != breadcrumbKeys|last %}
-                                <div class="breadcrumb-placeholder">
-                                    {% sw_icon 'arrow-medium-right' style { size: 'fluid', pack: 'solid' } %}
-                                </div>
-                            {% endif %}
-                        {% endblock %}
+                        {% if not feature('v6.8.0.0') %}
+                            {# @deprecated tag:v6.8.0 - Block will be removed, the separator has been moved to a CSS only solution - Extend the `layout_breadcrumb_list_item` block if needed #}
+                            {% block layout_breadcrumb_placeholder %}
+                                {% if key != breadcrumbKeys|last %}
+                                    <li class="breadcrumb-placeholder">
+                                        {% sw_icon 'arrow-medium-right' style { size: 'fluid', pack: 'solid' } %}
+                                    </li>
+                                {% endif %}
+                            {% endblock %}
+                        {% endif %}
                     {% endfor %}
                 </ol>
             {% endblock %}

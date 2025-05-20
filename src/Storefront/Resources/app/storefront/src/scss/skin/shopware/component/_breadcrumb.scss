@@ -7,14 +7,30 @@ https://getbootstrap.com/docs/5.2/components/breadcrumb
 */
 
 .breadcrumb {
-    .breadcrumb-placeholder {
-        margin: 0 $spacer-sm;
+    @if not feature('v6.8.0.0') {
+        .breadcrumb-placeholder {
+            margin: 0 $spacer-sm;
+        }
+
+        svg {
+            height: $font-size-base;
+            width: auto;
+            top: 3px;
+        }
     }
 
-    svg {
-        height: $font-size-base;
-        width: auto;
-        top: 3px;
+    .breadcrumb-item + .breadcrumb-item:before {
+        content: '';
+        display: inline-block;
+        float: none;
+        width: $spacer-sm;
+        height: $spacer-sm;
+        padding: 0;
+        margin-right: $spacer-sm;
+        vertical-align: middle;
+        border-right: 2px solid $body-color;
+        border-bottom: 2px solid $body-color;
+        transform: rotate(-45deg);
     }
 
     a {

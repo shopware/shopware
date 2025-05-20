@@ -430,7 +430,7 @@ export default {
     },
 
     methods: {
-        createdComponent() {
+        async createdComponent() {
             Shopware.ExtensionAPI.publishData({
                 id: 'sw-product-detail__product',
                 path: 'product',
@@ -453,12 +453,12 @@ export default {
                 }
             }
 
+            await this.initProductMeasurementUnits();
+
             // initialize default state
             this.initState();
 
             this.initAdvancedModeSettings();
-
-            this.initProductMeasurementUnits();
         },
 
         initState() {

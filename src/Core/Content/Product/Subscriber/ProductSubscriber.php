@@ -128,33 +128,35 @@ class ProductSubscriber implements EventSubscriberInterface
                 continue;
             }
 
-            if ($command->hasField('width') && $lengthUnitHeader) {
+            $payload = $command->getPayload();
+
+            if ($command->hasField('width') && \is_float($payload['width']) && $lengthUnitHeader) {
                 $command->addPayload('width', $this->measurementUnitConverter->convert(
-                    $command->getPayload()['width'],
+                    $payload['width'],
                     $lengthUnitHeader,
                     MeasurementSystemInfo::DEFAULT_LENGTH_UNIT,
                 )->value);
             }
 
-            if ($command->hasField('height') && $lengthUnitHeader) {
+            if ($command->hasField('height') && \is_float($payload['height']) && $lengthUnitHeader) {
                 $command->addPayload('height', $this->measurementUnitConverter->convert(
-                    $command->getPayload()['height'],
+                    $payload['height'],
                     $lengthUnitHeader,
                     MeasurementSystemInfo::DEFAULT_LENGTH_UNIT,
                 )->value);
             }
 
-            if ($command->hasField('length') && $lengthUnitHeader) {
+            if ($command->hasField('length') && \is_float($payload['length']) && $lengthUnitHeader) {
                 $command->addPayload('length', $this->measurementUnitConverter->convert(
-                    $command->getPayload()['length'],
+                    $payload['length'],
                     $lengthUnitHeader,
                     MeasurementSystemInfo::DEFAULT_LENGTH_UNIT,
                 )->value);
             }
 
-            if ($command->hasField('weight') && $weightUnitHeader) {
+            if ($command->hasField('weight') && \is_float($payload['weight']) && $weightUnitHeader) {
                 $command->addPayload('weight', $this->measurementUnitConverter->convert(
-                    $command->getPayload()['weight'],
+                    $payload['weight'],
                     $weightUnitHeader,
                     MeasurementSystemInfo::DEFAULT_WEIGHT_UNIT,
                 )->value);

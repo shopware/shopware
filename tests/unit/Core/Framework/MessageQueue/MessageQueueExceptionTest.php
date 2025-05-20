@@ -29,13 +29,4 @@ class MessageQueueExceptionTest extends TestCase
         static::assertSame('Another worker is already running for receiver: "test"', $exception->getMessage());
         static::assertSame(409, $exception->getStatusCode());
     }
-
-    public function testQueueMessageStatsNotFound(): void
-    {
-        $exception = MessageQueueException::queueMessageStatsNotFound();
-
-        static::assertSame('FRAMEWORK__QUEUE_STATS_NOT_FOUND', $exception->getErrorCode());
-        static::assertSame('No stats available.', $exception->getMessage());
-        static::assertSame(204, $exception->getStatusCode());
-    }
 }

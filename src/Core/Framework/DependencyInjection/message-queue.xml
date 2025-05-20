@@ -68,6 +68,7 @@
 
         <service id="Shopware\Core\Framework\MessageQueue\Stats\StatsService">
             <argument type="service" id="Shopware\Core\Framework\MessageQueue\Stats\MySQLStatsRepository"/>
+            <argument>%shopware.messenger.stats.enabled%</argument>
         </service>
 
         <service id="Shopware\Core\Framework\Adapter\Messenger\Middleware\QueuedTimeMiddleware">

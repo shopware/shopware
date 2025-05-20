@@ -5,7 +5,6 @@ namespace Shopware\Core\Framework\MessageQueue\Stats;
 use Doctrine\DBAL\Connection;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Log\Package;
-use Shopware\Core\Framework\MessageQueue\MessageQueueException;
 use Shopware\Core\Framework\MessageQueue\Stats\Entity\MessageStatsEntity;
 use Shopware\Core\Framework\MessageQueue\Stats\Entity\MessageTypeStatsCollection;
 use Shopware\Core\Framework\MessageQueue\Stats\Entity\MessageTypeStatsEntity;
@@ -35,7 +34,7 @@ class MySQLStatsRepository extends AbstractStatsRepository
         $this->deleteStatsOlderThan($cutoffDate);
     }
 
-    public function getStats(): MessageStatsEntity
+    public function getStats(): ?MessageStatsEntity
     {
         $newerThan = $this->getCutOffDate();
 
@@ -46,7 +45,7 @@ class MySQLStatsRepository extends AbstractStatsRepository
         $vals = $query->executeQuery()->fetchAssociative();
 
         if (!isset($vals['handled_since'])) {
-            throw MessageQueueException::queueMessageStatsNotFound();
+            return null;
         }
 
         $stats = new MessageStatsEntity(

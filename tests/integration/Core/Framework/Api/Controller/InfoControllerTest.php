@@ -696,17 +696,21 @@ class InfoControllerTest extends TestCase
         $stats = json_decode($content, true, 512, \JSON_THROW_ON_ERROR);
 
         static::assertIsArray($stats);
-        static::assertArrayHasKey('totalMessagesProcessed', $stats);
-        static::assertGreaterThanOrEqual(2, $stats['totalMessagesProcessed']);
-        static::assertArrayHasKey('processedSince', $stats);
-        static::assertInstanceOf(\DateTimeInterface::class, \DateTimeImmutable::createFromFormat(\DateTimeInterface::RFC3339_EXTENDED, $stats['processedSince']));
-        static::assertArrayHasKey('averageTimeInQueue', $stats);
-        static::assertIsFloat($stats['averageTimeInQueue']);
-        static::assertArrayHasKey('messageTypeStats', $stats);
-        static::assertIsArray($stats['messageTypeStats']);
-        static::assertArrayHasKey('type', $stats['messageTypeStats'][0]);
-        static::assertSame('stdClass', $stats['messageTypeStats'][0]['type']);
-        static::assertArrayHasKey('count', $stats['messageTypeStats'][0]);
+        static::assertArrayHasKey('enabled', $stats);
+        static::assertTrue($stats['enabled']);
+        static::assertArrayHasKey('stats', $stats);
+        static::assertIsArray($stats['stats']);
+        static::assertArrayHasKey('totalMessagesProcessed', $stats['stats']);
+        static::assertGreaterThanOrEqual(2, $stats['stats']['totalMessagesProcessed']);
+        static::assertArrayHasKey('processedSince', $stats['stats']);
+        static::assertInstanceOf(\DateTimeInterface::class, \DateTimeImmutable::createFromFormat(\DateTimeInterface::RFC3339_EXTENDED, $stats['stats']['processedSince']));
+        static::assertArrayHasKey('averageTimeInQueue', $stats['stats']);
+        static::assertIsFloat($stats['stats']['averageTimeInQueue']);
+        static::assertArrayHasKey('messageTypeStats', $stats['stats']);
+        static::assertIsArray($stats['stats']['messageTypeStats']);
+        static::assertArrayHasKey('type', $stats['stats']['messageTypeStats'][0]);
+        static::assertSame('stdClass', $stats['stats']['messageTypeStats'][0]['type']);
+        static::assertArrayHasKey('count', $stats['stats']['messageTypeStats'][0]);
     }
 
     private function createApp(string $appId, string $aclRoleId): void

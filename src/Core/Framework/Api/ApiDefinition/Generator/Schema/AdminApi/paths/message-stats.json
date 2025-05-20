@@ -7,7 +7,7 @@
     "paths": {
         "\/_info\/message-stats.json": {
             "get": {
-                "summary": "Get statistics for recently processed messages",
+                "summary": "Get statistics for recently processed messages in the message queue",
                 "operationId": "getMessageStats",
                 "responses": {
                     "200": {
@@ -16,28 +16,39 @@
                             "application/json": {
                                 "schema": {
                                     "type": "object",
+                                    "required": ["enabled"],
                                     "properties": {
-                                        "totalMessagesProcessed": {
-                                            "type": "integer"
+                                        "enabled": {
+                                            "type": "boolean",
+                                            "description": "Whether message queue statistics are enabled in configuration"
                                         },
-                                        "processedSince": {
-                                            "type": "string",
-                                            "format": "date-time"
-                                        },
-                                        "averageTimeInQueue": {
-                                            "type": "number",
-                                            "format": "float"
-                                        },
-                                        "messageTypeStats": {
-                                            "type": "array",
-                                            "items": {
-                                                "type": "object",
-                                                "properties": {
-                                                    "type": {
-                                                        "type": "string"
-                                                    },
-                                                    "count": {
-                                                        "type": "integer"
+                                        "stats": {
+                                            "type": "object",
+                                            "nullable": true,
+                                            "properties": {
+                                                "totalMessagesProcessed": {
+                                                    "type": "integer"
+                                                },
+                                                "processedSince": {
+                                                    "type": "string",
+                                                    "format": "date-time"
+                                                },
+                                                "averageTimeInQueue": {
+                                                    "type": "number",
+                                                    "format": "float"
+                                                },
+                                                "messageTypeStats": {
+                                                    "type": "array",
+                                                    "items": {
+                                                        "type": "object",
+                                                        "properties": {
+                                                            "type": {
+                                                                "type": "string"
+                                                            },
+                                                            "count": {
+                                                                "type": "integer"
+                                                            }
+                                                        }
                                                     }
                                                 }
                                             }
@@ -46,9 +57,6 @@
                                 }
                             }
                         }
-                    },
-                    "204": {
-                        "description": "No stats found (disabled in configuration or empty so far)"
                     }
                 }
             }

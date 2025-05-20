@@ -17,7 +17,7 @@ The statistics collection is enabled by the `QueuedTimeMiddleware`, which is aut
 1. Adds a `SentAtStamp` to each message when it enters the queue
 2. Only adds the stamp if:
    - The message doesn't already have a `SentAtStamp`
-   - The message doesn't have a `SentStamp` (indicating it's already been sent)
+   - The message doesn't have a `ReceivedStamp` (indicating that middleware is in the receive phase)
 3. The `StatsService` uses this timestamp to calculate:
    - How long messages spend in the queue
    - When messages were processed
@@ -35,6 +35,7 @@ GET /api/_info/message-stats.json
 ```json
 {
     "extensions": [],
+    "enabled": true,
     "totalMessagesProcessed": 6,
     "processedSince": "2025-04-15T15:08:42.000+00:00",
     "averageTimeInQueue": 11.1667,
@@ -109,87 +110,3 @@ The statistics are automatically collected for all messages processed through th
 - Historical data is automatically cleaned up based on the configured time span
 - Only messages with a `SentAtStamp` are tracked (automatically added by QueuedTimeMiddleware)
 - Statistics are only collected for messages processed through the configured message bus
-
-## Implementation Progress
-
-### Administration Interface
-
-#### Requirements
-1. Add a new icon in the system settings section of the administration
-2. Create a new page for message queue statistics
-3. Display key metrics:
-   - Total messages processed
-   - Processing window start date (oldest message)
-   - Average time in queue
-   - List of message types with their counts
-
-#### Proposed UI Design
-
-```plaintext
-+------------------------------------------+
-|  Message Queue Statistics                |
-+------------------------------------------+
-|                                          |
-|  Key Metrics                             |
-|  +----------------+  +----------------+  |
-|  | Total Messages |  | Avg Queue Time |  |
-|  |     1,234      |  |    11.17s     |  |
-|  +----------------+  +----------------+  |
-|                                          |
-|  Processing Window                       |
-|  +------------------------------------+  |
-|  | Started: 2025-04-15 15:08:42 UTC  |  |
-|  +------------------------------------+  |
-|                                          |
-|  Message Types                          |
-|  +------------------------------------+  |
-|  | Type                              |  |
-|  |------------------------------------|  |
-|  | InvalidateCacheTask        |  123 |  |
-|  | CreateAliasTask            |   45 |  |
-|  | ProductExportGenerateTask  |   67 |  |
-|  | ...                        |  ... |  |
-|  +------------------------------------+  |
-|                                          |
-+------------------------------------------+
-```
-
-#### Implementation Tasks
-
-1. Backend:
-   - [ ] Verify existing API endpoint access control
-   - [ ] Ensure data formatting is consistent with UI requirements
-   - [ ] Check an option to return message queue message numbers (when allowed in configuration and transports implement MessageCountAwareInterface).
-
-2. Frontend:
-   - [x] Create new administration module
-   - [x] Add navigation item in system settings
-   - [ ] Implement statistics page template with hardcoded stats:
-     - [x] Key metrics cards
-     - [x] Message types table
-     - [x] Add banner with explanation
-     - [x] Remember banner closed state so it's not shown after page reload
-     - [x] Add better styling and icons
-     - [x] Add tooltips for metrics
-     - [x] Add refresh button
-     - [x] Add loader
-     - [ ] Add empty page state
-   - [ ] Add dynamic loading of stats (fetch API)
-   - [ ] Add auto-refresh functionality (optional)
-   - [ ] Validate access control for the new page
-   - [ ] Implement error handling and loading states
-   - [ ] Add check if stats is enabled and corresponding message if not (optional)
-
-3. Testing:
-   - [ ] Unit tests for new components
-   - [ ] Integration tests for the new page
-   - [ ] E2E tests for the complete feature
-
-#### Technical Considerations
-1. Use existing administration design system components
-2. Implement proper error handling for API failures
-3. Consider adding auto-refresh functionality for real-time updates
-4. Ensure proper mobile responsiveness
-5. Add proper loading states for better UX
-6. Consider adding tooltips for complex metrics
-

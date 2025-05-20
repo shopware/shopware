@@ -74,6 +74,7 @@ class MySQLStatsRepositoryTest extends TestCase
 
         $stats = $repository->getStats();
 
+        static::assertNotNull($stats);
         static::assertSame(2, $stats->totalMessagesProcessed);
         static::assertEquals($now, $stats->processedSince);
         static::assertSame(5.5, $stats->averageTimeInQueue);

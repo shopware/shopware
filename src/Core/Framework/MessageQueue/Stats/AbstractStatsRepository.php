@@ -17,7 +17,7 @@ abstract class AbstractStatsRepository
 
     abstract public function updateMessageStats(string $messageFqcn, int $timeInQueue): void;
 
-    abstract public function getStats(): MessageStatsEntity;
+    abstract public function getStats(): ?MessageStatsEntity;
 
     protected function getNow(): \DateTimeInterface
     {

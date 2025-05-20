@@ -21,7 +21,7 @@ use Symfony\Component\Messenger\Envelope;
 #[CoversClass(StatsService::class)]
 class StatsServiceTest extends TestCase
 {
-    public function testGetStats(): void
+    public function testGetStatsWhenEnabled(): void
     {
         $returnVal = new MessageStatsEntity(
             totalMessagesProcessed: 5,
@@ -39,10 +39,37 @@ class StatsServiceTest extends TestCase
         $repositoryMock->expects($this->once())
             ->method('getStats')
             ->willReturn($returnVal);
-        $service = new StatsService($repositoryMock);
-        $stats = $service->getStats();
+        $service = new StatsService($repositoryMock, true);
+        $response = $service->getStats();
 
-        static::assertSame($returnVal, $stats);
+        static::assertTrue($response->enabled);
+        static::assertSame($returnVal, $response->stats);
+    }
+
+    public function testGetStatsWhenEnabledButNoStats(): void
+    {
+        $repositoryMock = $this->createMock(MySQLStatsRepository::class);
+        $repositoryMock->expects($this->once())
+            ->method('getStats')
+            ->willReturn(null);
+        $service = new StatsService($repositoryMock, true);
+        $response = $service->getStats();
+
+        static::assertTrue($response->enabled);
+        static::assertNull($response->stats);
+    }
+
+    public function testGetStatsWhenDisabled(): void
+    {
+        $repositoryMock = $this->createMock(MySQLStatsRepository::class);
+        $repositoryMock->expects($this->never())
+            ->method('getStats');
+
+        $service = new StatsService($repositoryMock, false);
+        $response = $service->getStats();
+
+        static::assertFalse($response->enabled);
+        static::assertNull($response->stats);
     }
 
     public function testRegisterMessageWithoutStamp(): void
@@ -51,8 +78,22 @@ class StatsServiceTest extends TestCase
         $repository->expects($this->never())
             ->method('updateMessageStats');
 
-        $service = new StatsService($repository);
+        $service = new StatsService($repository, true);
         $envelope = new Envelope(new \stdClass());
+
+        $service->registerMessage($envelope);
+    }
+
+    public function testRegisterMessageWhenDisabled(): void
+    {
+        $repository = $this->createMock(MySQLStatsRepository::class);
+        $repository->expects($this->never())
+            ->method('updateMessageStats');
+
+        $service = new StatsService($repository, false);
+        $envelope = new Envelope(new \stdClass(), [
+            new SentAtStamp(new \DateTimeImmutable('@' . 123456789)),
+        ]);
 
         $service->registerMessage($envelope);
     }
@@ -72,7 +113,7 @@ class StatsServiceTest extends TestCase
                 static::equalTo(time() - 123456789),
             );
 
-        $service = new StatsService($repository);
+        $service = new StatsService($repository, true);
         $envelope = new Envelope(new \stdClass(), [
             new SentAtStamp(new \DateTimeImmutable('@' . 123456789)),
         ]);

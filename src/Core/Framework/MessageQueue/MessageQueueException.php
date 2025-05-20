@@ -69,13 +69,4 @@ class MessageQueueException extends HttpException
             ]
         );
     }
-
-    public static function queueMessageStatsNotFound(): self
-    {
-        return new self(
-            Response::HTTP_NO_CONTENT,
-            self::QUEUE_STATS_NOT_FOUND,
-            'No stats available.',
-        );
-    }
 }

@@ -4,7 +4,7 @@ namespace Shopware\Core\Framework\MessageQueue\Stats;
 
 use Shopware\Core\Framework\Adapter\Messenger\Stamp\SentAtStamp;
 use Shopware\Core\Framework\Log\Package;
-use Shopware\Core\Framework\MessageQueue\Stats\Entity\MessageStatsResponse;
+use Shopware\Core\Framework\MessageQueue\Stats\Entity\MessageStatsResponseEntity;
 use Symfony\Component\Messenger\Envelope;
 
 /**
@@ -19,13 +19,13 @@ class StatsService
     ) {
     }
 
-    public function getStats(): MessageStatsResponse
+    public function getStats(): MessageStatsResponseEntity
     {
         if (!$this->enabled) {
-            return new MessageStatsResponse(enabled: false);
+            return new MessageStatsResponseEntity(enabled: false);
         }
 
-        return new MessageStatsResponse(
+        return new MessageStatsResponseEntity(
             enabled: true,
             stats: $this->statsRepository->getStats()
         );

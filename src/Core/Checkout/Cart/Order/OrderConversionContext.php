@@ -116,6 +116,7 @@ class OrderConversionContext extends Struct
 
         return $this;
     }
+
     /**
      * @param array<array-key, mixed> $options
      *
@@ -132,7 +133,6 @@ class OrderConversionContext extends Struct
 
         return parent::assign($options);
     }
-
 
     public function getApiAlias(): string
     {

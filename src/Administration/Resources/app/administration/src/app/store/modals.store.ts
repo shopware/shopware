@@ -17,7 +17,17 @@ const modalsStore = Shopware.Store.register({
     }),
 
     actions: {
-        openModal({ locationId, title, closable, showHeader, showFooter, variant, baseUrl, buttons }: ModalItemEntry) {
+        openModal({
+            locationId,
+            title,
+            closable,
+            showHeader,
+            showFooter,
+            variant,
+            baseUrl,
+            buttons,
+            textContent,
+        }: ModalItemEntry) {
             this.modals.push({
                 title,
                 closable,
@@ -27,6 +37,7 @@ const modalsStore = Shopware.Store.register({
                 locationId,
                 buttons: buttons ?? [],
                 baseUrl,
+                textContent,
             });
         },
 
@@ -34,6 +45,18 @@ const modalsStore = Shopware.Store.register({
             this.modals = this.modals.filter((modal) => {
                 return modal.locationId !== locationId;
             });
+        },
+
+        closeLastModalWithoutLocationId(): void {
+            let modalsWithoutLocationId = this.modals.filter((modal) => !modal.locationId);
+            const modalsWithLocationId = this.modals.filter((modal) => modal.locationId);
+            const lastModal = modalsWithoutLocationId[modalsWithoutLocationId.length - 1];
+
+            if (lastModal) {
+                modalsWithoutLocationId = modalsWithoutLocationId.filter((modal) => modal !== lastModal);
+            }
+
+            this.modals = [...modalsWithoutLocationId, ...modalsWithLocationId];
         },
     },
 });

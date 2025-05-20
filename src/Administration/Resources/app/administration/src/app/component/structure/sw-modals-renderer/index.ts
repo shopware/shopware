@@ -23,11 +23,28 @@ export default Shopware.Component.wrapComponentConfig({
         },
 
         buttonProps(button: buttonProps) {
+            // eslint-disable-next-line max-len
+            type buttonVariantsWithFallback = 'ghost' | 'primary' | 'secondary' | 'critical' | 'action' | 'ghost-danger' | 'danger' | 'contrast' | 'context';
+
+            // Convert deprecated button variants to new ones
+            const variantMap: Record<string, buttonVariantsWithFallback> = {
+                ghost: 'secondary',
+                danger: 'critical',
+                'ghost-danger': 'critical',
+                contrast: 'secondary',
+                context: 'action',
+            };
+
+            const originalVariant = button.variant ?? 'primary';
+            const mappedVariant = variantMap[originalVariant] ?? originalVariant;
+            const isGhost = ['ghost', 'ghost-danger'].includes(originalVariant);
+
             return {
                 method: button.method ?? ((): undefined => undefined),
                 label: button.label ?? '',
-                size: button.size ?? '',
-                variant: button.variant ?? '',
+                size: button.size ?? 'small',
+                variant: mappedVariant,
+                ghost: isGhost,
                 square: button.square ?? false,
             };
         },

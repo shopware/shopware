@@ -266,8 +266,14 @@ class RecalculationService
         $orderData['id'] = $order->getId();
         $orderData['stateId'] = $order->getStateId();
 
-        if ($order->getDeliveries()?->first()?->getStateId() && isset($orderData['deliveries'][0])) {
-            $orderData['deliveries'][0]['stateId'] = $order->getDeliveries()->first()->getStateId();
+        if ($order->getPrimaryOrderDelivery()?->getStateId() && isset($orderData['deliveries'][0])) {
+            $orderData['deliveries'][0]['stateId'] = $order->getPrimaryOrderDelivery()->getStateId();
+        }
+
+        if (!Feature::isActive('v6.8.0.0')) {
+            if ($order->getDeliveries()?->first()?->getStateId() && isset($orderData['deliveries'][0])) {
+                $orderData['deliveries'][0]['stateId'] = $order->getDeliveries()->first()->getStateId();
+            }
         }
 
         if ($allowLineItemsDeletion) {
@@ -353,6 +359,7 @@ class RecalculationService
     {
         $criteria = (new Criteria([$orderId]))
             ->addAssociations([
+                'primaryOrderDelivery',
                 'lineItems.downloads',
                 'transactions.stateMachineState',
                 'deliveries.shippingMethod.tax',

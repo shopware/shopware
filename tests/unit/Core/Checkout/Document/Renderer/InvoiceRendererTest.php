@@ -427,6 +427,8 @@ class InvoiceRendererTest extends TestCase
      */
     private function createOrder(array $orderSettings): OrderEntity
     {
+        $orderDeliverId = Uuid::randomHex();
+
         $salesChannelId = Uuid::randomHex();
         $salesChannelEntity = new SalesChannelEntity();
         $salesChannelEntity->setId($salesChannelId);
@@ -452,12 +454,14 @@ class InvoiceRendererTest extends TestCase
         $orderCustomer->setOrder($order);
         $orderCustomer->setCustomer($customer);
         $order->setOrderCustomer($orderCustomer);
+        $order->setPrimaryOrderDeliveryId($orderDeliverId);
 
         if ($orderSettings['setOrderDelivery']) {
             $delivery = new OrderDeliveryEntity();
-            $delivery->setId(Uuid::randomHex());
+            $delivery->setId($orderDeliverId);
             $deliveries = new OrderDeliveryCollection([$delivery]);
             $order->setDeliveries($deliveries);
+            $order->setPrimaryOrderDelivery($delivery);
         }
 
         if ($orderSettings['setShippingCountry'] && $orderSettings['setOrderDelivery']) {

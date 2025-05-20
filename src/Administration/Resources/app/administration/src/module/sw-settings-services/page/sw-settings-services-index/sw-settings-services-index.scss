@@ -1,0 +1,25 @@
+.sw-settings-services-index {
+  .sw-settings-services__listing-section {
+    max-width: 960px;
+    margin: 0 auto;
+  }
+
+  .sw-settings-services__listing-section h3 {
+    margin-bottom: var(--scale-size-24);;
+  }
+
+  .sw-settings-services__optional-services {
+    margin-bottom: var(--scale-size-24);
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    grid-gap: var(--scale-size-24);
+    list-style-type: none;
+  }
+
+  .sw-settings-services__default-services {
+    display: grid;
+    grid-template-columns: auto auto 1fr;
+    grid-gap: var(--scale-size-12) var(--scale-size-16);
+    align-items: center;
+  }
+}

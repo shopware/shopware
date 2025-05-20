@@ -14,14 +14,18 @@
       "give-feedback": "Give feedback",
       "learn-more": "Learn more"
     },
-    "service": {
-      "name": "Name",
-      "description": "Description",
-      "active": "Active",
-      "actions": {
-        "edit": "Edit",
-        "delete": "Delete"
-      }
+    "index": {
+      "optional-services": "Optional services",
+      "optional-services-tooltip": "Additional features that go beyond the core to enable advanced use cases, such as artificial intelligence, while supporting a wide range of business needs.",
+      "default-services": "Default services",
+      "default-services-tooltip": "Essential components that support the core operation of Shopware. They run quietly in the background without impacting your system’s performance or stability."
+    },
+    "service-card": {
+      "statusActive": "Active",
+      "statusAwaitingPermissions": "Awaits permissions",
+      "statusInactive": "Inactive",
+      "updatedAtLabel": "Last updated: {updatedAt}",
+      "version": "Version: {version}"
     }
   }
 }

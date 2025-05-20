@@ -1,0 +1,50 @@
+.sw-settings-services-service-card {
+  border-radius: var(--border-radius-default);
+  background: var(--color-elevation-surface-default);
+  border: 1px solid var(--color-border-primary-default);
+  padding: var(--scale-size-24);
+
+  .sw-settings-services-service-card__header {
+    display: grid;
+    grid-template-columns: auto 1fr;
+    grid-column-gap: var(--scale-size-16);
+    margin-bottom: var(--scale-size-16);
+
+    h4 {
+      margin-bottom: var(--scale-size-6);
+      line-height: var(--font-line-height-s);
+    }
+
+    .sw-status {
+      display: inline-flex;
+    }
+  }
+
+  .sw-settings-services-service-card__icon {
+    width: var(--scale-size-56);
+    height: var(--scale-size-56);
+    border-radius: var(--border-radius-default);
+    border: 1px solid rgba(0, 0, 0, 0.1);
+  }
+
+  .sw-settings-services-service-card__description {
+    font-size: var(--font-size-xs);
+  }
+
+  .sw-settings-services-service-card__footer {
+    margin-top: var(--scale-size-14);
+    color: var(--color-text-secondary-default);
+    font-size: var(--font-size-2xs);
+  }
+}
+
+.sw-settings-services__table-row-name {
+  font-size: var(--font-size-xs);
+  margin-bottom: 0;
+}
+
+.sw-settings-services__table-row-meta-data {
+  font-size: var(--font-size-2xs);
+  color: var(--color-text-secondary-default);
+  justify-self: end;
+}

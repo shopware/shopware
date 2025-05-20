@@ -1,17 +1,59 @@
 <sw-page class="sw-settings-services-index">
     <template #smart-bar-header>
         <h2>
-            {{ $tc('sw-settings.index.tabSystem') }} / Shopware Services
+            {{ $t('sw-settings.index.tabSystem') }} / {{ $t('sw-settings-services.general.title') }}
         </h2>
     </template>
 
-    <template #content>
-        <sw-settings-services-hero />
+    <template #content v-if="!suspended">
+        <sw-settings-services-hero
+            :documentation-link="legalDocuments.documentationLink"
+            :feedback-link="legalDocuments.feedbackLink"
+        />
 
         <sw-card-view>
-            <sw-card>
-                asdasd
-            </sw-card>
+            <div class="sw-settings-services__listing-section">
+                <h3>
+                    {{ $t('sw-settings-services.index.optional-services') }}
+
+                    <sw-help-text :text="$t('sw-settings-services.index.optional-services-tooltip')" />
+                </h3>
+
+                <ul class="sw-settings-services__optional-services">
+                    <li
+                        v-for="service in optionalServices"
+                        :key="service.name"
+                    >
+                        <sw-settings-services-service-card
+                            :service="service"
+                            :consent-given="consentGiven"
+                            is-card
+                        />
+                    </li>
+                </ul>
+
+                <h3>
+                    {{ $t('sw-settings-services.index.default-services') }}
+
+                    <sw-help-text :text="$t('sw-settings-services.index.default-services-tooltip')" />
+                </h3>
+
+                <div class="sw-settings-services__default-services">
+                    <template
+                        v-for="service in defaultServices"
+                        :key="service.name"
+                    >
+                        <sw-settings-services-service-card
+                            :service="service"
+                            :consent-given="consentGiven"
+                        />
+                    </template>
+                </div>
+            </div>
+
+            <div class="sw-settings-services__footer">
+
+            </div>
         </sw-card-view>
     </template>
 </sw-page>

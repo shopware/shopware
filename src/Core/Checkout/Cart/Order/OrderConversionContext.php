@@ -96,6 +96,7 @@ class OrderConversionContext extends Struct
         );
 
         $this->includeOrderDate = $includeOrderDate;
+        $this->includePersistentData = $includeOrderDate;
 
         return $this;
     }

@@ -73,7 +73,7 @@ const MODULES = [
         icon: 'cog',
         to: 'sw.settings.index',
         match(route) {
-            return route.name.startsWith('sw.settings.index') ? 'exact' : 'none';
+            return route.name.startsWith('sw.settings') ? 'exact' : 'none';
         }
     },
 ];

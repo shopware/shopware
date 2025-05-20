@@ -646,6 +646,10 @@ Merchants must review their custom created payment and shipping methods for the 
 * Removed default payment method from customer entity, since it was mostly overriden by old saved contexts
 * Logic is now more consistent to always be the last used payment method
 
+## Removal of Custom Entities for Plugins
+
+Custom Entities for plugins support has been removed. It's no longer possible to create a `Resources/config/entities.xml` file in your plugin to create DAL entities. This has been removed for performance reasons. Our recommandation is to use regular EntityDefinition or an Attribute based entity.
+
 ## Bulletproofing Plugin Migrations
 ### Creation timestamp is now validated
 The returned timestamp `MigrationStep::getCreationTimestamp()` method is now validated, it needs to be between `1` and `2147483647` (the `max_int` value on 32-bit systems). This ensures that the migration order is always deterministic and prevents common errors when the method returns a higher number,

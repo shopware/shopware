@@ -113,6 +113,23 @@ class OrderConversionContext extends Struct
 
         return $this;
     }
+    /**
+     * @param array<array-key, mixed> $options
+     *
+     * @return $this
+     */
+    public function assign(array $options)
+    {
+        /** @deprecated tag:v6.8.0 - remove overwrite of assign function */
+        if (isset($options['includeOrderDate'])) {
+            $options['includePersistentData'] = $options['includeOrderDate'];
+        } elseif (isset($options['includePersistentData'])) {
+            $options['includeOrderDate'] = $options['includePersistentData'];
+        }
+
+        return parent::assign($options);
+    }
+
 
     public function getApiAlias(): string
     {

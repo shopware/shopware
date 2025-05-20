@@ -51,14 +51,18 @@
                     :key="salesChannel.id">
                     <router-link
                         class="sw-admin-menu__sales-channel"
+                        :class="{
+                            'router-link-active': isSalesChannelSelected(salesChannel.id)
+                        }"
                         :to="{
                             name: 'sw.sales.channel.detail',
                             params: { id: salesChannel.id }
                         }">
+
                         <mt-icon
                              size="var(--scale-size-16)"
-                             name="regular-dashboard"
-                             color="#696A6E"
+                             :name="`${isSalesChannelSelected(salesChannel.id) ? 'solid' : 'regular'}-dashboard`"
+                             :color="isSalesChannelSelected(salesChannel.id) ? 'var(--color-icon-brand-default)' : '#696A6E'"
                         />
 
                         <span>{{ salesChannel.translated.name }}</span>

@@ -93,6 +93,10 @@
   &:active {
     background-color: #F2F3F8;
   }
+
+  &.router-link-active {
+    font-weight: var(--font-weight-bold);
+  }
 }
 
 .sw-admin-menu__dark-mode-section {

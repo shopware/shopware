@@ -126,5 +126,14 @@ export default {
 
             return criteria;
         },
+    },
+
+    methods: {
+        isSalesChannelSelected(salesChannelId) {
+            const isSalesChannelRoute = this.$route.name?.startsWith('sw.sales.channel.');
+            if (!isSalesChannelRoute) return false;
+
+            return this.$route.params?.id === salesChannelId;
+        }
     }
 };

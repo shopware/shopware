@@ -42,6 +42,7 @@ export default {
             isComponentMounted: true,
             lengthUnit: 'mm',
             weightUnit: 'kg',
+            preferenceUnits: null,
         };
     },
 
@@ -808,6 +809,10 @@ export default {
                 return r;
             }, {});
         },
+
+        hasPreferenceUnitsChanged() {
+            return this.preferenceUnits.length !== this.lengthUnit || this.preferenceUnits.weight !== this.weightUnit;
+        },
     },
 
     watch: {
@@ -1270,6 +1275,10 @@ export default {
         },
 
         savePreferenceUnits() {
+            if (!this.hasPreferenceUnitsChanged) {
+                return Promise.resolve();
+            }
+
             return this.userConfigService.upsert({
                 'measurement.preferenceUnits': {
                     length: this.lengthUnit,
@@ -1300,6 +1309,7 @@ export default {
                 weight: 'kg',
             };
 
+            this.preferenceUnits = preferenceUnits;
             this.lengthUnit = preferenceUnits.length;
             this.weightUnit = preferenceUnits.weight;
         },

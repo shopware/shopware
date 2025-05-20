@@ -29,6 +29,7 @@ use Shopware\Core\System\SalesChannel\Context\SalesChannelContextService;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\Test\TestDefaults;
 use Shopware\Tests\Integration\Core\Checkout\Document\DocumentTrait;
+use Symfony\Component\Filesystem\Filesystem;
 use Symfony\Component\HttpFoundation\Request;
 
 /**
@@ -106,6 +107,7 @@ class DocumentMergerTest extends TestCase
             static::getContainer()->get(MediaService::class),
             $this->documentGenerator,
             $mockFpdi,
+            $this->createMock(Filesystem::class),
         );
 
         $doc1 = Uuid::randomHex();
@@ -147,6 +149,7 @@ class DocumentMergerTest extends TestCase
             static::getContainer()->get(MediaService::class),
             $mockGenerator,
             static::getContainer()->get('pdf.merger'),
+            $this->createMock(Filesystem::class),
         );
 
         $documentId = Uuid::randomHex();
@@ -212,6 +215,7 @@ class DocumentMergerTest extends TestCase
             static::getContainer()->get(MediaService::class),
             $this->documentGenerator,
             $mockFpdi,
+            $this->createMock(Filesystem::class),
         );
 
         $result = $documentMerger->merge($docIds, $this->context);

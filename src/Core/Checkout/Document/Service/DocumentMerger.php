@@ -17,6 +17,8 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Util\Random;
+use Symfony\Component\Filesystem\Exception\IOException;
+use Symfony\Component\Filesystem\Filesystem;
 
 #[Package('after-sales')]
 final class DocumentMerger
@@ -38,6 +40,7 @@ final class DocumentMerger
         private readonly MediaService $mediaService,
         private readonly DocumentGenerator $documentGenerator,
         private readonly Fpdi $fpdi,
+        private readonly Filesystem $filesystem,
     ) {
     }
 
@@ -225,7 +228,7 @@ final class DocumentMerger
         $zip->close();
 
         if ($totalDocuments === 0) {
-            unlink($tempFile);
+            $this->filesystem->remove($tempFile);
 
             return null;
         }
@@ -238,14 +241,17 @@ final class DocumentMerger
             contentType: 'application/zip'
         );
 
-        $fileContent = file_get_contents($tempFile);
+        try {
+            $fileContent = $this->filesystem->readFile($tempFile);
+            $renderedDocument->setContent($fileContent);
 
-        if ($fileContent === false) {
-            return null;
+            return $renderedDocument;
+        } catch (IOException $e) {
+            throw DocumentException::cannotReadZipFile($tempFile, $e);
+        } finally {
+            if ($this->filesystem->exists($tempFile)) {
+                $this->filesystem->remove($tempFile);
+            }
         }
-
-        $renderedDocument->setContent($fileContent);
-
-        return $renderedDocument;
     }
 }

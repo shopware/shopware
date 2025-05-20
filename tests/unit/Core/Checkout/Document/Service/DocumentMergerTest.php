@@ -10,6 +10,7 @@ use setasign\Fpdi\Tfpdf\Fpdi;
 use Shopware\Core\Checkout\Document\Aggregate\DocumentType\DocumentTypeEntity;
 use Shopware\Core\Checkout\Document\DocumentCollection;
 use Shopware\Core\Checkout\Document\DocumentEntity;
+use Shopware\Core\Checkout\Document\DocumentException;
 use Shopware\Core\Checkout\Document\DocumentGenerationResult;
 use Shopware\Core\Checkout\Document\DocumentIdStruct;
 use Shopware\Core\Checkout\Document\Service\DocumentGenerator;
@@ -23,6 +24,8 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Test\Stub\DataAbstractionLayer\StaticEntityRepository;
+use Symfony\Component\Filesystem\Exception\IOException;
+use Symfony\Component\Filesystem\Filesystem;
 
 /**
  * @internal
@@ -63,6 +66,7 @@ class DocumentMergerTest extends TestCase
             $mediaService,
             $documentGenerator,
             $this->createMock(Fpdi::class),
+            $this->createMock(Filesystem::class),
         );
 
         $result = $documentMerger->merge(
@@ -113,6 +117,7 @@ class DocumentMergerTest extends TestCase
             $mediaService,
             $documentGenerator,
             $fpdi,
+            $this->createMock(Filesystem::class),
         );
 
         $result = $documentMerger->merge(
@@ -137,41 +142,46 @@ class DocumentMergerTest extends TestCase
         $documentWithMedia->setDocumentMediaFile($mediaEntity);
 
         $documentRepository = $this->createMock(EntityRepository::class);
-        $documentRepository->expects($this->exactly(2))->method('search')->willReturnOnConsecutiveCalls(
-            new EntitySearchResult(
-                'document',
-                1,
-                new DocumentCollection([$document]),
-                null,
-                new Criteria(),
-                Context::createDefaultContext(),
-            ),
-            // The Second search is executed after a document was generated and returns the document WITH media
-            new EntitySearchResult(
-                'document',
-                1,
-                new DocumentCollection([$documentWithMedia]),
-                null,
-                new Criteria(),
-                Context::createDefaultContext(),
-            )
-        );
+        $documentRepository->expects($this->exactly(2))
+            ->method('search')
+            ->willReturnOnConsecutiveCalls(
+                new EntitySearchResult(
+                    'document',
+                    1,
+                    new DocumentCollection([$document]),
+                    null,
+                    new Criteria(),
+                    Context::createDefaultContext(),
+                ),
+                // The Second search is executed after a document was generated and returns the document WITH media
+                new EntitySearchResult(
+                    'document',
+                    1,
+                    new DocumentCollection([$documentWithMedia]),
+                    null,
+                    new Criteria(),
+                    Context::createDefaultContext(),
+                )
+            );
 
         $documentGenerator = $this->createMock(DocumentGenerator::class);
-        $documentGenerator->expects($this->exactly(1))->method('generate')->willReturnCallback(function (string $documentType, array $operations) {
-            $ids = array_keys($operations);
-            $result = new DocumentGenerationResult();
+        $documentGenerator->expects($this->exactly(1))
+            ->method('generate')
+            ->willReturnCallback(function (string $documentType, array $operations) {
+                $ids = array_keys($operations);
+                $result = new DocumentGenerationResult();
 
-            $result->addSuccess(new DocumentIdStruct($ids[0], '', Uuid::randomHex()));
+                $result->addSuccess(new DocumentIdStruct($ids[0], '', Uuid::randomHex()));
 
-            return $result;
-        });
+                return $result;
+            });
 
         $documentMerger = new DocumentMerger(
             $documentRepository,
             $this->createMock(MediaService::class),
             $documentGenerator,
             $this->createMock(Fpdi::class),
+            $this->createMock(Filesystem::class),
         );
 
         $result = $documentMerger->merge(
@@ -219,6 +229,7 @@ class DocumentMergerTest extends TestCase
             $mediaService,
             $this->createMock(DocumentGenerator::class),
             $fpdi,
+            $this->createMock(Filesystem::class),
         );
 
         $result = $documentMerger->merge(
@@ -251,11 +262,17 @@ class DocumentMergerTest extends TestCase
         $fpdi = $this->createMock(Fpdi::class);
         $fpdi->method('setSourceFile')->willThrowException(new FpdiException('PDF merge failed'));
 
+        $filesystem = $this->createMock(Filesystem::class);
+        $filesystem->method('exists')->willReturn(true);
+        $filesystem->method('readFile')->willReturn('zip file content');
+        $filesystem->expects($this->once())->method('remove');
+
         $documentMerger = new DocumentMerger(
             $documentRepository,
             $this->createMock(MediaService::class),
             $this->createMock(DocumentGenerator::class),
-            $fpdi
+            $fpdi,
+            $filesystem,
         );
 
         $result = $documentMerger->merge(
@@ -267,6 +284,50 @@ class DocumentMergerTest extends TestCase
         static::assertSame('zip', $result->getFileExtension());
         static::assertSame('application/zip', $result->getContentType());
         static::assertNotEmpty($result->getContent());
+    }
+
+    public function testCreateDocumentsZipThrowsExceptionWhenZipFileCannotBeRead(): void
+    {
+        $firstDocument = $this->createDocument(true);
+        $secondDocument = $this->createDocument(true);
+
+        $documentRepository = $this->createMock(EntityRepository::class);
+        $documentRepository->method('search')->willReturn(
+            new EntitySearchResult(
+                'document',
+                2,
+                new DocumentCollection([$firstDocument, $secondDocument]),
+                null,
+                new Criteria(),
+                Context::createDefaultContext(),
+            )
+        );
+
+        $fpdi = $this->createMock(Fpdi::class);
+        $fpdi->method('setSourceFile')->willThrowException(new FpdiException('PDF merge failed'));
+
+        $filesystem = $this->createMock(Filesystem::class);
+        $filesystem->expects($this->once())
+            ->method('readFile')
+            ->willThrowException(new IOException('Failed to read file'));
+        $filesystem->expects($this->once())->method('exists')->willReturn(true);
+        $filesystem->expects($this->once())->method('remove');
+
+        $this->expectException(DocumentException::class);
+        $this->expectExceptionMessageMatches('/^Cannot read document ZIP file: \/tmp\//');
+
+        $documentMerger = new DocumentMerger(
+            $documentRepository,
+            $this->createMock(MediaService::class),
+            $this->createMock(DocumentGenerator::class),
+            $fpdi,
+            $filesystem,
+        );
+
+        $documentMerger->merge(
+            [$firstDocument->getId(), $secondDocument->getId()],
+            Context::createDefaultContext()
+        );
     }
 
     public function testDocumentGenerationFailsReturnsNull(): void
@@ -293,7 +354,8 @@ class DocumentMergerTest extends TestCase
             $documentRepository,
             $this->createMock(MediaService::class),
             $documentGenerator,
-            $this->createMock(Fpdi::class)
+            $this->createMock(Fpdi::class),
+            $this->createMock(Filesystem::class),
         );
 
         $result = $documentMerger->merge(
@@ -379,7 +441,8 @@ class DocumentMergerTest extends TestCase
             $documentRepository,
             $mediaService,
             $this->createMock(DocumentGenerator::class),
-            $mockFpdi
+            $mockFpdi,
+            $this->createMock(Filesystem::class),
         );
 
         $result = $documentMerger->merge(

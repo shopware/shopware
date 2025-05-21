@@ -106,6 +106,11 @@ class Criteria extends Struct implements \Stringable
     protected array $fields = [];
 
     /**
+     * Query timeout in milliseconds
+     */
+    protected ?int $queryTimeout = null;
+
+    /**
      * @param array<string>|array<array<string, string>>|null $ids
      */
     public function __construct(?array $ids = null, protected int $nestingLevel = 0)
@@ -612,6 +617,24 @@ class Criteria extends Struct implements \Stringable
     public function getNestingLevel(): int
     {
         return $this->nestingLevel;
+    }
+
+    /**
+     * Sets a timeout for the query in milliseconds
+     */
+    public function setQueryTimeout(?int $queryTimeout): self
+    {
+        $this->queryTimeout = $queryTimeout;
+
+        return $this;
+    }
+
+    /**
+     * Returns the query timeout in milliseconds
+     */
+    public function getQueryTimeout(): ?int
+    {
+        return $this->queryTimeout;
     }
 
     /**

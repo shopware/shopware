@@ -135,7 +135,13 @@ class ElasticsearchEntitySearcher implements EntitySearcherInterface
 
         if (!$criteria->getGroupFields()) {
             $array = $search->toArray();
-            $array['timeout'] = $this->timeout;
+            
+            // Use criteria timeout if set, otherwise use default timeout
+            $timeout = $criteria->getQueryTimeout() !== null 
+                ? $criteria->getQueryTimeout() . 'ms' 
+                : $this->timeout;
+                
+            $array['timeout'] = $timeout;
 
             return $array;
         }
@@ -148,7 +154,13 @@ class ElasticsearchEntitySearcher implements EntitySearcherInterface
 
         $array = $search->toArray();
         $array['collapse'] = $this->parseGrouping($criteria->getGroupFields(), $definition, $context);
-        $array['timeout'] = $this->timeout;
+        
+        // Use criteria timeout if set, otherwise use default timeout
+        $timeout = $criteria->getQueryTimeout() !== null 
+            ? $criteria->getQueryTimeout() . 'ms' 
+            : $this->timeout;
+            
+        $array['timeout'] = $timeout;
 
         return $array;
     }

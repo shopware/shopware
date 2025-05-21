@@ -30,6 +30,11 @@ class QueryBuilder extends DBALQueryBuilder
 
     private ?string $title = null;
 
+    /**
+     * SQL comment to be added to the query
+     */
+    private ?string $comment = null;
+
     public function addState(string $state): void
     {
         $this->states[$state] = $state;
@@ -81,6 +86,25 @@ class QueryBuilder extends DBALQueryBuilder
         $this->title = $title;
     }
 
+    /**
+     * Sets an SQL comment to be prepended to the query.
+     * This can be used for optimizer hints like MAX_EXECUTION_TIME.
+     */
+    public function setComment(?string $comment): self
+    {
+        $this->comment = $comment;
+
+        return $this;
+    }
+
+    /**
+     * Gets the current SQL comment
+     */
+    public function getComment(): ?string
+    {
+        return $this->comment;
+    }
+
     public function getSQL(): string
     {
         // Use a copy of this query builder to generate the SQL including the translation joins. This way calling this
@@ -98,6 +122,14 @@ class QueryBuilder extends DBALQueryBuilder
 
         if ($this->getTitle()) {
             $sql = '# ' . $this->title . \PHP_EOL . $sql;
+        }
+        
+        // Add SQL comment/hint if set
+        if ($this->getComment()) {
+            // For SELECT queries, add the comment right after the SELECT keyword
+            if (strpos($sql, 'SELECT ') === 0) {
+                $sql = 'SELECT /*' . $this->comment . '*/ ' . substr($sql, 7);
+            }
         }
 
         return $sql;

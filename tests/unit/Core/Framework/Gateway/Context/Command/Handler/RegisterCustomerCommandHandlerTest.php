@@ -10,7 +10,6 @@ use Shopware\Core\Checkout\Customer\SalesChannel\CustomerResponse;
 use Shopware\Core\Framework\Gateway\Context\Command\Handler\RegisterCustomerCommandHandler;
 use Shopware\Core\Framework\Gateway\Context\Command\RegisterCustomerCommand;
 use Shopware\Core\Framework\Log\Package;
-use Shopware\Core\Framework\Validation\DataBag\DataBag;
 use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
 use Shopware\Core\Test\Generator;
 
@@ -38,9 +37,7 @@ class RegisterCustomerCommandHandlerTest extends TestCase
 
         $expectedData = new RequestDataBag(
             [
-                'billing' => new DataBag(['foo' => 'bar']),
-                'shipping' => new DataBag(['baz' => 'bat']),
-                'vatIds' => new DataBag(['vatId1', 'vatId2']),
+                'vatIds' => new RequestDataBag(['vatId1', 'vatId2']),
                 'billingAddress' => ['foo' => 'bar'],
                 'shippingAddress' => ['baz' => 'bat'],
             ]

@@ -40,11 +40,10 @@ class AppContextGateway
 
     public function process(ContextGatewayPayloadStruct $payload): ContextTokenResponse
     {
-        if (!$payload->getData()->get('appName')) {
+        $appName = $payload->getData()->get('appName');
+        if (!$appName) {
             throw AppException::missingRequestParameter('appName');
         }
-
-        $appName = $payload->getData()->get('appName');
         $app = $this->getApp($appName, $payload->getSalesChannelContext()->getContext());
 
         $contextGatewayUrl = $app->getContextGatewayUrl();

@@ -26,8 +26,8 @@ class TextStruct extends Struct
     }
 
     /**
-    * @return array<string, mixed>
-    */
+     * @return array<string, mixed>
+     */
     public function getContentSchema(): array
     {
         return $this->contentSchema;

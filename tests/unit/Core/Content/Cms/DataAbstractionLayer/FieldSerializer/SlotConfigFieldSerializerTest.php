@@ -17,6 +17,8 @@ use Symfony\Component\Validator\Constraints\All;
 use Symfony\Component\Validator\Constraints\Choice;
 use Symfony\Component\Validator\Constraints\Collection;
 use Symfony\Component\Validator\Constraints\NotBlank;
+use Symfony\Component\Validator\Constraints\Optional;
+use Symfony\Component\Validator\Constraints\Required;
 use Symfony\Component\Validator\ConstraintViolationList;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
 
@@ -33,7 +35,6 @@ class SlotConfigFieldSerializerTest extends TestCase
         $expected = new All([
             'constraints' => new Collection([
                 'allowExtraFields' => false,
-                'allowMissingFields' => false,
                 'fields' => [
                     'source' => [
                         new Choice([
@@ -46,7 +47,8 @@ class SlotConfigFieldSerializerTest extends TestCase
                         ]),
                         new NotBlank(),
                     ],
-                    'value' => [],
+                    'value' => new Required([]),
+                    'contentSchema' => new Optional([]),
                 ],
             ]),
         ]);

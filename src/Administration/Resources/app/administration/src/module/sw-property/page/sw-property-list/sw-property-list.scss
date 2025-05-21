@@ -28,12 +28,4 @@ $sw-property-list-color-success: $color-emerald-500;
             }
         }
     }
-
-    .sw-data-grid__row {
-        &.is--inline-edit {
-            .mt-field {
-                margin-bottom: 0;
-            }
-        }
-    }
 }

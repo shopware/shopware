@@ -1,15 +1,12 @@
 {
   "compilerOptions": {
+    "module": "ESNext",
+    "moduleResolution": "Bundler",
     "skipLibCheck": true,
     "strict": true,
     "forceConsistentCasingInFileNames": true,
     "noUncheckedIndexedAccess": true,
     "baseUrl": "./",
-    "paths": {
-      "src/*": [
-        "./src/*"
-      ]
-    }
   },
   "exclude": [
     "node_modules"

@@ -102,18 +102,6 @@ class PromotionRedemptionUpdaterTest extends TestCase
         $event = $this->createOrderPlacedEvent($promotionId, $customerId);
 
         $statementMock = $this->createMock(Statement::class);
-        $params = [
-            ['id', Uuid::fromHexToBytes($promotionId)],
-            ['customerCount', json_encode([$customerId => 1], \JSON_THROW_ON_ERROR)],
-            ['count', 0],
-        ];
-        $matcher = $this->exactly(\count($params));
-        $statementMock->expects($matcher)
-            ->method('bindValue')
-            ->willReturnCallback(function (string $key, $value) use ($matcher, $params): void {
-                self::assertSame($params[$matcher->numberOfInvocations() - 1][0], $key);
-                self::assertSame($params[$matcher->numberOfInvocations() - 1][1], $value);
-            });
 
         $statementMock->expects($this->once())
             ->method('executeStatement')

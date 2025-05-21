@@ -2,7 +2,6 @@
 
 $php = ['8.2'];
 $db = ['mysql:8.0'];
-$db = ['mysql:8.0', 'mariadb:11'];
 
 $nightly = $_SERVER['argv'][1] ?? false;
 

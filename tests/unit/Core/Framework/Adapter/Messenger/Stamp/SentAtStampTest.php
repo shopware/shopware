@@ -14,11 +14,23 @@ use Shopware\Core\Framework\Log\Package;
 #[CoversClass(SentAtStamp::class)]
 class SentAtStampTest extends TestCase
 {
-    public function testGetSentAt(): void
+    public function testConstructorWithDatetime(): void
     {
         $sentAt = new \DateTimeImmutable('@123456789');
         $stamp = new SentAtStamp($sentAt);
 
         static::assertSame($sentAt, $stamp->getSentAt());
+    }
+
+    public function testConstructorWithoutParameters(): void
+    {
+        $before = new \DateTimeImmutable();
+        $stamp = new SentAtStamp();
+        $after = new \DateTimeImmutable();
+
+        $sentAt = $stamp->getSentAt();
+
+        static::assertGreaterThanOrEqual($before, $sentAt);
+        static::assertLessThanOrEqual($after, $sentAt);
     }
 }

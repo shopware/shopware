@@ -18,6 +18,7 @@ class FlowException extends HttpException
     final public const FLOW_ACTION_TRANSACTION_COMMIT_FAILED = 'FLOW_ACTION_TRANSACTION_COMMIT_FAILED';
     final public const FLOW_ACTION_TRANSACTION_UNCAUGHT_EXCEPTION = 'FLOW_ACTION_TRANSACTION_UNCAUGHT_EXCEPTION';
     final public const CUSTOM_TRIGGER_BY_NAME_NOT_FOUND = 'FLOW_ACTION_CUSTOM_TRIGGER_BY_NAME_NOT_FOUND';
+    final public const FLOW_ACTION_STATE_MACHINE_NOT_FOUND = 'FLOW_ACTION_STATE_MACHINE_NOT_FOUND';
 
     /**
      * @deprecated tag:v6.8.0 - reason:return-type-change - Will return self
@@ -71,5 +72,15 @@ class FlowException extends HttpException
                 $previous,
             ),
         };
+    }
+
+    public static function stateMachineNotFound(string $stateMachineName): self
+    {
+        return new self(
+            Response::HTTP_BAD_REQUEST,
+            self::FLOW_ACTION_STATE_MACHINE_NOT_FOUND,
+            'The StateMachine named "{{ name }}" was not found.',
+            ['name' => $stateMachineName]
+        );
     }
 }

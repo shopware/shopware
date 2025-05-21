@@ -13,8 +13,7 @@
                 <form class="login-form"
                       action="{{ path('frontend.account.login') }}"
                       method="post"
-                      data-form-handler="true"
-                      data-form-validation="true">
+                      data-form-handler="true">
                     {% block component_account_login_form_redirect %}
                         <input type="hidden"
                                name="redirectTo"

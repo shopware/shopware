@@ -117,7 +117,11 @@ export default {
         },
 
         deliveryDiscounts() {
-            return array.slice(this.order.deliveries, 1) || [];
+            if (!Shopware.Feature.isActive('v6.8.0.0')) {
+                return array.slice(this.order.deliveries, 1) || [];
+            }
+
+            return this.order.deliveries.filter((delivery) => delivery.id !== this.order.primaryOrderDeliveryId);
         },
 
         orderCriteria() {
@@ -137,11 +141,22 @@ export default {
             criteria
                 .addAssociation('addresses.country')
                 .addAssociation('addresses.countryState')
-                .addAssociation('deliveries.shippingMethod')
-                .addAssociation('deliveries.shippingOrderAddress')
-                .addAssociation('transactions.paymentMethod')
                 .addAssociation('documents.documentType')
-                .addAssociation('tags');
+                .addAssociation('tags')
+                .addAssociation('primaryOrderTransaction')
+                .addAssociation('primaryOrderTransaction.paymentMethod')
+                .addAssociation('primaryOrderTransaction.stateMachineState')
+                .addAssociation('primaryOrderDelivery')
+                .addAssociation('primaryOrderDelivery.shippingMethod')
+                .addAssociation('primaryOrderDelivery.stateMachineState')
+                .addAssociation('primaryOrderDelivery.shippingOrderAddress.country');
+
+            if (!Shopware.Feature.isActive('v6.8.0.0')) {
+                criteria
+                    .addAssociation('deliveries.shippingMethod')
+                    .addAssociation('deliveries.shippingOrderAddress')
+                    .addAssociation('transactions.paymentMethod');
+            }
 
             criteria.addAssociation('stateMachineState');
 
@@ -311,7 +326,11 @@ export default {
                 };
 
                 if (addressMapping.type === 'shipping') {
-                    mapping.deliveryId = this.order.deliveries[0].id;
+                    mapping.deliveryId = this.order.primaryOrderDeliveryId;
+
+                    if (!Shopware.Feature.isActive('v6.8.0.0')) {
+                        mapping.deliveryId = this.order.deliveries[0].id;
+                    }
                 }
 
                 mappings.push(mapping);

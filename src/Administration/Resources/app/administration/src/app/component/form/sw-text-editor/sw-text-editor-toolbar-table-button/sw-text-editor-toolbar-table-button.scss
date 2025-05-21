@@ -50,7 +50,7 @@
 
             &.is--selected {
                 background: $color-shopware-brand-50;
-                border-color: $color-shopware-brand-500;
+                border-color: var(--color-border-brand-selected);
             }
         }
     }

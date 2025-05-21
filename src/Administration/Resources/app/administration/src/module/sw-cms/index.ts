@@ -5,6 +5,7 @@ import './service/cms.service';
 import './service/cmsDataResolver.service';
 import './service/cms-block-favorites.service';
 import './service/cms-element-favorites.service';
+import './service/html-to-json.service';
 import './store/cms-page.store';
 import './mixin/sw-cms-element.mixin';
 import './mixin/sw-cms-state.mixin';

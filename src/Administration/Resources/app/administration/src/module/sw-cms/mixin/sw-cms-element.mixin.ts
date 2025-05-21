@@ -20,7 +20,7 @@ interface Entity {
 export default Mixin.register(
     'cms-element',
     defineComponent({
-        inject: ['cmsService'],
+        inject: ['cmsService', 'htmlToJsonService'],
 
         props: {
             element: {

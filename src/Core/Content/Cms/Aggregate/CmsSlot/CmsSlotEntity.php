@@ -151,13 +151,14 @@ class CmsSlotEntity extends Entity
         foreach ($config as $key => $data) {
             $source = $data['source'] ?? null;
             $value = $data['value'] ?? null;
+            $contentSchema = $data['contentSchema'] ?? null;
 
             if (!\is_string($source)) {
                 throw CmsException::invalidFieldConfigSource($key);
             }
 
             $collection->add(
-                new FieldConfig($key, $source, $value)
+                new FieldConfig($key, $source, $value, $contentSchema)
             );
         }
 

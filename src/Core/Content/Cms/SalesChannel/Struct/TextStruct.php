@@ -10,6 +10,11 @@ class TextStruct extends Struct
 {
     protected ?string $content = null;
 
+    /**
+     * @var array<string, mixed>
+     */
+    protected array $contentSchema = [];
+
     public function getContent(): ?string
     {
         return $this->content;
@@ -18,6 +23,22 @@ class TextStruct extends Struct
     public function setContent(string $content): void
     {
         $this->content = $content;
+    }
+
+    /**
+    * @return array<string, mixed>
+    */
+    public function getContentSchema(): array
+    {
+        return $this->contentSchema;
+    }
+
+    /**
+     * @param array<string, mixed> $contentSchema
+     */
+    public function setContentSchema(array $contentSchema): void
+    {
+        $this->contentSchema = $contentSchema;
     }
 
     public function getApiAlias(): string

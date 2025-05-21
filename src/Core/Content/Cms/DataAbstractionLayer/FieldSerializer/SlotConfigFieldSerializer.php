@@ -10,6 +10,8 @@ use Symfony\Component\Validator\Constraints\All;
 use Symfony\Component\Validator\Constraints\Choice;
 use Symfony\Component\Validator\Constraints\Collection;
 use Symfony\Component\Validator\Constraints\NotBlank;
+use Symfony\Component\Validator\Constraints\Optional;
+use Symfony\Component\Validator\Constraints\Required;
 
 #[Package('discovery')]
 class SlotConfigFieldSerializer extends JsonFieldSerializer
@@ -20,7 +22,6 @@ class SlotConfigFieldSerializer extends JsonFieldSerializer
             new All([
                 'constraints' => new Collection([
                     'allowExtraFields' => false,
-                    'allowMissingFields' => false,
                     'fields' => [
                         'source' => [
                             new Choice([
@@ -33,8 +34,8 @@ class SlotConfigFieldSerializer extends JsonFieldSerializer
                             ]),
                             new NotBlank(),
                         ],
-                        'value' => [],
-                        'contentSchema' => [],
+                        'value' => new Required([]),
+                        'contentSchema' => new Optional([]),
                     ],
                 ]),
             ]),

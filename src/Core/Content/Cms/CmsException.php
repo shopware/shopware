@@ -15,6 +15,7 @@ class CmsException extends HttpException
     final public const INVALID_FIELD_CONFIG_SOURCE_CODE = 'CONTENT__INVALID_FIELD_CONFIG_SOURCE';
     final public const CMS_PAGE_NOT_FOUND = 'CONTENT__CMS_PAGE_NOT_FOUND';
     final public const UNEXPECTED_VALUE_TYPE = 'CONTENT__CMS_UNEXPECTED_VALUE_TYPE';
+    final public const INVALID_CONTENT_SCHEMA = 'CONTENT__INVALID_CONTENT_SCHEMA';
 
     /**
      * @param array<string> $cmsPages
@@ -80,6 +81,16 @@ class CmsException extends HttpException
                 'expectedType' => $expectedType,
                 'givenType' => $givenType,
             ]
+        );
+    }
+
+    public static function invalidContentSchema(string $slotId, string $originalMessage): self
+    {
+        return new self(
+            Response::HTTP_INTERNAL_SERVER_ERROR,
+            self::INVALID_CONTENT_SCHEMA,
+            'Invalid content schema for slot "{{ slotId }}". Original error: {{ originalMessage }}',
+            ['slotId' => $slotId, 'originalMessage' => $originalMessage]
         );
     }
 }

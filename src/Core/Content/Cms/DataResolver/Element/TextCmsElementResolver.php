@@ -3,12 +3,15 @@
 namespace Shopware\Core\Content\Cms\DataResolver\Element;
 
 use Shopware\Core\Content\Cms\Aggregate\CmsSlot\CmsSlotEntity;
+use Shopware\Core\Content\Cms\CmsException;
 use Shopware\Core\Content\Cms\DataResolver\CriteriaCollection;
 use Shopware\Core\Content\Cms\DataResolver\ResolverContext\EntityResolverContext;
 use Shopware\Core\Content\Cms\DataResolver\ResolverContext\ResolverContext;
 use Shopware\Core\Content\Cms\SalesChannel\Struct\TextStruct;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Util\HtmlSanitizer;
+use Symfony\Component\Serializer\Encoder\JsonEncoder;
+use Symfony\Component\Serializer\Exception\NotEncodableValueException;
 
 #[Package('discovery')]
 class TextCmsElementResolver extends AbstractCmsElementResolver
@@ -53,6 +56,18 @@ class TextCmsElementResolver extends AbstractCmsElementResolver
             } else {
                 $content = $config->getStringValue();
             }
+        }
+
+        if ($config->getContentSchema() !== null) {
+            $contentSchemaRaw = $config->getContentSchema();
+
+            try {
+                $contentSchema = (new JsonEncoder())->decode($contentSchemaRaw, 'json');
+            } catch (NotEncodableValueException $e) {
+                throw CmsException::invalidContentSchema($slot->getId(), $e->getMessage());
+            }
+
+            $text->setContentSchema($contentSchema);
         }
 
         if ($content !== null) {

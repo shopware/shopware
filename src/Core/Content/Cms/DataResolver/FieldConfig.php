@@ -24,7 +24,8 @@ class FieldConfig extends Struct
     public function __construct(
         string $name,
         string $source,
-        protected mixed $value
+        protected mixed $value,
+        protected ?string $contentSchema = null,
     ) {
         $this->name = $name;
         $this->source = $source;
@@ -46,6 +47,11 @@ class FieldConfig extends Struct
     public function getValue(): mixed
     {
         return $this->value;
+    }
+
+    public function getContentSchema(): string
+    {
+        return $this->contentSchema ?? '{}';
     }
 
     /**

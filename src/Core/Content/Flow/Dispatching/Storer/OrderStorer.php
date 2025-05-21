@@ -67,6 +67,8 @@ class OrderStorer extends FlowStorer
     private function loadOrder(Criteria $criteria, Context $context, string $orderId): ?OrderEntity
     {
         $criteria->addAssociations([
+            'primaryOrderDelivery',
+            'primaryOrderTransaction',
             'orderCustomer',
             'orderCustomer.salutation',
             'lineItems.downloads.media',

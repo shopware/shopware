@@ -9,8 +9,10 @@ use Shopware\Core\Checkout\Order\Aggregate\OrderAddress\OrderAddressCollection;
 use Shopware\Core\Checkout\Order\Aggregate\OrderAddress\OrderAddressEntity;
 use Shopware\Core\Checkout\Order\Aggregate\OrderCustomer\OrderCustomerEntity;
 use Shopware\Core\Checkout\Order\Aggregate\OrderDelivery\OrderDeliveryCollection;
+use Shopware\Core\Checkout\Order\Aggregate\OrderDelivery\OrderDeliveryEntity;
 use Shopware\Core\Checkout\Order\Aggregate\OrderLineItem\OrderLineItemCollection;
 use Shopware\Core\Checkout\Order\Aggregate\OrderTransaction\OrderTransactionCollection;
+use Shopware\Core\Checkout\Order\Aggregate\OrderTransaction\OrderTransactionEntity;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCustomFieldsTrait;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityIdTrait;
@@ -86,6 +88,18 @@ class OrderEntity extends Entity
     protected ?StateMachineStateEntity $stateMachineState = null;
 
     protected string $stateId;
+
+    protected ?OrderDeliveryEntity $primaryOrderDelivery = null;
+
+    protected ?string $primaryOrderDeliveryId = null;
+
+    protected ?string $primaryOrderDeliveryVersionId = null;
+
+    protected ?OrderTransactionEntity $primaryOrderTransaction = null;
+
+    protected ?string $primaryOrderTransactionId = null;
+
+    protected ?string $primaryOrderTransactionVersionId = null;
 
     protected ?DocumentCollection $documents = null;
 
@@ -378,6 +392,46 @@ class OrderEntity extends Entity
         $this->shippingTotal = $shippingTotal;
     }
 
+    public function getPrimaryOrderDelivery(): ?OrderDeliveryEntity
+    {
+        return $this->primaryOrderDelivery;
+    }
+
+    public function setPrimaryOrderDelivery(?OrderDeliveryEntity $primaryOrderDelivery): void
+    {
+        $this->primaryOrderDelivery = $primaryOrderDelivery;
+    }
+
+    public function getPrimaryOrderDeliveryId(): ?string
+    {
+        return $this->primaryOrderDeliveryId;
+    }
+
+    public function setPrimaryOrderDeliveryId(?string $primaryOrderDeliveryId): void
+    {
+        $this->primaryOrderDeliveryId = $primaryOrderDeliveryId;
+    }
+
+    public function getPrimaryOrderTransaction(): ?OrderTransactionEntity
+    {
+        return $this->primaryOrderTransaction;
+    }
+
+    public function setPrimaryOrderTransaction(?OrderTransactionEntity $primaryOrderTransaction): void
+    {
+        $this->primaryOrderTransaction = $primaryOrderTransaction;
+    }
+
+    public function getPrimaryOrderTransactionId(): ?string
+    {
+        return $this->primaryOrderTransactionId;
+    }
+
+    public function setPrimaryOrderTransactionId(?string $primaryOrderTransactionId): void
+    {
+        $this->primaryOrderTransactionId = $primaryOrderTransactionId;
+    }
+
     public function getDocuments(): ?DocumentCollection
     {
         return $this->documents;
@@ -568,6 +622,26 @@ class OrderEntity extends Entity
     public function setBillingAddressVersionId(string $billingAddressVersionId): void
     {
         $this->billingAddressVersionId = $billingAddressVersionId;
+    }
+
+    public function getPrimaryOrderDeliveryVersionId(): ?string
+    {
+        return $this->primaryOrderDeliveryVersionId;
+    }
+
+    public function setPrimaryOrderDeliveryVersionId(?string $primaryOrderDeliveryVersionId): void
+    {
+        $this->primaryOrderDeliveryVersionId = $primaryOrderDeliveryVersionId;
+    }
+
+    public function getPrimaryOrderTransactionVersionId(): ?string
+    {
+        return $this->primaryOrderTransactionVersionId;
+    }
+
+    public function setPrimaryOrderTransactionVersionId(?string $primaryOrderTransactionVersionId): void
+    {
+        $this->primaryOrderTransactionVersionId = $primaryOrderTransactionVersionId;
     }
 
     private function addChildren(OrderLineItemCollection $lineItems, OrderLineItemCollection $parents): void

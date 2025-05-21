@@ -36,6 +36,8 @@ class OrderTransactionEntity extends Entity
 
     protected ?OrderTransactionCaptureCollection $captures = null;
 
+    protected ?OrderEntity $primaryOrder = null;
+
     /**
      * @var array<string, mixed>
      */
@@ -145,5 +147,15 @@ class OrderTransactionEntity extends Entity
     public function setValidationData(array $validationData): void
     {
         $this->validationData = $validationData;
+    }
+
+    public function getPrimaryOrder(): ?OrderEntity
+    {
+        return $this->primaryOrder;
+    }
+
+    public function setPrimaryOrder(?OrderEntity $primaryOrder): void
+    {
+        $this->primaryOrder = $primaryOrder;
     }
 }

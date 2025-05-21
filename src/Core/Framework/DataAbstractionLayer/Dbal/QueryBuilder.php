@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Framework\DataAbstractionLayer\Dbal;
 
+use Doctrine\DBAL\Platforms\AbstractPlatform;
 use Doctrine\DBAL\Query\QueryBuilder as DBALQueryBuilder;
 use Shopware\Core\Framework\Log\Package;
 
@@ -123,16 +124,35 @@ class QueryBuilder extends DBALQueryBuilder
         if ($this->getTitle()) {
             $sql = '# ' . $this->title . \PHP_EOL . $sql;
         }
-        
+
         // Add SQL comment/hint if set
         if ($this->getComment()) {
             // For SELECT queries, add the comment right after the SELECT keyword
-            if (strpos($sql, 'SELECT ') === 0) {
+            if (str_starts_with($sql, 'SELECT ')) {
                 $sql = 'SELECT /*' . $this->comment . '*/ ' . substr($sql, 7);
             }
         }
 
         return $sql;
+    }
+
+    /**
+     * Sets a query timeout for the current query.
+     * This method will set the appropriate SQL comment/hint based on the database platform.
+     */
+    public function setQueryTimeout(int $timeout, AbstractPlatform $platform): self
+    {
+        $platformName = $platform::class;
+
+        if (str_contains($platformName, 'MySQL')) {
+            // MySQL 8 syntax - hint for a single query
+            $this->setComment('+ MAX_EXECUTION_TIME(' . $timeout . ')');
+        } elseif (str_contains($platformName, 'MariaDB')) {
+            // MariaDB syntax - hint for a single query
+            $this->setComment('+ MAX_STATEMENT_TIME(' . ($timeout / 1000) . ')');
+        }
+
+        return $this;
     }
 
     /**

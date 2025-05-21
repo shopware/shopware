@@ -4,7 +4,11 @@ namespace Shopware\Tests\Unit\Core\Framework\DataAbstractionLayer\Dbal;
 
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\Platforms\AbstractPlatform;
+use Doctrine\DBAL\Platforms\MariaDB1060Platform;
+use Doctrine\DBAL\Platforms\MySQLPlatform;
+use Doctrine\DBAL\Platforms\PostgreSQLPlatform;
 use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\QueryBuilder;
@@ -16,6 +20,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Dbal\QueryBuilder;
 class QueryBuilderTest extends TestCase
 {
     private Connection&MockObject $connection;
+
     private QueryBuilder $queryBuilder;
 
     protected function setUp(): void
@@ -47,23 +52,23 @@ class QueryBuilderTest extends TestCase
         // We'll simulate what getSQL() does but in a controlled way
         // First set up our QueryBuilder
         $queryBuilder = new QueryBuilder($this->connection);
-        
+
         // Set a comment
         $queryBuilder->setComment('+ MAX_EXECUTION_TIME(1000)');
-        
+
         // Create a reflection class to access private methods/properties
         $reflectionClass = new \ReflectionClass(QueryBuilder::class);
         $commentProperty = $reflectionClass->getProperty('comment');
         $commentProperty->setAccessible(true);
-        
+
         // Verify the comment is stored correctly
         static::assertEquals('+ MAX_EXECUTION_TIME(1000)', $commentProperty->getValue($queryBuilder));
-        
+
         // Now manually apply the comment transformation to test it
         $sql = 'SELECT * FROM test_table';
         $commentValue = $commentProperty->getValue($queryBuilder);
         $modifiedSql = 'SELECT /*' . $commentValue . '*/ ' . substr($sql, 7);
-        
+
         // Verify the comment is applied correctly
         static::assertStringContainsString('SELECT /*+ MAX_EXECUTION_TIME(1000)*/ ', $modifiedSql);
     }
@@ -72,23 +77,23 @@ class QueryBuilderTest extends TestCase
     {
         // Set up our QueryBuilder
         $queryBuilder = new QueryBuilder($this->connection);
-        
+
         // Set a title
         $queryBuilder->setTitle('Test Query');
-        
+
         // Create a reflection class to access private methods/properties
         $reflectionClass = new \ReflectionClass(QueryBuilder::class);
         $titleProperty = $reflectionClass->getProperty('title');
         $titleProperty->setAccessible(true);
-        
+
         // Verify the title is stored correctly
         static::assertEquals('Test Query', $titleProperty->getValue($queryBuilder));
-        
+
         // Now manually apply the title transformation to test it
         $sql = 'SELECT * FROM test_table';
         $titleValue = $titleProperty->getValue($queryBuilder);
-        $modifiedSql = '# ' . $titleValue . PHP_EOL . $sql;
-        
+        $modifiedSql = '# ' . $titleValue . \PHP_EOL . $sql;
+
         // Verify the title is applied correctly
         static::assertStringContainsString('# Test Query', $modifiedSql);
     }
@@ -97,32 +102,32 @@ class QueryBuilderTest extends TestCase
     {
         // Set up our QueryBuilder
         $queryBuilder = new QueryBuilder($this->connection);
-        
+
         // Set both title and comment
         $queryBuilder->setTitle('Test Query');
         $queryBuilder->setComment('+ MAX_EXECUTION_TIME(1000)');
-        
+
         // Create a reflection class to access private methods/properties
         $reflectionClass = new \ReflectionClass(QueryBuilder::class);
         $titleProperty = $reflectionClass->getProperty('title');
         $commentProperty = $reflectionClass->getProperty('comment');
         $titleProperty->setAccessible(true);
         $commentProperty->setAccessible(true);
-        
+
         // Verify properties are stored correctly
         static::assertEquals('Test Query', $titleProperty->getValue($queryBuilder));
         static::assertEquals('+ MAX_EXECUTION_TIME(1000)', $commentProperty->getValue($queryBuilder));
-        
+
         // Now manually apply the transformations to test them
         $sql = 'SELECT * FROM test_table';
         $titleValue = $titleProperty->getValue($queryBuilder);
         $commentValue = $commentProperty->getValue($queryBuilder);
-        
+
         // First add comment to SELECT
         $modifiedSql = 'SELECT /*' . $commentValue . '*/ ' . substr($sql, 7);
         // Then add title at the beginning
-        $modifiedSql = '# ' . $titleValue . PHP_EOL . $modifiedSql;
-        
+        $modifiedSql = '# ' . $titleValue . \PHP_EOL . $modifiedSql;
+
         // Verify both transformations are applied correctly
         static::assertStringContainsString('# Test Query', $modifiedSql);
         static::assertStringContainsString('SELECT /*+ MAX_EXECUTION_TIME(1000)*/ ', $modifiedSql);
@@ -134,22 +139,56 @@ class QueryBuilderTest extends TestCase
         $queryBuilder = new QueryBuilder($this->connection);
         $queryBuilder->update('test_table')->set('column', 'value');
         $queryBuilder->setComment('TEST_COMMENT');
-        
+
         // Create a reflection class to access private properties
         $reflectionClass = new \ReflectionClass(QueryBuilder::class);
         $commentProperty = $reflectionClass->getProperty('comment');
         $commentProperty->setAccessible(true);
-        
+
         // Verify the comment is stored
         static::assertEquals('TEST_COMMENT', $commentProperty->getValue($queryBuilder));
-        
+
         // Now manually verify that comment would NOT be added to non-SELECT statements
         $sql = 'UPDATE test_table SET column = value';
         static::assertStringNotContainsString('/*TEST_COMMENT*/', $sql);
-        
-        // For this test, we only want to verify that the getSQL method in QueryBuilder 
+
+        // For this test, we only want to verify that the getSQL method in QueryBuilder
         // would NOT add comments to non-SELECT statements, which is handled by the condition:
         // if (strpos($sql, 'SELECT ') === 0) { ... }
+    }
+
+    #[DataProvider('queryTimeoutProvider')]
+    public function testSetQueryTimeout(AbstractPlatform $platform, int $timeout, ?string $expectedComment): void
+    {
+        $queryBuilder = new QueryBuilder($this->connection);
+
+        // Call the method to test
+        $result = $queryBuilder->setQueryTimeout($timeout, $platform);
+
+        // Verify the comment is set correctly
+        static::assertSame($expectedComment, $queryBuilder->getComment());
+
+        // Verify the method returns $this for method chaining
+        static::assertSame($queryBuilder, $result);
+    }
+
+    public static function queryTimeoutProvider(): \Generator
+    {
+        yield 'MySQL Platform' => [
+            new MySQLPlatform(),
+            1000,
+            '+ MAX_EXECUTION_TIME(1000)',
+        ];
+        yield 'MariaDB Platform' => [
+            new MariaDB1060Platform(),
+            1000,
+            '+ MAX_STATEMENT_TIME(1)',
+        ];
+        yield 'Other Platform' => [
+            new PostgreSQLPlatform(),
+            1000,
+            null, // No comment should be set for unsupported platforms
+        ];
     }
 
     public function testAddAndGetState(): void
@@ -178,7 +217,7 @@ class QueryBuilderTest extends TestCase
         $queryBuilder = new QueryBuilder($this->connection);
         $queryBuilder->select('entity.*')
             ->from('entity_table', 'entity');
-            
+
         // Add the translation join
         $queryBuilder->addTranslationJoin(
             'entity',
@@ -191,13 +230,13 @@ class QueryBuilderTest extends TestCase
         $reflectionClass = new \ReflectionClass(QueryBuilder::class);
         $translationJoinsProperty = $reflectionClass->getProperty('translationJoins');
         $translationJoinsProperty->setAccessible(true);
-        
+
         // Verify translation join is stored correctly
         $translationJoins = $translationJoinsProperty->getValue($queryBuilder);
         static::assertArrayHasKey('translation', $translationJoins);
         static::assertSame($translationBuilder, $translationJoins['translation']['queryBuilder']);
         static::assertEquals('entity.id = translation.entity_id', $translationJoins['translation']['joinCondition']);
-        
+
         // Verify we can retrieve the translation builder
         $returnedBuilder = $queryBuilder->getTranslationQueryBuilder('translation');
         static::assertSame($translationBuilder, $returnedBuilder);

@@ -93,16 +93,10 @@ class EntitySearcher implements EntitySearcherInterface
 
         // Apply query timeout as SQL hint if set
         if ($criteria->getQueryTimeout() !== null) {
-            $timeout = $criteria->getQueryTimeout();
-            $platformName = $this->connection->getDatabasePlatform()::class;
-            
-            if (strpos($platformName, 'MySQL') !== false) {
-                // MySQL 8 syntax - hint for a single query
-                $query->setComment('+ MAX_EXECUTION_TIME(' . $timeout . ')');
-            } elseif (strpos($platformName, 'MariaDB') !== false) {
-                // MariaDB syntax - hint for a single query
-                $query->setComment('+ MAX_STATEMENT_TIME(' . ($timeout / 1000) . ')');
-            }
+            $query->setQueryTimeout(
+                $criteria->getQueryTimeout(),
+                $this->connection->getDatabasePlatform()
+            );
         }
 
         // Execute and fetch ids
@@ -188,14 +182,10 @@ class EntitySearcher implements EntitySearcherInterface
 
         // Apply query timeout to count query as well
         if ($criteria->getQueryTimeout() !== null) {
-            $timeout = $criteria->getQueryTimeout();
-            $platformName = $this->connection->getDatabasePlatform()::class;
-            
-            if (strpos($platformName, 'MySQL') !== false) {
-                $total->setComment('+ MAX_EXECUTION_TIME(' . $timeout . ')');
-            } elseif (strpos($platformName, 'MariaDB') !== false) {
-                $total->setComment('+ MAX_STATEMENT_TIME(' . ($timeout / 1000) . ')');
-            }
+            $total->setQueryTimeout(
+                $criteria->getQueryTimeout(),
+                $this->connection->getDatabasePlatform()
+            );
         }
 
         return (int) $total->executeQuery()->fetchOne();

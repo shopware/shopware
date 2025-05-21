@@ -6,10 +6,13 @@ use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Product\ProductEntity;
+use Shopware\Core\Content\Product\SearchKeyword\AnalyzedKeyword;
 use Shopware\Core\Content\Product\SearchKeyword\ProductSearchKeywordAnalyzer;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Term\Filter\TokenFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Term\Tokenizer;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Term\Filter\AbstractTokenFilter;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Term\TokenizerInterface;
 use Shopware\Core\System\Tag\TagCollection;
 use Shopware\Core\System\Tag\TagEntity;
 
@@ -251,5 +254,66 @@ class ProductSearchKeywordAnalyzerTest extends TestCase
     private static function getLongTextPart2(): string
     {
         return 'on. This is a long description. This is a long description. This is a long description. This is a long description. This is a long description. This is a long description. This is a long description. This is a long description. This is a long description. This is a long description. This is a long description. This is a long description. This is a long description. This is a long description. This is a long description. This is a long description. This is a long description.';
+    }
+
+    public function testAssociativeArrayOrderIndependence(): void
+    {
+        $tokenizer = $this->createMock(TokenizerInterface::class);
+        $tokenizer->method('tokenize')
+            ->willReturnCallback(function (string $text) {
+                return explode(' ', $text);
+            });
+
+        $tokenFilter = $this->createMock(AbstractTokenFilter::class);
+        $tokenFilter->method('filter')
+            ->willReturnArgument(0);
+
+        $analyzer = new ProductSearchKeywordAnalyzer($tokenizer, $tokenFilter);
+
+        $config = [
+            [
+                'field' => 'customFields.assocArray',
+                'tokenize' => true,
+                'ranking' => 100,
+            ],
+        ];
+
+        // Test with first order of keys
+        $product1 = new ProductEntity();
+        $product1->setCustomFields([
+            'assocArray' => [
+                'key1' => 'value1',
+                'key2' => 'value2',
+                'key3' => 'value3',
+            ],
+        ]);
+
+        $result1 = $analyzer->analyze($product1, Context::createDefaultContext(), $config);
+        $words1 = $result1->map(fn (AnalyzedKeyword $keyword) => $keyword->getKeyword());
+        sort($words1);
+
+        // Test with different order of keys
+        $product2 = new ProductEntity();
+        $product2->setCustomFields([
+            'assocArray' => [
+                'key3' => 'value3',
+                'key1' => 'value1',
+                'key2' => 'value2',
+            ],
+        ]);
+
+        $result2 = $analyzer->analyze($product2, Context::createDefaultContext(), $config);
+        $words2 = $result2->map(fn (AnalyzedKeyword $keyword) => $keyword->getKeyword());
+        sort($words2);
+
+        $keywords = array_values($words1);
+        sort($keywords);
+
+        // Both results should be identical
+        static::assertSame($words1, $words2);
+        static::assertEquals(
+            ['value1', 'value1 value2 value3', 'value2', 'value3'],
+            $keywords,
+        );
     }
 }

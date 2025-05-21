@@ -137,6 +137,57 @@ class ProductSearchKeywordAnalyzerTest extends TestCase
         );
     }
 
+    public function testAssociativeArrayOrderIndependence(): void
+    {
+        $config = [
+            [
+                'field' => 'customFields.assocArray',
+                'tokenize' => true,
+                'ranking' => 100,
+            ],
+        ];
+
+        $analyzer = static::getContainer()->get(ProductSearchKeywordAnalyzer::class);
+
+        // Test with first order of keys
+        $product1 = new ProductEntity();
+        $product1->setCustomFields([
+            'assocArray' => [
+                'key1' => 'value1',
+                'key2' => 'value2',
+                'key3' => 'value3',
+            ],
+        ]);
+
+        $result1 = $analyzer->analyze($product1, Context::createDefaultContext(), $config);
+        $words1 = $result1->map(fn (AnalyzedKeyword $keyword) => $keyword->getKeyword());
+        sort($words1);
+
+        // Test with different order of keys
+        $product2 = new ProductEntity();
+        $product2->setCustomFields([
+            'assocArray' => [
+                'key3' => 'value3',
+                'key1' => 'value1',
+                'key2' => 'value2',
+            ],
+        ]);
+
+        $result2 = $analyzer->analyze($product2, Context::createDefaultContext(), $config);
+        $words2 = $result2->map(fn (AnalyzedKeyword $keyword) => $keyword->getKeyword());
+        sort($words2);
+
+        $keywords = array_values($words1);
+        sort($keywords);
+        
+        // Both results should be identical
+        static::assertSame($words1, $words2);
+        static::assertEquals(
+            ['value1', 'value1 value2 value3', 'value2', 'value3'],
+            $keywords,
+        );
+    }
+
     #[DataProvider('casesSearchBaseOnConfigField')]
     public function testInsertIntoSearchKeywordForEn(bool $searchable, bool $tokenize, float $ranking): void
     {

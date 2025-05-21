@@ -16,17 +16,13 @@ test('As an admin user, I want to create a new flow', { tag: '@Flow' }, async ({
     const flowName = (`Test flow - ${uniqueId}`)
     await TestDataService.createTag(tagName);
     const testConfig = {
-        //general information
         name: flowName,
         description: 'This flow is being created to test the creation of flows.',
         priority: '1',
         active: true,
-        //trigger
         triggerSearchTerm: 'placed',
         triggerLabel: 'Checkout / Order / Placed',
-        //condition
         condition: 'Customers from USA',
-        //../actions
         trueAction: 'Send email',
         trueActionIdentifier: 'Order confirmation',
         falseAction: 'Add tag',
@@ -39,19 +35,15 @@ test('As an admin user, I want to create a new flow', { tag: '@Flow' }, async ({
     });
 
     await test.step('Confirm the flow exists and is structured correctly.', async () => {
-        // Listing
         await ShopAdmin.goesTo(AdminFlowBuilderListing.url());
         const flowListingRow = await AdminFlowBuilderListing.getLineItemByFlowName(`${testConfig.name}`);
         await ShopAdmin.expects(flowListingRow.flowActiveCheckmark).toBeVisible();
         await flowListingRow.flowContextMenuButton.click();
         await AdminFlowBuilderListing.contextMenuEdit.click();
-        // General tab
         await ShopAdmin.expects(AdminFlowBuilderDetail.nameField).toHaveValue(`${testConfig.name}`);
         await ShopAdmin.expects(AdminFlowBuilderDetail.descriptionField).toHaveValue(`${testConfig.description}`);
         await ShopAdmin.expects(AdminFlowBuilderDetail.priorityField).toHaveValue(`${testConfig.priority}`);
-        // Flow tab
         await AdminFlowBuilderDetail.flowTab.click();
-        //const trigger = await AdminFlowBuilderDetail.getSelectedTrigger();
         const trigger = await AdminFlowBuilderDetail.getTooltipText(AdminFlowBuilderDetail.triggerSelectField);
         ShopAdmin.expects(trigger).toEqual(`${testConfig.triggerLabel}`);
         await ShopAdmin.expects(AdminFlowBuilderDetail.conditionRule).toHaveText(`${testConfig.condition}`);

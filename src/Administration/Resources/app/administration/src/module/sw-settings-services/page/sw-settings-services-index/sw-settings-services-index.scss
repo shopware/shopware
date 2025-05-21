@@ -5,21 +5,26 @@
   }
 
   .sw-settings-services__listing-section h3 {
-    margin-bottom: var(--scale-size-24);;
+    margin-bottom: var(--scale-size-24);
   }
 
   .sw-settings-services__optional-services {
     margin-bottom: var(--scale-size-24);
     display: grid;
     grid-template-columns: 1fr 1fr;
-    grid-gap: var(--scale-size-24);
+    gap: var(--scale-size-24);
     list-style-type: none;
   }
 
   .sw-settings-services__default-services {
-    display: grid;
-    grid-template-columns: auto auto 1fr;
-    grid-gap: var(--scale-size-12) var(--scale-size-16);
-    align-items: center;
+    list-style-type: none;
+
+    li {
+      border-bottom: 1px solid var(--color-border-primary-default);
+
+      &:last-child:not(:only-child) {
+        border-bottom: none;
+      }
+    }
   }
 }

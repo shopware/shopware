@@ -23,8 +23,8 @@ export default Shopware.Component.wrapComponentConfig({
             type: Boolean,
             required: true,
         },
-        isCard: {
-            type: Boolean,
+        variant: {
+            type: String as PropType<'card' | 'list'>,
             required: true,
         },
     },

@@ -20,16 +20,13 @@
                 </h3>
 
                 <ul class="sw-settings-services__optional-services">
-                    <li
+                    <sw-settings-services-service-card
                         v-for="service in optionalServices"
                         :key="service.name"
-                    >
-                        <sw-settings-services-service-card
-                            :service="service"
-                            :consent-given="consentGiven"
-                            is-card
-                        />
-                    </li>
+                        :service="service"
+                        :consent-given="consentGiven"
+                        variant="card"
+                    />
                 </ul>
 
                 <h3>
@@ -38,17 +35,15 @@
                     <sw-help-text :text="$t('sw-settings-services.index.default-services-tooltip')" />
                 </h3>
 
-                <div class="sw-settings-services__default-services">
-                    <template
+                <ul class="sw-settings-services__default-services">
+                    <sw-settings-services-service-card
                         v-for="service in defaultServices"
                         :key="service.name"
-                    >
-                        <sw-settings-services-service-card
-                            :service="service"
-                            :consent-given="consentGiven"
-                        />
-                    </template>
-                </div>
+                        :service="service"
+                        :consent-given="consentGiven"
+                        variant="list"
+                    />
+                </ul>
             </div>
 
             <div class="sw-settings-services__footer">

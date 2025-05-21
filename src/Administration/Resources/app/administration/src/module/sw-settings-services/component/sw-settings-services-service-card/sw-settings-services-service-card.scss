@@ -38,13 +38,20 @@
   }
 }
 
-.sw-settings-services__table-row-name {
-  font-size: var(--font-size-xs);
-  margin-bottom: 0;
-}
+.sw-settings-services-service-card__list-item {
+  padding: var(--scale-size-12) 0;
+  display: flex;
+  gap: var(--scale-size-8);
 
-.sw-settings-services__table-row-meta-data {
-  font-size: var(--font-size-2xs);
-  color: var(--color-text-secondary-default);
-  justify-self: end;
+  .sw-settings-services__list-item-name {
+    font-size: var(--font-size-xs);
+    margin-bottom: 0;
+  }
+
+  .sw-settings-services__list-item-meta-data {
+    flex-grow: 1;
+    font-size: var(--font-size-2xs);
+    color: var(--color-text-secondary-default);
+    text-align: end;
+  }
 }

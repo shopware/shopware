@@ -1,5 +1,5 @@
-<div
-    v-if="isCard"
+<li
+    v-if="variant === 'card'"
     class="sw-settings-services-service-card"
 >
     <div class="sw-settings-services-service-card__header">
@@ -28,22 +28,22 @@
         •
         {{ $t('sw-settings-services.service-card.version', { version: service.version }) }}
     </div>
-</div>
-
-<template v-else>
-    <h4 class="sw-settings-services__table-row-name">
+</li>
+<li
+    v-else-if="variant === 'list'"
+    class="sw-settings-services-service-card__list-item"
+>
+    <h4 class="sw-settings-services__list-item-name">
         {{ service.name }}
     </h4>
 
-    <sw-status
-        :color="serviceStatus"
-    >
+    <sw-status :color="serviceStatus">
         {{ $t(statusText) }}
     </sw-status>
 
-    <td class="sw-settings-services__table-row-meta-data">
+    <div class="sw-settings-services__list-item-meta-data">
         {{  $t('sw-settings-services.service-card.updatedAtLabel', { updatedAt: service.lastUpdatedAt.toLocaleDateString() }) }}
         •
         {{ $t('sw-settings-services.service-card.version', { version: service.version }) }}
-    </td>
-</template>
+    </div>
+</li>

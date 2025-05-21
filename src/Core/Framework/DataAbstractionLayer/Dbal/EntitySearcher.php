@@ -93,10 +93,7 @@ class EntitySearcher implements EntitySearcherInterface
 
         // Apply query timeout as SQL hint if set
         if ($criteria->getQueryTimeout() !== null) {
-            $query->setQueryTimeout(
-                $criteria->getQueryTimeout(),
-                $this->connection->getDatabasePlatform()
-            );
+            $query->setQueryTimeout($criteria->getQueryTimeout());
         }
 
         // Execute and fetch ids
@@ -182,10 +179,7 @@ class EntitySearcher implements EntitySearcherInterface
 
         // Apply query timeout to count query as well
         if ($criteria->getQueryTimeout() !== null) {
-            $total->setQueryTimeout(
-                $criteria->getQueryTimeout(),
-                $this->connection->getDatabasePlatform()
-            );
+            $total->setQueryTimeout($criteria->getQueryTimeout());
         }
 
         return (int) $total->executeQuery()->fetchOne();

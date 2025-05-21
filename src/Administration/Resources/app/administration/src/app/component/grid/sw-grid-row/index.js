@@ -98,7 +98,13 @@ Component.register('sw-grid-row', {
 
     methods: {
         createdComponent() {
-            this.swRegisterGridDisableInlineEditListener(this.onInlineEditCancel);
+            if (this.isCompatEnabled('INSTANCE_EVENT_EMITTER')) {
+                this.$parent.$on('sw-grid-disable-inline-editing', (id) => {
+                    this.onInlineEditCancel(id);
+                });
+            } else {
+                this.swRegisterGridDisableInlineEditListener(this.onInlineEditCancel);
+            }
         },
 
         onInlineEditStart() {

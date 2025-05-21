@@ -289,26 +289,23 @@ class DocumentMergerTest extends TestCase
         $filesystem = static::getContainer()->get('filesystem');
 
         $docIds = [];
-        $orderIds = [];
-
-        for ($i = 0; $i < 2; ++$i) {
-            $cart = $this->generateDemoCart(1);
-            $orderIds[] = $this->persistCart($cart);
-        }
+        $documentNumbers = ['1001', '1002'];
 
         // create static documents with media
         for ($i = 0; $i < 2; ++$i) {
             $deliveryOperation = new DocumentGenerateOperation(
-                $orderIds[$i],
+                $this->orderId,
                 FileTypes::PDF,
-                [],
+                [
+                    'documentNumber' => $documentNumbers[$i],
+                ],
                 null,
                 true
             );
 
             $result = $this->documentGenerator->generate(
                 DeliveryNoteRenderer::TYPE,
-                [$orderIds[$i] => $deliveryOperation],
+                [$this->orderId => $deliveryOperation],
                 $this->context
             )->getSuccess()->first();
 
@@ -366,8 +363,9 @@ class DocumentMergerTest extends TestCase
         for ($i = 0; $i < $zip->numFiles; ++$i) {
             $fileInfo = $zip->statIndex($i);
             static::assertNotFalse($fileInfo);
+            static::assertArrayHasKey('name', $fileInfo);
             static::assertSame(
-                DeliveryNoteRenderer::TYPE . '_' . $orderIds[$i] . '.' . FileTypes::PDF,
+                DeliveryNoteRenderer::TYPE . '_' . $this->orderId . '_' . $documentNumbers[$i] . '.' . FileTypes::PDF,
                 $fileInfo['name']
             );
         }

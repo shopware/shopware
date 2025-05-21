@@ -215,7 +215,8 @@ final class DocumentMerger
             });
 
             $technicalName = $document->getDocumentType()?->getTechnicalName() ?? 'unknown';
-            $name = $technicalName . '_' . $document->getOrderId() . '.' . PdfRenderer::FILE_EXTENSION;
+            $documentNumber = $document->getDocumentNumber() ?? $document->getId();
+            $name = $technicalName . '_' . $document->getOrderId() . '_' . $documentNumber . '.' . PdfRenderer::FILE_EXTENSION;
 
             $zip->addFromString($name, $fileContent);
 

@@ -60,10 +60,15 @@ $sw-media-sidebar-color-quick-action-danger: $color-crimson-500;
     }
 
     .sw-media-sidebar__metadata-list {
+        .mt-field {
+            margin-bottom: 0;
+        }
+
         @media screen and (min-width: 769px) {
             display: grid;
             grid-template-columns: auto 1fr;
-            grid-auto-rows: 40px;
+            grid-auto-rows: minmax(24px, auto);
+            grid-row-gap: 12px;
             grid-column-gap: 16px;
             align-items: center;
             overflow: visible;
@@ -96,7 +101,7 @@ $sw-media-sidebar-color-quick-action-danger: $color-crimson-500;
         position: relative;
         top: -2px;
         color: $sw-media-sidebar-color-quick-action;
-        margin-right: 20px;
+        margin-right: 0.25rem;
 
         &.is--danger {
             color: $sw-media-sidebar-color-quick-action-danger;

@@ -64,7 +64,7 @@ class EntityNotExistsValidatorTest extends TestCase
         static::expectException(FrameworkException::class);
 
         $context = Context::createDefaultContext();
-        /* @phpstan-ignore-next-line wrong type for testing */
+        /* @phpstan-ignore argument.type  (for test purpose) */
         $constraint = new EntityNotExists(['context' => $context, 'entity' => LocaleDefinition::ENTITY_NAME, 'primaryProperty' => 1]);
 
         $validator = $this->getValidator();

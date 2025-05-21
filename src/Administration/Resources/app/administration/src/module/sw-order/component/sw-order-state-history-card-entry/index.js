@@ -46,14 +46,21 @@ export default {
 
     methods: {
         userDisplayName(user) {
-            let userString = '';
-            if (user === null) {
-                userString = this.$tc('sw-order.stateCard.labelSystemUser');
-            } else {
-                userString = user.username;
-            }
+            return `${this.$tc('sw-order.stateCard.labelLastEditedBy')} ${user.username}`;
+        },
 
-            return `${this.$tc('sw-order.stateCard.labelLastEditedBy')} ${userString}`;
+        integrationDisplayName(integration) {
+            return this.$t('sw-order.stateCard.labelLastEditedByIntegration', { integrationName: integration.label });
+        },
+
+        getDisplayName(historyEntry) {
+            if (historyEntry.user !== null) {
+                return this.userDisplayName(historyEntry.user);
+            }
+            if (historyEntry.integration !== null) {
+                return this.integrationDisplayName(historyEntry.integration);
+            }
+            return this.$tc('sw-order.stateCard.labelSystemUser');
         },
 
         getIconFromState(stateName) {

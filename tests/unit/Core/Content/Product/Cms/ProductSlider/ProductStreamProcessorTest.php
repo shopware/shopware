@@ -142,7 +142,7 @@ class ProductStreamProcessorTest extends TestCase
         $slider = $slot->getData();
         static::assertInstanceOf(ProductSliderStruct::class, $slider);
         static::assertSame('product-stream-1', $slider->getStreamId());
-        static::assertEquals($products, $slider->getProducts());
+        static::assertSame($products, $slider->getProducts());
     }
 
     public function testEnrichDoesNothingWithoutEntitySearchResult(): void

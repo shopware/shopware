@@ -90,6 +90,6 @@ class ConfigJsonFieldSerializerTest extends TestCase
         $encoded = $this->serializer->encode($this->field, $this->existence, $kvPair, $this->parameters)->current();
         $decoded = $this->serializer->decode($this->field, $encoded);
 
-        static::assertEquals($input, $decoded, 'Output should be equal to the input');
+        static::assertSame($input, $decoded, 'Output should be equal to the input');
     }
 }

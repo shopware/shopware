@@ -17,7 +17,7 @@ class ConfigTest extends TestCase
 
         $config = $cmsExtensions->getBlocks()->getBlocks()[0]->getSlots()[1]->getConfig();
 
-        static::assertEquals(
+        static::assertSame(
             [
                 'displayMode' => [
                     'source' => 'static',

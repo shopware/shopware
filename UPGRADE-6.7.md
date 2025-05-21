@@ -10,6 +10,14 @@ This means that when your plugins depends on a custom `webpack.config.js` file, 
 Additionally, this means that you will need to distribute a separate plugin version starting for 6.7, when you extend the administration to distribute the correct build files.
 For more information please take a look at the [docs](https://developer.shopware.com/docs/guides/plugins/plugins/administration/system-updates/vite.html).
 
+# Making all administration components async
+We are making all administration components async by default with this PR: https://github.com/shopware/shopware/pull/9129. This means that all components will be loaded asynchronously and not synchronously.
+This can lead to some issues when accessing components directly in the template with a `ref`. If you run into this issue you need to check before accessing the component if it is available. A good pattern for this is to use the `@vue:mounted` event to check if the component is mounted.
+
+Some components are still synchronously loaded, like the `sw-alert` component. This is because they are used in a lot of places and we want to avoid loading them asynchronously everywhere. You can see the full list of components in this file:
+
+`src/Administration/Resources/app/administration/src/app/adapter/view/vue.adapter.ts` (method: `initDependencies`)
+
 # Vue.js Enhancements (full native vue 3 support)
 ## Removal of Vue 2 compatibility layer
 The Vue 2 compatibility layer has been removed from the administration. This means that all components that still rely on Vue 2 features need to be updated.
@@ -143,6 +151,43 @@ Make sure to adjust your template extensions to be compatible with the new struc
 The block names are still the same, so it just should be necessary to extend from the new templates.
 New blocks (`base_esi_header` and `base_esi_footer`) were added to the `base.html.twig` template to overwrite header and footer completely.
 This is e.g. used to show minimal header and footer during the checkout process.
+Additionally you can modify the header and footer by adding query parameters to the header and footer ESI requests:
+- Extending the `src/Storefront/Resources/views/storefront/base.html.twig` file:
+```twig
+{% sw_extends '@Storefront/storefront/base.html.twig' %}
+{% block base_esi_header %}
+    {% set headerParameters = headerParameters|merge({ 'vendorPrefixPluginName': { 'activeRoute': activeRoute } }) %}
+    {{ parent() }}
+{% endblock %}
+```
+
+- Within a plugin, you can also use the `Shopware\Storefront\Event\StorefrontRenderEvent`
+```php
+class StorefrontSubscriber
+{
+    public function __invoke(StorefrontRenderEvent $event): void
+    {
+        if ($event->getRequest()->attributes->get('_route') !== 'frontend.header') {
+            return;
+        }
+
+        $headerParameters = $event->getParameter('headerParameters') ?? [];
+        $headerParameters['vendorPrefixPluginName']['salesChannelId'] = $event->getSalesChannelContext()->getSalesChannelId();
+
+        $event->setParameter('headerParameters', $headerParameters);
+    }
+}
+```
+
+After that you can use this data to customize the header template:
+```twig
+{% sw_extends '@Storefront/storefront/layout/header.html.twig' %}
+{% block header %}
+    {{ dump(headerParameters.vendorPrefixPluginName.activeRoute) }}
+    {{ dump(headerParameters.vendorPrefixPluginName.salesChannelId) }}
+    {{ parent() }}
+{% endblock %}
+```
 
 # Major Library Updates
 We upgraded the following libraries to their latest versions:
@@ -608,6 +653,10 @@ Merchants must review their custom created payment and shipping methods for the 
 ## Customer: Default payment method removed
 * Removed default payment method from customer entity, since it was mostly overriden by old saved contexts
 * Logic is now more consistent to always be the last used payment method
+
+## Removal of Custom Entities for Plugins
+
+Custom Entities for plugins support has been removed. It's no longer possible to create a `Resources/config/entities.xml` file in your plugin to create DAL entities. This has been removed for performance reasons. Our recommandation is to use regular EntityDefinition or an Attribute based entity.
 
 ## Bulletproofing Plugin Migrations
 ### Creation timestamp is now validated
@@ -2533,6 +2582,31 @@ We have moved the notification entity, collection and definition to core. You sh
 
 `\Shopware\Administration\Controller\NotificationController` is now moved to core `\Shopware\Core\Framework\Notification\Api\NotificationController` - if you type hint on this class, please update it. The HTTP route is still the same. The old class is deprecated.
 
+### Mitigate Meteor components migration with deprecated components
+
+To support extension developers and ensure compatibility between Shopware 6.6 and Shopware 6.7, a new prop called `deprecated` has been added to Shopware components.
+
+- **Prop Name**: `deprecated`
+- **Default Value**: `false` (uses the new Meteor Components by default)
+- **Purpose**:
+    - When `deprecated` is set to `true`, the component will render the old (deprecated) version instead of the new Meteor Component.
+    - This allows extension developers to maintain a single codebase compatible with both Shopware 6.6 and 6.7 without being forced to immediately migrate to Meteor Components.
+
+Example:
+
+```html
+<!-- Uses mt-button in 6.7 and sw-button-deprecated in 6.6 -->
+<template>
+  <sw-button />
+</template>
+
+
+<!-- Uses sw-button-deprecated in 6.6 and 6.7 -->
+<template>
+  <sw-button deprecated />
+</template>
+```
+
 </details>
 
 # Storefront
@@ -2861,4 +2935,38 @@ The custom JWT secrets where removed, instead the JWTs will now be signed with t
 This means the `shopware.api.jwt_key.use_app_secret` configuration is no longer available, as that is the only behavior now.
 Additionally, the `system:generate-jwt-secret` command was removed, as it is not needed anymore.
 
+</details>
+
+# Document renderer structure change
+We made some changes in the document renderer structure, which might affect your project setups.
+<details>
+  <summary>Detailed Changes</summary>
+
+## AbstractDocumentRenderer render workflow
+With the next major version, the PDF rendering will be moved from the `\Shopware\Core\Checkout\Document\Service\DocumentGenerator` to each renderer with a PDF document.
+Each implementation of the `\Shopware\Core\Checkout\Document\Renderer\AbstractDocumentRenderer` class needs to set the fully rendered file with `\Shopware\Core\Checkout\Document\Renderer\RenderedDocument::setContent()`.
+With this change, the `\Shopware\Core\Checkout\Document\Renderer\RenderedDocument::html` property is not needed anymore and will be removed.
+The content of a PDF document must be rendered within the renderer.
+Before:
+```php
+// e.g. InvoiceRenderer
+$doc = new RenderedDocument(
+    $html,
+    $number,
+    $config->buildName(),
+    $operation->getFileType(),
+    $config->jsonSerialize(),
+);
+```
+After:
+```php
+// e.g. InvoiceRenderer
+$doc = new RenderedDocument(
+    $number,
+    $config->buildName(),
+    $operation->getFileType(),
+    $config->jsonSerialize(),
+);
+$doc->setContent($this->pdfRenderer->render($doc, $html));
+```
 </details>

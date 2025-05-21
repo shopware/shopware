@@ -246,12 +246,12 @@ class ManyToOneAssociationFieldResolverTest extends TestCase
         );
 
         static::assertCount(1, $documents);
-        static::assertEquals(1, $documents->getTotal());
+        static::assertSame(1, $documents->getTotal());
 
         $document = $documents->getEntities()->first();
         static::assertInstanceOf(DocumentEntity::class, $document);
         static::assertNotNull($document->getOrder());
-        static::assertEquals('00000000000000000000000000000000', $document->getOrder()->getVersionId());
+        static::assertSame('00000000000000000000000000000000', $document->getOrder()->getVersionId());
     }
 
     public function testManyToOneInheritedWorks(): void

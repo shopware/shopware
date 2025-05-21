@@ -826,6 +826,60 @@
       }
     },
     "sw-condition-generic": {
+      "dayOfWeek": {
+        "dayOfWeek": {
+          "options": {
+            "1": "Monday",
+            "2": "Tuesday",
+            "3": "Wednesday",
+            "4": "Thursday",
+            "5": "Friday",
+            "6": "Saturday",
+            "7": "Sunday"
+          }
+        }
+      },
+      "cartLineItemOfType": {
+        "lineItemType": {
+          "options": {
+            "product": "Product",
+            "promotion": "Discount / surcharge"
+          }
+        }
+      },
+      "cartTaxDisplay": {
+        "taxDisplay": {
+          "options": {
+            "gross": "Gross",
+            "net": "Net"
+          }
+        }
+      },
+      "cartTotalPurchasePrice": {
+        "type": {
+          "options": {
+            "gross": "Gross",
+            "net": "Net"
+          }
+        }
+      },
+      "promotionCodeOfType": {
+        "promotionCodeType": {
+          "options": {
+            "global": "None",
+            "fixed": "Fixed",
+            "individual": "Individual"
+          }
+        }
+      },
+      "cartLineItemProductStates": {
+        "productState": {
+          "options": {
+            "is-download": "Digital",
+            "is-physical": "Physical"
+          }
+        }
+      },
       "units": {
         "dimension": "mm",
         "weight": "kg",
@@ -1470,7 +1524,6 @@
         "title": "Wrongly configured APP_URL",
         "explanationHeader": "Error with the connection to your extensions.",
         "explanation": "Extensions are not able to establish a connection to your shop, due to a wrong configuration in your system.",
-        "textGetSupport": "Try contacting your hoster to get support.",
         "textDetails": "Technical details: Wrong APP_URL configuration.",
         "labelLearnMoreButton": "Learn more",
         "linkToDocsArticle": "https://docs.shopware.com/en/shopware-6-en/tutorials-and-faq/notes-to-the-APP-URL"

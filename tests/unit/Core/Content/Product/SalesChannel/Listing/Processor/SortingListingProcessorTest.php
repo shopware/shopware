@@ -58,7 +58,8 @@ class SortingListingProcessorTest extends TestCase
         static::assertEquals($expected, $criteria->getSorting());
     }
 
-    public function testPrepareDefaultSearchResultSorting(): void
+    #[DataProvider('prepareDefaultSearchResultSortingProvider')]
+    public function testPrepareDefaultSearchResultSorting(Request $requested): void
     {
         $productSorting = new ProductSortingEntity();
         $productSorting->setId(Uuid::randomHex());
@@ -89,7 +90,7 @@ class SortingListingProcessorTest extends TestCase
         );
 
         $processor->prepare(
-            new Request(['search' => 'test']),
+            $requested,
             $criteria = new Criteria(),
             $this->createMock(SalesChannelContext::class)
         );
@@ -122,7 +123,7 @@ class SortingListingProcessorTest extends TestCase
             $this->createMock(SalesChannelContext::class)
         );
 
-        static::assertEquals($expected, $result->getSorting());
+        static::assertSame($expected, $result->getSorting());
     }
 
     #[DataProvider('wrongSortingTypeProvider')]
@@ -145,6 +146,17 @@ class SortingListingProcessorTest extends TestCase
             new Criteria(),
             $this->createMock(SalesChannelContext::class)
         );
+    }
+
+    public static function prepareDefaultSearchResultSortingProvider(): \Generator
+    {
+        yield 'Search term in post request' => [
+            'requested' => new Request([], ['search' => 'test']),
+        ];
+
+        yield 'Search term in query' => [
+            'requested' => new Request(['search' => 'test']),
+        ];
     }
 
     public static function prepareProvider(): \Generator

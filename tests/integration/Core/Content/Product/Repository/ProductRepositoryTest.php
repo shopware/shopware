@@ -1427,7 +1427,7 @@ class ProductRepositoryTest extends TestCase
         $ids = $productMedia->map(fn (ProductMediaEntity $a) => $a->getId());
 
         $order = [$a, $b, $c];
-        static::assertEquals($order, array_values($ids));
+        static::assertSame($order, array_values($ids));
 
         $criteria = new Criteria([$id]);
         $criteria->getAssociation('media')
@@ -1442,7 +1442,7 @@ class ProductRepositoryTest extends TestCase
         $ids = $productMedia->map(fn (ProductMediaEntity $a) => $a->getId());
 
         $order = [$d, $c, $b];
-        static::assertEquals($order, array_values($ids));
+        static::assertSame($order, array_values($ids));
     }
 
     public function testVariantInheritanceWithMedia(): void
@@ -2321,8 +2321,8 @@ class ProductRepositoryTest extends TestCase
         $blue = $configuratorSettings->get($blueId);
         $red = $configuratorSettings->get($redId);
 
-        static::assertEquals(['net' => 25, 'gross' => 50, 'linked' => false, 'currencyId' => Defaults::CURRENCY], $red->getPrice());
-        static::assertEquals(['net' => 90, 'gross' => 100, 'linked' => false, 'currencyId' => Defaults::CURRENCY], $blue->getPrice());
+        static::assertSame(['net' => 25, 'gross' => 50, 'linked' => false, 'currencyId' => Defaults::CURRENCY], $red->getPrice());
+        static::assertSame(['net' => 90, 'gross' => 100, 'linked' => false, 'currencyId' => Defaults::CURRENCY], $blue->getPrice());
 
         $redOption = $red->getOption();
         static::assertInstanceOf(PropertyGroupOptionEntity::class, $redOption);
@@ -2601,7 +2601,7 @@ class ProductRepositoryTest extends TestCase
 
         $result = $this->repository->searchIds($criteria, Context::createDefaultContext());
 
-        static::assertEquals(
+        static::assertSame(
             array_values($ids->getList(['d', 'b', 'c', 'a'])),
             $result->getIds()
         );
@@ -2611,7 +2611,7 @@ class ProductRepositoryTest extends TestCase
 
         $result = $this->repository->searchIds($criteria, Context::createDefaultContext());
 
-        static::assertEquals(
+        static::assertSame(
             array_values($ids->getList(['a', 'c', 'b', 'd'])),
             $result->getIds()
         );
@@ -2657,7 +2657,7 @@ class ProductRepositoryTest extends TestCase
 
             $result = $this->repository->searchIds($criteria, Context::createDefaultContext());
 
-            static::assertEquals(
+            static::assertSame(
                 array_values($ids->getList(['a', 'd', 'b', 'e', 'c'])),
                 $result->getIds()
             );
@@ -2667,7 +2667,7 @@ class ProductRepositoryTest extends TestCase
 
             $result = $this->repository->searchIds($criteria, Context::createDefaultContext());
 
-            static::assertEquals(
+            static::assertSame(
                 array_values($ids->getList(['c', 'e', 'b', 'd', 'a'])),
                 $result->getIds()
             );
@@ -2681,7 +2681,7 @@ class ProductRepositoryTest extends TestCase
 
         $result = $this->repository->searchIds($criteria, $context);
 
-        static::assertEquals(
+        static::assertSame(
             array_values($ids->getList(['a', 'd', 'b', 'e', 'c'])),
             $result->getIds()
         );
@@ -3292,8 +3292,8 @@ class ProductRepositoryTest extends TestCase
         static::assertIsArray($variantBProperties);
         sort($variantBProperties);
 
-        static::assertEquals($productProperties, $variantAProperties);
-        static::assertEquals($productProperties, $variantBProperties);
+        static::assertSame($productProperties, $variantAProperties);
+        static::assertSame($productProperties, $variantBProperties);
 
         $data = [
             'properties' => [
@@ -3331,8 +3331,8 @@ class ProductRepositoryTest extends TestCase
         static::assertIsArray($variantBProperties);
         sort($variantBProperties);
 
-        static::assertEquals($productProperties, $variantAProperties);
-        static::assertEquals($productProperties, $variantBProperties);
+        static::assertSame($productProperties, $variantAProperties);
+        static::assertSame($productProperties, $variantBProperties);
     }
 
     public function testInheritanceUpdateOnDeleteRelation(): void
@@ -3353,7 +3353,7 @@ class ProductRepositoryTest extends TestCase
 
         foreach ($expected as $key => $value) {
             static::assertArrayHasKey($key, $event->getList());
-            static::assertEquals($value, $event->getList()[$key]);
+            static::assertSame($value, $event->getList()[$key]);
         }
     }
 

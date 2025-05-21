@@ -18,6 +18,7 @@ use Shopware\Core\DevOps\Environment\EnvironmentHelper;
 use Shopware\Core\Framework\Api\ApiDefinition\DefinitionService;
 use Shopware\Core\Framework\Api\Controller\InfoController;
 use Shopware\Core\Framework\Api\Route\ApiRouteInfoResolver;
+use Shopware\Core\Framework\App\ShopId\ShopIdProvider;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Event\A11yRenderedDocumentAware;
 use Shopware\Core\Framework\Event\BusinessEventCollector;
@@ -60,6 +61,9 @@ class InfoControllerTest extends TestCase
 
     public function testGetConfig(): void
     {
+        $shopIdProvider = static::getContainer()->get(ShopIdProvider::class);
+        $shopId = $shopIdProvider->getShopId();
+
         $expected = [
             'version' => '6.7.9999999.9999999-dev',
             'versionRevision' => str_repeat('0', 32),
@@ -119,6 +123,7 @@ class InfoControllerTest extends TestCase
                 'disableExtensionManagement' => false,
             ],
             'inAppPurchases' => [],
+            'shopId' => $shopId,
         ];
 
         $url = '/api/_info/config';
@@ -407,6 +412,7 @@ class InfoControllerTest extends TestCase
                 new Filesystem(),
             ),
             new Filesystem(),
+            static::getContainer()->get(ShopIdProvider::class),
         );
 
         $infoController->setContainer($this->createMock(Container::class));
@@ -477,6 +483,7 @@ class InfoControllerTest extends TestCase
                 new Filesystem(),
             ),
             new Filesystem(),
+            static::getContainer()->get(ShopIdProvider::class),
         );
 
         $infoController->setContainer($this->createMock(Container::class));
@@ -487,19 +494,19 @@ class InfoControllerTest extends TestCase
         static::assertCount(3, $config['bundles']);
 
         static::assertArrayHasKey('AdminExtensionApiPlugin', $config['bundles']);
-        static::assertEquals('https://extension-api.test', $config['bundles']['AdminExtensionApiPlugin']['baseUrl']);
-        static::assertEquals('plugin', $config['bundles']['AdminExtensionApiPlugin']['type']);
+        static::assertSame('https://extension-api.test', $config['bundles']['AdminExtensionApiPlugin']['baseUrl']);
+        static::assertSame('plugin', $config['bundles']['AdminExtensionApiPlugin']['type']);
 
         static::assertArrayHasKey('AdminExtensionApiPluginWithLocalEntryPoint', $config['bundles']);
         static::assertStringContainsString(
             '/admin/adminextensionapipluginwithlocalentrypoint/index.html',
             $config['bundles']['AdminExtensionApiPluginWithLocalEntryPoint']['baseUrl'],
         );
-        static::assertEquals('plugin', $config['bundles']['AdminExtensionApiPluginWithLocalEntryPoint']['type']);
+        static::assertSame('plugin', $config['bundles']['AdminExtensionApiPluginWithLocalEntryPoint']['type']);
 
         static::assertArrayHasKey('AdminExtensionApiApp', $config['bundles']);
-        static::assertEquals('https://app-admin.test', $config['bundles']['AdminExtensionApiApp']['baseUrl']);
-        static::assertEquals('app', $config['bundles']['AdminExtensionApiApp']['type']);
+        static::assertSame('https://app-admin.test', $config['bundles']['AdminExtensionApiApp']['baseUrl']);
+        static::assertSame('app', $config['bundles']['AdminExtensionApiApp']['type']);
     }
 
     public function testFlowActionsRoute(): void

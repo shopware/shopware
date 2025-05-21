@@ -67,7 +67,7 @@ class PropertySortTest extends TestCase
             $equalsArray[] = $letterArray[$x];
         }
 
-        static::assertEquals(
+        static::assertSame(
             $equalsArray,
             array_column($propertyOptionsArray, 'name')
         );
@@ -89,7 +89,7 @@ class PropertySortTest extends TestCase
             $equalsArray[] = $x;
         }
 
-        static::assertEquals(
+        static::assertSame(
             $equalsArray,
             array_column($propertyOptionsArray, 'position')
         );
@@ -106,7 +106,7 @@ class PropertySortTest extends TestCase
         static::assertNotNull($propertyGroup);
         $propertyOptionsArray = json_decode(json_encode($propertyGroup->getOptions(), \JSON_THROW_ON_ERROR), true, 512, \JSON_THROW_ON_ERROR);
 
-        static::assertEquals(
+        static::assertSame(
             $this->notShuffledPosition,
             array_column($propertyOptionsArray, 'position')
         );
@@ -123,7 +123,7 @@ class PropertySortTest extends TestCase
         static::assertNotNull($propertyGroup);
         $propertyOptionsArray = json_decode(json_encode($propertyGroup->getOptions(), \JSON_THROW_ON_ERROR), true, 512, \JSON_THROW_ON_ERROR);
 
-        static::assertEquals(
+        static::assertSame(
             $this->notShuffledName,
             array_column($propertyOptionsArray, 'name')
         );

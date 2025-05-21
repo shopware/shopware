@@ -12,6 +12,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\SalesChannelCollection;
+use Shopware\Core\Test\Annotation\DisabledFeatures;
 use Shopware\Storefront\Theme\Exception\ThemeException;
 use Shopware\Storefront\Theme\StorefrontPluginConfiguration\StorefrontPluginConfiguration;
 use Shopware\Storefront\Theme\StorefrontPluginConfiguration\StorefrontPluginConfigurationCollection;
@@ -50,6 +51,7 @@ class ThemeMergedConfigBuilderTest extends TestCase
         );
     }
 
+    #[DisabledFeatures(['v6.8.0.0'])]
     public function testGetThemeConfigurationNoTheme(): void
     {
         $themeId = Uuid::randomHex();
@@ -82,18 +84,15 @@ class ThemeMergedConfigBuilderTest extends TestCase
     /**
      * @param array<string, mixed> $ids
      * @param array<string, mixed>|null $expected
-     * @param array<string, mixed>|null $expectedNotTranslated
      * @param array<string, mixed>|null $expectedStructured
-     * @param array<string, mixed>|null $expectedStructuredNotTranslated
      */
     #[DataProvider('getThemeCollectionForThemeConfiguration')]
+    #[DisabledFeatures(['v6.8.0.0'])]
     public function testGetThemeConfiguration(
         array $ids,
         ThemeCollection $themeCollection,
         ?array $expected = null,
-        ?array $expectedNotTranslated = null,
         ?array $expectedStructured = null,
-        ?array $expectedStructuredNotTranslated = null
     ): void {
         $this->themeRepositoryMock->method('search')->willReturn(
             new EntitySearchResult(
@@ -128,68 +127,15 @@ class ThemeMergedConfigBuilderTest extends TestCase
     /**
      * @param array<string, mixed> $ids
      * @param array<string, mixed>|null $expected
-     * @param array<string, mixed>|null $expectedNotTranslated
      * @param array<string, mixed>|null $expectedStructured
-     * @param array<string, mixed>|null $expectedStructuredNotTranslated
      */
     #[DataProvider('getThemeCollectionForThemeConfiguration')]
-    public function testGetThemeConfigurationNoTranslation(
-        array $ids,
-        ThemeCollection $themeCollection,
-        ?array $expected = null,
-        ?array $expectedNotTranslated = null,
-        ?array $expectedStructured = null,
-        ?array $expectedStructuredNotTranslated = null
-    ): void {
-        if ($expectedNotTranslated !== null) {
-            $expected = $expectedNotTranslated;
-        }
-
-        $this->themeRepositoryMock->method('search')->willReturn(
-            new EntitySearchResult(
-                'theme',
-                1,
-                $themeCollection,
-                null,
-                new Criteria(),
-                $this->context
-            )
-        );
-
-        $storefrontPlugin = new StorefrontPluginConfiguration('Test');
-        $storefrontPlugin->setThemeConfig(ThemeFixtures::getThemeJsonConfig());
-
-        $this->storefrontPluginRegistryMock->method('getConfigurations')->willReturn(
-            new StorefrontPluginConfigurationCollection(
-                [
-                    $storefrontPlugin,
-                ]
-            )
-        );
-
-        $config = $this->mergedConfigBuilder->getThemeConfiguration($ids['themeId'], false, $this->context);
-
-        static::assertArrayHasKey('fields', $config);
-        static::assertArrayHasKey('currentFields', $config);
-        static::assertArrayHasKey('baseThemeFields', $config);
-        static::assertEquals($expected, $config);
-    }
-
-    /**
-     * @param array<string, mixed> $ids
-     * @param array<string, mixed>|null $expected
-     * @param array<string, mixed>|null $expectedNotTranslated
-     * @param array<string, mixed>|null $expectedStructured
-     * @param array<string, mixed>|null $expectedStructuredNotTranslated
-     */
-    #[DataProvider('getThemeCollectionForThemeConfiguration')]
+    #[DisabledFeatures(['v6.8.0.0'])]
     public function testGetThemeConfigurationStructured(
         array $ids,
         ThemeCollection $themeCollection,
         ?array $expected = null,
-        ?array $expectedNotTranslated = null,
         ?array $expectedStructured = null,
-        ?array $expectedStructuredNotTranslated = null
     ): void {
         $this->themeRepositoryMock->method('search')->willReturn(
             new EntitySearchResult(
@@ -222,63 +168,11 @@ class ThemeMergedConfigBuilderTest extends TestCase
     }
 
     /**
-     * @param array<string, mixed> $ids
-     * @param array<string, mixed>|null $expected
-     * @param array<string, mixed>|null $expectedNotTranslated
-     * @param array<string, mixed>|null $expectedStructured
-     * @param array<string, mixed>|null $expectedStructuredNotTranslated
-     */
-    #[DataProvider('getThemeCollectionForThemeConfiguration')]
-    public function testGetThemeConfigurationStructuredNoTranslation(
-        array $ids,
-        ThemeCollection $themeCollection,
-        ?array $expected = null,
-        ?array $expectedNotTranslated = null,
-        ?array $expectedStructured = null,
-        ?array $expectedStructuredNotTranslated = null
-    ): void {
-        if ($expectedStructuredNotTranslated !== null) {
-            $expectedStructured = $expectedStructuredNotTranslated;
-        }
-
-        $this->themeRepositoryMock->method('search')->willReturn(
-            new EntitySearchResult(
-                'theme',
-                1,
-                $themeCollection,
-                null,
-                new Criteria(),
-                $this->context
-            )
-        );
-
-        $storefrontPlugin = new StorefrontPluginConfiguration('Test');
-        $storefrontPlugin->setThemeConfig(ThemeFixtures::getThemeJsonConfig());
-
-        $this->storefrontPluginRegistryMock->method('getConfigurations')->willReturn(
-            new StorefrontPluginConfigurationCollection(
-                [
-                    $storefrontPlugin,
-                ]
-            )
-        );
-
-        $config = $this->mergedConfigBuilder->getThemeConfigurationStructuredFields($ids['themeId'], false, $this->context);
-
-        static::assertArrayHasKey('tabs', $config);
-        static::assertArrayHasKey('default', $config['tabs']);
-        static::assertArrayHasKey('blocks', $config['tabs']['default']);
-        static::assertEquals($expectedStructured, $config);
-    }
-
-    /**
      * @return iterable<array{
      *     ids: array<string, mixed>,
      *     themeCollection: ThemeCollection,
      *     expected?: array<string, mixed>,
-     *     expectedNotTranslated?: array<string, mixed>|null,
      *     expectedStructured?: array<string, mixed>,
-     *     expectedStructuredNotTranslated?: array<string, mixed>
      * }>
      */
     public static function getThemeCollectionForThemeConfiguration(): iterable

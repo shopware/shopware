@@ -28,15 +28,18 @@ class DeleteThemeFilesTaskHandlerTest extends TestCase
         $connection = $this->createMock(Connection::class);
         $connection->expects($this->once())->method('fetchAllAssociative')->willReturn([
             ['salesChannelId' => 'salesChannelId1', 'themeId' => 'themeId1'],
+            ['salesChannelId' => 'salesChannelId2', 'themeId' => 'themeId1'],
         ]);
 
         $themeFileSystem = $this->createMock(FilesystemOperator::class);
-        $themeFileSystem->expects($this->exactly(4))->method('listContents')
+        $themeFileSystem->expects($this->exactly(5))->method('listContents')
             ->willReturnMap([
                 [
                     'theme',
                     FilesystemReader::LIST_SHALLOW,
                     new DirectoryListing([
+                        new DirectoryAttributes('theme/themeId1'),
+                        new DirectoryAttributes('theme/themeOldId'),
                         new DirectoryAttributes('theme/usedThemePath'),
                         new DirectoryAttributes('theme/unusedThemePathWithoutFiles'),
                         new DirectoryAttributes('theme/unusedThemePathOlderThanOneDay'),
@@ -72,14 +75,28 @@ class DeleteThemeFilesTaskHandlerTest extends TestCase
                         ),
                     ]),
                 ],
+                [
+                    'theme/themeOldId',
+                    FilesystemReader::LIST_DEEP,
+                    new DirectoryListing([
+                        new FileAttributes(
+                            'theme/themeOldId/assets/file1.txt',
+                            lastModified: (new \DateTimeImmutable())->modify('-25 hours')->getTimestamp()
+                        ),
+                    ]),
+                ],
             ]);
-        $themeFileSystem->expects($this->exactly(2))->method('deleteDirectory')->willReturnMap([
+        $themeFileSystem->expects($this->exactly(3))->method('deleteDirectory')->willReturnMap([
             ['theme/unusedThemePathWithoutFiles'],
             ['theme/unusedThemePathOlderThanOneDay'],
+            ['theme/themeOldId'],
         ]);
 
         $themePathBuilder = $this->createMock(AbstractThemePathBuilder::class);
-        $themePathBuilder->expects($this->once())->method('assemblePath')->with('salesChannelId1', 'themeId1')->willReturn('usedThemePath');
+        $themePathBuilder->expects($this->exactly(2))->method('assemblePath')->willReturnMap([
+            ['salesChannelId1', 'themeId1', 'usedThemePath'],
+            ['salesChannelId2', 'themeId1', 'differentThemePrefix'],
+        ]);
 
         $handler = new DeleteThemeFilesTaskHandler(
             $this->createMock(EntityRepository::class),

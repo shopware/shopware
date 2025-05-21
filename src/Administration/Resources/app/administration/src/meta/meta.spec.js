@@ -101,7 +101,7 @@ describe('Administration meta tests', () => {
             expect(typeof packageJson).toBe('object');
             expect(packageJson.hasOwnProperty('engines')).toBe(true);
             expect(packageJson.engines.hasOwnProperty('node')).toBe(true);
-            expect(packageJson.engines.node).toBe('^20.0.0 || ^21.0.0 || ^22.0.0 || ^23.0.0');
+            expect(packageJson.engines.node).toBe('^20.0.0 || ^21.0.0 || ^22.0.0 || ^23.0.0 || ^24.0.0');
             expect(packageJson.engines.hasOwnProperty('npm')).toBe(true);
             expect(packageJson.engines.npm).toBe('>=10.0.0');
         });
@@ -119,7 +119,7 @@ describe('Administration meta tests', () => {
                 }
 
                 // Find all position identifiers in the file and add them to the result
-                [...fileContent.matchAll(/position-identifier="(.*)"/gm)]
+                [...fileContent.matchAll(/position-identifier="(.+)"/gm)]
                     .map((match) => match[1])
                     .forEach((match) => {
                         if (match !== '' && match !== 'null') {

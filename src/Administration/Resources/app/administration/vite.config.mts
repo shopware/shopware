@@ -4,7 +4,7 @@
 
 import { defineConfig, loadEnv } from 'vite';
 import { createHtmlPlugin } from 'vite-plugin-html';
-import { nodePolyfills } from 'vite-plugin-node-polyfills'
+import { nodePolyfills } from 'vite-plugin-node-polyfills';
 import svgLoader from 'vite-svg-loader';
 import vue from '@vitejs/plugin-vue';
 import * as path from 'path';
@@ -43,7 +43,7 @@ export default defineConfig(({ command }) => {
         console.log(colors.yellow('# Production mode activated 🚀'));
     }
 
-    // We only load extensions here to display the successfull injection
+    // We only load extensions here to display the successful injection
     const extensions = loadExtensions();
     extensions.forEach((extension) => {
         if (extension.isApp) {
@@ -55,6 +55,7 @@ export default defineConfig(({ command }) => {
 
     // print new line
     console.log('');
+    console.log(colors.green('Building main administration...'));
 
     return {
         base,
@@ -72,6 +73,10 @@ export default defineConfig(({ command }) => {
                     secure: false,
                 },
             },
+            // DDEV_PRIMARY_URL is initialised in ddev environment only
+            origin: process.env.DDEV_PRIMARY_URL
+                ? `${process.env.DDEV_PRIMARY_URL.replace(/:\d+$/, "")}:` + (Number(process.env.ADMIN_PORT) || 5173)
+                : undefined,
         },
 
         // IIFE to return different plugins for dev and  prod
@@ -189,6 +194,7 @@ export default defineConfig(({ command }) => {
             outDir: isProd
                 ? path.resolve(__dirname, '../../public/administration')
                 : path.resolve(process.env.PROJECT_ROOT as string, 'public/bundles/administration/administration'),
+            emptyOutDir: true,
 
             // generate .vite/manifest.json in outDir
             manifest: true,

@@ -43,10 +43,10 @@ class Migration1718615305AddEuToCountryTableTest extends TestCase
             static::fail('Column "is_eu" not found in "country" table');
         }
 
-        static::assertEquals('is_eu', $columns[$isEuColumnKey]['Field']);
-        static::assertEquals('tinyint(1)', $columns[$isEuColumnKey]['Type']);
-        static::assertEquals('NO', $columns[$isEuColumnKey]['Null']);
-        static::assertEquals('0', $columns[$isEuColumnKey]['Default']);
+        static::assertSame('is_eu', $columns[$isEuColumnKey]['Field']);
+        static::assertSame('tinyint(1)', $columns[$isEuColumnKey]['Type']);
+        static::assertSame('NO', $columns[$isEuColumnKey]['Null']);
+        static::assertSame('0', $columns[$isEuColumnKey]['Default']);
     }
 
     public function testEuCountriesAreMarkedAsEu(): void

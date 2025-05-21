@@ -1,8 +1,6 @@
 import template from './sw-card-section.html.twig';
 import './sw-card-section.scss';
 
-const { Component } = Shopware;
-
 /**
  * @sw-package framework
  *
@@ -22,7 +20,7 @@ const { Component } = Shopware;
  *     </sw-container>
  * </sw-card>
  */
-Component.register('sw-card-section', {
+export default {
     template,
 
     props: {
@@ -69,4 +67,4 @@ Component.register('sw-card-section', {
             };
         },
     },
-});
+};

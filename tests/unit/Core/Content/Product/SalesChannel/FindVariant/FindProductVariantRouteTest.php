@@ -94,8 +94,8 @@ class FindProductVariantRouteTest extends TestCase
 
         $response = $this->route->load($this->ids->get('productId'), $request, $this->createMock(SalesChannelContext::class));
 
-        static::assertEquals($this->ids->get('found1'), $response->getFoundCombination()->getVariantId());
-        static::assertEquals($options, $response->getFoundCombination()->getOptions());
+        static::assertSame($this->ids->get('found1'), $response->getFoundCombination()->getVariantId());
+        static::assertSame($options, $response->getFoundCombination()->getOptions());
     }
 
     public function testLoadFirstVariantNotFound(): void
@@ -149,7 +149,7 @@ class FindProductVariantRouteTest extends TestCase
 
         $response = $this->route->load($this->ids->get('productId'), $request, $this->createMock(SalesChannelContext::class));
 
-        static::assertEquals($this->ids->get('found1'), $response->getFoundCombination()->getVariantId());
+        static::assertSame($this->ids->get('found1'), $response->getFoundCombination()->getVariantId());
     }
 
     public function testLoadNoVariantFound(): void
@@ -206,7 +206,7 @@ class FindProductVariantRouteTest extends TestCase
         try {
             $this->route->load($this->ids->get('productId'), $request, $this->createMock(SalesChannelContext::class));
         } catch (VariantNotFoundException $e) {
-            static::assertEquals('CONTENT__PRODUCT_VARIANT_NOT_FOUND', $e->getErrorCode());
+            static::assertSame('CONTENT__PRODUCT_VARIANT_NOT_FOUND', $e->getErrorCode());
 
             throw $e;
         }

@@ -201,6 +201,27 @@ class CacheClearerTest extends TestCase
         $cacheClearer->clearHttpCache();
     }
 
+    public function testClearWithClearHttpCacheClearsHTTPCacheInClusterMode(): void
+    {
+        $reverseProxyCache = $this->createMock(AbstractReverseProxyGateway::class);
+        $reverseProxyCache->expects($this->once())->method('banAll');
+
+        $cacheClearer = new CacheClearer(
+            [],
+            $this->createMock(CacheClearerInterface::class),
+            $reverseProxyCache,
+            $this->createMock(CacheInvalidator::class),
+            new Filesystem(),
+            $this->getKernel()->getCacheDir(),
+            'test',
+            true,
+            $this->createMock(MessageBusInterface::class),
+            $this->createMock(LoggerInterface::class),
+        );
+
+        $cacheClearer->clear(true);
+    }
+
     public function testClearHttpCacheWithoutReverseProxy(): void
     {
         $pool = $this->createMock(CacheItemPoolInterface::class);

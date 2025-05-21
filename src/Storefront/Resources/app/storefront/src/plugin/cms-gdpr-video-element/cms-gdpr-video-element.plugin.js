@@ -123,6 +123,7 @@ export default class CmsGdprVideoElement extends Plugin {
         const videoElement = document.createElement('iframe');
         videoElement.setAttribute('src', this.options.videoUrl);
         videoElement.setAttribute('title', this.options.iframeTitle);
+        videoElement.setAttribute('allowfullscreen', 'allowfullscreen');
 
         this.options.iframeClasses.forEach((cls) => {
             videoElement.classList.add(cls);

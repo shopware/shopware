@@ -1,18 +1,44 @@
 .sw-entity-multi-select.sw-field--small {
+    .sw-block-field__block {
+        min-height: 48px;
+        height: auto;
+
+        .sw-select__selection {
+            padding: 4px 6px;
+        }
+    }
+
     .sw-select-selection-list {
         &__item-holder {
             margin: 0 2px;
 
             .sw-label {
-                margin: 0;
-                height: 24px;
-                line-height: 22px;
-                min-width: 0;
+                height: 32px;
+                padding: 8px 12px;
+
+                &__dismiss {
+                    .icon--regular-times-s {
+                        padding-top: 2px;
+                    }
+                }
+            }
+        }
+
+        &__input-wrapper {
+            align-self: center;
+
+            input {
+                padding-top: 8px;
+                padding-bottom: 8px;
             }
         }
 
         .sw-select-selection-list__load-more {
             margin-top: 0;
+
+            &-button {
+                margin: 4px 6px 4px 0;
+            }
         }
     }
 }
@@ -23,4 +49,9 @@
             margin: 0;
         }
     }
+}
+
+.sw-entity-multi-select .sw-block-field__block {
+    min-height: 48px;
+    height: auto;
 }

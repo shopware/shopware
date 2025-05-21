@@ -38,7 +38,7 @@ class RequestTransformerTest extends TestCase
         $originalRequest = Request::create($requestUri);
         $transformedRequest = $requestTransformer->transform($originalRequest);
 
-        static::assertEquals($originalRequest, $transformedRequest);
+        static::assertSame($originalRequest, $transformedRequest);
     }
 
     public function testSalesChannelIsRequired(): void

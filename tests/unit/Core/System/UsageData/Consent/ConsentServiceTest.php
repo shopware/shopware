@@ -4,6 +4,7 @@ namespace Shopware\Tests\Unit\Core\System\UsageData\Consent;
 
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Defaults;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
 use Shopware\Core\Framework\Log\Package;
@@ -280,7 +281,10 @@ class ConsentServiceTest extends TestCase
             new MockClock(),
         );
 
-        static::assertEquals($updatedAt, $consentService->getLastConsentIsAcceptedDate());
+        static::assertSame(
+            $updatedAt->format(Defaults::STORAGE_DATE_TIME_FORMAT),
+            $consentService->getLastConsentIsAcceptedDate()?->format(Defaults::STORAGE_DATE_TIME_FORMAT)
+        );
     }
 
     private function assertConsentEventFired(CollectingEventDispatcher $dispatcher, ConsentState $state): void
@@ -290,6 +294,6 @@ class ConsentServiceTest extends TestCase
 
         $consentChangedEvent = $events[0];
         static::assertInstanceOf(ConsentStateChangedEvent::class, $consentChangedEvent);
-        static::assertEquals($state, $consentChangedEvent->getState());
+        static::assertSame($state, $consentChangedEvent->getState());
     }
 }

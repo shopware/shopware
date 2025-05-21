@@ -52,6 +52,8 @@ class OrderDeliveryEntity extends Entity
 
     protected ?OrderDeliveryPositionCollection $positions = null;
 
+    protected ?OrderEntity $primaryOrder = null;
+
     public function getOrderId(): string
     {
         return $this->orderId;
@@ -206,5 +208,15 @@ class OrderDeliveryEntity extends Entity
     public function setShippingOrderAddressVersionId(string $shippingOrderAddressVersionId): void
     {
         $this->shippingOrderAddressVersionId = $shippingOrderAddressVersionId;
+    }
+
+    public function getPrimaryOrder(): ?OrderEntity
+    {
+        return $this->primaryOrder;
+    }
+
+    public function setPrimaryOrder(?OrderEntity $primaryOrder): void
+    {
+        $this->primaryOrder = $primaryOrder;
     }
 }

@@ -87,7 +87,7 @@
                 <template #column-type.typeName="{ item }">
                     <component
                         :is="getTypeCellComponent(item)"
-                        v-if="getTypeCellComponent(item)"
+                        v-if="hasTypeCellComponent(item)"
                         :tax-rule="item"
                     />
                     <template v-else>

@@ -35,13 +35,37 @@ const MODULES = [
                 }
             },
             {
+                id: 'categories',
+                name: 'Categories',
+                to: 'sw.category.index',
+                match(route) {
+                    return route.name.startsWith('sw.category') ? 'exact' : 'none';
+                }
+            },
+            {
                 id: 'dynamic-product-groups',
                 name: 'Dynamic Product Groups',
                 to: 'sw.product.stream.index',
                 match(route) {
                     return route.name.startsWith('sw.product.stream') ? 'exact' : 'none';
                 }
-            }
+            },
+            {
+                id: 'properties',
+                name: 'Properties',
+                to: 'sw.property.index',
+                match(route) {
+                    return route.name.startsWith('sw.property') ? 'exact' : 'none';
+                }
+            },
+            {
+                id: 'manufacturers',
+                name: 'Manufacturers',
+                to: 'sw.manufacturer.index',
+                match(route) {
+                    return route.name.startsWith('sw.manufacturer') ? 'exact' : 'none';
+                }
+            },
         ]
     },
     {
@@ -67,27 +91,47 @@ const MODULES = [
         name: 'Content',
         icon: 'image-text',
         to: 'sw.cms.index',
-        match() {
-            return 'none';
-        }
+        match(route) {
+            return route.name.startsWith('sw.cms') ? 'exact' : 'none';
+        },
+        children: [
+            {
+                id: 'themes',
+                name: 'Themes',
+                to: 'sw.theme.manager.index',
+                match(route) {
+                    return route.name.startsWith('sw.theme.manager') ? 'exact' : 'none';
+                }
+            }
+        ]
     },
     {
         id: 'marketing',
         name: 'Marketing',
         icon: 'megaphone',
         to: 'sw.promotion.v2.index',
-        match() {
-            return 'none';
-        }
+        match(route) {
+            return route.name.startsWith('sw.promotion.v2') ? 'exact' : 'none';
+        },
+        children: [
+            {
+                id: 'newsletter',
+                name: 'Newsletter recipients',
+                to: 'sw.newsletter.recipient.index',
+                match(route) {
+                    return route.name.startsWith('sw.newsletter.recipient') ? 'exact' : 'none';
+                }
+            }
+        ]
     },
     {
         id: 'extensions',
         name: 'Extensions',
         icon: 'puzzle-piece',
         to: 'sw.extension.my-extensions.listing',
-        match() {
-            return 'none';
-        }
+        match(route) {
+            return route.name.startsWith('sw.extension.my-extensions') ? 'exact' : 'none';
+        },
     },
     {
         id: 'settings',

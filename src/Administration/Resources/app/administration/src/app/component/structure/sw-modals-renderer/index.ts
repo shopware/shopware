@@ -1,5 +1,6 @@
 import type { buttonProps } from '@shopware-ag/meteor-admin-sdk/es/ui/modal';
 import type { ModalItemEntry } from 'src/app/store/modals.store';
+import DOMPurify from "dompurify";
 import template from './sw-modals-renderer.html.twig';
 
 /**
@@ -47,6 +48,12 @@ export default Shopware.Component.wrapComponentConfig({
                 ghost: isGhost,
                 square: button.square ?? false,
             };
+        },
+
+        sanitizeTextContent(textContent: string): string {
+            return DOMPurify.sanitize(this.$t(textContent), {
+                ALLOWED_TAGS: ["a", "b", "i", "u", "s", "li", "ul", "img", "svg"],
+            });
         },
     },
 });

@@ -9,9 +9,11 @@ use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Api\Context\AdminApiSource;
 use Shopware\Core\Framework\Api\Context\SalesChannelApiSource;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\DataAbstractionLayer\DataAbstractionLayerException;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\CreatedByField;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\JsonField;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldSerializer\CreatedByFieldSerializer;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Command\WriteCommandQueue;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\DataStack\KeyValuePair;
@@ -69,6 +71,165 @@ class CreatedByFieldSerializerTest extends TestCase
         )->current();
 
         static::assertSame($userId, Uuid::fromBytesToHex($return));
+    }
+
+    public function testEncodeWithInvalidField(): void
+    {
+        $data = new KeyValuePair('key', null, false);
+        $existence = $this->createMock(EntityExistence::class);
+        $parameters = new WriteParameterBag(
+            $this->createMock(EntityDefinition::class),
+            $this->createWriteContext(null),
+            '/',
+            new WriteCommandQueue(),
+        );
+
+        $wrongField = new JsonField('key', 'key');
+
+        $this->expectExceptionObject(DataAbstractionLayerException::invalidSerializerField(CreatedByField::class, $wrongField));
+
+        $this->fieldSerializer->encode(
+            $wrongField,
+            $existence,
+            $data,
+            $parameters
+        )->current();
+    }
+
+    public function testEncodeWithExistingEntity(): void
+    {
+        $data = new KeyValuePair('key', null, false);
+        $existence = $this->createMock(EntityExistence::class);
+        $existence->method('exists')->willReturn(true);
+        $parameters = new WriteParameterBag(
+            $this->createMock(EntityDefinition::class),
+            $this->createWriteContext(Uuid::randomHex()),
+            '/',
+            new WriteCommandQueue(),
+        );
+
+        $result = $this->fieldSerializer->encode(
+            new CreatedByField([Context::USER_SCOPE]),
+            $existence,
+            $data,
+            $parameters
+        )->current();
+
+        static::assertNull($result);
+    }
+
+    public function testEncodeWithInvalidScope(): void
+    {
+        $data = new KeyValuePair('key', null, false);
+        $existence = $this->createMock(EntityExistence::class);
+        $existence->method('exists')->willReturn(false);
+
+        $result = 'foo';
+        Context::createDefaultContext()->scope('invalid-scope', function (Context $context) use ($data, $existence, &$result): void {
+            $result = $this->fieldSerializer->encode(
+                new CreatedByField([Context::USER_SCOPE]),
+                $existence,
+                $data,
+                new WriteParameterBag(
+                    $this->createMock(EntityDefinition::class),
+                    WriteContext::createFromContext($context),
+                    '/',
+                    new WriteCommandQueue(),
+                )
+            )->current();
+        });
+
+        static::assertNull($result);
+    }
+
+    public function testEncodeWithProvidedValue(): void
+    {
+        $providedUserId = Uuid::randomHex();
+        $data = new KeyValuePair('key', $providedUserId, false);
+        $existence = $this->createMock(EntityExistence::class);
+        $existence->method('exists')->willReturn(false);
+        $parameters = new WriteParameterBag(
+            $this->createMock(EntityDefinition::class),
+            $this->createWriteContext(Uuid::randomHex()),
+            '/',
+            new WriteCommandQueue(),
+        );
+
+        $return = $this->fieldSerializer->encode(
+            new CreatedByField([Context::USER_SCOPE]),
+            $existence,
+            $data,
+            $parameters
+        )->current();
+
+        static::assertSame($providedUserId, Uuid::fromBytesToHex($return));
+    }
+
+    public function testEncodeWithSeparateVersion(): void
+    {
+        $data = new KeyValuePair('key', null, false);
+        $existence = $this->createMock(EntityExistence::class);
+        $existence->method('exists')->willReturn(false);
+        $versionId = Uuid::randomHex();
+        $parameters = new WriteParameterBag(
+            $this->createMock(EntityDefinition::class),
+            $this->createWriteContext(Uuid::randomHex(), $versionId),
+            '/',
+            new WriteCommandQueue(),
+        );
+
+        $result = $this->fieldSerializer->encode(
+            new CreatedByField([Context::USER_SCOPE]),
+            $existence,
+            $data,
+            $parameters
+        )->current();
+
+        static::assertNull($result);
+    }
+
+    public function testEncodeWithSalesChannelApiSource(): void
+    {
+        $data = new KeyValuePair('key', null, false);
+        $existence = $this->createMock(EntityExistence::class);
+        $existence->method('exists')->willReturn(false);
+        $parameters = new WriteParameterBag(
+            $this->createMock(EntityDefinition::class),
+            $this->createWriteContext(null, Defaults::LIVE_VERSION, false),
+            '/',
+            new WriteCommandQueue(),
+        );
+
+        $result = $this->fieldSerializer->encode(
+            new CreatedByField([Context::USER_SCOPE]),
+            $existence,
+            $data,
+            $parameters
+        )->current();
+
+        static::assertNull($result);
+    }
+
+    public function testEncodeWithNoUserId(): void
+    {
+        $data = new KeyValuePair('key', null, false);
+        $existence = $this->createMock(EntityExistence::class);
+        $existence->method('exists')->willReturn(false);
+        $parameters = new WriteParameterBag(
+            $this->createMock(EntityDefinition::class),
+            $this->createWriteContext(null),
+            '/',
+            new WriteCommandQueue(),
+        );
+
+        $result = $this->fieldSerializer->encode(
+            new CreatedByField([Context::USER_SCOPE]),
+            $existence,
+            $data,
+            $parameters
+        )->current();
+
+        static::assertNull($result);
     }
 
     private function createWriteContext(?string $userId, string $versionId = Defaults::LIVE_VERSION, bool $useAdminApiSource = true): WriteContext

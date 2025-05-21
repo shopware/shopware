@@ -24,7 +24,8 @@
     "extra": {
         "branch-alias": {
             "dev-master": "6.7.x-dev",
-            "dev-trunk": "6.7.x-dev"
+            "dev-trunk": "6.7.x-dev",
+            "dev-6.7.0.0": "6.7.x-dev"
         }
     },
     "require": {

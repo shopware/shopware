@@ -19,15 +19,6 @@ Component.register('sw-theme-manager-detail', {
         Mixin.getByName('notification')
     ],
 
-    filters: {
-        cssValue: function (value) {
-            // Be careful what to filter here because many characters are allowed
-            if (!value) return ''
-            value = value.toString()
-            return value.replace(/`|´/g, '');
-        }
-    },
-
     data() {
         return {
             theme: null,
@@ -162,6 +153,13 @@ Component.register('sw-theme-manager-detail', {
         createdComponent() {
             this.getTheme();
             this.setPageContext();
+        },
+
+        cssValue(value) {
+            // Be careful what to filter here because many characters are allowed
+            if (!value) return ''
+            value = value.toString()
+            return value.replace(/`|´/g, '');
         },
 
         getTheme() {

@@ -8,6 +8,7 @@ use Shopware\Core\Framework\App\AppEntity;
 use Shopware\Core\Framework\App\AppException;
 use Shopware\Core\Framework\App\Context\Gateway\AppContextGatewayResponse;
 use Shopware\Core\Framework\App\Payload\AppPayloadServiceHelper;
+use Shopware\Core\Framework\Gateway\Context\Command\Struct\ContextGatewayPayloadStruct;
 use Shopware\Core\Framework\Log\Package;
 
 /**
@@ -22,7 +23,7 @@ class AppContextGatewayPayloadService
     ) {
     }
 
-    public function request(string $url, AppContextGatewayPayload $payload, AppEntity $app): ?AppContextGatewayResponse
+    public function request(string $url, ContextGatewayPayloadStruct $payload, AppEntity $app): ?AppContextGatewayResponse
     {
         $optionRequest = $this->helper->createRequestOptions(
             $payload,

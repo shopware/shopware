@@ -6,7 +6,7 @@ use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Gateway\Context\Command\ChangeBillingAddressCommand;
 use Shopware\Core\Framework\Gateway\Context\Command\ChangeShippingAddressCommand;
-use Shopware\Core\Framework\Gateway\Context\Command\Handler\ChangeCheckoutAddressCommandHandler;
+use Shopware\Core\Framework\Gateway\Context\Command\Handler\ChangeAddressCommandHandler;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Test\Generator;
 
@@ -14,8 +14,8 @@ use Shopware\Core\Test\Generator;
  * @internal
  */
 #[Package('framework')]
-#[CoversClass(ChangeCheckoutAddressCommandHandler::class)]
-class ChangeCheckoutAddressCommandHandlerTest extends TestCase
+#[CoversClass(ChangeAddressCommandHandler::class)]
+class ChangeAddressCommandHandlerTest extends TestCase
 {
     public function testHandleBillingAddressCommand(): void
     {
@@ -23,7 +23,7 @@ class ChangeCheckoutAddressCommandHandlerTest extends TestCase
         $context = Generator::generateSalesChannelContext();
         $parameters = [];
 
-        $handler = new ChangeCheckoutAddressCommandHandler();
+        $handler = new ChangeAddressCommandHandler();
 
         $handler->handle($command, $context, $parameters);
 
@@ -36,7 +36,7 @@ class ChangeCheckoutAddressCommandHandlerTest extends TestCase
         $context = Generator::generateSalesChannelContext();
         $parameters = [];
 
-        $handler = new ChangeCheckoutAddressCommandHandler();
+        $handler = new ChangeAddressCommandHandler();
 
         $handler->handle($command, $context, $parameters);
 
@@ -48,6 +48,6 @@ class ChangeCheckoutAddressCommandHandlerTest extends TestCase
         static::assertSame([
             ChangeBillingAddressCommand::class,
             ChangeShippingAddressCommand::class,
-        ], ChangeCheckoutAddressCommandHandler::supportedCommands());
+        ], ChangeAddressCommandHandler::supportedCommands());
     }
 }

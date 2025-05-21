@@ -5,7 +5,7 @@ namespace Shopware\Core\Framework\Gateway\Context\Command;
 use Shopware\Core\Framework\Log\Package;
 
 #[Package('framework')]
-class RegisterCustomerCommand extends AbstractContextGatewayCommand
+class RegisterCustomerCommand extends AbstractContextGatewayCommand implements TokenCommandInterface
 {
     public const COMMAND_KEY = 'context_register-customer';
 

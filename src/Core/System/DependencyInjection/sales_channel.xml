@@ -247,7 +247,7 @@
             <tag name="shopware.context.gateway.command"/>
         </service>
 
-        <service id="Shopware\Core\Framework\Gateway\Context\Command\Handler\ChangeCheckoutAddressCommandHandler">
+        <service id="Shopware\Core\Framework\Gateway\Context\Command\Handler\ChangeAddressCommandHandler">
             <tag name="shopware.context.gateway.command"/>
         </service>
 

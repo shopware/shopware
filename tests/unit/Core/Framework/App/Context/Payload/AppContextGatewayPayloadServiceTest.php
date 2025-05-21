@@ -13,13 +13,14 @@ use Psr\Http\Message\ResponseInterface;
 use Shopware\Core\Framework\App\AppEntity;
 use Shopware\Core\Framework\App\AppException;
 use Shopware\Core\Framework\App\Context\Gateway\AppContextGatewayResponse;
-use Shopware\Core\Framework\App\Context\Payload\AppContextGatewayPayload;
 use Shopware\Core\Framework\App\Context\Payload\AppContextGatewayPayloadService;
 use Shopware\Core\Framework\App\Hmac\Guzzle\AuthMiddleware;
 use Shopware\Core\Framework\App\Payload\AppPayloadServiceHelper;
 use Shopware\Core\Framework\App\Payload\AppPayloadStruct;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\Gateway\Context\Command\Struct\ContextGatewayPayloadStruct;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
 use Shopware\Core\Test\Generator;
 
 /**
@@ -33,13 +34,13 @@ class AppContextGatewayPayloadServiceTest extends TestCase
     {
         $context = Generator::generateSalesChannelContext();
         $cart = Generator::createCart();
-        $customData = ['foo' => 'bar'];
+        $customData = new RequestDataBag(['foo' => 'bar']);
 
         $app = new AppEntity();
         $app->setVersion('1.0.0');
         $app->setAppSecret('devsecret');
 
-        $payload = new AppContextGatewayPayload($context, $cart, $customData);
+        $payload = new ContextGatewayPayloadStruct($cart, $context, $customData);
         $encodedPayload = \json_encode($this->encodePayload($payload), \JSON_THROW_ON_ERROR);
 
         $helper = $this->createMock(AppPayloadServiceHelper::class);
@@ -73,14 +74,14 @@ class AppContextGatewayPayloadServiceTest extends TestCase
     {
         $context = Generator::generateSalesChannelContext();
         $cart = Generator::createCart();
-        $customData = ['foo' => 'bar'];
+        $customData = new RequestDataBag(['foo' => 'bar']);
 
         $app = new AppEntity();
         $app->setName('TestApp');
         $app->setVersion('1.0.0');
         $app->setAppSecret('devsecret');
 
-        $payload = new AppContextGatewayPayload($context, $cart, $customData);
+        $payload = new ContextGatewayPayloadStruct($cart, $context, $customData);
 
         $e = new BadResponseException('Bad', new Request('POST', 'https://example.com'), new Response());
 
@@ -102,7 +103,7 @@ class AppContextGatewayPayloadServiceTest extends TestCase
     /**
      * @return array<string, mixed>
      */
-    private function encodePayload(AppContextGatewayPayload $payload): array
+    private function encodePayload(ContextGatewayPayloadStruct $payload): array
     {
         return [
             'salesChannelContext' => $payload->getSalesChannelContext()->jsonSerialize(),

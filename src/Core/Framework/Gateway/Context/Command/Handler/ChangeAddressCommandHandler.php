@@ -12,7 +12,7 @@ use Shopware\Core\System\SalesChannel\SalesChannelContext;
  * @extends AbstractContextGatewayCommandHandler<ChangeBillingAddressCommand|ChangeShippingAddressCommand>
  */
 #[Package('framework')]
-class ChangeCheckoutAddressCommandHandler extends AbstractContextGatewayCommandHandler
+class ChangeAddressCommandHandler extends AbstractContextGatewayCommandHandler
 {
     public function handle(AbstractContextGatewayCommand $command, SalesChannelContext $context, array &$parameters): void
     {

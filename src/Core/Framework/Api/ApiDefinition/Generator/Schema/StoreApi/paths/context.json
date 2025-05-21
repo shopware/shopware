@@ -129,6 +129,12 @@
                 "responses": {
                     "200": {
                         "$ref": "#/components/responses/ContextTokenResponse"
+                    },
+                    "400": {
+                        "description": "App server communication error"
+                    },
+                    "422": {
+                        "description": "Error provided by App Server with message to show customer"
                     }
                 },
                 "security": [

@@ -11,7 +11,6 @@ use Shopware\Core\Framework\App\AppEntity;
 use Shopware\Core\Framework\App\AppException;
 use Shopware\Core\Framework\App\Context\Gateway\AppContextGateway;
 use Shopware\Core\Framework\App\Context\Gateway\AppContextGatewayResponse;
-use Shopware\Core\Framework\App\Context\Payload\AppContextGatewayPayload;
 use Shopware\Core\Framework\App\Context\Payload\AppContextGatewayPayloadService;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
@@ -69,7 +68,7 @@ class AppContextGatewayTest extends TestCase
             ->with($expectedAppCriteria, $context->getContext())
             ->willReturn($appResult);
 
-        $expectedAppPayload = new AppContextGatewayPayload($context, $cart, $data->all());
+        $expectedAppPayload = new ContextGatewayPayloadStruct($cart, $context, $data);
 
         $appResponse = new AppContextGatewayResponse([['command' => 'context_change-currency', 'payload' => ['iso' => 'EUR']]]);
 

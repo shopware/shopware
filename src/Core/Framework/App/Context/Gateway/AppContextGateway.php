@@ -5,7 +5,6 @@ namespace Shopware\Core\Framework\App\Context\Gateway;
 use Shopware\Core\Framework\App\AppCollection;
 use Shopware\Core\Framework\App\AppEntity;
 use Shopware\Core\Framework\App\AppException;
-use Shopware\Core\Framework\App\Context\Payload\AppContextGatewayPayload;
 use Shopware\Core\Framework\App\Context\Payload\AppContextGatewayPayloadService;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
@@ -48,15 +47,13 @@ class AppContextGateway
         $appName = $payload->getData()->get('appName');
         $app = $this->getApp($appName, $payload->getSalesChannelContext()->getContext());
 
-        $appPayload = new AppContextGatewayPayload($payload->getSalesChannelContext(), $payload->getCart(), $payload->getData()->all());
-
         $contextGatewayUrl = $app->getContextGatewayUrl();
 
         if (!$contextGatewayUrl) {
             throw AppException::gatewayNotConfigured($app->getName(), 'context');
         }
 
-        $appResponse = $this->payloadService->request($contextGatewayUrl, $appPayload, $app);
+        $appResponse = $this->payloadService->request($contextGatewayUrl, $payload, $app);
 
         if (!$appResponse) {
             throw AppException::gatewayRequestFailed($app->getName(), 'context');

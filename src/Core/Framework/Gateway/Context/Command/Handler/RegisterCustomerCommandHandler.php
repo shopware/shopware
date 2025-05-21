@@ -6,7 +6,6 @@ use Shopware\Core\Checkout\Customer\SalesChannel\AbstractRegisterRoute;
 use Shopware\Core\Framework\Gateway\Context\Command\AbstractContextGatewayCommand;
 use Shopware\Core\Framework\Gateway\Context\Command\RegisterCustomerCommand;
 use Shopware\Core\Framework\Log\Package;
-use Shopware\Core\Framework\Validation\DataBag\DataBag;
 use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
 use Shopware\Core\PlatformRequest;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
@@ -27,19 +26,7 @@ class RegisterCustomerCommandHandler extends AbstractContextGatewayCommandHandle
 
     public function handle(AbstractContextGatewayCommand $command, SalesChannelContext $context, array &$parameters): void
     {
-        /** @var array<string, mixed> $data */
-        $data = $command->data;
-        $data['billing'] = new DataBag($data['billingAddress']);
-
-        if (\array_key_exists('shippingAddress', $data) && \is_array($data['shippingAddress'])) {
-            $data['shipping'] = new DataBag($data['shippingAddress']);
-        }
-
-        if (\array_key_exists('vatIds', $data) && \is_array($data['vatIds'])) {
-            $data['vatIds'] = new DataBag($data['vatIds']);
-        }
-
-        $data = new RequestDataBag($data);
+        $data = new RequestDataBag($command->data);
         $response = $this->registerRoute->register($data, $context);
 
         $parameters['token'] = $response->headers->get(PlatformRequest::HEADER_CONTEXT_TOKEN);

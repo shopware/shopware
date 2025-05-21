@@ -3,9 +3,8 @@
 namespace Shopware\Core\Framework\Gateway\Context\Command\Executor;
 
 use Shopware\Core\Framework\Gateway\Context\Command\ContextGatewayCommandCollection;
-use Shopware\Core\Framework\Gateway\Context\Command\LoginCustomerCommand;
-use Shopware\Core\Framework\Gateway\Context\Command\RegisterCustomerCommand;
 use Shopware\Core\Framework\Gateway\Context\Command\Registry\ContextGatewayCommandRegistry;
+use Shopware\Core\Framework\Gateway\Context\Command\TokenCommandInterface;
 use Shopware\Core\Framework\Gateway\GatewayException;
 use Shopware\Core\Framework\Log\ExceptionLogger;
 use Shopware\Core\Framework\Log\Package;
@@ -50,7 +49,7 @@ class ContextGatewayCommandExecutor
 
         foreach ($commands as $command) {
             // these commands are already handled
-            if ($command instanceof RegisterCustomerCommand || $command instanceof LoginCustomerCommand) {
+            if ($command instanceof TokenCommandInterface) {
                 continue;
             }
 

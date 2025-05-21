@@ -179,7 +179,7 @@ class ProductSearchKeywordAnalyzerTest extends TestCase
 
         $keywords = array_values($words1);
         sort($keywords);
-        
+
         // Both results should be identical
         static::assertSame($words1, $words2);
         static::assertEquals(

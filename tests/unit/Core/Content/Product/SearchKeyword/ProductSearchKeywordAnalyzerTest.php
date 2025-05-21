@@ -9,9 +9,9 @@ use Shopware\Core\Content\Product\ProductEntity;
 use Shopware\Core\Content\Product\SearchKeyword\AnalyzedKeyword;
 use Shopware\Core\Content\Product\SearchKeyword\ProductSearchKeywordAnalyzer;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Term\Filter\AbstractTokenFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Term\Filter\TokenFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Term\Tokenizer;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\Term\Filter\AbstractTokenFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Term\TokenizerInterface;
 use Shopware\Core\System\Tag\TagCollection;
 use Shopware\Core\System\Tag\TagEntity;
@@ -241,21 +241,6 @@ class ProductSearchKeywordAnalyzerTest extends TestCase
         ];
     }
 
-    private static function getLongTextDescription(): string
-    {
-        return self::getLongTextPart1() . self::getLongTextPart2();
-    }
-
-    private static function getLongTextPart1(): string
-    {
-        return 'This is a long description. This is a long description. This is a long description. This is a long description. This is a long description. This is a long description. This is a long description. This is a long description. This is a long description. This is a long description. This is a long description. This is a long description. This is a long description. This is a long description. This is a long description. This is a long description. This is a long description. This is a long descripti';
-    }
-
-    private static function getLongTextPart2(): string
-    {
-        return 'on. This is a long description. This is a long description. This is a long description. This is a long description. This is a long description. This is a long description. This is a long description. This is a long description. This is a long description. This is a long description. This is a long description. This is a long description. This is a long description. This is a long description. This is a long description. This is a long description. This is a long description.';
-    }
-
     public function testAssociativeArrayOrderIndependence(): void
     {
         $tokenizer = $this->createMock(TokenizerInterface::class);
@@ -306,14 +291,28 @@ class ProductSearchKeywordAnalyzerTest extends TestCase
         $words2 = $result2->map(fn (AnalyzedKeyword $keyword) => $keyword->getKeyword());
         sort($words2);
 
-        $keywords = array_values($words1);
-        sort($keywords);
+        sort($words1);
 
         // Both results should be identical
         static::assertSame($words1, $words2);
         static::assertEquals(
             ['value1', 'value1 value2 value3', 'value2', 'value3'],
-            $keywords,
+            $words1,
         );
+    }
+
+    private static function getLongTextDescription(): string
+    {
+        return self::getLongTextPart1() . self::getLongTextPart2();
+    }
+
+    private static function getLongTextPart1(): string
+    {
+        return 'This is a long description. This is a long description. This is a long description. This is a long description. This is a long description. This is a long description. This is a long description. This is a long description. This is a long description. This is a long description. This is a long description. This is a long description. This is a long description. This is a long description. This is a long description. This is a long description. This is a long description. This is a long descripti';
+    }
+
+    private static function getLongTextPart2(): string
+    {
+        return 'on. This is a long description. This is a long description. This is a long description. This is a long description. This is a long description. This is a long description. This is a long description. This is a long description. This is a long description. This is a long description. This is a long description. This is a long description. This is a long description. This is a long description. This is a long description. This is a long description. This is a long description.';
     }
 }

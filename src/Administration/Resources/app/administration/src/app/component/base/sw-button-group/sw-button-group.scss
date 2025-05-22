@@ -69,7 +69,10 @@
             &.sw-button--critical,
             &.sw-button--contrast {
                 position: relative;
-                margin-left: 8px;
+
+                &:not(:first-child) {
+                    margin-left: 8px;
+                }
             }
         }
 

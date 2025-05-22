@@ -3,7 +3,7 @@
 return [
     'filePatterns' => [
         '**/Test/**', // Testing
-        '**/src/WebInstaller/**', // WebInstaller
+        '**/src/WebInstaller/**', // WebInstaller TODO: remove after first 6.7 release
         '**/src/Core/Framework/Update/**', // Updater
         '**/src/Core/TestBootstrapper.php', // Testing
         '**/src/Core/Framework/Demodata/Faker/Commerce.php', // dev dependency

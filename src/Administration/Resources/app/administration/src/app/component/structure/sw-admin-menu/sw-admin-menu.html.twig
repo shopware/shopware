@@ -127,10 +127,10 @@
             <PopoverPortal>
                 <PopoverContent :side-offset="8" side="top" class="sw-admin-menu__account-menu">
                     <div class="sw-admin-menu__account-menu-item-list">
-                        <router-link @click="showAccountMenu = false" :to="{ name: 'sw.profile.index' }" data-variant="primary" class="sw-admin-menu__account-menu-item" href="/bar">
+                        <router-link @click="showAccountMenu = false" :to="{ name: 'sw.profile.index' }" :data-variant="$route.name.startsWith('sw.profile') ? 'selected' : 'primary'" class="sw-admin-menu__account-menu-item" href="/bar">
                             <mt-icon
-                                name="regular-user"
-                                color="var(--color-icon-primary-default)"
+                                :name="`${$route.name.startsWith('sw.profile') ? 'solid' : 'regular'}-user`"
+                                :color="$route.name.startsWith('sw.profile') ? 'var(--color-icon-brand-default)' : 'var(--color-icon-primary-default)'"
                                 size="14px"
                             />
 

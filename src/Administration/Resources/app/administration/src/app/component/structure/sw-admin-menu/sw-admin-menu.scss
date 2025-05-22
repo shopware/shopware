@@ -285,6 +285,11 @@
     }
   }
 
+  &[data-variant="selected"] {
+    color: var(--color-text-brand-default);
+    background-color: var(--color-background-brand-default);
+  }
+
   &[data-variant="critical"] {
     color: var(--color-text-critical-default);
 

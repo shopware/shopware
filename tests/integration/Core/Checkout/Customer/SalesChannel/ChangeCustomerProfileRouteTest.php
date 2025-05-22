@@ -25,6 +25,7 @@ use Shopware\Core\Test\Stub\Framework\IdsCollection;
 use Shopware\Core\Test\TestDefaults;
 use Symfony\Bundle\FrameworkBundle\KernelBrowser;
 use Symfony\Component\HttpFoundation\Response;
+use function PHPStan\dumpType;
 
 /**
  * @internal
@@ -670,8 +671,8 @@ class ChangeCustomerProfileRouteTest extends TestCase
         $criteria = (new Criteria())
             ->addSorting(new FieldSorting('salutationKey'));
 
+        /** @var list<string> $ids */
         $ids = $repository->searchIds($criteria, Context::createDefaultContext())->getIds();
-        static::assertContainsOnlyString($ids);
 
         return $ids;
     }

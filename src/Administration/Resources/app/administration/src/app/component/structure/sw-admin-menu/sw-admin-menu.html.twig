@@ -16,11 +16,12 @@
     </div>
 
     <div class="sw-admin-menu__navigation">
-        <div>
+        <RovingFocusGroup as="div">
             <ul class="sw-admin-menu__modules">
                 <li
                     v-for="module in MODULES"
                     :key="module.id">
+                    <RovingFocusItem as-child>
                     <router-link
                         :to="{ name: module.to }"
                         class="sw-admin-menu__nav-item"
@@ -36,12 +37,14 @@
 
                         <span>{{ module.name }}</span>
                     </router-link>
+                    </RovingFocusItem>
 
                     <ul v-if="module.hasOwnProperty('children') && (module.match($route) !== 'none' || !!module.children && module.children.some(subModule => subModule.match($route) !== 'none'))" style="position: relative; list-style: none">
                         <div style="position: absolute; width: 1px; background: var(--color-border-primary-default); height: calc(100% - 5px * 2); top: 50%; transform: translateY(-50%); left: 17.5px"></div>
 
                         <li v-for="subModule in module.children"
                             :key="subModule.id">
+                            <RovingFocusItem as-child>
                             <router-link
                                     class="sw-admin-menu__nav-item"
                                     :class="{
@@ -54,11 +57,12 @@
 
                                 <span>{{ subModule.name }}</span>
                             </router-link>
+                            </RovingFocusItem>
                         </li>
                     </ul>
                 </li>
             </ul>
-        </div>
+        </RovingFocusGroup>
 
         <div>
             <mt-text weight="medium"

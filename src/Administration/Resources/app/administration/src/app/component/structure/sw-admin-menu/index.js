@@ -5,7 +5,9 @@ import {
     PopoverRoot,
     PopoverTrigger,
     PopoverPortal,
-    PopoverContent
+    PopoverContent,
+    RovingFocusItem,
+    RovingFocusGroup
 } from 'reka-ui';
 const { Criteria } = Shopware.Data;
 
@@ -163,7 +165,9 @@ export default {
         PopoverRoot,
         PopoverContent,
         PopoverTrigger,
-        PopoverPortal
+        PopoverPortal,
+        RovingFocusGroup,
+        RovingFocusItem
     },
 
     inject: [

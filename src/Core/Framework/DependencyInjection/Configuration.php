@@ -921,6 +921,11 @@ class Configuration implements ConfigurationInterface
                     ->scalarPrototype()->end()
                 ->end()
                 ->booleanNode('enforce_message_size')->defaultFalse()->end()
+                ->arrayNode('stats')
+                    ->children()
+                        ->booleanNode('enabled')->defaultTrue()->end()
+                        ->integerNode('time_span')->defaultValue(300)->end()
+                    ->end()
             ->end();
 
         return $rootNode;

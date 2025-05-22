@@ -50,7 +50,7 @@ class AdminSearcherTest extends TestCase
     public function testElasticSearch(): void
     {
         $this->client
-            ->expects(static::once())
+            ->expects($this->once())
             ->method('msearch')
             ->with([
                 'body' => [
@@ -123,15 +123,15 @@ class AdminSearcherTest extends TestCase
 
         static::assertNotEmpty($data['product']);
 
-        static::assertEquals(1, $data['product']['total']);
-        static::assertEquals('product-listing', $data['product']['indexer']);
-        static::assertEquals('sw-admin-product-listing', $data['product']['index']);
+        static::assertSame(1, $data['product']['total']);
+        static::assertSame('product-listing', $data['product']['indexer']);
+        static::assertSame('sw-admin-product-listing', $data['product']['index']);
     }
 
     public function testSearchWithLimit(): void
     {
         $this->client
-            ->expects(static::once())
+            ->expects($this->once())
             ->method('msearch')
             ->with([
                 'body' => [
@@ -207,9 +207,9 @@ class AdminSearcherTest extends TestCase
 
         static::assertNotEmpty($data['product']);
 
-        static::assertEquals(1, $data['product']['total']);
-        static::assertEquals('product-listing', $data['product']['indexer']);
-        static::assertEquals('sw-admin-product-listing', $data['product']['index']);
+        static::assertSame(1, $data['product']['total']);
+        static::assertSame('product-listing', $data['product']['indexer']);
+        static::assertSame('sw-admin-product-listing', $data['product']['index']);
     }
 
     public function testSearchWithUndefinedIndexer(): void

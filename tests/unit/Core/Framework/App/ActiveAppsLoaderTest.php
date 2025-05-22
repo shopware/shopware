@@ -19,7 +19,7 @@ class ActiveAppsLoaderTest extends TestCase
     {
         $connection = $this->createMock(Connection::class);
         $connection
-            ->expects(static::exactly(2))
+            ->expects($this->exactly(2))
             ->method('fetchAllAssociative')
             ->willReturn([
                 [
@@ -46,21 +46,21 @@ class ActiveAppsLoaderTest extends TestCase
         ];
 
         // call twice to test it gets cached
-        static::assertEquals($expected, $activeAppsLoader->getActiveApps());
-        static::assertEquals($expected, $activeAppsLoader->getActiveApps());
+        static::assertSame($expected, $activeAppsLoader->getActiveApps());
+        static::assertSame($expected, $activeAppsLoader->getActiveApps());
 
         // reset cache
 
         $activeAppsLoader->reset();
 
-        static::assertEquals($expected, $activeAppsLoader->getActiveApps());
+        static::assertSame($expected, $activeAppsLoader->getActiveApps());
     }
 
     public function testLoadAppsFromLocal(): void
     {
         $connection = $this->createMock(Connection::class);
         $connection
-            ->expects(static::once())
+            ->expects($this->once())
             ->method('fetchAllAssociative')
             ->willThrowException(new \Exception('test'));
 
@@ -89,6 +89,6 @@ class ActiveAppsLoaderTest extends TestCase
             ],
         ];
 
-        static::assertEquals($expected, $activeAppsLoader->getActiveApps());
+        static::assertSame($expected, $activeAppsLoader->getActiveApps());
     }
 }

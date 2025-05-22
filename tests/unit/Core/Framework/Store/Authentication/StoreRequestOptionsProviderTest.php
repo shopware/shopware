@@ -34,13 +34,13 @@ class StoreRequestOptionsProviderTest extends TestCase
     public function testGetAuthenticationHeaderContainsShopSecretIfExists(): void
     {
         $systemConfigService = static::createMock(SystemConfigService::class);
-        $systemConfigService->expects(static::once())
+        $systemConfigService->expects($this->once())
             ->method('getString')
             ->with('core.store.shopSecret')
             ->willReturn('store-secret');
 
         $provider = new StoreRequestOptionsProvider(
-            $this->configureUserRepositorySearchMock(new UserCollection(), static::once()),
+            $this->configureUserRepositorySearchMock(new UserCollection(), $this->once()),
             $systemConfigService,
             new InstanceService('sw-version', 'instance-id'),
             static::createMock(LocaleProvider::class)
@@ -51,19 +51,19 @@ class StoreRequestOptionsProviderTest extends TestCase
         );
 
         static::assertArrayHasKey('X-Shopware-Shop-Secret', $authHeaders);
-        static::assertEquals('store-secret', $authHeaders['X-Shopware-Shop-Secret']);
+        static::assertSame('store-secret', $authHeaders['X-Shopware-Shop-Secret']);
     }
 
     public function testGetAuthenticationHeaderDoesNotContainsShopSecretIfNotExists(): void
     {
         $systemConfigService = static::createMock(SystemConfigService::class);
-        $systemConfigService->expects(static::once())
+        $systemConfigService->expects($this->once())
             ->method('getString')
             ->with('core.store.shopSecret')
             ->willReturn('');
 
         $provider = new StoreRequestOptionsProvider(
-            $this->configureUserRepositorySearchMock(new UserCollection(), static::once()),
+            $this->configureUserRepositorySearchMock(new UserCollection(), $this->once()),
             $systemConfigService,
             new InstanceService('sw-version', 'instance-id'),
             static::createMock(LocaleProvider::class)
@@ -85,7 +85,7 @@ class StoreRequestOptionsProviderTest extends TestCase
         ]);
 
         $provider = new StoreRequestOptionsProvider(
-            $this->configureUserRepositorySearchMock(new UserCollection([$user]), static::once()),
+            $this->configureUserRepositorySearchMock(new UserCollection([$user]), $this->once()),
             static::createMock(SystemConfigService::class),
             new InstanceService('sw-version', 'instance-id'),
             static::createMock(LocaleProvider::class)
@@ -96,13 +96,13 @@ class StoreRequestOptionsProviderTest extends TestCase
         );
 
         static::assertArrayHasKey('X-Shopware-Platform-Token', $authHeaders);
-        static::assertEquals('sbp-token', $authHeaders['X-Shopware-Platform-Token']);
+        static::assertSame('sbp-token', $authHeaders['X-Shopware-Platform-Token']);
     }
 
     public function testGetAuthenticationHeaderThrowsIfUserIdIsMissingInAdminApiSource(): void
     {
         $provider = new StoreRequestOptionsProvider(
-            $this->configureUserRepositorySearchMock(new UserCollection(), static::never()),
+            $this->configureUserRepositorySearchMock(new UserCollection(), $this->never()),
             static::createMock(SystemConfigService::class),
             new InstanceService('sw-version', 'instance-id'),
             static::createMock(LocaleProvider::class)
@@ -118,7 +118,7 @@ class StoreRequestOptionsProviderTest extends TestCase
     public function testGetAuthenticationHeaderReturnsNullIfUserWasNotFound(): void
     {
         $provider = new StoreRequestOptionsProvider(
-            $this->configureUserRepositorySearchMock(new UserCollection(), static::once()),
+            $this->configureUserRepositorySearchMock(new UserCollection(), $this->once()),
             static::createMock(SystemConfigService::class),
             new InstanceService('sw-version', 'instance-id'),
             static::createMock(LocaleProvider::class)
@@ -140,7 +140,7 @@ class StoreRequestOptionsProviderTest extends TestCase
         ]);
 
         $provider = new StoreRequestOptionsProvider(
-            $this->configureUserRepositorySearchMock(new UserCollection([$user]), static::once()),
+            $this->configureUserRepositorySearchMock(new UserCollection([$user]), $this->once()),
             static::createMock(SystemConfigService::class),
             new InstanceService('sw-version', 'instance-id'),
             static::createMock(LocaleProvider::class)
@@ -151,13 +151,13 @@ class StoreRequestOptionsProviderTest extends TestCase
         );
 
         static::assertArrayHasKey('X-Shopware-Platform-Token', $authHeaders);
-        static::assertEquals('sbp-token', $authHeaders['X-Shopware-Platform-Token']);
+        static::assertSame('sbp-token', $authHeaders['X-Shopware-Platform-Token']);
     }
 
     public function testGetAuthenticationHeaderReturnsNullIfNoUserHasATokenSet(): void
     {
         $provider = new StoreRequestOptionsProvider(
-            $this->configureUserRepositorySearchMock(new UserCollection(), static::once()),
+            $this->configureUserRepositorySearchMock(new UserCollection(), $this->once()),
             static::createMock(SystemConfigService::class),
             new InstanceService('sw-version', 'instance-id'),
             static::createMock(LocaleProvider::class)
@@ -173,7 +173,7 @@ class StoreRequestOptionsProviderTest extends TestCase
     public function testGetAuthenticationHeaderThrowsIfContextIsNotSystemNorAdminApiSource(): void
     {
         $provider = new StoreRequestOptionsProvider(
-            $this->configureUserRepositorySearchMock(new UserCollection(), static::never()),
+            $this->configureUserRepositorySearchMock(new UserCollection(), $this->never()),
             static::createMock(SystemConfigService::class),
             new InstanceService('sw-version', 'instance-id'),
             static::createMock(LocaleProvider::class)
@@ -188,13 +188,13 @@ class StoreRequestOptionsProviderTest extends TestCase
     public function testGetDefaultQueryParametersReturnsShopwareIdAndLicenseDomainFromServices(): void
     {
         $systemConfigService = static::createMock(SystemConfigService::class);
-        $systemConfigService->expects(static::once())
+        $systemConfigService->expects($this->once())
             ->method('get')
             ->with('core.store.licenseHost')
             ->willReturn('domain.shopware.store');
 
         $provider = new StoreRequestOptionsProvider(
-            $this->configureUserRepositorySearchMock(new UserCollection(), static::never()),
+            $this->configureUserRepositorySearchMock(new UserCollection(), $this->never()),
             $systemConfigService,
             new InstanceService('sw-version', 'instance-id'),
             static::createMock(LocaleProvider::class)
@@ -203,10 +203,10 @@ class StoreRequestOptionsProviderTest extends TestCase
         $queries = $provider->getDefaultQueryParameters(Context::createDefaultContext());
 
         static::assertArrayHasKey('domain', $queries);
-        static::assertEquals('domain.shopware.store', $queries['domain']);
+        static::assertSame('domain.shopware.store', $queries['domain']);
 
         static::assertArrayHasKey('shopwareVersion', $queries);
-        static::assertEquals('sw-version', $queries['shopwareVersion']);
+        static::assertSame('sw-version', $queries['shopwareVersion']);
     }
 
     public function testGetDefaultQueryParametersDelegatesToLocaleProvider(): void
@@ -214,13 +214,13 @@ class StoreRequestOptionsProviderTest extends TestCase
         $context = Context::createDefaultContext(new AdminApiSource('user-id'));
 
         $localeProvider = static::createMock(LocaleProvider::class);
-        $localeProvider->expects(static::once())
+        $localeProvider->expects($this->once())
             ->method('getLocaleFromContext')
             ->with($context)
             ->willReturn('locale-from-provider');
 
         $provider = new StoreRequestOptionsProvider(
-            $this->configureUserRepositorySearchMock(new UserCollection(), static::never()),
+            $this->configureUserRepositorySearchMock(new UserCollection(), $this->never()),
             static::createMock(SystemConfigService::class),
             new InstanceService('sw-version', 'instance-id'),
             $localeProvider
@@ -229,7 +229,7 @@ class StoreRequestOptionsProviderTest extends TestCase
         $queries = $provider->getDefaultQueryParameters($context);
 
         static::assertArrayHasKey('language', $queries);
-        static::assertEquals('locale-from-provider', $queries['language']);
+        static::assertSame('locale-from-provider', $queries['language']);
     }
 
     private function configureUserRepositorySearchMock(

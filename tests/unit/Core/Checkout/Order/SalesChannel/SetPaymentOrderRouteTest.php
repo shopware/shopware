@@ -85,7 +85,7 @@ class SetPaymentOrderRouteTest extends TestCase
 
         $salesChannelContext = $this->createMock(SalesChannelContext::class);
         $salesChannelContext
-            ->expects(static::once())
+            ->expects($this->once())
             ->method('getCustomer')
             ->willReturn($customer);
 
@@ -107,7 +107,7 @@ class SetPaymentOrderRouteTest extends TestCase
 
         $gatewayRoute = $this->createMock(AbstractCheckoutGatewayRoute::class);
         $gatewayRoute
-            ->expects(static::once())
+            ->expects($this->once())
             ->method('load');
 
         $paymentOrderRoute = new SetPaymentOrderRoute(
@@ -125,7 +125,7 @@ class SetPaymentOrderRouteTest extends TestCase
 
         $salesChannelContext = $this->createMock(SalesChannelContext::class);
         $salesChannelContext
-            ->expects(static::once())
+            ->expects($this->once())
             ->method('getCustomer')
             ->willReturn($customer);
 
@@ -155,7 +155,7 @@ class SetPaymentOrderRouteTest extends TestCase
 
         $gatewayRoute = $this->createMock(AbstractCheckoutGatewayRoute::class);
         $gatewayRoute
-            ->expects(static::once())
+            ->expects($this->once())
             ->method('load')
             ->willReturn($response);
 
@@ -174,7 +174,7 @@ class SetPaymentOrderRouteTest extends TestCase
 
         $salesChannelContext = $this->createMock(SalesChannelContext::class);
         $salesChannelContext
-            ->expects(static::once())
+            ->expects($this->once())
             ->method('getCustomer')
             ->willReturn($customer);
 
@@ -192,13 +192,16 @@ class SetPaymentOrderRouteTest extends TestCase
         $transactionState->setId(Uuid::randomHex());
         $transactionState->setPaymentMethodId(Uuid::randomHex());
         $transactionState->setStateId(Uuid::randomHex());
+        $transactionStateLastId = Uuid::randomHex();
         $transactionStateLast = new OrderTransactionEntity();
-        $transactionStateLast->setId(Uuid::randomHex());
+        $transactionStateLast->setId($transactionStateLastId);
         $transactionStateLast->setPaymentMethodId($paymentMethod->getId());
         $transactionStateLast->setStateId(Uuid::randomHex());
 
         $order = new OrderEntity();
         $order->setId(Uuid::randomHex());
+        $order->setPrimaryOrderTransactionId($transactionStateLastId);
+        $order->setPrimaryOrderTransaction($transactionStateLast);
         $order->setTransactions(new OrderTransactionCollection([$transactionState, $transactionStateLast]));
 
         /** @var StaticEntityRepository<OrderCollection> $staticRepository */
@@ -212,17 +215,17 @@ class SetPaymentOrderRouteTest extends TestCase
 
         $gatewayRoute = $this->createMock(AbstractCheckoutGatewayRoute::class);
         $gatewayRoute
-            ->expects(static::once())
+            ->expects($this->once())
             ->method('load')
             ->willReturn($response);
 
         $orderService = $this->createMock(OrderService::class);
         $orderService
-            ->expects(static::once())
+            ->expects($this->once())
             ->method('isPaymentChangeableByTransactionState')
             ->willReturn(true);
         $orderService
-            ->expects(static::exactly(2))
+            ->expects($this->exactly(2))
             ->method('orderTransactionStateTransition');
 
         $customer = new CustomerEntity();
@@ -231,7 +234,7 @@ class SetPaymentOrderRouteTest extends TestCase
 
         $orderConverter = $this->createMock(OrderConverter::class);
         $orderConverter
-            ->expects(static::once())
+            ->expects($this->once())
             ->method('assembleSalesChannelContext')
             ->willReturn($context);
 
@@ -282,7 +285,7 @@ class SetPaymentOrderRouteTest extends TestCase
 
         $orderRepository = $this->createMock(EntityRepository::class);
         $orderRepository
-            ->expects(static::exactly(2))
+            ->expects($this->exactly(2))
             ->method('search')
             ->willReturnOnConsecutiveCalls(
                 new EntitySearchResult(
@@ -304,7 +307,7 @@ class SetPaymentOrderRouteTest extends TestCase
             );
 
         $orderRepository
-            ->expects(static::once())
+            ->expects($this->once())
             ->method('update')
             ->willReturnCallback(function ($payload) use ($orderLater): EntityWrittenContainerEvent {
                 static::assertCount(1, $payload);
@@ -330,13 +333,13 @@ class SetPaymentOrderRouteTest extends TestCase
 
         $gatewayRoute = $this->createMock(AbstractCheckoutGatewayRoute::class);
         $gatewayRoute
-            ->expects(static::once())
+            ->expects($this->once())
             ->method('load')
             ->willReturn($response);
 
         $orderService = $this->createMock(OrderService::class);
         $orderService
-            ->expects(static::once())
+            ->expects($this->once())
             ->method('isPaymentChangeableByTransactionState')
             ->willReturn(true);
 
@@ -346,7 +349,7 @@ class SetPaymentOrderRouteTest extends TestCase
 
         $orderConverter = $this->createMock(OrderConverter::class);
         $orderConverter
-            ->expects(static::once())
+            ->expects($this->once())
             ->method('assembleSalesChannelContext')
             ->willReturn($context);
 

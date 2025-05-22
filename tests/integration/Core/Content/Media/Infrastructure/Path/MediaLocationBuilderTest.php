@@ -134,7 +134,7 @@ class MediaLocationBuilderTest extends TestCase
 
         $location = $locations[$ids->get('thumbnail')];
 
-        static::assertEquals('foo', $location->media->fileName);
+        static::assertSame('foo', $location->media->fileName);
         static::assertTrue($location->hasExtension('foo'));
     }
 
@@ -142,7 +142,7 @@ class MediaLocationBuilderTest extends TestCase
     {
         $connection = $this->createMock(Connection::class);
         $connection
-            ->expects(static::never())
+            ->expects($this->never())
             ->method('fetchAllAssociativeIndexed');
 
         $builder = new SqlMediaLocationBuilder(new EventDispatcher(), $connection);
@@ -182,7 +182,7 @@ class MediaLocationBuilderTest extends TestCase
 
         $location = $locations[$ids->get('media')];
 
-        static::assertEquals('foo', $location->fileName);
+        static::assertSame('foo', $location->fileName);
         static::assertTrue($location->hasExtension('foo'));
     }
 

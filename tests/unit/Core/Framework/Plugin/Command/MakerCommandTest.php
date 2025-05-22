@@ -27,7 +27,7 @@ class MakerCommandTest extends TestCase
     public function testExecute(): void
     {
         $scaffoldingWriter = $this->createMock(ScaffoldingWriter::class);
-        $scaffoldingWriter->expects(static::once())
+        $scaffoldingWriter->expects($this->once())
             ->method('write')
             ->with(static::callback(static function (StubCollection $stubCollection) {
                 $stub = $stubCollection->get('src/Resources/config/services.xml');
@@ -38,7 +38,7 @@ class MakerCommandTest extends TestCase
             }));
 
         $pluginService = $this->createMock(PluginService::class);
-        $pluginService->expects(static::once())
+        $pluginService->expects($this->once())
             ->method('getPluginByName')
             ->with('ExamplePlugin')
             ->willReturn($this->getPluginEntity());
@@ -52,7 +52,7 @@ class MakerCommandTest extends TestCase
         $tester->setInputs(['ExamplePlugin']);
         $res = $tester->execute([]);
 
-        static::assertEquals(Command::SUCCESS, $res);
+        static::assertSame(Command::SUCCESS, $res);
     }
 
     public function testExecuteWithNoNameErrors(): void
@@ -69,7 +69,7 @@ class MakerCommandTest extends TestCase
         $tester = new CommandTester($command);
         $res = $tester->execute([], ['interactive' => false]);
 
-        static::assertEquals(Command::FAILURE, $res);
+        static::assertSame(Command::FAILURE, $res);
         static::assertStringContainsString('Plugin name is required', $tester->getDisplay());
     }
 
@@ -78,7 +78,7 @@ class MakerCommandTest extends TestCase
         $scaffoldingWriter = $this->createMock(ScaffoldingWriter::class);
 
         $pluginService = $this->createMock(PluginService::class);
-        $pluginService->expects(static::once())
+        $pluginService->expects($this->once())
             ->method('getPluginByName')
             ->with('ExamplePlugin')
             ->willReturn(new PluginEntity());
@@ -92,7 +92,7 @@ class MakerCommandTest extends TestCase
         $tester->setInputs(['ExamplePlugin']);
         $res = $tester->execute([]);
 
-        static::assertEquals(Command::FAILURE, $res);
+        static::assertSame(Command::FAILURE, $res);
         static::assertStringContainsString('Plugin base path is null', $tester->getDisplay());
     }
 

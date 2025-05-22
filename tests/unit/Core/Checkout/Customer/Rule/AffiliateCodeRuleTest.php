@@ -81,7 +81,7 @@ class AffiliateCodeRuleTest extends TestCase
         $customer = new CustomerEntity();
         $customer->setAffiliateCode('testing');
         $salesChannelContext = $this->createMock(SalesChannelContext::class);
-        $salesChannelContext->expects(static::once())
+        $salesChannelContext->expects($this->once())
             ->method('getCustomer')
             ->willReturn($customer);
 
@@ -96,13 +96,13 @@ class AffiliateCodeRuleTest extends TestCase
         $customer = new CustomerEntity();
         $customer->setAffiliateCode($customerCode);
         $salesChannelContext = $this->createMock(SalesChannelContext::class);
-        $salesChannelContext->expects(static::once())
+        $salesChannelContext->expects($this->once())
             ->method('getCustomer')
             ->willReturn($hasCustomer ? $customer : null);
 
         $scope = new CheckoutRuleScope($salesChannelContext);
         $match = $rule->match($scope);
-        static::assertEquals($match, $isMatching);
+        static::assertSame($match, $isMatching);
     }
 
     /**

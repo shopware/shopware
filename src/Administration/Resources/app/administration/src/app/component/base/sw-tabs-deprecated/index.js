@@ -6,7 +6,6 @@
 import template from './sw-tabs-deprecated.html.twig';
 import './sw-tabs-deprecated.scss';
 
-const { Component } = Shopware;
 const util = Shopware.Utils;
 const dom = Shopware.Utils.dom;
 
@@ -25,7 +24,7 @@ const dom = Shopware.Utils.dom;
  *     </sw-tabs-item>
  * </sw-tabs>
  */
-Component.register('sw-tabs-deprecated', {
+export default {
     template,
 
     inject: ['feature'],
@@ -252,7 +251,7 @@ Component.register('sw-tabs-deprecated', {
             if (
                 this.$slots.default &&
                 // Check direct child
-                this.$slots.default({ active: this.active })?.[0]?.componentOptions?.propsData?.route
+                this.$slots.default({ active: this.active })?.[0]?.props?.route
             ) {
                 this.hasRoutes = true;
             }
@@ -260,7 +259,7 @@ Component.register('sw-tabs-deprecated', {
             if (
                 this.$slots.default &&
                 // Check sub child
-                this.$slots.default({ active: this.active })?.[0]?.children?.[0]?.componentOptions?.propsData?.route
+                this.$slots.default({ active: this.active })?.[0]?.children?.[0]?.props?.route
             ) {
                 this.hasRoutes = true;
             }
@@ -391,4 +390,4 @@ Component.register('sw-tabs-deprecated', {
             this.scrollbarOffset = dom.getScrollbarHeight(this.$refs.swTabContent);
         },
     },
-});
+};

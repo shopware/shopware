@@ -88,6 +88,6 @@ class NoManualSalesChannelContextCreationRule implements Rule
             return true;
         }
 
-        return $class->isSubclassOf(SalesChannelContext::class);
+        return $class->is(SalesChannelContext::class);
     }
 }

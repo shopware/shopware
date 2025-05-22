@@ -16,14 +16,23 @@ echo \json_encode([
         'test' => [
             ['path' => 'Core/Checkout'],
             ['path' => 'Core/Content'],
-            ['path' => 'Core/Framework'],
+            ['testsuite' => 'core-framework-batch1'],
+            ['testsuite' => 'core-framework-batch2'],
+            ['testsuite' => 'core-framework-batch3'],
             ['path' => 'Storefront'],
             ['path' => '{Administration,Elasticsearch}'],
             ['path' => '{Core/Installer,Core/Maintenance,Core/System}'],
             ['testsuite' => 'migration'],
             ['testsuite' => 'devops']
-            ],
+        ],
         'php' => $php,
         'db' => $db,
+        'include' => [
+            [
+                'test' => ['testsuite' => 'migration'],
+                'php' => '8.2',
+                'db' => 'mariadb:11'
+            ],
+        ]
     ]
 ], \JSON_THROW_ON_ERROR);

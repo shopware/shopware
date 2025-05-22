@@ -69,7 +69,7 @@ class EntityDeleteSubscriberTest extends TestCase
 
     public function testGetSubscribedEvents(): void
     {
-        static::assertEquals([
+        static::assertSame([
             EntityDeleteEvent::class => 'handleEntityDeleteEvent',
         ], EntityDeleteSubscriber::getSubscribedEvents());
     }
@@ -78,33 +78,33 @@ class EntityDeleteSubscriberTest extends TestCase
     {
         $productId = Uuid::randomBytes();
         $connection = $this->createMock(Connection::class);
-        $connection->expects(static::once())
+        $connection->expects($this->once())
             ->method('createQueryBuilder')
             ->willReturn(new QueryBuilder($connection));
 
-        $connection->expects(static::once())
+        $connection->expects($this->once())
             ->method('commit');
 
-        $connection->expects(static::never())
+        $connection->expects($this->never())
             ->method('rollBack');
 
         $statementMock = $this->createMock(Statement::class);
-        $statementMock->expects(static::exactly(4))
+        $statementMock->expects($this->exactly(4))
             ->method('bindValue')
             ->withAnyParameters()
             ->willReturnCallback(function ($key, $value) use ($productId): void {
                 if ($key === ':entity_name') {
-                    static::assertEquals(EntityWithSinglePrimaryKey::ENTITY_NAME, $value);
+                    static::assertSame(EntityWithSinglePrimaryKey::ENTITY_NAME, $value);
                     $this->requiredParameter[':entity_name'] = true;
                 }
 
                 if ($key === ':entity_ids') {
-                    static::assertEquals(json_encode(['id' => Uuid::fromBytesToHex($productId)]), $value);
+                    static::assertSame(json_encode(['id' => Uuid::fromBytesToHex($productId)]), $value);
                     $this->requiredParameter[':entity_ids'] = true;
                 }
             });
 
-        $connection->expects(static::once())
+        $connection->expects($this->once())
             ->method('prepare')
             ->willReturn($statementMock);
 
@@ -162,34 +162,34 @@ class EntityDeleteSubscriberTest extends TestCase
     {
         $productId = Uuid::randomBytes();
         $connection = $this->createMock(Connection::class);
-        $connection->expects(static::once())
+        $connection->expects($this->once())
             ->method('createQueryBuilder')
             ->willReturn(new QueryBuilder($connection));
 
-        $connection->expects(static::once())
+        $connection->expects($this->once())
             ->method('commit')
             ->willThrowException($this->createMock(DeadlockException::class));
 
-        $connection->expects(static::once())
+        $connection->expects($this->once())
             ->method('rollBack');
 
         $statementMock = $this->createMock(Statement::class);
-        $statementMock->expects(static::exactly(4))
+        $statementMock->expects($this->exactly(4))
             ->method('bindValue')
             ->withAnyParameters()
             ->willReturnCallback(function ($key, $value) use ($productId): void {
                 if ($key === ':entity_name') {
-                    static::assertEquals(EntityWithSinglePrimaryKey::ENTITY_NAME, $value);
+                    static::assertSame(EntityWithSinglePrimaryKey::ENTITY_NAME, $value);
                     $this->requiredParameter[':entity_name'] = true;
                 }
 
                 if ($key === ':entity_ids') {
-                    static::assertEquals(json_encode(['id' => Uuid::fromBytesToHex($productId)]), $value);
+                    static::assertSame(json_encode(['id' => Uuid::fromBytesToHex($productId)]), $value);
                     $this->requiredParameter[':entity_ids'] = true;
                 }
             });
 
-        $connection->expects(static::once())
+        $connection->expects($this->once())
             ->method('prepare')
             ->willReturn($statementMock);
 
@@ -246,23 +246,23 @@ class EntityDeleteSubscriberTest extends TestCase
     public function testHandleDeletedEventStoresDataMultipleEntities(): void
     {
         $connection = $this->createMock(Connection::class);
-        $connection->expects(static::once())
+        $connection->expects($this->once())
             ->method('createQueryBuilder')
             ->willReturn(new QueryBuilder($connection));
 
-        $connection->expects(static::once())
+        $connection->expects($this->once())
             ->method('commit');
 
-        $connection->expects(static::never())
+        $connection->expects($this->never())
             ->method('rollBack');
 
         $statementMock = $this->createMock(Statement::class);
         // assert bindValue to be called 2 * 4 times (2 entities with 5 parameters)
-        $statementMock->expects(static::exactly(8))
+        $statementMock->expects($this->exactly(8))
             ->method('bindValue')
             ->withAnyParameters();
 
-        $connection->expects(static::once())
+        $connection->expects($this->once())
             ->method('prepare')
             ->willReturn($statementMock);
 
@@ -322,7 +322,7 @@ class EntityDeleteSubscriberTest extends TestCase
     public function testHandleDeletedEventReturnsEarlyOnEmptyEvent(): void
     {
         $connection = $this->createMock(Connection::class);
-        $connection->expects(static::never())
+        $connection->expects($this->never())
             ->method('beginTransaction');
 
         $registry = new StaticDefinitionInstanceRegistry(
@@ -363,7 +363,7 @@ class EntityDeleteSubscriberTest extends TestCase
     public function testHandleDeletedEventIgnoresEntities(): void
     {
         $connection = $this->createMock(Connection::class);
-        $connection->expects(static::never())
+        $connection->expects($this->never())
             ->method('createQueryBuilder');
 
         $registry = new StaticDefinitionInstanceRegistry(
@@ -404,7 +404,7 @@ class EntityDeleteSubscriberTest extends TestCase
     public function testIfDeletionsAreNotStoredWhenConsentIsNotGiven(): void
     {
         $connection = $this->createMock(Connection::class);
-        $connection->expects(static::never())
+        $connection->expects($this->never())
             ->method('beginTransaction');
 
         $consentService = new ConsentService(
@@ -449,7 +449,7 @@ class EntityDeleteSubscriberTest extends TestCase
     public function testIfDeletionsAreNotStoredWhenCollectionIsDisabled(): void
     {
         $connection = $this->createMock(Connection::class);
-        $connection->expects(static::never())
+        $connection->expects($this->never())
             ->method('beginTransaction');
 
         $registry = new StaticDefinitionInstanceRegistry(
@@ -540,7 +540,7 @@ class NonStorageAwareField extends Field
 {
     protected function getSerializerClass(): string
     {
-        /** @phpstan-ignore-next-line Should be a class-string but we will never use this value */
+        /** @phpstan-ignore return.type (for test purpose) */
         return '';
     }
 }

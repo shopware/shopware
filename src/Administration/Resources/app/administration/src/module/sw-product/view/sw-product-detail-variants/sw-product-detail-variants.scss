@@ -1,14 +1,6 @@
 .sw-product-detail-variants {
-    &__generated-variants.sw-card {
-        .sw-card__content,
-        .sw-tabs__custom-content {
-            padding: 0;
-        }
-    }
-
-    .sw-card__configurator .sw-card__content {
+    &__generated-variants.mt-card .sw-tabs__custom-content {
         padding: 0;
-        background: #f8f9fa;
     }
 
     .sw-product-detail-variants__generated-variants.is--loading .mt-card__content {
@@ -25,6 +17,7 @@
             justify-content: center;
             align-items: center;
             height: 400px;
+            background: #f8f9fa;
 
             .sw-product-detail-variants__generated-variants-empty-state--label {
                 max-width: 240px;

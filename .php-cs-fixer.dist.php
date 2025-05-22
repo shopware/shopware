@@ -40,7 +40,15 @@ return (new Config())
         'php_unit_dedicate_assert' => ['target' => 'newest'],
         'php_unit_dedicate_assert_internal_type' => true,
         'php_unit_mock' => true,
-        'php_unit_test_case_static_method_calls' => ['call_type' => 'static'],
+        'php_unit_test_case_static_method_calls' => ['methods' => [
+            'any' => 'this',
+            'never' => 'this',
+            'atLeast' => 'this',
+            'atLeastOnce' => 'this',
+            'once' => 'this',
+            'exactly' => 'this',
+            'atMost' => 'this',
+        ]],
         'self_accessor' => false,
         'single_line_throw' => false,
         'single_quote' => ['strings_containing_single_quote_chars' => true],
@@ -60,5 +68,4 @@ return (new Config())
         (new Finder())
             ->in([__DIR__ . '/src', __DIR__ . '/tests'])
             ->exclude(['node_modules', '*/vendor/*'])
-            ->notPath('WebInstaller/Tests/_fixtures/Options.php')
     );

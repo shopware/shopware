@@ -48,7 +48,7 @@ test('As a merchant, I want to perform bulk edits on products information.', { t
             await ShopAdmin.expects(AdminProductDetail.priceGrossInput).toHaveValue(changes['grossPrice'].value);
             await ShopAdmin.expects(AdminProductDetail.activeForAllSalesChannelsToggle).not.toBeChecked();
             await ShopAdmin.expects(AdminProductDetail.manufacturerDropdownText).toHaveText(changes['manufacturer'].value);
-            await ShopAdmin.expects(AdminProductDetail.releaseDateInput).toHaveValue('2025/05/20, 00:00');
+            await ShopAdmin.expects(AdminProductDetail.releaseDateInput).toHaveValue('20/05/2025, 00:00');
             await ShopAdmin.expects(AdminProductDetail.stockInput).toHaveValue(changes['stock'].value);
             await ShopAdmin.expects(AdminProductDetail.restockTimeInput).toHaveValue('');
             await ShopAdmin.expects(AdminProductDetail.tagsInput).toContainText(originalTag.name);

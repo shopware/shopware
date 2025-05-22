@@ -6,7 +6,7 @@
         <h2>{{ $tc('sw-settings.index.title') }}
             <mt-icon
                 name="regular-chevron-right-xs"
-                size="16px"
+                size="12px"
             /> {{ $tc('sw-settings-media.general.title') }} </h2>
     </template>
     {% endblock %}
@@ -51,11 +51,9 @@
                         :help-text="$tc('sw-settings-media.3d.lightIntensity.helpText')"
                         :min="0"
                         :max="100"
-                        @input="onSliderChange"
                     />
                 </template>
             </sw-system-config>
-
         </sw-card-view>
     </template>
     {% endblock %}

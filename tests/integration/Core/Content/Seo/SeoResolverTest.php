@@ -47,13 +47,13 @@ class SeoResolverTest extends TestCase
         $this->createStorefrontSalesChannelContext($salesChannelId, 'test');
 
         $resolved = $this->seoResolver->resolve($context->getLanguageId(), $salesChannelId, '');
-        static::assertEquals(['pathInfo' => '/', 'isCanonical' => false], $resolved);
+        static::assertSame(['pathInfo' => '/', 'isCanonical' => false], $resolved);
 
         $resolved = $this->seoResolver->resolve($context->getLanguageId(), $salesChannelId, '/');
-        static::assertEquals(['pathInfo' => '/', 'isCanonical' => false], $resolved);
+        static::assertSame(['pathInfo' => '/', 'isCanonical' => false], $resolved);
 
         $resolved = $this->seoResolver->resolve($context->getLanguageId(), $salesChannelId, '//');
-        static::assertEquals(['pathInfo' => '/', 'isCanonical' => false], $resolved);
+        static::assertSame(['pathInfo' => '/', 'isCanonical' => false], $resolved);
     }
 
     public function testResolveSeoPathPassthrough(): void
@@ -63,10 +63,10 @@ class SeoResolverTest extends TestCase
         $this->createStorefrontSalesChannelContext($salesChannelId, 'test');
 
         $resolved = $this->seoResolver->resolve($context->getLanguageId(), $salesChannelId, '/foo/bar');
-        static::assertEquals(['pathInfo' => '/foo/bar', 'isCanonical' => false], $resolved);
+        static::assertSame(['pathInfo' => '/foo/bar', 'isCanonical' => false], $resolved);
 
         $resolved = $this->seoResolver->resolve($context->getLanguageId(), $salesChannelId, 'foo/bar');
-        static::assertEquals(['pathInfo' => '/foo/bar', 'isCanonical' => false], $resolved);
+        static::assertSame(['pathInfo' => '/foo/bar', 'isCanonical' => false], $resolved);
     }
 
     public function testResolveSeoPath(): void
@@ -96,61 +96,61 @@ class SeoResolverTest extends TestCase
 
         // pathInfo
         $resolved = $this->seoResolver->resolve($context->getLanguageId(), $salesChannelId, 'detail/1234');
-        static::assertEquals('/detail/1234', $resolved['pathInfo']);
-        static::assertEquals(0, $resolved['isCanonical']);
+        static::assertSame('/detail/1234', $resolved['pathInfo']);
+        static::assertFalse($resolved['isCanonical']);
         static::assertArrayHasKey('canonicalPathInfo', $resolved);
-        static::assertEquals('/awesome-product-v2', $resolved['canonicalPathInfo']);
+        static::assertSame('/awesome-product-v2', $resolved['canonicalPathInfo']);
         $resolved = $this->seoResolver->resolve($context->getLanguageId(), $salesChannelId, '/detail/1234');
-        static::assertEquals('/detail/1234', $resolved['pathInfo']);
-        static::assertEquals(0, $resolved['isCanonical']);
+        static::assertSame('/detail/1234', $resolved['pathInfo']);
+        static::assertFalse($resolved['isCanonical']);
         static::assertArrayHasKey('canonicalPathInfo', $resolved);
-        static::assertEquals('/awesome-product-v2', $resolved['canonicalPathInfo']);
+        static::assertSame('/awesome-product-v2', $resolved['canonicalPathInfo']);
         $resolved = $this->seoResolver->resolve($context->getLanguageId(), $salesChannelId, 'detail/1234/');
-        static::assertEquals('/detail/1234', $resolved['pathInfo']);
-        static::assertEquals(0, $resolved['isCanonical']);
+        static::assertSame('/detail/1234', $resolved['pathInfo']);
+        static::assertFalse($resolved['isCanonical']);
         static::assertArrayHasKey('canonicalPathInfo', $resolved);
-        static::assertEquals('/awesome-product-v2', $resolved['canonicalPathInfo']);
+        static::assertSame('/awesome-product-v2', $resolved['canonicalPathInfo']);
         $resolved = $this->seoResolver->resolve($context->getLanguageId(), $salesChannelId, '/detail/1234/');
-        static::assertEquals('/detail/1234', $resolved['pathInfo']);
-        static::assertEquals(0, $resolved['isCanonical']);
+        static::assertSame('/detail/1234', $resolved['pathInfo']);
+        static::assertFalse($resolved['isCanonical']);
         static::assertArrayHasKey('canonicalPathInfo', $resolved);
-        static::assertEquals('/awesome-product-v2', $resolved['canonicalPathInfo']);
+        static::assertSame('/awesome-product-v2', $resolved['canonicalPathInfo']);
 
         // old canonical
         $resolved = $this->seoResolver->resolve($context->getLanguageId(), $salesChannelId, 'awesome-product');
-        static::assertEquals('/detail/1234', $resolved['pathInfo']);
-        static::assertEquals(0, $resolved['isCanonical']);
+        static::assertSame('/detail/1234', $resolved['pathInfo']);
+        static::assertSame('0', $resolved['isCanonical']);
         static::assertArrayHasKey('canonicalPathInfo', $resolved);
-        static::assertEquals('/awesome-product-v2', $resolved['canonicalPathInfo']);
+        static::assertSame('/awesome-product-v2', $resolved['canonicalPathInfo']);
         $resolved = $this->seoResolver->resolve($context->getLanguageId(), $salesChannelId, '/awesome-product');
-        static::assertEquals('/detail/1234', $resolved['pathInfo']);
-        static::assertEquals(0, $resolved['isCanonical']);
+        static::assertSame('/detail/1234', $resolved['pathInfo']);
+        static::assertSame('0', $resolved['isCanonical']);
         static::assertArrayHasKey('canonicalPathInfo', $resolved);
-        static::assertEquals('/awesome-product-v2', $resolved['canonicalPathInfo']);
+        static::assertSame('/awesome-product-v2', $resolved['canonicalPathInfo']);
         $resolved = $this->seoResolver->resolve($context->getLanguageId(), $salesChannelId, 'awesome-product/');
-        static::assertEquals('/detail/1234', $resolved['pathInfo']);
-        static::assertEquals(0, $resolved['isCanonical']);
+        static::assertSame('/detail/1234', $resolved['pathInfo']);
+        static::assertSame('0', $resolved['isCanonical']);
         static::assertArrayHasKey('canonicalPathInfo', $resolved);
-        static::assertEquals('/awesome-product-v2', $resolved['canonicalPathInfo']);
+        static::assertSame('/awesome-product-v2', $resolved['canonicalPathInfo']);
         $resolved = $this->seoResolver->resolve($context->getLanguageId(), $salesChannelId, '/awesome-product/');
-        static::assertEquals('/detail/1234', $resolved['pathInfo']);
-        static::assertEquals(0, $resolved['isCanonical']);
+        static::assertSame('/detail/1234', $resolved['pathInfo']);
+        static::assertSame('0', $resolved['isCanonical']);
         static::assertArrayHasKey('canonicalPathInfo', $resolved);
-        static::assertEquals('/awesome-product-v2', $resolved['canonicalPathInfo']);
+        static::assertSame('/awesome-product-v2', $resolved['canonicalPathInfo']);
 
         // canonical
         $resolved = $this->seoResolver->resolve($context->getLanguageId(), $salesChannelId, 'awesome-product-v2');
-        static::assertEquals('/detail/1234', $resolved['pathInfo']);
-        static::assertEquals(1, $resolved['isCanonical']);
+        static::assertSame('/detail/1234', $resolved['pathInfo']);
+        static::assertSame('1', $resolved['isCanonical']);
         $resolved = $this->seoResolver->resolve($context->getLanguageId(), $salesChannelId, '/awesome-product-v2');
-        static::assertEquals('/detail/1234', $resolved['pathInfo']);
-        static::assertEquals(1, $resolved['isCanonical']);
+        static::assertSame('/detail/1234', $resolved['pathInfo']);
+        static::assertSame('1', $resolved['isCanonical']);
         $resolved = $this->seoResolver->resolve($context->getLanguageId(), $salesChannelId, 'awesome-product-v2/');
-        static::assertEquals('/detail/1234', $resolved['pathInfo']);
-        static::assertEquals(1, $resolved['isCanonical']);
+        static::assertSame('/detail/1234', $resolved['pathInfo']);
+        static::assertSame('1', $resolved['isCanonical']);
         $resolved = $this->seoResolver->resolve($context->getLanguageId(), $salesChannelId, '/awesome-product-v2/');
-        static::assertEquals('/detail/1234', $resolved['pathInfo']);
-        static::assertEquals(1, $resolved['isCanonical']);
+        static::assertSame('/detail/1234', $resolved['pathInfo']);
+        static::assertSame('1', $resolved['isCanonical']);
     }
 
     public function testResolveSeoPathWithCanonicalIsNull(): void
@@ -179,8 +179,8 @@ class SeoResolverTest extends TestCase
         ], Context::createDefaultContext());
 
         $resolved = $this->seoResolver->resolve($context->getLanguageId(), $salesChannelId, '/awesome-product/');
-        static::assertEquals('/detail/1234', $resolved['pathInfo']);
-        static::assertEquals(1, $resolved['isCanonical']);
+        static::assertSame('/detail/1234', $resolved['pathInfo']);
+        static::assertSame('1', $resolved['isCanonical']);
     }
 
     public function testResolveCanonMultiLang(): void
@@ -219,11 +219,11 @@ class SeoResolverTest extends TestCase
 
         $actual = $this->seoResolver->resolve($this->deLanguageId, $salesChannelDeId, 'awesome-product-de');
         static::assertArrayHasKey('id', $actual);
-        static::assertEquals($deId, Uuid::fromBytesToHex($actual['id']));
+        static::assertSame($deId, Uuid::fromBytesToHex($actual['id']));
 
         $actual = $this->seoResolver->resolve(Defaults::LANGUAGE_SYSTEM, $salesChannelDeId, 'awesome-product-en');
         static::assertArrayHasKey('id', $actual);
-        static::assertEquals($enId, Uuid::fromBytesToHex($actual['id']));
+        static::assertSame($enId, Uuid::fromBytesToHex($actual['id']));
     }
 
     public function testResolveSamePathForDifferentSalesChannels(): void
@@ -263,11 +263,11 @@ class SeoResolverTest extends TestCase
         $unknownSalesChannelId = Uuid::randomHex();
         // returns default for unknown sales channels
         $actual = $this->seoResolver->resolve(Defaults::LANGUAGE_SYSTEM, $unknownSalesChannelId, 'awesome-product');
-        static::assertEquals('/detail/default', $actual['pathInfo']);
+        static::assertSame('/detail/default', $actual['pathInfo']);
         static::assertTrue((bool) $actual['isCanonical']);
 
         $actual = $this->seoResolver->resolve(Defaults::LANGUAGE_SYSTEM, $otherSalesChannelId, 'awesome-product');
-        static::assertEquals('/detail/other', $actual['pathInfo']);
+        static::assertSame('/detail/other', $actual['pathInfo']);
         static::assertTrue((bool) $actual['isCanonical']);
     }
 

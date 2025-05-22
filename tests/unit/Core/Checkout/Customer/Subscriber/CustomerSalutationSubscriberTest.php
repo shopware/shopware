@@ -11,12 +11,14 @@ use Shopware\Core\Checkout\Customer\Subscriber\CustomerSalutationSubscriber;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityWriteResult;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenEvent;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 
 /**
  * @internal
  */
 #[CoversClass(CustomerSalutationSubscriber::class)]
+#[Package('checkout')]
 class CustomerSalutationSubscriberTest extends TestCase
 {
     private MockObject&Connection $connection;
@@ -32,7 +34,7 @@ class CustomerSalutationSubscriberTest extends TestCase
 
     public function testGetSubscribedEvents(): void
     {
-        static::assertEquals([
+        static::assertSame([
             CustomerEvents::CUSTOMER_WRITTEN_EVENT => 'setDefaultSalutation',
             CustomerEvents::CUSTOMER_ADDRESS_WRITTEN_EVENT => 'setDefaultSalutation',
         ], $this->salutationSubscriber->getSubscribedEvents());
@@ -56,7 +58,7 @@ class CustomerSalutationSubscriberTest extends TestCase
             [],
         );
 
-        $this->connection->expects(static::never())->method('executeStatement');
+        $this->connection->expects($this->never())->method('executeStatement');
 
         $this->salutationSubscriber->setDefaultSalutation($event);
     }
@@ -74,7 +76,7 @@ class CustomerSalutationSubscriberTest extends TestCase
             [],
         );
 
-        $this->connection->expects(static::once())
+        $this->connection->expects($this->once())
             ->method('executeStatement')
             ->willReturnCallback(function ($sql, $params) use ($customerId): int {
                 static::assertSame($params, [

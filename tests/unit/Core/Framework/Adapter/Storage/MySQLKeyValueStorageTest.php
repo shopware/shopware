@@ -29,7 +29,7 @@ class MySQLKeyValueStorageTest extends TestCase
 
     public function testHas(): void
     {
-        $this->connectionMock->expects(static::once())->method('fetchAllKeyValue')->willReturn([
+        $this->connectionMock->expects($this->once())->method('fetchAllKeyValue')->willReturn([
             'key-1' => 'value-1',
             'key-2' => null,
         ]);
@@ -41,20 +41,20 @@ class MySQLKeyValueStorageTest extends TestCase
 
     public function testGet(): void
     {
-        $this->connectionMock->expects(static::once())->method('fetchAllKeyValue')->willReturn([
+        $this->connectionMock->expects($this->once())->method('fetchAllKeyValue')->willReturn([
             'key-1' => 'value-1',
             'key-2' => null,
         ]);
 
-        static::assertEquals('value-1', $this->keyValueStorage->get('key-1', 'default'));
+        static::assertSame('value-1', $this->keyValueStorage->get('key-1', 'default'));
         static::assertNull($this->keyValueStorage->get('key-2'));
-        static::assertEquals('default', $this->keyValueStorage->get('key-2', 'default'));
-        static::assertEquals('default', $this->keyValueStorage->get('key-3', 'default'));
+        static::assertSame('default', $this->keyValueStorage->get('key-2', 'default'));
+        static::assertSame('default', $this->keyValueStorage->get('key-3', 'default'));
     }
 
     public function testRemove(): void
     {
-        $this->connectionMock->expects(static::once())->method('delete')->with('app_config', [
+        $this->connectionMock->expects($this->once())->method('delete')->with('app_config', [
             '`key`' => 'key-1',
         ]);
 
@@ -63,7 +63,7 @@ class MySQLKeyValueStorageTest extends TestCase
 
     public function testSet(): void
     {
-        $this->connectionMock->expects(static::once())->method('executeStatement')->with('REPLACE INTO `app_config` (`key`, `value`) VALUES (:key, :value)', [
+        $this->connectionMock->expects($this->once())->method('executeStatement')->with('REPLACE INTO `app_config` (`key`, `value`) VALUES (:key, :value)', [
             'key' => 'key-1',
             'value' => 'value-1',
         ]);
@@ -73,11 +73,11 @@ class MySQLKeyValueStorageTest extends TestCase
 
     public function testGetAfterRemoving(): void
     {
-        $this->connectionMock->expects(static::once())->method('fetchAllKeyValue')->willReturn([
+        $this->connectionMock->expects($this->once())->method('fetchAllKeyValue')->willReturn([
             'key-1' => 'value-1',
         ]);
 
-        $this->connectionMock->expects(static::once())->method('delete')->with('app_config', [
+        $this->connectionMock->expects($this->once())->method('delete')->with('app_config', [
             '`key`' => 'key-1',
         ]);
 
@@ -85,23 +85,23 @@ class MySQLKeyValueStorageTest extends TestCase
 
         $this->keyValueStorage->remove('key-1');
 
-        static::assertEquals('default', $this->keyValueStorage->get('key-1', 'default'));
+        static::assertSame('default', $this->keyValueStorage->get('key-1', 'default'));
     }
 
     public function testGetAfterSet(): void
     {
-        $this->connectionMock->expects(static::exactly(2))->method('fetchAllKeyValue')->willReturnOnConsecutiveCalls(
+        $this->connectionMock->expects($this->exactly(2))->method('fetchAllKeyValue')->willReturnOnConsecutiveCalls(
             ['key-1' => 'value-1'],
             ['key-1' => null],
         );
 
-        $this->connectionMock->expects(static::once())->method('executeStatement')->with('REPLACE INTO `app_config` (`key`, `value`) VALUES (:key, :value)', [
+        $this->connectionMock->expects($this->once())->method('executeStatement')->with('REPLACE INTO `app_config` (`key`, `value`) VALUES (:key, :value)', [
             'key' => 'key-1',
             'value' => null,
         ]);
 
         static::assertTrue($this->keyValueStorage->has('key-1'));
-        static::assertEquals('value-1', $this->keyValueStorage->get('key-1'));
+        static::assertSame('value-1', $this->keyValueStorage->get('key-1'));
 
         $this->keyValueStorage->set('key-1', null);
 

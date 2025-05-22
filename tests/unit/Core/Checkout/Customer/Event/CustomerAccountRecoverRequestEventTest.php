@@ -9,6 +9,7 @@ use Shopware\Core\Checkout\Customer\Event\CustomerAccountRecoverRequestEvent;
 use Shopware\Core\Content\Flow\Dispatching\StorableFlow;
 use Shopware\Core\Content\Flow\Dispatching\Storer\ScalarValuesStorer;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\System\SalesChannel\SalesChannelEntity;
 
@@ -16,6 +17,7 @@ use Shopware\Core\System\SalesChannel\SalesChannelEntity;
  * @internal
  */
 #[CoversClass(CustomerAccountRecoverRequestEvent::class)]
+#[Package('checkout')]
 class CustomerAccountRecoverRequestEventTest extends TestCase
 {
     public function testRestoreScalarValuesCorrectly(): void
@@ -24,7 +26,7 @@ class CustomerAccountRecoverRequestEventTest extends TestCase
         $salesChannel->setTranslated(['name' => 'my-shop-name']);
 
         $context = $this->createMock(SalesChannelContext::class);
-        $context->expects(static::any())->method('getSalesChannel')->willReturn($salesChannel);
+        $context->expects($this->any())->method('getSalesChannel')->willReturn($salesChannel);
 
         $event = new CustomerAccountRecoverRequestEvent(
             $context,
@@ -42,7 +44,7 @@ class CustomerAccountRecoverRequestEventTest extends TestCase
 
         static::assertArrayHasKey('resetUrl', $flow->data());
         static::assertArrayHasKey('shopName', $flow->data());
-        static::assertEquals('my-reset-url', $flow->data()['resetUrl']);
-        static::assertEquals('my-shop-name', $flow->data()['shopName']);
+        static::assertSame('my-reset-url', $flow->data()['resetUrl']);
+        static::assertSame('my-shop-name', $flow->data()['shopName']);
     }
 }

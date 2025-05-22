@@ -15,11 +15,13 @@ use Shopware\Core\Checkout\Cart\Tax\Struct\TaxRule;
 use Shopware\Core\Checkout\Cart\Tax\Struct\TaxRuleCollection;
 use Shopware\Core\Checkout\Cart\Tax\TaxCalculator;
 use Shopware\Core\Framework\DataAbstractionLayer\Pricing\CashRoundingConfig;
+use Shopware\Core\Framework\Log\Package;
 
 /**
  * @internal
  */
 #[CoversClass(NetPriceCalculator::class)]
+#[Package('checkout')]
 class NetPriceCalculatorTest extends TestCase
 {
     #[DataProvider('referencePriceCalculationProvider')]
@@ -94,8 +96,9 @@ class NetPriceCalculatorTest extends TestCase
         static::assertCount(1, $price->getCalculatedTaxes());
 
         $tax = $price->getCalculatedTaxes()->first();
+        static::assertNotNull($tax);
 
-        static::assertEquals(19, $tax?->getTaxRate());
-        static::assertEquals(48.12, $tax?->getPrice());
+        static::assertSame(19.0, $tax->getTaxRate());
+        static::assertSame(48.12, $tax->getPrice());
     }
 }

@@ -18,7 +18,7 @@ describe('Form country state select plugin', () => {
                 <option data-vat-id-required="1" data-state-required="0">Netherlands</option>
             </select>
             <select class="country-state-select" data-initial-country-state-id="">
-                <option>Select state..</option>
+                <option data-placeholder-option="true">Select state..</option>
             </select>
         </form>
     `;
@@ -38,6 +38,15 @@ describe('Form country state select plugin', () => {
             minLength: 'Input is too short.',
         };
 
+        global.fetch = jest.fn(() =>
+            Promise.resolve({
+                json: () => Promise.resolve({
+                    countryId: '31e1ac8809c744c38c4d99bfe9a50aa8',
+                    states: [{ id: '0490081418be4255b87731afc953e901', translated: { name: 'Hamburg' }}],
+                }),
+            })
+        );
+
         window.formValidation = new FormValidation();
     });
 
@@ -45,8 +54,9 @@ describe('Form country state select plugin', () => {
         document.body.innerHTML = '';
     });
 
-    it('should instantiate plugin', () => {
+    it('should instantiate plugin', async () => {
         const formCountryStateSelectPlugin = createPlugin();
+        await new Promise(process.nextTick);
 
         expect(formCountryStateSelectPlugin instanceof FormCountryStateSelectPlugin).toBe(true);
     });
@@ -111,7 +121,7 @@ describe('Form country state select plugin', () => {
                     <option value="2" data-vat-id-required="0" data-zipcode-required="0" data-state-required="0">Germany</option>
                 </select>
                 <select class="country-state-select" data-initial-country-state-id="">
-                    <option>Select state..</option>
+                    <option data-placeholder-option="true">Select state..</option>
                 </select>
             </form>
         `;
@@ -156,7 +166,7 @@ describe('Form country state select plugin', () => {
                 </select>
 
                 <select class="country-state-select" data-initial-country-state-id="">
-                    <option>Select state..</option>
+                    <option data-placeholder-option="true">Select state..</option>
                 </select>
             </form>
         `;
@@ -184,7 +194,7 @@ describe('Form country state select plugin', () => {
         inputs.forEach(input => expect(input.hasAttribute('aria-required')).toBe(true));
     });
 
-    it('should initialize form field toggle instance and subscribe to onChange event', () => {
+    it('should initialize form field toggle instance and subscribe to onChange event', async () => {
         template = `
             <form id="registerForm" action="/register" method="post" data-country-state-select="true">
                 <input type="checkbox"
@@ -202,7 +212,7 @@ describe('Form country state select plugin', () => {
                         </div>
                         <div class="form-group">
                             <label class="form-label" for="shippingAddressAddressCountryState"> Bundesland </label>
-                            <select class="country-state-select form-select" data-initial-country-state-id="">
+                            <select class="country-state-select form-select" data-initial-country-state-id="" id="shippingAddressAddressCountryState">
                                 <option value="" selected="selected" data-placeholder-option="true">Bundesland auswählen ...</option>
                                 <option value="0490081418be4255b87731afc953e901">Hamburg</option>
                             </select>
@@ -223,6 +233,7 @@ describe('Form country state select plugin', () => {
         document.body.innerHTML = template;
 
         const plugin = createPlugin();
+        await new Promise(process.nextTick);
 
         plugin._getFormFieldToggleInstance();
 
@@ -230,7 +241,7 @@ describe('Form country state select plugin', () => {
         expect(mockToggleInstance.$emitter.subscribe).toHaveBeenCalledWith('onChange', expect.any(Function));
     });
 
-    it('should not subscribe to onChange event if form field toggle instance is not found', () => {
+    it('should not subscribe to onChange event if form field toggle instance is not found', async () => {
         template = `
             <form id="registerForm" action="/register" method="post" data-country-state-select="true">
                 <input type="checkbox"
@@ -248,7 +259,7 @@ describe('Form country state select plugin', () => {
                         </div>
                         <div class="form-group">
                             <label class="form-label" for="shippingAddressAddressCountryState"> Bundesland </label>
-                            <select class="country-state-select form-select" data-initial-country-state-id="">
+                            <select class="country-state-select form-select" data-initial-country-state-id="" id="shippingAddressAddressCountryState">
                                 <option value="" selected="selected" data-placeholder-option="true">Bundesland auswählen ...</option>
                                 <option value="0490081418be4255b87731afc953e901">Hamburg</option>
                             </select>
@@ -262,13 +273,14 @@ describe('Form country state select plugin', () => {
 
         document.body.innerHTML = template;
         const plugin = createPlugin();
+        await new Promise(process.nextTick);
 
         plugin._getFormFieldToggleInstance();
 
         expect(plugin._formFieldToggleInstance).toBeNull();
     });
 
-    it('should update country state label when state required', () => {
+    it('should update country state label when state required', async () => {
         const mockElement = `
              <input type="checkbox"
                      data-form-field-toggle="true"
@@ -283,7 +295,7 @@ describe('Form country state select plugin', () => {
                         <div class="form-group">
                             <label class="form-label">Land*</label>
                             <select class="country-select form-select" required="required" data-initial-country-id="31e1ac8809c744c38c4d99bfe9a50aa8">
-                                <option selected="selected" value="31e1ac8809c744c38c4d99bfe9a50aa8" data-zipcode-required="" data-vat-id-required="" data-state-required="">Deutschland</option>
+                                <option selected="selected" value="31e1ac8809c744c38c4d99bfe9a50aa8" data-zipcode-required="" data-vat-id-required="" data-state-required="1">Deutschland</option>
                             </select>
                         </div>
                         <div class="form-group">
@@ -304,27 +316,28 @@ describe('Form country state select plugin', () => {
             return new FormFieldTogglePlugin(mockElement);
         };
 
+        global.fetch = jest.fn(() =>
+            Promise.resolve({
+                json: () => Promise.resolve({
+                    countryId: '31e1ac8809c744c38c4d99bfe9a50aa8',
+                    states: [{ id: '0490081418be4255b87731afc953e901', translated: { name: 'Hamburg' }}],
+                }),
+            })
+        );
+
         const plugin = createPlugin();
-
-        plugin._client.post = jest.fn((url, _, callback) => {
-            const response = {
-                countryId: '31e1ac8809c744c38c4d99bfe9a50aa8',
-                states: [{ id: '0490081418be4255b87731afc953e901', translated: { name: 'Hamburg' }}],
-            };
-
-            callback(JSON.stringify(response));
-        });
+        await new Promise(process.nextTick);
 
         const stateLabel = document.querySelector('[for="shippingAddressAddressCountryState"]');
 
-        expect(stateLabel.textContent).toBe('Bundesland');
+        expect(stateLabel.textContent).toBe('Bundesland *');
 
         plugin.requestStateData('31e1ac8809c744c38c4d99bfe9a50aa8', '0490081418be4255b87731afc953e901', true);
 
         expect(stateLabel.innerHTML.includes('form-required-label')).toBe(true);
     });
 
-    it('should update VAT ID field to required when different shipping address is selected', () => {
+    it('should update VAT ID field to required when different shipping address is selected', async () => {
         template = `
             <form id="registerForm" class="register-shipping" action="/register" method="post">
 
@@ -337,7 +350,7 @@ describe('Form country state select plugin', () => {
                     <option data-vat-id-required="1" data-state-required="0">Netherlands</option>
                 </select>
                 <select class="country-state-select" data-initial-country-state-id="">
-                    <option>Select state..</option>
+                    <option data-placeholder-option="true">Select state..</option>
                 </select>
             </form>
         `;
@@ -345,6 +358,8 @@ describe('Form country state select plugin', () => {
         document.body.innerHTML = template;
 
         const plugin = createPlugin();
+        await new Promise(process.nextTick);
+
         const event = { target: { checked: true } };
 
         plugin._onFormFieldToggleChange(event);
@@ -356,7 +371,7 @@ describe('Form country state select plugin', () => {
         expect(vatIdFieldLabel.innerHTML.includes('form-required-label')).toBe(true);
     });
 
-    it('should update VAT ID field to not required when different shipping address is not selected', () => {
+    it('should update VAT ID field to not required when different shipping address is not selected', async() => {
         template = `
             <form id="registerForm" class="register-billing" action="/register" method="post">
 
@@ -379,6 +394,8 @@ describe('Form country state select plugin', () => {
         document.body.innerHTML = template;
 
         const plugin = createPlugin();
+        await new Promise(process.nextTick);
+
         const event = { target: { checked: false } };
 
         plugin._onFormFieldToggleChange(event);
@@ -390,7 +407,7 @@ describe('Form country state select plugin', () => {
         expect(vatIdFieldLabel.innerHTML.includes('form-required-label')).toBe(false);
     });
 
-    it('should not update VAT ID field when different shipping address is selected and prefix is billingAddress', () => {
+    it('should not update VAT ID field when different shipping address is selected and prefix is billingAddress', async () => {
         template = `
             <form id="registerForm" class="register-shipping" action="/register" method="post">
 
@@ -413,6 +430,8 @@ describe('Form country state select plugin', () => {
         document.body.innerHTML = template;
 
         const plugin = createPlugin({ prefix: 'billingAddress' });
+        await new Promise(process.nextTick);
+
         const event = { target: { checked: true } };
 
         plugin._differentShippingCheckbox = true;

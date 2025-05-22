@@ -3,6 +3,7 @@ import AddressManagerPlugin from 'src/plugin/address-manager/address-manager.plu
 /**
  * @package checkout
  */
+
 describe('AddressManagerPlugin test', () => {
     afterEach(() => {
         document.body.innerHTML = '';
@@ -31,28 +32,30 @@ describe('AddressManagerPlugin test', () => {
         expect(addressManager.options.initialTab).toBe('shipping');
     });
 
-    test('open address manager modal', () => {
-        const addressManager = create();
+    test('open address manager modal', async () => {
+        create();
 
         const button = document.querySelector('.btn');
 
         button.dispatchEvent(new Event('click', { bubbles: true }));
+        await new Promise(process.nextTick);
 
         jest.runAllTimers();
 
         expect(window.PluginManager.initializePlugins).toHaveBeenCalledTimes(1);
-        expect(addressManager._client.get).toHaveBeenCalledWith(
+        expect(global.fetch).toHaveBeenCalledWith(
             '/widgets/account/address-manager',
-            expect.any(Function)
+            { headers : {'X-Requested-With': 'XMLHttpRequest'}}
         );
     });
 
-    test('switch to billing', () => {
+    test('switch to billing', async () => {
         const addressManager = create();
 
         const button = document.querySelector('.btn');
 
         button.dispatchEvent(new Event('click', { bubbles: true }));
+        await new Promise(process.nextTick);
 
         const checkbox = document.querySelector('#billing-address-tab');
         const billingTab = document.querySelector('#billing-address-tab-pane');
@@ -61,38 +64,42 @@ describe('AddressManagerPlugin test', () => {
         expect(checkbox.checked).toBe(false);
 
         addressManager._onSwitchToBillingTab();
+        await new Promise(process.nextTick);
 
         expect(shippingTab.classList).not.toContain('active', 'show');
         expect(checkbox.checked).toBe(true);
         expect(billingTab.classList).toContain('active', 'show');
     });
 
-    test('open modal with billing tag', () => {
+    test('open modal with billing tag', async () => {
         create('billing');
 
         const button = document.querySelector('.btn');
 
         button.dispatchEvent(new Event('click', { bubbles: true }));
+        await new Promise(process.nextTick);
 
-        const checkbox = document.querySelector('#billing-address-tab');
-        const billingTab = document.querySelector('#billing-address-tab-pane');
-        const shippingTab = document.querySelector('#shipping-address-tab-pane');
+        const checkbox = document.querySelector('.js-pseudo-modal #billing-address-tab');
+        const billingTab = document.querySelector('.js-pseudo-modal #billing-address-tab-pane');
+        const shippingTab = document.querySelector('.js-pseudo-modal #shipping-address-tab-pane');
 
         expect(shippingTab.classList).not.toContain('active', 'show');
         expect(checkbox.checked).toBe(true);
         expect(billingTab.classList).toContain('active', 'show');
     });
 
-    test('select shipping address from list', () => {
+    test('select shipping address from list', async () => {
         create();
 
         const button = document.querySelector('.btn');
 
         button.dispatchEvent(new Event('click', { bubbles: true }));
+        await new Promise(process.nextTick);
 
         const addressItem = document.querySelector('.address-manager-select-address');
 
         addressItem.dispatchEvent(new Event('click', { bubbles: true }));
+        await new Promise(process.nextTick);
 
         const currentShippingId = document.querySelector('.address-manager-modal-currentShippingId');
         const currentBillingId = document.querySelector('.address-manager-modal-currentBillingId');
@@ -103,16 +110,18 @@ describe('AddressManagerPlugin test', () => {
         expect(radioButton.checked).toBe(true);
     });
 
-    test('select billing address from list', () => {
+    test('select billing address from list', async () => {
         create('billing');
 
         const button = document.querySelector('.btn');
 
         button.dispatchEvent(new Event('click', { bubbles: true }));
+        await new Promise(process.nextTick);
 
         const addressItem = document.querySelector('#billing-address-tab-pane .address-manager-select-address');
 
         addressItem.dispatchEvent(new Event('click', { bubbles: true }));
+        await new Promise(process.nextTick);
 
         const currentBillingId = document.querySelector('.address-manager-modal-currentBillingId');
         const radioButton = addressItem.querySelector('input[type="radio"]');
@@ -121,40 +130,65 @@ describe('AddressManagerPlugin test', () => {
         expect(radioButton.checked).toBe(true);
     });
 
-    test('set default address', () => {
+    test('set default address', async () => {
         const logSpy = jest.spyOn(global.console, 'warn');
-        const addressManager = create();
-
-        addressManager._client.post = jest.fn();
+        create();
 
         const button = document.querySelector('.btn');
 
         button.dispatchEvent(new Event('click', { bubbles: true }));
+        await new Promise(process.nextTick);
 
         const defaultAddress = document.querySelector('.address-manager-modal-set-default-address');
 
         defaultAddress.dispatchEvent(new Event('click', { bubbles: true }));
+        await new Promise(process.nextTick);
 
         expect(logSpy).not.toHaveBeenCalled();
-        expect(addressManager._client.post).toHaveBeenCalled();
+        expect(global.fetch).toHaveBeenNthCalledWith(1,
+            '/widgets/account/address-manager',
+            {
+                headers: { 'X-Requested-With': 'XMLHttpRequest' },
+            },
+        );
+        expect(global.fetch).toHaveBeenNthCalledWith(2,
+            '/account/address/switch',
+            {
+                method: 'POST',
+                body: '{"id":"address-dummy-id","type":"shipping"}',
+                headers: { 'X-Requested-With': 'XMLHttpRequest', 'Content-Type': 'application/json' },
+            },
+        );
     });
 
-    test('open address edit / create from', () => {
+    test('open address edit / create from', async () => {
         const logSpy = jest.spyOn(global.console, 'warn');
-        const addressManager = create();
-
-        addressManager._client.post = jest.fn();
+        create();
 
         const button = document.querySelector('.btn');
 
         button.dispatchEvent(new Event('click', { bubbles: true }));
+        await new Promise(process.nextTick);
 
         const renderAddressButton = document.querySelector('.address-manager-modal-address-form');
 
         renderAddressButton.dispatchEvent(new Event('click', { bubbles: true }));
+        await new Promise(process.nextTick);
 
         expect(logSpy).not.toHaveBeenCalled();
-        expect(addressManager._client.post).toHaveBeenCalled();
+        expect(global.fetch).toHaveBeenNthCalledWith(1,
+            '/widgets/account/address-manager',
+            {
+                headers: { 'X-Requested-With': 'XMLHttpRequest' },
+            },
+        );
+        expect(global.fetch).toHaveBeenNthCalledWith(2,
+            '/widgets/account/address-manager?type=shipping',
+            {
+                method: 'POST',
+                headers: { 'X-Requested-With': 'XMLHttpRequest' },
+            },
+        );
     });
 });
 
@@ -162,7 +196,7 @@ function create(initialTab = 'shipping') {
     document.body.innerHTML = `
              <button class="btn" data-address-manager="true">Open address manager</button>
              
-             <div class="js-pseudo-modal-template address-manager-modal">
+             <div class="js-pseudo-modal-template">
                 <div class="modal fade" tabindex="-1" role="dialog">
                     <div class="modal-dialog" role="document">
                         <div class="modal-content js-pseudo-modal-template-root-element">
@@ -233,18 +267,15 @@ function create(initialTab = 'shipping') {
         initialTab,
     });
 
-    addressManager._client.get = jest.fn((url, callback) => {
-        callback(addressManagerTemplate);
-    });
+    global.fetch = jest.fn(() =>
+        Promise.resolve({
+            text: () => Promise.resolve(addressManagerTemplate),
+        })
+    );
 
-    HTMLDivElement.prototype.replaceChildren = (element) => {
-        document.body.innerHTML = element.innerHTML;
-    };
-
-    document.body.insertAdjacentElement = jest.fn();
     window.PluginManager.initializePlugins = jest.fn(() => Promise.resolve());
 
-    jest.useFakeTimers();
+    jest.useFakeTimers({ legacyFakeTimers: true });
 
     return addressManager;
 }

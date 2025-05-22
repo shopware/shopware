@@ -22,7 +22,7 @@ class UnusedMediaSubscriberTest extends TestCase
 {
     public function testSubscribedEvents(): void
     {
-        static::assertEquals(
+        static::assertSame(
             [
                 UnusedMediaSearchEvent::class => 'removeUsedMedia',
             ],
@@ -66,7 +66,7 @@ class UnusedMediaSubscriberTest extends TestCase
         ];
 
         $themeService = $this->createMock(ThemeService::class);
-        $themeService->expects(static::exactly(2))
+        $themeService->expects($this->exactly(2))
             ->method('getThemeConfiguration')
             ->willReturnCallback(function (string $themeId, ...$params) use ($themeConfigMap) {
                 return $themeConfigMap[$themeId];
@@ -76,6 +76,6 @@ class UnusedMediaSubscriberTest extends TestCase
         $listener = new UnusedMediaSubscriber($themeRepository, $themeService);
         $listener->removeUsedMedia($event);
 
-        static::assertEquals([$mediaId4, $mediaId5], $event->getUnusedIds());
+        static::assertSame([$mediaId4, $mediaId5], $event->getUnusedIds());
     }
 }

@@ -95,7 +95,7 @@ class ProductDetailRouteTest extends TestCase
         $productEntity->setId(Uuid::randomHex());
         $productEntity->setCmsPageId('4');
         $productEntity->setUniqueIdentifier('mainVariant');
-        $this->productRepository->expects(static::exactly(1))
+        $this->productRepository->expects($this->exactly(1))
             ->method('search')
             ->willReturn(
                 new EntitySearchResult(
@@ -110,8 +110,8 @@ class ProductDetailRouteTest extends TestCase
 
         $result = $this->route->load('1', new Request(), $this->context, new Criteria());
 
-        static::assertEquals('4', $result->getProduct()->getCmsPageId());
-        static::assertEquals('mainVariant', $result->getProduct()->getUniqueIdentifier());
+        static::assertSame('4', $result->getProduct()->getCmsPageId());
+        static::assertSame('mainVariant', $result->getProduct()->getUniqueIdentifier());
     }
 
     public function testLoadBestVariant(): void
@@ -137,7 +137,7 @@ class ProductDetailRouteTest extends TestCase
             ->willReturn(
                 $idsSearchResult
             );
-        $this->productRepository->expects(static::once())
+        $this->productRepository->expects($this->once())
             ->method('search')
             ->willReturnOnConsecutiveCalls(
                 new EntitySearchResult('product', 4, new ProductCollection([$productEntity]), null, new Criteria(), $this->context->getContext())
@@ -145,15 +145,15 @@ class ProductDetailRouteTest extends TestCase
 
         $result = $this->route->load($this->idsCollection->get('product1'), new Request(), $this->context, new Criteria());
 
-        static::assertEquals(4, $result->getProduct()->getCmsPageId());
-        static::assertEquals('BestVariant', $result->getProduct()->getUniqueIdentifier());
+        static::assertSame('4', $result->getProduct()->getCmsPageId());
+        static::assertSame('BestVariant', $result->getProduct()->getUniqueIdentifier());
         static::assertTrue($result->getProduct()->getAvailable());
     }
 
     public function testLoadVariantListingConfig(): void
     {
         $this->connection
-            ->expects(static::once())
+            ->expects($this->once())
             ->method('fetchAssociative')
             ->willReturn([
                 'variantListingConfig' => '{"displayParent": false, "mainVariantId": "2"}',
@@ -166,7 +166,7 @@ class ProductDetailRouteTest extends TestCase
         $productEntity->setCmsPageId('4');
         $productEntity->setUniqueIdentifier('2');
         $productEntity->setAvailable(true);
-        $this->productRepository->expects(static::once())
+        $this->productRepository->expects($this->once())
             ->method('search')
             ->willReturn(
                 new EntitySearchResult(
@@ -186,14 +186,14 @@ class ProductDetailRouteTest extends TestCase
 
         $result = $this->route->load($productId, new Request(), $this->context, new Criteria());
 
-        static::assertEquals('2', $result->getProduct()->getUniqueIdentifier());
+        static::assertSame('2', $result->getProduct()->getUniqueIdentifier());
         static::assertTrue($result->getProduct()->getAvailable());
     }
 
     public function testResolveVariantIdFromEvent(): void
     {
         $this->connection
-            ->expects(static::once())
+            ->expects($this->once())
             ->method('fetchAssociative')
             ->willReturn([
                 'variantListingConfig' => '{"displayParent": true, "mainVariantId": "2"}',
@@ -205,12 +205,12 @@ class ProductDetailRouteTest extends TestCase
         $productEntity->setId($variantId);
         $productEntity->setCmsPageId('4');
         $productEntity->setAvailable(true);
-        $this->productRepository->expects(static::once())
+        $this->productRepository->expects($this->once())
             ->method('search')
             ->with(static::callback(function (Criteria $criteria) use ($variantId): bool {
                 $ids = $criteria->getIds();
                 static::assertCount(1, $ids);
-                static::assertEquals($variantId, reset($ids));
+                static::assertSame($variantId, reset($ids));
 
                 return true;
             }))
@@ -231,7 +231,7 @@ class ProductDetailRouteTest extends TestCase
 
         $result = $this->route->load(Uuid::randomHex(), new Request(), $this->context, new Criteria());
 
-        static::assertEquals($variantId, $result->getProduct()->getUniqueIdentifier());
+        static::assertSame($variantId, $result->getProduct()->getUniqueIdentifier());
         static::assertTrue($result->getProduct()->getAvailable());
     }
 
@@ -253,7 +253,7 @@ class ProductDetailRouteTest extends TestCase
         $criteria2->addFilter($filter);
 
         $this->productRepository
-            ->expects(static::once())
+            ->expects($this->once())
             ->method('search')
             ->willReturnOnConsecutiveCalls(
                 new EntitySearchResult('product', 4, new ProductCollection([$productEntity]), null, new Criteria(), $this->context->getContext())
@@ -263,8 +263,8 @@ class ProductDetailRouteTest extends TestCase
 
         $result = $this->route->load($this->idsCollection->get('product2'), new Request(), $this->context, new Criteria());
 
-        static::assertEquals('4', $result->getProduct()->getCmsPageId());
-        static::assertEquals('BestVariant', $result->getProduct()->getUniqueIdentifier());
+        static::assertSame('4', $result->getProduct()->getCmsPageId());
+        static::assertSame('BestVariant', $result->getProduct()->getUniqueIdentifier());
     }
 
     public function testLoadProductNotFound(): void

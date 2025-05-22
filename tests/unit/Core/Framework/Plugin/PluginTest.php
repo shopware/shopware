@@ -38,27 +38,27 @@ class PluginTest extends TestCase
     {
         $plugin = new SwagTestPlugin(true, self::$swagTestPluginPath);
 
-        static::assertEquals(self::$swagTestPluginPath . '/src', $plugin->getPath());
+        static::assertSame(self::$swagTestPluginPath . '/src', $plugin->getPath());
     }
 
     public function testGetPathWithSymlinkedPlugin(): void
     {
         $plugin = new SwagTestPlugin(true, self::$symlinkedSwagTestPluginPath);
 
-        static::assertEquals(self::$symlinkedSwagTestPluginPath . '/src', $plugin->getPath());
+        static::assertSame(self::$symlinkedSwagTestPluginPath . '/src', $plugin->getPath());
     }
 
     public function testGetBasePath(): void
     {
         $plugin = new SwagTestPlugin(true, self::$symlinkedSwagTestPluginPath);
 
-        static::assertEquals(self::$symlinkedSwagTestPluginPath, $plugin->getBasePath());
+        static::assertSame(self::$symlinkedSwagTestPluginPath, $plugin->getBasePath());
     }
 
     public function testGetBasePathIncludingSlash(): void
     {
         $plugin = new SwagTestPlugin(true, 'somePlugin', '/www/');
 
-        static::assertEquals('/www/somePlugin', $plugin->getBasePath());
+        static::assertSame('/www/somePlugin', $plugin->getBasePath());
     }
 }

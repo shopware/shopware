@@ -172,4 +172,20 @@ describe('src/module/sw-order/component/sw-order-customer-address-select', () =>
         expect(addresses[0].hidden).toBe(false);
         expect(addresses[1].hidden).toBe(true);
     });
+
+    it('should reload addresses on customer change', async () => {
+        const wrapper = await createWrapper();
+        await flushPromises();
+
+        const spyGetCustomerAddresses = jest.spyOn(wrapper.vm, 'getCustomerAddresses');
+
+        await wrapper.setProps({
+            customer: {
+                ...customerData,
+                id: '456',
+            },
+        });
+
+        expect(spyGetCustomerAddresses).toHaveBeenCalledTimes(1);
+    });
 });

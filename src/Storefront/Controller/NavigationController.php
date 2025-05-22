@@ -6,7 +6,9 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Storefront\Page\Navigation\NavigationPageLoadedHook;
 use Shopware\Storefront\Page\Navigation\NavigationPageLoaderInterface;
+use Shopware\Storefront\Pagelet\Footer\FooterPageletLoadedHook;
 use Shopware\Storefront\Pagelet\Footer\FooterPageletLoaderInterface;
+use Shopware\Storefront\Pagelet\Header\HeaderPageletLoadedHook;
 use Shopware\Storefront\Pagelet\Header\HeaderPageletLoaderInterface;
 use Shopware\Storefront\Pagelet\Menu\Offcanvas\MenuOffcanvasPageletLoadedHook;
 use Shopware\Storefront\Pagelet\Menu\Offcanvas\MenuOffcanvasPageletLoaderInterface;
@@ -70,19 +72,29 @@ class NavigationController extends StorefrontController
         return $response;
     }
 
-    #[Route(path: '/header', name: 'frontend.header', defaults: ['_httpCache' => true, '_esi' => true], methods: ['GET'])]
+    #[Route(path: '/header', name: 'frontend.header', defaults: ['XmlHttpRequest' => true, '_httpCache' => true, '_esi' => true], methods: ['GET'])]
     public function header(Request $request, SalesChannelContext $context): Response
     {
         $header = $this->headerLoader->load($request, $context);
 
-        return $this->renderStorefront('@Storefront/storefront/layout/header.html.twig', ['header' => $header]);
+        $this->hook(new HeaderPageletLoadedHook($header, $context));
+
+        return $this->renderStorefront('@Storefront/storefront/layout/header.html.twig', [
+            'header' => $header,
+            'headerParameters' => $request->get('headerParameters') ?? [],
+        ]);
     }
 
-    #[Route(path: '/footer', name: 'frontend.footer', defaults: ['_httpCache' => true, '_esi' => true], methods: ['GET'])]
+    #[Route(path: '/footer', name: 'frontend.footer', defaults: ['XmlHttpRequest' => true, '_httpCache' => true, '_esi' => true], methods: ['GET'])]
     public function footer(Request $request, SalesChannelContext $context): Response
     {
         $footer = $this->footerLoader->load($request, $context);
 
-        return $this->renderStorefront('@Storefront/storefront/layout/footer.html.twig', ['footer' => $footer]);
+        $this->hook(new FooterPageletLoadedHook($footer, $context));
+
+        return $this->renderStorefront('@Storefront/storefront/layout/footer.html.twig', [
+            'footer' => $footer,
+            'footerParameters' => $request->get('footerParameters') ?? [],
+        ]);
     }
 }

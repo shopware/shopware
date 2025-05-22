@@ -57,13 +57,13 @@ class DownloadServiceTest extends TestCase
 
         $fileSystem = $this->createMock(FilesystemOperator::class);
 
-        $fileSystem->expects(static::once())->method('readStream')->willReturn(fopen('php://memory', 'r'));
-        $fileSystem->expects(static::once())->method('fileSize')->willReturn(100);
+        $fileSystem->expects($this->once())->method('readStream')->willReturn(fopen('php://memory', 'r'));
+        $fileSystem->expects($this->once())->method('fileSize')->willReturn(100);
 
         $downloadService = new DownloadService($fileSystem, $fileRepository);
         $response = $downloadService->createFileResponse(Context::createDefaultContext(), $fileId, $accessToken);
 
-        static::assertEquals(Response::HTTP_OK, $response->getStatusCode());
+        static::assertSame(Response::HTTP_OK, $response->getStatusCode());
         static::assertIsString($header = $response->headers->get('Content-Disposition'));
         static::assertStringContainsString($expectOutputFilename, $header);
     }

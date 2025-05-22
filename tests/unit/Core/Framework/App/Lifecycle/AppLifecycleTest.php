@@ -73,7 +73,7 @@ class AppLifecycleTest extends TestCase
         $manifest->getMetadata()->assign(['compatibility' => '~7.0.0']);
 
         $appRepository = $this->createMock(EntityRepository::class);
-        $appRepository->expects(static::never())->method('upsert');
+        $appRepository->expects($this->never())->method('upsert');
 
         $appLifecycle = $this->getAppLifecycle($appRepository, new StaticEntityRepository([]), null, new StaticSourceResolver());
 
@@ -88,7 +88,7 @@ class AppLifecycleTest extends TestCase
         $manifest->getMetadata()->assign(['compatibility' => '~7.0.0']);
 
         $appRepository = $this->createMock(EntityRepository::class);
-        $appRepository->expects(static::never())->method('upsert');
+        $appRepository->expects($this->never())->method('upsert');
 
         $appLifecycle = $this->getAppLifecycle($appRepository, new StaticEntityRepository([]), null, new StaticSourceResolver());
 
@@ -339,7 +339,7 @@ class AppLifecycleTest extends TestCase
 
         static::assertCount(1, $appRepository->upserts[0]);
 
-        static::assertEquals([['id' => $appId, 'configurable' => false, 'allowDisable' => true]], $appRepository->upserts[1]);
+        static::assertSame([['id' => $appId, 'configurable' => false, 'allowDisable' => true]], $appRepository->upserts[1]);
 
         $this->io->rename(__DIR__ . '/../_fixtures/Resources/noconfighere', __DIR__ . '/../_fixtures/Resources/config');
     }
@@ -467,7 +467,7 @@ class AppLifecycleTest extends TestCase
         $persister = $this->createMock(AppAdministrationSnippetPersister::class);
 
         $persister
-            ->expects(static::once())
+            ->expects($this->once())
             ->method('updateSnippets')
             ->with($appEntities, $expectedSnippets, Context::createDefaultContext());
 

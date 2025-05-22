@@ -40,7 +40,7 @@ class CreditCartProcessorTest extends TestCase
 
         $calculator = $this->createMock(AbsolutePriceCalculator::class);
         $calculator
-            ->expects(static::once())
+            ->expects($this->once())
             ->method('calculate')
             ->with(
                 static::equalTo(5.0),
@@ -53,7 +53,7 @@ class CreditCartProcessorTest extends TestCase
         $processor->process($data, $original, $toCalculate, $context, $behavior);
 
         static::assertCount(1, $toCalculate->getLineItems());
-        static::assertEquals(10.0, $toCalculate->getLineItems()->first()?->getPrice()?->getTotalPrice());
+        static::assertSame(10.0, $toCalculate->getLineItems()->first()?->getPrice()?->getTotalPrice());
     }
 
     public function testNoneCreditItemsIgnored(): void
@@ -71,7 +71,7 @@ class CreditCartProcessorTest extends TestCase
 
         $calculator = $this->createMock(AbsolutePriceCalculator::class);
         $calculator
-            ->expects(static::never())
+            ->expects($this->never())
             ->method('calculate');
 
         $processor = new CreditCartProcessor($calculator);
@@ -95,7 +95,7 @@ class CreditCartProcessorTest extends TestCase
 
         $calculator = $this->createMock(AbsolutePriceCalculator::class);
         $calculator
-            ->expects(static::never())
+            ->expects($this->never())
             ->method('calculate');
 
         $processor = new CreditCartProcessor($calculator);

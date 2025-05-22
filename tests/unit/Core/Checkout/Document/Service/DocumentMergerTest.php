@@ -49,7 +49,7 @@ class DocumentMergerTest extends TestCase
         $documentWithMedia = clone $document;
 
         $documentRepository = $this->createMock(EntityRepository::class);
-        $documentRepository->expects(static::exactly(2))->method('search')->willReturnOnConsecutiveCalls(
+        $documentRepository->expects($this->exactly(2))->method('search')->willReturnOnConsecutiveCalls(
             new EntitySearchResult(
                 'document',
                 1,
@@ -69,7 +69,7 @@ class DocumentMergerTest extends TestCase
         );
 
         $documentGenerator = $this->createMock(DocumentGenerator::class);
-        $documentGenerator->expects(static::exactly(1))->method('generate')->willReturnCallback(function (string $documentType, array $operations) {
+        $documentGenerator->expects($this->exactly(1))->method('generate')->willReturnCallback(function (string $documentType, array $operations) {
             $ids = array_keys($operations);
             $result = new DocumentGenerationResult();
 
@@ -91,7 +91,7 @@ class DocumentMergerTest extends TestCase
     public function testMergeWithFpdiConfig(): void
     {
         $fpdi = $this->createMock(Fpdi::class);
-        $fpdi->expects(static::exactly(1))
+        $fpdi->expects($this->exactly(1))
             ->method('setSourceFile');
 
         $orderId = Uuid::randomHex();
@@ -135,7 +135,7 @@ class DocumentMergerTest extends TestCase
         $documentGenerator = $this->createMock(DocumentGenerator::class);
 
         $mediaService = $this->createMock(MediaService::class);
-        $mediaService->expects(static::once())
+        $mediaService->expects($this->once())
             ->method('loadFileStream')
             ->willReturnCallback(function () {
                 return Utils::streamFor();

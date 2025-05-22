@@ -134,7 +134,7 @@ class ProductStreamProcessorTest extends TestCase
         $data = new ElementDataCollection();
         $data->add('product-slider-entity-fallback_id', $searchResult);
 
-        $this->productRepository->expects(static::once())
+        $this->productRepository->expects($this->once())
             ->method('search')->willReturn($searchResult);
 
         $this->getProcessor()->enrich($slot, $data, $resolverContext);
@@ -142,7 +142,7 @@ class ProductStreamProcessorTest extends TestCase
         $slider = $slot->getData();
         static::assertInstanceOf(ProductSliderStruct::class, $slider);
         static::assertSame('product-stream-1', $slider->getStreamId());
-        static::assertEquals($products, $slider->getProducts());
+        static::assertSame($products, $slider->getProducts());
     }
 
     public function testEnrichDoesNothingWithoutEntitySearchResult(): void
@@ -195,7 +195,7 @@ class ProductStreamProcessorTest extends TestCase
 
         $data->add('product-slider-entity-fallback_id', $result);
 
-        $this->productRepository->expects(static::never())
+        $this->productRepository->expects($this->never())
             ->method('search');
 
         $this->getProcessor()->enrich($slot, $data, $resolverContext);

@@ -2,8 +2,6 @@ import type { PropType } from 'vue';
 import type { TabItem } from '@shopware-ag/meteor-component-library/dist/esm/components/navigation/mt-tabs/mt-tabs';
 import template from './sw-tabs.html.twig';
 
-const { Component } = Shopware;
-
 /**
  * @sw-package framework
  *
@@ -11,7 +9,7 @@ const { Component } = Shopware;
  * @status ready
  * @description Wrapper component for sw-tabs and mt-tabs. Autoswitches between the two components.
  */
-Component.register('sw-tabs', {
+export default Shopware.Component.wrapComponentConfig({
     template,
 
     props: {
@@ -27,7 +25,7 @@ Component.register('sw-tabs', {
     computed: {
         useMeteorComponent() {
             // Use new meteor component in major
-            if (Shopware.Feature.isActive('ENABLE_METEOR_COMPONENTS')) {
+            if (Shopware.Feature.isActive('V6_8_0_0')) {
                 return true;
             }
 
@@ -35,7 +33,7 @@ Component.register('sw-tabs', {
             Shopware.Utils.debug.warn(
                 'sw-tabs',
                 // eslint-disable-next-line max-len
-                'The old usage of "sw-tabs" is deprecated and will be removed in v6.7.0.0. Please use "mt-tabs" instead.',
+                'The old usage of "sw-tabs" is deprecated and will be removed in v6.8.0.0. Please use "mt-tabs" instead.',
             );
 
             return false;

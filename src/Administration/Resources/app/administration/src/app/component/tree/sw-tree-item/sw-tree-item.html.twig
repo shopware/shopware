@@ -51,7 +51,7 @@
         <div class="sw-tree-item__selection">
             <mt-checkbox
                 v-if="displayCheckbox"
-                :disabled="currentEditElement === item.data.id"
+                :disabled="item.disabled || currentEditElement === item.data.id"
                 :checked="checked"
                 :partial="checkedGhost"
                 :aria-label="$t('sw-tree-item.toggleItem', { name: getName(item) })"
@@ -244,7 +244,7 @@
     </div>
     {% endblock %}
 
-    {# ToDO: Repeat statt duplicated Content #}
+    {# ToDo: Repeat instead of duplicated Content #}
     {% block sw_tree_item_children_transition %}
     <transition name="fade">
         {% block sw_tree_item_children_content %}

@@ -55,18 +55,15 @@
             "titleSidebarItemFilter": "Filtern"
         },
         "setList": {
-            "title": "Textbaustein-Sets verwalten & bearbeiten",
-            "description": "Dies ist eine Übersicht Deiner Textbaustein-Sets. Wähle ein Set aus, dessen Textbausteine Du bearbeiten möchtest und wechsle über den Button in die Bearbeitungstabelle.",
             "cardTitle": "Textbaustein-Sets",
             "buttonAddSet": "Textbaustein-Set hinzufügen",
             "buttonClone": "Kopieren",
-            "buttonDelete": "Löschen",
-            "buttonEditSet": "Textbausteine bearbeiten",
-            "buttonExport": "Export",
             "buttonImport": "Import",
+            "newSnippetName": "# Neues Textbaustein-Set",
             "cloneErrorMessage": "Die Kopie konnte nicht erstellt werden.",
             "cloneSuccessMessage": "Die Kopie wurde erfolgreich erstellt.",
             "columnBaseFile": "Basisdatei",
+            "columnIso": "Locale",
             "columnChangedAt": "Letzte Änderung",
             "columnName": "Name",
             "contextMenuClone": "Duplizieren",
@@ -79,8 +76,6 @@
             "modalTitleClone": "Textbaustein-Set kopieren",
             "notEditableNoteErrorMessage": "Die Textbausteine konnten nicht bearbeitet werden.",
             "placeholderName": "Set benennen ...",
-            "splitButtonDuplicateContent": "Duplizieren von",
-            "textCloneConfirm": "Möchtest Du von dem Textbaustein-Set \"{name}\" eine Kopie erstellen?",
             "textDeleteConfirm": "Möchtest Du das Textbaustein-Set \"{name}\" wirklich löschen?"
         },
         "filter": {

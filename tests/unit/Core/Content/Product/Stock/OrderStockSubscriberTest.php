@@ -68,7 +68,7 @@ class OrderStockSubscriberTest extends TestCase
         $context = Context::createDefaultContext()->createWithVersionId($this->ids->create('version'));
 
         $stockStorage = $this->createMock(StockStorage::class);
-        $stockStorage->expects(static::never())->method('alter');
+        $stockStorage->expects($this->never())->method('alter');
 
         $stockSubscriber = new OrderStockSubscriber(
             $this->createMock(Connection::class),
@@ -90,7 +90,7 @@ class OrderStockSubscriberTest extends TestCase
         $context = Context::createDefaultContext()->createWithVersionId($this->ids->create('version'));
 
         $stockStorage = $this->createMock(StockStorage::class);
-        $stockStorage->expects(static::never())->method('alter');
+        $stockStorage->expects($this->never())->method('alter');
 
         $stockSubscriber = new OrderStockSubscriber(
             $this->createMock(Connection::class),
@@ -112,7 +112,7 @@ class OrderStockSubscriberTest extends TestCase
         $context = Context::createDefaultContext();
 
         $stockStorage = $this->createMock(StockStorage::class);
-        $stockStorage->expects(static::never())->method('alter');
+        $stockStorage->expects($this->never())->method('alter');
 
         $stockSubscriber = new OrderStockSubscriber(
             $this->createMock(Connection::class),
@@ -149,7 +149,7 @@ class OrderStockSubscriberTest extends TestCase
         $context = Context::createDefaultContext();
 
         $stockStorage = $this->createMock(StockStorage::class);
-        $stockStorage->expects(static::never())->method('alter');
+        $stockStorage->expects($this->never())->method('alter');
 
         $stockSubscriber = new OrderStockSubscriber(
             $this->createMock(Connection::class),
@@ -233,18 +233,18 @@ class OrderStockSubscriberTest extends TestCase
         $expectedUpdates = array_map($idMapper(['lineItemId', 'productId']), $expectedUpdates);
 
         $context = Context::createDefaultContext();
-        $stockStorage->expects(static::once())
+        $stockStorage->expects($this->once())
             ->method('alter')
             ->with(static::callback(function (array $changes) use ($expectedUpdates): bool {
                 static::assertSameSize($expectedUpdates, $changes);
 
                 foreach ($expectedUpdates as $i => $expectedUpdate) {
                     static::assertInstanceOf(StockAlteration::class, $changes[$i]);
-                    static::assertEquals($expectedUpdate['lineItemId'], $changes[$i]->lineItemId);
-                    static::assertEquals($expectedUpdate['productId'], $changes[$i]->productId);
+                    static::assertSame($expectedUpdate['lineItemId'], $changes[$i]->lineItemId);
+                    static::assertSame($expectedUpdate['productId'], $changes[$i]->productId);
 
-                    static::assertEquals($expectedUpdate['quantityBefore'], $changes[$i]->quantityBefore);
-                    static::assertEquals($expectedUpdate['newQuantity'], $changes[$i]->newQuantity);
+                    static::assertSame($expectedUpdate['quantityBefore'], $changes[$i]->quantityBefore);
+                    static::assertSame($expectedUpdate['newQuantity'], $changes[$i]->newQuantity);
                 }
 
                 return true;
@@ -524,7 +524,7 @@ class OrderStockSubscriberTest extends TestCase
         );
 
         $stockStorage = $this->createMock(StockStorage::class);
-        $stockStorage->expects(static::never())->method('alter');
+        $stockStorage->expects($this->never())->method('alter');
 
         $stockSubscriber = new OrderStockSubscriber(
             $this->createMock(Connection::class),
@@ -554,7 +554,7 @@ class OrderStockSubscriberTest extends TestCase
         );
 
         $stockStorage = $this->createMock(StockStorage::class);
-        $stockStorage->expects(static::never())->method('alter');
+        $stockStorage->expects($this->never())->method('alter');
 
         $stockSubscriber = new OrderStockSubscriber(
             $this->createMock(Connection::class),
@@ -584,7 +584,7 @@ class OrderStockSubscriberTest extends TestCase
         );
 
         $stockStorage = $this->createMock(StockStorage::class);
-        $stockStorage->expects(static::never())->method('alter');
+        $stockStorage->expects($this->never())->method('alter');
 
         $stockSubscriber = new OrderStockSubscriber(
             $this->createMock(Connection::class),
@@ -625,22 +625,22 @@ class OrderStockSubscriberTest extends TestCase
         ]);
 
         $stockStorage = $this->createMock(StockStorage::class);
-        $stockStorage->expects(static::once())
+        $stockStorage->expects($this->once())
             ->method('alter')
             ->with(static::callback(function (array $changes) use ($quantityBefore, $quantityAfter) {
                 static::assertCount(2, $changes);
                 static::assertInstanceOf(StockAlteration::class, $changes[0]);
                 static::assertInstanceOf(StockAlteration::class, $changes[1]);
 
-                static::assertEquals($this->ids->get('item-1'), $changes[0]->lineItemId);
-                static::assertEquals($this->ids->get('product-1'), $changes[0]->productId);
-                static::assertEquals($quantityBefore, $changes[0]->quantityBefore);
-                static::assertEquals($quantityAfter, $changes[0]->newQuantity);
+                static::assertSame($this->ids->get('item-1'), $changes[0]->lineItemId);
+                static::assertSame($this->ids->get('product-1'), $changes[0]->productId);
+                static::assertSame($quantityBefore, $changes[0]->quantityBefore);
+                static::assertSame($quantityAfter, $changes[0]->newQuantity);
 
-                static::assertEquals($this->ids->get('item-2'), $changes[1]->lineItemId);
-                static::assertEquals($this->ids->get('product-2'), $changes[1]->productId);
-                static::assertEquals($quantityBefore, $changes[1]->quantityBefore);
-                static::assertEquals($quantityAfter, $changes[1]->newQuantity);
+                static::assertSame($this->ids->get('item-2'), $changes[1]->lineItemId);
+                static::assertSame($this->ids->get('product-2'), $changes[1]->productId);
+                static::assertSame($quantityBefore, $changes[1]->quantityBefore);
+                static::assertSame($quantityAfter, $changes[1]->newQuantity);
 
                 return true;
             }));

@@ -23,7 +23,7 @@
         >
             {% block sw_settings_snippet_list_smart_bar_header_title_text %}
             <span class="sw-settings_snippet_list__smart-bar-title-text">
-                {{ $tc('sw-settings-snippet.list.textSnippetList', snippetSets.length, { setName: metaName }) }}
+                {{ $tc('sw-settings-snippet.list.textSnippetList', { setName: metaName }, snippetSets.length) }}
             </span>
             {% endblock %}
 
@@ -152,7 +152,7 @@
                         :disabled="!acl.can('snippet.deleter') || undefined"
                         @click="onReset(item)"
                     >
-                        {{ $tc('sw-settings-snippet.list.contextMenuDelete', item.isCustomSnippet) }}
+                        {{ $tc('sw-settings-snippet.list.contextMenuDelete', {}, item.isCustomSnippet) }}
                     </sw-context-menu-item>
                     {% endblock %}
                 </template>
@@ -176,7 +176,7 @@
                             v-if="!item.isCustomSnippet"
                             class="sw-settings-snippet-list__delete-modal-confirm-reset-text"
                         >
-                            {{ $tc('sw-settings-snippet.list.textResetConfirm', queryIdCount, { key: item[metaId].translationKey }) }}
+                            {{ $tc('sw-settings-snippet.list.textResetConfirm', { key: item[metaId].translationKey }, queryIdCount) }}
                         </span>
                         {% endblock %}
 
@@ -253,7 +253,7 @@
                                 size="small"
                                 @click="onConfirmReset(item)"
                             >
-                                {{ $tc('sw-settings-snippet.list.contextMenuDelete', item.isCustomSnippet) }}
+                                {{ $tc('sw-settings-snippet.list.contextMenuDelete', {}, item.isCustomSnippet) }}
                             </mt-button>
                             {% endblock %}
                         </template>

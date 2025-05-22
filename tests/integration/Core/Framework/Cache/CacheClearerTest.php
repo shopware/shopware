@@ -52,7 +52,7 @@ class CacheClearerTest extends TestCase
                 Uuid::randomHex(),
                 '1.0.0@' . $i . '1eec7b5ea3f0fdbc95d0dd47f3c5bc275da8a33',
                 $original->getContainer()->get(Connection::class),
-                EnvironmentHelper::getVariable('PROJECT_ROOT')
+                (string) EnvironmentHelper::getVariable('PROJECT_ROOT')
             );
 
             $kernel->boot();
@@ -183,7 +183,7 @@ class CacheClearerTest extends TestCase
     public function testClearHttpCache(): void
     {
         $reverseProxyCache = $this->createMock(AbstractReverseProxyGateway::class);
-        $reverseProxyCache->expects(static::once())->method('banAll');
+        $reverseProxyCache->expects($this->once())->method('banAll');
 
         $cacheClearer = new CacheClearer(
             [],
@@ -201,10 +201,31 @@ class CacheClearerTest extends TestCase
         $cacheClearer->clearHttpCache();
     }
 
+    public function testClearWithClearHttpCacheClearsHTTPCacheInClusterMode(): void
+    {
+        $reverseProxyCache = $this->createMock(AbstractReverseProxyGateway::class);
+        $reverseProxyCache->expects($this->once())->method('banAll');
+
+        $cacheClearer = new CacheClearer(
+            [],
+            $this->createMock(CacheClearerInterface::class),
+            $reverseProxyCache,
+            $this->createMock(CacheInvalidator::class),
+            new Filesystem(),
+            $this->getKernel()->getCacheDir(),
+            'test',
+            true,
+            $this->createMock(MessageBusInterface::class),
+            $this->createMock(LoggerInterface::class),
+        );
+
+        $cacheClearer->clear(true);
+    }
+
     public function testClearHttpCacheWithoutReverseProxy(): void
     {
         $pool = $this->createMock(CacheItemPoolInterface::class);
-        $pool->expects(static::once())->method('clear');
+        $pool->expects($this->once())->method('clear');
 
         $cacheClearer = new CacheClearer(
             ['http' => $pool],

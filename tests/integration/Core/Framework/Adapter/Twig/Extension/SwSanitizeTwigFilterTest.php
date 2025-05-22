@@ -25,6 +25,6 @@ class SwSanitizeTwigFilterTest extends TestCase
         $filters = $this->swSanitize->getFilters();
 
         static::assertCount(1, $filters);
-        static::assertEquals('sw_sanitize', $filters[0]->getName());
+        static::assertSame('sw_sanitize', $filters[0]->getName());
     }
 }

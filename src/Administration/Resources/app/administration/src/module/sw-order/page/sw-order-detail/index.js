@@ -24,6 +24,7 @@ export default {
 
     provide() {
         return {
+            /** @deprecated tag:v6.8.0 - swOrderDetailOnCreatedByIdChange will be removed */
             swOrderDetailOnCreatedByIdChange: this.updateCreatedById,
             swOrderDetailOnLoadingChange: this.onUpdateLoading,
             swOrderDetailOnEditingChange: this.onUpdateEditing,
@@ -34,6 +35,7 @@ export default {
             swOrderDetailOnSaveEdits: this.onSaveEdits,
             swOrderDetailAskAndSaveEdits: this.askAndSaveEdits,
             swOrderDetailOnError: this.onError,
+            swOrderDetailHandleCartErrors: this.handleCartErrors,
         };
     },
 
@@ -54,6 +56,7 @@ export default {
             isEditing: false,
             isLoading: true,
             isSaveSuccessful: false,
+            /** @deprecated tag:v6.8.0 - createdById will be removed */
             createdById: '',
             isDisplayingLeavePageWarning: false,
             nextRoute: null,
@@ -116,7 +119,11 @@ export default {
         },
 
         deliveryDiscounts() {
-            return array.slice(this.order.deliveries, 1) || [];
+            if (!Shopware.Feature.isActive('v6.8.0.0')) {
+                return array.slice(this.order.deliveries, 1) || [];
+            }
+
+            return this.order.deliveries.filter((delivery) => delivery.id !== this.order.primaryOrderDeliveryId);
         },
 
         orderCriteria() {
@@ -136,11 +143,22 @@ export default {
             criteria
                 .addAssociation('addresses.country')
                 .addAssociation('addresses.countryState')
-                .addAssociation('deliveries.shippingMethod')
-                .addAssociation('deliveries.shippingOrderAddress')
-                .addAssociation('transactions.paymentMethod')
                 .addAssociation('documents.documentType')
-                .addAssociation('tags');
+                .addAssociation('tags')
+                .addAssociation('primaryOrderTransaction')
+                .addAssociation('primaryOrderTransaction.paymentMethod')
+                .addAssociation('primaryOrderTransaction.stateMachineState')
+                .addAssociation('primaryOrderDelivery')
+                .addAssociation('primaryOrderDelivery.shippingMethod')
+                .addAssociation('primaryOrderDelivery.stateMachineState')
+                .addAssociation('primaryOrderDelivery.shippingOrderAddress.country');
+
+            if (!Shopware.Feature.isActive('v6.8.0.0')) {
+                criteria
+                    .addAssociation('deliveries.shippingMethod')
+                    .addAssociation('deliveries.shippingOrderAddress')
+                    .addAssociation('transactions.paymentMethod');
+            }
 
             criteria.addAssociation('stateMachineState');
 
@@ -191,6 +209,7 @@ export default {
             this.nextRoute = next;
             this.isDisplayingLeavePageWarning = true;
         } else {
+            Shopware.Store.get('shopwareApps').selectedIds = [];
             next();
         }
     },
@@ -225,6 +244,9 @@ export default {
             }
         },
 
+        /**
+         * @deprecated tag:v6.8.0 - createdById will be removed (there is a template usage that needs to be removed as well)
+         */
         updateCreatedById(createdById) {
             this.createdById = createdById;
         },
@@ -309,7 +331,11 @@ export default {
                 };
 
                 if (addressMapping.type === 'shipping') {
-                    mapping.deliveryId = this.order.deliveries[0].id;
+                    mapping.deliveryId = this.order.primaryOrderDeliveryId;
+
+                    if (!Shopware.Feature.isActive('v6.8.0.0')) {
+                        mapping.deliveryId = this.order.deliveries[0].id;
+                    }
                 }
 
                 mappings.push(mapping);
@@ -371,13 +397,11 @@ export default {
             ]);
             this.isLoading = true;
 
-            this.order.lineItems = this.order.lineItems.filter((lineItem) => !this.automaticPromotions.includes(lineItem));
-            this.order.deliveries = this.order.deliveries.filter((delivery) => !this.deliveryDiscounts.includes(delivery));
-
             try {
                 await this.orderRepository.save(this.order, this.versionContext);
-                await this.orderService.recalculateOrder(this.orderId, this.versionContext.versionId, {}, {});
-                await this.orderService.toggleAutomaticPromotions(this.orderId, this.versionContext.versionId, false);
+                await this.orderService
+                    .recalculateOrder(this.orderId, this.versionContext.versionId, {}, {})
+                    .then(this.handleCartErrors.bind(this));
                 await this.reloadEntityData();
             } catch (error) {
                 this.onError('error', error);
@@ -395,22 +419,14 @@ export default {
                 'order',
                 true,
             ]);
+
             try {
-                this.promotionsToDelete = this.automaticPromotions.map((promotion) => promotion.id);
-                this.deliveryDiscountsToDelete = this.deliveryDiscounts.map((discount) => discount.id);
-                await this.orderService.recalculateOrder(this.orderId, this.versionContext.versionId, {}, {});
-                await this.orderService.toggleAutomaticPromotions(this.orderId, this.versionContext.versionId, false);
+                await this.orderService
+                    .recalculateOrder(this.orderId, this.versionContext.versionId, {}, {})
+                    .then(this.handleCartErrors.bind(this));
                 await this.reloadEntityData();
-                this.order.lineItems = this.order.lineItems.filter(
-                    (lineItem) => !this.promotionsToDelete.includes(lineItem.id),
-                );
-                this.order.deliveries = this.order.deliveries.filter(
-                    (delivery) => !this.deliveryDiscountsToDelete.includes(delivery.id),
-                );
             } catch (error) {
                 this.onError('error', error);
-                this.promotionsToDelete = [];
-                this.deliveryDiscountsToDelete = [];
             } finally {
                 Store.get('swOrderDetail').setLoading([
                     'order',
@@ -549,8 +565,35 @@ export default {
             return this.orderRepository.save(this.order, this.versionContext);
         },
 
+        handleCartErrors(response) {
+            if (!response?.data?.errors) {
+                return;
+            }
+
+            Object.values(response.data.errors).forEach(({ level, message }) => {
+                switch (level) {
+                    case 0: {
+                        this.createNotificationInfo({ message });
+                        break;
+                    }
+
+                    case 10: {
+                        this.createNotificationWarning({ message });
+                        break;
+                    }
+
+                    default: {
+                        this.createNotificationError({ message });
+                        break;
+                    }
+                }
+            });
+        },
+
         /**
          * Asks the user to save pending edits before e.g. doing a status change.
+         * This will trigger `onSaveEdits` and therefore merge the versioned order.
+         *
          * @returns Promise<bool> - `true` if it's safe to proceed (e.g. edits were saved)
          *  or `false` if the user wants to cancel the action.
          */

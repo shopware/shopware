@@ -63,6 +63,8 @@ import type FilterFactory from './core/factory/filter.factory';
 import type StateStyleService from './app/service/state-style.service';
 import type RuleConditionService from './app/service/rule-condition.service';
 import type SystemConfigApiService from './core/service/api/system-config.api.service';
+import type UpdateApiService from './core/service/api/update.api.service';
+import type UserRecoveryApiService from './core/service/api/user-recovery.api.service';
 import type { UsageDataApiService } from './core/service/api/usage-data.api.service';
 import type ConfigApiService from './core/service/api/config.api.service';
 import type ImportExportService from './module/sw-import-export/service/importExport.service';
@@ -112,6 +114,7 @@ import type { SettingsItems } from './app/store/settings-item.store';
 import type { ShopwareApps } from './app/store/shopware-apps.store';
 import type { System } from './app/store/system.store';
 import type { ModalsStore } from './app/store/modals.store';
+import type { SidebarStore } from './app/store/sidebar.store';
 import type { MenuItemStore } from './app/store/menu-item.store';
 import type { NotificationStore } from './app/store/notification.store';
 import type { TabsStore } from './app/store/tabs.store';
@@ -128,7 +131,9 @@ import type { SwProductDetailStore } from './module/sw-product/page/sw-product-d
 import type { SwProfileStore } from './module/sw-profile/store/sw-profile.store';
 import type { SwPromotionDetailStore } from './module/sw-promotion-v2/page/sw-promotion-v2-detail/store';
 import type { SwFlowStore } from './module/sw-flow/store/flow.store';
-import type { SwBulkStore } from './module/sw-bulk-edit/store/sw-bulk-edit.store';
+import type { SwBulkStore } from './app/store/sw-bulk-edit.store';
+// eslint-disable-next-line max-len
+import type createTextEditorDataMappingButton from './app/component/meteor-wrapper/mt-text-editor/sw-text-editor-toolbar-button-cms-data-mapping';
 
 // trick to make it an "external module" to support global type extension
 
@@ -183,26 +188,25 @@ declare global {
      */
     type Remove<T, K extends keyof T> = T & { [P in K]?: never };
 
+    interface CustomShopwareProperties {}
+
     /**
      * Make the Shopware object globally available
      */
-    const Shopware: ShopwareClass;
+    const Shopware: ShopwareClass & CustomShopwareProperties;
 
     type Entity<EntityName extends keyof EntitySchema.Entities> = EntitySchema.Entity<EntityName>;
     type EntityCollection<EntityName extends keyof EntitySchema.Entities> = EntitySchema.EntityCollection<EntityName>;
 
-    // eslint-disable-next-line @typescript-eslint/no-empty-object-type
-    interface CustomShopwareProperties {}
-
     interface Window {
-        Shopware: ShopwareClass;
+        Shopware: ShopwareClass & CustomShopwareProperties;
         _features_: {
             [featureName: string]: boolean;
         };
         _inAppPurchases_: Record<string, string>;
         processingInactivityLogout?: boolean;
         _sw_extension_component_collection: DevtoolComponent[];
-        // Only available with Vite
+        _swLoginOverrides?: Array<() => void>;
         startApplication: () => void;
     }
 
@@ -217,61 +221,63 @@ declare global {
      */
     // eslint-disable-next-line @typescript-eslint/no-empty-interface
     interface ServiceContainer extends SubContainer<'service'> {
-        loginService: LoginService;
-        feature: FeatureService;
-        menuService: $TSFixMe;
-        privileges: PrivilegesService;
-        customEntityDefinitionService: CustomEntityDefinitionService;
-        cmsPageTypeService: CmsPageTypeService;
         acl: AclService;
-        jsonApiParserService: typeof JsonApiParserService;
-        validationService: $TSFixMe;
-        entityValidationService: EntityValidationService;
-        timezoneService: $TSFixMe;
-        ruleConditionDataProviderService: RuleConditionService;
-        productStreamConditionService: $TSFixMe;
-        customFieldDataProviderService: $TSFixMe;
-        extensionHelperService: ExtensionHelperService;
-        languageAutoFetchingService: $TSFixMe;
-        stateStyleDataProviderService: StateStyleService;
-        searchTypeService: $TSFixMe;
-        localeToLanguageService: $TSFixMe;
-        entityMappingService: $TSFixMe;
-        shortcutService: $TSFixMe;
-        licenseViolationService: $TSFixMe;
-        localeHelper: $TSFixMe;
-        filterService: $TSFixMe;
-        mediaDefaultFolderService: $TSFixMe;
         appAclService: $TSFixMe;
         appCmsService: $TSFixMe;
-        entityHydrator: $TSFixMe;
-        entityFactory: $TSFixMe;
-        userService: UserApiService;
-        shopwareDiscountCampaignService: ShopwareDiscountCampaignService;
-        cmsService: CmsService;
-        cmsElementFavorites: cmsElementFavoritesService;
-        cmsBlockFavorites: cmsBlockFavoritesService;
-        searchRankingService: $TSFixMe;
-        searchPreferencesService: $TSFixMe;
-        storeService: StoreApiService;
-        contextStoreService: StoreContextService;
-        checkoutStoreService: CheckoutStoreService;
-        orderStateMachineService: OrderStateMachineApiService;
-        repositoryFactory: RepositoryFactory;
-        snippetService: $TSFixMe;
-        recentlySearchService: $TSFixMe;
-        extensionSdkService: ExtensionSdkService;
         appModulesService: AppModulesService;
-        cartStoreService: CartStoreService;
-        customSnippetApiService: CustomSnippetApiService;
-        userActivityService: UserActivityService;
-        filterFactory: FilterFactoryData;
-        systemConfigApiService: SystemConfigApiService;
-        usageDataService: UsageDataApiService;
-        configService: ConfigApiService;
-        importExport: ImportExportService;
-        fileValidationService: FileValidationService;
         businessEventService: BusinessEventsApiService;
+        cartStoreService: CartStoreService;
+        checkoutStoreService: CheckoutStoreService;
+        cmsBlockFavorites: cmsBlockFavoritesService;
+        cmsElementFavorites: cmsElementFavoritesService;
+        cmsPageTypeService: CmsPageTypeService;
+        cmsService: CmsService;
+        configService: ConfigApiService;
+        contextStoreService: StoreContextService;
+        customEntityDefinitionService: CustomEntityDefinitionService;
+        customFieldDataProviderService: $TSFixMe;
+        customSnippetApiService: CustomSnippetApiService;
+        entityFactory: $TSFixMe;
+        entityHydrator: $TSFixMe;
+        entityMappingService: $TSFixMe;
+        entityValidationService: EntityValidationService;
+        extensionHelperService: ExtensionHelperService;
+        extensionSdkService: ExtensionSdkService;
+        feature: FeatureService;
+        fileValidationService: FileValidationService;
+        filterFactory: FilterFactoryData;
+        filterService: $TSFixMe;
+        importExport: ImportExportService;
+        jsonApiParserService: typeof JsonApiParserService;
+        languageAutoFetchingService: $TSFixMe;
+        licenseViolationService: $TSFixMe;
+        localeHelper: $TSFixMe;
+        localeToLanguageService: $TSFixMe;
+        loginService: LoginService;
+        mediaDefaultFolderService: $TSFixMe;
+        menuService: $TSFixMe;
+        orderStateMachineService: OrderStateMachineApiService;
+        privileges: PrivilegesService;
+        productStreamConditionService: $TSFixMe;
+        recentlySearchService: $TSFixMe;
+        repositoryFactory: RepositoryFactory;
+        ruleConditionDataProviderService: RuleConditionService;
+        searchPreferencesService: $TSFixMe;
+        searchRankingService: $TSFixMe;
+        searchTypeService: $TSFixMe;
+        shopwareDiscountCampaignService: ShopwareDiscountCampaignService;
+        shortcutService: $TSFixMe;
+        snippetService: $TSFixMe;
+        stateStyleDataProviderService: StateStyleService;
+        storeService: StoreApiService;
+        systemConfigApiService: SystemConfigApiService;
+        timezoneService: $TSFixMe;
+        updateService: UpdateApiService;
+        usageDataService: UsageDataApiService;
+        userActivityService: UserActivityService;
+        userRecoveryService: UserRecoveryApiService;
+        userService: UserApiService;
+        validationService: $TSFixMe;
     }
 
     interface MixinContainer {
@@ -351,6 +357,7 @@ declare global {
         mapSystemConfigErrors: typeof mapErrors.mapSystemConfigErrors;
         mapCollectionPropertyErrors: typeof mapErrors.mapCollectionPropertyErrors;
         mapPageErrors: typeof mapErrors.mapPageErrors;
+        createTextEditorDataMappingButton: typeof createTextEditorDataMappingButton;
     }
 
     /**
@@ -386,6 +393,7 @@ declare global {
         shopwareApps: ShopwareApps;
         system: System;
         modals: ModalsStore;
+        sidebar: SidebarStore;
         menuItem: MenuItemStore;
         notification: NotificationStore;
         tabs: TabsStore;
@@ -430,6 +438,30 @@ declare global {
             previous?: ShopwareHttpError;
         };
         trace?: { [key: string]: string };
+    }
+
+    interface ShopwareErrorMeta {
+        parameters: {
+            dependency: string;
+            dependantNames: string;
+            themeName: string;
+            assignments: string;
+            [key: string]: unknown;
+        };
+        [key: string]: unknown;
+    }
+
+    interface ShopwareError {
+        code: string;
+        meta: ShopwareErrorMeta;
+    }
+
+    interface ShopwareApiError {
+        response: {
+            data: {
+                errors: ShopwareError[];
+            };
+        };
     }
 
     interface StoreApiException extends ShopwareHttpError {

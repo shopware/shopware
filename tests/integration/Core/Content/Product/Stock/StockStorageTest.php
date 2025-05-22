@@ -221,7 +221,7 @@ class StockStorageTest extends TestCase
         $dispatcher = static::getContainer()->get('event_dispatcher');
 
         $listener = $this->getMockBuilder(CallableClass::class)->getMock();
-        $listener->expects(static::exactly($triggered))->method('__invoke');
+        $listener->expects($this->exactly($triggered))->method('__invoke');
 
         $this->addEventListener($dispatcher, ProductNoLongerAvailableEvent::class, $listener);
 
@@ -312,7 +312,7 @@ class StockStorageTest extends TestCase
         $dispatcher = static::getContainer()->get('event_dispatcher');
         $listener = $this->getMockBuilder(CallableClass::class)->getMock();
 
-        $listener->expects(static::exactly($triggered))->method('__invoke');
+        $listener->expects($this->exactly($triggered))->method('__invoke');
         $this->addEventListener($dispatcher, ProductNoLongerAvailableEvent::class, $listener);
 
         $this->productRepository->update([['id' => $product['id'], 'stock' => $after]], $context);
@@ -422,11 +422,11 @@ class StockStorageTest extends TestCase
         static::getContainer()->get('order.repository')
             ->createVersion($orderId, $context);
 
-        $count = static::getContainer()
+        $count = (int) static::getContainer()
             ->get(Connection::class)
             ->fetchOne('SELECT COUNT(id) FROM `order` WHERE id = :id', ['id' => Uuid::fromHexToBytes($orderId)]);
 
-        static::assertEquals(3, $count);
+        static::assertSame(3, $count);
 
         $product = $this->productRepository->search(new Criteria([$id]), $context)->get($id);
 

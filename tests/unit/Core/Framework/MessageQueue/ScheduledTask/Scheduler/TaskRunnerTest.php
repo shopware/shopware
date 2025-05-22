@@ -36,7 +36,7 @@ class TaskRunnerTest extends TestCase
         $handler = new TestTaskHandler();
         $handler2 = new TestTask2Handler();
         $invalid = $this->createMock(StaticEntityRepository::class);
-        $invalid->expects(static::never())->method(static::anything());
+        $invalid->expects($this->never())->method(static::anything());
 
         $taskRunner = new TaskRunner([$handler, $handler2, $invalid], $this->getRepository());
         $taskRunner->runSingleTask('task-id', Context::createDefaultContext());
@@ -54,8 +54,10 @@ class TaskRunnerTest extends TestCase
         $task->setId('task-id');
         $task->setScheduledTaskClass(TestTask::class);
 
-        // @phpstan-ignore-next-line
-        return new StaticEntityRepository([new ScheduledTaskCollection([$task])]);
+        /** @var StaticEntityRepository<ScheduledTaskCollection> $repository */
+        $repository = new StaticEntityRepository([new ScheduledTaskCollection([$task])]);
+
+        return $repository;
     }
 }
 

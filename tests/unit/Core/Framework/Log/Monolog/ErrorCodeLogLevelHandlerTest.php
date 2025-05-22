@@ -28,10 +28,10 @@ class ErrorCodeLogLevelHandlerTest extends TestCase
     public function testHandler(LogRecord $record, array $errorCodeLogLevelMapping, Level $expectedLogLevel): void
     {
         $innerHandler = $this->createMock(FingersCrossedHandler::class);
-        $innerHandler->expects(static::once())
+        $innerHandler->expects($this->once())
             ->method('handle')
             ->willReturnCallback(static function (LogRecord $record) use ($expectedLogLevel): bool {
-                static::assertEquals($expectedLogLevel, $record->level);
+                static::assertSame($expectedLogLevel, $record->level);
 
                 return true;
             });

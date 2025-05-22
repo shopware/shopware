@@ -155,7 +155,7 @@ class CartContextHasherTest extends TestCase
         ]);
         $hashStruct->setShippingMethod('id');
 
-        $this->eventDispatcherMock->expects(static::once())->method('dispatch')
+        $this->eventDispatcherMock->expects($this->once())->method('dispatch')
                 ->with($event = new CartContextHashEvent($this->context, $this->cart, $hashStruct))
                 ->willReturn($event);
 

@@ -3,6 +3,7 @@
 namespace Shopware\Tests\Unit\Core\Service;
 
 use GuzzleHttp\ClientInterface;
+use GuzzleHttp\Psr7\Uri;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
@@ -44,7 +45,7 @@ class ServiceClientFactoryTest extends TestCase
     public function testNewForServiceRegistryEntry(): void
     {
         $this->httpClient
-            ->expects(static::once())
+            ->expects($this->once())
             ->method('withOptions')
             ->with([
                 'base_uri' => 'https://mycoolservice.com',
@@ -62,14 +63,14 @@ class ServiceClientFactoryTest extends TestCase
     public function testFromNameProxiesToServiceRegistryClient(): void
     {
         $this->httpClient
-            ->expects(static::once())
+            ->expects($this->once())
             ->method('withOptions')
             ->with([
                 'base_uri' => 'https://mycoolservice.com',
             ])
             ->willReturn($this->scopedClient);
         $serviceClientRegistry = static::createMock(ServiceRegistryClient::class);
-        $serviceClientRegistry->expects(static::once())
+        $serviceClientRegistry->expects($this->once())
             ->method('get')
             ->with('MyCoolService')
             ->willReturn(new ServiceRegistryEntry('MyCoolService', 'My Cool Service', 'https://mycoolservice.com', '/app-endpoint'));
@@ -101,10 +102,12 @@ class ServiceClientFactoryTest extends TestCase
 
         static::assertIsArray($headers);
         static::assertArrayHasKey('Content-Type', $headers);
-        static::assertEquals('application/json', $headers['Content-Type']);
-        static::assertEquals($context, $config[AuthMiddleware::APP_REQUEST_CONTEXT]);
+        static::assertSame('application/json', $headers['Content-Type']);
+        static::assertSame($context, $config[AuthMiddleware::APP_REQUEST_CONTEXT]);
         static::assertArrayHasKey('base_uri', $config);
-        static::assertEquals('https://example.com', $config['base_uri']);
+        $baseUri = $config['base_uri'];
+        static::assertInstanceOf(Uri::class, $baseUri);
+        static::assertSame('https://example.com', $baseUri->__toString());
     }
 
     public function testAuthenticatedClientThrowsExceptionWhenAppSecretNull(): void

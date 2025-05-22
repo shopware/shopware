@@ -17,7 +17,7 @@ use Twig\Template;
 /**
  * @internal
  */
-#[CoversClass('Shopware\Core\Framework\Adapter\Twig\SwTwigFunction')]
+#[CoversClass(SwTwigFunction::class)]
 class SwTwigFunctionTest extends TestCase
 {
     private MockObject&Environment $environmentMock;
@@ -34,7 +34,7 @@ class SwTwigFunctionTest extends TestCase
         $object = new ArrayStruct(['test' => null]);
         $result = SwTwigFunction::getAttribute($this->environmentMock, new Source('', 'empty'), $object, 'test');
 
-        static::assertEquals('', $result);
+        static::assertNull($result);
     }
 
     public function testSwGetAttributeValueBool(): void
@@ -55,7 +55,7 @@ class SwTwigFunctionTest extends TestCase
         $object = new ArrayStruct(['test' => 'value']);
         $result = SwTwigFunction::getAttribute($this->environmentMock, new Source('', 'empty'), $object, 'test');
 
-        static::assertEquals('value', $result);
+        static::assertSame('value', $result);
     }
 
     public function testSwGetAttributeGetterMethods(): void
@@ -71,11 +71,11 @@ class SwTwigFunctionTest extends TestCase
 
         $result = SwTwigFunction::getAttribute($this->environmentMock, new Source('', 'empty'), $object, 'value');
 
-        static::assertEquals('valueValue', $result);
+        static::assertSame('valueValue', $result);
 
         $result = SwTwigFunction::getAttribute($this->environmentMock, new Source('', 'empty'), $object, 'getValue');
 
-        static::assertEquals('valueValue', $result);
+        static::assertSame('valueValue', $result);
 
         $result = SwTwigFunction::getAttribute($this->environmentMock, new Source('', 'empty'), $object, 'visible');
 
@@ -103,7 +103,7 @@ class SwTwigFunctionTest extends TestCase
         $env->method('getRuntime')->willReturn(new EscaperRuntime($env));
         $result = SwTwigFunction::escapeFilter($env, null, 'html', 'UTF-8');
 
-        static::assertEquals('', $result);
+        static::assertSame('', $result);
     }
 
     public function testEscapeFilterWithIntegerInput(): void
@@ -112,7 +112,7 @@ class SwTwigFunctionTest extends TestCase
         $env->method('getRuntime')->willReturn(new EscaperRuntime($env));
         $result = SwTwigFunction::escapeFilter($env, 123, 'html', 'UTF-8');
 
-        static::assertEquals('123', $result);
+        static::assertSame('123', $result);
     }
 
     public function testEscapeFilterWithStringInput(): void
@@ -121,7 +121,7 @@ class SwTwigFunctionTest extends TestCase
         $env->method('getRuntime')->willReturn(new EscaperRuntime($env));
         $result = SwTwigFunction::escapeFilter($env, 'test', 'html', 'UTF-8');
 
-        static::assertEquals('test', $result);
+        static::assertSame('test', $result);
     }
 
     public function testEscapeFilterReallyEscapeString(): void
@@ -130,7 +130,7 @@ class SwTwigFunctionTest extends TestCase
         $env->method('getRuntime')->willReturn(new EscaperRuntime($env));
         $result = SwTwigFunction::escapeFilter($env, '<script>alert("test")</script>', 'html', 'UTF-8');
 
-        static::assertEquals('&lt;script&gt;alert(&quot;test&quot;)&lt;/script&gt;', $result);
+        static::assertSame('&lt;script&gt;alert(&quot;test&quot;)&lt;/script&gt;', $result);
     }
 
     public function testEscapeFilterWithCachedStringInput(): void
@@ -144,7 +144,7 @@ class SwTwigFunctionTest extends TestCase
         // Second call to get the cached result
         $result = SwTwigFunction::escapeFilter($env, 'cached_string', 'html', 'UTF-8');
 
-        static::assertEquals('cached_string', $result);
+        static::assertSame('cached_string', $result);
     }
 }
 
@@ -157,9 +157,6 @@ class StructForTests extends Struct
 
     private string $value;
 
-    /**
-     * @phpstan-ignore-next-line
-     */
     private int $noGetter;
 
     public function isVisible(): bool
@@ -185,5 +182,8 @@ class StructForTests extends Struct
     public function setNoGetter(int $noGetter): void
     {
         $this->noGetter = $noGetter;
+        if ($this->noGetter > 0) {
+            $this->visible = true;
+        }
     }
 }

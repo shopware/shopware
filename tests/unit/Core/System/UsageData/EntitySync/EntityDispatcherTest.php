@@ -508,7 +508,7 @@ class EntityDispatcherTest extends TestCase
     public function testDispatchDoesNotSendRequestInDevEnvironment(): void
     {
         $client = $this->createMock(HttpClientInterface::class);
-        $client->expects(static::never())->method('request');
+        $client->expects($this->never())->method('request');
 
         $entityDispatcher = new EntityDispatcher(
             $client,
@@ -533,7 +533,7 @@ class EntityDispatcherTest extends TestCase
     public function testDispatchSkipsIfNoEntitiesAreGiven(): void
     {
         $client = $this->createMock(HttpClientInterface::class);
-        $client->expects(static::never())->method('request');
+        $client->expects($this->never())->method('request');
 
         $entityDispatcher = new EntityDispatcher(
             $client,

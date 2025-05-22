@@ -175,7 +175,7 @@ class FileSaverTest extends TestCase
 
         $path = $media->getPath();
 
-        static::assertNotEquals($oldMediaFilePath, $path);
+        static::assertNotSame($oldMediaFilePath, $path);
         static::assertTrue($this->getPublicFilesystem()->has($path));
     }
 
@@ -592,11 +592,11 @@ class FileSaverTest extends TestCase
         $searchResult = new EntitySearchResult('temp', 1, $collection, null, new Criteria(), $context);
 
         $repositoryMock = $this->createMock(EntityRepository::class);
-        $repositoryMock->expects(static::exactly(2))
+        $repositoryMock->expects($this->exactly(2))
             ->method('search')
             ->willReturn($searchResult);
 
-        $repositoryMock->expects(static::once())
+        $repositoryMock->expects($this->once())
             ->method('update')
             ->willThrowException(new \Exception());
 

@@ -44,8 +44,14 @@ $focus-ring-width: 0.25rem !default;
 $focus-ring-opacity: 1 !default;
 $focus-ring-color: rgba($primary, $focus-ring-opacity) !default;
 $focus-ring-blur: 0 !default;
-$focus-ring-box-shadow: (0 0 0 0.125rem $body-bg, 0 0 $focus-ring-blur $focus-ring-width $focus-ring-color) !default;
-$focus-ring-box-shadow-inset: (inset 0 0 0 0.125rem $focus-ring-color, inset 0 0 0 0.25rem $body-bg) !default;
+$focus-ring-box-shadow: (
+    0 0 0 0.125rem $body-bg,
+    0 0 $focus-ring-blur $focus-ring-width $focus-ring-color
+) !default;
+$focus-ring-box-shadow-inset: (
+    inset 0 0 0 0.125rem $focus-ring-color,
+    inset 0 0 0 0.25rem $body-bg
+) !default;
 
 $border-radius: 0 !default;
 $border-radius-lg: 0 !default;
@@ -75,8 +81,8 @@ $link-decoration: underline !default;
 $link-hover-decoration: underline !default;
 
 // Buttons + Forms
-$input-btn-padding-y: 0.5625rem !default;
-$input-btn-padding-x: 0.5625rem !default;
+$input-padding-y: 0.438rem !default;
+$input-padding-x: 0.5625rem !default;
 
 $input-placeholder-color: #666977 !default;
 
@@ -86,6 +92,7 @@ $form-label-margin-bottom: 3px !default;
 $btn-padding-y: 2px !default;
 $btn-padding-x: 12px !default;
 $btn-line-height: 2.125rem !default;
+$btn-white-space: nowrap !default;
 
 $btn-padding-y-sm: 2px !default;
 $btn-padding-x-sm: 12px !default;
@@ -115,7 +122,10 @@ $input-btn-focus-width: $focus-ring-width !default;
 $input-btn-focus-color: $focus-ring-color !default;
 $form-select-focus-border-color: $input-focus-border-color !default;
 $form-select-focus-width: $input-btn-focus-width !default;
-$form-select-focus-box-shadow: (0 0 0 0.125rem $body-bg, 0 0 $focus-ring-blur $focus-ring-width $focus-ring-color) !default;
+$form-select-focus-box-shadow: (
+    0 0 0 0.125rem $body-bg,
+    0 0 $focus-ring-blur $focus-ring-width $focus-ring-color
+) !default;
 
 // Pagination
 $pagination-color: $sw-text-color !default;
@@ -176,3 +186,6 @@ $alert-border-width: 1px !default;
 $badge-border-radius: 50px !default;
 $badge-padding-x: 5px !default;
 $badge-padding-y: 0 !default;
+
+// Navbar
+$navbar-light-active-color: $primary !default;

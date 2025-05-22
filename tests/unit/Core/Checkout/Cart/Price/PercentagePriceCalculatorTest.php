@@ -19,12 +19,14 @@ use Shopware\Core\Checkout\Cart\Tax\Struct\CalculatedTaxCollection;
 use Shopware\Core\Checkout\Cart\Tax\Struct\TaxRule;
 use Shopware\Core\Checkout\Cart\Tax\Struct\TaxRuleCollection;
 use Shopware\Core\Checkout\Cart\Tax\TaxCalculator;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Test\Generator;
 
 /**
  * @internal
  */
 #[CoversClass(PercentagePriceCalculator::class)]
+#[Package('checkout')]
 class PercentagePriceCalculatorTest extends TestCase
 {
     #[DataProvider('grossPriceDataProvider')]
@@ -51,9 +53,9 @@ class PercentagePriceCalculatorTest extends TestCase
         static::assertEquals($expected, $price);
         static::assertEquals($expected->getCalculatedTaxes(), $price->getCalculatedTaxes());
         static::assertEquals($expected->getTaxRules(), $price->getTaxRules());
-        static::assertEquals($expected->getTotalPrice(), $price->getTotalPrice());
-        static::assertEquals($expected->getUnitPrice(), $price->getUnitPrice());
-        static::assertEquals($expected->getQuantity(), $price->getQuantity());
+        static::assertSame($expected->getTotalPrice(), $price->getTotalPrice());
+        static::assertSame($expected->getUnitPrice(), $price->getUnitPrice());
+        static::assertSame($expected->getQuantity(), $price->getQuantity());
     }
 
     public static function grossPriceDataProvider(): \Generator
@@ -178,6 +180,7 @@ class PercentagePriceCalculatorTest extends TestCase
 /**
  * @internal
  */
+#[Package('checkout')]
 class PercentageCalculation
 {
     public function __construct(

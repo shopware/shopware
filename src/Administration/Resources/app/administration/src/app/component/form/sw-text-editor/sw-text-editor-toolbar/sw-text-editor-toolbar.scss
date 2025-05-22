@@ -75,4 +75,15 @@ $sw-text-editor-toolbar-item-color-boxed: #9aa8b5;
             justify-self: end;
         }
     }
+
+    .mt-colorpicker .mt-field__addition,
+    .mt-colorpicker__previewWrapper {
+        width: 18px;
+        height: 18px;
+    }
+
+    .mt-colorpicker .mt-block-field__block {
+        min-height: auto;
+        padding-top: 4px;
+    }
 }

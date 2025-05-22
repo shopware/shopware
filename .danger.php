@@ -2,7 +2,6 @@
 
 use Danger\Config;
 use Danger\Context;
-use Danger\Platform\Github\Github;
 use Danger\Rule\Condition;
 use Danger\Struct\File;
 
@@ -13,7 +12,6 @@ const COMPOSER_PACKAGE_EXCEPTIONS = [
     ],
     'strict' => [
         '^phpstan\/phpstan.*$' => 'Even patch updates for PHPStan may lead to a red CI pipeline, because of new static analysis errors',
-        '^phpstan\/phpdoc-parser.*$' => 'Even patch updates for PHPStan plugins may lead to a red CI pipeline, because of no lock on their side',
         '^friendsofphp\/php-cs-fixer$' => 'Even patch updates for PHP-CS-Fixer may lead to a red CI pipeline, because of new style issues',
         '^symplify\/phpstan-rules$' => 'Even patch updates for PHPStan plugins may lead to a red CI pipeline, because of new static analysis errors',
         '^rector\/type-perfect$' => 'Even patch updates for PHPStan plugins may lead to a red CI pipeline, because of new static analysis errors',
@@ -34,6 +32,11 @@ const BaseTestClasses = [
 
 return (new Config())
     ->useThreadOn(Config::REPORT_LEVEL_WARNING)
+    ->useRule(function (Context $context): void {
+        if ($context->platform->pullRequest->getFiles()->has('.danger.php')) {
+            $context->notice('Any changes to .danger.php will not be reflected in your pull request. Commit your changes separately.');
+        }
+    })
     ->useRule(function (Context $context): void {
         $files = $context->platform->pullRequest->getFiles();
 
@@ -218,10 +221,6 @@ return (new Config())
         $addedLegacyTests = [];
 
         foreach ($addedFiles->matches('src/**/*Test.php') as $file) {
-            if (str_contains($file->name, 'src/WebInstaller/')) {
-                continue;
-            }
-
             $content = $file->getContent();
 
             if (str_contains($content, 'extends TestCase')) {
@@ -238,7 +237,7 @@ return (new Config())
     })
     ->useRule(function (Context $context): void {
         $addedUnitTests = $context->platform->pullRequest->getFiles()
-            ->filter(fn (File $file) => in_array($file->status, [File::STATUS_ADDED, File::STATUS_MODIFIED], true))
+            ->filter(fn (File $file) => in_array($file->status, [File::STATUS_ADDED, File::STATUS_MODIFIED, File::STATUS_RENAMED], true))
             ->matches('tests/unit/**/*Test.php');
 
         $addedSrcFiles = $context->platform->pullRequest->getFiles()->filterStatus(File::STATUS_ADDED)->matches('src/**/*.php');
@@ -364,7 +363,6 @@ return (new Config())
 
         foreach ($composerFiles as $composerFile) {
             if ($composerFile->status === File::STATUS_REMOVED
-                || str_contains((string) $composerFile->name, 'src/WebInstaller')
                 || str_contains((string) $composerFile->name, '/Test/')
             ) {
                 continue;
@@ -373,7 +371,6 @@ return (new Config())
             $composerContent = json_decode($composerFile->getContent(), true);
             $requirements = array_merge(
                 $composerContent['require'] ?? [],
-                $composerContent['require-dev'] ?? []
             );
 
             foreach ($requirements as $package => $constraint) {

@@ -40,7 +40,7 @@ class ThemeNamespaceHierarchyBuilderTest extends TestCase
     {
         $events = $this->builder->getSubscribedEvents();
 
-        static::assertEquals([
+        static::assertSame([
             KernelEvents::REQUEST,
             KernelEvents::EXCEPTION,
             DocumentTemplateRendererParameterEvent::class,
@@ -86,7 +86,7 @@ class ThemeNamespaceHierarchyBuilderTest extends TestCase
         ];
         $connectionMock = $this->createMock(Connection::class);
         if (\array_key_exists('context', $parameters)) {
-            $connectionMock->expects(static::exactly(1))->method('fetchAssociative')->willReturn($expectedDB);
+            $connectionMock->expects($this->exactly(1))->method('fetchAssociative')->willReturn($expectedDB);
         }
         $cachedThemeLoader = new DatabaseSalesChannelThemeLoader($connectionMock);
 
@@ -149,7 +149,7 @@ class ThemeNamespaceHierarchyBuilderTest extends TestCase
 
         $hierarchy = $this->builder->buildNamespaceHierarchy(['a', 'b']);
 
-        static::assertEquals($bundles, $hierarchy);
+        static::assertSame($bundles, $hierarchy);
     }
 
     public function testItPassesBundlesAndThemesToBuilder(): void

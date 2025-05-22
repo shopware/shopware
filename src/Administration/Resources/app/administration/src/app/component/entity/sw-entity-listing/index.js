@@ -4,13 +4,12 @@
 
 import template from './sw-entity-listing.html.twig';
 
-const { Component } = Shopware;
 const { Criteria } = Shopware.Data;
 
 /**
  * @private
  */
-Component.extend('sw-entity-listing', 'sw-data-grid', {
+export default {
     template,
 
     inject: ['feature'],
@@ -203,8 +202,8 @@ Component.extend('sw-entity-listing', 'sw-data-grid', {
             this.records = result;
             const { total, criteria } = result;
             this.total = total;
-            this.page = criteria.page || 1;
-            this.limit = criteria.limit || this.criteriaLimit;
+            this.page = criteria?.page || 1;
+            this.limit = criteria?.limit || this.criteriaLimit;
             this.loading = false;
 
             if (criteria?.sortings?.[0]?.field) {
@@ -348,4 +347,4 @@ Component.extend('sw-entity-listing', 'sw-data-grid', {
             this.$emit('bulk-edit-modal-close');
         },
     },
-});
+};

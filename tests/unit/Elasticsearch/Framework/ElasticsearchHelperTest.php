@@ -23,7 +23,7 @@ class ElasticsearchHelperTest extends TestCase
     public function testLogAndThrowException(): void
     {
         $logger = $this->createMock(LoggerInterface::class);
-        $logger->expects(static::once())->method('critical');
+        $logger->expects($this->once())->method('critical');
         $helper = new ElasticsearchHelper(
             'prod',
             true,
@@ -44,7 +44,7 @@ class ElasticsearchHelperTest extends TestCase
     public function testLogAndThrowExceptionOnlyLogs(): void
     {
         $logger = $this->createMock(LoggerInterface::class);
-        $logger->expects(static::once())->method('critical');
+        $logger->expects($this->once())->method('critical');
         $helper = new ElasticsearchHelper(
             'prod',
             true,

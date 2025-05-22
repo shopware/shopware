@@ -91,13 +91,13 @@ class PasswordFieldSerializerTest extends TestCase
         $params = new WriteParameterBag(new ProductDefinition(), WriteContext::createFromContext(Context::createDefaultContext()), '', new WriteCommandQueue());
 
         if (\in_array($for, array_keys(PasswordFieldSerializer::CONFIG_MIN_LENGTH_FOR), true)) {
-            $this->systemConfigService->expects(static::once())->method('getInt')->willReturn($minPasswordValue);
+            $this->systemConfigService->expects($this->once())->method('getInt')->willReturn($minPasswordValue);
         } else {
-            $this->systemConfigService->expects(static::never())->method('getInt');
+            $this->systemConfigService->expects($this->never())->method('getInt');
         }
 
         $this->validator
-            ->expects(static::exactly(\count($constraints)))->method('validate')
+            ->expects($this->exactly(\count($constraints)))->method('validate')
             ->willReturn($constraintViolations);
 
         $result = $this->serializer->encode($field, $existence, $kv, $params)->current();
@@ -106,7 +106,7 @@ class PasswordFieldSerializerTest extends TestCase
             $inputPasswordHashed = !empty(password_get_info($inputPassword)['algo']);
 
             if ($inputPasswordHashed) {
-                static::assertEquals($inputPassword, $result);
+                static::assertSame($inputPassword, $result);
             } else {
                 static::assertTrue(password_verify($inputPassword, $result));
             }

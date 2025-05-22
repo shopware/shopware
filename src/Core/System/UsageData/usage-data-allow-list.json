@@ -2064,5 +2064,28 @@
     "position",
     "rotation",
     "scale"
+  ],
+  "b2b_employee": [
+    "id",
+    "businessPartnerCustomerId"
+  ],
+  "b2b_components_role": [
+    "id",
+    "businessPartnerCustomerId"
+  ],
+  "b2b_components_shopping_list": [
+    "id",
+    "active"
+  ],
+  "b2b_components_organization": [
+    "id"
+  ],
+  "quote": [
+    "id"
+  ],
+  "b2b_components_approval_rule": [
+    "id",
+    "businessPartnerCustomerId",
+    "active"
   ]
 }

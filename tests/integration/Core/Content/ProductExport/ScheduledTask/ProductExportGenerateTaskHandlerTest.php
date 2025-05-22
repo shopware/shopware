@@ -81,7 +81,7 @@ class ProductExportGenerateTaskHandlerTest extends TestCase
 
         $newExport = $this->productExportRepository->search(new Criteria([$exportId]), $this->context)->getEntities()->first();
         static::assertNotNull($newExport);
-        static::assertEquals($previousGeneratedAt, $newExport->getGeneratedAt());
+        static::assertSame($previousGeneratedAt->format(Defaults::STORAGE_DATE_TIME_FORMAT), $newExport->getGeneratedAt()?->format(Defaults::STORAGE_DATE_TIME_FORMAT));
     }
 
     protected function createSecondStorefrontSalesChannel(): void

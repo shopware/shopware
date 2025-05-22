@@ -30,7 +30,7 @@ class SearchConfigLoaderTest extends TestCase
     {
         $connection = $this->createMock(Connection::class);
 
-        $connection->expects(static::once())
+        $connection->expects($this->once())
             ->method('fetchAllAssociative')
             ->willReturn($configKeyedByLanguageId[array_key_first($configKeyedByLanguageId)]);
 
@@ -48,7 +48,7 @@ class SearchConfigLoaderTest extends TestCase
 
         $result = $loader->load($context);
 
-        static::assertEquals($expectedResult, $result);
+        static::assertSame($expectedResult, $result);
     }
 
     public function testLoadWithNoResult(): void
@@ -57,7 +57,7 @@ class SearchConfigLoaderTest extends TestCase
         static::expectExceptionMessage('Configuration for product elasticsearch definition not found');
 
         $connection = $this->createMock(Connection::class);
-        $connection->expects(static::once())
+        $connection->expects($this->once())
             ->method('fetchAllAssociative')
             ->willReturn([]);
 

@@ -67,7 +67,7 @@ class IterateEntityMessageHandlerTest extends TestCase
         $definitionRegistry = static::getContainer()->get(DefinitionInstanceRegistry::class);
 
         $entityDefinitionService = $this->createMock(EntityDefinitionService::class);
-        $entityDefinitionService->expects(static::any())
+        $entityDefinitionService->expects($this->any())
             ->method('getAllowedEntityDefinition')
             ->with('product')
             ->willReturn($definitionRegistry->get(ProductDefinition::class));
@@ -103,8 +103,8 @@ class IterateEntityMessageHandlerTest extends TestCase
 
         static::assertInstanceOf(DispatchEntityMessage::class, $entitySyncMessage);
 
-        static::assertEquals('product', $entitySyncMessage->entityName);
-        static::assertEquals([
+        static::assertSame('product', $entitySyncMessage->entityName);
+        static::assertSame([
             ['id' => $productIds->get('product-from-the-past')],
             ['id' => $productIds->get('product-created-on-last-run-date')],
             ['id' => $productIds->get('product-created-today')],
@@ -121,7 +121,7 @@ class IterateEntityMessageHandlerTest extends TestCase
         $definitionRegistry = static::getContainer()->get(DefinitionInstanceRegistry::class);
 
         $entityDefinitionService = $this->createMock(EntityDefinitionService::class);
-        $entityDefinitionService->expects(static::any())
+        $entityDefinitionService->expects($this->any())
             ->method('getAllowedEntityDefinition')
             ->with('product')
             ->willReturn($definitionRegistry->get(ProductDefinition::class));
@@ -157,8 +157,8 @@ class IterateEntityMessageHandlerTest extends TestCase
 
         static::assertInstanceOf(DispatchEntityMessage::class, $entitySyncMessage);
 
-        static::assertEquals('product', $entitySyncMessage->entityName);
-        static::assertEquals([
+        static::assertSame('product', $entitySyncMessage->entityName);
+        static::assertSame([
             ['id' => $productIds->get('product-created-on-last-run-date')],
             ['id' => $productIds->get('product-created-today')],
         ], array_values($entitySyncMessage->primaryKeys));
@@ -175,7 +175,7 @@ class IterateEntityMessageHandlerTest extends TestCase
         $definitionRegistry = static::getContainer()->get(DefinitionInstanceRegistry::class);
 
         $entityDefinitionService = $this->createMock(EntityDefinitionService::class);
-        $entityDefinitionService->expects(static::any())
+        $entityDefinitionService->expects($this->any())
             ->method('getAllowedEntityDefinition')
             ->with('product')
             ->willReturn($definitionRegistry->get(ProductDefinition::class));
@@ -213,7 +213,7 @@ class IterateEntityMessageHandlerTest extends TestCase
         $entitySyncMessage = $dispatchedMessages[0]->getMessage();
 
         static::assertInstanceOf(DispatchEntityMessage::class, $entitySyncMessage);
-        static::assertEquals(
+        static::assertSame(
             [
                 ['id' => $ids->get('product-from-the-past')],
             ],
@@ -224,15 +224,15 @@ class IterateEntityMessageHandlerTest extends TestCase
     public function testItLogsExceptionWithTableDoesNotExistExceptionIsThrown(): void
     {
         $logger = $this->createMock(Logger::class);
-        $logger->expects(static::once())->method('error');
+        $logger->expects($this->once())->method('error');
 
         $consentService = $this->createMock(ConsentService::class);
-        $consentService->expects(static::once())
+        $consentService->expects($this->once())
             ->method('getLastConsentIsAcceptedDate')
             ->willReturn(new \DateTimeImmutable());
 
         $entityDefinitionService = $this->createMock(EntityDefinitionService::class);
-        $entityDefinitionService->expects(static::once())
+        $entityDefinitionService->expects($this->once())
             ->method('getAllowedEntityDefinition')
             ->with('test_entity')
             ->willReturn(new TestEntityDefinition());
@@ -280,25 +280,25 @@ class IterateEntityMessageHandlerTest extends TestCase
 
         $connection = static::getContainer()->get(Connection::class);
 
-        static::assertEquals(1, $connection->update(
+        static::assertSame(1, $connection->update(
             '`product`',
             ['`created_at`' => '2023-05-24', '`updated_at`' => null],
             ['`product_number`' => 'product-from-the-past'],
         ));
 
-        static::assertEquals(1, $connection->update(
+        static::assertSame(1, $connection->update(
             '`product`',
             ['`created_at`' => '2023-08-02', '`updated_at`' => null],
             ['`product_number`' => 'product-created-on-last-run-date'],
         ));
 
-        static::assertEquals(1, $connection->update(
+        static::assertSame(1, $connection->update(
             '`product`',
             ['`created_at`' => '2023-08-03', '`updated_at`' => null],
             ['`product_number`' => 'product-created-today'],
         ));
 
-        static::assertEquals(1, $connection->update(
+        static::assertSame(1, $connection->update(
             '`product`',
             ['`created_at`' => '2022-08-02', '`updated_at`' => '2023-08-02'],
             ['`product_number`' => 'product-updated-today'],

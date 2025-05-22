@@ -34,7 +34,7 @@ class ServiceSourceResolverTest extends TestCase
             $this->createMock(Filesystem::class),
             $this->createMock(EventDispatcherInterface::class)
         );
-        static::assertEquals('service', $source->name());
+        static::assertSame('service', $source->name());
     }
 
     public function testSupportsOnlyConsidersServiceTypes(): void
@@ -134,15 +134,15 @@ class ServiceSourceResolverTest extends TestCase
         $appInfo = new AppInfo('MyCoolService', '6.7.0.0', 'abcd', '6.7.0.0-abcd', 'https://mycoolservice.com/service/lifecycle/app-zip/6.7.0.0');
 
         $serviceClient = $this->createMock(ServiceClient::class);
-        $serviceClient->expects(static::once())->method('latestAppInfo')->willReturn($appInfo);
-        $serviceClient->expects(static::once())
+        $serviceClient->expects($this->once())->method('latestAppInfo')->willReturn($appInfo);
+        $serviceClient->expects($this->once())
             ->method('downloadAppZipForVersion')
             ->with('https://mycoolservice.com/service/lifecycle/app-zip/6.7.0.0', '/some/tmp/path/MyCoolService/MyCoolService.zip')
             ->willReturn($appInfo);
-        $serviceClientFactory->expects(static::once())->method('fromName')->with('MyCoolService')->willReturn($serviceClient);
+        $serviceClientFactory->expects($this->once())->method('fromName')->with('MyCoolService')->willReturn($serviceClient);
 
         $temporaryDirectoryFactory = $this->createMock(TemporaryDirectoryFactory::class);
-        $temporaryDirectoryFactory->expects(static::any())->method('path')->willReturn('/some/tmp/path');
+        $temporaryDirectoryFactory->expects($this->any())->method('path')->willReturn('/some/tmp/path');
 
         $source = new ServiceSourceResolver(
             $temporaryDirectoryFactory,
@@ -154,7 +154,7 @@ class ServiceSourceResolverTest extends TestCase
 
         $fs = $source->filesystem($app);
 
-        static::assertEquals('/some/tmp/path/MyCoolService', $fs->location);
+        static::assertSame('/some/tmp/path/MyCoolService', $fs->location);
     }
 
     #[DataProvider('appProvider')]
@@ -164,16 +164,16 @@ class ServiceSourceResolverTest extends TestCase
 
         $appExtractor = $this->createMock(AppExtractor::class);
         $filesystem = $this->createMock(Filesystem::class);
-        $filesystem->expects(static::once())->method('exists')->with('/some/tmp/path/MyCoolService')->willReturn(true);
+        $filesystem->expects($this->once())->method('exists')->with('/some/tmp/path/MyCoolService')->willReturn(true);
 
         $appInfo = new AppInfo('MyCoolService', '6.7.0.0', 'abcd', '6.7.0.0-abcd', 'https://mycoolservice.com/service/lifecycle/app-zip/6.7.0.0');
 
         $serviceClient = $this->createMock(ServiceClient::class);
-        $serviceClient->expects(static::never())->method('latestAppInfo')->willReturn($appInfo);
-        $serviceClient->expects(static::never())->method('downloadAppZipForVersion');
+        $serviceClient->expects($this->never())->method('latestAppInfo')->willReturn($appInfo);
+        $serviceClient->expects($this->never())->method('downloadAppZipForVersion');
 
         $temporaryDirectoryFactory = $this->createMock(TemporaryDirectoryFactory::class);
-        $temporaryDirectoryFactory->expects(static::any())->method('path')->willReturn('/some/tmp/path');
+        $temporaryDirectoryFactory->expects($this->any())->method('path')->willReturn('/some/tmp/path');
 
         $source = new ServiceSourceResolver(
             $temporaryDirectoryFactory,
@@ -185,7 +185,7 @@ class ServiceSourceResolverTest extends TestCase
 
         $fs = $source->filesystem($app);
 
-        static::assertEquals('/some/tmp/path/MyCoolService', $fs->location);
+        static::assertSame('/some/tmp/path/MyCoolService', $fs->location);
     }
 
     public function testFilesystemForAppDownloadsServiceUsingClient(): void
@@ -198,15 +198,15 @@ class ServiceSourceResolverTest extends TestCase
         $appInfo = new AppInfo('MyCoolService', '6.7.0.0', 'abcd', '6.7.0.0-abcd', 'https://mycoolservice.com/service/lifecycle/app-zip/6.7.0.0');
 
         $serviceClient = $this->createMock(ServiceClient::class);
-        $serviceClient->expects(static::once())->method('latestAppInfo')->willReturn($appInfo);
-        $serviceClient->expects(static::once())
+        $serviceClient->expects($this->once())->method('latestAppInfo')->willReturn($appInfo);
+        $serviceClient->expects($this->once())
             ->method('downloadAppZipForVersion')
             ->with('https://mycoolservice.com/service/lifecycle/app-zip/6.7.0.0', '/some/tmp/path/MyCoolService/MyCoolService.zip')
             ->willReturn($appInfo);
-        $serviceClientFactory->expects(static::once())->method('fromName')->with('MyCoolService')->willReturn($serviceClient);
+        $serviceClientFactory->expects($this->once())->method('fromName')->with('MyCoolService')->willReturn($serviceClient);
 
         $temporaryDirectoryFactory = $this->createMock(TemporaryDirectoryFactory::class);
-        $temporaryDirectoryFactory->expects(static::any())->method('path')->willReturn('/some/tmp/path');
+        $temporaryDirectoryFactory->expects($this->any())->method('path')->willReturn('/some/tmp/path');
 
         $source = new ServiceSourceResolver(
             $temporaryDirectoryFactory,
@@ -228,7 +228,7 @@ class ServiceSourceResolverTest extends TestCase
 
         $fs = $source->filesystem($app);
 
-        static::assertEquals('/some/tmp/path/MyCoolService', $fs->location);
+        static::assertSame('/some/tmp/path/MyCoolService', $fs->location);
     }
 
     public function testIfLatestVersionIsNotInstalledServiceIsUpdatedFirst(): void
@@ -241,15 +241,15 @@ class ServiceSourceResolverTest extends TestCase
         $appInfo = new AppInfo('MyCoolService', '6.7.0.0', 'abcd', '6.7.0.0-abcd', 'https://mycoolservice.com/service/lifecycle/app-zip/6.7.0.0');
 
         $serviceClient = $this->createMock(ServiceClient::class);
-        $serviceClient->expects(static::once())->method('latestAppInfo')->willReturn($appInfo);
-        $serviceClient->expects(static::never())->method('downloadAppZipForVersion');
-        $serviceClientFactory->expects(static::once())->method('fromName')->with('MyCoolService')->willReturn($serviceClient);
+        $serviceClient->expects($this->once())->method('latestAppInfo')->willReturn($appInfo);
+        $serviceClient->expects($this->never())->method('downloadAppZipForVersion');
+        $serviceClientFactory->expects($this->once())->method('fromName')->with('MyCoolService')->willReturn($serviceClient);
 
         $temporaryDirectoryFactory = $this->createMock(TemporaryDirectoryFactory::class);
-        $temporaryDirectoryFactory->expects(static::any())->method('path')->willReturn('/some/tmp/path');
+        $temporaryDirectoryFactory->expects($this->any())->method('path')->willReturn('/some/tmp/path');
 
         $eventDispatcher = $this->createMock(EventDispatcherInterface::class);
-        $eventDispatcher->expects(static::once())->method('dispatch')->with(static::isInstanceOf(ServiceOutdatedEvent::class));
+        $eventDispatcher->expects($this->once())->method('dispatch')->with(static::isInstanceOf(ServiceOutdatedEvent::class));
 
         $source = new ServiceSourceResolver(
             $temporaryDirectoryFactory,
@@ -269,6 +269,6 @@ class ServiceSourceResolverTest extends TestCase
 
         $fs = $source->filesystem($app);
 
-        static::assertEquals('/some/tmp/path/MyCoolService', $fs->location);
+        static::assertSame('/some/tmp/path/MyCoolService', $fs->location);
     }
 }

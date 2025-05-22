@@ -77,7 +77,7 @@ class AuthControllerTest extends TestCase
         $dataBag = new RequestDataBag();
         $page = new AccountLoginPage();
 
-        $this->accountLoginPageLoader->expects(static::once())
+        $this->accountLoginPageLoader->expects($this->once())
             ->method('load')
             ->with($request, $context)
             ->willReturn($page);
@@ -104,7 +104,7 @@ class AuthControllerTest extends TestCase
         static::assertArrayHasKey('frontend.account.login.page', $this->controller->redirected);
         static::assertArrayHasKey('danger', $this->controller->flashBag);
         static::assertArrayHasKey(0, $this->controller->flashBag['danger']);
-        static::assertEquals('account.orderGuestLoginWrongCredentials', $this->controller->flashBag['danger'][0]);
+        static::assertSame('account.orderGuestLoginWrongCredentials', $this->controller->flashBag['danger'][0]);
     }
 
     public function testGenerateAccountRecoveryThrowsConstraintException(): void
@@ -127,7 +127,7 @@ class AuthControllerTest extends TestCase
         $exception = new ConstraintViolationException($violations, ['email' => 'test@test']);
 
         $this->passwordRecoveryPageLoader
-            ->expects(static::once())
+            ->expects($this->once())
             ->method('sendRecoveryMail')
             ->willThrowException($exception);
 

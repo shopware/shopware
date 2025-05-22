@@ -11,7 +11,7 @@ async function createWrapper(useTime) {
         propsData: {
             condition: {
                 value: {
-                    useTime: useTime
+                    useTime: useTime,
                 },
 
                 getEntityName: () => 'rule_condition',
@@ -60,11 +60,11 @@ describe('component/rule/sw-condition-date-range', () => {
         const wrapper = await createWrapper();
         await flushPromises();
 
-        const datepickerCollection  = wrapper.findAll('.wrapper .dp__main');
+        const datepickerCollection = wrapper.findAll('.wrapper .dp__main');
 
         expect(datepickerCollection).toHaveLength(2);
 
-        datepickerCollection.forEach(datepicker => {
+        datepickerCollection.forEach((datepicker) => {
             expect(datepicker.attributes('type')).toBe('date');
         });
 
@@ -74,9 +74,9 @@ describe('component/rule/sw-condition-date-range', () => {
         await wrapper.find('.sw-select-option--true').trigger('click');
         await flushPromises();
 
-        datepickerCollection.forEach(datepicker => {
+        datepickerCollection.forEach((datepicker) => {
             expect(datepicker.attributes('type')).toBe('datetime');
-        })
+        });
     });
 
     it('should select a fromDate without time', async () => {

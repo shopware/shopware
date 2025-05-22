@@ -46,7 +46,7 @@ class CreateAppCommandTest extends TestCase
         );
 
         static::assertFileExists($this->appDir . '/TestApp/manifest.xml');
-        static::assertEquals(
+        static::assertSame(
             <<<EOL
             <?xml version="1.0" encoding="UTF-8"?>
             <manifest xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
@@ -80,7 +80,7 @@ class CreateAppCommandTest extends TestCase
 
         static::assertFileExists($this->appDir . '/TestApp/manifest.xml');
         static::assertFileExists($this->appDir . '/TestApp/Resources/theme.json');
-        static::assertEquals(
+        static::assertSame(
             <<<EOL
             <?xml version="1.0" encoding="UTF-8"?>
             <manifest xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
@@ -100,7 +100,7 @@ class CreateAppCommandTest extends TestCase
             file_get_contents($this->appDir . '/TestApp/manifest.xml')
         );
 
-        static::assertEquals(
+        static::assertSame(
             <<<EOL
             {
               "name": "TestApp",
@@ -142,7 +142,7 @@ class CreateAppCommandTest extends TestCase
 
         static::assertFileExists($this->appDir . '/TestApp/manifest.xml');
 
-        static::assertEquals(
+        static::assertSame(
             <<<EOL
             <?xml version="1.0" encoding="UTF-8"?>
             <manifest xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
@@ -183,7 +183,7 @@ class CreateAppCommandTest extends TestCase
 
         static::assertFileExists($this->appDir . '/TestApp/manifest.xml');
 
-        static::assertEquals(
+        static::assertSame(
             <<<EOL
             <?xml version="1.0" encoding="UTF-8"?>
             <manifest xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"

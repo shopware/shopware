@@ -6,11 +6,13 @@ use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Promotion\Cart\Extension\CartExtension;
+use Shopware\Core\Framework\Log\Package;
 
 /**
  * @internal
  */
 #[CoversClass(CartExtension::class)]
+#[Package('checkout')]
 class CartExtensionTest extends TestCase
 {
     /**
@@ -48,7 +50,7 @@ class CartExtensionTest extends TestCase
         $extension = new CartExtension();
         $extension->addCode('c123');
 
-        static::assertEquals(['c123'], $extension->getCodes());
+        static::assertSame(['c123'], $extension->getCodes());
     }
 
     /**
@@ -77,6 +79,6 @@ class CartExtensionTest extends TestCase
 
         $extension->removeCode('c123');
 
-        static::assertEquals(['c456'], $extension->getCodes());
+        static::assertSame(['c456'], $extension->getCodes());
     }
 }

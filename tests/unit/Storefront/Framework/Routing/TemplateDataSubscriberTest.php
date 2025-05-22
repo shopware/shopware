@@ -63,15 +63,15 @@ class TemplateDataSubscriberTest extends TestCase
         static::assertArrayHasKey('0', $events[StorefrontRenderEvent::class]);
         static::assertIsArray($events[StorefrontRenderEvent::class][0]);
         static::assertArrayHasKey('0', $events[StorefrontRenderEvent::class][0]);
-        static::assertEquals('addHreflang', $events[StorefrontRenderEvent::class][0][0]);
+        static::assertSame('addHreflang', $events[StorefrontRenderEvent::class][0][0]);
 
         static::assertArrayHasKey('1', $events[StorefrontRenderEvent::class]);
         static::assertIsArray($events[StorefrontRenderEvent::class][1]);
-        static::assertEquals('addShopIdParameter', $events[StorefrontRenderEvent::class][1][0]);
+        static::assertSame('addShopIdParameter', $events[StorefrontRenderEvent::class][1][0]);
 
         static::assertArrayHasKey('2', $events[StorefrontRenderEvent::class]);
         static::assertIsArray($events[StorefrontRenderEvent::class][2]);
-        static::assertEquals('addIconSetConfig', $events[StorefrontRenderEvent::class][2][0]);
+        static::assertSame('addIconSetConfig', $events[StorefrontRenderEvent::class][2][0]);
     }
 
     public function testAddHreflangWithNullRoute(): void
@@ -83,7 +83,7 @@ class TemplateDataSubscriberTest extends TestCase
             Generator::generateSalesChannelContext()
         );
 
-        $this->hreflangLoader->expects(static::never())->method('load');
+        $this->hreflangLoader->expects($this->never())->method('load');
 
         $this->subscriber->addHreflang($event);
     }
@@ -103,7 +103,7 @@ class TemplateDataSubscriberTest extends TestCase
         );
 
         $this->hreflangLoader
-            ->expects(static::once())
+            ->expects($this->once())
             ->method('load')
             ->willReturn(new HreflangCollection());
 
@@ -126,7 +126,7 @@ class TemplateDataSubscriberTest extends TestCase
             ->willReturn([]);
 
         $this->shopIdProvider
-            ->expects(static::never())
+            ->expects($this->never())
             ->method('getShopId');
 
         $this->subscriber->addShopIdParameter($event);
@@ -146,7 +146,7 @@ class TemplateDataSubscriberTest extends TestCase
             ->willReturn(['someApp']);
 
         $this->shopIdProvider
-            ->expects(static::once())
+            ->expects($this->once())
             ->method('getShopId')
             ->willThrowException(new AppUrlChangeDetectedException('before', 'new', '123'));
 
@@ -167,13 +167,13 @@ class TemplateDataSubscriberTest extends TestCase
             ->willReturn(['someApp']);
 
         $this->shopIdProvider
-            ->expects(static::once())
+            ->expects($this->once())
             ->method('getShopId')
             ->willReturn('123');
 
         $this->subscriber->addShopIdParameter($event);
 
-        static::assertEquals('123', $event->getParameters()['appShopId']);
+        static::assertSame('123', $event->getParameters()['appShopId']);
     }
 
     public function testAddIconSetConfigWithNoTheme(): void
@@ -186,7 +186,7 @@ class TemplateDataSubscriberTest extends TestCase
         );
 
         $this->themeRegistry
-            ->expects(static::never())
+            ->expects($this->never())
             ->method('getByTechnicalName');
 
         $this->subscriber->addIconSetConfig($event);
@@ -205,7 +205,7 @@ class TemplateDataSubscriberTest extends TestCase
         );
 
         $this->themeRegistry
-            ->expects(static::once())
+            ->expects($this->once())
             ->method('getByTechnicalName');
 
         $this->subscriber->addIconSetConfig($event);
@@ -254,7 +254,7 @@ class TemplateDataSubscriberTest extends TestCase
         $themeRegistry = $this->createMock(StorefrontPluginRegistry::class);
 
         $themeRegistry
-            ->expects(static::once())
+            ->expects($this->once())
             ->method('getByTechnicalName')
             ->willReturn($themeConfig);
 

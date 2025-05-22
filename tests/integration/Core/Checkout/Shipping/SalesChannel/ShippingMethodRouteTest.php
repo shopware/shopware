@@ -6,6 +6,7 @@ use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Shipping\Hook\ShippingMethodRouteHook;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Script\Debugging\ScriptTraces;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\SalesChannelApiTestBehaviour;
@@ -18,6 +19,7 @@ use Symfony\Bundle\FrameworkBundle\KernelBrowser;
  * @internal
  */
 #[Group('store-api')]
+#[Package('checkout')]
 class ShippingMethodRouteTest extends TestCase
 {
     use IntegrationTestBehaviour;
@@ -106,7 +108,7 @@ class ShippingMethodRouteTest extends TestCase
 
         $ids = array_column($response['elements'], 'id');
 
-        static::assertEquals(
+        static::assertSame(
             [
                 $this->ids->get('shipping'),    // position  1 (selected method & sales-channel default)
                 $this->ids->get('shipping3'),   // position -3
@@ -136,7 +138,7 @@ class ShippingMethodRouteTest extends TestCase
 
         $ids = array_column($response['elements'], 'id');
 
-        static::assertEquals(
+        static::assertSame(
             [
                 $this->ids->get('shipping'),    // position  1 (sales-channel default)
                 $this->ids->get('shipping3'),   // position -3

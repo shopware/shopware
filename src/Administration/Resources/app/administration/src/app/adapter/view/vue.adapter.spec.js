@@ -699,7 +699,6 @@ describe('ASYNC app/adapter/view/vue.adapter.js', () => {
                 'mt-button',
                 'mt-checkbox',
                 'mt-colorpicker',
-                'mt-datepicker',
                 'mt-email-field',
                 'mt-number-field',
                 'mt-password-field',
@@ -753,7 +752,7 @@ describe('ASYNC app/adapter/view/vue.adapter.js', () => {
 
             await flushPromises();
 
-            expect(vueAdapter.i18n.global.locale).toEqual(expectedLocale);
+            expect(vueAdapter.i18n.global.locale.value).toEqual(expectedLocale);
         });
     });
 });

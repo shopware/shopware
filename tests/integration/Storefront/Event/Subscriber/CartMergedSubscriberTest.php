@@ -39,7 +39,7 @@ class CartMergedSubscriberTest extends TestCase
         $requestStack->push($request);
 
         $translator = $this->createMock(TranslatorInterface::class);
-        $translator->expects(static::once())
+        $translator->expects($this->once())
             ->method('trans')
             ->with('checkout.cart-merged-hint')
             ->willReturn('checkout.cart-merged-hint');
@@ -71,7 +71,7 @@ class CartMergedSubscriberTest extends TestCase
 
         static::assertNotEmpty($infoFlash = $session->getFlashBag()->get('info'));
 
-        static::assertEquals('checkout.cart-merged-hint', $infoFlash[0]);
+        static::assertSame('checkout.cart-merged-hint', $infoFlash[0]);
     }
 
     /**

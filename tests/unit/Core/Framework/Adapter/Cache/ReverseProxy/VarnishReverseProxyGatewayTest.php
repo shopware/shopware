@@ -67,9 +67,9 @@ class VarnishReverseProxyGatewayTest extends TestCase
         $request = $this->mockHandler->getLastRequest();
         static::assertNotNull($request);
 
-        static::assertEquals('PURGE', $request->getMethod());
-        static::assertEquals('http://localhost', $request->getUri()->__toString());
-        static::assertEquals('tag-1 tag-2', $request->getHeader('xkey')[0]);
+        static::assertSame('PURGE', $request->getMethod());
+        static::assertSame('http://localhost', $request->getUri()->__toString());
+        static::assertSame('tag-1 tag-2', $request->getHeader('xkey')[0]);
     }
 
     #[DataProvider('providerExceptions')]
@@ -82,7 +82,7 @@ class VarnishReverseProxyGatewayTest extends TestCase
         $this->mockHandler->append($e);
 
         $logger
-            ->expects(static::once())
+            ->expects($this->once())
             ->method('critical')
             ->with('Error while flushing varnish cache', ['error' => $message, 'tags' => ['tag-1', 'tag-2']]);
 
@@ -102,8 +102,8 @@ class VarnishReverseProxyGatewayTest extends TestCase
 
         static::assertNotNull($request);
 
-        static::assertEquals('PURGE', $request->getMethod());
-        static::assertEquals('http://localhost/', $request->getUri()->__toString());
+        static::assertSame('PURGE', $request->getMethod());
+        static::assertSame('http://localhost/', $request->getUri()->__toString());
     }
 
     public function testBanAll(): void
@@ -118,8 +118,8 @@ class VarnishReverseProxyGatewayTest extends TestCase
 
         static::assertNotNull($request);
 
-        static::assertEquals('BAN', $request->getMethod());
-        static::assertEquals('http://localhost', $request->getUri()->__toString());
+        static::assertSame('BAN', $request->getMethod());
+        static::assertSame('http://localhost', $request->getUri()->__toString());
     }
 
     #[DataProvider('providerExceptions')]
@@ -132,7 +132,7 @@ class VarnishReverseProxyGatewayTest extends TestCase
         $this->mockHandler->append($e);
 
         $logger
-            ->expects(static::once())
+            ->expects($this->once())
             ->method('critical')
             ->with('Error while flushing varnish cache', ['error' => $message, 'urls' => ['http://localhost:8000/']]);
 

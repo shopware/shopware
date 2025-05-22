@@ -18,7 +18,6 @@
                 :class="['sw-notifications__notification--' + index, 'sw-notification__alert']"
                 :title="notification.title"
                 :variant="getNotificationVariant(notification)"
-                :data-theme="notification.system ? 'dark' : undefined"
                 :notification-index="notification.uuid"
                 :closable="true"
                 @close="onClose(notification)"

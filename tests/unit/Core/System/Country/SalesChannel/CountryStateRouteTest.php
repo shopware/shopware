@@ -45,7 +45,7 @@ class CountryStateRouteTest extends TestCase
     {
         $dispatcher = $this->createMock(EventDispatcherInterface::class);
         $dispatcher
-            ->expects(static::exactly(2))
+            ->expects($this->exactly(2))
             ->method('dispatch')
             ->with(static::callback(static function ($event) use (&$index) {
                 switch ($index) {
@@ -65,7 +65,7 @@ class CountryStateRouteTest extends TestCase
             }));
 
         $countryStateRepository = $this->createMock(EntityRepository::class);
-        $countryStateRepository->expects(static::once())
+        $countryStateRepository->expects($this->once())
             ->method('search')
             ->willReturn(new EntitySearchResult(
                 'country_state',

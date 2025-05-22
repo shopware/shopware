@@ -37,13 +37,23 @@
         dd {
             width: 160px;
             padding-right: 40px;
+        }
+    }
 
-            .sw-order-saveable-field {
-                transform: translateY(-50%);
-                position: relative;
-                left: 80px;
-                top: 50%;
+    .sw-order-detail__summary:has(.sw-order-saveable-field) {
+        dd {
+            width: 200px;
+
+            &:has(.sw-order-saveable-field) {
+                display: flex;
+                align-items: center;
+                padding-right: 0;
             }
+        }
+
+        .sw-order-saveable-field {
+            padding-left: 20px;
+            line-height: 1;
         }
     }
 

@@ -51,7 +51,7 @@ class EntityTemplateLoaderTest extends TestCase
 
     public function testGetSubscribedEvents(): void
     {
-        static::assertEquals(
+        static::assertSame(
             ['app_template.written' => 'reset'],
             EntityTemplateLoader::getSubscribedEvents()
         );
@@ -68,8 +68,8 @@ class EntityTemplateLoaderTest extends TestCase
         $this->importTemplates();
         $source = $this->templateLoader->getSourceContext('@TestTheme/storefront/base.html.twig');
 
-        static::assertEquals(self::FIRST_TEMPLATE, $source->getCode());
-        static::assertEquals('@TestTheme/storefront/base.html.twig', $source->getName());
+        static::assertSame(self::FIRST_TEMPLATE, $source->getCode());
+        static::assertSame('@TestTheme/storefront/base.html.twig', $source->getName());
     }
 
     public function testGetSourceContextForDeactivatedApp(): void
@@ -82,7 +82,7 @@ class EntityTemplateLoaderTest extends TestCase
 
     public function testGetCacheKey(): void
     {
-        static::assertEquals(
+        static::assertSame(
             '@TestTheme/storefront/base.html.twig',
             $this->templateLoader->getCacheKey('@TestTheme/storefront/base.html.twig')
         );
@@ -156,7 +156,7 @@ class EntityTemplateLoaderTest extends TestCase
     public function testTemplateLoadingIsCachedWithoutDatabaseTemplates(): void
     {
         $connection = $this->createMock(Connection::class);
-        $connection->expects(static::once())
+        $connection->expects($this->once())
             ->method('fetchAllAssociative')
             ->willReturn([]);
 

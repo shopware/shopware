@@ -8,12 +8,14 @@ use Shopware\Core\Checkout\Customer\Event\CustomerBeforeLoginEvent;
 use Shopware\Core\Content\Flow\Dispatching\StorableFlow;
 use Shopware\Core\Content\Flow\Dispatching\Storer\ScalarValuesStorer;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
 /**
  * @internal
  */
 #[CoversClass(CustomerBeforeLoginEvent::class)]
+#[Package('checkout')]
 class CustomerBeforeLoginEventTest extends TestCase
 {
     public function testRestoreScalarValuesCorrectly(): void
@@ -32,6 +34,6 @@ class CustomerBeforeLoginEventTest extends TestCase
         $storer->restore($flow);
 
         static::assertArrayHasKey('email', $flow->data());
-        static::assertEquals('my-email', $flow->data()['email']);
+        static::assertSame('my-email', $flow->data()['email']);
     }
 }

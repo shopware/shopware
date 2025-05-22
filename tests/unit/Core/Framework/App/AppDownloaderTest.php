@@ -49,7 +49,7 @@ class AppDownloaderTest extends TestCase
 
     public function testStreamingDownloadCreatesDirectory(): void
     {
-        $this->filesystem->expects(static::once())
+        $this->filesystem->expects($this->once())
             ->method('mkdir')
             ->with(static::equalTo('/path/to'));
 
@@ -66,17 +66,17 @@ class AppDownloaderTest extends TestCase
         $this->httpClient->method('request')->willReturn($response);
         $this->httpClient->method('stream')->willReturn($stream);
 
-        $matcher = static::exactly(2);
+        $matcher = $this->exactly(2);
 
         $this->filesystem
             ->expects($matcher)
             ->method('appendToFile')
             ->willReturnOnConsecutiveCalls()
             ->willReturnCallback(function (string $file, $content) use ($matcher): void {
-                $this->assertEquals('/path/to/file.zip', $file);
+                $this->assertSame('/path/to/file.zip', $file);
                 match ($matcher->numberOfInvocations()) {
-                    1 => $this->assertEquals('chunk1content', $content),
-                    2 => $this->assertEquals('chunk2content', $content),
+                    1 => $this->assertSame('chunk1content', $content),
+                    2 => $this->assertSame('chunk2content', $content),
                     default => null,
                 };
             });
@@ -89,11 +89,11 @@ class AppDownloaderTest extends TestCase
         $fs = new \League\Flysystem\Filesystem(new InMemoryFilesystemAdapter());
         $fs->write('/some/file.zip', 'content');
 
-        $this->filesystem->expects(static::once())
+        $this->filesystem->expects($this->once())
             ->method('dumpFile')
             ->willReturnCallback(function (string $path, $contentResource): void {
-                static::assertEquals('/path/to/file.zip', $path);
-                static::assertEquals('content', stream_get_contents($contentResource));
+                static::assertSame('/path/to/file.zip', $path);
+                static::assertSame('content', stream_get_contents($contentResource));
             });
 
         $this->appDownloader->downloadFromFilesystem($fs, '/some/file.zip', '/path/to/file.zip');
@@ -106,7 +106,7 @@ class AppDownloaderTest extends TestCase
 
         $fs = new \League\Flysystem\Filesystem(new InMemoryFilesystemAdapter());
 
-        $this->filesystem->expects(static::never())->method('dumpFile');
+        $this->filesystem->expects($this->never())->method('dumpFile');
 
         $this->appDownloader->downloadFromFilesystem($fs, '/some/file.zip', '/path/to/file.zip');
     }

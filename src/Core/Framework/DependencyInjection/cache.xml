@@ -11,12 +11,12 @@
         </service>
 
         <service id="shopware.cache.invalidator.storage.redis_adapter" class="Redis" public="true">
+            <factory service="Shopware\Core\Framework\Adapter\Redis\RedisConnectionProvider" method="getConnection"/>
             <argument>%shopware.cache.invalidation.delay_options.connection%</argument>
         </service>
 
         <service id="shopware.cache.invalidator.storage.redis" class="Shopware\Core\Framework\Adapter\Cache\InvalidatorStorage\RedisInvalidatorStorage" lazy="true">
             <argument type="service" id="shopware.cache.invalidator.storage.redis_adapter"/>
-
             <tag name="shopware.cache.invalidator.storage" storage="redis"/>
         </service>
 

@@ -7,11 +7,13 @@ use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\Price\CashRounding;
 use Shopware\Core\Framework\DataAbstractionLayer\Pricing\CashRoundingConfig;
+use Shopware\Core\Framework\Log\Package;
 
 /**
  * @internal
  */
 #[CoversClass(CashRounding::class)]
+#[Package('checkout')]
 class CashRoundingTest extends TestCase
 {
     #[DataProvider('provider_german')]
@@ -22,7 +24,7 @@ class CashRoundingTest extends TestCase
         $config = new CashRoundingConfig(2, 0.01, true);
 
         $actual = $service->cashRound($price, $config);
-        static::assertEquals($expected, $actual);
+        static::assertSame($expected, $actual);
     }
 
     #[DataProvider('provider_hong_kong')]
@@ -33,7 +35,7 @@ class CashRoundingTest extends TestCase
         $config = new CashRoundingConfig(2, 0.10, true);
 
         $actual = $service->cashRound($price, $config);
-        static::assertEquals($expected, $actual);
+        static::assertSame($expected, $actual);
     }
 
     #[DataProvider('provider_denmark')]
@@ -44,7 +46,7 @@ class CashRoundingTest extends TestCase
         $config = new CashRoundingConfig(2, 0.50, true);
 
         $actual = $service->cashRound($price, $config);
-        static::assertEquals($expected, $actual);
+        static::assertSame($expected, $actual);
     }
 
     #[DataProvider('provider_italy')]
@@ -55,7 +57,7 @@ class CashRoundingTest extends TestCase
         $config = new CashRoundingConfig(2, 0.05, true);
 
         $actual = $service->cashRound($price, $config);
-        static::assertEquals($expected, $actual);
+        static::assertSame($expected, $actual);
     }
 
     #[DataProvider('provider_sweden')]
@@ -66,7 +68,7 @@ class CashRoundingTest extends TestCase
         $config = new CashRoundingConfig(2, 1.0, true);
 
         $actual = $service->cashRound($price, $config);
-        static::assertEquals($expected, $actual);
+        static::assertSame($expected, $actual);
     }
 
     public static function provider_german(): \Generator

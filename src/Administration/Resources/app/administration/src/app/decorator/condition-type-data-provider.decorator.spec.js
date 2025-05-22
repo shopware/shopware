@@ -22,7 +22,7 @@ describe('entity-collection.data.ts', () => {
             'personaPromotions',
         ];
 
-        const ruleAwareness = Shopware.Service('ruleConditionDataProviderService').awarenessConfiguration
+        const ruleAwareness = Shopware.Service('ruleConditionDataProviderService').awarenessConfiguration;
 
         expect(Object.keys(ruleAwareness)).toHaveLength(expectedConfigs.length);
 

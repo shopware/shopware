@@ -15,6 +15,7 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\IdSearchResult;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Validation\DataBag\DataBag;
 use Shopware\Core\Framework\Validation\DataValidator;
 use Shopware\Core\Framework\Validation\Exception\ConstraintViolationException;
@@ -27,6 +28,7 @@ use Symfony\Component\Validator\Validation;
  * @internal
  */
 #[CoversClass(OrderService::class)]
+#[Package('checkout')]
 class OrderServiceTest extends TestCase
 {
     private MockObject&CartService $cartService;
@@ -62,7 +64,7 @@ class OrderServiceTest extends TestCase
         $cart->add((new LineItem('a', 'test'))->setStates([State::IS_PHYSICAL]));
 
         $this->cartService->method('getCart')->willReturn($cart);
-        $this->cartService->expects(static::exactly(2))->method('order');
+        $this->cartService->expects($this->exactly(2))->method('order');
 
         $idSearchResult = new IdSearchResult(0, [], new Criteria(), Context::createDefaultContext());
         $this->paymentMethodRepository->method('searchIds')->willReturn($idSearchResult);
@@ -79,8 +81,8 @@ class OrderServiceTest extends TestCase
             static::assertInstanceOf(ConstraintViolationException::class, $exception);
             $errors = iterator_to_array($exception->getErrors());
             static::assertCount(1, $errors);
-            static::assertEquals('VIOLATION::IS_BLANK_ERROR', $errors[0]['code']);
-            static::assertEquals('/revocation', $errors[0]['source']['pointer']);
+            static::assertSame('VIOLATION::IS_BLANK_ERROR', $errors[0]['code']);
+            static::assertSame('/revocation', $errors[0]['source']['pointer']);
         }
 
         $dataBag->set('revocation', true);

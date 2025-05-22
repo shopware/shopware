@@ -42,7 +42,7 @@ class AppFlowActionProviderTest extends TestCase
         ];
 
         $connection = $this->createMock(Connection::class);
-        $connection->expects(static::once())
+        $connection->expects($this->once())
             ->method('fetchAssociative')
             ->willReturn(
                 ['parameters' => json_encode($params), 'headers' => json_encode($headers)]
@@ -53,12 +53,12 @@ class AppFlowActionProviderTest extends TestCase
         $order->setId($ids->get('orderId'));
 
         $entitySearchResult = $this->createMock(EntitySearchResult::class);
-        $entitySearchResult->expects(static::once())
+        $entitySearchResult->expects($this->once())
             ->method('get')
             ->willReturn($order);
 
         $orderRepo = $this->createMock(EntityRepository::class);
-        $orderRepo->expects(static::once())
+        $orderRepo->expects($this->once())
             ->method('search')
             ->willReturn($entitySearchResult);
 
@@ -72,7 +72,7 @@ class AppFlowActionProviderTest extends TestCase
         $flow->setConfig($config);
 
         $stringTemplateRender = $this->createMock(StringTemplateRenderer::class);
-        $stringTemplateRender->expects(static::exactly(6))
+        $stringTemplateRender->expects($this->exactly(6))
             ->method('render')
             ->willReturnOnConsecutiveCalls(
                 'Text 1',
@@ -91,7 +91,7 @@ class AppFlowActionProviderTest extends TestCase
 
         $webhookData = $appFlowActionProvider->getWebhookPayloadAndHeaders($flow, $ids->get('appFlowActionId'));
 
-        static::assertEquals(['param1' => 'Text 1', 'param2' => 'Text 2 and Text 3'], $webhookData['payload']);
-        static::assertEquals(['content-type' => 'application/json'], $webhookData['headers']);
+        static::assertSame(['param1' => 'Text 1', 'param2' => 'Text 2 and Text 3'], $webhookData['payload']);
+        static::assertSame(['content-type' => 'application/json'], $webhookData['headers']);
     }
 }

@@ -61,7 +61,7 @@ class ReinstallAppsStrategyTest extends TestCase
         $shopId = $this->changeAppUrl();
 
         $registrationsService = $this->createMock(AppRegistrationService::class);
-        $registrationsService->expects(static::once())
+        $registrationsService->expects($this->once())
             ->method('registerApp')
             ->with(
                 static::callback(static fn (Manifest $manifest): bool => $manifest->getPath() === $appDir),
@@ -71,7 +71,7 @@ class ReinstallAppsStrategyTest extends TestCase
             );
 
         $eventDispatcher = $this->createMock(EventDispatcherInterface::class);
-        $eventDispatcher->expects(static::once())
+        $eventDispatcher->expects($this->once())
             ->method('dispatch')
             ->with(static::isInstanceOf(AppInstalledEvent::class));
 
@@ -85,14 +85,14 @@ class ReinstallAppsStrategyTest extends TestCase
 
         $reinstallAppsResolver->resolve($this->context);
 
-        static::assertNotEquals($shopId, $this->shopIdProvider->getShopId());
+        static::assertNotSame($shopId, $this->shopIdProvider->getShopId());
 
         // assert secret access key changed
         $updatedApp = $this->getInstalledApp($this->context);
         static::assertNotNull($app->getIntegration());
         static::assertNotNull($updatedApp->getIntegration());
 
-        static::assertNotEquals(
+        static::assertNotSame(
             $app->getIntegration()->getSecretAccessKey(),
             $updatedApp->getIntegration()->getSecretAccessKey()
         );
@@ -106,11 +106,11 @@ class ReinstallAppsStrategyTest extends TestCase
         $shopId = $this->changeAppUrl();
 
         $registrationsService = $this->createMock(AppRegistrationService::class);
-        $registrationsService->expects(static::never())
+        $registrationsService->expects($this->never())
             ->method('registerApp');
 
         $eventDispatcher = $this->createMock(EventDispatcherInterface::class);
-        $eventDispatcher->expects(static::never())
+        $eventDispatcher->expects($this->never())
             ->method('dispatch');
 
         $reinstallAppsResolver = new ReinstallAppsStrategy(
@@ -123,7 +123,7 @@ class ReinstallAppsStrategyTest extends TestCase
 
         $reinstallAppsResolver->resolve($this->context);
 
-        static::assertNotEquals($shopId, $this->shopIdProvider->getShopId());
+        static::assertNotSame($shopId, $this->shopIdProvider->getShopId());
     }
 
     private function changeAppUrl(): string

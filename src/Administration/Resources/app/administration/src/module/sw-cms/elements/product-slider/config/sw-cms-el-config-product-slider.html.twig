@@ -275,48 +275,53 @@
                 {# @deprecated tag:v6.7.0 - Will be removed #}
                 {% block sw_cms_element_product_slider_config_settings_navigation %}{% endblock %}
 
-                <div class="sw-cms-el-config-product-slider__tab-settings-rotate">
-                    {% block sw_cms_element_product_slider_config_settings_rotate %}
-                    {# @todo NEXT-40267 - Re-implement after tiny-slider has been replaced, due to accessibility issues #}
-                    <sw-switch-field
-                        :value="false"
-                        class="sw-cms-el-config-product-slider__tab-settings-rotate-switch"
-                        :label="$tc('sw-cms.elements.general.config.label.autoSlide')"
-                        :help-text="$tc('sw-cms.elements.general.config.helpText.autoSlide')"
-                        bordered
-                        disabled
-                    />
-                    {% endblock %}
-                </div>
+                {% block sw_cms_element_product_slider_config_settings_autoplay_timeout %}
+                <sw-number-field
+                    v-model:value="element.config.speed.value"
+                    class="sw-cms-el-config-product-slider__tab-settings-rotate-speed"
+                    number-type="int"
+                    :min="0"
+                    :max="3600000"
+                    :label="$tc('sw-cms.elements.general.config.label.speed')"
+                    :placeholder="$tc('sw-cms.elements.general.config.label.speed')"
+                    :help-text="$tc('sw-cms.elements.general.config.helpText.speed')"
+                />
+                {% endblock %}
 
-                <div class="sw-cms-el-config-product-slider__tab-settings-rotate-config has--two-elements">
-                    {% block sw_cms_element_product_slider_config_settings_autoplay_timeout %}
-                    <sw-number-field
-                        v-model:value="element.config.autoplayTimeout.value"
-                        class="sw-cms-el-config-product-slider__tab-settings-rotate-autoplay"
-                        number-type="int"
-                        :min="0"
-                        :max="3600000"
-                        :disabled="true"
-                        :label="$tc('sw-cms.elements.general.config.label.autoplayTimeout')"
-                        :placeholder="$tc('sw-cms.elements.general.config.label.autoplayTimeout')"
-                        :help-text="$tc('sw-cms.elements.general.config.helpText.autoplayTimeout')"
-                    />
-                    {% endblock %}
+                <mt-banner
+                    class="sw-cms-el-config-product-slider__setting-auto-slide-banner"
+                    variant="attention"
+                    :title="$tc('sw-cms.elements.general.config.infoText.autoSlideTitle')"
+                >
+                    <p class="sw-cms-el-config-product-slider__setting-auto-slide-attention">
+                        {{ $tc('sw-cms.elements.general.config.infoText.autoSlide') }}
+                    </p>
 
-                    {% block sw_cms_element_product_slider_config_settings_autoplay_timeout %}
-                    <sw-number-field
-                        v-model:value="element.config.speed.value"
-                        class="sw-cms-el-config-product-slider__tab-settings-rotate-speed"
-                        number-type="int"
-                        :min="0"
-                        :max="3600000"
-                        :label="$tc('sw-cms.elements.general.config.label.speed')"
-                        :placeholder="$tc('sw-cms.elements.general.config.label.speed')"
-                        :help-text="$tc('sw-cms.elements.general.config.helpText.speed')"
-                    />
-                    {% endblock %}
-                </div>
+                    <div class="sw-cms-el-config-product-slider__tab-settings-rotate-config has--two-elements">
+                        {% block sw_cms_element_product_slider_config_settings_rotate %}
+                        <sw-switch-field
+                            v-model:value="element.config.rotate.value"
+                            class="sw-cms-el-config-product-slider__tab-settings-rotate-switch"
+                            :label="$tc('sw-cms.elements.general.config.label.autoSlide')"
+                            bordered
+                        />
+                        {% endblock %}
+
+                        {% block sw_cms_element_product_slider_config_settings_autoplay_timeout %}
+                        <sw-number-field
+                            v-model:value="element.config.autoplayTimeout.value"
+                            class="sw-cms-el-config-product-slider__tab-settings-rotate-autoplay"
+                            number-type="int"
+                            :min="0"
+                            :max="3600000"
+                            :disabled="!element.config.rotate.value"
+                            :label="$tc('sw-cms.elements.general.config.label.autoplayTimeout')"
+                            :placeholder="$tc('sw-cms.elements.general.config.label.autoplayTimeout')"
+                            :help-text="$tc('sw-cms.elements.general.config.helpText.autoplayTimeout')"
+                        />
+                        {% endblock %}
+                    </div>
+                </mt-banner>
             </sw-container>
             {% endblock %}
         </template>

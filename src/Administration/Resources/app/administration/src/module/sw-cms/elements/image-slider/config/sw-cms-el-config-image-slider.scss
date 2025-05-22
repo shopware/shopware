@@ -3,8 +3,17 @@
 .sw-cms-el-config-image-slider {
     .sw-cms-el-config-image-slider__setting-option {
         display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(370px, 1fr));
+        grid-template-columns: repeat(auto-fit, minmax(335px, 1fr));
         gap: 0 32px;
+    }
+
+    &__setting-auto-slide,
+    &__setting-delay-slide {
+        margin-bottom: 0;
+    }
+
+    &__setting-auto-slide-banner {
+        margin-bottom: 32px;
     }
 
     .sw-cms-el-config-image-slider__setting-display-mode {
@@ -32,6 +41,8 @@
     }
 
     &__setting-auto-slide {
+        background-color: $color-white;
+
         &.sw-field--switch .sw-field__label label {
             margin-right: 0;
         }

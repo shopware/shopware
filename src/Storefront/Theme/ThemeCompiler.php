@@ -23,6 +23,7 @@ use Shopware\Storefront\Theme\StorefrontPluginConfiguration\FileCollection;
 use Shopware\Storefront\Theme\StorefrontPluginConfiguration\StorefrontPluginConfiguration;
 use Shopware\Storefront\Theme\StorefrontPluginConfiguration\StorefrontPluginConfigurationCollection;
 use Shopware\Storefront\Theme\Validator\SCSSValidator;
+use Shopware\Storefront\Framework\Twig\Components\UxComponentHelper;
 use Symfony\Component\Asset\Package as AssetPackage;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\Finder\Exception\DirectoryNotFoundException;
@@ -42,6 +43,7 @@ class ThemeCompiler implements ThemeCompilerInterface
         private readonly FilesystemOperator $tempFilesystem,
         private readonly CopyBatchInputFactory $copyBatchInputFactory,
         private readonly ThemeFileResolver $themeFileResolver,
+        private readonly UxComponentHelper $uxComponentHelper,
         private readonly bool $debug,
         private readonly EventDispatcherInterface $eventDispatcher,
         private readonly ThemeFilesystemResolver $themeFilesystemResolver,
@@ -116,9 +118,15 @@ class ThemeCompiler implements ThemeCompilerInterface
             );
         }
 
-        $scriptFiles = $this->copyScriptFilesToTheme($configurationCollection, $themePrefix);
+        $themeScriptCopyFiles = $this->copyScriptFilesToTheme($configurationCollection, $themePrefix);
 
-        CopyBatch::copy($this->filesystem, ...$assets, ...$scriptFiles);
+        if (Feature::isActive('STOREFRONT_COMPONENTS')) {
+            $componentScriptCopyFiles = $this->copyComponentScriptFiles($themePrefix);
+        } else {
+            $componentScriptCopyFiles = [];
+        }
+
+        CopyBatch::copy($this->filesystem, ...$assets, ...$themeScriptCopyFiles, ...$componentScriptCopyFiles);
 
         $this->themePathBuilder->saveSeed($salesChannelId, $themeId, $newThemeHash);
 
@@ -194,6 +202,28 @@ class ThemeCompiler implements ThemeCompilerInterface
                     $copyFiles[] = new CopyBatchInput($file->getRealPath(), [$targetPath . '/' . $file->getFilename()]);
                 }
             }
+        }
+
+        return $copyFiles;
+    }
+
+    private function copyComponentScriptFiles(string $themePrefix): array
+    {
+        $componentScriptFiles = $this->uxComponentHelper->getComponents();
+        $themeComponentsPath = 'theme/' . $themePrefix . '/js/components/';
+
+        $copyFiles = [];
+
+        foreach ($componentScriptFiles as $component) {
+            $componentPath = $component->getScriptPath();
+
+            if ($componentPath === null) {
+                continue;
+            }
+
+            $componentTargetPath = $themeComponentsPath . $component->getRelativeNamespacePath() . '.js';
+
+            $copyFiles[] = new CopyBatchInput($componentPath, [$componentTargetPath]);
         }
 
         return $copyFiles;

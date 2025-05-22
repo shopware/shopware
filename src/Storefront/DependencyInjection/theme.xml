@@ -26,6 +26,7 @@
             <argument type="service" id="shopware.filesystem.temp"/>
             <argument type="service" id="Shopware\Core\Framework\Adapter\Filesystem\Plugin\CopyBatchInputFactory" />
             <argument type="service" id="Shopware\Storefront\Theme\ThemeFileResolver" />
+            <argument type="service" id="Shopware\Storefront\Framework\Twig\Components\UxComponentHelper" />
             <argument>%kernel.debug%</argument>
             <argument type="service" id="Symfony\Component\EventDispatcher\EventDispatcherInterface" />
             <argument type="service" id="Shopware\Storefront\Theme\ThemeFilesystemResolver" />

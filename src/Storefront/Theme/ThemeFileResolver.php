@@ -186,8 +186,8 @@ class ThemeFileResolver
                 foreach ($this->uxComponentHelper->getComponents() as $component) {
                     $componentPath = $fileType === self::SCRIPT_FILES ? $component->getScriptPath() : $component->getStylePath();
 
-                    if (is_file($componentPath)) {
-                        $resolvedFiles->add(new File($componentPath));
+                    if ($componentPath !== null) {
+                        $resolvedFiles->add(new File($componentPath, [], $component->getRelativeNamespaceDirectory()));
                     }
                 }
 

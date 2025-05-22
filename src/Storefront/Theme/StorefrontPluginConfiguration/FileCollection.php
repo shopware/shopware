@@ -4,6 +4,7 @@ namespace Shopware\Storefront\Theme\StorefrontPluginConfiguration;
 
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Struct\Collection;
+use Shopware\Core\Framework\Feature;
 
 /**
  * @extends Collection<File>
@@ -43,6 +44,14 @@ class FileCollection extends Collection
             if ($element->assetName === null) {
                 return null;
             }
+
+            // Handle Twig UX components
+            if (Feature::isActive('STOREFRONT_COMPONENTS')) {
+                if (str_contains($element->getFilepath(), 'Resources/views/components/')) {
+                    return $prefix . '/components/' . $element->assetName . '/' . basename($element->getFilepath());
+                }
+            }
+
             // removes file with old js structure (before async changes) from collection
             if (!str_ends_with($element->getFilepath(), $element->assetName . '/' . basename($element->getFilepath()))) {
                 return null;

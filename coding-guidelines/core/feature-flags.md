@@ -1,8 +1,6 @@
 ## Introduction
 Feature flags enable the developer to create new code which is hidden behind the flag and merge it into the trunk branch, even when the code is not finalized.
-We use this functionality to merge breaks into the trunk early, without them already being switched active. To learn more about breaking changes and backward compability take a look to our [Backward Compatibility Guide](/Product/Guides/Development/BackwardCompatibility)
-
-Meanwhile we have only one feature flag in our core sources: `v6.5.0.0`. This feature flag is used for the above mentioned breaks.
+We use this functionality to merge breaks into the trunk early, without them already being switched active. To learn more about breaking changes and backward compability take a look to our [Backward Compatibility Guide](https://developer.shopware.com/docs/resources/guidelines/code/backward-compatibility.html)
 
 ### Activating the flag
 To switch flags on and off you can use the ***.env*** to configure each feature flag. Using dots inside an env variable are not allowed, so we use underscore instead:
@@ -61,13 +59,15 @@ class ApiController
   public function indexAction(Request $request)
   {
     // some old stuff
-    if (Feature::isActive('v6.5.0.0')) {
-      //awesome new stuff
+    if (!Feature::isActive('v6.5.0.0')) {
+      //some old stuff
+      return;
     }
-    // some old stuff
+    // awesome new stuff
   }
 }
 ```
+Putting the old behaviuor inside the if block makes it easier to remove the feature flag later on.
 
 And you can use it simply to throw exceptions:
 ```php
@@ -80,7 +80,7 @@ class ApiController
 {
   public function indexAction(Request $request)
   {
-     Feature::throwException('v6.5.0.0', 'Class is deprecated, use ... instead');
+     Feature::triggerDeprecationOrThrow('v6.5.0.0', 'Class is deprecated, use ... instead');
   }
 }
 ```
@@ -175,7 +175,7 @@ As mentioned before, we use the major feature flags (`v6.5.0.0`, `v6.6.0.0`) to 
 This procedure can also be applied to plugins, which also use this flag and internally query it to either prepare the plugin for the next major or to support multiple Shopware major versions with one plugin version. Since each major feature flag remains after the corresponding release, they can be used as an alternative version switch to the php equivalent `version_compare`.
 
 ### Own plugin flags
-<alert-box type="warning">Don't publish this solution to community developers. This is internal only and we may break this behaviour at any time!</alert-box>
+<alert-box type="warning">This is internal only and we may break this behaviour at any time!</alert-box>
 
 When you need to implement a feature flag for a plugin you can't edit the feature.yaml or provide an override for it,
 so you have to register the new flag "on the fly".

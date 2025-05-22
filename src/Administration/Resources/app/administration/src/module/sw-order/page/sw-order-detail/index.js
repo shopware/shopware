@@ -27,6 +27,7 @@ export default {
 
     provide() {
         return {
+            swOrderDetailOnIdentifierChange: this.updateIdentifier,
             /** @deprecated tag:v6.8.0 - swOrderDetailOnCreatedByIdChange will be removed */
             swOrderDetailOnCreatedByIdChange: this.updateCreatedById,
             swOrderDetailOnLoadingChange: this.onUpdateLoading,

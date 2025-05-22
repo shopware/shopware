@@ -1,5 +1,4 @@
 {% block sw_media_display_options %}
-<div class="sw-media-display-options">
     {% block sw_media_display_options_presentation %}
     <mt-select
         v-if="!hidePresentation"
@@ -19,9 +18,9 @@
         small
         :options="sortOptionsSelect"
         :label="$tc('sw-media.sorting.labelSort')"
+        class="sw-media-display-options__label-sort"
         :model-value="sortingConCat"
         @update:model-value="onSortingChanged"
     />
     {% endblock %}
-</div>
 {% endblock %}

@@ -1,6 +1,12 @@
 import template from './sw-admin-menu.html.twig';
 import './sw-admin-menu.scss';
 import { MtText } from '@shopware-ag/meteor-component-library';
+import {
+    PopoverRoot,
+    PopoverTrigger,
+    PopoverPortal,
+    PopoverContent
+} from 'reka-ui';
 const { Criteria } = Shopware.Data;
 
 const MODULES = [
@@ -154,11 +160,16 @@ export default {
 
     components: {
         MtText,
+        PopoverRoot,
+        PopoverContent,
+        PopoverTrigger,
+        PopoverPortal
     },
 
     inject: [
         'repositoryFactory',
         'menuService',
+        'loginService',
     ],
 
     data() {
@@ -227,6 +238,17 @@ export default {
             if (!isSalesChannelRoute) return false;
 
             return this.$route.params?.id === salesChannelId;
-        }
+        },
+
+        signOut() {
+            this.loginService.logout();
+            Shopware.Store.get('session').removeCurrentUser();
+            Shopware.Store.get('notification').clearGrowlNotificationsForCurrentUser();
+            Shopware.Store.get('notification').clearNotificationsForCurrentUser();
+
+            this.$router.push({
+                name: 'sw.login.index',
+            });
+        },
     }
 };

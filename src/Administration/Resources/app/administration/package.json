@@ -48,6 +48,7 @@
     "safari >= 7"
   ],
   "dependencies": {
+    "reka-ui": "2.2.1",
     "@shopware-ag/meteor-admin-sdk": "^5.9.0",
     "@shopware-ag/meteor-component-library": "^4.11.1",
     "@shopware-ag/meteor-icon-kit": "5.4.0",

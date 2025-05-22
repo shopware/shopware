@@ -103,4 +103,55 @@
             Experimental
         </span>
     </div>
+
+    <div>
+        <PopoverRoot>
+            <div style="margin-inline-start: -8px">
+                <PopoverTrigger class="sw-admin-menu__account">
+                    <div class="sw-admin-menu__avatar">
+                        <span>JJ</span>
+                    </div>
+
+                    <div>
+                        <mt-text size="xs" weight="semibold">Jennifer Johnson</mt-text>
+                        <mt-text size="2xs">j.johnson@example.com</mt-text>
+                    </div>
+                </PopoverTrigger>
+            </div>
+
+            <PopoverPortal>
+                <PopoverContent :side-offset="8" side="top" class="sw-admin-menu__account-menu">
+                    <div class="sw-admin-menu__account-menu-item-list">
+                        <router-link :to="{ name: 'sw.profile.index' }" data-variant="primary" class="sw-admin-menu__account-menu-item" href="/bar">
+                            <mt-icon
+                                name="regular-user"
+                                color="var(--color-icon-primary-default)"
+                                size="14px"
+                            />
+
+                            <span>Profile settings</span>
+                        </router-link>
+
+                        <button class="sw-admin-menu__account-menu-item" data-variant="critical" @click="signOut">
+                            <mt-icon
+                                name="regular-sign-out"
+                                color="var(--color-icon-critical-default)"
+                                size="14px"
+                            />
+
+                            <span>Sign out</span>
+                        </button>
+                    </div>
+
+                    <div class="sw-admin-menu__account-menu-footer">
+                        <mt-text
+                            size="2xs"
+                            color="color-text-secondary-default">
+                            Version: 6.7.1
+                        </mt-text>
+                    </div>
+                </PopoverContent>
+            </PopoverPortal>
+        </PopoverRoot>
+    </div>
 </aside>

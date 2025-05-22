@@ -105,7 +105,7 @@
     </div>
 
     <div>
-        <PopoverRoot>
+        <PopoverRoot :open="showAccountMenu" @update:open="showAccountMenu = $event">
             <div style="margin-inline-start: -8px">
                 <PopoverTrigger class="sw-admin-menu__account">
                     <div class="sw-admin-menu__avatar">
@@ -127,7 +127,7 @@
             <PopoverPortal>
                 <PopoverContent :side-offset="8" side="top" class="sw-admin-menu__account-menu">
                     <div class="sw-admin-menu__account-menu-item-list">
-                        <router-link :to="{ name: 'sw.profile.index' }" data-variant="primary" class="sw-admin-menu__account-menu-item" href="/bar">
+                        <router-link @click="showAccountMenu = false" :to="{ name: 'sw.profile.index' }" data-variant="primary" class="sw-admin-menu__account-menu-item" href="/bar">
                             <mt-icon
                                 name="regular-user"
                                 color="var(--color-icon-primary-default)"

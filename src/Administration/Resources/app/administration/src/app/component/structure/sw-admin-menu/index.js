@@ -174,6 +174,7 @@ export default {
 
     data() {
         return {
+            showAccountMenu: false,
             isDarkMode: false,
             salesChannels: [],
             MODULES

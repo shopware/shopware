@@ -73,9 +73,10 @@
                 Sales Channel
             </mt-text>
 
-            <ul class="sw-admin-menu__sales-channel-list">
+            <RovingFocusGroup as="ul" class="sw-admin-menu__sales-channel-list">
                 <li v-for="salesChannel in salesChannels"
                     :key="salesChannel.id">
+                    <RovingFocusItem as-child>
                     <router-link
                         class="sw-admin-menu__sales-channel"
                         :class="{
@@ -94,8 +95,9 @@
 
                         <span>{{ salesChannel.translated.name }}</span>
                     </router-link>
+                    </RovingFocusItem>
                 </li>
-            </ul>
+            </RovingFocusGroup>
         </div>
     </div>
 

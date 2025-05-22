@@ -47,6 +47,11 @@
       "p-2": "This will result in losing access to all current and future Shopware Services. We'd like to know what you don't like about Shopware Services. Give us your feedback so we can improve Shopware Services in the future!",
       "label-feedback-link": "Give feedback",
       "label-button-deactivate": "Deactivate"
+    },
+    "dashboard-banner": {
+      "title": "Introducing Shopware Services",
+      "description": "Transform your Shopware experience into something extraordinary with our cloud-based Services that effortlessly blend into your Administration. Enjoy automatic updates and cutting-edge features, all powered by Shopware, designed to elevate your business.",
+      "label-button-explore": "Explore Now"
     }
   }
 }

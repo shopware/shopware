@@ -42,6 +42,14 @@ Shopware.Component.register(
     () => import('./component/sw-settings-services-deactivate-modal'),
 );
 
+/**
+ * @private
+ */
+Shopware.Component.register(
+    'sw-settings-services-dashboard-banner',
+    () => import('./component/sw-settings-services-dashboard-banner'),
+);
+
 declare global {
     interface ServiceContainer extends SubContainer<'service'> {
         shopwareServicesService: ShopwareServicesService;

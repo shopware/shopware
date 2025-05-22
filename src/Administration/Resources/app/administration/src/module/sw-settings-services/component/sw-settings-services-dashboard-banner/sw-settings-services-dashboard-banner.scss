@@ -1,0 +1,17 @@
+.mt-banner.sw-settings-services-dashboard-banner__content {
+  max-width: 960px;
+  margin: var(--scale-size-32) auto;
+
+  h3 {
+    font-size: var(--font-size-xl);
+  }
+
+  .mt-button {
+    margin-top: var(--scale-size-16);
+  }
+
+  .sw-settings-services-dashboard-banner__content {
+    display: grid;
+    grid-template-columns: 1fr 0.45fr;
+  }
+}

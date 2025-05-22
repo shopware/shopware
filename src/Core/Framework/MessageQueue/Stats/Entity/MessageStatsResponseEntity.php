@@ -5,6 +5,9 @@ namespace Shopware\Core\Framework\MessageQueue\Stats\Entity;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Struct\Struct;
 
+/**
+ * @internal
+ */
 #[Package('framework')]
 class MessageStatsResponseEntity extends Struct
 {

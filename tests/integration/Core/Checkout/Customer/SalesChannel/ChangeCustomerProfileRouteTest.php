@@ -15,10 +15,8 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
 use Shopware\Core\Framework\Log\Package;
-use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\PlatformRequest;
-use Shopware\Core\System\Salutation\SalutationCollection;
 use Shopware\Core\System\Salutation\SalutationDefinition;
 use Shopware\Core\Test\Integration\PaymentHandler\TestPaymentHandler;
 use Shopware\Core\Test\Integration\Traits\CustomerTestTrait;
@@ -32,10 +30,9 @@ use Symfony\Component\HttpFoundation\Response;
  */
 #[Package('checkout')]
 #[Group('store-api')]
-class ChangeProfileRouteTest extends TestCase
+class ChangeCustomerProfileRouteTest extends TestCase
 {
     use CustomerTestTrait;
-    use IntegrationTestBehaviour;
 
     private KernelBrowser $browser;
 
@@ -88,8 +85,6 @@ class ChangeProfileRouteTest extends TestCase
             ->request(
                 'POST',
                 '/store-api/account/change-profile',
-                [
-                ]
             );
 
         $response = json_decode((string) $this->browser->getResponse()->getContent(), true, 512, \JSON_THROW_ON_ERROR);
@@ -190,9 +185,7 @@ class ChangeProfileRouteTest extends TestCase
 
     public function testChangeProfileWithExistingNotSpecifiedSalutation(): void
     {
-        $connection = static::getContainer()->get(Connection::class);
-
-        $salutations = $connection->fetchAllKeyValue('SELECT salutation_key, id FROM salutation');
+        $salutations = static::getContainer()->get(Connection::class)->fetchAllKeyValue('SELECT salutation_key, id FROM salutation');
         static::assertArrayHasKey(SalutationDefinition::NOT_SPECIFIED, $salutations);
 
         $this->browser
@@ -443,8 +436,6 @@ class ChangeProfileRouteTest extends TestCase
             ->request(
                 'GET',
                 '/store-api/account/customer',
-                [
-                ]
             );
 
         $response = json_decode((string) $this->browser->getResponse()->getContent(), true, 512, \JSON_THROW_ON_ERROR);
@@ -462,9 +453,9 @@ class ChangeProfileRouteTest extends TestCase
                 ]
             );
 
-        /** @var array<string, string> $newsletterRecipient */
         $newsletterRecipient = static::getContainer()->get(Connection::class)
             ->fetchAssociative('SELECT * FROM newsletter_recipient WHERE status = "direct" AND email = ?', [$response['email']]);
+        static::assertIsArray($newsletterRecipient);
 
         static::assertSame($newsletterRecipient['first_name'], $response['firstName']);
         static::assertSame($newsletterRecipient['last_name'], $response['lastName']);
@@ -481,9 +472,9 @@ class ChangeProfileRouteTest extends TestCase
                 ]
             );
 
-        /** @var array<string, string> $newsletterRecipient */
         $newsletterRecipient = static::getContainer()->get(Connection::class)
             ->fetchAssociative('SELECT * FROM newsletter_recipient WHERE status = "direct" AND email = ?', [$response['email']]);
+        static::assertIsArray($newsletterRecipient);
 
         static::assertSame($newsletterRecipient['first_name'], 'FirstName');
         static::assertSame($newsletterRecipient['last_name'], 'LastName');
@@ -491,7 +482,6 @@ class ChangeProfileRouteTest extends TestCase
 
     public function testChangeWithAllowedAccountType(): void
     {
-        /** @var string[] $accountTypes */
         $accountTypes = static::getContainer()->getParameter('customer.account_types');
         static::assertIsArray($accountTypes);
         $accountType = $accountTypes[array_rand($accountTypes)];
@@ -568,7 +558,6 @@ class ChangeProfileRouteTest extends TestCase
 
     public function testChangeWithWrongAccountType(): void
     {
-        /** @var string[] $accountTypes */
         $accountTypes = static::getContainer()->getParameter('customer.account_types');
         static::assertIsArray($accountTypes);
         $notAllowedAccountType = implode('', $accountTypes);
@@ -622,27 +611,66 @@ class ChangeProfileRouteTest extends TestCase
         $criteria = new Criteria();
         $criteria->addFilter(new EqualsFilter('id', $this->customerId));
 
-        /** @var CustomerEntity $customer */
         $customer = $this->customerRepository->search($criteria, Context::createDefaultContext())->first();
+        static::assertNotNull($customer);
 
         $customerDefinition = new CustomerDefinition();
         static::assertArrayHasKey('accountType', $customerDefinition->getDefaults());
         static::assertSame($customerDefinition->getDefaults()['accountType'], $customer->getAccountType());
     }
 
+    public function testChangeProfileWithCustomFields(): void
+    {
+        $context = Context::createDefaultContext();
+
+        $this->customerRepository->update([
+            [
+                'id' => $this->customerId,
+                'customFields' => [
+                    'initialCustomField' => 'initialValueShouldStay',
+                ],
+            ],
+        ], $context);
+
+        $changeData = [
+            'salutationId' => $this->getValidSalutationId(),
+            'firstName' => 'Max',
+            'lastName' => 'Mustermann',
+            'customFields' => [
+                'randomCustomField' => 'randomValue',
+            ],
+        ];
+
+        $this->browser
+            ->request(
+                'POST',
+                '/store-api/account/change-profile',
+                $changeData
+            );
+
+        $content = $this->browser->getResponse()->getContent();
+        static::assertIsString($content);
+        $response = json_decode($content, true, flags: \JSON_THROW_ON_ERROR);
+
+        static::assertTrue($response['success']);
+
+        $customFields = $this->getCustomer()->getCustomFields();
+        static::assertIsArray($customFields);
+        static::assertSame('initialValueShouldStay', $customFields['initialCustomField']);
+    }
+
     /**
-     * @return string[]
+     * @return list<string>
      */
     private function getValidSalutationIds(): array
     {
-        /** @var EntityRepository<SalutationCollection> $repository */
         $repository = static::getContainer()->get('salutation.repository');
 
         $criteria = (new Criteria())
             ->addSorting(new FieldSorting('salutationKey'));
 
-        /** @var string[] $ids */
         $ids = $repository->searchIds($criteria, Context::createDefaultContext())->getIds();
+        static::assertContainsOnlyString($ids);
 
         return $ids;
     }
@@ -749,11 +777,10 @@ class ChangeProfileRouteTest extends TestCase
 
     private function getCustomer(): CustomerEntity
     {
-        $criteria = new Criteria();
-        $criteria->addFilter(new EqualsFilter('id', $this->customerId));
+        $criteria = new Criteria([$this->customerId]);
 
-        /** @var CustomerEntity $customer */
         $customer = $this->customerRepository->search($criteria, Context::createDefaultContext())->first();
+        static::assertNotNull($customer);
 
         return $customer;
     }

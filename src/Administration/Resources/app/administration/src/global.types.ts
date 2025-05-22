@@ -96,7 +96,7 @@ import type { TeaserPopoverStore } from './app/store/teaser-popover.store';
 import type { AdminMenuStore } from './app/store/admin-menu.store';
 import type { InAppPurchasesStore } from './app/store/in-app-purchase-checkout.store';
 import type { CmsService } from './module/sw-cms/service/cms.service';
-import type { HtmlToJsonService } from './module/sw-cms/service/html-to-json.service';
+import type HtmlToJsonService from './module/sw-cms/service/html-to-json.service';
 import type { ExtensionComponentSectionsStore } from './app/store/extension-component-sections.store';
 import type { BlockOverrideStore } from './app/store/block-override.store';
 import type { ExtensionEntryRoutes } from './app/store/extension-entry-routes.store';

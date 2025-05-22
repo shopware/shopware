@@ -22,7 +22,11 @@ import Text from '@tiptap/extension-text'
 
 const { Application } = Shopware;
 
-class HtmlToJsonService {
+/**
+ * @private
+ * @sw-package discovery
+ */
+export default class HtmlToJsonService {
     public transform(content: string): string {
         return JSON.stringify(generateJSON(content, [
             Document,
@@ -49,9 +53,3 @@ class HtmlToJsonService {
 }
 
 Application.addServiceProvider('htmlToJsonService', () => new HtmlToJsonService());
-
-/**
- * @private
- * @sw-package discovery
- */
-export default HtmlToJsonService;

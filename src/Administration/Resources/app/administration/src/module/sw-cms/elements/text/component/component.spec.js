@@ -10,6 +10,7 @@ async function createWrapper() {
         global: {
             provide: {
                 cmsService: Shopware.Service('cmsService'),
+                htmlToJsonService: Shopware.Service('htmlToJsonService'),
             },
             stubs: {
                 'mt-text-editor': MtTextEditor,

@@ -74,19 +74,16 @@
             ref="grid"
             :is-loading="isLoading"
             :collection="propertyGroup.options"
-            :data-source="dataSource"
             :columns="getGroupColumns()"
             :full-page="false"
-            :local-mode="propertyGroup.isNew()"
+            :local-mode="false"
             :allow-inline-edit="allowInlineEdit"
             :sort-by="sortBy"
             :sort-direction="sortDirection"
             @selection-change="onGridSelectionChanged"
         >
-
             <template #column-name="{ item, isInlineEdit }">
                 <template v-if="isInlineEdit">
-
                     <mt-text-field
                         v-model="item.name"
                         size="small"
@@ -131,8 +128,9 @@
             </template>
             {% endblock %}
         </sw-one-to-many-grid>
-        {% endblock %}
     </template>
+    {% endblock %}
+
     {% block sw_property_option_list_detail %}
     <sw-property-option-detail
         v-if="currentOption"

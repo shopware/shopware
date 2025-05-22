@@ -430,14 +430,17 @@ export default {
             }
         },
 
-        onSaveAndReload() {
+        onSaveAndReload(afterSaveFn = null) {
             Store.get('swOrderDetail').setLoading([
                 'order',
                 true,
             ]);
 
+            afterSaveFn ??= () => new Promise((r) => r());
+
             return this.orderRepository
                 .save(this.order, this.versionContext)
+                .then(() => afterSaveFn())
                 .then(() => this.reloadEntityData())
                 .catch((error) => {
                     this.onError('error', error);

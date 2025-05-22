@@ -9,6 +9,7 @@ use horstoeko\zugferd\codelists\ZugferdSchemeIdentifiers;
 use horstoeko\zugferd\codelists\ZugferdUnitCodes;
 use horstoeko\zugferd\ZugferdDocumentBuilder;
 use horstoeko\zugferd\ZugferdDocumentValidator;
+use Shopware\Core\Checkout\Cart\Price\CashRounding;
 use Shopware\Core\Checkout\Cart\Price\Struct\CartPrice;
 use Shopware\Core\Checkout\Cart\Tax\Struct\CalculatedTax;
 use Shopware\Core\Checkout\Document\DocumentConfiguration;
@@ -20,15 +21,32 @@ use Shopware\Core\Checkout\Order\Aggregate\OrderLineItem\OrderLineItemEntity;
 use Shopware\Core\Checkout\Order\OrderEntity;
 use Shopware\Core\Checkout\Promotion\Aggregate\PromotionDiscount\PromotionDiscountEntity;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\System\SalesChannel\SalesChannelDefinition;
 
 #[Package('after-sales')]
 class ZugferdDocument
 {
+    public const CHARGE_AMOUNT = 'chargeAmount';
+    public const LINE_TOTAL_AMOUNT = 'lineTotalAmount';
+    public const ALLOWANCE_AMOUNT = 'allowanceAmount';
+
+    // To reduce calculation differences with decimal digits
+    protected const MULTIPLIER = 100;
+
     protected float $chargeAmount = 0.0;
 
     protected float $lineTotalAmount = 0.0;
 
     protected float $allowanceAmount = 0.0;
+
+    /**
+     * @var array{chargeAmount: array<numeric-string, float>, lineTotalAmount: array<numeric-string, float>, allowanceAmount: array<numeric-string, float>}
+     */
+    private array $verticalTaxCalculation = [
+        self::CHARGE_AMOUNT => [],
+        self::LINE_TOTAL_AMOUNT => [],
+        self::ALLOWANCE_AMOUNT => [],
+    ];
 
     public function __construct(
         protected readonly ZugferdDocumentBuilder $zugferdBuilder,
@@ -38,15 +56,7 @@ class ZugferdDocument
 
     public function getContent(OrderEntity $order): string
     {
-        $this->zugferdBuilder->setDocumentSummation(
-            $order->getAmountTotal(),
-            $order->getAmountTotal(),
-            abs($this->lineTotalAmount),
-            abs($this->chargeAmount),
-            abs($this->allowanceAmount),
-            $order->getAmountNet(),
-            $order->getAmountTotal() - $order->getAmountNet()
-        );
+        $this->withSummation($order);
 
         $validation = (new ZugferdDocumentValidator($this->zugferdBuilder))->validateDocument();
         if ($validation->count()) {
@@ -119,12 +129,10 @@ class ZugferdDocument
 
     public function withProductLineItem(OrderLineItemEntity $lineItem, string $parentPosition): self
     {
-        $calculatedPrice = $lineItem->getPrice();
-        $tax = $calculatedPrice?->getCalculatedTaxes()->first();
+        $tax = $lineItem->getPrice()?->getCalculatedTaxes()?->first();
         $product = $lineItem->getProduct();
-        $totalNet = $tax ? $this->getPrice($tax) : $calculatedPrice?->getTotalPrice();
 
-        if ($totalNet === null || $totalNet < 0) {
+        if ($tax === null || ($totalNet = $this->getPrice($tax, self::LINE_TOTAL_AMOUNT)) < 0) {
             throw DocumentException::generationError('Price can\'t be negative or null: ' . $lineItem->getLabel());
         }
 
@@ -133,7 +141,7 @@ class ZugferdDocument
             ->addNewPosition($parentPosition . $lineItem->getPosition())
             ->setDocumentPositionNetPrice(\round($totalNet / $lineItem->getQuantity(), 2), $lineItem->getQuantity(), ZugferdUnitCodes::REC20_PIECE)
             ->setDocumentPositionQuantity($lineItem->getQuantity(), ZugferdUnitCodes::REC20_PIECE)
-            ->addDocumentPositionTax($this->getTaxCode($tax), 'VAT', $tax?->getTaxRate() ?? 0.0)
+            ->addDocumentPositionTax($this->getTaxCode($tax), 'VAT', $tax->getTaxRate() ?? 0.0)
             ->setDocumentPositionLineSummation($totalNet)
             ->setDocumentPositionProductDetails(
                 $lineItem->getLabel(),
@@ -158,7 +166,7 @@ class ZugferdDocument
             && (abs($lineItem->getTotalPrice()) !== (float) ($lineItem->getPayload()['maxValue'] ?? null));
 
         foreach ($lineItem->getPrice()->getCalculatedTaxes() as $calculatedTax) {
-            $actualAmount = $this->getPrice($calculatedTax);
+            $actualAmount = $this->getPrice($calculatedTax, self::ALLOWANCE_AMOUNT);
 
             $this->addAllowanceAmount($actualAmount);
             $this->zugferdBuilder->addDocumentAllowanceCharge(
@@ -192,7 +200,7 @@ class ZugferdDocument
     {
         foreach ($deliveries as $delivery) {
             foreach ($delivery->getShippingCosts()->getCalculatedTaxes() as $calculatedTax) {
-                $actualAmount = $this->getPrice($calculatedTax);
+                $actualAmount = $this->getPrice($calculatedTax, self::CHARGE_AMOUNT);
 
                 $this->addChargeAmount($actualAmount);
                 $this->zugferdBuilder->addDocumentAllowanceCharge(
@@ -225,6 +233,38 @@ class ZugferdDocument
         return $this;
     }
 
+    protected function withSummation(OrderEntity $order): void
+    {
+        $lineTotalAmount = $this->lineTotalAmount;
+        $chargeAmount = $this->chargeAmount;
+        $allowanceAmount = $this->allowanceAmount;
+
+        if ($this->isGross && $order->getTaxCalculationType() === SalesChannelDefinition::CALCULATION_TYPE_VERTICAL) {
+            [
+                'lineTotalAmount' => $lineTotalAmount,
+                'chargeAmount' => $chargeAmount,
+                'allowanceAmount' => $allowanceAmount,
+            ] = $this->calculateVerticalTaxes();
+        }
+
+        $cashRounding = $order->getItemRounding();
+        if ($cashRounding) {
+            $lineTotalAmount = (new CashRounding())->cashRound($lineTotalAmount, $cashRounding);
+            $chargeAmount = (new CashRounding())->cashRound($chargeAmount, $cashRounding);
+            $allowanceAmount = (new CashRounding())->cashRound($allowanceAmount, $cashRounding);
+        }
+
+        $this->zugferdBuilder->setDocumentSummation(
+            $order->getAmountTotal(),
+            $order->getAmountTotal(),
+            abs($lineTotalAmount),
+            abs($chargeAmount),
+            abs($allowanceAmount),
+            $order->getAmountNet(),
+            $order->getAmountTotal() - $order->getAmountNet()
+        );
+    }
+
     protected function addChargeAmount(float $chargeAmount): void
     {
         $this->chargeAmount += $chargeAmount;
@@ -240,14 +280,27 @@ class ZugferdDocument
         $this->allowanceAmount += $allowanceAmount;
     }
 
-    protected function getPrice(CalculatedTax $tax): float
+    protected function getPrice(CalculatedTax $tax, ?string $type = null): float
     {
         $price = $tax->getPrice();
         if ($this->isGross) {
             $price -= $tax->getTax();
+
+            if ($type) {
+                $this->addVerticalTaxCalculation($type, $tax->getTaxRate(), $tax->getPrice());
+            }
         }
 
         return $price;
+    }
+
+    protected function addVerticalTaxCalculation(string $type, float $taxRate, float $amount): void
+    {
+        if (!\array_key_exists($type, $this->verticalTaxCalculation)) {
+            return;
+        }
+
+        $this->verticalTaxCalculation[$type][(string) $taxRate] = ($amount * self::MULTIPLIER) + ($this->verticalTaxCalculation[$type][(string) $taxRate] ?? 0.0);
     }
 
     protected function getTaxCode(?CalculatedTax $tax): string
@@ -256,5 +309,27 @@ class ZugferdDocument
             0.0 => ZugferdDutyTaxFeeCategories::ZERO_RATED_GOODS,
             default => ZugferdDutyTaxFeeCategories::STANDARD_RATE,
         };
+    }
+
+    /**
+     * @return array{chargeAmount: float, lineTotalAmount: float, allowanceAmount: float}
+     */
+    protected function calculateVerticalTaxes(): array
+    {
+        $calculatedTaxes = [
+            self::CHARGE_AMOUNT => 0.0,
+            self::LINE_TOTAL_AMOUNT => 0.0,
+            self::ALLOWANCE_AMOUNT => 0.0,
+        ];
+
+        foreach ($this->verticalTaxCalculation as $type => $taxes) {
+            foreach ($taxes as $taxRate => $gross) {
+                $calculatedTaxes[$type] += $gross / (1 + (float) $taxRate / 100);
+            }
+
+            $calculatedTaxes[$type] /= self::MULTIPLIER;
+        }
+
+        return $calculatedTaxes;
     }
 }

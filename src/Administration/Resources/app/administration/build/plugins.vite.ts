@@ -211,17 +211,23 @@ const main = async () => {
             const port = availablePorts[i];
             const extensionInfoDebug = debug(`vite:${extension.isPlugin ? 'plugin' : 'app'}:${extension.technicalName}`);
 
+            const serverConfig = {
+                port,
+                host,
+                cors: true,
+                // DDEV_PRIMARY_URL is initialised in ddev environment only
+                origin: process.env.DDEV_PRIMARY_URL_WITHOUT_PORT
+                    ? `${process.env.DDEV_PRIMARY_URL_WITHOUT_PORT}:${(Number(process.env.ADMIN_PORT) || 5173)}`
+                    : undefined,
+            };
+
             let server;
 
             if (extension.isApp) {
                 // For apps
                 server = await createServer({
                     root: extension.path,
-                    server: {
-                        port,
-                        host,
-                        cors: true,
-                    },
+                    server: serverConfig,
                 });
 
                 console.log(colors.green(`# App "${extension.name}": Injected successfully`));
@@ -229,11 +235,7 @@ const main = async () => {
                 // For plugins
                 server = await createServer({
                     ...getBaseConfig(extension),
-                    server: {
-                        port,
-                        host,
-                        cors: true,
-                    },
+                    server: serverConfig,
                 });
 
                 console.log(colors.green(`# Plugin "${extension.name}": Injected successfully`));

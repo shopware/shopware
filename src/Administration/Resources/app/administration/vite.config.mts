@@ -74,8 +74,8 @@ export default defineConfig(({ command }) => {
                 },
             },
             // DDEV_PRIMARY_URL is initialised in ddev environment only
-            origin: process.env.DDEV_PRIMARY_URL
-                ? `${process.env.DDEV_PRIMARY_URL.replace(/:\d+$/, "")}:` + (Number(process.env.ADMIN_PORT) || 5173)
+            origin: process.env.DDEV_PRIMARY_URL_WITHOUT_PORT
+                ? `${process.env.DDEV_PRIMARY_URL_WITHOUT_PORT}:${(Number(process.env.ADMIN_PORT) || 5173)}`
                 : undefined,
         },
 

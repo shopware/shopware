@@ -29,7 +29,7 @@
       "updatedAtLabel": "Last updated: {updatedAt}",
       "version": "Version: {version}"
     },
-    "grant-permissions-card": {
+    "grant-permissions": {
       "title": "Unlock the full potential of Shopware Services",
       "description": "To deliver their full value, certain Shopware Services need permissions to access key areas of your store, like product information or order data. These permissions are identical to those used by Shopware extensions, and each Service only accesses the permissions it needs to function. Your data is always handled responsibly.",
       "label-button-grant-permissions": "Grant permissions",

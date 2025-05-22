@@ -2,7 +2,8 @@ import { mapState } from 'pinia';
 import { useShopwareServicesStore } from '../../store/shopware-services.store';
 import template from './sw-settings-services-index.html.twig';
 import './sw-settings-services-index.scss';
-import grantPermissionsCardBackground from './asset/grant-permissions-background.png';
+import grantPermissionsCardBackground from
+    '../../component/sw-settings-services-grant-permissions-modal/assets/grant-permissions-background.png';
 
 import type { ServiceDescription } from '../../service/shopware-services.service';
 

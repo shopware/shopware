@@ -50,6 +50,14 @@ Shopware.Component.register(
     () => import('./component/sw-settings-services-dashboard-banner'),
 );
 
+/**
+ * @private
+ */
+Shopware.Component.register(
+    'sw-settings-services-grant-permissions-modal',
+    () => import('./component/sw-settings-services-grant-permissions-modal'),
+);
+
 declare global {
     interface ServiceContainer extends SubContainer<'service'> {
         shopwareServicesService: ShopwareServicesService;

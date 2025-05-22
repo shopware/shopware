@@ -13,6 +13,7 @@ type ShopwareServicesState = {
         feedbackLink: string,
         tosLink: string,
     } | null,
+    showGrantPermissionsModal: boolean
 }
 
 /* eslint-disable import/prefer-default-export */
@@ -24,6 +25,7 @@ export const useShopwareServicesStore = defineStore('shopwareServices', {
     state: (): ShopwareServicesState => ({
         consent: null,
         legalDocuments: null,
+        showGrantPermissionsModal: false,
     }),
 
     getters: {

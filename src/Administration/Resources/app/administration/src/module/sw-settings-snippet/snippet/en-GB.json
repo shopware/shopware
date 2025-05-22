@@ -59,7 +59,7 @@
       "buttonAddSet": "Add snippet set",
       "buttonClone": "Copy",
       "buttonImport": "Import",
-      "newSnippetName": "New snippet set",
+      "newSnippetName": "# New snippet set",
       "cloneErrorMessage": "Error while copying a snippet set.",
       "cloneSuccessMessage": "Snippet set has been copied.",
       "columnBaseFile": "Base file",

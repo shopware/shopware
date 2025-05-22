@@ -9,6 +9,7 @@ use Shopware\Core\Checkout\Customer\Validation\Constraint\CustomerVatIdentificat
 use Shopware\Core\Checkout\Document\Struct\DocumentGenerateOperation;
 use Shopware\Core\Checkout\Order\OrderEntity;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Symfony\Component\Validator\Constraints\NotBlank;
@@ -60,7 +61,12 @@ abstract class AbstractDocumentRenderer
             return false;
         }
 
-        $orderDelivery = $order->getDeliveries()?->first();
+        $orderDelivery = $order->getPrimaryOrderDelivery();
+
+        if (!Feature::isActive('v6.8.0.0')) {
+            $orderDelivery = $order->getDeliveries()?->first();
+        }
+
         if (!$orderDelivery) {
             return false;
         }

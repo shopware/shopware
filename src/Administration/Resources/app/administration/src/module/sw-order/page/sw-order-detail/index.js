@@ -57,8 +57,6 @@ export default {
         return {
             /** @deprecated tag:v6.8.0 - isEditing will be removed, use editing instead */
             isEditing: false,
-            /** @deprecated tag:v6.8.0 - isSaveSuccessful will be removed, use savedSuccessful instead */
-            isSaveSuccessful: false,
             /** @deprecated tag:v6.8.0 - createdById will be removed */
             createdById: '',
             isDisplayingLeavePageWarning: false,
@@ -99,7 +97,14 @@ export default {
             },
         },
 
-        savedSuccessful: () => Store.get('swOrderDetail').savedSuccessful,
+        isSaveSuccessful: {
+            get() {
+                return Store.get('swOrderDetail').savedSuccessful;
+            },
+            set(value) {
+                Store.get('swOrderDetail').savedSuccessful = value;
+            },
+        },
 
         orderIdentifier() {
             return this.order?.orderNumber ?? '';
@@ -276,7 +281,6 @@ export default {
         saveEditsFinish() {
             this.isSaveSuccessful = false;
             this.isEditing = false;
-            Store.get('swOrderDetail').savedSuccessful = false;
         },
 
         /**
@@ -325,7 +329,7 @@ export default {
                 })
                 .then(() => this.createNewVersionId())
                 .then(() => {
-                    Store.get('swOrderDetail').savedSuccessful = true;
+                    this.isSaveSuccessful = true;
                 })
                 .catch((error) => {
                     this.onError('error', error);
@@ -601,7 +605,7 @@ export default {
 
         async onAskAndSaveEditsConfirm() {
             await this.onSaveEdits();
-            this.askForSaveBeforehand.resolve(Store.get('swOrderDetail').savedSuccessful);
+            this.askForSaveBeforehand.resolve(this.isSaveSuccessful);
             this.askForSaveBeforehand = null;
         },
 

@@ -72,7 +72,7 @@
             variant="primary"
             :disabled="loading.order || loading.recalculation || !acl.can('order.editor')"
             :is-loading="loading.order"
-            :process-success="isSaveSuccessful || savedSuccessful"
+            :process-success="isSaveSuccessful"
             @update:process-success="saveEditsFinish"
             @click.prevent="onSaveEdits"
         >

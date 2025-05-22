@@ -26,7 +26,9 @@ export default {
         return {
             /** @deprecated tag:v6.8.0 - swOrderDetailOnCreatedByIdChange will be removed */
             swOrderDetailOnCreatedByIdChange: this.updateCreatedById,
+            /** @deprecated tag:v6.8.0 - swOrderDetailOnLoadingChange will be removed */
             swOrderDetailOnLoadingChange: this.onUpdateLoading,
+            /** @deprecated tag:v6.8.0 - swOrderDetailOnEditingChange will be removed */
             swOrderDetailOnEditingChange: this.onUpdateEditing,
             swOrderDetailOnSaveAndRecalculate: this.onSaveAndRecalculate,
             swOrderDetailOnRecalculateAndReload: this.onRecalculateAndReload,
@@ -53,8 +55,9 @@ export default {
 
     data() {
         return {
+            /** @deprecated tag:v6.8.0 - isEditing will be removed, use editing instead */
             isEditing: false,
-            isLoading: true,
+            /** @deprecated tag:v6.8.0 - isSaveSuccessful will be removed, use savedSuccessful instead */
             isSaveSuccessful: false,
             /** @deprecated tag:v6.8.0 - createdById will be removed */
             createdById: '',
@@ -85,6 +88,18 @@ export default {
         editing: () => Store.get('swOrderDetail').editing,
 
         loading: () => Store.get('swOrderDetail').loading,
+
+        /** @deprecated tag:v6.8.0 - isLoading will be removed, use loading.order instead */
+        isLoading: {
+            get() {
+                return this.loading.order;
+            },
+            set(value) {
+                Store.get('swOrderDetail').setLoading(['order', value]);
+            },
+        },
+
+        savedSuccessful: () => Store.get('swOrderDetail').savedSuccessful,
 
         orderIdentifier() {
             return this.order?.orderNumber ?? '';
@@ -230,7 +245,10 @@ export default {
 
             Shopware.Store.get('shopwareApps').selectedIds = this.orderId ? [this.orderId] : [];
 
-            this.createNewVersionId();
+            Shopware.Store.get('swOrderDetail').setLoading(['order', true]);
+            this.createNewVersionId().finally(() => {
+                Shopware.Store.get('swOrderDetail').setLoading(['order', false]);
+            });
         },
 
         async beforeDestroyComponent() {
@@ -258,14 +276,18 @@ export default {
         saveEditsFinish() {
             this.isSaveSuccessful = false;
             this.isEditing = false;
+            Store.get('swOrderDetail').savedSuccessful = false;
         },
 
+        /**
+         * @deprecated tag:v6.8.0 - will be removed without replacement
+         */
         onStartEditing() {
             this.$root.$emit('order-edit-start');
         },
 
         async onSaveEdits() {
-            this.isLoading = true;
+            Store.get('swOrderDetail').setLoading(['order', true]);
 
             await this.handleOrderAddressUpdate(this.orderAddressIds);
 
@@ -281,10 +303,7 @@ export default {
                 });
 
                 this.createNewVersionId().then(() => {
-                    Store.get('swOrderDetail').setLoading([
-                        'order',
-                        false,
-                    ]);
+                    Store.get('swOrderDetail').setLoading(['order', false]);
                 });
 
                 return;
@@ -310,7 +329,9 @@ export default {
                 })
                 .catch((error) => {
                     this.onError('error', error);
-                    this.isLoading = false;
+                })
+                .finally(() => {
+                    Store.get('swOrderDetail').setLoading(['order', false]);
                 });
 
             this.$root.$emit('order-edit-save');
@@ -359,11 +380,7 @@ export default {
         },
 
         onCancelEditing() {
-            this.isLoading = true;
-            Store.get('swOrderDetail').setLoading([
-                'order',
-                true,
-            ]);
+            Store.get('swOrderDetail').setLoading(['order', true]);
 
             const oldVersionContext = this.versionContext;
             Store.get('swOrderDetail').versionContext = Shopware.Context.api;
@@ -382,20 +399,13 @@ export default {
                     this.missingProductLineItems = [];
 
                     return this.createNewVersionId().then(() => {
-                        Store.get('swOrderDetail').setLoading([
-                            'order',
-                            false,
-                        ]);
+                        Store.get('swOrderDetail').setLoading(['order', false]);
                     });
                 });
         },
 
         async onSaveAndRecalculate() {
-            Store.get('swOrderDetail').setLoading([
-                'order',
-                true,
-            ]);
-            this.isLoading = true;
+            Store.get('swOrderDetail').setLoading(['recalculation', true]);
 
             try {
                 await this.orderRepository.save(this.order, this.versionContext);
@@ -406,19 +416,12 @@ export default {
             } catch (error) {
                 this.onError('error', error);
             } finally {
-                this.isLoading = false;
-                Store.get('swOrderDetail').setLoading([
-                    'order',
-                    false,
-                ]);
+                Store.get('swOrderDetail').setLoading(['recalculation', false]);
             }
         },
 
         async onRecalculateAndReload() {
-            Store.get('swOrderDetail').setLoading([
-                'order',
-                true,
-            ]);
+            Store.get('swOrderDetail').setLoading(['recalculation', true]);
 
             try {
                 await this.orderService
@@ -428,18 +431,12 @@ export default {
             } catch (error) {
                 this.onError('error', error);
             } finally {
-                Store.get('swOrderDetail').setLoading([
-                    'order',
-                    false,
-                ]);
+                Store.get('swOrderDetail').setLoading(['recalculation', false]);
             }
         },
 
         onSaveAndReload() {
-            Store.get('swOrderDetail').setLoading([
-                'order',
-                true,
-            ]);
+            Store.get('swOrderDetail').setLoading(['recalculation', true]);
 
             return this.orderRepository
                 .save(this.order, this.versionContext)
@@ -448,17 +445,20 @@ export default {
                     this.onError('error', error);
                 })
                 .finally(() => {
-                    Store.get('swOrderDetail').setLoading([
-                        'order',
-                        false,
-                    ]);
+                    Store.get('swOrderDetail').setLoading(['recalculation', false]);
                 });
         },
 
+        /**
+         * @deprecated tag:v6.8.0 - isLoading will be removed, use loading.order instead
+         */
         onUpdateLoading(loadingValue) {
             this.isLoading = loadingValue;
         },
 
+        /**
+         * @deprecated tag:v6.8.0 - isEditing will be removed, use editing instead
+         */
         onUpdateEditing(editingValue) {
             this.isEditing = editingValue;
         },
@@ -492,11 +492,6 @@ export default {
         },
 
         reloadEntityData(isSaved = true) {
-            Store.get('swOrderDetail').setLoading([
-                'order',
-                true,
-            ]);
-
             return this.orderRepository
                 .get(this.orderId, this.versionContext, this.orderCriteria)
                 .then((response) => {
@@ -505,13 +500,6 @@ export default {
                     }
 
                     Store.get('swOrderDetail').order = response;
-                })
-                .finally(() => {
-                    Store.get('swOrderDetail').setLoading([
-                        'order',
-                        false,
-                    ]);
-                    this.isLoading = false;
                 });
         },
 

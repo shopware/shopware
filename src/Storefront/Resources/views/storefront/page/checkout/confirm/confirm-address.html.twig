@@ -2,14 +2,24 @@
     {# @var page \Shopware\Storefront\Page\Checkout\Confirm\CheckoutConfirmPage #}
     {% if page.order %}
         {% set order = page.order %}
-        {% set deliveries = order.deliveries.elements %}
         {% set billingAddress = order.billingAddress %}
+        {# @deprecated tag:v6.8.0 - deliveries will be removed, use primaryOrderDelivery instead #}
+        {% set deliveries = order.deliveries.elements %}
 
-        {% if deliveries|length > 0 and order.billingAddress.id != deliveries|first.shippingOrderAddressId %}
-            {% set shippingAddress = deliveries|first.shippingOrderAddress %}
+        {% if feature('v6.8.0.0') %}
+            {% if order.billingAddress.id != order.primaryOrderDelivery.shippingOrderAddressId %}
+                {% set shippingAddress = order.primaryOrderDelivery.shippingOrderAddress %}
+            {% else %}
+                {% set shippingAddress = billingAddress %}
+            {% endif %}
         {% else %}
-            {% set shippingAddress = billingAddress %}
+            {% if deliveries|length > 0 and order.billingAddress.id != deliveries|first.shippingOrderAddressId %}
+                {% set shippingAddress = deliveries|first.shippingOrderAddress %}
+            {% else %}
+                {% set shippingAddress = billingAddress %}
+            {% endif %}
         {% endif %}
+
     {% else %}
         {% set billingAddress = context.customer.activeBillingAddress %}
         {% set shippingAddress = context.customer.activeShippingAddress %}
@@ -80,7 +90,7 @@
                             {% endblock %}
 
                             {% block page_checkout_confirm_address_billing_data %}
-                                <div class="confirm-address-billing">
+                                <div class="confirm-address-billing mb-3">
                                     {% if billingAddress.id is same as(shippingAddress.id) %}
                                         {% block page_checkout_confirm_address_billing_data_equal %}
                                             <p>

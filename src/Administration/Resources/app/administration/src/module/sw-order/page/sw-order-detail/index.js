@@ -241,6 +241,10 @@ export default {
             }
         },
 
+        updateIdentifier(identifier) {
+            this.identifier = identifier;
+        },
+
         /**
          * @deprecated tag:v6.8.0 - createdById will be removed (there is a template usage that needs to be removed as well)
          */

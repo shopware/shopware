@@ -80,6 +80,7 @@
             :allow-inline-edit="allowInlineEdit"
             :sort-by="sortBy"
             :sort-direction="sortDirection"
+            @load-finish="checkEmptyState"
             @selection-change="onGridSelectionChanged"
         >
             <template #column-name="{ item, isInlineEdit }">
@@ -128,6 +129,16 @@
             </template>
             {% endblock %}
         </sw-one-to-many-grid>
+
+        {% block sw_settings_country_state_list_empty %}
+        <sw-empty-state
+            v-if="showEmptyState"
+            :absolute="false"
+            :title="$tc('sw-property.detail.messageOptionsEmpty')"
+            :subline="$tc('sw-property.detail.messageOptionsEmptySubline')"
+            auto-height
+        />
+        {% endblock %}
     </template>
     {% endblock %}
 

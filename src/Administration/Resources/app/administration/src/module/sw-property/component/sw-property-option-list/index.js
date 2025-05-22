@@ -21,6 +21,7 @@ export default {
             type: Object,
             required: true,
         },
+
         optionRepository: {
             type: Object,
             required: true,
@@ -38,6 +39,7 @@ export default {
             sortBy: 'name',
             sortDirection: 'ASC',
             showDeleteModal: false,
+            showEmptyState: false,
         };
     },
 
@@ -192,6 +194,10 @@ export default {
                     inlineEdit: 'number',
                 },
             ];
+        },
+
+        checkEmptyState() {
+            this.showEmptyState = this.$refs.grid?.total === 0;
         },
     },
 };

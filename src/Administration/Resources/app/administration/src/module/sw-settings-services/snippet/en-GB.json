@@ -18,7 +18,9 @@
       "optional-services": "Optional services",
       "optional-services-tooltip": "Additional features that go beyond the core to enable advanced use cases, such as artificial intelligence, while supporting a wide range of business needs.",
       "default-services": "Default services",
-      "default-services-tooltip": "Essential components that support the core operation of Shopware. They run quietly in the background without impacting your system’s performance or stability."
+      "default-services-tooltip": "Essential components that support the core operation of Shopware. They run quietly in the background without impacting your system’s performance or stability.",
+      "label-documentation-link": "Documentation",
+      "label-tos-link": "Terms & Conditions"
     },
     "service-card": {
       "statusActive": "Active",
@@ -26,6 +28,25 @@
       "statusInactive": "Inactive",
       "updatedAtLabel": "Last updated: {updatedAt}",
       "version": "Version: {version}"
+    },
+    "grant-permissions-card": {
+      "title": "Unlock the full potential of Shopware Services",
+      "description": "To deliver their full value, certain Shopware Services need permissions to access key areas of your store, like product information or order data. These permissions are identical to those used by Shopware extensions, and each Service only accesses the permissions it needs to function. Your data is always handled responsibly.",
+      "label-button-grant-permissions": "Grant permissions",
+      "label-link-more-information": "More information"
+    },
+    "revoke-permissions-modal": {
+      "title": "Revoke permissions",
+      "p-1": "Are you sure you want to revoke permissions?",
+      "p-2": "This will deactivate certain Shopware Services and result in loss of all related functionality. The following Services will be deactivated:",
+      "label-button-revoke-permissions": "Revoke permissions"
+    },
+    "deactivate-modal": {
+      "title": "Deactivate Shopware Services",
+      "p-1": "Are you sure you want to deactivate Shopware Services?",
+      "p-2": "This will result in losing access to all current and future Shopware Services. We'd like to know what you don't like about Shopware Services. Give us your feedback so we can improve Shopware Services in the future!",
+      "label-feedback-link": "Give feedback",
+      "label-button-deactivate": "Deactivate"
     }
   }
 }

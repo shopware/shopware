@@ -2,9 +2,12 @@ import { mapState } from 'pinia';
 import { useShopwareServicesStore } from '../../store/shopware-services.store';
 import template from './sw-settings-services-index.html.twig';
 import './sw-settings-services-index.scss';
+import grantPermissionsCardBackground from './asset/grant-permissions-background.png';
+
 import type { ServiceDescription } from '../../service/shopware-services.service';
 
 type SwSettingsPageData = {
+    grantPermissionsCardBackground: string,
     services: ServiceDescription[]
     suspended: boolean,
 };
@@ -20,6 +23,7 @@ export default Shopware.Component.wrapComponentConfig({
 
     data(): SwSettingsPageData {
         return {
+            grantPermissionsCardBackground,
             services: [],
             suspended: true,
         };
@@ -32,6 +36,9 @@ export default Shopware.Component.wrapComponentConfig({
         },
         defaultServices() {
             return this.services.filter((service) => !service.needsPermissions);
+        },
+        areServicesDeactivated() {
+            return this.services.some((service) => service.active === false);
         },
     },
 
@@ -52,5 +59,15 @@ export default Shopware.Component.wrapComponentConfig({
         ]).then(() => {
             this.suspended = false;
         }).catch(() =>  {});
+    },
+
+    methods: {
+        grantPermissions() {
+            console.log('granting permissions...');
+        },
+
+        activateServices() {
+            console.log('activate services...');
+        },
     },
 });

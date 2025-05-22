@@ -84,7 +84,7 @@ export default class ShopwareServicesService extends ApiService {
             lastUpdatedAt: new Date('2025-05-10'),
             active: true,
             version: '4.1.0',
-            needsPermissions: false,
+            needsPermissions: true,
         }]);
     }
 

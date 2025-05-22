@@ -26,6 +26,22 @@ Shopware.Component.register(
     () => import('./component/sw-settings-services-service-card'),
 );
 
+/**
+ * @private
+ */
+Shopware.Component.register(
+    'sw-settings-services-revoke-permissions-modal',
+    () => import('./component/sw-settings-services-revoke-permissions-modal'),
+);
+
+/**
+ * @private
+ */
+Shopware.Component.register(
+    'sw-settings-services-deactivate-modal',
+    () => import('./component/sw-settings-services-deactivate-modal'),
+);
+
 declare global {
     interface ServiceContainer extends SubContainer<'service'> {
         shopwareServicesService: ShopwareServicesService;

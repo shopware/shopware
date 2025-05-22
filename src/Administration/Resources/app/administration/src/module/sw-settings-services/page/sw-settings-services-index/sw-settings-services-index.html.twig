@@ -5,13 +5,68 @@
         </h2>
     </template>
 
-    <template #content v-if="!suspended">
+    <template
+        v-if="!suspended"
+        #content
+    >
         <sw-settings-services-hero
             :documentation-link="legalDocuments.documentationLink"
             :feedback-link="legalDocuments.feedbackLink"
         />
 
-        <sw-card-view>
+        <div style="padding: 40px">
+            <mt-card
+                v-if="!consentGiven"
+                class="sw-settings-services-index__grant-permission-card"
+            >
+                <div class="sw-settings-services-index__grant-permission-card-content">
+                    <div class="sw-settings-services-index__grant-permission-card-infos">
+                        <h3>{{ $t("sw-settings-services.grant-permissions-card.title") }}</h3>
+
+                        <p>{{ $t("sw-settings-services.grant-permissions-card.description") }}</p>
+
+                        <mt-button
+                            variant="primary"
+                            @click="grantPermissions"
+                        >
+                            {{  $t("sw-settings-services.grant-permissions-card.label-button-grant-permissions") }}
+                        </mt-button>
+
+                        <mt-link
+                            variant="primary"
+                            as="a"
+                            type="external"
+                            :href="legalDocuments.tosLink"
+                            target="_blank"
+                        >
+                            {{ $t("sw-settings-services.grant-permissions-card.label-link-more-information") }}
+                        </mt-link>
+                    </div>
+                    <img
+                        :src="grantPermissionsCardBackground"
+                        alt=""
+                    >
+                </div>
+            </mt-card>
+
+            <mt-banner
+                v-if="areServicesDeactivated"
+                class="sw-settings-services-index__services-deactivated-banner"
+                variant="attention"
+            >
+                <p><b>Shopware Services are deactivated</b></p>
+
+                <p>You are currently missing out on all Shopware Services, including advanced AI tools and much more. Activate Shopware Services to take advantage of all the current and future Services we have to offer.</p>
+
+                <mt-button
+                    variant="primary"
+                    size="small"
+                    @click="activateServices"
+                >
+                    Activate Services
+                </mt-button>
+            </mt-banner>
+
             <div class="sw-settings-services__listing-section">
                 <h3>
                     {{ $t('sw-settings-services.index.optional-services') }}
@@ -47,8 +102,26 @@
             </div>
 
             <div class="sw-settings-services__footer">
+                <a
+                    class="mt-link--external"
+                    :href="legalDocuments.documentationLink"
+                    target="_blank"
+                >
+                    {{ $t('sw-settings-services.index.label-documentation-link') }}
+                </a>
 
+                <a
+                    class="mt-link--external"
+                    :href="legalDocuments.tosLink"
+                    target="_blank"
+                >
+                    {{ $t('sw-settings-services.index.label-tos-link') }}
+                </a>
+
+                <sw-settings-services-revoke-permissions-modal :optional-services="optionalServices" />
+
+                <sw-settings-services-deactivate-modal :feedback-link="legalDocuments.feedbackLink" />
             </div>
-        </sw-card-view>
+        </div>
     </template>
 </sw-page>

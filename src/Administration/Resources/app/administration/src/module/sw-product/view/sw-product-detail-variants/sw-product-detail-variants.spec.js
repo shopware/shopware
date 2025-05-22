@@ -4,7 +4,6 @@
 import { mount } from '@vue/test-utils';
 import 'src/app/component/utils/sw-loader';
 import 'src/app/component/base/sw-button';
-import 'src/app/component/base/sw-empty-state';
 import 'src/module/sw-product/component/sw-product-variants/sw-product-variants-overview';
 import ShopwareDiscountCampaignService from 'src/app/service/discount-campaign.service';
 import Criteria from 'src/core/data/criteria.data';
@@ -51,6 +50,13 @@ async function createWrapper(privileges = []) {
             },
             mocks: {
                 $tc: (key) => key,
+                $route: {
+                    meta: {
+                        $module: {
+                            icon: 'solid-content',
+                        },
+                    },
+                },
             },
             stubs: {
                 'mt-card': {
@@ -71,7 +77,6 @@ async function createWrapper(privileges = []) {
                   </div>
                 `,
                 },
-                'sw-empty-state': await wrapTestComponent('sw-empty-state'),
                 'sw-context-menu-item': true,
                 'sw-loader': await wrapTestComponent('sw-loader'),
                 'sw-modal': true,
@@ -202,8 +207,8 @@ describe('src/module/sw-product/view/sw-product-detail-variants', () => {
         await flushPromises();
 
         expect(wrapper.vm).toBeTruthy();
-        expect(wrapper.find('.sw-empty-state__title').text()).toBe('sw-product.variations.emptyStatePropertyTitle');
-        expect(wrapper.find('.sw-empty-state__description-content').text()).toBe(
+        expect(wrapper.find('.mt-empty-state__headline').text()).toBe('sw-product.variations.emptyStatePropertyTitle');
+        expect(wrapper.find('.mt-empty-state__description').text()).toBe(
             'sw-product.variations.emptyStatePropertyDescription',
         );
     });

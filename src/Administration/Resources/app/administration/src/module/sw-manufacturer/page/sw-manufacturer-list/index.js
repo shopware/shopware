@@ -3,6 +3,7 @@
  */
 
 import template from './sw-manufacturer-list.html.twig';
+import './sw-manufacturer-list.scss';
 
 const { Mixin } = Shopware;
 const { Criteria } = Shopware.Data;

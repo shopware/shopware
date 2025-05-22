@@ -59,19 +59,13 @@
                 @update-records="onUpdateRecords"
             />
 
-            <sw-empty-state
+            <mt-empty-state
                 v-else
                 class="sw-generic-custom-entity-list__content-empty-state"
-                :title="emptyStateTitle"
-                :subline="emptyStateSubline"
-            >
-                <template #icon>
-                    <img
-                        :src="assetFilter('/administration/administration/static/img/empty-states/custom-entity-empty-state.svg')"
-                        :alt="emptyStateTitle"
-                    >
-                </template>
-            </sw-empty-state>
+                icon="solid-image-text"
+                :headline="emptyStateTitle"
+                :description="emptyStateSubline"
+            />
         </div>
     </template>
 </sw-page>

@@ -31,7 +31,7 @@ Module.register('sw-settings-shopware-updates', {
     version: '1.0.0',
     targetVersion: '1.0.0',
     color: '#9AA8B5',
-    icon: 'regular-cog',
+    icon: 'solid-cog',
     favicon: 'icon-module-settings.png',
 
     routes: {

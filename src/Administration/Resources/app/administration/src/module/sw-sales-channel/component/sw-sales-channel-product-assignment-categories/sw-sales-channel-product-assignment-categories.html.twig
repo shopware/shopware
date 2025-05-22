@@ -156,12 +156,10 @@
             {% endblock %}
 
             {% block sw_sales_channel_product_assignment_categories_search_results_empty %}
-            <sw-empty-state
+            <mt-empty-state
                 v-else
-                :show-description="false"
-                :absolute="false"
-                :title="$tc('sw-sales-channel.detail.productAssignmentModal.categories.emptySearchResults')"
-                :icon="'regular-products'"
+                icon="solid-products"
+                :headline="$tc('sw-sales-channel.detail.productAssignmentModal.categories.emptySearchResults')"
                 class="sw-sales-channel-product-assignment-categories__empty-state"
             />
             {% endblock %}

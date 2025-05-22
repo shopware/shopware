@@ -1574,6 +1574,7 @@
     "messageNoResultSubline": "Bearbeite Deine Filter, oder Suchbegriffe um Ergebnisse zu finden. Bitte überprüfe auch die Konfiguration Deiner Suche.",
     "messageNoResultSublineBefore": "Bearbeite Deine Filter, oder Suchbegriffe um Ergebnisse zu finden. Bitte überprüfe auch",
     "messageNoResultSublineLink": "die Konfiguration",
+    "messageNoResultLink": "Zu den Sucheinstellungen",
     "messageNoResultSublineAfter": "Deiner Suche."
   },
   "sw-restricted-rules": {

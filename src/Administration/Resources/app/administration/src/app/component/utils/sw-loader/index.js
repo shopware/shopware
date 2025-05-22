@@ -35,7 +35,7 @@ export default {
             Shopware.Utils.debug.warn(
                 'sw-loader',
                 // eslint-disable-next-line max-len
-                'The old usage of "sw-loader" is deprecated and will be removed in v6.7.0.0. Please use "mt-loader" instead.',
+                'The old usage of "sw-loader" is deprecated and will be removed in v6.8.0.0. Please use "mt-loader" instead.',
             );
 
             return false;

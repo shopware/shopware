@@ -92,10 +92,6 @@ async function createWrapper(query = {}) {
                             'disable-data-fetching',
                         ],
                     },
-                    'sw-empty-state': {
-                        template: '<div class="sw-empty-state"><slot name="icon"/></div>',
-                        props: ['title'],
-                    },
                     'sw-language-switch': {
                         template: '<div class="sw-language-switch"></div>',
                     },
@@ -107,7 +103,7 @@ async function createWrapper(query = {}) {
                         },
                         meta: {
                             $module: {
-                                icon: null,
+                                icon: 'solid-content',
                             },
                         },
                         query,
@@ -126,7 +122,7 @@ describe('module/sw-custom-entity/page/sw-generic-custom-entity-list', () => {
         const wrapper = await createWrapper();
         await flushPromises();
 
-        expect(wrapper.find('.sw-empty-state').exists()).toBe(false);
+        expect(wrapper.find('mt-empty-state').exists()).toBe(false);
 
         await wrapper.setData({
             customEntityInstances: false,
@@ -134,14 +130,7 @@ describe('module/sw-custom-entity/page/sw-generic-custom-entity-list', () => {
 
         expect(wrapper.vm.customEntityInstances).toBe(false);
 
-        expect(wrapper.getComponent('.sw-empty-state').props('title')).toBe('custom_test_entity.list.emptyState');
-
-        const imageElement = wrapper.get('.sw-empty-state img');
-
-        expect(imageElement.attributes()).toStrictEqual({
-            src: 'administration/administration/static/img/empty-states/custom-entity-empty-state.svg',
-            alt: 'custom_test_entity.list.emptyState',
-        });
+        expect(wrapper.find('.mt-empty-state__headline').text()).toBe('custom_test_entity.list.emptyState');
     });
 
     it('gets the custom entity definition and renders the columns', async () => {

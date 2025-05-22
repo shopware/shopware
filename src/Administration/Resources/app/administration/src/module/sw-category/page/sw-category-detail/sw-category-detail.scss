@@ -1,6 +1,12 @@
 @import "~scss/variables";
 
 .sw-category {
+    &__content {
+        width: 100%;
+        height: 100%;
+        position: absolute;
+    }
+
     .sw-category-detail__collapse-headline,
     .sw-category-detail__collapse-selected-count {
         font-size: $font-size-m;

@@ -82,18 +82,11 @@
     {% block sw_order_line_items_grid_sales_channel_grid %}
     <template #grid>
         {% block sw_order_line_items_grid_sales_channel_grid_no_items %}
-        <sw-empty-state
+        <mt-empty-state
             v-if="cartLineItems.length === 0"
-            :title="$tc('sw-order.createBase.messageEmptyItem')"
-            :absolute="false"
-        >
-            <template #icon>
-                <img
-                    :src="assetFilter('/administration/administration/static/img/empty-states/products-empty-state.svg')"
-                    :alt="$tc('sw-order.createBase.messageEmptyItem')"
-                >
-            </template>
-        </sw-empty-state>
+            icon="solid-products"
+            :headline="$tc('sw-order.createBase.messageEmptyItem')"
+        />
         {% endblock %}
 
         {% block sw_order_line_items_grid_sales_channel_grid_item_table %}

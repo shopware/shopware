@@ -364,8 +364,8 @@ global.allowedErrors = [
                 return false;
             }
 
-            return msg0?.includes('is deprecated and will be removed in v6.7.0.0. Please use') ||
-                msg1?.includes?.('is deprecated and will be removed in v6.7.0.0. Please use');
+            return msg0?.includes('is deprecated and will be removed in v6.8.0.0. Please use') ||
+                msg1?.includes?.('is deprecated and will be removed in v6.8.0.0. Please use');
         },
     },
     /*

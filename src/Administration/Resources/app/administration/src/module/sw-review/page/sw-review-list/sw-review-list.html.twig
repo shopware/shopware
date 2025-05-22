@@ -37,98 +37,102 @@
 
     {% block sw_review_list_content %}
     <template #content>
+        {% block sw_review_list_content %}
+        <div class="sw_review_list__content">
+            {% block sw_review_list_empty_state %}
+            <mt-empty-state
+                v-if="!isLoading && !total"
+                icon="solid-file-text"
+                class="mt-empty-state--center"
+                :headline="$t('sw-review.list.messageEmpty')"
+                :description="$t('sw-review.list.messageEmptySubline')"
+            />
+            {% endblock %}
 
         {% block sw_review_list_content_list %}
-        <sw-entity-listing
-            v-if="isLoading || items"
-            ref="listing"
-            detail-route="sw.review.detail"
-            :repository="repository"
-            :columns="columns"
-            :items="items"
-            :allow-edit="acl.can('review.editor')"
-            :allow-delete="acl.can('review.deleter')"
-            :show-selection="acl.can('review.deleter')"
-            :disable-data-fetching="true"
-            :sort-by="sortBy"
-            :sort-direction="sortDirection"
-            identifier="sw-review-list"
-            :is-loading="isLoading"
-            @page-change="onPageChange"
-            @column-sort="onSortColumn"
-        >
+            <sw-entity-listing
+                v-else-if="isLoading || items"
+                ref="listing"
+                detail-route="sw.review.detail"
+                :repository="repository"
+                :columns="columns"
+                :items="items"
+                :allow-edit="acl.can('review.editor')"
+                :allow-delete="acl.can('review.deleter')"
+                :show-selection="acl.can('review.deleter')"
+                :disable-data-fetching="true"
+                :sort-by="sortBy"
+                :sort-direction="sortDirection"
+                identifier="sw-review-list"
+                :is-loading="isLoading"
+                @page-change="onPageChange"
+                @column-sort="onSortColumn"
+            >
 
-            {% block sw_review_list_content_list_status %}
-            <template #column-status="{ item }">
-                <sw-data-grid-column-boolean
-                    v-model:value="item.status"
-                    :is-inline-edit="false"
-                />
-            </template>
-            {% endblock %}
+                {% block sw_review_list_content_list_status %}
+                <template #column-status="{ item }">
+                    <sw-data-grid-column-boolean
+                        v-model:value="item.status"
+                        :is-inline-edit="false"
+                    />
+                </template>
+                {% endblock %}
 
-            {% block sw_review_list_content_list_title %}
-            <template #column-title="{ item }">
-                <div class="sw-review-text_ellipsis">
-                    <router-link :to="{ name: 'sw.review.detail', params: { id: item.id } }">
-                        {{ item.title }}
-                    </router-link>
-                </div>
-            </template>
-            {% endblock %}
+                {% block sw_review_list_content_list_title %}
+                <template #column-title="{ item }">
+                    <div class="sw-review-text_ellipsis">
+                        <router-link :to="{ name: 'sw.review.detail', params: { id: item.id } }">
+                            {{ item.title }}
+                        </router-link>
+                    </div>
+                </template>
+                {% endblock %}
 
-            {% block sw_review_list_content_list_created_at %}
-            <template #column-createdAt="{ item }">
-                <sw-time-ago :date="item.createdAt" />
-            </template>
-            {% endblock %}
+                {% block sw_review_list_content_list_created_at %}
+                <template #column-createdAt="{ item }">
+                    <sw-time-ago :date="item.createdAt" />
+                </template>
+                {% endblock %}
 
-            {% block sw_review_list_content_list_user %}
-            <template #column-user="{ item }">
-                <router-link
-                    v-if="item.customer"
-                    :to="{ name: 'sw.customer.detail', params: { id: item.customerId } }"
-                >
-                    {{ item.customer.lastName }}, {{ item.customer.firstName }}
-                </router-link>
-            </template>
-            {% endblock %}
-
-            {% block sw_review_list_content_list_product %}
-            <template #column-product="{ item }">
-                <template v-if="item.productId">
-                    <router-link :to="{ name: 'sw.product.detail', params: { id: item.productId } }">
-                        {{ item.product.translated.name }}
+                {% block sw_review_list_content_list_user %}
+                <template #column-user="{ item }">
+                    <router-link
+                        v-if="item.customer"
+                        :to="{ name: 'sw.customer.detail', params: { id: item.customerId } }"
+                    >
+                        {{ item.customer.lastName }}, {{ item.customer.firstName }}
                     </router-link>
                 </template>
-            </template>
-            {% endblock %}
+                {% endblock %}
 
-            {% block sw_review_list_content_list_points %}
-            <template #column-points="{ item }">
-                <sw-rating-stars :value="item.points" />
-            </template>
-            {% endblock %}
+                {% block sw_review_list_content_list_product %}
+                <template #column-product="{ item }">
+                    <template v-if="item.productId">
+                        <router-link :to="{ name: 'sw.product.detail', params: { id: item.productId } }">
+                            {{ item.product.translated.name }}
+                        </router-link>
+                    </template>
+                </template>
+                {% endblock %}
 
-            {% block sw_review_list_content_list_comment %}
-            <template #column-comment="{ item }">
-                <!-- eslint-disable vue/valid-v-model -->
-                <sw-data-grid-column-boolean
-                    :value="item.comment && item.comment.length > 0"
-                    :is-inline-edit="false"
-                />
-            </template>
-            {% endblock %}
-        </sw-entity-listing>
-        {% endblock %}
+                {% block sw_review_list_content_list_points %}
+                <template #column-points="{ item }">
+                    <sw-rating-stars :value="item.points" />
+                </template>
+                {% endblock %}
 
-        {% block sw_review_list_empty_state %}
-        <sw-empty-state
-            v-if="!isLoading && !total"
-            icon="regular-file-text"
-            :title="$tc('sw-review.list.messageEmpty')"
-            :subline="$tc('sw-review.list.messageEmptySubline')"
-        />
+                {% block sw_review_list_content_list_comment %}
+                <template #column-comment="{ item }">
+                    <!-- eslint-disable vue/valid-v-model -->
+                    <sw-data-grid-column-boolean
+                        :value="item.comment && item.comment.length > 0"
+                        :is-inline-edit="false"
+                    />
+                </template>
+                {% endblock %}
+            </sw-entity-listing>
+            {% endblock %}
+        </div>
         {% endblock %}
     </template>
     {% endblock %}

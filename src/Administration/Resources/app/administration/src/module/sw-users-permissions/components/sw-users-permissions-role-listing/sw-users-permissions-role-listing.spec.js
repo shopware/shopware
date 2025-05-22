@@ -33,12 +33,17 @@ async function createWrapper(privileges = []) {
                     },
                 },
                 mocks: {
-                    $route: { query: '' },
+                    $route: {
+                        meta: {
+                            $module: {
+                                icon: 'solid-content',
+                            },
+                        },
+                    },
                 },
                 stubs: {
                     'sw-container': true,
                     'sw-simple-search-field': true,
-                    'sw-empty-state': true,
                     'sw-data-grid': {
                         props: ['dataSource'],
                         template: `

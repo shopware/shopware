@@ -51,19 +51,13 @@
                 </template>
             </sw-entity-listing>
 
-            <sw-empty-state
+            <mt-empty-state
                 v-else
                 class="sw-flow-list-my_templates__empty-state"
-                :title="$tc('sw-flow.list.emptyStateTitle')"
-                :subline="$tc('sw-flow.list.emptyStateSubTitle')"
-            >
-                <template #icon>
-                    <img
-                        :alt="$tc('sw-flow.list.emptyStateTitle')"
-                        :src="assetFilter('/administration/administration/static/img/empty-states/settings-empty-state.svg')"
-                    >
-                </template>
-            </sw-empty-state>
+                :icon="$route.meta.$module.icon"
+                :headline="$tc('sw-flow.list.emptyStateTitle')"
+                :description="$tc('sw-flow.list.emptyStateSubTitle')"
+            />
         </div>
     </div>
 </mt-card>

@@ -100,9 +100,6 @@ async function createWrapper(privileges = []) {
                 'sw-field-copyable': true,
 
                 'sw-entity-multi-select': true,
-                'sw-empty-state': {
-                    template: '<div class="sw-empty-state"></div>',
-                },
                 'sw-entity-listing': {
                     props: [
                         'items',
@@ -127,6 +124,15 @@ async function createWrapper(privileges = []) {
                 'sw-inheritance-switch': true,
                 'sw-ai-copilot-badge': true,
                 'sw-help-text': true,
+            },
+            mocks: {
+                $route: {
+                    meta: {
+                        $module: {
+                            icon: 'solid-content',
+                        },
+                    },
+                },
             },
         },
     });

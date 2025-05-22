@@ -154,12 +154,11 @@
     {% endblock %}
 
     {% block sw_import_export_activity_empty_state %}
-    <sw-empty-state
+    <mt-empty-state
         v-if="showEmptyState"
-        :title="emptyStateTitle"
-        :subline="emptyStateSubLine"
-        :absolute="false"
-        icon="regular-database"
+        icon="solid-database"
+        :headline="emptyStateTitle"
+        :description="emptyStateSubLine"
     />
     {% endblock %}
 

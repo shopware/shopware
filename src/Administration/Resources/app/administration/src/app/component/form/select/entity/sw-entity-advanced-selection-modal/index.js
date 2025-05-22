@@ -68,9 +68,16 @@ export default {
         },
         // Path to an image that is used as an Icon for the empty state.
         // This depends on what entity is used for the modal and where it is found in the administration.
+        // @deprecated tag:v6.8.0 - Will be removed. Use emptyIcon instead
         emptyImagePath: {
             type: String,
-            required: true,
+            required: false,
+        },
+        // Meteor icon name that is used as an Icon for the empty state.
+        emptyIcon: {
+            type: String,
+            required: false,
+            default: 'solid-content',
         },
         // Additional associations which can't be inferred from the entityColumns or entityFilters.
         // This is most likely needed if the column slots are used for custom rendering and usage of associations.

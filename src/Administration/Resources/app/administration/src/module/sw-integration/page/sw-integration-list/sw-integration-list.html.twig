@@ -332,10 +332,11 @@
                 {% endblock %}
 
                 {% block sw_product_list_empty_state %}
-                <sw-empty-state
+                <mt-empty-state
                     v-else
-                    :title="$tc('sw-integration.list.messageEmpty')"
-                    :subline="$tc('sw-integration.list.sublineEmpty')"
+                    :icon="$route.meta.$module.icon"
+                    :headline="$tc('sw-integration.list.messageEmpty')"
+                    :description="$tc('sw-integration.list.sublineEmpty')"
                 />
                 {% endblock %}
                 {% endblock %}

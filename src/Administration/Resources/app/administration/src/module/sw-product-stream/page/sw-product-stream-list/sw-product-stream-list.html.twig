@@ -61,9 +61,21 @@
         {% block sw_product_stream_list_content %}
         <div class="sw-product-stream-list__content">
 
+            {% block sw_product_stream_list_empty_state %}
+            <mt-empty-state
+                v-if="!isLoading && !total"
+                class="mt-empty-state--center"
+                :icon="$route.meta.$module.icon"
+                :headline="isValidTerm(term) ? $t('sw-empty-state.messageNoResultTitle') : $t('sw-product-stream.list.messageEmpty')"
+                :description="isValidTerm(term) ? $t('sw-empty-state.messageNoResultSubline') : ''"
+                :link-text="isValidTerm(term) ? $t('sw-empty-state.messageNoResultLink') : ''"
+                :link-href="isValidTerm(term) ? $router.resolve({ name: 'sw.profile.index.searchPreferences' }).href : ''"
+            />
+            {% endblock %}
+
             {% block sw_product_stream_list_grid %}
             <sw-entity-listing
-                v-if="isLoading || (productStreams && entitySearchable)"
+                v-else-if="isLoading || (productStreams && entitySearchable)"
                 ref="swProductStreamGrid"
                 class="sw-product-stream-list-grid"
                 :items="productStreams"
@@ -143,31 +155,6 @@
                 </template>
                 {% endblock %}
             </sw-entity-listing>
-            {% endblock %}
-
-            {% block sw_product_stream_list_empty_state %}
-            <template v-else-if="!isLoading && !total">
-                <sw-empty-state
-                    v-if="isValidTerm(term)"
-                    :title="$tc('sw-empty-state.messageNoResultTitle')"
-                >
-                    <template #default>
-                        {{ $tc('sw-empty-state.messageNoResultSublineBefore') }}
-                        <router-link
-                            class="sw-empty-state__description-link"
-                            :to="{ name: 'sw.profile.index.searchPreferences' }"
-                        >
-                            {{ $tc('sw-empty-state.messageNoResultSublineLink') }}
-                        </router-link>
-                        {{ $tc('sw-empty-state.messageNoResultSublineAfter') }}
-                    </template>
-                </sw-empty-state>
-
-                <sw-empty-state
-                    v-else
-                    :title="$tc('sw-product-stream.list.messageEmpty')"
-                />
-            </template>
             {% endblock %}
         </div>
         {% endblock %}

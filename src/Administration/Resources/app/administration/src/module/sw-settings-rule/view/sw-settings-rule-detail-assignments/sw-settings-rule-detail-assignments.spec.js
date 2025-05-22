@@ -143,7 +143,6 @@ async function createWrapper(
                     'sw-contextual-field': await wrapTestComponent('sw-contextual-field'),
                     'sw-block-field': await wrapTestComponent('sw-block-field'),
                     'sw-card-filter': await wrapTestComponent('sw-card-filter'),
-                    'sw-empty-state': await wrapTestComponent('sw-empty-state'),
                     'router-link': {
                         template: '<a class="router-link" :detail-route="to.name"><slot></slot></a>',
                         props: ['to'],
@@ -187,6 +186,15 @@ async function createWrapper(
                     shortcutService: {
                         startEventListener: jest.fn(),
                         stopEventListener: jest.fn(),
+                    },
+                },
+                mocks: {
+                    $route: {
+                        meta: {
+                            $module: {
+                                icon: 'solid-content',
+                            },
+                        },
                     },
                 },
             },
@@ -300,7 +308,7 @@ describe('src/module/sw-settings-rule/view/sw-settings-rule-detail-assignments',
         expect(wrapper.find('.sw-settings-rule-detail-assignments__card-product .router-link').exists()).toBe(false);
 
         // Expect empty states to be present
-        expect(wrapper.find('.sw-settings-rule-detail-assignments__entity-empty-state-product img').exists()).toBe(true);
+        expect(wrapper.find('.mt-empty-state').exists()).toBeTruthy();
 
         // Loader should not be present
         expect(wrapper.find('.sw-settings-rule-detail-assignments__card-loader').exists()).toBe(false);

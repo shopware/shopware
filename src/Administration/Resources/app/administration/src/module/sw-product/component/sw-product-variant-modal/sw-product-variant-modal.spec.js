@@ -287,7 +287,6 @@ async function createWrapper() {
                 },
                 'sw-label': true,
                 'sw-simple-search-field': true,
-                'sw-empty-state': true,
                 'sw-container': {
                     template: '<div><slot></slot></div>',
                 },
@@ -358,6 +357,15 @@ async function createWrapper() {
                 'sw-price-field': true,
                 'sw-pagination': true,
                 'sw-button-process': true,
+            },
+            mocks: {
+                $route: {
+                    meta: {
+                        $module: {
+                            icon: 'solid-content',
+                        },
+                    },
+                },
             },
         },
     });

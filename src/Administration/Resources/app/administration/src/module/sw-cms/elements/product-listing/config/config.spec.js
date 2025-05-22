@@ -69,7 +69,6 @@ async function createWrapper(activeTab = 'sorting') {
                     'sw-container': true,
                     'sw-tabs-item': true,
 
-                    'sw-empty-state': true,
                     'sw-tabs': {
                         data() {
                             return { active: activeTab };
@@ -101,6 +100,15 @@ async function createWrapper(activeTab = 'sorting') {
                     },
                     repositoryFactory: {
                         create: (entity) => repositoryMockFactory(entity),
+                    },
+                },
+                mocks: {
+                    $route: {
+                        meta: {
+                            $module: {
+                                icon: 'solid-content',
+                            },
+                        },
                     },
                 },
             },

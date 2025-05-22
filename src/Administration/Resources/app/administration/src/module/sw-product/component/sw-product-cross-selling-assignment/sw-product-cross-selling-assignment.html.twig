@@ -82,20 +82,12 @@
         </sw-data-grid>
         {% endblock %}
         {% block sw_product_cross_selling_assignment_empty_state %}
-        <sw-empty-state
+        <mt-empty-state
             v-if="!total && !isLoadingGrid"
             class="sw-product-cross-selling-assignment__option-list-empty-state"
-            :title="$tc('sw-product.crossselling.assignEmptyStateTitle')"
-            :show-description="false"
-            :absolute="false"
-        >
-            <template #icon>
-                <img
-                    :src="assetFilter('/administration/administration/static/img/empty-states/products-empty-state.svg')"
-                    alt=""
-                >
-            </template>
-        </sw-empty-state>
+            :icon="$route.meta.$module.icon"
+            :headline="$tc('sw-product.crossselling.assignEmptyStateTitle')"
+        />
         {% endblock %}
     </div>
     {% endblock %}

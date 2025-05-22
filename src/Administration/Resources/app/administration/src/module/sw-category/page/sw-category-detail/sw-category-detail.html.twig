@@ -221,7 +221,10 @@
             <sw-skeleton />
         </template>
 
-        <template v-else>
+        <div
+            v-else
+            class="sw-category__content"
+        >
             {% block sw_category_content_view %}
             <sw-category-view
                 v-if="category"
@@ -257,20 +260,14 @@
             {% endblock %}
 
             {% block sw_category_content_empty %}
-            <sw-empty-state
+            <mt-empty-state
                 v-if="showEmptyState"
-                :title="$tc('sw-category.general.emptyStateHeadline')"
-            >
-                <template #icon>
-                    <img
-                        :src="assetFilter('/administration/administration/static/img/empty-states/products-empty-state.svg')"
-                        :alt="$tc('sw-category.general.emptyStateHeadline')"
-                    >
-                </template>
-            </sw-empty-state>
-        {% endblock %}
-
-        </template>
+                class="mt-empty-state--center"
+                :icon="$route.meta.$module.icon"
+                :headline="$t('sw-category.general.emptyStateHeadline')"
+            />
+            {% endblock %}
+        </div>
     </template>
     {% endblock %}
 

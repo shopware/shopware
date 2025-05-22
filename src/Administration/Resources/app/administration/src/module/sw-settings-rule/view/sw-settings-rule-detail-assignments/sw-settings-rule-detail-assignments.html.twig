@@ -123,21 +123,13 @@
             </sw-settings-rule-assignment-listing>
 
             {% block sw_settings_rule_detail_assignments_empty_state %}
-            <sw-empty-state
+            <mt-empty-state
                 v-else
                 class="sw-settings-rule-detail-assignments__entity-empty-state"
                 :class="`sw-settings-rule-detail-assignments__entity-empty-state-${entity.id}`"
-                :title="$tc('sw-settings-rule.detail.hasNoAssociations')"
-                :absolute="false"
-                :show-description="false"
-            >
-                <template #icon>
-                    <img
-                        :src="assetFilter('administration/administration/static/img/empty-states/settings-empty-state.svg')"
-                        :alt="$tc('sw-settings-rule.detail.hasNoAssociations')"
-                    >
-                </template>
-            </sw-empty-state>
+                :icon="$route?.meta?.$module?.icon"
+                :headline="$tc('sw-settings-rule.detail.hasNoAssociations')"
+            />
             {% endblock %}
             {% endblock %}
         </template>

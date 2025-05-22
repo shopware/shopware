@@ -17,6 +17,11 @@ async function createWrapper(privileges = []) {
                             page: 1,
                             limit: 25,
                         },
+                        meta: {
+                            $module: {
+                                icon: 'solid-content',
+                            },
+                        },
                     },
                 },
                 provide: {
@@ -69,7 +74,6 @@ async function createWrapper(privileges = []) {
                     'sw-search-bar': true,
                     'sw-context-menu-item': true,
                     'sw-loader': true,
-                    'sw-empty-state': true,
                     'sw-extension-component-section': true,
                     'sw-label': true,
                     'sw-ai-copilot-badge': true,

@@ -275,12 +275,11 @@
                     {% endblock %}
 
                     {% block sw_settings_currency_detail_content_card_country_price_rounding_empty %}
-                    <sw-empty-state
+                    <mt-empty-state
                         v-else
                         class="sw-settings-currency-detail__currency-country-empty-state"
-                        title=""
-                        :absolute="false"
-                        :subline="emptyStateText"
+                        :icon="$route.meta.$module.icon"
+                        :headline="emptyStateText"
                     />
                     {% endblock %}
                 </mt-card>

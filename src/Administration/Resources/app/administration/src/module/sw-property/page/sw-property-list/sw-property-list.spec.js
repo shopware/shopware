@@ -14,19 +14,27 @@ async function createWrapper() {
                         page: 1,
                         limit: 25,
                     },
+                    meta: {
+                        $module: {
+                            icon: 'solid-content',
+                        },
+                    },
                 },
             },
             provide: {
                 repositoryFactory: {
                     create: () => ({
                         search: () => {
-                            return Promise.resolve([
-                                {
-                                    id: '1a2b3c4e',
-                                    name: 'Test property',
-                                    sourceEntitiy: 'property',
-                                },
-                            ]);
+                            return Promise.resolve({
+                                total: 1,
+                                data: [
+                                    {
+                                        id: '1a2b3c4e',
+                                        name: 'Test property',
+                                        sourceEntitiy: 'property',
+                                    },
+                                ],
+                            });
                         },
                     }),
                 },
@@ -67,7 +75,6 @@ async function createWrapper() {
                         </div>`,
                 },
                 'sw-language-switch': true,
-                'sw-empty-state': true,
                 'sw-context-menu-item': {
                     template: '<div class="sw-context-menu-item"><slot></slot></div>',
                     props: ['disabled'],
@@ -251,11 +258,9 @@ describe('module/sw-property/page/sw-property-list', () => {
         });
         await wrapper.vm.getList();
 
-        const emptyState = wrapper.find('sw-empty-state-stub');
-
         expect(wrapper.vm.searchRankingService.getSearchFieldsByEntity).toHaveBeenCalledTimes(1);
-        expect(emptyState.exists()).toBe(true);
-        expect(emptyState.attributes().title).toBe('sw-empty-state.messageNoResultTitle');
+        expect(wrapper.find('.mt-empty-state').exists()).toBe(true);
+        expect(wrapper.find('.mt-empty-state__headline').text()).toBe('sw-empty-state.messageNoResultTitle');
         expect(wrapper.find('sw-entity-listing-stub').exists()).toBe(false);
         expect(wrapper.vm.entitySearchable).toBe(false);
 

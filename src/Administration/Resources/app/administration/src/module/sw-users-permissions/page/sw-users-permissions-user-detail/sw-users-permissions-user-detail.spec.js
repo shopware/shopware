@@ -113,6 +113,11 @@ async function createWrapper(
                         params: {
                             id: '1a2b3c4d',
                         },
+                        meta: {
+                            $module: {
+                                icon: 'regular-content',
+                            },
+                        },
                     },
                     $device: {
                         getSystemKey: () => 'STRG',
@@ -160,7 +165,6 @@ async function createWrapper(
                     `,
                     },
                     'sw-context-menu-item': true,
-                    'sw-empty-state': true,
                     'sw-skeleton': true,
                     'sw-loader': true,
                     'sw-verify-user-modal': true,

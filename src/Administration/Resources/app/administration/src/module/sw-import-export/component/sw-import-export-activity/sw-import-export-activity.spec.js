@@ -816,7 +816,6 @@ const createWrapper = async (options = {}) => {
                 'sw-loader': true,
                 'sw-extension-component-section': true,
                 'sw-label': true,
-                'sw-empty-state': true,
                 'sw-bulk-edit-modal': true,
                 'sw-checkbox-field': true,
                 'sw-data-grid-column-boolean': true,
@@ -1100,10 +1099,8 @@ describe('module/sw-import-export/components/sw-import-export-activity', () => {
         await flushPromises();
 
         expect(wrapper.find('.sw-import-export-activity > sw-empty-state')).toBeDefined();
-        expect(wrapper.find('sw-empty-state-stub').attributes('title')).toBe(
-            'sw-import-export.activity.emptyState.titleExport',
-        );
-        expect(wrapper.find('sw-empty-state-stub').attributes('subline')).toBe(
+        expect(wrapper.find('.mt-empty-state__headline').text()).toBe('sw-import-export.activity.emptyState.titleExport');
+        expect(wrapper.find('.mt-empty-state__description').text()).toBe(
             'sw-import-export.activity.emptyState.subLineExport',
         );
     });
@@ -1363,10 +1360,8 @@ describe('module/sw-import-export/components/sw-import-export-activity', () => {
         await flushPromises();
 
         expect(wrapper.find('.sw-import-export-activity > sw-empty-state')).toBeDefined();
-        expect(wrapper.find('sw-empty-state-stub').attributes('title')).toBe(
-            'sw-import-export.activity.emptyState.titleImport',
-        );
-        expect(wrapper.find('sw-empty-state-stub').attributes('subline')).toBe(
+        expect(wrapper.find('.mt-empty-state__headline').text()).toBe('sw-import-export.activity.emptyState.titleImport');
+        expect(wrapper.find('.mt-empty-state__description').text()).toBe(
             'sw-import-export.activity.emptyState.subLineImport',
         );
     });

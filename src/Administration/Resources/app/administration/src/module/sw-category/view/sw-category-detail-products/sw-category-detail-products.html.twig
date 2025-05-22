@@ -119,18 +119,10 @@
 
         {% block sw_category_detail_product_assignment_empty_state %}
         <template #empty-state>
-            <sw-empty-state
-                :title="$tc('sw-category.base.products.productAssignmentEmptyStateDescription')"
-                :subline="''"
-                auto-height
-            >
-                <template #icon>
-                    <img
-                        :src="assetFilter('/administration/administration/static/img/empty-states/products-empty-state.svg')"
-                        :alt="$tc('sw-category.base.products.productAssignmentEmptyStateDescription')"
-                    >
-                </template>
-            </sw-empty-state>
+            <mt-empty-state
+                :icon="$route.meta.$module.icon"
+                :headline="$tc('sw-category.base.products.productAssignmentEmptyStateDescription')"
+            />
         </template>
         {% endblock %}
 

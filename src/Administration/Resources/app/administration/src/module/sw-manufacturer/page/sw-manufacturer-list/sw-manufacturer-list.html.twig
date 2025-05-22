@@ -61,9 +61,21 @@
     <template #content>
         {% block sw_manufacturer_list_content %}
         <div class="sw-manufacturer-list__content">
+            {% block sw_manufacturer_list_empty_state %}
+            <mt-empty-state
+                v-if="!isLoading && !total"
+                class="mt-empty-state--center"
+                :icon="$route.meta.$module.icon"
+                :headline="isValidTerm(term) ? $t('sw-empty-state.messageNoResultTitle') : $t('sw-empty-state.messageNoResultTitle')"
+                :description="isValidTerm(term) ? $t('sw-empty-state.messageNoResultSubline') : ''"
+                :link-text="isValidTerm(term) ? $t('sw-empty-state.messageNoResultLink') : ''"
+                :link-href="isValidTerm(term) ? $router.resolve({ name: 'sw.profile.index.searchPreferences' }).href : ''"
+            />
+            {% endblock %}
+
             {% block sw_manufacturer_list_grid %}
             <sw-entity-listing
-                v-if="entitySearchable"
+                v-else-if="entitySearchable"
                 class="sw-manufacturer-list__grid"
                 detail-route="sw.manufacturer.detail"
                 :is-loading="isLoading"
@@ -89,24 +101,6 @@
                 </template>
                 {% endblock %}
             </sw-entity-listing>
-            {% endblock %}
-
-            {% block sw_manufacturer_list_empty_state %}
-            <sw-empty-state
-                v-if="!isLoading && !total && isValidTerm(term)"
-                :title="$tc('sw-empty-state.messageNoResultTitle')"
-            >
-                <template #default>
-                    {{ $tc('sw-empty-state.messageNoResultSublineBefore') }}
-                    <router-link
-                        class="sw-empty-state__description-link"
-                        :to="{ name: 'sw.profile.index.searchPreferences' }"
-                    >
-                        {{ $tc('sw-empty-state.messageNoResultSublineLink') }}
-                    </router-link>
-                    {{ $tc('sw-empty-state.messageNoResultSublineAfter') }}
-                </template>
-            </sw-empty-state>
             {% endblock %}
 
         </div>

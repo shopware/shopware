@@ -120,29 +120,14 @@
     {% endblock %}
 
     {% block sw_media_library_empty_state %}
-    <sw-empty-state
+    <mt-empty-state
         v-if="shouldDisplayEmptyState"
         class="sw-media-library__empty-state"
-        :title="$tc('sw-empty-state.messageNoResultTitle')"
-    >
-        <template #icon>
-            <img
-                :src="assetFilter('/administration/administration/static/img/empty-states/media-empty-state.svg')"
-                :alt="$tc('sw-empty-state.messageNoResultSubline')"
-            >
-        </template>
-
-        <template #default>
-            {{ $tc('sw-empty-state.messageNoResultSublineBefore') }}
-            <router-link
-                class="sw-empty-state__description-link"
-                :to="{ name: 'sw.profile.index.searchPreferences' }"
-            >
-                {{ $tc('sw-empty-state.messageNoResultSublineLink') }}
-            </router-link>
-            {{ $tc('sw-empty-state.messageNoResultSublineAfter') }}
-        </template>
-    </sw-empty-state>
+        :icon="$route.meta.$module.icon"
+        :headline="$tc('sw-empty-state.messageNoResultTitle')"
+        :link-text="$t('sw-empty-state.messageNoResultLink')"
+        :link-href="$router.resolve({ name: 'sw.profile.index.searchPreferences' }).href"
+    />
     {% endblock %}
 </div>
 {% endblock %}

@@ -18,6 +18,18 @@ test('Visual: Administration category page', { tag: '@Visual' }, async ({
             stylePath: path.resolve('./tests/Visual/screenshot.css'),
         });
     });
+    await test.step('Creates a screenshot of the "configure home page" modal.', async () => {
+
+        await AdminCategories.page.getByRole('button', { name: 'Configure home page' }).click();
+        await ShopAdmin.expects(AdminCategories.page.locator('.sw-modal__dialog')).toBeVisible();
+
+        await AdminCategories.page.setViewportSize({ width: 1440, height: 1440});
+
+        await expect(AdminCategories.page.locator('.sw-desktop__content')).toHaveScreenshot({
+            stylePath: path.resolve('./tests/Visual/screenshot.css'),
+        });
+        await AdminCategories.page.getByLabel('Configure home page').getByRole('button', { name: 'Cancel' }).click();
+    });
     await test.step('Creates a screenshot of the category page on the products tab.', async () => {
 
         await AdminCategories.page.locator('.sw-tabs__content').getByText('Products').click();

@@ -183,11 +183,32 @@ export default {
     watch: {
         isDarkMode: {
             handler(newValue) {
+                // The code below disables all css transitions during the theme change
+                //   See more: https://paco.me/writing/disable-theme-transitions
+                const css = document.createElement('style')
+                css.type = 'text/css'
+                css.appendChild(
+                    document.createTextNode(
+`* {
+   -webkit-transition: none !important;
+   -moz-transition: none !important;
+   -o-transition: none !important;
+   -ms-transition: none !important;
+   transition: none !important;
+}`
+                    ),
+                );
+                document.head.appendChild(css)
+
                 if (newValue)  {
                     document.documentElement.dataset.theme = 'dark';
                 } else {
                     document.documentElement.dataset.theme = 'light';
                 }
+
+                // Re-enables all css transitions
+                const _ = window.getComputedStyle(css).opacity
+                document.head.removeChild(css)
             },
             immediate: true
         }

@@ -5,6 +5,7 @@ namespace Shopware\Storefront\Framework\SystemCheck\Util;
 use Doctrine\DBAL\Connection;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\SystemCheck\Check\Result;
+use Shopware\Core\Framework\SystemCheck\Check\Status;
 use Shopware\Core\SalesChannelRequest;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\RequestStack;
@@ -65,5 +66,16 @@ readonly class SalesChannelDomainUtil
     public function generateDomainUrl(string $url, string $routeName, array $parameters = []): string
     {
         return rtrim($url, '/') . $this->router->generate($routeName, $parameters);
+    }
+
+    public function createEmptyResult(string $name, string $message): Result
+    {
+        return new Result(
+            $name,
+            Status::SKIPPED,
+            $message,
+            true,
+            []
+        );
     }
 }

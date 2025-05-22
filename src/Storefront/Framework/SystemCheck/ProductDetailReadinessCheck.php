@@ -23,9 +23,6 @@ use Symfony\Component\HttpKernel\KernelInterface;
  *
  * @codeCoverageIgnore
  * covered with integration tests/integration/Storefront/Framework/HealthCheck/ProductsReadinessCheckTest.php
- *
- * todo: For this it would be great if the system checks also checks a product detail and product listing page.
- * To avoid flakiness, it should return the checked pages and at the same time allow to pass a list of pages that should be changed for any future checks
  */
 #[Package('discovery')]
 class ProductDetailReadinessCheck extends BaseCheck
@@ -100,6 +97,10 @@ class ProductDetailReadinessCheck extends BaseCheck
             ];
         }
 
+        if ($requestStatus === []) {
+            return $this->util->createEmptyResult($this->name(), 'No sales channels with product detail pages found.');
+        }
+
         $finalStatus = \count($requestStatus) === 1 ? current($requestStatus) : Status::ERROR;
 
         return new Result(
@@ -118,8 +119,6 @@ class ProductDetailReadinessCheck extends BaseCheck
      */
     private function fetchProductIds(array $salesChannelIds): array
     {
-        // todo: we could also check if the config for only active or products with stock is active
-
         $sql = <<<'SQL'
             SELECT `product_visibility`.`sales_channel_id`,
                    LOWER(HEX(`product`.`id`))

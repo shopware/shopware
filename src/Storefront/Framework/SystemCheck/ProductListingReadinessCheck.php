@@ -22,8 +22,7 @@ use Symfony\Component\HttpKernel\KernelInterface;
  * @internal
  *
  * @codeCoverageIgnore
- * covered with integration tests/integration/Storefront/Framework/HealthCheck/ProductsReadinessCheckTest.php todo: write integaration test
- * todo: To avoid flakiness, it should return the checked pages and at the same time allow to pass a list of pages that should be changed for any future checks
+ * covered with integration tests/integration/Storefront/Framework/HealthCheck/ProductListingReadinessCheckTest.php
  */
 #[Package('discovery')]
 class ProductListingReadinessCheck extends BaseCheck
@@ -98,6 +97,10 @@ class ProductListingReadinessCheck extends BaseCheck
             ];
         }
 
+        if ($requestStatus === []) {
+            return $this->util->createEmptyResult($this->name(), 'No sales channels with product listing pages found.');
+        }
+
         $finalStatus = \count($requestStatus) === 1 ? current($requestStatus) : Status::ERROR;
 
         return new Result(
@@ -116,25 +119,35 @@ class ProductListingReadinessCheck extends BaseCheck
      */
     private function fetchNavigationIds(array $salesChannelIds): array
     {
-        // it is required to join on a child category because otherwise no cms page is assigned
+        // This query is necessary to determine the correct navigation category for each sales channel that is configured for storefront listing pages.
+        // It covers cases where the navigation category itself or one of its direct child categories is assigned a CMS page of type 'product_list'.
+        // This ensures that the check works for both direct and nested category assignments, and only considers active categories and sales channels.
 
         $sql = <<<SQL
             SELECT `sales_channel`.`id` AS `sales_channel_id`,
-                   LOWER(HEX(`category_child`.`id`)) AS `category_id`
+                   LOWER(HEX(COALESCE(`category_child`.`id`, `category_root`.`id`))) AS `category_id`
             FROM `category` `category_root`
-            INNER JOIN `category` `category_child`
+            LEFT JOIN `category` `category_child`
                 ON `category_root`.`id` = `category_child`.`parent_id`
                 AND `category_root`.`version_id` = `category_child`.`version_id`
-            INNER JOIN `cms_page`
-                ON `category_child`.`cms_page_id` = `cms_page`.`id`
-                AND `category_child`.`version_id` = `cms_page`.`version_id`
+                AND `category_child`.`active` = 1
+            LEFT JOIN `cms_page` `cms_page_child`
+                ON `category_child`.`cms_page_id` = `cms_page_child`.`id`
+                AND `category_child`.`version_id` = `cms_page_child`.`version_id`
+                AND `cms_page_child`.`type` = 'product_list'
+            LEFT JOIN `cms_page` `cms_page_root`
+                ON `category_root`.`cms_page_id` = `cms_page_root`.`id`
+                AND `category_root`.`version_id` = `cms_page_root`.`version_id`
+                AND `cms_page_root`.`type` = 'product_list'
             INNER JOIN `sales_channel`
                 ON `sales_channel`.`navigation_category_id` = `category_root`.`id`
                 and `sales_channel`.`navigation_category_version_id` = `category_root`.`version_id`
-            WHERE `cms_page`.`type` = 'product_list'
-                AND `category_root`.`active` = 1
-                AND `category_child`.`active` = 1
+            WHERE `category_root`.`active` = 1
                 AND `sales_channel`.`id` IN (:salesChannelIds)
+                AND (
+                    `cms_page_child`.`id` IS NOT NULL
+                    OR `cms_page_root`.`id` IS NOT NULL
+                )
             GROUP BY `sales_channel`.`id`
         SQL;
 

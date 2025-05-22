@@ -45,16 +45,26 @@ class ProductDetailReadinessCheckTest extends TestCase
         $this->ids = new IdsCollection();
 
         $this->createSalesChannels();
-        $this->createProducts();
     }
 
     public function testAllChecksAreHealthy(): void
     {
+        $this->createProducts();
+
         $check = $this->createCheck();
         $result = $check->run();
 
         static::assertTrue($result->healthy);
         static::assertSame(Status::OK, $result->status);
+    }
+
+    public function testCheckWithoutProducts(): void
+    {
+        $check = $this->createCheck();
+        $result = $check->run();
+
+        static::assertTrue($result->healthy);
+        static::assertSame(Status::SKIPPED, $result->status);
     }
 
     private function createCheck(): ProductDetailReadinessCheck

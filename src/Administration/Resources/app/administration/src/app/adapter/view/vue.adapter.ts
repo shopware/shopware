@@ -360,6 +360,7 @@ export default class VueAdapter extends ViewAdapter {
             'MtCheckbox',
             'MtColorpicker',
             'MtEmailField',
+            'MtEmptyState',
             'MtNumberField',
             'MtPasswordField',
             'MtSelect',

@@ -19,6 +19,7 @@ use Shopware\Core\Framework\Event\BusinessEventCollector;
 use Shopware\Core\Framework\Increment\Exception\IncrementGatewayNotFoundException;
 use Shopware\Core\Framework\Increment\IncrementGatewayRegistry;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\MessageQueue\Stats\StatsService;
 use Shopware\Core\Framework\Plugin;
 use Shopware\Core\Framework\Store\InAppPurchase;
 use Shopware\Core\Kernel;
@@ -61,6 +62,7 @@ class InfoController extends AbstractController
         private readonly ?ViteFileAccessorDecorator $viteFileAccessorDecorator,
         private readonly Filesystem $filesystem,
         private readonly ShopIdProvider $shopIdProvider,
+        private readonly StatsService $messageStatsService,
     ) {
     }
 
@@ -101,6 +103,12 @@ class InfoController extends AbstractController
             'name' => $entry['key'],
             'size' => (int) $entry['count'],
         ], array_values($entries)));
+    }
+
+    #[Route(path: '/api/_info/message-stats.json', name: 'api.info.message-stats', methods: ['GET'])]
+    public function messageStats(): JsonResponse
+    {
+        return new JsonResponse($this->messageStatsService->getStats());
     }
 
     #[Route(

@@ -24,6 +24,7 @@ export default {
 
     provide() {
         return {
+            /** @deprecated tag:v6.8.0 - swOrderDetailOnCreatedByIdChange will be removed */
             swOrderDetailOnCreatedByIdChange: this.updateCreatedById,
             swOrderDetailOnLoadingChange: this.onUpdateLoading,
             swOrderDetailOnEditingChange: this.onUpdateEditing,
@@ -55,6 +56,7 @@ export default {
             isEditing: false,
             isLoading: true,
             isSaveSuccessful: false,
+            /** @deprecated tag:v6.8.0 - createdById will be removed */
             createdById: '',
             isDisplayingLeavePageWarning: false,
             nextRoute: null,
@@ -242,6 +244,9 @@ export default {
             }
         },
 
+        /**
+         * @deprecated tag:v6.8.0 - createdById will be removed (there is a template usage that needs to be removed as well)
+         */
         updateCreatedById(createdById) {
             this.createdById = createdById;
         },

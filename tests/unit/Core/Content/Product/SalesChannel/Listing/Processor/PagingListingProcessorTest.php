@@ -148,7 +148,7 @@ class PagingListingProcessorTest extends TestCase
         $postRequest = new Request(['p' => 2], request: ['p' => 3]);
         $postRequest->setMethod(Request::METHOD_POST);
 
-        yield 'Criteria with limit & page, post request with page (should use request body parameter over query paremter and criteria)' => [
+        yield 'Criteria with limit & page, post request with page (should use request body parameter over query parameter and criteria)' => [
             'criteria' => (new Criteria())->setLimit(50)->setOffset(200),
             'request' => $postRequest,
             'page' => 3,

@@ -16,6 +16,10 @@
             <argument type="service" id="Shopware\Core\Framework\App\Lifecycle\AppLifecycle"/>
         </service>
 
+        <service id="Shopware\Core\Service\Api\PermissionController" public="true">
+            <argument type="service" id="Shopware\Core\Service\PermissionsService"/>
+        </service>
+
         <service id="Shopware\Core\Service\Command\Install">
             <argument type="service" id="Shopware\Core\Service\AllServiceInstaller"/>
 
@@ -116,5 +120,23 @@
             <tag name="kernel.event_subscriber"/>
         </service>
 
+        <service id="Shopware\Core\Service\PermissionsService">
+            <argument type="service" id="Shopware\Core\System\SystemConfig\SystemConfigService"/>
+            <argument type="service" id="event_dispatcher"/>
+        </service>
+
+        <service id="Shopware\Core\Service\Subscriber\PermissionsGrantedSubscriber">
+            <argument type="service" id="Shopware\Core\Framework\App\Privileges\Privileges"/>
+            <argument type="service" id="Doctrine\DBAL\Connection"/>
+
+            <tag name="kernel.event_subscriber"/>
+        </service>
+
+        <service id="Shopware\Core\Service\Subscriber\PermissionsRevokedSubscriber">
+            <argument type="service" id="Shopware\Core\Framework\App\Privileges\Privileges"/>
+            <argument type="service" id="Doctrine\DBAL\Connection"/>
+
+            <tag name="kernel.event_subscriber"/>
+        </service>
     </services>
 </container>

@@ -128,6 +128,11 @@ class ServiceController
             'id' => $app->getId(),
             'name' => $app->getName(),
             'active' => $app->isActive(),
+            'icon' => $app->getIcon(),
+            'description' => $app->getTranslated()['description'] ?? null,
+            'updated_at' => $app->getUpdatedAt() ?? $app->getCreatedAt(),
+            'version' => $app->getVersion(),
+            'needs_permissions' => true, // todo: count($app->getRequestedPrivileges()) > 0 (see https://github.com/shopware/shopware/pull/7116)
         ]));
     }
 

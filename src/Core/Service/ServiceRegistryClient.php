@@ -59,7 +59,7 @@ class ServiceRegistryClient implements ResetInterface
 
             $content = $response->toArray();
 
-            if (!$this->validateResponse($content)) {
+            if (!$this->validateServicesResponse($content)) {
                 return [];
             }
 
@@ -87,7 +87,7 @@ class ServiceRegistryClient implements ResetInterface
     /**
      * @param array<mixed> $content
      */
-    private function validateResponse(array $content): bool
+    private function validateServicesResponse(array $content): bool
     {
         if (!isset($content['services'])) {
             return false;

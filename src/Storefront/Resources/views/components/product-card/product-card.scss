@@ -1,0 +1,84 @@
+$sw-prefix: 'sw-';
+
+.product-card {
+    --#{$prefix}card-spacer-y: 1rem;
+    --#{$prefix}card-spacer-x: 1rem;
+    --#{$prefix}card-border-color: var(--#{$prefix}border-color);
+    --#{$prefix}card-cap-padding-y: 1rem;
+    --#{$prefix}card-cap-padding-x: 1rem;
+    --#{$prefix}card-cap-bg: none;
+    --#{$sw-prefix}product-card-media-height: 200px;
+}
+
+.product-card-title {
+    // Reset global core styling. No border wanted here.
+    border-bottom: none;
+    // Reset global core styling. Spacing with margin already defined by --bs-card-title-spacer-y
+    padding-bottom: 0;
+    font-weight: 600;
+}
+
+.product-card-title-link {
+    color: var(--#{$prefix}body-color);
+    text-decoration: none;
+
+    &.stretched-link::after {
+        height: var(--sw-product-card-media-height);
+    }
+
+    &:hover {
+        text-decoration: none;
+    }
+}
+
+.product-card-badges {
+    position: absolute;
+    left: 0;
+    bottom: 0;
+}
+
+.product-card-badge {
+    --bs-badge-padding-x: 6px;
+    --bs-badge-padding-y: 4px;
+    --bs-badge-font-size: #{$font-size-sm};
+    --bs-badge-font-weight: 600;
+    --bs-badge-border-radius: 3px;
+    margin: 0;
+    height: auto;
+    line-height: 1;
+    width: max-content;
+}
+
+.product-card-price {
+    font-variant-numeric: tabular-nums;
+}
+
+// Loading indicator
+.product-card-loading-indicator {
+    visibility: hidden;
+    pointer-events: none;
+}
+
+.has-element-loader {
+    .product-card > :not(.product-card-loading-indicator) {
+        visibility: hidden;
+        pointer-events: none;
+    }
+
+    .product-card-loading-indicator {
+        visibility: visible;
+    }
+}
+
+.product-card-media {
+    transition: opacity 0.3s ease, transform 0.3s ease;
+    transform: scale(100%);
+}
+
+// Using wild has selector here because hovering the image is blocked by the stretched link.
+.product-card-header:has(+ .product-card-body .product-card-title-link:hover) {
+    .product-card-media {
+        opacity: 0.7;
+        transform: scale(105%);
+    }
+}

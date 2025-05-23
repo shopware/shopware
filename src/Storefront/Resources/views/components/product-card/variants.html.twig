@@ -1,0 +1,12 @@
+{# @TODO: Naming conflict "variants" vs. UX component varians #}
+{% props
+    variants,
+%}
+
+<div class="product-card-product-variants fs-6 d-flex flex-wrap text-light-emphasis">
+    {%- for variant in variants -%}
+        <span class="me-1">
+            {{ variant.group }}: {{ variant.option }}{% if variants|last != variant %},{% endif %}
+        </span>
+    {%- endfor -%}
+</div>

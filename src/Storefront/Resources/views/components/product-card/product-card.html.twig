@@ -1,0 +1,144 @@
+{#
+    Product card component
+    ========================================
+    @experimental
+
+    A bootstrap card that renders prodcut information
+
+    ** Basic usage: **
+    To render the card, you need to pass the `product` prop containing a product entity.
+
+    @example
+    <twig:product-card:product-card :product="product" />
+
+    ** Customize attributes **
+    You can customize attributes while rendering the component. For example to add additional classes.
+    This also works with nested attributes. So you can modify child elements from outside.
+
+    If the attribute you want to customize already exists on the element, it will be overriden with your value.
+
+    @example
+    <twig:product-card:product-card
+        :product="product"
+        class= "my-extra-class"          <-- Add an additional class on the root card component element.
+        body:class="my-extra-body-class" <-- Add an additional class on the card body element.
+        media:id="my-custom-id"          <-- Add an id to the media element.
+        media:loading="eager"            <-- Override the default <img loading="lazy"> arrtibute.
+    />
+
+    ** Override classes **
+    Due to the special CSS class implementation with attributes in symfony UX,
+    classes are only additions and the default classes are never overwritten when using e.g. `body:class="let-me-override-uwu"`
+
+    To also have the possibility to override default classes, you can use the prop `classes`,
+    and pass an object with classes you would like to override.
+
+    @example
+    <twig:product-card:product-card
+        :product="product"
+        body:class="my-extra-body-class"           <-- Add an additional class on the card body element.
+        :classes="{ titleLink: 'my-only-class' }"  <-- Override a default class.
+    />
+
+    ** Override HTML via slots (blocks)
+    You can pass custom HTML to blocks and override the content, similar to Vue slots.
+
+    @example
+    <twig:product-card:product-card :product="product">
+        <twig:block name="actions">
+            <div>Custom actions!</div>
+        </twig:block>
+    </twig:product-card:product-card>
+#}
+
+{#
+    Product card component - props
+    ========================================
+#}
+{# @var product \Shopware\Core\Content\Product\ProductEntity #}
+{# @var classes - Override the default classes #}
+{# @var mediaHeight - Height of the product media (thumbnail) #}
+{# @var detaulRoute - Route to the product detail page #}
+{% props
+    product,
+    classes = {},
+    mediaHeight = 240,
+    detaulRoute = seoUrl('frontend.detail.page', { productId: product.id }),
+%}
+
+{% set defaultClasses = {
+    root: 'card product-card h-100',
+    header: 'product-card-header m-2 position-relative overflow-hidden',
+    media: 'card-img-top product-card-media object-fit-cover',
+    body: 'product-card-body card-body pb-2',
+    title: 'product-card-title card-title fw-semibold',
+    titleLink: 'product-card-title-link stretched-link',
+    footer: 'product-card-footer card-footer border-0 pt-2'
+} %}
+
+{% if classes %}
+    {% set defaultClasses = defaultClasses | merge(classes) %}
+{% endif %}
+
+{% set displayParent = product.variantListingConfig.displayParent and product.parentId === null %}
+
+<div {{ attributes.defaults({ class: defaultClasses.root }) }}>
+    <div {{ attributes.nested('header').defaults({ class: defaultClasses.header }) }}>
+        {% block media %}
+            <twig:thumbnail:thumbnail
+                {{ ...attributes.nested('media').defaults({
+                    media: product.cover.media,
+                    height: mediaHeight,
+                    class: defaultClasses.media,
+                    sizes: '800px',
+                    loading: 'lazy'
+                }) }}
+            />
+        {% endblock %}
+
+        {% block badges %}
+            <twig:product-card:badges :product="product" />
+        {% endblock %}
+    </div>
+
+    <div {{ attributes.nested('body').defaults({ class: defaultClasses.body }) }}>
+        {% block title %}
+            <h2 {{ attributes.nested('title').defaults({ class: defaultClasses.title }) }}>
+                <a
+                    {{ attributes.nested('title-link').defaults({
+                        class: defaultClasses.titleLink,
+                        href: detaulRoute,
+                        style: "--sw-product-card-media-height: #{mediaHeight}px",
+                    }) }}
+                >
+                    {{ product.translated.name }}
+                </a>
+            </h2>
+        {% endblock %}
+
+        {% if config('core.listing.showReview') and product.ratingAverage %}
+            <twig:rating:rating :stars="product.ratingAverage" />
+        {% endif %}
+
+        {% if not displayParent %}
+            <twig:product-card:variants :variants="product.variation" />
+        {% endif %}
+    </div>
+
+    <div {{ attributes.nested('footer').defaults({ class: defaultClasses.footer }) }}>
+        {% block price %}
+            <twig:product-card:price :product="product" />
+        {% endblock %}
+
+        {% block actions %}
+            <twig:product-card:actions
+                :product="product"
+                :addToCartExtraFormData="{ 'foo': 'bar' }"
+            />
+        {% endblock %}
+    </div>
+
+    {% block loading_indicator %}
+        <twig:product-card:skeleton-loader />
+    {% endblock %}
+</div>

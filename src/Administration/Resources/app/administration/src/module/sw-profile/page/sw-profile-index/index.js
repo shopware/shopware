@@ -23,6 +23,7 @@ export default {
         'searchPreferencesService',
         'searchRankingService',
         'userConfigService',
+        'saasSettingsService',
     ],
 
     mixins: [
@@ -241,15 +242,23 @@ export default {
                 return;
             }
 
-            if (this.checkEmail() === false) {
-                return;
-            }
+            this.saasSettingsService.isSaas().then((response) => {
+                if (response.isSaas) {
+                    this.saveUser();
 
-            const passwordCheck = this.checkPassword();
+                    return;
+                }
 
-            if (passwordCheck === null || passwordCheck === true) {
-                this.confirmPasswordModal = true;
-            }
+                if (this.checkEmail() === false) {
+                    return;
+                }
+
+                const passwordCheck = this.checkPassword();
+
+                if (passwordCheck === null || passwordCheck === true) {
+                    this.confirmPasswordModal = true;
+                }
+            });
         },
 
         checkEmail() {

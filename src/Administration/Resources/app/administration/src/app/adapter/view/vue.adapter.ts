@@ -381,6 +381,8 @@ export default class VueAdapter extends ViewAdapter {
             'MtModal',
             'MtModalRoot',
             'MtModalClose',
+            'MtModalTrigger',
+            'MtModalAction',
             'MtUrlField',
             'MtSearch',
             'MtLink',

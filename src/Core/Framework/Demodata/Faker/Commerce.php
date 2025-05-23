@@ -14,7 +14,7 @@ class Commerce extends FakerCommerce
     /**
      * @var array<string, array<string>>
      *
-     * @phpstan-ignore shopware.propertyNativeType (Cannot be typed because parent is not typed)
+     * @phpstan-ignore shopware.propertyNativeType, property.phpDocType (Cannot be typed because parent is not typed)
      */
     protected static $productName = [
         'adjective' => ['Small', 'Ergonomic', 'Rustic', 'Intelligent', 'Gorgeous', 'Incredible', 'Fantastic', 'Practical', 'Sleek', 'Awesome', 'Enormous', 'Mediocre', 'Synergistic', 'Heavy Duty', 'Lightweight', 'Aerodynamic', 'Durable'],

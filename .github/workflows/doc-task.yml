@@ -4,6 +4,8 @@ on:
   schedule: # Every 15 minutes
     - cron: '*/15 * * * *'
 
+  workflow_dispatch:
+
 jobs:
   manage-docs:
     if: github.repository == 'shopware/shopware' && github.ref == 'refs/heads/trunk'
@@ -31,4 +33,4 @@ jobs:
           github-token: ${{ steps.sts.outputs.token }}
           script: |
             const { createDocumentationTasksForProjects } = await import('${{ github.workspace }}/.github/bin/js/node_modules/@shopware-ag/gh-project-automation/dist/index.mjs')
-            await createDocumentationTasksForProjects({github, core, context, fetch}, ${{ secrets.DOC_TASK_PROJECTS }}, 'shopware', ${{ secrets.DOC_TASK_PROJECT_ID }}, '${{ secrets.DOC_TASK_DESCRIPTION }}')
+            await createDocumentationTasksForProjects({github, core, context, fetch}, ${{ vars.DOC_TASK_PROJECTS }}, 'shopware', ${{ vars.DOC_TASK_PROJECT_ID }}, '${{ vars.DOC_TASK_DESCRIPTION }}', '${{ vars.DOC_TASK_REFERENCE_COMMENT_PREFIX }}')

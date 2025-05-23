@@ -43,8 +43,8 @@ jobs:
         with:
           project: 'Visual'
           install: 'true'
-          extra-options: >- # TODO: remove push option before merging
-            ${{ ( inputs.update-snapshots || github.event_name == 'push' ) && '--update-snapshots' || '' }}
+          extra-options: >-
+            ${{ inputs.update-snapshots && '--update-snapshots' || '' }}
           use-currents: ${{ inputs.nightly && 'true' || '' }}
           currents-project-id: ${{ secrets.CURRENTS_PROJECT_ID_VISUAL }}
           currents-record-key: ${{ secrets.CURRENTS_RECORD_KEY }}

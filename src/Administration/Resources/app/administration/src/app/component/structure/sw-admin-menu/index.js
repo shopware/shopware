@@ -223,8 +223,6 @@ export default {
         this.salesChannelRepository.search(this.salesChannelCriteria).then((response) => {
             this.salesChannels = response;
         });
-
-        console.log('foo', this.menuService.getNavigationFromAdminModules())
     },
 
     computed: {

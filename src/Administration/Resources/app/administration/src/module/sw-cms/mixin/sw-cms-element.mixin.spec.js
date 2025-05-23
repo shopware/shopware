@@ -23,6 +23,7 @@ async function createWrapper(element = defaultElement) {
         global: {
             provide: {
                 cmsService: Shopware.Service('cmsService'),
+                htmlToJsonService: Shopware.Service('htmlToJsonService'),
             },
             stubs: {
                 'mt-text-editor': true,
@@ -64,6 +65,7 @@ describe('module/sw-cms/mixin/sw-cms-element.mixin.ts', () => {
         // Config structure is derived from the default config -> module/sw-cms/elements/text/index.js
         const expectedElementConfig = {
             content: {
+                contentSchema: "{}",
                 source: 'static',
                 value: expect.any(String),
             },

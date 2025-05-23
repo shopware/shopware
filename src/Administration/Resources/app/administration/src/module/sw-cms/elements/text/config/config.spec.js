@@ -17,6 +17,11 @@ async function createWrapper() {
                         return { text: {} };
                     },
                 },
+                htmlToJsonService: {
+                    transform: () => {
+                        return {};
+                    },
+                },
             },
             stubs: {
                 'sw-container': {

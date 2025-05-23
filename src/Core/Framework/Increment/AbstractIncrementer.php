@@ -2,7 +2,6 @@
 
 namespace Shopware\Core\Framework\Increment;
 
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 
 #[Package('framework')]
@@ -30,6 +29,7 @@ abstract class AbstractIncrementer
 
     /**
      * @deprecated tag:v6.8.0 - reason:visibility-change - Will become abstract
+     *
      * @param array<string> $keys
      */
     public function delete(string $cluster, array $keys = []): void

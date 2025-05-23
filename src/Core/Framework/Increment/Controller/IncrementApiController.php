@@ -97,7 +97,7 @@ class IncrementApiController
     {
         $keys = $request->get('keys', []);
 
-        if (\is_array($keys)) {
+        if (!\is_array($keys)) {
             throw IncrementException::invalidKeysParameter();
         }
 

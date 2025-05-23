@@ -150,5 +150,7 @@
     "/user/{userId}",
     "/user/{userId}/access-keys/{id}",
     "/user/{userId}/acl-roles/{roleId}",
-    "/v1/_info/version"
+    "/v1/_info/version",
+    "/_action/delete-increment/{pool}",
+    "/_action/delete-increment/{pool}"
 ]

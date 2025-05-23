@@ -91,13 +91,17 @@ class RedisIncrementer extends AbstractIncrementer
 
     public function delete(string $cluster, array $keys = []): void
     {
-        if (empty($keys)) {
-            $keys = $this->getKeys($cluster);
-        } else {
-            $keys = array_map(fn(string $key) => $this->getKey($cluster, $key), $keys);
+        $keysToDelete = $this->getKeys($cluster);
+
+        if (!empty($keys)) {
+            $keysToDelete = array_map(fn (string $keySuffix) => $this->getKey($cluster, $keySuffix), $keys);
         }
 
-        $this->redis->del(...$keys);
+        if (empty($keysToDelete)) {
+            return;
+        }
+
+        $this->redis->del($keysToDelete);
     }
 
     private function getKey(string $cluster, ?string $key = null): string

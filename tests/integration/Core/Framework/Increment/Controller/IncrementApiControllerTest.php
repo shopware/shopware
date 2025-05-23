@@ -219,7 +219,7 @@ class IncrementApiControllerTest extends TestCase
     public function testDeleteEndpointWithInvalidKeys(): void
     {
         $clusterName = 'customer-cluster';
-        $url = '/api/_action/delete/user_activity';
+        $url = '/api/_action/delete-increment/user_activity';
 
         $client = $this->getBrowser();
         $client->request('DELETE', $url, [
@@ -246,7 +246,7 @@ class IncrementApiControllerTest extends TestCase
 
         static::assertCount(3, $entries);
 
-        $url = '/api/_action/delete/user_activity';
+        $url = '/api/_action/delete-increment/user_activity';
 
         $client = $this->getBrowser();
         $client->request('DELETE', $url, [
@@ -279,7 +279,7 @@ class IncrementApiControllerTest extends TestCase
 
         $this->gateway->reset($this->userId, 'foo');
 
-        $url = '/api/_action/delete/user_activity';
+        $url = '/api/_action/delete-increment/user_activity';
 
         $client = $this->getBrowser();
         $client->request('DELETE', $url, [

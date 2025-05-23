@@ -135,7 +135,7 @@ class ArrayIncrementerTest extends TestCase
                 'cluster' => 'test-user-1',
                 'pool' => 'user-activity-pool',
                 'count' => 1,
-            ]
+            ],
         ], $list);
     }
 

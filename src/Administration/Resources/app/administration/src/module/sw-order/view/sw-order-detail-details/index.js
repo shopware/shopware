@@ -187,8 +187,10 @@ export default {
         },
 
         onShippingChargeEdited(amount) {
-            this.delivery.shippingCosts.unitPrice = amount;
-            this.delivery.shippingCosts.totalPrice = amount;
+            if (amount >= 0) {
+                this.delivery.shippingCosts.unitPrice = amount;
+                this.delivery.shippingCosts.totalPrice = amount;
+            }
 
             this.saveAndRecalculate();
         },

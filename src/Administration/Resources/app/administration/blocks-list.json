@@ -3172,6 +3172,7 @@
  "sw_media_modal_move_breadcrumbs",
  "sw_media_modal_move_cancel_button",
  "sw_media_modal_move_confirm_button",
+ "sw_media_modal_renderer",
  "sw_media_modal_replace",
  "sw_media_modal_replace_cancel_button",
  "sw_media_modal_replace_modal_footer",

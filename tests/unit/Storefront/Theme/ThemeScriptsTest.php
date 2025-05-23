@@ -38,7 +38,7 @@ class ThemeScriptsTest extends TestCase
             $this->createMock(AbstractConfigLoader::class)
         );
 
-        static::assertEquals([], $themeScripts->getThemeScripts());
+        static::assertSame([], $themeScripts->getThemeScripts());
     }
 
     public function testGetThemeScriptsWhenAdminRequest(): void
@@ -55,7 +55,7 @@ class ThemeScriptsTest extends TestCase
             $this->createMock(AbstractConfigLoader::class)
         );
 
-        static::assertEquals([], $themeScripts->getThemeScripts());
+        static::assertSame([], $themeScripts->getThemeScripts());
     }
 
     public function testNotExistingTheme(): void
@@ -77,7 +77,7 @@ class ThemeScriptsTest extends TestCase
             $this->createMock(AbstractConfigLoader::class)
         );
 
-        static::assertEquals([], $themeScripts->getThemeScripts());
+        static::assertSame([], $themeScripts->getThemeScripts());
     }
 
     public function testLoadPaths(): void
@@ -117,8 +117,8 @@ class ThemeScriptsTest extends TestCase
             $this->createMock(AbstractConfigLoader::class)
         );
 
-        static::assertEquals(['js/foo/foo.js'], $themeScripts->getThemeScripts());
-        static::assertEquals(['js/foo/foo.js'], $themeScripts->getThemeScripts());
+        static::assertSame(['js/foo/foo.js'], $themeScripts->getThemeScripts());
+        static::assertSame(['js/foo/foo.js'], $themeScripts->getThemeScripts());
     }
 
     public function testInheritsFromBase(): void
@@ -160,6 +160,6 @@ class ThemeScriptsTest extends TestCase
             $this->createMock(AbstractConfigLoader::class)
         );
 
-        static::assertEquals(['js/foo/foo.js'], $themeScripts->getThemeScripts());
+        static::assertSame(['js/foo/foo.js'], $themeScripts->getThemeScripts());
     }
 }

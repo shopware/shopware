@@ -41,10 +41,10 @@ class ProductCartTest extends TestCase
 
         static::assertInstanceOf(LineItem::class, $item);
 
-        static::assertEquals($builder->id, $item->getId());
+        static::assertSame($builder->id, $item->getId());
 
         static::assertInstanceOf(CalculatedPrice::class, $item->getPrice());
-        static::assertEquals($expected, $item->getPrice()->getTotalPrice());
+        static::assertSame($expected, $item->getPrice()->getTotalPrice());
     }
 
     public static function priceInCartProvider(): \Generator

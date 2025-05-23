@@ -88,6 +88,18 @@ export default {
         mediaRepository() {
             return this.repositoryFactory.create('media');
         },
+
+        popoverConfig() {
+            if (!this.showPicker || !this.$el) {
+                return {};
+            }
+
+            const inModal = !!this.$el.closest('.mt-modal');
+            return inModal
+                ? { targetSelector: '.mt-modal__content-inner' }
+                : {};
+        },
+
         mediaFieldClasses() {
             return {
                 'is--active': this.showPicker,

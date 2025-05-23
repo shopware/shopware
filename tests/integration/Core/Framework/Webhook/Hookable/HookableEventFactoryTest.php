@@ -70,14 +70,14 @@ class HookableEventFactoryTest extends TestCase
 
         static::assertCount(1, $hookables);
         $event = $hookables[0];
-        static::assertEquals('product.written', $event->getName());
+        static::assertSame('product.written', $event->getName());
 
         $payload = $event->getWebhookPayload();
         static::assertCount(1, $payload);
         $actualUpdatedFields = $payload[0]['updatedFields'];
         unset($payload[0]['updatedFields']);
 
-        static::assertEquals([[
+        static::assertSame([[
             'entity' => 'product',
             'operation' => 'insert',
             'primaryKey' => $id,
@@ -136,13 +136,13 @@ class HookableEventFactoryTest extends TestCase
 
         static::assertCount(1, $hookables);
         $event = $hookables[0];
-        static::assertEquals('product.written', $event->getName());
+        static::assertSame('product.written', $event->getName());
 
         $payload = $event->getWebhookPayload();
         $actualUpdatedFields = $payload[0]['updatedFields'];
         unset($payload[0]['updatedFields']);
 
-        static::assertEquals([[
+        static::assertSame([[
             'entity' => 'product',
             'operation' => 'update',
             'primaryKey' => $id,
@@ -176,8 +176,8 @@ class HookableEventFactoryTest extends TestCase
 
         static::assertCount(1, $hookables);
         $event = $hookables[0];
-        static::assertEquals('product.deleted', $event->getName());
-        static::assertEquals([[
+        static::assertSame('product.deleted', $event->getName());
+        static::assertSame([[
             'entity' => 'product',
             'operation' => 'delete',
             'primaryKey' => $id,
@@ -241,9 +241,9 @@ class HookableEventFactoryTest extends TestCase
 
         static::assertCount(1, $hookables);
         $event = $hookables[0];
-        static::assertEquals('product.written', $event->getName());
+        static::assertSame('product.written', $event->getName());
 
-        static::assertEquals([[
+        static::assertSame([[
             'entity' => 'product',
             'operation' => 'update',
             'primaryKey' => $id,
@@ -302,9 +302,9 @@ class HookableEventFactoryTest extends TestCase
 
         static::assertCount(2, $hookables);
         $event = $hookables[0];
-        static::assertEquals('product.written', $event->getName());
+        static::assertSame('product.written', $event->getName());
 
-        static::assertEquals([[
+        static::assertSame([[
             'entity' => 'product',
             'operation' => 'update',
             'primaryKey' => $id,
@@ -324,8 +324,8 @@ class HookableEventFactoryTest extends TestCase
         ]], $event->getWebhookPayload());
 
         $event = $hookables[1];
-        static::assertEquals('product_price.written', $event->getName());
-        static::assertEquals([[
+        static::assertSame('product_price.written', $event->getName());
+        static::assertSame([[
             'entity' => 'product_price',
             'operation' => 'insert',
             'primaryKey' => $productPriceId,
@@ -378,8 +378,8 @@ class HookableEventFactoryTest extends TestCase
         static::assertCount(1, $hookables);
 
         $event = $hookables[0];
-        static::assertEquals('product_price.written', $event->getName());
-        static::assertEquals([[
+        static::assertSame('product_price.written', $event->getName());
+        static::assertSame([[
             'entity' => 'product_price',
             'operation' => 'insert',
             'primaryKey' => $id,
@@ -409,14 +409,14 @@ class HookableEventFactoryTest extends TestCase
 
         static::assertCount(1, $hookables);
         $event = $hookables[0];
-        static::assertEquals('sales_channel_domain.written', $event->getName());
+        static::assertSame('sales_channel_domain.written', $event->getName());
 
         $payload = $event->getWebhookPayload();
         static::assertCount(1, $payload);
         $actualUpdatedFields = $payload[0]['updatedFields'];
         unset($payload[0]['updatedFields']);
 
-        static::assertEquals([[
+        static::assertSame([[
             'entity' => 'sales_channel_domain',
             'operation' => 'insert',
             'primaryKey' => $id,

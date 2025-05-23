@@ -43,7 +43,7 @@ class AdminModuleGeneratorTest extends TestCase
         (new AdminModuleGenerator())
             ->addScaffoldConfig($configuration, $input, $io);
 
-        static::assertEquals($expectedHasOption, $configuration->hasOption(AdminModuleGenerator::OPTION_NAME));
+        static::assertSame($expectedHasOption, $configuration->hasOption(AdminModuleGenerator::OPTION_NAME));
     }
 
     public static function addScaffoldConfigProvider(): \Generator

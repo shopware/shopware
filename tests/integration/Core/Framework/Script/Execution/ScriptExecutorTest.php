@@ -64,7 +64,7 @@ class ScriptExecutorTest extends TestCase
 
                 continue;
             }
-            static::assertEquals($value, $object->get($key));
+            static::assertSame($value, $object->get($key));
         }
     }
 
@@ -139,7 +139,7 @@ class ScriptExecutorTest extends TestCase
         $context = Context::createDefaultContext();
         $this->executor->execute(new StoppableTestHook('stoppable-case', $context, ['object' => $object]));
 
-        static::assertEquals([
+        static::assertSame([
             'first-script' => 'called',
             'second-script' => 'called',
         ], $object->all());
@@ -155,12 +155,12 @@ class ScriptExecutorTest extends TestCase
         $this->executor->execute(new DeprecatedTestHook('simple-function-case', $context, ['object' => $object]));
 
         static::assertTrue($object->has('foo'));
-        static::assertEquals('bar', $object->get('foo'));
+        static::assertSame('bar', $object->get('foo'));
 
         $traces = $this->getScriptTraces();
         static::assertArrayHasKey('simple-function-case', $traces);
         static::assertCount(1, $traces['simple-function-case'][0]['deprecations']);
-        static::assertEquals([
+        static::assertSame([
             DeprecatedTestHook::getDeprecationNotice() => 1,
         ], $traces['simple-function-case'][0]['deprecations']);
     }
@@ -181,7 +181,7 @@ class ScriptExecutorTest extends TestCase
         $traces = $this->getScriptTraces();
         static::assertArrayHasKey('simple-service-script', $traces);
         static::assertArrayHasKey('The `repository` service is deprecated for testing purposes.', $traces['simple-service-script'][0]['deprecations']);
-        static::assertEquals(2, $traces['simple-service-script'][0]['deprecations']['The `repository` service is deprecated for testing purposes.']);
+        static::assertSame(2, $traces['simple-service-script'][0]['deprecations']['The `repository` service is deprecated for testing purposes.']);
     }
 
     public function testNotImplementingAFunctionThatWillBeRequiredTriggersException(): void
@@ -200,7 +200,7 @@ class ScriptExecutorTest extends TestCase
         $traces = $this->getScriptTraces();
         static::assertArrayHasKey('simple-function-case::test', $traces);
         static::assertCount(1, $traces['simple-function-case::test'][0]['deprecations']);
-        static::assertEquals([
+        static::assertSame([
             'Function "test" will be required from v6.5.0.0 onward, but is not implemented in script "simple-function-case/simple-function-case.twig", please make sure you add the block in your script.' => 1,
         ], $traces['simple-function-case::test'][0]['deprecations']);
     }

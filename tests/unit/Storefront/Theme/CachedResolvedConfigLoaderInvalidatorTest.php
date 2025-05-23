@@ -30,7 +30,7 @@ class CachedResolvedConfigLoaderInvalidatorTest extends TestCase
 
     public function testGetSubscribedEvents(): void
     {
-        static::assertEquals(
+        static::assertSame(
             [
                 ThemeConfigChangedEvent::class => 'invalidate',
                 ThemeAssignedEvent::class => 'assigned',
@@ -55,7 +55,7 @@ class CachedResolvedConfigLoaderInvalidatorTest extends TestCase
             Translator::tag($salesChannelId),
         ];
 
-        static::assertEquals(
+        static::assertSame(
             $expectedInvalidatedTags,
             $this->cacheInvalidator->getInvalidatedTags()
         );
@@ -70,7 +70,7 @@ class CachedResolvedConfigLoaderInvalidatorTest extends TestCase
 
         $expectedInvalidatedTags = ['theme-config-' . $themeId];
 
-        static::assertEquals(
+        static::assertSame(
             $expectedInvalidatedTags,
             $this->cacheInvalidator->getInvalidatedTags()
         );
@@ -87,7 +87,7 @@ class CachedResolvedConfigLoaderInvalidatorTest extends TestCase
 
         $expectedInvalidatedTags = ['theme-config-' . $themeId];
 
-        static::assertEquals(
+        static::assertSame(
             $expectedInvalidatedTags,
             $this->cacheInvalidator->getInvalidatedTags()
         );

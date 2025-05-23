@@ -49,7 +49,7 @@ class TemplateFinderTest extends TestCase
     #[DataProvider('templateNameProvider')]
     public function testGetTemplateName(string $input, string $expectation): void
     {
-        static::assertEquals($expectation, $this->finder->getTemplateName($input));
+        static::assertSame($expectation, $this->finder->getTemplateName($input));
     }
 
     /**
@@ -77,7 +77,7 @@ class TemplateFinderTest extends TestCase
 
         $foundTemplate = $this->finder->find($template, $ignoreMissing, $source);
 
-        static::assertEquals($expectedTemplate, $foundTemplate);
+        static::assertSame($expectedTemplate, $foundTemplate);
     }
 
     public function testFindModifiesCache(): void
@@ -88,7 +88,7 @@ class TemplateFinderTest extends TestCase
             $cache->setTemplateScopes(['foo']);
 
             // template scope has been set
-            static::assertEquals($hash, $cache->generateKey('foo', 'bar'));
+            static::assertSame($hash, $cache->generateKey('foo', 'bar'));
 
             // config hash had been set as well
             $cache->setConfigHash('');

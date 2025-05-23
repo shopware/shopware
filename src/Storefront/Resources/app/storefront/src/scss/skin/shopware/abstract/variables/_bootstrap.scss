@@ -81,8 +81,8 @@ $link-decoration: underline !default;
 $link-hover-decoration: underline !default;
 
 // Buttons + Forms
-$input-btn-padding-y: 0.5625rem !default;
-$input-btn-padding-x: 0.5625rem !default;
+$input-padding-y: 0.438rem !default;
+$input-padding-x: 0.5625rem !default;
 
 $input-placeholder-color: #666977 !default;
 
@@ -186,3 +186,6 @@ $alert-border-width: 1px !default;
 $badge-border-radius: 50px !default;
 $badge-padding-x: 5px !default;
 $badge-padding-y: 0 !default;
+
+// Navbar
+$navbar-light-active-color: $primary !default;

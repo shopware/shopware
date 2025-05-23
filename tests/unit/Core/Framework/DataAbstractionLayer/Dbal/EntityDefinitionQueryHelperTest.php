@@ -30,7 +30,7 @@ class EntityDefinitionQueryHelperTest extends TestCase
     {
         $definition = $this->getRegistry()->getByEntityName('product');
 
-        static::assertEquals(
+        static::assertSame(
             $expectedRoot,
             EntityDefinitionQueryHelper::getRoot($accessor, $definition)
         );
@@ -41,7 +41,7 @@ class EntityDefinitionQueryHelperTest extends TestCase
     {
         $definition = $this->getRegistry()->getByEntityName('product');
 
-        static::assertEquals(
+        static::assertSame(
             $expectedEntity,
             EntityDefinitionQueryHelper::getAssociatedDefinition($definition, $accessor)->getEntityName()
         );

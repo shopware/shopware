@@ -91,8 +91,6 @@ Remove all references to `@Storefront/storefront/component/checkout/cart-alerts.
 
 # API
 
-<details></details>
-
 # Core
 
 <details>
@@ -146,6 +144,14 @@ The concrete events being removed:
 The `filterByActiveRules` methods in `Shopware\Core\Checkout\Payment\PaymentMethodCollection` and `Shopware\Core\Checkout\Shipping\ShippingMethodCollection` were removed.
 Use the new `Shopware\Core\Framework\Rule\RuleIdMatcher` instead.
 It allows filtering of `RuleIdAware` objects in either arrays or collections.
+
+## Added `primaryOrderDelivery` and `primaryOrderTransaction`
+Currently, there are multiple order deliveries and multiple order transactions per order. If only one, the "primary", order delivery and order transaction is displayed and used in the administration, there is now an easy way in version 6.8 using the `primaryOrderDelivery` and `primaryOrderTransaction`. All existing orders will be updated with a migration so that they also have the primary values.
+From now on, the `OrderTransactionStatusRule::match` will always use the `primaryOrderTransaction` instead of the most recently successful transaction.
+## Use `primaryOrderDelivery`
+Get the first order delivery with `primaryOrderDelivery` so you should replace methods like `deliveries.first()` or `deliveries[0]`
+## Use `primaryOrderTransaction`
+Get the latest order transaction with `primaryOrderTransaction` so you should replace methods like `transaction.last()`
 
 </details>
 

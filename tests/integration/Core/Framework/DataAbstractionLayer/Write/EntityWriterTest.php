@@ -482,13 +482,13 @@ class EntityWriterTest extends TestCase
 
         static::assertSame('ABC', $product['ean']);
 
-        static::assertNotEquals('0000-00-00 00:00:00', $product['updated_at']);
-        static::assertNotEquals('2011-01-01 15:03:01', $product['updated_at']);
+        static::assertNotSame('0000-00-00 00:00:00', $product['updated_at']);
+        static::assertNotSame('2011-01-01 15:03:01', $product['updated_at']);
 
-        static::assertNotEquals('0000-00-00 00:00:00', $product['created_at']);
-        static::assertNotEquals('2011-01-01 15:03:01', $product['created_at']);
-        static::assertNotEquals('0000-00-00 00:00:00', $newProduct['created_at']);
-        static::assertNotEquals('2011-01-01 15:03:01', $newProduct['created_at']);
+        static::assertNotSame('0000-00-00 00:00:00', $product['created_at']);
+        static::assertNotSame('2011-01-01 15:03:01', $product['created_at']);
+        static::assertNotSame('0000-00-00 00:00:00', $newProduct['created_at']);
+        static::assertNotSame('2011-01-01 15:03:01', $newProduct['created_at']);
     }
 
     public function testInsertIgnoresRuntimeFields(): void
@@ -700,7 +700,7 @@ class EntityWriterTest extends TestCase
 
         static::assertNotNull($manufacturer);
         static::assertInstanceOf(ProductManufacturerEntity::class, $manufacturer);
-        static::assertEquals($mediaId, $manufacturer->getMediaId());
+        static::assertSame($mediaId, $manufacturer->getMediaId());
     }
 
     public function testWriteTranslatedEntityWithoutRequiredFieldsNotInSystemLanguage(): void
@@ -722,10 +722,7 @@ class EntityWriterTest extends TestCase
             ],
         ], $context);
 
-        static::assertEquals(
-            1,
-            $mediaRepo->search(new Criteria([$mediaId]), $context)->getEntities()->count()
-        );
+        static::assertCount(1, $mediaRepo->search(new Criteria([$mediaId]), $context)->getEntities());
     }
 
     public function testWriteWithEmptyDataIsValid(): void
@@ -928,7 +925,7 @@ class EntityWriterTest extends TestCase
 
         static::assertIsArray($translations);
         static::assertNull($translations['name']);
-        static::assertEquals('update', $translations['description']);
+        static::assertSame('update', $translations['description']);
     }
 
     protected function createWriteContext(): WriteContext

@@ -15,7 +15,7 @@ class WebhookCacheClearerTest extends TestCase
 {
     public function testGetSubscribedEvents(): void
     {
-        static::assertEquals([
+        static::assertSame([
             'acl_role.written' => 'clearPrivilegesCache',
         ], WebhookCacheClearer::getSubscribedEvents());
     }

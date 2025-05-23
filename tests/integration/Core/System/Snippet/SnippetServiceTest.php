@@ -82,7 +82,7 @@ class SnippetServiceTest extends TestCase
 
         $snippets = $service->getStorefrontSnippets($this->getCatalog([], $locale), $snippetSetId);
 
-        static::assertEquals([
+        static::assertSame([
             'foo.baz' => 'foo_baz_override0',
             'foo.bas' => 'foo_bas_override_db',
             'bar' => 'bar_default2',
@@ -122,7 +122,7 @@ class SnippetServiceTest extends TestCase
 
         $snippets = $service->getStorefrontSnippets($this->getCatalog([], $locale), $snippetSetId);
 
-        static::assertEquals([
+        static::assertSame([
             'foo.bar' => 'foo_bar_override',
             'foo.bas' => 'foo_bas_default1',
             'baz.bar' => 'baz_bar_default2',
@@ -181,7 +181,7 @@ json
         $service = $this->getSnippetService($snippetFile);
         $result = $service->getRegionFilterItems(Context::createDefaultContext());
 
-        static::assertEquals([
+        static::assertSame([
             'bar',
             'foo',
             'test',

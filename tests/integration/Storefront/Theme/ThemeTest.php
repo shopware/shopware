@@ -485,8 +485,7 @@ class ThemeTest extends TestCase
 
     public function testCompileTheme(): void
     {
-        static::markTestSkipped('theme compile is not possible cause app.js does not exist');
-        $criteria = new Criteria(); /** @phpstan-ignore-line  */
+        $criteria = new Criteria();
         $criteria->addFilter(new EqualsFilter('technicalName', StorefrontPluginRegistry::BASE_THEME_NAME));
 
         $baseTheme = $this->themeRepository->search($criteria, $this->context)->getEntities()->first();
@@ -511,9 +510,15 @@ class ThemeTest extends TestCase
             $this->context
         );
 
-        $themeCompiled = $this->themeService->assignTheme($childTheme->getId(), TestDefaults::SALES_CHANNEL, $this->context);
-
-        static::assertTrue($themeCompiled);
+        try {
+            $themeCompiled = $this->themeService->assignTheme($childTheme->getId(), TestDefaults::SALES_CHANNEL, $this->context);
+            static::assertTrue($themeCompiled);
+        } catch (ThemeCompileException $e) {
+            // ignore files not found exception
+            if ($e->getMessage() !== 'Unable to compile the theme "Shopware default theme". Files could not be resolved with error: Unable to compile the theme "Storefront". Unable to load file "Resources/app/storefront/dist/storefront/storefront.js". Did you forget to build the theme? Try running ./bin/build-storefront.sh') {
+                throw $e;
+            }
+        }
     }
 
     public function testCompileNonStorefrontThemesWithSameTechnicalNameNotLeakingConfigurationFromPreviousCompilations(): void
@@ -544,7 +549,10 @@ class ThemeTest extends TestCase
                     return $value === $_expectedTheme;
                 }),
                 new Callback(static function (StorefrontPluginConfiguration $value) use (&$_expectedColor): bool {
-                    return $value->getThemeConfig()['fields']['sw-color-brand-primary']['value'] === $_expectedColor; /** @phpstan-ignore-line  */
+                    static::assertIsArray($value->getThemeConfig());
+                    static::assertArrayHasKey('fields', $value->getThemeConfig());
+
+                    return $value->getThemeConfig()['fields']['sw-color-brand-primary']['value'] === $_expectedColor;
                 })
             );
 
@@ -642,11 +650,6 @@ class ThemeTest extends TestCase
             public function getCharset(): string
             {
                 return $this->kernel->getCharset();
-            }
-
-            public function __call($name, $arguments) /* @phpstan-ignore-line */
-            {
-                return $this->kernel->$name(...\func_get_args()); /* @phpstan-ignore-line */
             }
         };
 
@@ -779,7 +782,6 @@ class ThemeTest extends TestCase
             );
         } catch (ThemeCompileException $e) {
             // ignore files not found exception
-
             if ($e->getMessage() !== 'Unable to compile the theme "Shopware default theme". Files could not be resolved with error: Unable to compile the theme "Storefront". Unable to load file "Resources/app/storefront/dist/storefront/storefront.js". Did you forget to build the theme? Try running ./bin/build-storefront.sh') {
                 throw $e;
             }

@@ -572,8 +572,8 @@ class TranslationTest extends TestCase
             ->first();
 
         static::assertInstanceOf(CategoryEntity::class, $catSystem);
-        static::assertEquals('system', $catSystem->getName());
-        static::assertEquals('system', $catSystem->getTranslated()['name']);
+        static::assertSame('system', $catSystem->getName());
+        static::assertSame('system', $catSystem->getTranslated()['name']);
 
         $deDeContext = new Context(new SystemSource(), [], Defaults::CURRENCY, [$this->deLanguageId, Defaults::LANGUAGE_SYSTEM]);
         $catDeDe = $this->categoryRepository
@@ -584,7 +584,7 @@ class TranslationTest extends TestCase
         static::assertNotNull($catDeDe);
         static::assertInstanceOf(CategoryEntity::class, $catDeDe);
         static::assertNull($catDeDe->getName());
-        static::assertEquals('system', $catDeDe->getTranslated()['name']);
+        static::assertSame('system', $catDeDe->getTranslated()['name']);
     }
 
     public function testUpsert(): void
@@ -755,7 +755,7 @@ sors capulus se Quies, mox qui Sentus dum confirmo do iam. Iunceus postulator in
 
         $slot = $searchResult->getEntities()->get($page['sections'][0]['blocks'][0]['slots'][0]['id']);
         static::assertInstanceOf(CmsSlotEntity::class, $slot);
-        static::assertEquals([], $slot->getConfig());
+        static::assertSame([], $slot->getConfig());
 
         $slot = $searchResult->getEntities()->get($page['sections'][0]['blocks'][0]['slots'][1]['id']);
         static::assertInstanceOf(CmsSlotEntity::class, $slot);
@@ -823,7 +823,7 @@ sors capulus se Quies, mox qui Sentus dum confirmo do iam. Iunceus postulator in
 
         $slot = $searchResult->getEntities()->get($page['sections'][0]['blocks'][0]['slots'][0]['id']);
         static::assertInstanceOf(CmsSlotEntity::class, $slot);
-        static::assertEquals([], $slot->getConfig());
+        static::assertSame([], $slot->getConfig());
 
         $slot = $searchResult->getEntities()->get($page['sections'][0]['blocks'][0]['slots'][1]['id']);
         static::assertInstanceOf(CmsSlotEntity::class, $slot);
@@ -840,7 +840,7 @@ sors capulus se Quies, mox qui Sentus dum confirmo do iam. Iunceus postulator in
 
         $slot = $searchResult->getEntities()->get($page['sections'][0]['blocks'][0]['slots'][0]['id']);
         static::assertInstanceOf(CmsSlotEntity::class, $slot);
-        static::assertEquals([], $slot->getConfig());
+        static::assertSame([], $slot->getConfig());
 
         $slot = $searchResult->getEntities()->get($page['sections'][0]['blocks'][0]['slots'][1]['id']);
         static::assertInstanceOf(CmsSlotEntity::class, $slot);
@@ -884,11 +884,11 @@ sors capulus se Quies, mox qui Sentus dum confirmo do iam. Iunceus postulator in
 
         $enTranslation = $category->getTranslations()->filterByLanguageId(Defaults::LANGUAGE_SYSTEM)->first();
         static::assertInstanceOf(CategoryTranslationEntity::class, $enTranslation);
-        static::assertEquals('en translation', $enTranslation->getName());
+        static::assertSame('en translation', $enTranslation->getName());
 
         $deTranslation = $category->getTranslations()->filterByLanguageId($this->getDeDeLanguageId())->first();
         static::assertInstanceOf(CategoryTranslationEntity::class, $deTranslation);
-        static::assertEquals('de übersetzung', $deTranslation->getName());
+        static::assertSame('de übersetzung', $deTranslation->getName());
     }
 
     public function testTranslationValuesHavePriorityOverDefaultValueWithIds(): void
@@ -924,11 +924,11 @@ sors capulus se Quies, mox qui Sentus dum confirmo do iam. Iunceus postulator in
 
         $enTranslation = $category->getTranslations()->filterByLanguageId(Defaults::LANGUAGE_SYSTEM)->first();
         static::assertInstanceOf(CategoryTranslationEntity::class, $enTranslation);
-        static::assertEquals('en translation', $enTranslation->getName());
+        static::assertSame('en translation', $enTranslation->getName());
 
         $deTranslation = $category->getTranslations()->filterByLanguageId($this->getDeDeLanguageId())->first();
         static::assertInstanceOf(CategoryTranslationEntity::class, $deTranslation);
-        static::assertEquals('de übersetzung', $deTranslation->getName());
+        static::assertSame('de übersetzung', $deTranslation->getName());
     }
 
     public function testTranslationValuesHavePriorityOverDefaultValuesWithIds(): void
@@ -966,11 +966,11 @@ sors capulus se Quies, mox qui Sentus dum confirmo do iam. Iunceus postulator in
 
         $enTranslation = $category->getTranslations()->filterByLanguageId(Defaults::LANGUAGE_SYSTEM)->first();
         static::assertInstanceOf(CategoryTranslationEntity::class, $enTranslation);
-        static::assertEquals('en translation', $enTranslation->getName());
+        static::assertSame('en translation', $enTranslation->getName());
 
         $deTranslation = $category->getTranslations()->filterByLanguageId($this->getDeDeLanguageId())->first();
         static::assertInstanceOf(CategoryTranslationEntity::class, $deTranslation);
-        static::assertEquals('de übersetzung', $deTranslation->getName());
+        static::assertSame('de übersetzung', $deTranslation->getName());
     }
 
     public function testDefaultValueWithLocaleHasPriorityOverTranslationValueWithId(): void
@@ -1008,11 +1008,11 @@ sors capulus se Quies, mox qui Sentus dum confirmo do iam. Iunceus postulator in
 
         $enTranslation = $category->getTranslations()->filterByLanguageId(Defaults::LANGUAGE_SYSTEM)->first();
         static::assertInstanceOf(CategoryTranslationEntity::class, $enTranslation);
-        static::assertEquals('default', $enTranslation->getName());
+        static::assertSame('default', $enTranslation->getName());
 
         $deTranslation = $category->getTranslations()->filterByLanguageId($this->getDeDeLanguageId())->first();
         static::assertInstanceOf(CategoryTranslationEntity::class, $deTranslation);
-        static::assertEquals('de übersetzung', $deTranslation->getName());
+        static::assertSame('de übersetzung', $deTranslation->getName());
     }
 
     public function testWriteWithInheritedTranslationCode(): void
@@ -1064,11 +1064,11 @@ sors capulus se Quies, mox qui Sentus dum confirmo do iam. Iunceus postulator in
 
         $enTranslation = $translations->filterByLanguageId(Defaults::LANGUAGE_SYSTEM)->first();
         static::assertInstanceOf(CategoryTranslationEntity::class, $enTranslation);
-        static::assertEquals('default', $enTranslation->getName());
+        static::assertSame('default', $enTranslation->getName());
 
         $childTranslation = $translations->filterByLanguageId($this->ids->get('language-parent'))->first();
         static::assertInstanceOf(CategoryTranslationEntity::class, $childTranslation);
-        static::assertEquals('parent language', $childTranslation->getName());
+        static::assertSame('parent language', $childTranslation->getName());
 
         $childTranslation = $translations->filterByLanguageId($this->ids->get('language-child'))->first();
         static::assertInstanceOf(CategoryTranslationEntity::class, $childTranslation);
@@ -1125,14 +1125,14 @@ sors capulus se Quies, mox qui Sentus dum confirmo do iam. Iunceus postulator in
 
         $enTranslation = $translations->filterByLanguageId(Defaults::LANGUAGE_SYSTEM)->first();
         static::assertInstanceOf(CategoryTranslationEntity::class, $enTranslation);
-        static::assertEquals('default', $enTranslation->getName());
+        static::assertSame('default', $enTranslation->getName());
 
         $childTranslation = $translations->filterByLanguageId($this->ids->get('language-parent'))->first();
         static::assertInstanceOf(CategoryTranslationEntity::class, $childTranslation);
-        static::assertEquals('parent language', $childTranslation->getName());
+        static::assertSame('parent language', $childTranslation->getName());
 
         $childTranslation = $translations->filterByLanguageId($this->ids->get('language-child'))->first();
         static::assertInstanceOf(CategoryTranslationEntity::class, $childTranslation);
-        static::assertEquals('child language', $childTranslation->getName());
+        static::assertSame('child language', $childTranslation->getName());
     }
 }

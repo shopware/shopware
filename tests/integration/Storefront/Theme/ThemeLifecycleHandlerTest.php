@@ -233,7 +233,7 @@ class ThemeLifecycleHandlerTest extends TestCase
         try {
             $this->themeLifecycleHandler->handleThemeUninstall($uninstalledConfig, Context::createDefaultContext());
         } catch (ThemeAssignmentException $e) {
-            static::assertEquals(
+            static::assertSame(
                 [TestDefaults::SALES_CHANNEL],
                 array_keys($e->getAssignedSalesChannels() ?? [])
             );

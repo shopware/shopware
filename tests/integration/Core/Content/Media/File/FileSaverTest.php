@@ -175,7 +175,7 @@ class FileSaverTest extends TestCase
 
         $path = $media->getPath();
 
-        static::assertNotEquals($oldMediaFilePath, $path);
+        static::assertNotSame($oldMediaFilePath, $path);
         static::assertTrue($this->getPublicFilesystem()->has($path));
     }
 

@@ -41,6 +41,8 @@ $sw-media-folder-content-background-color: $color-white;
 
     .sw-media-folder-content__folder-icon {
         margin-right: 16px;
+        width: 14px;
+        height: 14px;
     }
 
     .sw-media-folder-content__button {
@@ -51,14 +53,8 @@ $sw-media-folder-content-background-color: $color-white;
         color: $sw-media-folder-content-color-buttons;
     }
 
-    .sw-media-folder-content__folder-button {
-        text-align: left;
-
-        @include truncate;
-    }
-
+    .sw-media-folder-content__folder-button,
     .sw-media-folder-content__parent-folder {
-        color: $sw-media-folder-content-parent-color;
         text-align: left;
 
         @include truncate;

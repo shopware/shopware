@@ -91,7 +91,7 @@ class AppFlowActionProviderTest extends TestCase
 
         $webhookData = $appFlowActionProvider->getWebhookPayloadAndHeaders($flow, $ids->get('appFlowActionId'));
 
-        static::assertEquals(['param1' => 'Text 1', 'param2' => 'Text 2 and Text 3'], $webhookData['payload']);
-        static::assertEquals(['content-type' => 'application/json'], $webhookData['headers']);
+        static::assertSame(['param1' => 'Text 1', 'param2' => 'Text 2 and Text 3'], $webhookData['payload']);
+        static::assertSame(['content-type' => 'application/json'], $webhookData['headers']);
     }
 }

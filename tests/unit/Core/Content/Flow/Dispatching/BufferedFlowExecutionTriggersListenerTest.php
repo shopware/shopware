@@ -42,7 +42,7 @@ class BufferedFlowExecutionTriggersListenerTest extends TestCase
     public function testRegistersBufferedFlowExecutionTriggers(): void
     {
         if (Feature::isActive('FLOW_EXECUTION_AFTER_BUSINESS_PROCESS')) {
-            static::assertEquals(
+            static::assertSame(
                 [
                     'kernel.terminate' => 'triggerBufferedFlowExecution',
                     'Symfony\Component\Messenger\Event\WorkerMessageHandledEvent' => 'triggerBufferedFlowExecution',

@@ -99,7 +99,7 @@ class MailActionControllerTest extends TestCase
         );
 
         $response = $mailActionController->build($data, $context);
-        static::assertEquals('"rendered"', $response->getContent());
+        static::assertSame('"rendered"', $response->getContent());
     }
 
     public function testBuildWithoutTemplateData(): void
@@ -127,7 +127,7 @@ class MailActionControllerTest extends TestCase
         );
 
         $response = $mailActionController->build($data, $context);
-        static::assertEquals('"rendered"', $response->getContent());
+        static::assertSame('"rendered"', $response->getContent());
     }
 
     public function testBuildWithoutTemplateContentThrows(): void

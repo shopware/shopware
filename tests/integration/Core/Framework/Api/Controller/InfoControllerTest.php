@@ -15,6 +15,7 @@ use Shopware\Core\Content\Flow\Api\FlowActionCollector;
 use Shopware\Core\Content\Flow\Dispatching\Aware\ScalarValuesAware;
 use Shopware\Core\Defaults;
 use Shopware\Core\DevOps\Environment\EnvironmentHelper;
+use Shopware\Core\Framework\Adapter\Messenger\Stamp\SentAtStamp;
 use Shopware\Core\Framework\Api\ApiDefinition\DefinitionService;
 use Shopware\Core\Framework\Api\Controller\InfoController;
 use Shopware\Core\Framework\Api\Route\ApiRouteInfoResolver;
@@ -27,6 +28,7 @@ use Shopware\Core\Framework\Event\CustomerGroupAware;
 use Shopware\Core\Framework\Event\MailAware;
 use Shopware\Core\Framework\Event\OrderAware;
 use Shopware\Core\Framework\Event\SalesChannelAware;
+use Shopware\Core\Framework\MessageQueue\Stats\StatsService;
 use Shopware\Core\Framework\Plugin;
 use Shopware\Core\Framework\Store\InAppPurchase;
 use Shopware\Core\Framework\Test\TestCaseBase\AdminFunctionalTestBehaviour;
@@ -42,6 +44,7 @@ use Symfony\Component\DependencyInjection\Container;
 use Symfony\Component\DependencyInjection\ParameterBag\ParameterBag;
 use Symfony\Component\Filesystem\Filesystem;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\Messenger\Envelope;
 
 /**
  * @internal
@@ -413,6 +416,7 @@ class InfoControllerTest extends TestCase
             ),
             new Filesystem(),
             static::getContainer()->get(ShopIdProvider::class),
+            $this->createMock(StatsService::class),
         );
 
         $infoController->setContainer($this->createMock(Container::class));
@@ -484,6 +488,7 @@ class InfoControllerTest extends TestCase
             ),
             new Filesystem(),
             static::getContainer()->get(ShopIdProvider::class),
+            $this->createMock(StatsService::class),
         );
 
         $infoController->setContainer($this->createMock(Container::class));
@@ -494,19 +499,19 @@ class InfoControllerTest extends TestCase
         static::assertCount(3, $config['bundles']);
 
         static::assertArrayHasKey('AdminExtensionApiPlugin', $config['bundles']);
-        static::assertEquals('https://extension-api.test', $config['bundles']['AdminExtensionApiPlugin']['baseUrl']);
-        static::assertEquals('plugin', $config['bundles']['AdminExtensionApiPlugin']['type']);
+        static::assertSame('https://extension-api.test', $config['bundles']['AdminExtensionApiPlugin']['baseUrl']);
+        static::assertSame('plugin', $config['bundles']['AdminExtensionApiPlugin']['type']);
 
         static::assertArrayHasKey('AdminExtensionApiPluginWithLocalEntryPoint', $config['bundles']);
         static::assertStringContainsString(
             '/admin/adminextensionapipluginwithlocalentrypoint/index.html',
             $config['bundles']['AdminExtensionApiPluginWithLocalEntryPoint']['baseUrl'],
         );
-        static::assertEquals('plugin', $config['bundles']['AdminExtensionApiPluginWithLocalEntryPoint']['type']);
+        static::assertSame('plugin', $config['bundles']['AdminExtensionApiPluginWithLocalEntryPoint']['type']);
 
         static::assertArrayHasKey('AdminExtensionApiApp', $config['bundles']);
-        static::assertEquals('https://app-admin.test', $config['bundles']['AdminExtensionApiApp']['baseUrl']);
-        static::assertEquals('app', $config['bundles']['AdminExtensionApiApp']['type']);
+        static::assertSame('https://app-admin.test', $config['bundles']['AdminExtensionApiApp']['baseUrl']);
+        static::assertSame('app', $config['bundles']['AdminExtensionApiApp']['type']);
     }
 
     public function testFlowActionsRoute(): void
@@ -668,6 +673,44 @@ class InfoControllerTest extends TestCase
             static::assertArrayHasKey('path', $route);
             static::assertArrayHasKey('methods', $route);
         }
+    }
+
+    public function testFetchMessageStats(): void
+    {
+        $statsService = $this->getContainer()->get(StatsService::class);
+        $statsService->registerMessage(new Envelope(new \stdClass(), [
+            new SentAtStamp(new \DateTimeImmutable('@' . (time() - 2))),
+        ]));
+        $statsService->registerMessage(new Envelope(new \stdClass(), [
+            new SentAtStamp(new \DateTimeImmutable('@' . (time() - 1))),
+        ]));
+
+        $client = $this->getBrowser();
+        $client->request('GET', '/api/_info/message-stats.json');
+
+        $content = $client->getResponse()->getContent();
+        static::assertNotFalse($content);
+        static::assertSame(200, $client->getResponse()->getStatusCode());
+
+        static::assertJson($content);
+        $stats = json_decode($content, true, 512, \JSON_THROW_ON_ERROR);
+
+        static::assertIsArray($stats);
+        static::assertArrayHasKey('enabled', $stats);
+        static::assertTrue($stats['enabled']);
+        static::assertArrayHasKey('stats', $stats);
+        static::assertIsArray($stats['stats']);
+        static::assertArrayHasKey('totalMessagesProcessed', $stats['stats']);
+        static::assertGreaterThanOrEqual(2, $stats['stats']['totalMessagesProcessed']);
+        static::assertArrayHasKey('processedSince', $stats['stats']);
+        static::assertInstanceOf(\DateTimeInterface::class, \DateTimeImmutable::createFromFormat(\DateTimeInterface::RFC3339_EXTENDED, $stats['stats']['processedSince']));
+        static::assertArrayHasKey('averageTimeInQueue', $stats['stats']);
+        static::assertIsFloat($stats['stats']['averageTimeInQueue']);
+        static::assertArrayHasKey('messageTypeStats', $stats['stats']);
+        static::assertIsArray($stats['stats']['messageTypeStats']);
+        static::assertArrayHasKey('type', $stats['stats']['messageTypeStats'][0]);
+        static::assertSame('stdClass', $stats['stats']['messageTypeStats'][0]['type']);
+        static::assertArrayHasKey('count', $stats['stats']['messageTypeStats'][0]);
     }
 
     private function createApp(string $appId, string $aclRoleId): void

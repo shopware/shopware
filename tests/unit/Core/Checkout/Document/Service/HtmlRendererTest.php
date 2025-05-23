@@ -31,7 +31,7 @@ class HtmlRendererTest extends TestCase
     {
         $htmlRenderer = new HtmlRenderer($this->createMock(DocumentTemplateRenderer::class), '', new ExtensionDispatcher(new EventDispatcher()));
 
-        static::assertEquals('text/html', $htmlRenderer->getContentType());
+        static::assertSame('text/html', $htmlRenderer->getContentType());
     }
 
     public function testExtensionIsDispatched(): void
@@ -108,7 +108,7 @@ class HtmlRendererTest extends TestCase
         $generatorOutput = $htmlRenderer->render($rendered);
 
         static::assertNotEmpty($generatorOutput);
-        static::assertEquals($html, $generatorOutput);
+        static::assertSame($html, $generatorOutput);
 
         static::assertSame(HtmlRenderer::FILE_EXTENSION, $rendered->getFileExtension());
         static::assertSame(HtmlRenderer::FILE_CONTENT_TYPE, $rendered->getContentType());
@@ -136,7 +136,7 @@ class HtmlRendererTest extends TestCase
 
         $generatorOutput = $htmlRenderer->render($rendered);
 
-        static::assertEquals('', $generatorOutput);
+        static::assertSame('', $generatorOutput);
     }
 
     public function testRenderThrowException(): void

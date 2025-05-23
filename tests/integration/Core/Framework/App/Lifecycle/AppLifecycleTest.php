@@ -515,7 +515,7 @@ class AppLifecycleTest extends TestCase
             $appEntity->getIcon()
         );
         static::assertSame('1.0.0', $appEntity->getVersion());
-        static::assertNotEquals('test', $appEntity->getTranslation('label'));
+        static::assertNotSame('test', $appEntity->getTranslation('label'));
         static::assertTrue($appEntity->getAllowDisable());
 
         $this->assertDefaultActionButtons();
@@ -710,7 +710,7 @@ class AppLifecycleTest extends TestCase
         );
         static::assertSame('1.0.0', $appEntity->getVersion());
         static::assertSame('https://base-url.com', $appEntity->getBaseAppUrl());
-        static::assertNotEquals('test', $appEntity->getTranslation('label'));
+        static::assertNotSame('test', $appEntity->getTranslation('label'));
         static::assertTrue($appEntity->getAllowDisable());
 
         $this->assertDefaultActionButtons();

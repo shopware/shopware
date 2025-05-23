@@ -96,8 +96,12 @@ class RegisterRoute extends AbstractRegisterRoute
     }
 
     #[Route(path: '/store-api/account/register', name: 'store-api.account.register', methods: ['POST'])]
-    public function register(RequestDataBag $data, SalesChannelContext $context, bool $validateStorefrontUrl = true, ?DataValidationDefinition $additionalValidationDefinitions = null): CustomerResponse
-    {
+    public function register(
+        RequestDataBag $data,
+        SalesChannelContext $context,
+        bool $validateStorefrontUrl = true,
+        ?DataValidationDefinition $additionalValidationDefinitions = null
+    ): CustomerResponse {
         EmailIdnConverter::encodeDataBag($data);
 
         $isGuest = $data->getBoolean('guest');
@@ -307,8 +311,13 @@ class RegisterRoute extends AbstractRegisterRoute
         return $customer;
     }
 
-    private function validateRegistrationData(DataBag $data, bool $isGuest, SalesChannelContext $context, ?DataValidationDefinition $additionalValidations, bool $validateStorefrontUrl): void
-    {
+    private function validateRegistrationData(
+        DataBag $data,
+        bool $isGuest,
+        SalesChannelContext $context,
+        ?DataValidationDefinition $additionalValidations,
+        bool $validateStorefrontUrl
+    ): void {
         $billingAddress = $data->get('billingAddress');
         $shippingAddress = $data->get('shippingAddress');
         if ($billingAddress instanceof DataBag) {
@@ -327,7 +336,7 @@ class RegisterRoute extends AbstractRegisterRoute
 
         if ($validateStorefrontUrl) {
             $definition
-                ->add('storefrontUrl', new NotBlank(), new Choice(array_values($this->getDomainUrls($context))));
+                ->add('storefrontUrl', new NotBlank(), new Choice($this->getDomainUrls($context)));
         }
 
         $accountType = $data->get('accountType', CustomerEntity::ACCOUNT_TYPE_PRIVATE);
@@ -375,14 +384,14 @@ class RegisterRoute extends AbstractRegisterRoute
     }
 
     /**
-     * @return array<int, string>
+     * @return list<string>
      */
     private function getDomainUrls(SalesChannelContext $context): array
     {
-        /** @var SalesChannelDomainCollection $salesChannelDomainCollection */
         $salesChannelDomainCollection = $context->getSalesChannel()->getDomains();
+        \assert($salesChannelDomainCollection instanceof SalesChannelDomainCollection);
 
-        return array_map(static fn (SalesChannelDomainEntity $domainEntity) => rtrim($domainEntity->getUrl(), '/'), $salesChannelDomainCollection->getElements());
+        return array_values(array_map(static fn (SalesChannelDomainEntity $domainEntity) => rtrim($domainEntity->getUrl(), '/'), $salesChannelDomainCollection->getElements()));
     }
 
     private function getBirthday(DataBag $data): ?\DateTimeInterface
@@ -445,8 +454,12 @@ class RegisterRoute extends AbstractRegisterRoute
         return $customer;
     }
 
-    private function getCreateAddressValidationDefinition(DataBag $data, ?string $accountType, DataBag $address, SalesChannelContext $context): DataValidationDefinition
-    {
+    private function getCreateAddressValidationDefinition(
+        DataBag $data,
+        ?string $accountType,
+        DataBag $address,
+        SalesChannelContext $context
+    ): DataValidationDefinition {
         $validation = $this->addressValidationFactory->create($context);
 
         if ($accountType === CustomerEntity::ACCOUNT_TYPE_BUSINESS
@@ -478,7 +491,11 @@ class RegisterRoute extends AbstractRegisterRoute
 
         if (!$isGuest) {
             $minLength = $this->systemConfigService->get('core.loginRegistration.passwordMinLength', $context->getSalesChannelId());
-            $validation->add('password', new NotBlank(), new Length(['min' => $minLength, 'max' => PasswordHasherInterface::MAX_PASSWORD_LENGTH, 'maxMessage' => 'VIOLATION::PASSWORD_IS_TOO_LONG']));
+            $validation->add(
+                'password',
+                new NotBlank(),
+                new Length(['min' => $minLength, 'max' => PasswordHasherInterface::MAX_PASSWORD_LENGTH, 'maxMessage' => 'VIOLATION::PASSWORD_IS_TOO_LONG'])
+            );
             $options = ['context' => $context->getContext(), 'salesChannelContext' => $context];
             $validation->add('email', new CustomerEmailUnique($options));
         }
@@ -545,7 +562,6 @@ class RegisterRoute extends AbstractRegisterRoute
     {
         $query = $this->connection->createQueryBuilder();
 
-        /** @var array{email: string, guest: int, bound_sales_channel_id: string|null}[] $results */
         $results = $query
             ->select('LOWER(HEX(bound_sales_channel_id)) as bound_sales_channel_id')
             ->from('customer')

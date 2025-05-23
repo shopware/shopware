@@ -48,20 +48,20 @@ class IncrementerGatewayCompilerPassTest extends TestCase
         // user_activity pool is registered
         static::assertTrue($container->hasDefinition('shopware.increment.user_activity.gateway.mysql'));
         $definition = $container->getDefinition('shopware.increment.user_activity.gateway.mysql');
-        static::assertEquals(MySQLIncrementer::class, $definition->getClass());
+        static::assertSame(MySQLIncrementer::class, $definition->getClass());
         static::assertTrue($definition->hasTag('shopware.increment.gateway'));
 
         // message_queue pool is registered
         static::assertTrue($container->hasDefinition('shopware.increment.message_queue.redis_adapter'));
         static::assertTrue($container->hasDefinition('shopware.increment.message_queue.gateway.redis'));
         $definition = $container->getDefinition('shopware.increment.message_queue.gateway.redis');
-        static::assertEquals(RedisIncrementer::class, $definition->getClass());
+        static::assertSame(RedisIncrementer::class, $definition->getClass());
         static::assertTrue($definition->hasTag('shopware.increment.gateway'));
 
         // another_pool is registered
         static::assertNotNull($container->hasDefinition('shopware.increment.message_queue.gateway.redis'));
         $definition = $container->getDefinition('shopware.increment.message_queue.gateway.redis');
-        static::assertEquals(RedisIncrementer::class, $definition->getClass());
+        static::assertSame(RedisIncrementer::class, $definition->getClass());
         static::assertTrue($definition->hasTag('shopware.increment.gateway'));
     }
 
@@ -105,7 +105,7 @@ class IncrementerGatewayCompilerPassTest extends TestCase
         // custom_pool pool is registered
         static::assertTrue($container->hasDefinition('shopware.increment.custom_pool.gateway.custom_type'));
         $definition = $container->getDefinition('shopware.increment.custom_pool.gateway.custom_type');
-        static::assertEquals($customGateway::class, $definition->getClass());
+        static::assertSame($customGateway::class, $definition->getClass());
         static::assertTrue($definition->hasTag('shopware.increment.gateway'));
     }
 
@@ -131,7 +131,7 @@ class IncrementerGatewayCompilerPassTest extends TestCase
         // custom_pool pool is registered
         static::assertTrue($container->hasDefinition('shopware.increment.custom_pool.gateway.custom_type'));
         $definition = $container->getDefinition('shopware.increment.custom_pool.gateway.custom_type');
-        static::assertEquals($customGateway::class, $definition->getClass());
+        static::assertSame($customGateway::class, $definition->getClass());
         static::assertTrue($definition->hasTag('shopware.increment.gateway'));
     }
 

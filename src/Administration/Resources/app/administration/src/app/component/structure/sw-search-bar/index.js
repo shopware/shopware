@@ -870,7 +870,7 @@ export default {
                 return [];
             }
 
-            const moduleEntities = [];
+            let moduleEntities = [];
 
             this.searchableModules.forEach((module) => {
                 const matcher =
@@ -894,6 +894,8 @@ export default {
             });
 
             moduleEntities.push(...this.getSalesChannelTypesBySearchTerm(regex));
+
+            moduleEntities = moduleEntities.filter((item) => item?.entity);
 
             return moduleEntities.slice(0, limit);
         },
@@ -987,7 +989,9 @@ export default {
                     return {
                         entity: 'frequently_used',
                         total: entities.length,
-                        entities: entities?.map((item) => this.getInfoModuleFrequentlyUsed(item)),
+                        entities: entities
+                            ?.map((item) => this.getInfoModuleFrequentlyUsed(item))
+                            .filter((item) => item),
                     };
                 })
                 .catch(() => {});
@@ -1060,7 +1064,7 @@ export default {
             const module = this.moduleFactory.getModuleByKey('name', moduleName);
 
             if (!module) {
-                return {};
+                return null;
             }
 
             const { routes, ...manifest } = module.manifest;

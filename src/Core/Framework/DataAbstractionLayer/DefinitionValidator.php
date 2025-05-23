@@ -96,6 +96,7 @@ class DefinitionValidator
         'elasticsearch_index_task',
         'increment',
         'messenger_messages',
+        'messenger_stats',
         'payment_token',
         'refresh_token',
         'usage_data_entity_deletion',

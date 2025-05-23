@@ -1,27 +1,26 @@
 {% block sw_media_display_options %}
-<div class="sw-media-display-options">
-    {% block sw_media_display_options_presentation %}
-    <mt-select
-        v-if="!hidePresentation"
-        name="presentation"
-        small
-        :options="presentationOptions"
-        :label="$tc('sw-media.presentation.labelPresentation')"
-        class="sw-media-display-options__label-presentation"
-        :model-value="presentation"
-        @update:model-value="onPresentationChanged"
-    />
-    {% endblock %}
+{% block sw_media_display_options_presentation %}
+<mt-select
+    v-if="!hidePresentation"
+    name="presentation"
+    small
+    :options="presentationOptions"
+    :label="$tc('sw-media.presentation.labelPresentation')"
+    class="sw-media-display-options__label-presentation"
+    :model-value="presentation"
+    @update:model-value="onPresentationChanged"
+/>
+{% endblock %}
 
-    {% block sw_media_display_options_sorting %}
-    <mt-select
-        name="sortType"
-        small
-        :options="sortOptionsSelect"
-        :label="$tc('sw-media.sorting.labelSort')"
-        :model-value="sortingConCat"
-        @update:model-value="onSortingChanged"
-    />
-    {% endblock %}
-</div>
+{% block sw_media_display_options_sorting %}
+<mt-select
+    name="sortType"
+    small
+    :options="sortOptionsSelect"
+    :label="$tc('sw-media.sorting.labelSort')"
+    class="sw-media-display-options__label-sort"
+    :model-value="sortingConCat"
+    @update:model-value="onSortingChanged"
+/>
+{% endblock %}
 {% endblock %}

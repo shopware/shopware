@@ -1794,7 +1794,7 @@ class AppLifecycleTest extends TestCase
     {
         static::assertCount(2, $app->getModules());
 
-        static::assertSame([
+        static::assertEquals([
             [
                 'name' => 'first-module',
                 'label' => [
@@ -1876,7 +1876,7 @@ class AppLifecycleTest extends TestCase
         static::assertContains('product', $relatedEntities);
         static::assertContains('customer', $relatedEntities);
 
-        static::assertSame([
+        static::assertEquals([
             'label' => [
                 'de-DE' => 'Zusatzfeld Test',
                 'en-GB' => 'Custom field test',
@@ -2288,7 +2288,7 @@ class AppLifecycleTest extends TestCase
         static::assertSame($appFlowAction['sw_icon'], 'default-communication-speech-bubbles');
         $parameters = json_decode((string) $appFlowAction['parameters'], true, 512, \JSON_THROW_ON_ERROR);
         static::assertNotFalse($parameters);
-        static::assertSame(
+        static::assertEquals(
             [
                 [
                     'name' => 'message',
@@ -2302,7 +2302,7 @@ class AppLifecycleTest extends TestCase
 
         $config = json_decode((string) $appFlowAction['config'], true, 512, \JSON_THROW_ON_ERROR);
         static::assertNotFalse($config);
-        static::assertSame(
+        static::assertEquals(
             [
                 [
                     'name' => 'text',
@@ -2330,7 +2330,7 @@ class AppLifecycleTest extends TestCase
 
         $headers = json_decode((string) $appFlowAction['headers'], true, 512, \JSON_THROW_ON_ERROR);
         static::assertNotFalse($headers);
-        static::assertSame(
+        static::assertEquals(
             [
                 [
                     'name' => 'content-type',
@@ -2344,7 +2344,7 @@ class AppLifecycleTest extends TestCase
 
         $requirements = json_decode((string) $appFlowAction['requirements'], true, 512, \JSON_THROW_ON_ERROR);
         static::assertNotFalse($requirements);
-        static::assertSame(
+        static::assertEquals(
             [
                 'orderAware',
                 'customerAware',

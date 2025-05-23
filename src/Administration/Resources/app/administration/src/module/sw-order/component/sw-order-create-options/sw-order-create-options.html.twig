@@ -131,9 +131,8 @@
             v-model:value="shippingCost"
             class="sw-order-create-options__shipping-cost"
             :label="$tc('sw-order.initialModal.options.labelShippingCosts')"
-            :step="1"
             :min="0"
-            @update:model-value="onChangeShippingCost"
+            @update:value="onChangeShippingCost"
         >
             <template #suffix>
                 {{ currency.symbol }}

@@ -24,7 +24,6 @@ body:
               - Extension:B2B-Suite
               - Extension:CMS-Extensions
               - Extension:Custom-Products
-              - Extension:DHL-App
               - Extension:Digital-Sales-Room
               - Extension:Dynamic-Access
               - Extension:Language-Pack

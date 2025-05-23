@@ -62,17 +62,18 @@
                     {% block sw_theme_manager_detail_smart_bar_actions_save_context_menu %}
                         <sw-context-button>
                             <template #button>
-                                <sw-button
+                                <mt-button
                                     class="sw_theme_manager_detail__button-context-menu"
                                     square
                                     variant="primary"
                                     :disabled="isLoading || !acl.can('theme.editor')"
+                                    size="default"
                                 >
-                                    <sw-icon
-                                            name="regular-chevron-down-xs"
-                                            size="16"
+                                    <mt-icon
+                                        name="regular-chevron-down-xs"
+                                        size="16"
                                     />
-                                </sw-button>
+                                </mt-button>
                             </template>
 
                             {% block sw_theme_manager_detail_smart_bar_actions_save_context_menu_actions %}
@@ -450,22 +451,23 @@
                     {% block sw_theme_manager_reset_modal_footer %}
                         <template #modal-footer>
                             {% block sw_theme_manager_reset_modal_cancel %}
-                                <sw-button
+                                <mt-button
                                     size="small"
+                                    variant="primary"
                                     @click="onCloseResetModal"
                                 >
                                     {{ $t('global.default.cancel') }}
-                                </sw-button>
+                                </mt-button>
                             {% endblock %}
 
                             {% block sw_theme_manager_reset_modal_confirm %}
-                                <sw-button
+                                <mt-button
                                     size="small"
-                                    variant="danger"
+                                    variant="critical"
                                     @click="onConfirmThemeReset"
                                 >
                                     {{ $t('sw-theme-manager.actions.buttonReset') }}
-                                </sw-button>
+                                </mt-button>
                             {% endblock %}
                      </template>
                     {% endblock %}
@@ -487,22 +489,23 @@
                     {% block sw_theme_manager_detail_delete_modal_footer %}
                         <template #modal-footer>
                             {% block sw_theme_manager_detail_delete_modal_cancel %}
-                                <sw-button
+                                <mt-button
+                                    variant="secondary"
                                     size="small"
                                     @click="onCloseDeleteModal"
                                 >
                                     {{ $t('global.default.cancel') }}
-                                </sw-button>
+                                </mt-button>
                             {% endblock %}
 
                             {% block sw_theme_manager_detail_delete_modal_confirm %}
-                                <sw-button
-                                    variant="danger"
+                                <mt-button
+                                    variant="critical"
                                     size="small"
                                     @click="onConfirmThemeDelete"
                                 >
                                     {{ $t('global.default.delete') }}
-                                </sw-button>
+                                </mt-button>
                             {% endblock %}
                         </template>
                     {% endblock %}
@@ -564,22 +567,23 @@
                     {% block sw_theme_manager_detail_save_modal_footer %}
                         <template #modal-footer>
                             {% block sw_theme_manager_detail_save_modal_cancel %}
-                                <sw-button
+                                <mt-button
+                                    variant="secondary"
                                     size="small"
                                     @click="onCloseSaveModal"
                                 >
                                     {{ $t('global.default.cancel') }}
-                                </sw-button>
+                                </mt-button>
                             {% endblock %}
 
                             {% block sw_theme_manager_detail_save_modal_confirm %}
-                                <sw-button
+                                <mt-button
                                     variant="primary"
                                     size="small"
                                     @click="onConfirmThemeSave"
                                 >
                                     {{ $t('global.default.save') }}
-                                </sw-button>
+                                </mt-button>
                             {% endblock %}
                         </template>
                     {% endblock %}
@@ -609,19 +613,24 @@
                     {% block sw_theme_manager_detail_duplicate_modal_footer %}
                         <template #modal-footer>
                             {% block sw_theme_manager_detail_duplicate_modal_cancel %}
-                                <sw-button @click="onCloseDuplicateModal"
-                                           size="small">
+                                <mt-button
+                                    variant="primary"
+                                    size="small"
+                                    @click="onCloseDuplicateModal"
+                                >
                                     {{ $t('global.default.cancel') }}
-                                </sw-button>
+                                </mt-button>
                             {% endblock %}
 
                             {% block sw_theme_manager_detail_duplicate_modal_confirm %}
-                                <sw-button @click="onConfirmThemeDuplicate"
-                                           variant="primary"
-                                           :disabled="newThemeName.length < 3"
-                                           size="small">
+                                <mt-button
+                                    variant="primary"
+                                    :disabled="newThemeName.length < 3"
+                                    size="small"
+                                    @click="onConfirmThemeDuplicate"
+                                >
                                     {{ $t('sw-theme-manager.modal.buttonDuplicateTheme') }}
-                                </sw-button>
+                                </mt-button>
                             {% endblock %}
                         </template>
                     {% endblock %}
@@ -651,19 +660,24 @@
                     {% block sw_theme_manager_detail_rename_modal_footer %}
                         <template #modal-footer>
                             {% block sw_theme_manager_detail_rename_modal_cancel %}
-                                <sw-button @click="onCloseRenameModal"
-                                           size="small">
+                                <mt-button
+                                    variant="secondary"
+                                    size="small"
+                                    @click="onCloseRenameModal"
+                                >
                                     {{ $t('global.default.cancel') }}
-                                </sw-button>
+                                </mt-button>
                             {% endblock %}
 
                             {% block sw_theme_manager_detail_rename_modal_confirm %}
-                                <sw-button @click="onConfirmThemeRename"
-                                           variant="primary"
-                                           :disabled="newThemeName.length < 3"
-                                           size="small">
+                                <mt-button
+                                    variant="primary"
+                                    :disabled="newThemeName.length < 3"
+                                    size="small"
+                                    @click="onConfirmThemeRename"
+                                >
                                     {{ $t('global.default.save') }}
-                                </sw-button>
+                                </mt-button>
                             {% endblock %}
                         </template>
                     {% endblock %}
@@ -683,9 +697,13 @@
                     {% block sw_theme_manager_detail_error_modal_footer %}
                         <template #modal-footer>
                             {% block sw_theme_manager_detail_error_modal_close %}
-                                <sw-button size="small" @click="onCloseErrorModal">
+                                <mt-button
+                                    variant="secondary"
+                                    size="small"
+                                    @click="onCloseErrorModal"
+                                >
                                     {{ $t('global.default.close') }}
-                                </sw-button>
+                                </mt-button>
                             {% endblock %}
                         </template>
                     {% endblock %}

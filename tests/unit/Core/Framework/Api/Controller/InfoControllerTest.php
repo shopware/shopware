@@ -17,6 +17,7 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Event\BusinessEventCollector;
 use Shopware\Core\Framework\Increment\IncrementGatewayRegistry;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\MessageQueue\Stats\StatsService;
 use Shopware\Core\Framework\Plugin;
 use Shopware\Core\Framework\Store\InAppPurchase;
 use Shopware\Core\Framework\Test\Store\StaticInAppPurchaseFactory;
@@ -191,6 +192,7 @@ class InfoControllerTest extends TestCase
             ),
             new Filesystem(),
             $this->shopIdProvider,
+            $this->createMock(StatsService::class),
         );
     }
 }

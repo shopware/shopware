@@ -6,11 +6,15 @@ use Shopware\Core\Checkout\Cart\Delivery\Struct\Delivery;
 use Shopware\Core\Checkout\Cart\Delivery\Struct\DeliveryCollection;
 use Shopware\Core\Checkout\Cart\Order\IdStruct;
 use Shopware\Core\Checkout\Cart\Order\OrderConverter;
+use Shopware\Core\Checkout\Cart\Price\Struct\CalculatedPrice;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Struct\Struct;
 
+/**
+ * @phpstan-type DeliveryArray  array{id?: string, shippingDateEarliest: string, shippingDateLatest: string, shippingOrderAddress?: mixed, shippingCosts: CalculatedPrice, positions: array<array{price: CalculatedPrice}>, stateId: string}
+ */
 #[Package('checkout')]
 class DeliveryTransformer
 {
@@ -18,7 +22,7 @@ class DeliveryTransformer
      * @param array<string, array<string, mixed>> $lineItems
      * @param array<int|string, array<string, string|array<mixed>>> $addresses
      *
-     * @return array<int, array<string, mixed>>
+     * @return array<int, DeliveryArray>
      */
     public static function transformCollection(
         DeliveryCollection $deliveries,
@@ -39,7 +43,7 @@ class DeliveryTransformer
      * @param array<string, array<string, mixed>> $lineItems
      * @param array<int|string, array<string, string|array<mixed>>> $addresses
      *
-     * @return array<string, mixed>
+     * @return DeliveryArray
      */
     public static function transform(
         Delivery $delivery,

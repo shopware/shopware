@@ -81,6 +81,7 @@
   padding-inline-start: var(--scale-size-10);
   padding-inline-end: var(--scale-size-16);
   text-decoration: none;
+  transition: font-weight 100ms var(--ease-out-circ);
 
   &:focus-visible {
     outline-offset: var(--scale-size-2);
@@ -126,6 +127,7 @@
   border-radius: var(--border-radius-xs);
   padding-inline-start: var(--scale-size-10);
   padding-inline-end: var(--scale-size-16);
+  transition: font-weight 100ms var(--ease-out-circ);
 
   &:focus-visible {
     outline-offset: var(--scale-size-2);

@@ -52,7 +52,7 @@
                                     }"
                                     :to="{ name: subModule.to }">
                                 <div style="display: grid; place-items: center; width: var(--scale-size-16); height: var(--scale-size-26);">
-                                    <div v-if="subModule.match($route) === 'exact'" style="width: 9px; background: var(--color-border-brand-selected); border-radius: 999px; height: 100%; z-index: 1; border: 3px solid var(--admin-menu-item-background-selected)"></div>
+                                    <MotionDiv :transition="{ type: 'spring', duration: 0.2, bounce: 0}" layoutId="some-element" v-if="subModule.match($route) === 'exact'" style="width: 9px; background: var(--color-border-brand-selected); border-radius: 999px; height: 100%; z-index: 1; border: 3px solid var(--admin-menu-item-background-selected)"></MotionDiv>
                                 </div>
 
                                 <span>{{ subModule.name }}</span>

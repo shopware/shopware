@@ -10,6 +10,7 @@ import {
     RovingFocusGroup
 } from 'reka-ui';
 const { Criteria } = Shopware.Data;
+import {motion} from 'motion-v';
 
 const MODULES = [
     {
@@ -167,7 +168,8 @@ export default {
         PopoverTrigger,
         PopoverPortal,
         RovingFocusGroup,
-        RovingFocusItem
+        RovingFocusItem,
+        MotionDiv: motion.div
     },
 
     inject: [

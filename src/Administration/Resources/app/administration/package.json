@@ -48,7 +48,6 @@
     "safari >= 7"
   ],
   "dependencies": {
-    "reka-ui": "2.2.1",
     "@shopware-ag/meteor-admin-sdk": "^5.9.0",
     "@shopware-ag/meteor-component-library": "^4.11.1",
     "@shopware-ag/meteor-icon-kit": "5.4.0",
@@ -85,6 +84,7 @@
     "md5-es": "1.8.2",
     "mime-types": "^2.1.35",
     "mitt": "3.0.1",
+    "motion-v": "^1.1.0-alpha.1",
     "optional-chaining-codemod": "1.7.0",
     "patch-package": "8.0.0",
     "path-browserify": "^1.0.1",
@@ -93,6 +93,7 @@
     "postcss": "8.5.1",
     "process": "^0.11.10",
     "punycode": "^2.3.1",
+    "reka-ui": "2.2.1",
     "ts-morph": "17.0.1",
     "ts-node": "10.9.2",
     "twig": "1.17.1",

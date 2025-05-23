@@ -25,7 +25,7 @@ class AclFacadeHookFactoryTest extends TestCase
         $context = Context::createCLIContext();
 
         $appContextCreator
-            ->expects(static::once())
+            ->expects($this->once())
             ->method('getAppContext')
             ->with($hook, $script)
             ->willReturn($context);

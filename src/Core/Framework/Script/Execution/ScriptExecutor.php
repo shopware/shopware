@@ -24,6 +24,9 @@ use Symfony\Component\DependencyInjection\Exception\ServiceNotFoundException;
 use Twig\Environment;
 use Twig\Extension\DebugExtension;
 
+/**
+ * @codeCoverageIgnore This class is fully tested by @see \Shopware\Tests\Integration\Core\Framework\Script\Execution\ScriptExecutorTest
+ */
 #[Package('framework')]
 class ScriptExecutor
 {

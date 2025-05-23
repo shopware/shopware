@@ -68,5 +68,4 @@ return (new Config())
         (new Finder())
             ->in([__DIR__ . '/src', __DIR__ . '/tests'])
             ->exclude(['node_modules', '*/vendor/*'])
-            ->notPath('WebInstaller/Tests/_fixtures/Options.php')
     );

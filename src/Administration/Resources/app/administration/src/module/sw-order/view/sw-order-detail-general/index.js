@@ -62,9 +62,11 @@ export default {
             required: true,
         },
 
+        /** @deprecated tag:v6.8.0 - will be removed without replacement */
         isSaveSuccessful: {
             type: Boolean,
-            required: true,
+            required: false,
+            default: false,
         },
     },
 
@@ -75,18 +77,29 @@ export default {
     },
 
     computed: {
+        /** @deprecated tag:v6.8.0 - will be removed, use loading.order instead */
         isLoading: () => Store.get('swOrderDetail').isLoading,
+
+        loading: () => Store.get('swOrderDetail').loading,
 
         order: () => Store.get('swOrderDetail').order,
 
         versionContext: () => Store.get('swOrderDetail').versionContext,
 
         delivery() {
-            return this.order.deliveries[0];
+            if (!Shopware.Feature.isActive('v6.8.0.0')) {
+                return this.order.deliveries[0];
+            }
+
+            return this.order.primaryOrderDelivery;
         },
 
         deliveryDiscounts() {
-            return array.slice(this.order.deliveries, 1) || [];
+            if (!Shopware.Feature.isActive('v6.8.0.0')) {
+                return array.slice(this.order.deliveries, 1) || [];
+            }
+
+            return this.order.deliveries.filter((delivery) => delivery.id !== this.order.primaryOrderDeliveryId);
         },
 
         shippingCostsDetail() {
@@ -182,11 +195,11 @@ export default {
             }
         },
 
+        /**
+         * @deprecated tag:v6.8.0 - will be removed without replacement
+         */
         updateLoading(loadingValue) {
-            Store.get('swOrderDetail').setLoading([
-                'order',
-                loadingValue,
-            ]);
+            Store.get('swOrderDetail').setLoading(['order', loadingValue]);
         },
 
         reloadEntityData() {

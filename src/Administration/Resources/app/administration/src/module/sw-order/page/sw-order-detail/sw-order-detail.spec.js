@@ -383,6 +383,9 @@ describe('src/module/sw-order/page/sw-order-detail', () => {
     it('should handle order address update', async () => {
         wrapper = await createWrapper({
             id: 'order123',
+            primaryOrderDelivery: {
+                id: 'delivery123',
+            },
             deliveries: [
                 {
                     id: 'delivery123',

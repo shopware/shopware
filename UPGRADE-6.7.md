@@ -10,6 +10,14 @@ This means that when your plugins depends on a custom `webpack.config.js` file, 
 Additionally, this means that you will need to distribute a separate plugin version starting for 6.7, when you extend the administration to distribute the correct build files.
 For more information please take a look at the [docs](https://developer.shopware.com/docs/guides/plugins/plugins/administration/system-updates/vite.html).
 
+# Making all administration components async
+We are making all administration components async by default with this PR: https://github.com/shopware/shopware/pull/9129. This means that all components will be loaded asynchronously and not synchronously.
+This can lead to some issues when accessing components directly in the template with a `ref`. If you run into this issue you need to check before accessing the component if it is available. A good pattern for this is to use the `@vue:mounted` event to check if the component is mounted.
+
+Some components are still synchronously loaded, like the `sw-alert` component. This is because they are used in a lot of places and we want to avoid loading them asynchronously everywhere. You can see the full list of components in this file:
+
+`src/Administration/Resources/app/administration/src/app/adapter/view/vue.adapter.ts` (method: `initDependencies`)
+
 # Vue.js Enhancements (full native vue 3 support)
 ## Removal of Vue 2 compatibility layer
 The Vue 2 compatibility layer has been removed from the administration. This means that all components that still rely on Vue 2 features need to be updated.

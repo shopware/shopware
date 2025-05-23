@@ -14,7 +14,6 @@ on:
         type: boolean
         default: false
 
- # Allow updating snapshots during manual runs
   workflow_call:
     inputs:
       update-snapshots:
@@ -25,10 +24,6 @@ on:
         description: 'Running as part of the nightly build?'
         type: boolean
         default: false
-
-  push: # TODO: remove this before merging
-    branches:
-      - feat/visual-tests-workflow
 
 jobs:
   visual-tests:

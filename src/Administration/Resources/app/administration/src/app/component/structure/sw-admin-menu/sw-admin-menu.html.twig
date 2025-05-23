@@ -51,8 +51,8 @@
                                         'router-link-active': subModule.match($route) === 'exact'
                                     }"
                                     :to="{ name: subModule.to }">
-                                <div style="display: grid; place-items: center; width: var(--scale-size-16); height: var(--scale-size-16)">
-                                    <div v-if="subModule.match($route) === 'exact'" style="width: 3px; background: var(--color-border-brand-selected); border-radius: 4px; height: 100%; z-index: 1"></div>
+                                <div style="display: grid; place-items: center; width: var(--scale-size-16); height: var(--scale-size-26);">
+                                    <div v-if="subModule.match($route) === 'exact'" style="width: 9px; background: var(--color-border-brand-selected); border-radius: 999px; height: 100%; z-index: 1; border: 3px solid var(--admin-menu-item-background-selected)"></div>
                                 </div>
 
                                 <span>{{ subModule.name }}</span>

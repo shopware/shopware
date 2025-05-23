@@ -303,6 +303,7 @@ const coreConfig = {
         modules: [
             // statically add the storefront node_modules folder, so sw plugins can resolve it
             path.resolve(__dirname, 'node_modules'),
+            path.resolve(__dirname, 'node_modules/@shopware-ag/dive/node_modules'),
         ],
         alias: {
             src: path.resolve(__dirname, 'src'),

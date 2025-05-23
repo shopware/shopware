@@ -1,16 +1,27 @@
 {% block page_checkout_finish_address_inner %}
     {% set order = page.order %}
-    {% set deliveries = order.deliveries.elements %}
     {% set billingAddress = order.billingAddress %}
+    {# @deprecated tag:v6.8.0 - deliveries will be removed, use primaryOrderDelivery instead #}
+    {% set deliveries = order.deliveries.elements %}
 
-    {% if deliveries|length > 0 and order.billingAddress.id != deliveries|first.shippingOrderAddressId %}
-        {% set shippingAddress = deliveries|first.shippingOrderAddress %}
+    {% if feature('v6.8.0.0') %}
+        {% if order.billingAddress.id != order.primaryOrderDelivery.shippingOrderAddressId %}
+            {% set shippingAddress = order.primaryOrderDelivery.shippingOrderAddress %}
+        {% else %}
+            {% set shippingAddress = billingAddress %}
+        {% endif %}
     {% else %}
-        {% set shippingAddress = billingAddress %}
+        {% if deliveries|length > 0 and order.billingAddress.id != deliveries|first.shippingOrderAddressId %}
+            {% set shippingAddress = deliveries|first.shippingOrderAddress %}
+        {% else %}
+            {% set shippingAddress = billingAddress %}
+        {% endif %}
     {% endif %}
+
     <div class="row">
         {% block page_checkout_finish_address_shipping %}
-            {% if deliveries|length > 0 %}
+            {# @deprecated tag:v6.8.0 - If condition `order.deliveries|length > 0` will be removed. If condition `order.primaryOrderDelivery` will remain in use. #}
+            {% if deliveries|length > 0 or order.primaryOrderDelivery %}
                 <div class="col-sm-6">
                     <div class="card checkout-card">
                         <div class="card-body">

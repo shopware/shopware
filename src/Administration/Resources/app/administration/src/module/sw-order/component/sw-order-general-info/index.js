@@ -142,20 +142,24 @@ export default {
 
         transaction() {
             for (let i = 0; i < this.order.transactions.length; i += 1) {
-                if (
-                    ![
-                        'cancelled',
-                        'failed',
-                    ].includes(this.order.transactions[i].stateMachineState.technicalName)
-                ) {
+                if (!['cancelled', 'failed'].includes(this.order.transactions[i].stateMachineState.technicalName)) {
                     return this.order.transactions[i];
                 }
             }
-            return this.order.transactions.last();
+
+            if (!Shopware.Feature.isActive('v6.8.0.0')) {
+                return this.order.transactions.last();
+            }
+
+            return this.order.primaryOrderTransaction;
         },
 
         delivery() {
-            return this.order.deliveries[0];
+            if (!Shopware.Feature.isActive('v6.8.0.0')) {
+                return this.order.deliveries[0];
+            }
+
+            return this.order.primaryOrderDelivery;
         },
 
         currencyFilter() {
@@ -277,10 +281,7 @@ export default {
         },
 
         getTransitionOptions() {
-            Store.get('swOrderDetail').setLoading([
-                'states',
-                true,
-            ]);
+            Store.get('swOrderDetail').setLoading(['states', true]);
 
             const statePromises = [
                 this.stateMachineService.getState('order', this.order.id),
@@ -329,10 +330,7 @@ export default {
                     return Promise.resolve();
                 })
                 .finally(() => {
-                    Store.get('swOrderDetail').setLoading([
-                        'states',
-                        false,
-                    ]);
+                    Store.get('swOrderDetail').setLoading(['states', false]);
                 });
         },
 

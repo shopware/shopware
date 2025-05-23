@@ -13,6 +13,7 @@
     "/_action/customer-group-registration/accept",
     "/_action/customer-group-registration/decline",
     "/_action/decrement/{pool}",
+    "/_action/delete-increment/{pool}",
     "/_action/extension/activate/{type}/{technicalName}",
     "/_action/extension/deactivate/{type}/{technicalName}",
     "/_action/extension/download/{technicalName}",
@@ -150,7 +151,5 @@
     "/user/{userId}",
     "/user/{userId}/access-keys/{id}",
     "/user/{userId}/acl-roles/{roleId}",
-    "/v1/_info/version",
-    "/_action/delete-increment/{pool}",
-    "/_action/delete-increment/{pool}"
+    "/v1/_info/version"
 ]

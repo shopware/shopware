@@ -1,5 +1,6 @@
 ---
 title: Added new increment api to delete unused keys or cluster
+issue: #9826
 ---
 # Core
 * Added new public method `delete` in `\Shopware\Core\Framework\Increment\AbstractIncrementer::delete` and its implementations

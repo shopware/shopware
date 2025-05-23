@@ -1634,8 +1634,6 @@ describe('src/app/component/structure/sw-search-bar', () => {
         userActivityApiServiceMock.getIncrement.mockRejectedValue(new Error('API Error'));
         wrapper = await createWrapper({}, searchTypeServiceTypes, [], { userActivityApiService: userActivityApiServiceMock });
 
-        const consoleErrorSpy = jest.spyOn(console, 'error').mockImplementation(() => {});
-
         const result = await wrapper.vm.getFrequentlyUsedModules();
 
         expect(userActivityApiServiceMock.getIncrement).toHaveBeenCalledTimes(1);
@@ -1645,8 +1643,6 @@ describe('src/app/component/structure/sw-search-bar', () => {
             entities: [],
         });
         expect(userActivityApiServiceMock.deleteActivityKeys).not.toHaveBeenCalled();
-
-        consoleErrorSpy.mockRestore();
     });
 
     it('should process modules correctly if all exist and getIncrement succeeds', async () => {

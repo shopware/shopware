@@ -1021,7 +1021,6 @@ export default {
                     entities: validInitialModules,
                 };
             } catch (error) {
-                console.error('SearchBar: Failed to get frequently used modules:', error);
                 return {
                     entity: 'frequently_used',
                     total: 0,

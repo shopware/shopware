@@ -17,6 +17,7 @@ use Shopware\Core\Checkout\Document\Service\DocumentGenerator;
 use Shopware\Core\Checkout\Document\Service\DocumentMerger;
 use Shopware\Core\Checkout\Document\Service\PdfRenderer;
 use Shopware\Core\Checkout\Document\Struct\DocumentGenerateOperation;
+use Shopware\Core\Checkout\Order\OrderEntity;
 use Shopware\Core\Content\Media\MediaService;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
@@ -360,12 +361,20 @@ class DocumentMergerTest extends TestCase
         static::assertTrue($zip->open($tempFile), 'failed to open zip file');
         static::assertSame(2, $zip->numFiles, 'zip should contain exactly 2 files');
 
+        $order = static::getContainer()
+            ->get('order.repository')
+            ->search(new Criteria([$this->orderId]), $this->context)
+            ->first();
+        static::assertNotNull($order);
+        static::assertInstanceOf(OrderEntity::class, $order);
+        $orderNumber = $order->getOrderNumber();
+
         for ($i = 0; $i < $zip->numFiles; ++$i) {
             $fileInfo = $zip->statIndex($i);
             static::assertNotFalse($fileInfo);
             static::assertArrayHasKey('name', $fileInfo);
             static::assertSame(
-                DeliveryNoteRenderer::TYPE . '_' . $this->orderId . '_' . $documentNumbers[$i] . '.' . FileTypes::PDF,
+                $orderNumber . '_' . DeliveryNoteRenderer::TYPE . '_' . $documentNumbers[$i] . '.' . FileTypes::PDF,
                 $fileInfo['name']
             );
         }

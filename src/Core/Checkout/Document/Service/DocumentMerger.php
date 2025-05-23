@@ -175,6 +175,7 @@ final class DocumentMerger
     {
         $criteria = (new Criteria($documentIds))
             ->addAssociation('documentType')
+            ->addAssociation('order')
             ->addSorting(new FieldSorting('order.orderNumber'));
 
         $documents = $this->documentRepository->search($criteria, $context)->getEntities();
@@ -215,8 +216,9 @@ final class DocumentMerger
             });
 
             $technicalName = $document->getDocumentType()?->getTechnicalName() ?? 'unknown';
+            $orderNumber = $document->getOrder()?->getOrderNumber() ?? $document->getOrderId();
             $documentNumber = $document->getDocumentNumber() ?? $document->getId();
-            $name = $technicalName . '_' . $document->getOrderId() . '_' . $documentNumber . '.' . PdfRenderer::FILE_EXTENSION;
+            $name = $orderNumber . '_' . $technicalName . '_' . $documentNumber . '.' . PdfRenderer::FILE_EXTENSION;
 
             $zip->addFromString($name, $fileContent);
 

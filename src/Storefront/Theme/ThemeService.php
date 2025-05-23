@@ -161,14 +161,16 @@ class ThemeService implements ResetInterface
 
     public function assignTheme(string $themeId, string $salesChannelId, Context $context, bool $skipCompile = false): bool
     {
-        if (!$skipCompile) {
-            $this->compileTheme($salesChannelId, $themeId, $context);
-        }
+        $this->connection->transactional(function () use ($themeId, $salesChannelId, $context, $skipCompile): void {
+            if (!$skipCompile) {
+                $this->compileTheme($salesChannelId, $themeId, $context);
+            }
 
-        $this->themeSalesChannelRepository->upsert([[
-            'themeId' => $themeId,
-            'salesChannelId' => $salesChannelId,
-        ]], $context);
+            $this->themeSalesChannelRepository->upsert([[
+                'themeId' => $themeId,
+                'salesChannelId' => $salesChannelId,
+            ]], $context);
+        });
 
         $this->dispatcher->dispatch(new ThemeAssignedEvent($themeId, $salesChannelId));
 

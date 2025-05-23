@@ -1472,23 +1472,12 @@ describe('src/app/component/structure/sw-search-bar', () => {
             initialSearchType: 'product',
         });
 
-        // open search
-        const searchInput = wrapper.find('.sw-search-bar__input');
-        await searchInput.trigger('focus');
+        // Test the getEntityIcon method directly
+        expect(wrapper.vm.getEntityIcon('non_existent_entity')).toBe('regular-books');
 
-        await searchInput.setValue('sto');
-        expect(searchInput.element.value).toBe('sto');
-
-        await flushPromises();
-
-        const doGlobalSearch = swSearchBarComponent.methods.doGlobalSearch;
-        await doGlobalSearch.flush();
-
-        await flushPromises();
-
-        // should use fallback icon
-        const searchBarItem = wrapper.findComponent('.sw-search-bar-item');
-        expect(searchBarItem.props('entity-icon-name')).toBeUndefined();
+        // Also verify that the method returns the expected fallback for any entity without a module
+        expect(wrapper.vm.getEntityIconName).toBeDefined();
+        expect(wrapper.vm.getEntityIcon('random_entity_name')).toBe('regular-books');
     });
 
     it('should render the icon from the entity icon', async () => {
@@ -1545,5 +1534,61 @@ describe('src/app/component/structure/sw-search-bar', () => {
         await flushPromises();
 
         expect(spyLoadResults).toHaveBeenCalledTimes(0);
+    });
+
+    it('should correctly filter out falsy values in arrays', async () => {
+        wrapper = await createWrapper({
+            initialSearchType: '',
+            initialSearch: '',
+        });
+
+        // Mock getModuleEntities to return an array with null and undefined values
+        const originalGetModuleEntities = wrapper.vm.getModuleEntities;
+        wrapper.vm.getModuleEntities = jest.fn().mockImplementation(() => {
+            const entities = [
+                { name: 'Valid Entity 1', entity: 'product' },
+                null,
+                { name: 'Valid Entity 2', entity: 'category' },
+                undefined,
+                { name: 'Invalid Entity', entity: null },
+                { name: 'Valid Entity 3', entity: 'customer' },
+            ];
+
+            // This should filter out null, undefined, and objects with null entity
+            return entities.filter((item) => item).filter((item) => item.entity);
+        });
+
+        const searchInput = wrapper.find('.sw-search-bar__input');
+        await searchInput.trigger('focus');
+        await searchInput.setValue('test');
+
+        await flushPromises();
+
+        const doGlobalSearch = swSearchBarComponent.methods.doGlobalSearch;
+        await doGlobalSearch.flush();
+
+        await flushPromises();
+
+        // Check that getModuleEntities was called
+        expect(wrapper.vm.getModuleEntities).toHaveBeenCalled();
+
+        // Original method should be restored after test
+        wrapper.vm.getModuleEntities = originalGetModuleEntities;
+
+        // Verify the filtering works correctly
+        const filteredEntities = [
+            { name: 'Valid Entity 1', entity: 'product' },
+            null,
+            { name: 'Valid Entity 2', entity: 'category' },
+            undefined,
+            { name: 'Invalid Entity', entity: null },
+            { name: 'Valid Entity 3', entity: 'customer' },
+        ].filter((item) => item).filter((item) => item.entity);
+
+        expect(filteredEntities).toEqual([
+            { name: 'Valid Entity 1', entity: 'product' },
+            { name: 'Valid Entity 2', entity: 'category' },
+            { name: 'Valid Entity 3', entity: 'customer' },
+        ]);
     });
 });

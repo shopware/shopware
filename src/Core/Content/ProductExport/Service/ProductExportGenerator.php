@@ -182,8 +182,10 @@ class ProductExportGenerator implements ProductExportGeneratorInterface
 
         $content = $this->seoUrlPlaceholderHandler->replace($content, $domain->getUrl(), $context);
 
+        $encodedContent = mb_convert_encoding($content, $productExport->getEncoding());
+        \assert(\is_string($encodedContent));
         $encodingEvent = $this->eventDispatcher->dispatch(
-            new ProductExportChangeEncodingEvent($productExport, $content, mb_convert_encoding($content, $productExport->getEncoding()))
+            new ProductExportChangeEncodingEvent($productExport, $content, $encodedContent)
         );
 
         $this->translator->resetInjection();

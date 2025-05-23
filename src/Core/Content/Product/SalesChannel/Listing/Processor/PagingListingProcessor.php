@@ -66,10 +66,7 @@ class PagingListingProcessor extends AbstractListingProcessor
     private function getPage(Request $request): ?int
     {
         $page = $request->query->has('p') ? $request->query->getInt('p') : null;
-
-        if ($request->isMethod(Request::METHOD_POST)) {
-            return $request->request->has('p') ? $request->request->getInt('p') : $page;
-        }
+        $page = $request->request->has('p') ? $request->request->getInt('p') : $page;
 
         return $page;
     }

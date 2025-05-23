@@ -65,92 +65,16 @@ class PagingListingProcessorTest extends TestCase
             'limit' => 50,
         ];
 
-        $postRequest = new Request();
-        $postRequest->setMethod(Request::METHOD_POST);
-
-        yield 'Empty criteria, empty post request' => [
-            'criteria' => new Criteria(),
-            'request' => $postRequest,
-            'page' => 1,
-            'limit' => 24,
-        ];
-
-        $postRequest = new Request(['p' => 2]);
-        $postRequest->setMethod(Request::METHOD_POST);
-
-        yield 'Empty criteria, post request with page (query)' => [
-            'criteria' => new Criteria(),
-            'request' => $postRequest,
-            'page' => 2,
-            'limit' => 24,
-        ];
-
-        $postRequest = new Request(request: ['p' => 2]);
-        $postRequest->setMethod(Request::METHOD_POST);
-
-        yield 'Empty criteria, post request with page (body)' => [
-            'criteria' => new Criteria(),
-            'request' => $postRequest,
-            'page' => 2,
-            'limit' => 24,
-        ];
-
-        $postRequest = new Request();
-        $postRequest->setMethod(Request::METHOD_POST);
-
-        yield 'Criteria with limit, empty post request' => [
-            'criteria' => (new Criteria())->setLimit(50),
-            'request' => $postRequest,
-            'page' => 1,
-            'limit' => 50,
-        ];
-
-        $postRequest = new Request(['p' => 2]);
-        $postRequest->setMethod(Request::METHOD_POST);
-
-        yield 'Criteria with limit, post request with page (query)' => [
-            'criteria' => (new Criteria())->setLimit(50),
-            'request' => $postRequest,
-            'page' => 2,
-            'limit' => 50,
-        ];
-
-        $postRequest = new Request(request: ['p' => 2]);
-        $postRequest->setMethod(Request::METHOD_POST);
-
-        yield 'Criteria with limit, post request with page (body)' => [
-            'criteria' => (new Criteria())->setLimit(50),
-            'request' => $postRequest,
-            'page' => 2,
-            'limit' => 50,
-        ];
-
-        $postRequest = new Request();
-        $postRequest->setMethod(Request::METHOD_POST);
-
-        yield 'Criteria with limit & page, empty post request' => [
-            'criteria' => (new Criteria())->setLimit(50)->setOffset(50),
-            'request' => $postRequest,
-            'page' => 2,
-            'limit' => 50,
-        ];
-
-        $postRequest = new Request(['p' => 2]);
-        $postRequest->setMethod(Request::METHOD_POST);
-
-        yield 'Criteria with limit & page, post request with page (should use request query parameter over criteria)' => [
+        yield 'Criteria with limit & page, request with page (should use request body parameter over criteria)' => [
             'criteria' => (new Criteria())->setLimit(50)->setOffset(200),
-            'request' => $postRequest,
+            'request' => new Request(request: ['p' => 2]),
             'page' => 2,
             'limit' => 50,
         ];
-
-        $postRequest = new Request(['p' => 2], request: ['p' => 3]);
-        $postRequest->setMethod(Request::METHOD_POST);
 
         yield 'Criteria with limit & page, post request with page (should use request body parameter over query parameter and criteria)' => [
             'criteria' => (new Criteria())->setLimit(50)->setOffset(200),
-            'request' => $postRequest,
+            'request' => new Request(['p' => 2], ['p' => 3]),
             'page' => 3,
             'limit' => 50,
         ];

@@ -197,8 +197,10 @@ export default {
 
         // @deprecated tag:v6.8.0 - Will be removed, change shipping cost on order general view instead.
         onShippingChargeEdited: Utils.debounce(function onShippingChargeEdited(amount) {
-            this.delivery.shippingCosts.unitPrice = amount;
-            this.delivery.shippingCosts.totalPrice = amount;
+            if (amount >= 0) {
+                this.delivery.shippingCosts.unitPrice = amount;
+                this.delivery.shippingCosts.totalPrice = amount;
+            }
 
             this.saveAndRecalculate();
         }, 800),

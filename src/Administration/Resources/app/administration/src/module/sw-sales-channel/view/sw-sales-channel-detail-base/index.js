@@ -744,7 +744,7 @@ export default {
                 paymentSettingsLink: routeData.href,
             };
 
-            return this.$tc(snippet, collection.length, data);
+            return this.$t(snippet, data, collection.length);
         },
 
         buildDisabledShippingAlert(snippet, collection, property = 'name') {

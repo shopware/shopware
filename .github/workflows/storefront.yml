@@ -22,7 +22,7 @@ jobs:
           shopware-repository: ${{ github.repository }}
 
       - name: Cache ESLint and Stylelint
-        uses: actions/cache@d4323d4df104b026a6aa633fdb11d772146be0bf # 4
+        uses: actions/cache@5a3ec84eff668545956fd18022155c47e93e2684 # 4
         with:
           path: |
             src/Storefront/Resources/app/storefront/node_modules/.eslintcache
@@ -101,7 +101,7 @@ jobs:
           npm run unit -- --silent
 
       - name: Upload coverage
-        uses: codecov/codecov-action@0565863a31f2c772f9f0395002a31e3f06189574 # 5
+        uses: codecov/codecov-action@18283e04ce6e62d37312384ff67231eb8fd56d24 # 5
         env:
           CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
         with:
@@ -116,7 +116,7 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # 4
-      - uses: actions/setup-node@cdca7365b2dadb8aad0a33bc7601856ffabcc48e # 4
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # 4
         with:
           node-version: 22
       - name: install packages

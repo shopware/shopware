@@ -16,7 +16,7 @@
                                 {% block element_image_media %}
                                     {% set attributes = {
                                         'class': 'cms-image',
-                                        'alt': element.translated.config.isDecorative.value ? ' ' : (element.data.media.translated.alt ?: ''),
+                                        'alt': element.translated.config.isDecorative.value ? '' : (element.data.media.translated.alt ?: ''),
                                         'title': element.translated.config.isDecorative.value ? '' : (element.data.media.translated.title ?: ''),
                                         'loading': 'lazy'
                                     } %}

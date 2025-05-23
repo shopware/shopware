@@ -547,9 +547,7 @@ Component.register('sw-theme-manager-detail', {
             this.removeInheritedFromChangeset(allValues);
 
             // Theme has to be reset, because inherited fields needs to be removed from the set
-            return this.themeService.resetTheme(this.themeId).then(() => {
-                return this.themeService.updateTheme(this.themeId, { config: allValues });
-            });
+            return this.themeService.updateTheme(this.themeId, { config: allValues }, { reset: true });
         },
 
         saveFinish() {

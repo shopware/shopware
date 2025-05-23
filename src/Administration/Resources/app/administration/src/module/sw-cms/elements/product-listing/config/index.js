@@ -158,6 +158,7 @@ export default {
                     property: 'status',
                     label: 'sw-cms.elements.productListing.config.filter.gridHeaderStatus',
                     disabled: this.showFilterGrid,
+                    align: 'center',
                     width: '70px',
                 },
                 {

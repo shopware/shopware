@@ -132,10 +132,11 @@ class ZugferdDocument
         $tax = $lineItem->getPrice()?->getCalculatedTaxes()?->first();
         $product = $lineItem->getProduct();
 
-        if ($tax === null || ($totalNet = $this->getPrice($tax, self::LINE_TOTAL_AMOUNT)) < 0) {
+        if ($tax === null || ($totalNet = $this->getPrice($tax)) < 0) {
             throw DocumentException::generationError('Price can\'t be negative or null: ' . $lineItem->getLabel());
         }
 
+        $this->addVerticalTaxCalculation(self::LINE_TOTAL_AMOUNT, $tax->getTaxRate(), $tax->getPrice());
         $this->addLineTotalAmount($totalNet);
         $this->zugferdBuilder
             ->addNewPosition($parentPosition . $lineItem->getPosition())
@@ -166,7 +167,8 @@ class ZugferdDocument
             && (abs($lineItem->getTotalPrice()) !== (float) ($lineItem->getPayload()['maxValue'] ?? null));
 
         foreach ($lineItem->getPrice()->getCalculatedTaxes() as $calculatedTax) {
-            $actualAmount = $this->getPrice($calculatedTax, self::ALLOWANCE_AMOUNT);
+            $actualAmount = $this->getPrice($calculatedTax);
+            $this->addVerticalTaxCalculation(self::ALLOWANCE_AMOUNT, $calculatedTax->getTaxRate(), $calculatedTax->getPrice());
 
             $this->addAllowanceAmount($actualAmount);
             $this->zugferdBuilder->addDocumentAllowanceCharge(
@@ -200,7 +202,8 @@ class ZugferdDocument
     {
         foreach ($deliveries as $delivery) {
             foreach ($delivery->getShippingCosts()->getCalculatedTaxes() as $calculatedTax) {
-                $actualAmount = $this->getPrice($calculatedTax, self::CHARGE_AMOUNT);
+                $actualAmount = $this->getPrice($calculatedTax);
+                $this->addVerticalTaxCalculation(self::CHARGE_AMOUNT, $calculatedTax->getTaxRate(), $calculatedTax->getPrice());
 
                 $this->addChargeAmount($actualAmount);
                 $this->zugferdBuilder->addDocumentAllowanceCharge(
@@ -280,15 +283,11 @@ class ZugferdDocument
         $this->allowanceAmount += $allowanceAmount;
     }
 
-    protected function getPrice(CalculatedTax $tax, ?string $type = null): float
+    protected function getPrice(CalculatedTax $tax): float
     {
         $price = $tax->getPrice();
         if ($this->isGross) {
             $price -= $tax->getTax();
-
-            if ($type) {
-                $this->addVerticalTaxCalculation($type, $tax->getTaxRate(), $tax->getPrice());
-            }
         }
 
         return $price;
@@ -296,6 +295,10 @@ class ZugferdDocument
 
     protected function addVerticalTaxCalculation(string $type, float $taxRate, float $amount): void
     {
+        if (!$this->isGross) {
+            return;
+        }
+
         if (!\array_key_exists($type, $this->verticalTaxCalculation)) {
             return;
         }

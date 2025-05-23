@@ -215,12 +215,11 @@ export default {
             }
         },
 
+        /**
+         * @deprecated tag:v6.8.0 - Will be removed without replacement
+         */
         emitLoadingChange(state) {
-            if (this.swOrderDetailOnLoadingChange) {
-                this.swOrderDetailOnLoadingChange(state);
-            } else {
-                this.$emit('loading-change', state);
-            }
+            Shopware.Store.get('swOrderDetail').setLoading(['recalculation', state]);
         },
 
         /**
@@ -245,7 +244,7 @@ export default {
         },
 
         handleError(error) {
-            this.emitLoadingChange(false);
+            Shopware.Store.get('swOrderDetail').setLoading(['recalculation', false]);
 
             if (this.swOrderDetailOnError) {
                 this.swOrderDetailOnError(error);
@@ -281,10 +280,7 @@ export default {
          * @deprecated tag:v6.8.0 - Will be removed without replacement. See `applyAutomaticPromotions` for an alternative
          */
         async toggleAutomaticPromotions(state) {
-            this.emitLoadingChange(true);
-
             if (this.hasOrderUnsavedChanges) {
-                this.emitLoadingChange(false);
                 this.handleUnsavedOrderChangesResponse();
 
                 this.$nextTick(() => {
@@ -293,6 +289,8 @@ export default {
 
                 return Promise.resolve();
             }
+
+            Shopware.Store.get('swOrderDetail').setLoading(['recalculation', true]);
 
             await this.saveAndReload();
             await this.deleteAutomaticPromotions();
@@ -325,6 +323,7 @@ export default {
 
         handlePromotionResponse(response) {
             this.emitEntityData();
+            Shopware.Store.get('swOrderDetail').setLoading(['recalculation', false]);
 
             if (!response?.data?.errors) {
                 return;
@@ -401,7 +400,7 @@ export default {
         },
 
         async onRemoveExistingCode(removedItem) {
-            this.emitLoadingChange(true);
+            Shopware.Store.get('swOrderDetail').setLoading(['recalculation', true]);
 
             const lineItem = this.order.lineItems.find((item) => {
                 return item.type === 'promotion' && item.payload.code === removedItem.code;

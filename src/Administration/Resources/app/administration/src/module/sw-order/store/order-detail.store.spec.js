@@ -18,10 +18,7 @@ describe('src/module/sw-order/state/order-detail.store', () => {
     });
 
     it('should be able to setLoading', () => {
-        Shopware.Store.get('swOrderDetail').setLoading([
-            'order',
-            true,
-        ]);
+        Shopware.Store.get('swOrderDetail').setLoading(['order', true]);
 
         expect(state.loading.order).toBe(true);
         expect(Shopware.Store.get('swOrderDetail').isLoading).toBe(true);

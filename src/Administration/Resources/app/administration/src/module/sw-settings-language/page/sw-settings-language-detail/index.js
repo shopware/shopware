@@ -240,10 +240,13 @@ export default {
                 .then(() => {
                     this.isLoading = false;
                     this.isSaveSuccessful = true;
+
                     if (!this.languageId) {
                         this.$router.push({
                             name: 'sw.settings.language.detail',
                             params: { id: this.language.id },
+                        }).then(() => {
+                            this.loadEntityData();
                         });
                     }
                 })

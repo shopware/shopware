@@ -59,7 +59,7 @@
             "buttonAddSet": "Textbaustein-Set hinzufügen",
             "buttonClone": "Kopieren",
             "buttonImport": "Import",
-            "newSnippetName": "Neues Textbaustein-Set",
+            "newSnippetName": "# Neues Textbaustein-Set",
             "cloneErrorMessage": "Die Kopie konnte nicht erstellt werden.",
             "cloneSuccessMessage": "Die Kopie wurde erfolgreich erstellt.",
             "columnBaseFile": "Basisdatei",

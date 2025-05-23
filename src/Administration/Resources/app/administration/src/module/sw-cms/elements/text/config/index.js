@@ -11,6 +11,8 @@ const { Mixin } = Shopware;
 export default {
     template,
 
+    inject: ['htmlToJsonService'],
+
     emits: ['element-update'],
 
     mixins: [

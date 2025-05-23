@@ -188,6 +188,7 @@ trait AdminApiTestBehaviour
         $data = json_decode($content, true, 512, \JSON_THROW_ON_ERROR);
 
         if (!\array_key_exists('access_token', $data)) {
+            dd($data);
             throw new \RuntimeException(
                 'No token returned from API: ' . ($data['errors'][0]['title'] ?? 'unknown error' . print_r($data, true))
             );

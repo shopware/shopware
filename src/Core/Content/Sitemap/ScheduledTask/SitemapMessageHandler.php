@@ -3,12 +3,14 @@
 namespace Shopware\Core\Content\Sitemap\ScheduledTask;
 
 use Psr\Log\LoggerInterface;
+use Shopware\Core\Content\Sitemap\Event\SitemapSalesChannelContextEvent;
 use Shopware\Core\Content\Sitemap\Exception\AlreadyLockedException;
 use Shopware\Core\Content\Sitemap\Service\SitemapExporterInterface;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\Context\AbstractSalesChannelContextFactory;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextService;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
+use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\Messenger\Attribute\AsMessageHandler;
 
 /**
@@ -26,6 +28,7 @@ final class SitemapMessageHandler
         private readonly SitemapExporterInterface $sitemapExporter,
         private readonly LoggerInterface $logger,
         private readonly SystemConfigService $systemConfigService,
+        private readonly EventDispatcherInterface $eventDispatcher
     ) {
     }
 
@@ -45,10 +48,14 @@ final class SitemapMessageHandler
             return;
         }
 
-        $context = $this->salesChannelContextFactory->create('', $message->getLastSalesChannelId(), [SalesChannelContextService::LANGUAGE_ID => $message->getLastLanguageId()]);
+        $salesChannelContext = $this->salesChannelContextFactory->create('', $message->getLastSalesChannelId(), [SalesChannelContextService::LANGUAGE_ID => $message->getLastLanguageId()]);
+
+        $this->eventDispatcher->dispatch(
+            new SitemapSalesChannelContextEvent($salesChannelContext, $salesChannelContext->getContext())
+        );
 
         try {
-            $this->sitemapExporter->generate($context, true, $message->getLastProvider(), $message->getNextOffset());
+            $this->sitemapExporter->generate($salesChannelContext, true, $message->getLastProvider(), $message->getNextOffset());
         } catch (AlreadyLockedException $exception) {
             $this->logger->error(\sprintf('ERROR: %s', $exception->getMessage()));
         }

@@ -9,10 +9,7 @@ See [backward compatibility](#backward-compatibility) for more information.
 
 ## Create a migration
 
-Use `bin/console database:create-migration` to create a new migration in the next major namespace.
-
-Until `v6.5.0.0` this will create a `'legacy'` migration in the core namespace as well, which simply extends the `'real'` migration.
-This is for backward compatibility, until the feature-flag can be removed.
+Use `bin/console database:create-migration` to create a new migration in the current major namespace.
 
 Make sure to always test your migration against the defined rule set -> [Important Rules](#important-rules)
 
@@ -34,17 +31,15 @@ The migration consists of two separated steps: `update` and `updateDestructive`.
     </tr>
 </table>
 
-> **NOTE:** doctrine/dbal deprecated a lot of functionality for their 3.0.0 release. Please avoid using deprecated methods of `Doctrine\DBAL\Connection`.
-
 ## Backward compatibility
 
-As every other change, also your database changes should always be [backward compatible](/Product/Guides/Development/BackwardCompatibility) for minor and patch releases and support blue-green deployment.
+As every other change, also your database changes should always be [backward compatible](https://developer.shopware.com/docs/resources/guidelines/code/backward-compatibility.html) for minor and patch releases and support blue-green deployment.
 A common technique is the [expand and contract](https://www.tim-wellhausen.de/papers/ExpandAndContract/ExpandAndContract.html) pattern, which will help you to implement your changes in a backward compatible way.
 
 * **Expand**: Instead of renaming an existing column, create a new column with the updated name. (non-destructive)
 * **Migrate**: Move the data from the old column to the new column.
 * **Contract**: Once you verify that your code is functioning correctly with the new column, then delete the old column and make it non-existent.
-  This should only be done in the `updateDestructive` method.
+  This must only be done in the `updateDestructive` method.
 
 ### Mode for executing destructive changes
 
@@ -65,7 +60,7 @@ There are different `version-selection-modes` for customers to choose from when 
     </tr>
 </table>
 
-> **NOTE:** The auto updater will execute migrations in `safe` mode from `v6.4.0.0` on. It behaves like the legacy `all` mode did in the past.
+> **NOTE:** The default mode is `mode=safe`.
 
 ## Migration execution order
 

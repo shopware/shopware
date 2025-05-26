@@ -35,7 +35,7 @@ export default {
             swOrderDetailOnSaveAndRecalculate: this.onSaveAndRecalculate,
             swOrderDetailOnRecalculateAndReload: this.onRecalculateAndReload,
             swOrderDetailOnReloadEntityData: this.reloadEntityData,
-            swOrderDetailOnSaveAndReload: this.onSaveAndReload,
+            swOrderDetailOnSaveAndReload: this.saveAndReload,
             swOrderDetailOnSaveEdits: this.onSaveEdits,
             swOrderDetailAskAndSaveEdits: this.askAndSaveEdits,
             swOrderDetailOnError: this.onError,
@@ -379,20 +379,11 @@ export default {
         },
 
         async onSaveAndRecalculate() {
-            State.commit('swOrderDetail/setLoading', ['order', true]);
-            this.isLoading = true;
-
-            try {
-                await this.orderRepository.save(this.order, this.versionContext);
-                await this.orderService.recalculateOrder(this.orderId, this.versionContext.versionId, {}, {})
+            await this.saveAndReload(() => {
+                return this.orderService
+                    .recalculateOrder(this.orderId, this.versionContext.versionId, {}, {})
                     .then(this.handleCartErrors.bind(this));
-                await this.reloadEntityData();
-            } catch (error) {
-                this.onError('error', error);
-            } finally {
-                this.isLoading = false;
-                State.commit('swOrderDetail/setLoading', ['order', false]);
-            }
+            });
         },
 
         async onRecalculateAndReload() {
@@ -409,18 +400,27 @@ export default {
             }
         },
 
+        /**
+         * @deprecated tag:v6.8.0 - Will be replaced by `saveAndReload`
+         */
         onSaveAndReload() {
+            return this.saveAndReload();
+        },
+
+        async saveAndReload(afterSaveFn = null) {
             State.commit('swOrderDetail/setLoading', ['order', true]);
 
-            return this.orderRepository
-                .save(this.order, this.versionContext)
-                .then(() => this.reloadEntityData())
-                .catch((error) => {
-                    this.onError('error', error);
-                })
-                .finally(() => {
-                    State.commit('swOrderDetail/setLoading', ['order', false]);
-                });
+            try {
+                await this.orderRepository.save(this.order, this.versionContext);
+                if (afterSaveFn) {
+                    await afterSaveFn();
+                }
+                await this.reloadEntityData();
+            } catch (error) {
+                this.onError('error', error);
+            } finally {
+                State.commit('swOrderDetail/setLoading', ['order', false]);
+            }
         },
 
         onUpdateLoading(loadingValue) {

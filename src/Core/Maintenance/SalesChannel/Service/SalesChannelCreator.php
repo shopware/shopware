@@ -95,9 +95,6 @@ class SalesChannelCreator
             'shippingMethods' => $shippingMethods,
             'paymentMethods' => $paymentMethods,
             'countries' => $countries,
-            'measurementSystemId' => Uuid::fromStringToHex('metric'),
-            'lengthUnitId' => Uuid::fromStringToHex('metric-mm'),
-            'weightUnitId' => Uuid::fromStringToHex('metric-kg'),
         ];
 
         $data = array_replace_recursive($data, $overwrites);

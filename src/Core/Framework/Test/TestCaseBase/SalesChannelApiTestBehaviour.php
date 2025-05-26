@@ -197,8 +197,6 @@ trait SalesChannelApiTestBehaviour
             'languages' => $salesChannelOverride['languages'] ?? [['id' => Defaults::LANGUAGE_SYSTEM]],
             'customerGroupId' => TestDefaults::FALLBACK_CUSTOMER_GROUP,
             'measurementSystemId' => Uuid::fromStringToHex('metric'),
-            'lengthUnitId' => Uuid::fromStringToHex('metric-mm'),
-            'weightUnitId' => Uuid::fromStringToHex('metric-kg'),
             'domains' => [
                 [
                     'languageId' => Defaults::LANGUAGE_SYSTEM,
@@ -206,8 +204,6 @@ trait SalesChannelApiTestBehaviour
                     'snippetSetId' => $this->getSnippetSetIdForLocale('en-GB'),
                     'url' => 'http://localhost',
                     'measurementSystemId' => Uuid::fromStringToHex('metric'),
-                    'lengthUnitId' => Uuid::fromStringToHex('metric-mm'),
-                    'weightUnitId' => Uuid::fromStringToHex('metric-kg'),
                 ],
             ],
             'countries' => [['id' => $this->getValidCountryId(null)]],

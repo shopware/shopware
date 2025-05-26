@@ -201,7 +201,10 @@ export default {
          * @deprecated tag:v6.8.0 - will be removed without replacement
          */
         updateLoading(loadingValue) {
-            Store.get('swOrderDetail').setLoading(['order', loadingValue]);
+            Store.get('swOrderDetail').setLoading([
+                'order',
+                loadingValue,
+            ]);
         },
 
         reloadEntityData() {

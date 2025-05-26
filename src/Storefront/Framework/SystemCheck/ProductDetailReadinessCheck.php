@@ -20,16 +20,13 @@ use Symfony\Component\HttpKernel\KernelInterface;
 
 /**
  * @internal
- *
- * @codeCoverageIgnore
- * covered with integration tests/integration/Storefront/Framework/HealthCheck/ProductsReadinessCheckTest.php
  */
 #[Package('discovery')]
 class ProductDetailReadinessCheck extends BaseCheck
 {
     private const DETAIL_PAGE = 'frontend.detail.page';
 
-    private const MESSAGE_SUCCESS = 'Product detail pages are OK for provided sales channels';
+    private const MESSAGE_SUCCESS = 'Product detail pages are OK for provided sales channels.';
 
     private const MESSAGE_FAILURE = 'Some or all product detail pages are unhealthy.';
 
@@ -56,7 +53,7 @@ class ProductDetailReadinessCheck extends BaseCheck
 
     public function name(): string
     {
-        return 'ProductsReadiness';
+        return 'ProductDetailReadiness';
     }
 
     protected function allowedSystemCheckExecutionContexts(): array

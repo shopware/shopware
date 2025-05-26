@@ -20,16 +20,13 @@ use Symfony\Component\HttpKernel\KernelInterface;
 
 /**
  * @internal
- *
- * @codeCoverageIgnore
- * covered with integration tests/integration/Storefront/Framework/HealthCheck/ProductListingReadinessCheckTest.php
  */
 #[Package('discovery')]
 class ProductListingReadinessCheck extends BaseCheck
 {
     private const LISTING_PAGE = 'frontend.navigation.page';
 
-    private const MESSAGE_SUCCESS = 'Product listing pages are OK for provided sales channels';
+    private const MESSAGE_SUCCESS = 'Product listing pages are OK for provided sales channels.';
 
     private const MESSAGE_FAILURE = 'Some or all product listing pages are unhealthy.';
 
@@ -113,17 +110,17 @@ class ProductListingReadinessCheck extends BaseCheck
     }
 
     /**
+     * @description This query is necessary to determine the correct navigation category for each sales channel that is configured for storefront listing pages.
+     * It covers cases where the navigation category itself or one of its direct child categories is assigned a CMS page of type 'product_list'.
+     * This ensures that the check works for both direct and nested category assignments, and only considers active categories and sales channels.
+     *
      * @param list<string> $salesChannelIds
      *
      * @return array<string, string>
      */
     private function fetchNavigationIds(array $salesChannelIds): array
     {
-        // This query is necessary to determine the correct navigation category for each sales channel that is configured for storefront listing pages.
-        // It covers cases where the navigation category itself or one of its direct child categories is assigned a CMS page of type 'product_list'.
-        // This ensures that the check works for both direct and nested category assignments, and only considers active categories and sales channels.
-
-        $sql = <<<SQL
+        $sql = <<<'SQL'
             SELECT `sales_channel`.`id` AS `sales_channel_id`,
                    LOWER(HEX(COALESCE(`category_child`.`id`, `category_root`.`id`))) AS `category_id`
             FROM `category` `category_root`

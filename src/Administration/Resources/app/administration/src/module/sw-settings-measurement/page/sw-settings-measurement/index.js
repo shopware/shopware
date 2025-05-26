@@ -27,10 +27,10 @@ export default {
 
     data() {
         return {
-            measurementSystem: {
-                typeId: null,
-                lengthUnitId: null,
-                weightUnitId: null,
+            measurementUnits: {
+                system: null,
+                length: null,
+                weight: null,
             },
             defaultDisplayUnits: [],
             isLoading: false,
@@ -45,7 +45,7 @@ export default {
         lengthUnitCriteria() {
             const criteria = new Criteria(1, null);
             criteria.addFilter(Criteria.equals('type', 'length'));
-            criteria.addFilter(Criteria.equals('measurementSystemId', this.measurementSystem.typeId));
+            criteria.addFilter(Criteria.equals('measurementSystem.technicalName', this.measurementSystem.typeId));
 
             return criteria;
         },
@@ -53,7 +53,7 @@ export default {
         weightUnitCriteria() {
             const criteria = new Criteria(1, null);
             criteria.addFilter(Criteria.equals('type', 'weight'));
-            criteria.addFilter(Criteria.equals('measurementSystemId', this.measurementSystem.typeId));
+            criteria.addFilter(Criteria.equals('measurementSystem.technicalName', this.measurementSystem.system));
 
             return criteria;
         },
@@ -61,19 +61,20 @@ export default {
         defaultUnitCriteria() {
             const criteria = new Criteria(1, null);
             criteria.addFilter(Criteria.equals('default', true));
+            criteria.addFilter(Criteria.equals('measurementSystem.technicalName', this.measurementSystem.system));
 
             return criteria;
         },
 
         defaultLengthUnit() {
             return this.defaultDisplayUnits.find((u) => {
-                return u.type === 'length' && u.measurementSystemId === this.measurementSystem.typeId;
+                return u.type === 'length';
             });
         },
 
         defaultWeightUnit() {
             return this.defaultDisplayUnits.find((u) => {
-                return u.type === 'weight' && u.measurementSystemId === this.measurementSystem.typeId;
+                return u.type === 'weight';
             });
         },
     },
@@ -90,9 +91,9 @@ export default {
             ]);
 
             this.measurementSystem = {
-                typeId: measurementSystem['core.measurementSystem.typeId'],
-                lengthUnitId: measurementSystem['core.measurementSystem.lengthUnitId'],
-                weightUnitId: measurementSystem['core.measurementSystem.weightUnitId'],
+                system: measurementSystem['core.measurementUnits.system'],
+                length: measurementSystem['core.measurementUnits.length'],
+                weight: measurementSystem['core.measurementUnits.weight'],
             };
             this.defaultDisplayUnits = defaultDisplayUnits;
         },
@@ -109,9 +110,9 @@ export default {
             this.isLoading = true;
             try {
                 await this.systemConfigApiService.saveValues({
-                    'core.measurementSystem.typeId': this.measurementSystem.typeId,
-                    'core.measurementSystem.lengthUnitId': this.measurementSystem.lengthUnitId,
-                    'core.measurementSystem.weightUnitId': this.measurementSystem.weightUnitId,
+                    'core.measurementUnits.system': this.measurementUnits.system,
+                    'core.measurementUnits.length': this.measurementUnits.length,
+                    'core.measurementUnits.weight': this.measurementUnits.weight,
                 });
                 this.createNotificationSuccess({
                     title: this.$t('global.default.success'),
@@ -132,8 +133,8 @@ export default {
         },
 
         onChangeMeasurementSystem() {
-            this.measurementSystem.lengthUnitId = this.defaultLengthUnit.id;
-            this.measurementSystem.weightUnitId = this.defaultWeightUnit.id;
+            this.measurementUnits.length = this.defaultLengthUnit.shortName;
+            this.measurementUnits.weight = this.defaultWeightUnit.shortName;
         },
     },
 };

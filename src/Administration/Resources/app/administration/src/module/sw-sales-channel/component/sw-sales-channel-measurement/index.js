@@ -39,7 +39,7 @@ export default Shopware.Component.wrapComponentConfig({
 
     data() {
         return {
-            measurementSystem: null,
+            measurementUnits: null,
             defaultMeasurementSystem: null,
         };
     },
@@ -57,9 +57,7 @@ export default Shopware.Component.wrapComponentConfig({
         lengthUnitCriteria() {
             const criteria = new Criteria(1, null);
             criteria.addFilter(Criteria.equals('type', 'length'));
-            if (this.salesChannel?.measurementSystemId) {
-                criteria.addFilter(Criteria.equals('measurementSystem.id', this.salesChannel.measurementSystemId));
-            }
+            criteria.addFilter(Criteria.equals('measurementSystem.technicalName', this.salesChannel.measurementUnits.system));
 
             return criteria;
         },
@@ -67,9 +65,7 @@ export default Shopware.Component.wrapComponentConfig({
         weightUnitCriteria() {
             const criteria = new Criteria(1, null);
             criteria.addFilter(Criteria.equals('type', 'weight'));
-            if (this.salesChannel.measurementSystemId) {
-                criteria.addFilter(Criteria.equals('measurementSystem.id', this.salesChannel.measurementSystemId));
-            }
+            criteria.addFilter(Criteria.equals('measurementSystem.technicalName', this.salesChannel.measurementUnits.system));
 
             return criteria;
         },
@@ -85,6 +81,33 @@ export default Shopware.Component.wrapComponentConfig({
         weightUnitLabel() {
             return this.labelWeightUnit || this.$t('sw-sales-channel.detail.measurementSystem.labelWeightUnit');
         },
+
+        measurementSystem: {
+            get() {
+                return this.salesChannel.measurementUnits.system;
+            },
+            set(value) {
+                this.salesChannel.measurementUnits.system = value;
+            }
+        },
+
+        lengthUnit: {
+            get() {
+                return this.salesChannel.measurementUnits?.length;
+            },
+            set(value) {
+                this.salesChannel.measurementUnits.length = value;
+            }
+        },
+
+        weightUnit: {
+            get() {
+                return this.salesChannel.measurementUnits.weight;
+            },
+            set(value) {
+                this.salesChannel.measurementUnits.weight = value;
+            }
+        }
     },
 
     created() {
@@ -93,11 +116,12 @@ export default Shopware.Component.wrapComponentConfig({
 
     methods: {
         createdComponent() {
-            this.defaultMeasurementSystem = {
-                measurementSystemId: this.salesChannel.measurementSystemId,
-                lengthUnitId: this.salesChannel.lengthUnitId,
-                weightUnitId: this.salesChannel.weightUnitId,
-            };
+            // Initialize measurement units if needed
+            if (!this.salesChannel.measurementUnits) {
+                this.salesChannel.measurementUnits = {};
+            }
+
+            this.defaultMeasurementSystem = { ...this.salesChannel.measurementUnits };
         },
 
         onMeasurementSystemChange(measurementSystemId) {
@@ -111,15 +135,23 @@ export default Shopware.Component.wrapComponentConfig({
             this.salesChannel.measurementSystem = measurementSystem;
 
             if (measurementSystemId === this.defaultMeasurementSystem.measurementSystemId) {
-                this.salesChannel.lengthUnitId = this.defaultMeasurementSystem.lengthUnitId;
-                this.salesChannel.weightUnitId = this.defaultMeasurementSystem.weightUnitId;
-
+                this.salesChannel.measurementUnits = { ...this.defaultMeasurementSystem.measurementUnits };
                 return;
             }
 
-            this.salesChannel.lengthUnitId = measurementSystem?.units?.filter((unit) => unit.type === 'length').first()?.id;
+            // Initialize new measurement units object
+            this.salesChannel.measurementUnits = {};
 
-            this.salesChannel.weightUnitId = measurementSystem?.units?.filter((unit) => unit.type === 'weight').first()?.id;
+            // Set default units based on the measurement system
+            const lengthUnit = measurementSystem?.units?.filter((unit) => unit.type === 'length').first();
+            if (lengthUnit) {
+                this.salesChannel.measurementUnits.length = lengthUnit.id;
+            }
+
+            const weightUnit = measurementSystem?.units?.filter((unit) => unit.type === 'weight').first();
+            if (weightUnit) {
+                this.salesChannel.measurementUnits.weight = weightUnit.id;
+            }
         },
 
         formatUnitLabel(item) {

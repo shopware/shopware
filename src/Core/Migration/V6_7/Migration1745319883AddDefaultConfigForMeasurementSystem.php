@@ -32,7 +32,7 @@ class Migration1745319883AddDefaultConfigForMeasurementSystem extends MigrationS
         if ($metricId) {
             $connection->executeStatement($query, [
                 'id' => Uuid::randomBytes(),
-                'configKey' => 'core.measurementSystem.typeId',
+                'configKey' => 'core.measurementUnits.system',
                 'configValue' => \sprintf('{"_value": "%s"}', Uuid::fromBytesToHex($metricId)),
                 'createdAt' => (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT),
             ]);

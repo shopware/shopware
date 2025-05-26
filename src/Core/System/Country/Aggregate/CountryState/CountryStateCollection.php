@@ -30,7 +30,7 @@ class CountryStateCollection extends EntityCollection
      */
     public function sortByPositionAndName(): void
     {
-        Feature::triggerDeprecationOrThrow('v6.8.0.0','Use sorting via SQL instead of this method.');
+        Feature::triggerDeprecationOrThrow('v6.8.0.0', 'Use sorting via SQL instead of this method.');
 
         uasort($this->elements, static function (CountryStateEntity $a, CountryStateEntity $b) {
             $aPosition = $a->getPosition();

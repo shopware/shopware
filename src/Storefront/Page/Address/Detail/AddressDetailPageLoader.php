@@ -106,8 +106,9 @@ class AddressDetailPageLoader
     {
         $criteria = (new Criteria())
             ->addSorting(new FieldSorting('position', FieldSorting::ASCENDING))
-            ->addSorting(new FieldSorting('name', FieldSorting::ASCENDING))
-            ->getAssociation('states')
+            ->addSorting(new FieldSorting('name', FieldSorting::ASCENDING));
+
+        $criteria->getAssociation('states')
             ->addSorting(new FieldSorting('position', FieldSorting::ASCENDING))
             ->addSorting(new FieldSorting('name', FieldSorting::ASCENDING));
 

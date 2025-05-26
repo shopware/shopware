@@ -17,7 +17,7 @@ class CountryCollection extends EntityCollection
      */
     public function sortCountryAndStates(): void
     {
-        Feature::triggerDeprecationOrThrow('v6.8.0.0','Use sorting via SQL instead of this method.');
+        Feature::triggerDeprecationOrThrow('v6.8.0.0', 'Use sorting via SQL instead of this method.');
 
         $this->sortByPositionAndName();
 
@@ -33,7 +33,7 @@ class CountryCollection extends EntityCollection
      */
     public function sortByPositionAndName(): void
     {
-        Feature::triggerDeprecationOrThrow('v6.8.0.0','Use sorting via SQL instead of this method.');
+        Feature::triggerDeprecationOrThrow('v6.8.0.0', 'Use sorting via SQL instead of this method.');
 
         uasort($this->elements, static function (CountryEntity $a, CountryEntity $b) {
             $aPosition = $a->getPosition();
@@ -46,7 +46,7 @@ class CountryCollection extends EntityCollection
             $aName = (string) $a->getTranslation('name');
             $bName = (string) $b->getTranslation('name');
             if ($aName !== $bName) {
-                return $collator->compare($aName, $bName);
+                return strnatcasecmp($aName, $bName);
             }
 
             return 0;

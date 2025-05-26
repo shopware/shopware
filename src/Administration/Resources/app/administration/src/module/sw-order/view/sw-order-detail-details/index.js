@@ -67,9 +67,11 @@ export default {
             required: true,
         },
 
+        /** @deprecated tag:v6.8.0 - will be removed without replacement */
         isSaveSuccessful: {
             type: Boolean,
-            required: true,
+            required: false,
+            default: false,
         },
     },
 
@@ -81,6 +83,7 @@ export default {
     },
 
     computed: {
+        /** @deprecated tag:v6.8.0 - will be removed, use loading.order instead */
         isLoading: () => Store.get('swOrderDetail').isLoading,
 
         order: () => Store.get('swOrderDetail').order,
@@ -194,8 +197,10 @@ export default {
 
         // @deprecated tag:v6.8.0 - Will be removed, change shipping cost on order general view instead.
         onShippingChargeEdited: Utils.debounce(function onShippingChargeEdited(amount) {
-            this.delivery.shippingCosts.unitPrice = amount;
-            this.delivery.shippingCosts.totalPrice = amount;
+            if (amount >= 0) {
+                this.delivery.shippingCosts.unitPrice = amount;
+                this.delivery.shippingCosts.totalPrice = amount;
+            }
 
             this.saveAndRecalculate();
         }, 800),
@@ -248,11 +253,11 @@ export default {
             }
         },
 
+        /**
+         * @deprecated tag:v6.8.0 - will be removed without replacement
+         */
         updateLoading(loadingValue) {
-            Store.get('swOrderDetail').setLoading([
-                'order',
-                loadingValue,
-            ]);
+            Store.get('swOrderDetail').setLoading(['order', loadingValue]);
         },
 
         validateTrackingCode(searchTerm) {

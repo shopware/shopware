@@ -500,4 +500,16 @@ describe('src/module/sw-order/page/sw-order-detail', () => {
         expect(await promise).toBe(true);
         expect(onSaveEditsSpy).toHaveBeenCalled();
     });
+
+    it('should call afterSaveFn of saveAndReload', async () => {
+        wrapper = await createWrapper();
+
+        let promiseResolved = false;
+        const afterSaveFn = jest.fn(() => (new Promise((r) => { r(); })).then(() => { promiseResolved = true; }));
+
+        await wrapper.vm.saveAndReload(afterSaveFn);
+
+        expect(afterSaveFn).toHaveBeenCalledTimes(1);
+        expect(promiseResolved).toBe(true);
+    });
 });

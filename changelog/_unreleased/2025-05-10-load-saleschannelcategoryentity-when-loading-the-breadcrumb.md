@@ -5,6 +5,7 @@ author_github: @aragon999
 ---
 # Core
 * Changed the Twig functions `sw_breadcrumb_full()` and `sw_breadcrumb_full_by_id()` to load `SalesChannelCategoryEntity` in order to properly display the corresponding seo link in the breadcrumb
+___
 # Upgrade Information
 change in the Twig templates
 ```

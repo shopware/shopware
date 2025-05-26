@@ -53,9 +53,13 @@ export default {
             this.salesChannel = this.salesChannelRepository.create();
             this.salesChannel.typeId = this.$route.params.typeId;
             this.salesChannel.active = false;
-            this.salesChannel.measurementSystemId = this.measurementSystemConfig['core.measurementSystem.typeId'];
-            this.salesChannel.lengthUnitId = this.measurementSystemConfig['core.measurementSystem.lengthUnitId'];
-            this.salesChannel.weightUnitId = this.measurementSystemConfig['core.measurementSystem.weightUnitId'];
+            this.salesChannel.measurementUnits = {
+                system: this.measurementSystemConfig['core.measurementSystem.typeId'],
+                units: {
+                    length: this.measurementSystemConfig['core.measurementSystem.lengthUnitId'],
+                    weight: this.measurementSystemConfig['core.measurementSystem.weightUnitId'],
+                },
+            }
 
             this.$super('createdComponent');
         },

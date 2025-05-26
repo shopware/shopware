@@ -4,6 +4,7 @@ namespace Shopware\Core\System\SalesChannel\Aggregate\SalesChannelDomain;
 
 use Shopware\Core\Content\MeasurementSystem\Entity\MeasurementDisplayUnitEntity;
 use Shopware\Core\Content\MeasurementSystem\Entity\MeasurementSystemEntity;
+use Shopware\Core\Content\MeasurementSystem\MeasurementUnits;
 use Shopware\Core\Content\ProductExport\ProductExportCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCustomFieldsTrait;
@@ -38,17 +39,7 @@ class SalesChannelDomainEntity extends Entity
 
     protected ?LanguageEntity $language = null;
 
-    protected string $measurementSystemId;
-
-    protected string $weightUnitId;
-
-    protected string $lengthUnitId;
-
-    protected ?MeasurementSystemEntity $measurementSystem = null;
-
-    protected ?MeasurementDisplayUnitEntity $weightUnit = null;
-
-    protected ?MeasurementDisplayUnitEntity $lengthUnit = null;
+    protected MeasurementUnits $measurementUnits;
 
     protected ?ProductExportCollection $productExports = null;
 
@@ -136,66 +127,6 @@ class SalesChannelDomainEntity extends Entity
         $this->snippetSetId = $snippetSetId;
     }
 
-    public function getMeasurementSystemId(): string
-    {
-        return $this->measurementSystemId;
-    }
-
-    public function setMeasurementSystemId(string $measurementSystemId): void
-    {
-        $this->measurementSystemId = $measurementSystemId;
-    }
-
-    public function getMeasurementSystem(): ?MeasurementSystemEntity
-    {
-        return $this->measurementSystem;
-    }
-
-    public function setMeasurementSystem(?MeasurementSystemEntity $measurementSystem): void
-    {
-        $this->measurementSystem = $measurementSystem;
-    }
-
-    public function getWeightUnitId(): string
-    {
-        return $this->weightUnitId;
-    }
-
-    public function setWeightUnitId(string $weightUnitId): void
-    {
-        $this->weightUnitId = $weightUnitId;
-    }
-
-    public function getWeightUnit(): ?MeasurementDisplayUnitEntity
-    {
-        return $this->weightUnit;
-    }
-
-    public function setWeightUnit(?MeasurementDisplayUnitEntity $weightUnit): void
-    {
-        $this->weightUnit = $weightUnit;
-    }
-
-    public function getLengthUnitId(): string
-    {
-        return $this->lengthUnitId;
-    }
-
-    public function setLengthUnitId(string $lengthUnitId): void
-    {
-        $this->lengthUnitId = $lengthUnitId;
-    }
-
-    public function getLengthUnit(): ?MeasurementDisplayUnitEntity
-    {
-        return $this->lengthUnit;
-    }
-
-    public function setLengthUnit(?MeasurementDisplayUnitEntity $lengthUnit): void
-    {
-        $this->lengthUnit = $lengthUnit;
-    }
-
     public function getSnippetSet(): ?SnippetSetEntity
     {
         return $this->snippetSet;
@@ -234,5 +165,15 @@ class SalesChannelDomainEntity extends Entity
     public function setSalesChannelDefaultHreflang(?SalesChannelEntity $salesChannelDefaultHreflang): void
     {
         $this->salesChannelDefaultHreflang = $salesChannelDefaultHreflang;
+    }
+
+    public function getMeasurementUnits(): MeasurementUnits
+    {
+        return $this->measurementUnits;
+    }
+
+    public function setMeasurementUnits(MeasurementUnits $measurementUnits): void
+    {
+        $this->measurementUnits = $measurementUnits;
     }
 }

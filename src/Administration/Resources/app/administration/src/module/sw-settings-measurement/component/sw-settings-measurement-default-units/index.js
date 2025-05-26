@@ -11,15 +11,7 @@ export default {
     emits: ['measurement-system-change'],
 
     props: {
-        measurementSystem: {
-            type: Object,
-            required: true,
-        },
-        lengthUnitCriteria: {
-            type: Object,
-            required: true,
-        },
-        weightUnitCriteria: {
+        measurementUnits: {
             type: Object,
             required: true,
         },

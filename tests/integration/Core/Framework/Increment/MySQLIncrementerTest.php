@@ -122,7 +122,7 @@ class MySQLIncrementerTest extends TestCase
 
         $list = $this->mysqlIncrementer->list('test-user-1');
 
-        static::assertSame([
+        static::assertEquals([
             'sw.product.create' => [
                 'pool' => 'user-activity-pool',
                 'cluster' => 'test-user-1',

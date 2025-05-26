@@ -1,5 +1,5 @@
 ---
-title: Added new increment api to delete unused keys or cluster
+title: Added new API to delete unused increment keys or cluster
 issue: #9826
 ---
 # Core

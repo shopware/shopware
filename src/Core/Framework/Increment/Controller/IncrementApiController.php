@@ -92,7 +92,7 @@ class IncrementApiController
         return new JsonResponse(['success' => true]);
     }
 
-    #[Route(path: '/api/_action/delete-increment/{pool}', name: 'api.increment.delete', methods: ['POST', 'DELETE'])]
+    #[Route(path: '/api/_action/delete-increment/{pool}', name: 'api.increment.delete', methods: ['DELETE'])]
     public function delete(string $pool, Request $request): Response
     {
         $keys = $request->get('keys', []);

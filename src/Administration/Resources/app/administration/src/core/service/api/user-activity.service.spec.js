@@ -77,7 +77,10 @@ describe('userActivityApiService', () => {
     it('should make a DELETE request to the correct endpoint and handle success', async () => {
         const { userActivityApiService, clientMock } = createUserActivityApiService();
         const paramsToDelete = {
-            keys: ['key1@example', 'key2@example'],
+            keys: [
+                'key1@example',
+                'key2@example',
+            ],
             cluster: 'testUserId',
         };
 

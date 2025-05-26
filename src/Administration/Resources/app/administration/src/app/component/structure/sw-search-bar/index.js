@@ -985,17 +985,19 @@ export default {
                 const initialResponse = await this.userActivityApiService.getIncrement({ cluster: this.currentUser.id });
                 const initialKeys = Object.keys(initialResponse || {});
 
-                const initialModuleProcessingResults = initialKeys.map(key => {
+                const initialModuleProcessingResults = initialKeys.map((key) => {
                     return { key, info: this.getInfoModuleFrequentlyUsed(key) };
                 });
 
-                const nonExistentKeys = checkNonExistentKeys ? initialModuleProcessingResults
-                    .filter(item => Object.keys(item.info).length === 0)
-                    .map(item => item.key) : [];
+                const nonExistentKeys = checkNonExistentKeys
+                    ? initialModuleProcessingResults
+                          .filter((item) => Object.keys(item.info).length === 0)
+                          .map((item) => item.key)
+                    : [];
 
                 const validInitialModules = initialModuleProcessingResults
-                    .filter(item => Object.keys(item.info).length > 0)
-                    .map(item => item.info);
+                    .filter((item) => Object.keys(item.info).length > 0)
+                    .map((item) => item.info);
 
                 if (nonExistentKeys.length > 0) {
                     try {

@@ -275,7 +275,8 @@ describe('src/app/component/structure/sw-search-bar', () => {
                         },
                     },
                     recentlySearchService: customProviders.recentlySearchService || defaultProviders.recentlySearchService,
-                    userActivityApiService: customProviders.userActivityApiService || defaultProviders.userActivityApiService,
+                    userActivityApiService:
+                        customProviders.userActivityApiService || defaultProviders.userActivityApiService,
                 },
             },
             props,
@@ -1345,12 +1346,17 @@ describe('src/app/component/structure/sw-search-bar', () => {
             ]),
         };
 
-        wrapper = await createWrapper({}, searchTypeServiceTypes, [
-            'product:read',
-        ], {
-            userActivityApiService: customUserActivityApiMock,
-            recentlySearchService: customRecentlySearchMock,
-        });
+        wrapper = await createWrapper(
+            {},
+            searchTypeServiceTypes,
+            [
+                'product:read',
+            ],
+            {
+                userActivityApiService: customUserActivityApiMock,
+                recentlySearchService: customRecentlySearchMock,
+            },
+        );
 
         const moduleFilterSelect = wrapper.find('.sw-search-bar__type--v2');
 
@@ -1632,7 +1638,9 @@ describe('src/app/component/structure/sw-search-bar', () => {
 
     it('should return empty list if getIncrement fails initially', async () => {
         userActivityApiServiceMock.getIncrement.mockRejectedValue(new Error('API Error'));
-        wrapper = await createWrapper({}, searchTypeServiceTypes, [], { userActivityApiService: userActivityApiServiceMock });
+        wrapper = await createWrapper({}, searchTypeServiceTypes, [], {
+            userActivityApiService: userActivityApiServiceMock,
+        });
 
         const result = await wrapper.vm.getFrequentlyUsedModules();
 
@@ -1651,9 +1659,11 @@ describe('src/app/component/structure/sw-search-bar', () => {
             'moduleB@route2': { count: 3 },
         };
         userActivityApiServiceMock.getIncrement.mockResolvedValue(mockInitialResponse);
-        wrapper = await createWrapper({}, searchTypeServiceTypes, [], { userActivityApiService: userActivityApiServiceMock });
+        wrapper = await createWrapper({}, searchTypeServiceTypes, [], {
+            userActivityApiService: userActivityApiServiceMock,
+        });
 
-        wrapper.vm.getInfoModuleFrequentlyUsed = jest.fn(key => {
+        wrapper.vm.getInfoModuleFrequentlyUsed = jest.fn((key) => {
             if (key === 'moduleA@route1') return { name: 'Module A', route: 'route1', key };
             if (key === 'moduleB@route2') return { name: 'Module B', route: 'route2', key };
             return {};
@@ -1666,10 +1676,12 @@ describe('src/app/component/structure/sw-search-bar', () => {
         expect(wrapper.vm.getInfoModuleFrequentlyUsed).toHaveBeenCalledWith('moduleB@route2');
         expect(userActivityApiServiceMock.deleteActivityKeys).not.toHaveBeenCalled();
         expect(result.entities).toHaveLength(2);
-        expect(result.entities).toEqual(expect.arrayContaining([
-            { name: 'Module A', route: 'route1', key: 'moduleA@route1' },
-            { name: 'Module B', route: 'route2', key: 'moduleB@route2' },
-        ]));
+        expect(result.entities).toEqual(
+            expect.arrayContaining([
+                { name: 'Module A', route: 'route1', key: 'moduleA@route1' },
+                { name: 'Module B', route: 'route2', key: 'moduleB@route2' },
+            ]),
+        );
     });
 
     it('should delete non-existent keys, re-fetch, and process if delete succeeds', async () => {
@@ -1681,7 +1693,7 @@ describe('src/app/component/structure/sw-search-bar', () => {
         const mockFreshResponse = {
             'moduleValid@route1': { count: 6 },
             'moduleValid2@route2': { count: 3 },
-            'newModule@routeNew': { count: 1},
+            'newModule@routeNew': { count: 1 },
         };
 
         userActivityApiServiceMock.getIncrement
@@ -1689,14 +1701,16 @@ describe('src/app/component/structure/sw-search-bar', () => {
             .mockResolvedValueOnce(mockFreshResponse);
         userActivityApiServiceMock.deleteActivityKeys.mockResolvedValue({});
 
-        wrapper = await createWrapper({}, searchTypeServiceTypes, [], { userActivityApiService: userActivityApiServiceMock });
+        wrapper = await createWrapper({}, searchTypeServiceTypes, [], {
+            userActivityApiService: userActivityApiServiceMock,
+        });
 
-        wrapper.vm.getInfoModuleFrequentlyUsed = jest.fn(key => {
+        wrapper.vm.getInfoModuleFrequentlyUsed = jest.fn((key) => {
             if (key === 'moduleValid@route1') return { name: 'Module Valid', route: 'route1', key };
             if (key === 'moduleValid2@route2') return { name: 'Module Valid 2', route: 'route2', key };
             if (key === 'newModule@routeNew') return { name: 'New Module', route: 'routeNew', key };
             if (key === 'moduleInvalid@routeNonExistent') return {};
-            return { name: `Fallback for ${  key}`, key};
+            return { name: `Fallback for ${key}`, key };
         });
 
         const result = await wrapper.vm.getFrequentlyUsedModules();
@@ -1708,11 +1722,13 @@ describe('src/app/component/structure/sw-search-bar', () => {
             cluster: wrapper.vm.currentUser.id,
         });
         expect(result.entities).toHaveLength(3);
-        expect(result.entities).toEqual(expect.arrayContaining([
-            { name: 'Module Valid', route: 'route1', key: 'moduleValid@route1' },
-            { name: 'Module Valid 2', route: 'route2', key: 'moduleValid2@route2' },
-            { name: 'New Module', route: 'routeNew', key: 'newModule@routeNew' },
-        ]));
+        expect(result.entities).toEqual(
+            expect.arrayContaining([
+                { name: 'Module Valid', route: 'route1', key: 'moduleValid@route1' },
+                { name: 'Module Valid 2', route: 'route2', key: 'moduleValid2@route2' },
+                { name: 'New Module', route: 'routeNew', key: 'newModule@routeNew' },
+            ]),
+        );
         expect(wrapper.vm.getInfoModuleFrequentlyUsed).toHaveBeenCalledWith('moduleValid@route1');
         expect(wrapper.vm.getInfoModuleFrequentlyUsed).toHaveBeenCalledWith('moduleInvalid@routeNonExistent');
         expect(wrapper.vm.getInfoModuleFrequentlyUsed).toHaveBeenCalledWith('moduleValid2@route2');
@@ -1729,9 +1745,11 @@ describe('src/app/component/structure/sw-search-bar', () => {
         userActivityApiServiceMock.getIncrement.mockResolvedValueOnce(mockInitialResponse);
         userActivityApiServiceMock.deleteActivityKeys.mockRejectedValue(new Error('Deletion API Error'));
 
-        wrapper = await createWrapper({}, searchTypeServiceTypes, [], { userActivityApiService: userActivityApiServiceMock });
+        wrapper = await createWrapper({}, searchTypeServiceTypes, [], {
+            userActivityApiService: userActivityApiServiceMock,
+        });
 
-        wrapper.vm.getInfoModuleFrequentlyUsed = jest.fn(key => {
+        wrapper.vm.getInfoModuleFrequentlyUsed = jest.fn((key) => {
             if (key === 'moduleValid@route1') return { name: 'Module Valid', route: 'route1', key };
             if (key === 'moduleValid2@route2') return { name: 'Module Valid 2', route: 'route2', key };
             if (key === 'moduleInvalid@routeNonExistent') return {};
@@ -1747,10 +1765,12 @@ describe('src/app/component/structure/sw-search-bar', () => {
             cluster: wrapper.vm.currentUser.id,
         });
         expect(result.entities).toHaveLength(2);
-        expect(result.entities).toEqual(expect.arrayContaining([
-            { name: 'Module Valid', route: 'route1', key: 'moduleValid@route1' },
-            { name: 'Module Valid 2', route: 'route2', key: 'moduleValid2@route2' },
-        ]));
+        expect(result.entities).toEqual(
+            expect.arrayContaining([
+                { name: 'Module Valid', route: 'route1', key: 'moduleValid@route1' },
+                { name: 'Module Valid 2', route: 'route2', key: 'moduleValid2@route2' },
+            ]),
+        );
     });
 
     it('should NOT delete non-existent keys if checkAndDelete flag is false', async () => {
@@ -1763,15 +1783,17 @@ describe('src/app/component/structure/sw-search-bar', () => {
         userActivityApiServiceMock.getIncrement.mockResolvedValueOnce(mockInitialResponse);
         userActivityApiServiceMock.deleteActivityKeys.mockResolvedValue({});
 
-        wrapper = await createWrapper({}, searchTypeServiceTypes, [], { userActivityApiService: userActivityApiServiceMock });
+        wrapper = await createWrapper({}, searchTypeServiceTypes, [], {
+            userActivityApiService: userActivityApiServiceMock,
+        });
 
-        wrapper.vm.getInfoModuleFrequentlyUsed = jest.fn(key => {
+        wrapper.vm.getInfoModuleFrequentlyUsed = jest.fn((key) => {
             if (key === 'moduleValid@route1') {
-                return { name: 'Module Valid', route: 'route1', key }
+                return { name: 'Module Valid', route: 'route1', key };
             }
 
             if (key === 'moduleValid2@route2') {
-                return { name: 'Module Valid 2', route: 'route2', key }
+                return { name: 'Module Valid 2', route: 'route2', key };
             }
 
             return {};
@@ -1783,10 +1805,12 @@ describe('src/app/component/structure/sw-search-bar', () => {
         expect(userActivityApiServiceMock.deleteActivityKeys).not.toHaveBeenCalled();
 
         expect(result.entities).toHaveLength(2);
-        expect(result.entities).toEqual(expect.arrayContaining([
-            { name: 'Module Valid', route: 'route1', key: 'moduleValid@route1' },
-            { name: 'Module Valid 2', route: 'route2', key: 'moduleValid2@route2' },
-        ]));
+        expect(result.entities).toEqual(
+            expect.arrayContaining([
+                { name: 'Module Valid', route: 'route1', key: 'moduleValid@route1' },
+                { name: 'Module Valid 2', route: 'route2', key: 'moduleValid2@route2' },
+            ]),
+        );
 
         expect(wrapper.vm.getInfoModuleFrequentlyUsed).toHaveBeenCalledWith('moduleValid@route1');
         expect(wrapper.vm.getInfoModuleFrequentlyUsed).toHaveBeenCalledWith('moduleInvalid@routeNonExistent');

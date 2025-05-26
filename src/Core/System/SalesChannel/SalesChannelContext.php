@@ -9,7 +9,7 @@ use Shopware\Core\Checkout\Customer\Aggregate\CustomerGroup\CustomerGroupEntity;
 use Shopware\Core\Checkout\Customer\CustomerEntity;
 use Shopware\Core\Checkout\Payment\PaymentMethodEntity;
 use Shopware\Core\Checkout\Shipping\ShippingMethodEntity;
-use Shopware\Core\Content\MeasurementSystem\MeasurementSystemInfo;
+use Shopware\Core\Content\MeasurementSystem\MeasurementUnits;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Pricing\CashRoundingConfig;
@@ -34,7 +34,7 @@ class SalesChannelContext extends Struct
 
     protected ?string $imitatingUserId = null;
 
-    protected MeasurementSystemInfo $measurementSystem;
+    protected MeasurementUnits $measurementSystem;
 
     /**
      * @internal
@@ -431,15 +431,15 @@ class SalesChannelContext extends Struct
         $this->languageInfo = $languageInfo;
     }
 
-    public function getMeasurementSystem(): MeasurementSystemInfo
+    public function getMeasurementSystem(): MeasurementUnits
     {
-        return $this->measurementSystem ?? new MeasurementSystemInfo([
-            'length' => MeasurementSystemInfo::DEFAULT_LENGTH_UNIT,
-            'weight' => MeasurementSystemInfo::DEFAULT_WEIGHT_UNIT,
+        return $this->measurementSystem ?? new MeasurementUnits([
+            'length' => MeasurementUnits::DEFAULT_LENGTH_UNIT,
+            'weight' => MeasurementUnits::DEFAULT_WEIGHT_UNIT,
         ]);
     }
 
-    public function setMeasurementSystem(MeasurementSystemInfo $measurementSystem): void
+    public function setMeasurementSystem(MeasurementUnits $measurementSystem): void
     {
         $this->measurementSystem = $measurementSystem;
     }

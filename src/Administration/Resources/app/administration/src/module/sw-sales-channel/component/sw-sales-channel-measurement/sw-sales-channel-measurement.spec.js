@@ -9,8 +9,10 @@ async function createWrapper() {
         props: {
             salesChannel: {
                 measurementSystemId: '1',
-                lengthUnitId: '2',
-                weightUnitId: '3',
+                measurementUnits: {
+                    length: '2',
+                    weight: '3'
+                }
             },
         },
         global: {
@@ -43,8 +45,10 @@ describe('src/module/sw-sales-channel/component/sw-sales-channel-measurement', (
         const wrapper = await createWrapper();
         expect(wrapper.vm.defaultMeasurementSystem).toEqual({
             measurementSystemId: '1',
-            lengthUnitId: '2',
-            weightUnitId: '3'
+            measurementUnits: {
+                length: '2',
+                weight: '3'
+            }
         });
     });
 
@@ -131,5 +135,66 @@ describe('src/module/sw-sales-channel/component/sw-sales-channel-measurement', (
         await wrapper.vm.onMeasurementSystemChange('system2');
         expect(wrapper.emitted('measurement-system-change')).toBeTruthy();
         expect(wrapper.emitted('measurement-system-change')[0][0]).toBe('system2');
+    });
+
+    it('should update measurement units when measurement system changes', async () => {
+        const wrapper = await createWrapper();
+        
+        const mockMeasurementSystem = {
+            id: 'system2',
+            units: [
+                { id: 'unit1', type: 'length' },
+                { id: 'unit2', type: 'weight' }
+            ]
+        };
+        
+        // Mock the first method
+        mockMeasurementSystem.units.first = function() { return this[0]; };
+        
+        wrapper.vm.$refs.measurementSystemSelect = {
+            results: new Map([['system2', mockMeasurementSystem]])
+        };
+        
+        await wrapper.vm.onMeasurementSystemChange('system2');
+        
+        expect(wrapper.vm.salesChannel.measurementUnits).toEqual({
+            length: 'unit1',
+            weight: 'unit2'
+        });
+    });
+
+    it('should restore default measurement units when returning to default system', async () => {
+        const wrapper = await createWrapper();
+        const originalUnits = { ...wrapper.vm.salesChannel.measurementUnits };
+        
+        // Change to a different system first
+        wrapper.vm.salesChannel.measurementUnits = { length: 'new1', weight: 'new2' };
+        
+        // Then change back to the default system
+        await wrapper.vm.onMeasurementSystemChange('1');
+        
+        expect(wrapper.vm.salesChannel.measurementUnits).toEqual(originalUnits);
+    });
+
+    it('should correctly get and set lengthUnitId via computed property', async () => {
+        const wrapper = await createWrapper();
+        
+        // Test getter
+        expect(wrapper.vm.lengthUnitId).toBe('2');
+        
+        // Test setter
+        wrapper.vm.lengthUnitId = 'newLength';
+        expect(wrapper.vm.salesChannel.measurementUnits.length).toBe('newLength');
+    });
+
+    it('should correctly get and set weightUnitId via computed property', async () => {
+        const wrapper = await createWrapper();
+        
+        // Test getter
+        expect(wrapper.vm.weightUnitId).toBe('3');
+        
+        // Test setter
+        wrapper.vm.weightUnitId = 'newWeight';
+        expect(wrapper.vm.salesChannel.measurementUnits.weight).toBe('newWeight');
     });
 });

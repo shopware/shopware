@@ -7,7 +7,7 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Struct\Struct;
 
 #[Package('inventory')]
-class MeasurementUnits extends Struct
+class ConvertedUnitSet extends Struct
 {
     /**
      * @param array<string, ConvertedUnit> $valueByUnit

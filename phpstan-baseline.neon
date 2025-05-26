@@ -943,12 +943,6 @@ parameters:
 			path: src/Core/Content/Seo/SeoUrlUpdater.php
 
 		-
-			message: '#^Cannot call method map\(\) on Shopware\\Core\\System\\SalesChannel\\Aggregate\\SalesChannelDomain\\SalesChannelDomainCollection\|null\.$#'
-			identifier: method.nonObject
-			count: 1
-			path: src/Core/Content/Sitemap/Commands/SitemapGenerateCommand.php
-
-		-
 			message: '#^Method Shopware\\Core\\Content\\Sitemap\\Provider\\CustomUrlProvider\:\:isAvailableForSalesChannel\(\) has parameter \$url with no value type specified in iterable type array\.$#'
 			identifier: missingType.iterableValue
 			count: 1

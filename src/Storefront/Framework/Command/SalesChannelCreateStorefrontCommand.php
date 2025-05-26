@@ -69,8 +69,10 @@ class SalesChannelCreateStorefrontCommand extends SalesChannelCreateCommand
                     'snippetSetId' => $snippetSet,
                     'currencyId' => $input->getOption('currencyId'),
                     'measurementSystemId' => Uuid::fromStringToHex('metric'),
-                    'lengthUnitId' => Uuid::fromStringToHex('metric-mm'),
-                    'weightUnitId' => Uuid::fromStringToHex('metric-kg'),
+                    'measurementUnits' => [
+                        'length' => 'mm',
+                        'weight' => 'kg'
+                    ],
                 ],
             ],
             'navigationCategoryDepth' => 3,

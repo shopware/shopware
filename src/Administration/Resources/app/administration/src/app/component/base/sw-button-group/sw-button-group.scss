@@ -31,7 +31,8 @@
             border-bottom-right-radius: $border-radius-default;
         }
 
-        &:only-child, &:first-child:has(+ .sw-popover) {
+        &:only-child,
+        &:first-child:has(+ .sw-popover) {
             margin-left: -1px;
         }
 

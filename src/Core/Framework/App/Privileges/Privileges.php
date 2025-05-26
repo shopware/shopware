@@ -4,6 +4,7 @@ namespace Shopware\Core\Framework\App\Privileges;
 
 use Doctrine\DBAL\ArrayParameterType;
 use Doctrine\DBAL\Connection;
+use Shopware\Core\Framework\App\AppException;
 use Shopware\Core\Framework\App\Event\AppPermissionsUpdated;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Log\Package;
@@ -25,19 +26,34 @@ class Privileges
     }
 
     /**
-     * Accept the given list of permissions for an app
+     * Update the privileges for the given app
      *
      * @param list<string> $accept
+     * @param list<string> $revoke
+     *
+     * @throws AppException
      */
-    public function acceptOnly(string $appId, array $accept, Context $context): void
+    public function updatePrivileges(string $appId, array $accept, array $revoke, Context $context): void
     {
+        if (\count($accept) === 0 && \count($revoke) === 0) {
+            return;
+        }
+
+        if (\count(array_intersect($accept, $revoke)) !== 0) {
+            throw AppException::conflictingPrivilegeUpdate();
+        }
+
         [$existingPrivileges, $requestedPrivileges] = $this->fetchPrivileges([$appId])[$appId];
 
-        $new = array_merge($existingPrivileges, array_intersect($accept, $requestedPrivileges));
+        $revokedActive = array_intersect($revoke, $existingPrivileges);
+        $existingPrivileges = array_values(array_diff($existingPrivileges, $revoke));
+        $requestedPrivileges = array_values(array_unique(array_merge($requestedPrivileges, $revokedActive)));
 
-        $remaining = array_diff($requestedPrivileges, $accept);
+        $acceptedPrivileges = array_intersect($accept, $requestedPrivileges);
+        $existingPrivileges = array_values(array_unique(array_merge($existingPrivileges, $acceptedPrivileges)));
+        $requestedPrivileges = array_values(array_diff($requestedPrivileges, $accept));
 
-        $this->writePrivileges($appId, $new, $remaining, $context);
+        $this->writePrivileges($appId, $existingPrivileges, $requestedPrivileges, $context);
     }
 
     /**
@@ -216,28 +232,32 @@ class Privileges
      */
     private function writePrivileges(string $appId, array $privileges, array $requestedPrivileges, Context $context): void
     {
-        $this->connection->executeStatement(
-            <<<'SQL'
+        $this->connection->transactional(
+            function (Connection $transaction) use ($appId, $privileges, $requestedPrivileges): void {
+                $transaction->executeStatement(
+                    <<<'SQL'
                 UPDATE `acl_role`
                 SET `privileges` = :privileges
                 WHERE id = (SELECT acl_role_id FROM app WHERE id = :id)
             SQL,
-            [
-                'privileges' => json_encode($privileges, \JSON_THROW_ON_ERROR),
-                'id' => Uuid::fromHexToBytes($appId),
-            ]
-        );
+                    [
+                        'privileges' => json_encode($privileges, \JSON_THROW_ON_ERROR),
+                        'id' => Uuid::fromHexToBytes($appId),
+                    ]
+                );
 
-        $this->connection->executeStatement(
-            <<<'SQL'
+                $transaction->executeStatement(
+                    <<<'SQL'
                 UPDATE `app`
                 SET `requested_privileges` = :requestedPrivileges
                 WHERE id = :id
             SQL,
-            [
-                'requestedPrivileges' => json_encode($requestedPrivileges, \JSON_THROW_ON_ERROR),
-                'id' => Uuid::fromHexToBytes($appId),
-            ]
+                    [
+                        'requestedPrivileges' => json_encode($requestedPrivileges, \JSON_THROW_ON_ERROR),
+                        'id' => Uuid::fromHexToBytes($appId),
+                    ]
+                );
+            }
         );
 
         $this->eventDispatcher->dispatch(new AppPermissionsUpdated($appId, $privileges, $context));

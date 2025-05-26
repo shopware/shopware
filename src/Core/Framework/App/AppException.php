@@ -45,6 +45,7 @@ class AppException extends HttpException
     final public const APP_CREATE_COMMAND_VALIDATION_ERROR = 'FRAMEWORK__APP_CREATE_COMMAND_VALIDATION_ERROR';
     final public const APP_DIRECTORY_ALREADY_EXISTS = 'FRAMEWORK__APP_DIRECTORY_ALREADY_EXISTS';
     final public const APP_DIRECTORY_CREATION_FAILED = 'FRAMEWORK__APP_DIRECTORY_CREATION_FAILED';
+    final public const CONFLICTING_PRIVILEGE_UPDATE = 'FRAMEWORK__APP_CONFLICTING_PRIVILEGE_UPDATE';
 
     /**
      * @internal will be removed once store extensions are installed over composer
@@ -404,6 +405,15 @@ class AppException extends HttpException
             self::APP_DIRECTORY_CREATION_FAILED,
             'Unable to create directory "{{ path }}". Please check permissions',
             ['path' => $path]
+        );
+    }
+
+    public static function conflictingPrivilegeUpdate(): self
+    {
+        return new self(
+            Response::HTTP_BAD_REQUEST,
+            self::CONFLICTING_PRIVILEGE_UPDATE,
+            'A privilege cannot be present in both the accept and revoke lists simultaneously.'
         );
     }
 }

@@ -5,6 +5,7 @@ namespace Shopware\Tests\Integration\Core\Framework\App\Privileges;
 use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\App\AppCollection;
+use Shopware\Core\Framework\App\AppException;
 use Shopware\Core\Framework\App\Privileges\Privileges;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
@@ -137,7 +138,7 @@ class PrivilegesTest extends TestCase
         );
     }
 
-    public function testAcceptOnlyPrivilegesAcceptsSpecifiedRequestedPrivileges(): void
+    public function testUpdatePrivilegesAcceptOnly(): void
     {
         $appId = $this->createApp();
         $context = Context::createDefaultContext();
@@ -150,11 +151,113 @@ class PrivilegesTest extends TestCase
             ['customer:read', 'customer:update'],
         );
 
-        $this->privileges->acceptOnly($appId, ['customer:update'], $context);
+        $this->privileges->updatePrivileges($appId, ['customer:update'], [], $context);
 
         $this->assertPrivileges(
             'TestApp',
             ['customer:update'],
+            ['customer:read'],
+        );
+    }
+
+    public function testUpdatePrivilegesRevokeOnly(): void
+    {
+        $appId = $this->createApp();
+        $context = Context::createDefaultContext();
+
+        $this->privileges->setPrivileges($appId, ['customer:read', 'customer:update'], $context);
+
+        $this->assertPrivileges(
+            'TestApp',
+            ['customer:read', 'customer:update'],
+            [],
+        );
+
+        $this->privileges->updatePrivileges($appId, [], ['customer:update'], $context);
+
+        $this->assertPrivileges(
+            'TestApp',
+            ['customer:read'],
+            ['customer:update'],
+        );
+    }
+
+    public function testUpdatePrivilegesBoth(): void
+    {
+        $appId = $this->createApp();
+        $context = Context::createDefaultContext();
+
+        $this->privileges->setPrivileges($appId, ['customer:read'], $context);
+        $this->privileges->requestPrivileges($appId, ['product:read', 'product:update'], $context);
+
+        $this->assertPrivileges(
+            'TestApp',
+            [],
+            ['product:read', 'product:update'],
+        );
+
+        $this->privileges->updatePrivileges($appId, ['product:read'], ['customer:read'], $context);
+
+        // - product:read is accepted (moved from requested to existing)
+        // - customer:read is revoked (it was not active, so no change to requested based on this revoke)
+        // - product:update remains in requested
+        $this->assertPrivileges(
+            'TestApp',
+            ['product:read'],
+            ['product:update'],
+        );
+    }
+
+    public function testUpdatePrivilegesThrowsExceptionOnConflict(): void
+    {
+        $appId = $this->createApp();
+        $context = Context::createDefaultContext();
+
+        $this->privileges->requestPrivileges($appId, ['customer:read', 'customer:update'], $context);
+
+        $this->expectException(AppException::class);
+        $this->expectExceptionMessage('A privilege cannot be present in both the accept and revoke lists simultaneously.');
+
+        $this->privileges->updatePrivileges($appId, ['customer:read'], ['customer:read'], $context);
+    }
+
+    public function testUpdatePrivilegesNoChanges(): void
+    {
+        $appId = $this->createApp();
+        $context = Context::createDefaultContext();
+
+        $this->privileges->setPrivileges($appId, ['customer:read'], $context);
+        $this->privileges->requestPrivileges($appId, ['product:read'], $context);
+
+        $this->assertPrivileges(
+            'TestApp',
+            [],
+            ['product:read'],
+        );
+
+        $this->privileges->updatePrivileges($appId, [], [], $context);
+        $this->assertPrivileges(
+            'TestApp',
+            [],
+            ['product:read'],
+        );
+    }
+
+    public function testUpdatePrivilegesAcceptNonRequestedPrivileges(): void
+    {
+        $appId = $this->createApp();
+        $context = Context::createDefaultContext();
+        $this->privileges->requestPrivileges($appId, ['customer:read'], $context);
+        $this->assertPrivileges(
+            'TestApp',
+            [],
+            ['customer:read'],
+        );
+
+        $this->privileges->updatePrivileges($appId, ['product:read'], [], $context);
+        $this->assertPrivileges(
+            'TestApp',
+            [],
             ['customer:read'],
         );
     }
@@ -240,6 +343,27 @@ class PrivilegesTest extends TestCase
                 'App2' => ['product:read', 'product:update'],
             ],
             $this->privileges->getRequestedPrivilegesForAllApps()
+        );
+    }
+
+    public function testUpdatePrivilegesRevokeNonExistentPrivileges(): void
+    {
+        $appId = $this->createApp();
+        $context = Context::createDefaultContext();
+
+        $this->privileges->setPrivileges($appId, ['customer:read'], $context);
+
+        $this->assertPrivileges(
+            'TestApp',
+            ['customer:read'],
+            [],
+        );
+
+        $this->privileges->updatePrivileges($appId, [], ['product:read'], $context);
+        $this->assertPrivileges(
+            'TestApp',
+            ['customer:read'],
+            [],
         );
     }
 

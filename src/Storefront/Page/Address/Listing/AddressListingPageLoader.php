@@ -101,15 +101,14 @@ class AddressListingPageLoader
     private function getCountries(SalesChannelContext $salesChannelContext): CountryCollection
     {
         $criteria = (new Criteria())
-            ->addFilter(new EqualsFilter('country.active', true))
-            ->addAssociation('states');
+            ->addSorting(new FieldSorting('position', FieldSorting::ASCENDING))
+            ->addSorting(new FieldSorting('name', FieldSorting::ASCENDING))
+            ->getAssociation('states')
+            ->addSorting(new FieldSorting('position', FieldSorting::ASCENDING))
+            ->addSorting(new FieldSorting('name', FieldSorting::ASCENDING));
 
-        $countries = $this->countryRoute
+        return $this->countryRoute
             ->load(new Request(), $criteria, $salesChannelContext)
             ->getCountries();
-
-        $countries->sortCountryAndStates();
-
-        return $countries;
     }
 }

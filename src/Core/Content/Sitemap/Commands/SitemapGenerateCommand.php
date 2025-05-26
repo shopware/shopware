@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Content\Sitemap\Commands;
 
+use Shopware\Core\Content\Sitemap\Event\SitemapSalesChannelContextEvent;
 use Shopware\Core\Content\Sitemap\Event\SitemapSalesChannelCriteriaEvent;
 use Shopware\Core\Content\Sitemap\Exception\AlreadyLockedException;
 use Shopware\Core\Content\Sitemap\Service\SitemapExporterInterface;
@@ -83,6 +84,11 @@ class SitemapGenerateCommand extends Command
 
             foreach ($languageIds as $languageId) {
                 $salesChannelContext = $this->salesChannelContextFactory->create('', $salesChannel->getId(), [SalesChannelContextService::LANGUAGE_ID => $languageId]);
+
+                $this->eventDispatcher->dispatch(
+                    new SitemapSalesChannelContextEvent($salesChannelContext, $context)
+                );
+
                 $output->writeln(\sprintf('Generating sitemaps for sales channel %s (%s) with and language %s...', $salesChannel->getId(), $salesChannel->getName(), $languageId));
 
                 try {

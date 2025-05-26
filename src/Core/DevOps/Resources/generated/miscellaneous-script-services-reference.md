@@ -100,7 +100,7 @@ Examples:
 
     request cookies
 _________
-## [`Shopware\Core\Framework\Script\Api\AclFacade`](https://github.com/shopware/shopware/blob/trunk/src/Core/Framework/Script/Api/AclFacade.php) {#aclfacade}
+## [services.acl (`Shopware\Core\Framework\Script\Api\AclFacade`)](https://github.com/shopware/shopware/blob/trunk/src/Core/Framework/Script/Api/AclFacade.php) {#aclfacade}
 
 The `acl` service allows you to check if your app has been granted the specified privilege.
 

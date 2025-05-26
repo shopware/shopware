@@ -426,6 +426,6 @@ class RecalculationService
             ->setIncludeCustomer(false)
             ->setIncludeBillingAddress(false)
             ->setIncludeTransactions(false)
-            ->setIncludeOrderDate(false);
+            ->setIncludePersistentData(false);
     }
 }

@@ -5,6 +5,7 @@ namespace Shopware\Core\Checkout\Document\Zugferd;
 use horstoeko\zugferd\ZugferdDocumentBuilder;
 use horstoeko\zugferd\ZugferdProfiles;
 use Shopware\Core\Checkout\Cart\LineItem\LineItem;
+use Shopware\Core\Checkout\Cart\Price\AmountCalculator;
 use Shopware\Core\Checkout\Cart\Price\Struct\CartPrice;
 use Shopware\Core\Checkout\Document\DocumentConfiguration;
 use Shopware\Core\Checkout\Document\DocumentException;
@@ -24,7 +25,8 @@ class ZugferdBuilder
      * @internal
      */
     public function __construct(
-        protected EventDispatcherInterface $eventDispatcher
+        protected EventDispatcherInterface $eventDispatcher,
+        protected AmountCalculator $calculator
     ) {
     }
 
@@ -62,7 +64,7 @@ class ZugferdBuilder
 
         $this->eventDispatcher->dispatch(new ZugferdInvoiceGeneratedEvent($document, $order, $config, $context));
 
-        return $document->getContent($order);
+        return $document->getContent($order, $this->calculator);
     }
 
     protected function addLineItems(ZugferdDocument $document, ?OrderLineItemCollection $lineItems, string $parentPosition = ''): self

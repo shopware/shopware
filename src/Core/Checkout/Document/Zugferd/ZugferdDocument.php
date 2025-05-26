@@ -9,9 +9,14 @@ use horstoeko\zugferd\codelists\ZugferdSchemeIdentifiers;
 use horstoeko\zugferd\codelists\ZugferdUnitCodes;
 use horstoeko\zugferd\ZugferdDocumentBuilder;
 use horstoeko\zugferd\ZugferdDocumentValidator;
+use Shopware\Core\Checkout\Cart\Price\AmountCalculator;
 use Shopware\Core\Checkout\Cart\Price\CashRounding;
+use Shopware\Core\Checkout\Cart\Price\Struct\CalculatedPrice;
 use Shopware\Core\Checkout\Cart\Price\Struct\CartPrice;
+use Shopware\Core\Checkout\Cart\Price\Struct\PriceCollection;
+use Shopware\Core\Checkout\Cart\Tax\PercentageTaxRuleBuilder;
 use Shopware\Core\Checkout\Cart\Tax\Struct\CalculatedTax;
+use Shopware\Core\Checkout\Cart\Tax\TaxCalculator;
 use Shopware\Core\Checkout\Document\DocumentConfiguration;
 use Shopware\Core\Checkout\Document\DocumentException;
 use Shopware\Core\Checkout\Order\Aggregate\OrderAddress\OrderAddressEntity;
@@ -20,6 +25,8 @@ use Shopware\Core\Checkout\Order\Aggregate\OrderDelivery\OrderDeliveryCollection
 use Shopware\Core\Checkout\Order\Aggregate\OrderLineItem\OrderLineItemEntity;
 use Shopware\Core\Checkout\Order\OrderEntity;
 use Shopware\Core\Checkout\Promotion\Aggregate\PromotionDiscount\PromotionDiscountEntity;
+use Shopware\Core\Framework\DataAbstractionLayer\Pricing\CashRoundingConfig;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\SalesChannelDefinition;
 
@@ -30,19 +37,25 @@ class ZugferdDocument
     public const LINE_TOTAL_AMOUNT = 'lineTotalAmount';
     public const ALLOWANCE_AMOUNT = 'allowanceAmount';
 
-    // To reduce calculation differences with decimal digits
-    protected const MULTIPLIER = 100;
-
+    /**
+     * @deprecated tag:v6.8.0 - Will be removed. Use mappedPrices instead
+     */
     protected float $chargeAmount = 0.0;
 
+    /**
+     * @deprecated tag:v6.8.0 - Will be removed. Use mappedPrices instead
+     */
     protected float $lineTotalAmount = 0.0;
 
+    /**
+     * @deprecated tag:v6.8.0 - Will be removed. Use mappedPrices instead
+     */
     protected float $allowanceAmount = 0.0;
 
     /**
-     * @var array{chargeAmount: array<numeric-string, float>, lineTotalAmount: array<numeric-string, float>, allowanceAmount: array<numeric-string, float>}
+     * @var array{chargeAmount: CalculatedPrice[], lineTotalAmount: CalculatedPrice[], allowanceAmount: CalculatedPrice[]}
      */
-    private array $verticalTaxCalculation = [
+    private array $mappedPrices = [
         self::CHARGE_AMOUNT => [],
         self::LINE_TOTAL_AMOUNT => [],
         self::ALLOWANCE_AMOUNT => [],
@@ -54,9 +67,31 @@ class ZugferdDocument
     ) {
     }
 
-    public function getContent(OrderEntity $order): string
+    /**
+     * @deprecated tag:v6.8.0 - added new parameter $calculator
+     */
+    public function getContent(OrderEntity $order/* , AmountCalculator $calculator */): string
     {
-        $this->withSummation($order);
+        $calculator = func_get_arg(1);
+        if (!$calculator instanceof AmountCalculator) {
+            Feature::triggerDeprecationOrThrow('v6.8.0', 'New required parameter $calculator missing');
+
+            $calculator = new AmountCalculator(
+                new CashRounding(),
+                new PercentageTaxRuleBuilder(),
+                new TaxCalculator()
+            );
+        }
+
+        $this->zugferdBuilder->setDocumentSummation(
+            $order->getAmountTotal(),
+            $order->getAmountTotal(),
+            $this->calculateTaxes(self::LINE_TOTAL_AMOUNT, $order, $calculator),
+            $this->calculateTaxes(self::CHARGE_AMOUNT, $order, $calculator),
+            $this->calculateTaxes(self::ALLOWANCE_AMOUNT, $order, $calculator),
+            $order->getAmountNet(),
+            $order->getAmountTotal() - $order->getAmountNet()
+        );
 
         $validation = (new ZugferdDocumentValidator($this->zugferdBuilder))->validateDocument();
         if ($validation->count()) {
@@ -129,14 +164,15 @@ class ZugferdDocument
 
     public function withProductLineItem(OrderLineItemEntity $lineItem, string $parentPosition): self
     {
-        $tax = $lineItem->getPrice()?->getCalculatedTaxes()?->first();
+        $price = $lineItem->getPrice();
+        $tax = $price?->getCalculatedTaxes()?->first();
         $product = $lineItem->getProduct();
 
-        if ($tax === null || ($totalNet = $this->getPrice($tax)) < 0) {
+        if ($price === null || $tax === null || ($totalNet = $this->getPrice($tax)) < 0) {
             throw DocumentException::generationError('Price can\'t be negative or null: ' . $lineItem->getLabel());
         }
 
-        $this->addVerticalTaxCalculation(self::LINE_TOTAL_AMOUNT, $tax->getTaxRate(), $tax->getPrice());
+        $this->addMappedPrice(self::LINE_TOTAL_AMOUNT, $price);
         $this->addLineTotalAmount($totalNet);
         $this->zugferdBuilder
             ->addNewPosition($parentPosition . $lineItem->getPosition())
@@ -166,9 +202,10 @@ class ZugferdDocument
         $isPercentage = (($lineItem->getPayload()['discountType'] ?? null) === PromotionDiscountEntity::TYPE_PERCENTAGE)
             && (abs($lineItem->getTotalPrice()) !== (float) ($lineItem->getPayload()['maxValue'] ?? null));
 
+        $this->addMappedPrice(self::ALLOWANCE_AMOUNT, $lineItem->getPrice());
+
         foreach ($lineItem->getPrice()->getCalculatedTaxes() as $calculatedTax) {
             $actualAmount = $this->getPrice($calculatedTax);
-            $this->addVerticalTaxCalculation(self::ALLOWANCE_AMOUNT, $calculatedTax->getTaxRate(), $calculatedTax->getPrice());
 
             $this->addAllowanceAmount($actualAmount);
             $this->zugferdBuilder->addDocumentAllowanceCharge(
@@ -201,9 +238,10 @@ class ZugferdDocument
     public function withDelivery(OrderDeliveryCollection $deliveries): self
     {
         foreach ($deliveries as $delivery) {
+            $this->addMappedPrice(self::CHARGE_AMOUNT, $delivery->getShippingCosts());
+
             foreach ($delivery->getShippingCosts()->getCalculatedTaxes() as $calculatedTax) {
                 $actualAmount = $this->getPrice($calculatedTax);
-                $this->addVerticalTaxCalculation(self::CHARGE_AMOUNT, $calculatedTax->getTaxRate(), $calculatedTax->getPrice());
 
                 $this->addChargeAmount($actualAmount);
                 $this->zugferdBuilder->addDocumentAllowanceCharge(
@@ -236,50 +274,33 @@ class ZugferdDocument
         return $this;
     }
 
-    protected function withSummation(OrderEntity $order): void
-    {
-        $lineTotalAmount = $this->lineTotalAmount;
-        $chargeAmount = $this->chargeAmount;
-        $allowanceAmount = $this->allowanceAmount;
-
-        if ($this->isGross && $order->getTaxCalculationType() === SalesChannelDefinition::CALCULATION_TYPE_VERTICAL) {
-            [
-                'lineTotalAmount' => $lineTotalAmount,
-                'chargeAmount' => $chargeAmount,
-                'allowanceAmount' => $allowanceAmount,
-            ] = $this->calculateVerticalTaxes();
-        }
-
-        $cashRounding = $order->getItemRounding();
-        if ($cashRounding) {
-            $lineTotalAmount = (new CashRounding())->cashRound($lineTotalAmount, $cashRounding);
-            $chargeAmount = (new CashRounding())->cashRound($chargeAmount, $cashRounding);
-            $allowanceAmount = (new CashRounding())->cashRound($allowanceAmount, $cashRounding);
-        }
-
-        $this->zugferdBuilder->setDocumentSummation(
-            $order->getAmountTotal(),
-            $order->getAmountTotal(),
-            abs($lineTotalAmount),
-            abs($chargeAmount),
-            abs($allowanceAmount),
-            $order->getAmountNet(),
-            $order->getAmountTotal() - $order->getAmountNet()
-        );
-    }
-
+    /**
+     * @deprecated tag:v6.8.0 - Will be removed. Use addMappedPrice instead
+     */
     protected function addChargeAmount(float $chargeAmount): void
     {
+        Feature::triggerDeprecationOrThrow('v6.8.0', 'Method and parameter will be removed. Use addMappedPrice instead.');
+
         $this->chargeAmount += $chargeAmount;
     }
 
+    /**
+     * @deprecated tag:v6.8.0 - Will be removed. Use addMappedPrice instead
+     */
     protected function addLineTotalAmount(float $lineTotalAmount): void
     {
+        Feature::triggerDeprecationOrThrow('v6.8.0', 'Method and parameter will be removed. Use addMappedPrice instead.');
+
         $this->lineTotalAmount += $lineTotalAmount;
     }
 
+    /**
+     * @deprecated tag:v6.8.0 - Will be removed. Use addMappedPrice instead
+     */
     protected function addAllowanceAmount(float $allowanceAmount): void
     {
+        Feature::triggerDeprecationOrThrow('v6.8.0', 'Method and parameter will be removed. Use addMappedPrice instead.');
+
         $this->allowanceAmount += $allowanceAmount;
     }
 
@@ -293,17 +314,13 @@ class ZugferdDocument
         return $price;
     }
 
-    protected function addVerticalTaxCalculation(string $type, float $taxRate, float $amount): void
+    protected function addMappedPrice(string $type, CalculatedPrice $price): void
     {
-        if (!$this->isGross) {
+        if (!\array_key_exists($type, $this->mappedPrices)) {
             return;
         }
 
-        if (!\array_key_exists($type, $this->verticalTaxCalculation)) {
-            return;
-        }
-
-        $this->verticalTaxCalculation[$type][(string) $taxRate] = ($amount * self::MULTIPLIER) + ($this->verticalTaxCalculation[$type][(string) $taxRate] ?? 0.0);
+        $this->mappedPrices[$type][] = $price;
     }
 
     protected function getTaxCode(?CalculatedTax $tax): string
@@ -314,25 +331,24 @@ class ZugferdDocument
         };
     }
 
-    /**
-     * @return array{chargeAmount: float, lineTotalAmount: float, allowanceAmount: float}
-     */
-    protected function calculateVerticalTaxes(): array
+    protected function calculateTaxes(string $type, OrderEntity $order, AmountCalculator $calculator): float
     {
-        $calculatedTaxes = [
-            self::CHARGE_AMOUNT => 0.0,
-            self::LINE_TOTAL_AMOUNT => 0.0,
-            self::ALLOWANCE_AMOUNT => 0.0,
-        ];
-
-        foreach ($this->verticalTaxCalculation as $type => $taxes) {
-            foreach ($taxes as $taxRate => $gross) {
-                $calculatedTaxes[$type] += $gross / (1 + (float) $taxRate / 100);
-            }
-
-            $calculatedTaxes[$type] /= self::MULTIPLIER;
+        if (!\array_key_exists($type, $this->mappedPrices)) {
+            throw DocumentException::generationError(\sprintf('Type "%s" not supported', $type));
         }
 
-        return $calculatedTaxes;
+        $calculatedTaxes = $calculator->calculateTaxes(
+            new PriceCollection($this->mappedPrices[$type]),
+            $order->getTaxCalculationType() ?? SalesChannelDefinition::CALCULATION_TYPE_HORIZONTAL,
+            $order->getTaxStatus() ?? CartPrice::TAX_STATE_NET,
+            $order->getItemRounding() ?? new CashRoundingConfig(2, 0.01, true)
+        );
+
+        $netTotal = 0.0;
+        foreach ($calculatedTaxes as $tax) {
+            $netTotal += $tax->getPrice() - $tax->getTax();
+        }
+
+        return $netTotal;
     }
 }

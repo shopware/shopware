@@ -7,10 +7,15 @@ use horstoeko\zugferd\ZugferdProfiles;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Checkout\Cart\Price\AmountCalculator;
+use Shopware\Core\Checkout\Cart\Price\CashRounding;
 use Shopware\Core\Checkout\Cart\Price\Struct\CalculatedPrice;
+use Shopware\Core\Checkout\Cart\Price\Struct\CartPrice;
+use Shopware\Core\Checkout\Cart\Tax\PercentageTaxRuleBuilder;
 use Shopware\Core\Checkout\Cart\Tax\Struct\CalculatedTax;
 use Shopware\Core\Checkout\Cart\Tax\Struct\CalculatedTaxCollection;
 use Shopware\Core\Checkout\Cart\Tax\Struct\TaxRuleCollection;
+use Shopware\Core\Checkout\Cart\Tax\TaxCalculator;
 use Shopware\Core\Checkout\Document\DocumentException;
 use Shopware\Core\Checkout\Document\Zugferd\ZugferdDocument;
 use Shopware\Core\Checkout\Order\Aggregate\OrderDelivery\OrderDeliveryCollection;
@@ -35,10 +40,21 @@ class ZugferdDocumentTest extends TestCase
         $this->expectExceptionMessageMatches('/Unable to generate document. ([0-9]+) violation\(s\) found/');
 
         $order = new OrderEntity();
+        $order->setTaxStatus(CartPrice::TAX_STATE_GROSS);
         $order->setAmountTotal(0.0);
         $order->setAmountNet(0.0);
+        $order->setItemRounding(new CashRoundingConfig(2, .01, false));
+        $order->setTotalRounding(new CashRoundingConfig(2, .01, false));
 
-        (new ZugferdDocument(ZugferdDocumentBuilder::createNew(ZugferdProfiles::PROFILE_XRECHNUNG_3)))->getContent($order);
+        (new ZugferdDocument(ZugferdDocumentBuilder::createNew(ZugferdProfiles::PROFILE_XRECHNUNG_3)))
+            ->getContent(
+                $order,
+                new AmountCalculator(
+                    new CashRounding(),
+                    new PercentageTaxRuleBuilder(),
+                    new TaxCalculator()
+                )
+            );
     }
 
     public function testWithNegativePrice(): void
@@ -65,43 +81,55 @@ class ZugferdDocumentTest extends TestCase
      * @param string[] $expected
      */
     #[DataProvider('dataProviderDifferentType')]
-    public function testDifferentTaxCalculationType(string $calculationType, bool $gross, array $expected): void
+    public function testDifferentTaxCalculationType(string $calculationType, bool $isGross, array $expected): void
     {
         $position = 0;
         $order = new OrderEntity();
         $order->setTaxCalculationType($calculationType);
         $order->setItemRounding(new CashRoundingConfig(2, .01, false));
-        $order->setAmountTotal(123.4);
-        $order->setAmountNet(100);
+        $order->setTotalRounding(new CashRoundingConfig(2, .01, false));
+        $order->setAmountNet((float) $expected[3]);
+        $order->setTaxStatus($isGross ? CartPrice::TAX_STATE_GROSS : CartPrice::TAX_STATE_NET);
 
-        $document = new ZugferdDocumentMock(ZugferdDocumentBuilder::createNew(ZugferdProfiles::PROFILE_XRECHNUNG_3), $gross);
+        $document = new ZugferdDocumentMock(ZugferdDocumentBuilder::createNew(ZugferdProfiles::PROFILE_XRECHNUNG_3), $isGross);
 
+        $lineItemGross = [1.87, 4.5, 2.42, 4.74, 1.93, 2.6, 4.21, 10.7];
         $document
-            ->withProductLineItem($this->createOrderLineItem(1.87, 19.0, ++$position), '')
-            ->withProductLineItem($this->createOrderLineItem(4.5, 19.0, ++$position), '')
-            ->withProductLineItem($this->createOrderLineItem(2.42, 19.0, ++$position), '')
-            ->withProductLineItem($this->createOrderLineItem(4.74, 19.0, ++$position), '')
-            ->withProductLineItem($this->createOrderLineItem(1.93, 19.0, ++$position), '')
-            ->withProductLineItem($this->createOrderLineItem(2.6, 19.0, ++$position), '')
-            ->withProductLineItem($this->createOrderLineItem(4.21, 19.0, ++$position), '')
-            ->withProductLineItem($this->createOrderLineItem(10.7, 7.0, ++$position), '');
+            ->withProductLineItem($this->createOrderLineItem($lineItemGross[0], 19.0, $isGross, ++$position), '')
+            ->withProductLineItem($this->createOrderLineItem($lineItemGross[1], 19.0, $isGross, ++$position), '')
+            ->withProductLineItem($this->createOrderLineItem($lineItemGross[2], 19.0, $isGross, ++$position), '')
+            ->withProductLineItem($this->createOrderLineItem($lineItemGross[3], 19.0, $isGross, ++$position), '')
+            ->withProductLineItem($this->createOrderLineItem($lineItemGross[4], 19.0, $isGross, ++$position), '')
+            ->withProductLineItem($this->createOrderLineItem($lineItemGross[5], 19.0, $isGross, ++$position), '')
+            ->withProductLineItem($this->createOrderLineItem($lineItemGross[6], 19.0, $isGross, ++$position), '')
+            ->withProductLineItem($this->createOrderLineItem($lineItemGross[7], 7.0, $isGross, ++$position), '');
 
+        $discountGross = [1.4, 1.34, 5.2, 2.4, 0.7, 0.2];
         $document
-            ->withDiscountItem($this->createOrderLineItem(1.4, 19.0))
-            ->withDiscountItem($this->createOrderLineItem(1.34, 19.0))
-            ->withDiscountItem($this->createOrderLineItem(5.2, 19.0))
-            ->withDiscountItem($this->createOrderLineItem(2.4, 19.0))
-            ->withDiscountItem($this->createOrderLineItem(0.7, 19.0))
-            ->withDiscountItem($this->createOrderLineItem(0.2, 7.0));
+            ->withDiscountItem($this->createOrderLineItem($discountGross[0], 19.0, $isGross))
+            ->withDiscountItem($this->createOrderLineItem($discountGross[1], 19.0, $isGross))
+            ->withDiscountItem($this->createOrderLineItem($discountGross[2], 19.0, $isGross))
+            ->withDiscountItem($this->createOrderLineItem($discountGross[3], 19.0, $isGross))
+            ->withDiscountItem($this->createOrderLineItem($discountGross[4], 19.0, $isGross))
+            ->withDiscountItem($this->createOrderLineItem($discountGross[5], 7.0, $isGross));
 
+        $deliveryGross = [20.33, 15.44, 10.28, 5.0];
         $document->withDelivery(new OrderDeliveryCollection([
-            $this->createOrderDeliveryItem(20.33, 19.0),
-            $this->createOrderDeliveryItem(15.44, 19.0),
-            $this->createOrderDeliveryItem(10.28, 19.0),
-            $this->createOrderDeliveryItem(5.0, 7.0),
+            $this->createOrderDeliveryItem($deliveryGross[0], 19.0, $isGross),
+            $this->createOrderDeliveryItem($deliveryGross[1], 19.0, $isGross),
+            $this->createOrderDeliveryItem($deliveryGross[2], 19.0, $isGross),
+            $this->createOrderDeliveryItem($deliveryGross[3], 7.0, $isGross),
         ]));
 
-        $this->validateDocument($document->getDomContent($order), $expected);
+        $order->setAmountTotal(round(array_sum($lineItemGross) + array_sum($discountGross) + array_sum($deliveryGross), 2));
+
+        $calculator = new AmountCalculator(
+            new CashRounding(),
+            new PercentageTaxRuleBuilder(),
+            new TaxCalculator()
+        );
+
+        $this->validateDocument($document->getDomContent($order, $calculator), $expected);
     }
 
     /**
@@ -113,22 +141,22 @@ class ZugferdDocumentTest extends TestCase
             'Gross horizontal' => [
                 SalesChannelDefinition::CALCULATION_TYPE_HORIZONTAL,
                 true,
-                ['28.70', '43.36', '9.48', '100.00', '23.40', '123.40', '123.40'],
+                ['28.70', '43.36', '9.48', '62.58', '32.68', '95.26', '95.26'],
             ],
             'Gross vertical' => [
                 SalesChannelDefinition::CALCULATION_TYPE_VERTICAL,
                 true,
-                ['28.71', '43.37', '9.46', '100.00', '23.40', '123.40', '123.40'],
+                ['28.71', '43.37', '9.47', '62.61', '32.65', '95.26', '95.26'],
             ],
             'Net horizontal' => [
                 SalesChannelDefinition::CALCULATION_TYPE_HORIZONTAL,
                 false,
-                ['32.97', '51.05', '11.24', '100.00', '23.40', '123.40', '123.40'],
+                ['27.98', '41.96', '9.13', '60.81', '34.45', '95.26', '95.26'],
             ],
             'Net vertical' => [
                 SalesChannelDefinition::CALCULATION_TYPE_VERTICAL,
                 false,
-                ['32.97', '51.05', '11.24', '100.00', '23.40', '123.40', '123.40'],
+                ['27.99', '41.95', '9.13', '60.81', '34.45', '95.26', '95.26'],
             ],
         ];
     }
@@ -165,14 +193,21 @@ class ZugferdDocumentTest extends TestCase
         static::assertSame($expected[4], $taxTotalAmount->item(0)?->nodeValue);
         static::assertSame($expected[5], $grandTotalAmount->item(0)?->nodeValue);
         static::assertSame($expected[6], $duePayableAmount->item(0)?->nodeValue);
+
+        $totalNet = (float) $lineTotalAmount->item(0)->nodeValue + (float) $chargeTotalAmount->item(0)->nodeValue - (float) $allowanceTotalAmount->item(0)->nodeValue;
+        $totalGross = (float) $taxBasisTotalAmount->item(0)->nodeValue + (float) $taxTotalAmount->item(0)->nodeValue;
+
+        static::assertSame((float) $taxBasisTotalAmount->item(0)->nodeValue, round($totalNet, 2));
+        static::assertSame((float) $grandTotalAmount->item(0)->nodeValue, round($totalGross, 2));
     }
 
-    private function createOrderLineItem(float $gross, float $taxRate, ?int $position = null): OrderLineItemEntity
+    private function createOrderLineItem(float $price, float $taxRate, bool $isGross, ?int $position = null): OrderLineItemEntity
     {
+        $rate = $isGross ? $price - $price / (1 + $taxRate / 100) : ($price * (1 + $taxRate / 100) - $price);
         $tax = new CalculatedTax(
-            round($gross - $gross / (1 + $taxRate / 100), 2),
+            round($rate, 2),
             $taxRate,
-            $gross
+            $price
         );
 
         $item = new OrderLineItemEntity();
@@ -180,8 +215,8 @@ class ZugferdDocumentTest extends TestCase
         $item->setLabel('Product ' . $item->getId());
         $item->setQuantity(1);
         $item->setPrice(new CalculatedPrice(
-            $gross,
-            $gross,
+            $price,
+            $price,
             new CalculatedTaxCollection([$tax]),
             new TaxRuleCollection(),
         ));
@@ -193,19 +228,20 @@ class ZugferdDocumentTest extends TestCase
         return $item;
     }
 
-    private function createOrderDeliveryItem(float $gross, float $taxRate): OrderDeliveryEntity
+    private function createOrderDeliveryItem(float $price, float $taxRate, bool $isGross): OrderDeliveryEntity
     {
+        $rate = $isGross ? $price - $price / (1 + $taxRate / 100) : ($price * (1 + $taxRate / 100) - $price);
         $tax = new CalculatedTax(
-            round($gross - $gross / (1 + $taxRate / 100), 2),
+            round($rate, 2),
             $taxRate,
-            $gross
+            $price
         );
 
         $delivery = new OrderDeliveryEntity();
         $delivery->setId(Uuid::randomHex());
         $delivery->setShippingCosts(new CalculatedPrice(
-            $gross,
-            $gross,
+            $price,
+            $price,
             new CalculatedTaxCollection([$tax]),
             new TaxRuleCollection(),
         ));

@@ -19,6 +19,6 @@ class Migration1747746986OrderTaxCalculationType extends MigrationStep
 
     public function update(Connection $connection): void
     {
-        $this->addColumn($connection, 'order', 'tax_calculation_type', 'varchar(255)');
+        $this->addColumn($connection, 'order', 'tax_calculation_type', 'varchar(50)');
     }
 }

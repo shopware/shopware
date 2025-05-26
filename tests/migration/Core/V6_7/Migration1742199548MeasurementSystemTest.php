@@ -27,13 +27,9 @@ class Migration1742199548MeasurementSystemTest extends TestCase
         $foreignKeys = [
             SalesChannelDomainDefinition::ENTITY_NAME => [
                 'fk.sales_channel_domain.measurement_system_id',
-                'fk.sales_channel_domain.weight_unit_id',
-                'fk.sales_channel_domain.length_unit_id',
             ],
             SalesChannelDefinition::ENTITY_NAME => [
                 'fk.sales_channel.measurement_system_id',
-                'fk.sales_channel.weight_unit_id',
-                'fk.sales_channel.length_unit_id',
             ],
         ];
 
@@ -51,8 +47,8 @@ class Migration1742199548MeasurementSystemTest extends TestCase
         }
 
         $columns = [
-            'sales_channel_domain' => ['measurement_system_id', 'weight_unit_id', 'length_unit_id'],
-            'sales_channel' => ['measurement_system_id', 'weight_unit_id', 'length_unit_id'],
+            'sales_channel_domain' => ['measurement_system_id', 'measurement_units'],
+            'sales_channel' => ['measurement_system_id', 'measurement_units'],
         ];
 
         foreach ($columns as $table => $cols) {

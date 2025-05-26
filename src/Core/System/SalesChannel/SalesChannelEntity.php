@@ -19,6 +19,7 @@ use Shopware\Core\Content\LandingPage\LandingPageCollection;
 use Shopware\Core\Content\MailTemplate\Aggregate\MailHeaderFooter\MailHeaderFooterEntity;
 use Shopware\Core\Content\MeasurementSystem\Entity\MeasurementDisplayUnitEntity;
 use Shopware\Core\Content\MeasurementSystem\Entity\MeasurementSystemEntity;
+use Shopware\Core\Content\MeasurementSystem\MeasurementUnits;
 use Shopware\Core\Content\Newsletter\Aggregate\NewsletterRecipient\NewsletterRecipientCollection;
 use Shopware\Core\Content\Product\Aggregate\ProductReview\ProductReviewCollection;
 use Shopware\Core\Content\Product\Aggregate\ProductVisibility\ProductVisibilityCollection;
@@ -125,10 +126,6 @@ class SalesChannelEntity extends Entity
 
     protected string $measurementSystemId;
 
-    protected string $weightUnitId;
-
-    protected string $lengthUnitId;
-
     protected ?SalesChannelTypeEntity $type = null;
 
     protected ?CurrencyEntity $currency = null;
@@ -214,11 +211,7 @@ class SalesChannelEntity extends Entity
 
     protected ?LandingPageCollection $landingPages = null;
 
-    protected ?MeasurementSystemEntity $measurementSystem = null;
-
-    protected ?MeasurementDisplayUnitEntity $weightUnit = null;
-
-    protected ?MeasurementDisplayUnitEntity $lengthUnit = null;
+    protected MeasurementUnits $measurementUnits;
 
     public function getMailHeaderFooter(): ?MailHeaderFooterEntity
     {
@@ -974,63 +967,13 @@ class SalesChannelEntity extends Entity
         $this->serviceCategoryVersionId = $serviceCategoryVersionId;
     }
 
-    public function getMeasurementSystemId(): string
+    public function getMeasurementUnits(): MeasurementUnits
     {
-        return $this->measurementSystemId;
+        return $this->measurementUnits;
     }
 
-    public function setMeasurementSystemId(string $measurementSystemId): void
+    public function setMeasurementUnits(MeasurementUnits $measurementUnits): void
     {
-        $this->measurementSystemId = $measurementSystemId;
-    }
-
-    public function getMeasurementSystem(): ?MeasurementSystemEntity
-    {
-        return $this->measurementSystem;
-    }
-
-    public function setMeasurementSystem(?MeasurementSystemEntity $measurementSystem): void
-    {
-        $this->measurementSystem = $measurementSystem;
-    }
-
-    public function getWeightUnitId(): string
-    {
-        return $this->weightUnitId;
-    }
-
-    public function setWeightUnitId(string $weightUnitId): void
-    {
-        $this->weightUnitId = $weightUnitId;
-    }
-
-    public function getWeightUnit(): ?MeasurementDisplayUnitEntity
-    {
-        return $this->weightUnit;
-    }
-
-    public function setWeightUnit(?MeasurementDisplayUnitEntity $weightUnit): void
-    {
-        $this->weightUnit = $weightUnit;
-    }
-
-    public function getLengthUnitId(): string
-    {
-        return $this->lengthUnitId;
-    }
-
-    public function setLengthUnitId(string $lengthUnitId): void
-    {
-        $this->lengthUnitId = $lengthUnitId;
-    }
-
-    public function getLengthUnit(): ?MeasurementDisplayUnitEntity
-    {
-        return $this->lengthUnit;
-    }
-
-    public function setLengthUnit(?MeasurementDisplayUnitEntity $lengthUnit): void
-    {
-        $this->lengthUnit = $lengthUnit;
+        $this->measurementUnits = $measurementUnits;
     }
 }

@@ -2,7 +2,7 @@
 
 namespace Shopware\Core\Content\Product\Subscriber;
 
-use Shopware\Core\Content\MeasurementSystem\MeasurementSystemInfo;
+use Shopware\Core\Content\MeasurementSystem\MeasurementUnits;
 use Shopware\Core\Content\MeasurementSystem\ProductMeasurement\ProductMeasurementUnitBuilder;
 use Shopware\Core\Content\MeasurementSystem\UnitConverter\AbstractMeasurementUnitConverter;
 use Shopware\Core\Content\Product\AbstractIsNewDetector;
@@ -134,7 +134,7 @@ class ProductSubscriber implements EventSubscriberInterface
                 $command->addPayload('width', $this->measurementUnitConverter->convert(
                     $payload['width'],
                     $lengthUnitHeader,
-                    MeasurementSystemInfo::DEFAULT_LENGTH_UNIT,
+                    MeasurementUnits::DEFAULT_LENGTH_UNIT,
                 )->value);
             }
 
@@ -142,7 +142,7 @@ class ProductSubscriber implements EventSubscriberInterface
                 $command->addPayload('height', $this->measurementUnitConverter->convert(
                     $payload['height'],
                     $lengthUnitHeader,
-                    MeasurementSystemInfo::DEFAULT_LENGTH_UNIT,
+                    MeasurementUnits::DEFAULT_LENGTH_UNIT,
                 )->value);
             }
 
@@ -150,7 +150,7 @@ class ProductSubscriber implements EventSubscriberInterface
                 $command->addPayload('length', $this->measurementUnitConverter->convert(
                     $payload['length'],
                     $lengthUnitHeader,
-                    MeasurementSystemInfo::DEFAULT_LENGTH_UNIT,
+                    MeasurementUnits::DEFAULT_LENGTH_UNIT,
                 )->value);
             }
 
@@ -158,7 +158,7 @@ class ProductSubscriber implements EventSubscriberInterface
                 $command->addPayload('weight', $this->measurementUnitConverter->convert(
                     $payload['weight'],
                     $weightUnitHeader,
-                    MeasurementSystemInfo::DEFAULT_WEIGHT_UNIT,
+                    MeasurementUnits::DEFAULT_WEIGHT_UNIT,
                 )->value);
             }
         }
@@ -194,22 +194,22 @@ class ProductSubscriber implements EventSubscriberInterface
 
         if ($lengthUnitHeader) {
             if (\is_float($product->get('height')) && $product->get('height') > 0) {
-                $assigns['height'] = $this->measurementUnitConverter->convert($product->get('height'), MeasurementSystemInfo::DEFAULT_LENGTH_UNIT, $lengthUnitHeader)->value;
+                $assigns['height'] = $this->measurementUnitConverter->convert($product->get('height'), MeasurementUnits::DEFAULT_LENGTH_UNIT, $lengthUnitHeader)->value;
             }
 
             if (\is_float($product->get('width')) && $product->get('width') > 0) {
-                $assigns['width'] = $this->measurementUnitConverter->convert($product->get('width'), MeasurementSystemInfo::DEFAULT_LENGTH_UNIT, $lengthUnitHeader)->value;
+                $assigns['width'] = $this->measurementUnitConverter->convert($product->get('width'), MeasurementUnits::DEFAULT_LENGTH_UNIT, $lengthUnitHeader)->value;
             }
 
             if (\is_float($product->get('length')) && $product->get('length') > 0) {
-                $assigns['length'] = $this->measurementUnitConverter->convert($product->get('length'), MeasurementSystemInfo::DEFAULT_LENGTH_UNIT, $lengthUnitHeader)->value;
+                $assigns['length'] = $this->measurementUnitConverter->convert($product->get('length'), MeasurementUnits::DEFAULT_LENGTH_UNIT, $lengthUnitHeader)->value;
             }
         }
 
         $weightUnitHeader = $this->requestStack->getCurrentRequest()?->headers->get(PlatformRequest::HEADER_MEASUREMENT_WEIGHT_UNIT);
 
         if ($weightUnitHeader && \is_float($product->get('weight')) && $product->get('weight') > 0) {
-            $assigns['weight'] = $this->measurementUnitConverter->convert($product->get('weight'), MeasurementSystemInfo::DEFAULT_WEIGHT_UNIT, $weightUnitHeader)->value;
+            $assigns['weight'] = $this->measurementUnitConverter->convert($product->get('weight'), MeasurementUnits::DEFAULT_WEIGHT_UNIT, $weightUnitHeader)->value;
         }
 
         if (!empty($assigns)) {

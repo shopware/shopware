@@ -3,6 +3,7 @@
 namespace Shopware\Core\System\SalesChannel\Aggregate\SalesChannelDomain;
 
 use Shopware\Core\Content\ProductExport\ProductExportDefinition;
+use Shopware\Core\Content\MeasurementSystem\Field\MeasurementUnitsField;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\BoolField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\CustomFields;
@@ -62,16 +63,11 @@ class SalesChannelDomainDefinition extends EntityDefinition
             (new FkField('language_id', 'languageId', LanguageDefinition::class))->addFlags(new ApiAware(), new Required()),
             (new FkField('currency_id', 'currencyId', CurrencyDefinition::class))->addFlags(new ApiAware(), new Required()),
             (new FkField('snippet_set_id', 'snippetSetId', SnippetSetDefinition::class))->addFlags(new ApiAware(), new Required()),
-            (new FkField('measurement_system_id', 'measurementSystemId', 'measurement_system.definition'))->addFlags(new Required(), new ApiAware()),
-            (new FkField('weight_unit_id', 'weightUnitId', 'measurement_display_unit.definition'))->addFlags(new Required(), new ApiAware()),
-            (new FkField('length_unit_id', 'lengthUnitId', 'measurement_display_unit.definition'))->addFlags(new Required(), new ApiAware()),
+            (new MeasurementUnitsField('measurement_units', 'measurementUnits'))->addFlags(new ApiAware()),
             new ManyToOneAssociationField('salesChannel', 'sales_channel_id', SalesChannelDefinition::class, 'id', false),
             (new ManyToOneAssociationField('language', 'language_id', LanguageDefinition::class, 'id', false))->addFlags(new ApiAware()),
             (new ManyToOneAssociationField('currency', 'currency_id', CurrencyDefinition::class, 'id', false))->addFlags(new ApiAware()),
             new ManyToOneAssociationField('snippetSet', 'snippet_set_id', SnippetSetDefinition::class, 'id', false),
-            new ManyToOneAssociationField('measurementSystem', 'measurement_system_id', 'measurement_system.definition', 'id', false),
-            new ManyToOneAssociationField('weightUnit', 'weight_unit_id', 'measurement_display_unit.definition', 'id', false),
-            new ManyToOneAssociationField('lengthUnit', 'length_unit_id', 'measurement_display_unit.definition', 'id', false),
             (new OneToOneAssociationField('salesChannelDefaultHreflang', 'id', 'hreflang_default_domain_id', SalesChannelDefinition::class, false))->addFlags(new ApiAware()),
             new OneToManyAssociationField('productExports', ProductExportDefinition::class, 'sales_channel_domain_id', 'id'),
             (new BoolField('hreflang_use_only_locale', 'hreflangUseOnlyLocale'))->addFlags(new ApiAware()),

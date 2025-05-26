@@ -4,7 +4,7 @@
 >
     <sw-entity-single-select
         ref="measurementSystemSelect"
-        v-model:value="salesChannel.measurementSystemId"
+        v-model:value="salesChannel.measurementUnits.system"
         entity="measurement_system"
         :label="labelUnitSystem"
         :criteria="measurementSystemCriteria"
@@ -12,7 +12,7 @@
     />
 
     <sw-entity-single-select
-        v-model:value="salesChannel.lengthUnitId"
+        v-model:value="salesChannel.measurementUnits.units.length"
         entity="measurement_display_unit"
         :popover-classes="['sw-sales-channel-measurement__selection-popover']"
         :label="labelLengthUnit"
@@ -33,7 +33,7 @@
     </sw-entity-single-select>
 
     <sw-entity-single-select
-        v-model:value="salesChannel.weightUnitId"
+        v-model:value="salesChannel.measurementUnits.units.width"
         entity="measurement_display_unit"
         :popover-classes="['sw-sales-channel-measurement__selection-popover']"
         :label="labelWeightUnit"

@@ -6,7 +6,7 @@ use Shopware\Core\Checkout\Cart\Delivery\Struct\ShippingLocation;
 use Shopware\Core\Checkout\Customer\Aggregate\CustomerGroup\CustomerGroupEntity;
 use Shopware\Core\Checkout\Payment\PaymentMethodEntity;
 use Shopware\Core\Checkout\Shipping\ShippingMethodEntity;
-use Shopware\Core\Content\MeasurementSystem\MeasurementSystemInfo;
+use Shopware\Core\Content\MeasurementSystem\MeasurementUnits;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Pricing\CashRoundingConfig;
 use Shopware\Core\Framework\Log\Package;
@@ -26,17 +26,17 @@ class BaseSalesChannelContext
 {
     public function __construct(
         protected Context $context,
-        protected SalesChannelEntity $salesChannel,
-        protected CurrencyEntity $currency,
-        protected CustomerGroupEntity $currentCustomerGroup,
-        protected TaxCollection $taxRules,
-        protected PaymentMethodEntity $paymentMethod,
-        protected ShippingMethodEntity $shippingMethod,
-        protected ShippingLocation $shippingLocation,
+        protected SalesChannelEntity        $salesChannel,
+        protected CurrencyEntity            $currency,
+        protected CustomerGroupEntity       $currentCustomerGroup,
+        protected TaxCollection             $taxRules,
+        protected PaymentMethodEntity       $paymentMethod,
+        protected ShippingMethodEntity      $shippingMethod,
+        protected ShippingLocation          $shippingLocation,
         private readonly CashRoundingConfig $itemRounding,
         private readonly CashRoundingConfig $totalRounding,
-        private readonly LanguageInfo $languageInfo,
-        private readonly MeasurementSystemInfo $measurementSystemInfo,
+        private readonly LanguageInfo       $languageInfo,
+        private readonly MeasurementUnits   $measurementSystemInfo,
     ) {
     }
 
@@ -110,7 +110,7 @@ class BaseSalesChannelContext
         return $this->languageInfo;
     }
 
-    public function getMeasurementSystemInfo(): MeasurementSystemInfo
+    public function getMeasurementSystemInfo(): MeasurementUnits
     {
         return $this->measurementSystemInfo;
     }

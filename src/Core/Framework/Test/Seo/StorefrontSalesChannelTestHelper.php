@@ -90,9 +90,6 @@ trait StorefrontSalesChannelTestHelper
                 'currencyId' => Defaults::CURRENCY,
                 'snippetSetId' => $this->getSnippetSetIdForLocale('en-GB'),
                 'url' => 'http://example.com/' . $name . '/' . $langId,
-                'measurementSystemId' => Uuid::fromStringToHex('metric'),
-                'lengthUnitId' => Uuid::fromStringToHex('metric-mm'),
-                'weightUnitId' => Uuid::fromStringToHex('metric-kg'),
             ];
         }
 
@@ -117,8 +114,10 @@ trait StorefrontSalesChannelTestHelper
             'domains' => $domains,
             'navigationCategoryId' => !$categoryEntrypoint ? $this->getValidCategoryId() : $categoryEntrypoint,
             'measurementSystemId' => Uuid::fromStringToHex('metric'),
-            'lengthUnitId' => Uuid::fromStringToHex('metric-mm'),
-            'weightUnitId' => Uuid::fromStringToHex('metric-kg'),
+            'measurementUnits' => [
+                'length' => 'mm',
+                'weight' => 'kg'
+            ],
         ]], Context::createDefaultContext());
 
         /** @var SalesChannelEntity $salesChannel */

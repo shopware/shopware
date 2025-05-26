@@ -98,6 +98,10 @@ class ThemeServiceTest extends TestCase
     {
         $themeId = Uuid::randomHex();
 
+        $this->connectionMock->expects($this->once())->method('transactional')->willReturnCallback(function (callable $callback): void {
+            $callback();
+        });
+
         $this->themeSalesChannelRepositoryMock->expects($this->once())->method('upsert')->with(
             [[
                 'themeId' => $themeId,
@@ -126,6 +130,10 @@ class ThemeServiceTest extends TestCase
 
     public function testAssignThemeSkipCompile(): void
     {
+        $this->connectionMock->expects($this->once())->method('transactional')->willReturnCallback(function (callable $callback): void {
+            $callback();
+        });
+
         $themeId = Uuid::randomHex();
 
         $this->themeSalesChannelRepositoryMock->expects($this->once())->method('upsert')->with(

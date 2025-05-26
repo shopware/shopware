@@ -36,9 +36,13 @@
                                 {% block element_manufacturer_logo_image %}
                                     {% set attributes = {
                                         'class': 'cms-image product-detail-manufacturer-logo',
-                                        'alt': manufacturer.alt,
-                                        'title': manufacturer.name
+                                        'alt': config.isDecorative.value ? '' : manufacturer.alt,
+                                        'title': config.isDecorative.value ? '' : manufacturer.name
                                     } %}
+
+                                    {% if config.isDecorative.value %}
+                                        {% set attributes = attributes|merge({ 'aria-hidden': 'true' }) %}
+                                    {% endif %}
 
                                     {% if config.displayMode.value == 'cover' or config.displayMode.value == 'contain' %}
                                         {% set attributes = attributes|merge({ 'data-object-fit': config.displayMode.value }) %}

@@ -215,23 +215,22 @@ export default {
             }
         },
 
+        /**
+         * @deprecated tag:v6.8.0 - Will be removed without replacement
+         */
         emitLoadingChange(state) {
-            if (this.swOrderDetailOnLoadingChange) {
-                this.swOrderDetailOnLoadingChange(state);
-            } else {
-                this.$emit('loading-change', state);
-            }
+            Shopware.Store.get('swOrderDetail').setLoading(['recalculation', state]);
         },
 
         /**
          * To prevent losing unsaved changes on reloading the order,
          * we need to save the **versioned** order beforehand.
          */
-        async saveAndReload() {
+        async saveAndReload(afterSaveFn = null) {
             if (this.swOrderDetailOnSaveAndReload) {
-                await this.swOrderDetailOnSaveAndReload();
+                await this.swOrderDetailOnSaveAndReload(afterSaveFn);
             } else {
-                this.$emit('save-and-reload');
+                this.$emit('save-and-reload', afterSaveFn);
             }
         },
 
@@ -245,7 +244,7 @@ export default {
         },
 
         handleError(error) {
-            this.emitLoadingChange(false);
+            Shopware.Store.get('swOrderDetail').setLoading(['recalculation', false]);
 
             if (this.swOrderDetailOnError) {
                 this.swOrderDetailOnError(error);
@@ -281,10 +280,7 @@ export default {
          * @deprecated tag:v6.8.0 - Will be removed without replacement. See `applyAutomaticPromotions` for an alternative
          */
         async toggleAutomaticPromotions(state) {
-            this.emitLoadingChange(true);
-
             if (this.hasOrderUnsavedChanges) {
-                this.emitLoadingChange(false);
                 this.handleUnsavedOrderChangesResponse();
 
                 this.$nextTick(() => {
@@ -293,6 +289,8 @@ export default {
 
                 return Promise.resolve();
             }
+
+            Shopware.Store.get('swOrderDetail').setLoading(['recalculation', true]);
 
             await this.saveAndReload();
             await this.deleteAutomaticPromotions();
@@ -304,67 +302,38 @@ export default {
         },
 
         async applyAutomaticPromotions() {
-            await this.saveAndReload();
-
-            return this.orderService
+            await this.saveAndReload(() => this.orderService
                 .applyAutomaticPromotions(this.order.id, this.order.versionId)
                 .then(this.handlePromotionResponse.bind(this))
-                .catch(this.handleError.bind(this));
+                .catch(this.handleError.bind(this)));
         },
 
         async onSubmitCode(code) {
             this.emitLoadingChange(true);
 
-            await this.saveAndReload();
-
-            return this.orderService
+            return this.saveAndReload(() => this.orderService
                 .addPromotionToOrder(this.order.id, this.order.versionId, code)
                 .then(this.handlePromotionResponse.bind(this))
-                .catch(this.handleError.bind(this));
+                .catch(this.handleError.bind(this)));
         },
 
         handlePromotionResponse(response) {
             this.emitEntityData();
+            Shopware.Store.get('swOrderDetail').setLoading(['recalculation', false]);
 
-            if (!response?.data?.errors) {
+            if (typeof response?.data?.errors !== 'object') {
                 return;
             }
 
             const [
                 errors,
                 promotionErrors,
-            ] = response.data.errors.reduce(
-                (
-                    [
-                        general,
-                        promotion,
-                    ],
-                    e,
-                ) => {
-                    return [
-                        'promotion-discount-deleted',
-                        'promotion-discount-added',
-                    ].includes(e.messageKey)
-                        ? [
-                              general,
-                              [
-                                  ...promotion,
-                                  e,
-                              ],
-                          ]
-                        : [
-                              [
-                                  ...general,
-                                  e,
-                              ],
-                              promotion,
-                          ];
-                },
-                [
-                    [],
-                    [],
-                ],
-            );
+            ] = (Array.isArray(response.data.errors) ? response.data.errors : Object.values(response.data.errors))
+                .reduce(([general, promotion], e) => {
+                    return ['promotion-discount-deleted', 'promotion-discount-added'].includes(e.messageKey)
+                        ? [general, [...promotion, e]]
+                        : [[...general, e], promotion];
+                }, [[], []]);
 
             this.promotionUpdates = promotionErrors;
             response.data.errors = errors;
@@ -401,7 +370,7 @@ export default {
         },
 
         async onRemoveExistingCode(removedItem) {
-            this.emitLoadingChange(true);
+            Shopware.Store.get('swOrderDetail').setLoading(['recalculation', true]);
 
             const lineItem = this.order.lineItems.find((item) => {
                 return item.type === 'promotion' && item.payload.code === removedItem.code;

@@ -16,10 +16,10 @@ $sw-label-pill-border-radius: 50px;
     line-height: 14px;
     font-size: $font-size-xxs;
     height: 32px;
-    border: 1px solid $color-gray-300;
-    background: $color-gray-50;
+    border: 1px solid var(--color-border-primary-default);
+    background: var(--color-background-primary-default);
     border-radius: $sw-label-border-radius;
-    color: $color-darkgray-200;
+    color: var(--color-text-primary-default);
     cursor: default;
 
     .sw-label__caption {
@@ -30,7 +30,7 @@ $sw-label-pill-border-radius: 50px;
     }
 
     &.sw-label--dismissable:hover {
-        border-color: $color-shopware-brand-500;
+        border-color: var(--color-border-brand-selected);
 
         .sw-label__caption {
             width: calc(100% - 15px);
@@ -38,7 +38,7 @@ $sw-label-pill-border-radius: 50px;
 
         .sw-label__dismiss {
             display: inline-block;
-            color: $color-shopware-brand-500;
+            color: var(--color-icon-brand-default);
             background: transparent;
         }
     }

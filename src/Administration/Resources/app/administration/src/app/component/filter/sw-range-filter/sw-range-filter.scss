@@ -12,7 +12,7 @@
     }
 
     &__divider {
-        border-bottom: 1px solid $color-gray-400;
+        border-bottom: 1px solid var(--color-border-primary-default);
         transform: translateY(calc(-43px / 2));
     }
 }

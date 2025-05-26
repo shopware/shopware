@@ -1,9 +1,9 @@
 @import "~scss/variables";
 
-$sw-pagination-color-background: $color-white;
-$sw-pagination-controls-color-border: $color-gray-300;
-$sw-pagination-controls-color-hover: $color-shopware-brand-500;
-$sw-pagination-controls-color-text: $color-darkgray-200;
+$sw-pagination-color-background: var(--color-elevation-surface-sunken);
+$sw-pagination-controls-color-border: var(--color-border-primary-default);
+$sw-pagination-controls-color-hover: var(--color-interaction-primary-default);
+$sw-pagination-controls-color-text: var(--color-icon-primary-default);
 $sw-pagination-border-radius: $border-radius-default;
 
 .sw-pagination {

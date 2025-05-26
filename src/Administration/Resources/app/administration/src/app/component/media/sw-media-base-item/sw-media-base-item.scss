@@ -1,14 +1,14 @@
 @import "~scss/variables";
 @import "~scss/mixins";
 
-$sw-media-base-item-color: $color-darkgray-200;
+$sw-media-base-item-color: var(--color-text-primary-default);
 $sw-media-base-item-border-radius: $border-radius-default;
-$sw-media-base-item-small-font-size: $font-size-xs;
-$sw-media-base-item-color-border: $color-gray-300;
+$sw-media-base-item-small-font-size: var(--font-size-xs);
+$sw-media-base-item-color-border: var(--color-border-primary-default);
 $sw-media-base-item-color-text-inline-input: $color-darkgray-200;
-$sw-media-base-item-color-context-button: $color-white;
+$sw-media-base-item-color-context-button: var(--color-interaction-secondary-default);
 $sw-media-base-item-color-loading-indicator: $color-darkgray-200;
-$sw-media-base-item-color-hover: $color-shopware-brand-50;
+$sw-media-base-item-color-hover: var(--color-interaction-secondary-hover);
 $sw-media-base-item-color-metadata: lighten($color-darkgray-200, 30);
 $sw-media-base-item-pseudo-padding: 33px;
 $sw-media-base-item-color-input-background: $color-white;
@@ -17,7 +17,7 @@ $sw-media-base-item-border-radius-input: $border-radius-default;
 $sw-media-base-item-color-selected: $color-shopware-brand-500;
 $sw-media-base-item-color-checkmark: $color-white;
 $sw-media-base-item-color-input: $color-black;
-$sw-media-base-item-preview-background: $color-white;
+$sw-media-base-item-preview-background: var(--color-elevation-surface-default);
 
 .sw-media-base-item {
     position: relative;

@@ -58,15 +58,15 @@
         height: 36px;
         line-height: 33px;
         text-align: center;
-        color: $color-darkgray-200;
-        border: 1px solid $color-gray-300;
+        color: var(--color-icon-primary-default);
+        border: 1px solid var(--color-border-primary-default);
         border-radius: 4px;
-        background: $color-white;
+        background: var(--color-interaction-secondary-default);
         cursor: pointer;
 
         &:hover {
-            color: $color-shopware-brand-500;
-            border-color: $color-shopware-brand-500;
+            color: var(--color-text-brand-default);
+            border-color: var(--color-border-brand-selected);
         }
     }
 

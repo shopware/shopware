@@ -5,9 +5,9 @@
     max-width: 960px;
     margin: 0 auto 40px;
     position: relative;
-    color: $color-darkgray-200;
+    color: var(--color-text-primary-default);
     border-radius: $border-radius-lg;
-    background: $color-white;
+    background: var(--color-elevation-surface-raised);
 
     @include drop-shadow-default;
 

@@ -33,7 +33,7 @@ $sw-select-result-disabled-color-text: darken($color-gray-300, 15%);
         word-break: break-word;
         display: flex;
         flex-direction: column;
-        color: $color-darkgray-200;
+        color: var(--color-text-primary-default);
         order: 2;
         overflow: hidden;
         grid-area: b;

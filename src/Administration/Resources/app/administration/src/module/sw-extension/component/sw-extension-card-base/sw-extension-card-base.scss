@@ -5,7 +5,7 @@
     &.is--deactivated {
         background: $color-gray-100;
         box-shadow: none;
-        border: 1px solid $color-gray-300;
+        border: 1px solid var(--color-border-primary-default);
 
         .sw-extension-card-base__extension-activation-switch {
             background: $color-gray-50;
@@ -28,9 +28,9 @@
     }
 
     &.is--not-installed {
-        background-color: $color-gray-50;
+        background-color: var(--color-elevation-surface-raised);
         box-shadow: none;
-        border: 1px solid $color-gray-300;
+        border: 1px solid var(--color-border-primary-default);
     }
 
     .sw-loader {
@@ -65,9 +65,10 @@
         .sw-extension-card-base__info-name {
             @include truncate;
 
-            font-size: $font-size-xs;
-            color: $color-darkgray-200;
-            font-weight: $font-weight-semi-bold;
+            font-size: var(--font-size-xs);
+            line-height: var(--font-line-height-xs);
+            color: var(--color-text-primary-default);
+            font-weight: var(--font-weight-semibold);
         }
 
         .sw-extension-card-base__info-inactive {
@@ -85,24 +86,24 @@
         text-align: right;
 
         a {
-            color: $color-shopware-brand-500;
+            color: var(--color-text-brand-default);
             margin-left: 4px;
         }
 
         &-version {
-            font-weight: $font-weight-semi-bold;
+            font-weight: var(--font-weight-semibold);
         }
     }
 
     .sw-extension-card-base__open-extension {
         cursor: pointer;
         text-decoration: underline;
-        color: $color-shopware-brand-500;
+        color: var(--color-text-brand-default);
         transition: color 0.1s ease;
-        font-weight: $font-weight-medium;
+        font-weight: var(--font-weight-medium);
 
         &:hover {
-            color: $color-shopware-brand-800;
+            color: var(--color-text-brand-hover);
         }
     }
 }

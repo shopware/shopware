@@ -4,7 +4,7 @@ $sw-media-upload-v2-border-color: var(--color-border-primary-default);
 $sw-media-upload-v2-color-highlighted: $color-shopware-brand-500;
 $sw-media-upload-v2-color-switch-mode: $color-shopware-brand-500;
 $sw-media-upload-v2-border-radius: $border-radius-default;
-$sw-media-upload-v2-upload-background-color: $color-gray-100;
+$sw-media-upload-v2-upload-background-color: var(--color-elevation-surface-raised);
 $sw-media-upload-v2-background-color-highlighted: $color-shopware-brand-50;
 $sw-media-upload-v2-caption-font-size: $font-size-m;
 $sw-media-upload-v2-caption-icon-color: var(--color-icon-primary-default);

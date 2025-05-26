@@ -4,21 +4,21 @@
     display: grid;
     grid-auto-rows: 120px 40px;
     padding: 10px 10px 0 10px;
-    background: $color-white;
-    border: 1px solid $color-gray-300;
+    background: var(--color-elevation-surface-raised);
+    border: 1px solid var(--color-border-primary-default);
     border-radius: 4px;
     position: relative;
 
     &.is--disabled {
         &:hover {
-            border: 1px solid $color-gray-300;
+            border: 1px solid var(--color-border-primary-default);
             box-shadow: none;
             cursor: not-allowed;
         }
     }
 
     &:hover {
-        border-color: $color-shopware-brand-500;
+        border-color: var(--color-border-brand-selected);
         box-shadow: 0 0 4px 0 rgba($color-shopware-brand-500, 0.4);
         cursor: pointer;
 
@@ -30,13 +30,13 @@
     .sw-theme-list-item__image {
         background: center center no-repeat $color-white;
         background-size: 90% 90%;
-        border: 1px solid $color-gray-300;
+        border: 1px solid var(--color-border-primary-default);
         border-radius: 4px;
         height: 120px;
 
         &.is--empty {
             background: unset;
-            color: $color-gray-500;
+            color: var(--color-text-secondary-default);
             display: flex;
             align-items: center;
             justify-content: center;
@@ -69,7 +69,7 @@
     }
 
     .sw-theme-list-item__title {
-        color: $color-darkgray-200;
+        color: var(--color-text-primary-default);
         white-space: nowrap;
         text-overflow: ellipsis;
         overflow: hidden;
@@ -86,12 +86,12 @@
             height: 16px;
             padding: 0 2px;
             line-height: 13px;
-            background: $color-white;
-            border: 1px solid $color-gray-300;
+            background: var(--color-interaction-secondary-default);
+            border: 1px solid var(--color-border-primary-default);
             border-radius: 4px;
 
             &:hover, &.is--active {
-                background-color: $color-gray-300;
+                background-color: var(--color-interaction-secondary-hover);
             }
 
             &.is--active {

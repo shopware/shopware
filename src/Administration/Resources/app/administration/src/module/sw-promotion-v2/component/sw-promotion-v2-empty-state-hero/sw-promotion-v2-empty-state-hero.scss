@@ -25,8 +25,9 @@
     }
 
     &__description {
-        color: $color-darkgray-200;
-        font-size: $font-size-xs;
+        color: var(--color-text-secondary-default);
+        font-size: var(--font-size-xs);
+        line-height: var(--font-line-height-xs);
     }
 
     &__actions {

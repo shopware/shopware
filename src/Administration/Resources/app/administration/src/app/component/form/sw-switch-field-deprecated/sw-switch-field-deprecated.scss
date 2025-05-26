@@ -1,6 +1,6 @@
 @import "~scss/variables";
 
-$sw-field--switch-color-border: $color-gray-300;
+$sw-field--switch-color-border: var(--color-border-primary-default);
 $sw-field--switch-color-background: $color-white;
 $sw-field--switch-color-text: $color-darkgray-200;
 $sw-field--switch-color-focus: $color-shopware-brand-500;

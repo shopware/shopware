@@ -120,13 +120,6 @@
         color: var(--color-text-primary-default);
     }
 
-    .sw-card__title {
-        color: var(--color-text-primary-default);
-        font-size: $font-size-m;
-        font-weight: $font-weight-semi-bold;
-        line-height: $line-height-xs;
-    }
-
     .sw-card__subtitle {
         color: var(--color-text-secondary-default);
         font-size: $font-size-xs;
@@ -304,4 +297,11 @@
             background-color: $color-module-purple-50;
         }
     }
+}
+
+.sw-card__title {
+    color: var(--color-text-primary-default);
+    font-size: $font-size-m;
+    font-weight: $font-weight-semi-bold;
+    line-height: $line-height-xs;
 }

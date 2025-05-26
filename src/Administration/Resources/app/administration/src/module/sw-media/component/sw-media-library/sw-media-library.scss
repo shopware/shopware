@@ -1,6 +1,6 @@
 @import "~scss/variables";
 
-$sw-media-library-color-background: $color-white;
+$sw-media-library-color-background: var(--color-elevation-surface-default);
 
 .sw-media-library {
     display: grid;

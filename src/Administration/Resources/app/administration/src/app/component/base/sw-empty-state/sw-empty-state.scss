@@ -28,20 +28,22 @@
     }
 
     &__title {
-        font-size: $font-size-m;
+        font-size: var(--font-size-m);
+        line-height: var(--font-line-height-m);
         margin-bottom: 4px;
         color: var(--color-text-primary-default);
     }
 
     &__description {
         color: var(--color-text-primary-default);
-        font-size: $font-size-xs;
+        font-size: var(--font-size-xs);
+        line-height: var(--font-line-height-xs);
     }
 
     &__description-link {
         display: inline-block;
         cursor: pointer;
-        color: rgb(24, 158, 255);
+        color: var(--color-text-brand-default);
         text-decoration: underline;
     }
 

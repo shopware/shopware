@@ -1,7 +1,7 @@
 @import "~scss/variables";
 
 $sw-settings-language-list-color-success: $color-emerald-500;
-$sw-settings-language-list-color-border-collapse: $color-gray-300;
+$sw-settings-language-list-color-border-collapse: var(--color-border-primary-default);
 
 .sw-settings-language-list {
     .is--default {
@@ -20,7 +20,7 @@ $sw-settings-language-list-color-border-collapse: $color-gray-300;
         align-items: center;
         cursor: pointer;
         padding-bottom: 16px;
-        color: #607182;
+        color: var(--color-text-primary-default);
         border-bottom: 1px solid $sw-settings-language-list-color-border-collapse;
 
         .sw-media-collapse__button {

@@ -134,6 +134,16 @@ a[target="_blank"]:not(.sw-external-link, .sw-internal-link, .mt-button, .mt-lin
     margin-bottom: 24px;
 }
 
+// TODO: remove later
+.mt-select-result-list__content {
+    box-shadow: 0 3px 6px 0 var(--color-elevation-shadow-default) !important;
+}
+
+.mt-number-field__controls {
+    background: var(--color-elevation-surface-raised);
+    color: var(--color-icon-primary-default);
+}
+
 .mt-card__toolbar {
     flex-basis: 100%;
     padding: 30px;

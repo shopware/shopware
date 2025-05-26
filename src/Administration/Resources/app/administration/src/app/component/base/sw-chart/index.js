@@ -276,7 +276,7 @@ export default {
                 title: {
                     margin: 0,
                     style: {
-                        color: '#52667a',
+                        color: 'var(--color-text-primary-default)',
                         fontSize: '24px',
                     },
                 },
@@ -296,7 +296,7 @@ export default {
 
                     labels: {
                         style: {
-                            colors: '#52667a',
+                            colors: 'var(--color-text-primary-default)',
                         },
                     },
 
@@ -306,10 +306,14 @@ export default {
                     },
                 },
 
+                grid: {
+                    borderColor: 'var(--color-border-primary-default)'
+                },
+
                 yaxis: {
                     labels: {
                         style: {
-                            color: '#52667a',
+                            colors: 'var(--color-text-primary-default)',
                         },
                     },
                 },

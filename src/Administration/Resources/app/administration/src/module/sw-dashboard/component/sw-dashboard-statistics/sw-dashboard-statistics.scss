@@ -13,7 +13,7 @@ $content-max-width: 960px;
         padding-bottom: 16px;
 
         h1 {
-            color: $color-darkgray-200;
+            color: var(--color-text-primary-default);
             font-size: $font-size-m;
             line-height: 25px;
             font-weight: normal;
@@ -30,7 +30,7 @@ $content-max-width: 960px;
             display: flex;
             justify-content: center;
             padding: 40px 20px;
-            border-bottom: 1px solid $color-gray-300;
+            border-bottom: 1px solid var(--color-border-primary-default);
         }
 
         &-single-stat {

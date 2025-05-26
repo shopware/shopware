@@ -45,12 +45,12 @@ $sw-side-navigation-item-link-distance: 10px;
     }
 
     &.sw-tabs-item--is-disabled {
-        color: $color-gray-600;
+        color: var(--color-text-primary-disabled);
         pointer-events: none;
     }
 
     &:disabled {
-        color: $color-gray-600;
+        color: var(--color-text-primary-disabled);
         cursor: not-allowed;
     }
 

@@ -6,7 +6,8 @@ h3,
 h4,
 h5,
 h6 {
-    color: var(--color-text-primary-default);
+    // TODO: Update the global styles in Meteor, to remove this !important or the complete line
+    color: var(--color-text-primary-default) !important;
     font-weight: var(--font-weight-semibold);
     margin: 0 0 20px;
 }

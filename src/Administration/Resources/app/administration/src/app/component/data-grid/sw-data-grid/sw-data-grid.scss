@@ -28,8 +28,8 @@
         padding: 0;
         margin: 0;
         font-size: $font-size-xs;
-        color: $color-darkgray-200;
-        border-right: 1px solid $color-gray-300;
+        color: var(--color-text-primary-default);
+        border-right: 1px solid var(--color-border-primary-default);
         overflow: hidden;
         background-color: var(--color-elevation-surface-default);
 
@@ -88,7 +88,7 @@
         }
 
         a {
-            color: $color-darkgray-200;
+            color: var(--color-text-primary-default);
             text-decoration: none;
 
             &:hover {
@@ -175,13 +175,13 @@
         bottom: 0;
         width: 0;
         height: 100%;
-        background-color: $color-gray-300;
+        background-color: var(--color-border-primary-default);
         cursor: ew-resize;
         opacity: 0;
         transition: all 0.2s ease-in-out;
 
         &.is--column-resizing {
-            background-color: darken($color-gray-300, 10%);
+            background-color: var(--color-border-brand-selected);
         }
     }
 
@@ -189,7 +189,7 @@
         margin-left: 5px;
 
         .mt-icon {
-            color: $color-gray-300;
+            color: var(--color-icon-primary-default);
         }
     }
 
@@ -224,7 +224,7 @@
 
     .sw-data-grid__cell--sortable:hover {
         cursor: pointer;
-        background-color: $color-gray-100;
+        background-color: var(--color-interaction-secondary-hover);
     }
 
     .sw-data-grid__cell--property {
@@ -237,7 +237,7 @@
         }
 
         &.is--column-resizing {
-            background-color: $color-shopware-brand-50;
+            background-color: var(--color-background-brand-default);
         }
 
         &:hover {
@@ -315,14 +315,14 @@
 
     .sw-data-grid__body .sw-data-grid__row {
         &:nth-child(even) .sw-data-grid__cell {
-            background-color: $color-gray-100;
+            background-color: var(--color-background-primary-disabled);
         }
 
         &:hover .sw-data-grid__cell {
-            background-color: $color-shopware-brand-50;
+            background-color: var(--color-background-brand-default);
 
             a {
-                color: $color-shopware-brand-500;
+                color: var(--color-text-brand-default);
             }
         }
 
@@ -413,9 +413,9 @@
         position: relative;
         width: 48px;
         height: 48px;
-        border: 1px solid $color-gray-300;
+        border: 1px solid var(--color-border-primary-default);
         border-radius: $border-radius-default;
-        background-color: $color-white;
+        background: var(--color-elevation-surface-raised);
         margin-right: 15px;
         flex-shrink: 0;
 

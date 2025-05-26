@@ -74,7 +74,7 @@ class ZugferdDocument
     {
         $calculator = func_get_arg(1);
         if (!$calculator instanceof AmountCalculator) {
-            Feature::triggerDeprecationOrThrow('v6.8.0', 'New required parameter $calculator missing');
+            Feature::triggerDeprecationOrThrow('v6.8.0.0', 'New required parameter $calculator missing');
 
             $calculator = new AmountCalculator(
                 new CashRounding(),
@@ -279,7 +279,7 @@ class ZugferdDocument
      */
     protected function addChargeAmount(float $chargeAmount): void
     {
-        Feature::triggerDeprecationOrThrow('v6.8.0', 'Method and parameter will be removed. Use addMappedPrice instead.');
+        Feature::triggerDeprecationOrThrow('v6.8.0.0', 'Method and parameter will be removed. Use addMappedPrice instead.');
 
         $this->chargeAmount += $chargeAmount;
     }
@@ -289,7 +289,7 @@ class ZugferdDocument
      */
     protected function addLineTotalAmount(float $lineTotalAmount): void
     {
-        Feature::triggerDeprecationOrThrow('v6.8.0', 'Method and parameter will be removed. Use addMappedPrice instead.');
+        Feature::triggerDeprecationOrThrow('v6.8.0.0', 'Method and parameter will be removed. Use addMappedPrice instead.');
 
         $this->lineTotalAmount += $lineTotalAmount;
     }
@@ -299,7 +299,7 @@ class ZugferdDocument
      */
     protected function addAllowanceAmount(float $allowanceAmount): void
     {
-        Feature::triggerDeprecationOrThrow('v6.8.0', 'Method and parameter will be removed. Use addMappedPrice instead.');
+        Feature::triggerDeprecationOrThrow('v6.8.0.0', 'Method and parameter will be removed. Use addMappedPrice instead.');
 
         $this->allowanceAmount += $allowanceAmount;
     }

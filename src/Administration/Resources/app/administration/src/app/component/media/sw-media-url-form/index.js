@@ -41,7 +41,14 @@ export default {
             url: '',
             extensionFromUrl: '',
             extensionFromInput: '',
+            showModal: false,
         };
+    },
+
+    mounted() {
+        if (this.variant === 'modal') {
+            this.showModal = true;
+        }
     },
 
     computed: {
@@ -107,13 +114,16 @@ export default {
                 });
 
                 if (this.variant === 'modal') {
-                    this.closeModal();
+                    this.showModal = false;
                 }
             }
         },
 
-        closeModal() {
-            this.$emit('modal-close');
+        onModalChange(isOpen) {
+            this.showModal = isOpen;
+            if (!isOpen) {
+                this.$emit('modal-close');
+            }
         },
     },
 };

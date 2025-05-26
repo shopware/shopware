@@ -6,7 +6,7 @@ export default class GoogleReCaptchaBasePlugin extends Plugin {
         // Ensure the script loading is initiated if data-src is present and src is not.
         const recaptchaScript = document.getElementById('recaptcha-script');
         if (recaptchaScript?.hasAttribute('data-src') && !recaptchaScript.getAttribute('src') && this._isValidUrl(recaptchaScript.getAttribute('data-src'))) {
-            recaptchaScript.setAttribute('src', recaptchaScript.getAttribute('data-src'));
+            recaptchaScript.setAttribute('src', encodeURI(recaptchaScript.getAttribute('data-src')));
         }
 
         // The shim script in main.js ensures window.grecaptcha and window.grecaptcha.ready exist.

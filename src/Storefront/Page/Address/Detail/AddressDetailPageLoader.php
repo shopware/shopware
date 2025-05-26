@@ -17,6 +17,7 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Routing\RoutingException;
 use Shopware\Core\Framework\Uuid\Exception\InvalidUuidException;
 use Shopware\Core\Framework\Uuid\Uuid;
+use Shopware\Core\Framework\Uuid\UuidException;
 use Shopware\Core\System\Country\CountryCollection;
 use Shopware\Core\System\Country\SalesChannel\AbstractCountryRoute;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
@@ -127,7 +128,7 @@ class AddressDetailPageLoader
         $addressId = $request->get('addressId');
 
         if (!Uuid::isValid($addressId)) {
-            throw new InvalidUuidException($addressId);
+            throw UuidException::invalidUuid($addressId);
         }
 
         $criteria = new Criteria();

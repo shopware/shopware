@@ -14,11 +14,6 @@ async function createWrapper(privileges = [], languageId = null, stubTranslation
                 $tc(translationKey) {
                     return translationKey;
                 },
-                $router: {
-                    push: () => {
-                        return Promise.resolve();
-                    },
-                },
             },
             provide: {
                 repositoryFactory: {
@@ -126,6 +121,7 @@ async function createWrapper(privileges = [], languageId = null, stubTranslation
                 'sw-inheritance-switch': true,
                 'sw-highlight-text': true,
                 'sw-select-result': true,
+
                 'sw-custom-field-set-renderer': true,
                 'sw-product-variant-info': true,
                 'sw-loader': true,
@@ -264,31 +260,22 @@ describe('module/sw-settings-language/page/sw-settings-language-detail', () => {
     });
 
     it('should load language data again after create new language', async () => {
-        const wrapper = await createWrapper([
-            'language.editor',
-        ], null,
-            false);
-        await flushPromises();
-        const nameField = wrapper.find('#sw-field--language-name');
-        await nameField.setValue('New language');
-        await flushPromises();
-
-        const localeField = wrapper.find('.sw-settings-language-detail__select-locale');
-        await localeField.find('.sw-select__selection').trigger('click');
+        const wrapper = await createWrapper(
+            [
+                'language.editor',
+            ],
+            null,
+            false,
+        );
         await flushPromises();
 
-        await localeField.find('.sw-select-option--0').trigger('click');
-        await flushPromises();
+        const actionLoadEntitySpy = jest.spyOn(wrapper.vm, 'loadEntityData');
+        expect(actionLoadEntitySpy).not.toHaveBeenCalled();
 
-        const isoCodeField = wrapper.find('.sw-settings-language-detail__select-iso-code');
-        await isoCodeField.find('.sw-select__selection').trigger('click');
-        await isoCodeField.find('.sw-select-option--0').trigger('click');
-        await flushPromises();
+        await wrapper.setProps({
+            languageId: 'language-id-1',
+        });
 
-        const saveButton = wrapper.find('.sw-settings-language-detail__save-action');
-        await saveButton.trigger('click');
-        await flushPromises();
-
-        expect(wrapper.vm.language.isNew()).toBe(false);
+        expect(actionLoadEntitySpy).toHaveBeenCalledTimes(1);
     });
 });

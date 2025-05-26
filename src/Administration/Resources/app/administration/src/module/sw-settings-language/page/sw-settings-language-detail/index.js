@@ -160,6 +160,10 @@ export default {
         this.createdComponent();
     },
 
+    updated() {
+        this.createdComponent();
+    },
+
     methods: {
         createdComponent() {
             if (!this.languageId) {
@@ -245,8 +249,6 @@ export default {
                         this.$router.push({
                             name: 'sw.settings.language.detail',
                             params: { id: this.language.id },
-                        }).then(() => {
-                            this.loadEntityData();
                         });
                     }
                 })

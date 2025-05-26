@@ -33,13 +33,15 @@
     v-else-if="variant === 'list'"
     class="sw-settings-services-service-card__list-item"
 >
-    <h4 class="sw-settings-services__list-item-name">
-        {{ service.name }}
-    </h4>
+    <div>
+        <h4 class="sw-settings-services__list-item-name">
+            {{ service.name }}
+        </h4>
 
-    <sw-status :color="serviceStatus">
-        {{ $t(statusText) }}
-    </sw-status>
+        <sw-status :color="serviceStatus">
+            {{ $t(statusText) }}
+        </sw-status>
+    </div>
 
     <div class="sw-settings-services__list-item-meta-data">
         {{  $t('sw-settings-services.service-card.updatedAtLabel', { updatedAt: service.lastUpdatedAt.toLocaleDateString() }) }}

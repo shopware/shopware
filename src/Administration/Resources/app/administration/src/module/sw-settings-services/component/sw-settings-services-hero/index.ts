@@ -4,9 +4,11 @@
 
 import template from './sw-settings-services-hero.html.twig'
 import './sw-settings-services-hero.scss';
-import imageEditor from './assets/image-editor.png';
-import previewGenerator from './assets/3d-preview-generator.png';
-import copilot from './assets/copilot.png';
+/* eslint-disable import/no-unresolved */
+import imageEditor from './assets/image-editor.svg?no-inline';
+import previewGenerator from './assets/3d-preview-generator.svg?no-inline';
+import copilot from './assets/copilot.svg?no-inline';
+/* eslint-enable import/no-unresolved */
 import swSettingsServicesFramedIcon from '../sw-settings-services-framed-icon';
 
 /**

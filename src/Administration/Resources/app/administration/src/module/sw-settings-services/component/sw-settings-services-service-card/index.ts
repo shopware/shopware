@@ -35,6 +35,10 @@ export default Shopware.Component.wrapComponentConfig({
                 return 'red';
             }
 
+            if(!this.service.needsPermissions) {
+                return 'green';
+            }
+
             return this.consentGiven ? 'green' : 'orange';
         },
 

@@ -1,5 +1,13 @@
 .sw-settings-services-index {
+  background: var(--color-elevation-surface-default);
+  color: var(--color-text-primary-default);
+
+  h3, h4 {
+    color: var(--color-text-primary-default);
+  }
+
   .sw-settings-services__listing-section {
+    container-type: inline-size;
     max-width: 960px;
     margin: 0 auto;
   }
@@ -9,11 +17,15 @@
   }
 
   .sw-settings-services__optional-services {
-    margin-bottom: var(--scale-size-24);
+    margin-bottom: var(--scale-size-48);
     display: grid;
-    grid-template-columns: 1fr 1fr;
+    grid-template-columns:1fr;
     gap: var(--scale-size-24);
     list-style-type: none;
+
+    @container (min-width: 960px) {
+      grid-template-columns: 1fr 1fr;
+    }
   }
 
   .sw-settings-services__default-services {
@@ -29,6 +41,7 @@
   }
 
   .sw-settings-services-index__grant-permission-card {
+    container-type: inline-size;
     background: radial-gradient(
       101.49% 53.33% at 4.27% 100%,
       rgb(from var(--color-emerald-300) r g b / 20%) 0%,
@@ -36,11 +49,6 @@
     );
 
     font-size: var(--font-size-xs);
-
-    .sw-settings-services-index__grant-permission-card-content {
-      display: grid;
-      grid-template-columns: 1fr 0.45fr;
-    }
 
     h3 {
       font-size: var(--font-size-l);
@@ -52,6 +60,23 @@
 
     .mt-button {
       margin-right: var(--scale-size-20);
+    }
+
+    .sw-settings-services-index__image {
+      display: flex;
+      justify-content: center;
+      margin: 0 0 var(--scale-size-24);
+
+      img {
+        max-width: 100%;
+      }
+
+      @container (min-width: 650px) {
+        float: right;
+        display: block;
+        margin: calc(-1* var(--scale-size-24));
+        margin-left: 0;
+      }
     }
   }
 
@@ -71,13 +96,15 @@
     padding-top: var(--scale-size-40);
     margin: 0 auto;
 
-    color: var(--color-text-secondary-default);
-    font-size: var(--font-size-2xs);
-
-    a {
+    a, button {
       color: var(--color-text-secondary-default);
       font-size: var(--font-size-2xs);
       text-decoration: none;
+
+      &:hover {
+        color: var(--color-text-primary-default);
+        text-decoration: underline;
+      }
     }
   }
 }

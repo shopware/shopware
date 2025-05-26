@@ -3,7 +3,8 @@ import { useShopwareServicesStore } from '../../store/shopware-services.store';
 import template from './sw-settings-services-index.html.twig';
 import './sw-settings-services-index.scss';
 import grantPermissionsCardBackground from
-    '../../component/sw-settings-services-grant-permissions-modal/assets/grant-permissions-background.png';
+        // eslint-disable-next-line import/no-unresolved
+    '../../component/sw-settings-services-grant-permissions-modal/assets/grant-permissions-background.svg?no-inline';
 
 import type { ServiceDescription } from '../../service/shopware-services.service';
 

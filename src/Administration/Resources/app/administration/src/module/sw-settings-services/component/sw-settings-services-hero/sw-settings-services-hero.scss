@@ -8,7 +8,11 @@
     position: relative;
     z-index: 2;
     background:
-            radial-gradient(34.32% 43.91% at bottom center, rgb(from var(--color-interaction-primary-default) r g b / 20%) 0%, rgb(from var(--color-elevation-surface-default) r g b / 20%) 100%);
+      radial-gradient(
+        34.32% 43.91% at bottom center,
+        rgb(from var(--color-interaction-primary-default) r g b / 20%) 0%,
+        rgb(from var(--color-elevation-surface-default) r g b / 20%) 100%
+      );
   }
 
   .sw-settings-services-hero__content {
@@ -40,6 +44,17 @@
 
   .mt-button {
     margin-right: var(--scale-size-20);
+  }
+
+  .sw-settings-services-hero__border-bottom {
+    height: 2px;
+    opacity: 0.4;
+    background: linear-gradient(
+      90deg,
+      var(--color-elevation-surface-default) 0%,
+      var(--color-border-brand-selected) 50%,
+      var(--color-elevation-surface-default) 100%
+    );
   }
 
   .sw-settings-services-hero__image-editor-left {
@@ -87,5 +102,4 @@
       display: none;
     }
   }
-
 }

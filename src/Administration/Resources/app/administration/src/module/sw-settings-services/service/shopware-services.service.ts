@@ -5,9 +5,9 @@
 import type { AxiosInstance } from 'axios';
 import type { LoginService } from 'src/core/service/login.service';
 
-import imageEditor from '../component/sw-settings-services-hero/assets/image-editor.png';
-import previewGenerator from '../component/sw-settings-services-hero/assets/3d-preview-generator.png';
-import copilot from '../component/sw-settings-services-hero/assets/copilot.png';
+import imageEditor from '../component/sw-settings-services-hero/assets/image-editor.svg?no-inline';
+import previewGenerator from '../component/sw-settings-services-hero/assets/3d-preview-generator.svg?no-inline';
+import copilot from '../component/sw-settings-services-hero/assets/copilot.svg?no-inline';
 
 /**
  * @private
@@ -42,7 +42,7 @@ export default class ShopwareServicesService extends ApiService {
             icon: imageEditor,
             description: 'Fast wie Gimp. Kann auch nichts',
             lastUpdatedAt: new Date('2025-05-10'),
-            active: true,
+            active: false,
             version: '1.0.0',
             needsPermissions: false,
         }, {
@@ -74,7 +74,7 @@ export default class ShopwareServicesService extends ApiService {
             icon: previewGenerator,
             description: 'Man weiß vorher nie was am Ende dabei rauskommt',
             lastUpdatedAt: new Date('2625-05-10'),
-            active: false,
+            active: true,
             version: '9001.0.0',
             needsPermissions: true,
         }, {
@@ -90,7 +90,7 @@ export default class ShopwareServicesService extends ApiService {
 
     getServicesContext(): Promise<{ consentVersion: Date, consentGivenAt: Date|null }> {
         return Promise.resolve({
-            consentGivenAt: new Date('2025-05-10'),
+            consentGivenAt: null,
             consentVersion: new Date('2025-05-10'),
         });
     }

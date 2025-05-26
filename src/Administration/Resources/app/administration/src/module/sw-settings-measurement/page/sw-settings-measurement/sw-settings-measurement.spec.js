@@ -6,9 +6,9 @@ import EntityCollection from 'src/core/data/entity-collection.data';
 
 const createWrapper = async (options = {}) => {
     const mockMeasurementSystem = {
-        'core.measurementSystem.typeId': 'metric',
-        'core.measurementSystem.lengthUnitId': 'mm',
-        'core.measurementSystem.weightUnitId': 'kg',
+        'core.measurementUnits.system': 'metric',
+        'core.measurementUnits.length': 'mm',
+        'core.measurementUnits.weight': 'kg',
     };
 
     const mockDefaultUnits = new EntityCollection(
@@ -117,9 +117,9 @@ describe('src/module/sw-settings-measurement/page/sw-settings-measurement', () =
         await saveButton.trigger('click');
 
         expect(wrapper.vm.systemConfigApiService.saveValues).toHaveBeenCalledWith({
-            'core.measurementSystem.typeId': 'imperial',
-            'core.measurementSystem.lengthUnitId': 'in',
-            'core.measurementSystem.weightUnitId': 'lb',
+            'core.measurementUnits.system': 'imperial',
+            'core.measurementUnits.length': 'in',
+            'core.measurementUnits.weigth': 'lb',
         });
         expect(wrapper.vm.createNotificationSuccess).toHaveBeenCalledWith({
             title: 'global.default.success',

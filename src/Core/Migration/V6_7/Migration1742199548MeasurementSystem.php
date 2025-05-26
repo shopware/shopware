@@ -183,26 +183,27 @@ class Migration1742199548MeasurementSystem extends MigrationStep
 
     private function addSalesChannelDomainColumns(Connection $connection): void
     {
-        if (
-            $this->columnExists($connection, 'sales_channel_domain', 'measurement_system_id')
-            || $this->columnExists($connection, 'sales_channel_domain', 'weight_unit_id')
-            || $this->columnExists($connection, 'sales_channel_domain', 'length_unit_id')
-        ) {
+        if ($this->columnExists($connection, 'sales_channel_domain', 'measurement_units')) {
             return;
         }
 
-        $metricId = Uuid::fromHexToBytes(Uuid::fromStringToHex('metric'));
-        $weightUnitId = Uuid::fromHexToBytes(Uuid::fromStringToHex('metric-kg'));
-        $lengthUnitId = Uuid::fromHexToBytes(Uuid::fromStringToHex('metric-mm'));
+        $defaultUnits = \json_encode([
+            'system' => 'metric',
+            'units' => [
+                'weight' => 'kg',
+                'length' => 'mm',
+            ],
+        ]);
 
         $connection->executeStatement('
             ALTER TABLE `sales_channel_domain`
-            ADD COLUMN `measurement_system_id` BINARY(16) NOT NULL DEFAULT \'' . $metricId . '\',
-            ADD COLUMN `weight_unit_id` BINARY(16) NOT NULL DEFAULT \'' . $weightUnitId . '\',
-            ADD COLUMN `length_unit_id` BINARY(16) NOT NULL DEFAULT \'' . $lengthUnitId . '\',
-            ADD CONSTRAINT `fk.sales_channel_domain.measurement_system_id` FOREIGN KEY (`measurement_system_id`) REFERENCES `measurement_system` (`id`) ON DELETE RESTRICT ON UPDATE CASCADE,
-            ADD CONSTRAINT `fk.sales_channel_domain.weight_unit_id` FOREIGN KEY (`weight_unit_id`) REFERENCES `measurement_display_unit` (`id`) ON DELETE RESTRICT ON UPDATE CASCADE,
-            ADD CONSTRAINT `fk.sales_channel_domain.length_unit_id` FOREIGN KEY (`length_unit_id`) REFERENCES `measurement_display_unit` (`id`) ON DELETE RESTRICT ON UPDATE CASCADE;
+            ADD COLUMN `measurement_units` JSON NULL;
+        ');
+
+        // Set default measurement units for existing domains
+        $connection->executeStatement('
+            UPDATE `sales_channel_domain` 
+            SET `measurement_units` = \'' . $defaultUnits . '\'
         ');
     }
 
@@ -210,24 +211,28 @@ class Migration1742199548MeasurementSystem extends MigrationStep
     {
         if (
             $this->columnExists($connection, 'sales_channel', 'measurement_system_id')
-            || $this->columnExists($connection, 'sales_channel', 'weight_unit_id')
-            || $this->columnExists($connection, 'sales_channel', 'length_unit_id')
+            || $this->columnExists($connection, 'sales_channel', 'measurement_units')
         ) {
             return;
         }
 
-        $metricId = Uuid::fromHexToBytes(Uuid::fromStringToHex('metric'));
-        $weightUnitId = Uuid::fromHexToBytes(Uuid::fromStringToHex('metric-kg'));
-        $lengthUnitId = Uuid::fromHexToBytes(Uuid::fromStringToHex('metric-mm'));
+        $defaultUnits = \json_encode([
+            'system' => 'metric',
+            'units' => [
+                'weight' => 'kg',
+                'length' => 'mm',
+            ],
+        ]);
 
         $connection->executeStatement('
             ALTER TABLE `sales_channel`
-            ADD COLUMN `measurement_system_id` BINARY(16) NOT NULL DEFAULT \'' . $metricId . '\',
-            ADD COLUMN `weight_unit_id` BINARY(16) NOT NULL DEFAULT \'' . $weightUnitId . '\',
-            ADD COLUMN `length_unit_id` BINARY(16) NOT NULL DEFAULT \'' . $lengthUnitId . '\',
-                ADD CONSTRAINT `fk.sales_channel.measurement_system_id` FOREIGN KEY (`measurement_system_id`) REFERENCES `measurement_system` (`id`) ON DELETE RESTRICT ON UPDATE CASCADE,
-            ADD CONSTRAINT `fk.sales_channel.weight_unit_id` FOREIGN KEY (`weight_unit_id`) REFERENCES `measurement_display_unit` (`id`) ON DELETE RESTRICT ON UPDATE CASCADE,
-            ADD CONSTRAINT `fk.sales_channel.length_unit_id` FOREIGN KEY (`length_unit_id`) REFERENCES `measurement_display_unit` (`id`) ON DELETE RESTRICT ON UPDATE CASCADE;
+            ADD COLUMN `measurement_units` JSON NULL;
+        ');
+
+        // Set default measurement units for existing sales channels
+        $connection->executeStatement('
+            UPDATE `sales_channel` 
+            SET `measurement_units` = \'' . $defaultUnits . '\'
         ');
     }
 }

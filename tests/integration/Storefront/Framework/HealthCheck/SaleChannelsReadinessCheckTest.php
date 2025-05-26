@@ -14,6 +14,7 @@ use Shopware\Core\Framework\Test\TestCaseBase\SalesChannelApiTestBehaviour;
 use Shopware\Core\Kernel;
 use Shopware\Core\Test\Stub\Framework\IdsCollection;
 use Shopware\Storefront\Framework\SystemCheck\SaleChannelsReadinessCheck;
+use Shopware\Storefront\Framework\SystemCheck\Util\SalesChannelDomainUtil;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 
@@ -100,7 +101,7 @@ class SaleChannelsReadinessCheckTest extends TestCase
         return new SaleChannelsReadinessCheck(
             $kernel ?? static::getContainer()->get('kernel'),
             $this->connection,
-            static::getContainer()->get('Shopware\Storefront\Framework\SystemCheck\Util\SalesChannelDomainUtil'),
+            static::getContainer()->get(SalesChannelDomainUtil::class),
         );
     }
 

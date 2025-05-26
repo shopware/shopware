@@ -24,7 +24,7 @@ readonly class SalesChannelDomainUtil
     ) {
     }
 
-    public function asASalesChannelRequest(callable $callback): Result
+    public function runAsSalesChannelRequest(callable $callback): Result
     {
         $mainRequest = $this->requestStack->getMainRequest();
         // the requests originate from CLI, there is no HTTP request.
@@ -44,7 +44,7 @@ readonly class SalesChannelDomainUtil
         }
     }
 
-    public function whileTrustingAllHosts(callable $callback): Result
+    public function runWhileTrustingAllHosts(callable $callback): Result
     {
         // Remove '{' from start and '}i' from end, applied by Request::setTrustedHosts.
         $trustedHosts = array_map(

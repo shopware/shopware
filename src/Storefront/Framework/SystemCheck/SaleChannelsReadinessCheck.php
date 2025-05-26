@@ -39,8 +39,8 @@ class SaleChannelsReadinessCheck extends BaseCheck
 
     public function run(): Result
     {
-        return $this->util->asASalesChannelRequest(
-            fn () => $this->util->whileTrustingAllHosts(
+        return $this->util->runAsSalesChannelRequest(
+            fn () => $this->util->runWhileTrustingAllHosts(
                 fn () => $this->doRun()
             )
         );

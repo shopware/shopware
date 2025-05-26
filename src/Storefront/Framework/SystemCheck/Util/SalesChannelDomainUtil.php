@@ -2,13 +2,14 @@
 
 namespace Shopware\Storefront\Framework\SystemCheck\Util;
 
-use Doctrine\DBAL\Connection;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\SystemCheck\Check\Result;
 use Shopware\Core\Framework\SystemCheck\Check\Status;
 use Shopware\Core\SalesChannelRequest;
+use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\RequestStack;
+use Symfony\Component\HttpKernel\KernelInterface;
 use Symfony\Component\Routing\RouterInterface;
 
 /**
@@ -17,10 +18,12 @@ use Symfony\Component\Routing\RouterInterface;
 #[Package('framework')]
 readonly class SalesChannelDomainUtil
 {
+    private const MAX_REDIRECTS = 10;
+
     public function __construct(
-        protected Connection $connection,
         private RouterInterface $router,
         private RequestStack $requestStack,
+        private KernelInterface $kernel,
     ) {
     }
 
@@ -77,5 +80,47 @@ readonly class SalesChannelDomainUtil
             true,
             []
         );
+    }
+
+    /**
+     * @description Handles a request and follows redirects (e.g. due SEO) if necessary to return the final response.
+     *
+     * @return array{storefrontUrl: string, responseCode: int, responseTime: float}
+     */
+    public function handleRequest(Request $request): array
+    {
+        $currentRequest = $request;
+        $responseTime = 0.0;
+        $redirectCount = 0;
+
+        $response = null;
+
+        while ($redirectCount <= self::MAX_REDIRECTS) {
+            $requestStart = microtime(true);
+            $response = $this->kernel->handle($currentRequest);
+            $responseTime += microtime(true) - $requestStart;
+
+            if (!($response instanceof RedirectResponse)) {
+                break;
+            }
+
+            ++$redirectCount;
+
+            $currentRequest = Request::create($response->getTargetUrl());
+        }
+
+        if ($redirectCount > self::MAX_REDIRECTS) {
+            return [
+                'storefrontUrl' => $currentRequest->getUri(),
+                'responseCode' => 508, // Loop Detected
+                'responseTime' => $responseTime,
+            ];
+        }
+
+        return [
+            'storefrontUrl' => $currentRequest->getUri(),
+            'responseCode' => $response->getStatusCode(),
+            'responseTime' => $responseTime,
+        ];
     }
 }

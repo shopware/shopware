@@ -14,7 +14,6 @@ use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Storefront\Framework\SystemCheck\Util\SalesChannelDomainUtil;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
-use Symfony\Component\HttpKernel\KernelInterface;
 
 /**
  * @internal
@@ -31,7 +30,6 @@ class SaleChannelsReadinessCheck extends BaseCheck
      * @internal
      */
     public function __construct(
-        private readonly KernelInterface $kernel,
         private readonly Connection $connection,
         private readonly SalesChannelDomainUtil $util,
     ) {
@@ -68,18 +66,14 @@ class SaleChannelsReadinessCheck extends BaseCheck
         $requestStatus = [];
         foreach ($domains as $domain) {
             $url = $this->util->generateDomainUrl($domain, self::INDEX_PAGE);
+
             $request = Request::create($url);
-            $requestStart = microtime(true);
-            $response = $this->kernel->handle($request);
-            $responseTime = microtime(true) - $requestStart;
-            $status = $response->getStatusCode() >= Response::HTTP_BAD_REQUEST ? Status::FAILURE : Status::OK;
+            $responseData = $this->util->handleRequest($request);
+
+            $status = $responseData['responseCode'] >= Response::HTTP_BAD_REQUEST ? Status::FAILURE : Status::OK;
             $requestStatus[$status->name] = $status;
 
-            $extra[] = [
-                'storeFrontUrl' => $url,
-                'responseCode' => $response->getStatusCode(),
-                'responseTime' => $responseTime,
-            ];
+            $extra[] = $responseData;
         }
 
         $finalStatus = \count($requestStatus) === 1 ? current($requestStatus) : Status::ERROR;

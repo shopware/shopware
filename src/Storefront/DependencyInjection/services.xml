@@ -536,13 +536,12 @@
         </service>
 
         <service id="Shopware\Storefront\Framework\SystemCheck\Util\SalesChannelDomainUtil">
-            <argument type="service" id="Doctrine\DBAL\Connection"/>
             <argument type="service" id="Symfony\Component\Routing\RouterInterface"/>
             <argument type="service" id="Symfony\Component\HttpFoundation\RequestStack"/>
+            <argument type="service" id="Symfony\Component\HttpKernel\KernelInterface"/>
         </service>
 
-        <service id="Shopware\Storefront\Framework\SystemCheck\SaleChannelsReadinessCheck" >
-            <argument type="service" id="Symfony\Component\HttpKernel\KernelInterface"/>
+        <service id="Shopware\Storefront\Framework\SystemCheck\SaleChannelsReadinessCheck">
             <argument type="service" id="Doctrine\DBAL\Connection"/>
             <argument type="service" id="Shopware\Storefront\Framework\SystemCheck\Util\SalesChannelDomainUtil"/>
 
@@ -550,7 +549,6 @@
         </service>
 
         <service id="Shopware\Storefront\Framework\SystemCheck\ProductDetailReadinessCheck">
-            <argument type="service" id="Symfony\Component\HttpKernel\KernelInterface"/>
             <argument type="service" id="Shopware\Storefront\Framework\SystemCheck\Util\SalesChannelDomainUtil"/>
             <argument type="service" id="Doctrine\DBAL\Connection"/>
 
@@ -558,7 +556,6 @@
         </service>
 
         <service id="Shopware\Storefront\Framework\SystemCheck\ProductListingReadinessCheck">
-            <argument type="service" id="Symfony\Component\HttpKernel\KernelInterface"/>
             <argument type="service" id="Shopware\Storefront\Framework\SystemCheck\Util\SalesChannelDomainUtil"/>
             <argument type="service" id="Doctrine\DBAL\Connection"/>
 

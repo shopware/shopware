@@ -34,7 +34,7 @@
 
         {% block sw_media_url_form_footer %}
         <template #footer>
-                {% block sw_media_url_form_cancel_button %}
+            {% block sw_media_url_form_cancel_button %}
             <mt-button
                 size="small"
                 variant="secondary"
@@ -42,9 +42,9 @@
             >
                 {{ $tc('global.default.cancel') }}
             </mt-button>
-                {% endblock %}
+            {% endblock %}
 
-                {% block sw_media_url_form_submit_button %}
+            {% block sw_media_url_form_submit_button %}
             <mt-button
                 class="sw-media-url-form__submit-button"
                 variant="primary"
@@ -55,7 +55,7 @@
 
                 {{ $tc('global.sw-media-url-form.upload') }}
             </mt-button>
-                {% endblock %}
+            {% endblock %}
         </template>
         {% endblock %}
     </mt-modal>

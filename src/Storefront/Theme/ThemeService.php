@@ -198,7 +198,7 @@ class ThemeService implements ResetInterface
      * @throws ThemeException
      * @throws InconsistentCriteriaIdsException
      *
-     * @deprecated v6.8.0.0 Use `getPlainThemeConfiguration` if you do not need translated labels or help texts or
+     * @deprecated tag:v6.8.0.0 Use `getPlainThemeConfiguration` if you do not need translated labels or help texts or
      * getThemeConfigurationStructuredFields if you need structure with translations
      *
      * @return array<string, mixed>
@@ -318,7 +318,7 @@ class ThemeService implements ResetInterface
             }
         }
 
-        if (!Feature::isActive('v6.8.0.0')) {
+        if (Feature::isActive('v6.8.0.0')) {
             // labels are still stored in the database, but we don't want to expose them in the API
             foreach ($themeConfig['blocks'] ?? [] as $name => &$item) {
                 unset($item['label']);
@@ -329,6 +329,8 @@ class ThemeService implements ResetInterface
     }
 
     /**
+     * @deprecated tag:v6.8.0.0 Use `getStructuredThemeConfiguration` instead
+     *
      * @return array<string, mixed>
      */
     public function getThemeConfigurationStructuredFields(string $themeId, bool $translate, Context $context): array

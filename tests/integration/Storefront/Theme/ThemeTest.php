@@ -188,7 +188,7 @@ class ThemeTest extends TestCase
         $childTheme = $this->themeRepository->search($criteria, $this->context)->getEntities()->first();
         static::assertInstanceOf(ThemeEntity::class, $childTheme);
 
-        $childThemeFields = $this->themeService->getStructuredThemeConfiguration($childTheme->getId(), $this->context, true);
+        $childThemeFields = $this->themeService->getStructuredThemeConfiguration($childTheme->getId(), $this->context);
 
         $technicalName = $childTheme->getTechnicalName();
         static::assertIsString($technicalName);
@@ -243,7 +243,7 @@ class ThemeTest extends TestCase
         $technicalName = $childTheme->getTechnicalName();
         static::assertIsString($technicalName);
 
-        $childThemeFields = $this->themeService->getStructuredThemeConfiguration($childTheme->getId(), $this->context, true);
+        $childThemeFields = $this->themeService->getStructuredThemeConfiguration($childTheme->getId(), $this->context);
         static::assertSame(
             implode('.', ['sw-theme', u($technicalName)->kebab(), 'default.themeColors.default.sw-color-brand-primary.label']),
             $childThemeFields['tabs']['default']['blocks']['themeColors']['sections']['default']['fields']['sw-color-brand-primary']['labelSnippetKey']

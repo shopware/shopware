@@ -28,7 +28,7 @@ async function createWrapper(customOptions = {}) {
                                 <slot name="footer"></slot>
                             </div>
                         </div>
-                    `
+                    `,
                 },
                 'mt-modal-root': {
                     template: `
@@ -39,9 +39,9 @@ async function createWrapper(customOptions = {}) {
                     props: {
                         isOpen: {
                             type: Boolean,
-                            default: false
-                        }
-                    }
+                            default: false,
+                        },
+                    },
                 },
             },
         },
@@ -252,4 +252,4 @@ describe('src/app/component/media/sw-media-url-form', () => {
         await wrapper.vm.onModalChange(true);
         expect(wrapper.vm.showModal).toBeTruthy();
     });
-}); 
+});

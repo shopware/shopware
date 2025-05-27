@@ -76,42 +76,44 @@
                         </router-link>
                     </RovingFocusItem>
 
-                    <MotionUl
-                        v-if="module.hasOwnProperty('children') && (module.match($route) !== 'none' || !!module.children && module.children.some(subModule => subModule.match($route) !== 'none'))"
-                        style="position: relative; list-style: none; overflow: hidden"
-                        :initial="{ height: 0, opacity: 0 }"
-                        :animate="{ height: 'auto', opacity: 1 }"
-                        :leave="{ height: 0, opacity: 0 }"
-                        :transition="{ type: 'spring', duration: 0.3, bounce: 0 }"
-                    >
-                        <div style="position: absolute; width: 1px; background: var(--color-border-primary-default); height: calc(100% - 5px * 2); top: 50%; transform: translateY(-50%); left: 17.5px"></div>
-
-                        <li
-                            v-for="subModule in module.children"
-                            :key="subModule.id"
+                    <AnimatePresence>
+                        <MotionUl
+                            v-if="module.hasOwnProperty('children') && (module.match($route) !== 'none' || !!module.children && module.children.some(subModule => subModule.match($route) !== 'none'))"
+                            style="position: relative; list-style: none; overflow: hidden"
+                            :initial="{ height: 0, opacity: 0 }"
+                            :animate="{ height: 'auto', opacity: 1 }"
+                            :exit="{ height: 0, opacity: 0 }"
+                            :transition="{ type: 'spring', duration: 0.3, bounce: 0 }"
                         >
-                            <RovingFocusItem as-child>
-                                <router-link
-                                    class="sw-admin-menu__nav-item"
-                                    :class="{
-                                        'router-link-active': subModule.match($route) === 'exact'
-                                    }"
-                                    :to="{ name: subModule.to }"
-                                >
-                                    <div style="display: grid; place-items: center; width: var(--scale-size-16); height: var(--scale-size-26);">
-                                        <MotionDiv
-                                            v-if="subModule.match($route) === 'exact'"
-                                            :transition="{ type: 'spring', duration: 0.2, bounce: 0}"
-                                            layout-id="some-element"
-                                            style="width: 9px; background: var(--color-border-brand-selected); border-radius: 999px; height: 100%; z-index: 1; border: 3px solid var(--admin-menu-item-background-selected)"
-                                        />
-                                    </div>
+                            <div style="position: absolute; width: 1px; background: var(--color-border-primary-default); height: calc(100% - 5px * 2); top: 50%; transform: translateY(-50%); left: 17.5px"></div>
 
-                                    <span>{{ subModule.name }}</span>
-                                </router-link>
-                            </RovingFocusItem>
-                        </li>
-                    </MotionUl>
+                            <li
+                                v-for="subModule in module.children"
+                                :key="subModule.id"
+                            >
+                                <RovingFocusItem as-child>
+                                    <router-link
+                                        class="sw-admin-menu__nav-item"
+                                        :class="{
+                                            'router-link-active': subModule.match($route) === 'exact'
+                                        }"
+                                        :to="{ name: subModule.to }"
+                                    >
+                                        <div style="display: grid; place-items: center; width: var(--scale-size-16); height: var(--scale-size-26);">
+                                            <MotionDiv
+                                                v-if="subModule.match($route) === 'exact'"
+                                                :transition="{ type: 'spring', duration: 0.2, bounce: 0}"
+                                                layout-id="some-element"
+                                                style="width: 9px; background: var(--color-border-brand-selected); border-radius: 999px; height: 100%; z-index: 1; border: 3px solid var(--admin-menu-item-background-selected)"
+                                            />
+                                        </div>
+
+                                        <span>{{ subModule.name }}</span>
+                                    </router-link>
+                                </RovingFocusItem>
+                            </li>
+                        </MotionUl>
+                    </AnimatePresence>
                 </li>
             </ul>
         </RovingFocusGroup>

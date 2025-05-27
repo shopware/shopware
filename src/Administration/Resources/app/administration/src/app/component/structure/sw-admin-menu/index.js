@@ -3,7 +3,7 @@ import './sw-admin-menu.scss';
 import { MtText } from '@shopware-ag/meteor-component-library';
 import { PopoverRoot, PopoverTrigger, PopoverPortal, PopoverContent, RovingFocusItem, RovingFocusGroup } from 'reka-ui';
 const { Criteria } = Shopware.Data;
-import { motion } from 'motion-v';
+import { motion, AnimatePresence } from 'motion-v';
 
 const MODULES = [
     {
@@ -164,6 +164,7 @@ export default {
         RovingFocusItem,
         MotionDiv: motion.div,
         MotionUl: motion.ul,
+        AnimatePresence,
     },
 
     inject: [

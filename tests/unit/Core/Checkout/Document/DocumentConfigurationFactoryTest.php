@@ -6,8 +6,8 @@ use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Document\DocumentConfiguration;
 use Shopware\Core\Checkout\Document\DocumentConfigurationFactory;
-use Shopware\Core\Content\Media\MediaEntity;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\System\Country\CountryEntity;
 
 /**
  * @internal
@@ -20,38 +20,38 @@ class DocumentConfigurationFactoryTest extends TestCase
     {
         $baseConfig = new DocumentConfiguration();
         $additionalConfig = [
-            'logo' => [
+            'companyCountry' => [
                 'id' => '0196aefd34097365b48db03283350285',
-                'fileName' => 'logo',
+                'name' => 'Germany',
             ],
         ];
 
         $mergedConfig = DocumentConfigurationFactory::mergeConfiguration($baseConfig, $additionalConfig);
-        $logo = $mergedConfig->getLogo();
+        $companyCountry = $mergedConfig->getCompanyCountry();
 
-        static::assertInstanceOf(MediaEntity::class, $logo);
-        static::assertSame('0196aefd34097365b48db03283350285', $logo->getId());
-        static::assertSame('logo', $logo->getFileName());
+        static::assertInstanceOf(CountryEntity::class, $companyCountry);
+        static::assertSame('0196aefd34097365b48db03283350285', $companyCountry->getId());
+        static::assertSame('Germany', $companyCountry->getName());
     }
 
     public function testMergeConfigurationWithEntityObjectAndUseSetterMethod(): void
     {
         $baseConfig = new DocumentConfiguration();
 
-        $logo = new MediaEntity();
-        $logo->setId('0196aefd34097365b48db03283350285');
-        $logo->setFileName('logo');
+        $companyCountry = new CountryEntity();
+        $companyCountry->setId('0196aefd34097365b48db03283350285');
+        $companyCountry->setName('Germany');
 
         $additionalConfig = [
-            'logo' => $logo,
+            'companyCountry' => $companyCountry,
         ];
 
         $mergedConfig = DocumentConfigurationFactory::mergeConfiguration($baseConfig, $additionalConfig);
-        $logo = $mergedConfig->getLogo();
+        $companyCountry = $mergedConfig->getCompanyCountry();
 
-        static::assertInstanceOf(MediaEntity::class, $logo);
-        static::assertSame('0196aefd34097365b48db03283350285', $logo->getId());
-        static::assertSame('logo', $logo->getFileName());
+        static::assertInstanceOf(CountryEntity::class, $companyCountry);
+        static::assertSame('0196aefd34097365b48db03283350285', $companyCountry->getId());
+        static::assertSame('Germany', $companyCountry->getName());
     }
 
     public function testMergeConfigurationWithDynamicProperties(): void

@@ -33,15 +33,6 @@
                 cursor: pointer;
             }
         }
-
-        &.sw-label--neutral {
-            color: $color-gray-500;
-            border-color: $color-gray-500;
-        }
-
-        &.sw-label--info {
-            border-color: $color-shopware-brand-500;
-        }
     }
 
     .spacer {

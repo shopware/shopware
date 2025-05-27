@@ -133,7 +133,7 @@ $sw-label-pill-border-radius: 50px;
 
     &.sw-label--info:not(&--appearance-badged) {
         /* stylelint-disable-next-line max-line-length */
-        @include sw-label-variant($color-shopware-brand-50, $color-shopware-brand-500, $color-shopware-brand-500, $color-shopware-brand-100);
+        @include sw-label-variant(var(--color-background-brand-default), var(--color-text-brand-default), $color-shopware-brand-500, var(--color-border-brand-selected));
     }
 
     &.sw-label--success:not(&--appearance-badged) {
@@ -150,7 +150,7 @@ $sw-label-pill-border-radius: 50px;
     }
 
     &.sw-label--neutral:not(&--appearance-badged) {
-        @include sw-label-variant($color-gray-50, $color-darkgray-200, $color-gray-300, $color-gray-100);
+        @include sw-label-variant(var(--color-interaction-secondary-default), var(--color-text-primary-default), $color-gray-300, var(--color-border-primary-default));
     }
 
     &.sw-label--neutral-reversed:not(&--appearance-badged) {

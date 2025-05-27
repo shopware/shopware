@@ -188,515 +188,520 @@ class ThemeFixtures
     }
 
     /**
-     * @return array<int, array<string, array<string, array<int|string, mixed>|string>|ThemeCollection|null>>
+     * @return iterable<array<string, array<string, array<int|string, mixed>|string>|ThemeCollection|null>>
      */
-    public static function getThemeCollectionForThemeConfiguration(): array
+    public static function getThemeCollectionForThemeConfiguration(): iterable
     {
         $themeId = Uuid::randomHex();
         $parentThemeId = Uuid::randomHex();
         $baseThemeId = Uuid::randomHex();
 
-        return [
-            [
-                'ids' => [
-                    'themeId' => $themeId,
-                    'parentThemeId' => $parentThemeId,
-                    'baseThemeId' => $baseThemeId,
-                ],
-                'themeCollection' => new ThemeCollection(
-                    [
-                        (new ThemeEntity())->assign(
-                            [
-                                'id' => $themeId,
-                                '_uniqueIdentifier' => $themeId,
-                                'salesChannels' => new SalesChannelCollection(),
-                                'technicalName' => 'Test',
-                                'parentThemeId' => $parentThemeId,
-                                'labels' => [
-                                    'fields.extend-parent-custom-config' => 'EN',
+        yield [
+            'ids' => [
+                'themeId' => $themeId,
+                'parentThemeId' => $parentThemeId,
+                'baseThemeId' => $baseThemeId,
+            ],
+            'themeCollection' => new ThemeCollection(
+                [
+                    (new ThemeEntity())->assign(
+                        [
+                            'id' => $themeId,
+                            '_uniqueIdentifier' => $themeId,
+                            'salesChannels' => new SalesChannelCollection(),
+                            'technicalName' => 'Test',
+                            'parentThemeId' => $parentThemeId,
+                            'labels' => [
+                                'fields.extend-parent-custom-config' => 'EN',
+                            ],
+                            'helpTexts' => [
+                                'fields.extend-parent-custom-config' => 'EN Helptext',
+                            ],
+                            'baseConfig' => [
+                                'configInheritance' => [
+                                    '@ParentTheme',
                                 ],
-                                'helpTexts' => [
-                                    'fields.extend-parent-custom-config' => 'EN Helptext',
-                                ],
-                                'baseConfig' => [
-                                    'configInheritance' => [
-                                        '@ParentTheme',
-                                    ],
-                                    'config' => self::getThemeJsonConfig(),
-                                    'fields' => [
-                                        'extend-parent-custom-config' => [
-                                            'type' => 'int',
-                                            'value' => '20',
-                                            'editable' => true,
-                                        ],
-                                    ],
-                                ],
-                                'configValues' => [
-                                    'test' => ['value' => ['no_test']],
-                                ],
-                            ]
-                        ),
-                        (new ThemeEntity())->assign(
-                            [
-                                'id' => $baseThemeId,
-                                'technicalName' => StorefrontPluginRegistry::BASE_THEME_NAME,
-                                '_uniqueIdentifier' => $baseThemeId,
-                            ]
-                        ),
-                        (new ThemeEntity())->assign(
-                            [
-                                'id' => $parentThemeId,
-                                'technicalName' => 'ParentTheme',
-                                'parentThemeId' => $baseThemeId,
-                                '_uniqueIdentifier' => $parentThemeId,
-                                'labels' => [
-                                    'fields.parent-custom-config' => 'EN',
-                                ],
-                                'helpTexts' => [
-                                    'fields.parent-custom-config' => 'EN Helptext',
-                                ],
-                                'baseConfig' => [
-                                    'configInheritance' => [
-                                        '@Storefront',
-                                    ],
-                                    'fields' => [
-                                        'parent-custom-config' => [
-                                            'type' => 'int',
-                                            'value' => '20',
-                                            'editable' => true,
-                                        ],
+                                'config' => self::getThemeJsonConfig(),
+                                'fields' => [
+                                    'extend-parent-custom-config' => [
+                                        'type' => 'int',
+                                        'value' => '20',
+                                        'editable' => true,
                                     ],
                                 ],
                             ],
-                        ),
-                    ]
-                ),
-                'expected' => [
-                    'fields' => self::getExtractedFields7(),
-                    'configInheritance' => self::getExtractedConfigInheritance(),
-                    'config' => self::getExtractedConfig1(),
-                    'currentFields' => self::getExtractedCurrentFields5(),
-                    'baseThemeFields' => self::getExtractedBaseThemeFields5(),
-                    'name' => 'test',
-                    'themeTechnicalName' => 'Test',
-                ],
-                'expectedStructured' => [
-                    'tabs' => self::getExtractedTabs10(),
-                ],
-            ],
-            [
-                'ids' => [
-                    'themeId' => $themeId,
-                    'parentThemeId' => $parentThemeId,
-                    'baseThemeId' => $baseThemeId,
-                ],
-                'themeCollection' => new ThemeCollection(
-                    [
-                        (new ThemeEntity())->assign(
-                            [
-                                'id' => $themeId,
-                                '_uniqueIdentifier' => $themeId,
-                                'salesChannels' => new SalesChannelCollection(),
-                                'technicalName' => 'Test',
-                                'parentThemeId' => $parentThemeId,
-                                'labels' => [
-                                    'testlabel',
+                            'configValues' => [
+                                'test' => ['value' => ['no_test']],
+                            ],
+                        ]
+                    ),
+                    (new ThemeEntity())->assign(
+                        [
+                            'id' => $baseThemeId,
+                            'technicalName' => StorefrontPluginRegistry::BASE_THEME_NAME,
+                            '_uniqueIdentifier' => $baseThemeId,
+                        ]
+                    ),
+                    (new ThemeEntity())->assign(
+                        [
+                            'id' => $parentThemeId,
+                            'technicalName' => 'ParentTheme',
+                            'parentThemeId' => $baseThemeId,
+                            '_uniqueIdentifier' => $parentThemeId,
+                            'labels' => [
+                                'fields.parent-custom-config' => 'EN',
+                            ],
+                            'helpTexts' => [
+                                'fields.parent-custom-config' => 'EN Helptext',
+                            ],
+                            'baseConfig' => [
+                                'configInheritance' => [
+                                    '@Storefront',
                                 ],
-                                'helpTexts' => [
-                                    'testHelp',
-                                ],
-                                'baseConfig' => [
-                                    'configInheritance' => [
-                                        '@ParentTheme',
-                                    ],
-                                    'config' => self::getThemeJsonConfig(),
-                                ],
-                                'configValues' => [
-                                    'test' => ['value' => ['no_test']],
-                                ],
-                            ]
-                        ),
-                        (new ThemeEntity())->assign(
-                            [
-                                'id' => $baseThemeId,
-                                'technicalName' => StorefrontPluginRegistry::BASE_THEME_NAME,
-                                '_uniqueIdentifier' => $baseThemeId,
-                            ]
-                        ),
-                        (new ThemeEntity())->assign(
-                            [
-                                'id' => $parentThemeId,
-                                'technicalName' => 'ParentTheme',
-                                'parentThemeId' => $baseThemeId,
-                                '_uniqueIdentifier' => $parentThemeId,
-                            ]
-                        ),
-                    ]
-                ),
-                'expected' => [
-                    'fields' => self::getExtractedFields1(),
-                    'configInheritance' => self::getExtractedConfigInheritance(),
-                    'config' => self::getExtractedConfig1(),
-                    'currentFields' => self::getExtractedCurrentFields1(),
-                    'baseThemeFields' => self::getExtractedBaseThemeFields1(),
-                    'name' => 'test',
-                    'themeTechnicalName' => 'Test',
-                ],
-                'expectedStructured' => [
-                    'tabs' => self::getExtractedTabs1(),
-                ],
-            ],
-            [
-                'ids' => [
-                    'themeId' => $themeId,
-                    'parentThemeId' => $parentThemeId,
-                    'baseThemeId' => $baseThemeId,
-                ],
-                'themeCollection' => new ThemeCollection(
-                    [
-                        (new ThemeEntity())->assign(
-                            [
-                                'id' => $themeId,
-                                '_uniqueIdentifier' => $themeId,
-                                'salesChannels' => new SalesChannelCollection(),
-                                'technicalName' => 'Test',
-                                'parentThemeId' => $parentThemeId,
-                                'labels' => [],
-                                'helpTexts' => [
-                                    'firstHelp',
-                                    'testHelp',
-                                ],
-                                'baseConfig' => [
-                                    'fields' => [
-                                        'first' => [],
-                                        'test' => [],
-                                    ],
-                                    'configInheritance' => [
-                                        '@ParentTheme',
+                                'fields' => [
+                                    'parent-custom-config' => [
+                                        'type' => 'int',
+                                        'value' => '20',
+                                        'editable' => true,
                                     ],
                                 ],
-                                'configValues' => [
-                                    'test' => ['value' => ['no_test']],
-                                ],
-                            ]
-                        ),
-                        (new ThemeEntity())->assign(
-                            [
-                                'id' => $baseThemeId,
-                                'technicalName' => StorefrontPluginRegistry::BASE_THEME_NAME,
-                                '_uniqueIdentifier' => $baseThemeId,
-                            ]
-                        ),
-                        (new ThemeEntity())->assign(
-                            [
-                                'id' => $parentThemeId,
-                                'technicalName' => 'ParentTheme',
-                                'parentThemeId' => $baseThemeId,
-                                '_uniqueIdentifier' => $parentThemeId,
-                            ]
-                        ),
-                    ]
-                ),
-                'expected' => [
-                    'fields' => self::getExtractedFields3(),
-                    'configInheritance' => self::getExtractedConfigInheritance(),
-                    'currentFields' => self::getExtractedCurrentFields2(),
-                    'baseThemeFields' => self::getExtractedBaseThemeFields2(),
-                    'name' => 'test',
-                    'themeTechnicalName' => 'Test',
-                ],
-                'expectedStructured' => [
-                    'tabs' => self::getExtractedTabs3(),
-                ],
+                            ],
+                        ],
+                    ),
+                ]
+            ),
+            'expected' => [
+                'fields' => self::getExtractedFields7(),
+                'configInheritance' => self::getExtractedConfigInheritance(),
+                'config' => self::getExtractedConfig1(),
+                'currentFields' => self::getExtractedCurrentFields5(),
+                'baseThemeFields' => self::getExtractedBaseThemeFields5(),
+                'name' => 'test',
+                'themeTechnicalName' => 'Test',
             ],
-            [
-                'ids' => [
-                    'themeId' => $themeId,
-                    'parentThemeId' => $parentThemeId,
-                    'baseThemeId' => $baseThemeId,
-                ],
-                'themeCollection' => new ThemeCollection(
-                    [
-                        (new ThemeEntity())->assign(
-                            [
-                                'id' => $themeId,
-                                '_uniqueIdentifier' => $themeId,
-                                'salesChannels' => new SalesChannelCollection(),
-                                'technicalName' => 'Test',
-                                'parentThemeId' => $parentThemeId,
-                                'configValues' => [
-                                    'test' => ['value' => ['no_test']],
-                                ],
-                            ]
-                        ),
-                        (new ThemeEntity())->assign(
-                            [
-                                'id' => $baseThemeId,
-                                'technicalName' => StorefrontPluginRegistry::BASE_THEME_NAME,
-                                '_uniqueIdentifier' => $baseThemeId,
-                            ]
-                        ),
-                        (new ThemeEntity())->assign(
-                            [
-                                'id' => $parentThemeId,
-                                'parentThemeId' => $baseThemeId,
-                                '_uniqueIdentifier' => $parentThemeId,
-                            ]
-                        ),
-                    ]
-                ),
-                'expected' => [
-                    'fields' => self::getExtractedFields2(),
-                    'currentFields' => self::getExtractedCurrentFields3(),
-                    'baseThemeFields' => self::getExtractedBaseThemeFields3(),
-                    'name' => 'test',
-                    'themeTechnicalName' => 'Test',
-                ],
-                'expectedStructured' => [
-                    'tabs' => self::getExtractedTabs5(),
-                ],
+            'expectedStructured' => [
+                'tabs' => self::getExtractedTabs10(),
             ],
-            [
-                'ids' => [
-                    'themeId' => $themeId,
-                    'parentThemeId' => $parentThemeId,
-                    'baseThemeId' => $baseThemeId,
-                ],
-                'themeCollection' => new ThemeCollection(
-                    [
-                        (new ThemeEntity())->assign(
-                            [
-                                'id' => $themeId,
-                                '_uniqueIdentifier' => $themeId,
-                                'salesChannels' => new SalesChannelCollection(),
-                                'technicalName' => 'Test',
-                                'parentThemeId' => $parentThemeId,
-                                'configValues' => [
-                                    'test' => ['value' => ['no_test']],
-                                ],
-                            ]
-                        ),
-                        (new ThemeEntity())->assign(
-                            [
-                                'id' => $baseThemeId,
-                                'technicalName' => StorefrontPluginRegistry::BASE_THEME_NAME,
-                                '_uniqueIdentifier' => $baseThemeId,
-                            ]
-                        ),
-                        (new ThemeEntity())->assign(
-                            [
-                                'id' => $parentThemeId,
-                                'parentThemeId' => $baseThemeId,
-                                '_uniqueIdentifier' => $parentThemeId,
-                                'baseConfig' => [
-                                    'fields' => false,
-                                ],
-                            ]
-                        ),
-                    ]
-                ),
-                'expected' => [
-                    'fields' => self::getExtractedFields5(),
-                    'currentFields' => self::getExtractedCurrentFields3(),
-                    'baseThemeFields' => self::getExtractedBaseThemeFields3(),
-                    'name' => 'test',
-                    'themeTechnicalName' => 'Test',
-                ],
-                'expectedStructured' => [
-                    'tabs' => self::getExtractedTabs5(),
-                ],
-            ],
+        ];
 
-            [
-                'ids' => [
-                    'themeId' => $themeId,
-                    'parentThemeId' => $parentThemeId,
-                    'baseThemeId' => $baseThemeId,
-                ],
-                'themeCollection' => new ThemeCollection(
-                    [
-                        (new ThemeEntity())->assign(
-                            [
-                                'id' => $themeId,
-                                '_uniqueIdentifier' => $themeId,
-                                'salesChannels' => new SalesChannelCollection(),
-                                'technicalName' => 'Test',
-                                'parentThemeId' => $parentThemeId,
-                                'configValues' => [
-                                    'test' => ['value' => ['no_test']],
-                                ],
-                            ]
-                        ),
-                        (new ThemeEntity())->assign(
-                            [
-                                'id' => $baseThemeId,
-                                'technicalName' => StorefrontPluginRegistry::BASE_THEME_NAME,
-                                '_uniqueIdentifier' => $baseThemeId,
-                            ]
-                        ),
-                        (new ThemeEntity())->assign(
-                            [
-                                'id' => $parentThemeId,
-                                'parentThemeId' => $baseThemeId,
-                                '_uniqueIdentifier' => $parentThemeId,
-                                'baseConfig' => [
-                                    'fields' => [],
-                                ],
-                            ]
-                        ),
-                    ]
-                ),
-                'expected' => [
-                    'fields' => self::getExtractedFields2(),
-                    'currentFields' => self::getExtractedCurrentFields3(),
-                    'baseThemeFields' => self::getExtractedBaseThemeFields3(),
-                    'name' => 'test',
-                    'themeTechnicalName' => 'Test',
-                ],
-                'expectedStructured' => [
-                    'tabs' => self::getExtractedTabs5(),
-                ],
+        yield [
+            'ids' => [
+                'themeId' => $themeId,
+                'parentThemeId' => $parentThemeId,
+                'baseThemeId' => $baseThemeId,
             ],
-            [
-                'ids' => [
-                    'themeId' => $themeId,
-                    'parentThemeId' => $parentThemeId,
-                    'baseThemeId' => $baseThemeId,
-                ],
-                'themeCollection' => new ThemeCollection(
-                    [
-                        (new ThemeEntity())->assign(
-                            [
-                                'id' => $themeId,
-                                '_uniqueIdentifier' => $themeId,
-                                'salesChannels' => new SalesChannelCollection(),
-                                'technicalName' => 'Test',
-                                'configValues' => [
-                                    'test' => ['value' => ['no_test']],
+            'themeCollection' => new ThemeCollection(
+                [
+                    (new ThemeEntity())->assign(
+                        [
+                            'id' => $themeId,
+                            '_uniqueIdentifier' => $themeId,
+                            'salesChannels' => new SalesChannelCollection(),
+                            'technicalName' => 'Test',
+                            'parentThemeId' => $parentThemeId,
+                            'labels' => [
+                                'testlabel',
+                            ],
+                            'helpTexts' => [
+                                'testHelp',
+                            ],
+                            'baseConfig' => [
+                                'configInheritance' => [
+                                    '@ParentTheme',
                                 ],
-                            ]
-                        ),
-                        (new ThemeEntity())->assign(
-                            [
-                                'id' => $baseThemeId,
-                                'technicalName' => StorefrontPluginRegistry::BASE_THEME_NAME,
-                                '_uniqueIdentifier' => $baseThemeId,
-                            ]
-                        ),
-                    ]
-                ),
-                'expected' => [
-                    'fields' => self::getExtractedFields2(),
-                    'currentFields' => self::getExtractedCurrentFields3(),
-                    'baseThemeFields' => self::getExtractedBaseThemeFields3(),
-                    'name' => 'test',
-                    'themeTechnicalName' => 'Test',
-                ],
-                'expectedStructured' => [
-                    'tabs' => self::getExtractedTabs5(),
-                ],
+                                'config' => self::getThemeJsonConfig(),
+                            ],
+                            'configValues' => [
+                                'test' => ['value' => ['no_test']],
+                            ],
+                        ]
+                    ),
+                    (new ThemeEntity())->assign(
+                        [
+                            'id' => $baseThemeId,
+                            'technicalName' => StorefrontPluginRegistry::BASE_THEME_NAME,
+                            '_uniqueIdentifier' => $baseThemeId,
+                        ]
+                    ),
+                    (new ThemeEntity())->assign(
+                        [
+                            'id' => $parentThemeId,
+                            'technicalName' => 'ParentTheme',
+                            'parentThemeId' => $baseThemeId,
+                            '_uniqueIdentifier' => $parentThemeId,
+                        ]
+                    ),
+                ]
+            ),
+            'expected' => [
+                'fields' => self::getExtractedFields1(),
+                'configInheritance' => self::getExtractedConfigInheritance(),
+                'config' => self::getExtractedConfig1(),
+                'currentFields' => self::getExtractedCurrentFields1(),
+                'baseThemeFields' => self::getExtractedBaseThemeFields1(),
+                'name' => 'test',
+                'themeTechnicalName' => 'Test',
             ],
-            [
-                'ids' => [
-                    'themeId' => $themeId,
-                    'parentThemeId' => $parentThemeId,
-                    'baseThemeId' => $baseThemeId,
-                ],
-                'themeCollection' => new ThemeCollection(
-                    [
-                        (new ThemeEntity())->assign(
-                            [
-                                'id' => $themeId,
-                                '_uniqueIdentifier' => $themeId,
-                                'salesChannels' => new SalesChannelCollection(),
-                                'technicalName' => 'Test',
-                                'configValues' => [],
-                            ]
-                        ),
-                        (new ThemeEntity())->assign(
-                            [
-                                'id' => $baseThemeId,
-                                'technicalName' => StorefrontPluginRegistry::BASE_THEME_NAME,
-                                '_uniqueIdentifier' => $baseThemeId,
-                                'configValues' => [
-                                    'test' => ['value' => ['no_test']],
+            'expectedStructured' => [
+                'tabs' => self::getExtractedTabs1(),
+            ],
+        ];
+
+        yield [
+            'ids' => [
+                'themeId' => $themeId,
+                'parentThemeId' => $parentThemeId,
+                'baseThemeId' => $baseThemeId,
+            ],
+            'themeCollection' => new ThemeCollection(
+                [
+                    (new ThemeEntity())->assign(
+                        [
+                            'id' => $themeId,
+                            '_uniqueIdentifier' => $themeId,
+                            'salesChannels' => new SalesChannelCollection(),
+                            'technicalName' => 'Test',
+                            'parentThemeId' => $parentThemeId,
+                            'labels' => [],
+                            'helpTexts' => [
+                                'firstHelp',
+                                'testHelp',
+                            ],
+                            'baseConfig' => [
+                                'fields' => [
+                                    'first' => [],
+                                    'test' => [],
                                 ],
-                            ]
-                        ),
-                    ]
-                ),
-                'expected' => [
-                    'fields' => self::getExtractedFields5(),
-                    'currentFields' => self::getExtractedBaseThemeFields8(),
-                    'baseThemeFields' => self::getExtractedCurrentFields8(),
-                    'name' => 'test',
-                    'themeTechnicalName' => 'Test',
-                ],
-                'expectedStructured' => [
-                    'tabs' => self::getExtractedTabs5(),
-                ],
+                                'configInheritance' => [
+                                    '@ParentTheme',
+                                ],
+                            ],
+                            'configValues' => [
+                                'test' => ['value' => ['no_test']],
+                            ],
+                        ]
+                    ),
+                    (new ThemeEntity())->assign(
+                        [
+                            'id' => $baseThemeId,
+                            'technicalName' => StorefrontPluginRegistry::BASE_THEME_NAME,
+                            '_uniqueIdentifier' => $baseThemeId,
+                        ]
+                    ),
+                    (new ThemeEntity())->assign(
+                        [
+                            'id' => $parentThemeId,
+                            'technicalName' => 'ParentTheme',
+                            'parentThemeId' => $baseThemeId,
+                            '_uniqueIdentifier' => $parentThemeId,
+                        ]
+                    ),
+                ]
+            ),
+            'expected' => [
+                'fields' => self::getExtractedFields3(),
+                'configInheritance' => self::getExtractedConfigInheritance(),
+                'currentFields' => self::getExtractedCurrentFields2(),
+                'baseThemeFields' => self::getExtractedBaseThemeFields2(),
+                'name' => 'test',
+                'themeTechnicalName' => 'Test',
             ],
-            [
-                'ids' => [
-                    'themeId' => $themeId,
-                    'parentThemeId' => $parentThemeId,
-                    'baseThemeId' => $baseThemeId,
-                ],
-                'themeCollection' => new ThemeCollection(
-                    [
-                        (new ThemeEntity())->assign(
-                            [
-                                'id' => $themeId,
-                                'technicalName' => 'Theme',
-                                '_uniqueIdentifier' => $themeId,
-                                'baseConfig' => [
-                                    'fields' => [
-                                        'sw-color-brand-primary' => [
-                                            'value' => '#adbd00',
-                                        ],
-                                        'test-something-with-options' => [
-                                            'type' => 'text',
-                                            'editable' => true,
-                                            'block' => 'media',
-                                            'order' => 600,
-                                            'value' => 'Hello',
-                                            'fullWidth' => null,
-                                            'custom' => [
-                                                'componentName' => 'sw-single-select',
-                                                'options' => [
-                                                    [
-                                                        'value' => 'Hello',
-                                                    ],
-                                                    [
-                                                        'value' => 'World',
-                                                    ],
+            'expectedStructured' => [
+                'tabs' => self::getExtractedTabs3(),
+            ],
+        ];
+
+        yield [
+            'ids' => [
+                'themeId' => $themeId,
+                'parentThemeId' => $parentThemeId,
+                'baseThemeId' => $baseThemeId,
+            ],
+            'themeCollection' => new ThemeCollection(
+                [
+                    (new ThemeEntity())->assign(
+                        [
+                            'id' => $themeId,
+                            '_uniqueIdentifier' => $themeId,
+                            'salesChannels' => new SalesChannelCollection(),
+                            'technicalName' => 'Test',
+                            'parentThemeId' => $parentThemeId,
+                            'configValues' => [
+                                'test' => ['value' => ['no_test']],
+                            ],
+                        ]
+                    ),
+                    (new ThemeEntity())->assign(
+                        [
+                            'id' => $baseThemeId,
+                            'technicalName' => StorefrontPluginRegistry::BASE_THEME_NAME,
+                            '_uniqueIdentifier' => $baseThemeId,
+                        ]
+                    ),
+                    (new ThemeEntity())->assign(
+                        [
+                            'id' => $parentThemeId,
+                            'parentThemeId' => $baseThemeId,
+                            '_uniqueIdentifier' => $parentThemeId,
+                        ]
+                    ),
+                ]
+            ),
+            'expected' => [
+                'fields' => self::getExtractedFields2(),
+                'currentFields' => self::getExtractedCurrentFields3(),
+                'baseThemeFields' => self::getExtractedBaseThemeFields3(),
+                'name' => 'test',
+                'themeTechnicalName' => 'Test',
+            ],
+            'expectedStructured' => [
+                'tabs' => self::getExtractedTabs5(),
+            ],
+        ];
+
+        yield [
+            'ids' => [
+                'themeId' => $themeId,
+                'parentThemeId' => $parentThemeId,
+                'baseThemeId' => $baseThemeId,
+            ],
+            'themeCollection' => new ThemeCollection(
+                [
+                    (new ThemeEntity())->assign(
+                        [
+                            'id' => $themeId,
+                            '_uniqueIdentifier' => $themeId,
+                            'salesChannels' => new SalesChannelCollection(),
+                            'technicalName' => 'Test',
+                            'parentThemeId' => $parentThemeId,
+                            'configValues' => [
+                                'test' => ['value' => ['no_test']],
+                            ],
+                        ]
+                    ),
+                    (new ThemeEntity())->assign(
+                        [
+                            'id' => $baseThemeId,
+                            'technicalName' => StorefrontPluginRegistry::BASE_THEME_NAME,
+                            '_uniqueIdentifier' => $baseThemeId,
+                        ]
+                    ),
+                    (new ThemeEntity())->assign(
+                        [
+                            'id' => $parentThemeId,
+                            'parentThemeId' => $baseThemeId,
+                            '_uniqueIdentifier' => $parentThemeId,
+                            'baseConfig' => [
+                                'fields' => false,
+                            ],
+                        ]
+                    ),
+                ]
+            ),
+            'expected' => [
+                'fields' => self::getExtractedFields5(),
+                'currentFields' => self::getExtractedCurrentFields3(),
+                'baseThemeFields' => self::getExtractedBaseThemeFields3(),
+                'name' => 'test',
+                'themeTechnicalName' => 'Test',
+            ],
+            'expectedStructured' => [
+                'tabs' => self::getExtractedTabs5(),
+            ],
+        ];
+
+        yield [
+            'ids' => [
+                'themeId' => $themeId,
+                'parentThemeId' => $parentThemeId,
+                'baseThemeId' => $baseThemeId,
+            ],
+            'themeCollection' => new ThemeCollection(
+                [
+                    (new ThemeEntity())->assign(
+                        [
+                            'id' => $themeId,
+                            '_uniqueIdentifier' => $themeId,
+                            'salesChannels' => new SalesChannelCollection(),
+                            'technicalName' => 'Test',
+                            'parentThemeId' => $parentThemeId,
+                            'configValues' => [
+                                'test' => ['value' => ['no_test']],
+                            ],
+                        ]
+                    ),
+                    (new ThemeEntity())->assign(
+                        [
+                            'id' => $baseThemeId,
+                            'technicalName' => StorefrontPluginRegistry::BASE_THEME_NAME,
+                            '_uniqueIdentifier' => $baseThemeId,
+                        ]
+                    ),
+                    (new ThemeEntity())->assign(
+                        [
+                            'id' => $parentThemeId,
+                            'parentThemeId' => $baseThemeId,
+                            '_uniqueIdentifier' => $parentThemeId,
+                            'baseConfig' => [
+                                'fields' => [],
+                            ],
+                        ]
+                    ),
+                ]
+            ),
+            'expected' => [
+                'fields' => self::getExtractedFields2(),
+                'currentFields' => self::getExtractedCurrentFields3(),
+                'baseThemeFields' => self::getExtractedBaseThemeFields3(),
+                'name' => 'test',
+                'themeTechnicalName' => 'Test',
+            ],
+            'expectedStructured' => [
+                'tabs' => self::getExtractedTabs5(),
+            ],
+        ];
+
+        yield [
+            'ids' => [
+                'themeId' => $themeId,
+                'parentThemeId' => $parentThemeId,
+                'baseThemeId' => $baseThemeId,
+            ],
+            'themeCollection' => new ThemeCollection(
+                [
+                    (new ThemeEntity())->assign(
+                        [
+                            'id' => $themeId,
+                            '_uniqueIdentifier' => $themeId,
+                            'salesChannels' => new SalesChannelCollection(),
+                            'technicalName' => 'Test',
+                            'configValues' => [
+                                'test' => ['value' => ['no_test']],
+                            ],
+                        ]
+                    ),
+                    (new ThemeEntity())->assign(
+                        [
+                            'id' => $baseThemeId,
+                            'technicalName' => StorefrontPluginRegistry::BASE_THEME_NAME,
+                            '_uniqueIdentifier' => $baseThemeId,
+                        ]
+                    ),
+                ]
+            ),
+            'expected' => [
+                'fields' => self::getExtractedFields2(),
+                'currentFields' => self::getExtractedCurrentFields3(),
+                'baseThemeFields' => self::getExtractedBaseThemeFields3(),
+                'name' => 'test',
+                'themeTechnicalName' => 'Test',
+            ],
+            'expectedStructured' => [
+                'tabs' => self::getExtractedTabs5(),
+            ],
+        ];
+
+        yield [
+            'ids' => [
+                'themeId' => $themeId,
+                'parentThemeId' => $parentThemeId,
+                'baseThemeId' => $baseThemeId,
+            ],
+            'themeCollection' => new ThemeCollection(
+                [
+                    (new ThemeEntity())->assign(
+                        [
+                            'id' => $themeId,
+                            '_uniqueIdentifier' => $themeId,
+                            'salesChannels' => new SalesChannelCollection(),
+                            'technicalName' => 'Test',
+                            'configValues' => [],
+                        ]
+                    ),
+                    (new ThemeEntity())->assign(
+                        [
+                            'id' => $baseThemeId,
+                            'technicalName' => StorefrontPluginRegistry::BASE_THEME_NAME,
+                            '_uniqueIdentifier' => $baseThemeId,
+                            'configValues' => [
+                                'test' => ['value' => ['no_test']],
+                            ],
+                        ]
+                    ),
+                ]
+            ),
+            'expected' => [
+                'fields' => self::getExtractedFields5(),
+                'currentFields' => self::getExtractedBaseThemeFields8(),
+                'baseThemeFields' => self::getExtractedCurrentFields8(),
+                'name' => 'test',
+                'themeTechnicalName' => 'Test',
+            ],
+            'expectedStructured' => [
+                'tabs' => self::getExtractedTabs5(),
+            ],
+        ];
+
+        yield [
+            'ids' => [
+                'themeId' => $themeId,
+                'parentThemeId' => $parentThemeId,
+                'baseThemeId' => $baseThemeId,
+            ],
+            'themeCollection' => new ThemeCollection(
+                [
+                    (new ThemeEntity())->assign(
+                        [
+                            'id' => $themeId,
+                            'technicalName' => 'Theme',
+                            '_uniqueIdentifier' => $themeId,
+                            'baseConfig' => [
+                                'fields' => [
+                                    'sw-color-brand-primary' => [
+                                        'value' => '#adbd00',
+                                    ],
+                                    'test-something-with-options' => [
+                                        'type' => 'text',
+                                        'editable' => true,
+                                        'block' => 'media',
+                                        'order' => 600,
+                                        'value' => 'Hello',
+                                        'fullWidth' => null,
+                                        'custom' => [
+                                            'componentName' => 'sw-single-select',
+                                            'options' => [
+                                                [
+                                                    'value' => 'Hello',
+                                                ],
+                                                [
+                                                    'value' => 'World',
                                                 ],
                                             ],
                                         ],
                                     ],
                                 ],
-                            ]
-                        ),
-                        (new ThemeEntity())->assign(
-                            [
-                                'id' => $baseThemeId,
-                                'technicalName' => StorefrontPluginRegistry::BASE_THEME_NAME,
-                                '_uniqueIdentifier' => $baseThemeId,
-                                'baseConfig' => self::getThemeJsonConfig(),
-                            ]
-                        ),
-                    ]
-                ),
-                'expected' => [
-                    'fields' => self::getExtractedFields10(),
-                    'currentFields' => self::getExtractedCurrentFields6(),
-                    'baseThemeFields' => self::getExtractedBaseThemeFields6(),
-                    'name' => 'test',
-                    'themeTechnicalName' => 'Theme',
-                ],
-                'expectedStructured' => [
-                    'tabs' => self::getExtractedTabsNameTheme(),
-                ],
+                            ],
+                        ]
+                    ),
+                    (new ThemeEntity())->assign(
+                        [
+                            'id' => $baseThemeId,
+                            'technicalName' => StorefrontPluginRegistry::BASE_THEME_NAME,
+                            '_uniqueIdentifier' => $baseThemeId,
+                            'baseConfig' => self::getThemeJsonConfig(),
+                        ]
+                    ),
+                ]
+            ),
+            'expected' => [
+                'fields' => self::getExtractedFields10(),
+                'currentFields' => self::getExtractedCurrentFields6(),
+                'baseThemeFields' => self::getExtractedBaseThemeFields6(),
+                'name' => 'test',
+                'themeTechnicalName' => 'Theme',
+            ],
+            'expectedStructured' => [
+                'tabs' => self::getExtractedTabsNameTheme(),
             ],
         ];
     }

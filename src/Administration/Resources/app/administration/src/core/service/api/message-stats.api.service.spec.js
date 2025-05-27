@@ -34,18 +34,18 @@ describe('messageStatsApiService', () => {
                 messageTypeStats: [
                     {
                         type: 'Shopware\\Core\\Framework\\Adapter\\Cache\\InvalidateCacheTask',
-                        count: 2
+                        count: 2,
                     },
                     {
                         type: 'Shopware\\Core\\Content\\ProductExport\\ScheduledTask\\ProductExportGenerateTask',
-                        count: 2
+                        count: 2,
                     },
                     {
                         type: 'Shopware\\Elasticsearch\\Framework\\Indexing\\CreateAliasTask',
-                        count: 1
-                    }
-                ]
-            }
+                        count: 1,
+                    },
+                ],
+            },
         };
 
         clientMock.onGet('/_info/message-stats.json').reply(200, mockResponse);
@@ -60,7 +60,7 @@ describe('messageStatsApiService', () => {
 
         const mockResponse = {
             enabled: true,
-            stats: null
+            stats: null,
         };
 
         clientMock.onGet('/_info/message-stats.json').reply(200, mockResponse);
@@ -75,7 +75,7 @@ describe('messageStatsApiService', () => {
 
         const mockResponse = {
             enabled: false,
-            stats: null
+            stats: null,
         };
 
         clientMock.onGet('/_info/message-stats.json').reply(200, mockResponse);
@@ -94,9 +94,9 @@ describe('messageStatsApiService', () => {
                     code: '0',
                     status: '500',
                     title: 'Internal Server Error',
-                    detail: 'An error occurred while processing the request'
-                }
-            ]
+                    detail: 'An error occurred while processing the request',
+                },
+            ],
         });
 
         await expect(messageStatsApiService.getStats()).rejects.toThrow();

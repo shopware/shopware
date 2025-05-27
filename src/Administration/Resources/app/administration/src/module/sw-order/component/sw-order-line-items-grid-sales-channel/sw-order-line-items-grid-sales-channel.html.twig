@@ -111,7 +111,7 @@
         :allow-inline-edit="isCustomerActive"
         :is-record-editable="(item) => !isPromotionItem(item)"
         :is-record-selectable="(item) => !isAutoPromotionItem(item)"
-        :compact-mode="false"
+        :compact-mode="true"
         identifier="sw-order-line-item-grid-sales-channel"
         class="sw-order-line-items-grid-sales-channel__data-grid"
         @inline-edit-cancel="onInlineEditCancel"

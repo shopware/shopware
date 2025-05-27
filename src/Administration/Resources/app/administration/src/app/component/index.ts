@@ -501,7 +501,10 @@ export default () => {
     Shopware.Component.register('sw-ai-copilot-badge', () => import('src/app/component/feedback/sw-ai-copilot-badge'));
     Shopware.Component.register('sw-ai-copilot-warning', () => import('src/app/component/feedback/sw-ai-copilot-warning'));
     Shopware.Component.register('sw-string-filter', () => import('src/app/component/filter/sw-string-filter'));
-    Shopware.Component.register('sw-media-modal-renderer', () => import('src/app/component/structure/sw-media-modal-renderer/index'));
+    Shopware.Component.register(
+        'sw-media-modal-renderer',
+        () => import('src/app/component/structure/sw-media-modal-renderer/index'),
+    );
     Shopware.Component.extend('sw-sidebar-collapse', 'sw-collapse', () => import('./sidebar/sw-sidebar-collapse/index'));
     Shopware.Component.extend(
         'sw-condition-is-net-select',

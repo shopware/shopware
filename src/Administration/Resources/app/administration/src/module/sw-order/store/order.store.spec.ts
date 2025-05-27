@@ -49,14 +49,14 @@ describe('src/module/sw-order/store/order.store', () => {
                 removeLineItems: removeLineItemsMock,
                 saveLineItem: saveLineItemMock,
                 addMultipleLineItems: addMultipleLineItemsMock,
-            }  as unknown as CartStoreService;
+            } as unknown as CartStoreService;
         });
         // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
         Shopware.Service().register('contextStoreService', () => {
             return {
                 getSalesChannelContext: getSalesChannelContextMock,
                 updateContext: updateContextMock,
-            }  as unknown as ContextStoreService;
+            } as unknown as ContextStoreService;
         });
         // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
         Shopware.Service().register('checkoutStoreService', () => {

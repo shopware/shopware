@@ -314,6 +314,8 @@ export default class VueAdapter extends ViewAdapter {
             'sw-multi-tag-ip-select',
             'sw-grouped-single-select',
             'sw-price-preview',
+            'sw-context-menu',
+            'sw-context-menu-item',
         ];
 
         syncComponents.forEach((componentName) => {
@@ -379,9 +381,12 @@ export default class VueAdapter extends ViewAdapter {
             'MtModal',
             'MtModalRoot',
             'MtModalClose',
+            'MtModalTrigger',
+            'MtModalAction',
             'MtUrlField',
             'MtSearch',
             'MtLink',
+            'MtUnitField',
         ];
 
         meteorComponents.forEach((componentName) => {

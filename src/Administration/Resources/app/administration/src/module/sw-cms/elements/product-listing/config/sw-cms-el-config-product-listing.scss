@@ -1,6 +1,10 @@
 @import "~scss/variables";
 
 .sw-cms-el-config-product-listing {
+    &__content-info.mt-banner {
+        margin-bottom: 0;
+    }
+
     div.sw-field--switch {
         margin: 0 0 0 5px;
 
@@ -10,14 +14,16 @@
         }
     }
 
+    &__config-filter-switch-container > .mt-switch {
+        margin-top: 0;
+    }
+
     div.sw-cms-el-config-product-listing-custom-sortings {
         margin-bottom: 18px;
     }
 
-    .sw-select-selection-list {
-        > li {
-            width: 100%;
-        }
+    .sw-select-selection-list > li {
+        width: 100%;
     }
 
     .spacer {
@@ -33,10 +39,9 @@
         margin-left: 34px;
     }
 
-    .sw-cms-el-config-product-listing-property-grid {
-        &__grid {
-            border-top: 0;
-            margin: 0 -30px -55px;
+    .sw-cms-el-config-product-listing__property-grid {
+        &-switch {
+            margin: 0;
         }
 
         .sw-data-grid.is--compact .sw-data-grid__header .sw-data-grid__cell-content {
@@ -45,26 +50,6 @@
 
         .sw-data-grid.is--compact .sw-data-grid__body .sw-data-grid__cell-content {
             padding: 0 45px;
-        }
-
-        .sw-field--switch .sw-field--switch__input {
-            padding: 0 0 15px;
-        }
-
-        &.is--disabled {
-            .sw-data-grid .sw-data-grid__cell-content {
-                color: $color-gray-700;
-            }
-
-            /* stylelint-disable max-line-length, max-nesting-depth */
-            .sw-field--switch .sw-field--switch__input input[type="checkbox"]:checked:disabled ~ .sw-field__switch-state {
-                background: $color-shopware-brand-200;
-
-                .sw-field__switch-state-knob {
-                    background: $color-gray-50;
-                }
-            }
-            /* stylelint-enable max-line-length, max-nesting-depth */
         }
     }
 }

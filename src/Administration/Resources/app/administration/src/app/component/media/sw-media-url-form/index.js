@@ -46,9 +46,7 @@ export default {
     },
 
     mounted() {
-        if (this.variant === 'modal') {
-            this.showModal = true;
-        }
+        this.mountedComponent();
     },
 
     computed: {
@@ -105,6 +103,12 @@ export default {
     },
 
     methods: {
+        mountedComponent() {
+            if (this.variant === 'modal') {
+                this.showModal = true;
+            }
+        },
+
         emitUrl(originalDomEvent) {
             if (this.isValid) {
                 this.$emit('media-url-form-submit', {

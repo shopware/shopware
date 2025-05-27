@@ -45,4 +45,4 @@ shopware:
         default: false
         major: false
         toggleable: true
-        description: "Defers cart errors that happen during SalesChannelContext creation"
+        description: "Defers cart errors that happen during SalesChannelContext creation\nThis feature will be standard as of v6.8.0"

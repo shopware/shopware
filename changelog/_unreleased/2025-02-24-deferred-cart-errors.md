@@ -6,6 +6,11 @@ author: Philip Standt
 author_email: philip.standt@strix.net
 author_github: @Philip Standt
 ---
+# Next Major Version Changes
+* Cart errors are persisted with the cart when the `SalesChannelContext` is constructed
+  * If a temporary cart error happens during the initial cart evaluation (i.e. a product is no longer available and is removed from the cart), that error is now persisted until the cart is processed again.
+  * This prevents temporary errors from being removed without ever being shown to the user (especially when using the Store-API)
+
 # Core
 * Added method `withPermissions` to the `SalesChannelContext` to execute code with specific permissions set
 * Added the feature of deferred cart errors with the feature flag `DEFERRED_CART_ERRORS`

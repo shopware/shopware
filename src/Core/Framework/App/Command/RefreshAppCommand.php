@@ -94,7 +94,7 @@ class RefreshAppCommand extends Command
         }
 
         $fails = $this->appService->doRefreshApps(
-            new AppInstallParameters(activate: $input->getOption('activate'), acceptPermissions: $input->getOption('force') === false),
+            new AppInstallParameters(activate: $input->getOption('activate'), acceptPermissions: true),
             $context,
             $refreshableApps->getAppNames()
         );

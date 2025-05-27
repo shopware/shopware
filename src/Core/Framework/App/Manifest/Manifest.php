@@ -268,8 +268,9 @@ class Manifest
             $manifest = $doc->getElementsByTagName('manifest')->item(0);
             \assert($manifest !== null);
 
-            $values = ['true' => true, 'false' => false];
-            $validatesPermissions = $manifest->hasAttribute('validates-permissions') ? $values[$manifest->getAttribute('validates-permissions')] : false;
+            $validatesPermissions = $manifest->hasAttribute('validates-permissions')
+                ? filter_var($manifest->getAttribute('validates-permissions'), \FILTER_VALIDATE_BOOLEAN)
+                : false;
 
             $meta = $doc->getElementsByTagName('meta')->item(0);
             \assert($meta !== null);

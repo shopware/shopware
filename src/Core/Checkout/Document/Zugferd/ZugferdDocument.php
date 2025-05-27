@@ -173,7 +173,9 @@ class ZugferdDocument
         }
 
         $this->addMappedPrice(self::LINE_TOTAL_AMOUNT, $price);
-        $this->addLineTotalAmount($totalNet);
+        if (!Feature::isActive('v6.8.0.0')) {
+            $this->addLineTotalAmount($totalNet);
+        }
         $this->zugferdBuilder
             ->addNewPosition($parentPosition . $lineItem->getPosition())
             ->setDocumentPositionNetPrice(\round($totalNet / $lineItem->getQuantity(), 2), $lineItem->getQuantity(), ZugferdUnitCodes::REC20_PIECE)
@@ -207,7 +209,9 @@ class ZugferdDocument
         foreach ($lineItem->getPrice()->getCalculatedTaxes() as $calculatedTax) {
             $actualAmount = $this->getPrice($calculatedTax);
 
-            $this->addAllowanceAmount($actualAmount);
+            if (!Feature::isActive('v6.8.0.0')) {
+                $this->addAllowanceAmount($actualAmount);
+            }
             $this->zugferdBuilder->addDocumentAllowanceCharge(
                 ...[
                     'actualAmount' => abs($actualAmount),
@@ -243,7 +247,9 @@ class ZugferdDocument
             foreach ($delivery->getShippingCosts()->getCalculatedTaxes() as $calculatedTax) {
                 $actualAmount = $this->getPrice($calculatedTax);
 
-                $this->addChargeAmount($actualAmount);
+                if (!Feature::isActive('v6.8.0.0')) {
+                    $this->addChargeAmount($actualAmount);
+                }
                 $this->zugferdBuilder->addDocumentAllowanceCharge(
                     $actualAmount,
                     true,

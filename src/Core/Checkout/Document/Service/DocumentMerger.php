@@ -218,11 +218,7 @@ final class DocumentMerger
 
             $technicalName = $document->getDocumentType()?->getTechnicalName() ?? 'unknown';
             $orderNumber = $document->getOrder()?->getOrderNumber() ?? $document->getOrderId();
-            try {
-                $documentNumber = $document->getDocumentNumber() ?? $document->getId();
-            } catch (\Error) {
-                $documentNumber = $document->getId();
-            }
+            $documentNumber = $document->getDocumentNumber() ?? $document->getId();
             $name = $orderNumber . '_' . $technicalName . '_' . $documentNumber . '.' . PdfRenderer::FILE_EXTENSION;
 
             $zip->addFromString($name, $fileContent);

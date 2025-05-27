@@ -6,7 +6,6 @@ use Doctrine\DBAL\Connection;
 use Shopware\Core\Framework\Api\Context\AdminApiSource;
 use Shopware\Core\Framework\App\AppException;
 use Shopware\Core\Framework\App\Privileges\Privileges;
-use Shopware\Core\Framework\App\Privileges\Utils;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -39,36 +38,38 @@ class AppPrivilegeController
 
         return $context->scope(Context::SYSTEM_SCOPE, function () {
             return new JsonResponse([
-                'requestedPrivileges' => array_map(
-                    fn (array $privileges) => Utils::makeCategorizedPermissions($privileges),
-                    $this->privileges->getRequestedPrivilegesForAllApps()
-                ),
+                'privileges' => $this->privileges->getRequestedPrivilegesForAllApps(),
             ]);
         });
     }
 
     #[Route(
-        path: '/api/app-system/{appName}/privileges/accept',
+        path: '/api/app-system/{appName}/privileges',
         name: 'api.app_system.privileges.accept',
         defaults: ['_acl' => ['system.plugin_maintain']],
-        methods: [Request::METHOD_POST]
+        methods: [Request::METHOD_PATCH]
     )]
-    public function acceptPrivileges(Request $request, Context $context, string $appName): Response
+    public function updatePrivileges(Request $request, Context $context, string $appName): Response
     {
         $this->assertHasUserId($context);
 
-        $privilegesToAccept = $request->toArray();
-        $privilegesToAccept = array_values(array_filter($privilegesToAccept, is_string(...)));
-
-        if (\count($privilegesToAccept) === 0 || \count($request->toArray()) !== \count($privilegesToAccept)) {
+        $requestAsArray = $request->toArray();
+        $privilegesToAccept = $requestAsArray['accept'] ?? [];
+        $privilegesToRevoke = $requestAsArray['revoke'] ?? [];
+        if (!\is_array($privilegesToAccept) || !\is_array($privilegesToRevoke)) {
             throw AppException::invalidPrivileges();
         }
 
-        $context->scope(Context::SYSTEM_SCOPE, function () use ($appName, $privilegesToAccept, $context): void {
+        $privilegesToAccept = array_values(array_filter($privilegesToAccept, is_string(...)));
+        $privilegesToRevoke = array_values(array_filter($privilegesToRevoke, is_string(...)));
+
+        $context->scope(Context::SYSTEM_SCOPE, function () use ($appName, $privilegesToAccept, $privilegesToRevoke, $context): void {
             $id = $this->fetchAppId($appName);
 
             try {
-                $this->privileges->acceptOnly($id, $privilegesToAccept, $context);
+                $this->privileges->updatePrivileges($id, $privilegesToAccept, $privilegesToRevoke, $context);
+            } catch (AppException $exception) {
+                throw $exception;
             } catch (\Throwable) {
                 // no-op
             }
@@ -78,16 +79,20 @@ class AppPrivilegeController
     }
 
     #[Route(
-        path: '/api/app-system/privileges/accepted',
+        path: '/api/app-system/{appName}/privileges/accepted',
         name: 'api.app_system.privileges.accepted',
         methods: [Request::METHOD_GET]
     )]
     public function getAcceptedPrivileges(Context $context): JsonResponse
     {
         $source = $this->getSourceWithIntegration($context);
+        $privileges = [];
+        foreach ($source->getPermissions() as $permission) {
+            $privileges[$permission] = true;
+        }
 
         return new JsonResponse([
-            'acceptedPrivileges' => Utils::makeCategorizedPermissions($source->getPermissions()),
+            'privileges' => $privileges,
         ]);
     }
 

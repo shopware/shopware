@@ -427,7 +427,7 @@ class AppException extends HttpException
         return new self(
             Response::HTTP_BAD_REQUEST,
             self::INVALID_PERMISSIONS,
-            'Expected a list of privileges in the format "category:read"',
+            'For each accept, or revoke, expected a list of privileges in the format "category:read"',
         );
     }
 
@@ -438,7 +438,7 @@ class AppException extends HttpException
     public static function invalidContextSource(string $expectedContextSource, string $actualContextSource): self
     {
         return new self(
-            Response::HTTP_INTERNAL_SERVER_ERROR,
+            Response::HTTP_FORBIDDEN,
             self::REQUIRES_ADMIN_API_SOURCE,
             'Expected context source to be "{{ expectedContextSource }}" but got "{{ actualContextSource }}".',
             [
@@ -456,7 +456,7 @@ class AppException extends HttpException
         ?\Throwable $previous = null
     ): self {
         return new self(
-            Response::HTTP_INTERNAL_SERVER_ERROR,
+            Response::HTTP_FORBIDDEN,
             self::MISSING_USER_IN_CONTEXT_SOURCE,
             'No user available in context source "{{ contextSource }}"',
             ['contextSource' => $contextSource],
@@ -467,9 +467,9 @@ class AppException extends HttpException
     public static function missingIntegration(): self
     {
         return new self(
-            Response::HTTP_INTERNAL_SERVER_ERROR,
+            Response::HTTP_FORBIDDEN,
             self::INTEGRATION_MISSING,
-            'An integration is required to perform this action',
+            'Forbidden. Not a valid integration source.',
         );
     }
 }

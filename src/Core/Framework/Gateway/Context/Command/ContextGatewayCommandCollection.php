@@ -15,12 +15,12 @@ class ContextGatewayCommandCollection extends Collection
 {
     public function getSingleTokenCommand(): LoginCustomerCommand|RegisterCustomerCommand|null
     {
-        /** @var LoginCustomerCommand|RegisterCustomerCommand|null $command */
-        $command = $this->getTokenCommands()->first();
-
-        return $command;
+        return $this->getTokenCommands()->first();
     }
 
+    /**
+     * @return self<LoginCustomerCommand|RegisterCustomerCommand>
+     */
     public function getTokenCommands(): self
     {
         return $this->filter(static fn (AbstractContextGatewayCommand $command) => $command instanceof LoginCustomerCommand || $command instanceof RegisterCustomerCommand);

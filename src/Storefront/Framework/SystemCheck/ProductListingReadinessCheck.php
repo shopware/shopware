@@ -81,7 +81,7 @@ class ProductListingReadinessCheck extends BaseCheck
             $request = Request::create($url);
             $result = $this->util->handleRequest($request);
 
-            $status = $result->getResponseCode() >= Response::HTTP_BAD_REQUEST ? Status::FAILURE : Status::OK;
+            $status = $result->responseCode >= Response::HTTP_BAD_REQUEST ? Status::FAILURE : Status::OK;
             $requestStatus[$status->name] = $status;
 
             $extra[] = $result->getVars();

@@ -11,30 +11,15 @@ use Shopware\Core\Framework\Struct\Struct;
 #[Package('framework')]
 class StorefrontHealthCheckResult extends Struct
 {
-    public function __construct(
-        protected string $storefrontUrl,
-        protected int $responseCode,
-        protected float $responseTime,
+    private function __construct(
+        public readonly string $storefrontUrl,
+        public readonly int $responseCode,
+        public readonly float $responseTime,
     ) {
     }
 
     public static function create(string $storefrontUrl, int $responseCode, float $responseTime): self
     {
         return new self($storefrontUrl, $responseCode, $responseTime);
-    }
-
-    public function getStorefrontUrl(): string
-    {
-        return $this->storefrontUrl;
-    }
-
-    public function getResponseCode(): int
-    {
-        return $this->responseCode;
-    }
-
-    public function getResponseTime(): float
-    {
-        return $this->responseTime;
     }
 }

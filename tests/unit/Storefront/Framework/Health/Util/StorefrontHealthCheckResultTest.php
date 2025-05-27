@@ -16,8 +16,8 @@ class StorefrontHealthCheckResultTest extends TestCase
     {
         $result = StorefrontHealthCheckResult::create('http://localhost:8000', 200, 0.123);
 
-        static::assertSame('http://localhost:8000', $result->getStorefrontUrl());
-        static::assertSame(200, $result->getResponseCode());
-        static::assertSame(0.123, $result->getResponseTime());
+        static::assertSame('http://localhost:8000', $result->storefrontUrl);
+        static::assertSame(200, $result->responseCode);
+        static::assertSame(0.123, $result->responseTime);
     }
 }

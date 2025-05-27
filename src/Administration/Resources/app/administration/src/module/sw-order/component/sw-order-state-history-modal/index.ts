@@ -154,7 +154,10 @@ export default Component.wrapComponentConfig({
                 return Shopware.Store.get('swOrderDetail').loading.states;
             },
             set(value: boolean): void {
-                Shopware.Store.get('swOrderDetail').setLoading(['states', value]);
+                Shopware.Store.get('swOrderDetail').setLoading([
+                    'states',
+                    value,
+                ]);
             },
         },
     },

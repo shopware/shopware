@@ -33,7 +33,7 @@ export default {
             swOrderDetailOnSaveAndRecalculate: this.onSaveAndRecalculate,
             swOrderDetailOnRecalculateAndReload: this.onRecalculateAndReload,
             swOrderDetailOnReloadEntityData: this.reloadEntityData,
-            swOrderDetailOnSaveAndReload: this.onSaveAndReload,
+            swOrderDetailOnSaveAndReload: this.saveAndReload,
             swOrderDetailOnSaveEdits: this.onSaveEdits,
             swOrderDetailAskAndSaveEdits: this.askAndSaveEdits,
             swOrderDetailOnError: this.onError,
@@ -93,7 +93,10 @@ export default {
                 return this.loading.order;
             },
             set(value) {
-                Store.get('swOrderDetail').setLoading(['order', value]);
+                Store.get('swOrderDetail').setLoading([
+                    'order',
+                    value,
+                ]);
             },
         },
 
@@ -250,9 +253,15 @@ export default {
 
             Shopware.Store.get('shopwareApps').selectedIds = this.orderId ? [this.orderId] : [];
 
-            Shopware.Store.get('swOrderDetail').setLoading(['order', true]);
+            Shopware.Store.get('swOrderDetail').setLoading([
+                'order',
+                true,
+            ]);
             this.createNewVersionId().finally(() => {
-                Shopware.Store.get('swOrderDetail').setLoading(['order', false]);
+                Shopware.Store.get('swOrderDetail').setLoading([
+                    'order',
+                    false,
+                ]);
             });
         },
 
@@ -291,7 +300,10 @@ export default {
         },
 
         async onSaveEdits() {
-            Store.get('swOrderDetail').setLoading(['order', true]);
+            Store.get('swOrderDetail').setLoading([
+                'order',
+                true,
+            ]);
 
             await this.handleOrderAddressUpdate(this.orderAddressIds);
 
@@ -307,7 +319,10 @@ export default {
                 });
 
                 this.createNewVersionId().then(() => {
-                    Store.get('swOrderDetail').setLoading(['order', false]);
+                    Store.get('swOrderDetail').setLoading([
+                        'order',
+                        false,
+                    ]);
                 });
 
                 return;
@@ -335,7 +350,10 @@ export default {
                     this.onError('error', error);
                 })
                 .finally(() => {
-                    Store.get('swOrderDetail').setLoading(['order', false]);
+                    Store.get('swOrderDetail').setLoading([
+                        'order',
+                        false,
+                    ]);
                 });
 
             this.$root.$emit('order-edit-save');
@@ -384,7 +402,10 @@ export default {
         },
 
         onCancelEditing() {
-            Store.get('swOrderDetail').setLoading(['order', true]);
+            Store.get('swOrderDetail').setLoading([
+                'order',
+                true,
+            ]);
 
             const oldVersionContext = this.versionContext;
             Store.get('swOrderDetail').versionContext = Shopware.Context.api;
@@ -403,29 +424,27 @@ export default {
                     this.missingProductLineItems = [];
 
                     return this.createNewVersionId().then(() => {
-                        Store.get('swOrderDetail').setLoading(['order', false]);
+                        Store.get('swOrderDetail').setLoading([
+                            'order',
+                            false,
+                        ]);
                     });
                 });
         },
 
         async onSaveAndRecalculate() {
-            Store.get('swOrderDetail').setLoading(['recalculation', true]);
-
-            try {
-                await this.orderRepository.save(this.order, this.versionContext);
-                await this.orderService
+            await this.saveAndReload(() => {
+                return this.orderService
                     .recalculateOrder(this.orderId, this.versionContext.versionId, {}, {})
                     .then(this.handleCartErrors.bind(this));
-                await this.reloadEntityData();
-            } catch (error) {
-                this.onError('error', error);
-            } finally {
-                Store.get('swOrderDetail').setLoading(['recalculation', false]);
-            }
+            });
         },
 
         async onRecalculateAndReload() {
-            Store.get('swOrderDetail').setLoading(['recalculation', true]);
+            Store.get('swOrderDetail').setLoading([
+                'recalculation',
+                true,
+            ]);
 
             try {
                 await this.orderService
@@ -435,22 +454,40 @@ export default {
             } catch (error) {
                 this.onError('error', error);
             } finally {
-                Store.get('swOrderDetail').setLoading(['recalculation', false]);
+                Store.get('swOrderDetail').setLoading([
+                    'recalculation',
+                    false,
+                ]);
             }
         },
 
+        /**
+         * @deprecated tag:v6.8.0 - Will be replaced by `saveAndReload`
+         */
         onSaveAndReload() {
-            Store.get('swOrderDetail').setLoading(['recalculation', true]);
+            return this.saveAndReload();
+        },
 
-            return this.orderRepository
-                .save(this.order, this.versionContext)
-                .then(() => this.reloadEntityData())
-                .catch((error) => {
-                    this.onError('error', error);
-                })
-                .finally(() => {
-                    Store.get('swOrderDetail').setLoading(['recalculation', false]);
-                });
+        async saveAndReload(afterSaveFn = null) {
+            Store.get('swOrderDetail').setLoading([
+                'recalculation',
+                true,
+            ]);
+
+            try {
+                await this.orderRepository.save(this.order, this.versionContext);
+                if (afterSaveFn) {
+                    await afterSaveFn();
+                }
+                await this.reloadEntityData();
+            } catch (error) {
+                this.onError('error', error);
+            } finally {
+                Store.get('swOrderDetail').setLoading([
+                    'recalculation',
+                    false,
+                ]);
+            }
         },
 
         /**
@@ -496,15 +533,13 @@ export default {
         },
 
         reloadEntityData(isSaved = true) {
-            return this.orderRepository
-                .get(this.orderId, this.versionContext, this.orderCriteria)
-                .then((response) => {
-                    if (this.$route.name !== 'sw.order.detail.documents' && isSaved) {
-                        this.hasOrderDeepEdit = true;
-                    }
+            return this.orderRepository.get(this.orderId, this.versionContext, this.orderCriteria).then((response) => {
+                if (this.$route.name !== 'sw.order.detail.documents' && isSaved) {
+                    this.hasOrderDeepEdit = true;
+                }
 
-                    Store.get('swOrderDetail').order = response;
-                });
+                Store.get('swOrderDetail').order = response;
+            });
         },
 
         createNewVersionId() {

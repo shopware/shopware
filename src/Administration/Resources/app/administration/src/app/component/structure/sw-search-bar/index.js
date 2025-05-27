@@ -989,9 +989,7 @@ export default {
                     return {
                         entity: 'frequently_used',
                         total: entities.length,
-                        entities: entities
-                            ?.map((item) => this.getInfoModuleFrequentlyUsed(item))
-                            .filter((item) => item),
+                        entities: entities?.map((item) => this.getInfoModuleFrequentlyUsed(item)).filter((item) => item),
                     };
                 })
                 .catch(() => {});

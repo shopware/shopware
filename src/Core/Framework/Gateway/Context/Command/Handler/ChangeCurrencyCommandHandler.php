@@ -14,6 +14,8 @@ use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
 /**
  * @extends AbstractContextGatewayCommandHandler<ChangeCurrencyCommand>
+ *
+ * @internal
  */
 #[Package('framework')]
 class ChangeCurrencyCommandHandler extends AbstractContextGatewayCommandHandler

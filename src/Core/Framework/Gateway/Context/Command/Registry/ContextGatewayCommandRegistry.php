@@ -7,6 +7,9 @@ use Shopware\Core\Framework\Gateway\Context\Command\Handler\AbstractContextGatew
 use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\DependencyInjection\Attribute\AutowireIterator;
 
+/**
+ * @internal
+ */
 #[Package('framework')]
 class ContextGatewayCommandRegistry
 {

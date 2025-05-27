@@ -8,6 +8,8 @@ use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
 /**
  * @template TCommand of AbstractContextGatewayCommand = AbstractContextGatewayCommand
+ *
+ * @internal
  */
 #[Package('framework')]
 abstract class AbstractContextGatewayCommandHandler

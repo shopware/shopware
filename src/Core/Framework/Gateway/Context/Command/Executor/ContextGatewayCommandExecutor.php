@@ -15,6 +15,9 @@ use Shopware\Core\System\SalesChannel\ContextTokenResponse;
 use Shopware\Core\System\SalesChannel\SalesChannel\AbstractContextSwitchRoute;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
+/**
+ * @internal
+ */
 #[Package('framework')]
 class ContextGatewayCommandExecutor
 {

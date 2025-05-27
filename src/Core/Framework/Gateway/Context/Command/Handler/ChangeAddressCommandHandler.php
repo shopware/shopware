@@ -10,6 +10,8 @@ use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
 /**
  * @extends AbstractContextGatewayCommandHandler<ChangeBillingAddressCommand|ChangeShippingAddressCommand>
+ *
+ * @internal
  */
 #[Package('framework')]
 class ChangeAddressCommandHandler extends AbstractContextGatewayCommandHandler

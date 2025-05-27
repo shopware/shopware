@@ -8,6 +8,9 @@ use Shopware\Core\Framework\Log\ExceptionLogger;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
+/**
+ * @internal
+ */
 #[Package('framework')]
 class ContextGatewayCommandValidator
 {

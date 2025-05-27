@@ -12,6 +12,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\Gateway\Context\Command\AbstractContextGatewayCommand;
 use Shopware\Core\Framework\Gateway\Context\Command\ContextGatewayCommandCollection;
+use Shopware\Core\Framework\Gateway\Context\Command\Event\ContextGatewayCommandsCollectedEvent;
 use Shopware\Core\Framework\Gateway\Context\Command\Executor\ContextGatewayCommandExecutor;
 use Shopware\Core\Framework\Gateway\Context\Command\Registry\ContextGatewayCommandRegistry;
 use Shopware\Core\Framework\Gateway\Context\Command\Struct\ContextGatewayPayloadStruct;
@@ -19,6 +20,7 @@ use Shopware\Core\Framework\Gateway\GatewayException;
 use Shopware\Core\Framework\Log\ExceptionLogger;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\ContextTokenResponse;
+use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
 /**
  * @internal only for use by the app-system
@@ -34,6 +36,7 @@ class AppContextGateway
         private readonly ContextGatewayCommandExecutor $executor,
         private readonly ContextGatewayCommandRegistry $registry,
         private readonly EntityRepository $appRepository,
+        private readonly EventDispatcherInterface $eventDispatcher,
         private readonly ExceptionLogger $logger,
     ) {
     }
@@ -59,6 +62,8 @@ class AppContextGateway
         }
 
         $commands = $this->collectCommandsFromAppResponse($appResponse);
+
+        $this->eventDispatcher->dispatch(new ContextGatewayCommandsCollectedEvent($payload, $commands));
 
         return $this->executor->execute($commands, $payload->getSalesChannelContext());
     }

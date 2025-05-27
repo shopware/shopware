@@ -16,6 +16,8 @@ use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
 /**
  * @extends AbstractContextGatewayCommandHandler<ChangeShippingMethodCommand|ChangePaymentMethodCommand>
+ *
+ * @internal
  */
 #[Package('framework')]
 class ChangeCheckoutOptionsCommandHandler extends AbstractContextGatewayCommandHandler

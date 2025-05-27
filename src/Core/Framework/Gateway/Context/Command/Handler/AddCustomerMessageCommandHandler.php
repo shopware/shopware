@@ -10,6 +10,8 @@ use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
 /**
  * @extends AbstractContextGatewayCommandHandler<AddCustomerMessageCommand>
+ *
+ * @internal
  */
 #[Package('framework')]
 class AddCustomerMessageCommandHandler extends AbstractContextGatewayCommandHandler

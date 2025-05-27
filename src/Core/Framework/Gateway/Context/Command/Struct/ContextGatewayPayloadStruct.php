@@ -11,6 +11,9 @@ use Shopware\Core\Framework\Struct\Struct;
 use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
+/**
+ * @internal
+ */
 #[Package('framework')]
 class ContextGatewayPayloadStruct extends Struct implements SourcedPayloadInterface
 {

@@ -16,6 +16,8 @@ use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
 /**
  * @extends AbstractContextGatewayCommandHandler<ChangeShippingLocationCommand>
+ *
+ * @internal
  */
 #[Package('framework')]
 class ChangeShippingLocationCommandHandler extends AbstractContextGatewayCommandHandler

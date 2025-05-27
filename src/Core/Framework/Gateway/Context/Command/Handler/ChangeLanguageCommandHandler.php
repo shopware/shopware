@@ -14,6 +14,8 @@ use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
 /**
  * @extends AbstractContextGatewayCommandHandler<ChangeLanguageCommand>
+ *
+ * @internal
  */
 #[Package('framework')]
 class ChangeLanguageCommandHandler extends AbstractContextGatewayCommandHandler

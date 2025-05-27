@@ -12,6 +12,8 @@ use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
 /**
  * @extends AbstractContextGatewayCommandHandler<RegisterCustomerCommand>
+ *
+ * @internal
  */
 #[Package('framework')]
 class RegisterCustomerCommandHandler extends AbstractContextGatewayCommandHandler

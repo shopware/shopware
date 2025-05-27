@@ -18,6 +18,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\Gateway\Context\Command\ChangeCurrencyCommand;
 use Shopware\Core\Framework\Gateway\Context\Command\ContextGatewayCommandCollection;
+use Shopware\Core\Framework\Gateway\Context\Command\Event\ContextGatewayCommandsCollectedEvent;
 use Shopware\Core\Framework\Gateway\Context\Command\Executor\ContextGatewayCommandExecutor;
 use Shopware\Core\Framework\Gateway\Context\Command\Handler\ChangeCurrencyCommandHandler;
 use Shopware\Core\Framework\Gateway\Context\Command\Registry\ContextGatewayCommandRegistry;
@@ -29,6 +30,7 @@ use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
 use Shopware\Core\System\SalesChannel\ContextTokenResponse;
 use Shopware\Core\Test\Generator;
+use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
 /**
  * @internal
@@ -92,11 +94,23 @@ class AppContextGatewayTest extends TestCase
 
         $payload = new ContextGatewayPayloadStruct($cart, $context, $data);
 
+        $expectedEvent = new ContextGatewayCommandsCollectedEvent(
+            $payload,
+            $expectedCommands,
+        );
+
+        $eventDispatcher = $this->createMock(EventDispatcherInterface::class);
+        $eventDispatcher
+            ->expects($this->once())
+            ->method('dispatch')
+            ->with(static::equalTo($expectedEvent));
+
         $gateway = new AppContextGateway(
             $payloadService,
             $executor,
             $registry,
             $appRepository,
+            $eventDispatcher,
             $this->createMock(ExceptionLogger::class),
         );
 
@@ -149,6 +163,7 @@ class AppContextGatewayTest extends TestCase
             $this->createMock(ContextGatewayCommandExecutor::class),
             $this->createMock(ContextGatewayCommandRegistry::class),
             $appRepository,
+            $this->createMock(EventDispatcherInterface::class),
             $logger,
         );
 
@@ -197,6 +212,7 @@ class AppContextGatewayTest extends TestCase
             $this->createMock(ContextGatewayCommandExecutor::class),
             $this->createMock(ContextGatewayCommandRegistry::class),
             $appRepository,
+            $this->createMock(EventDispatcherInterface::class),
             $logger,
         );
 
@@ -251,6 +267,7 @@ class AppContextGatewayTest extends TestCase
             $this->createMock(ContextGatewayCommandExecutor::class),
             $this->createMock(ContextGatewayCommandRegistry::class),
             $appRepository,
+            $this->createMock(EventDispatcherInterface::class),
             $logger,
         );
 
@@ -309,11 +326,11 @@ class AppContextGatewayTest extends TestCase
             $this->createMock(ContextGatewayCommandExecutor::class),
             $registry,
             $appRepository,
+            $this->createMock(EventDispatcherInterface::class),
             $logger,
         );
 
-        $this->expectException(GatewayException::class);
-        $this->expectExceptionMessage('Payload invalid for command "context_change-currency"');
+        $this->expectExceptionObject(GatewayException::payloadInvalid('context_change-currency'));
 
         $gateway->process($payload);
     }
@@ -371,11 +388,11 @@ class AppContextGatewayTest extends TestCase
             $this->createMock(ContextGatewayCommandExecutor::class),
             $registry,
             $appRepository,
+            $this->createMock(EventDispatcherInterface::class),
             $logger,
         );
 
-        $this->expectException(GatewayException::class);
-        $this->expectExceptionMessage('Handler not found for command "context_foo-bar"');
+        $this->expectExceptionObject(GatewayException::handlerNotFound('context_foo-bar'));
 
         $gateway->process($payload);
     }
@@ -440,11 +457,11 @@ class AppContextGatewayTest extends TestCase
             $this->createMock(ContextGatewayCommandExecutor::class),
             $registry,
             $appRepository,
+            $this->createMock(EventDispatcherInterface::class),
             $logger,
         );
 
-        $this->expectException(GatewayException::class);
-        $this->expectExceptionMessage('Handler not found for command "context_foo-bar"');
+        $this->expectExceptionObject(GatewayException::handlerNotFound('context_foo-bar'));
 
         $gateway->process($payload);
     }
@@ -509,11 +526,11 @@ class AppContextGatewayTest extends TestCase
             $this->createMock(ContextGatewayCommandExecutor::class),
             $registry,
             $appRepository,
+            $this->createMock(EventDispatcherInterface::class),
             $logger,
         );
 
-        $this->expectException(GatewayException::class);
-        $this->expectExceptionMessage('Payload invalid for command "context_foo-bar"');
+        $this->expectExceptionObject(GatewayException::payloadInvalid('context_foo-bar'));
 
         $gateway->process($payload);
     }

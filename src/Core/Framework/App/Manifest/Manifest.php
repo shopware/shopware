@@ -269,8 +269,7 @@ class Manifest
             \assert($manifest !== null);
 
             $validatesPermissions = $manifest->hasAttribute('validates-permissions')
-                ? filter_var($manifest->getAttribute('validates-permissions'), \FILTER_VALIDATE_BOOLEAN)
-                : false;
+                && XmlUtils::phpize($manifest->getAttribute('validates-permissions')) === true;
 
             $meta = $doc->getElementsByTagName('meta')->item(0);
             \assert($meta !== null);

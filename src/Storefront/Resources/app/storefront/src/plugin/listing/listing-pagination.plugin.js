@@ -45,6 +45,8 @@ export default class ListingPaginationPlugin extends FilterBasePlugin {
         this._pageChanged = true;
         this.listing.changeListing();
 
+        this._updateCanonicalUrl(this.tempValue);
+
         this.tempValue = null;
     }
 
@@ -128,5 +130,17 @@ export default class ListingPaginationPlugin extends FilterBasePlugin {
         }
 
         return stateChanged;
+    }
+
+    /**
+     * Update the canonical URL with the new page number.
+     * @param newPageNumber
+     * @private
+     */
+    _updateCanonicalUrl(newPageNumber) {
+        const canonicalMetaTag = document.querySelector('link[rel="canonical"]');
+        const canonicalUrl = new URL(canonicalMetaTag.href);
+        canonicalUrl.searchParams.set('p', newPageNumber);
+        canonicalMetaTag.href = canonicalUrl.href;
     }
 }

@@ -93,6 +93,11 @@ describe('listing-pagination.plugin', () => {
         expect(listingPaginationPlugin.getValues).toReturnWith({ 'p': '3' });
         expect(getValuesSpy).toHaveBeenCalledTimes(1);
         expect(changeListingSpy).toHaveBeenCalledTimes(1);
+
+        // Ensure the canonical URL is updated
+        const canonicalMetaTag = document.querySelector('link[rel="canonical"]');
+        const canonicalUrl = new URL(canonicalMetaTag.href);
+        expect(canonicalUrl.searchParams.get('p')).toBe('3');
     });
 
     test('tries to set the focus back to the pagination link when content changes after pagination', async () => {

@@ -7,6 +7,4 @@ author_github: @wrongspot
 ---
 
 # Core
-* Added Event `Shopware\Core\Content\Sitemap\Event\SitemapSalesChannelContextEvent` to `Shopware\Core\Content\Sitemap\ScheduledTask\SitemapMessageHandler`
-* Added Event `Shopware\Core\Content\Sitemap\Event\SitemapSalesChannelContextEvent` to `Shopware\Core\Content\Sitemap\CommandsSitemapGenerateCommand`
-* Added parameter `EventDispatcherInterface` to `Shopware\Core\Content\Sitemap\ScheduledTask\SitemapMessageHandler` constructor.
+* Added Event `Shopware\Core\Content\Sitemap\Event\SitemapGenerationStartEvent` to `Shopware\Core\Content\Sitemap\Service\SitemapExporter`

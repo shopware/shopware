@@ -35,7 +35,7 @@
 
     .sw-cms-page-form__element-config {
         margin-bottom: 22px;
-        border-bottom: 1px solid $color-gray-300;
+        border-bottom: 1px solid var(--color-border-primary-default);
 
         &:last-child {
             margin-bottom: 0;

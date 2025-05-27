@@ -16,17 +16,17 @@ $sw-media-upload-v2-caption-icon-color: var(--color-icon-primary-default);
 
     .sw-media-upload-v2__label.is--required::after {
         content: "*";
-        color: $color-shopware-brand-500;
+        color: var(--color-icon-brand-default);
     }
 
     .sw-media-upload-v2__header {
         display: flex;
         margin-bottom: 8px;
         flex-direction: row;
-        line-height: 16px;
         min-height: 16px;
-        font-size: $font-size-xs;
-        color: $color-darkgray-200;
+        font-size: var(--font-size-xs);
+        line-height: var(--font-line-height-xs);
+        color: var(--color-text-primary-default);
         font-weight: normal;
         user-select: none;
     }

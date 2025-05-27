@@ -13,9 +13,9 @@
     }
 
     .sw-cms-mapping-field__label {
-        font-size: $font-size-xs;
-        line-height: 16px;
-        color: $color-darkgray-200;
+        font-size: var(--font-size-xs);
+        line-height: var(--font-line-height-xs);
+        color: var(--color-text-primary-default);
         font-weight: normal;
         user-select: none;
     }
@@ -48,11 +48,12 @@
         align-items: center;
         justify-content: end;
         justify-items: end;
-        font-size: $font-size-xs;
+        font-size: var(--font-size-xs);
+        line-height: var(--font-line-height-xs);
         cursor: pointer;
 
         &:hover {
-            color: $color-crimson-500;
+            color: var(--color-text-critical-default);
         }
 
         .mt-icon {
@@ -65,14 +66,14 @@
     .sw-cms-mapping-field__mapping-value {
         padding: 30px;
         text-align: center;
-        background: $color-gray-100;
-        border: 1px dashed $color-gray-300;
+        background: var(--color-elevation-surface-raised);
+        border: 1px dashed var(--color-border-primary-default);
         border-radius: 4px;
     }
 
     .sw-cms-mapping-field__preview {
         padding: 20px;
-        border: 1px solid $color-gray-300;
+        border: 1px solid var(--color-border-primary-default);
         margin-top: 10px;
         margin-bottom: 22px;
     }

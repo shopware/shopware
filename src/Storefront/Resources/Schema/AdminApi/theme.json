@@ -35,10 +35,14 @@
                                                         "type": "string"
                                                     },
                                                     "label": {
-                                                        "type": "string"
+                                                        "type": "string",
+                                                        "deprecated": true,
+                                                        "description": "This field is deprecated and will be removed in v6.8.0.0"
                                                     },
                                                     "helpText": {
-                                                        "type": ["string", "null"]
+                                                        "type": ["string", "null"],
+                                                        "deprecated": true,
+                                                        "description": "This field is deprecated and will be removed in v6.8.0.0"
                                                     },
                                                     "type": {
                                                         "type": "string"
@@ -91,6 +95,8 @@
                                                 "properties": {
                                                     "label": {
                                                         "type": "object",
+                                                        "deprecated": true,
+                                                        "description": "This field is deprecated and will be removed in v6.8.0.0",
                                                         "additionalProperties": {
                                                             "type": "string"
                                                         }

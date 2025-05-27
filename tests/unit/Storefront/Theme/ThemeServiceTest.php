@@ -518,7 +518,7 @@ class ThemeServiceTest extends TestCase
         $this->expectException(ThemeException::class);
         $this->expectExceptionMessage(\sprintf('Could not find theme with id "%s"', $themeId));
 
-        $this->themeService->getThemeConfiguration($themeId, false, $this->context);
+        $this->themeService->getPlainThemeConfiguration($themeId, $this->context);
     }
 
     /**
@@ -556,7 +556,7 @@ class ThemeServiceTest extends TestCase
             )
         );
 
-        $config = $this->themeService->getThemeConfiguration($ids['themeId'], true, $this->context);
+        $config = $this->themeService->getPlainThemeConfiguration($ids['themeId'], $this->context, true);
 
         static::assertArrayHasKey('fields', $config);
         static::assertArrayHasKey('currentFields', $config);
@@ -599,7 +599,7 @@ class ThemeServiceTest extends TestCase
             )
         );
 
-        $config = $this->themeService->getThemeConfigurationStructuredFields($ids['themeId'], true, $this->context);
+        $config = $this->themeService->getStructuredThemeConfiguration($ids['themeId'], $this->context, true);
 
         static::assertArrayHasKey('tabs', $config);
         static::assertArrayHasKey('default', $config['tabs']);

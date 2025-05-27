@@ -13,7 +13,6 @@ use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Storefront\Framework\SystemCheck\ProductListingReadinessCheck;
 use Shopware\Storefront\Framework\SystemCheck\Util\SalesChannelDomainUtil;
 use Symfony\Component\HttpFoundation\Response;
-use Symfony\Component\HttpKernel\KernelInterface;
 
 /**
  * @internal
@@ -21,8 +20,6 @@ use Symfony\Component\HttpKernel\KernelInterface;
 #[CoversClass(ProductListingReadinessCheck::class)]
 class ProductListingReadinessCheckTest extends TestCase
 {
-    private KernelInterface&MockObject $kernel;
-
     private Connection&MockObject $connection;
 
     private SalesChannelDomainUtil&MockObject $util;
@@ -30,7 +27,6 @@ class ProductListingReadinessCheckTest extends TestCase
     protected function setUp(): void
     {
         $this->connection = $this->createMock(Connection::class);
-        $this->kernel = $this->createMock(KernelInterface::class);
 
         $this->initUtilMock();
     }
@@ -57,7 +53,11 @@ class ProductListingReadinessCheckTest extends TestCase
     {
         $this->initConnectionMock();
 
-        $this->kernel->method('handle')->willReturn(new Response());
+        $this->util->method('handleRequest')->willReturn([
+            'storefrontUrl' => 'http://localhost:8000/products',
+            'responseCode' => Response::HTTP_OK,
+            'responseTime' => 1.23,
+        ]);
 
         $check = $this->createCheck();
         $result = $check->run();
@@ -70,10 +70,6 @@ class ProductListingReadinessCheckTest extends TestCase
 
         static::assertSame(200, $result->extra[0]['responseCode']);
         static::assertSame(200, $result->extra[1]['responseCode']);
-
-        // simple concatenated visualization of the generated URLs
-        static::assertSame('http://localhost:8000/defrontend.navigation.page', $result->extra[0]['storeFrontUrl']);
-        static::assertSame('http://localhost:8000/enfrontend.navigation.page', $result->extra[1]['storeFrontUrl']);
     }
 
     public function testRunSkipped(): void
@@ -94,8 +90,12 @@ class ProductListingReadinessCheckTest extends TestCase
     public function testRunFailed(): void
     {
         $this->initConnectionMock();
-        $this->kernel->method('handle')
-            ->willReturn(new Response('', Response::HTTP_INTERNAL_SERVER_ERROR));
+
+        $this->util->method('handleRequest')->willReturn([
+            'storefrontUrl' => 'http://localhost:8000/products',
+            'responseCode' => Response::HTTP_INTERNAL_SERVER_ERROR,
+            'responseTime' => 1.23,
+        ]);
 
         $check = $this->createCheck();
         $result = $check->run();
@@ -112,7 +112,7 @@ class ProductListingReadinessCheckTest extends TestCase
 
     private function createCheck(): ProductListingReadinessCheck
     {
-        return new ProductListingReadinessCheck($this->kernel, $this->util, $this->connection);
+        return new ProductListingReadinessCheck($this->util, $this->connection);
     }
 
     private function initUtilMock(): void

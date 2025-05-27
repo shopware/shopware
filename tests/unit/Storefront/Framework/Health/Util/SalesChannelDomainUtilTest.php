@@ -2,7 +2,6 @@
 
 namespace Shopware\Tests\Unit\Storefront\Framework\Health\Util;
 
-use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
@@ -10,8 +9,11 @@ use Shopware\Core\Framework\SystemCheck\Check\Result;
 use Shopware\Core\Framework\SystemCheck\Check\Status;
 use Shopware\Core\SalesChannelRequest;
 use Shopware\Storefront\Framework\SystemCheck\Util\SalesChannelDomainUtil;
+use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\RequestStack;
+use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\HttpKernel\KernelInterface;
 use Symfony\Component\Routing\RouterInterface;
 
 /**
@@ -20,7 +22,7 @@ use Symfony\Component\Routing\RouterInterface;
 #[CoversClass(SalesChannelDomainUtil::class)]
 class SalesChannelDomainUtilTest extends TestCase
 {
-    private Connection&MockObject $connection;
+    private KernelInterface&MockObject $kernel;
 
     private RouterInterface&MockObject $router;
 
@@ -28,7 +30,7 @@ class SalesChannelDomainUtilTest extends TestCase
 
     protected function setUp(): void
     {
-        $this->connection = $this->createMock(Connection::class);
+        $this->kernel = $this->createMock(KernelInterface::class);
         $this->router = $this->createMock(RouterInterface::class);
         $this->requestStack = new RequestStack();
     }
@@ -128,12 +130,42 @@ class SalesChannelDomainUtilTest extends TestCase
         static::assertTrue($result->healthy);
     }
 
+    public function testHandleRequestWithRedirects(): void
+    {
+        $this->kernel->method('handle')->willReturnOnConsecutiveCalls(
+            new RedirectResponse('http://localhost/seo', Response::HTTP_MOVED_PERMANENTLY),
+            new RedirectResponse('http://localhost/product/123', Response::HTTP_MOVED_PERMANENTLY),
+            new Response(status: Response::HTTP_OK),
+        );
+
+        $util = $this->getUtil();
+        $request = new Request();
+
+        $responseData = $util->handleRequest($request);
+        static::assertSame('http://localhost/product/123', $responseData['storefrontUrl']);
+        static::assertSame(Response::HTTP_OK, $responseData['responseCode']);
+    }
+
+    public function testHandleRequestsDetectsLoop(): void
+    {
+        $this->kernel->method('handle')->willReturnOnConsecutiveCalls(
+            ...array_fill(0, 11, new RedirectResponse('http://localhost/product/123', Response::HTTP_MOVED_PERMANENTLY)),
+        );
+
+        $util = $this->getUtil();
+        $request = new Request();
+
+        $responseData = $util->handleRequest($request);
+        static::assertSame('http://localhost/product/123', $responseData['storefrontUrl']);
+        static::assertSame(Response::HTTP_LOOP_DETECTED, $responseData['responseCode']);
+    }
+
     private function getUtil(): SalesChannelDomainUtil
     {
         return new SalesChannelDomainUtil(
-            $this->connection,
             $this->router,
-            $this->requestStack
+            $this->requestStack,
+            $this->kernel
         );
     }
 }

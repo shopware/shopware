@@ -6,7 +6,6 @@ use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\SystemCheck\Check\SystemCheckExecutionContext;
-use Shopware\Core\Kernel;
 use Shopware\Storefront\Framework\SystemCheck\SaleChannelsReadinessCheck;
 use Shopware\Storefront\Framework\SystemCheck\Util\SalesChannelDomainUtil;
 
@@ -23,7 +22,6 @@ class SaleChannelsReadinessCheckTest extends TestCase
         parent::setUp();
 
         $this->salesChannelReadinessCheck = new SaleChannelsReadinessCheck(
-            $this->createMock(Kernel::class),
             $this->createMock(Connection::class),
             $this->createMock(SalesChannelDomainUtil::class)
         );

@@ -132,15 +132,15 @@ $sw-field--radio-color-border: $color-gray-300;
     .sw-field__radio-option-description {
         margin-top: 8px;
         color: var(--color-text-primary-default);
-        font-size: $font-size-xs;
+        font-size: var(--font-size-xs);
+        line-height: var(--font-line-height-xs);
         font-weight: normal;
-        line-height: 22px;
     }
 
     .sw-field__radio-description {
         color: var(--color-text-secondary-default);
-        font-size: $font-size-xs;
-        line-height: 22px;
+        font-size: var(--font-size-xs);
+        line-height: var(--font-line-height-xs);
         padding-top: 8px;
     }
 

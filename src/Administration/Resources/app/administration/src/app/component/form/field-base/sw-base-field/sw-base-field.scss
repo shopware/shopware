@@ -22,7 +22,7 @@
 
     .sw-field__label .is--required::after {
         content: "*";
-        color: $color-shopware-brand-500;
+        color: var(--color-icon-brand-default);
     }
 
     .sw-field__inheritance-icon {

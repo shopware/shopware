@@ -3,6 +3,7 @@
  */
 
 import template from './sw-sales-channel-detail-analytics.html.twig';
+import { MtText } from '@shopware-ag/meteor-component-library';
 
 import './sw-sales-channel-detail-analytics.scss';
 
@@ -13,6 +14,10 @@ const { Context } = Shopware;
  */
 export default {
     template,
+
+    components: {
+        MtText,
+    },
 
     inject: [
         'repositoryFactory',

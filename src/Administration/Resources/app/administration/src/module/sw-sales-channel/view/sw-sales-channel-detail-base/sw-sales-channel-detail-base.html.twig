@@ -540,10 +540,11 @@
         :title="$tc('sw-sales-channel.detail.titleOptionsApiKey')"
     >
         {% block sw_sales_channel_detail_base_options_api_description %}
-        <div
+        <mt-text
+            size="xs"
             class="sw-sales-channel-detail-base__description-text"
             v-html="$tc('sw-sales-channel.detail.textApiAccessDescription')"
-        ></div>
+        ></mt-text>
         {% endblock %}
 
         {% block sw_sales_channel_detail_base_options_input_access_key %}
@@ -632,9 +633,9 @@
         :is-loading="isLoading"
     >
         {% block sw_sales_channel_detail_base_options_status_description %}
-        <div class="sw-sales-channel-detail-base__description-text">
+        <mt-text size="xs" class="sw-sales-channel-detail-base__description-text">
             {{ $tc('sw-sales-channel.detail.textActiveDescription') }}
-        </div>
+        </mt-text>
         {% endblock %}
 
         {% block sw_sales_channel_detail_base_status_input_active %}
@@ -652,9 +653,9 @@
             {{ $tc('sw-sales-channel.detail.maintenanceModeTitle') }}
         </h4>
 
-        <div class="sw-sales-channel-detail-base__description-text">
+        <mt-text class="sw-sales-channel-detail-base__description-text">
             {{ $tc('sw-sales-channel.detail.maintenanceModeDescription') }}
-        </div>
+        </mt-text>
         {% endblock %}
 
         {% block sw_sales_channel_detail_base_maintenance_input_active %}
@@ -711,10 +712,10 @@
             gap="0px 30px"
             class="sw-sales-channel-detail-base__delete-sales-channel"
         >
-            <div class="sw-sales-channel-detail-base__description-text">
+            <mt-text size="xs" class="sw-sales-channel-detail-base__description-text">
                 <strong>{{ $tc('global.default.warning') }}</strong>
                 {{ $tc('sw-sales-channel.detail.textDeleteSalesChannelWarning') }}
-            </div>
+            </mt-text>
 
             {% block sw_sales_channel_detail_base_options_delete_button %}
             <div class="sw-sales-channel-detail-base__button-delete">

@@ -51,7 +51,7 @@ $sw-sidebar-navigation-item-badge-color-success: $color-emerald-500;
         position: absolute;
         transform: translate(-30%, 70%);
         border-radius: 18px;
-        color: $color-white;
+        color: var(--color-text-static-default);
         font-size: $font-size-xxs;
         font-style: normal;
 

@@ -3,12 +3,17 @@
  */
 
 import template from './sw-sales-channel-detail-hreflang.html.twig';
+import { MtText } from '@shopware-ag/meteor-component-library';
 
 const { Criteria } = Shopware.Data;
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default {
     template,
+
+    components: {
+        MtText
+    },
 
     props: {
         // eslint-disable-next-line vue/require-prop-types

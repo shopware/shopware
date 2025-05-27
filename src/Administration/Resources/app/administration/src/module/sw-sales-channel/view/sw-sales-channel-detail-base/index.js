@@ -4,6 +4,7 @@
 
 import template from './sw-sales-channel-detail-base.html.twig';
 import './sw-sales-channel-detail-base.scss';
+import { MtText } from '@shopware-ag/meteor-component-library';
 
 const { Component, Mixin, Context, Defaults } = Shopware;
 const { Criteria } = Shopware.Data;
@@ -16,6 +17,10 @@ const { mapPropertyErrors } = Component.getComponentHelper();
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default {
     template,
+
+    components: {
+        MtText
+    },
 
     inject: [
         'salesChannelService',

@@ -18,6 +18,7 @@
     .sw-simple-search-field__input.sw-simple-search-field--default {
         border-radius: var(--border-radius-round);
         overflow: hidden;
+        border: 1px solid var(--color-border-primary-default);
 
         &:has(input:focus-visible) {
             outline: var(--scale-size-2) solid var(--color-border-brand-selected);

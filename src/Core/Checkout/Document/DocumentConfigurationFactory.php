@@ -83,10 +83,8 @@ class DocumentConfigurationFactory
                 switch/if-else approach.
                 */
                 if (method_exists($baseConfig, $setterMethod)) {
-                    // @phpstan-ignore symplify.noDynamicName
                     $baseConfig->$setterMethod((new $typeName())->assign($value));
                 } else {
-                    // @phpstan-ignore symplify.noDynamicName
                     $baseConfig->{$key} = (new $typeName())->assign($value);
                 }
             }

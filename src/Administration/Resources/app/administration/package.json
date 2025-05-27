@@ -84,7 +84,7 @@
     "md5-es": "1.8.2",
     "mime-types": "^2.1.35",
     "mitt": "3.0.1",
-    "motion-v": "^1.1.0-alpha.1",
+    "motion-v": "^1.1.1",
     "optional-chaining-codemod": "1.7.0",
     "patch-package": "8.0.0",
     "path-browserify": "^1.0.1",

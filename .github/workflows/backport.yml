@@ -54,7 +54,7 @@ jobs:
             core.setOutput('number', issue?.number || null)
             core.setOutput('url', issue?.url || null)
 
-  compute-targets:
+  parse-labels:
     runs-on: ubuntu-24.04
     if: >
       github.event.act ||
@@ -68,22 +68,29 @@ jobs:
         )
       )
     outputs:
-      target-branches: ${{ steps.set-targets.outputs.targets }}
+      target-branches: ${{ steps.parse-labels.outputs.target-branches }}
+      labels: ${{ steps.parse-labels.outputs.labels }}
     env:
       LABELS: ${{ toJSON(github.event.pull_request.labels) }}
     steps:
-      - name: Set target branches
-        id: set-targets
+      - name: Parse labels
+        id: parse-labels
         uses: actions/github-script@5c56fde4671bc2d3592fb0f2c5b5bab9ddae03b1 # 7
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           script: |
             const labels = JSON.parse(process.env.LABELS);
-            const targets = labels
+            
+            const targetBranches = labels
               .filter(label => label.name.startsWith('backport-'))
               .map(label => label.name.replace('backport-', ''));
             
-            core.setOutput('targets', JSON.stringify(targets))
+            const filteredLabels = labels
+              .filter(label => !label.name.startsWith('backport-'))
+              .map(label => label.name);
+            
+            core.setOutput('target-branches', JSON.stringify(targetBranches));
+            core.setOutput('labels', JSON.stringify(filteredLabels));
 
   backport:
     runs-on: ubuntu-24.04
@@ -98,10 +105,10 @@ jobs:
           && contains(github.event.label.name, 'backport-')
         )
       )
-    needs: [ find-related-issue, compute-targets ]
+    needs: [ find-related-issue, parse-labels ]
     strategy:
       matrix:
-        target-branch: ${{ fromJSON(needs.compute-targets.outputs.target-branches) }}
+        target-branch: ${{ fromJSON(needs.parse-labels.outputs.target-branches) }}
       fail-fast: true
     steps:
       - uses: octo-sts/action@6177b4481c00308b3839969c3eca88c96a91775f # 1.0.0
@@ -129,4 +136,6 @@ jobs:
           reviewers: >- # Add the original assignees, as well as the reviewers of the original PR
             ${{ github.event.pull_request.assignees && format('{0},', join(github.event.pull_request.assignees.*.login, ',')) || '' }}
             ${{ github.event.pull_request.requested_reviewers && join(github.event.pull_request.requested_reviewers.*.login, ',') || '' }}
+          labels: >- # Inherit original labels, except backport ones
+            ${{ needs.parse-labels.outputs.labels && join(fromJSON(needs.parse-labels.outputs.labels), ',') || '' }}
           dry-run: ${{ github.event.act && true || false }}

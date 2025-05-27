@@ -82,12 +82,12 @@ class ThemeController extends AbstractController
     public function structuredFields(string $themeId, Context $context): JsonResponse
     {
         if (!Feature::isActive('v6.8.0.0')) {
-            $themeConfiguration = $this->themeService->getStructuredThemeConfiguration($themeId, $context, true);
+            $themeConfiguration = $this->themeService->getThemeConfigurationFieldStructure($themeId, $context, true);
 
             return new JsonResponse($themeConfiguration);
         }
 
-        $themeConfiguration = $this->themeService->getStructuredThemeConfiguration($themeId, $context);
+        $themeConfiguration = $this->themeService->getThemeConfigurationFieldStructure($themeId, $context);
 
         return new JsonResponse($themeConfiguration);
     }

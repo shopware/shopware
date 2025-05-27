@@ -220,6 +220,127 @@
                     }
                 }
             }
+        },
+        "/_action/theme/{themeId}/structured-fields": {
+            "get": {
+                "tags": ["Theme"],
+                "summary": "Get theme configuration fields in structured format",
+                "description": "Returns the theme configuration fields in a structured format with tabs, blocks, sections and fields",
+                "operationId": "getThemeConfigurationStructuredFields",
+                "parameters": [
+                    {
+                        "name": "themeId",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Structured theme configuration",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "tabs": {
+                                            "type": "object",
+                                            "additionalProperties": {
+                                                "type": "object",
+                                                "properties": {
+                                                    "labelSnippetKey": {
+                                                        "type": "string"
+                                                    },
+                                                    "label": {
+                                                        "type": "string",
+                                                        "deprecated": true,
+                                                        "description": "This field is deprecated and will be removed in v6.8.0.0"
+
+                                                    },
+                                                    "blocks": {
+                                                        "type": "object",
+                                                        "additionalProperties": {
+                                                            "type": "object",
+                                                            "properties": {
+                                                                "labelSnippetKey": {
+                                                                    "type": "string"
+                                                                },
+                                                                "label": {
+                                                                    "type": "string",
+                                                                    "deprecated": true,
+                                                                    "description": "This field is deprecated and will be removed in v6.8.0.0"
+                                                                },
+                                                                "sections": {
+                                                                    "type": "object",
+                                                                    "additionalProperties": {
+                                                                        "type": "object",
+                                                                        "properties": {
+                                                                            "labelSnippetKey": {
+                                                                                "type": "string"
+                                                                            },
+                                                                            "label": {
+                                                                                "type": "string",
+                                                                                "deprecated": true,
+                                                                                "description": "This field is deprecated and will be removed in v6.8.0.0"
+                                                                            },
+                                                                            "fields": {
+                                                                                "type": "object",
+                                                                                "additionalProperties": {
+                                                                                    "type": "object",
+                                                                                    "properties": {
+                                                                                        "labelSnippetKey": {
+                                                                                            "type": "string"
+                                                                                        },
+                                                                                        "helpTextSnippetKey": {
+                                                                                            "type": "string"
+                                                                                        },
+                                                                                        "type": {
+                                                                                            "type": "string"
+                                                                                        },
+                                                                                        "custom": {
+                                                                                            "type": ["object", "null"],
+                                                                                            "additionalProperties": true
+                                                                                        },
+                                                                                        "fullWidth": {
+                                                                                            "type": ["boolean", "null"]
+                                                                                        },
+                                                                                        "label": {
+                                                                                            "type": "string",
+                                                                                            "deprecated": true,
+                                                                                            "description": "This field is deprecated and will be removed in v6.8.0.0"
+
+                                                                                        },
+                                                                                        "helpText": {
+                                                                                            "type": ["string", "null"],
+                                                                                            "deprecated": true,
+                                                                                            "description": "This field is deprecated and will be removed in v6.8.0.0"
+                                                                                        }
+                                                                                    },
+                                                                                    "required": ["labelSnippetKey", "helpTextSnippetKey", "type", "label"]
+                                                                                }
+                                                                            }
+                                                                        },
+                                                                        "required": ["labelSnippetKey", "label", "fields"]
+                                                                    }
+                                                                }
+                                                            },
+                                                            "required": ["labelSnippetKey", "label", "sections"]
+                                                        }
+                                                    }
+                                                },
+                                                "required": ["labelSnippetKey", "label", "blocks"]
+                                            }
+                                        }
+                                    },
+                                    "required": ["tabs"]
+                                }
+                            }
+                        }
+                    }
+                }
+            }
         }
     }
 }

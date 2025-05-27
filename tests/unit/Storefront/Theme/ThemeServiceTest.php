@@ -521,7 +521,7 @@ class ThemeServiceTest extends TestCase
     }
 
     /**
-     * @deprecated tag:v6.8.0.0 Will be removed, use testGetPlainThemeConfiguration instead
+     * @deprecated tag:v6.8.0 Will be removed, use testGetPlainThemeConfiguration instead
      *
      * @param array<string, mixed> $ids
      * @param array<string, mixed>|null $expected
@@ -572,7 +572,7 @@ class ThemeServiceTest extends TestCase
      */
     #[DataProviderExternal(ThemeFixtures::class, 'getThemeCollectionForThemeConfiguration')]
     #[DisabledFeatures(['v6.8.0.0'])]
-    public function testGetStructuredThemeConfiguration(
+    public function testGetThemeConfigurationFieldStructure(
         array $ids,
         ThemeCollection $themeCollection,
         ?array $expected = null,
@@ -600,7 +600,7 @@ class ThemeServiceTest extends TestCase
             )
         );
 
-        $config = $this->themeService->getStructuredThemeConfiguration($ids['themeId'], $this->context, true);
+        $config = $this->themeService->getThemeConfigurationFieldStructure($ids['themeId'], $this->context, true);
 
         static::assertArrayHasKey('tabs', $config);
         static::assertArrayHasKey('default', $config['tabs']);

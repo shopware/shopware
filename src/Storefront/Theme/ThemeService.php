@@ -198,8 +198,8 @@ class ThemeService implements ResetInterface
      * @throws ThemeException
      * @throws InconsistentCriteriaIdsException
      *
-     * @deprecated tag:v6.8.0.0 Use `getPlainThemeConfiguration` if you do not need translated labels or help texts or
-     * getThemeConfigurationStructuredFields if you need structure with translations
+     * @deprecated tag:v6.8.0 Use `getPlainThemeConfiguration` if you do not need translated labels or help texts or
+     * getThemeConfigurationFieldStructure if you need structure with translations
      *
      * @return array<string, mixed>
      */
@@ -329,7 +329,7 @@ class ThemeService implements ResetInterface
     }
 
     /**
-     * @deprecated tag:v6.8.0.0 Use `getStructuredThemeConfiguration` instead
+     * @deprecated tag:v6.8.0 Use `getThemeConfigurationFieldStructure` instead
      *
      * @return array<string, mixed>
      */
@@ -340,13 +340,13 @@ class ThemeService implements ResetInterface
             Feature::deprecatedMethodMessage(__CLASS__, __METHOD__, 'v6.8.0.0', 'getStructuredThemeConfiguration')
         );
 
-        return $this->getStructuredThemeConfiguration($themeId, $context, $translate);
+        return $this->getThemeConfigurationFieldStructure($themeId, $context, $translate);
     }
 
     /**
      * @return array<string, mixed>
      */
-    public function getStructuredThemeConfiguration(string $themeId, Context $context): array
+    public function getThemeConfigurationFieldStructure(string $themeId, Context $context): array
     {
         $translate = false;
         if (!Feature::isActive('v6.8.0.0')) {

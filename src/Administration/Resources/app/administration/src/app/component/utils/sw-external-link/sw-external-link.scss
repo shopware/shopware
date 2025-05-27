@@ -3,14 +3,14 @@
 .sw-external-link {
     display: inline-flex;
     align-items: center;
-    color: $color-shopware-brand-500;
+    color: var(--color-text-brand-default);
     font-size: $font-size-xs;
     text-decoration: underline;
     cursor: pointer;
 
     &:hover,
     &:focus {
-        color: $color-shopware-brand-600;
+        color: var(--color-text-brand-hover);
     }
 
     &__icon {

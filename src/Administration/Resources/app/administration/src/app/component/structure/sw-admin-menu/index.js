@@ -1,16 +1,9 @@
 import template from './sw-admin-menu.html.twig';
 import './sw-admin-menu.scss';
 import { MtText } from '@shopware-ag/meteor-component-library';
-import {
-    PopoverRoot,
-    PopoverTrigger,
-    PopoverPortal,
-    PopoverContent,
-    RovingFocusItem,
-    RovingFocusGroup
-} from 'reka-ui';
+import { PopoverRoot, PopoverTrigger, PopoverPortal, PopoverContent, RovingFocusItem, RovingFocusGroup } from 'reka-ui';
 const { Criteria } = Shopware.Data;
-import {motion} from 'motion-v';
+import { motion } from 'motion-v';
 
 const MODULES = [
     {
@@ -20,7 +13,7 @@ const MODULES = [
         to: 'sw.dashboard.index',
         match(route) {
             return route.name === 'sw.dashboard.index' ? 'exact' : 'none';
-        }
+        },
     },
     {
         id: 'products',
@@ -41,7 +34,7 @@ const MODULES = [
                 to: 'sw.review.index',
                 match(route) {
                     return route.name.startsWith('sw.review') ? 'exact' : 'none';
-                }
+                },
             },
             {
                 id: 'categories',
@@ -49,7 +42,7 @@ const MODULES = [
                 to: 'sw.category.index',
                 match(route) {
                     return route.name.startsWith('sw.category') ? 'exact' : 'none';
-                }
+                },
             },
             {
                 id: 'dynamic-product-groups',
@@ -57,7 +50,7 @@ const MODULES = [
                 to: 'sw.product.stream.index',
                 match(route) {
                     return route.name.startsWith('sw.product.stream') ? 'exact' : 'none';
-                }
+                },
             },
             {
                 id: 'properties',
@@ -65,7 +58,7 @@ const MODULES = [
                 to: 'sw.property.index',
                 match(route) {
                     return route.name.startsWith('sw.property') ? 'exact' : 'none';
-                }
+                },
             },
             {
                 id: 'manufacturers',
@@ -73,9 +66,9 @@ const MODULES = [
                 to: 'sw.manufacturer.index',
                 match(route) {
                     return route.name.startsWith('sw.manufacturer') ? 'exact' : 'none';
-                }
+                },
             },
-        ]
+        ],
     },
     {
         id: 'orders',
@@ -84,7 +77,7 @@ const MODULES = [
         to: 'sw.order.index',
         match(route) {
             return route.name.startsWith('sw.order') ? 'exact' : 'none';
-        }
+        },
     },
     {
         id: 'customers',
@@ -93,7 +86,7 @@ const MODULES = [
         to: 'sw.customer.index',
         match(route) {
             return route.name.startsWith('sw.customer') ? 'exact' : 'none';
-        }
+        },
     },
     {
         id: 'content',
@@ -110,9 +103,9 @@ const MODULES = [
                 to: 'sw.theme.manager.index',
                 match(route) {
                     return route.name.startsWith('sw.theme.manager') ? 'exact' : 'none';
-                }
-            }
-        ]
+                },
+            },
+        ],
     },
     {
         id: 'marketing',
@@ -129,9 +122,9 @@ const MODULES = [
                 to: 'sw.newsletter.recipient.index',
                 match(route) {
                     return route.name.startsWith('sw.newsletter.recipient') ? 'exact' : 'none';
-                }
-            }
-        ]
+                },
+            },
+        ],
     },
     {
         id: 'extensions',
@@ -149,7 +142,7 @@ const MODULES = [
         to: 'sw.settings.index',
         match(route) {
             return route.name.startsWith('sw.settings') ? 'exact' : 'none';
-        }
+        },
     },
 ];
 
@@ -169,7 +162,8 @@ export default {
         PopoverPortal,
         RovingFocusGroup,
         RovingFocusItem,
-        MotionDiv: motion.div
+        MotionDiv: motion.div,
+        MotionUl: motion.ul,
     },
 
     inject: [
@@ -183,7 +177,7 @@ export default {
             showAccountMenu: false,
             isDarkMode: false,
             salesChannels: [],
-            MODULES
+            MODULES,
         };
     },
 
@@ -192,33 +186,33 @@ export default {
             handler(newValue) {
                 // The code below disables all css transitions during the theme change
                 //   See more: https://paco.me/writing/disable-theme-transitions
-                const css = document.createElement('style')
-                css.type = 'text/css'
+                const css = document.createElement('style');
+                css.type = 'text/css';
                 css.appendChild(
                     document.createTextNode(
-`* {
+                        `* {
    -webkit-transition: none !important;
    -moz-transition: none !important;
    -o-transition: none !important;
    -ms-transition: none !important;
    transition: none !important;
-}`
+}`,
                     ),
                 );
-                document.head.appendChild(css)
+                document.head.appendChild(css);
 
-                if (newValue)  {
+                if (newValue) {
                     document.documentElement.dataset.theme = 'dark';
                 } else {
                     document.documentElement.dataset.theme = 'light';
                 }
 
                 // Re-enables all css transitions
-                const _ = window.getComputedStyle(css).opacity
-                document.head.removeChild(css)
+                const _ = window.getComputedStyle(css).opacity;
+                document.head.removeChild(css);
             },
-            immediate: true
-        }
+            immediate: true,
+        },
     },
 
     created() {
@@ -276,5 +270,5 @@ export default {
                 name: 'sw.login.index',
             });
         },
-    }
+    },
 };

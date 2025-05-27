@@ -76,9 +76,13 @@
                         </router-link>
                     </RovingFocusItem>
 
-                    <ul
+                    <MotionUl
                         v-if="module.hasOwnProperty('children') && (module.match($route) !== 'none' || !!module.children && module.children.some(subModule => subModule.match($route) !== 'none'))"
-                        style="position: relative; list-style: none"
+                        style="position: relative; list-style: none; overflow: hidden"
+                        :initial="{ height: 0, opacity: 0 }"
+                        :animate="{ height: 'auto', opacity: 1 }"
+                        :leave="{ height: 0, opacity: 0 }"
+                        :transition="{ type: 'spring', duration: 0.3, bounce: 0 }"
                     >
                         <div style="position: absolute; width: 1px; background: var(--color-border-primary-default); height: calc(100% - 5px * 2); top: 50%; transform: translateY(-50%); left: 17.5px"></div>
 
@@ -107,7 +111,7 @@
                                 </router-link>
                             </RovingFocusItem>
                         </li>
-                    </ul>
+                    </MotionUl>
                 </li>
             </ul>
         </RovingFocusGroup>

@@ -84,7 +84,7 @@ readonly class SalesChannelDomainUtil
     }
 
     /**
-     * @description Handles a request and follows redirects (e.g. due SEO) if necessary to return the final response.
+     * @description Handles a request and follows redirects (e.g. for SEO) if necessary to return the final response.
      *
      * @return array{storefrontUrl: string, responseCode: int, responseTime: float}
      */

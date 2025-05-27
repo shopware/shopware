@@ -98,6 +98,9 @@ class SalesChannelDomainUtilTest extends TestCase
 
         // setTrustedHosts adds '{' and '}i' around the host
         static::assertSame(['{example.com}i'], Request::getTrustedHosts());
+
+        // Reset trusted hosts to avoid leaking state
+        Request::setTrustedHosts([]);
     }
 
     public function testGenerateDomainUrl(): void

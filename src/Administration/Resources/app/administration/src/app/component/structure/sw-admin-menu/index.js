@@ -1,8 +1,157 @@
 import template from './sw-admin-menu.html.twig';
 import './sw-admin-menu.scss';
+import { MtText } from '@shopware-ag/meteor-component-library';
+import {
+    PopoverRoot,
+    PopoverTrigger,
+    PopoverPortal,
+    PopoverContent,
+    RovingFocusItem,
+    RovingFocusGroup
+} from 'reka-ui';
+const { Criteria } = Shopware.Data;
+import {motion} from 'motion-v';
 
-const { Mixin } = Shopware;
-const { dom, types } = Shopware.Utils;
+const MODULES = [
+    {
+        id: 'dashboard',
+        name: 'Dashboard',
+        icon: 'dashboard',
+        to: 'sw.dashboard.index',
+        match(route) {
+            return route.name === 'sw.dashboard.index' ? 'exact' : 'none';
+        }
+    },
+    {
+        id: 'products',
+        name: 'Products',
+        icon: 'tag',
+        to: 'sw.product.index',
+        match(route) {
+            if (route.name.startsWith('sw.product.stream')) {
+                return 'none';
+            }
+
+            return route.name.startsWith('sw.product') ? 'exact' : 'none';
+        },
+        children: [
+            {
+                id: 'reviews',
+                name: 'Reviews',
+                to: 'sw.review.index',
+                match(route) {
+                    return route.name.startsWith('sw.review') ? 'exact' : 'none';
+                }
+            },
+            {
+                id: 'categories',
+                name: 'Categories',
+                to: 'sw.category.index',
+                match(route) {
+                    return route.name.startsWith('sw.category') ? 'exact' : 'none';
+                }
+            },
+            {
+                id: 'dynamic-product-groups',
+                name: 'Dynamic Product Groups',
+                to: 'sw.product.stream.index',
+                match(route) {
+                    return route.name.startsWith('sw.product.stream') ? 'exact' : 'none';
+                }
+            },
+            {
+                id: 'properties',
+                name: 'Properties',
+                to: 'sw.property.index',
+                match(route) {
+                    return route.name.startsWith('sw.property') ? 'exact' : 'none';
+                }
+            },
+            {
+                id: 'manufacturers',
+                name: 'Manufacturers',
+                to: 'sw.manufacturer.index',
+                match(route) {
+                    return route.name.startsWith('sw.manufacturer') ? 'exact' : 'none';
+                }
+            },
+        ]
+    },
+    {
+        id: 'orders',
+        name: 'Orders',
+        icon: 'shopping-bag',
+        to: 'sw.order.index',
+        match(route) {
+            return route.name.startsWith('sw.order') ? 'exact' : 'none';
+        }
+    },
+    {
+        id: 'customers',
+        name: 'Customers',
+        icon: 'users',
+        to: 'sw.customer.index',
+        match(route) {
+            return route.name.startsWith('sw.customer') ? 'exact' : 'none';
+        }
+    },
+    {
+        id: 'content',
+        name: 'Content',
+        icon: 'image-text',
+        to: 'sw.cms.index',
+        match(route) {
+            return route.name.startsWith('sw.cms') ? 'exact' : 'none';
+        },
+        children: [
+            {
+                id: 'themes',
+                name: 'Themes',
+                to: 'sw.theme.manager.index',
+                match(route) {
+                    return route.name.startsWith('sw.theme.manager') ? 'exact' : 'none';
+                }
+            }
+        ]
+    },
+    {
+        id: 'marketing',
+        name: 'Marketing',
+        icon: 'megaphone',
+        to: 'sw.promotion.v2.index',
+        match(route) {
+            return route.name.startsWith('sw.promotion.v2') ? 'exact' : 'none';
+        },
+        children: [
+            {
+                id: 'newsletter',
+                name: 'Newsletter recipients',
+                to: 'sw.newsletter.recipient.index',
+                match(route) {
+                    return route.name.startsWith('sw.newsletter.recipient') ? 'exact' : 'none';
+                }
+            }
+        ]
+    },
+    {
+        id: 'extensions',
+        name: 'Extensions',
+        icon: 'puzzle-piece',
+        to: 'sw.extension.my-extensions.listing',
+        match(route) {
+            return route.name.startsWith('sw.extension.my-extensions') ? 'exact' : 'none';
+        },
+    },
+    {
+        id: 'settings',
+        name: 'Settings',
+        icon: 'cog',
+        to: 'sw.settings.index',
+        match(route) {
+            return route.name.startsWith('sw.settings') ? 'exact' : 'none';
+        }
+    },
+];
 
 /**
  * @sw-package framework
@@ -12,730 +161,120 @@ const { dom, types } = Shopware.Utils;
 export default {
     template,
 
+    components: {
+        MtText,
+        PopoverRoot,
+        PopoverContent,
+        PopoverTrigger,
+        PopoverPortal,
+        RovingFocusGroup,
+        RovingFocusItem,
+        MotionDiv: motion.div
+    },
+
     inject: [
+        'repositoryFactory',
         'menuService',
         'loginService',
-        'userService',
-        'appModulesService',
-        'feature',
-        'customEntityDefinitionService',
     ],
-
-    mixins: [
-        Mixin.getByName('notification'),
-    ],
-
-    props: {
-        mouseLocationsTracked: {
-            type: Number,
-            required: false,
-            default() {
-                return 3;
-            },
-        },
-        subMenuDelay: {
-            type: Number,
-            required: false,
-            default() {
-                return 150;
-            },
-        },
-    },
 
     data() {
         return {
-            subMenuTimer: null,
-            mouseLocations: [],
-            lastDelayLocation: null,
-            activeEntry: null,
-            isOffCanvasShown: false,
-            isUserActionsActive: false,
-            flyoutEntries: [],
-            lastFlyoutEntries: [],
-            flyoutStyle: {},
-            flyoutColor: '',
-            flyoutLabel: '',
-            subMenuOpen: false,
-            scrollbarOffset: '',
-            isUserLoading: true,
+            showAccountMenu: false,
+            isDarkMode: false,
+            salesChannels: [],
+            MODULES
         };
     },
 
-    computed: {
-        currentUser() {
-            return Shopware.Store.get('session').currentUser;
-        },
-
-        isExpanded() {
-            return this.adminMenuStore.isExpanded;
-        },
-
-        userTitle() {
-            if (this.currentUser && this.currentUser.admin) {
-                return this.$tc('global.sw-admin-menu.administrator');
-            }
-
-            if (this.currentUser && this.currentUser.title && this.currentUser.title.length > 0) {
-                return this.currentUser.title;
-            }
-
-            if (this.currentUser && this.currentUser.aclRoles && this.currentUser.aclRoles.length > 0) {
-                return this.currentUser.aclRoles[0].name;
-            }
-
-            if (this.currentUser && this.currentUser.title) {
-                return this.currentUser.title;
-            }
-
-            return '';
-        },
-
-        currentLocale() {
-            return Shopware.Store.get('session').currentLocale;
-        },
-
-        currentExpandedMenuEntries() {
-            return this.adminMenuStore.expandedEntries;
-        },
-
-        adminModuleNavigation() {
-            const adminModuleNavigationEntries = this.adminMenuStore.adminModuleNavigation;
-
-            // Throw an console error if navigation entry is on level 4 or higher. Also remove the navigation entry from menu
-            return adminModuleNavigationEntries.filter((entry) => {
-                const levelOneParent = adminModuleNavigationEntries.find((e) => entry.parent && e.id === entry.parent);
-                // eslint-disable-next-line max-len
-                const levelTwoParent = adminModuleNavigationEntries.find(
-                    (e) => levelOneParent?.parent && e.id === levelOneParent?.parent,
+    watch: {
+        isDarkMode: {
+            handler(newValue) {
+                // The code below disables all css transitions during the theme change
+                //   See more: https://paco.me/writing/disable-theme-transitions
+                const css = document.createElement('style')
+                css.type = 'text/css'
+                css.appendChild(
+                    document.createTextNode(
+`* {
+   -webkit-transition: none !important;
+   -moz-transition: none !important;
+   -o-transition: none !important;
+   -ms-transition: none !important;
+   transition: none !important;
+}`
+                    ),
                 );
-                // eslint-disable-next-line max-len
-                const levelThreeParent = adminModuleNavigationEntries.find(
-                    (e) => levelTwoParent?.parent && e.id === levelTwoParent?.parent,
-                );
+                document.head.appendChild(css)
 
-                if (levelThreeParent) {
-                    Shopware.Utils.debug.error(
-                        new Error(
-                            `The navigation entry "${entry.id}" is nested on level 4 or higher.\
-The admin menu only supports up to three levels of nesting.`,
-                        ),
-                    );
-
-                    return false;
+                if (newValue)  {
+                    document.documentElement.dataset.theme = 'dark';
+                } else {
+                    document.documentElement.dataset.theme = 'light';
                 }
 
-                return true;
-            });
-        },
-
-        appModuleNavigation() {
-            return this.adminMenuStore.appModuleNavigation;
-        },
-
-        navigationEntries() {
-            return [
-                ...this.adminModuleNavigation,
-                ...this.appModuleNavigation,
-                ...this.extensionModuleNavigation,
-                ...this.customEntityDefinitionService.getMenuEntries(),
-            ];
-        },
-
-        mainMenuEntries() {
-            const tree = new Shopware.Helper.FlatTreeHelper((first, second) => first.position - second.position);
-
-            this.navigationEntries.forEach((module) => tree.add(module));
-
-            return tree.convertToTree();
-        },
-
-        sidebarCollapseIcon() {
-            return this.isExpanded ? 'regular-chevron-circle-left' : 'regular-chevron-circle-right';
-        },
-
-        userActionsToggleIcon() {
-            return this.isUserActionsActive ? 'regular-chevron-down-xs' : 'regular-chevron-up-xs';
-        },
-
-        scrollbarOffsetStyle() {
-            return {
-                right: this.scrollbarOffset,
-                'margin-left': this.scrollbarOffset,
-            };
-        },
-
-        adminMenuClasses() {
-            return {
-                'is--expanded': this.isExpanded,
-                'is--collapsed': !this.isExpanded,
-                'is--off-canvas-shown': this.isOffCanvasShown,
-            };
-        },
-
-        userName() {
-            if (!this.currentUser) {
-                return '';
-            }
-
-            return `${this.currentUser.firstName} ${this.currentUser.lastName}`;
-        },
-
-        avatarUrl() {
-            if (this.currentUser && this.currentUser.avatarMedia) {
-                return this.currentUser.avatarMedia.url;
-            }
-
-            return null;
-        },
-
-        firstName() {
-            return this.currentUser ? this.currentUser.firstName : '';
-        },
-
-        lastName() {
-            return this.currentUser ? this.currentUser.lastName : '';
-        },
-
-        extensionMenuItems() {
-            return Shopware.Store.get('menuItem').menuItems;
-        },
-
-        extensionModuleNavigation() {
-            return this.extensionMenuItems.map((extensionMenuItem) => {
-                return {
-                    id: Shopware.Utils.createId(),
-                    label: extensionMenuItem.label,
-                    position: extensionMenuItem.position ?? 110,
-                    parent: extensionMenuItem.parent ?? 'sw-extension',
-                    moduleType: 'plugin',
-                    path: 'sw.extension.sdk.index',
-                    params: {
-                        id: extensionMenuItem.moduleId,
-                    },
-                };
-            });
-        },
-
-        adminMenuStore() {
-            return Shopware.Store.get('adminMenu');
-        },
-    },
-
-    watch: {
-        isExpanded() {
-            this.toggleSidebar();
-        },
+                // Re-enables all css transitions
+                const _ = window.getComputedStyle(css).opacity
+                document.head.removeChild(css)
+            },
+            immediate: true
+        }
     },
 
     created() {
-        this.createdComponent();
+        this.salesChannelRepository.search(this.salesChannelCriteria).then((response) => {
+            this.salesChannels = response;
+        });
     },
 
-    mounted() {
-        this.mountedComponent();
-        document.addEventListener('mouseleave', this.onFlyoutLeave);
-    },
+    computed: {
+        salesChannelRepository() {
+            return this.repositoryFactory.create('sales_channel');
+        },
 
-    beforeUnmount() {
-        document.removeEventListener('mousemove', this.onMouseMoveDocument);
-        document.removeEventListener('mouseleave', this.onFlyoutLeave);
+        salesChannelCriteria() {
+            const criteria = new Criteria(1, 7);
+
+            criteria.addIncludes({
+                sales_channel: [
+                    'name',
+                    'type',
+                    'active',
+                    'translated',
+                    'domains',
+                ],
+                sales_channel_type: ['iconName'],
+                sales_channel_domain: [
+                    'url',
+                    'languageId',
+                ],
+            });
+
+            criteria.addSorting(Criteria.sort('sales_channel.name', 'ASC'));
+            criteria.addAssociation('type');
+            criteria.addAssociation('domains');
+
+            return criteria;
+        },
     },
 
     methods: {
-        createdComponent() {
-            this.loginService.notifyOnLoginListener();
+        isSalesChannelSelected(salesChannelId) {
+            const isSalesChannelRoute = this.$route.name?.startsWith('sw.sales.channel.');
+            if (!isSalesChannelRoute) return false;
 
-            this.collapseMenuOnSmallViewports();
-            this.getUser();
-
-            Shopware.Utils.EventBus.on('sw-admin-menu/toggle-offcanvas', (state) => {
-                this.isOffCanvasShown = state;
-            });
-
-            this.initNavigation();
+            return this.$route.params?.id === salesChannelId;
         },
 
-        initNavigation() {
-            this.adminMenuStore.adminModuleNavigation = this.menuService.getNavigationFromAdminModules();
-
-            this.refreshApps();
-        },
-
-        refreshApps() {
-            return this.appModulesService.fetchAppModules().then((modules) => {
-                Shopware.Store.get('shopwareApps').apps = modules;
-            });
-        },
-
-        collapseAdminMenu() {
-            this.adminMenuStore.collapseSidebar();
-        },
-
-        expandAdminMenu() {
-            this.adminMenuStore.expandSidebar();
-        },
-
-        mountedComponent() {
-            const that = this;
-
-            this.$device.onResize({
-                listener() {
-                    that.collapseMenuOnSmallViewports();
-                },
-                component: this,
-            });
-
-            document.addEventListener('mousemove', this.onMouseMoveDocument.bind(this));
-
-            this.addScrollbarOffset();
-        },
-
-        getUser() {
-            this.isUserLoading = true;
-
-            this.userService.getUser().then((response) => {
-                const userData = response.data;
-                delete userData.password;
-
-                Shopware.Store.get('session').setCurrentUser(userData);
-
-                this.isUserLoading = false;
-            });
-        },
-
-        collapseMenuOnSmallViewports() {
-            if (this.$device.getViewportWidth() <= 1200 && this.$device.getViewportWidth() >= 500) {
-                this.collapseAdminMenu();
-            }
-
-            if (this.$device.getViewportWidth() <= 500) {
-                this.expandAdminMenu();
-            }
-        },
-
-        isActiveItem(menuItem) {
-            return this.isExpanded && menuItem.classList.contains('router-link-active');
-        },
-
-        onToggleSidebar() {
-            if (this.isExpanded) {
-                this.collapseAdminMenu();
-            } else {
-                this.expandAdminMenu();
-            }
-
-            this.toggleSidebar();
-        },
-
-        toggleSidebar() {
-            if (!this.isExpanded) {
-                this.removeClassesFromElements(
-                    Array.from(this.$el.querySelectorAll('.sw-admin-menu__navigation-list-item')),
-                    ['is--entry-expanded'],
-                );
-
-                const currentActiveElement = this.$el.querySelector('a.router-link-active');
-                const currentActiveParentElement = currentActiveElement?.parentElement;
-                const parentIsFirstLevel = currentActiveParentElement?.classList?.contains('navigation-list-item__level-1');
-
-                const ignoreElementsList = [currentActiveParentElement];
-
-                if (currentActiveElement && !parentIsFirstLevel) {
-                    const mainMenuListItem = currentActiveElement.closest(
-                        '.navigation-list-item__level-1.navigation-list-item__has-children',
-                    );
-                    ignoreElementsList.push(mainMenuListItem.firstElementChild);
-                }
-
-                this.removeClassesFromElements(
-                    Array.from(
-                        this.$el.querySelectorAll(
-                            '.navigation-list-item__level-1.navigation-list-item__has-children > .router-link-active',
-                        ),
-                    ),
-                    ['router-link-active'],
-                    ignoreElementsList,
-                );
-                this.onFlyoutLeave();
-            }
-
-            this.isUserActionsActive = false;
-            this.flyoutEntries = [];
-        },
-
-        onToggleUserActions() {
-            if (this.isUserLoading) {
-                return false;
-            }
-            this.isUserActionsActive = !this.isUserActionsActive;
-            return true;
-        },
-
-        openUserActions() {
-            if (this.isExpanded || this.isUserLoading) {
-                return;
-            }
-
-            this.isUserActionsActive = true;
-        },
-
-        closeUserActions() {
-            if (this.isExpanded) {
-                return;
-            }
-
-            this.isUserActionsActive = false;
-        },
-
-        onLogoutUser() {
+        signOut() {
             this.loginService.logout();
-            this.adminMenuStore.clearExpandedMenuEntries();
             Shopware.Store.get('session').removeCurrentUser();
             Shopware.Store.get('notification').clearGrowlNotificationsForCurrentUser();
             Shopware.Store.get('notification').clearNotificationsForCurrentUser();
+
             this.$router.push({
                 name: 'sw.login.index',
             });
         },
-
-        addScrollbarOffset() {
-            const offset = dom.getScrollbarWidth(this.$refs.swAdminMenuBody);
-
-            this.scrollbarOffset = `-${offset}px`;
-        },
-
-        onMouseMoveDocument(event) {
-            this.mouseLocations.push({
-                x: event.pageX,
-                y: event.pageY,
-            });
-
-            // Mouse locations array exceeds the configured threshold
-            if (this.mouseLocations.length > this.mouseLocationsTracked) {
-                this.mouseLocations.shift();
-            }
-        },
-
-        onMenuItemClick(entry, eventTarget) {
-            const target = eventTarget.closest('.sw-admin-menu__navigation-list-item');
-            const level = entry.level;
-
-            // Clear previous delay of the menu
-            if (this.subMenuTimer) {
-                window.clearTimeout(this.subMenuTimer);
-            }
-
-            if (level > 1 || !target.classList.contains('navigation-list-item__has-children') || !this.isExpanded) {
-                return;
-            }
-
-            const firstChild = target.firstChild;
-            this.removeClassesFromElements(
-                Array.from(this.$el.querySelectorAll('.sw-admin-menu__navigation-list-item')),
-                [
-                    'is--entry-expanded',
-                    'is--flyout-expanded',
-                ],
-                [
-                    target,
-                    firstChild,
-                ],
-            );
-
-            const isEntryExpanded = target.classList.contains('is--entry-expanded');
-            const isChildRouterActive = target.querySelector('a.router-link-active');
-            if (!isChildRouterActive) {
-                firstChild.classList.remove('router-link-active');
-            } else {
-                firstChild.classList.add('router-link-active');
-            }
-
-            if (isEntryExpanded) {
-                this.adminMenuStore.collapseMenuEntry(entry);
-
-                firstChild.classList.remove('router-link-active');
-                firstChild.classList.remove('is--entry-expanded');
-            } else {
-                this.adminMenuStore.expandMenuEntry(entry);
-
-                firstChild.classList.add('router-link-active');
-                target.classList.add('is--entry-expanded');
-            }
-
-            target.classList.remove('is--flyout-expanded');
-
-            // Clear flyout entries if clicked
-            if (this.flyoutEntries.length) {
-                this.flyoutEntries = [];
-            }
-        },
-
-        onMenuLeave() {
-            if (this.subMenuTimer) {
-                window.clearTimeout(this.subMenuTimer);
-            }
-
-            this.deactivatePreviousMenuItem();
-            this.flyoutEntries = [];
-        },
-
-        onMenuItemEnter(entry, event, parentEntries) {
-            const target = event.target;
-
-            // Clear previous delay of the menu
-            if (this.subMenuTimer) {
-                window.clearTimeout(this.subMenuTimer);
-            }
-
-            // Menu is expanded, so we don't have to activate the flyout
-            if (target.classList.contains('is--entry-expanded')) {
-                return;
-            }
-
-            // We don't have children, we don't need to do anything here.
-            if (!target.classList.contains('navigation-list-item__has-children')) {
-                this.deactivatePreviousMenuItem();
-                this.flyoutEntries = [];
-                return;
-            }
-
-            this.possiblyActivate(entry, target, parentEntries);
-        },
-
-        /* istanbul ignore next - is covered by E2E test */
-        onSubMenuItemEnter(entry, event) {
-            const target = event.target;
-            const parent = target.closest('.is--entry-expanded');
-
-            if (!parent) {
-                return;
-            }
-
-            this.removeClassesFromElements(
-                Array.from(parent.querySelectorAll('.sw-admin-menu__navigation-list-item')),
-                ['is--flyout-enabled'],
-                [target],
-            );
-
-            if (!this.getChildren(entry).length) {
-                this.flyoutEntries = [];
-                return;
-            }
-
-            target.classList.add('is--flyout-enabled');
-            this.flyoutStyle = {
-                top: `${target.getBoundingClientRect().top - document.getElementById('app').getBoundingClientRect().top}px`,
-            };
-
-            this.flyoutEntries = this.getChildren(entry);
-
-            const parentEntry = this.mainMenuEntries.find((item) => {
-                return item.id === entry.parent || item.path === entry.parent;
-            });
-
-            if (!parentEntry) {
-                return;
-            }
-            this.flyoutColor = parentEntry.color;
-        },
-
-        getChildren(entry) {
-            return entry.children.filter((child) => {
-                if (!child.privilege) {
-                    return true;
-                }
-
-                return this.acl.can(child.privilege);
-            });
-        },
-
-        isPositionInPolygon(x, y, polygon) {
-            // eslint-disable-next-line inclusive-language/use-inclusive-words
-            // Inspired by https://github.com/substack/point-in-polygon/blob/master/index.js
-            let inside = false;
-
-            // eslint-disable-next-line no-plusplus
-            for (let i = 0, j = polygon.length - 1; i < polygon.length; j = i++) {
-                const xi = polygon[i][0];
-                const yi = polygon[i][1];
-                const xj = polygon[j][0];
-                const yj = polygon[j][1];
-
-                const intersect = yi > y !== yj > y && x < ((xj - xi) * (y - yi)) / (yj - yi) + xi;
-                if (intersect) inside = !inside;
-            }
-
-            return inside;
-        },
-
-        possiblyActivate(entry, currentTarget, parentEntries) {
-            const delay = this.getActivationDelay(currentTarget, entry);
-
-            if (delay) {
-                this.subMenuTimer = window.setTimeout(
-                    this.possiblyActivate.bind(this, entry, currentTarget, parentEntries, true),
-                    delay,
-                );
-                return;
-            }
-
-            this.activateMenuItem(entry, currentTarget, parentEntries);
-        },
-
-        activateMenuItem(entry, target, parentEntries) {
-            if (this.getChildren(entry)) {
-                this.flyoutEntries = this.getChildren(entry);
-            }
-
-            this.flyoutStyle = {
-                top: `${target.getBoundingClientRect().top - document.getElementById('app').getBoundingClientRect().top}px`,
-            };
-
-            // Remove previous flyout enabled
-            this.deactivatePreviousMenuItem();
-            target.classList.add('is--flyout-enabled');
-
-            if (this.subMenuTimer) {
-                window.clearTimeout(this.subMenuTimer);
-            }
-            this.flyoutColor = entry.color;
-            this.activeEntry = { entry, target, parentEntries };
-        },
-
-        deactivatePreviousMenuItem() {
-            if (this.activeEntry && this.activeEntry.target) {
-                this.activeEntry.target.classList.remove('is--flyout-enabled');
-            }
-            this.activeEntry = [];
-        },
-
-        getPolygonFromMenuItem(element, entry) {
-            const outerWidth = (el) => {
-                let width = el.offsetWidth;
-                const style = el.currentStyle || getComputedStyle(el);
-
-                width += parseInt(style.marginLeft, 10) || 0;
-                return width;
-            };
-
-            const outerHeight = (el) => {
-                let height = el.offsetHeight;
-                const style = el.currentStyle || getComputedStyle(el);
-
-                height += parseInt(style.marginTop, 10) || 0;
-                return height;
-            };
-
-            const targetRect = element.getBoundingClientRect();
-            const targetHeight = outerHeight(element);
-            const targetWidth = outerWidth(element);
-            const subMenuHeight = this.getChildren(entry).length * targetHeight;
-
-            const topLeft = {
-                x: targetRect.left,
-                y: targetRect.top,
-            };
-
-            const bottomLeft = {
-                x: topLeft.x,
-                y: topLeft.y + targetHeight,
-            };
-
-            const topRight = {
-                x: topLeft.x + targetWidth * 2,
-                y: topLeft.y,
-            };
-
-            const bottomRight = {
-                x: topRight.x,
-                y: topRight.y + subMenuHeight,
-            };
-
-            return [
-                [
-                    topLeft.x,
-                    topLeft.y,
-                ],
-                [
-                    bottomLeft.x,
-                    bottomLeft.y,
-                ],
-                [
-                    bottomRight.x,
-                    bottomRight.y,
-                ],
-                [
-                    topRight.x,
-                    topRight.y,
-                ],
-            ];
-        },
-
-        getActivationDelay() {
-            const currentMousePosition = this.mouseLocations[this.mouseLocations.length - 1];
-
-            // No current mouse position, so we activate right away
-            if (!currentMousePosition) {
-                return 0;
-            }
-
-            // If there is no flyout already active, then activate immediately.
-            if (!this.flyoutEntries.length) {
-                return 0;
-            }
-
-            if (
-                this.lastDelayLocation &&
-                currentMousePosition.x === this.lastDelayLocation.x &&
-                currentMousePosition.y === this.lastDelayLocation.y
-            ) {
-                return 0;
-            }
-
-            // We have a previous active entry
-            if (this.activeEntry !== null) {
-                const previousPolygon = this.getPolygonFromMenuItem(this.activeEntry.target, this.activeEntry.entry);
-
-                // We're inside the polygon
-                if (this.isPositionInPolygon(currentMousePosition.x, currentMousePosition.y, previousPolygon)) {
-                    this.lastDelayLocation = currentMousePosition;
-                    return this.subMenuDelay;
-                }
-            }
-
-            return 0;
-        },
-
-        onFlyoutEnter() {
-            if (this.subMenuTimer) {
-                window.clearTimeout(this.subMenuTimer);
-            }
-        },
-
-        onFlyoutLeave() {
-            this.deactivatePreviousMenuItem();
-            this.activeEntry = null;
-            this.flyoutEntries = [];
-        },
-
-        removeClassesFromElements(elements, classList, ignoreElementsList = []) {
-            elements.forEach((element) => {
-                if (ignoreElementsList.includes(element)) {
-                    return;
-                }
-                element.classList.remove(classList);
-            });
-        },
-
-        isFirstPluginInMenuEntries(entry, menuEntries) {
-            const firstPluginEntry = menuEntries.find((menuEntry) => {
-                return menuEntry.moduleType === 'plugin';
-            });
-
-            if (!firstPluginEntry) {
-                return false;
-            }
-            return types.isEqual(entry, firstPluginEntry);
-        },
-    },
+    }
 };

@@ -7,7 +7,7 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
 /**
- * @template TCommand of AbstractContextGatewayCommand
+ * @template TCommand of AbstractContextGatewayCommand = AbstractContextGatewayCommand
  */
 #[Package('framework')]
 abstract class AbstractContextGatewayCommandHandler
@@ -19,7 +19,7 @@ abstract class AbstractContextGatewayCommandHandler
     abstract public function handle(AbstractContextGatewayCommand $command, SalesChannelContext $context, array &$parameters): void;
 
     /**
-     * @return array<class-string<AbstractContextGatewayCommand>>
+     * @return array<class-string<TCommand>>
      */
     abstract public static function supportedCommands(): array;
 }

@@ -20,8 +20,6 @@ class ContextGatewayCommandRegistryTest extends TestCase
     public function testRegistry(): void
     {
         $handler = new TestContextGatewayHandler();
-
-        /** @phpstan-ignore argument.type (PHPStan is not able to resolve this properly in an iterable) */
         $registry = new ContextGatewayCommandRegistry([$handler]);
 
         static::assertTrue($registry->has(TestContextGatewayCommand::COMMAND_KEY));
@@ -42,8 +40,6 @@ class ContextGatewayCommandRegistryTest extends TestCase
     public function testAll(): void
     {
         $handler = new TestContextGatewayHandler();
-
-        /** @phpstan-ignore argument.type (PHPStan is not able to resolve this properly in an iterable) */
         $registry = new ContextGatewayCommandRegistry([$handler]);
 
         static::assertSame(

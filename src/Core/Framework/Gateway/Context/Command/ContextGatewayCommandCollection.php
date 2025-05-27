@@ -6,7 +6,9 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Struct\Collection;
 
 /**
- * @extends Collection<AbstractContextGatewayCommand>
+ * @template T of AbstractContextGatewayCommand = AbstractContextGatewayCommand
+ *
+ * @extends Collection<T>
  */
 #[Package('framework')]
 class ContextGatewayCommandCollection extends Collection

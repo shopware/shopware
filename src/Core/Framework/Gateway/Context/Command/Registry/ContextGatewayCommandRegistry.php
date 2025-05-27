@@ -11,7 +11,7 @@ use Symfony\Component\DependencyInjection\Attribute\AutowireIterator;
 class ContextGatewayCommandRegistry
 {
     /**
-     * @var array<string, AbstractContextGatewayCommandHandler<AbstractContextGatewayCommand>>
+     * @var array<string, AbstractContextGatewayCommandHandler>
      */
     private array $handlers = [];
 
@@ -23,7 +23,7 @@ class ContextGatewayCommandRegistry
     /**
      * @internal
      *
-     * @param iterable<AbstractContextGatewayCommandHandler<AbstractContextGatewayCommand>> $handlers
+     * @param iterable<AbstractContextGatewayCommandHandler> $handlers
      */
     public function __construct(
         #[AutowireIterator('shopware.context.gateway.command')]
@@ -43,9 +43,6 @@ class ContextGatewayCommandRegistry
         return isset($this->handlers[$key]);
     }
 
-    /**
-     * @return AbstractContextGatewayCommandHandler<AbstractContextGatewayCommand>
-     */
     public function get(string $key): AbstractContextGatewayCommandHandler
     {
         return $this->handlers[$key];
@@ -62,7 +59,7 @@ class ContextGatewayCommandRegistry
     }
 
     /**
-     * @return array<string, AbstractContextGatewayCommandHandler<AbstractContextGatewayCommand>>
+     * @return array<string, AbstractContextGatewayCommandHandler>
      */
     public function all(): array
     {

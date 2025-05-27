@@ -1583,7 +1583,9 @@ describe('src/app/component/structure/sw-search-bar', () => {
             undefined,
             { name: 'Invalid Entity', entity: null },
             { name: 'Valid Entity 3', entity: 'customer' },
-        ].filter((item) => item).filter((item) => item.entity);
+        ]
+            .filter((item) => item)
+            .filter((item) => item.entity);
 
         expect(filteredEntities).toEqual([
             { name: 'Valid Entity 1', entity: 'product' },

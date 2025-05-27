@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Core\Framework\DataAbstractionLayer\Facade;
+namespace Shopware\Core\Framework\Script;
 
 use Doctrine\DBAL\Connection;
 use Shopware\Core\Framework\Api\Context\AdminApiSource;
@@ -60,6 +60,9 @@ class AppContextCreator
         return $this->appSources[$scriptAppInformation->getAppId()] = $source;
     }
 
+    /**
+     * @return list<string>
+     */
     private function fetchPrivileges(string $appId): array
     {
         $privileges = $this->connection->fetchOne('
@@ -70,7 +73,7 @@ class AppContextCreator
         ', ['appId' => Uuid::fromHexToBytes($appId)]);
 
         if (!$privileges) {
-            throw new \RuntimeException(\sprintf('Privileges for app with id "%s" not found.', $appId));
+            return [];
         }
 
         return json_decode((string) $privileges, true, 512, \JSON_THROW_ON_ERROR);

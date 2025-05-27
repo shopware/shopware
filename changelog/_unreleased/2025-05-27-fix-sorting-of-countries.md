@@ -6,6 +6,6 @@ author_email: m.stegmeyer@shopware.com
 author_github: @mstegmeyer
 ---
 # Core
-* Deprecated `Shopware\Core\System\Country\CountryCollection::sortByPositionAndName()`, use SQL field sorting instead.
-* Deprecated `Shopware\Core\System\Country\CountryCollection::sortCountryAndStates()`, use SQL field sorting instead.
-* Deprecated `Shopware\Core\System\Country\Aggregate\CountryState\CountryStateCollection::sortByPositionAndName()`, use SQL field sorting instead.
+* Deprecated `Shopware\Core\System\Country\CountryCollection::sortByPositionAndName()`, use a FieldSorting via the DAL or direct SQL instead.
+* Deprecated `Shopware\Core\System\Country\CountryCollection::sortCountryAndStates()`, use a FieldSorting via the DAL or direct SQL instead.
+* Deprecated `Shopware\Core\System\Country\Aggregate\CountryState\CountryStateCollection::sortByPositionAndName()`, use a FieldSorting via the DAL or direct SQL instead.

@@ -85,10 +85,8 @@ readonly class SalesChannelDomainUtil
 
     /**
      * @description Handles a request and follows redirects (e.g. for SEO) if necessary to return the final response.
-     *
-     * @return array{storefrontUrl: string, responseCode: int, responseTime: float}
      */
-    public function handleRequest(Request $request): array
+    public function handleRequest(Request $request): StorefrontHealthCheckResult
     {
         $currentRequest = $request;
         $responseTime = 0.0;
@@ -111,17 +109,9 @@ readonly class SalesChannelDomainUtil
         }
 
         if ($redirectCount > self::MAX_REDIRECTS) {
-            return [
-                'storefrontUrl' => $currentRequest->getUri(),
-                'responseCode' => Response::HTTP_LOOP_DETECTED,
-                'responseTime' => $responseTime,
-            ];
+            return StorefrontHealthCheckResult::create($currentRequest->getUri(), Response::HTTP_LOOP_DETECTED, $responseTime);
         }
 
-        return [
-            'storefrontUrl' => $currentRequest->getUri(),
-            'responseCode' => $response->getStatusCode(),
-            'responseTime' => $responseTime,
-        ];
+        return StorefrontHealthCheckResult::create($currentRequest->getUri(), $response->getStatusCode(), $responseTime);
     }
 }

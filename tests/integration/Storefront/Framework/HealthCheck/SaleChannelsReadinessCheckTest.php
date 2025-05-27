@@ -14,6 +14,7 @@ use Shopware\Core\Framework\Test\TestCaseBase\SalesChannelApiTestBehaviour;
 use Shopware\Core\Test\Stub\Framework\IdsCollection;
 use Shopware\Storefront\Framework\SystemCheck\SaleChannelsReadinessCheck;
 use Shopware\Storefront\Framework\SystemCheck\Util\SalesChannelDomainUtil;
+use Shopware\Storefront\Framework\SystemCheck\Util\StorefrontHealthCheckResult;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 
@@ -53,16 +54,16 @@ class SaleChannelsReadinessCheckTest extends TestCase
         $util->expects($this->exactly(2))
             ->method('handleRequest')
             ->willReturnOnConsecutiveCalls(
-                [
-                    'storefrontUrl' => 'http://localhost:8000/',
-                    'responseCode' => Response::HTTP_OK,
-                    'responseTime' => 1.23,
-                ],
-                [
-                    'storefrontUrl' => 'http://localhost:8000/',
-                    'responseCode' => Response::HTTP_BAD_REQUEST,
-                    'responseTime' => 1.23,
-                ],
+                StorefrontHealthCheckResult::create(
+                    'http://localhost:8000/',
+                    Response::HTTP_OK,
+                    1.23,
+                ),
+                StorefrontHealthCheckResult::create(
+                    'http://localhost:8000/',
+                    Response::HTTP_BAD_REQUEST,
+                    1.23,
+                ),
             );
 
         $check = $this->createCheck($util);
@@ -80,16 +81,16 @@ class SaleChannelsReadinessCheckTest extends TestCase
         $util->expects($this->exactly(2))
             ->method('handleRequest')
             ->willReturnOnConsecutiveCalls(
-                [
-                    'storefrontUrl' => 'http://localhost:8000/',
-                    'responseCode' => Response::HTTP_BAD_REQUEST,
-                    'responseTime' => 1.23,
-                ],
-                [
-                    'storefrontUrl' => 'http://localhost:8000/',
-                    'responseCode' => Response::HTTP_BAD_REQUEST,
-                    'responseTime' => 1.23,
-                ],
+                StorefrontHealthCheckResult::create(
+                    'http://localhost:8000/',
+                    Response::HTTP_BAD_REQUEST,
+                    1.23,
+                ),
+                StorefrontHealthCheckResult::create(
+                    'http://localhost:8000/',
+                    Response::HTTP_BAD_REQUEST,
+                    1.23,
+                ),
             );
 
         $check = $this->createCheck($util);

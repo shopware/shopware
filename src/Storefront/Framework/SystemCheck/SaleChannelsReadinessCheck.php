@@ -68,12 +68,12 @@ class SaleChannelsReadinessCheck extends BaseCheck
             $url = $this->util->generateDomainUrl($domain, self::INDEX_PAGE);
 
             $request = Request::create($url);
-            $responseData = $this->util->handleRequest($request);
+            $result = $this->util->handleRequest($request);
 
-            $status = $responseData['responseCode'] >= Response::HTTP_BAD_REQUEST ? Status::FAILURE : Status::OK;
+            $status = $result->getResponseCode() >= Response::HTTP_BAD_REQUEST ? Status::FAILURE : Status::OK;
             $requestStatus[$status->name] = $status;
 
-            $extra[] = $responseData;
+            $extra[] = $result->getVars();
         }
 
         $finalStatus = \count($requestStatus) === 1 ? current($requestStatus) : Status::ERROR;

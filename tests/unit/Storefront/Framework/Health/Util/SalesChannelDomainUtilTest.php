@@ -144,9 +144,9 @@ class SalesChannelDomainUtilTest extends TestCase
         $util = $this->getUtil();
         $request = new Request();
 
-        $responseData = $util->handleRequest($request);
-        static::assertSame('http://localhost/product/123', $responseData['storefrontUrl']);
-        static::assertSame(Response::HTTP_OK, $responseData['responseCode']);
+        $result = $util->handleRequest($request);
+        static::assertSame('http://localhost/product/123', $result->getStorefrontUrl());
+        static::assertSame(Response::HTTP_OK, $result->getResponseCode());
     }
 
     public function testHandleRequestsDetectsLoop(): void
@@ -158,9 +158,9 @@ class SalesChannelDomainUtilTest extends TestCase
         $util = $this->getUtil();
         $request = new Request();
 
-        $responseData = $util->handleRequest($request);
-        static::assertSame('http://localhost/product/123', $responseData['storefrontUrl']);
-        static::assertSame(Response::HTTP_LOOP_DETECTED, $responseData['responseCode']);
+        $result = $util->handleRequest($request);
+        static::assertSame('http://localhost/product/123', $result->getStorefrontUrl());
+        static::assertSame(Response::HTTP_LOOP_DETECTED, $result->getResponseCode());
     }
 
     private function getUtil(): SalesChannelDomainUtil

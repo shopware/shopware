@@ -12,6 +12,7 @@ use Shopware\Core\Framework\SystemCheck\Check\SystemCheckExecutionContext;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Storefront\Framework\SystemCheck\ProductListingReadinessCheck;
 use Shopware\Storefront\Framework\SystemCheck\Util\SalesChannelDomainUtil;
+use Shopware\Storefront\Framework\SystemCheck\Util\StorefrontHealthCheckResult;
 use Symfony\Component\HttpFoundation\Response;
 
 /**
@@ -53,11 +54,13 @@ class ProductListingReadinessCheckTest extends TestCase
     {
         $this->initConnectionMock();
 
-        $this->util->method('handleRequest')->willReturn([
-            'storefrontUrl' => 'http://localhost:8000/products',
-            'responseCode' => Response::HTTP_OK,
-            'responseTime' => 1.23,
-        ]);
+        $this->util->method('handleRequest')->willReturn(
+            StorefrontHealthCheckResult::create(
+                'http://localhost:8000/products',
+                Response::HTTP_OK,
+                1.23
+            )
+        );
 
         $check = $this->createCheck();
         $result = $check->run();
@@ -91,11 +94,13 @@ class ProductListingReadinessCheckTest extends TestCase
     {
         $this->initConnectionMock();
 
-        $this->util->method('handleRequest')->willReturn([
-            'storefrontUrl' => 'http://localhost:8000/products',
-            'responseCode' => Response::HTTP_INTERNAL_SERVER_ERROR,
-            'responseTime' => 1.23,
-        ]);
+        $this->util->method('handleRequest')->willReturn(
+            StorefrontHealthCheckResult::create(
+                'http://localhost:8000/products',
+                Response::HTTP_INTERNAL_SERVER_ERROR,
+                1.23
+            )
+        );
 
         $check = $this->createCheck();
         $result = $check->run();

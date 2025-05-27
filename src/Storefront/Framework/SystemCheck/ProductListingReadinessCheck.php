@@ -79,12 +79,12 @@ class ProductListingReadinessCheck extends BaseCheck
             ]);
 
             $request = Request::create($url);
-            $responseData = $this->util->handleRequest($request);
+            $result = $this->util->handleRequest($request);
 
-            $status = $responseData['responseCode'] >= Response::HTTP_BAD_REQUEST ? Status::FAILURE : Status::OK;
+            $status = $result->getResponseCode() >= Response::HTTP_BAD_REQUEST ? Status::FAILURE : Status::OK;
             $requestStatus[$status->name] = $status;
 
-            $extra[] = $responseData;
+            $extra[] = $result->getVars();
         }
 
         if ($requestStatus === []) {

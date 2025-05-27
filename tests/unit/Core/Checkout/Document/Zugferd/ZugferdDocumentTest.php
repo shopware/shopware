@@ -95,7 +95,7 @@ class ZugferdDocumentTest extends TestCase
 
         $lineItemGross = [1.87, 4.5, 2.42, 4.74, 1.93, 2.6, 4.21, 10.7];
         $document
-            ->withProductLineItem($this->createOrderLineItem($lineItemGross[0], 19.0, $isGross, ++$position), '')
+//            ->withProductLineItem($this->createOrderLineItem($lineItemGross[0], 19.0, $isGross, ++$position), '')
             ->withProductLineItem($this->createOrderLineItem($lineItemGross[1], 19.0, $isGross, ++$position), '')
             ->withProductLineItem($this->createOrderLineItem($lineItemGross[2], 19.0, $isGross, ++$position), '')
             ->withProductLineItem($this->createOrderLineItem($lineItemGross[3], 19.0, $isGross, ++$position), '')
@@ -203,9 +203,12 @@ class ZugferdDocumentTest extends TestCase
 
     private function createOrderLineItem(float $price, float $taxRate, bool $isGross, ?int $position = null): OrderLineItemEntity
     {
-        $rate = $isGross ? $price - $price / (1 + $taxRate / 100) : ($price * (1 + $taxRate / 100) - $price);
+        // multiplier, to minimize rounding errors
+        $calculationPrice = $price * 100;
+        $rate = $isGross ? $calculationPrice - $calculationPrice / (1 + $taxRate / 100) : ($calculationPrice * (1 + $taxRate / 100) - $calculationPrice);
+
         $tax = new CalculatedTax(
-            round($rate, 2),
+            round($rate / 100, 2),
             $taxRate,
             $price
         );

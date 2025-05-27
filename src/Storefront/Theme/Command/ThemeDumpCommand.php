@@ -8,7 +8,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\Log\Package;
-use Shopware\Core\System\SalesChannel\SalesChannelEntity;
 use Shopware\Storefront\Theme\ConfigLoader\StaticFileConfigDumper;
 use Shopware\Storefront\Theme\StorefrontPluginRegistryInterface;
 use Shopware\Storefront\Theme\ThemeCollection;
@@ -80,7 +79,6 @@ class ThemeDumpCommand extends Command
 
             if ($input->isInteractive() && \count($choices) > 1) {
                 $helper = $this->getHelper('question');
-                $this->io->note($this->getThemeAssignmentInfos());
                 $question = new ChoiceQuestion('Please select a theme:', $choices);
                 $themeName = $helper->ask($input, $output, $question);
 
@@ -155,37 +153,6 @@ class ThemeDumpCommand extends Command
 
         foreach ($themes as $theme) {
             $choices[] = $theme->getName();
-        }
-
-        return $choices;
-    }
-
-    private function getThemeAssignmentInfos(): string
-    {
-        $choices = 'Theme assignment:' . \PHP_EOL;
-
-        $criteria = new Criteria();
-        $criteria->addAssociation('salesChannels');
-        $themes = $this->themeRepository->search($criteria, $this->context)->getEntities();
-
-        foreach ($themes as $theme) {
-            $themeName = $theme->getName();
-            $salesChannels = $theme->getSalesChannels()?->filterByTypeId(Defaults::SALES_CHANNEL_TYPE_STOREFRONT);
-            $channelCount = $salesChannels ? $salesChannels->count() : 0;
-
-            if ($channelCount > 0) {
-                $choices .=
-                    \sprintf(
-                        '%s || Assigned to: %s',
-                        $themeName,
-                        $salesChannels ? implode(', ', $salesChannels->map(fn (SalesChannelEntity $channel) => $channel->getName())) : ''
-                    );
-                $choices .= \PHP_EOL;
-                continue;
-            }
-
-            $choices .= \sprintf('%s || Not assigned to any storefront channel', $themeName);
-            $choices .= \PHP_EOL;
         }
 
         return $choices;

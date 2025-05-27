@@ -86,9 +86,9 @@ class ZugferdDocument
         $this->zugferdBuilder->setDocumentSummation(
             $order->getAmountTotal(),
             $order->getAmountTotal(),
-            $this->calculateTaxes(self::LINE_TOTAL_AMOUNT, $order, $calculator),
-            $this->calculateTaxes(self::CHARGE_AMOUNT, $order, $calculator),
-            $this->calculateTaxes(self::ALLOWANCE_AMOUNT, $order, $calculator),
+            abs($this->calculateTaxes(self::LINE_TOTAL_AMOUNT, $order, $calculator)),
+            abs($this->calculateTaxes(self::CHARGE_AMOUNT, $order, $calculator)),
+            abs($this->calculateTaxes(self::ALLOWANCE_AMOUNT, $order, $calculator)),
             $order->getAmountNet(),
             $order->getAmountTotal() - $order->getAmountNet()
         );

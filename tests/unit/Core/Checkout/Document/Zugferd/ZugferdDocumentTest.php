@@ -95,7 +95,7 @@ class ZugferdDocumentTest extends TestCase
 
         $lineItemGross = [1.87, 4.5, 2.42, 4.74, 1.93, 2.6, 4.21, 10.7];
         $document
-//            ->withProductLineItem($this->createOrderLineItem($lineItemGross[0], 19.0, $isGross, ++$position), '')
+            ->withProductLineItem($this->createOrderLineItem($lineItemGross[0], 19.0, $isGross, ++$position), '')
             ->withProductLineItem($this->createOrderLineItem($lineItemGross[1], 19.0, $isGross, ++$position), '')
             ->withProductLineItem($this->createOrderLineItem($lineItemGross[2], 19.0, $isGross, ++$position), '')
             ->withProductLineItem($this->createOrderLineItem($lineItemGross[3], 19.0, $isGross, ++$position), '')

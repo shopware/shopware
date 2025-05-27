@@ -13,7 +13,7 @@ use Shopware\Core\Migration\Traits\UpdateMailTrait;
  * @internal
  */
 #[Package('framework')]
-class Migration1748326970 extends MigrationStep
+class Migration1748326970UpdateMailTemplatesForAccessibility extends MigrationStep
 {
     use UpdateMailTrait;
 

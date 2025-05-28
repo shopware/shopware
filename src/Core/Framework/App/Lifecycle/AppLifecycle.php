@@ -242,7 +242,7 @@ class AppLifecycle extends AbstractAppLifecycle
         $this->permissionPersister->updatePrivileges(
             $manifest->getPermissions(),
             $id,
-            true,
+            $manifest->validatesPermissions() === false && $parameters->acceptPermissions,
             $context
         );
 

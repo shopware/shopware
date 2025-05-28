@@ -115,22 +115,8 @@
         margin-top: 0;
     }
 
-    &__inheritance.sw-card {
-        filter: none;
-    }
-
-    &__inheritance.sw-card .sw-card__content {
-        border: 0;
-    }
-
-    &__inheritance-icon {
-        position: relative;
-    }
-
-    &__inheritance-icon .mt-icon {
-        position: absolute;
-        top: 30px;
-        right: 10px;
+    &__inheritance .mt-banner {
+        margin-bottom: 0;
     }
 }
 

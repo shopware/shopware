@@ -989,21 +989,6 @@
             }
         },
         "/account/recovery-password": {
-          "get": {
-            "description": "New endpoint",
-            "responses": {
-              "200": {
-                "description": "New response",
-                "content": {
-                  "application/json": {
-                    "schema": {
-                      "": ""
-                    }
-                  }
-                }
-              }
-            }
-          },
           "post": {
                 "tags": ["Profile"],
                 "summary": "Send a password recovery mail",

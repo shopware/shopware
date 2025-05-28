@@ -488,7 +488,8 @@ class RegisterRoute extends AbstractRegisterRoute
         ]));
 
         if (!$isGuest) {
-            $validation->merge($this->passwordValidationFactory->create($context)
+            $validation->merge(
+                $this->passwordValidationFactory->create($context)
             );
             $options = ['context' => $context->getContext(), 'salesChannelContext' => $context];
             $validation->add('email', new CustomerEmailUnique($options));

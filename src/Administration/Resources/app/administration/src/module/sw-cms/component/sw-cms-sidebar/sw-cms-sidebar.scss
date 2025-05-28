@@ -3,7 +3,7 @@
 .sw-cms-sidebar {
     .sw-sidebar-item {
         .sw-sidebar-item__headline {
-            border-bottom: 1px solid $color-gray-300;
+            border-bottom: 1px solid var(--color-border-primary-default);
             padding: 25px 25px 0;
             margin: 0;
         }
@@ -11,12 +11,12 @@
 
     .sw-cms-sidebar__navigator-section {
         padding: 12px 24px;
-        border-bottom: 1px solid $color-gray-300;
+        border-bottom: 1px solid var(--color-border-primary-default);
 
         .sw-cms-sidebar__navigator-section-header {
             font-weight: $font-weight-semi-bold;
             font-size: $font-size-s;
-            color: $color-darkgray-200;
+            color: var(--color-text-primary-default);
             margin: 12px 0;
             display: grid;
             grid-template-columns: 1fr 34px;
@@ -58,7 +58,7 @@
 
     .sw-cms-sidebar__navigator-section-spacer {
         height: 1px;
-        background: $color-gray-300;
+        background: var(--color-border-primary-default);
         margin: 20px 0;
     }
 
@@ -90,20 +90,22 @@
     .sw-cms-sidebar__layout-assignment-content,
     .sw-cms-sidebar__layout-set-as-default-content {
         padding: 25px;
-        border-bottom: 1px solid $color-gray-300;
+        border-bottom: 1px solid var(--color-border-primary-default);
     }
 
     .sw-cms-sidebar__layout-assignment-headline,
     .sw-cms-sidebar__layout-set-as-default-headline {
-        color: $color-darkgray-200;
-        font-size: $font-size-xs;
+        color: var(--color-text-primary-default);
+        font-size: var(--font-size-xs);
+        line-height: var(--font-line-height-xs);
     }
 
     .sw-cms-sidebar__layout-assignment-info-text,
     .sw-cms-sidebar__layout-set-as-default-info-text {
-        color: $color-darkgray-200;
-        font-size: $font-size-xs;
+        color: var(--color-text-primary-default);
         margin-bottom: 20px;
+        font-size: var(--font-size-xs);
+        line-height: var(--font-line-height-xs);
     }
 
     .sw-cms-sidebar__block-preview-with-actions {
@@ -129,8 +131,8 @@
 
 .sw-cms-sidebar__block-preview {
     margin: 0 0 7px;
-    background: $color-white;
-    border: 1px solid #d1d9e0;
+    background: var(--color-elevation-surface-raised);
+    border: 1px solid var(--color-border-primary-default);
     border-radius: 5px;
     background-clip: padding-box;
     cursor: grab;
@@ -142,8 +144,8 @@
 
     &.is--dragging {
         box-shadow: none;
-        border: 1px dashed $color-gray-300;
-        background-color: $color-gray-50;
+        border: 1px dashed var(--color-border-primary-default);
+        background-color: var(--color-elevation-surface-sunken);
 
         + .sw-cms-sidebar__block-favorite {
             display: none;
@@ -152,7 +154,7 @@
 
     &.is--drag-element,
     &.is--drag-element.is--valid-drag {
-        border: 1px solid $color-shopware-brand-500;
+        border: 1px solid var(--color-border-brand-selected);
         box-shadow: 0 0 4px 0 rgba($color-shopware-brand-500, 0.4);
     }
 
@@ -190,4 +192,5 @@
     display: block;
     text-align: center;
     margin-bottom: 32px;
+    color: var(--color-text-primary-default);
 }

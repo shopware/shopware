@@ -27,7 +27,7 @@
 
         .sw-category-layout-card__desc-headline.is--empty,
         .sw-category-layout-card__desc-subheadline.is--empty {
-            color: $color-gray-500;
+            color: var(--color-text-secondary-default);
         }
 
         .sw-category-layout-card__desc-info {

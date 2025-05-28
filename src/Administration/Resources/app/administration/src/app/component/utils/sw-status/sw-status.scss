@@ -50,11 +50,11 @@
     }
 
     &--green {
-        background-color: $color-emerald-50;
-        color: $color-emerald-700;
+        background-color: var(--color-background-positive-default);
+        color: var(--color-text-background-primary);
 
         .sw-color-badge {
-            background-color: $color-emerald-700;
+            background-color: var(--color-icon-positive-default);
         }
     }
 }

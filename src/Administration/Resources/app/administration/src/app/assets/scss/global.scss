@@ -139,9 +139,16 @@ a[target="_blank"]:not(.sw-external-link, .sw-internal-link, .mt-button, .mt-lin
     box-shadow: 0 3px 6px 0 var(--color-elevation-shadow-default) !important;
 }
 
+.mt-number-field:has(input:disabled) {
+    .mt-number-field__controls {
+        background: var(--color-background-primary-disabled);
+    }
+}
+
 .mt-number-field__controls {
     background: var(--color-elevation-surface-raised);
     color: var(--color-icon-primary-default);
+    flex-shrink: 0;
 }
 
 .mt-card__toolbar {
@@ -157,4 +164,16 @@ a[target="_blank"]:not(.sw-external-link, .sw-internal-link, .mt-button, .mt-lin
 
 .mt-inheritance-switch {
     margin-right: 8px;
+}
+
+.mt-text-editor {
+    background: initial !important;
+
+    &__content {
+        background: var(--color-elevation-surface-default)
+    }
+
+    &-toolbar {
+        border-color: var(--color-border-primary-default) !important;
+    }
 }

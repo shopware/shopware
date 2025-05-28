@@ -535,11 +535,11 @@
     .sw-data-grid__body {
         .sw-data-grid__row {
             &:nth-child(even) .sw-data-grid__cell {
-                background-color: $color-white;
+                background-color: var(--color-background-primary-disabled);
             }
 
             &:hover .sw-data-grid__cell {
-                background-color: $color-shopware-brand-50;
+                background-color: var(--color-background-brand-default);
             }
 
             &.is--inline-edit .sw-data-grid__cell,

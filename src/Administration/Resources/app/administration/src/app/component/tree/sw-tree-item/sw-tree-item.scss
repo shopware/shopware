@@ -90,7 +90,7 @@ $sw-tree-item-color-text: var(--color-text-primary-default);
 
             .sw-tree-item__icon,
             .sw-tree-item__content {
-                color: $color-shopware-brand-500;
+                color: var(--color-text-brand-default);
             }
         }
     }
@@ -101,7 +101,7 @@ $sw-tree-item-color-text: var(--color-text-primary-default);
 
             .sw-tree-item__icon,
             .sw-tree-item__content {
-                color: $color-shopware-brand-500;
+                color: var(--color-text-brand-default);
             }
         }
     }
@@ -129,7 +129,7 @@ $sw-tree-item-color-text: var(--color-text-primary-default);
 
     &.is--highlighted > .sw-tree-item__element {
         .sw-tree-item__label {
-            background-color: $color-gray-100;
+            background-color: var(--color-interaction-secondary-dark);
             padding: 1px 3px;
             border-radius: $border-radius-default;
         }

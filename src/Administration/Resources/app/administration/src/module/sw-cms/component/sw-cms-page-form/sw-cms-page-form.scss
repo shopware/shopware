@@ -116,12 +116,12 @@
     &__section-action-icon {
         display: inline-block;
         margin-right: 10px;
-        color: $color-gray-900;
+        color: var(--color-icon-primary-default);
     }
 
     &__section-action-label {
-        color: #52667a;
-        font-weight: $font-weight-semi-bold;
+        color: var(--color-text-primary-default);
+        font-weight: var(--font-weight-semibold);
         line-height: 22px;
         width: 190px;
         word-wrap: break-word;
@@ -163,7 +163,7 @@
     &__device-actions,
     &__block-device-actions {
         width: 96px;
-        color: $color-gray-500;
+        color: var(--color-icon-primary-default);
         display: flex;
         gap: 10px;
         align-items: center;

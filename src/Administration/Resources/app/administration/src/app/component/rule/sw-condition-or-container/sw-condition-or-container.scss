@@ -1,6 +1,6 @@
 @import "~scss/variables";
 
-$sw-condition-or-container-background-even: $color-white;
+$sw-condition-or-container-background-even: var(--color-elevation-surface-raised);
 $sw-condition-or-container-background-odd: $color-gray-100;
 
 // $sw-condition-or-container-border: #788a9b;
@@ -10,7 +10,7 @@ $sw-condition-or-container-background-odd: $color-gray-100;
 
     &.container-condition-level__is--even {
         background-color: $sw-condition-or-container-background-even;
-        border: 1px solid $color-gray-400;
+        border: 1px solid var(--color-border-primary-default);
         border-radius: 4px;
 
         &.is--disabled {
@@ -20,7 +20,7 @@ $sw-condition-or-container-background-odd: $color-gray-100;
 
     &.container-condition-level__is--odd {
         background-color: $sw-condition-or-container-background-odd;
-        border: 1px solid $color-gray-500;
+        border: 1px solid var(--color-border-primary-default);
         border-radius: 4px;
 
         &.is--disabled {

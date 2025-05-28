@@ -5,7 +5,7 @@ $sw-sidebar-navigation-item-icon-color-active: var(--color-icon-brand-default);
 $sw-sidebar-navigation-item-hover-color-background: var(--color-background-brand-default);
 $sw-sidebar-navigation-item-active-color-background: var(--color-background-brand-default);
 $sw-sidebar-navigation-item-size: 64px;
-$sw-sidebar-navigation-item-badge-color-info: $color-shopware-brand-500;
+$sw-sidebar-navigation-item-badge-color-info: var(--color-icon-brand-default);
 $sw-sidebar-navigation-item-badge-color-warning: $color-pumpkin-spice-500;
 $sw-sidebar-navigation-item-badge-color-error: $color-crimson-500;
 $sw-sidebar-navigation-item-badge-color-success: $color-emerald-500;

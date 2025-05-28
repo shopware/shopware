@@ -60,7 +60,9 @@
 
     &__hint {
         margin-top: 4px;
-        font-size: $font-size-xxs;
+        font-size: var(--font-size-2xs);
+        line-height: var(--font-line-height-2xs);
+        color: var(--color-text-secondary-default);
         display: flex;
         align-items: center;
         gap: 8px;

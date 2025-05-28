@@ -1,6 +1,6 @@
 @import "~scss/variables";
 
-$sw-loader-element-color: $color-shopware-brand-500;
+$sw-loader-element-color: var(--color-icon-brand-default);
 $sw-loader-rotate-duration: 1.4s;
 $sw-loader-z-index: $z-index-loader;
 

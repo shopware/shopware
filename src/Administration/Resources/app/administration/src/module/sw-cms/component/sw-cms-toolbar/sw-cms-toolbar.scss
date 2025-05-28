@@ -3,13 +3,13 @@
 .sw-cms-toolbar {
     padding: 0 20px;
     min-height: 70px;
-    border-bottom: 2px solid $color-gray-300;
+    border-bottom: 1px solid var(--color-border-primary-default);
     display: grid;
     grid-template-columns: 1fr 1fr 158px auto;
     align-items: center;
     align-content: center;
     z-index: 251;
-    background-color: $color-white;
+    background-color: var(--color-elevation-surface-default);
 
     .sw-cms-toolbar__back-btn {
         padding: 10px 20px;
@@ -25,9 +25,9 @@
     }
 
     .sw-cms-toolbar__title h2 {
-        color: $color-darkgray-200;
-        font-size: $font-size-m;
-        font-weight: $font-weight-semi-bold;
+        color: var(--color-text-primary-default);
+        font-size: var(--font-size-m);
+        font-weight: var(--font-weight-semibold);
         white-space: nowrap;
         overflow: hidden;
         text-overflow: ellipsis;

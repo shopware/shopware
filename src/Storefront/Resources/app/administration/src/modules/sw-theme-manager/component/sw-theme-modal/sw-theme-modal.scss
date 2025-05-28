@@ -1,11 +1,9 @@
 @import '~scss/variables';
 
 .sw-theme-modal {
-    &__header {
-        &-search {
-            background-color: $color-gray-100;
-            border-bottom: 1px solid $color-gray-200;
-        }
+    &__header-search {
+        background-color: var(--color-elevation-surface-sunken);
+        border-bottom: 1px solid var(--color-border-primary-default);
     }
 
     .sw-theme-modal__content {

@@ -370,7 +370,7 @@ $sw-search-bar-types-item-border-radius: $border-radius-default;
                 text-transform: uppercase;
                 border: 1px solid var(--color-border-primary-default);
                 border-radius: 3px;
-                background-color: $color-white;
+                background-color: var(--color-background-primary-default);
                 padding: 0 4px;
                 margin: 0 3px;
             }
@@ -388,8 +388,8 @@ $sw-search-bar-types-item-border-radius: $border-radius-default;
     &__type-item-name {
         display: flex;
         align-items: center;
-        color: $color-darkgray-200;
-        font-size: $font-size-xs;
+        color: var(--color-text-primary-default);
+        font-size: var(--font-size-xs);
         padding: 5px 0;
     }
 
@@ -400,7 +400,7 @@ $sw-search-bar-types-item-border-radius: $border-radius-default;
     }
 
     &__shortcut-tip {
-        font-size: $font-size-xs;
+        font-size: var(--font-size-xs);
         color: var(--color-text-primary-default);
         margin: 20px 3px 0;
     }
@@ -414,11 +414,10 @@ $sw-search-bar-types-item-border-radius: $border-radius-default;
     }
 
     &__results-empty-detail {
-        color: $color-darkgray-200;
-        font-size: $font-size-xs;
+        color: var(--color-text-secondary-default);
+        font-size: var(--font-size-xs);
+        line-height: var(--font-line-height-xs);
         font-weight: normal;
-        letter-spacing: 0.1px;
-        line-height: 22px;
     }
 
     &__type-results-empty-message {

@@ -1,7 +1,7 @@
 @import "~scss/variables";
 
-$sw-price-field-lock-color-default: $color-darkgray-200;
-$sw-price-field-lock-color-locked: $color-shopware-brand-500;
+$sw-price-field-lock-color-default: var(--color-icon-primary-default);
+$sw-price-field-lock-color-locked: var(--color-icon-brand-default);
 $sw-price-field-suffix-font-size: 20px;
 $sw-price-field-suffix-font-weight: $font-weight-regular;
 

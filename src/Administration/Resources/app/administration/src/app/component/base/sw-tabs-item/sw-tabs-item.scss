@@ -3,7 +3,6 @@
 $sw-side-navigation-item-link-distance: 10px;
 
 .sw-tabs-item {
-    transition: 0.3s all ease-in-out;
     padding: $sw-side-navigation-item-link-distance ($sw-side-navigation-item-link-distance * 1.75);
     border-bottom: 2px solid var(--color-border-primary-default);
     text-decoration: none;

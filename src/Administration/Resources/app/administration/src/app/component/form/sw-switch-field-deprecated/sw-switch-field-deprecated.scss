@@ -1,9 +1,9 @@
 @import "~scss/variables";
 
 $sw-field--switch-color-border: var(--color-border-primary-default);
-$sw-field--switch-color-background: $color-white;
+$sw-field--switch-color-background: var(--color-icon-static-default);
 $sw-field--switch-color-text: $color-darkgray-200;
-$sw-field--switch-color-focus: $color-shopware-brand-500;
+$sw-field--switch-color-focus: var(--color-interaction-primary-default);
 $sw-field--switch-color-error: $color-crimson-500;
 
 .sw-field--switch {
@@ -105,7 +105,7 @@ $sw-field--switch-color-error: $color-crimson-500;
             border-radius: 8px;
 
             .sw-field__switch-state-knob {
-                transition: all 0.3s ease-in-out;
+                transition: 200ms left cubic-bezier(0.23, 1, 0.32, 1);
                 width: 10px;
                 height: 10px;
                 position: absolute;
@@ -200,10 +200,11 @@ $sw-field--switch-color-error: $color-crimson-500;
         }
     }
 
-    &:focus-within {
+    &:has(input:focus-visible) {
         .sw-field__switch-state {
             border-color: $color-shopware-brand-500;
-            box-shadow: 0 0 4px $color-shopware-brand-500;
+            outline: var(--scale-size-2) solid var(--color-border-brand-selected);
+            outline-offset: var(--scale-size-2);
         }
     }
 

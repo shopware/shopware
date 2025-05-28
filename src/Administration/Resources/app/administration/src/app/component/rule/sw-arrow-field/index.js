@@ -25,12 +25,12 @@ export default {
         primary: {
             type: String,
             required: false,
-            default: '#ffffff',
+            default: 'var(--color-elevation-surface-raised)',
         },
         secondary: {
             type: String,
             required: false,
-            default: '#d1d9e0',
+            default: 'var(--color-border-primary-default)',
         },
         disabled: {
             type: Boolean,

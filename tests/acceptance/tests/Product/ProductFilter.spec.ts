@@ -11,10 +11,8 @@ test('Customer should see unavailable filter disabled based on selected filter',
     await TestDataService.setSystemConfig({ 'core.listing.disableEmptyFilterOptions': true });
     const color = await TestDataService.createColorPropertyGroup();
     const size = await TestDataService.createTextPropertyGroup();
-    const propertyGroupsColor: PropertyGroup[] = [];
-    const propertyGroupsText: PropertyGroup[] = [];
-    propertyGroupsColor.push(color);
-    propertyGroupsText.push(size);
+    const propertyGroupsColor: PropertyGroup[] = [color];
+    const propertyGroupsText: PropertyGroup[] = [size];
     const sizeOptions = await TestDataService.getPropertyGroupOptions(size.id);
     let colorManufacturer: Manufacturer;
     let parentProductColor: Product;
@@ -45,10 +43,6 @@ test('Customer should see unavailable filter disabled based on selected filter',
             description: 'Free ship Description Manufacturer',
         });
         await TestDataService.createBasicProduct({ shippingFree: true, manufacturerId: freeShipManufacturer.id });
-        await ShopAdmin.goesTo(AdminProductDetail.url(variantProductColor.at(2).id));
-        await ShopAdmin.page.waitForLoadState('domcontentloaded');
-        await ShopAdmin.goesTo(AdminProductDetail.url(variantProductSize.at(2).id));
-        await ShopAdmin.page.waitForLoadState('domcontentloaded');
     });
 
     await test.step('Verify setup filters display', async () => {

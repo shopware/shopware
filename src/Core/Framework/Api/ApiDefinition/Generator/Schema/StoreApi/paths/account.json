@@ -310,6 +310,51 @@
                 ]
             }
         },
+        "/account/convert-guest": {
+          "post": {
+            "tags": ["Profile"],
+            "summary": "Convert a guest customer to a registered customer",
+            "description": "Takes a password to convert a guest customer to a registered customer. The customer can then log in with the provided password in the future.",
+            "operationId": "convertGuest",
+            "requestBody": {
+              "required": true,
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "required": [
+                      "password"
+                    ],
+                    "properties": {
+                      "password": {
+                        "description": "New Password for the customer",
+                        "type": "string"
+                      }
+                    },
+                    "type": "object"
+                  }
+                }
+              }
+            },
+            "responses": {
+              "200": {
+                "description": "Returns a success response indicating a successful update.",
+                "content": {
+                  "application/json": {
+                    "schema": {
+                      "$ref": "#/components/schemas/SuccessResponse"
+                    }
+                  }
+                }
+              }
+            },
+            "security": [
+              {
+                "ApiKey": [],
+                "ContextToken": []
+              }
+            ]
+          }
+        },
         "/account/customer-recovery-is-expired": {
             "post": {
                 "tags": ["Profile"],
@@ -944,7 +989,22 @@
             }
         },
         "/account/recovery-password": {
-            "post": {
+          "get": {
+            "description": "New endpoint",
+            "responses": {
+              "200": {
+                "description": "New response",
+                "content": {
+                  "application/json": {
+                    "schema": {
+                      "": ""
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "post": {
                 "tags": ["Profile"],
                 "summary": "Send a password recovery mail",
                 "description": "This operation is Step 1 of the password reset flow. Make sure to implement Step 2 \"Reset password with recovery credentials\" in order to allow for the complete flow in your application. Sends a recovery mail containing a link with credentials that allows a customer to reset their password.",

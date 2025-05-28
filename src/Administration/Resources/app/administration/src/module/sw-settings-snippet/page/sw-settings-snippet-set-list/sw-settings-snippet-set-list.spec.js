@@ -45,6 +45,7 @@ function getSnippetSetData() {
 }
 
 describe('module/sw-settings-snippet/page/sw-settings-snippet-set-list', () => {
+    const saveSpy = jest.fn(() => Promise.resolve());
     async function createWrapper(privileges = []) {
         return mount(
             await wrapTestComponent('sw-settings-snippet-set-list', {
@@ -80,6 +81,7 @@ describe('module/sw-settings-snippet/page/sw-settings-snippet-set-list', () => {
                             create: () => ({
                                 create: () => Promise.resolve(getSnippetSetData()[0]),
                                 search: () => Promise.resolve(getSnippetSetData()),
+                                save: saveSpy,
                             }),
                         },
                         searchRankingService: {},
@@ -92,7 +94,11 @@ describe('module/sw-settings-snippet/page/sw-settings-snippet-set-list', () => {
                             </div>`,
                         },
                         'sw-icon': true,
-                        'sw-button': true,
+                        'sw-button': await wrapTestComponent('sw-button'),
+                        'sw-button-process': await wrapTestComponent('sw-button-process'),
+                        'sw-button-deprecated': await wrapTestComponent('sw-button-deprecated'),
+                        'sw-loader': true,
+                        'sw-checkbox-field': true,
                         'sw-card': {
                             template: '<div><slot></slot><slot name="grid"></slot></div>',
                         },
@@ -134,15 +140,15 @@ describe('module/sw-settings-snippet/page/sw-settings-snippet-set-list', () => {
             'snippet.viewer',
         ],
         [
-            'true',
+            true,
             'snippet.viewer, snippet.editor',
         ],
         [
-            undefined,
+            false,
             'snippet.viewer, snippet.editor, snippet.creator',
         ],
         [
-            'true',
+            true,
             'snippet.viewer, snippet.editor, snippet.deleter',
         ],
     ])('should have a create snippet set button with a disabled state of %p when having role: %s', async (state, role) => {
@@ -152,8 +158,7 @@ describe('module/sw-settings-snippet/page/sw-settings-snippet-set-list', () => {
         await flushPromises();
 
         const createSetButton = wrapper.find('.sw-settings-snippet-set-list__action-add');
-
-        expect(createSetButton.attributes('disabled')).toBe(state);
+        expect(createSetButton.classes().includes('sw-button--disabled')).toBe(state);
     });
 
     it('should add a new snippet set', async () => {
@@ -162,7 +167,7 @@ describe('module/sw-settings-snippet/page/sw-settings-snippet-set-list', () => {
 
         expect(saveSpy).not.toHaveBeenCalledWith(expect.objectContaining({ name: 'sw-settings-snippet.setList.newSnippetName' }));
 
-        const createSetButton = wrapper.findByText('button', 'sw-settings-snippet.setList.buttonAddSet');
+        const createSetButton = wrapper.find('.sw-settings-snippet-set-list__action-add');
         await createSetButton.trigger('click');
 
         expect(saveSpy).toHaveBeenCalledWith(expect.objectContaining({ name: 'sw-settings-snippet.setList.newSnippetName' }));
@@ -183,7 +188,7 @@ describe('module/sw-settings-snippet/page/sw-settings-snippet-set-list', () => {
             },
         ];
 
-        const createSetButton = wrapper.findByText('button', 'sw-settings-snippet.setList.buttonAddSet');
+        const createSetButton = wrapper.find('.sw-settings-snippet-set-list__action-add');
         await createSetButton.trigger('click');
 
         expect(saveSpy).toHaveBeenCalledWith(expect.objectContaining({ name: `sw-settings-snippet.setList.newSnippetName (2)` }));

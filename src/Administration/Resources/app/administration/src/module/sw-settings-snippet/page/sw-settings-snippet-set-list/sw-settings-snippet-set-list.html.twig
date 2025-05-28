@@ -29,16 +29,16 @@
     {% endblock %}
 
     <template #smart-bar-actions>
-        <mt-button
+        <sw-button-process
             class="sw-settings-snippet-set-list__action-add"
             variant="primary"
             :is-loading="isLoading"
+            :process-success="isSaveSuccessful"
             :disabled="!acl.can('snippet.creator')"
-            size="default"
             @click="onAddSnippetSet"
         >
             {{ $t('sw-settings-snippet.setList.buttonAddSet') }}
-        </mt-button>
+        </sw-button-process>
     </template>
 
     {% block sw_settings_snippet_set_list_card %}

@@ -29,6 +29,7 @@ export default {
     data() {
         return {
             isLoading: false,
+            isSaveSuccessful: false,
             entityName: 'snippetSet',
             sortBy: 'name',
             sortDirection: 'ASC',

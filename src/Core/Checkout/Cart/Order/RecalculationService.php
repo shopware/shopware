@@ -125,9 +125,9 @@ class RecalculationService
 
         $recalculatedCart = $this->recalculateCart($cart, $salesChannelContext);
 
-        $new = $cart->get($lineItem->getId());
-        if ($new) {
-            $this->addProductToDeliveryPosition($new, $recalculatedCart);
+        $recalculatedLineItem = $recalculatedCart->get($lineItem->getId());
+        if ($recalculatedLineItem?->isShippingCostAware()) {
+            $this->addLineItemToDeliveryPosition($recalculatedLineItem, $recalculatedCart);
         }
 
         $conversionContext = $this->getOrderConversionContext()->setIncludeDeliveries(true);
@@ -150,6 +150,11 @@ class RecalculationService
         $cart->add($lineItem);
 
         $recalculatedCart = $this->recalculateCart($cart, $salesChannelContext);
+
+        $recalculatedLineItem = $recalculatedCart->get($lineItem->getId());
+        if ($recalculatedLineItem?->isShippingCostAware()) {
+            $this->addLineItemToDeliveryPosition($recalculatedLineItem, $recalculatedCart);
+        }
 
         $conversionContext = $this->getOrderConversionContext();
         $orderData = $this->orderConverter->convertToOrder($recalculatedCart, $salesChannelContext, $conversionContext);
@@ -317,13 +322,8 @@ class RecalculationService
         }
     }
 
-    private function addProductToDeliveryPosition(LineItem $item, Cart $cart): void
+    private function addLineItemToDeliveryPosition(LineItem $item, Cart $cart): void
     {
-        if ($cart->getDeliveries()->count() <= 0) {
-            return;
-        }
-
-        /** @var Delivery $delivery */
         $delivery = $cart->getDeliveries()->first();
         if (!$delivery) {
             return;

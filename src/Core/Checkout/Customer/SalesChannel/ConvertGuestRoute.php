@@ -43,7 +43,7 @@ class ConvertGuestRoute extends AbstractConvertGuestRoute
     }
 
     #[Route(path: '/store-api/account/convert-guest', name: 'store-api.account.convert-guest', methods: ['POST'], defaults: ['_loginRequired' => true, '_loginRequiredAllowGuest' => true])]
-    public function convertGuest(RequestDataBag $requestDataBag, SalesChannelContext $context, CustomerEntity $customer): SuccessResponse
+    public function convertGuest(RequestDataBag $requestDataBag, SalesChannelContext $context, CustomerEntity $customer, ?DataValidationDefinition $additionalValidationDefinitions = null): SuccessResponse
     {
         if (!$customer->getGuest()) {
             throw CustomerException::registeredCustomerCannotBeConverted($customer->getId());
@@ -51,21 +51,26 @@ class ConvertGuestRoute extends AbstractConvertGuestRoute
 
         $customerData = [
             'id' => $customer->getId(),
+            'email' => $customer->getEmail(),
             'guest' => false,
             'password' => $requestDataBag->get('password'),
         ];
 
-        $this->validate(new DataBag(['email' => $customer->getEmail(), ...$customerData]), $context);
+        $this->validate(new DataBag($customerData), $context, $additionalValidationDefinitions);
 
         $this->customerRepository->update([$customerData], $context->getContext());
 
         return new SuccessResponse();
     }
 
-    private function validate(DataBag $data, SalesChannelContext $context): void
+    private function validate(DataBag $data, SalesChannelContext $context, ?DataValidationDefinition $additionalValidationDefinitions = null): void
     {
         $definition = new DataValidationDefinition('customer.guest.convert');
         $definition->merge($this->passwordValidationFactory->create($context));
+
+        if ($additionalValidationDefinitions) {
+            $definition->merge($additionalValidationDefinitions);
+        }
 
         $options = ['context' => $context->getContext(), 'salesChannelContext' => $context];
         $definition->add('email', new CustomerEmailUnique($options));

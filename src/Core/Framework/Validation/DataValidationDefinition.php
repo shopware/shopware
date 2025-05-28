@@ -107,11 +107,11 @@ class DataValidationDefinition
         }
 
         foreach ($definition->getSubDefinitions() as $name => $subDefinition) {
-            $this->addSub($name, $subDefinition);
+            $this->addSub($name, ($this->subDefinitions[$name] ?? null)?->merge($subDefinition) ?? $subDefinition);
         }
 
         foreach ($definition->getListDefinitions() as $name => $listDefinition) {
-            $this->addList($name, $listDefinition);
+            $this->addList($name, ($this->listDefinitions[$name] ?? null)?->merge($listDefinition) ?? $listDefinition);
         }
 
         return $this;

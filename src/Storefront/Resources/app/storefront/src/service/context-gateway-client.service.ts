@@ -17,9 +17,8 @@ export default class ContextGatewayClient {
      * Calls the context gateway to apply context changes triggered by app servers
      *
      * @param data - custom data sent to the app server
-     * @param autoNavigate - automatically reload page or navigate to redirectUrl (happens typically via sales channel switching) if provided
      */
-    public async call(data: Record<string, unknown> = {}, autoNavigate = false): Promise<ContextTokenResponse> {
+    public async call(data: Record<string, unknown> = {}): Promise<ContextTokenResponse> {
         const body = { ...data, appName: this.name };
 
         // @ts-ignore
@@ -39,28 +38,36 @@ export default class ContextGatewayClient {
             throw new Error(`Context gateway request failed for app '${this.name}': ${response.status} ${response.statusText} - ${err}`);
         }
 
-        const tokenResponse = await response.json() as ContextTokenResponse;
+        return await response.json() as ContextTokenResponse;
+    }
 
-        if (!autoNavigate) {
-            return tokenResponse;
-        }
-
+    public navigate(tokenResponse: ContextTokenResponse, customTarget: string | null = null): ContextTokenResponse {
         if (tokenResponse.redirectUrl) {
             const currentUrl = new URL(window.location.href);
             const redirectBase = new URL(tokenResponse.redirectUrl);
 
-            // Clean up paths and join properly
-            const redirectPath = redirectBase.pathname.replace(/\/$/, '');
-            const currentPath = currentUrl.pathname.replace(/^\/+/, '');
+            redirectBase.pathname += customTarget ?? currentUrl.pathname;
+            redirectBase.search = currentUrl.search;
+            redirectBase.hash = currentUrl.hash;
 
-            const fullPath = `${redirectPath}/${currentPath}`;
-            const finalUrl = new URL(fullPath + currentUrl.search + currentUrl.hash, redirectBase.origin);
+            if (redirectBase.pathname.endsWith('/')) {
+                redirectBase.pathname = redirectBase.pathname.slice(0, -1);
+            }
 
-            window.location.href = finalUrl.toString();
+            window.location.href = redirectBase.toString();
+
+            return tokenResponse;
+        }
+
+        if (customTarget !== null) {
+            const customUrl = new URL(customTarget, window.location.href);
+            window.location.href = customUrl.toString();
+
             return tokenResponse;
         }
 
         window.location.reload();
+
         return tokenResponse;
     }
 }

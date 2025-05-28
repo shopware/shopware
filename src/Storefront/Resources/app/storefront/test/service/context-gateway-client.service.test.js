@@ -28,7 +28,7 @@ describe('Context gateway client service', () => {
         );
 
         const contextGatewayClient = new ContextGatewayClient('test');
-        const result = await contextGatewayClient.call({}, false);
+        const result = await contextGatewayClient.call();
 
         expect(result).toEqual({
             token: '12345678',
@@ -45,43 +45,6 @@ describe('Context gateway client service', () => {
         });
 
         expect(window.location.href).toBe('');
-        expect(window.location.reload).not.toHaveBeenCalled();
-    });
-
-    it('should handle window reload on autonavigate', async () => {
-        global.fetch = jest.fn(() =>
-            Promise.resolve({
-                ok: true,
-                status: 200,
-                json: () => Promise.resolve({
-                    token: '12345678',
-                }),
-            })
-        );
-
-        const contextGatewayClient = new ContextGatewayClient('test');
-        await contextGatewayClient.call({}, true);
-
-        expect(window.location.href).toBe('');
-        expect(window.location.reload).toHaveBeenCalled();
-    });
-
-    it('should handle window redirect on autonavigate', async () => {
-        global.fetch = jest.fn(() =>
-            Promise.resolve({
-                ok: true,
-                status: 200,
-                json: () => Promise.resolve({
-                    token: '12345678',
-                    redirectUrl: 'https://example.com/redirect',
-                }),
-            })
-        );
-
-        const contextGatewayClient = new ContextGatewayClient('test');
-        await contextGatewayClient.call({}, true);
-
-        expect(window.location.href).toBe('https://example.com/redirect');
         expect(window.location.reload).not.toHaveBeenCalled();
     });
 
@@ -102,26 +65,62 @@ describe('Context gateway client service', () => {
 
     test.each([
         {
+            name: 'merges paths when no custom target',
+            current: 'https://platform.dev.localhost/checkout/register?foo=bar#baz',
+            redirect: 'http://de-platform.dev.localhost/de',
+            customTarget: null,
+            expectedHref: 'http://de-platform.dev.localhost/de/checkout/register?foo=bar#baz',
+            shouldReload: false,
+        },
+        {
+            name: 'uses custom target',
             current: 'https://platform.dev.localhost/checkout/register',
             redirect: 'http://de-platform.dev.localhost/de',
-            expected: 'http://de-platform.dev.localhost/de/checkout/register',
+            customTarget: '/custom/target',
+            expectedHref: 'http://de-platform.dev.localhost/de/custom/target',
+            shouldReload: false,
         },
         {
-            current: 'https://platform.dev.localhost/checkout/register?foo=bar',
-            redirect: 'http://de-platform.dev.localhost/de/',
-            expected: 'http://de-platform.dev.localhost/de/checkout/register?foo=bar',
+            name: 'merges with root path correctly',
+            current: 'https://platform.dev.localhost',
+            redirect: 'http://de-platform.dev.localhost/de',
+            customTarget: null,
+            expectedHref: 'http://de-platform.dev.localhost/de',
+            shouldReload: false,
         },
         {
-            current: 'https://platform.dev.localhost/checkout/register#top',
-            redirect: 'http://de-platform.dev.localhost/de/',
-            expected: 'http://de-platform.dev.localhost/de/checkout/register#top',
+            name: 'reloads if redirectUrl is undefined',
+            current: 'https://platform.dev.localhost/checkout/register',
+            redirect: undefined,
+            customTarget: null,
+            expectedHref: 'https://platform.dev.localhost/checkout/register',
+            shouldReload: true,
         },
         {
+            name: 'reloads if redirectUrl is null',
+            current: 'https://platform.dev.localhost/checkout/register',
+            redirect: null,
+            customTarget: null,
+            expectedHref: 'https://platform.dev.localhost/checkout/register',
+            shouldReload: true,
+        },
+        {
+            name: 'handles custom target as empty string',
+            current: 'https://platform.dev.localhost/checkout/register',
+            redirect: 'http://de-platform.dev.localhost/de',
+            customTarget: '',
+            expectedHref: 'http://de-platform.dev.localhost/de',
+            shouldReload: false,
+        },
+        {
+            name: 'no double slash on root merge',
             current: 'https://platform.dev.localhost/',
             redirect: 'http://de-platform.dev.localhost/de/',
-            expected: 'http://de-platform.dev.localhost/de/',
+            customTarget: null,
+            expectedHref: 'http://de-platform.dev.localhost/de/',
+            shouldReload: false,
         },
-    ])('redirects correctly for $redirect + $current', async ({ current, redirect, expected }) => {
+    ])('$name', async ({ current, redirect, customTarget, expectedHref, shouldReload }) => {
         window.location.href = current;
 
         global.fetch = jest.fn(() =>
@@ -135,10 +134,14 @@ describe('Context gateway client service', () => {
             })
         );
 
-        const contextGatewayClient = new ContextGatewayClient('test');
-        await contextGatewayClient.call({}, true);
+        const client = new ContextGatewayClient('test');
+        const tokenResponse = await client.call();
+        client.navigate(tokenResponse, customTarget);
 
-        expect(window.location.href).toBe(expected);
-        expect(window.location.reload).not.toHaveBeenCalled();
+        expect(window.location.href).toBe(expectedHref);
+
+        shouldReload
+            ? expect(window.location.reload).toHaveBeenCalled()
+            : expect(window.location.reload).not.toHaveBeenCalled();
     });
 });

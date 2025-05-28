@@ -1756,12 +1756,8 @@ parameters:
 			path: src/Core/Framework/Api/Acl/Event/AclGetAdditionalPrivilegesEvent.php
 
 		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Api\\\\Acl\\\\Event\\\\AclGetAdditionalPrivilegesEvent\\:\\:setPrivileges\\(\\) has parameter \\$privileges with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/Api/Acl/Event/AclGetAdditionalPrivilegesEvent.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Api\\\\Acl\\\\Role\\\\AclRoleEntity\\:\\:getPrivileges\\(\\) return type has no value type specified in iterable type array\\.$#"
+			message: '#^Method Shopware\\Core\\Content\\Sitemap\\Provider\\CustomUrlProvider\:\:isAvailableForSalesChannel\(\) has parameter \$url with no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
 			count: 1
 			path: src/Core/Framework/Api/Acl/Role/AclRoleEntity.php
 

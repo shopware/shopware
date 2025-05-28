@@ -287,6 +287,8 @@ describe('src/module/sw-order/store/order.store', () => {
 
         expect(cancelCartMock).toHaveBeenLastCalledWith('1', token);
         expect(spy).toHaveBeenCalledTimes(1);
+        expect(store.customer).toBeNull();
+        expect(store.cart.lineItems).toHaveLength(0);
     });
 
     it('updates order context', async () => {

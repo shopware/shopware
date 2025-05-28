@@ -88,9 +88,9 @@ class ConvertGuestRouteTest extends TestCase
 
         $data = [
             'id' => 'test-customer-id',
+            'email' => 'test@example.com',
             'guest' => false,
             'password' => 'new-password',
-            'email' => 'test@example.com',
         ];
 
         $this->validator->expects($this->once())
@@ -107,11 +107,7 @@ class ConvertGuestRouteTest extends TestCase
 
         $this->route->convertGuest($requestDataBag, $this->salesChannelContext, $this->customer);
 
-        static::assertSame([[[
-            'id' => 'test-customer-id',
-            'guest' => false,
-            'password' => 'new-password',
-        ]]], $this->customerRepository->updates);
+        static::assertSame([[$data]], $this->customerRepository->updates);
     }
 
     public function testConvertGuestFailsForRegisteredCustomer(): void

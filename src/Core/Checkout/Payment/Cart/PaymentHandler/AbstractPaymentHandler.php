@@ -15,7 +15,7 @@ use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
 
 #[Package('checkout')]
-abstract class AbstractPaymentHandler
+abstract class AbstractPaymentFAkeHandler
 {
     /**
      * Will be checked, if any of the methods besides `validate`, `pay` or `finalize` can be called.

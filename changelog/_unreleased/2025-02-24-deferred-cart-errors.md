@@ -15,6 +15,7 @@ author_github: @Philip Standt
 
 ___
 # Next Major Version Changes
+## Persisted cart errors
 * Changed persistence of cart errors. Cart errors are persisted with the cart when the `SalesChannelContext` is constructed
     * If a temporary cart error happens during the initial cart evaluation (i.e. a product is no longer available and is removed from the cart), that error is now persisted until the cart is processed again.
     * This prevents temporary errors from being removed without ever being shown to the user (especially when using the Store-API)

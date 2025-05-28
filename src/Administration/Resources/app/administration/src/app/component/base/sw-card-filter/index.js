@@ -31,12 +31,6 @@ export default {
             required: false,
             default: '',
         },
-
-        hasFilterButton: {
-            type: Boolean,
-            required: false,
-            default: null,
-        },
     },
 
     data() {
@@ -47,9 +41,6 @@ export default {
 
     computed: {
         hasFilter() {
-            if (this.hasFilterButton !== null) {
-                return this.hasFilterButton;
-            }
             return !!this.$slots.filter;
         },
 

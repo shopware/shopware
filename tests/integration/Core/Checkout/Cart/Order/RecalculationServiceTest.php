@@ -124,7 +124,8 @@ class RecalculationServiceTest extends TestCase
             ->addAssociation('lineItems')
             ->addAssociation('deliveries.positions');
 
-        $order = $this->orderRepository->search($criteria, $context)->get($orderId);
+        /** @var OrderEntity */
+        $order = static::getContainer()->get('order.repository')->search($criteria, $context)->get($orderId);
         static::assertNotNull($order);
 
         $lineItems = $order->getLineItems();

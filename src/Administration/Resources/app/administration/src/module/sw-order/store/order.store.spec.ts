@@ -282,9 +282,11 @@ describe('src/module/sw-order/store/order.store', () => {
     });
 
     it('cancels cart', async () => {
+        const spy = jest.spyOn(store, '$reset');
         await store.cancelCart({ salesChannelId: '1', contextToken: token });
 
         expect(cancelCartMock).toHaveBeenLastCalledWith('1', token);
+        expect(spy).toHaveBeenCalledTimes(1);
     });
 
     it('updates order context', async () => {

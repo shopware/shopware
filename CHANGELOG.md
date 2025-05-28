@@ -1,6 +1,34 @@
 # Changelog
 This is the official changelog index of Shopware 6. Here you find a registry of all Shopware 6 releases with a reference to the detailed changelog of each version. If you want to know more about how the changelog is created have a look [here](/adr/workflow/2020-08-03-implement-New-Changelog.md).
 
+## 6.7.0.0-rc5
+*  [#8388 - Replace old data protection info the our current standard](./changelog/release-6-7-0-0/2025-05-27-replace-old-data-protection-info-the-our-current-standard.md)
+*  [#9433 - Adjust styling label created by admin on customer detail page](./changelog/release-6-7-0-0/2025-05-21-adjust-styling-label-created-by-admin.md)
+*  [#9461 - Transmit correct shipping costs to Google Analytics](./changelog/release-6-7-0-0/2025-05-15-transmit-correct-shipping-costs-to-google-analytics.md) ([Max](https://github.com/aragon999))
+*  [#9510 - Add `skip-theme-compile` option for app uninstall](./changelog/release-6-7-0-0/2025-05-16-add-skip-theme-compile-option-for-app-uninstall.md)
+*  [#9518 - Provide context token to current request](./changelog/release-6-7-0-0/2025-05-15-provide-context-token-to-current-request.md)
+*  [#9532 - Refactored snippet set list](./changelog/release-6-7-0-0/2025-05-20-refactored-snippet-set-list.md)
+*  [#9572 - Fix theme settings getting lost when navigating quickly](./changelog/release-6-7-0-0/2025-05-20-added-reset-parameter-to-update-theme.md) ([Alexander Menk](https://github.com/amenk))
+*  [#9579 - Account design adjustments](./changelog/release-6-7-0-0/2025-05-20-account-design-adjustments.md)
+*  [#9600 - Show rendered type of tax rule restrictions](./changelog/release-6-7-0-0/2025-05-02-show-rendered-type-of-tax-rule-restrictions.md) ([Max](https://github.com/aragon999))
+*  [#9615 - Changed manufacturer wrapper from `<a>` to `<div>` when link is missing](./changelog/release-6-7-0-0/2025-05-21-refactor-manufacturer-wrapper-on-product-detail-page.md)
+*  [#9623 - Adjusted the styling of the tooltip dot marker](./changelog/release-6-7-0-0/2025-05-26-adjust-styling-chart-count-tooltip.md)
+*  [#9713 - Display Promotion rule correctly as line item rule in Administration](./changelog/release-6-7-0-0/2025-05-20-display-promotion-rule-as-line-item-rule.md)
+*  [#9729 - Fix search term custom find weird icons](./changelog/release-6-7-0-0/2025-05-22-fix-search-term-custom-find-weird-icons.md) ([Le Nguyen](https://github.com/Le Nguyen))
+*  [#9845 - Fix incorrect overwrite of deepLinkCode on order recalculation](./changelog/release-6-7-0-0/2025-05-20-fix-deeplinkcode-overwrite.md)
+*  [#9868 - Replaced `sw-checkbox-field` component by `mt-checkbox` in theme assignment](./changelog/release-6-7-0-0/2025-03-28-replaced-sw-checkbox-field-component-by-mt-checkbox-in-theme-assignment.md) ([Max](https://github.com/aragon999))
+*  [#9955 - Update Meteor to 4.12.1](./changelog/release-6-7-0-0/2025-05-28-update-meteor-to-4-12-1.md)
+*  [5413 - Fix sorting of countries in Storefront](./changelog/release-6-7-0-0/2025-05-27-fix-sorting-of-countries.md)
+*  [5899 - Elasticsearch list/price percentage ratio dynamic product groups not working](./changelog/release-6-7-0-0/2025-05-21-elasticsearch-list-price-percentage-ratio-dynamic-product-groups-not-working.md)
+*  [7447 - Variant indicator missing in product listing](./changelog/release-6-7-0-0/2025-03-12-variant-indicator-missing-in-product-listing.md)
+*  [8790 - Fix inline media upload preview image option is broken](./changelog/release-6-7-0-0/2025-05-23-fix-inline-media-upload-preview-image-option-is-broken.md)
+*  [9055 - Replace theme media sidebar with media modal](./changelog/release-6-7-0-0/2025-05-20-replace-theme-media-sidebar-with-media-modal.md) ([Benedikt Schulze Baek](https://github.com/bschulzebaek))
+*  [9384 - Fix search result order in preview search in mysql](./changelog/release-6-7-0-0/2025-05-15-fix-search-result-order-in-preview-search-in-mysql.md)
+*  [9557 - Fix first level nav bar links](./changelog/release-6-7-0-0/2025-05-19-fix-first-level-nav-bar-links.md)
+*  [9612 - Remove overwrite of CreatedByField with non-live version](./changelog/release-6-7-0-0/2025-05-21-remove-write-of-createdbyfield-for-nonlive-versions.md)
+*  [https://github.com/shopware/shopware/issues/7768 - Reduce downtime while theme change](./changelog/release-6-7-0-0/2025-05-19-reduce-downtime-while-theme-change.md)
+*  [https://github.com/shopware/shopware/issues/9426 - Fix Change in new generated language get an error](./changelog/release-6-7-0-0/2025-05-26-fix-change-in-new-generated-language-get-an-error.md)
+
 ## 6.7.0.0-rc4
 *  [#7346 - feat: Fixes #7346 - Allow variable icon names in sw_icon [6.7.0.0] (#8477)](https://github.com/shopware/shopware/issues/7346)
 *  [#7476 - fix no new line for placeholder](./changelog/release-6-7-0-0/2025-04-30-fix-no-new-line-for-placeholder.md)

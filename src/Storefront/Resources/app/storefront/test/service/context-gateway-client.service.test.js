@@ -98,4 +98,47 @@ describe('Context gateway client service', () => {
         const contextGatewayClient = new ContextGatewayClient('test');
         await expect(contextGatewayClient.call()).rejects.toThrow('Context gateway request failed for app \'test\': 400 Bad Request - Error');
     });
+
+
+    test.each([
+        {
+            current: 'https://platform.dev.localhost/checkout/register',
+            redirect: 'http://de-platform.dev.localhost/de',
+            expected: 'http://de-platform.dev.localhost/de/checkout/register',
+        },
+        {
+            current: 'https://platform.dev.localhost/checkout/register?foo=bar',
+            redirect: 'http://de-platform.dev.localhost/de/',
+            expected: 'http://de-platform.dev.localhost/de/checkout/register?foo=bar',
+        },
+        {
+            current: 'https://platform.dev.localhost/checkout/register#top',
+            redirect: 'http://de-platform.dev.localhost/de/',
+            expected: 'http://de-platform.dev.localhost/de/checkout/register#top',
+        },
+        {
+            current: 'https://platform.dev.localhost/',
+            redirect: 'http://de-platform.dev.localhost/de/',
+            expected: 'http://de-platform.dev.localhost/de/',
+        },
+    ])('redirects correctly for $redirect + $current', async ({ current, redirect, expected }) => {
+        window.location.href = current;
+
+        global.fetch = jest.fn(() =>
+            Promise.resolve({
+                ok: true,
+                status: 200,
+                json: () => Promise.resolve({
+                    token: '12345678',
+                    redirectUrl: redirect,
+                }),
+            })
+        );
+
+        const contextGatewayClient = new ContextGatewayClient('test');
+        await contextGatewayClient.call({}, true);
+
+        expect(window.location.href).toBe(expected);
+        expect(window.location.reload).not.toHaveBeenCalled();
+    });
 });

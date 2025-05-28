@@ -46,7 +46,17 @@ export default class ContextGatewayClient {
         }
 
         if (tokenResponse.redirectUrl) {
-            window.location.href = tokenResponse.redirectUrl;
+            const currentUrl = new URL(window.location.href);
+            const redirectBase = new URL(tokenResponse.redirectUrl);
+
+            // Clean up paths and join properly
+            const redirectPath = redirectBase.pathname.replace(/\/$/, '');
+            const currentPath = currentUrl.pathname.replace(/^\/+/, '');
+
+            const fullPath = `${redirectPath}/${currentPath}`;
+            const finalUrl = new URL(fullPath + currentUrl.search + currentUrl.hash, redirectBase.origin);
+
+            window.location.href = finalUrl.toString();
             return tokenResponse;
         }
 

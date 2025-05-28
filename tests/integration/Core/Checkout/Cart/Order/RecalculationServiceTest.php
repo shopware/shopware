@@ -144,8 +144,14 @@ class RecalculationServiceTest extends TestCase
 
         $order = $this->orderRepository->search($criteria, $context)->get($orderId);
         static::assertNotNull($order);
-        static::assertCount(3, $order->getLineItems());
-        static::assertCount($positionCount, $order->getDeliveries()?->first()?->getPositions());
+
+        $lineItems = $order->getLineItems();
+        static::assertNotNull($lineItems);
+        static::assertCount(3, $lineItems);
+
+        $positions = $order->getDeliveries()?->first()?->getPositions();
+        static::assertNotNull($positions);
+        static::assertCount($positionCount, $positions);
     }
 
     public static function customLineItemProvider(): \Generator

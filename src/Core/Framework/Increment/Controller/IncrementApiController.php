@@ -92,6 +92,23 @@ class IncrementApiController
         return new JsonResponse(['success' => true]);
     }
 
+    #[Route(path: '/api/_action/delete-increment/{pool}', name: 'api.increment.delete', methods: ['DELETE'])]
+    public function delete(string $pool, Request $request): Response
+    {
+        $keys = $request->get('keys', []);
+
+        if (!\is_array($keys)) {
+            throw IncrementException::invalidKeysParameter();
+        }
+
+        $cluster = $this->getCluster($request);
+        $poolGateway = $this->gatewayRegistry->get($pool);
+
+        $poolGateway->delete($cluster, $keys);
+
+        return new Response(status: Response::HTTP_NO_CONTENT);
+    }
+
     private function getCluster(Request $request): string
     {
         $cluster = $request->get('cluster');

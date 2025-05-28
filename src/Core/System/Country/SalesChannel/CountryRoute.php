@@ -45,6 +45,7 @@ class CountryRoute extends AbstractCountryRoute
             self::ALL_TAG
         ));
 
+        $criteria->setTitle('country-route');
         $criteria->addFilter(new EqualsFilter('active', true));
 
         $this->dispatcher->dispatch(new CountryCriteriaEvent($request, $criteria, $context));

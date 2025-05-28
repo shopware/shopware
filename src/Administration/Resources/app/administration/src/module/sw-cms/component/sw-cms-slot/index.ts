@@ -158,7 +158,7 @@ export default Shopware.Component.wrapComponentConfig({
         },
 
         onCloseSettingsModal() {
-            if(!this.showElementSettings) return;
+            if (!this.showElementSettings) return;
 
             const childComponent = this.$refs.elementComponentRef as {
                 handleUpdateContent: () => void;

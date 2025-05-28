@@ -26,15 +26,15 @@ class MultiSelectFieldTest extends TestCase
 
         $multiSelectField = $customFieldSet->getFields()[0];
         static::assertInstanceOf(MultiSelectField::class, $multiSelectField);
-        static::assertEquals('test_multi_select_field', $multiSelectField->getName());
-        static::assertEquals([
+        static::assertSame('test_multi_select_field', $multiSelectField->getName());
+        static::assertSame([
             'en-GB' => 'Test multi-select field',
         ], $multiSelectField->getLabel());
-        static::assertEquals([], $multiSelectField->getHelpText());
-        static::assertEquals(1, $multiSelectField->getPosition());
-        static::assertEquals(['en-GB' => 'Choose your options...'], $multiSelectField->getPlaceholder());
+        static::assertSame([], $multiSelectField->getHelpText());
+        static::assertSame(1, $multiSelectField->getPosition());
+        static::assertSame(['en-GB' => 'Choose your options...'], $multiSelectField->getPlaceholder());
         static::assertFalse($multiSelectField->getRequired());
-        static::assertEquals([
+        static::assertSame([
             'first' => [
                 'en-GB' => 'First',
                 'de-DE' => 'Erster',

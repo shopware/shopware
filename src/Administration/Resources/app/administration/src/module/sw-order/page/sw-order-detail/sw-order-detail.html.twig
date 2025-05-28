@@ -52,7 +52,7 @@
                 showOnDisabledElements: true
             }"
             class="sw-order-detail__smart-bar-cancel-button"
-            :disabled="isLoading || !acl.can('order.editor')"
+            :disabled="loading.order || !acl.can('order.editor')"
             variant="secondary"
             size="default"
             @click="onCancelEditing"
@@ -70,8 +70,8 @@
             }"
             class="sw-order-detail__smart-bar-save-button"
             variant="primary"
-            :disabled="isLoading || !acl.can('order.editor')"
-            :is-loading="isLoading"
+            :disabled="loading.order || loading.recalculation || !acl.can('order.editor')"
+            :is-loading="loading.order"
             :process-success="isSaveSuccessful"
             @update:process-success="saveEditsFinish"
             @click.prevent="onSaveEdits"
@@ -206,19 +206,20 @@
             />
 
             {% block sw_order_detail_content_view %}
-            <template v-if="isLoading">
+            <template v-if="loading.order">
                 <sw-skeleton />
                 <sw-skeleton />
             </template>
 
             {# v-show is used here as underlying components influence the loading state and v-if would destroy this behaviour #}
+            {# @deprecated tag:v6.8.0 - remove `is-save-successful`, `is-editing`, `@created-by-id-change`, `@loading-change`, `@editing-change` #}
             <router-view
                 v-if="order"
-                v-show="!isLoading"
+                v-show="!loading.order"
                 ref="baseComponent"
                 :order-id="orderId"
                 :is-editing="isEditing"
-                :is-loading="isLoading"
+                :is-loading="loading.order"
                 :is-save-successful="isSaveSuccessful"
                 @created-by-id-change="updateCreatedById"
                 @loading-change="onUpdateLoading"
@@ -226,7 +227,7 @@
                 @save-and-recalculate="onSaveAndRecalculate"
                 @recalculate-and-reload="onRecalculateAndReload"
                 @reload-entity-data="reloadEntityData"
-                @save-and-reload="onSaveAndReload"
+                @save-and-reload="saveAndReload"
                 @save-edits="onSaveEdits"
                 @error="onError"
             />

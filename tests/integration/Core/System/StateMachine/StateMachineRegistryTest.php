@@ -99,9 +99,9 @@ EOF;
         $stateMachine = $this->stateMachineRegistry->getStateMachine($this->stateMachineName, $context);
 
         static::assertNotNull($stateMachine->getStates());
-        static::assertEquals(3, $stateMachine->getStates()->count());
+        static::assertCount(3, $stateMachine->getStates());
         static::assertNotNull($stateMachine->getTransitions());
-        static::assertEquals(4, $stateMachine->getTransitions()->count());
+        static::assertCount(4, $stateMachine->getTransitions());
     }
 
     public function testStateMachineAvailableTransitionShouldIncludeReOpenAndReTourTransition(): void
@@ -119,12 +119,12 @@ EOF;
         foreach ($availableTransitions as $transition) {
             if ($transition->getActionName() === 'reopen') {
                 $reopenActionExisted = true;
-                static::assertEquals(OrderDeliveryStates::STATE_OPEN, $transition->getToStateMachineState()?->getTechnicalName());
+                static::assertSame(OrderDeliveryStates::STATE_OPEN, $transition->getToStateMachineState()?->getTechnicalName());
             }
 
             if ($transition->getActionName() === 'retour') {
                 $retourActionExisted = true;
-                static::assertEquals(OrderDeliveryStates::STATE_RETURNED, $transition->getToStateMachineState()?->getTechnicalName());
+                static::assertSame(OrderDeliveryStates::STATE_RETURNED, $transition->getToStateMachineState()?->getTechnicalName());
             }
         }
 
@@ -143,8 +143,8 @@ EOF;
         static::assertNotEmpty($stateCollection->get('toPlace'));
         $fromPlace = $stateCollection->get('fromPlace');
         $toPlace = $stateCollection->get('toPlace');
-        static::assertEquals(OrderDeliveryStates::STATE_PARTIALLY_RETURNED, $fromPlace->getTechnicalName());
-        static::assertEquals(OrderDeliveryStates::STATE_RETURNED, $toPlace->getTechnicalName());
+        static::assertSame(OrderDeliveryStates::STATE_PARTIALLY_RETURNED, $fromPlace->getTechnicalName());
+        static::assertSame(OrderDeliveryStates::STATE_RETURNED, $toPlace->getTechnicalName());
     }
 
     public function testStateMachineRegistryUnnecessaryTransition(): void
@@ -158,8 +158,8 @@ EOF;
         static::assertNotEmpty($stateCollection->get('toPlace'));
         $fromPlace = $stateCollection->get('fromPlace');
         $toPlace = $stateCollection->get('toPlace');
-        static::assertEquals(OrderDeliveryStates::STATE_PARTIALLY_RETURNED, $fromPlace->getTechnicalName());
-        static::assertEquals(OrderDeliveryStates::STATE_PARTIALLY_RETURNED, $toPlace->getTechnicalName());
+        static::assertSame(OrderDeliveryStates::STATE_PARTIALLY_RETURNED, $fromPlace->getTechnicalName());
+        static::assertSame(OrderDeliveryStates::STATE_PARTIALLY_RETURNED, $toPlace->getTechnicalName());
     }
 
     public function testStateMachineTransitionStoresUserAndIntegrationId(): void

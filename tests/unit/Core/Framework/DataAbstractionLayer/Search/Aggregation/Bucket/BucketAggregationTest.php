@@ -30,8 +30,8 @@ class BucketAggregationTest extends TestCase
         $aggregation = new BucketAggregation('test', 'test', null);
         $clone = clone $aggregation;
 
-        static::assertEquals($aggregation->getField(), $clone->getField());
-        static::assertEquals($aggregation->jsonSerialize(), $clone->jsonSerialize());
+        static::assertSame($aggregation->getField(), $clone->getField());
+        static::assertSame($aggregation->jsonSerialize(), $clone->jsonSerialize());
         static::assertNotSame($aggregation, $clone);
     }
 }

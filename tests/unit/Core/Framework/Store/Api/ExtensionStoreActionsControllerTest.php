@@ -140,7 +140,7 @@ class ExtensionStoreActionsControllerTest extends TestCase
 
         $response = $controller->uploadExtensions($request, Context::createDefaultContext());
 
-        static::assertEquals(Response::HTTP_NO_CONTENT, $response->getStatusCode());
+        static::assertSame(Response::HTTP_NO_CONTENT, $response->getStatusCode());
     }
 
     public function testUploadExtensionsShallThrowExceptionIfPathToFileIsEmpty(): void
@@ -178,7 +178,7 @@ class ExtensionStoreActionsControllerTest extends TestCase
 
         $downloader->expects($this->once())->method('download');
 
-        static::assertEquals(
+        static::assertSame(
             Response::HTTP_NO_CONTENT,
             $controller->downloadExtension('test', Context::createDefaultContext())->getStatusCode()
         );
@@ -198,7 +198,7 @@ class ExtensionStoreActionsControllerTest extends TestCase
 
         $lifecycle->expects($this->once())->method('install');
 
-        static::assertEquals(
+        static::assertSame(
             Response::HTTP_NO_CONTENT,
             $controller->installExtension('plugin', 'test', Context::createDefaultContext())->getStatusCode()
         );
@@ -218,7 +218,7 @@ class ExtensionStoreActionsControllerTest extends TestCase
 
         $lifecycle->expects($this->once())->method('uninstall');
 
-        static::assertEquals(
+        static::assertSame(
             Response::HTTP_NO_CONTENT,
             $controller->uninstallExtension('plugin', 'test', new Request(), Context::createDefaultContext())->getStatusCode()
         );
@@ -238,7 +238,7 @@ class ExtensionStoreActionsControllerTest extends TestCase
 
         $lifecycle->expects($this->once())->method('remove');
 
-        static::assertEquals(
+        static::assertSame(
             Response::HTTP_NO_CONTENT,
             $controller->removeExtension('plugin', 'test', new Request(), Context::createDefaultContext())->getStatusCode()
         );
@@ -258,7 +258,7 @@ class ExtensionStoreActionsControllerTest extends TestCase
 
         $lifecycle->expects($this->once())->method('activate');
 
-        static::assertEquals(
+        static::assertSame(
             Response::HTTP_NO_CONTENT,
             $controller->activateExtension('plugin', 'test', Context::createDefaultContext())->getStatusCode()
         );
@@ -278,7 +278,7 @@ class ExtensionStoreActionsControllerTest extends TestCase
 
         $lifecycle->expects($this->once())->method('deactivate');
 
-        static::assertEquals(
+        static::assertSame(
             Response::HTTP_NO_CONTENT,
             $controller->deactivateExtension('plugin', 'test', Context::createDefaultContext())->getStatusCode()
         );
@@ -300,7 +300,7 @@ class ExtensionStoreActionsControllerTest extends TestCase
 
         $request = new Request([], ['allowNewPermissions' => true]);
 
-        static::assertEquals(
+        static::assertSame(
             Response::HTTP_NO_CONTENT,
             $controller->updateExtension($request, 'plugin', 'test', Context::createDefaultContext())->getStatusCode()
         );
@@ -322,7 +322,7 @@ class ExtensionStoreActionsControllerTest extends TestCase
 
         $request = new Request([], ['allowNewPermissions' => false]);
 
-        static::assertEquals(
+        static::assertSame(
             Response::HTTP_NO_CONTENT,
             $controller->updateExtension($request, 'plugin', 'test', Context::createDefaultContext())->getStatusCode()
         );
@@ -345,25 +345,25 @@ class ExtensionStoreActionsControllerTest extends TestCase
         try {
             $controller->deactivateExtension('plugin', 'test', $context);
         } catch (StoreException $e) {
-            static::assertEquals(StoreException::EXTENSION_RUNTIME_EXTENSION_MANAGEMENT_NOT_ALLOWED, $e->getErrorCode());
+            static::assertSame(StoreException::EXTENSION_RUNTIME_EXTENSION_MANAGEMENT_NOT_ALLOWED, $e->getErrorCode());
         }
 
         try {
             $controller->activateExtension('plugin', 'test', $context);
         } catch (StoreException $e) {
-            static::assertEquals(StoreException::EXTENSION_RUNTIME_EXTENSION_MANAGEMENT_NOT_ALLOWED, $e->getErrorCode());
+            static::assertSame(StoreException::EXTENSION_RUNTIME_EXTENSION_MANAGEMENT_NOT_ALLOWED, $e->getErrorCode());
         }
 
         try {
             $controller->removeExtension('plugin', 'test', new Request(), $context);
         } catch (StoreException $e) {
-            static::assertEquals(StoreException::EXTENSION_RUNTIME_EXTENSION_MANAGEMENT_NOT_ALLOWED, $e->getErrorCode());
+            static::assertSame(StoreException::EXTENSION_RUNTIME_EXTENSION_MANAGEMENT_NOT_ALLOWED, $e->getErrorCode());
         }
 
         try {
             $controller->installExtension('plugin', 'test', $context);
         } catch (StoreException $e) {
-            static::assertEquals(StoreException::EXTENSION_RUNTIME_EXTENSION_MANAGEMENT_NOT_ALLOWED, $e->getErrorCode());
+            static::assertSame(StoreException::EXTENSION_RUNTIME_EXTENSION_MANAGEMENT_NOT_ALLOWED, $e->getErrorCode());
         }
     }
 

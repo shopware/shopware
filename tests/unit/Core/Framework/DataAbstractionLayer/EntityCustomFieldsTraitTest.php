@@ -21,7 +21,7 @@ class EntityCustomFieldsTraitTest extends TestCase
 
         static::assertSame(['foo' => 'bar'], $entity->getCustomFieldsValues('foo'));
 
-        static::assertEquals([], $entity->getCustomFieldsValues('not-exists'));
+        static::assertSame([], $entity->getCustomFieldsValues('not-exists'));
 
         static::assertSame(['foo' => 'bar', 'bar' => 'foo'], $entity->getCustomFieldsValues('foo', 'bar'));
     }
@@ -54,14 +54,14 @@ class EntityCustomFieldsTraitTest extends TestCase
         ]);
 
         $entity->changeCustomFields(['foo' => 'baz']);
-        static::assertEquals('baz', $entity->getCustomFieldsValue('foo'));
-        static::assertEquals(['foo' => 'bar'], $entity->getCustomFieldsValue('bar'));
+        static::assertSame('baz', $entity->getCustomFieldsValue('foo'));
+        static::assertSame(['foo' => 'bar'], $entity->getCustomFieldsValue('bar'));
 
         $entity->changeCustomFields(['bar' => ['foo' => 'baz']]);
-        static::assertEquals(['foo' => 'baz'], $entity->getCustomFieldsValue('bar'));
+        static::assertSame(['foo' => 'baz'], $entity->getCustomFieldsValue('bar'));
 
         $entity->changeCustomFields(['foo' => 'baz', 'bar' => ['foo' => 'foo'], 'baz' => 'baz']);
-        static::assertEquals(['foo' => 'baz', 'bar' => ['foo' => 'foo'], 'baz' => 'baz'], $entity->getCustomFields());
+        static::assertSame(['foo' => 'baz', 'bar' => ['foo' => 'foo'], 'baz' => 'baz'], $entity->getCustomFields());
     }
 }
 

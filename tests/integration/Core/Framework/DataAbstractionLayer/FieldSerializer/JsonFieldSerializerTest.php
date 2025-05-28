@@ -85,7 +85,7 @@ class JsonFieldSerializerTest extends TestCase
         $kvPair = new KeyValuePair('password', $input, true);
         $actual = $this->serializer->encode($field, $this->existence, $kvPair, $this->parameters)->current();
 
-        static::assertEquals($expected, $actual);
+        static::assertSame($expected, $actual);
     }
 
     /**
@@ -119,7 +119,7 @@ class JsonFieldSerializerTest extends TestCase
     {
         $field->compile(static::getContainer()->get(DefinitionInstanceRegistry::class));
         $actual = $this->serializer->decode($field, $input);
-        static::assertEquals($expected, $actual);
+        static::assertSame($expected, $actual);
     }
 
     public function testEmptyValueForRequiredField(): void
@@ -131,7 +131,7 @@ class JsonFieldSerializerTest extends TestCase
 
         $result = $this->serializer->encode($field, $this->existence, $kvPair, $this->parameters)->current();
 
-        static::assertEquals('[]', $result);
+        static::assertSame('[]', $result);
     }
 
     public function testRequiredValidationThrowsError(): void
@@ -150,7 +150,7 @@ class JsonFieldSerializerTest extends TestCase
         }
 
         static::assertInstanceOf(WriteConstraintViolationException::class, $exception, 'JsonFieldSerializer does not throw violation exception for empty required field.');
-        static::assertEquals('/data', $exception->getViolations()->get(0)->getPropertyPath());
+        static::assertSame('/data', $exception->getViolations()->get(0)->getPropertyPath());
     }
 
     public function testNullValueForNotRequiredField(): void
@@ -169,6 +169,6 @@ class JsonFieldSerializerTest extends TestCase
     {
         $result = Json::encode("something\x82 another");
 
-        static::assertEquals('"something another"', $result);
+        static::assertSame('"something another"', $result);
     }
 }

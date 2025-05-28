@@ -18,9 +18,7 @@ class TaxAdjustmentCalculatorTest extends TestCase
 {
     public function testCalculateGrossTaxesActuallyCalculatesNetTaxes(): void
     {
-        $calculator = new TaxAdjustmentCalculator();
-
-        $taxes = $calculator->calculateGrossTaxes(100, new TaxRuleCollection([
+        $taxes = (new TaxAdjustmentCalculator())->calculateGrossTaxes(100, new TaxRuleCollection([
             new TaxRule(20, 50),
             new TaxRule(10, 50),
         ]));
@@ -31,13 +29,13 @@ class TaxAdjustmentCalculatorTest extends TestCase
         static::assertArrayHasKey(20, $taxes);
         static::assertArrayHasKey(10, $taxes);
 
-        static::assertEquals(20, $taxes[20]->getTaxRate());
-        static::assertEquals(10, $taxes[10]->getTaxRate());
+        static::assertSame(20.0, $taxes[20]->getTaxRate());
+        static::assertSame(10.0, $taxes[10]->getTaxRate());
 
-        static::assertEquals(50, $taxes[20]->getPrice());
-        static::assertEquals(50, $taxes[10]->getPrice());
+        static::assertSame(50.0, $taxes[20]->getPrice());
+        static::assertSame(50.0, $taxes[10]->getPrice());
 
-        static::assertEquals(10, $taxes[20]->getTax());
-        static::assertEquals(5, $taxes[10]->getTax());
+        static::assertSame(10.0, $taxes[20]->getTax());
+        static::assertSame(5.0, $taxes[10]->getTax());
     }
 }

@@ -120,9 +120,9 @@ class A11yRenderedDocumentStorerTest extends TestCase
         static::assertArrayHasKey('documentId', $res[0]);
         static::assertArrayHasKey('deepLinkCode', $res[0]);
         static::assertArrayHasKey('fileExtension', $res[0]);
-        static::assertEquals('id', $res[0]['documentId']);
-        static::assertEquals('code1', $res[0]['deepLinkCode']);
-        static::assertEquals('html', $res[0]['fileExtension']);
+        static::assertSame('id', $res[0]['documentId']);
+        static::assertSame('code1', $res[0]['deepLinkCode']);
+        static::assertSame('html', $res[0]['fileExtension']);
     }
 
     public function testLazyLoadNoEntity(): void

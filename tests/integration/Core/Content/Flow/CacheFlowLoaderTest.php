@@ -22,7 +22,7 @@ class CacheFlowLoaderTest extends TestCase
 
     public function testGetSubscribedEvents(): void
     {
-        static::assertEquals([
+        static::assertSame([
             FlowEvents::FLOW_WRITTEN_EVENT => 'invalidate',
         ], CachedFlowLoader::getSubscribedEvents());
     }

@@ -43,5 +43,9 @@ Shopware.Service('cmsService').registerCmsElement({
             source: 'static',
             value: null,
         },
+        isDecorative: {
+            source: 'static',
+            value: false,
+        },
     },
 });

@@ -90,7 +90,7 @@ class EntitySearcherTest extends TestCase
             ]),
         );
 
-        static::assertEquals([$productId1], $productIds->getIds());
+        static::assertSame([$productId1], $productIds->getIds());
     }
 
     public function testSearchFiltersByTranslatedFieldsInAssociationsByApplyingLanguageOverrides(): void
@@ -132,7 +132,7 @@ class EntitySearcherTest extends TestCase
             ]),
         );
 
-        static::assertEquals([$productId1], $productIds->getIds());
+        static::assertSame([$productId1], $productIds->getIds());
     }
 
     public function testSearchFiltersByTranslatedFieldsByApplyingInheritanceAndLanguageOverridesPreferringOwnTranslation(): void
@@ -171,7 +171,7 @@ class EntitySearcherTest extends TestCase
             ]),
         );
 
-        static::assertEquals(
+        static::assertSame(
             [
                 $productId1,
                 $productId2,
@@ -205,7 +205,7 @@ class EntitySearcherTest extends TestCase
             ]),
         );
 
-        static::assertEquals([$productId1], $productIds->getIds());
+        static::assertSame([$productId1], $productIds->getIds());
     }
 
     public function testSearchAppliesTermToTranslatedFieldsByApplyingLanguageOverrides(): void
@@ -233,7 +233,7 @@ class EntitySearcherTest extends TestCase
             ]),
         );
 
-        static::assertEquals([$productId1], $productIds->getIds());
+        static::assertSame([$productId1], $productIds->getIds());
     }
 
     public function testSearchAppliesQueryToTranslatedFields(): void
@@ -261,7 +261,7 @@ class EntitySearcherTest extends TestCase
             ]),
         );
 
-        static::assertEquals([$productId1], $productIds->getIds());
+        static::assertSame([$productId1], $productIds->getIds());
     }
 
     public function testSearchAppliesQueryToTranslatedFieldsByApplyingLanguageOverrides(): void
@@ -289,7 +289,7 @@ class EntitySearcherTest extends TestCase
             ]),
         );
 
-        static::assertEquals([$productId1], $productIds->getIds());
+        static::assertSame([$productId1], $productIds->getIds());
     }
 
     public function testSearchFiltersByAndAppliesQueryToTranslatedFields(): void
@@ -328,7 +328,7 @@ class EntitySearcherTest extends TestCase
             ]),
         );
 
-        static::assertEquals([$productId1], $productIds->getIds());
+        static::assertSame([$productId1], $productIds->getIds());
     }
 
     /**

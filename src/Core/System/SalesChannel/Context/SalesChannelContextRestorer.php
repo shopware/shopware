@@ -9,11 +9,11 @@ use Shopware\Core\Checkout\Cart\CartRuleLoader;
 use Shopware\Core\Checkout\Cart\Order\OrderConverter;
 use Shopware\Core\Checkout\Order\Aggregate\OrderTransaction\OrderTransactionStates;
 use Shopware\Core\Checkout\Order\OrderEntity;
-use Shopware\Core\Checkout\Order\OrderException;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\InconsistentCriteriaIdsException;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\Event\SalesChannelContextRestorerOrderCriteriaEvent;
@@ -46,11 +46,11 @@ class SalesChannelContextRestorer
     {
         $order = $this->getOrderById($orderId, $context);
         if ($order === null) {
-            throw OrderException::orderNotFound($orderId);
+            throw SalesChannelException::orderNotFound($orderId);
         }
 
         if ($order->getOrderCustomer() === null) {
-            throw OrderException::missingAssociation('orderCustomer');
+            throw SalesChannelException::missingAssociation('orderCustomer');
         }
 
         $customer = $order->getOrderCustomer()->getCustomer();
@@ -79,9 +79,14 @@ class SalesChannelContextRestorer
             $options[SalesChannelContextService::PAYMENT_METHOD_ID] = $paymentMethodId;
         }
 
-        $delivery = $order->getDeliveries() !== null ? $order->getDeliveries()->first() : null;
-        if ($delivery !== null) {
-            $options[SalesChannelContextService::SHIPPING_METHOD_ID] = $delivery->getShippingMethodId();
+        $shippingMethodId = $order->getPrimaryOrderDelivery()?->getShippingMethodId();
+
+        if (!Feature::isActive('v6.8.0.0')) {
+            $shippingMethodId = $order->getDeliveries()?->first()?->getShippingMethodId();
+        }
+
+        if ($shippingMethodId !== null) {
+            $options[SalesChannelContextService::SHIPPING_METHOD_ID] = $shippingMethodId;
         }
 
         $options = array_merge($options, $overrideOptions);
@@ -170,6 +175,8 @@ class SalesChannelContextRestorer
     private function getOrderById(string $orderId, Context $context): ?OrderEntity
     {
         $criteria = (new Criteria([$orderId]))
+            ->addAssociation('primaryOrderTransaction')
+            ->addAssociation('primaryOrderDelivery')
             ->addAssociation('lineItems')
             ->addAssociation('currency')
             ->addAssociation('deliveries')
@@ -194,7 +201,7 @@ class SalesChannelContextRestorer
     {
         $transactions = $order->getTransactions();
         if ($transactions === null) {
-            throw OrderException::missingAssociation('transactions');
+            throw SalesChannelException::missingAssociation('transactions');
         }
 
         foreach ($transactions as $transaction) {
@@ -208,6 +215,10 @@ class SalesChannelContextRestorer
             return $transaction->getPaymentMethodId();
         }
 
-        return $transactions->last() ? $transactions->last()->getPaymentMethodId() : null;
+        if (!Feature::isActive('v6.8.0.0')) {
+            return $transactions->last() ? $transactions->last()->getPaymentMethodId() : null;
+        }
+
+        return $order->getPrimaryOrderTransaction()?->getPaymentMethodId();
     }
 }

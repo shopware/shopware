@@ -156,7 +156,7 @@ class CategoryUrlProviderTest extends TestCase
         $this->queryBuilder
             ->method('andWhere')
             ->willReturnCallback(function ($parameter) {
-                $this->assertNotEquals(
+                $this->assertNotSame(
                     '`category`.id NOT IN (:categoryIds)',
                     $parameter,
                     'andWhere should never be called with category ID exclusion'

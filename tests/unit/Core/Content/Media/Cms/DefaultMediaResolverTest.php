@@ -93,8 +93,8 @@ class DefaultMediaResolverTest extends TestCase
         $result = $this->mediaResolver->getDefaultCmsMediaEntity('bundles/storefront/assets/default/cms/shopware.jpg');
 
         static::assertInstanceOf(MediaEntity::class, $result);
-        static::assertEquals('shopware', $result->getFileName());
-        static::assertEquals('image/jpeg', $result->getMimeType());
-        static::assertEquals('jpg', $result->getFileExtension());
+        static::assertSame('shopware', $result->getFileName());
+        static::assertSame('image/jpeg', $result->getMimeType());
+        static::assertSame('jpg', $result->getFileExtension());
     }
 }

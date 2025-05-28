@@ -20,6 +20,7 @@ use Shopware\Core\Framework\Script\Debugging\ScriptTraces;
  * @method \Shopware\Core\Framework\Routing\Facade\RequestFacade request()
  * @method \Shopware\Core\Framework\Script\Api\ScriptResponseFactoryFacade response()
  * @method \Shopware\Core\Framework\Adapter\Cache\Script\Facade\CacheInvalidatorFacade cache()
+ * @method \Shopware\Core\Framework\Script\Api\AclFacade acl()
  */
 #[Package('framework')]
 final class ServiceStubs

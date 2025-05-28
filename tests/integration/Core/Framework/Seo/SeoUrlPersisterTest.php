@@ -197,7 +197,7 @@ class SeoUrlPersisterTest extends TestCase
 
         $canonical = $canonicals->first();
         static::assertInstanceOf(SeoUrlEntity::class, $canonical);
-        static::assertEquals($fk1, $canonical->getForeignKey());
+        static::assertSame($fk1, $canonical->getForeignKey());
     }
 
     public function testSameSeoPathDifferentLanguage(): void
@@ -332,7 +332,7 @@ class SeoUrlPersisterTest extends TestCase
         static::assertNotNull($canon);
 
         static::assertTrue($canon->getIsModified());
-        static::assertNotEquals('no-effect', $canon->getSeoPathInfo());
+        static::assertNotSame('no-effect', $canon->getSeoPathInfo());
     }
 
     public function testUpdateSeoUrlsShouldMarkSeoUrlAsDeleted(): void

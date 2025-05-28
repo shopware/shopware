@@ -55,7 +55,7 @@ class FrwRequestOptionsProviderTest extends TestCase
             $userConfigRepositoryMock
         );
 
-        static::assertEquals([
+        static::assertSame([
             'X-Shopware-Token' => 'frw-user-token',
         ], $frwRequestOptionsProvider->getAuthenticationHeader($context));
     }
@@ -89,7 +89,7 @@ class FrwRequestOptionsProviderTest extends TestCase
             $userConfigRepositoryMock
         );
 
-        static::assertEquals([], $frwRequestOptionsProvider->getAuthenticationHeader($context));
+        static::assertSame([], $frwRequestOptionsProvider->getAuthenticationHeader($context));
     }
 
     public function testGetAuthenticationHeaderReturnsEmptyArrayIfUserConfigCanNotBeFound(): void
@@ -117,7 +117,7 @@ class FrwRequestOptionsProviderTest extends TestCase
             $userConfigRepositoryMock
         );
 
-        static::assertEquals([], $frwRequestOptionsProvider->getAuthenticationHeader($context));
+        static::assertSame([], $frwRequestOptionsProvider->getAuthenticationHeader($context));
     }
 
     public function testGetAuthenticationHeaderThrowsIfContextIsNoAdminApiSource(): void
@@ -160,7 +160,7 @@ class FrwRequestOptionsProviderTest extends TestCase
 
         $queries = $frwRequestOptionsProvider->getDefaultQueryParameters($context);
 
-        static::assertEquals([
+        static::assertSame([
             'queries' => 'some-queries',
         ], $queries);
     }

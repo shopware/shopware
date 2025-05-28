@@ -42,6 +42,8 @@ async function createWrapper(customOptions = {}) {
                 'sw-field-copyable': true,
                 'sw-inheritance-switch': true,
                 'sw-ai-copilot-badge': true,
+                'mt-modal-root': true,
+                'mt-modal': true,
             },
             provide: {
                 fileValidationService: new FileValidationService(),

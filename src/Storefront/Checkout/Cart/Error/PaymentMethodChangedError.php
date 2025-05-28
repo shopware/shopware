@@ -11,8 +11,8 @@ class PaymentMethodChangedError extends Error
     private const KEY = 'payment-method-changed';
 
     public function __construct(
-        private readonly string $oldPaymentMethodName,
-        private readonly string $newPaymentMethodName
+        protected readonly string $oldPaymentMethodName,
+        protected readonly string $newPaymentMethodName
     ) {
         $this->message = \sprintf(
             '%s payment is not available for your current cart, the payment was changed to %s',

@@ -191,12 +191,15 @@ const main = async () => {
             }
 
             if (extension.isApp) {
-                swPluginDevJsonData[extension.technicalName].html = `${extensionsServerScheme}://${extensionsServerHost}:${availablePorts[index]}/index.html`;
+                swPluginDevJsonData[extension.technicalName].html =
+                    `${extensionsServerScheme}://${extensionsServerHost}:${availablePorts[index]}/index.html`;
             }
 
             if (extension.isPlugin) {
-                swPluginDevJsonData[extension.technicalName].js = `${extensionsServerScheme}://${extensionsServerHost}:${availablePorts[index]}/${fileName}`;
-                swPluginDevJsonData[extension.technicalName].hmrSrc = `${extensionsServerScheme}://${extensionsServerHost}:${availablePorts[index]}/@vite/client`;
+                swPluginDevJsonData[extension.technicalName].js =
+                    `${extensionsServerScheme}://${extensionsServerHost}:${availablePorts[index]}/${fileName}`;
+                swPluginDevJsonData[extension.technicalName].hmrSrc =
+                    `${extensionsServerScheme}://${extensionsServerHost}:${availablePorts[index]}/@vite/client`;
             }
         });
 

@@ -160,6 +160,10 @@ export default {
         this.createdComponent();
     },
 
+    updated() {
+        this.createdComponent();
+    },
+
     methods: {
         createdComponent() {
             if (!this.languageId) {
@@ -240,6 +244,7 @@ export default {
                 .then(() => {
                     this.isLoading = false;
                     this.isSaveSuccessful = true;
+
                     if (!this.languageId) {
                         this.$router.push({
                             name: 'sw.settings.language.detail',

@@ -35,16 +35,19 @@
         />
     </div>
 
-    <h4>{{ $tc('sw-cms.elements.form.element.label.privacy') }}</h4>
+    <h4>{{ $t('sw-cms.elements.form.element.label.privacy') }}</h4>
 
-    <mt-checkbox :label="$tc('sw-cms.elements.form.element.helpText.privacy')" />
+    <p
+        class="sw-cms-el-form-newsletter__privacy"
+        v-html="$t('sw-cms.general.privacyNotice')"
+    ></p>
 
-    <p class="sw-cms-el-form-note">
-        {{ $tc('sw-cms.elements.form.element.helpText.requiredFields') }}
+    <p class="sw-cms-el-form-newsletter__note">
+        {{ $t('sw-cms.elements.form.element.helpText.requiredFields') }}
     </p>
 
     <div class="sw-cms-el-form__action">
-        {{ $tc('sw-cms.elements.form.element.label.send') }}
+        {{ $t('global.default.submit') }}
     </div>
 </div>
 {% endblock %}

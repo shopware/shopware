@@ -25,10 +25,14 @@
 
             {% block element_manufacturer_logo_link %}
                 {% if manufacturer.name %}
-                    <a href="{{ manufacturer.link }}"
-                       class="cms-image-link product-detail-manufacturer-link"
-                       {% if config.newTab.value %}target="_blank" rel="noreferrer noopener"{% endif %}
-                       title="{{ manufacturer.name }}">
+                    {% if manufacturer.link %}
+                        <a href="{{ manufacturer.link }}"
+                            class="cms-image-link product-detail-manufacturer-link"
+                            {% if config.newTab.value %}target="_blank" rel="noreferrer noopener"{% endif %}
+                            title="{{ manufacturer.name }}">
+                    {% else %}
+                        <div class="cms-image-link product-detail-manufacturer-link">
+                    {% endif %}
                         {% if manufacturer.media %}
                             <div class="cms-image-container is-{{ config.displayMode.value }}"
                                 {% if config.minHeight.value and config.displayMode.value == "cover" %} style="min-height: {{ config.minHeight.value }};"{% endif %}>
@@ -36,9 +40,13 @@
                                 {% block element_manufacturer_logo_image %}
                                     {% set attributes = {
                                         'class': 'cms-image product-detail-manufacturer-logo',
-                                        'alt': manufacturer.alt,
-                                        'title': manufacturer.name
+                                        'alt': config.isDecorative.value ? '' : manufacturer.alt,
+                                        'title': config.isDecorative.value ? '' : manufacturer.name
                                     } %}
+
+                                    {% if config.isDecorative.value %}
+                                        {% set attributes = attributes|merge({ 'aria-hidden': 'true' }) %}
+                                    {% endif %}
 
                                     {% if config.displayMode.value == 'cover' or config.displayMode.value == 'contain' %}
                                         {% set attributes = attributes|merge({ 'data-object-fit': config.displayMode.value }) %}
@@ -57,7 +65,11 @@
                                 {{ manufacturer.name }}
                             {% endblock %}
                         {% endif %}
-                    </a>
+                    {% if manufacturer.link %}
+                        </a>
+                    {% else %}
+                        </div>
+                    {% endif %}
                 {% endif %}
             {% endblock %}
 

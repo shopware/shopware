@@ -55,18 +55,15 @@
       "titleSidebarItemFilter": "Filter"
     },
     "setList": {
-      "title": "Manage snippets",
-      "description": "This is an overview of your snippet sets. Select a set and edit individual snippets to your liking.",
       "cardTitle": "Snippet sets",
       "buttonAddSet": "Add snippet set",
       "buttonClone": "Copy",
-      "buttonDelete": "Delete",
-      "buttonEditSet": "Edit snippets",
-      "buttonExport": "Export",
       "buttonImport": "Import",
+      "newSnippetName": "# New snippet set",
       "cloneErrorMessage": "Error while copying a snippet set.",
       "cloneSuccessMessage": "Snippet set has been copied.",
       "columnBaseFile": "Base file",
+      "columnIso": "Locale",
       "columnChangedAt": "Last updated",
       "columnName": "Name",
       "contextMenuClone": "Duplicate",
@@ -79,8 +76,6 @@
       "modalTitleClone": "Copy snippet set",
       "notEditableNoteErrorMessage": "An error occurred while editing snippet sets.",
       "placeholderName": "Enter snippet set name...",
-      "splitButtonDuplicateContent": "Duplicate from",
-      "textCloneConfirm": "Are you sure you want to copy the snippet set \"{name}\"?",
       "textDeleteConfirm": "Are you sure you want to delete the snippet set \"{name}\"?"
     },
     "filter": {

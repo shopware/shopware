@@ -108,4 +108,43 @@ class MySQLIncrementerTest extends TestCase
         static::assertSame('1', $list['sw.product.index']['count']);
         static::assertSame('0', $list['sw.order.index']['count']);
     }
+
+    public function testDeleteKeys(): void
+    {
+        $this->mysqlIncrementer->increment('test-user-1', 'sw.product.index');
+        $this->mysqlIncrementer->increment('test-user-1', 'sw.product.create');
+
+        $list = $this->mysqlIncrementer->list('test-user-1');
+
+        static::assertNotEmpty($list);
+
+        $this->mysqlIncrementer->delete('test-user-1', ['sw.product.index']);
+
+        $list = $this->mysqlIncrementer->list('test-user-1');
+
+        static::assertEquals([
+            'sw.product.create' => [
+                'pool' => 'user-activity-pool',
+                'cluster' => 'test-user-1',
+                'key' => 'sw.product.create',
+                'count' => '1',
+            ],
+        ], $list);
+    }
+
+    public function testDeleteCluster(): void
+    {
+        $this->mysqlIncrementer->increment('test-user-1', 'sw.product.index');
+        $this->mysqlIncrementer->increment('test-user-1', 'sw.product.create');
+
+        $list = $this->mysqlIncrementer->list('test-user-1');
+
+        static::assertNotEmpty($list);
+
+        $this->mysqlIncrementer->delete('test-user-1');
+
+        $list = $this->mysqlIncrementer->list('test-user-1');
+
+        static::assertEmpty($list);
+    }
 }

@@ -25,6 +25,10 @@ export default function initializeModal(): void {
     });
 
     Shopware.ExtensionAPI.handle('uiModalClose', ({ locationId }) => {
-        Shopware.Store.get('modals').closeModal(locationId);
+        if (!locationId) {
+            Shopware.Store.get('modals').closeLastModalWithoutLocationId();
+        } else {
+            Shopware.Store.get('modals').closeModal(locationId);
+        }
     });
 }

@@ -30,6 +30,10 @@ $sw-side-navigation-item-link-distance: 10px;
         .sw-tabs-item__error-badge {
             color: $color-crimson-400;
         }
+
+        &:focus {
+            border-bottom: none;
+        }
     }
 
     &.sw-tabs-item--has-error {

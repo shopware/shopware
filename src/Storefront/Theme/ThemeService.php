@@ -320,8 +320,19 @@ class ThemeService implements ResetInterface
 
         if (Feature::isActive('v6.8.0.0')) {
             // labels are still stored in the database, but we don't want to expose them in the API
-            foreach ($themeConfig['blocks'] ?? [] as $name => &$item) {
-                unset($item['label']);
+            if (isset($themeConfig['blocks'])) {
+                foreach ($themeConfig['blocks'] as &$block) {
+                    unset($block['label']);
+                }
+            }
+
+            // remove this in actual migration to v6.8.0.0, as fields will be removed from ThemeConfigField and resulting
+            // array will not contain them anymore
+            if (isset($themeConfig['fields'])) {
+                foreach ($themeConfig['fields'] as &$field) {
+                    unset($field['label']);
+                    unset($field['helpText']);
+                }
             }
         }
 

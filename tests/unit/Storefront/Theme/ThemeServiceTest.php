@@ -529,7 +529,22 @@ class ThemeServiceTest extends TestCase
      */
     #[DataProviderExternal(ThemeFixtures::class, 'getThemeCollectionForThemeConfiguration')]
     #[DisabledFeatures(['v6.8.0.0'])]
-    public function getPlainThemeConfigurationWithTranslations(
+    public function testGetPlainThemeConfigurationWithTranslations(
+        array $ids,
+        ThemeCollection $themeCollection,
+        ?array $expected = null,
+        ?array $expectedStructured = null,
+    ): void {
+        $this->testGetPlainThemeConfiguration($ids, $themeCollection, $expected, $expectedStructured);
+    }
+
+    /**
+     * @param array<string, mixed> $ids
+     * @param array<string, mixed>|null $expected
+     * @param array<string, mixed>|null $expectedStructured
+     */
+    #[DataProviderExternal(ThemeFixtures::class, 'getThemeCollectionForThemeConfigurationCleared')]
+    public function testGetPlainThemeConfiguration(
         array $ids,
         ThemeCollection $themeCollection,
         ?array $expected = null,
@@ -572,6 +587,21 @@ class ThemeServiceTest extends TestCase
      */
     #[DataProviderExternal(ThemeFixtures::class, 'getThemeCollectionForThemeConfiguration')]
     #[DisabledFeatures(['v6.8.0.0'])]
+    public function testGetThemeConfigurationFieldStructureWithTranslations(
+        array $ids,
+        ThemeCollection $themeCollection,
+        ?array $expected = null,
+        ?array $expectedStructured = null,
+    ): void {
+        $this->testGetThemeConfigurationFieldStructure($ids, $themeCollection, $expected, $expectedStructured);
+    }
+
+    /**
+     * @param array<string, mixed> $ids
+     * @param array<string, mixed>|null $expected
+     * @param array<string, mixed>|null $expectedStructured
+     */
+    #[DataProviderExternal(ThemeFixtures::class, 'getThemeCollectionForThemeConfigurationCleared')]
     public function testGetThemeConfigurationFieldStructure(
         array $ids,
         ThemeCollection $themeCollection,

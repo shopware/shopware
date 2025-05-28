@@ -10,6 +10,15 @@ use Shopware\Storefront\Theme\ThemeEntity;
 
 /**
  * @internal
+ *
+ * @phpstan-type ThemeFixture iterable<array{
+ *     ids: array<string, mixed>,
+ *     themeCollection: ThemeCollection,
+ *     expected?: array<string, mixed>,
+ *     expectedNotTranslated?: array<string, mixed>|null,
+ *     expectedStructured?: array<string, mixed>,
+ *     expectedStructuredNotTranslated?: array<string, mixed>
+ * }>
  */
 class ThemeFixtures
 {
@@ -188,7 +197,51 @@ class ThemeFixtures
     }
 
     /**
-     * @return iterable<array<string, array<string, array<int|string, mixed>|string>|ThemeCollection|null>>
+     * Returns test cases from getThemeCollectionForThemeConfiguration with removed label and helpText.
+     * Method was added to avoid copying big fixtures from ThemeFixtures
+     *
+     * In v6.8.0.0 values should be removed from fixtures, as other tests will not be using them anymore.
+     *
+     * @deprecated tag:v6.8.0 - Will be removed in v6.8.0.0, use getThemeCollectionForThemeConfiguration instead
+     *
+     * @return ThemeFixture
+     */
+    public static function getThemeCollectionForThemeConfigurationCleared(): iterable
+    {
+        foreach (self::getThemeCollectionForThemeConfiguration() as $data) {
+            if (isset($data['expected']['fields'])) {
+                foreach ($data['expected']['fields'] as &$value) {
+                    unset($value['label'], $value['helpText']);
+                }
+            }
+
+            if (isset($data['expectedStructured']['tabs'])) {
+                foreach ($data['expectedStructured']['tabs'] as &$tab) {
+                    unset($tab['label']);
+                    if (isset($tab['blocks'])) {
+                        foreach ($tab['blocks'] as &$block) {
+                            unset($block['label']);
+                            if (isset($block['sections'])) {
+                                foreach ($block['sections'] as &$section) {
+                                    unset($section['label']);
+                                    if (isset($section['fields'])) {
+                                        foreach ($section['fields'] as &$field) {
+                                            unset($field['label'], $field['helpText']);
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+
+            yield $data;
+        }
+    }
+
+    /**
+     * @return ThemeFixture
      */
     public static function getThemeCollectionForThemeConfiguration(): iterable
     {

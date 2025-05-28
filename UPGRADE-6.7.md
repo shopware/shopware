@@ -182,6 +182,11 @@ After that you can use this data to customize the header template:
 {% endblock %}
 ```
 
+## StorefrontSubscriber now adds context token to the current request
+The `\Shopware\Storefront\Framework\Routing\StorefrontSubscriber::startSession()` method has been updated to provide the context token to the current request if it differs from the main request.
+This is especially necessary if a reverse proxy like Varnish or Fastly is used.
+Due to loading of the header and footer via ESI, it would otherwise cause the sub requests for those to have a different contexts than the main request.
+
 ## Remove of sw- wrapper components
 All the sw- wrapper components will be removed in the next major version. The Meteor Components will be used directly instead of the sw- wrapper components.
 

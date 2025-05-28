@@ -505,7 +505,13 @@ describe('src/module/sw-order/page/sw-order-detail', () => {
         wrapper = await createWrapper();
 
         let promiseResolved = false;
-        const afterSaveFn = jest.fn(() => (new Promise((r) => { r(); })).then(() => { promiseResolved = true; }));
+        const afterSaveFn = jest.fn(() =>
+            new Promise((r) => {
+                r();
+            }).then(() => {
+                promiseResolved = true;
+            }),
+        );
 
         await wrapper.vm.saveAndReload(afterSaveFn);
 

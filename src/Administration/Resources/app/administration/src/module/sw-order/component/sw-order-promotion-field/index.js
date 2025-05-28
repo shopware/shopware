@@ -219,7 +219,10 @@ export default {
          * @deprecated tag:v6.8.0 - Will be removed without replacement
          */
         emitLoadingChange(state) {
-            Shopware.Store.get('swOrderDetail').setLoading(['recalculation', state]);
+            Shopware.Store.get('swOrderDetail').setLoading([
+                'recalculation',
+                state,
+            ]);
         },
 
         /**
@@ -244,7 +247,10 @@ export default {
         },
 
         handleError(error) {
-            Shopware.Store.get('swOrderDetail').setLoading(['recalculation', false]);
+            Shopware.Store.get('swOrderDetail').setLoading([
+                'recalculation',
+                false,
+            ]);
 
             if (this.swOrderDetailOnError) {
                 this.swOrderDetailOnError(error);
@@ -290,7 +296,10 @@ export default {
                 return Promise.resolve();
             }
 
-            Shopware.Store.get('swOrderDetail').setLoading(['recalculation', true]);
+            Shopware.Store.get('swOrderDetail').setLoading([
+                'recalculation',
+                true,
+            ]);
 
             await this.saveAndReload();
             await this.deleteAutomaticPromotions();
@@ -302,24 +311,31 @@ export default {
         },
 
         async applyAutomaticPromotions() {
-            await this.saveAndReload(() => this.orderService
-                .applyAutomaticPromotions(this.order.id, this.order.versionId)
-                .then(this.handlePromotionResponse.bind(this))
-                .catch(this.handleError.bind(this)));
+            await this.saveAndReload(() =>
+                this.orderService
+                    .applyAutomaticPromotions(this.order.id, this.order.versionId)
+                    .then(this.handlePromotionResponse.bind(this))
+                    .catch(this.handleError.bind(this)),
+            );
         },
 
         async onSubmitCode(code) {
             this.emitLoadingChange(true);
 
-            return this.saveAndReload(() => this.orderService
-                .addPromotionToOrder(this.order.id, this.order.versionId, code)
-                .then(this.handlePromotionResponse.bind(this))
-                .catch(this.handleError.bind(this)));
+            return this.saveAndReload(() =>
+                this.orderService
+                    .addPromotionToOrder(this.order.id, this.order.versionId, code)
+                    .then(this.handlePromotionResponse.bind(this))
+                    .catch(this.handleError.bind(this)),
+            );
         },
 
         handlePromotionResponse(response) {
             this.emitEntityData();
-            Shopware.Store.get('swOrderDetail').setLoading(['recalculation', false]);
+            Shopware.Store.get('swOrderDetail').setLoading([
+                'recalculation',
+                false,
+            ]);
 
             if (typeof response?.data?.errors !== 'object') {
                 return;
@@ -328,12 +344,38 @@ export default {
             const [
                 errors,
                 promotionErrors,
-            ] = (Array.isArray(response.data.errors) ? response.data.errors : Object.values(response.data.errors))
-                .reduce(([general, promotion], e) => {
-                    return ['promotion-discount-deleted', 'promotion-discount-added'].includes(e.messageKey)
-                        ? [general, [...promotion, e]]
-                        : [[...general, e], promotion];
-                }, [[], []]);
+            ] = (Array.isArray(response.data.errors) ? response.data.errors : Object.values(response.data.errors)).reduce(
+                (
+                    [
+                        general,
+                        promotion,
+                    ],
+                    e,
+                ) => {
+                    return [
+                        'promotion-discount-deleted',
+                        'promotion-discount-added',
+                    ].includes(e.messageKey)
+                        ? [
+                              general,
+                              [
+                                  ...promotion,
+                                  e,
+                              ],
+                          ]
+                        : [
+                              [
+                                  ...general,
+                                  e,
+                              ],
+                              promotion,
+                          ];
+                },
+                [
+                    [],
+                    [],
+                ],
+            );
 
             this.promotionUpdates = promotionErrors;
             response.data.errors = errors;
@@ -370,7 +412,10 @@ export default {
         },
 
         async onRemoveExistingCode(removedItem) {
-            Shopware.Store.get('swOrderDetail').setLoading(['recalculation', true]);
+            Shopware.Store.get('swOrderDetail').setLoading([
+                'recalculation',
+                true,
+            ]);
 
             const lineItem = this.order.lineItems.find((item) => {
                 return item.type === 'promotion' && item.payload.code === removedItem.code;

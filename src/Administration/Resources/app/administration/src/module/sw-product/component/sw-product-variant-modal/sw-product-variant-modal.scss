@@ -112,15 +112,6 @@
         background-color: #f8f9fa;
         border-bottom: 1px solid $color-gray-300;
         padding: 25px;
-
-        .mt-button {
-            height: 32px;
-            line-height: 16px;
-
-            .mt-icon {
-                @include square(15px);
-            }
-        }
     }
 
     .sw-product-variant-modal__filter-list-button {
@@ -129,12 +120,12 @@
         .sw-context-menu {
             position: absolute;
             top: calc(100% + 10px);
-            left: -135%;
+            right: 0;
             z-index: 10;
 
             .sw-context-menu__content::before {
                 left: auto;
-                right: 28px;
+                right: 48px;
             }
 
             .sw-tree {

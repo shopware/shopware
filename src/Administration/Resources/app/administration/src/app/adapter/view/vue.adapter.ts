@@ -386,6 +386,7 @@ export default class VueAdapter extends ViewAdapter {
             'MtUrlField',
             'MtSearch',
             'MtLink',
+            'MtUnitField',
         ];
 
         meteorComponents.forEach((componentName) => {

@@ -57,6 +57,7 @@
                 :steps="associationSteps"
                 :columns="entity.gridColumns"
                 :full-page="false"
+                :compact-mode="false"
                 @delete-items="(event) => onDeleteItems(entity, event)"
             >
                 <template #link-column="{ item, column, renderColumn }">

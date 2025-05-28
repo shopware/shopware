@@ -16,8 +16,9 @@
                 @sw-card-filter-term-change="onFilterEntity(entity, $event)"
             >
                 <template
-                          v-if="entity.allowAdd"
-                          #filter>
+                    v-if="entity.allowAdd"
+                    #filter
+                >
                     {% block sw_settings_rule_detail_assignments_add_button %}
                     <mt-button
                         v-tooltip="getTooltipConfig(entity)"

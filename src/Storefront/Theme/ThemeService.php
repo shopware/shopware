@@ -222,8 +222,9 @@ class ThemeService implements ResetInterface
      */
     public function getPlainThemeConfiguration(string $themeId, Context $context): array
     {
-        $translate = false;
-        if (!Feature::isActive('v6.8.0.0')) {
+        $isLegacy = !Feature::isActive('v6.8.0.0');
+
+        if ($isLegacy) {
             $translate = \func_num_args() === 3 ? func_get_arg(2) : false;
         }
 
@@ -247,12 +248,9 @@ class ThemeService implements ResetInterface
         $themeConfigFieldFactory = new ThemeConfigFieldFactory();
         $configFields = [];
 
-        if (!Feature::isActive('v6.8.0.0')) {
+        if ($isLegacy) {
             $labels = array_replace_recursive($baseTheme->getLabels() ?? [], $theme->getLabels() ?? []);
             $helpTexts = array_replace_recursive($baseTheme->getHelpTexts() ?? [], $theme->getHelpTexts() ?? []);
-        } else {
-            $labels = [];
-            $helpTexts = [];
         }
 
         if ($theme->getParentThemeId()) {
@@ -260,7 +258,7 @@ class ThemeService implements ResetInterface
                 $configuredParentTheme = $this->mergeStaticConfig($parentTheme);
                 $baseThemeConfig = array_replace_recursive($baseThemeConfig, $configuredParentTheme);
 
-                if (!Feature::isActive('v6.8.0.0')) {
+                if ($isLegacy) {
                     $labels = array_replace_recursive($labels, $parentTheme->getLabels() ?? []);
                     $helpTexts = array_replace_recursive($helpTexts, $parentTheme->getHelpTexts() ?? []);
                 }
@@ -283,7 +281,7 @@ class ThemeService implements ResetInterface
 
         $configFields = json_decode((string) json_encode($configFields, \JSON_THROW_ON_ERROR), true, 512, \JSON_THROW_ON_ERROR);
 
-        if (!Feature::isActive('v6.8.0.0') && $translate) {
+        if ($isLegacy && $translate) {
             if (!empty($labels)) {
                 $configFields = $this->translateLabels($configFields, $labels);
             }
@@ -318,16 +316,17 @@ class ThemeService implements ResetInterface
             }
         }
 
+        // cleaning up data that we do not want to expose in the v6.8.0.0
         if (Feature::isActive('v6.8.0.0')) {
-            // labels are still stored in the database, but we don't want to expose them in the API
+            // labels are still stored in the database, but we don't want to expose them in the response
             if (isset($themeConfig['blocks'])) {
                 foreach ($themeConfig['blocks'] as &$block) {
                     unset($block['label']);
                 }
             }
 
-            // remove this in actual migration to v6.8.0.0, as fields will be removed from ThemeConfigField and resulting
-            // array will not contain them anymore
+            // remove next block in actual migration to v6.8.0.0, as fields will be removed
+            // from ThemeConfigField and resulting array will not contain them anymore
             if (isset($themeConfig['fields'])) {
                 foreach ($themeConfig['fields'] as &$field) {
                     unset($field['label']);
@@ -359,12 +358,9 @@ class ThemeService implements ResetInterface
      */
     public function getThemeConfigurationFieldStructure(string $themeId, Context $context): array
     {
-        $translate = false;
-        if (!Feature::isActive('v6.8.0.0')) {
+        $isLegacy = !Feature::isActive('v6.8.0.0');
+        if ($isLegacy) {
             $translate = \func_num_args() === 3 ? func_get_arg(2) : false;
-        }
-
-        if (!Feature::isActive('v6.8.0.0')) {
             $themeConfig = $this->getPlainThemeConfiguration($themeId, $context, $translate);
         } else {
             $themeConfig = $this->getPlainThemeConfiguration($themeId, $context);
@@ -374,7 +370,7 @@ class ThemeService implements ResetInterface
         $mergedFieldConfig = $themeConfig['fields'];
 
         $translations = [];
-        if ($translate) {
+        if ($isLegacy && $translate) {
             $translations = $this->getTranslations($themeId, $context);
             $mergedFieldConfig = $this->translateLabels($mergedFieldConfig, $translations);
         }

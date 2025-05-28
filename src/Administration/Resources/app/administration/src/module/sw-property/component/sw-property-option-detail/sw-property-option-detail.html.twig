@@ -31,7 +31,7 @@
 
     {% block sw_property_option_detail_color %}
     <mt-colorpicker
-        v-model="currentOption.colorHexCode"
+        v-model="colorHexCode"
         name="sw-field--currentOption-colorHexCode"
         :disabled="!allowEdit"
         :label="$tc('sw-property.detail.labelOptionColor')"

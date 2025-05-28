@@ -158,4 +158,22 @@ class AppExceptionTest extends TestCase
         static::assertSame('FRAMEWORK__APP_DIRECTORY_CREATION_FAILED', $e->getErrorCode());
         static::assertSame('Unable to create directory "path/to/app". Please check permissions', $e->getMessage());
     }
+
+    public function testInvalidPrivileges(): void
+    {
+        $e = AppException::invalidPrivileges();
+
+        static::assertSame(Response::HTTP_BAD_REQUEST, $e->getStatusCode());
+        static::assertSame('FRAMEWORK__APP_INVALID_PERMISSIONS', $e->getErrorCode());
+        static::assertSame('For each accept, or revoke, expected a list of privileges in the format "category:read"', $e->getMessage());
+    }
+
+    public function testMissingIntegration(): void
+    {
+        $e = AppException::missingIntegration();
+
+        static::assertSame(Response::HTTP_FORBIDDEN, $e->getStatusCode());
+        static::assertSame('FRAMEWORK__APP_MISSING_INTEGRATION', $e->getErrorCode());
+        static::assertSame('Forbidden. Not a valid integration source.', $e->getMessage());
+    }
 }

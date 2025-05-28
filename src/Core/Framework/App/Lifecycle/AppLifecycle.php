@@ -478,6 +478,7 @@ class AppLifecycle extends AbstractAppLifecycle
             'secretAccessKey' => $secret,
             'admin' => false,
         ];
+
         $metadata['aclRole'] = [
             'id' => $roleId,
             'name' => $manifest->getMetadata()->getName(),

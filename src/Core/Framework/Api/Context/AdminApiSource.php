@@ -49,6 +49,14 @@ class AdminApiSource implements ContextSource, \JsonSerializable
         $this->permissions = $permissions;
     }
 
+    /**
+     * @return array<string>
+     */
+    public function getPermissions(): array
+    {
+        return $this->permissions;
+    }
+
     public function isAllowed(string $privilege): bool
     {
         if ($this->isAdmin) {

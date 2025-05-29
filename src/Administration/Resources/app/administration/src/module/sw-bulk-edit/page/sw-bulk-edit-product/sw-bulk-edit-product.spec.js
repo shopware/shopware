@@ -109,29 +109,41 @@ describe('src/module/sw-bulk-edit/page/sw-bulk-edit-product', () => {
                         `,
                         props: {
                             modelValue: {
-                                type: [String, Number, Boolean, Object, Array],
-                                default: null
+                                type: [
+                                    String,
+                                    Number,
+                                    Boolean,
+                                    Object,
+                                    Array,
+                                ],
+                                default: null,
                             },
                             value: {
-                                type: [String, Number, Boolean, Object, Array],
-                                default: null
+                                type: [
+                                    String,
+                                    Number,
+                                    Boolean,
+                                    Object,
+                                    Array,
+                                ],
+                                default: null,
                             },
                             templateType: {
                                 type: String,
-                                default: () => customMocks.templateType
+                                default: () => customMocks.templateType,
                             },
                             options: {
                                 type: Array,
-                                default: () => customMocks.options || []
-                            }
+                                default: () => customMocks.options || [],
+                            },
                         },
                         methods: {
                             onInput(event) {
                                 this.$emit('update:model-value', event.target.value);
                                 this.$emit('update:value', event.target.value);
                                 this.$emit('update:entity-collection', event.target.value);
-                            }
-                        }
+                            },
+                        },
                     },
                     'sw-bulk-edit-change-type': await wrapTestComponent('sw-bulk-edit-change-type'),
                     'sw-form-field-renderer': await wrapTestComponent('sw-form-field-renderer'),
@@ -312,7 +324,7 @@ describe('src/module/sw-bulk-edit/page/sw-bulk-edit-product', () => {
                         upsert: () => {
                             return Promise.resolve();
                         },
-                    }
+                    },
                 },
             },
             props: {
@@ -556,8 +568,8 @@ describe('src/module/sw-bulk-edit/page/sw-bulk-edit-product', () => {
                         value: 'taxRate2',
                         label: 'Rate 2',
                     },
-                ]
-            }
+                ],
+            },
         );
 
         await flushPromises();

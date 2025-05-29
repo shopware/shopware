@@ -1119,7 +1119,8 @@ export default {
                             .then(() => {
                                 this.previousLengthUnit = this.lengthUnit;
                                 this.previousWeightUnit = this.weightUnit;
-                            }).catch((response) => {
+                            })
+                            .catch((response) => {
                                 resolve(response);
                             });
 
@@ -1301,8 +1302,8 @@ export default {
 
             return this.userConfigService.upsert({
                 'measurement.preferenceUnits': {
-                    'length': this.lengthUnit,
-                    'weight': this.weightUnit,
+                    length: this.lengthUnit,
+                    weight: this.weightUnit,
                 },
             });
         },

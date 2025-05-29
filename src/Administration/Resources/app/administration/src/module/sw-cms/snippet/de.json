@@ -6,6 +6,7 @@
       "moduleTitle": "Erlebniswelten",
       "greeting": "Layouts",
       "createNewLayout": "Neues Layout anlegen",
+      "restoreBlockInheritanceWarning": "Dies setzt alle, individuell konfigurierten Einstellungen in dem Block auf die Werte aus dem Layout zurück, auch wenn die Vererbung wieder aufgehoben wird. Um das Rückgängig zu machen, kann die Seite neu geladen werden oder die Bearbeitung abgebrochen werden. Dabei werden jedoch auch alle anderen nicht gespeicherten Änderungen Rückgängig gemacht.",
       "deleteDisabledToolTip": "Das Layout ist noch mindestens einer Kategorie zugewiesen.",
       "deleteDisabledProductToolTip": "Das Layout ist noch mindestens einem Produkt zugewiesen.",
       "deleteDisabledLandingPageToolTip": "Das Layout ist noch mindestens einer Landingpage zugewiesen.",

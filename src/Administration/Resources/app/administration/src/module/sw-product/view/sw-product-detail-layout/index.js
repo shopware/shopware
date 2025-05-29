@@ -51,10 +51,8 @@ export default {
         cmsPageCriteria() {
             const criteria = new Criteria(1, 25);
             criteria.addAssociation('previewMedia');
-            criteria.addAssociation('sections');
             criteria.getAssociation('sections').addSorting(Criteria.sort('position'));
 
-            criteria.addAssociation('sections.blocks');
             criteria.getAssociation('sections.blocks').addSorting(Criteria.sort('position', 'ASC')).addAssociation('slots');
 
             return criteria;
@@ -70,6 +68,16 @@ export default {
 
         cmsPageState() {
             return Shopware.Store.get('cmsPage');
+        },
+
+        cmsElementConfig() {
+            const product = this.product;
+
+            if (!product.slotConfig) {
+                product.slotConfig = {};
+            }
+
+            return product.slotConfig;
         },
     },
 
@@ -153,21 +161,6 @@ export default {
             this.isConfigLoading = true;
 
             this.cmsPageRepository.get(this.cmsPageId, Context.api, this.cmsPageCriteria).then((cmsPage) => {
-                if (this.product.slotConfig && cmsPage) {
-                    cmsPage.sections.forEach((section) => {
-                        section.blocks.forEach((block) => {
-                            block.slots.forEach((slot) => {
-                                if (!this.product.slotConfig[slot.id]) {
-                                    return;
-                                }
-
-                                slot.config = slot.config || {};
-                                merge(slot.config, cloneDeep(this.product.slotConfig[slot.id]));
-                            });
-                        });
-                    });
-                }
-
                 this.cmsPageState.setCurrentPage(cmsPage);
                 this.updateCmsPageDataMapping();
                 this.isConfigLoading = false;
@@ -184,11 +177,9 @@ export default {
             this.onSelectLayout(null);
         },
 
-        elementUpdate(element) {
-            const slotContent = this.product.slotConfig[element.id]?.content;
-            if (slotContent && slotContent.value) {
-                slotContent.value = element.config.content.value;
-            }
-        },
+        /**
+         * @deprecated tag:v6.8.0 - Will be removed, as the listener is not needed anymore, will also not be called anymore, i.e. removed from the template
+         */
+        elementUpdate(element) {},
     },
 };

@@ -203,7 +203,7 @@ describe('src/module/sw-product/view/sw-product-detail-layout', () => {
         expect(wrapper.vm.product.cmsPageId).toBeNull();
     });
 
-    it('should be able to overwrite product config to selected layout config', async () => {
+    it('passes entity-config to cms form and does not mutate CMS page slot config', async () => {
         Shopware.Store.get('swProductDetail').product = {
             id: '1',
             cmsPageId: 'cmsPageId',
@@ -217,15 +217,22 @@ describe('src/module/sw-product/view/sw-product-detail-layout', () => {
             },
         };
 
-        const wrapper = await createWrapper();
+        const wrapper = await createWrapper(['product.editor']);
         await wrapper.vm.handleGetCmsPage();
 
+        // CMS page slot config remains unchanged (no merge into page data)
         expect(wrapper.vm.currentPage.sections[0].blocks[0].slots[0].config).toEqual({
             content: {
-                value: 'Hello World',
-                source: 'static',
+                value: 'product.name',
+                source: 'mapped',
             },
         });
+
+        // sw-cms-page-form receives the entity-config prop with product.slotConfig
+        const cmsForm = wrapper.find('sw-cms-page-form-stub');
+        expect(cmsForm.exists()).toBeTruthy();
+        // Vue Test Utils exposes props on stubs as attributes; ensure attribute is present
+        expect(cmsForm.attributes()).toHaveProperty('entity-config');
     });
 
     it('onOpenLayoutModal: should be able to open layout assignment', async () => {
@@ -272,7 +279,7 @@ describe('src/module/sw-product/view/sw-product-detail-layout', () => {
         expect(infoNoConfig.exists()).toBeTruthy();
     });
 
-    it('should update new content of slotConfig in product', async () => {
+    it('elementUpdate is deprecated: calling it does not mutate product.slotConfig', async () => {
         const wrapper = await createWrapper();
 
         Store.get('swProductDetail').product = {
@@ -296,7 +303,7 @@ describe('src/module/sw-product/view/sw-product-detail-layout', () => {
 
         wrapper.vm.elementUpdate(element);
 
-        expect(wrapper.vm.product.slotConfig[element.id].content.value).toBe(element.config.content.value);
+        expect(wrapper.vm.product.slotConfig[element.id].content.value).toBe('InitialValue');
     });
 
     it('should call handleGetCmsPage when languageId changes', async () => {

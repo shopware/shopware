@@ -1,5 +1,6 @@
 import template from './sw-cms-page-form.html.twig';
 import './sw-cms-page-form.scss';
+const { cloneDeep, getObjectDiff } = Shopware.Utils.object;
 
 /**
  * @private
@@ -15,11 +16,22 @@ export default Shopware.Component.wrapComponentConfig({
             type: Object as PropType<Entity<'cms_page'>>,
             required: true,
         },
+        entityConfig: {
+            type: Object,
+            required: false,
+            default: null,
+        },
         elementUpdate: {
             type: Function,
             required: false,
             default: () => {},
         },
+    },
+
+    data: () => {
+        return {
+            restoreBlockInheritanceIds: [] as string[],
+        }
     },
 
     computed: {
@@ -80,6 +92,95 @@ export default Shopware.Component.wrapComponentConfig({
             }
 
             return '';
+        },
+
+        isInherited(block: Entity<'cms_block'>) {
+            if (this.entityConfig === null || !block.slots) {
+                return false;
+            }
+
+            for (const element of block.slots) {
+                if (this.entityConfig.hasOwnProperty(element.id)) {
+                    return false;
+                }
+            }
+
+            return true;
+        },
+
+        restoreBlockInheritance(block: Entity<'cms_block'>) {
+            if (!block.slots) {
+                return;
+            }
+
+            let hasChanges = false;
+            for (const element of block.slots) {
+                const elementChanges = getObjectDiff(this.entityConfig[element.id], element.config);
+
+                if (Object.keys(elementChanges).length) {
+                    hasChanges = true;
+                    break;
+                }
+            }
+
+            if (!hasChanges) {
+                for (const element of block.slots) {
+                    delete this.entityConfig[element.id];
+                }
+
+                return;
+            }
+
+            for (const element of block.slots) {
+                this.restoreBlockInheritanceIds.push(element.id);
+            }
+        },
+
+        removeBlockInheritance(block: Entity<'cms_block'>) {
+            if (!block.slots) {
+                return;
+            }
+
+            for (const element of block.slots) {
+                this.entityConfig[element.id] = cloneDeep(element.config) || {};
+            }
+        },
+
+        slotConfig(slot: Entity<'cms_slot'>) {
+            // Fallback to old behavior if no entityConfig is set, and directly mutate the reference
+            if (this.entityConfig === null) {
+                return slot;
+            }
+
+            const slotElement = cloneDeep(slot);
+
+            if (this.entityConfig[slot.id]) {
+                slotElement['config'] = this.entityConfig[slot.id];
+            }
+
+            const defaultConfig = this.cmsElements[slot.type]?.defaultConfig;
+            if (defaultConfig instanceof Object && slotElement.config) {
+                for (const configKey in defaultConfig) {
+                    if (!slotElement.config.hasOwnProperty(configKey)) {
+                        // @ts-ignore
+                        slotElement.config[configKey] = defaultConfig[configKey];
+                    }
+                }
+            }
+
+            return slotElement;
+        },
+
+        onConfirmRestoreBlockInheritance() {
+            for (const elementId of this.restoreBlockInheritanceIds) {
+                delete this.entityConfig[elementId];
+            }
+
+            this.restoreBlockInheritanceIds = [];
+        },
+
+        onCancelRestoreBlockInheritance() {
+            this.restoreBlockInheritanceIds = [];
         },
 
         displaySectionType(block: Entity<'cms_block'>) {

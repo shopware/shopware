@@ -37,6 +37,19 @@
         margin-bottom: 22px;
         border-bottom: 1px solid $color-gray-300;
 
+        &[disabled="true"]:after {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: unset;
+            background: var(--color-gray-300);
+            opacity: 0.4;
+            z-index: 5;
+        }
+
         &:last-child {
             margin-bottom: 0;
             border-bottom: 0 none;
@@ -49,10 +62,15 @@
     }
 
     .mt-card .mt-card__title {
+        display: flex;
         width: auto;
         position: static;
         text-align: left;
         font-size: 22px;
+
+        .sw-inherit-wrapper__inheritance-icon {
+            margin: -1px 8px 0 0;
+        }
     }
 
     .sw-cms-page-form__block-card {

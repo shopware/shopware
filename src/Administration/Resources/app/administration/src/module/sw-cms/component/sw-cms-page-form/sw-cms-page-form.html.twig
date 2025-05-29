@@ -108,6 +108,22 @@
                     class="sw-cms-page-form__block-card"
                     :title="$tc(getBlockTitle(block))"
                 >
+                    <template #title>
+                        <div class="mt-card__title">
+                            <sw-inheritance-switch
+                                v-if="entityConfig !== null"
+                                :is-inherited="isInherited(block)"
+                                class="sw-inherit-wrapper__inheritance-icon"
+                                @inheritance-restore="restoreBlockInheritance(block)"
+                                @inheritance-remove="removeBlockInheritance(block)"
+                            />
+
+                            {{ $tc(getBlockTitle(block)) }}
+
+                            <sw-ai-copilot-badge v-if="aiBadge" />
+                        </div>
+                    </template>
+
                     <template #headerRight>
                         <div class="sw-cms-page-form__block-device-actions">
                             <mt-icon :name="getDeviceActive('mobile', section, block)" />
@@ -116,15 +132,16 @@
 
                             <mt-icon :name="getDeviceActive('desktop', section, block)" />
                         </div>
+
                     </template>
 
                     {% block sw_cms_page_form_card_content %}
                     <div
                         v-for="(element, blockIndex) in block.slots"
-                        :key="blockIndex"
+                        :blockIndex="blockIndex"
                         class="sw-cms-page-form__element-config"
+                        :disabled="isInherited(block)"
                     >
-
                         <template v-if="displayNotification(section, block)">
                             <mt-banner variant="info">
                                 {{ $tc('sw-cms.blocks.blockDisableState') }}
@@ -134,7 +151,7 @@
                         {% block sw_cms_page_form_element_config %}
                         <component
                             :is="cmsElements[element.type].configComponent"
-                            :element="element"
+                            :element="slotConfig(element)"
                             :element-data="cmsElements[element.type]"
                             @element-update="elementUpdate"
                         />
@@ -148,5 +165,14 @@
         {% endblock %}
     </template>
     {% endblock %}
+
+    <sw-confirm-modal
+        v-if="restoreBlockInheritanceIds.length"
+        type="yesno"
+        :text="$tc('sw-cms.general.restoreBlockInheritanceWarning')"
+        @confirm="onConfirmRestoreBlockInheritance"
+        @close="onCancelRestoreBlockInheritance"
+        @cancel="onCancelRestoreBlockInheritance"
+    />
 </div>
 {% endblock %}

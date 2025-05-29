@@ -6,6 +6,7 @@
       "moduleTitle": "Shopping Experiences",
       "greeting": "Layouts",
       "createNewLayout": "Create new layout",
+      "restoreBlockInheritanceWarning": "This resets all individual configured settings of this block to the values from the layout, even if the inheritance is removed again. This can be reverted by reloading the page or canceling the current action. However, then also all other unsaved changes will be reverted.",
       "deleteDisabledToolTip": "The layout you want to delete is still assigned to at least one category.",
       "deleteDisabledProductToolTip": "The layout you want to delete is still assigned to at least one product.",
       "deleteDisabledLandingPageToolTip": "The layout you want to delete is still assigned to at least one landing page.",

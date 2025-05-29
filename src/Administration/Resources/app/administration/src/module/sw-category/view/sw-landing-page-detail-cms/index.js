@@ -23,5 +23,15 @@ export default {
         cmsPage() {
             return Shopware.Store.get('cmsPage').currentPage;
         },
+
+        cmsElementConfig() {
+            const landingPage = this.landingPage;
+
+            if (!landingPage.slotConfig) {
+                landingPage.slotConfig = {};
+            }
+
+            return landingPage.slotConfig;
+        },
     },
 };

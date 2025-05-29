@@ -975,10 +975,9 @@ export default {
 
             this.isSaveSuccessful = false;
 
-            const pageOverrides = this.getCmsPageOverrides();
-
-            if (type.isPlainObject(pageOverrides)) {
-                this.product.slotConfig = cloneDeep(pageOverrides);
+            // Explicitly set the slot config to null, as the DAL would convert it to an empty array, instead of an empty object
+            if (this.product.slotConfig && Object.keys(this.product.slotConfig).length === 0) {
+                this.product.slotConfig = null;
             }
 
             if (!this.entityValidationService.validate(this.product, this.customValidate, this.ignoreFieldsValidation)) {
@@ -1260,6 +1259,9 @@ export default {
             return true;
         },
 
+        /**
+         * @deprecated tag:v6.8.0 - Unused and will be removed
+         */
         getCmsPageOverrides() {
             if (this.currentPage === null) {
                 return null;
@@ -1292,6 +1294,9 @@ export default {
             return slotOverrides;
         },
 
+        /**
+         * @deprecated tag:v6.8.0 - Unused and will be removed
+         */
         deleteSpecifcKeys(sections) {
             if (!sections) {
                 return;

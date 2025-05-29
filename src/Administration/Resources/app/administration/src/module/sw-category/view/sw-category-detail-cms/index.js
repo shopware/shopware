@@ -25,5 +25,15 @@ export default {
         cmsPage() {
             return Shopware.Store.get('cmsPage').currentPage;
         },
+
+        cmsElementConfig() {
+            const category = this.category;
+
+            if (!category.slotConfig) {
+                category.slotConfig = {};
+            }
+
+            return category.slotConfig;
+        },
     },
 };

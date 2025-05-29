@@ -21,6 +21,7 @@ export default function initializeCms(): void {
             appData: {
                 baseUrl: extension.baseUrl,
             },
+            defaultConfig: {},
         });
     });
 

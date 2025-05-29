@@ -119,9 +119,27 @@ export default Mixin.register(
 
         methods: {
             initElementConfig(elementName: string) {
-                const defaultConfig = this.defaultConfig || this.cmsElements[elementName]?.defaultConfig || {};
+                let fallbackCategoryConfig = {};
+                if (this.category?.translations) {
+                    // @ts-expect-error
+                    // eslint-disable-next-line max-len
+                    // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment,@typescript-eslint/no-unsafe-member-access
+                    fallbackCategoryConfig = this.getDefaultTranslations(this.category)?.slotConfig?.[this.element.id];
+                }
 
-                this.element.config = merge(cloneDeep(defaultConfig), cloneDeep(this.configOverride));
+                const fallbackConfig = merge(
+                    {},
+                    this.defaultConfig || this.cmsElements[elementName]?.defaultConfig || {},
+                    fallbackCategoryConfig,
+                    this.element?.translated?.config || {},
+                )
+
+                this.element.config = this.element.config || {};
+                for (const configKey in fallbackConfig) {
+                    if (!this.element.config.hasOwnProperty(configKey) && fallbackConfig.hasOwnProperty(configKey)) {
+                        this.element.config[configKey] = fallbackConfig[configKey];
+                    }
+                }
             },
 
             initElementData(elementName: string) {

@@ -4,7 +4,6 @@ import './sw-category-detail.scss';
 
 const { Context, Mixin } = Shopware;
 const { Criteria, ChangesetGenerator, EntityCollection } = Shopware.Data;
-const { cloneDeep, merge } = Shopware.Utils.object;
 const type = Shopware.Utils.types;
 
 /**
@@ -133,7 +132,7 @@ export default {
                 return this.landingPage.cmsPageId ?? null;
             }
 
-            return this.category ? this.category.cmsPageId : null;
+            return this.category?.cmsPageId;
         },
 
         customFieldSetRepository() {
@@ -396,10 +395,8 @@ export default {
             const criteria = new Criteria(1, 1);
             criteria.setIds([cmsPageId]);
             criteria.addAssociation('previewMedia');
-            criteria.addAssociation('sections');
-            criteria.getAssociation('sections').addSorting(Criteria.sort('position'));
 
-            criteria.addAssociation('sections.blocks');
+            criteria.getAssociation('sections').addSorting(Criteria.sort('position'));
             criteria.getAssociation('sections.blocks').addSorting(Criteria.sort('position', 'ASC')).addAssociation('slots');
 
             return this.cmsPageRepository.search(criteria).then((response) => {
@@ -407,21 +404,6 @@ export default {
 
                 if (cmsPageId !== this.cmsPageId) {
                     return null;
-                }
-
-                if (this.category.slotConfig !== null) {
-                    cmsPage.sections.forEach((section) => {
-                        section.blocks.forEach((block) => {
-                            block.slots.forEach((slot) => {
-                                if (this.category.slotConfig[slot.id]) {
-                                    if (slot.config === null) {
-                                        slot.config = {};
-                                    }
-                                    merge(slot.config, cloneDeep(this.category.slotConfig[slot.id]));
-                                }
-                            });
-                        });
-                    });
                 }
 
                 this.updateCmsPageDataMapping();
@@ -446,10 +428,7 @@ export default {
             const criteria = new Criteria(1, 1);
             criteria.setIds([cmsPageId]);
             criteria.addAssociation('previewMedia');
-            criteria.addAssociation('sections');
             criteria.getAssociation('sections').addSorting(Criteria.sort('position'));
-
-            criteria.addAssociation('sections.blocks');
             criteria
                 .getAssociation('sections.blocks')
                 .addSorting(Criteria.sort('position', 'ASC'))
@@ -460,21 +439,6 @@ export default {
                 const cmsPage = response.get(cmsPageId);
                 if (cmsPageId !== this.cmsPageId) {
                     return null;
-                }
-
-                if (this.landingPage.slotConfig !== null) {
-                    cmsPage.sections.forEach((section) => {
-                        section.blocks.forEach((block) => {
-                            block.slots.forEach((slot) => {
-                                if (this.landingPage.slotConfig[slot.id]) {
-                                    if (slot.config === null) {
-                                        slot.config = {};
-                                    }
-                                    merge(slot.config, cloneDeep(this.landingPage.slotConfig[slot.id]));
-                                }
-                            });
-                        });
-                    });
                 }
 
                 this.updateCmsPageDataMappingForLandingPage();
@@ -654,10 +618,9 @@ export default {
         async onSave() {
             this.isSaveSuccessful = false;
 
-            const pageOverrides = this.getCmsPageOverrides();
-
-            if (type.isPlainObject(pageOverrides)) {
-                this.category.slotConfig = cloneDeep(pageOverrides);
+            // Explicitly set the slot config to null, as the DAL would convert it to an empty array, instead of an empty object
+            if (this.category.slotConfig && Object.keys(this.category.slotConfig).length === 0) {
+                this.category.slotConfig = null;
             }
 
             if (!this.entryPointOverwriteConfirmed) {
@@ -732,10 +695,9 @@ export default {
         onSaveLandingPage() {
             this.isSaveSuccessful = false;
 
-            const pageOverrides = this.getCmsPageOverrides();
-
-            if (type.isPlainObject(pageOverrides)) {
-                this.landingPage.slotConfig = cloneDeep(pageOverrides);
+            // Explicitly set the slot config to null, as the DAL would convert it to an empty array, instead of an empty object
+            if (this.landingPage.slotConfig && Object.keys(this.landingPage.slotConfig).length === 0) {
+                this.landingPage.slotConfig = null;
             }
 
             if (this.landingPageId !== 'create') {
@@ -794,6 +756,9 @@ export default {
             });
         },
 
+        /**
+         * @deprecated tag:v6.8.0 - Unused and will be removed
+         */
         getCmsPageOverrides() {
             if (this.cmsPage === null) {
                 return null;
@@ -825,6 +790,9 @@ export default {
             return slotOverrides;
         },
 
+        /**
+         * @deprecated tag:v6.8.0 - Unused and will be removed
+         */
         deleteSpecifcKeys(sections) {
             if (!sections) {
                 return;

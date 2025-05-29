@@ -441,9 +441,11 @@ describe('module/sw-product/page/sw-product-detail', () => {
     });
 
     it('should initialize with default units when no preferences exist', async () => {
-        wrapper.vm.userConfigService.search = jest.fn(() => Promise.resolve({
-            data: {}
-        }));
+        wrapper.vm.userConfigService.search = jest.fn(() =>
+            Promise.resolve({
+                data: {},
+            }),
+        );
 
         await wrapper.vm.initProductMeasurementUnits();
 
@@ -456,14 +458,16 @@ describe('module/sw-product/page/sw-product-detail', () => {
     it('should initialize with preferred units when they exist', async () => {
         const preferredUnits = {
             length: 'cm',
-            weight: 'g'
+            weight: 'g',
         };
 
-        wrapper.vm.userConfigService.search = jest.fn(() => Promise.resolve({
-            data: {
-                'measurement.preferenceUnits': preferredUnits
-            }
-        }));
+        wrapper.vm.userConfigService.search = jest.fn(() =>
+            Promise.resolve({
+                data: {
+                    'measurement.preferenceUnits': preferredUnits,
+                },
+            }),
+        );
 
         await wrapper.vm.initProductMeasurementUnits();
 
@@ -476,7 +480,7 @@ describe('module/sw-product/page/sw-product-detail', () => {
     it('should save preferences only when units have changed', async () => {
         await wrapper.setData({
             previousLengthUnit: 'cm',
-            previousWeightUnit: 'kg'
+            previousWeightUnit: 'kg',
         });
 
         wrapper.vm.userConfigService.upsert = jest.fn(() => Promise.resolve());
@@ -491,7 +495,7 @@ describe('module/sw-product/page/sw-product-detail', () => {
     it('should not save preferences when units have not changed', async () => {
         await wrapper.setData({
             previousLengthUnit: 'mm',
-            previousWeightUnit: 'kg'
+            previousWeightUnit: 'kg',
         });
 
         wrapper.vm.userConfigService.upsert = jest.fn(() => Promise.resolve());
@@ -506,7 +510,7 @@ describe('module/sw-product/page/sw-product-detail', () => {
     it('should handle errors when saving preferences', async () => {
         await wrapper.setData({
             previousLengthUnit: 'cm',
-            previousWeightUnit: 'kg'
+            previousWeightUnit: 'kg',
         });
 
         wrapper.vm.userConfigService.upsert = jest.fn(() => Promise.reject(new Error('Save failed')));

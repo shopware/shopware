@@ -92,7 +92,7 @@ function getExampleDomains() {
             snippetSet: {
                 name: 'BASE de-DE',
             },
-            measurementSystem: {
+            measurementUnits: {
                 name: 'Metric',
                 translated: {
                     name: 'Metric',
@@ -115,7 +115,7 @@ function getExampleDomains() {
             snippetSet: {
                 name: 'BASE de-DE',
             },
-            measurementSystem: {
+            measurementUnits: {
                 name: 'Metric',
                 translated: {
                     name: 'Metric',
@@ -359,7 +359,7 @@ describe('src/module/sw-sales-channel/component/sw-sales-channel-detail-domains'
                         name: 'Euro',
                     },
                 },
-                measurementSystem: {
+                measurementUnits: {
                     name: 'Metric',
                     translated: {
                         name: 'Metric',
@@ -407,7 +407,7 @@ describe('src/module/sw-sales-channel/component/sw-sales-channel-detail-domains'
                         name: 'Euro',
                     },
                 },
-                measurementSystem: {
+                measurementUnits: {
                     name: 'Metric',
                     translated: {
                         name: 'Metric',

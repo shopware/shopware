@@ -123,7 +123,7 @@ describe('repository.data.ts', () => {
         const context = {
             ...mockContext(),
             measurementLengthUnit: 'cm',
-            measurementWeightUnit: 'kg'
+            measurementWeightUnit: 'kg',
         };
         const actualHeaders = repositoryData.buildHeaders(context);
 

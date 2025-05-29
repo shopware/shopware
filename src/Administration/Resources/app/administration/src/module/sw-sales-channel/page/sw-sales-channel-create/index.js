@@ -18,19 +18,11 @@ const insertIdIntoRoute = (to, from, next) => {
 export default {
     template,
 
-    inject: [
-        'systemConfigApiService',
-    ],
-
     beforeRouteEnter: insertIdIntoRoute,
 
     beforeRouteUpdate: insertIdIntoRoute,
 
-    data() {
-        return {
-            measurementSystemConfig: [],
-        };
-    },
+    inject: ['systemConfigApiService'],
 
     computed: {
         allowSaving() {
@@ -44,7 +36,7 @@ export default {
                 return;
             }
 
-            await this.getMeasurementSystemConfig();
+            const measurementUnits = await this.getMeasurementUnits();
 
             if (!Shopware.Store.get('context').isSystemDefaultLanguage) {
                 Shopware.Store.get('context').resetLanguageToDefault();
@@ -54,18 +46,14 @@ export default {
             this.salesChannel.typeId = this.$route.params.typeId;
             this.salesChannel.active = false;
             this.salesChannel.measurementUnits = {
-                system: this.measurementSystemConfig['core.measurementSystem.typeId'],
+                name: measurementUnits['core.measurementUnits.system'],
                 units: {
-                    length: this.measurementSystemConfig['core.measurementSystem.lengthUnitId'],
-                    weight: this.measurementSystemConfig['core.measurementSystem.weightUnitId'],
+                    length: measurementUnits['core.measurementUnits.length'],
+                    weight: measurementUnits['core.measurementUnits.weight'],
                 },
-            }
+            };
 
             this.$super('createdComponent');
-        },
-
-        async getMeasurementSystemConfig() {
-            this.measurementSystemConfig = await this.systemConfigApiService.getValues('core.measurementSystem');
         },
 
         saveFinish() {
@@ -78,6 +66,10 @@ export default {
 
         onSave() {
             this.$super('onSave');
+        },
+
+        getMeasurementUnits() {
+            return this.systemConfigApiService.getValues('core.measurementUnits');
         },
     },
 };

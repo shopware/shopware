@@ -45,10 +45,7 @@ export default {
                 currencyId: null,
                 snippetSet: null,
                 snippetSetId: null,
-                measurementSystem: null,
-                measurementSystemId: null,
-                lengthUnitId: null,
-                weightUnitId: null,
+                measurementUnits: null,
             },
             isLoadingDomains: false,
             deleteDomain: null,
@@ -119,7 +116,6 @@ export default {
                 !this.currentDomain.snippetSetId ||
                 !this.currentDomain.url ||
                 !this.currentDomain.languageId ||
-                !this.currentDomain.measurementSystemId ||
                 this.disableEdit ||
                 this.error !== null
             );
@@ -226,10 +222,7 @@ export default {
                 currencyId: domain.currencyId,
                 snippetSet: domain.snippetSet,
                 snippetSetId: domain.snippetSetId,
-                measurementSystem: domain.measurementSystem,
-                measurementSystemId: domain.measurementSystemId,
-                lengthUnitId: domain.lengthUnitId,
-                weightUnitId: domain.weightUnitId,
+                measurementUnits: domain.measurementUnits,
             };
         },
 
@@ -241,10 +234,7 @@ export default {
             this.currentDomain.currencyId = this.currentDomainBackup.currencyId;
             this.currentDomain.snippetSet = this.currentDomainBackup.snippetSet;
             this.currentDomain.snippetSetId = this.currentDomainBackup.snippetSetId;
-            this.currentDomain.measurementSystem = this.currentDomainBackup.measurementSystem;
-            this.currentDomain.measurementSystemId = this.currentDomainBackup.measurementSystemId;
-            this.currentDomain.lengthUnitId = this.currentDomainBackup.lengthUnitId;
-            this.currentDomain.weightUnitId = this.currentDomainBackup.weightUnitId;
+            this.currentDomain.measurementUnits = this.currentDomainBackup.measurementUnits;
         },
 
         setInitialCurrency(domain) {
@@ -275,10 +265,7 @@ export default {
             }
 
             domain.hreflangUseOnlyLocale = false;
-            domain.measurementSystem = this.salesChannel.measurementSystem;
-            domain.measurementSystemId = this.salesChannel.measurementSystemId;
-            domain.lengthUnitId = this.salesChannel.lengthUnitId;
-            domain.weightUnitId = this.salesChannel.weightUnitId;
+            domain.measurementUnits = this.salesChannel.measurementUnits;
 
             this.currentDomain = domain;
             this.isEditingDomain = false;
@@ -398,8 +385,8 @@ export default {
                     inlineEdit: false,
                 },
                 {
-                    property: 'measurementSystemId',
-                    dataIndex: 'measurementSystemId',
+                    property: 'measurementSystemName',
+                    dataIndex: 'measurementSystemName',
                     label: this.$t('sw-sales-channel.detail.columnDomainUnitSystem'),
                     allowResize: false,
                     inlineEdit: false,

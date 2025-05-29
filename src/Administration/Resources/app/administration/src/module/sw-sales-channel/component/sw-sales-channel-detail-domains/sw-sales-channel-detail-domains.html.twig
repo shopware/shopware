@@ -68,11 +68,13 @@
             </template>
             {% endblock %}
 
+            {% block sw_sales_channel_detail_domains_column_measurement_system_name %}
             <template
-                #column-measurementSystemId="{ item, isInlineEdit }"
+                #column-measurementSystemName="{ item, isInlineEdit }"
             >
-                {{ item.measurementSystem.translated.name || item.measurementSystem.name }}
+                {{ item.measurementUnits.name }}
             </template>
+            {% endblock %}
 
             {% block sw_sales_channel_detail_domains_column_snippet_set_id %}
             <template

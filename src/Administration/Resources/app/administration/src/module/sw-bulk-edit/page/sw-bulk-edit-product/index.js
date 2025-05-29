@@ -7,7 +7,7 @@ const { Criteria } = Shopware.Data;
 const { types } = Shopware.Utils;
 const { chunk } = Shopware.Utils.array;
 const { cloneDeep } = Shopware.Utils.object;
-const { convert } = Shopware.Utils.unitConversion
+const { convert } = Shopware.Utils.unitConversion;
 
 /**
  * @sw-package inventory

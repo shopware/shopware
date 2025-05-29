@@ -35,7 +35,11 @@ describe('src/module/sw-product/component/sw-product-measurement-form', () => {
                                     updateCurrentValue: (val) => $emit('update:value', val)
                                 }"></slot>
                             </div>`,
-                        props: ['value', 'hasParent', 'inheritedValue'],
+                        props: [
+                            'value',
+                            'hasParent',
+                            'inheritedValue',
+                        ],
                     },
                     'mt-unit-field': {
                         template: `
@@ -64,22 +68,25 @@ describe('src/module/sw-product/component/sw-product-measurement-form', () => {
                             </div>`,
                         props: {
                             modelValue: {
-                                type: [String, Number],
-                                required: true
+                                type: [
+                                    String,
+                                    Number,
+                                ],
+                                required: true,
                             },
                             defaultUnit: {
                                 type: String,
-                                required: true
+                                required: true,
                             },
                             label: {
                                 type: String,
-                                required: true
+                                required: true,
                             },
                             measurementType: {
                                 type: String,
-                                required: true
-                            }
-                        }
+                                required: true,
+                            },
+                        },
                     },
                 },
             },

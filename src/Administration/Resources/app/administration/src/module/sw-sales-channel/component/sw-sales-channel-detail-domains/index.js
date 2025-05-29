@@ -53,6 +53,7 @@ export default {
             sortDirection: 'ASC',
             error: null,
             isEditingDomain: false,
+            measurementSystems: [],
         };
     },
 
@@ -126,9 +127,28 @@ export default {
 
             return this.localSortDomains(domains);
         },
+
+        measurementSystemRepository() {
+            return this.repositoryFactory.create('measurement_system');
+        },
+
+        measurementSystemCriteria() {
+            const criteria = new Criteria(1, null);
+            criteria.addFields('name', 'technicalName');
+
+            return criteria;
+        },
+    },
+
+    created() {
+        this.createdComponent();
     },
 
     methods: {
+        async createdComponent() {
+            this.measurementSystems = await this.measurementSystemRepository.search(this.measurementSystemCriteria);
+        },
+
         sortColumns(column) {
             if (this.sortBy === column.dataIndex) {
                 // If the same column, that is already being sorted, is clicked again, change direction
@@ -392,6 +412,13 @@ export default {
                     inlineEdit: false,
                 },
             ];
+        },
+
+        getMeasurementName(technicalName) {
+            return (
+                this.measurementSystems.find((system) => system.technicalName === technicalName)?.translated.name ??
+                technicalName
+            );
         },
     },
 };

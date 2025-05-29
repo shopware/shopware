@@ -72,7 +72,7 @@
             <template
                 #column-measurementSystemName="{ item, isInlineEdit }"
             >
-                {{ item.measurementUnits.name }}
+                {{ getMeasurementName(item.measurementUnits.name) }}
             </template>
             {% endblock %}
 

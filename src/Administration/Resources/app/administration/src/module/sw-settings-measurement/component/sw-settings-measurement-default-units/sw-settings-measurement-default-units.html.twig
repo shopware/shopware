@@ -11,25 +11,26 @@
         columns="1fr 1fr 1fr"
         gap="0 32px"
     >
-        <sw-single-select
-            required
-            value-property="technicalName"
-            v-model:value="measurementUnits.system"
+        <sw-entity-single-select
+            v-model:value="measurementUnitId"
+            entity="measurement_system"
+            :criteria="measurementSystemCriteria"
             :label="$t('sw-settings-measurement.defaultUnits.config.type')"
-            :options="systems"
-            @update:value="onChangeMeasurementSystem">
+            @update:value="onChangeMeasurementSystem"
+        >
             <template #selection-label-property="{ item }">
                 {{ item.translated?.name || item.name }}
             </template>
-        </sw-single-select>
+        </sw-entity-single-select>
 
         <sw-single-select
+            v-model:value="measurementUnits.length"
             required
             value-property="shortName"
-            v-model:value="measurementUnits.length"
             :label="$t('sw-settings-measurement.defaultUnits.config.lengthUnit')"
             :popover-classes="['sw-settings-measurement-default-units__popover']"
-            :options="lengthUnits">
+            :options="lengthUnits"
+        >
             <template #selection-label-property="{ item }">
                 {{ labelUnitCallback(item) }}
             </template>
@@ -39,6 +40,7 @@
                     :text="item.translated.name || item.name"
                     :search-term="searchTerm"
                 />
+
                 <span class="sw-settings-measurement-default-units__popover-short-name">
                     {{ item.shortName }}
                 </span>
@@ -46,21 +48,23 @@
         </sw-single-select>
 
         <sw-single-select
-                required
-                value-property="shortName"
-                v-model:value="measurementUnits.weight"
-                :label="$t('sw-settings-measurement.defaultUnits.config.weightUnit')"
-                :popover-classes="['sw-settings-measurement-default-units__popover']"
-                :options="weightUnits">
+            v-model:value="measurementUnits.weight"
+            required
+            value-property="shortName"
+            :label="$t('sw-settings-measurement.defaultUnits.config.weightUnit')"
+            :popover-classes="['sw-settings-measurement-default-units__popover']"
+            :options="weightUnits"
+        >
             <template #selection-label-property="{ item }">
                 {{ labelUnitCallback(item) }}
             </template>
 
             <template #result-label-property="{ item, searchTerm }">
                 <sw-highlight-text
-                        :text="item.translated.name || item.name"
-                        :search-term="searchTerm"
+                    :text="item.translated.name || item.name"
+                    :search-term="searchTerm"
                 />
+
                 <span class="sw-settings-measurement-default-units__popover-short-name">
                     {{ item.shortName }}
                 </span>

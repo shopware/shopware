@@ -211,7 +211,6 @@ export default {
             criteria.addAssociation('domains');
             criteria.getAssociation('languages').addSorting(Criteria.sort('name', 'ASC'));
             criteria.addAssociation('analytics');
-            criteria.addAssociation('measurementSystem');
 
             criteria.addAssociation('productExports');
             criteria.addAssociation('productExports.salesChannelDomain.salesChannel');
@@ -220,7 +219,6 @@ export default {
             criteria.getAssociation('domains.snippetSet').addSorting(Criteria.sort('name', 'ASC'));
             criteria.addAssociation('domains.currency');
             criteria.addAssociation('domains.productExports');
-            criteria.addAssociation('domains.measurementSystem');
 
             return criteria;
         },

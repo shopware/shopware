@@ -311,7 +311,6 @@ describe('module/sw-settings/page/sw-settings-index', () => {
         const settingsGroups = wrapper.vm.settingsGroups.shop;
         const barSetting = settingsGroups.find((setting) => setting.id === 'sw-settings-bar');
 
-
         expect(barSetting).toBeUndefined();
     });
 

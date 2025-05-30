@@ -19,7 +19,7 @@ use Symfony\Component\Routing\RouterInterface;
 #[Package('framework')]
 readonly class SalesChannelDomainUtil
 {
-    private const MAX_REDIRECTS = 10;
+    private const MAX_REDIRECTS = 5;
 
     public function __construct(
         private RouterInterface $router,

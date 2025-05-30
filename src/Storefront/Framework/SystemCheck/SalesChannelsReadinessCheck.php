@@ -22,7 +22,7 @@ use Symfony\Component\HttpFoundation\Response;
  * covered with integration tests/integration/Storefront/Framework/HealthCheck/SaleChannelsReadinessCheckTest.php
  */
 #[Package('framework')]
-class SaleChannelsReadinessCheck extends BaseCheck
+class SalesChannelsReadinessCheck extends BaseCheck
 {
     private const INDEX_PAGE = 'frontend.home.page';
 

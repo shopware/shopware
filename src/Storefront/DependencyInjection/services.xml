@@ -541,7 +541,7 @@
             <argument type="service" id="Symfony\Component\HttpKernel\KernelInterface"/>
         </service>
 
-        <service id="Shopware\Storefront\Framework\SystemCheck\SaleChannelsReadinessCheck">
+        <service id="Shopware\Storefront\Framework\SystemCheck\SalesChannelsReadinessCheck">
             <argument type="service" id="Doctrine\DBAL\Connection"/>
             <argument type="service" id="Shopware\Storefront\Framework\SystemCheck\Util\SalesChannelDomainUtil"/>
 

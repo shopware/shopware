@@ -6,22 +6,22 @@ use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\SystemCheck\Check\SystemCheckExecutionContext;
-use Shopware\Storefront\Framework\SystemCheck\SaleChannelsReadinessCheck;
+use Shopware\Storefront\Framework\SystemCheck\SalesChannelsReadinessCheck;
 use Shopware\Storefront\Framework\SystemCheck\Util\SalesChannelDomainUtil;
 
 /**
  * @internal
  */
-#[CoversClass(SaleChannelsReadinessCheck::class)]
-class SaleChannelsReadinessCheckTest extends TestCase
+#[CoversClass(SalesChannelsReadinessCheck::class)]
+class SalesChannelsReadinessCheckTest extends TestCase
 {
-    private SaleChannelsReadinessCheck $salesChannelReadinessCheck;
+    private SalesChannelsReadinessCheck $salesChannelReadinessCheck;
 
     protected function setUp(): void
     {
         parent::setUp();
 
-        $this->salesChannelReadinessCheck = new SaleChannelsReadinessCheck(
+        $this->salesChannelReadinessCheck = new SalesChannelsReadinessCheck(
             $this->createMock(Connection::class),
             $this->createMock(SalesChannelDomainUtil::class)
         );

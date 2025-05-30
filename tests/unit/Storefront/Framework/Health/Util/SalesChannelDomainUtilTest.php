@@ -152,7 +152,7 @@ class SalesChannelDomainUtilTest extends TestCase
     public function testHandleRequestsDetectsLoop(): void
     {
         $this->kernel->method('handle')->willReturnOnConsecutiveCalls(
-            ...array_fill(0, 11, new RedirectResponse('http://localhost/product/123', Response::HTTP_MOVED_PERMANENTLY)),
+            ...array_fill(0, 6, new RedirectResponse('http://localhost/product/123', Response::HTTP_MOVED_PERMANENTLY)),
         );
 
         $util = $this->getUtil();

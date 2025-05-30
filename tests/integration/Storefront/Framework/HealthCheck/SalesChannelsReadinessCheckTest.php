@@ -12,7 +12,7 @@ use Shopware\Core\Framework\Test\TestCaseBase\DatabaseTransactionBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\SalesChannelApiTestBehaviour;
 use Shopware\Core\Test\Stub\Framework\IdsCollection;
-use Shopware\Storefront\Framework\SystemCheck\SaleChannelsReadinessCheck;
+use Shopware\Storefront\Framework\SystemCheck\SalesChannelsReadinessCheck;
 use Shopware\Storefront\Framework\SystemCheck\Util\SalesChannelDomainUtil;
 use Shopware\Storefront\Framework\SystemCheck\Util\StorefrontHealthCheckResult;
 use Symfony\Component\HttpFoundation\Request;
@@ -21,8 +21,8 @@ use Symfony\Component\HttpFoundation\Response;
 /**
  * @internal
  */
-#[CoversClass(SaleChannelsReadinessCheck::class)]
-class SaleChannelsReadinessCheckTest extends TestCase
+#[CoversClass(SalesChannelsReadinessCheck::class)]
+class SalesChannelsReadinessCheckTest extends TestCase
 {
     use DatabaseTransactionBehaviour;
     use KernelTestBehaviour;
@@ -114,9 +114,9 @@ class SaleChannelsReadinessCheckTest extends TestCase
         Request::setTrustedHosts([]);
     }
 
-    private function createCheck((SalesChannelDomainUtil&MockObject)|null $util = null): SaleChannelsReadinessCheck
+    private function createCheck((SalesChannelDomainUtil&MockObject)|null $util = null): SalesChannelsReadinessCheck
     {
-        return new SaleChannelsReadinessCheck(
+        return new SalesChannelsReadinessCheck(
             $this->connection,
             $util ?? static::getContainer()->get(SalesChannelDomainUtil::class),
         );

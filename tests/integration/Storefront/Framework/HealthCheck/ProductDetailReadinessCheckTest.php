@@ -5,8 +5,8 @@ namespace Shopware\Tests\Integration\Storefront\Framework\HealthCheck;
 use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
-use Shopware\Core\Content\Product\Aggregate\ProductVisibility\ProductVisibilityDefinition;
 use Shopware\Core\Content\Product\ProductCollection;
+use Shopware\Core\Content\Test\Product\ProductBuilder;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
@@ -14,7 +14,6 @@ use Shopware\Core\Framework\SystemCheck\Check\Status;
 use Shopware\Core\Framework\Test\TestCaseBase\DatabaseTransactionBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\SalesChannelApiTestBehaviour;
-use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Test\Stub\Framework\IdsCollection;
 use Shopware\Storefront\Framework\SystemCheck\ProductDetailReadinessCheck;
 
@@ -111,19 +110,13 @@ class ProductDetailReadinessCheckTest extends TestCase
 
         $products = [];
         foreach ($salesChannelIds as $index => $id) {
-            $products[] = [
-                'id' => Uuid::randomHex(),
-                'active' => true,
-                'productNumber' => Uuid::randomHex(),
-                'stock' => 1,
-                'name' => 'Test ' . $index,
-                'price' => [['currencyId' => Defaults::CURRENCY, 'gross' => 10, 'net' => 9, 'linked' => false]],
-                'manufacturer' => ['id' => Uuid::randomHex(), 'name' => 'test'],
-                'tax' => ['id' => Uuid::randomHex(), 'taxRate' => 17, 'name' => 'with id'],
-                'visibilities' => [
-                    ['salesChannelId' => $id, 'visibility' => ProductVisibilityDefinition::VISIBILITY_ALL],
-                ],
-            ];
+            $products[] = (new ProductBuilder($this->ids, 'product-' . $index))
+                ->name('Test-' . $index)
+                ->price(10)
+                ->manufacturer('manufacturer')
+                ->tax('tax')
+                ->visibility($id)
+                ->build();
         }
 
         $this->productRepository->create($products, Context::createDefaultContext());

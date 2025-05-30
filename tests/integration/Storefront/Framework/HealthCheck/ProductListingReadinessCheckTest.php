@@ -7,7 +7,7 @@ use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Category\CategoryCollection;
 use Shopware\Core\Content\Category\CategoryDefinition;
-use Shopware\Core\Content\Product\Aggregate\ProductVisibility\ProductVisibilityDefinition;
+use Shopware\Core\Content\Test\Product\ProductBuilder;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
@@ -158,24 +158,13 @@ class ProductListingReadinessCheckTest extends TestCase
     {
         $products = [];
         for ($i = 0; $i < 5; ++$i) {
-            $products[] = [
-                'id' => $this->ids->create('product' . $i),
-                'manufacturer' => ['id' => $this->ids->create('manufacturer-' . $i), 'name' => 'test-' . $i],
-                'productNumber' => $this->ids->get('product' . $i),
-                'name' => 'test',
-                'stock' => 10,
-                'price' => [
-                    ['currencyId' => Defaults::CURRENCY, 'gross' => 15, 'net' => 10, 'linked' => false],
-                ],
-                'tax' => ['name' => 'test', 'taxRate' => 15],
-                'active' => true,
-                'visibilities' => [
-                    [
-                        'salesChannelId' => $salesChannelId,
-                        'visibility' => ProductVisibilityDefinition::VISIBILITY_ALL,
-                    ],
-                ],
-            ];
+            $products[] = (new ProductBuilder($this->ids, 'product-' . $i))
+                ->name('Test-' . $i)
+                ->price(10)
+                ->manufacturer('manufacturer')
+                ->tax('tax')
+                ->visibility($salesChannelId)
+                ->build();
         }
 
         return $products;

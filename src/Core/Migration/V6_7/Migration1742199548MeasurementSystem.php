@@ -3,6 +3,7 @@
 namespace Shopware\Core\Migration\V6_7;
 
 use Doctrine\DBAL\Connection;
+use Shopware\Core\Content\MeasurementSystem\MeasurementUnits;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Migration\MigrationStep;
@@ -66,6 +67,7 @@ class Migration1742199548MeasurementSystem extends MigrationStep
               `type` VARCHAR(20) NOT NULL,
               `short_name` VARCHAR(20) NOT NULL,
               `factor` DOUBLE NOT NULL,
+              `precision` INT NOT NULL DEFAULT 3,
               `created_at` DATETIME(3) NOT NULL,
               `updated_at` DATETIME(3) NULL,
               PRIMARY KEY (`id`),
@@ -137,17 +139,17 @@ class Migration1742199548MeasurementSystem extends MigrationStep
         }
 
         $units = [
-            ['id' => Uuid::randomBytes(), 'measurement_system_id' => $metricId, 'default' => 0, 'type' => 'length', 'short_name' => 'm', 'factor' => 1000, 'name_en' => 'Meter', 'name_de' => 'Zähler'],
-            ['id' => Uuid::randomBytes(), 'measurement_system_id' => $metricId, 'default' => 0, 'type' => 'length', 'short_name' => 'cm', 'factor' => 10, 'name_en' => 'Centimeter', 'name_de' => 'Zentimeter'],
-            ['id' => Uuid::fromHexToBytes(Uuid::fromStringToHex('metric-mm')), 'measurement_system_id' => $metricId, 'default' => 1, 'type' => 'length', 'short_name' => 'mm', 'factor' => 1, 'name_en' => 'Millimeter', 'name_de' => 'Millimeter'],
-            ['id' => Uuid::fromHexToBytes(Uuid::fromStringToHex('metric-kg')), 'measurement_system_id' => $metricId, 'default' => 1, 'type' => 'weight', 'short_name' => 'kg', 'factor' => 1, 'name_en' => 'Kilogram', 'name_de' => 'Kilogramm'],
-            ['id' => Uuid::randomBytes(), 'measurement_system_id' => $metricId, 'default' => 0, 'type' => 'weight', 'short_name' => 'g', 'factor' => 0.001, 'name_en' => 'Gram', 'name_de' => 'Gramm'],
+            ['id' => Uuid::randomBytes(), 'measurement_system_id' => $metricId, 'default' => 0, 'type' => 'length', 'short_name' => 'm', 'factor' => 1000, 'precision' => 2, 'name_en' => 'Meter', 'name_de' => 'Zähler'],
+            ['id' => Uuid::randomBytes(), 'measurement_system_id' => $metricId, 'default' => 0, 'type' => 'length', 'short_name' => 'cm', 'factor' => 10, 'precision' => 1, 'name_en' => 'Centimeter', 'name_de' => 'Zentimeter'],
+            ['id' => Uuid::fromHexToBytes(Uuid::fromStringToHex('metric-mm')), 'measurement_system_id' => $metricId, 'default' => 1, 'type' => 'length', 'short_name' => 'mm', 'factor' => 1, 'precision' => 0, 'name_en' => 'Millimeter', 'name_de' => 'Millimeter'],
+            ['id' => Uuid::fromHexToBytes(Uuid::fromStringToHex('metric-kg')), 'measurement_system_id' => $metricId, 'default' => 1, 'type' => 'weight', 'short_name' => 'kg', 'factor' => 1, 'precision' => 3, 'name_en' => 'Kilogram', 'name_de' => 'Kilogramm'],
+            ['id' => Uuid::randomBytes(), 'measurement_system_id' => $metricId, 'default' => 0, 'type' => 'weight', 'short_name' => 'g', 'factor' => 0.001, 'precision' => 1, 'name_en' => 'Gram', 'name_de' => 'Gramm'],
 
-            ['id' => Uuid::randomBytes(), 'measurement_system_id' => $imperialId, 'default' => 1, 'type' => 'length', 'short_name' => 'in', 'factor' => 25.4, 'name_en' => 'Inch', 'name_de' => 'Zoll'],
-            ['id' => Uuid::randomBytes(), 'measurement_system_id' => $imperialId, 'default' => 0, 'type' => 'length', 'short_name' => 'ft', 'factor' => 304.8, 'name_en' => 'Foot', 'name_de' => 'Fuß'],
-            ['id' => Uuid::randomBytes(), 'measurement_system_id' => $imperialId, 'default' => 0, 'type' => 'length', 'short_name' => 'yd', 'factor' => 914.4, 'name_en' => 'Yard', 'name_de' => 'Yard'],
-            ['id' => Uuid::randomBytes(), 'measurement_system_id' => $imperialId, 'default' => 1, 'type' => 'weight', 'short_name' => 'lb', 'factor' => 0.453592, 'name_en' => 'Pound', 'name_de' => 'Pfund'],
-            ['id' => Uuid::randomBytes(), 'measurement_system_id' => $imperialId, 'default' => 0, 'type' => 'weight', 'short_name' => 'oz', 'factor' => 0.0283495, 'name_en' => 'Ounce', 'name_de' => 'Unze'],
+            ['id' => Uuid::randomBytes(), 'measurement_system_id' => $imperialId, 'default' => 1, 'type' => 'length', 'short_name' => 'in', 'factor' => 25.4, 'precision' => 2, 'name_en' => 'Inch', 'name_de' => 'Zoll'],
+            ['id' => Uuid::randomBytes(), 'measurement_system_id' => $imperialId, 'default' => 0, 'type' => 'length', 'short_name' => 'ft', 'factor' => 304.8, 'precision' => 2, 'name_en' => 'Foot', 'name_de' => 'Fuß'],
+            ['id' => Uuid::randomBytes(), 'measurement_system_id' => $imperialId, 'default' => 0, 'type' => 'length', 'short_name' => 'yd', 'factor' => 914.4, 'precision' => 2, 'name_en' => 'Yard', 'name_de' => 'Yard'],
+            ['id' => Uuid::randomBytes(), 'measurement_system_id' => $imperialId, 'default' => 1, 'type' => 'weight', 'short_name' => 'lb', 'factor' => 0.453592, 'precision' => 2, 'name_en' => 'Pound', 'name_de' => 'Pfund'],
+            ['id' => Uuid::randomBytes(), 'measurement_system_id' => $imperialId, 'default' => 0, 'type' => 'weight', 'short_name' => 'oz', 'factor' => 0.0283495, 'precision' => 2, 'name_en' => 'Ounce', 'name_de' => 'Unze'],
         ];
 
         $dbUnits = $connection->fetchOne('SELECT 1 FROM `measurement_display_unit`');
@@ -158,8 +160,8 @@ class Migration1742199548MeasurementSystem extends MigrationStep
         foreach ($units as $unit) {
             $connection->executeStatement('
                 INSERT INTO `measurement_display_unit`
-                (`id`, `measurement_system_id`, `default`, `type`, `short_name`, `factor`, `created_at`)
-                VALUES (:id, :measurementSystemId, :default, :type, :shortName, :factor, :createdAt)
+                (`id`, `measurement_system_id`, `default`, `type`, `short_name`, `factor`, `precision`, `created_at`)
+                VALUES (:id, :measurementSystemId, :default, :type, :shortName, :factor, :precision, :createdAt)
             ', [
                 'id' => $unit['id'],
                 'measurementSystemId' => $unit['measurement_system_id'],
@@ -167,6 +169,7 @@ class Migration1742199548MeasurementSystem extends MigrationStep
                 'type' => $unit['type'],
                 'shortName' => $unit['short_name'],
                 'factor' => $unit['factor'],
+                'precision' => $unit['precision'],
                 'createdAt' => (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT),
             ]);
 
@@ -188,11 +191,11 @@ class Migration1742199548MeasurementSystem extends MigrationStep
         }
 
         $defaultUnits = \json_encode([
-            'system' => 'metric',
+            'system' => MeasurementUnits::DEFAULT_MEASUREMENT_SYSTEM,
             'units' => [
-                'weight' => 'kg',
-                'length' => 'mm',
-            ],
+                'length' => MeasurementUnits::DEFAULT_LENGTH_UNIT,
+                'weight' => MeasurementUnits::DEFAULT_WEIGHT_UNIT,
+            ]
         ]);
 
         $connection->executeStatement('

@@ -1,0 +1,266 @@
+<?php declare(strict_types=1);
+
+namespace Shopware\Tests\Unit\Core\Content\MeasurementSystem\TwigExtension;
+
+use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\TestCase;
+use Shopware\Core\Content\MeasurementSystem\TwigExtension\MeasurementConvertUnitTwigFilter;
+use Shopware\Core\Content\MeasurementSystem\UnitConverter\AbstractMeasurementUnitConverter;
+use Shopware\Core\Content\MeasurementSystem\UnitConverter\ConvertedUnit;
+use Shopware\Core\Content\MeasurementSystem\UnitProvider\AbstractMeasurementUnitProvider;
+use Shopware\Core\Content\MeasurementSystem\MeasurementUnits;
+use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\System\SalesChannel\SalesChannelContext;
+use Twig\TwigFilter;
+
+/**
+ * @internal
+ */
+#[Package('inventory')]
+#[CoversClass(MeasurementConvertUnitTwigFilter::class)]
+class MeasurementConvertUnitTwigFilterTest extends TestCase
+{
+    private AbstractMeasurementUnitProvider $unitProvider;
+    private AbstractMeasurementUnitConverter $unitConverter;
+    private MeasurementConvertUnitTwigFilter $filter;
+
+    protected function setUp(): void
+    {
+        $this->unitProvider = $this->createMock(AbstractMeasurementUnitProvider::class);
+        $this->unitConverter = $this->createMock(AbstractMeasurementUnitConverter::class);
+        $this->filter = new MeasurementConvertUnitTwigFilter($this->unitProvider, $this->unitConverter);
+    }
+
+    public function testGetFilters(): void
+    {
+        $filters = $this->filter->getFilters();
+
+        static::assertCount(1, $filters);
+        static::assertInstanceOf(TwigFilter::class, $filters[0]);
+        static::assertSame('sw_convert_unit', $filters[0]->getName());
+    }
+
+    public function testConvertWithNonNumericValue(): void
+    {
+        $twigContext = [];
+        $value = 'not_numeric';
+
+        $result = $this->filter->convert($twigContext, $value);
+
+        static::assertSame('not_numeric', $result);
+    }
+
+    public function testConvertWithNullValue(): void
+    {
+        $twigContext = [];
+        $value = null;
+
+        $result = $this->filter->convert($twigContext, $value);
+
+        static::assertNull($result);
+    }
+
+    public function testConvertWithAutoDetectedUnit(): void
+    {
+        $context = $this->createMock(SalesChannelContext::class);
+        $measurementUnits = $this->createMock(MeasurementUnits::class);
+        
+        $twigContext = ['context' => $context];
+
+        $this->unitProvider
+            ->expects(static::once())
+            ->method('getUnitInfo')
+            ->with('mm')
+            ->willReturn(['type' => 'length']);
+
+        $context
+            ->expects(static::once())
+            ->method('getMeasurementSystem')
+            ->willReturn($measurementUnits);
+
+        $measurementUnits
+            ->expects(static::once())
+            ->method('getUnit')
+            ->with('length')
+            ->willReturn('cm');
+
+        $this->unitConverter
+            ->expects(static::once())
+            ->method('convert')
+            ->with(100.0, 'mm', 'cm', null)
+            ->willReturn(new ConvertedUnit(10.0, 'cm'));
+
+        $result = $this->filter->convert($twigContext, '100', 'mm');
+
+        static::assertSame('10 cm', $result);
+    }
+
+    public function testConvertWithExplicitToUnit(): void
+    {
+        $twigContext = [];
+
+        $this->unitConverter
+            ->expects(static::once())
+            ->method('convert')
+            ->with(1000.0, 'mm', 'm', null)
+            ->willReturn(new ConvertedUnit(1.0, 'm'));
+
+        $result = $this->filter->convert($twigContext, 1000, 'mm', 'm');
+
+        static::assertSame('1 m', $result);
+    }
+
+    public function testConvertWithCustomPrecision(): void
+    {
+        $twigContext = [];
+
+        $this->unitConverter
+            ->expects(static::once())
+            ->method('convert')
+            ->with(1000.0, 'mm', 'm', 3)
+            ->willReturn(new ConvertedUnit(1.000, 'm'));
+
+        $result = $this->filter->convert($twigContext, 1000, 'mm', 'm', 3);
+
+        static::assertSame('1 m', $result);
+    }
+
+    public function testConvertWithNoToUnitAndNoContext(): void
+    {
+        $twigContext = [];
+
+        $result = $this->filter->convert($twigContext, 100, 'mm', null);
+
+        static::assertSame('100 mm', $result);
+    }
+
+    public function testConvertWithStringValue(): void
+    {
+        $twigContext = [];
+
+        $this->unitConverter
+            ->expects(static::once())
+            ->method('convert')
+            ->with(100.0, 'mm', 'cm', null)
+            ->willReturn(new ConvertedUnit(10.0, 'cm'));
+
+        $result = $this->filter->convert($twigContext, '100', 'mm', 'cm');
+
+        static::assertSame('10 cm', $result);
+    }
+
+    public function testConvertWithFloatValue(): void
+    {
+        $twigContext = [];
+
+        $this->unitConverter
+            ->expects(static::once())
+            ->method('convert')
+            ->with(100.5, 'mm', 'cm', null)
+            ->willReturn(new ConvertedUnit(10.05, 'cm'));
+
+        $result = $this->filter->convert($twigContext, 100.5, 'mm', 'cm');
+
+        static::assertSame('10.05 cm', $result);
+    }
+
+    public function testConvertWithZeroValue(): void
+    {
+        $twigContext = [];
+
+        $this->unitConverter
+            ->expects(static::once())
+            ->method('convert')
+            ->with(0.0, 'mm', 'cm', null)
+            ->willReturn(new ConvertedUnit(0.0, 'cm'));
+
+        $result = $this->filter->convert($twigContext, 0, 'mm', 'cm');
+
+        static::assertSame('0 cm', $result);
+    }
+
+    public function testConvertWithNegativeValue(): void
+    {
+        $twigContext = [];
+
+        $this->unitConverter
+            ->expects(static::once())
+            ->method('convert')
+            ->with(-10.0, 'celsius', 'kelvin', null)
+            ->willReturn(new ConvertedUnit(263.15, 'kelvin'));
+
+        $result = $this->filter->convert($twigContext, -10, 'celsius', 'kelvin');
+
+        static::assertSame('263.15 kelvin', $result);
+    }
+
+    public function testConvertWithContextButNoMeasurementSystem(): void
+    {
+        $context = $this->createMock(SalesChannelContext::class);
+        $measurementUnits = $this->createMock(MeasurementUnits::class);
+        
+        $twigContext = ['context' => $context];
+
+        $this->unitProvider
+            ->expects(static::once())
+            ->method('getUnitInfo')
+            ->with('mm')
+            ->willReturn(['type' => 'length']);
+
+        $context
+            ->expects(static::once())
+            ->method('getMeasurementSystem')
+            ->willReturn($measurementUnits);
+
+        $measurementUnits
+            ->expects(static::once())
+            ->method('getUnit')
+            ->with('length')
+            ->willReturn('cm');
+
+        $this->unitConverter
+            ->expects(static::once())
+            ->method('convert')
+            ->with(100.0, 'mm', 'cm', null)
+            ->willReturn(new ConvertedUnit(10.0, 'cm'));
+
+        $result = $this->filter->convert($twigContext, 100, 'mm', null);
+
+        static::assertSame('10 cm', $result);
+    }
+
+    public function testConvertWithDefaultFromUnit(): void
+    {
+        $context = $this->createMock(SalesChannelContext::class);
+        $measurementUnits = $this->createMock(MeasurementUnits::class);
+        
+        $twigContext = ['context' => $context];
+
+        $this->unitProvider
+            ->expects(static::once())
+            ->method('getUnitInfo')
+            ->with('mm')
+            ->willReturn(['type' => 'length']);
+
+        $context
+            ->expects(static::once())
+            ->method('getMeasurementSystem')
+            ->willReturn($measurementUnits);
+
+        $measurementUnits
+            ->expects(static::once())
+            ->method('getUnit')
+            ->with('length')
+            ->willReturn('cm');
+
+        $this->unitConverter
+            ->expects(static::once())
+            ->method('convert')
+            ->with(100.0, 'mm', 'cm', null)
+            ->willReturn(new ConvertedUnit(10.0, 'cm'));
+
+        $result = $this->filter->convert($twigContext, 100);
+
+        static::assertSame('10 cm', $result);
+    }
+} 

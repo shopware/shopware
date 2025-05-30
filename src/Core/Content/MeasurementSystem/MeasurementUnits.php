@@ -3,10 +3,10 @@
 namespace Shopware\Core\Content\MeasurementSystem;
 
 use Shopware\Core\Framework\Log\Package;
-use Shopware\Core\Framework\Struct\Struct;
+use Shopware\Core\Framework\Struct\Collection;
 
 #[Package('inventory')]
-class MeasurementUnits extends Struct
+class MeasurementUnits extends Collection
 {
     public const DEFAULT_MEASUREMENT_SYSTEM = 'metric';
 
@@ -17,13 +17,9 @@ class MeasurementUnits extends Struct
     /**
      * @param array<string, string> $units
      */
-    public function __construct(protected string $name, protected array $units)
+    public function __construct(protected string $system, protected array $units)
     {
-    }
-
-    public function addUnit(string $type, string $unit): void
-    {
-        $this->units[$type] = $unit;
+        parent::__construct($this->units);
     }
 
     public function getUnit(string $type): string
@@ -43,11 +39,6 @@ class MeasurementUnits extends Struct
         return $this->units;
     }
 
-    public function getName(): string
-    {
-        return $this->name;
-    }
-
     public static function createDefaultUnits(): self
     {
         return new self(
@@ -57,6 +48,11 @@ class MeasurementUnits extends Struct
                 'weight' => self::DEFAULT_WEIGHT_UNIT,
             ]
         );
+    }
+
+    public function getSystem(): string
+    {
+        return $this->system;
     }
 
     public function getApiAlias(): string

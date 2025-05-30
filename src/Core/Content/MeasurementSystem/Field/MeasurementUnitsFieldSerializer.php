@@ -34,7 +34,7 @@ class MeasurementUnitsFieldSerializer extends JsonFieldSerializer
             
             // Convert MeasurementUnits to array
             $data->setValue([
-                'name' => $measurementUnits->getName(),
+                'system' => $measurementUnits->getSystem(),
                 'units' => $measurementUnits->getUnits(),
             ]);
         }
@@ -42,7 +42,7 @@ class MeasurementUnitsFieldSerializer extends JsonFieldSerializer
         yield from parent::encode($field, $existence, $data, $parameters);
     }
 
-    public function decode(Field $field, $value): MeasurementUnits
+    public function decode(Field $field, mixed $value): MeasurementUnits
     {
         if ($value === null) {
             return MeasurementUnits::createDefaultUnits();
@@ -53,12 +53,12 @@ class MeasurementUnitsFieldSerializer extends JsonFieldSerializer
             return MeasurementUnits::createDefaultUnits();
         }
 
-        $name = $decoded['name'] ?? MeasurementUnits::DEFAULT_MEASUREMENT_SYSTEM;
+        $system = $decoded['system'] ?? MeasurementUnits::DEFAULT_MEASUREMENT_SYSTEM;
         $units = $decoded['units'] ?? [
             'length' => MeasurementUnits::DEFAULT_LENGTH_UNIT,
             'weight' => MeasurementUnits::DEFAULT_WEIGHT_UNIT,
         ];
 
-        return new MeasurementUnits($name, $units);
+        return new MeasurementUnits($system, $units);
     }
 } 

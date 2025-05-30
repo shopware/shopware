@@ -33,23 +33,23 @@ class Migration1745319883AddDefaultConfigForMeasurementSystem extends MigrationS
             $connection->executeStatement($query, [
                 'id' => Uuid::randomBytes(),
                 'configKey' => 'core.measurementUnits.system',
-                'configValue' => \sprintf('{"_value": "%s"}', Uuid::fromBytesToHex($metricId)),
+                'configValue' => \sprintf('{"_value": "%s"}', 'metric'),
                 'createdAt' => (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT),
             ]);
         }
 
-        $units = $connection->fetchAllKeyValue('SELECT id, type FROM `measurement_display_unit` WHERE short_name IN (:names)', [
+        $units = $connection->fetchAllKeyValue('SELECT short_name, type FROM `measurement_display_unit` WHERE short_name IN (:names)', [
             'names' => ['mm', 'kg'],
         ], [
             'names' => ArrayParameterType::BINARY,
         ]);
 
-        foreach ($units as $id => $unitType) {
-            $configKey = $unitType === 'length' ? 'core.measurementSystem.lengthUnitId' : 'core.measurementSystem.weightUnitId';
+        foreach ($units as $shortName => $unitType) {
+            $configKey = $unitType === 'length' ? 'core.measurementUnits.length' : 'core.measurementUnits.weight';
             $connection->executeStatement($query, [
                 'id' => Uuid::randomBytes(),
                 'configKey' => $configKey,
-                'configValue' => \sprintf('{"_value": "%s"}', Uuid::fromBytesToHex($id)),
+                'configValue' => \sprintf('{"_value": "%s"}', $shortName),
                 'createdAt' => (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT),
             ]);
         }

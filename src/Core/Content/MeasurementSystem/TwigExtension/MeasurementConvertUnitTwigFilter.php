@@ -34,10 +34,10 @@ class MeasurementConvertUnitTwigFilter extends AbstractExtension
     /**
      * @param array<string, mixed> $twigContext
      */
-    public function convert(array $twigContext, float|string|null $value, string $from = 'mm', ?string $to = null, int $decimals = 2): ?string
+    public function convert(array $twigContext, float|string|null $value, string $from = 'mm', ?string $to = null, ?int $precision = null): ?string
     {
         if (!\is_numeric($value)) {
-            return $value;
+            return $value === null ? null : (string) $value;
         }
 
         // if the `to` unit is not set, automatically set it to the sales channel configured measurement unit
@@ -56,7 +56,7 @@ class MeasurementConvertUnitTwigFilter extends AbstractExtension
 
         $value = (float) $value;
 
-        $converted = $this->unitConverter->convert($value, $from, $to, $decimals);
+        $converted = $this->unitConverter->convert($value, $from, $to, $precision);
 
         return \sprintf('%s %s', $converted->value, $converted->unit);
     }

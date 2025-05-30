@@ -9,6 +9,7 @@ use Shopware\Core\Framework\JWT\Constraints\HasValidRSAJWKSignature;
 use Shopware\Core\Framework\JWT\Constraints\MatchesLicenceDomain;
 use Shopware\Core\Framework\JWT\JWTDecoder;
 use Shopware\Core\Framework\JWT\JWTException;
+use Shopware\Core\Framework\JWT\Struct\JWKStruct;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Store\StoreException;
 use Shopware\Core\System\SystemConfig\SystemConfigService;

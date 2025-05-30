@@ -44,10 +44,12 @@ class InAppPurchaseProviderTest extends TestCase
 
     protected function setUp(): void
     {
-        $this->validJwks = file_get_contents(__DIR__ . '/../../../JWT/_fixtures/valid-jwks.json');
-        $this->invalidJwks = file_get_contents(__DIR__ . '/../../../JWT/_fixtures/invalid-jwks.json');
-        static::assertIsString($this->validJwks);
-        static::assertIsString($this->invalidJwks);
+        $validJwks = file_get_contents(__DIR__ . '/../../../JWT/_fixtures/valid-jwks.json');
+        $invalidJwks = file_get_contents(__DIR__ . '/../../../JWT/_fixtures/invalid-jwks.json');
+        static::assertIsString($validJwks);
+        static::assertIsString($invalidJwks);
+        $this->validJwks = $validJwks;
+        $this->invalidJwks = $invalidJwks;
 
         $this->client = $this->createMock(ClientInterface::class);
         $this->logger = new TestHandler();
@@ -164,9 +166,9 @@ class InAppPurchaseProviderTest extends TestCase
 
         static::assertCount(1, $this->logger->getRecords());
         $record = $this->logger->getRecords()[0];
-        static::assertSame('Unable to decode In-App purchases for extension "{extension}": {message}', $record['message']);
-        static::assertSame('Extension1', $record['context']['extension']);
-        static::assertSame('Invalid JWT: Key ID (kid) could not be found', $record['context']['message']);
+        static::assertSame('Unable to decode In-App purchases for extension "{extension}": {message}', $record->message);
+        static::assertSame('Extension1', $record->context['extension']);
+        static::assertSame('Invalid JWT: Key ID (kid) could not be found', $record->context['message']);
     }
 
     public function testGetPurchasesWithoutJWKS(): void
@@ -187,10 +189,10 @@ class InAppPurchaseProviderTest extends TestCase
 
         static::assertCount(2, $this->logger->getRecords());
         $record = $this->logger->getRecords()[0];
-        static::assertSame('Could not fetch the JWKS from the SBP', $record['message']);
+        static::assertSame('Could not fetch the JWKS from the SBP', $record->message);
         $record = $this->logger->getRecords()[1];
-        static::assertSame('Unable to decode In-App purchases: {message}', $record['message']);
-        static::assertSame('Unable to retrieve JWKS key', $record['context']['message']);
+        static::assertSame('Unable to decode In-App purchases: {message}', $record->message);
+        static::assertSame('Unable to retrieve JWKS key', $record->context['message']);
     }
 
     /**
@@ -215,7 +217,7 @@ class InAppPurchaseProviderTest extends TestCase
     }
 
     /**
-     * @param array<int, array<string, int|string>> $payload
+     * @param array<string, array<string, int|string>> $payload
      */
     private function generateJwt(array $payload): string
     {
@@ -227,6 +229,7 @@ class InAppPurchaseProviderTest extends TestCase
         });
 
         foreach ($payload as $i => $iap) {
+            static::assertNotEmpty($i);
             $builder = $builder->withClaim((string) $i, $iap);
         }
 

@@ -29,8 +29,23 @@ jobs:
         env:
           JIRA_USERNAME: ${{ secrets.JIRA_USERNAME }}
           JIRA_API_TOKEN: ${{ secrets.JIRA_API_TOKEN }}
+          REPO_VARS: ${{ toJSON(vars) }}
         with:
           github-token: ${{ steps.sts.outputs.token }}
           script: |
             const { createDocumentationTasksForProjects } = await import('${{ github.workspace }}/.github/bin/js/node_modules/@shopware-ag/gh-project-automation/dist/index.mjs')
-            await createDocumentationTasksForProjects({github, core, context, fetch}, ${{ vars.DOC_TASK_PROJECTS }}, 'shopware', ${{ vars.DOC_TASK_PROJECT_ID }}, '${{ vars.DOC_TASK_DESCRIPTION }}', '${{ vars.DOC_TASK_REFERENCE_COMMENT_PREFIX }}')
+            
+            const repoVars = JSON.parse(process.env.REPO_VARS);
+            const docTaskProjects = repoVars.DOC_TASK_PROJECTS.split(',').map(i => parseInt(i));
+            const docTaskProjectId = parseInt(repoVars.DOC_TASK_PROJECT_ID);
+            const docTaskDescription = repoVars.DOC_TASK_DESCRIPTION;
+            const docTaskReferenceCommentPrefix = repoVars.DOC_TASK_REFERENCE_COMMENT_PREFIX;
+            
+            await createDocumentationTasksForProjects(
+              {github, core, context, fetch},
+              docTaskProjects,
+              'shopware',
+              docTaskProjectId,
+              docTaskDescription,
+              docTaskReferenceCommentPrefix
+            );

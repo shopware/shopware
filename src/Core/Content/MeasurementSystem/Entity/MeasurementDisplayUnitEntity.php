@@ -51,45 +51,12 @@ class MeasurementDisplayUnitEntity extends EntityStruct
     #[Field(type: FieldType::FLOAT, api: true)]
     public float $factor;
 
+    #[Field(type: FieldType::INT, api: true)]
+    public int $precision;
+
     #[Field(type: FieldType::STRING, translated: true, api: true)]
     public ?string $name = null;
-
-    /**
-     * @var array<string, ProductEntity>|null
-     */
-    #[ManyToMany(entity: ProductDefinition::ENTITY_NAME, onDelete: OnDelete::CASCADE, api: true)]
-    public ?array $weightProducts = null;
-
-    /**
-     * @var array<string, ProductEntity>|null
-     */
-    #[ManyToMany(entity: ProductDefinition::ENTITY_NAME, onDelete: OnDelete::CASCADE, api: true)]
-    public ?array $lengthProducts = null;
-
-    /**
-     * @var array<string, SalesChannelDomainEntity>|null
-     */
-    #[OneToMany(entity: SalesChannelDomainDefinition::ENTITY_NAME, ref: 'weight_unit_id', onDelete: OnDelete::CASCADE, api: true)]
-    public ?array $weightSalesChannelDomains = null;
-
-    /**
-     * @var array<string, SalesChannelDomainEntity>|null
-     */
-    #[OneToMany(entity: SalesChannelDomainDefinition::ENTITY_NAME, ref: 'length_unit_id', onDelete: OnDelete::CASCADE, api: true)]
-    public ?array $lengthSalesChannelDomains = null;
-
-    /**
-     * @var array<string, SalesChannelEntity>|null
-     */
-    #[OneToMany(entity: SalesChannelDefinition::ENTITY_NAME, ref: 'weight_unit_id', onDelete: OnDelete::CASCADE, api: true)]
-    public ?array $weightSalesChannels = null;
-
-    /**
-     * @var array<string, SalesChannelEntity>|null
-     */
-    #[OneToMany(entity: SalesChannelDefinition::ENTITY_NAME, ref: 'length_unit_id', onDelete: OnDelete::CASCADE, api: true)]
-    public ?array $lengthSalesChannels = null;
-
+    
     /**
      * @var array<string, ArrayEntity>|null
      */

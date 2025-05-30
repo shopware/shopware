@@ -9,13 +9,13 @@ use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Symfony\Contracts\Service\ResetInterface;
 
 /**
- * @phpstan-import-type MeasurementUnitsType from AbstractMeasurementUnitProvider
+ * @phpstan-import-type MeasurementUnitType from AbstractMeasurementUnitProvider
  */
 #[Package('inventory')]
 class MeasurementUnitProvider extends AbstractMeasurementUnitProvider implements ResetInterface
 {
     /**
-     * @var array<string, MeasurementUnitsType>
+     * @var array<string, MeasurementUnitType>
      */
     private array $units = [];
 
@@ -32,15 +32,16 @@ class MeasurementUnitProvider extends AbstractMeasurementUnitProvider implements
             return $this->units;
         }
 
-        $query = 'SELECT short_name, type, factor FROM measurement_display_unit';
+        $query = 'SELECT `short_name`, `type`, `factor`, `precision` FROM measurement_display_unit';
 
-        /** @var array< string, array{ type: string, factor: string }> $units */
+        /** @var array<string, array{ type: string, factor: string, precision: string }> $units */
         $units = $this->connection->fetchAllAssociativeIndexed($query);
 
         return $this->units = array_map(
             static fn (array $unit) => [
                 'factor' => (float) $unit['factor'],
                 'type' => $unit['type'],
+                'precision' => (int) $unit['precision'],
             ],
             $units
         );

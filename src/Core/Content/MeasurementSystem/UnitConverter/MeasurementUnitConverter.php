@@ -20,7 +20,7 @@ class MeasurementUnitConverter extends AbstractMeasurementUnitConverter
     {
     }
 
-    public function convert(float $value, string $fromUnit, string $toUnit, int $decimals = 3): ConvertedUnit
+    public function convert(float $value, string $fromUnit, string $toUnit, ?int $precision = null): ConvertedUnit
     {
         if ($fromUnit === $toUnit) {
             return new ConvertedUnit($value, $toUnit);
@@ -33,9 +33,16 @@ class MeasurementUnitConverter extends AbstractMeasurementUnitConverter
             throw MeasurementSystemException::incompatibleMeasurementUnits($fromUnit, $toUnit);
         }
 
+        // Protect against division by zero
+        if ($toUnitInfo['factor'] == 0) {
+            throw MeasurementSystemException::measurementUnitCantHaveZeroFactor($toUnit);
+        }
+
         $value = $value * $fromUnitInfo['factor'] / $toUnitInfo['factor'];
 
-        $roundedValue = round($value, $decimals);
+        // Use the target unit's precision from database if no override is provided
+        $targetRounding = $precision ?? $toUnitInfo['precision'];
+        $roundedValue = round($value, $targetRounding);
 
         return new ConvertedUnit($roundedValue, $toUnit);
     }

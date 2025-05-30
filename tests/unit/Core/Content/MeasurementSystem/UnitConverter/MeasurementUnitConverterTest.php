@@ -3,13 +3,14 @@
 namespace Shopware\Tests\Unit\Core\Content\MeasurementSystem\UnitConverter;
 
 use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\MeasurementSystem\MeasurementSystemException;
 use Shopware\Core\Content\MeasurementSystem\UnitConverter\ConvertedUnit;
 use Shopware\Core\Content\MeasurementSystem\UnitConverter\MeasurementUnitConverter;
 use Shopware\Core\Content\MeasurementSystem\UnitProvider\AbstractMeasurementUnitProvider;
-use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 
 /**
  * @internal
@@ -18,7 +19,8 @@ use Shopware\Core\Framework\Log\Package;
 #[CoversClass(MeasurementUnitConverter::class)]
 class MeasurementUnitConverterTest extends TestCase
 {
-    private AbstractMeasurementUnitProvider $unitProvider;
+    private AbstractMeasurementUnitProvider&MockObject $unitProvider;
+
     private MeasurementUnitConverter $converter;
 
     protected function setUp(): void
@@ -31,7 +33,6 @@ class MeasurementUnitConverterTest extends TestCase
     {
         $result = $this->converter->convert(10.5, 'mm', 'mm');
 
-        static::assertInstanceOf(ConvertedUnit::class, $result);
         static::assertSame(10.5, $result->value);
         static::assertSame('mm', $result->unit);
     }
@@ -51,7 +52,7 @@ class MeasurementUnitConverterTest extends TestCase
         ];
 
         $this->unitProvider
-            ->expects(static::exactly(2))
+            ->expects($this->exactly(2))
             ->method('getUnitInfo')
             ->willReturnMap([
                 ['mm', $fromUnitInfo],
@@ -60,7 +61,6 @@ class MeasurementUnitConverterTest extends TestCase
 
         $result = $this->converter->convert(100.0, 'mm', 'cm');
 
-        static::assertInstanceOf(ConvertedUnit::class, $result);
         static::assertSame(10.0, $result->value);
         static::assertSame('cm', $result->unit);
     }
@@ -80,7 +80,7 @@ class MeasurementUnitConverterTest extends TestCase
         ];
 
         $this->unitProvider
-            ->expects(static::exactly(2))
+            ->expects($this->exactly(2))
             ->method('getUnitInfo')
             ->willReturnMap([
                 ['mm', $fromUnitInfo],
@@ -89,7 +89,6 @@ class MeasurementUnitConverterTest extends TestCase
 
         $result = $this->converter->convert(10.0, 'mm', 'custom', 3);
 
-        static::assertInstanceOf(ConvertedUnit::class, $result);
         static::assertSame(3.333, $result->value);
         static::assertSame('custom', $result->unit);
     }
@@ -109,7 +108,7 @@ class MeasurementUnitConverterTest extends TestCase
         ];
 
         $this->unitProvider
-            ->expects(static::exactly(2))
+            ->expects($this->exactly(2))
             ->method('getUnitInfo')
             ->willReturnMap([
                 ['kg', $fromUnitInfo],
@@ -118,7 +117,6 @@ class MeasurementUnitConverterTest extends TestCase
 
         $result = $this->converter->convert(1.2345, 'kg', 'g');
 
-        static::assertInstanceOf(ConvertedUnit::class, $result);
         static::assertSame(1235.0, $result->value); // rounded to 0 decimal places
         static::assertSame('g', $result->unit);
     }
@@ -138,7 +136,7 @@ class MeasurementUnitConverterTest extends TestCase
         ];
 
         $this->unitProvider
-            ->expects(static::exactly(2))
+            ->expects($this->exactly(2))
             ->method('getUnitInfo')
             ->willReturnMap([
                 ['mm', $fromUnitInfo],
@@ -173,7 +171,7 @@ class MeasurementUnitConverterTest extends TestCase
         ];
 
         $this->unitProvider
-            ->expects(static::exactly(2))
+            ->expects($this->exactly(2))
             ->method('getUnitInfo')
             ->willReturnMap([
                 ['mm', $fromUnitInfo],
@@ -183,7 +181,6 @@ class MeasurementUnitConverterTest extends TestCase
         // 1250mm * 0.001 / 0.01 = 1250 * 0.1 = 125cm
         $result = $this->converter->convert(1250.0, 'mm', 'cm');
 
-        static::assertInstanceOf(ConvertedUnit::class, $result);
         static::assertSame(125.0, $result->value);
         static::assertSame('cm', $result->unit);
     }
@@ -203,7 +200,7 @@ class MeasurementUnitConverterTest extends TestCase
         ];
 
         $this->unitProvider
-            ->expects(static::exactly(2))
+            ->expects($this->exactly(2))
             ->method('getUnitInfo')
             ->willReturnMap([
                 ['mm', $fromUnitInfo],
@@ -212,7 +209,6 @@ class MeasurementUnitConverterTest extends TestCase
 
         $result = $this->converter->convert(0.0, 'mm', 'cm');
 
-        static::assertInstanceOf(ConvertedUnit::class, $result);
         static::assertSame(0.0, $result->value);
         static::assertSame('cm', $result->unit);
     }
@@ -232,7 +228,7 @@ class MeasurementUnitConverterTest extends TestCase
         ];
 
         $this->unitProvider
-            ->expects(static::exactly(2))
+            ->expects($this->exactly(2))
             ->method('getUnitInfo')
             ->willReturnMap([
                 ['celsius', $fromUnitInfo],
@@ -241,8 +237,7 @@ class MeasurementUnitConverterTest extends TestCase
 
         $result = $this->converter->convert(-10.0, 'celsius', 'kelvin');
 
-        static::assertInstanceOf(ConvertedUnit::class, $result);
         static::assertSame(-5.0, $result->value);
         static::assertSame('kelvin', $result->unit);
     }
-} 
+}

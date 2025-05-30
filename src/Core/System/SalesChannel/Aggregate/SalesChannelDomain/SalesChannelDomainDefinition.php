@@ -2,8 +2,8 @@
 
 namespace Shopware\Core\System\SalesChannel\Aggregate\SalesChannelDomain;
 
-use Shopware\Core\Content\ProductExport\ProductExportDefinition;
 use Shopware\Core\Content\MeasurementSystem\Field\MeasurementUnitsField;
+use Shopware\Core\Content\ProductExport\ProductExportDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\BoolField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\CustomFields;

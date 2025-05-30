@@ -17,7 +17,7 @@ use Shopware\Core\Checkout\Payment\PaymentMethodEntity;
 use Shopware\Core\Checkout\Shipping\ShippingMethodCollection;
 use Shopware\Core\Checkout\Shipping\ShippingMethodDefinition;
 use Shopware\Core\Checkout\Shipping\ShippingMethodEntity;
-use Shopware\Core\Content\MeasurementSystem\Entity\MeasurementDisplayUnitEntity;
+use Shopware\Core\Content\MeasurementSystem\MeasurementUnits;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\PartialEntity;
@@ -114,14 +114,6 @@ class BaseSalesChannelContextFactoryTest extends TestCase
 
         $contextProvider = new ContextFactory($connection, new CollectingEventDispatcher());
 
-        $measurementUnit = new MeasurementDisplayUnitEntity();
-        $measurementUnit->setUniqueIdentifier(Uuid::randomHex());
-        $measurementUnit->type = 'length';
-        $measurementUnit->shortName = 'mm';
-
-        /** @var StaticEntityRepository<EntityCollection<MeasurementDisplayUnitEntity>> $measurementUnitRepository */
-        $measurementUnitRepository = new StaticEntityRepository([new EntityCollection([$measurementUnit])]);
-
         $factory = new BaseSalesChannelContextFactory(
             $salesChannelRepository,
             $currencyRepository,
@@ -134,7 +126,6 @@ class BaseSalesChannelContextFactoryTest extends TestCase
             $currencyCountryRepository,
             $contextProvider,
             $languageRepository,
-            $measurementUnitRepository,
         );
 
         $factory->create(TestDefaults::SALES_CHANNEL, $options);
@@ -160,6 +151,7 @@ class BaseSalesChannelContextFactoryTest extends TestCase
         $salesChannelEntity->setPaymentMethodId($paymentMethodId);
         $salesChannelEntity->setShippingMethodId($shippingMethodId);
         $salesChannelEntity->setCurrencyId(Defaults::CURRENCY);
+        $salesChannelEntity->setMeasurementUnits(MeasurementUnits::createDefaultUnits());
 
         $currency = new CurrencyEntity();
         $rounding = new CashRoundingConfig(1, 1, true);

@@ -8,7 +8,7 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 
 /**
- * @phpstan-import-type MeasurementUnitsType from AbstractMeasurementUnitProvider
+ * @phpstan-import-type MeasurementUnitType from AbstractMeasurementUnitProvider
  */
 #[Package('inventory')]
 class MeasurementUnitConverter extends AbstractMeasurementUnitConverter
@@ -34,7 +34,7 @@ class MeasurementUnitConverter extends AbstractMeasurementUnitConverter
         }
 
         // Protect against division by zero
-        if ($toUnitInfo['factor'] == 0) {
+        if ($toUnitInfo['factor'] === 0) {
             throw MeasurementSystemException::measurementUnitCantHaveZeroFactor($toUnit);
         }
 

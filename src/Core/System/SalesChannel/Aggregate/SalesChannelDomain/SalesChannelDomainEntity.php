@@ -2,8 +2,6 @@
 
 namespace Shopware\Core\System\SalesChannel\Aggregate\SalesChannelDomain;
 
-use Shopware\Core\Content\MeasurementSystem\Entity\MeasurementDisplayUnitEntity;
-use Shopware\Core\Content\MeasurementSystem\Entity\MeasurementSystemEntity;
 use Shopware\Core\Content\MeasurementSystem\MeasurementUnits;
 use Shopware\Core\Content\ProductExport\ProductExportCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;

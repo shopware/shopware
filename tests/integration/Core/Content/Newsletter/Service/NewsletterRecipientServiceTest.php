@@ -121,18 +121,12 @@ class NewsletterRecipientServiceTest extends TestCase
             'languages' => [
                 ['id' => Defaults::LANGUAGE_SYSTEM],
             ],
-            'measurementSystemId' => Uuid::fromStringToHex('metric'),
-            'lengthUnitId' => Uuid::fromStringToHex('metric-mm'),
-            'weightUnitId' => Uuid::fromStringToHex('metric-kg'),
             'domains' => [
                 [
                     'url' => 'http://test.de',
                     'currencyId' => Defaults::CURRENCY,
                     'languageId' => Defaults::LANGUAGE_SYSTEM,
                     'snippetSetId' => $this->getRandomId('snippet_set'),
-                    'measurementSystemId' => Uuid::fromStringToHex('metric'),
-                    'lengthUnitId' => Uuid::fromStringToHex('metric-mm'),
-                    'weightUnitId' => Uuid::fromStringToHex('metric-kg'),
                 ],
             ],
         ];

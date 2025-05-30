@@ -175,9 +175,6 @@ class ProductVisibilityEntityTest extends TestCase
             'countries' => [['id' => $this->getValidCountryId()]],
             'name' => 'first sales-channel',
             'customerGroupId' => TestDefaults::FALLBACK_CUSTOMER_GROUP,
-            'measurementSystemId' => Uuid::fromStringToHex('metric'),
-            'lengthUnitId' => Uuid::fromStringToHex('metric-mm'),
-            'weightUnitId' => Uuid::fromStringToHex('metric-kg'),
         ];
 
         static::getContainer()->get('sales_channel.repository')->create([$data], Context::createDefaultContext());

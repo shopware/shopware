@@ -1294,9 +1294,6 @@ class SalesChannelProxyControllerTest extends TestCase
             'shippingMethods' => [['id' => $this->getValidShippingMethodId()]],
             'countries' => [['id' => $this->getValidCountryId()]],
             'customerGroupId' => TestDefaults::FALLBACK_CUSTOMER_GROUP,
-            'measurementSystemId' => Uuid::fromStringToHex('metric'),
-            'lengthUnitId' => Uuid::fromStringToHex('metric-mm'),
-            'weightUnitId' => Uuid::fromStringToHex('metric-kg'),
         ];
 
         $salesChannel = array_merge_recursive($defaults, $salesChannel);

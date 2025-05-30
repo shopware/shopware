@@ -130,4 +130,61 @@ class ContextRouteTest extends TestCase
         static::assertArrayHasKey('id', $response['customer']['activeBillingAddress']);
         static::assertSame($newBillingAddressId, $response['customer']['activeBillingAddress']['id']);
     }
+
+    public function testFetchingContextReturnsMeasurementSystem(): void
+    {
+        $this->browser
+            ->request(
+                'GET',
+                '/store-api/context'
+            );
+
+        static::assertSame(200, $this->browser->getResponse()->getStatusCode());
+
+        $response = json_decode((string) $this->browser->getResponse()->getContent(), true, 512, \JSON_THROW_ON_ERROR);
+        static::assertArrayHasKey('measurementSystem', $response);
+        static::assertIsArray($response['measurementSystem']);
+        static::assertArrayHasKey('units', $response['measurementSystem']);
+        static::assertIsArray($response['measurementSystem']['units']);
+        static::assertArrayHasKey('length', $response['measurementSystem']['units']);
+        static::assertArrayHasKey('weight', $response['measurementSystem']['units']);
+        static::assertSame('mm', $response['measurementSystem']['units']['length']);
+        static::assertSame('kg', $response['measurementSystem']['units']['weight']);
+
+        // update measurement system of the sales channel and check again
+        $measurementSystem = [
+            'system' => 'imperial',
+            'units' => [
+                'length' => 'in',
+                'weight' => 'lb',
+            ],
+        ];
+
+        $salesChannelRepository = static::getContainer()->get('sales_channel.repository');
+
+        $salesChannelRepository->update([
+            [
+                'id' => $this->ids->get('sales-channel'),
+                'measurementUnits' => $measurementSystem,
+            ],
+        ], Context::createDefaultContext());
+
+        $this->browser
+            ->request(
+                'GET',
+                '/store-api/context'
+            );
+
+        static::assertSame(200, $this->browser->getResponse()->getStatusCode());
+
+        $response = json_decode((string) $this->browser->getResponse()->getContent(), true, 512, \JSON_THROW_ON_ERROR);
+        static::assertArrayHasKey('measurementSystem', $response);
+        static::assertIsArray($response['measurementSystem']);
+        static::assertArrayHasKey('units', $response['measurementSystem']);
+        static::assertIsArray($response['measurementSystem']['units']);
+        static::assertArrayHasKey('length', $response['measurementSystem']['units']);
+        static::assertArrayHasKey('weight', $response['measurementSystem']['units']);
+        static::assertSame('in', $response['measurementSystem']['units']['length']);
+        static::assertSame('lb', $response['measurementSystem']['units']['weight']);
+    }
 }

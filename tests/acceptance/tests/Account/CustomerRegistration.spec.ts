@@ -1,15 +1,6 @@
 import { test } from '@fixtures/AcceptanceTest';
 import { satisfies } from 'compare-versions';
 
-test('VISUAL TESTING PROTOTYPE', { tag: ['@Visual'] }, async ({
-    ShopCustomer,
-    StorefrontAccountLogin,
-}) => {
-    await ShopCustomer.goesTo(StorefrontAccountLogin.url());
-
-    await ShopCustomer.expects(StorefrontAccountLogin.page).toHaveScreenshot();
-});
-
 test('As a new customer, I must be able to register in the Storefront.', { tag: ['@Registration'] }, async ({
     ShopCustomer,
     StorefrontAccountLogin,

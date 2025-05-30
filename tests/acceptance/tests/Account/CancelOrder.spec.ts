@@ -1,6 +1,6 @@
 import { test } from '@fixtures/AcceptanceTest';
 
-test('Customers are able to cancel orders in storefront account.', { tag: '@Order @Account' }, async ({
+test('Customers are able to cancel orders in storefront account.', { tag: ['@Order @Account', '@Test'] }, async ({
     ShopCustomer,
     StorefrontAccountOrder,
     TestDataService,

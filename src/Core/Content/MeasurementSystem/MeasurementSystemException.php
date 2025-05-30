@@ -15,6 +15,8 @@ class MeasurementSystemException extends HttpException
 
     public const INCOMPATIBLE_MEASUREMENT_UNITS = 'CONTENT_INCOMPATIBLE_MEASUREMENT_UNITS';
 
+    public const MEASUREMENT_UNIT_CANT_HAVE_ZERO_FACTOR = 'CONTENT_MEASUREMENT_UNIT_CANT_HAVE_ZERO_FACTOR';
+
     /**
      * @param array<string> $possibleTypes
      */
@@ -43,6 +45,18 @@ class MeasurementSystemException extends HttpException
             [
                 'unit' => $unit,
                 'possibleUnits' => implode(', ', $possibleUnits),
+            ],
+        );
+    }
+
+    public static function measurementUnitCantHaveZeroFactor(string $unit): self
+    {
+        return new self(
+            Response::HTTP_INTERNAL_SERVER_ERROR,
+            self::MEASUREMENT_UNIT_CANT_HAVE_ZERO_FACTOR,
+            'The measurement system unit "{{ unit }}" cannot have a factor of zero.',
+            [
+                'unit' => $unit,
             ],
         );
     }

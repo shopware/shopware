@@ -9,5 +9,5 @@ abstract class AbstractMeasurementUnitConverter
 {
     abstract public function getDecorated(): AbstractMeasurementUnitConverter;
 
-    abstract public function convert(float $value, string $fromUnit, string $toUnit, int $decimals = 3): ConvertedUnit;
+    abstract public function convert(float $value, string $fromUnit, string $toUnit, ?int $precision = null): ConvertedUnit;
 }

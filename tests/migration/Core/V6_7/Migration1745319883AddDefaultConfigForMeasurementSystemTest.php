@@ -33,9 +33,9 @@ class Migration1745319883AddDefaultConfigForMeasurementSystemTest extends TestCa
 
         // Clean up any existing data for the tested keys
         $this->connection->executeStatement('DELETE FROM system_config WHERE configuration_key IN (
-            "core.measurementSystem.typeId",
-            "core.measurementSystem.lengthUnitId",
-            "core.measurementSystem.weightUnitId"
+            "core.measurementUnits.system",
+            "core.measurementUnits.length",
+            "core.measurementUnits.weight"
         )');
 
         $this->migrationMeasurementSystem = new Migration1742199548MeasurementSystem();
@@ -47,28 +47,28 @@ class Migration1745319883AddDefaultConfigForMeasurementSystemTest extends TestCa
         $this->migrationMeasurementSystem->update($this->connection);
 
         // Ensure the keys do not exist before the migration
-        static::assertFalse($this->configExists('core.measurementSystem.typeId'));
-        static::assertFalse($this->configExists('core.measurementSystem.lengthUnitId'));
-        static::assertFalse($this->configExists('core.measurementSystem.weightUnitId'));
+        static::assertFalse($this->configExists('core.measurementUnits.system'));
+        static::assertFalse($this->configExists('core.measurementUnits.length'));
+        static::assertFalse($this->configExists('core.measurementUnits.weight'));
 
         // Run the migration
         $this->migration->update($this->connection);
         $this->migration->update($this->connection);
 
-        $metricId = $this->connection->fetchOne('SELECT id FROM `measurement_system` WHERE `technical_name` = "metric"');
+        $metricId = $this->connection->fetchOne('SELECT technical_name FROM `measurement_system` WHERE `technical_name` = "metric"');
         static::assertNotFalse($metricId);
-        $this->assertConfigValue('core.measurementSystem.typeId', \sprintf('{"_value": "%s"}', Uuid::fromBytesToHex($metricId)));
+        $this->assertConfigValue('core.measurementUnits.system', \sprintf('{"_value": "%s"}', 'metric'));
 
-        $units = $this->connection->fetchAllKeyValue('SELECT id, type FROM `measurement_display_unit` WHERE short_name IN (:names)', [
+        $units = $this->connection->fetchAllKeyValue('SELECT short_name, type FROM `measurement_display_unit` WHERE short_name IN (:names)', [
             'names' => ['mm', 'kg'],
         ], [
             'names' => ArrayParameterType::BINARY,
         ]);
         static::assertNotEmpty($units);
 
-        foreach ($units as $id => $unitType) {
-            $configKey = $unitType === 'length' ? 'core.measurementSystem.lengthUnitId' : 'core.measurementSystem.weightUnitId';
-            $configValue = \sprintf('{"_value": "%s"}', Uuid::fromBytesToHex($id));
+        foreach ($units as $shortName => $unitType) {
+            $configKey = $unitType === 'length' ? 'core.measurementUnits.length' : 'core.measurementUnits.weight';
+            $configValue = \sprintf('{"_value": "%s"}', $shortName);
 
             $this->assertConfigValue($configKey, $configValue);
         }

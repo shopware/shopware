@@ -27,20 +27,26 @@ class ProductMeasurementUnitBuilder
         $lengthUnit = $context->getMeasurementSystem()->getUnit('length');
         $weightUnit = $context->getMeasurementSystem()->getUnit('weight');
 
-        if (\is_float($product->get('width'))) {
-            $measurementUnit->add('width', $this->unitConverter->convert($product->get('width'), MeasurementUnits::DEFAULT_LENGTH_UNIT, $lengthUnit));
+        // Cache property values to avoid duplicate access
+        $width = $product->get('width');
+        $height = $product->get('height');
+        $length = $product->get('length');
+        $weight = $product->get('weight');
+
+        if (\is_float($width)) {
+            $measurementUnit->set('width', $this->unitConverter->convert($width, MeasurementUnits::DEFAULT_LENGTH_UNIT, $lengthUnit));
         }
 
-        if (\is_float($product->get('height'))) {
-            $measurementUnit->add('height', $this->unitConverter->convert($product->get('height'), MeasurementUnits::DEFAULT_LENGTH_UNIT, $lengthUnit));
+        if (\is_float($height)) {
+            $measurementUnit->set('height', $this->unitConverter->convert($height, MeasurementUnits::DEFAULT_LENGTH_UNIT, $lengthUnit));
         }
 
-        if (\is_float($product->get('length'))) {
-            $measurementUnit->add('length', $this->unitConverter->convert($product->get('length'), MeasurementUnits::DEFAULT_LENGTH_UNIT, $lengthUnit));
+        if (\is_float($length)) {
+            $measurementUnit->set('length', $this->unitConverter->convert($length, MeasurementUnits::DEFAULT_LENGTH_UNIT, $lengthUnit));
         }
 
-        if (\is_float($product->get('weight'))) {
-            $measurementUnit->add('weight', $this->unitConverter->convert($product->get('weight'), MeasurementUnits::DEFAULT_WEIGHT_UNIT, $weightUnit));
+        if (\is_float($weight)) {
+            $measurementUnit->set('weight', $this->unitConverter->convert($weight, MeasurementUnits::DEFAULT_WEIGHT_UNIT, $weightUnit));
         }
 
         return $measurementUnit;

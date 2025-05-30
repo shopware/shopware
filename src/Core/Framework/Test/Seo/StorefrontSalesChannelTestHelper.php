@@ -113,10 +113,12 @@ trait StorefrontSalesChannelTestHelper
             'customerGroupId' => TestDefaults::FALLBACK_CUSTOMER_GROUP,
             'domains' => $domains,
             'navigationCategoryId' => !$categoryEntrypoint ? $this->getValidCategoryId() : $categoryEntrypoint,
-            'measurementSystemId' => Uuid::fromStringToHex('metric'),
             'measurementUnits' => [
-                'length' => 'mm',
-                'weight' => 'kg'
+                'metric' => 'metric',
+                'units' => [
+                    'length' => 'mm',
+                    'weight' => 'kg',
+                ],
             ],
         ]], Context::createDefaultContext());
 

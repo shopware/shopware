@@ -3,14 +3,15 @@
 namespace Shopware\Tests\Unit\Core\Content\MeasurementSystem\TwigExtension;
 
 use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Content\MeasurementSystem\MeasurementUnits;
 use Shopware\Core\Content\MeasurementSystem\TwigExtension\MeasurementConvertUnitTwigFilter;
 use Shopware\Core\Content\MeasurementSystem\UnitConverter\AbstractMeasurementUnitConverter;
 use Shopware\Core\Content\MeasurementSystem\UnitConverter\ConvertedUnit;
 use Shopware\Core\Content\MeasurementSystem\UnitProvider\AbstractMeasurementUnitProvider;
-use Shopware\Core\Content\MeasurementSystem\MeasurementUnits;
 use Shopware\Core\Framework\Log\Package;
-use Shopware\Core\System\SalesChannel\SalesChannelContext;
+use Shopware\Core\Test\Generator;
 use Twig\TwigFilter;
 
 /**
@@ -20,8 +21,10 @@ use Twig\TwigFilter;
 #[CoversClass(MeasurementConvertUnitTwigFilter::class)]
 class MeasurementConvertUnitTwigFilterTest extends TestCase
 {
-    private AbstractMeasurementUnitProvider $unitProvider;
-    private AbstractMeasurementUnitConverter $unitConverter;
+    private AbstractMeasurementUnitProvider&MockObject $unitProvider;
+
+    private AbstractMeasurementUnitConverter&MockObject $unitConverter;
+
     private MeasurementConvertUnitTwigFilter $filter;
 
     protected function setUp(): void
@@ -62,30 +65,28 @@ class MeasurementConvertUnitTwigFilterTest extends TestCase
 
     public function testConvertWithAutoDetectedUnit(): void
     {
-        $context = $this->createMock(SalesChannelContext::class);
-        $measurementUnits = $this->createMock(MeasurementUnits::class);
-        
+        $context = Generator::generateSalesChannelContext();
+
+        $measurementUnits = new MeasurementUnits(
+            'metric',
+            [
+                'length' => 'cm',
+                'weight' => 'kg',
+            ]
+        );
+
+        $context->setMeasurementSystem($measurementUnits);
+
         $twigContext = ['context' => $context];
 
         $this->unitProvider
-            ->expects(static::once())
+            ->expects($this->once())
             ->method('getUnitInfo')
             ->with('mm')
             ->willReturn(['type' => 'length']);
 
-        $context
-            ->expects(static::once())
-            ->method('getMeasurementSystem')
-            ->willReturn($measurementUnits);
-
-        $measurementUnits
-            ->expects(static::once())
-            ->method('getUnit')
-            ->with('length')
-            ->willReturn('cm');
-
         $this->unitConverter
-            ->expects(static::once())
+            ->expects($this->once())
             ->method('convert')
             ->with(100.0, 'mm', 'cm', null)
             ->willReturn(new ConvertedUnit(10.0, 'cm'));
@@ -100,7 +101,7 @@ class MeasurementConvertUnitTwigFilterTest extends TestCase
         $twigContext = [];
 
         $this->unitConverter
-            ->expects(static::once())
+            ->expects($this->once())
             ->method('convert')
             ->with(1000.0, 'mm', 'm', null)
             ->willReturn(new ConvertedUnit(1.0, 'm'));
@@ -115,7 +116,7 @@ class MeasurementConvertUnitTwigFilterTest extends TestCase
         $twigContext = [];
 
         $this->unitConverter
-            ->expects(static::once())
+            ->expects($this->once())
             ->method('convert')
             ->with(1000.0, 'mm', 'm', 3)
             ->willReturn(new ConvertedUnit(1.000, 'm'));
@@ -139,7 +140,7 @@ class MeasurementConvertUnitTwigFilterTest extends TestCase
         $twigContext = [];
 
         $this->unitConverter
-            ->expects(static::once())
+            ->expects($this->once())
             ->method('convert')
             ->with(100.0, 'mm', 'cm', null)
             ->willReturn(new ConvertedUnit(10.0, 'cm'));
@@ -154,7 +155,7 @@ class MeasurementConvertUnitTwigFilterTest extends TestCase
         $twigContext = [];
 
         $this->unitConverter
-            ->expects(static::once())
+            ->expects($this->once())
             ->method('convert')
             ->with(100.5, 'mm', 'cm', null)
             ->willReturn(new ConvertedUnit(10.05, 'cm'));
@@ -169,7 +170,7 @@ class MeasurementConvertUnitTwigFilterTest extends TestCase
         $twigContext = [];
 
         $this->unitConverter
-            ->expects(static::once())
+            ->expects($this->once())
             ->method('convert')
             ->with(0.0, 'mm', 'cm', null)
             ->willReturn(new ConvertedUnit(0.0, 'cm'));
@@ -184,7 +185,7 @@ class MeasurementConvertUnitTwigFilterTest extends TestCase
         $twigContext = [];
 
         $this->unitConverter
-            ->expects(static::once())
+            ->expects($this->once())
             ->method('convert')
             ->with(-10.0, 'celsius', 'kelvin', null)
             ->willReturn(new ConvertedUnit(263.15, 'kelvin'));
@@ -196,30 +197,27 @@ class MeasurementConvertUnitTwigFilterTest extends TestCase
 
     public function testConvertWithContextButNoMeasurementSystem(): void
     {
-        $context = $this->createMock(SalesChannelContext::class);
-        $measurementUnits = $this->createMock(MeasurementUnits::class);
-        
+        $context = Generator::generateSalesChannelContext();
+        $measurementUnits = new MeasurementUnits(
+            'metric',
+            [
+                'length' => 'cm',
+                'weight' => 'kg',
+            ]
+        );
+
         $twigContext = ['context' => $context];
 
         $this->unitProvider
-            ->expects(static::once())
+            ->expects($this->once())
             ->method('getUnitInfo')
             ->with('mm')
             ->willReturn(['type' => 'length']);
 
-        $context
-            ->expects(static::once())
-            ->method('getMeasurementSystem')
-            ->willReturn($measurementUnits);
-
-        $measurementUnits
-            ->expects(static::once())
-            ->method('getUnit')
-            ->with('length')
-            ->willReturn('cm');
+        $context->setMeasurementSystem($measurementUnits);
 
         $this->unitConverter
-            ->expects(static::once())
+            ->expects($this->once())
             ->method('convert')
             ->with(100.0, 'mm', 'cm', null)
             ->willReturn(new ConvertedUnit(10.0, 'cm'));
@@ -231,30 +229,26 @@ class MeasurementConvertUnitTwigFilterTest extends TestCase
 
     public function testConvertWithDefaultFromUnit(): void
     {
-        $context = $this->createMock(SalesChannelContext::class);
-        $measurementUnits = $this->createMock(MeasurementUnits::class);
-        
+        $context = Generator::generateSalesChannelContext();
+        $measurementUnits = new MeasurementUnits(
+            'metric',
+            [
+                'length' => 'cm',
+                'weight' => 'kg',
+            ]
+        );
+        $context->setMeasurementSystem($measurementUnits);
+
         $twigContext = ['context' => $context];
 
         $this->unitProvider
-            ->expects(static::once())
+            ->expects($this->once())
             ->method('getUnitInfo')
             ->with('mm')
             ->willReturn(['type' => 'length']);
 
-        $context
-            ->expects(static::once())
-            ->method('getMeasurementSystem')
-            ->willReturn($measurementUnits);
-
-        $measurementUnits
-            ->expects(static::once())
-            ->method('getUnit')
-            ->with('length')
-            ->willReturn('cm');
-
         $this->unitConverter
-            ->expects(static::once())
+            ->expects($this->once())
             ->method('convert')
             ->with(100.0, 'mm', 'cm', null)
             ->willReturn(new ConvertedUnit(10.0, 'cm'));
@@ -263,4 +257,4 @@ class MeasurementConvertUnitTwigFilterTest extends TestCase
 
         static::assertSame('10 cm', $result);
     }
-} 
+}

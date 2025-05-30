@@ -61,7 +61,6 @@ class BaseSalesChannelContextFactory extends AbstractBaseSalesChannelContextFact
         private readonly EntityRepository $countryStateRepository,
         private readonly EntityRepository $currencyCountryRepository,
         private readonly ContextFactory $contextFactory,
-        private readonly EntityRepository $measurementUnitRepository,
     ) {
     }
 
@@ -85,7 +84,6 @@ class BaseSalesChannelContextFactory extends AbstractBaseSalesChannelContextFact
             ->addAssociation('locale');
 
         $salesChannel = $this->salesChannelRepository->search($criteria, $context)->getEntities()->get($salesChannelId);
-
         if (!$salesChannel instanceof SalesChannelEntity) {
             throw SalesChannelException::salesChannelNotFound($salesChannelId);
         }

@@ -27,26 +27,25 @@ class ProductMeasurementUnitBuilder
         $lengthUnit = $context->getMeasurementSystem()->getUnit('length');
         $weightUnit = $context->getMeasurementSystem()->getUnit('weight');
 
-        // Cache property values to avoid duplicate access
         $width = $product->get('width');
         $height = $product->get('height');
         $length = $product->get('length');
         $weight = $product->get('weight');
 
         if (\is_float($width)) {
-            $measurementUnit->set('width', $this->unitConverter->convert($width, MeasurementUnits::DEFAULT_LENGTH_UNIT, $lengthUnit));
+            $measurementUnit->addUnit('width', $this->unitConverter->convert($width, MeasurementUnits::DEFAULT_LENGTH_UNIT, $lengthUnit));
         }
 
         if (\is_float($height)) {
-            $measurementUnit->set('height', $this->unitConverter->convert($height, MeasurementUnits::DEFAULT_LENGTH_UNIT, $lengthUnit));
+            $measurementUnit->addUnit('height', $this->unitConverter->convert($height, MeasurementUnits::DEFAULT_LENGTH_UNIT, $lengthUnit));
         }
 
         if (\is_float($length)) {
-            $measurementUnit->set('length', $this->unitConverter->convert($length, MeasurementUnits::DEFAULT_LENGTH_UNIT, $lengthUnit));
+            $measurementUnit->addUnit('length', $this->unitConverter->convert($length, MeasurementUnits::DEFAULT_LENGTH_UNIT, $lengthUnit));
         }
 
         if (\is_float($weight)) {
-            $measurementUnit->set('weight', $this->unitConverter->convert($weight, MeasurementUnits::DEFAULT_WEIGHT_UNIT, $weightUnit));
+            $measurementUnit->addUnit('weight', $this->unitConverter->convert($weight, MeasurementUnits::DEFAULT_WEIGHT_UNIT, $weightUnit));
         }
 
         return $measurementUnit;

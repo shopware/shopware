@@ -31,7 +31,7 @@ class MeasurementUnitsFieldSerializer extends JsonFieldSerializer
         } elseif ($data->getValue() instanceof MeasurementUnits) {
             /** @var MeasurementUnits $measurementUnits */
             $measurementUnits = $data->getValue();
-            
+
             // Convert MeasurementUnits to array
             $data->setValue([
                 'system' => $measurementUnits->getSystem(),
@@ -53,12 +53,14 @@ class MeasurementUnitsFieldSerializer extends JsonFieldSerializer
             return MeasurementUnits::createDefaultUnits();
         }
 
-        $system = $decoded['system'] ?? MeasurementUnits::DEFAULT_MEASUREMENT_SYSTEM;
-        $units = $decoded['units'] ?? [
+        $defaultUnits = [
             'length' => MeasurementUnits::DEFAULT_LENGTH_UNIT,
             'weight' => MeasurementUnits::DEFAULT_WEIGHT_UNIT,
         ];
 
+        $system = $decoded['system'] ?? MeasurementUnits::DEFAULT_MEASUREMENT_SYSTEM;
+        $units = $decoded['units'] ? array_merge($defaultUnits, $decoded['units']) : $defaultUnits;
+
         return new MeasurementUnits($system, $units);
     }
-} 
+}

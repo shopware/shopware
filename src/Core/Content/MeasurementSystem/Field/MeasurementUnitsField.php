@@ -12,4 +12,4 @@ class MeasurementUnitsField extends JsonField
     {
         return MeasurementUnitsFieldSerializer::class;
     }
-} 
+}

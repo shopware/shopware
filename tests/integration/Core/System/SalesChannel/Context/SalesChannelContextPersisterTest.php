@@ -202,9 +202,6 @@ class SalesChannelContextPersisterTest extends TestCase
                     'currencyId' => Defaults::CURRENCY,
                     'languageId' => Defaults::LANGUAGE_SYSTEM,
                     'snippetSetId' => $this->getRandomId('snippet_set'),
-                    'measurementSystemId' => Uuid::fromStringToHex('metric'),
-                    'lengthUnitId' => Uuid::fromStringToHex('metric-mm'),
-                    'weightUnitId' => Uuid::fromStringToHex('metric-kg'),
                 ],
             ],
         ]);
@@ -217,9 +214,6 @@ class SalesChannelContextPersisterTest extends TestCase
                     'currencyId' => Defaults::CURRENCY,
                     'languageId' => Defaults::LANGUAGE_SYSTEM,
                     'snippetSetId' => $this->getRandomId('snippet_set'),
-                    'measurementSystemId' => Uuid::fromStringToHex('metric'),
-                    'lengthUnitId' => Uuid::fromStringToHex('metric-mm'),
-                    'weightUnitId' => Uuid::fromStringToHex('metric-kg'),
                 ],
             ],
         ]);

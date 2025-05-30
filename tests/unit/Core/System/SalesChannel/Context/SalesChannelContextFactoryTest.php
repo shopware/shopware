@@ -86,7 +86,7 @@ class SalesChannelContextFactoryTest extends TestCase
             new CashRoundingConfig(2, 0.01, true),
             new CashRoundingConfig(2, 0.01, true),
             new LanguageInfo('English', 'en-GB'),
-            new MeasurementUnits([])
+            MeasurementUnits::createDefaultUnits()
         );
 
         /** @var StaticEntityRepository<PaymentMethodCollection> $paymentMethodRepository */

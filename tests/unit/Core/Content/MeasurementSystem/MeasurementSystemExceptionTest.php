@@ -159,10 +159,15 @@ class MeasurementSystemExceptionTest extends TestCase
         ], $exception->getParameters());
     }
 
-    public function testAllErrorCodes(): void
+    public function testMeasurementUnitCantHaveZeroFactor(): void
     {
-        static::assertSame('CONTENT_UNSUPPORTED_MEASUREMENT_SYSTEM_TYPE', MeasurementSystemException::UNSUPPORTED_MEASUREMENT_SYSTEM);
-        static::assertSame('CONTENT_UNSUPPORTED_MEASUREMENT_SYSTEM_UNIT', MeasurementSystemException::UNSUPPORTED_MEASUREMENT_UNIT);
-        static::assertSame('CONTENT_INCOMPATIBLE_MEASUREMENT_UNITS', MeasurementSystemException::INCOMPATIBLE_MEASUREMENT_UNITS);
+        $unit = 'invalid_unit';
+
+        $exception = MeasurementSystemException::measurementUnitCantHaveZeroFactor($unit);
+
+        static::assertSame(Response::HTTP_INTERNAL_SERVER_ERROR, $exception->getStatusCode());
+        static::assertSame(MeasurementSystemException::MEASUREMENT_UNIT_CANT_HAVE_ZERO_FACTOR, $exception->getErrorCode());
+        static::assertSame('The measurement system unit "invalid_unit" cannot have a factor of zero.', $exception->getMessage());
+        static::assertSame(['unit' => $unit], $exception->getParameters());
     }
-} 
+}

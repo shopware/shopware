@@ -57,9 +57,6 @@ class SitemapGenerateCommandTest extends TestCase
                 'currencyId' => Defaults::CURRENCY,
                 'snippetSetId' => $this->getSnippetSetIdForLocale('en-GB'),
                 'url' => 'http://valid.test',
-                'measurementSystemId' => Uuid::fromStringToHex('metric'),
-                'lengthUnitId' => Uuid::fromStringToHex('metric-mm'),
-                'weightUnitId' => Uuid::fromStringToHex('metric-kg'),
             ]],
         ]);
         $this->createSalesChannel([
@@ -70,9 +67,6 @@ class SitemapGenerateCommandTest extends TestCase
                 'currencyId' => Defaults::CURRENCY,
                 'snippetSetId' => $this->getSnippetSetIdForLocale('en-GB'),
                 'url' => 'http://api.test',
-                'measurementSystemId' => Uuid::fromStringToHex('metric'),
-                'lengthUnitId' => Uuid::fromStringToHex('metric-mm'),
-                'weightUnitId' => Uuid::fromStringToHex('metric-kg'),
             ]],
         ]);
         $this->createSalesChannel([
@@ -83,9 +77,6 @@ class SitemapGenerateCommandTest extends TestCase
                 'currencyId' => Defaults::CURRENCY,
                 'snippetSetId' => $this->getSnippetSetIdForLocale('en-GB'),
                 'url' => 'http://export.test',
-                'measurementSystemId' => Uuid::fromStringToHex('metric'),
-                'lengthUnitId' => Uuid::fromStringToHex('metric-mm'),
-                'weightUnitId' => Uuid::fromStringToHex('metric-kg'),
             ]],
         ]);
 

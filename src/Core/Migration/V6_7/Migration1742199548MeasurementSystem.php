@@ -195,7 +195,7 @@ class Migration1742199548MeasurementSystem extends MigrationStep
             'units' => [
                 'length' => MeasurementUnits::DEFAULT_LENGTH_UNIT,
                 'weight' => MeasurementUnits::DEFAULT_WEIGHT_UNIT,
-            ]
+            ],
         ]);
 
         $connection->executeStatement('
@@ -205,17 +205,14 @@ class Migration1742199548MeasurementSystem extends MigrationStep
 
         // Set default measurement units for existing domains
         $connection->executeStatement('
-            UPDATE `sales_channel_domain` 
+            UPDATE `sales_channel_domain`
             SET `measurement_units` = \'' . $defaultUnits . '\'
         ');
     }
 
     private function addSalesChannelColumns(Connection $connection): void
     {
-        if (
-            $this->columnExists($connection, 'sales_channel', 'measurement_system_id')
-            || $this->columnExists($connection, 'sales_channel', 'measurement_units')
-        ) {
+        if ($this->columnExists($connection, 'sales_channel', 'measurement_units')) {
             return;
         }
 
@@ -234,7 +231,7 @@ class Migration1742199548MeasurementSystem extends MigrationStep
 
         // Set default measurement units for existing sales channels
         $connection->executeStatement('
-            UPDATE `sales_channel` 
+            UPDATE `sales_channel`
             SET `measurement_units` = \'' . $defaultUnits . '\'
         ');
     }

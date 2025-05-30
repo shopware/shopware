@@ -42,6 +42,13 @@ class SalesChannelContextTest extends TestCase
         static::assertSame([$idA, $idB], $salesChannelContext->getRuleIdsByAreas(['a', 'c']));
         static::assertSame([$idC], $salesChannelContext->getRuleIdsByAreas(['d']));
         static::assertSame([], $salesChannelContext->getRuleIdsByAreas(['f']));
+        static::assertSame([
+            'system' => 'metric',
+            'units' => [
+                'length' => 'mm',
+                'weight' => 'kg',
+            ],
+        ], $salesChannelContext->getMeasurementSystem()->jsonSerialize());
     }
 
     public function testWithPermissions(): void

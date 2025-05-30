@@ -4,9 +4,12 @@ namespace Shopware\Tests\Unit\Core\Content\Product\Subscriber;
 
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
+use PHPUnit\Framework\MockObject\Exception;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Content\MeasurementSystem\MeasurementUnits;
 use Shopware\Core\Content\MeasurementSystem\ProductMeasurement\ProductMeasurementUnitBuilder;
 use Shopware\Core\Content\MeasurementSystem\UnitConverter\AbstractMeasurementUnitConverter;
+use Shopware\Core\Content\MeasurementSystem\UnitConverter\ConvertedUnit;
 use Shopware\Core\Content\Product\AbstractPropertyGroupSorter;
 use Shopware\Core\Content\Product\DataAbstractionLayer\CheapestPrice\CheapestPriceContainer;
 use Shopware\Core\Content\Product\IsNewDetector;
@@ -18,16 +21,22 @@ use Shopware\Core\Content\Product\SalesChannel\Price\AbstractProductPriceCalcula
 use Shopware\Core\Content\Product\SalesChannel\SalesChannelProductDefinition;
 use Shopware\Core\Content\Product\SalesChannel\SalesChannelProductEntity;
 use Shopware\Core\Content\Product\Subscriber\ProductSubscriber;
+use Shopware\Core\Framework\Api\Context\AdminApiSource;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityLoadedEvent;
+use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWriteEvent;
 use Shopware\Core\Framework\DataAbstractionLayer\PartialEntity;
+use Shopware\Core\Framework\DataAbstractionLayer\Write\Command\WriteCommand;
 use Shopware\Core\Framework\Uuid\Uuid;
+use Shopware\Core\PlatformRequest;
 use Shopware\Core\System\SalesChannel\Entity\SalesChannelEntityLoadedEvent;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Shopware\Core\Test\Stub\SystemConfigService\StaticSystemConfigService;
+use Symfony\Component\HttpFoundation\HeaderBag;
+use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\RequestStack;
 
 /**
@@ -224,5 +233,613 @@ class ProductSubscriberTest extends TestCase
         static::assertArrayHasKey('product.partial_loaded', $events);
         static::assertArrayHasKey('sales_channel.product.loaded', $events);
         static::assertArrayHasKey('sales_channel.product.partial_loaded', $events);
+    }
+
+    public function testLoadedWithAdminContextConvertsUnits(): void
+    {
+        $measurementUnitConverter = $this->createMock(AbstractMeasurementUnitConverter::class);
+        $measurementUnitConverter->expects($this->exactly(4))
+            ->method('convert')
+            ->willReturnCallback(function ($value, $from, $to) {
+                return new ConvertedUnit($value * 2.0, $to);
+            });
+
+        $requestStack = new RequestStack();
+        $request = new Request();
+        $request->headers = new HeaderBag([
+            PlatformRequest::HEADER_MEASUREMENT_LENGTH_UNIT => 'ft',
+            PlatformRequest::HEADER_MEASUREMENT_WEIGHT_UNIT => 'lb',
+        ]);
+        $requestStack->push($request);
+
+        $subscriber = new ProductSubscriber(
+            $this->createMock(ProductVariationBuilder::class),
+            $this->createMock(AbstractProductPriceCalculator::class),
+            $this->createMock(AbstractPropertyGroupSorter::class),
+            $this->createMock(ProductMaxPurchaseCalculator::class),
+            $this->createMock(IsNewDetector::class),
+            new StaticSystemConfigService(),
+            $this->createMock(ProductMeasurementUnitBuilder::class),
+            $measurementUnitConverter,
+            $requestStack,
+        );
+
+        $product = (new ProductEntity())->assign([
+            'id' => Uuid::randomHex(),
+            'width' => 10.0,
+            'height' => 20.0,
+            'length' => 30.0,
+            'weight' => 5.0,
+        ]);
+
+        $context = Context::createDefaultContext(new AdminApiSource('user-id', 'integration-id'));
+
+        /** @var EntityLoadedEvent<ProductEntity|PartialEntity> $event */
+        $event = new EntityLoadedEvent(
+            $this->createMock(ProductDefinition::class),
+            [$product],
+            $context
+        );
+
+        $subscriber->loaded($event);
+
+        static::assertSame(20.0, $product->get('width'));
+        static::assertSame(40.0, $product->get('height'));
+        static::assertSame(60.0, $product->get('length'));
+        static::assertSame(10.0, $product->get('weight'));
+    }
+
+    public function testLoadedWithNonAdminContextDoesNotConvertUnits(): void
+    {
+        $measurementUnitConverter = $this->createMock(AbstractMeasurementUnitConverter::class);
+        $measurementUnitConverter->expects($this->never())->method('convert');
+
+        $requestStack = new RequestStack();
+        $request = new Request();
+        $request->headers = new HeaderBag([
+            PlatformRequest::HEADER_MEASUREMENT_LENGTH_UNIT => 'ft',
+            PlatformRequest::HEADER_MEASUREMENT_WEIGHT_UNIT => 'lb',
+        ]);
+        $requestStack->push($request);
+
+        $subscriber = new ProductSubscriber(
+            $this->createMock(ProductVariationBuilder::class),
+            $this->createMock(AbstractProductPriceCalculator::class),
+            $this->createMock(AbstractPropertyGroupSorter::class),
+            $this->createMock(ProductMaxPurchaseCalculator::class),
+            $this->createMock(IsNewDetector::class),
+            new StaticSystemConfigService(),
+            $this->createMock(ProductMeasurementUnitBuilder::class),
+            $measurementUnitConverter,
+            $requestStack,
+        );
+
+        $product = (new ProductEntity())->assign([
+            'id' => Uuid::randomHex(),
+            'width' => 10.0,
+            'height' => 20.0,
+            'length' => 30.0,
+            'weight' => 5.0,
+        ]);
+
+        $context = Context::createDefaultContext(); // Non-admin context
+
+        /** @var EntityLoadedEvent<ProductEntity|PartialEntity> $event */
+        $event = new EntityLoadedEvent(
+            $this->createMock(ProductDefinition::class),
+            [$product],
+            $context
+        );
+
+        $subscriber->loaded($event);
+
+        // Values should remain unchanged
+        static::assertSame(10.0, $product->get('width'));
+        static::assertSame(20.0, $product->get('height'));
+        static::assertSame(30.0, $product->get('length'));
+        static::assertSame(5.0, $product->get('weight'));
+    }
+
+    /**
+     * @param array<string, float> $productDimensions
+     * @param array<string, string> $headers
+     * @param array<string, ConvertedUnit> $expectedFinalValues
+     */
+    #[DataProvider('convertMeasurementUnitProvider')]
+    public function testConvertMeasurementUnitWithVariousValues(
+        array $productDimensions,
+        array $headers,
+        int $expectedConversions,
+        array $expectedFinalValues
+    ): void {
+        $measurementUnitConverter = $this->createMock(AbstractMeasurementUnitConverter::class);
+
+        if ($expectedConversions > 0) {
+            $measurementUnitConverter->expects($this->exactly($expectedConversions))
+                ->method('convert')
+                ->with(
+                    static::isFloat(),
+                    static::logicalOr(
+                        static::equalTo(MeasurementUnits::DEFAULT_LENGTH_UNIT),
+                        static::equalTo(MeasurementUnits::DEFAULT_WEIGHT_UNIT)
+                    ),
+                    static::logicalOr(
+                        static::equalTo($headers[PlatformRequest::HEADER_MEASUREMENT_LENGTH_UNIT] ?? MeasurementUnits::DEFAULT_LENGTH_UNIT),
+                        static::equalTo($headers[PlatformRequest::HEADER_MEASUREMENT_WEIGHT_UNIT] ?? MeasurementUnits::DEFAULT_WEIGHT_UNIT)
+                    )
+                )->willReturnOnConsecutiveCalls(...array_values($expectedFinalValues));
+        } else {
+            $measurementUnitConverter->expects($this->never())->method('convert');
+        }
+
+        $requestStack = new RequestStack();
+        $request = new Request();
+        $request->headers = new HeaderBag($headers);
+        $requestStack->push($request);
+
+        $subscriber = new ProductSubscriber(
+            $this->createMock(ProductVariationBuilder::class),
+            $this->createMock(AbstractProductPriceCalculator::class),
+            $this->createMock(AbstractPropertyGroupSorter::class),
+            $this->createMock(ProductMaxPurchaseCalculator::class),
+            $this->createMock(IsNewDetector::class),
+            new StaticSystemConfigService(),
+            $this->createMock(ProductMeasurementUnitBuilder::class),
+            $measurementUnitConverter,
+            $requestStack,
+        );
+
+        $product = (new PartialEntity())->assign(array_merge(['id' => Uuid::randomHex()], $productDimensions));
+
+        $context = Context::createDefaultContext(new AdminApiSource('user-id', 'integration-id'));
+
+        /** @var EntityLoadedEvent<ProductEntity|PartialEntity> $event */
+        $event = new EntityLoadedEvent(
+            $this->createMock(ProductDefinition::class),
+            [$product],
+            $context
+        );
+
+        $subscriber->loaded($event);
+
+        foreach ($expectedFinalValues as $field => $expectedValue) {
+            static::assertSame($expectedValue->value, $product->get($field), "Field {$field} does not match expected value");
+        }
+    }
+
+    public static function convertMeasurementUnitProvider(): \Generator
+    {
+        yield 'No headers provided' => [
+            'productDimensions' => ['width' => 10.0, 'height' => 20.0, 'weight' => 5.0],
+            'headers' => [],
+            'expectedConversions' => 0,
+            'expectedFinalValues' => [],
+        ];
+
+        yield 'Only length unit header provided' => [
+            'productDimensions' => ['width' => 10.0, 'height' => 20.0, 'length' => 30.0, 'weight' => 5.0],
+            'headers' => [PlatformRequest::HEADER_MEASUREMENT_LENGTH_UNIT => 'ft'],
+            'expectedConversions' => 3,
+            'expectedFinalValues' => [
+                'width' => new ConvertedUnit(20.0, 'mm'),
+                'height' => new ConvertedUnit(20.0, 'mm'),
+                'length' => new ConvertedUnit(30.0, 'mm'),
+            ],
+        ];
+
+        yield 'Only weight unit header provided' => [
+            'productDimensions' => ['width' => 10.0, 'height' => 20.0, 'weight' => 5.0],
+            'headers' => [PlatformRequest::HEADER_MEASUREMENT_WEIGHT_UNIT => 'lb'],
+            'expectedConversions' => 1,
+            'expectedFinalValues' => [
+                'weight' => new ConvertedUnit(10.0, 'g'),
+            ],
+        ];
+
+        yield 'Both unit headers provided' => [
+            'productDimensions' => ['width' => 10.0, 'height' => 20.0, 'length' => 30.0, 'weight' => 5.0],
+            'headers' => [
+                PlatformRequest::HEADER_MEASUREMENT_LENGTH_UNIT => 'ft',
+                PlatformRequest::HEADER_MEASUREMENT_WEIGHT_UNIT => 'lb',
+            ],
+            'expectedConversions' => 4,
+            'expectedFinalValues' => [
+                'width' => new ConvertedUnit(20.0, 'mm'),
+                'height' => new ConvertedUnit(20.0, 'mm'),
+                'length' => new ConvertedUnit(30.0, 'mm'),
+                'weight' => new ConvertedUnit(40.0, 'kg'),
+            ],
+        ];
+
+        yield 'Zero values are not converted' => [
+            'productDimensions' => ['width' => 0.0, 'height' => 10.0, 'weight' => 0.0],
+            'headers' => [
+                PlatformRequest::HEADER_MEASUREMENT_LENGTH_UNIT => 'ft',
+                PlatformRequest::HEADER_MEASUREMENT_WEIGHT_UNIT => 'lb',
+            ],
+            'expectedConversions' => 1,
+            'expectedFinalValues' => [
+                'height' => new ConvertedUnit(20.0, 'mm'),
+            ],
+        ];
+
+        yield 'Null values are not converted' => [
+            'productDimensions' => ['width' => null, 'height' => 10.0, 'weight' => null],
+            'headers' => [
+                PlatformRequest::HEADER_MEASUREMENT_LENGTH_UNIT => 'ft',
+                PlatformRequest::HEADER_MEASUREMENT_WEIGHT_UNIT => 'lb',
+            ],
+            'expectedConversions' => 1,
+            'expectedFinalValues' => [
+                'height' => new ConvertedUnit(20.0, 'mm'),
+            ],
+        ];
+
+        yield 'Non-float values are not converted' => [
+            'productDimensions' => ['width' => '10', 'height' => 10.0, 'weight' => '5'],
+            'headers' => [
+                PlatformRequest::HEADER_MEASUREMENT_LENGTH_UNIT => 'ft',
+                PlatformRequest::HEADER_MEASUREMENT_WEIGHT_UNIT => 'lb',
+            ],
+            'expectedConversions' => 1,
+            'expectedFinalValues' => [
+                'height' => new ConvertedUnit(20.0, 'mm'),
+            ],
+        ];
+
+        yield 'Weight headers given but product has no weight' => [
+            'productDimensions' => ['height' => 10.0],
+            'headers' => [
+                PlatformRequest::HEADER_MEASUREMENT_LENGTH_UNIT => 'ft',
+                PlatformRequest::HEADER_MEASUREMENT_WEIGHT_UNIT => 'lb',
+            ],
+            'expectedConversions' => 1,
+            'expectedFinalValues' => [
+                'height' => new ConvertedUnit(20.0, 'mm'),
+            ],
+        ];
+    }
+
+    public function testLoadedWithNoRequestInStack(): void
+    {
+        $measurementUnitConverter = $this->createMock(AbstractMeasurementUnitConverter::class);
+        $measurementUnitConverter->expects($this->never())->method('convert');
+
+        $requestStack = new RequestStack(); // No request pushed
+
+        $subscriber = new ProductSubscriber(
+            $this->createMock(ProductVariationBuilder::class),
+            $this->createMock(AbstractProductPriceCalculator::class),
+            $this->createMock(AbstractPropertyGroupSorter::class),
+            $this->createMock(ProductMaxPurchaseCalculator::class),
+            $this->createMock(IsNewDetector::class),
+            new StaticSystemConfigService(),
+            $this->createMock(ProductMeasurementUnitBuilder::class),
+            $measurementUnitConverter,
+            $requestStack,
+        );
+
+        $product = (new ProductEntity())->assign([
+            'id' => Uuid::randomHex(),
+            'width' => 10.0,
+            'height' => 20.0,
+            'weight' => 5.0,
+        ]);
+
+        $context = Context::createDefaultContext(new AdminApiSource('user-id', 'integration-id'));
+
+        /** @var EntityLoadedEvent<ProductEntity|PartialEntity> $event */
+        $event = new EntityLoadedEvent(
+            $this->createMock(ProductDefinition::class),
+            [$product],
+            $context
+        );
+
+        $subscriber->loaded($event);
+
+        // Values should remain unchanged when no request is in stack
+        static::assertSame(10.0, $product->get('width'));
+        static::assertSame(20.0, $product->get('height'));
+        static::assertSame(5.0, $product->get('weight'));
+    }
+
+    public function testBeforeWriteProductWithMeasurementHeaders(): void
+    {
+        $measurementUnitConverter = $this->createMock(AbstractMeasurementUnitConverter::class);
+        $measurementUnitConverter->expects($this->exactly(4))
+            ->method('convert')
+            ->willReturnCallback(function ($value, $from, $to) {
+                return new ConvertedUnit($value * 2.0, $to);
+            });
+
+        $requestStack = new RequestStack();
+        $request = new Request();
+        $request->headers = new HeaderBag([
+            PlatformRequest::HEADER_MEASUREMENT_LENGTH_UNIT => 'ft',
+            PlatformRequest::HEADER_MEASUREMENT_WEIGHT_UNIT => 'lb',
+        ]);
+        $requestStack->push($request);
+
+        $subscriber = new ProductSubscriber(
+            $this->createMock(ProductVariationBuilder::class),
+            $this->createMock(AbstractProductPriceCalculator::class),
+            $this->createMock(AbstractPropertyGroupSorter::class),
+            $this->createMock(ProductMaxPurchaseCalculator::class),
+            $this->createMock(IsNewDetector::class),
+            new StaticSystemConfigService(),
+            $this->createMock(ProductMeasurementUnitBuilder::class),
+            $measurementUnitConverter,
+            $requestStack,
+        );
+
+        $command = $this->createMock(WriteCommand::class);
+        $command->expects($this->once())
+            ->method('getEntityName')
+            ->willReturn(ProductDefinition::ENTITY_NAME);
+
+        $command->expects($this->once())
+            ->method('getPayload')
+            ->willReturn([
+                'width' => 10.0,
+                'height' => 20.0,
+                'length' => 30.0,
+                'weight' => 5.0,
+            ]);
+
+        $command->expects($this->exactly(4))
+            ->method('hasField')
+            ->willReturnCallback(function ($field) {
+                return \in_array($field, ['width', 'height', 'length', 'weight'], true);
+            });
+
+        $addPayloadCallCount = 0;
+        $command->expects($this->exactly(4))
+            ->method('addPayload')
+            ->willReturnCallback(function ($field, $value) use (&$addPayloadCallCount): void {
+                $expectedValues = [
+                    'width' => 20.0,
+                    'height' => 40.0,
+                    'length' => 60.0,
+                    'weight' => 10.0,
+                ];
+                static::assertArrayHasKey($field, $expectedValues);
+                static::assertSame($expectedValues[$field], $value);
+                ++$addPayloadCallCount;
+            });
+
+        $event = $this->createMock(EntityWriteEvent::class);
+        $event->expects($this->once())
+            ->method('getCommands')
+            ->willReturn([$command]);
+
+        $subscriber->beforeWriteProduct($event);
+    }
+
+    public function testBeforeWriteProductWithNoHeaders(): void
+    {
+        $measurementUnitConverter = $this->createMock(AbstractMeasurementUnitConverter::class);
+        $measurementUnitConverter->expects($this->never())->method('convert');
+
+        $requestStack = new RequestStack();
+        $request = new Request();
+        $request->headers = new HeaderBag([]);
+        $requestStack->push($request);
+
+        $subscriber = new ProductSubscriber(
+            $this->createMock(ProductVariationBuilder::class),
+            $this->createMock(AbstractProductPriceCalculator::class),
+            $this->createMock(AbstractPropertyGroupSorter::class),
+            $this->createMock(ProductMaxPurchaseCalculator::class),
+            $this->createMock(IsNewDetector::class),
+            new StaticSystemConfigService(),
+            $this->createMock(ProductMeasurementUnitBuilder::class),
+            $measurementUnitConverter,
+            $requestStack,
+        );
+
+        $command = $this->createMock(WriteCommand::class);
+        $command->expects($this->once())
+            ->method('getEntityName')
+            ->willReturn(ProductDefinition::ENTITY_NAME);
+
+        $command->expects($this->never())->method('getPayload');
+        $command->expects($this->never())->method('hasField');
+        $command->expects($this->never())->method('addPayload');
+
+        $event = $this->createMock(EntityWriteEvent::class);
+        $event->expects($this->once())
+            ->method('getCommands')
+            ->willReturn([$command]);
+
+        $subscriber->beforeWriteProduct($event);
+    }
+
+    public function testBeforeWriteProductWithNonProductCommands(): void
+    {
+        $measurementUnitConverter = $this->createMock(AbstractMeasurementUnitConverter::class);
+        $measurementUnitConverter->expects($this->never())->method('convert');
+
+        $requestStack = new RequestStack();
+        $request = new Request();
+        $request->headers = new HeaderBag([
+            PlatformRequest::HEADER_MEASUREMENT_LENGTH_UNIT => 'ft',
+            PlatformRequest::HEADER_MEASUREMENT_WEIGHT_UNIT => 'lb',
+        ]);
+        $requestStack->push($request);
+
+        $subscriber = new ProductSubscriber(
+            $this->createMock(ProductVariationBuilder::class),
+            $this->createMock(AbstractProductPriceCalculator::class),
+            $this->createMock(AbstractPropertyGroupSorter::class),
+            $this->createMock(ProductMaxPurchaseCalculator::class),
+            $this->createMock(IsNewDetector::class),
+            new StaticSystemConfigService(),
+            $this->createMock(ProductMeasurementUnitBuilder::class),
+            $measurementUnitConverter,
+            $requestStack,
+        );
+
+        $command = $this->createMock(WriteCommand::class);
+        $command->expects($this->once())
+            ->method('getEntityName')
+            ->willReturn('category'); // Non-product entity
+
+        $command->expects($this->never())->method('getPayload');
+        $command->expects($this->never())->method('hasField');
+        $command->expects($this->never())->method('addPayload');
+
+        $event = $this->createMock(EntityWriteEvent::class);
+        $event->expects($this->once())
+            ->method('getCommands')
+            ->willReturn([$command]);
+
+        $subscriber->beforeWriteProduct($event);
+    }
+
+    /**
+     * @param array<string, float> $payload
+     * @param array<string, string> $headers
+     * @param array<string, bool> $hasFieldReturns
+     * @param array<string, float> $expectedConversions
+     */
+    #[DataProvider('beforeWriteProductFieldProvider')]
+    public function testBeforeWriteProductWithVariousFieldTypes(
+        array $payload,
+        array $headers,
+        array $hasFieldReturns,
+        array $expectedConversions
+    ): void {
+        $measurementUnitConverter = $this->createMock(AbstractMeasurementUnitConverter::class);
+
+        if (!empty($expectedConversions)) {
+            $measurementUnitConverter->expects($this->exactly(\count($expectedConversions)))
+                ->method('convert')
+                ->willReturn(new ConvertedUnit(2.0, 'm'));
+        } else {
+            $measurementUnitConverter->expects($this->never())->method('convert');
+        }
+
+        $requestStack = new RequestStack();
+        $request = new Request();
+        $request->headers = new HeaderBag($headers);
+        $requestStack->push($request);
+
+        $subscriber = new ProductSubscriber(
+            $this->createMock(ProductVariationBuilder::class),
+            $this->createMock(AbstractProductPriceCalculator::class),
+            $this->createMock(AbstractPropertyGroupSorter::class),
+            $this->createMock(ProductMaxPurchaseCalculator::class),
+            $this->createMock(IsNewDetector::class),
+            new StaticSystemConfigService(),
+            $this->createMock(ProductMeasurementUnitBuilder::class),
+            $measurementUnitConverter,
+            $requestStack,
+        );
+
+        $command = $this->createMock(WriteCommand::class);
+        $command->expects($this->once())
+            ->method('getEntityName')
+            ->willReturn(ProductDefinition::ENTITY_NAME);
+
+        $command->expects($this->once())
+            ->method('getPayload')
+            ->willReturn($payload);
+
+        $command->expects($this->any())
+            ->method('hasField')
+            ->willReturnCallback(function ($field) use ($hasFieldReturns) {
+                return $hasFieldReturns[$field] ?? false;
+            });
+
+        if (!empty($expectedConversions)) {
+            $command->expects($this->exactly(\count($expectedConversions)))
+                ->method('addPayload');
+        } else {
+            $command->expects($this->never())->method('addPayload');
+        }
+
+        $event = $this->createMock(EntityWriteEvent::class);
+        $event->expects($this->once())
+            ->method('getCommands')
+            ->willReturn([$command]);
+
+        $subscriber->beforeWriteProduct($event);
+    }
+
+    public static function beforeWriteProductFieldProvider(): \Generator
+    {
+        yield 'Only length header with width field' => [
+            'payload' => ['width' => 10.0],
+            'headers' => [PlatformRequest::HEADER_MEASUREMENT_LENGTH_UNIT => 'ft'],
+            'hasFieldReturns' => ['width' => true],
+            'expectedConversions' => ['width' => 20.0],
+        ];
+
+        yield 'Only weight header with weight field' => [
+            'payload' => ['weight' => 5.0],
+            'headers' => [PlatformRequest::HEADER_MEASUREMENT_WEIGHT_UNIT => 'lb'],
+            'hasFieldReturns' => ['weight' => true],
+            'expectedConversions' => ['weight' => 10.0],
+        ];
+
+        yield 'Non-float values are skipped' => [
+            'payload' => ['width' => '10', 'height' => 20.0],
+            'headers' => [PlatformRequest::HEADER_MEASUREMENT_LENGTH_UNIT => 'ft'],
+            'hasFieldReturns' => ['width' => true, 'height' => true],
+            'expectedConversions' => ['height' => 40.0],
+        ];
+
+        yield 'Missing fields are skipped' => [
+            'payload' => ['width' => 10.0],
+            'headers' => [PlatformRequest::HEADER_MEASUREMENT_LENGTH_UNIT => 'ft'],
+            'hasFieldReturns' => ['width' => true, 'height' => false],
+            'expectedConversions' => ['width' => 20.0],
+        ];
+
+        yield 'Both headers with mixed fields' => [
+            'payload' => ['height' => 15.0, 'weight' => 3.0],
+            'headers' => [
+                PlatformRequest::HEADER_MEASUREMENT_LENGTH_UNIT => 'ft',
+                PlatformRequest::HEADER_MEASUREMENT_WEIGHT_UNIT => 'lb',
+            ],
+            'hasFieldReturns' => ['height' => true, 'weight' => true],
+            'expectedConversions' => ['height' => 30.0, 'weight' => 6.0],
+        ];
+    }
+
+    public function testBeforeWriteProductWithNoRequestInStack(): void
+    {
+        $measurementUnitConverter = $this->createMock(AbstractMeasurementUnitConverter::class);
+        $measurementUnitConverter->expects($this->never())->method('convert');
+
+        $requestStack = new RequestStack(); // No request pushed
+
+        $subscriber = new ProductSubscriber(
+            $this->createMock(ProductVariationBuilder::class),
+            $this->createMock(AbstractProductPriceCalculator::class),
+            $this->createMock(AbstractPropertyGroupSorter::class),
+            $this->createMock(ProductMaxPurchaseCalculator::class),
+            $this->createMock(IsNewDetector::class),
+            new StaticSystemConfigService(),
+            $this->createMock(ProductMeasurementUnitBuilder::class),
+            $measurementUnitConverter,
+            $requestStack,
+        );
+
+        $command = $this->createMock(WriteCommand::class);
+        $command->expects($this->once())
+            ->method('getEntityName')
+            ->willReturn(ProductDefinition::ENTITY_NAME);
+
+        $command->expects($this->never())->method('getPayload');
+        $command->expects($this->never())->method('hasField');
+        $command->expects($this->never())->method('addPayload');
+
+        $event = $this->createMock(EntityWriteEvent::class);
+        $event->expects($this->once())
+            ->method('getCommands')
+            ->willReturn([$command]);
+
+        $subscriber->beforeWriteProduct($event);
     }
 }

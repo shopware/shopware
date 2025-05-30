@@ -433,10 +433,13 @@ class SalesChannelContext extends Struct
 
     public function getMeasurementSystem(): MeasurementUnits
     {
-        return $this->measurementSystem ?? new MeasurementUnits([
-            'length' => MeasurementUnits::DEFAULT_LENGTH_UNIT,
-            'weight' => MeasurementUnits::DEFAULT_WEIGHT_UNIT,
-        ]);
+        return $this->measurementSystem ?? new MeasurementUnits(
+            MeasurementUnits::DEFAULT_MEASUREMENT_SYSTEM,
+            [
+                'length' => MeasurementUnits::DEFAULT_LENGTH_UNIT,
+                'weight' => MeasurementUnits::DEFAULT_WEIGHT_UNIT,
+            ]
+        );
     }
 
     public function setMeasurementSystem(MeasurementUnits $measurementSystem): void

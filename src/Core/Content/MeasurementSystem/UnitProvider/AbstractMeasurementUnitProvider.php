@@ -18,7 +18,7 @@ abstract class AbstractMeasurementUnitProvider
     abstract public function getUnits(): array;
 
     /**
-     * @return array MeasurementUnitType
+     * @return MeasurementUnitType
      */
     abstract public function getUnitInfo(string $unit): array;
 }

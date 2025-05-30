@@ -196,14 +196,12 @@ trait SalesChannelApiTestBehaviour
             'currencies' => [['id' => Defaults::CURRENCY]],
             'languages' => $salesChannelOverride['languages'] ?? [['id' => Defaults::LANGUAGE_SYSTEM]],
             'customerGroupId' => TestDefaults::FALLBACK_CUSTOMER_GROUP,
-            'measurementSystemId' => Uuid::fromStringToHex('metric'),
             'domains' => [
                 [
                     'languageId' => Defaults::LANGUAGE_SYSTEM,
                     'currencyId' => Defaults::CURRENCY,
                     'snippetSetId' => $this->getSnippetSetIdForLocale('en-GB'),
                     'url' => 'http://localhost',
-                    'measurementSystemId' => Uuid::fromStringToHex('metric'),
                 ],
             ],
             'countries' => [['id' => $this->getValidCountryId(null)]],

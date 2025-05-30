@@ -47,9 +47,6 @@ class ContextControllerContextTest extends TestCase
                 'currencyId' => Defaults::CURRENCY,
                 'snippetSetId' => $this->getSnippetSetIdForLocale('en-GB'),
                 'url' => $this->defaultBaseUrl,
-                'measurementSystemId' => Uuid::fromStringToHex('metric'),
-                'lengthUnitId' => Uuid::fromStringToHex('metric-mm'),
-                'weightUnitId' => Uuid::fromStringToHex('metric-kg'),
             ],
             [
                 'language' => [
@@ -66,9 +63,6 @@ class ContextControllerContextTest extends TestCase
                 'currencyId' => Defaults::CURRENCY,
                 'snippetSetId' => $this->getSnippetSetIdForLocale('en-GB'),
                 'url' => $this->testBaseUrl,
-                'measurementSystemId' => Uuid::fromStringToHex('metric'),
-                'lengthUnitId' => Uuid::fromStringToHex('metric-mm'),
-                'weightUnitId' => Uuid::fromStringToHex('metric-kg'),
             ],
         ];
 

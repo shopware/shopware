@@ -17,8 +17,6 @@ use Shopware\Core\Content\Category\CategoryEntity;
 use Shopware\Core\Content\Cms\CmsPageEntity;
 use Shopware\Core\Content\LandingPage\LandingPageCollection;
 use Shopware\Core\Content\MailTemplate\Aggregate\MailHeaderFooter\MailHeaderFooterEntity;
-use Shopware\Core\Content\MeasurementSystem\Entity\MeasurementDisplayUnitEntity;
-use Shopware\Core\Content\MeasurementSystem\Entity\MeasurementSystemEntity;
 use Shopware\Core\Content\MeasurementSystem\MeasurementUnits;
 use Shopware\Core\Content\Newsletter\Aggregate\NewsletterRecipient\NewsletterRecipientCollection;
 use Shopware\Core\Content\Product\Aggregate\ProductReview\ProductReviewCollection;
@@ -123,8 +121,6 @@ class SalesChannelEntity extends Entity
     protected ?array $maintenanceIpWhitelist = null;
 
     protected string $taxCalculationType;
-
-    protected string $measurementSystemId;
 
     protected ?SalesChannelTypeEntity $type = null;
 

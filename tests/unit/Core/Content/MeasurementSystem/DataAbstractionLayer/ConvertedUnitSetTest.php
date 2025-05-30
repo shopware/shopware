@@ -22,18 +22,6 @@ class ConvertedUnitSetTest extends TestCase
         $this->unitSet = new ConvertedUnitSet();
     }
 
-    public function testGetExpectedClass(): void
-    {
-        // Using reflection to test the protected method
-        $reflection = new \ReflectionClass(ConvertedUnitSet::class);
-        $method = $reflection->getMethod('getExpectedClass');
-        $method->setAccessible(true);
-
-        $result = $method->invoke($this->unitSet);
-
-        static::assertSame(ConvertedUnit::class, $result);
-    }
-
     public function testJsonSerializeEmpty(): void
     {
         $result = $this->unitSet->jsonSerialize();
@@ -44,7 +32,7 @@ class ConvertedUnitSetTest extends TestCase
     public function testJsonSerializeWithSingleUnit(): void
     {
         $unit = new ConvertedUnit(10.5, 'kg');
-        $this->unitSet->set('weight', $unit);
+        $this->unitSet->addUnit('weight', $unit);
 
         $result = $this->unitSet->jsonSerialize();
 
@@ -64,9 +52,9 @@ class ConvertedUnitSetTest extends TestCase
         $lengthUnit = new ConvertedUnit(150.0, 'cm');
         $temperatureUnit = new ConvertedUnit(25.5, 'celsius');
 
-        $this->unitSet->set('weight', $weightUnit);
-        $this->unitSet->set('length', $lengthUnit);
-        $this->unitSet->set('temperature', $temperatureUnit);
+        $this->unitSet->addUnit('weight', $weightUnit);
+        $this->unitSet->addUnit('length', $lengthUnit);
+        $this->unitSet->addUnit('temperature', $temperatureUnit);
 
         $result = $this->unitSet->jsonSerialize();
 
@@ -91,7 +79,7 @@ class ConvertedUnitSetTest extends TestCase
     public function testJsonSerializeWithZeroValues(): void
     {
         $unit = new ConvertedUnit(0.0, 'mm');
-        $this->unitSet->set('length', $unit);
+        $this->unitSet->addUnit('length', $unit);
 
         $result = $this->unitSet->jsonSerialize();
 
@@ -108,7 +96,7 @@ class ConvertedUnitSetTest extends TestCase
     public function testJsonSerializeWithNegativeValues(): void
     {
         $unit = new ConvertedUnit(-10.0, 'celsius');
-        $this->unitSet->set('temperature', $unit);
+        $this->unitSet->addUnit('temperature', $unit);
 
         $result = $this->unitSet->jsonSerialize();
 
@@ -125,7 +113,7 @@ class ConvertedUnitSetTest extends TestCase
     public function testGetTypeExisting(): void
     {
         $unit = new ConvertedUnit(10.5, 'kg');
-        $this->unitSet->set('weight', $unit);
+        $this->unitSet->addUnit('weight', $unit);
 
         $result = $this->unitSet->getType('weight');
 
@@ -144,8 +132,8 @@ class ConvertedUnitSetTest extends TestCase
         $weightUnit = new ConvertedUnit(10.5, 'kg');
         $lengthUnit = new ConvertedUnit(150.0, 'cm');
 
-        $this->unitSet->set('weight', $weightUnit);
-        $this->unitSet->set('length', $lengthUnit);
+        $this->unitSet->addUnit('weight', $weightUnit);
+        $this->unitSet->addUnit('length', $lengthUnit);
 
         static::assertSame($weightUnit, $this->unitSet->getType('weight'));
         static::assertSame($lengthUnit, $this->unitSet->getType('length'));
@@ -157,8 +145,8 @@ class ConvertedUnitSetTest extends TestCase
         $firstUnit = new ConvertedUnit(10.5, 'kg');
         $secondUnit = new ConvertedUnit(15.0, 'pounds');
 
-        $this->unitSet->set('weight', $firstUnit);
-        $this->unitSet->set('weight', $secondUnit);
+        $this->unitSet->addUnit('weight', $firstUnit);
+        $this->unitSet->addUnit('weight', $secondUnit);
 
         $result = $this->unitSet->getType('weight');
 
@@ -169,7 +157,7 @@ class ConvertedUnitSetTest extends TestCase
     public function testGetTypeWithEmptyString(): void
     {
         $unit = new ConvertedUnit(5.0, 'mm');
-        $this->unitSet->set('', $unit);
+        $this->unitSet->addUnit('', $unit);
 
         $result = $this->unitSet->getType('');
 
@@ -179,7 +167,7 @@ class ConvertedUnitSetTest extends TestCase
     public function testGetTypeWithNumericKey(): void
     {
         $unit = new ConvertedUnit(5.0, 'mm');
-        $this->unitSet->set('123', $unit);
+        $this->unitSet->addUnit('123', $unit);
 
         $result = $this->unitSet->getType('123');
 
@@ -188,19 +176,16 @@ class ConvertedUnitSetTest extends TestCase
 
     public function testComplexScenario(): void
     {
-        // Test a complex scenario with multiple operations
         $weightUnit = new ConvertedUnit(75.5, 'kg');
         $heightUnit = new ConvertedUnit(180.0, 'cm');
         $widthUnit = new ConvertedUnit(60.0, 'cm');
         $lengthUnit = new ConvertedUnit(120.0, 'cm');
 
-        // Add units
-        $this->unitSet->set('weight', $weightUnit);
-        $this->unitSet->set('height', $heightUnit);
-        $this->unitSet->set('width', $widthUnit);
-        $this->unitSet->set('length', $lengthUnit);
+        $this->unitSet->addUnit('weight', $weightUnit);
+        $this->unitSet->addUnit('height', $heightUnit);
+        $this->unitSet->addUnit('width', $widthUnit);
+        $this->unitSet->addUnit('length', $lengthUnit);
 
-        // Test JSON serialization
         $json = $this->unitSet->jsonSerialize();
         static::assertCount(4, $json);
         static::assertArrayHasKey('weight', $json);
@@ -208,13 +193,11 @@ class ConvertedUnitSetTest extends TestCase
         static::assertArrayHasKey('width', $json);
         static::assertArrayHasKey('length', $json);
 
-        // Test individual retrievals
         static::assertSame($weightUnit, $this->unitSet->getType('weight'));
         static::assertSame($heightUnit, $this->unitSet->getType('height'));
         static::assertSame($widthUnit, $this->unitSet->getType('width'));
         static::assertSame($lengthUnit, $this->unitSet->getType('length'));
 
-        // Test non-existent type
         static::assertNull($this->unitSet->getType('volume'));
     }
-} 
+}

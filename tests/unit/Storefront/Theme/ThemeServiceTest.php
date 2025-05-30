@@ -36,6 +36,7 @@ use Shopware\Storefront\Theme\ThemeCompiler;
 use Shopware\Storefront\Theme\ThemeEntity;
 use Shopware\Storefront\Theme\ThemeService;
 use Shopware\Tests\Unit\Storefront\Theme\fixtures\ThemeFixtures;
+use Shopware\Tests\Unit\Storefront\Theme\fixtures\ThemeFixtures_6_7;
 use Symfony\Component\EventDispatcher\EventDispatcher;
 use Symfony\Component\Messenger\Envelope;
 use Symfony\Component\Messenger\MessageBus;
@@ -527,7 +528,7 @@ class ThemeServiceTest extends TestCase
      * @param array<string, mixed>|null $expected
      * @param array<string, mixed>|null $expectedStructured
      */
-    #[DataProviderExternal(ThemeFixtures::class, 'getThemeCollectionForThemeConfiguration')]
+    #[DataProviderExternal(ThemeFixtures_6_7::class, 'getThemeCollectionForThemeConfiguration')]
     #[DisabledFeatures(['v6.8.0.0'])]
     public function testGetPlainThemeConfigurationWithTranslations(
         array $ids,
@@ -543,7 +544,7 @@ class ThemeServiceTest extends TestCase
      * @param array<string, mixed>|null $expected
      * @param array<string, mixed>|null $expectedStructured
      */
-    #[DataProviderExternal(ThemeFixtures::class, 'getThemeCollectionForThemeConfigurationCleared')]
+    #[DataProviderExternal(ThemeFixtures::class, 'getThemeCollectionForThemeConfiguration')]
     public function testGetPlainThemeConfiguration(
         array $ids,
         ThemeCollection $themeCollection,
@@ -581,11 +582,13 @@ class ThemeServiceTest extends TestCase
     }
 
     /**
+     * @deprecated tag:v6.8.0 Will be removed, use testGetThemeConfigurationFieldStructure instead
+     *
      * @param array<string, mixed> $ids
      * @param array<string, mixed>|null $expected
      * @param array<string, mixed>|null $expectedStructured
      */
-    #[DataProviderExternal(ThemeFixtures::class, 'getThemeCollectionForThemeConfiguration')]
+    #[DataProviderExternal(ThemeFixtures_6_7::class, 'getThemeCollectionForThemeConfiguration')]
     #[DisabledFeatures(['v6.8.0.0'])]
     public function testGetThemeConfigurationFieldStructureWithTranslations(
         array $ids,
@@ -601,7 +604,7 @@ class ThemeServiceTest extends TestCase
      * @param array<string, mixed>|null $expected
      * @param array<string, mixed>|null $expectedStructured
      */
-    #[DataProviderExternal(ThemeFixtures::class, 'getThemeCollectionForThemeConfigurationCleared')]
+    #[DataProviderExternal(ThemeFixtures::class, 'getThemeCollectionForThemeConfiguration')]
     public function testGetThemeConfigurationFieldStructure(
         array $ids,
         ThemeCollection $themeCollection,

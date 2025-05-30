@@ -42,7 +42,7 @@ describe('modals.store', () => {
         ]);
     });
 
-    it ('opens a modal without a locationID but with textContent', () => {
+    it('opens a modal without a locationID but with textContent', () => {
         store.openModal({
             title: 'Test Modal',
             closable: true,
@@ -66,7 +66,7 @@ describe('modals.store', () => {
                 baseUrl: 'https://example.com',
             },
         ]);
-    })
+    });
 
     it('closes a modal with locationId', () => {
         store.openModal({

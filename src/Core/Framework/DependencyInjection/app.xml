@@ -191,6 +191,12 @@
             <argument type="service" id="Shopware\Core\Framework\Log\ExceptionLogger"/>
         </service>
 
+        <service id="Shopware\Core\Framework\App\Context\Payload\AppContextGatewayPayloadService">
+            <argument type="service" id="Shopware\Core\Framework\App\Payload\AppPayloadServiceHelper"/>
+            <argument type="service" id="shopware.app_system.guzzle"/>
+            <argument type="service" id="Shopware\Core\Framework\Log\ExceptionLogger"/>
+        </service>
+
         <service id="Shopware\Core\Framework\App\Checkout\Gateway\AppCheckoutGateway">
             <argument type="service" id="Shopware\Core\Framework\App\Checkout\Payload\AppCheckoutGatewayPayloadService"/>
             <argument type="service" id="Shopware\Core\Checkout\Gateway\Command\Executor\CheckoutGatewayCommandExecutor"/>
@@ -199,6 +205,15 @@
             <argument type="service" id="event_dispatcher"/>
             <argument type="service" id="Shopware\Core\Framework\Log\ExceptionLogger"/>
             <argument type="service" id="Shopware\Core\Framework\App\ActiveAppsLoader"/>
+        </service>
+
+        <service id="Shopware\Core\Framework\App\Context\Gateway\AppContextGateway">
+            <argument type="service" id="Shopware\Core\Framework\App\Context\Payload\AppContextGatewayPayloadService"/>
+            <argument type="service" id="Shopware\Core\Framework\Gateway\Context\Command\Executor\ContextGatewayCommandExecutor"/>
+            <argument type="service" id="Shopware\Core\Framework\Gateway\Context\Command\Registry\ContextGatewayCommandRegistry"/>
+            <argument type="service" id="app.repository"/>
+            <argument type="service" id="event_dispatcher"/>
+            <argument type="service" id="Shopware\Core\Framework\Log\ExceptionLogger"/>
         </service>
 
         <service id="Shopware\Core\Framework\App\Payment\Handler\AppPaymentHandler">

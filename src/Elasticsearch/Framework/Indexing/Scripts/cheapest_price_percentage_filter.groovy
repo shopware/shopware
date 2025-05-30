@@ -14,12 +14,19 @@ String getPercentageKey(def accessors, def doc) {
 def percentageKey = getPercentageKey(params['accessors'], doc);
 
 if (percentageKey == '') {
+    if (params.containsKey('eq') && params['eq'] === null) {
+        return true;
+    }
+
     return false;
 }
 
 def percentage = (double) doc[percentageKey].value;
 
 def match = true;
+if (params.containsKey('eq')) {
+    match = match && percentage == params['eq'];
+}
 if (params.containsKey('gte')) {
     match = match && percentage >= params['gte'];
 }

@@ -491,6 +491,7 @@
     <xs:complexType name="gateways">
         <xs:sequence>
             <xs:element name="checkout" type="xs:anyURI" minOccurs="0"/>
+            <xs:element name="context" type="xs:anyURI" minOccurs="0"/>
             <xs:element name="inAppPurchases" type="xs:anyURI" minOccurs="0"/>
         </xs:sequence>
     </xs:complexType>

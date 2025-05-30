@@ -553,6 +553,7 @@ shopware:
 
     messenger:
         routing_overwrite:
+        stats:
 
     product_stream:
         indexing: true

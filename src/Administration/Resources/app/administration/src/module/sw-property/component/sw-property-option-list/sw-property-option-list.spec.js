@@ -79,7 +79,8 @@ async function createWrapper() {
                     create: () => ({
                         get: () => Promise.resolve(),
                         save: jest.fn(() => Promise.resolve()),
-                        search: () => Promise.resolve({ propertyGroup }),
+                        search: () =>
+                            Promise.resolve(new Shopware.Data.EntityCollection(null, null, {}, null, getOptions())),
                     }),
                 },
                 shortcutService: {
@@ -96,7 +97,9 @@ async function createWrapper() {
                 'sw-simple-search-field': {
                     template: '<div></div>',
                 },
-                'sw-one-to-many-grid': await wrapTestComponent('sw-one-to-many-grid', { sync: true }),
+                'sw-one-to-many-grid': await wrapTestComponent('sw-one-to-many-grid', {
+                    sync: true,
+                }),
                 'sw-pagination': {
                     template: '<div></div>',
                 },
@@ -137,6 +140,7 @@ async function createWrapper() {
                     template: '<div></div>',
                 },
                 'sw-extension-component-section': true,
+                'sw-empty-state': true,
                 'sw-context-menu-item': true,
                 'sw-loader': true,
                 'sw-ai-copilot-badge': true,
@@ -156,6 +160,7 @@ describe('module/sw-property/component/sw-property-option-list', () => {
         global.activeAclRoles = ['property.editor'];
 
         const wrapper = await createWrapper();
+        await flushPromises();
 
         const initialHexCodeValue = wrapper.find('.sw-data-grid__cell--colorHexCode span').text();
 

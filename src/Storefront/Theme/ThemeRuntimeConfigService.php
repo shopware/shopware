@@ -118,7 +118,7 @@ class ThemeRuntimeConfigService
         $runtimeConfig = ThemeRuntimeConfig::fromArray([
             'themeId' => $themeId,
             'technicalName' => $themeConfig->getTechnicalName(),
-            'resolvedConfig' => $this->mergedConfigBuilder->getThemeConfiguration($themeId, false, $context),
+            'resolvedConfig' => $this->mergedConfigBuilder->getPlainThemeConfiguration($themeId, $context),
             'viewInheritance' => $themeConfig->getViewInheritance(),
             'scriptFiles' => $scriptFiles,
             'iconSets' => $this->prepareIconSets($themeConfig),
@@ -134,7 +134,7 @@ class ThemeRuntimeConfigService
             $copyConfig = $runtimeConfig->with([
                 'themeId' => $copyId,
                 'technicalName' => null,
-                'resolvedConfig' => $this->mergedConfigBuilder->getThemeConfiguration($copyId, false, $context),
+                'resolvedConfig' => $this->mergedConfigBuilder->getPlainThemeConfiguration($copyId, $context),
                 'updatedAt' => new \DateTime(),
             ]);
 
@@ -187,7 +187,7 @@ class ThemeRuntimeConfigService
             return;
         }
 
-        $mergedConfig = $this->mergedConfigBuilder->getThemeConfiguration($themeId, false, $context);
+        $mergedConfig = $this->mergedConfigBuilder->getPlainThemeConfiguration($themeId, $context);
         $updatedRuntimeConfig = $runtimeConfig->with([
             'resolvedConfig' => $mergedConfig,
             'updatedAt' => new \DateTime(),

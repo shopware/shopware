@@ -3,7 +3,7 @@
 namespace Shopware\Tests\Unit\Storefront\Theme;
 
 use PHPUnit\Framework\Attributes\CoversClass;
-use PHPUnit\Framework\Attributes\DataProvider;
+use PHPUnit\Framework\Attributes\DataProviderExternal;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Context;
@@ -21,7 +21,7 @@ use Shopware\Storefront\Theme\ThemeCollection;
 use Shopware\Storefront\Theme\ThemeEntity;
 use Shopware\Storefront\Theme\ThemeMergedConfigBuilder;
 use Shopware\Tests\Unit\Storefront\Theme\fixtures\ThemeFixtures;
-use Shopware\Tests\Unit\Storefront\Theme\fixtures\ThemeMergedConfigBuilderFixtures;
+use Shopware\Tests\Unit\Storefront\Theme\fixtures\ThemeFixtures_6_7;
 
 /**
  * @internal
@@ -51,8 +51,7 @@ class ThemeMergedConfigBuilderTest extends TestCase
         );
     }
 
-    #[DisabledFeatures(['v6.8.0.0'])]
-    public function testGetThemeConfigurationNoTheme(): void
+    public function testGetPlainThemeConfigurationNoTheme(): void
     {
         $themeId = Uuid::randomHex();
 
@@ -76,9 +75,28 @@ class ThemeMergedConfigBuilderTest extends TestCase
             )
         );
 
-        $this->expectExceptionObject(ThemeException::couldNotFindThemeById($themeId));
+        $this->expectException(ThemeException::class);
+        $this->expectExceptionMessage(\sprintf('Could not find theme with id "%s"', $themeId));
 
-        $this->mergedConfigBuilder->getThemeConfiguration($themeId, false, $this->context);
+        $this->mergedConfigBuilder->getPlainThemeConfiguration($themeId, $this->context);
+    }
+
+    /**
+     * @deprecated tag:v6.8.0 Will be removed, use testGetPlainThemeConfiguration instead
+     *
+     * @param array<string, mixed> $ids
+     * @param array<string, mixed>|null $expected
+     * @param array<string, mixed>|null $expectedStructured
+     */
+    #[DataProviderExternal(ThemeFixtures_6_7::class, 'getThemeCollectionForThemeConfiguration')]
+    #[DisabledFeatures(['v6.8.0.0'])]
+    public function testGetPlainThemeConfigurationWithTranslations(
+        array $ids,
+        ThemeCollection $themeCollection,
+        ?array $expected = null,
+        ?array $expectedStructured = null,
+    ): void {
+        $this->testGetPlainThemeConfiguration($ids, $themeCollection, $expected, $expectedStructured);
     }
 
     /**
@@ -86,9 +104,8 @@ class ThemeMergedConfigBuilderTest extends TestCase
      * @param array<string, mixed>|null $expected
      * @param array<string, mixed>|null $expectedStructured
      */
-    #[DataProvider('getThemeCollectionForThemeConfiguration')]
-    #[DisabledFeatures(['v6.8.0.0'])]
-    public function testGetThemeConfiguration(
+    #[DataProviderExternal(ThemeFixtures::class, 'getThemeCollectionForThemeConfiguration')]
+    public function testGetPlainThemeConfiguration(
         array $ids,
         ThemeCollection $themeCollection,
         ?array $expected = null,
@@ -116,7 +133,7 @@ class ThemeMergedConfigBuilderTest extends TestCase
             )
         );
 
-        $config = $this->mergedConfigBuilder->getThemeConfiguration($ids['themeId'], true, $this->context);
+        $config = $this->mergedConfigBuilder->getPlainThemeConfiguration($ids['themeId'], $this->context, true);
 
         static::assertArrayHasKey('fields', $config);
         static::assertArrayHasKey('currentFields', $config);
@@ -125,13 +142,30 @@ class ThemeMergedConfigBuilderTest extends TestCase
     }
 
     /**
+     * @deprecated tag:v6.8.0 Will be removed, use testGetThemeConfigurationFieldStructure instead
+     *
      * @param array<string, mixed> $ids
      * @param array<string, mixed>|null $expected
      * @param array<string, mixed>|null $expectedStructured
      */
-    #[DataProvider('getThemeCollectionForThemeConfiguration')]
+    #[DataProviderExternal(ThemeFixtures_6_7::class, 'getThemeCollectionForThemeConfiguration')]
     #[DisabledFeatures(['v6.8.0.0'])]
-    public function testGetThemeConfigurationStructured(
+    public function testGetThemeConfigurationFieldStructureWithTranslations(
+        array $ids,
+        ThemeCollection $themeCollection,
+        ?array $expected = null,
+        ?array $expectedStructured = null,
+    ): void {
+        $this->testGetThemeConfigurationFieldStructure($ids, $themeCollection, $expected, $expectedStructured);
+    }
+
+    /**
+     * @param array<string, mixed> $ids
+     * @param array<string, mixed>|null $expected
+     * @param array<string, mixed>|null $expectedStructured
+     */
+    #[DataProviderExternal(ThemeFixtures::class, 'getThemeCollectionForThemeConfiguration')]
+    public function testGetThemeConfigurationFieldStructure(
         array $ids,
         ThemeCollection $themeCollection,
         ?array $expected = null,
@@ -159,26 +193,11 @@ class ThemeMergedConfigBuilderTest extends TestCase
             )
         );
 
-        $config = $this->mergedConfigBuilder->getThemeConfigurationStructuredFields($ids['themeId'], true, $this->context);
+        $config = $this->mergedConfigBuilder->getThemeConfigurationFieldStructure($ids['themeId'], $this->context, true);
 
         static::assertArrayHasKey('tabs', $config);
         static::assertArrayHasKey('default', $config['tabs']);
         static::assertArrayHasKey('blocks', $config['tabs']['default']);
         static::assertEquals($expectedStructured, $config);
-    }
-
-    /**
-     * @return iterable<array{
-     *     ids: array<string, mixed>,
-     *     themeCollection: ThemeCollection,
-     *     expected?: array<string, mixed>,
-     *     expectedStructured?: array<string, mixed>,
-     * }>
-     */
-    public static function getThemeCollectionForThemeConfiguration(): iterable
-    {
-        foreach (ThemeMergedConfigBuilderFixtures::getTestCases() as $testCase) {
-            yield $testCase;
-        }
     }
 }

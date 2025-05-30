@@ -6,6 +6,7 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\InconsistentCriteriaIdsException;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Storefront\Theme\Exception\InvalidThemeConfigException;
 use Shopware\Storefront\Theme\Exception\ThemeException;
@@ -36,8 +37,14 @@ class ThemeMergedConfigBuilder
      *
      * @return array<string, mixed>
      */
-    public function getThemeConfiguration(string $themeId, bool $translate, Context $context): array
+    public function getPlainThemeConfiguration(string $themeId, Context $context): array
     {
+        $isLegacy = !Feature::isActive('v6.8.0.0');
+
+        if ($isLegacy) {
+            $translate = \func_num_args() === 3 ? func_get_arg(2) : false;
+        }
+
         $criteria = (new Criteria())
             ->setTitle('theme-service::load-config');
 
@@ -57,15 +64,21 @@ class ThemeMergedConfigBuilder
 
         $themeConfigFieldFactory = new ThemeConfigFieldFactory();
         $configFields = [];
-        $labels = array_replace_recursive($baseTheme->getLabels() ?? [], $theme->getLabels() ?? []);
-        $helpTexts = array_replace_recursive($baseTheme->getHelpTexts() ?? [], $theme->getHelpTexts() ?? []);
+
+        if ($isLegacy) {
+            $labels = array_replace_recursive($baseTheme->getLabels() ?? [], $theme->getLabels() ?? []);
+            $helpTexts = array_replace_recursive($baseTheme->getHelpTexts() ?? [], $theme->getHelpTexts() ?? []);
+        }
 
         if ($theme->getParentThemeId()) {
             foreach ($this->getParentThemes($themes, $theme) as $parentTheme) {
                 $configuredParentTheme = $this->mergeStaticConfig($parentTheme);
                 $baseThemeConfig = array_replace_recursive($baseThemeConfig, $configuredParentTheme);
-                $labels = array_replace_recursive($labels, $parentTheme->getLabels() ?? []);
-                $helpTexts = array_replace_recursive($helpTexts, $parentTheme->getHelpTexts() ?? []);
+
+                if ($isLegacy) {
+                    $labels = array_replace_recursive($labels, $parentTheme->getLabels() ?? []);
+                    $helpTexts = array_replace_recursive($helpTexts, $parentTheme->getHelpTexts() ?? []);
+                }
             }
         }
 
@@ -85,12 +98,14 @@ class ThemeMergedConfigBuilder
 
         $configFields = json_decode((string) json_encode($configFields, \JSON_THROW_ON_ERROR), true, 512, \JSON_THROW_ON_ERROR);
 
-        if ($translate && !empty($labels)) {
-            $configFields = $this->translateLabels($configFields, $labels);
-        }
+        if ($isLegacy && $translate) {
+            if (!empty($labels)) {
+                $configFields = $this->translateLabels($configFields, $labels);
+            }
 
-        if ($translate && !empty($helpTexts)) {
-            $configFields = $this->translateHelpTexts($configFields, $helpTexts);
+            if (!empty($helpTexts)) {
+                $configFields = $this->translateHelpTexts($configFields, $helpTexts);
+            }
         }
 
         $themeConfig['themeTechnicalName'] = $theme->getTechnicalName();
@@ -118,20 +133,46 @@ class ThemeMergedConfigBuilder
             }
         }
 
+        // cleaning up data that we do not want to expose in the v6.8.0.0
+        if (Feature::isActive('v6.8.0.0')) {
+            // labels are still stored in the database, but we don't want to expose them in the response
+            if (isset($themeConfig['blocks'])) {
+                foreach ($themeConfig['blocks'] as &$block) {
+                    unset($block['label']);
+                }
+            }
+
+            // remove next block in actual migration to v6.8.0.0, as fields will be removed
+            // from ThemeConfigField and resulting array will not contain them anymore
+            if (isset($themeConfig['fields'])) {
+                foreach ($themeConfig['fields'] as &$field) {
+                    unset($field['label']);
+                    unset($field['helpText']);
+                }
+            }
+        }
+
         return $themeConfig;
     }
 
     /**
      * @return array<string, mixed>
      */
-    public function getThemeConfigurationStructuredFields(string $themeId, bool $translate, Context $context): array
+    public function getThemeConfigurationFieldStructure(string $themeId, Context $context): array
     {
-        $themeConfig = $this->getThemeConfiguration($themeId, $translate, $context);
+        $isLegacy = !Feature::isActive('v6.8.0.0');
+        if ($isLegacy) {
+            $translate = \func_num_args() === 3 ? func_get_arg(2) : false;
+            $themeConfig = $this->getPlainThemeConfiguration($themeId, $context, $translate);
+        } else {
+            $themeConfig = $this->getPlainThemeConfiguration($themeId, $context);
+        }
+
         $themeTechnicalName = (string) $themeConfig['themeTechnicalName'];
         $mergedFieldConfig = $themeConfig['fields'];
 
         $translations = [];
-        if ($translate) {
+        if ($isLegacy && $translate) {
             $translations = $this->getTranslations($themeId, $context);
             $mergedFieldConfig = $this->translateLabels($mergedFieldConfig, $translations);
         }
@@ -152,6 +193,44 @@ class ThemeMergedConfigBuilder
         }
 
         return $outputStructure;
+    }
+
+    /**
+     * @param array<string, mixed> $fieldConfig
+     * @param array<string, mixed>|null $custom
+     *
+     * @return array<string, mixed>
+     */
+    private function buildField(array $fieldConfig, ?array $custom, string $themeTechnicalName, string $tab, string $block, string $section, string $fieldName): array
+    {
+        $field = [
+            'labelSnippetKey' => $this->buildSnippetKey(
+                $themeTechnicalName,
+                false,
+                $tab,
+                $block,
+                $section,
+                $fieldName,
+            ),
+            'helpTextSnippetKey' => $this->buildSnippetKey(
+                $themeTechnicalName,
+                true,
+                $tab,
+                $block,
+                $section,
+                $fieldName,
+            ),
+            'type' => $fieldConfig['type'] ?? null,
+            'custom' => $custom,
+            'fullWidth' => $fieldConfig['fullWidth'],
+        ];
+
+        if (!Feature::isActive('v6.8.0.0')) {
+            $field['label'] = $fieldConfig['label'];
+            $field['helpText'] = $fieldConfig['helpText'] ?? null;
+        }
+
+        return $field;
     }
 
     /**
@@ -394,39 +473,6 @@ class ThemeMergedConfigBuilder
         return false;
     }
 
-    /**
-     * @param array<string, mixed> $fieldConfig
-     * @param array<string, mixed>|null $custom
-     *
-     * @return array<string, mixed>
-     */
-    private function buildField(array $fieldConfig, ?array $custom, string $themeTechnicalName, string $tab, string $block, string $section, string $fieldName): array
-    {
-        return [
-            'label' => $fieldConfig['label'],
-            'labelSnippetKey' => $this->buildSnippetKey(
-                $themeTechnicalName,
-                false,
-                $tab,
-                $block,
-                $section,
-                $fieldName,
-            ),
-            'helpText' => $fieldConfig['helpText'] ?? null,
-            'helpTextSnippetKey' => $this->buildSnippetKey(
-                $themeTechnicalName,
-                true,
-                $tab,
-                $block,
-                $section,
-                $fieldName,
-            ),
-            'type' => $fieldConfig['type'] ?? null,
-            'custom' => $custom,
-            'fullWidth' => $fieldConfig['fullWidth'],
-        ];
-    }
-
     private function buildSnippetKey(string $themeTechnicalName, bool $isHelpText, string ...$parts): string
     {
         return implode(
@@ -476,25 +522,27 @@ class ThemeMergedConfigBuilder
      */
     private function addTranslations(array $outputStructure, string $themeTechnicalName, string $tab, string $block, string $section, array $translations): array
     {
-        $tabLabel = $this->getTabLabel($tab, $translations);
         $tabSnippetKey = $this->buildSnippetKey($themeTechnicalName, false, $tab);
-
-        $blockLabel = $this->getBlockLabel($block, $translations);
         $blockSnippetKey = $this->buildSnippetKey($themeTechnicalName, false, $tab, $block);
-
-        $sectionLabel = $this->getSectionLabel($section, $translations);
         $sectionSnippetKey = $this->buildSnippetKey($themeTechnicalName, false, $tab, $block, $section);
 
-        // set default tab
-        $outputStructure['tabs']['default']['label'] = '';
-
         // set labels
-        $outputStructure['tabs'][$tab]['label'] = $tabLabel;
         $outputStructure['tabs'][$tab]['labelSnippetKey'] = $tabSnippetKey;
-        $outputStructure['tabs'][$tab]['blocks'][$block]['label'] = $blockLabel;
         $outputStructure['tabs'][$tab]['blocks'][$block]['labelSnippetKey'] = $blockSnippetKey;
-        $outputStructure['tabs'][$tab]['blocks'][$block]['sections'][$section]['label'] = $sectionLabel;
         $outputStructure['tabs'][$tab]['blocks'][$block]['sections'][$section]['labelSnippetKey'] = $sectionSnippetKey;
+
+        if (!Feature::isActive('v6.8.0.0')) {
+            // set default tab
+            $outputStructure['tabs']['default']['label'] = '';
+
+            // set labels
+            $tabLabel = $this->getTabLabel($tab, $translations);
+            $blockLabel = $this->getBlockLabel($block, $translations);
+            $sectionLabel = $this->getSectionLabel($section, $translations);
+            $outputStructure['tabs'][$tab]['label'] = $tabLabel;
+            $outputStructure['tabs'][$tab]['blocks'][$block]['label'] = $blockLabel;
+            $outputStructure['tabs'][$tab]['blocks'][$block]['sections'][$section]['label'] = $sectionLabel;
+        }
 
         return $outputStructure;
     }

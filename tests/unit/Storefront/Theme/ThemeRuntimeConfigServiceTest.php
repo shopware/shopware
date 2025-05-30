@@ -213,8 +213,8 @@ class ThemeRuntimeConfigServiceTest extends TestCase
 
         $this->mergedConfigBuilder
             ->expects($this->once())
-            ->method('getThemeConfiguration')
-            ->with($themeId, false, $context)
+            ->method('getPlainThemeConfiguration')
+            ->with($themeId, $context)
             ->willReturn(['key' => 'value']);
 
         // Create a mock for the script files collection
@@ -267,8 +267,8 @@ class ThemeRuntimeConfigServiceTest extends TestCase
 
         $this->mergedConfigBuilder
             ->expects($this->once())
-            ->method('getThemeConfiguration')
-            ->with($themeId, false, $context)
+            ->method('getPlainThemeConfiguration')
+            ->with($themeId, $context)
             ->willReturn(['key' => 'value']);
 
         // Make resolveJs throw an exception

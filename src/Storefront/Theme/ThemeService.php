@@ -9,6 +9,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\InconsistentCriteriaIdsException;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Notification\NotificationService;
 use Shopware\Core\Framework\Uuid\Uuid;
@@ -177,14 +178,16 @@ class ThemeService implements ResetInterface
 
     public function assignTheme(string $themeId, string $salesChannelId, Context $context, bool $skipCompile = false): bool
     {
-        if (!$skipCompile) {
-            $this->compileTheme($salesChannelId, $themeId, $context);
-        }
+        $this->connection->transactional(function () use ($themeId, $salesChannelId, $context, $skipCompile): void {
+            if (!$skipCompile) {
+                $this->compileTheme($salesChannelId, $themeId, $context);
+            }
 
-        $this->themeSalesChannelRepository->upsert([[
-            'themeId' => $themeId,
-            'salesChannelId' => $salesChannelId,
-        ]], $context);
+            $this->themeSalesChannelRepository->upsert([[
+                'themeId' => $themeId,
+                'salesChannelId' => $salesChannelId,
+            ]], $context);
+        });
 
         $this->dispatcher->dispatch(new ThemeAssignedEvent($themeId, $salesChannelId));
 
@@ -214,19 +217,66 @@ class ThemeService implements ResetInterface
      * @throws ThemeException
      * @throws InconsistentCriteriaIdsException
      *
+     * @deprecated tag:v6.8.0 Use `getPlainThemeConfiguration` if you do not need translated labels or help texts or
+     * getThemeConfigurationFieldStructure if you need structure with translations
+     *
      * @return array<string, mixed>
      */
     public function getThemeConfiguration(string $themeId, bool $translate, Context $context): array
     {
-        return $this->mergedConfigBuilder->getThemeConfiguration($themeId, $translate, $context);
+        Feature::triggerDeprecationOrThrow(
+            'v6.8.0.0',
+            Feature::deprecatedMethodMessage(__CLASS__, __METHOD__, 'v6.8.0.0', 'getPlainThemeConfiguration')
+        );
+
+        return $this->mergedConfigBuilder->getPlainThemeConfiguration($themeId, $context, $translate);
+    }
+
+    /**
+     * @throws InvalidThemeConfigException
+     * @throws ThemeException
+     * @throws InconsistentCriteriaIdsException
+     *
+     * @return array<string, mixed>
+     */
+    public function getPlainThemeConfiguration(string $themeId, Context $context): array
+    {
+        if (!Feature::isActive('v6.8.0.0')) {
+            $translate = \func_num_args() === 3 ? func_get_arg(2) : false;
+
+            return $this->mergedConfigBuilder->getPlainThemeConfiguration($themeId, $context, $translate);
+        }
+
+        return $this->mergedConfigBuilder->getPlainThemeConfiguration($themeId, $context);
+    }
+
+    /**
+     * @deprecated tag:v6.8.0 Use `getThemeConfigurationFieldStructure` instead
+     *
+     * @return array<string, mixed>
+     */
+    public function getThemeConfigurationStructuredFields(string $themeId, bool $translate, Context $context): array
+    {
+        Feature::triggerDeprecationOrThrow(
+            'v6.8.0.0',
+            Feature::deprecatedMethodMessage(__CLASS__, __METHOD__, 'v6.8.0.0', 'getStructuredThemeConfiguration')
+        );
+
+        return $this->mergedConfigBuilder->getThemeConfigurationFieldStructure($themeId, $context, $translate);
     }
 
     /**
      * @return array<string, mixed>
      */
-    public function getThemeConfigurationStructuredFields(string $themeId, bool $translate, Context $context): array
+    public function getThemeConfigurationFieldStructure(string $themeId, Context $context): array
     {
-        return $this->mergedConfigBuilder->getThemeConfigurationStructuredFields($themeId, $translate, $context);
+        if (!Feature::isActive('v6.8.0.0')) {
+            $translate = \func_num_args() === 3 ? func_get_arg(2) : false;
+
+            return $this->mergedConfigBuilder->getThemeConfigurationFieldStructure($themeId, $context, $translate);
+        }
+
+        return $this->mergedConfigBuilder->getThemeConfigurationFieldStructure($themeId, $context);
     }
 
     public function getThemeDependencyMapping(string $themeId): ThemeSalesChannelCollection

@@ -229,6 +229,7 @@ class AppLifecycle extends AbstractAppLifecycle
         $metadata['allowedHosts'] = $manifest->getAllHosts();
         $metadata['templateLoadPriority'] = $manifest->getStorefront() ? $manifest->getStorefront()->getTemplateLoadPriority() : 0;
         $metadata['checkoutGatewayUrl'] = $manifest->getGateways()?->getCheckout()?->getUrl();
+        $metadata['contextGatewayUrl'] = $manifest->getGateways()?->getContext()?->getUrl();
         $metadata['sourceType'] = $manifest->getSourceType() ?? $this->sourceResolver->resolveSourceType($manifest);
         $metadata['sourceConfig'] = $manifest->getSourceConfig();
         $metadata['inAppPurchasesGatewayUrl'] = $manifest->getGateways()?->getInAppPurchasesGateway()?->getUrl();

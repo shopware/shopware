@@ -18,6 +18,7 @@ use Shopware\Core\Framework\Notification\NotificationService;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\SalesChannelCollection;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
+use Shopware\Core\Test\Annotation\DisabledFeatures;
 use Shopware\Core\Test\TestDefaults;
 use Shopware\Storefront\Theme\ConfigLoader\DatabaseConfigLoader;
 use Shopware\Storefront\Theme\ConfigLoader\StaticFileConfigLoader;
@@ -102,6 +103,10 @@ class ThemeServiceTest extends TestCase
     {
         $themeId = Uuid::randomHex();
 
+        $this->connectionMock->expects($this->once())->method('transactional')->willReturnCallback(function (callable $callback): void {
+            $callback();
+        });
+
         $this->themeSalesChannelRepositoryMock->expects($this->once())->method('upsert')->with(
             [[
                 'themeId' => $themeId,
@@ -130,6 +135,10 @@ class ThemeServiceTest extends TestCase
 
     public function testAssignThemeSkipCompile(): void
     {
+        $this->connectionMock->expects($this->once())->method('transactional')->willReturnCallback(function (callable $callback): void {
+            $callback();
+        });
+
         $themeId = Uuid::randomHex();
 
         $this->themeSalesChannelRepositoryMock->expects($this->once())->method('upsert')->with(
@@ -492,7 +501,7 @@ class ThemeServiceTest extends TestCase
         $fs->write(\sprintf('theme-config/%s.json', $themeId), (string) json_encode([
             'styleFiles' => [],
             'scriptFiles' => [],
-        ]));
+        ], \JSON_THROW_ON_ERROR));
         $configLoader = new StaticFileConfigLoader($fs);
 
         $themeService = new ThemeService(
@@ -525,34 +534,74 @@ class ThemeServiceTest extends TestCase
         $themeService->compileTheme(TestDefaults::SALES_CHANNEL, $themeId, $this->context);
     }
 
-    public function testGetThemeConfiguration(): void
+    public function testGetPlainThemeConfiguration(): void
     {
         $themeId = Uuid::randomHex();
         $expectedConfig = ['key' => 'value'];
 
         $this->mergedConfigBuilderMock
             ->expects($this->once())
-            ->method('getThemeConfiguration')
-            ->with($themeId, false, $this->context)
+            ->method('getPlainThemeConfiguration')
+            ->with($themeId, $this->context)
             ->willReturn($expectedConfig);
 
-        $result = $this->themeService->getThemeConfiguration($themeId, false, $this->context);
+        $result = $this->themeService->getPlainThemeConfiguration($themeId, $this->context);
 
         static::assertSame($expectedConfig, $result);
     }
 
-    public function testGetThemeConfigurationStructuredFields(): void
+    /**
+     * @deprecated tag:v6.8.0 will be removed
+     */
+    #[DisabledFeatures(['v6.8.0.0'])]
+    public function testGetPlainThemeConfigurationWithTranslationFlag(): void
+    {
+        $themeId = Uuid::randomHex();
+        $expectedConfig = ['key' => 'value'];
+
+        $this->mergedConfigBuilderMock
+            ->expects($this->once())
+            ->method('getPlainThemeConfiguration')
+            ->with($themeId, $this->context, true)
+            ->willReturn($expectedConfig);
+
+        $result = $this->themeService->getPlainThemeConfiguration($themeId, $this->context, true);
+
+        static::assertSame($expectedConfig, $result);
+    }
+
+    public function testGetThemeConfigurationFieldStructure(): void
     {
         $themeId = Uuid::randomHex();
         $expectedConfig = ['structuredKey' => 'structuredValue'];
 
         $this->mergedConfigBuilderMock
             ->expects($this->once())
-            ->method('getThemeConfigurationStructuredFields')
-            ->with($themeId, true, $this->context)
+            ->method('getThemeConfigurationFieldStructure')
+            ->with($themeId, $this->context)
             ->willReturn($expectedConfig);
 
-        $result = $this->themeService->getThemeConfigurationStructuredFields($themeId, true, $this->context);
+        $result = $this->themeService->getThemeConfigurationFieldStructure($themeId, $this->context);
+
+        static::assertSame($expectedConfig, $result);
+    }
+
+    /**
+     * @deprecated tag:v6.8.0 will be removed
+     */
+    #[DisabledFeatures(['v6.8.0.0'])]
+    public function testGetThemeConfigurationFieldStructureWithTranslationFlag(): void
+    {
+        $themeId = Uuid::randomHex();
+        $expectedConfig = ['structuredKey' => 'structuredValue'];
+
+        $this->mergedConfigBuilderMock
+            ->expects($this->once())
+            ->method('getThemeConfigurationFieldStructure')
+            ->with($themeId, $this->context, true)
+            ->willReturn($expectedConfig);
+
+        $result = $this->themeService->getThemeConfigurationFieldStructure($themeId, $this->context, true);
 
         static::assertSame($expectedConfig, $result);
     }

@@ -42,7 +42,7 @@ class UnusedMediaSubscriber implements EventSubscriberInterface
 
         $mediaIds = [];
         foreach ($allThemeIds as $themeId) {
-            $config = $this->themeService->getThemeConfiguration($themeId, false, $context);
+            $config = $this->themeService->getPlainThemeConfiguration($themeId, $context);
 
             foreach ($config['fields'] ?? [] as $data) {
                 if ($data['type'] === 'media' && $data['value'] && Uuid::isValid($data['value'])) {

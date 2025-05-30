@@ -80,4 +80,4 @@ class ConvertedUnitTest extends TestCase
         static::assertSame($value, $convertedUnit->value);
         static::assertSame($unit, $convertedUnit->unit);
     }
-} 
+}

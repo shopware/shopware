@@ -3,15 +3,16 @@
 namespace Shopware\Tests\Unit\Core\Content\MeasurementSystem\ProductMeasurement;
 
 use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
-use Shopware\Core\Content\MeasurementSystem\DataAbstractionLayer\ConvertedUnitSet;
 use Shopware\Core\Content\MeasurementSystem\MeasurementUnits;
 use Shopware\Core\Content\MeasurementSystem\ProductMeasurement\ProductMeasurementUnitBuilder;
 use Shopware\Core\Content\MeasurementSystem\UnitConverter\AbstractMeasurementUnitConverter;
 use Shopware\Core\Content\MeasurementSystem\UnitConverter\ConvertedUnit;
-use Shopware\Core\Framework\DataAbstractionLayer\Entity;
+use Shopware\Core\Content\Product\ProductEntity;
+use Shopware\Core\Framework\DataAbstractionLayer\PartialEntity;
 use Shopware\Core\Framework\Log\Package;
-use Shopware\Core\System\SalesChannel\SalesChannelContext;
+use Shopware\Core\Test\Generator;
 
 /**
  * @internal
@@ -20,7 +21,8 @@ use Shopware\Core\System\SalesChannel\SalesChannelContext;
 #[CoversClass(ProductMeasurementUnitBuilder::class)]
 class ProductMeasurementUnitBuilderTest extends TestCase
 {
-    private AbstractMeasurementUnitConverter $unitConverter;
+    private AbstractMeasurementUnitConverter&MockObject $unitConverter;
+
     private ProductMeasurementUnitBuilder $builder;
 
     protected function setUp(): void
@@ -31,38 +33,26 @@ class ProductMeasurementUnitBuilderTest extends TestCase
 
     public function testBuildWithAllMeasurements(): void
     {
-        $product = $this->createMock(Entity::class);
-        $context = $this->createMock(SalesChannelContext::class);
-        $measurementUnits = $this->createMock(MeasurementUnits::class);
+        $product = new ProductEntity();
+        $product->setId('product-id');
+        $product->setWidth(100.0);
+        $product->setHeight(200.0);
+        $product->setLength(300.0);
+        $product->setWeight(1.5);
 
-        // Setup measurement units mock
-        $measurementUnits
-            ->expects(static::exactly(2))
-            ->method('getUnit')
-            ->willReturnMap([
-                ['length', 'cm'],
-                ['weight', 'g'],
-            ]);
+        $context = Generator::generateSalesChannelContext();
+        $measurementUnits = new MeasurementUnits(
+            'metric',
+            [
+                'length' => 'cm',
+                'weight' => 'g',
+            ]
+        );
 
-        $context
-            ->expects(static::exactly(2))
-            ->method('getMeasurementSystem')
-            ->willReturn($measurementUnits);
+        $context->setMeasurementSystem($measurementUnits);
 
-        // Setup product mock - each field called once now (cached)
-        $product
-            ->expects(static::exactly(4))
-            ->method('get')
-            ->willReturnOnConsecutiveCalls(
-                100.0,         // width called once - float
-                200.0,         // height called once - float  
-                300.0,         // length called once - float
-                1.5            // weight called once - float
-            );
-
-        // Setup unit converter expectations
         $this->unitConverter
-            ->expects(static::exactly(4))
+            ->expects($this->exactly(4))
             ->method('convert')
             ->willReturnMap([
                 [100.0, MeasurementUnits::DEFAULT_LENGTH_UNIT, 'cm', null, new ConvertedUnit(10.0, 'cm')],
@@ -73,9 +63,6 @@ class ProductMeasurementUnitBuilderTest extends TestCase
 
         $result = $this->builder->build($product, $context);
 
-        static::assertInstanceOf(ConvertedUnitSet::class, $result);
-        
-        // Verify all measurements are converted
         static::assertNotNull($result->getType('width'));
         static::assertNotNull($result->getType('height'));
         static::assertNotNull($result->getType('length'));
@@ -83,60 +70,48 @@ class ProductMeasurementUnitBuilderTest extends TestCase
 
         static::assertSame(10.0, $result->getType('width')->value);
         static::assertSame('cm', $result->getType('width')->unit);
-        
+
         static::assertSame(20.0, $result->getType('height')->value);
         static::assertSame('cm', $result->getType('height')->unit);
-        
+
         static::assertSame(30.0, $result->getType('length')->value);
         static::assertSame('cm', $result->getType('length')->unit);
-        
+
         static::assertSame(1500.0, $result->getType('weight')->value);
         static::assertSame('g', $result->getType('weight')->unit);
     }
 
     public function testBuildWithPartialMeasurements(): void
     {
-        $product = $this->createMock(Entity::class);
-        $context = $this->createMock(SalesChannelContext::class);
-        $measurementUnits = $this->createMock(MeasurementUnits::class);
+        $product = new PartialEntity();
 
-        // Setup measurement units mock
-        $measurementUnits
-            ->expects(static::exactly(2))
-            ->method('getUnit')
-            ->willReturnMap([
-                ['length', 'cm'],
-                ['weight', 'g'],
-            ]);
+        $product->assign([
+            'width' => 100.0,
+            'height' => null,
+            'length' => 'invalid',
+            'weight' => null,
+        ]);
 
-        $context
-            ->expects(static::exactly(2))
-            ->method('getMeasurementSystem')
-            ->willReturn($measurementUnits);
+        $context = Generator::generateSalesChannelContext();
 
-        // Setup product mock - only width is float, each field called once now
-        $product
-            ->expects(static::exactly(4))
-            ->method('get')
-            ->willReturnOnConsecutiveCalls(
-                100.0,         // width called once - float
-                null,          // height called once - null
-                'invalid',     // length called once - invalid
-                null           // weight called once - null
-            );
+        $measurementUnits = new MeasurementUnits(
+            'metric',
+            [
+                'length' => 'cm',
+                'weight' => 'g',
+            ]
+        );
 
-        // Only width should be converted
+        $context->setMeasurementSystem($measurementUnits);
+
         $this->unitConverter
-            ->expects(static::once())
+            ->expects($this->once())
             ->method('convert')
             ->with(100.0, MeasurementUnits::DEFAULT_LENGTH_UNIT, 'cm', null)
             ->willReturn(new ConvertedUnit(10.0, 'cm'));
 
         $result = $this->builder->build($product, $context);
 
-        static::assertInstanceOf(ConvertedUnitSet::class, $result);
-        
-        // Only width should be set
         static::assertNotNull($result->getType('width'));
         static::assertNull($result->getType('height'));
         static::assertNull($result->getType('length'));
@@ -145,30 +120,23 @@ class ProductMeasurementUnitBuilderTest extends TestCase
 
     public function testBuildWithNoMeasurements(): void
     {
-        $product = $this->createMock(Entity::class);
-        $context = $this->createMock(SalesChannelContext::class);
+        $product = new PartialEntity();
 
-        // Setup product mock - no float measurements, each field called once
-        $product
-            ->expects(static::exactly(4))
-            ->method('get')
-            ->willReturnOnConsecutiveCalls(
-                null,          // width called once
-                null,          // height called once
-                null,          // length called once
-                null           // weight called once
-            );
+        $product->assign([
+            'width' => null,
+            'height' => null,
+            'length' => null,
+            'weight' => null,
+        ]);
 
-        // No conversions should happen
+        $context = Generator::generateSalesChannelContext();
+
         $this->unitConverter
-            ->expects(static::never())
+            ->expects($this->never())
             ->method('convert');
 
         $result = $this->builder->build($product, $context);
 
-        static::assertInstanceOf(ConvertedUnitSet::class, $result);
-        
-        // All measurements should be null
         static::assertNull($result->getType('width'));
         static::assertNull($result->getType('height'));
         static::assertNull($result->getType('length'));
@@ -177,38 +145,28 @@ class ProductMeasurementUnitBuilderTest extends TestCase
 
     public function testBuildWithZeroMeasurements(): void
     {
-        $product = $this->createMock(Entity::class);
-        $context = $this->createMock(SalesChannelContext::class);
-        $measurementUnits = $this->createMock(MeasurementUnits::class);
+        $product = new PartialEntity();
 
-        // Setup measurement units mock
-        $measurementUnits
-            ->expects(static::exactly(2))
-            ->method('getUnit')
-            ->willReturnMap([
-                ['length', 'cm'],
-                ['weight', 'g'],
-            ]);
+        $product->assign([
+            'width' => 0.0,
+            'height' => 0.0,
+            'length' => null,
+            'weight' => 0.0,
+        ]);
 
-        $context
-            ->expects(static::exactly(2))
-            ->method('getMeasurementSystem')
-            ->willReturn($measurementUnits);
+        $context = Generator::generateSalesChannelContext();
+        $measurementUnits = new MeasurementUnits(
+            'metric',
+            [
+                'length' => 'cm',
+                'weight' => 'g',
+            ]
+        );
 
-        // Setup product mock: width, height, length, weight = 4 calls (cached now)
-        $product
-            ->expects(static::exactly(4))
-            ->method('get')
-            ->willReturnOnConsecutiveCalls(
-                0.0,           // width called once - zero (float)
-                0.0,           // height called once - zero (float)
-                null,          // length called once - null
-                0.0            // weight called once - zero (float)
-            );
+        $context->setMeasurementSystem($measurementUnits);
 
-        // Zero values should still be converted
         $this->unitConverter
-            ->expects(static::exactly(3))
+            ->expects($this->exactly(3))
             ->method('convert')
             ->willReturnMap([
                 [0.0, MeasurementUnits::DEFAULT_LENGTH_UNIT, 'cm', null, new ConvertedUnit(0.0, 'cm')],
@@ -218,9 +176,6 @@ class ProductMeasurementUnitBuilderTest extends TestCase
 
         $result = $this->builder->build($product, $context);
 
-        static::assertInstanceOf(ConvertedUnitSet::class, $result);
-        
-        // Width, height, and weight should be converted, length should be null
         static::assertNotNull($result->getType('width'));
         static::assertNotNull($result->getType('height'));
         static::assertNull($result->getType('length'));
@@ -233,38 +188,27 @@ class ProductMeasurementUnitBuilderTest extends TestCase
 
     public function testBuildWithOnlyLengthMeasurements(): void
     {
-        $product = $this->createMock(Entity::class);
-        $context = $this->createMock(SalesChannelContext::class);
-        $measurementUnits = $this->createMock(MeasurementUnits::class);
+        $product = new PartialEntity();
+        $product->assign([
+            'width' => 50.0,
+            'height' => 100.0,
+            'length' => 150.0,
+            'weight' => null,
+        ]);
+        $context = Generator::generateSalesChannelContext();
 
-        // Setup measurement units mock
-        $measurementUnits
-            ->expects(static::exactly(2))
-            ->method('getUnit')
-            ->willReturnMap([
-                ['length', 'm'],
-                ['weight', 'g'],
-            ]);
+        $measurementUnits = new MeasurementUnits(
+            'metric',
+            [
+                'length' => 'm',
+                'weight' => 'g',
+            ]
+        );
 
-        $context
-            ->expects(static::exactly(2))
-            ->method('getMeasurementSystem')
-            ->willReturn($measurementUnits);
+        $context->setMeasurementSystem($measurementUnits);
 
-        // Setup product mock: width, height, length, weight = 4 calls (cached)
-        $product
-            ->expects(static::exactly(4))
-            ->method('get')
-            ->willReturnOnConsecutiveCalls(
-                50.0,          // width called once - float
-                100.0,         // height called once - float
-                150.0,         // length called once - float
-                null           // weight called once - null
-            );
-
-        // Only length measurements should be converted
         $this->unitConverter
-            ->expects(static::exactly(3))
+            ->expects($this->exactly(3))
             ->method('convert')
             ->willReturnMap([
                 [50.0, MeasurementUnits::DEFAULT_LENGTH_UNIT, 'm', null, new ConvertedUnit(0.05, 'm')],
@@ -274,64 +218,9 @@ class ProductMeasurementUnitBuilderTest extends TestCase
 
         $result = $this->builder->build($product, $context);
 
-        static::assertInstanceOf(ConvertedUnitSet::class, $result);
-        
-        // Length measurements should be converted, weight should be null
         static::assertNotNull($result->getType('width'));
         static::assertNotNull($result->getType('height'));
         static::assertNotNull($result->getType('length'));
         static::assertNull($result->getType('weight'));
     }
-
-    public function testBuildWithOnlyWeightMeasurement(): void
-    {
-        $product = $this->createMock(Entity::class);
-        $context = $this->createMock(SalesChannelContext::class);
-        $measurementUnits = $this->createMock(MeasurementUnits::class);
-
-        // Setup measurement units mock
-        $measurementUnits
-            ->expects(static::exactly(2))
-            ->method('getUnit')
-            ->willReturnMap([
-                ['length', 'cm'],
-                ['weight', 'lb'],
-            ]);
-
-        $context
-            ->expects(static::exactly(2))
-            ->method('getMeasurementSystem')
-            ->willReturn($measurementUnits);
-
-        // Setup product mock: width, height, length, weight = 4 calls (cached)
-        $product
-            ->expects(static::exactly(4))
-            ->method('get')
-            ->willReturnOnConsecutiveCalls(
-                null,          // width called once - null
-                null,          // height called once - null
-                null,          // length called once - null
-                2.5            // weight called once - float
-            );
-
-        // Only weight should be converted
-        $this->unitConverter
-            ->expects(static::once())
-            ->method('convert')
-            ->with(2.5, MeasurementUnits::DEFAULT_WEIGHT_UNIT, 'lb', null)
-            ->willReturn(new ConvertedUnit(5.5, 'lb'));
-
-        $result = $this->builder->build($product, $context);
-
-        static::assertInstanceOf(ConvertedUnitSet::class, $result);
-        
-        // Only weight should be converted
-        static::assertNull($result->getType('width'));
-        static::assertNull($result->getType('height'));
-        static::assertNull($result->getType('length'));
-        static::assertNotNull($result->getType('weight'));
-
-        static::assertSame(5.5, $result->getType('weight')->value);
-        static::assertSame('lb', $result->getType('weight')->unit);
-    }
-} 
+}

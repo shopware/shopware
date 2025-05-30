@@ -79,7 +79,6 @@
             <argument type="service" id="country_state.repository"/>
             <argument type="service" id="currency_country_rounding.repository"/>
             <argument type="service" id="Shopware\Core\System\SalesChannel\Context\ContextFactory"/>
-            <argument type="service" id="measurement_display_unit.repository"/>
         </service>
 
         <service id="Shopware\Core\System\SalesChannel\Context\ContextFactory">

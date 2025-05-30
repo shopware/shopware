@@ -173,9 +173,6 @@ class HeaderPageletLoaderTest extends TestCase
                 'currencyId' => Defaults::CURRENCY,
                 'languageId' => $language['id'],
                 'snippetSetId' => $snippetSetId,
-                'measurementSystemId' => Uuid::fromStringToHex('metric'),
-                'lengthUnitId' => Uuid::fromStringToHex('metric-mm'),
-                'weightUnitId' => Uuid::fromStringToHex('metric-kg'),
             ];
         }
 

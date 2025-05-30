@@ -4,11 +4,12 @@ namespace Shopware\Tests\Unit\Core\Content\MeasurementSystem\UnitProvider;
 
 use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\MeasurementSystem\MeasurementSystemException;
 use Shopware\Core\Content\MeasurementSystem\UnitProvider\MeasurementUnitProvider;
-use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 
 /**
  * @internal
@@ -17,7 +18,8 @@ use Shopware\Core\Framework\Log\Package;
 #[CoversClass(MeasurementUnitProvider::class)]
 class MeasurementUnitProviderTest extends TestCase
 {
-    private Connection $connection;
+    private Connection&MockObject $connection;
+
     private MeasurementUnitProvider $provider;
 
     protected function setUp(): void
@@ -47,7 +49,7 @@ class MeasurementUnitProviderTest extends TestCase
         ];
 
         $this->connection
-            ->expects(static::once())
+            ->expects($this->once())
             ->method('fetchAllAssociativeIndexed')
             ->with('SELECT `short_name`, `type`, `factor`, `precision` FROM measurement_display_unit')
             ->willReturn($rawUnits);
@@ -86,14 +88,14 @@ class MeasurementUnitProviderTest extends TestCase
         ];
 
         $this->connection
-            ->expects(static::once())
+            ->expects($this->once())
             ->method('fetchAllAssociativeIndexed')
             ->with('SELECT `short_name`, `type`, `factor`, `precision` FROM measurement_display_unit')
             ->willReturn($rawUnits);
 
         // First call
         $firstCall = $this->provider->getUnits();
-        
+
         // Second call should use cache, no DB call
         $secondCall = $this->provider->getUnits();
 
@@ -103,7 +105,7 @@ class MeasurementUnitProviderTest extends TestCase
     public function testGetUnitsEmptyResult(): void
     {
         $this->connection
-            ->expects(static::once())
+            ->expects($this->once())
             ->method('fetchAllAssociativeIndexed')
             ->with('SELECT `short_name`, `type`, `factor`, `precision` FROM measurement_display_unit')
             ->willReturn([]);
@@ -124,7 +126,7 @@ class MeasurementUnitProviderTest extends TestCase
         ];
 
         $this->connection
-            ->expects(static::once())
+            ->expects($this->once())
             ->method('fetchAllAssociativeIndexed')
             ->with('SELECT `short_name`, `type`, `factor`, `precision` FROM measurement_display_unit')
             ->willReturn($rawUnits);
@@ -151,7 +153,7 @@ class MeasurementUnitProviderTest extends TestCase
         ];
 
         $this->connection
-            ->expects(static::once())
+            ->expects($this->once())
             ->method('fetchAllAssociativeIndexed')
             ->with('SELECT `short_name`, `type`, `factor`, `precision` FROM measurement_display_unit')
             ->willReturn($rawUnits);
@@ -173,7 +175,7 @@ class MeasurementUnitProviderTest extends TestCase
         ];
 
         $this->connection
-            ->expects(static::exactly(2))
+            ->expects($this->exactly(2))
             ->method('fetchAllAssociativeIndexed')
             ->with('SELECT `short_name`, `type`, `factor`, `precision` FROM measurement_display_unit')
             ->willReturn($rawUnits);
@@ -207,7 +209,7 @@ class MeasurementUnitProviderTest extends TestCase
         ];
 
         $this->connection
-            ->expects(static::exactly(2))
+            ->expects($this->exactly(2))
             ->method('fetchAllAssociativeIndexed')
             ->with('SELECT `short_name`, `type`, `factor`, `precision` FROM measurement_display_unit')
             ->willReturn($rawUnits);
@@ -240,7 +242,7 @@ class MeasurementUnitProviderTest extends TestCase
         ];
 
         $this->connection
-            ->expects(static::once())
+            ->expects($this->once())
             ->method('fetchAllAssociativeIndexed')
             ->with('SELECT `short_name`, `type`, `factor`, `precision` FROM measurement_display_unit')
             ->willReturn($rawUnits);
@@ -273,7 +275,7 @@ class MeasurementUnitProviderTest extends TestCase
         ];
 
         $this->connection
-            ->expects(static::once())
+            ->expects($this->once())
             ->method('fetchAllAssociativeIndexed')
             ->with('SELECT `short_name`, `type`, `factor`, `precision` FROM measurement_display_unit')
             ->willReturn($rawUnits);
@@ -284,9 +286,9 @@ class MeasurementUnitProviderTest extends TestCase
         static::assertArrayHasKey('mm', $units);
         static::assertArrayHasKey('kg', $units);
         static::assertArrayHasKey('celsius', $units);
-        
+
         static::assertSame('length', $units['mm']['type']);
         static::assertSame('weight', $units['kg']['type']);
         static::assertSame('temperature', $units['celsius']['type']);
     }
-} 
+}

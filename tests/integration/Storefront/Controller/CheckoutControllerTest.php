@@ -609,9 +609,6 @@ class CheckoutControllerTest extends TestCase
             'shippingMethods' => [['id' => $shippingMethodId]],
             'countries' => [['id' => $countryId]],
             'customerGroupId' => TestDefaults::FALLBACK_CUSTOMER_GROUP,
-            'measurementSystemId' => Uuid::fromStringToHex('metric'),
-            'lengthUnitId' => Uuid::fromStringToHex('metric-mm'),
-            'weightUnitId' => Uuid::fromStringToHex('metric-kg'),
             'domains' => [
                 [
                     'id' => $salesChannelId,
@@ -619,9 +616,6 @@ class CheckoutControllerTest extends TestCase
                     'snippetSetId' => $snippetSetId,
                     'currencyId' => Defaults::CURRENCY,
                     'url' => 'http://test.123',
-                    'measurementSystemId' => Uuid::fromStringToHex('metric'),
-                    'lengthUnitId' => Uuid::fromStringToHex('metric-mm'),
-                    'weightUnitId' => Uuid::fromStringToHex('metric-kg'),
                 ],
             ],
         ];

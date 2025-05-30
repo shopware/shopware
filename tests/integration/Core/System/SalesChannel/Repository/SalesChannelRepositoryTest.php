@@ -118,9 +118,6 @@ class SalesChannelRepositoryTest extends TestCase
             'shippingMethods' => [['id' => $this->getValidShippingMethodId()]],
             'countries' => [['id' => $this->getValidCountryId()]],
             'customerGroupId' => TestDefaults::FALLBACK_CUSTOMER_GROUP,
-            'measurementSystemId' => Uuid::fromStringToHex('metric'),
-            'lengthUnitId' => Uuid::fromStringToHex('metric-mm'),
-            'weightUnitId' => Uuid::fromStringToHex('metric-kg'),
         ]], $context);
 
         $criteria1 = new Criteria([$salesChannelId]);
@@ -182,9 +179,6 @@ class SalesChannelRepositoryTest extends TestCase
             'countryId' => $this->getValidCountryId(),
             'accessKey' => $id,
             'languages' => [['id' => Defaults::LANGUAGE_SYSTEM]],
-            'measurementSystemId' => Uuid::fromStringToHex('metric'),
-            'lengthUnitId' => Uuid::fromStringToHex('metric-mm'),
-            'weightUnitId' => Uuid::fromStringToHex('metric-kg'),
         ];
 
         $this->salesChannelRepository->create([$data], Context::createDefaultContext());

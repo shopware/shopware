@@ -8,7 +8,6 @@ use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelLifecycleManager;
-use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Migration\V6_7\Migration1742199548MeasurementSystem;
 use Shopware\Core\Migration\V6_7\Migration1745319883AddDefaultConfigForMeasurementSystem;
 

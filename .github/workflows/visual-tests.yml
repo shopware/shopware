@@ -40,6 +40,6 @@ jobs:
           install: 'true'
           extra-options: >-
             ${{ inputs.update-snapshots && '--update-snapshots' || '' }}
-          use-currents: ${{ inputs.nightly && 'true' || '' }}
+          # use-currents: ${{ inputs.nightly && 'true' || '' }} # TODO: Re-Enable at a later point when we want to report visual test results to currents
           currents-project-id: ${{ secrets.CURRENTS_PROJECT_ID_VISUAL }}
           currents-record-key: ${{ secrets.CURRENTS_RECORD_KEY }}

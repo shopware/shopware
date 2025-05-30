@@ -141,7 +141,7 @@ test('Product is not visible without adding it to the sales channel.', { tag: '@
     StorefrontProductDetail,
 }) => {
     let product: Product;
-    await test.step('Create a product with "Visible" visibility in the default sales channel.', async () => {
+    await test.step('Create a product without visibility in the default sales channel.', async () => {
         product = await TestDataService.createBasicProduct({
             name: 'Product-' + await IdProvider.getIdPair().id,
             visibilities: [],

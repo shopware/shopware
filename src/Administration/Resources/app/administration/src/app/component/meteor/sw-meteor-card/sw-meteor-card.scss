@@ -60,7 +60,7 @@
     }
 
     &.has--header .sw-meteor-card__content {
-        border-top: 1px solid #d1d9e0;
+        border-top: 1px solid var(--color-border-primary-default);
     }
 
     .sw-meteor-card__content {

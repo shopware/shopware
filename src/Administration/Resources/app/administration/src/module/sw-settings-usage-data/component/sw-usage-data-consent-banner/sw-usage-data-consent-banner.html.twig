@@ -211,8 +211,8 @@
             >
                 <mt-icon
                     name="solid-check-circle"
-                    size="16px"
-                    color="#23BE2F"
+                    size="var(--scale-size-16)"
+                    color="var(--color-icon-success-default)"
                 />{{ $tc('sw-usage-data-consent-banner.settings.sharingInformation') }}
             </div>
         </span>
@@ -220,7 +220,7 @@
         <mt-button
             v-if="isAccepted && !canBeHidden"
             class="sw-usage-data-consent-banner__footer-reject-button"
-            variant="action"
+            variant="secondary"
             @click="onReject"
         >
             {{ $tc('sw-usage-data-consent-banner.settings.deactivateDataCollection') }}

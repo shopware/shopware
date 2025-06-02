@@ -195,7 +195,8 @@
             padding: 8px 14px 8px 12px;
             border-radius: 100px;
             gap: 8px;
-            background: $color-emerald-50;
+            background: var(--color-background-positive-default);
+            color: var(--color-text-positive-default);
             font-weight: $font-weight-medium;
             font-size: $font-size-xs;
             align-items: center;
@@ -239,7 +240,7 @@
     max-width: $content-width;
     margin: 32px auto;
     border-radius: $border-radius-lg;
-    border: 1px solid $color-gray-300;
+    border: 1px solid var(--color-border-primary-default);
     color: $color-darkgray-700;
     font-weight: $font-weight-medium;
     font-size: $font-size-xs;

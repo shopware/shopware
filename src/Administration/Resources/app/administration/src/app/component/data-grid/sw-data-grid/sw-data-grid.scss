@@ -353,7 +353,7 @@
 
         &.is--selected {
             .sw-data-grid__cell {
-                background-color: $color-shopware-brand-50;
+                background-color: var(--color-background-brand-default);
             }
         }
     }

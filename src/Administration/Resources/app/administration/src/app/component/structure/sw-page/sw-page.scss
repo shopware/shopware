@@ -29,7 +29,7 @@ $sw-page-search-bar-z-index: $z-index-sw-page-search-bar;
         grid-template-columns: [head-start back-btn-start] 1fr [back-btn-end header-content-start] minmax(0, $content-width) [header-content-end] 1fr [smart-bar-end];
         align-items: center;
         background: $sw-page-smart-bar-background-color;
-        border-bottom: 2px solid $sw-page-smart-bar-border-color;
+        border-bottom: 1px solid $sw-page-smart-bar-border-color;
         z-index: $z-index-page-header;
     }
 

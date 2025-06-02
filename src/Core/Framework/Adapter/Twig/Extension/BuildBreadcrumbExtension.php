@@ -49,13 +49,15 @@ class BuildBreadcrumbExtension extends AbstractExtension
      */
     public function getFullBreadcrumb(array $twigContext, CategoryEntity $category, Context|SalesChannelContext $context): array
     {
-        if ($context instanceof Context) {
-            Feature::triggerDeprecationOrThrow(
-                'v6.8.0.0',
-                'Passing the Context to getFullBreadcrumb is deprecated. The SalesChannelContext will be required in v6.8.0.0.'
-            );
+        if (Feature::isActive('v6.8.0.0')) {
+            if ($context instanceof Context) {
+                Feature::triggerDeprecationOrThrow(
+                    'v6.8.0.0',
+                    'Passing the Context to getFullBreadcrumb is deprecated. The SalesChannelContext will be required in v6.8.0.0.'
+                );
 
-            $context = $this->getSalesChannelContext($twigContext) ?? $context;
+                $context = $this->getSalesChannelContext($twigContext) ?? $context;
+            }
         }
 
         $seoBreadcrumb = $this->categoryBreadcrumbBuilder->build(
@@ -99,19 +101,25 @@ class BuildBreadcrumbExtension extends AbstractExtension
      */
     public function getFullBreadcrumbById(array $twigContext, string $categoryId, Context|SalesChannelContext $context): array
     {
-        if ($context instanceof Context) {
-            Feature::triggerDeprecationOrThrow(
-                'v6.8.0.0',
-                'Passing the Context to getFullBreadcrumb is deprecated. The SalesChannelContext will be required in v6.8.0.0.'
-            );
+        if (Feature::isActive('v6.8.0.0')) {
+            \assert($context instanceof SalesChannelContext);
 
-            $context = $this->getSalesChannelContext($twigContext) ?? $context;
-        }
-
-        if ($context instanceof SalesChannelContext) {
             $category = $this->salesChannelCategoryRepository->search(new Criteria([$categoryId]), $context)->getEntities()->first();
         } else {
-            $category = $this->categoryRepository->search(new Criteria([$categoryId]), $context)->getEntities()->first();
+            if ($context instanceof Context) {
+                Feature::triggerDeprecationOrThrow(
+                    'v6.8.0.0',
+                    'Passing the Context to getFullBreadcrumbById is deprecated. The SalesChannelContext will be required in v6.8.0.0.'
+                );
+
+                $context = $this->getSalesChannelContext($twigContext) ?? $context;
+            }
+
+            if ($context instanceof SalesChannelContext) {
+                $category = $this->salesChannelCategoryRepository->search(new Criteria([$categoryId]), $context)->getEntities()->first();
+            } else {
+                $category = $this->categoryRepository->search(new Criteria([$categoryId]), $context)->getEntities()->first();
+            }
         }
 
         if ($category === null) {
@@ -130,11 +138,6 @@ class BuildBreadcrumbExtension extends AbstractExtension
         if ($context instanceof SalesChannelContext) {
             return $context;
         }
-
-        Feature::triggerDeprecationOrThrow(
-            'v6.8.0.0',
-            'SalesChannelContext is required in v6.8.0.0.'
-        );
 
         return null;
     }

@@ -29,6 +29,7 @@ use Shopware\Core\Framework\Test\DataAbstractionLayer\Field\TestDefinition\Assoc
 use Shopware\Core\Framework\Test\DataAbstractionLayer\Field\TestDefinition\ExtendableDefinition;
 use Shopware\Core\Framework\Test\DataAbstractionLayer\Field\TestDefinition\ExtendedDefinition;
 use Shopware\Core\Framework\Test\DataAbstractionLayer\Field\TestDefinition\FkFieldExtension;
+use Shopware\Core\Framework\Test\DataAbstractionLayer\Field\TestDefinition\ModifyFieldsExtension;
 use Shopware\Core\Framework\Test\DataAbstractionLayer\Field\TestDefinition\ReferenceVersionExtension;
 use Shopware\Core\Framework\Test\DataAbstractionLayer\Field\TestDefinition\ScalarExtension;
 use Shopware\Core\Framework\Test\DataAbstractionLayer\Field\TestDefinition\ScalarRuntimeExtension;
@@ -564,6 +565,17 @@ class EntityExtensionTest extends TestCase
         static::assertInstanceOf(ExtendableDefinition::class, $extension);
         static::assertTrue($extension->getFields()->has('toOne'));
         static::assertTrue($extension->getFields()->has('extendedVersionId'));
+    }
+
+    public function testICanModifyFields(): void
+    {
+        $this->registerDefinitionWithExtensions(ExtendableDefinition::class, ModifyFieldsExtension::class);
+        $extension = static::getContainer()->get(ExtendableDefinition::class);
+
+        static::assertInstanceOf(ExtendableDefinition::class, $extension);
+        foreach ($extension->getFields() as $field) {
+            static::assertFalse($field->is(ApiAware::class), 'Field ' . $field->getPropertyName() . ' should not have ApiAware flag');
+        }
     }
 
     /**

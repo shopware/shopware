@@ -1,0 +1,25 @@
+<?php declare(strict_types=1);
+
+namespace Shopware\Core\Framework\Test\DataAbstractionLayer\Field\TestDefinition;
+
+use Shopware\Core\Framework\DataAbstractionLayer\EntityExtension;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\ApiAware;
+use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
+
+/**
+ * @internal
+ */
+class ModifyFieldsExtension extends EntityExtension
+{
+    public function modifyFields(FieldCollection $collection): void
+    {
+        foreach ($collection as $field) {
+            $field->removeFlag(ApiAware::class);
+        }
+    }
+
+    public function getEntityName(): string
+    {
+        return 'extendable';
+    }
+}

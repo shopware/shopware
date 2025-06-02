@@ -43,7 +43,7 @@ class BuildBreadcrumbExtension extends AbstractExtension
     }
 
     /**
-     * @deprecated tag:6.8.0 - Parameter $twigContext will be removed, as it is not needed anymore
+     * @deprecated tag:6.8.0 - Parameter $twigContext will be removed, as it is not needed anymore and the type of `$context` will be changed to `SalesChannelContext`
      * @deprecated tag:6.8.0 - reason:return-type-change - Will only return `array<string, SalesChannelCategoryEntity>`
      *
      * @param array<string, mixed> $twigContext
@@ -53,6 +53,10 @@ class BuildBreadcrumbExtension extends AbstractExtension
     public function getFullBreadcrumb(array $twigContext, CategoryEntity $category, Context|SalesChannelContext $context): array
     {
         if (Feature::isActive('v6.8.0.0')) {
+            \assert($context instanceof SalesChannelContext);
+
+            $seoBreadcrumb = $this->categoryBreadcrumbBuilder->build($category, $context->getSalesChannel());
+        } else {
             if ($context instanceof Context) {
                 Feature::triggerDeprecationOrThrow(
                     'v6.8.0.0',
@@ -61,12 +65,13 @@ class BuildBreadcrumbExtension extends AbstractExtension
 
                 $context = $this->getSalesChannelContext($twigContext) ?? $context;
             }
+
+            $seoBreadcrumb = $this->categoryBreadcrumbBuilder->build(
+                $category,
+                ($context instanceof SalesChannelContext) ? $context->getSalesChannel() : null,
+            );
         }
 
-        $seoBreadcrumb = $this->categoryBreadcrumbBuilder->build(
-            $category,
-            ($context instanceof SalesChannelContext) ? $context->getSalesChannel() : null,
-        );
         if ($seoBreadcrumb === null) {
             return [];
         }
@@ -79,10 +84,16 @@ class BuildBreadcrumbExtension extends AbstractExtension
         $criteria = new Criteria($categoryIds);
         $criteria->setTitle('breadcrumb-extension');
 
-        if ($context instanceof SalesChannelContext) {
+        if (Feature::isActive('v6.8.0.0')) {
+            \assert($context instanceof SalesChannelContext);
+
             $categories = $this->salesChannelCategoryRepository->search($criteria, $context)->getEntities();
         } else {
-            $categories = $this->categoryRepository->search($criteria, $context)->getEntities();
+            if ($context instanceof SalesChannelContext) {
+                $categories = $this->salesChannelCategoryRepository->search($criteria, $context)->getEntities();
+            } else {
+                $categories = $this->categoryRepository->search($criteria, $context)->getEntities();
+            }
         }
 
         $breadcrumb = [];
@@ -98,7 +109,7 @@ class BuildBreadcrumbExtension extends AbstractExtension
     }
 
     /**
-     * @deprecated tag:6.8.0 - Parameter $twigContext will be removed, as it is not needed anymore
+     * @deprecated tag:6.8.0 - Parameter $twigContext will be removed, as it is not needed anymore and the type of `$context` will be changed to `SalesChannelContext`
      * @deprecated tag:6.8.0 - reason:return-type-change - Will only return `array<string, SalesChannelCategoryEntity>`
      *
      * @param array<string, mixed> $twigContext

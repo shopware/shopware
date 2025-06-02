@@ -11,6 +11,8 @@ use Shopware\Core\Framework\SystemCheck\Check\Status;
 use Shopware\Core\Framework\SystemCheck\Check\SystemCheckExecutionContext;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Storefront\Framework\SystemCheck\ProductDetailReadinessCheck;
+use Shopware\Storefront\Framework\SystemCheck\Util\AbstractSalesChannelDomainProvider;
+use Shopware\Storefront\Framework\SystemCheck\Util\SalesChannelDomainProvider;
 use Shopware\Storefront\Framework\SystemCheck\Util\SalesChannelDomainUtil;
 use Shopware\Storefront\Framework\SystemCheck\Util\StorefrontHealthCheckResult;
 use Symfony\Component\HttpFoundation\Response;
@@ -25,9 +27,12 @@ class ProductDetailReadinessCheckTest extends TestCase
 
     private SalesChannelDomainUtil&MockObject $util;
 
+    private AbstractSalesChannelDomainProvider&MockObject $domainProvider;
+
     protected function setUp(): void
     {
         $this->connection = $this->createMock(Connection::class);
+        $this->domainProvider = $this->createMock(SalesChannelDomainProvider::class);
 
         $this->initUtilMock();
     }
@@ -117,7 +122,7 @@ class ProductDetailReadinessCheckTest extends TestCase
 
     private function createCheck(): ProductDetailReadinessCheck
     {
-        return new ProductDetailReadinessCheck($this->util, $this->connection);
+        return new ProductDetailReadinessCheck($this->util, $this->connection, $this->domainProvider);
     }
 
     private function initUtilMock(): void

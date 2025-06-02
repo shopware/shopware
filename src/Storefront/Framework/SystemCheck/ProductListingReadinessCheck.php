@@ -4,7 +4,6 @@ namespace Shopware\Storefront\Framework\SystemCheck;
 
 use Doctrine\DBAL\ArrayParameterType;
 use Doctrine\DBAL\Connection;
-use Shopware\Core\Defaults;
 use Shopware\Core\Framework\DataAbstractionLayer\Doctrine\FetchModeHelper;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\SystemCheck\BaseCheck;
@@ -12,7 +11,7 @@ use Shopware\Core\Framework\SystemCheck\Check\Category;
 use Shopware\Core\Framework\SystemCheck\Check\Result;
 use Shopware\Core\Framework\SystemCheck\Check\Status;
 use Shopware\Core\Framework\SystemCheck\Check\SystemCheckExecutionContext;
-use Shopware\Core\Framework\Uuid\Uuid;
+use Shopware\Storefront\Framework\SystemCheck\Util\AbstractSalesChannelDomainProvider;
 use Shopware\Storefront\Framework\SystemCheck\Util\SalesChannelDomainUtil;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -32,6 +31,7 @@ class ProductListingReadinessCheck extends BaseCheck
     public function __construct(
         private readonly SalesChannelDomainUtil $util,
         private readonly Connection $connection,
+        private readonly AbstractSalesChannelDomainProvider $domainProvider,
     ) {
     }
 
@@ -61,7 +61,7 @@ class ProductListingReadinessCheck extends BaseCheck
 
     private function doRun(): Result
     {
-        $domains = $this->fetchSalesChannelDomains();
+        $domains = $this->domainProvider->fetchSalesChannelDomains();
         $salesChannelIds = array_keys($domains);
         $navigationIds = $salesChannelIds ? $this->fetchNavigationIds($salesChannelIds) : null;
 
@@ -145,28 +145,6 @@ class ProductListingReadinessCheck extends BaseCheck
             $sql,
             ['salesChannelIds' => $salesChannelIds],
             ['salesChannelIds' => ArrayParameterType::BINARY]
-        );
-
-        return FetchModeHelper::keyPair($result);
-    }
-
-    /**
-     * @return array<string, string>
-     */
-    private function fetchSalesChannelDomains(): array
-    {
-        $sql = <<<'SQL'
-            SELECT `sales_channel`.`id`,
-                   `sales_channel_domain`.`url`
-            FROM `sales_channel_domain`
-            INNER JOIN `sales_channel` ON `sales_channel_domain`.`sales_channel_id` = `sales_channel`.`id`
-            WHERE `sales_channel`.`type_id` = :typeId
-            AND `sales_channel`.`active` = :active
-        SQL;
-
-        $result = $this->connection->fetchAllAssociative(
-            $sql,
-            ['typeId' => Uuid::fromHexToBytes(Defaults::SALES_CHANNEL_TYPE_STOREFRONT), 'active' => 1]
         );
 
         return FetchModeHelper::keyPair($result);

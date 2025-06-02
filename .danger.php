@@ -426,7 +426,7 @@ return (new Config())
     ->useRule(function (Context $context): void {
         $addedTests = $context->platform->pullRequest->getFiles()
             ->filter(fn (File $file) => in_array($file->status, [File::STATUS_ADDED, File::STATUS_MODIFIED, File::STATUS_RENAMED], true))
-            ->matches('tests/integration/Core/Framework/**/*Test.php');
+            ->matches('tests/integration/Core/Framework/**Test.php');
 
         if (\count($addedTests) === 0) {
             return;
@@ -448,19 +448,21 @@ return (new Config())
 
         foreach ($addedTests as $file) {
             $fileLocation = dirname($file->name);
+            $descriptionType = 'directory';
             if ($fileLocation === 'tests/integration/Core/Framework') {
                 $fileLocation = $file->name;
+                $descriptionType = 'file';
             }
 
             if (!in_array($fileLocation, $descriptions, true)) {
-                $missingDescriptions[] = $fileLocation;
+                $missingDescriptions[] = '<' .$descriptionType. '>'. $fileLocation .'</' .$descriptionType. '>';
             }
         }
 
         if (\count($missingDescriptions) > 0) {
             $context->failure(
                 'Please add the integration test(s) within one of the core-batch testsuite of phpunit.xml.dist: <br/><br/>'
-                . implode('<br/>', $missingDescriptions)
+                . implode('<br/>', array_unique($missingDescriptions))
             );
         }
     })

@@ -11,6 +11,7 @@ use Lcobucci\JWT\Token;
 use Lcobucci\JWT\Validation\Constraint;
 use Lcobucci\JWT\Validation\Constraint\SignedWith;
 use Lcobucci\JWT\Validation\Validator;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\JWT\JWTException;
 use Shopware\Core\Framework\JWT\Struct\JWKCollection;
 use Shopware\Core\Framework\JWT\Struct\JWKStruct;
@@ -28,6 +29,9 @@ final class HasValidRSAJWKSignature implements Constraint
         $this->jwks = $jwks;
     }
 
+    /**
+     * {@inheritDoc}
+     */
     public function assert(Token $token): void
     {
         $this->validateAlgorithm($token);

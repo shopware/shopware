@@ -188,6 +188,10 @@ abstract class EntityDefinition
             }
         }
 
+        foreach ($this->extensions as $extension) {
+            $extension->modifyFields(new FieldCollection($fields));
+        }
+
         $this->fields = $fields->compile($this->registry);
 
         return $this->fields;

@@ -63,6 +63,31 @@ class EntityCustomFieldsTraitTest extends TestCase
         $entity->changeCustomFields(['foo' => 'baz', 'bar' => ['foo' => 'foo'], 'baz' => 'baz']);
         static::assertEquals(['foo' => 'baz', 'bar' => ['foo' => 'foo'], 'baz' => 'baz'], $entity->getCustomFields());
     }
+
+    public function testGetCustomFieldsValueWithTranslatedFlag(): void
+    {
+        $entity = new MyTraitEntity(
+            'id',
+            ['foo' => 'bar', 'baz' => 'orig'],
+            ['customFields' => ['foo' => 'translated-bar', 'baz' => 'translated-baz']]
+        );
+
+        static::assertSame('bar', $entity->getCustomFieldsValue('foo'));
+        static::assertSame('orig', $entity->getCustomFieldsValue('baz'));
+        static::assertNull($entity->getCustomFieldsValue('not-exists'));
+
+        static::assertSame('translated-bar', $entity->getCustomFieldsValue('foo', true));
+        static::assertSame('translated-baz', $entity->getCustomFieldsValue('baz', true));
+        static::assertNull($entity->getCustomFieldsValue('not-exists', true));
+
+        $entity = new MyTraitEntity(
+            'id',
+            ['foo' => 'bar'],
+            ['customFields' => []]
+        );
+        static::assertSame('bar', $entity->getCustomFieldsValue('foo', true));
+        static::assertNull($entity->getCustomFieldsValue('not-exists', true));
+    }
 }
 
 /**
@@ -80,7 +105,9 @@ class MyTraitEntity extends Entity
         /** @deprecated tag:v6.7.0 - Will be natively typed */
         protected $_uniqueIdentifier,
         /** @deprecated tag:v6.7.0 - Will be natively typed */
-        protected $customFields = []
+        protected $customFields = [],
+        /** @deprecated tag:v6.7.0 - Will be natively typed */
+        protected $translated = [],
     ) {
     }
 }

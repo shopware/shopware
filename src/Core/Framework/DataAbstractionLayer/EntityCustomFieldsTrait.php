@@ -70,8 +70,19 @@ trait EntityCustomFieldsTrait
      * $entity->getCustomFieldsValue('my_custom_field') === 'value';
      * ```
      */
-    public function getCustomFieldsValue(string $field): mixed
+    public function getCustomFieldsValue(string $field, bool $translated = false): mixed
     {
+        if (!$translated) {
+            /** @phpstan-ignore property.deprecated (@deprecated tag:v6.7.0 - remove once property is natively typed) */
+            return $this->customFields[$field] ?? null;
+        }
+
+        /** @phpstan-ignore property.deprecated (@deprecated tag:v6.7.0 - remove once property is natively typed) */
+        if (isset($this->translated['customFields'][$field])) {
+            /** @phpstan-ignore property.deprecated (@deprecated tag:v6.7.0 - remove once property is natively typed) */
+            return $this->translated['customFields'][$field];
+        }
+
         /** @phpstan-ignore property.deprecated (@deprecated tag:v6.7.0 - remove once property is natively typed) */
         return $this->customFields[$field] ?? null;
     }

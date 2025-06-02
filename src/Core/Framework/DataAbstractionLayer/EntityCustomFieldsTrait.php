@@ -66,8 +66,16 @@ trait EntityCustomFieldsTrait
      * $entity->getCustomFieldsValue('my_custom_field') === 'value';
      * ```
      */
-    public function getCustomFieldsValue(string $field): mixed
+    public function getCustomFieldsValue(string $field, bool $translated = false): mixed
     {
+        if (!$translated) {
+            return $this->customFields[$field] ?? null;
+        }
+
+        if (isset($this->translated['customFields'][$field])) {
+            return $this->translated['customFields'][$field];
+        }
+
         return $this->customFields[$field] ?? null;
     }
 

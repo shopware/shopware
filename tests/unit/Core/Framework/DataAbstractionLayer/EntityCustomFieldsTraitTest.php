@@ -63,6 +63,31 @@ class EntityCustomFieldsTraitTest extends TestCase
         $entity->changeCustomFields(['foo' => 'baz', 'bar' => ['foo' => 'foo'], 'baz' => 'baz']);
         static::assertSame(['foo' => 'baz', 'bar' => ['foo' => 'foo'], 'baz' => 'baz'], $entity->getCustomFields());
     }
+
+    public function testGetCustomFieldsValueWithTranslatedFlag(): void
+    {
+        $entity = new MyTraitEntity(
+            'id',
+            ['foo' => 'bar', 'baz' => 'orig'],
+            ['customFields' => ['foo' => 'translated-bar', 'baz' => 'translated-baz']]
+        );
+
+        static::assertSame('bar', $entity->getCustomFieldsValue('foo'));
+        static::assertSame('orig', $entity->getCustomFieldsValue('baz'));
+        static::assertNull($entity->getCustomFieldsValue('not-exists'));
+
+        static::assertSame('translated-bar', $entity->getCustomFieldsValue('foo', true));
+        static::assertSame('translated-baz', $entity->getCustomFieldsValue('baz', true));
+        static::assertNull($entity->getCustomFieldsValue('not-exists', true));
+
+        $entity = new MyTraitEntity(
+            'id',
+            ['foo' => 'bar'],
+            ['customFields' => []]
+        );
+        static::assertSame('bar', $entity->getCustomFieldsValue('foo', true));
+        static::assertNull($entity->getCustomFieldsValue('not-exists', true));
+    }
 }
 
 /**
@@ -77,9 +102,11 @@ class MyTraitEntity extends Entity
      */
     public function __construct(
         string $_uniqueIdentifier,
-        ?array $customFields = []
+        ?array $customFields = [],
+        array $translated = [],
     ) {
         $this->_uniqueIdentifier = $_uniqueIdentifier;
         $this->customFields = $customFields;
+        $this->translated = $translated;
     }
 }

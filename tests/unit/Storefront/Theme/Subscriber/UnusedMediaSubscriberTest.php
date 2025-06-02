@@ -67,7 +67,7 @@ class UnusedMediaSubscriberTest extends TestCase
 
         $themeService = $this->createMock(ThemeService::class);
         $themeService->expects($this->exactly(2))
-            ->method('getThemeConfiguration')
+            ->method('getPlainThemeConfiguration')
             ->willReturnCallback(function (string $themeId, ...$params) use ($themeConfigMap) {
                 return $themeConfigMap[$themeId];
             });

@@ -3,6 +3,7 @@
 namespace Shopware\Tests\Integration\Core\Checkout\Cart\Order;
 
 use Doctrine\DBAL\Connection;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\Cart;
@@ -20,8 +21,10 @@ use Shopware\Core\Checkout\Cart\Order\OrderConverter;
 use Shopware\Core\Checkout\Cart\Order\OrderPersister;
 use Shopware\Core\Checkout\Cart\Order\RecalculationService;
 use Shopware\Core\Checkout\Cart\Price\Struct\CalculatedPrice;
+use Shopware\Core\Checkout\Cart\Price\Struct\QuantityPriceDefinition;
 use Shopware\Core\Checkout\Cart\Processor;
 use Shopware\Core\Checkout\Cart\Tax\Struct\CalculatedTaxCollection;
+use Shopware\Core\Checkout\Cart\Tax\Struct\TaxRule;
 use Shopware\Core\Checkout\Cart\Tax\Struct\TaxRuleCollection;
 use Shopware\Core\Checkout\Cart\Transaction\Struct\TransactionCollection;
 use Shopware\Core\Checkout\Customer\Aggregate\CustomerAddress\CustomerAddressEntity;
@@ -39,6 +42,7 @@ use Shopware\Core\Checkout\Shipping\ShippingMethodCollection;
 use Shopware\Core\Checkout\Shipping\ShippingMethodEntity;
 use Shopware\Core\Content\Product\Aggregate\ProductVisibility\ProductVisibilityDefinition;
 use Shopware\Core\Content\Product\Cart\ProductCartProcessor;
+use Shopware\Core\Content\Product\State;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
@@ -122,6 +126,50 @@ class RecalculationServiceTest extends TestCase
         );
 
         $this->salesChannelContext->setRuleIds([$priceRuleId]);
+    }
+
+    #[DataProvider('customLineItemProvider')]
+    public function testAddCustomLineItemSdf(LineItem $lineItem, int $positionCount): void
+    {
+        $cart = $this->generateDemoCart();
+        $orderId = $this->persistCart($cart)['orderId'];
+        $versionId = $this->createVersionedOrder($orderId);
+        $context = Context::createDefaultContext()->createWithVersionId($versionId);
+
+        $this->getContainer()->get(RecalculationService::class)->addCustomLineItem($orderId, $lineItem, $context);
+
+        $criteria = (new Criteria([$orderId]))
+            ->addAssociation('lineItems')
+            ->addAssociation('deliveries.positions');
+
+        $order = $this->orderRepository->search($criteria, $context)->get($orderId);
+        static::assertNotNull($order);
+
+        $lineItems = $order->getLineItems();
+        static::assertNotNull($lineItems);
+        static::assertCount(3, $lineItems);
+
+        $positions = $order->getDeliveries()?->first()?->getPositions();
+        static::assertNotNull($positions);
+        static::assertCount($positionCount, $positions);
+    }
+
+    public static function customLineItemProvider(): \Generator
+    {
+        yield 'line item type custom, shipping cost aware' => [
+            (new LineItem(Uuid::randomHex(), LineItem::CUSTOM_LINE_ITEM_TYPE))
+                ->setLabel('Test custom line item')
+                ->setPriceDefinition(new QuantityPriceDefinition(10, new TaxRuleCollection([new TaxRule(19)]))),
+            3,
+        ];
+
+        yield 'line item type custom, not shipping cost aware' => [
+            (new LineItem(Uuid::randomHex(), LineItem::CUSTOM_LINE_ITEM_TYPE))
+                ->setLabel('Test custom line item')
+                ->setPriceDefinition(new QuantityPriceDefinition(10, new TaxRuleCollection([new TaxRule(19)])))
+                ->setStates([State::IS_DOWNLOAD]),
+            2,
+        ];
     }
 
     public function testPersistOrderAndConvertToCart(): void

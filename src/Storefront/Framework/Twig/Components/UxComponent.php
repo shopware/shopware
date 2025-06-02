@@ -12,13 +12,7 @@ class UxComponent extends Struct
     private const MAIN_NAMESPACE = 'Storefront';
 
     protected string $name;
-    protected string $baseName;
-    protected string $tag;
     protected string $path; 
-    protected string $stylePath;
-
-    protected string $scriptPath;
-    protected string $directory;
     protected string $namespace;
 
     public function __construct(
@@ -40,7 +34,11 @@ class UxComponent extends Struct
     {
         $nameParts = explode(':', $this->name);
 
-        return $nameParts[0];
+        if (count($nameParts) <= 1) {
+            return $this->name;
+        }
+
+        return $nameParts[count($nameParts) - 1];
     }
 
     public function getTag(): string
@@ -57,14 +55,40 @@ class UxComponent extends Struct
         return $this->path;
     }
 
-    public function getStylePath(): string
+    public function getRelativeNamespacePath(): string
     {
-        return Path::join($this->getDirectory(), $this->getBaseName() . '.scss');
+        return str_replace(':', '/', $this->getTag());
     }
 
-    public function getScriptPath(): string
+    public function getRelativeNamespaceDirectory(): string
     {
-        return Path::join($this->getDirectory(), $this->getBaseName() . '.js');
+        $nameParts = explode(':', $this->getTag());
+        
+        array_pop($nameParts);
+
+        return implode('/', $nameParts);
+    }
+
+    public function getStylePath(): ?string
+    {
+        $stylePath = Path::join($this->getDirectory(), $this->getBaseName() . '.scss');
+
+        if (!is_file($stylePath)) {
+            return null;
+        }
+
+        return $stylePath;
+    }
+
+    public function getScriptPath(): ?string
+    {
+        $scriptPath = Path::join($this->getDirectory(), $this->getBaseName() . '.js');
+
+        if (!is_file($scriptPath)) {
+            return null;
+        }
+
+        return $scriptPath;
     }
 
     public function getDirectory(): string

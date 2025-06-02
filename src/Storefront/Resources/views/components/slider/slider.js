@@ -1,6 +1,1 @@
-alert('slider');
-console.log('slider');
-
-document.addEventListener('DOMContentLoaded', function() {
-    console.log('slider');
-});
+console.log('I am a component JS file from Storefront.');

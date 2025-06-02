@@ -3,6 +3,7 @@
 namespace Shopware\Storefront\Theme\Controller;
 
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Storefront\Theme\AbstractScssCompiler;
 use Shopware\Storefront\Theme\ThemeService;
@@ -31,7 +32,13 @@ class ThemeController extends AbstractController
     #[Route(path: '/api/_action/theme/{themeId}/configuration', name: 'api.action.theme.configuration', methods: ['GET'])]
     public function configuration(string $themeId, Context $context): JsonResponse
     {
-        $themeConfiguration = $this->themeService->getThemeConfiguration($themeId, true, $context);
+        if (!Feature::isActive('v6.8.0.0')) {
+            $themeConfiguration = $this->themeService->getPlainThemeConfiguration($themeId, $context, true);
+
+            return new JsonResponse($themeConfiguration);
+        }
+
+        $themeConfiguration = $this->themeService->getPlainThemeConfiguration($themeId, $context);
 
         return new JsonResponse($themeConfiguration);
     }
@@ -74,7 +81,13 @@ class ThemeController extends AbstractController
     #[Route(path: '/api/_action/theme/{themeId}/structured-fields', name: 'api.action.theme.structuredFields', methods: ['GET'])]
     public function structuredFields(string $themeId, Context $context): JsonResponse
     {
-        $themeConfiguration = $this->themeService->getThemeConfigurationStructuredFields($themeId, true, $context);
+        if (!Feature::isActive('v6.8.0.0')) {
+            $themeConfiguration = $this->themeService->getThemeConfigurationFieldStructure($themeId, $context, true);
+
+            return new JsonResponse($themeConfiguration);
+        }
+
+        $themeConfiguration = $this->themeService->getThemeConfigurationFieldStructure($themeId, $context);
 
         return new JsonResponse($themeConfiguration);
     }

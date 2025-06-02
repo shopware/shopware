@@ -11,17 +11,18 @@ use Shopware\Core\Framework\SystemCheck\Check\Status;
 use Shopware\Core\Framework\Test\TestCaseBase\DatabaseTransactionBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\SalesChannelApiTestBehaviour;
-use Shopware\Core\Kernel;
 use Shopware\Core\Test\Stub\Framework\IdsCollection;
-use Shopware\Storefront\Framework\SystemCheck\SaleChannelsReadinessCheck;
+use Shopware\Storefront\Framework\SystemCheck\SalesChannelsReadinessCheck;
+use Shopware\Storefront\Framework\SystemCheck\Util\SalesChannelDomainUtil;
+use Shopware\Storefront\Framework\SystemCheck\Util\StorefrontHealthCheckResult;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 
 /**
  * @internal
  */
-#[CoversClass(SaleChannelsReadinessCheck::class)]
-class SaleChannelsReadinessCheckTest extends TestCase
+#[CoversClass(SalesChannelsReadinessCheck::class)]
+class SalesChannelsReadinessCheckTest extends TestCase
 {
     use DatabaseTransactionBehaviour;
     use KernelTestBehaviour;
@@ -48,15 +49,24 @@ class SaleChannelsReadinessCheckTest extends TestCase
     public function testWhereOneChannelIsReturningHealthyWithMocks(): void
     {
         $this->createSalesChannels();
-        $kernel = $this->createMock(Kernel::class);
-        $kernel->expects($this->exactly(2))
-            ->method('handle')
+
+        $util = $this->createUtilMock();
+        $util->expects($this->exactly(2))
+            ->method('handleRequest')
             ->willReturnOnConsecutiveCalls(
-                new Response(),
-                new Response(null, Response::HTTP_BAD_REQUEST)
+                StorefrontHealthCheckResult::create(
+                    'http://localhost:8000/',
+                    Response::HTTP_OK,
+                    1.23,
+                ),
+                StorefrontHealthCheckResult::create(
+                    'http://localhost:8000/',
+                    Response::HTTP_BAD_REQUEST,
+                    1.23,
+                ),
             );
 
-        $check = $this->createCheck($kernel);
+        $check = $this->createCheck($util);
         $result = $check->run();
 
         static::assertFalse($result->healthy);
@@ -66,15 +76,24 @@ class SaleChannelsReadinessCheckTest extends TestCase
     public function testWhenAllAreReturningErrorWithMocks(): void
     {
         $this->createSalesChannels();
-        $kernel = $this->createMock(Kernel::class);
-        $kernel->expects($this->exactly(2))
-            ->method('handle')
+
+        $util = $this->createUtilMock();
+        $util->expects($this->exactly(2))
+            ->method('handleRequest')
             ->willReturnOnConsecutiveCalls(
-                new Response(null, Response::HTTP_BAD_REQUEST),
-                new Response(null, Response::HTTP_BAD_REQUEST)
+                StorefrontHealthCheckResult::create(
+                    'http://localhost:8000/',
+                    Response::HTTP_BAD_REQUEST,
+                    1.23,
+                ),
+                StorefrontHealthCheckResult::create(
+                    'http://localhost:8000/',
+                    Response::HTTP_BAD_REQUEST,
+                    1.23,
+                ),
             );
 
-        $check = $this->createCheck($kernel);
+        $check = $this->createCheck($util);
         $result = $check->run();
 
         static::assertFalse($result->healthy);
@@ -95,13 +114,11 @@ class SaleChannelsReadinessCheckTest extends TestCase
         Request::setTrustedHosts([]);
     }
 
-    private function createCheck((MockObject&Kernel)|null $kernel = null): SaleChannelsReadinessCheck
+    private function createCheck((SalesChannelDomainUtil&MockObject)|null $util = null): SalesChannelsReadinessCheck
     {
-        return new SaleChannelsReadinessCheck(
-            $kernel ?? static::getContainer()->get('kernel'),
-            static::getContainer()->get('router'),
+        return new SalesChannelsReadinessCheck(
             $this->connection,
-            static::getContainer()->get('request_stack')
+            $util ?? static::getContainer()->get(SalesChannelDomainUtil::class),
         );
     }
 
@@ -131,5 +148,30 @@ class SaleChannelsReadinessCheckTest extends TestCase
                 ],
             ],
         ]);
+    }
+
+    private function createUtilMock(): SalesChannelDomainUtil&MockObject
+    {
+        $util = $this->createMock(SalesChannelDomainUtil::class);
+        $this->initUtilMock($util);
+
+        return $util;
+    }
+
+    private function initUtilMock(SalesChannelDomainUtil&MockObject $util): void
+    {
+        $util->method('runAsSalesChannelRequest')
+            ->willReturnCallback(function (callable $callback): mixed {
+                return $callback();
+            });
+
+        $util->method('runWhileTrustingAllHosts')
+            ->willReturnCallback(function (callable $callback): mixed {
+                return $callback();
+            });
+
+        $util->method('generateDomainUrl')->willReturnCallback(function ($domain, $routeName) {
+            return $domain . $routeName;
+        });
     }
 }

@@ -24,7 +24,7 @@ abstract class EntityExtension
      *
      * This method is called after all fields have been added to the entity.
      * You can use this method to modify fields. e.g. to modify flags
-     * You can't add new fields in this method, use `extendFields()` for that.
+     * You can't add new fields with this method, use `extendFields()` for that.
      *
      * @see EntityExtension::extendFields() to add fields to an entity.
      */

@@ -14,7 +14,9 @@ class ModifyFieldsExtension extends EntityExtension
     public function modifyFields(FieldCollection $collection): void
     {
         foreach ($collection as $field) {
-            $field->removeFlag(ApiAware::class);
+            if ($field->getPropertyName() === 'apiAwareTest') {
+                $field->removeFlag(ApiAware::class);
+            }
         }
     }
 

@@ -215,4 +215,81 @@ class IncrementApiControllerTest extends TestCase
         static::assertArrayHasKey('foo', $entries);
         static::assertSame(1, $entries['foo']['count']);
     }
+
+    public function testDeleteEndpointWithInvalidKeys(): void
+    {
+        $clusterName = 'customer-cluster';
+        $url = '/api/_action/delete-increment/user_activity';
+
+        $client = $this->getBrowser();
+        $client->request('DELETE', $url, [
+            'cluster' => $clusterName,
+            'keys' => 'invalidFoo',
+        ]);
+
+        static::assertSame(Response::HTTP_BAD_REQUEST, $client->getResponse()->getStatusCode());
+
+        $errors = json_decode((string) $client->getResponse()->getContent(), true, 512, \JSON_THROW_ON_ERROR)['errors'];
+
+        static::assertSame('Parameter "keys" must be an array.', $errors[0]['detail']);
+    }
+
+    public function testDeleteEndpointWithKeys(): void
+    {
+        $this->gateway->reset($this->userId);
+
+        $this->gateway->increment($this->userId, 'foo');
+        $this->gateway->increment($this->userId, 'baz');
+        $this->gateway->increment($this->userId, 'bar');
+
+        $entries = $this->gateway->list($this->userId);
+
+        static::assertCount(3, $entries);
+
+        $url = '/api/_action/delete-increment/user_activity';
+
+        $client = $this->getBrowser();
+        $client->request('DELETE', $url, [
+            'cluster' => $this->userId,
+            'keys' => ['foo', 'bar'],
+        ]);
+
+        static::assertSame(Response::HTTP_NO_CONTENT, $client->getResponse()->getStatusCode());
+
+        $entries = $this->gateway->list($this->userId);
+
+        static::assertCount(1, $entries);
+
+        static::assertArrayHasKey('baz', $entries);
+        static::assertArrayNotHasKey('foo', $entries);
+        static::assertArrayNotHasKey('bar', $entries);
+    }
+
+    public function testDeleteEndpointWithOnlyCluster(): void
+    {
+        $this->gateway->reset($this->userId);
+
+        $this->gateway->increment($this->userId, 'foo');
+        $this->gateway->increment($this->userId, 'baz');
+        $this->gateway->increment($this->userId, 'bar');
+
+        $entries = $this->gateway->list($this->userId);
+
+        static::assertCount(3, $entries);
+
+        $this->gateway->reset($this->userId, 'foo');
+
+        $url = '/api/_action/delete-increment/user_activity';
+
+        $client = $this->getBrowser();
+        $client->request('DELETE', $url, [
+            'cluster' => $this->userId,
+        ]);
+
+        static::assertSame(Response::HTTP_NO_CONTENT, $client->getResponse()->getStatusCode());
+
+        $entries = $this->gateway->list($this->userId);
+
+        static::assertEmpty($entries);
+    }
 }

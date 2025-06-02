@@ -93,4 +93,21 @@ describe('src/module/sw-cms/elements/text/component', () => {
         wrapper.vm.emitChanges('product.name');
         expect(wrapper.emitted()['element-update']).toBeUndefined();
     });
+
+    it('sets demoValue correctly when source is mapped', async () => {
+        const wrapper = await createWrapper();
+
+        await wrapper.setProps({
+            element: {
+                config: {
+                    content: {
+                        source: 'mapped',
+                        value: 'product.name',
+                    },
+                },
+            },
+        });
+
+        expect(wrapper.vm.demoValue).toContain('<strong>product.name</strong>');
+    });
 });

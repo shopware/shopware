@@ -214,7 +214,7 @@ describe('src/module/sw-order/component/sw-order-promotion-field', () => {
         createStateMapper();
 
         const wrapper = await createWrapper();
-        wrapper.vm.swOrderDetailOnSaveAndReload = jest.fn();
+        wrapper.vm.swOrderDetailOnSaveAndReload = jest.fn((afterSaveFn) => afterSaveFn());
 
         await wrapper.vm.onSubmitCode('Redeem675');
         await flushPromises();
@@ -233,7 +233,7 @@ describe('src/module/sw-order/component/sw-order-promotion-field', () => {
         createStateMapper();
 
         const wrapper = await createWrapper();
-        wrapper.vm.swOrderDetailOnSaveAndReload = jest.fn();
+        wrapper.vm.swOrderDetailOnSaveAndReload = jest.fn((afterSaveFn) => afterSaveFn());
 
         await wrapper.vm.applyAutomaticPromotions();
         await flushPromises();

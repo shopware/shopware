@@ -28,13 +28,14 @@
     <sw-tabs
         v-if="!isLoading"
         position-identifier="sw-category-view"
-        class="sw-customer-detail-page__tabs"
+        class="sw-category-detail-page__tabs"
     >
         {% block sw_category_view_tabs_general %}
         <sw-tabs-item
             class="sw-category-detail__tab-base"
             :route="{ name: 'sw.category.detail.base' }"
             :title="$tc('sw-category.view.general')"
+            :has-error="swCategoryViewError"
         >
             {{ $tc('sw-category.view.general') }}
         </sw-tabs-item>

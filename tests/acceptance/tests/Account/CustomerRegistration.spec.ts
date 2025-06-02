@@ -1,7 +1,7 @@
 import { test } from '@fixtures/AcceptanceTest';
 import { satisfies } from 'compare-versions';
 
-test('As a new customer, I must be able to register in the Storefront.', { tag: '@Registration' }, async ({
+test('As a new customer, I must be able to register in the Storefront.', { tag: ['@Registration'] }, async ({
     ShopCustomer,
     StorefrontAccountLogin,
     StorefrontAccount,

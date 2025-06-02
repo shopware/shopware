@@ -118,8 +118,9 @@ export default {
 
         sliderLength() {
             if (this.registeredTabItems[this.activeItem]) {
-                const activeChildren = this.registeredTabItems[this.activeItem];
-                return this.isVertical ? activeChildren.$el.offsetHeight : activeChildren.$el.offsetWidth;
+                const activeChildren = this.registeredTabItems[this.activeItem].$el;
+                const computedStyle = window.getComputedStyle(activeChildren);
+                return this.isVertical ? computedStyle.height : computedStyle.width;
             }
 
             return 0;
@@ -153,13 +154,13 @@ export default {
             if (this.isVertical) {
                 return `
                     transform: translate(0, ${this.sliderMovement}px) rotate(${this.alignRight ? '-90deg' : '90deg'});
-                    width: ${this.sliderLength}px;
+                    width: ${this.sliderLength};
                 `;
             }
 
             return `
                 transform: translate(${this.sliderMovement}px, 0) rotate(0deg);
-                width: ${this.sliderLength}px;
+                width: ${this.sliderLength};
                 bottom: ${this.scrollbarOffset}px;
             `;
         },

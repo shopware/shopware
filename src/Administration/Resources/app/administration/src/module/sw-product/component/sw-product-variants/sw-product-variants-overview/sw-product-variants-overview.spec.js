@@ -583,10 +583,12 @@ describe('src/module/sw-product/component/sw-product-variants/sw-product-variant
         };
 
         const storeProductMedia = Shopware.Store.get('swProductDetail').product.media.first();
-        const mediaItemToUnInherit = storeProductMedia ? storeProductMedia.media : {
-            id: 'fallback-media-id',
-            position: 1,
-        };
+        const mediaItemToUnInherit = storeProductMedia
+            ? storeProductMedia.media
+            : {
+                  id: 'fallback-media-id',
+                  position: 1,
+              };
 
         const mockProductMediaRepositoryCreate = jest.fn(() => {
             return {

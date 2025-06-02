@@ -12,8 +12,8 @@ class AddressValidationError extends Error
     private const KEY = 'address-invalid';
 
     public function __construct(
-        private readonly bool $isBillingAddress,
-        private readonly ConstraintViolationList $violations
+        protected readonly bool $isBillingAddress,
+        protected readonly ConstraintViolationList $violations
     ) {
         $this->message = \sprintf(
             'Please check your %s address for missing or invalid values.',

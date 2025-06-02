@@ -36,56 +36,66 @@
 
             <p>{{ $t('sw-settings-services.sw-settings-services-hero.intro') }}</p>
 
-            <ul>
+            <ul class="sw-settings-services-hero__bullet-points">
                 <li><!-- TODO Codemod: Converted from sw-icon - please check if everything works correctly -->
                     <mt-icon
                         name="solid-check-circle"
                         size="var(--scale-size-16)"
                         color="var(--color-icon-positive-default)"
-                    /> {{ $t('sw-settings-services.sw-settings-services-hero.bullet-point-integrated') }}</li>
+                    />
+                    <span>{{ $t('sw-settings-services.sw-settings-services-hero.bullet-point-integrated') }}</span>
+                </li>
                 <li><!-- TODO Codemod: Converted from sw-icon - please check if everything works correctly -->
                     <mt-icon
                         name="solid-check-circle"
                         size="var(--scale-size-16)"
                         color="var(--color-icon-positive-default)"
-                    /> {{ $t('sw-settings-services.sw-settings-services-hero.bullet-point-flexible') }}</li>
+                    />
+                    <span>{{ $t('sw-settings-services.sw-settings-services-hero.bullet-point-flexible') }}</span>
+                </li>
                 <li><!-- TODO Codemod: Converted from sw-icon - please check if everything works correctly -->
                     <mt-icon
                         name="solid-check-circle"
                         size="var(--scale-size-16)"
                         color="var(--color-icon-positive-default)"
-                    /> {{ $t('sw-settings-services.sw-settings-services-hero.bullet-point-transparent') }}</li>
+                    />
+                    <span>{{ $t('sw-settings-services.sw-settings-services-hero.bullet-point-transparent') }}</span>
+                </li>
                 <li><!-- TODO Codemod: Converted from sw-icon - please check if everything works correctly -->
                     <mt-icon
                         name="solid-check-circle"
                         size="var(--scale-size-16)"
                         color="var(--color-icon-positive-default)"
-                    /> {{ $t('sw-settings-services.sw-settings-services-hero.bullet-point-scalable') }}</li>
+                    />
+                    <span>{{ $t('sw-settings-services.sw-settings-services-hero.bullet-point-scalable') }}</span>
+                </li>
             </ul>
 
-            <mt-button
-                variant="secondary"
-                :link="feedbackLink"
-            >
-                {{ $t('sw-settings-services.sw-settings-services-hero.give-feedback')}}
+            <div class="sw-settings-services-hero__actions">
+                <mt-button
+                    variant="secondary"
+                    :link="feedbackLink"
+                >
+                    {{ $t('sw-settings-services.sw-settings-services-hero.give-feedback')}}
 
-                <template #iconBack="{ size }">
-                    <mt-icon
-                        name="solid-external-link"
-                        :size="size"
-                    />
-                </template>
-            </mt-button>
+                    <template #iconBack="{ size }">
+                        <mt-icon
+                            name="solid-external-link"
+                            :size="size"
+                        />
+                    </template>
+                </mt-button>
 
-            <mt-link
-                as="a"
-                target="_blank"
-                rel="noopener noreferrer"
-                :href="documentationLink"
-                type="external"
-            >
-                {{ $t('sw-settings-services.sw-settings-services-hero.learn-more') }}
-            </mt-link>
+                <mt-link
+                    as="a"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    :href="documentationLink"
+                    type="external"
+                >
+                    {{ $t('sw-settings-services.sw-settings-services-hero.learn-more') }}
+                </mt-link>
+            </div>
         </div>
     </div>
     <div class="sw-settings-services-hero__border-bottom"></div>

@@ -13,14 +13,14 @@
   }
 
   .sw-settings-services__listing-section h3 {
-    margin-bottom: var(--scale-size-24);
+    margin-block: var(--scale-size-24);
   }
 
   .sw-settings-services__optional-services {
     margin-bottom: var(--scale-size-48);
     display: grid;
     grid-template-columns:1fr;
-    gap: var(--scale-size-24);
+    gap: var(--scale-size-16) var(--scale-size-24);
     list-style-type: none;
 
     @container (min-width: 960px) {
@@ -52,6 +52,8 @@
 
     h3 {
       font-size: var(--font-size-l);
+      line-height: var(--font-line-height-l);
+      font-weight: var(--font-weight-bold);
     }
 
     p {

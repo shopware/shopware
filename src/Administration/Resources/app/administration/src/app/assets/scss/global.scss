@@ -185,3 +185,12 @@ a[target="_blank"]:not(.sw-external-link, .sw-internal-link, .mt-button, .mt-lin
 .sw-dashboard-statistics-promotion-banner__advertisement-details-title {
     color: var(--color-text-static-default) !important;
 }
+
+.saas-rufus-dashboard-test-orders {
+    border: 1px solid var(--color-border-primary-default) !important;
+
+    .sw-circle-icon {
+        color: var(--color-icon-accent-default) !important;
+        background-color: var(--color-background-accent-default) !important;
+    }
+}

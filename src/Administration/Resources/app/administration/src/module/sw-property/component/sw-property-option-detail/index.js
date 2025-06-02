@@ -41,6 +41,16 @@ export default {
             return this.repositoryFactory.create('media');
         },
 
+        colorHexCode: {
+            set(value) {
+                this.currentOption.colorHexCode = value;
+            },
+
+            get() {
+                return this.currentOption?.colorHexCode || '';
+            },
+        },
+
         ...mapPropertyErrors('currentOption', ['name']),
     },
 

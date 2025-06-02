@@ -64,10 +64,6 @@ export default Shopware.Component.wrapComponentConfig({
     },
 
     methods: {
-        grantPermissions() {
-            console.log('granting permissions...');
-        },
-
         activateServices() {
             console.log('activate services...');
         },

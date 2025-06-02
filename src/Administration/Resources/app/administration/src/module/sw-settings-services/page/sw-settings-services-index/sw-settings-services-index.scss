@@ -40,48 +40,6 @@
     }
   }
 
-  .sw-settings-services-index__grant-permission-card {
-    container-type: inline-size;
-    background: radial-gradient(
-      101.49% 53.33% at 4.27% 100%,
-      rgb(from var(--color-emerald-300) r g b / 20%) 0%,
-      var(--color-interaction-secondary-default) 100%
-    );
-
-    font-size: var(--font-size-xs);
-
-    h3 {
-      font-size: var(--font-size-l);
-      line-height: var(--font-line-height-l);
-      font-weight: var(--font-weight-bold);
-    }
-
-    p {
-      margin-bottom: 1rem;
-    }
-
-    .mt-button {
-      margin-right: var(--scale-size-20);
-    }
-
-    .sw-settings-services-index__image {
-      display: flex;
-      justify-content: center;
-      margin: 0 0 var(--scale-size-24);
-
-      img {
-        max-width: 100%;
-      }
-
-      @container (min-width: 650px) {
-        float: right;
-        display: block;
-        margin: calc(-1* var(--scale-size-24));
-        margin-left: 0;
-      }
-    }
-  }
-
   .sw-settings-services-index__services-deactivated-banner {
     max-width: 960px;
 

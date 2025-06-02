@@ -19,39 +19,11 @@
             :feedback-link="legalDocuments.feedbackLink"
         />
 
-        <div style="padding: 40px">
-            <mt-card
+        <div style="padding: var(--scale-size-40)">
+            <sw-settings-services-grant-permissions-card
                 v-if="!consentGiven"
-                class="sw-settings-services-index__grant-permission-card"
-            >
-                <div class="sw-settings-services-index__image">
-                    <img
-                        :src="grantPermissionsCardBackground"
-                        alt=""
-                    >
-                </div>
-
-                <h3>{{ $t("sw-settings-services.grant-permissions.title") }}</h3>
-
-                <p>{{ $t("sw-settings-services.grant-permissions.description") }}</p>
-
-                <mt-button
-                    variant="primary"
-                    @click="grantPermissions"
-                >
-                    {{  $t("sw-settings-services.grant-permissions.label-button-grant-permissions") }}
-                </mt-button>
-
-                <mt-link
-                    variant="primary"
-                    as="a"
-                    type="external"
-                    :href="legalDocuments.tosLink"
-                    target="_blank"
-                >
-                    {{ $t("sw-settings-services.grant-permissions.label-link-more-information") }}
-                </mt-link>
-            </mt-card>
+                :tos-link="legalDocuments.tosLink"
+            />
 
             <mt-banner
                 v-if="areServicesDeactivated"

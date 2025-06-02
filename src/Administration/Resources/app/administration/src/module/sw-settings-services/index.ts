@@ -58,6 +58,14 @@ Shopware.Component.register(
     () => import('./component/sw-settings-services-grant-permissions-modal'),
 );
 
+/**
+ * @private
+ */
+Shopware.Component.register(
+    'sw-settings-services-grant-permissions-card',
+    () => import('./component/sw-settings-services-grant-permissions-card'),
+);
+
 declare global {
     interface ServiceContainer extends SubContainer<'service'> {
         shopwareServicesService: ShopwareServicesService;
@@ -73,6 +81,7 @@ Shopware.Service().register('shopwareServicesService', () => {
         Shopware.Service('loginService'),
     );
 });
+
 /**
  * @sw-package framework
  * @private

@@ -15,5 +15,6 @@
     <import resource="../../App/**/*Route.php" type="attribute" />
     <import resource="../../Script/Api/*Route.php" type="attribute" />
     <import resource="../../Rule/Api/*Controller.php" type="attribute" />
+    <import resource="../../Gateway/**/*Route.php" type="attribute" />
 
 </routes>

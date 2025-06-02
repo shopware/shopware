@@ -980,19 +980,55 @@ export default {
             ]).then((response) => response.filter((item) => item?.total));
         },
 
-        getFrequentlyUsedModules() {
-            return this.userActivityApiService
-                .getIncrement({ cluster: this.currentUser.id })
-                .then((response) => {
-                    const entities = Object.keys(response);
+        async getFrequentlyUsedModules(checkNonExistentKeys = true) {
+            try {
+                const initialResponse = await this.userActivityApiService.getIncrement({ cluster: this.currentUser.id });
+                const initialKeys = Object.keys(initialResponse || {});
 
-                    return {
-                        entity: 'frequently_used',
-                        total: entities.length,
-                        entities: entities?.map((item) => this.getInfoModuleFrequentlyUsed(item)).filter((item) => item),
-                    };
-                })
-                .catch(() => {});
+                const initialModuleProcessingResults = initialKeys.map((key) => {
+                    return { key, info: this.getInfoModuleFrequentlyUsed(key) };
+                });
+
+                const nonExistentKeys = checkNonExistentKeys
+                    ? initialModuleProcessingResults
+                          .filter((item) => Object.keys(item.info).length === 0)
+                          .map((item) => item.key)
+                    : [];
+
+                const validInitialModules = initialModuleProcessingResults
+                    .filter((item) => Object.keys(item.info).length > 0)
+                    .map((item) => item.info);
+
+                if (nonExistentKeys.length > 0) {
+                    try {
+                        await this.userActivityApiService.deleteActivityKeys({
+                            keys: nonExistentKeys,
+                            cluster: this.currentUser.id,
+                        });
+
+                        return await this.getFrequentlyUsedModules(false);
+                    } catch {
+                        // In case deleting keys or fetching fresh data fails, fallback to initially valid modules
+                        return {
+                            entity: 'frequently_used',
+                            total: validInitialModules.length,
+                            entities: validInitialModules,
+                        };
+                    }
+                }
+
+                return {
+                    entity: 'frequently_used',
+                    total: validInitialModules.length,
+                    entities: validInitialModules,
+                };
+            } catch (error) {
+                return {
+                    entity: 'frequently_used',
+                    total: 0,
+                    entities: [],
+                };
+            }
         },
 
         getRecentlySearch() {

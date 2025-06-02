@@ -131,6 +131,7 @@
             <argument type="service" id="Shopware\Core\Content\Media\MediaService" />
             <argument type="service" id="Shopware\Core\Checkout\Document\Service\DocumentGenerator" />
             <argument type="service" id="pdf.merger" />
+            <argument type="service" id="Symfony\Component\Filesystem\Filesystem"/>
         </service>
 
         <service id="Shopware\Core\Checkout\Document\Controller\DocumentController" public="true">

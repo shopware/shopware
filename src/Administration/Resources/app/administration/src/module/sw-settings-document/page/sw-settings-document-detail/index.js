@@ -94,9 +94,9 @@ export default {
                 },
                 {
                     name: 'itemsPerPage',
-                    type: 'text',
+                    type: 'number',
                     config: {
-                        type: 'text',
+                        type: 'number',
                         label: this.$tc('sw-settings-document.detail.labelItemsPerPage'),
                     },
                 },

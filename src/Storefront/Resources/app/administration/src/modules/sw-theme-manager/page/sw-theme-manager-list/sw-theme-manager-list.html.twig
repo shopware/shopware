@@ -32,21 +32,29 @@
 
                                     {% block sw_theme_list_listing_actions_sorting %}
                                         <div class="sw-theme-list__actions-sorting">
-                                            <mt-select
-                                                name="sortType"
-                                                :label="$t('sw-theme-manager.sorting.labelSort')"
-                                                :options="sortOptions"
-                                                :modelValue="sortingConCat"
-                                                @update:modelValue="onSortingChanged"
-                                                small
+                                            <sw-sorting-select
+                                                :sort-by="sortBy"
+                                                :sort-direction="sortDirection"
+                                                @sorting-changed="onSortingChanged"
                                             />
                                         </div>
                                     {% endblock %}
 
                                     {% block sw_theme_list_listing_actions_mode %}
-                                        <div class="sw-theme-list__actions-mode" @click="onListModeChange">
-                                            <sw-icon name="regular-view-normal" size="16" v-if="listMode === 'grid'"></sw-icon>
-                                            <sw-icon name="regular-view-grid" size="16" v-if="listMode === 'list'"></sw-icon>
+                                        <div
+                                            class="sw-theme-list__actions-mode"
+                                            @click="onListModeChange"
+                                        >
+                                            <mt-icon
+                                                v-if="listMode === 'grid'"
+                                                name="regular-view-normal"
+                                                size="16"
+                                            />
+                                            <mt-icon
+                                                v-if="listMode === 'list'"
+                                                name="regular-view-grid"
+                                                size="16"
+                                            />
                                         </div>
                                     {% endblock %}
                                 </div>

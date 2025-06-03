@@ -3878,6 +3878,8 @@
  "sw_order_line_items_grid_sales_channel_create_actions_dropdown_menu",
  "sw_order_line_items_grid_sales_channel_grid",
  "sw_order_line_items_grid_sales_channel_grid_actions",
+ "sw_order_line_items_grid_sales_channel_grid_actions_delete",
+ "sw_order_line_items_grid_sales_channel_grid_actions_delete_label",
  "sw_order_line_items_grid_sales_channel_grid_actions_show",
  "sw_order_line_items_grid_sales_channel_grid_actions_show_label",
  "sw_order_line_items_grid_sales_channel_grid_columns",

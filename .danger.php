@@ -424,7 +424,9 @@ return (new Config())
     })
     // check for the testsuite name containing "core" as we have split the core integration tests into multiple suites
     ->useRule(function (Context $context): void {
-        $addedTests = $context->platform->pullRequest->getFiles()
+        $pullRequestFiles = $context->platform->pullRequest->getFiles();
+
+        $addedTests = $pullRequestFiles
             ->filter(fn (File $file) => in_array($file->status, [File::STATUS_ADDED, File::STATUS_MODIFIED, File::STATUS_RENAMED], true))
             ->matches('tests/integration/Core/Framework/**Test.php');
 
@@ -432,15 +434,26 @@ return (new Config())
             return;
         }
 
-        $nodes = $missing = [];
-        $phpUnitConfig = __DIR__ . '/phpunit.xml.dist';
-        $root = 'tests/integration/Core/Framework';
-
         $dom = new DOMDocument();
-        if ($dom->load($phpUnitConfig) === false) {
+        $phpUnitConfigFromPullRequest = $pullRequestFiles
+            ->matches('**/phpunit.xml.dist')
+            ->first();
+
+        if (!$phpUnitConfigFromPullRequest) {
+            $phpUnitConfig = __DIR__ . '/phpunit.xml.dist';
+            $domLoad = $dom->load($phpUnitConfig);
+        } else {
+            $phpUnitConfig = $phpUnitConfigFromPullRequest->name();
+            $domLoad = $dom->loadXML($phpUnitConfigFromPullRequest->getContent());
+        }
+
+        if ($domLoad === false) {
             $context->failure(sprintf('Was not able to load phpunit config file %s. Please check configuration.', $phpUnitConfig));
             return;
         }
+
+        $nodes = $missing = [];
+        $root = 'tests/integration/Core/Framework';
 
         $xpath = new DOMXPath($dom);
         foreach ($xpath->query('//testsuite[contains(@name, "core-framework")]/directory | //testsuite[contains(@name, "core")]/file') as $dirDomElement) {

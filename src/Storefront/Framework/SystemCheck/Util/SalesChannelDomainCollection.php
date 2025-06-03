@@ -26,4 +26,9 @@ class SalesChannelDomainCollection extends Collection
 
         parent::__construct($indexed);
     }
+
+    protected function getExpectedClass(): string
+    {
+        return SalesChannelDomain::class;
+    }
 }

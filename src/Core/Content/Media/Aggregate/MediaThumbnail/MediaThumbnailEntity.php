@@ -20,7 +20,7 @@ class MediaThumbnailEntity extends Entity
 
     protected int $height;
 
-    protected string $url = '';
+    protected ?string $url = '';
 
     protected string $mediaId;
 
@@ -48,7 +48,7 @@ class MediaThumbnailEntity extends Entity
 
     public function getUrl(): string
     {
-        return $this->url;
+        return $this->url ?? '';
     }
 
     public function setUrl(string $url): void

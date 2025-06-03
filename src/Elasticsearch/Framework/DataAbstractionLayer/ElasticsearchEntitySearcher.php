@@ -87,7 +87,7 @@ class ElasticsearchEntitySearcher implements EntitySearcherInterface
                 $definition,
                 $criteria,
                 $context,
-                $response
+                $response,
             ));
 
             $result->addState(self::RESULT_STATE);

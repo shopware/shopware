@@ -26,7 +26,7 @@ class ElasticsearchEntitySearcherSearchedEvent extends Event implements Shopware
         public readonly EntityDefinition $definition,
         public readonly Criteria $criteria,
         private readonly Context $context,
-        public readonly array $response = []
+        public readonly array $response = [],
     ) {
     }
 

@@ -4,6 +4,9 @@ use Danger\Config;
 use Danger\Context;
 use Danger\Rule\Condition;
 use Danger\Struct\File;
+use Shopware\Core\DevOps\StaticAnalyze\Danger\Rules\MissingIntegrationTestInSplitSuite;
+
+require_once __DIR__ . '/vendor/autoload.php';
 
 const COMPOSER_PACKAGE_EXCEPTIONS = [
     '~' => [
@@ -422,4 +425,5 @@ return (new Config())
             }
         }
     })
+    ->useRule(new MissingIntegrationTestInSplitSuite())
 ;

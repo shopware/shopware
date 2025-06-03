@@ -28,7 +28,7 @@ class CartLoadRouteTest extends TestCase
         $cartService
             ->expects($this->once())
             ->method('load')
-            ->with('test', $this->isInstanceOf(SalesChannelContext::class))
+            ->with('test', static::isInstanceOf(SalesChannelContext::class))
             ->willThrowException(new CartTokenNotFoundException(404, 'CART_NOT_FOUND', 'cart not found'));
 
         $cartService
@@ -40,7 +40,7 @@ class CartLoadRouteTest extends TestCase
         $cartService
             ->expects($this->once())
             ->method('recalculate')
-            ->with($newCart, $this->isInstanceOf(SalesChannelContext::class))
+            ->with($newCart, static::isInstanceOf(SalesChannelContext::class))
             ->willReturn($calculatedCart);
 
         $salesChannelContext = $this->createMock(SalesChannelContext::class);
@@ -67,7 +67,7 @@ class CartLoadRouteTest extends TestCase
         $cartService
             ->expects($this->once())
             ->method('load')
-            ->with('test', $this->isInstanceOf(SalesChannelContext::class))
+            ->with('test', static::isInstanceOf(SalesChannelContext::class))
             ->willReturn($existingCart);
 
         $cartService
@@ -77,7 +77,7 @@ class CartLoadRouteTest extends TestCase
         $cartService
             ->expects($this->once())
             ->method('recalculate')
-            ->with($existingCart, $this->isInstanceOf(SalesChannelContext::class))
+            ->with($existingCart, static::isInstanceOf(SalesChannelContext::class))
             ->willReturn($recalculatedCart);
 
         $salesChannelContext = $this->createMock(SalesChannelContext::class);

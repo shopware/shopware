@@ -59,12 +59,6 @@ class CartService implements ResetInterface
 
     /**
      * Loads the cart by token and context by using a router loader.
-     * 
-     * @param string $token
-     * @param SalesChannelContext $context
-     * @param bool $caching
-     * @param bool $taxed
-     * @return Cart
      */
     public function getCart(
         string $token,
@@ -87,10 +81,6 @@ class CartService implements ResetInterface
 
     /**
      * Loads the cart by token and context
-     * @param string $token
-     * @param SalesChannelContext $context
-     * @param bool $caching
-     * @return Cart
      */
     public function load(
         string $token,

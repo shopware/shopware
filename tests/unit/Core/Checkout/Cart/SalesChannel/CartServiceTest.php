@@ -180,7 +180,7 @@ class CartServiceTest extends TestCase
         $persister = $this->createMock(AbstractCartPersister::class);
         $persister->expects($this->once())
             ->method('load')
-            ->with($token, $this->isInstanceOf(SalesChannelContext::class))
+            ->with($token, static::isInstanceOf(SalesChannelContext::class))
             ->willReturn($cart);
 
         $context = $this->createMock(SalesChannelContext::class);
@@ -200,7 +200,7 @@ class CartServiceTest extends TestCase
 
         $result = $service->load($token, $context, false);
 
-        $this->assertSame($cart, $result);
+        static::assertSame($cart, $result);
     }
 
     public function testLoadReturnsCachedCart(): void
@@ -231,6 +231,6 @@ class CartServiceTest extends TestCase
 
         $result = $service->load($token, $context, true);
 
-        $this->assertSame($cart, $result);
+        static::assertSame($cart, $result);
     }
 }

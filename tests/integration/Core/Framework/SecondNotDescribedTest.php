@@ -9,7 +9,7 @@ use Shopware\Core\Framework\Log\Package;
  * @internal
  */
 #[Package('framework')]
-class NotDescribedTest extends TestCase
+class SecondNotDescribedTest extends TestCase
 {
     public function testNothing(): void
     {

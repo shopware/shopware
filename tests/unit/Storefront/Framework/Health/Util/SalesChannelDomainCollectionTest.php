@@ -23,9 +23,11 @@ class SalesChannelDomainCollectionTest extends TestCase
         static::assertCount(2, $collection);
 
         $domain = $collection->get('test-sales-channel-id-1');
+        static::assertInstanceOf(SalesChannelDomain::class, $domain);
         static::assertSame('http://localhost:8000', $domain->url);
 
         $domain = $collection->get('test-sales-channel-id-2');
+        static::assertInstanceOf(SalesChannelDomain::class, $domain);
         static::assertSame('http://localhost:8001', $domain->url);
     }
 }

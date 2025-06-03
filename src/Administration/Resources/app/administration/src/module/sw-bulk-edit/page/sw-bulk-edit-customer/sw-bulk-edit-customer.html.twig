@@ -80,7 +80,7 @@
 
             {% block sw_bulk_edit_customer_custom_field_card %}
             <mt-card
-                v-show="customFieldSets.length > 0"
+                v-if="customFieldSets.length > 0"
                 class="sw-bulk-edit-customer-base__custom_fields"
                 position-identifier="sw-bulk-edit-customer-custom-field"
                 :title="$tc('sw-bulk-edit.customer.customFields.cardTitle')"

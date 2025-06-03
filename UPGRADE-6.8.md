@@ -153,6 +153,14 @@ Get the first order delivery with `primaryOrderDelivery` so you should replace m
 ## Use `primaryOrderTransaction`
 Get the latest order transaction with `primaryOrderTransaction` so you should replace methods like `transaction.last()`
 
+## Only rules relevant for product prices are considered in the `sw-cache-hash`
+The cookie `sw-cache-hash` will only contain rule ids which are used to alter product prices, in contrast to previous all active rules, which might only be used for a promotion. If the content changes depending on a rule, the corresponding rule ids should be added using the `Shopware\Core\Framework\Adapter\Cache\Event\HttpCacheCookieEvent`.
+
+You can also add custom rule areas using the flag `Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\RuleAreas` on a rule association.
+
+## Removed unused `RuleAreas` constants
+The constants `Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\RuleAreas::{CATEGORY_AREA,LANDING_PAGE_AREA}` are not used anymore and therefore are removed
+
 </details>
 
 # Administration

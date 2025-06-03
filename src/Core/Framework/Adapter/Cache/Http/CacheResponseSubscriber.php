@@ -8,6 +8,8 @@ use Shopware\Core\Checkout\Customer\Event\CustomerLoginEvent;
 use Shopware\Core\Checkout\Customer\Event\CustomerLogoutEvent;
 use Shopware\Core\Framework\Adapter\Cache\CacheStateSubscriber;
 use Shopware\Core\Framework\Adapter\Cache\Event\HttpCacheCookieEvent;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\RuleAreas;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Routing\MaintenanceModeResolver;
 use Shopware\Core\Framework\Util\Hasher;
@@ -210,8 +212,14 @@ class CacheResponseSubscriber implements EventSubscriberInterface
 
     private function buildCacheHash(Request $request, SalesChannelContext $context): string
     {
+        if (Feature::isActive('v6.8.0.0') || Feature::isActive('PERFORMANCE_TWEAKS')) {
+            $ruleIds = $context->getRuleIdsByAreas([RuleAreas::PRODUCT_AREA]);
+        } else {
+            $ruleIds = $context->getRuleIds();
+        }
+
         $parts = [
-            HttpCacheCookieEvent::RULE_IDS => $context->getRuleIds(),
+            HttpCacheCookieEvent::RULE_IDS => $ruleIds,
             HttpCacheCookieEvent::VERSION_ID => $context->getVersionId(),
             HttpCacheCookieEvent::CURRENCY_ID => $context->getCurrencyId(),
             HttpCacheCookieEvent::TAX_STATE => $context->getTaxState(),

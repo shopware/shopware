@@ -124,7 +124,6 @@
                     >
                         <mt-switch
                             v-model="isInherited"
-                            id="inheritCrossSellingSwitch"
                             class="sw-product-detail-cross-selling__inherit-switch"
                             :disabled="!acl.can('product.editor') || !isSystemDefaultLanguage"
                         />
@@ -137,10 +136,8 @@
                             @inheritance-remove="removeInheritance"
                         />
 
-                        <label
-                            for="inheritCrossSellingSwitch"
-                            class="sw-product-detail-cross-selling__inheritance-label"
-                        >
+                        <!-- eslint-disable-next-line vuejs-accessibility/label-has-for -->
+                        <label class="sw-product-detail-cross-selling__inheritance-label">
                             {{ $tc('sw-product.crossselling.inheritSwitchLabel') }}
                         </label>
                     </div>

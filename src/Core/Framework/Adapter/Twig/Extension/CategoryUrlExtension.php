@@ -3,6 +3,7 @@
 namespace Shopware\Core\Framework\Adapter\Twig\Extension;
 
 use Shopware\Core\Content\Category\CategoryEntity;
+use Shopware\Core\Content\Category\SalesChannel\SalesChannelCategoryEntity;
 use Shopware\Core\Content\Category\Service\AbstractCategoryUrlGenerator;
 use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
@@ -47,6 +48,10 @@ class CategoryUrlExtension extends AbstractExtension
             'v6.8.0.0',
             'The "category_url" function is deprecated and will be removed in v6.8.0.0. Use SalesChannelCategoryEntity::getSeoUrl() instead.'
         );
+
+        if ($category instanceof SalesChannelCategoryEntity) {
+            return $category->getSeoUrl();
+        }
 
         $salesChannel = null;
         if (\array_key_exists('context', $twigContext) && $twigContext['context'] instanceof SalesChannelContext) {

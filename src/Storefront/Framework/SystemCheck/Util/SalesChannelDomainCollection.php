@@ -26,12 +26,4 @@ class SalesChannelDomainCollection extends Collection
 
         parent::__construct($indexed);
     }
-
-    /**
-     * @return array<string, SalesChannelDomain>
-     */
-    public function getElements(): array
-    {
-        return $this->elements;
-    }
 }

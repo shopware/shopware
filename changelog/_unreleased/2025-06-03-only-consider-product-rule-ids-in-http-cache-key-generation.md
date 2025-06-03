@@ -15,4 +15,4 @@ The cookie `sw-cache-hash` will only contain rule ids which are used to alter pr
 You can also add custom rule areas using the flag `Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\RuleAreas` on a rule association.
 
 ## Removed unused `RuleAreas` constants
-The constants `Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\RuleAreas::{CATEGORY_AREA,LANDING_PAGE_AREA}` are not used anymore and therefore are removed
+The constants `Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\RuleAreas::{CATEGORY_AREA,LANDING_PAGE_AREA}` are not used anymore and will therefore be removed

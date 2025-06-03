@@ -464,7 +464,7 @@ return (new Config())
                 return str_contains($filePath, $item);
             });
             if (empty($matches)) {
-                $missing[] = '<pre><' . $nodeType . '>'. $filePath .'</' . $nodeType . '></pre>';
+                $missing[] = htmlentities('<' . $nodeType . '>'. $filePath .'</' . $nodeType . '>');
             }
         }
 

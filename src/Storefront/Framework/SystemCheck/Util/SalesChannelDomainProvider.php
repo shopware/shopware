@@ -4,7 +4,6 @@ namespace Shopware\Storefront\Framework\SystemCheck\Util;
 
 use Doctrine\DBAL\Connection;
 use Shopware\Core\Defaults;
-use Shopware\Core\Framework\DataAbstractionLayer\Doctrine\FetchModeHelper;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 
@@ -19,18 +18,16 @@ class SalesChannelDomainProvider extends AbstractSalesChannelDomainProvider
     ) {
     }
 
-    /**
-     * @return array<string, string>
-     */
-    public function fetchSalesChannelDomains(): array
+    public function fetchSalesChannelDomains(): SalesChannelDomainCollection
     {
         $sql = <<<'SQL'
-            SELECT `sales_channel`.`id`,
-                   `sales_channel_domain`.`url`
+            SELECT LOWER(HEX(`sales_channel`.`id`)) AS `sales_channel_id`,
+                   `sales_channel_domain`.`url` AS `url`
             FROM `sales_channel_domain`
             INNER JOIN `sales_channel` ON `sales_channel_domain`.`sales_channel_id` = `sales_channel`.`id`
             WHERE `sales_channel`.`type_id` = :typeId
             AND `sales_channel`.`active` = :active
+            GROUP BY `sales_channel`.`id`
         SQL;
 
         $result = $this->connection->fetchAllAssociative(
@@ -38,6 +35,11 @@ class SalesChannelDomainProvider extends AbstractSalesChannelDomainProvider
             ['typeId' => Uuid::fromHexToBytes(Defaults::SALES_CHANNEL_TYPE_STOREFRONT), 'active' => 1]
         );
 
-        return FetchModeHelper::keyPair($result);
+        $collection = array_map(
+            fn ($domain) => SalesChannelDomain::create($domain['sales_channel_id'], $domain['url']),
+            $result
+        );
+
+        return new SalesChannelDomainCollection($collection);
     }
 }

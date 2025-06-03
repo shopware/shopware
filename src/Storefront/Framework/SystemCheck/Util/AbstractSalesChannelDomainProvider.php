@@ -10,8 +10,5 @@ use Shopware\Core\Framework\Log\Package;
 #[Package('framework')]
 abstract class AbstractSalesChannelDomainProvider
 {
-    /**
-     * @return array<string, string>
-     */
-    abstract public function fetchSalesChannelDomains(): array;
+    abstract public function fetchSalesChannelDomains(): SalesChannelDomainCollection;
 }

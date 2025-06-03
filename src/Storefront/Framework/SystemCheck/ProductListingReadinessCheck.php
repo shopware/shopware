@@ -11,6 +11,7 @@ use Shopware\Core\Framework\SystemCheck\Check\Category;
 use Shopware\Core\Framework\SystemCheck\Check\Result;
 use Shopware\Core\Framework\SystemCheck\Check\Status;
 use Shopware\Core\Framework\SystemCheck\Check\SystemCheckExecutionContext;
+use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Storefront\Framework\SystemCheck\Util\AbstractSalesChannelDomainProvider;
 use Shopware\Storefront\Framework\SystemCheck\Util\SalesChannelDomainUtil;
 use Symfony\Component\HttpFoundation\Request;
@@ -62,7 +63,7 @@ class ProductListingReadinessCheck extends BaseCheck
     private function doRun(): Result
     {
         $domains = $this->domainProvider->fetchSalesChannelDomains();
-        $salesChannelIds = array_keys($domains);
+        $salesChannelIds = $domains->getKeys();
         $navigationIds = $salesChannelIds ? $this->fetchNavigationIds($salesChannelIds) : null;
 
         $extra = [];
@@ -74,7 +75,7 @@ class ProductListingReadinessCheck extends BaseCheck
                 continue;
             }
 
-            $url = $this->util->generateDomainUrl($domain, self::LISTING_PAGE, [
+            $url = $this->util->generateDomainUrl($domain->url, self::LISTING_PAGE, [
                 'navigationId' => $navigationId,
             ]);
 
@@ -114,7 +115,7 @@ class ProductListingReadinessCheck extends BaseCheck
     private function fetchNavigationIds(array $salesChannelIds): array
     {
         $sql = <<<'SQL'
-            SELECT `sales_channel`.`id` AS `sales_channel_id`,
+            SELECT LOWER(HEX(`sales_channel`.`id`)) AS `sales_channel_id`,
                    LOWER(HEX(COALESCE(`category_child`.`id`, `category_root`.`id`))) AS `category_id`
             FROM `category` `category_root`
             LEFT JOIN `category` `category_child`
@@ -143,7 +144,7 @@ class ProductListingReadinessCheck extends BaseCheck
 
         $result = $this->connection->fetchAllAssociative(
             $sql,
-            ['salesChannelIds' => $salesChannelIds],
+            ['salesChannelIds' => Uuid::fromHexToBytesList($salesChannelIds)],
             ['salesChannelIds' => ArrayParameterType::BINARY]
         );
 

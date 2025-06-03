@@ -11,6 +11,7 @@ use Shopware\Core\Framework\SystemCheck\Check\Category;
 use Shopware\Core\Framework\SystemCheck\Check\Result;
 use Shopware\Core\Framework\SystemCheck\Check\Status;
 use Shopware\Core\Framework\SystemCheck\Check\SystemCheckExecutionContext;
+use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Storefront\Framework\SystemCheck\Util\AbstractSalesChannelDomainProvider;
 use Shopware\Storefront\Framework\SystemCheck\Util\SalesChannelDomainUtil;
 use Symfony\Component\HttpFoundation\Request;
@@ -62,7 +63,7 @@ class ProductDetailReadinessCheck extends BaseCheck
     private function doRun(): Result
     {
         $domains = $this->domainProvider->fetchSalesChannelDomains();
-        $salesChannelIds = array_keys($domains);
+        $salesChannelIds = $domains->getKeys();
         $productIds = $salesChannelIds ? $this->fetchProductIds($salesChannelIds) : null;
 
         $extra = [];
@@ -74,7 +75,7 @@ class ProductDetailReadinessCheck extends BaseCheck
                 continue;
             }
 
-            $url = $this->util->generateDomainUrl($domain, self::DETAIL_PAGE, [
+            $url = $this->util->generateDomainUrl($domain->url, self::DETAIL_PAGE, [
                 'productId' => $productId,
             ]);
 
@@ -110,7 +111,7 @@ class ProductDetailReadinessCheck extends BaseCheck
     private function fetchProductIds(array $salesChannelIds): array
     {
         $sql = <<<'SQL'
-            SELECT `product_visibility`.`sales_channel_id`,
+            SELECT LOWER(HEX(`product_visibility`.`sales_channel_id`)),
                    LOWER(HEX(`product`.`id`))
             FROM `product`
             INNER JOIN `product_visibility` ON `product`.`id` = `product_visibility`.`product_id`
@@ -122,7 +123,7 @@ class ProductDetailReadinessCheck extends BaseCheck
 
         $result = $this->connection->fetchAllAssociative(
             $sql,
-            ['salesChannelIds' => $salesChannelIds],
+            ['salesChannelIds' => Uuid::fromHexToBytesList($salesChannelIds)],
             ['salesChannelIds' => ArrayParameterType::BINARY]
         );
 

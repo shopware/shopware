@@ -64,7 +64,7 @@ class SalesChannelsReadinessCheck extends BaseCheck
         $extra = [];
         $requestStatus = [];
         foreach ($domains as $domain) {
-            $url = $this->util->generateDomainUrl($domain, self::INDEX_PAGE);
+            $url = $this->util->generateDomainUrl($domain->url, self::INDEX_PAGE);
 
             $request = Request::create($url);
             $result = $this->util->handleRequest($request);

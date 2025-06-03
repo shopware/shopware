@@ -226,11 +226,11 @@ export default {
          * To prevent losing unsaved changes on reloading the order,
          * we need to save the **versioned** order beforehand.
          */
-        async saveAndReload() {
+        async saveAndReload(afterSaveFn = null) {
             if (this.swOrderDetailOnSaveAndReload) {
-                await this.swOrderDetailOnSaveAndReload();
+                await this.swOrderDetailOnSaveAndReload(afterSaveFn);
             } else {
-                this.$emit('save-and-reload');
+                this.$emit('save-and-reload', afterSaveFn);
             }
         },
 
@@ -302,68 +302,38 @@ export default {
         },
 
         async applyAutomaticPromotions() {
-            await this.saveAndReload();
-
-            return this.orderService
+            await this.saveAndReload(() => this.orderService
                 .applyAutomaticPromotions(this.order.id, this.order.versionId)
                 .then(this.handlePromotionResponse.bind(this))
-                .catch(this.handleError.bind(this));
+                .catch(this.handleError.bind(this)));
         },
 
         async onSubmitCode(code) {
             this.emitLoadingChange(true);
 
-            await this.saveAndReload();
-
-            return this.orderService
+            return this.saveAndReload(() => this.orderService
                 .addPromotionToOrder(this.order.id, this.order.versionId, code)
                 .then(this.handlePromotionResponse.bind(this))
-                .catch(this.handleError.bind(this));
+                .catch(this.handleError.bind(this)));
         },
 
         handlePromotionResponse(response) {
             this.emitEntityData();
             Shopware.Store.get('swOrderDetail').setLoading(['recalculation', false]);
 
-            if (!response?.data?.errors) {
+            if (typeof response?.data?.errors !== 'object') {
                 return;
             }
 
             const [
                 errors,
                 promotionErrors,
-            ] = response.data.errors.reduce(
-                (
-                    [
-                        general,
-                        promotion,
-                    ],
-                    e,
-                ) => {
-                    return [
-                        'promotion-discount-deleted',
-                        'promotion-discount-added',
-                    ].includes(e.messageKey)
-                        ? [
-                              general,
-                              [
-                                  ...promotion,
-                                  e,
-                              ],
-                          ]
-                        : [
-                              [
-                                  ...general,
-                                  e,
-                              ],
-                              promotion,
-                          ];
-                },
-                [
-                    [],
-                    [],
-                ],
-            );
+            ] = (Array.isArray(response.data.errors) ? response.data.errors : Object.values(response.data.errors))
+                .reduce(([general, promotion], e) => {
+                    return ['promotion-discount-deleted', 'promotion-discount-added'].includes(e.messageKey)
+                        ? [general, [...promotion, e]]
+                        : [[...general, e], promotion];
+                }, [[], []]);
 
             this.promotionUpdates = promotionErrors;
             response.data.errors = errors;

@@ -432,9 +432,10 @@ return (new Config())
             return;
         }
 
-        $missingDescriptions = [];
-        $descriptions = [];
+        $nodes = $missing = [];
         $phpUnitConfig = __DIR__ . '/phpunit.xml.dist';
+        $root = 'tests/integration/Core/Framework';
+
         $dom = new DOMDocument();
         if ($dom->load($phpUnitConfig) === false) {
             $context->failure(sprintf('Was not able to load phpunit config file %s. Please check configuration.', $phpUnitConfig));
@@ -442,27 +443,35 @@ return (new Config())
         }
 
         $xpath = new DOMXPath($dom);
-        foreach ($xpath->query('//testsuite[contains(@name, "core")]') as $dirDomElement) {
-            $descriptions[] = $dirDomElement->nodeValue;
+        foreach ($xpath->query('//testsuite[contains(@name, "core-framework")]/directory | //testsuite[contains(@name, "core")]/file') as $dirDomElement) {
+            $nodes[] = $dirDomElement->nodeValue;
         }
 
         foreach ($addedTests as $file) {
-            $fileLocation = dirname($file->name);
-            $descriptionType = 'directory';
-            if ($fileLocation === 'tests/integration/Core/Framework') {
-                $fileLocation = $file->name;
-                $descriptionType = 'file';
+            $filePath = dirname($file->name);
+
+            if ($filePath === $root) {
+                $nodeType = 'file';
+                $filePath = $file->name;
+            } else {
+                $nodeType = 'directory';
+                $filePath = str_replace($root .'/', '', $filePath);
+                $filePath = explode('/', $filePath);
+                $filePath = $root .'/'. current($filePath);
             }
 
-            if (!in_array($fileLocation, $descriptions, true)) {
-                $missingDescriptions[] = '<' .$descriptionType. '>'. $fileLocation .'</' .$descriptionType. '>';
+            $matches = array_filter($nodes, function ($item) use ($filePath) {
+                return str_contains($filePath, $item);
+            });
+            if (empty($matches)) {
+                $missing[] = '<' . $nodeType . '>'. $filePath .'</' . $nodeType . '>';
             }
         }
 
-        if (\count($missingDescriptions) > 0) {
+        if (\count($missing) > 0) {
             $context->failure(
                 'Please add the integration test(s) within one of the core-batch testsuite of phpunit.xml.dist: <br/><br/>'
-                . implode('<br/>', array_unique($missingDescriptions))
+                . implode('<br/>', array_unique($missing))
             );
         }
     })

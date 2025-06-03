@@ -47,7 +47,7 @@ class ServiceRegistryClientTest extends TestCase
             $response = new MockResponse($response),
         ]);
 
-        $registryClient = new ServiceRegistryClient('https://www.shopware.com/services.json', $client);
+        $registryClient = new ServiceRegistryClient('https://www.shopware.com', $client);
 
         static::assertSame([], $registryClient->getAll());
         static::assertSame('https://www.shopware.com/services.json', $response->getRequestUrl());
@@ -59,7 +59,7 @@ class ServiceRegistryClientTest extends TestCase
             $response = new MockResponse('', ['http_code' => 503]),
         ]);
 
-        $registryClient = new ServiceRegistryClient('https://www.shopware.com/services.json', $client);
+        $registryClient = new ServiceRegistryClient('https://www.shopware.com', $client);
 
         static::assertSame([], $registryClient->getAll());
         static::assertSame('https://www.shopware.com/services.json', $response->getRequestUrl());
@@ -78,7 +78,7 @@ class ServiceRegistryClientTest extends TestCase
             $response = new MockResponse((string) json_encode($service)),
         ]);
 
-        $registryClient = new ServiceRegistryClient('https://www.shopware.com/services.json', $client);
+        $registryClient = new ServiceRegistryClient('https://www.shopware.com', $client);
 
         $entries = $registryClient->getAll();
 
@@ -110,7 +110,7 @@ class ServiceRegistryClientTest extends TestCase
             new MockResponse((string) json_encode($service)),
         ]);
 
-        $registryClient = new ServiceRegistryClient('https://www.shopware.com/services.json', $client);
+        $registryClient = new ServiceRegistryClient('https://www.shopware.com', $client);
 
         $entries1 = $registryClient->getAll();
         static::assertCount(2, $entries1);
@@ -145,7 +145,7 @@ class ServiceRegistryClientTest extends TestCase
             new MockResponse((string) json_encode($services2)),
         ]);
 
-        $registryClient = new ServiceRegistryClient('https://www.shopware.com/services.json', $client);
+        $registryClient = new ServiceRegistryClient('https://www.shopware.com', $client);
 
         $entries1 = $registryClient->getAll();
         static::assertCount(2, $entries1);

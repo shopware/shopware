@@ -47,7 +47,7 @@ class ServiceRegistryClient implements ResetInterface
         }
 
         try {
-            $response = $this->client->request('GET', $this->registryUrl, [
+            $response = $this->client->request('GET', $this->registryUrl . '/services.json', [
                 'headers' => [
                     'Accept' => 'application/json',
                 ],

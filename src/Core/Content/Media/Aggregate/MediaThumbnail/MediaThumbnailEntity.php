@@ -46,11 +46,21 @@ class MediaThumbnailEntity extends Entity
         $this->height = $height;
     }
 
+    /**
+     * @deprecated tag:v6.8.0 - reason:return-type-change - return type will be nullable and condition will be removed
+     */
     public function getUrl(): string
     {
-        return $this->url ?? '';
+        if ($this->url === null) {
+            return '';
+        }
+
+        return $this->url;
     }
 
+    /**
+     * @deprecated tag:v6.8.0 - reason:parameter-type-extension - parameter $url will be nullable
+     */
     public function setUrl(string $url): void
     {
         $this->url = $url;

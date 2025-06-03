@@ -436,14 +436,14 @@ return (new Config())
 
         $dom = new DOMDocument();
         $phpUnitConfigFromPullRequest = $pullRequestFiles
-            ->matches('**/phpunit.xml.dist')
+            ->matches('phpunit.xml.dist')
             ->first();
 
         if (!$phpUnitConfigFromPullRequest) {
             $phpUnitConfig = __DIR__ . '/phpunit.xml.dist';
             $domLoad = $dom->load($phpUnitConfig);
         } else {
-            $phpUnitConfig = $phpUnitConfigFromPullRequest->name();
+            $phpUnitConfig = $phpUnitConfigFromPullRequest->name;
             $domLoad = $dom->loadXML($phpUnitConfigFromPullRequest->getContent());
         }
 

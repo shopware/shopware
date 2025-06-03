@@ -51,13 +51,13 @@ class ProductCategoryDenormalizerTest extends TestCase
         ], $this->context);
 
         static::assertSame($categoryIds, $this->getProductCategoryList($productFixture['testable-product']));
-        static::assertEquals(
+        static::assertSame(
             \count($categoryIds),
             $this->getCountRowsInProductCategoryTree($productFixture['testable-product'], $categoryIds)
         );
 
         static::assertSame($categoryIds, $this->getProductCategoryList($productFixture['variant-testable-product']));
-        static::assertEquals(
+        static::assertSame(
             \count($categoryIds),
             $this->getCountRowsInProductCategoryTree($productFixture['variant-testable-product'], $categoryIds)
         );
@@ -129,7 +129,7 @@ class ProductCategoryDenormalizerTest extends TestCase
         $products[$name] = $product['id'];
         $products['variant-testable-product'] = $product['children'][0]['id'];
 
-        static::assertEquals(
+        static::assertSame(
             0,
             $this->getCountRowsInProductCategoryTree($products['variant-testable-product'], $categories)
         );

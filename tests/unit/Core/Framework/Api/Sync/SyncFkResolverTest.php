@@ -72,7 +72,7 @@ class SyncFkResolverTest extends TestCase
         ];
 
         static::assertCount(1, $resolved);
-        static::assertEquals($expected, $resolved[0]);
+        static::assertSame($expected, $resolved[0]);
     }
 
     /**
@@ -214,7 +214,7 @@ class SyncFkResolverTest extends TestCase
 
         $resolved = $resolver->resolve('ops-1', 'product', [$payload]);
 
-        static::assertEquals([['taxId' => null]], $resolved);
+        static::assertSame([['taxId' => null]], $resolved);
     }
 }
 

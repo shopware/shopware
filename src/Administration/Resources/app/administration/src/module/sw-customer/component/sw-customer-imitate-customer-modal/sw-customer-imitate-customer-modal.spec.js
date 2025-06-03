@@ -17,7 +17,9 @@ responses.addResponse({
                     id: 'sales-channel-domain-id',
                     salesChannelId: 'sales-channel-id',
                     salesChannel: {
-                        name: 'Test sales channel',
+                        translated: {
+                            name: 'Test sales channel',
+                        },
                     },
                     url: 'http://localhost:8000',
                 },

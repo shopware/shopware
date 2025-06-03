@@ -424,6 +424,7 @@
                         v-model:value="gte"
                         size="medium"
                         :disabled="disabled"
+                        :step="1"
                     />
                 </sw-arrow-field>
                 {% endblock %}
@@ -435,6 +436,7 @@
                     v-model:value="lte"
                     size="medium"
                     :disabled="disabled"
+                    :step="1"
                 />
                 {% endblock %}
             </template>
@@ -447,6 +449,7 @@
                     v-model:value="currentParameter"
                     size="medium"
                     :disabled="disabled"
+                    :step="1"
                 />
                 {% endblock %}
             </template>
@@ -506,6 +509,7 @@
                 v-model:value="stringValue"
                 size="medium"
                 :disabled="disabled"
+                :step="1"
             />
             {% endblock %}
         </template>

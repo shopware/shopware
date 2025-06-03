@@ -17,7 +17,7 @@ class AwsS3v3FactoryTest extends TestCase
 {
     public function testGetType(): void
     {
-        static::assertEquals('amazon-s3', (new AwsS3v3Factory())->getType());
+        static::assertSame('amazon-s3', (new AwsS3v3Factory())->getType());
     }
 
     public function testCreate(): void

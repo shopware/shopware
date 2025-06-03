@@ -21,6 +21,6 @@ class StockUpdateFilterProviderTest extends TestCase
 
         $provider = new StockUpdateFilterProvider([$filter]);
 
-        static::assertEquals(['id3'], $provider->filterProductIdsForStockUpdates($ids, Context::createDefaultContext()));
+        static::assertSame(['id3'], $provider->filterProductIdsForStockUpdates($ids, Context::createDefaultContext()));
     }
 }

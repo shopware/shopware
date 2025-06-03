@@ -55,7 +55,7 @@ class ParentChildTest extends TestCase
         $first = $e->getExceptions()[0];
 
         static::assertInstanceOf(ExpectedArrayException::class, $first);
-        static::assertEquals('/0/children', $first->getPath());
+        static::assertSame('/0/children', $first->getPath());
     }
 
     public function testICanWriteChildren(): void
@@ -125,7 +125,7 @@ class ParentChildTest extends TestCase
             )
         );
 
-        static::assertEquals(
+        static::assertSame(
             Uuid::fromHexToBytes($parent),
             $this->connection->fetchOne(
                 'SELECT parent_id FROM category WHERE id = :id',
@@ -133,7 +133,7 @@ class ParentChildTest extends TestCase
             )
         );
 
-        static::assertEquals(
+        static::assertSame(
             Uuid::fromHexToBytes($child1),
             $this->connection->fetchOne(
                 'SELECT parent_id FROM category WHERE id = :id',
@@ -141,7 +141,7 @@ class ParentChildTest extends TestCase
             )
         );
 
-        static::assertEquals(
+        static::assertSame(
             Uuid::fromHexToBytes($child2),
             $this->connection->fetchOne(
                 'SELECT parent_id FROM category WHERE id = :id',
@@ -174,7 +174,7 @@ class ParentChildTest extends TestCase
                 ['id' => Uuid::fromHexToBytes($parent)]
             )
         );
-        static::assertEquals(
+        static::assertSame(
             Uuid::fromHexToBytes($parent),
             $this->connection->fetchOne(
                 'SELECT parent_id FROM category WHERE id = :id',
@@ -212,14 +212,14 @@ class ParentChildTest extends TestCase
                 ['id' => Uuid::fromHexToBytes($parent)]
             )
         );
-        static::assertEquals(
+        static::assertSame(
             Uuid::fromHexToBytes($parent),
             $this->connection->fetchOne(
                 'SELECT parent_id FROM category WHERE id = :id',
                 ['id' => Uuid::fromHexToBytes($child1)]
             )
         );
-        static::assertEquals(
+        static::assertSame(
             Uuid::fromHexToBytes($child1),
             $this->connection->fetchOne(
                 'SELECT parent_id FROM category WHERE id = :id',

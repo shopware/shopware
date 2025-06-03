@@ -121,9 +121,9 @@ class DocumentControllerTest extends TestCase
 
         $response = $browser->getResponse();
 
-        static::assertEquals(200, $response->getStatusCode());
-        static::assertEquals($expectedFileContent, $response->getContent());
-        static::assertEquals($expectedContentType, $response->headers->get('content-type'));
+        static::assertSame(200, $response->getStatusCode());
+        static::assertSame($expectedFileContent, $response->getContent());
+        static::assertSame($expectedContentType, $response->headers->get('content-type'));
 
         // Customer are unable to view the document without valid deepLinkCode
         $browser->request(
@@ -132,7 +132,7 @@ class DocumentControllerTest extends TestCase
             $this->tokenize('frontend.account.order.single.document', [])
         );
 
-        static::assertEquals(404, $browser->getResponse()->getStatusCode());
+        static::assertSame(404, $browser->getResponse()->getStatusCode());
     }
 
     private function login(string $email): KernelBrowser

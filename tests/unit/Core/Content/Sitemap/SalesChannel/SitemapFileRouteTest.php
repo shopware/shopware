@@ -35,6 +35,6 @@ class SitemapFileRouteTest extends TestCase
 
         $response = $route->getSitemapFile($request, $context, $filePath);
 
-        static::assertEquals('Hello World!', $response->getContent());
+        static::assertSame('Hello World!', $response->getContent());
     }
 }

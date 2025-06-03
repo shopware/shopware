@@ -51,8 +51,8 @@ class IntegrationRepositoryTest extends TestCase
             ->first();
 
         static::assertNotNull($entity);
-        static::assertEquals(1, $entities->count());
-        static::assertEquals('My app', $entity->getLabel());
+        static::assertCount(1, $entities);
+        static::assertSame('My app', $entity->getLabel());
     }
 
     public function testCreationAdminDefaultsToFalse(): void
@@ -78,8 +78,8 @@ class IntegrationRepositoryTest extends TestCase
             ->first();
 
         static::assertNotNull($entity);
-        static::assertEquals(1, $entities->count());
-        static::assertEquals('My app', $entity->getLabel());
+        static::assertCount(1, $entities);
+        static::assertSame('My app', $entity->getLabel());
         static::assertFalse($entity->getAdmin());
     }
 
@@ -107,8 +107,8 @@ class IntegrationRepositoryTest extends TestCase
             ->first();
 
         static::assertNotNull($entity);
-        static::assertEquals(1, $entities->count());
-        static::assertEquals('My app', $entity->getLabel());
+        static::assertCount(1, $entities);
+        static::assertSame('My app', $entity->getLabel());
         static::assertTrue($entity->getAdmin());
     }
 }

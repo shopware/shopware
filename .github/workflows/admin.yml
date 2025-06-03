@@ -38,6 +38,9 @@ jobs:
       - name: Lint scss
         working-directory: src/Administration/Resources/app/administration
         run: npm run lint:scss
+      - name: Format
+        working-directory: src/Administration/Resources/app/administration
+        run: npm run format
 
   admin:
     runs-on: ubuntu-24.04

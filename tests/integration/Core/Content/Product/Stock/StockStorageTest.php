@@ -422,11 +422,11 @@ class StockStorageTest extends TestCase
         static::getContainer()->get('order.repository')
             ->createVersion($orderId, $context);
 
-        $count = static::getContainer()
+        $count = (int) static::getContainer()
             ->get(Connection::class)
             ->fetchOne('SELECT COUNT(id) FROM `order` WHERE id = :id', ['id' => Uuid::fromHexToBytes($orderId)]);
 
-        static::assertEquals(3, $count);
+        static::assertSame(3, $count);
 
         $product = $this->productRepository->search(new Criteria([$id]), $context)->get($id);
 

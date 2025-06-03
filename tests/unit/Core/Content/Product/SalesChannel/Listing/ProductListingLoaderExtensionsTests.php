@@ -33,7 +33,7 @@ class ProductListingLoaderExtensionsTests extends TestCase
 {
     public function testResolveListingIdsExtensions(): void
     {
-        // @phpstan-ignore-next-line
+        /** @phpstan-ignore shopware.mockingSimpleObjects (for test purpose) */
         $client = $this->createMock(Client::class);
         $client->expects($this->once())
             ->method('get')
@@ -59,12 +59,12 @@ class ProductListingLoaderExtensionsTests extends TestCase
 
         static::assertInstanceOf(IdSearchResult::class, $result);
 
-        static::assertEquals(['plugin-id'], $result->getIds());
+        static::assertSame(['plugin-id'], $result->getIds());
     }
 
     public function testResolveListingExtension(): void
     {
-        // @phpstan-ignore-next-line
+        /** @phpstan-ignore shopware.mockingSimpleObjects (for test purpose) */
         $client = $this->createMock(Client::class);
         $client->expects($this->once())
             ->method('get')
@@ -103,6 +103,6 @@ class ProductListingLoaderExtensionsTests extends TestCase
 
         static::assertInstanceOf(EntitySearchResult::class, $result);
 
-        static::assertEquals(['plugin-id'], array_values($result->getIds()));
+        static::assertSame(['plugin-id'], array_values($result->getIds()));
     }
 }

@@ -102,7 +102,7 @@ class AppServiceTest extends TestCase
         static::assertInstanceOf(AppEntity::class, $first);
         static::assertSame('test', $first->getName());
         static::assertSame('1.0.0', $first->getVersion());
-        static::assertNotEquals('test', $first->getTranslation('label'));
+        static::assertNotSame('test', $first->getTranslation('label'));
 
         $this->assertDefaultActionButtons();
     }

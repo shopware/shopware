@@ -64,7 +64,7 @@ export default {
         },
 
         contextMenuEditSnippet() {
-            return this.acl.can('snippet.editor') ? this.$tc('global.default.edit') : this.$tc('global.default.view');
+            return this.acl.can('snippet.editor') ? this.$t('global.default.edit') : this.$t('global.default.view');
         },
 
         dateFilter() {
@@ -79,6 +79,30 @@ export default {
                     label: file.name,
                 };
             });
+        },
+
+        snippetSetColumns() {
+            return [
+                {
+                    property: 'name',
+                    label: this.$t('sw-settings-snippet.setList.columnName'),
+                    inlineEdit: 'string',
+                },
+                {
+                    property: 'iso',
+                    label: this.$t('sw-settings-snippet.setList.columnIso'),
+                    inlineEdit: 'string',
+                },
+                {
+                    property: 'baseFile',
+                    label: this.$t('sw-settings-snippet.setList.columnBaseFile'),
+                    inlineEdit: 'string',
+                },
+                {
+                    property: 'updatedAt',
+                    label: this.$t('sw-settings-snippet.setList.columnChangedAt'),
+                },
+            ];
         },
     },
 
@@ -102,19 +126,23 @@ export default {
             });
         },
 
-        onAddSnippetSet() {
+        async onAddSnippetSet() {
             const newSnippetSet = this.snippetSetRepository.create();
+            newSnippetSet.iso = this.baseFiles[0].iso;
             newSnippetSet.baseFile = this.baseFiles[0].name;
 
-            const result = this.snippetSets.splice(0, 0, newSnippetSet);
+            newSnippetSet.name = this.$t('sw-settings-snippet.setList.newSnippetName');
 
-            if (result.length !== 0) {
-                return;
+            const baseName = newSnippetSet.name;
+            let copyCounter = 1;
+
+            while (this.snippetSets.some((item) => item.name === newSnippetSet.name)) {
+                copyCounter += 1;
+                newSnippetSet.name = `${baseName} (${copyCounter})`;
             }
 
-            this.$nextTick(() => {
-                this.$refs.snippetSetList?.startInlineEditing();
-            });
+            await this.snippetSetRepository.save(newSnippetSet);
+            await this.getList();
         },
 
         onInlineEditSave(item) {
@@ -174,25 +202,28 @@ export default {
             this.showDeleteModal = id;
         },
 
-        onConfirmDelete(id) {
-            this.showDeleteModal = false;
+        async onConfirmDelete() {
+            try {
+                await this.snippetSetRepository.delete(this.showDeleteModal);
+                await this.getList();
+                this.createDeleteSuccessNote();
+            } catch (e) {
+                this.createDeleteErrorNote();
+            }
 
-            return this.snippetSetRepository
-                .delete(id)
-                .then(() => {
-                    this.getList();
-                    this.createDeleteSuccessNote();
-                })
-                .catch(() => {
-                    this.onCloseDeleteModal();
-                    this.createDeleteErrorNote();
-                });
+            this.closeDeleteModal();
         },
 
+        closeDeleteModal() {
+            this.showDeleteModal = false;
+        },
+
+        /** @deprecated tag:v6.8.0 - Will be removed without replacement */
         onClone(id) {
             this.showCloneModal = id;
         },
 
+        /** @deprecated tag:v6.8.0 - Will be removed without replacement */
         closeCloneModal() {
             this.showCloneModal = false;
         },
@@ -208,13 +239,12 @@ export default {
                     return;
                 }
 
-                set.name = `${set.name} ${this.$tc('sw-settings-snippet.general.copyName')}`;
+                set.name = `${set.name} ${this.$t('sw-settings-snippet.general.copyName')}`;
 
                 const baseName = set.name;
-                const checkUsedNames = (item) => item.name === set.name;
                 let copyCounter = 1;
 
-                while (this.snippetSets.some(checkUsedNames)) {
+                while (this.snippetSets.some((item) => item.name === set.name)) {
                     copyCounter += 1;
                     set.name = `${baseName} (${copyCounter})`;
                 }
@@ -234,59 +264,59 @@ export default {
                 this.createCloneErrorNote();
             } finally {
                 this.isLoading = false;
-                this.closeCloneModal();
             }
         },
 
         createDeleteSuccessNote() {
             this.createNotificationSuccess({
-                message: this.$tc('sw-settings-snippet.setList.deleteNoteSuccessMessage'),
+                message: this.$t('sw-settings-snippet.setList.deleteNoteSuccessMessage'),
             });
         },
 
         createDeleteErrorNote() {
             this.createNotificationError({
-                message: this.$tc('sw-settings-snippet.setList.deleteNoteErrorMessage'),
+                message: this.$t('sw-settings-snippet.setList.deleteNoteErrorMessage'),
             });
         },
 
         createInlineSuccessNote(name) {
             this.createNotificationSuccess({
-                message: this.$tc('sw-settings-snippet.setList.inlineEditSuccessMessage', { name }, 0),
+                message: this.$t('sw-settings-snippet.setList.inlineEditSuccessMessage', { name }, 0),
             });
         },
 
         createInlineErrorNote(name) {
             this.createNotificationError({
-                message: this.$tc('sw-settings-snippet.setList.inlineEditErrorMessage', name !== null, { name }),
+                message: this.$t('sw-settings-snippet.setList.inlineEditErrorMessage', { name }, name !== null),
             });
         },
 
         createCloneSuccessNote() {
             this.createNotificationSuccess({
-                message: this.$tc('sw-settings-snippet.setList.cloneSuccessMessage'),
+                message: this.$t('sw-settings-snippet.setList.cloneSuccessMessage'),
             });
         },
 
         createCloneErrorNote() {
             this.createNotificationError({
-                message: this.$tc('sw-settings-snippet.setList.cloneErrorMessage'),
+                message: this.$t('sw-settings-snippet.setList.cloneErrorMessage'),
             });
         },
 
         createNotEditableErrorNote() {
             this.createNotificationError({
-                message: this.$tc('sw-settings-snippet.setList.notEditableNoteErrorMessage'),
+                message: this.$t('sw-settings-snippet.setList.notEditableNoteErrorMessage'),
             });
         },
 
+        /** @deprecated tag:v6.8.0 - Will be removed without replacement */
         getNoPermissionsTooltip(role, showOnDisabledElements = true) {
             return {
                 showDelay: 300,
                 appearance: 'dark',
                 showOnDisabledElements,
                 disabled: this.acl.can(role),
-                message: this.$tc('sw-privileges.tooltip.warning'),
+                message: this.$t('sw-privileges.tooltip.warning'),
             };
         },
     },

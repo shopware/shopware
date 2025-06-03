@@ -48,8 +48,8 @@
     "safari >= 7"
   ],
   "dependencies": {
-    "@shopware-ag/meteor-admin-sdk": "^5.9.0",
-    "@shopware-ag/meteor-component-library": "^4.10.0",
+    "@shopware-ag/meteor-admin-sdk": "6.0.0",
+    "@shopware-ag/meteor-component-library": "^4.12.1",
     "@shopware-ag/meteor-icon-kit": "5.4.0",
     "@swc/core": "1.10.7",
     "@types/fs-extra": "^11.0.4",
@@ -201,7 +201,7 @@
     "xml2js": "0.6.2"
   },
   "engines": {
-    "node": "^20.0.0 || ^21.0.0 || ^22.0.0 || ^23.0.0",
+    "node": "^20.0.0 || ^21.0.0 || ^22.0.0 || ^23.0.0 || ^24.0.0",
     "npm": ">=10.0.0"
   },
   "dependenciesComments": {

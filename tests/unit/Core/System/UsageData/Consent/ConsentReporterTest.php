@@ -26,7 +26,7 @@ class ConsentReporterTest extends TestCase
 {
     public function testSubscribedEvents(): void
     {
-        static::assertEquals([
+        static::assertSame([
             ConsentStateChangedEvent::class => 'reportConsent',
         ], ConsentReporter::getSubscribedEvents());
     }

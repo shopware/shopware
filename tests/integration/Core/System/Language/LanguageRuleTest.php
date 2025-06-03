@@ -78,7 +78,7 @@ class LanguageRuleTest extends TestCase
     public function testValidateWithInvalidLanguageIdsUuid(): void
     {
         try {
-            /** @phpstan-ignore-next-line Intentionally insert invalid languageIds */
+            /** @phpstan-ignore argument.type (for test purpose) */
             $this->createCondition(['operator' => Rule::OPERATOR_EQ, 'languageIds' => ['INVALID-UUID', true, 3]]);
             static::fail('Exception was not thrown');
         } catch (WriteException $stackException) {

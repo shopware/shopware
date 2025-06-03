@@ -51,7 +51,7 @@ class PromotionLineItemRuleTest extends TestCase
         $rule = new PromotionLineItemRule(Rule::OPERATOR_EQ, ['foo', 'bar']);
         $config = $rule->getConfig();
 
-        static::assertEquals([
+        static::assertSame([
             'operatorSet' => [
                 'operators' => [
                     Rule::OPERATOR_EQ,
@@ -190,7 +190,7 @@ class PromotionLineItemRuleTest extends TestCase
             true,
         ];
 
-        yield 'one promotion does not matches' => [
+        yield 'one promotion does not match' => [
             ['matchedId', 'alsoMatchedId'],
             [
                 new LineItem('matchedId', LineItem::PRODUCT_LINE_ITEM_TYPE),

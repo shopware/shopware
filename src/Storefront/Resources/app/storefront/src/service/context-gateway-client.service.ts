@@ -41,10 +41,18 @@ export default class ContextGatewayClient {
         return await response.json() as ContextTokenResponse;
     }
 
+    /**
+     * Handle the necessary navigation after a context change has been applied by the context gateway automatically.
+     * This method will navigate to a new path created from the redirect URL returned by the context gateway merged with an optionally provided custom target path.
+     *
+     * @param tokenResponse - the response from the context gateway containing the token and optional redirect URL (returned by the call method)
+     * @param customTarget - an optional custom target path to redirect to, if not provided the current page will be reloaded
+     */
     public navigate(tokenResponse: ContextTokenResponse, customTarget: string | null = null): ContextTokenResponse {
         // reload the page to apply context changes if no target is specified
         if (!customTarget && !tokenResponse.redirectUrl) {
             window.location.reload();
+
             return tokenResponse;
         }
 
@@ -55,8 +63,12 @@ export default class ContextGatewayClient {
             (tokenResponse.redirectUrl ?? currentUrl.href).replace(/\/$/, '') + '/',
         );
 
-        targetUrl.search = currentUrl.search;
-        targetUrl.hash = currentUrl.hash;
+        // merge the target's url search parameters with the current url search parameters
+        currentUrl.searchParams.forEach((value, key) => {
+            if (!targetUrl.searchParams.has(key)) {
+                targetUrl.searchParams.append(key, value);
+            }
+        });
 
         window.location.href = targetUrl.toString().replace(/\/$/, '');
 

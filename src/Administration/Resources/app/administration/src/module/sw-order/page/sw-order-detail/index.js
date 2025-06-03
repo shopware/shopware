@@ -388,6 +388,7 @@ export default {
 
         async onRecalculateAndReload() {
             State.commit('swOrderDetail/setLoading', ['order', true]);
+            this.isLoading = true;
 
             try {
                 await this.orderService.recalculateOrder(this.orderId, this.versionContext.versionId, {}, {})
@@ -396,6 +397,7 @@ export default {
             } catch (error) {
                 this.onError('error', error);
             } finally {
+                this.isLoading = false;
                 State.commit('swOrderDetail/setLoading', ['order', false]);
             }
         },
@@ -409,6 +411,7 @@ export default {
 
         async saveAndReload(afterSaveFn = null) {
             State.commit('swOrderDetail/setLoading', ['order', true]);
+            this.isLoading = true;
 
             try {
                 await this.orderRepository.save(this.order, this.versionContext);
@@ -419,6 +422,7 @@ export default {
             } catch (error) {
                 this.onError('error', error);
             } finally {
+                this.isLoading = false;
                 State.commit('swOrderDetail/setLoading', ['order', false]);
             }
         },

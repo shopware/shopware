@@ -218,12 +218,12 @@ The `ThemeService::getThemeConfiguration` and `ThemeService::getThemeConfigurati
 
 ## Removed `category_url` and `category_linknewtab` twig functions
 
-The `category_url` and `category_linknewtab` twig functions have been removed. The data is now directly available in the category entities, therefore use `category.seoLink` or `category.shouldOpenInNewTab` instead.
+The `category_url` and `category_linknewtab` twig functions have been removed. The data is now directly available in the category entities, therefore use `category.seoUrl` or `category.shouldOpenInNewTab` instead.
 
 ```diff
 <a class="link"
 -   href="{{ category_url(item) }}"
-+   href="{{ item.seoLink }}"
++   href="{{ item.seoUrl }}"
 -   {% if category_linknewtab(item) %}target="_blank"{% endif %}
 +   {% if item.shouldOpenInNewTab %}target="_blank"{% endif %}
 </a>

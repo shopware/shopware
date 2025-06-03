@@ -5,6 +5,8 @@ test ('Shop customers should be able to view products in different languages.', 
     TestDataService,
     StorefrontHome,
 }) => {
+    const product = await TestDataService.createBasicProduct();
+
     const salesChannelId = TestDataService.defaultSalesChannel.id;
     const language = await getLanguageData('de-DE', TestDataService.AdminApiClient);
     const snippetSetId = await getSnippetSetId('de-DE', TestDataService.AdminApiClient);
@@ -12,7 +14,10 @@ test ('Shop customers should be able to view products in different languages.', 
     await TestDataService.assignSalesChannelLanguage(salesChannelId, language.id);
     await TestDataService.createSalesChannelDomain({ languageId: language.id, snippetSetId: snippetSetId });
 
-    const product = await TestDataService.createBasicProduct();
+    await TestDataService.clearCaches();
+
+    await StorefrontHome.page.goto(StorefrontHome.url());
+
     const productListing = StorefrontHome.productListItems.filter({ has: StorefrontHome.page.getByRole('link', { name: product.name })});
     const addToCartButton = productListing.filter({ has: StorefrontHome.page.getByRole('button')});
 

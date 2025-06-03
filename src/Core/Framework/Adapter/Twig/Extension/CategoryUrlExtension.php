@@ -45,7 +45,7 @@ class CategoryUrlExtension extends AbstractExtension
     {
         Feature::triggerDeprecationOrThrow(
             'v6.8.0.0',
-            'The "category_url" function is deprecated and will be removed in v6.8.0.0. Use SalesChannelCategoryEntity::getSeoLink() instead.'
+            'The "category_url" function is deprecated and will be removed in v6.8.0.0. Use SalesChannelCategoryEntity::getSeoUrl() instead.'
         );
 
         $salesChannel = null;

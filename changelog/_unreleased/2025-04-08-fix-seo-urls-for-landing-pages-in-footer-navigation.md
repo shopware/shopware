@@ -7,4 +7,4 @@ issue: #3784
 * Added replacing of seo URL and media URL placeholder for all store api responses
 ___ 
 # Storefront
-* Deprecated `category_url` and `category_linknewtab` twig function, use `category.seoLink` or `category.shouldOpenInNewTab` instead
+* Deprecated `category_url` and `category_linknewtab` twig function, use `category.seoUrl` or `category.shouldOpenInNewTab` instead

@@ -464,7 +464,7 @@ return (new Config())
                 return str_contains($filePath, $item);
             });
             if (empty($matches)) {
-                $missing[] = '<' . $nodeType . '>'. $filePath .'</' . $nodeType . '>';
+                $missing[] = '\'<' . $nodeType . '>'. $filePath .'</' . $nodeType . '>\'';
             }
         }
 

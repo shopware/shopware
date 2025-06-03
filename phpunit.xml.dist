@@ -152,6 +152,7 @@
             <directory>tests/integration/Core/Framework/Update</directory>
             <directory>tests/integration/Core/Framework/Util</directory>
             <directory>tests/integration/Core/Framework/Webhook</directory>
+            <directory>tests/integration/Core/Framework/MissingDomainToBeAdded</directory> <!-- to test on the fly PR -->
         </testsuite>
 
         <testsuite name="devops">

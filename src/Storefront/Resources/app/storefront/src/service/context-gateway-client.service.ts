@@ -42,31 +42,23 @@ export default class ContextGatewayClient {
     }
 
     public navigate(tokenResponse: ContextTokenResponse, customTarget: string | null = null): ContextTokenResponse {
-        if (tokenResponse.redirectUrl) {
-            const currentUrl = new URL(window.location.href);
-            const redirectBase = new URL(tokenResponse.redirectUrl);
-
-            redirectBase.pathname += customTarget ?? currentUrl.pathname;
-            redirectBase.search = currentUrl.search;
-            redirectBase.hash = currentUrl.hash;
-
-            if (redirectBase.pathname.endsWith('/')) {
-                redirectBase.pathname = redirectBase.pathname.slice(0, -1);
-            }
-
-            window.location.href = redirectBase.toString();
-
+        // reload the page to apply context changes if no target is specified
+        if (!customTarget && !tokenResponse.redirectUrl) {
+            window.location.reload();
             return tokenResponse;
         }
 
-        if (customTarget !== null) {
-            const customUrl = new URL(customTarget, window.location.href);
-            window.location.href = customUrl.toString();
+        // otherwise redirect to the redirectUrl, which can be overridden by a customTarget path
+        const currentUrl = new URL(window.location.href);
+        const targetUrl = new URL(
+            customTarget ?? currentUrl.pathname.replace(/^\//, '') ?? '',
+            (tokenResponse.redirectUrl ?? currentUrl.href).replace(/\/$/, '') + '/',
+        );
 
-            return tokenResponse;
-        }
+        targetUrl.search = currentUrl.search;
+        targetUrl.hash = currentUrl.hash;
 
-        window.location.reload();
+        window.location.href = targetUrl.toString().replace(/\/$/, '');
 
         return tokenResponse;
     }

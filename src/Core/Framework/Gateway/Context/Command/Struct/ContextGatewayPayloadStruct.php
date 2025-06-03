@@ -21,7 +21,7 @@ class ContextGatewayPayloadStruct extends Struct implements SourcedPayloadInterf
 
     public function __construct(
         protected Cart $cart,
-        protected SalesChannelContext $context,
+        protected SalesChannelContext $salesChannelContext,
         protected RequestDataBag $data = new RequestDataBag(),
     ) {
     }
@@ -33,12 +33,12 @@ class ContextGatewayPayloadStruct extends Struct implements SourcedPayloadInterf
 
     public function getSalesChannelContext(): SalesChannelContext
     {
-        return $this->context;
+        return $this->salesChannelContext;
     }
 
     public function getContext(): Context
     {
-        return $this->context->getContext();
+        return $this->salesChannelContext->getContext();
     }
 
     public function getData(): RequestDataBag

@@ -58,8 +58,8 @@ class CartService implements ResetInterface
     }
 
     /**
-     * Loads the cart by token and context
-     * @deprecated the service uses the load route to fetch the cart - please use load method instead
+     * Loads the cart by token and context by using a router loader.
+     * 
      * @param string $token
      * @param SalesChannelContext $context
      * @param bool $caching

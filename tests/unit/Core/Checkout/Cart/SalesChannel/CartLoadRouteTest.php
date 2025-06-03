@@ -4,7 +4,6 @@ namespace Shopware\Tests\Unit\Core\Checkout\Cart\SalesChannel;
 
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
-use Shopware\Core\Checkout\Cart\AbstractCartPersister;
 use Shopware\Core\Checkout\Cart\Cart;
 use Shopware\Core\Checkout\Cart\Exception\CartTokenNotFoundException;
 use Shopware\Core\Checkout\Cart\SalesChannel\CartLoadRoute;
@@ -23,8 +22,6 @@ class CartLoadRouteTest extends TestCase
     {
         $newCart = new Cart('test');
         $calculatedCart = new Cart('calculated');
-
-        $persister = $this->createMock(AbstractCartPersister::class);
 
         $cartService = $this->createMock(CartService::class);
 
@@ -53,7 +50,6 @@ class CartLoadRouteTest extends TestCase
             ->willReturn('test');
 
         $cartLoadRoute = new CartLoadRoute(
-            $persister,
             $cartService,
             $this->createMock(TaxProviderProcessor::class)
         );
@@ -65,8 +61,6 @@ class CartLoadRouteTest extends TestCase
     {
         $existingCart = new Cart('test');
         $recalculatedCart = new Cart('recalculated');
-
-        $persister = $this->createMock(AbstractCartPersister::class);
 
         $cartService = $this->createMock(CartService::class);
 
@@ -93,7 +87,6 @@ class CartLoadRouteTest extends TestCase
             ->willReturn('test');
 
         $cartLoadRoute = new CartLoadRoute(
-            $persister,
             $cartService,
             $this->createMock(TaxProviderProcessor::class)
         );

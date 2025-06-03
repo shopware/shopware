@@ -36,6 +36,7 @@ class Kernel extends HttpKernel
     use MicroKernelTrait;
 
     final public const CONFIG_EXTS = '.{php,xml,yaml,yml}';
+
     /**
      * @var string Fallback version if nothing is provided via kernel constructor
      */
@@ -78,14 +79,13 @@ class Kernel extends HttpKernel
     public function registerBundles(): iterable
     {
         /** @var array<class-string<Bundle>, array<string, bool>> $bundles */
-        $bundles = require $this->getProjectDir() . '/config/bundles.php';
+        $bundles = require $this->getBundlesPath();
         $instantiatedBundleNames = [];
 
         $kernelParameters = $this->getKernelParameters();
 
         foreach ($bundles as $class => $envs) {
             if (isset($envs['all']) || isset($envs[$this->environment])) {
-                /** @var ShopwareBundle|Bundle $bundle */
                 $bundle = new $class();
 
                 if ($this->isBundleRegistered($bundle, $instantiatedBundleNames)) {

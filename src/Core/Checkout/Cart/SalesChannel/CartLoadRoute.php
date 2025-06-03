@@ -37,7 +37,7 @@ class CartLoadRoute extends AbstractCartLoadRoute
         $taxed = $request->get('taxed', false);
 
         try {
-            $cart = $this->persister->load($token, $context);
+            $cart = $this->cartService->load($token, $context);
         } catch (CartTokenNotFoundException) {
             $cart = $this->cartService->createNew($token);
         }

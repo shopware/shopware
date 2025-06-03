@@ -171,4 +171,66 @@ class CartServiceTest extends TestCase
 
         static::assertSame($cart, $this->cartService->createNew('test'));
     }
+
+    public function testLoadReturnsCartFromPersister(): void
+    {
+        $token = 'test-token';
+        $cart = new Cart($token);
+
+        $persister = $this->createMock(AbstractCartPersister::class);
+        $persister->expects($this->once())
+            ->method('load')
+            ->with($token, $this->isInstanceOf(SalesChannelContext::class))
+            ->willReturn($cart);
+
+        $context = $this->createMock(SalesChannelContext::class);
+
+        $service = new CartService(
+            $persister,
+            $this->createMock(EventDispatcherInterface::class),
+            $this->createMock(CartCalculator::class),
+            $this->createMock(AbstractCartLoadRoute::class),
+            $this->createMock(AbstractCartDeleteRoute::class),
+            $this->createMock(AbstractCartItemAddRoute::class),
+            $this->createMock(AbstractCartItemUpdateRoute::class),
+            $this->createMock(AbstractCartItemRemoveRoute::class),
+            $this->createMock(AbstractCartOrderRoute::class),
+            $this->createMock(CartFactory::class),
+        );
+
+        $result = $service->load($token, $context, false);
+
+        $this->assertSame($cart, $result);
+    }
+
+    public function testLoadReturnsCachedCart(): void
+    {
+        $token = 'cached-token';
+        $cart = new Cart($token);
+
+        $persister = $this->createMock(AbstractCartPersister::class);
+        $persister->expects($this->never())->method('load');
+
+        $context = $this->createMock(SalesChannelContext::class);
+
+        $service = new CartService(
+            $persister,
+            $this->createMock(EventDispatcherInterface::class),
+            $this->createMock(CartCalculator::class),
+            $this->createMock(AbstractCartLoadRoute::class),
+            $this->createMock(AbstractCartDeleteRoute::class),
+            $this->createMock(AbstractCartItemAddRoute::class),
+            $this->createMock(AbstractCartItemUpdateRoute::class),
+            $this->createMock(AbstractCartItemRemoveRoute::class),
+            $this->createMock(AbstractCartOrderRoute::class),
+            $this->createMock(CartFactory::class),
+        );
+
+        // Set cart in cache
+        $service->setCart($cart);
+
+        $result = $service->load($token, $context, true);
+
+        $this->assertSame($cart, $result);
+    }
 }

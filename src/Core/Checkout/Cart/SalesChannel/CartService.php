@@ -57,6 +57,15 @@ class CartService implements ResetInterface
         return $this->cart[$cart->getToken()] = $cart;
     }
 
+    /**
+     * Loads the cart by token and context
+     * @deprecated the service uses the load route to fetch the cart - please use load method instead
+     * @param string $token
+     * @param SalesChannelContext $context
+     * @param bool $caching
+     * @param bool $taxed
+     * @return Cart
+     */
     public function getCart(
         string $token,
         SalesChannelContext $context,
@@ -76,11 +85,17 @@ class CartService implements ResetInterface
         return $this->cart[$cart->getToken()] = $cart;
     }
 
+    /**
+     * Loads the cart by token and context
+     * @param string $token
+     * @param SalesChannelContext $context
+     * @param bool $caching
+     * @return Cart
+     */
     public function load(
         string $token,
         SalesChannelContext $context,
         bool $caching = true,
-        bool $taxed = false
     ): Cart {
         if ($caching && isset($this->cart[$token])) {
             return $this->cart[$token];

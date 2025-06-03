@@ -9,10 +9,10 @@ use Shopware\Core\Framework\Log\Package;
  * @internal
  */
 #[Package('framework')]
-class AnotherNotDescribedTest extends TestCase
+class DescribedTest extends TestCase
 {
     public function testNothing(): void
     {
-        static::markTestSkipped('');
+        static::markTestSkipped('This is not a test, but a placeholder to ensure that the test suite does not fail Danger.');
     }
 }

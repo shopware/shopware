@@ -67,7 +67,7 @@ class CategorySubscriber implements EventSubscriberInterface
 
         foreach ($event->getEntities() as $category) {
             $category->assign([
-                'seoLink' => $this->categoryUrlGenerator->generate($category, $salesChannel),
+                'seoUrl' => $this->categoryUrlGenerator->generate($category, $salesChannel),
             ]);
 
             if ($salesChannelDefaultLayout === '') {

@@ -21,7 +21,7 @@
                     {% for breadcrumbCategory in breadcrumbCategories %}
                         {% set key = breadcrumbCategory.id %}
                         {% set name = breadcrumbCategory.translated.name %}
-                        {% set categoryUrl = breadcrumbCategory.seoLink %}
+                        {% set categoryUrl = breadcrumbCategory.seoUrl %}
 
                         {% block layout_breadcrumb_list_item %}
                             <li class="breadcrumb-item"

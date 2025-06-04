@@ -99,7 +99,7 @@ describe('src/module/sw-sales-channel/page/sw-sales-channel-create', () => {
         const wrapper = await createWrapper();
 
         expect(wrapper.vm.salesChannel.measurementUnits).toEqual({
-            name: 'metric',
+            system: 'metric',
             units: {
                 length: 'mm',
                 weight: 'kg',

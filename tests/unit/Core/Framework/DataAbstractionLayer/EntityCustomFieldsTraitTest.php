@@ -95,13 +95,12 @@ class MyTraitEntity extends Entity
     use EntityCustomFieldsTrait;
 
     /**
-     * @param string $_uniqueIdentifier
      * @param array<string, mixed>|null $customFields
      * @param array<string, mixed> $translated
      */
     public function __construct(
         string $_uniqueIdentifier,
-        ?array $customFields = [],
+        ?array $customFields = null,
         array $translated = [],
     ) {
         $this->_uniqueIdentifier = $_uniqueIdentifier;

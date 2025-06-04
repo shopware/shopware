@@ -61,12 +61,6 @@ class AuthController extends StorefrontController
     #[Route(path: '/account/login', name: 'frontend.account.login.page', defaults: ['_noStore' => true], methods: ['GET'])]
     public function loginPage(Request $request, RequestDataBag $data, SalesChannelContext $context): Response
     {
-        // Add '_httpCache' => true, to defaults in Route and remove _noStore
-        if (Feature::isActive('PERFORMANCE_TWEAKS') || Feature::isActive('v6.8.0.0')) {
-            $request->attributes->set(PlatformRequest::ATTRIBUTE_HTTP_CACHE, true);
-            $request->attributes->remove(PlatformRequest::ATTRIBUTE_NO_STORE);
-        }
-
         $customer = $context->getCustomer();
 
         /** @var string $redirect */

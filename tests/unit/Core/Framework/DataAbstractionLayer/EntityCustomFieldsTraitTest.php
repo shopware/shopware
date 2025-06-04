@@ -85,6 +85,28 @@ class EntityCustomFieldsTraitTest extends TestCase
         static::assertNull($entity->getTranslatedCustomFieldsValue('foo'));
         static::assertNull($entity->getTranslatedCustomFieldsValue('not-exists'));
     }
+
+    public function testGetCustomFieldsValueWithTranslatedFlag(): void
+    {
+        $entity = new MyTraitEntity(
+            'id',
+            ['foo' => 'bar', 'baz' => 'orig', 'null-value' => 'should-be-overwritten'],
+            ['customFields' => ['foo' => 'translated-bar', 'baz' => 'translated-baz', 'null-value' => null]]
+        );
+
+        static::assertSame('translated-bar', $entity->getTranslatedCustomFieldsValue('foo'));
+        static::assertSame('translated-baz', $entity->getTranslatedCustomFieldsValue('baz'));
+        static::assertNull($entity->getTranslatedCustomFieldsValue('null-value'));
+        static::assertNull($entity->getTranslatedCustomFieldsValue('not-exists'));
+
+        $entity = new MyTraitEntity(
+            'id',
+            ['foo' => 'bar'],
+            ['customFields' => []]
+        );
+        static::assertNull($entity->getTranslatedCustomFieldsValue('foo'));
+        static::assertNull($entity->getTranslatedCustomFieldsValue('not-exists'));
+    }
 }
 
 /**
@@ -100,7 +122,7 @@ class MyTraitEntity extends Entity
      */
     public function __construct(
         string $_uniqueIdentifier,
-        ?array $customFields = null,
+        ?array $customFields = [],
         array $translated = [],
     ) {
         $this->_uniqueIdentifier = $_uniqueIdentifier;

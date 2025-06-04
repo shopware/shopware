@@ -212,7 +212,7 @@ class CacheResponseSubscriber implements EventSubscriberInterface
 
     private function buildCacheHash(Request $request, SalesChannelContext $context): string
     {
-        if (Feature::isActive('v6.8.0.0') || Feature::isActive('PERFORMANCE_TWEAKS')) {
+        if (Feature::isActive('v6.8.0.0') || Feature::isActive('PERFORMANCE_TWEAKS') || Feature::isActive('CACHE_CONTEXT_HASH_RULES_OPTIMIZATION')) {
             $ruleIds = $context->getRuleIdsByAreas([RuleAreas::PRODUCT_AREA]);
         } else {
             $ruleIds = $context->getRuleIds();

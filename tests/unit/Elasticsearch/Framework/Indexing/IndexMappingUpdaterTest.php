@@ -4,6 +4,7 @@ namespace Shopware\Tests\Unit\Elasticsearch\Framework\Indexing;
 
 use OpenSearch\Client;
 use OpenSearch\Common\Exceptions\BadRequest400Exception;
+use OpenSearch\Common\Exceptions\Missing404Exception;
 use OpenSearch\Namespaces\IndicesNamespace;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
@@ -156,6 +157,60 @@ class IndexMappingUpdaterTest extends TestCase
                 SystemUpdateListener::CONFIG_KEY,
                 ['product'],
             );
+
+        $updater = new IndexMappingUpdater(
+            $registry,
+            $elasticsearchHelper,
+            $client,
+            $indexMappingProvider,
+            $storage,
+        );
+
+        $updater->update(Context::createDefaultContext());
+    }
+
+    public function testUpdateWithMissingIndexError(): void
+    {
+        $elasticsearchHelper = $this->createMock(ElasticsearchHelper::class);
+        $elasticsearchHelper->method('getIndexName')->willReturn('index');
+        $elasticsearchHelper->expects($this->once())->method('allowIndexing')->willReturn(true);
+
+        $definition = $this->createMock(ElasticsearchProductDefinition::class);
+        $definition
+            ->method('getEntityDefinition')
+            ->willReturn(new ProductDefinition());
+
+        $registry = new ElasticsearchRegistry([$definition]);
+
+        $client = $this->createMock(Client::class);
+        $indicesNamespace = $this->createMock(IndicesNamespace::class);
+        $indicesNamespace
+            ->expects($this->once())
+            ->method('putMapping')
+            ->with([
+                'index' => 'index',
+                'body' => [
+                    'foo' => '1',
+                ],
+            ])->willThrowException(new Missing404Exception('no such index [index]', Response::HTTP_NOT_FOUND));
+
+        $client
+            ->method('indices')
+            ->willReturn($indicesNamespace);
+
+        $indexMappingProvider = $this->createMock(IndexMappingProvider::class);
+        $indexMappingProvider
+            ->method('build')
+            ->willReturn(['foo' => '1']);
+
+        $elasticsearchHelper->expects($this->once())->method('logAndThrowException')->with(
+            static::callback(static function (Missing404Exception $exception) {
+                return $exception->getMessage() === 'no such index [index]';
+            }),
+        );
+
+        $storage = $this->createMock(AbstractKeyValueStorage::class);
+        $storage->expects($this->never())->method('set');
 
         $updater = new IndexMappingUpdater(
             $registry,

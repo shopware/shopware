@@ -39,6 +39,10 @@ class ExtensionStoreActionsController extends AbstractController
     #[Route(path: '/api/_action/extension/refresh', name: 'api.extension.refresh', methods: ['POST'])]
     public function refreshExtensions(Context $context): Response
     {
+        if (!$this->runtimeExtensionManagementAllowed) {
+            return new Response('', Response::HTTP_NO_CONTENT);
+        }
+
         $this->pluginService->refreshPlugins($context, new NullIO());
 
         return new Response('', Response::HTTP_NO_CONTENT);

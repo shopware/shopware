@@ -41,6 +41,22 @@ class ExtensionStoreActionsControllerTest extends TestCase
         $controller->refreshExtensions(Context::createDefaultContext());
     }
 
+    public function testRefreshExtensionsDisabled(): void
+    {
+        $controller = new ExtensionStoreActionsController(
+            $this->createMock(ExtensionLifecycleService::class),
+            $this->createMock(ExtensionDownloader::class),
+            $pluginService = $this->createMock(PluginService::class),
+            $this->createMock(PluginManagementService::class),
+            $this->createFileSystemMock(),
+            false,
+        );
+
+        $pluginService->expects($this->never())->method('refreshPlugins');
+
+        $controller->refreshExtensions(Context::createDefaultContext());
+    }
+
     public function testUploadExtensionsWithInvalidFile(): void
     {
         $controller = new ExtensionStoreActionsController(

@@ -45,34 +45,17 @@
 
             <div class="sw-settings-services__listing-section">
                 <h3>
-                    {{ $t('sw-settings-services.index.optional-services') }}
+                    {{ $t('sw-settings-services.index.available-services') }}
 
-                    <sw-help-text :text="$t('sw-settings-services.index.optional-services-tooltip')" />
+                    <sw-help-text :text="$t('sw-settings-services.index.available-services-tooltip')" />
                 </h3>
 
-                <ul class="sw-settings-services__optional-services">
+                <ul class="sw-settings-services__available-services">
                     <sw-settings-services-service-card
-                        v-for="service in optionalServices"
+                        v-for="service in services"
                         :key="service.name"
                         :service="service"
-                        :consent-given="consentGiven"
                         variant="card"
-                    />
-                </ul>
-
-                <h3>
-                    {{ $t('sw-settings-services.index.default-services') }}
-
-                    <sw-help-text :text="$t('sw-settings-services.index.default-services-tooltip')" />
-                </h3>
-
-                <ul class="sw-settings-services__default-services">
-                    <sw-settings-services-service-card
-                        v-for="service in defaultServices"
-                        :key="service.name"
-                        :service="service"
-                        :consent-given="consentGiven"
-                        variant="list"
                     />
                 </ul>
             </div>

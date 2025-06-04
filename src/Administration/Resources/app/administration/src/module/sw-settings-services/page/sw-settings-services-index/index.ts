@@ -33,12 +33,7 @@ export default Shopware.Component.wrapComponentConfig({
 
     computed: {
         ...mapState(useShopwareServicesStore, ['consent', 'consentGiven', 'legalDocuments']),
-        optionalServices() {
-            return this.services.filter((service) => service.needsPermissions);
-        },
-        defaultServices() {
-            return this.services.filter((service) => !service.needsPermissions);
-        },
+
         areServicesDeactivated() {
             return this.services.some((service) => service.active === false);
         },

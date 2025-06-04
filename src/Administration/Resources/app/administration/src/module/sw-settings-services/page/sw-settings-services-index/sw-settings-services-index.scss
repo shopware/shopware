@@ -16,7 +16,7 @@
     margin-block: var(--scale-size-24);
   }
 
-  .sw-settings-services__optional-services {
+  .sw-settings-services__available-services {
     margin-bottom: var(--scale-size-48);
     display: grid;
     grid-template-columns:1fr;
@@ -25,18 +25,6 @@
 
     @container (min-width: 960px) {
       grid-template-columns: 1fr 1fr;
-    }
-  }
-
-  .sw-settings-services__default-services {
-    list-style-type: none;
-
-    li {
-      border-bottom: 1px solid var(--color-border-primary-default);
-
-      &:last-child:not(:only-child) {
-        border-bottom: none;
-      }
     }
   }
 

@@ -37,35 +37,3 @@
     font-size: var(--font-size-2xs);
   }
 }
-
-.sw-settings-services-service-card__list-item {
-  padding: var(--scale-size-12) 0;
-  min-height: var(--scale-size-56);
-  align-items: center;
-
-  .sw-status {
-    display: inline-flex;
-  }
-
-  .sw-settings-services__list-item-name {
-    display: inline;
-    font-size: var(--font-size-xs);
-    line-height: var(--font-line-height-xs);
-    margin-bottom: 0;
-  }
-
-  .sw-settings-services__list-item-meta-data {
-    font-size: var(--font-size-2xs);
-    color: var(--color-text-secondary-default);
-  }
-
-  @container (min-width: 650px) {
-    display: flex;
-    gap: var(--scale-size-8);
-
-    .sw-settings-services__list-item-meta-data {
-      flex-grow: 1;
-      text-align: end;
-    }
-  }
-}

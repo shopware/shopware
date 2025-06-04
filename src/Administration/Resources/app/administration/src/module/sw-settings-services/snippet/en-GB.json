@@ -15,10 +15,8 @@
       "learn-more": "Learn more"
     },
     "index": {
-      "optional-services": "Optional services",
-      "optional-services-tooltip": "Additional features that go beyond the core to enable advanced use cases, such as artificial intelligence, while supporting a wide range of business needs.",
-      "default-services": "Default services",
-      "default-services-tooltip": "Essential components that support the core operation of Shopware. They run quietly in the background without impacting your system’s performance or stability.",
+      "available-services": "Available services",
+      "available-services-tooltip": "Additional features that go beyond the core to enable advanced use cases, such as artificial intelligence, while supporting a wide range of business needs.",
       "label-documentation-link": "Documentation",
       "label-tos-link": "Terms & Conditions"
     },

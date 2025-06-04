@@ -19,14 +19,6 @@ export default Shopware.Component.wrapComponentConfig({
             required: true,
             type: Object as PropType<ServiceDescription>,
         },
-        consentGiven: {
-            type: Boolean,
-            required: true,
-        },
-        variant: {
-            type: String as PropType<'card' | 'list'>,
-            required: true,
-        },
     },
 
     computed: {
@@ -35,11 +27,7 @@ export default Shopware.Component.wrapComponentConfig({
                 return 'red';
             }
 
-            if(!this.service.needsPermissions) {
-                return 'green';
-            }
-
-            return this.consentGiven ? 'green' : 'orange';
+            return this.service.requestedPermissions.length === 0 ? 'green' : 'orange';
         },
 
         statusText() {

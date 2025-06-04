@@ -19,7 +19,7 @@ export type ServiceDescription = {
     active: boolean,
     lastUpdatedAt: Date,
     version: string
-    needsPermissions: boolean,
+    requestedPermissions: string[]
 }
 
 const ApiService = Shopware.Classes.ApiService;
@@ -44,31 +44,7 @@ export default class ShopwareServicesService extends ApiService {
             lastUpdatedAt: new Date('2025-05-10'),
             active: false,
             version: '1.0.0',
-            needsPermissions: false,
-        }, {
-            name: 'Preview Generator',
-            icon: previewGenerator,
-            description: 'Man weiß vorher nie was am Ende dabei rauskommt',
-            lastUpdatedAt: new Date('2625-05-10'),
-            active: false,
-            version: '9001.0.0',
-            needsPermissions: false,
-        }, {
-            name: 'Copilot',
-            icon: copilot,
-            description: 'Nervt an jeder Ampel.',
-            lastUpdatedAt: new Date('2025-05-10'),
-            active: true,
-            version: '4.1.0',
-            needsPermissions: false,
-        }, {
-            name: 'Shopware Image Editor',
-            icon: imageEditor,
-            description: 'Fast wie Gimp. Kann auch nichts',
-            lastUpdatedAt: new Date('2025-05-10'),
-            active: true,
-            version: '1.0.0',
-            needsPermissions: true,
+            requestedPermissions: [],
         }, {
             name: 'Preview Generator',
             icon: previewGenerator,
@@ -76,7 +52,7 @@ export default class ShopwareServicesService extends ApiService {
             lastUpdatedAt: new Date('2625-05-10'),
             active: true,
             version: '9001.0.0',
-            needsPermissions: true,
+            requestedPermissions: [],
         }, {
             name: 'Copilot',
             icon: copilot,
@@ -84,7 +60,7 @@ export default class ShopwareServicesService extends ApiService {
             lastUpdatedAt: new Date('2025-05-10'),
             active: true,
             version: '4.1.0',
-            needsPermissions: true,
+            requestedPermissions: ['system_config:write'],
         }]);
     }
 

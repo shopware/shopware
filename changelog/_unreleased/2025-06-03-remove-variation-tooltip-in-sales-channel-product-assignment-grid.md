@@ -6,3 +6,4 @@ author_github: @aragon999
 ---
 # Administration
 * Removed tooltip of variant products in the sales channel product assignment grid
+* Changed the `getFirstSlot` of the `sw-product-variant-info` component to return the correct label content

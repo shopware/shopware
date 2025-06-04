@@ -5,7 +5,9 @@ namespace Shopware\Tests\Unit\Core\Framework\Store\Subscriber;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Framework\App\AppEvents;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\Plugin\PluginEvents;
 use Shopware\Core\Framework\Store\Services\StoreClient;
 use Shopware\Core\Framework\Store\Subscriber\ExtensionChangedSubscriber;
 use Symfony\Contracts\Cache\CacheInterface;
@@ -30,8 +32,8 @@ class ExtensionChangedSubscriberTest extends TestCase
     public function testItSubscribesToPluginAndAppWrittenEvents(): void
     {
         $expected = [
-            'plugin.written' => 'onExtensionChanged',
-            'app.written' => 'onExtensionChanged',
+            PluginEvents::PLUGIN_WRITTEN_EVENT => 'onExtensionChanged',
+            AppEvents::APP_WRITTEN_EVENT => 'onExtensionChanged',
         ];
 
         static::assertSame($expected, ExtensionChangedSubscriber::getSubscribedEvents());

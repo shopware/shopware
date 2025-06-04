@@ -2,7 +2,9 @@
 
 namespace Shopware\Core\Framework\Store\Subscriber;
 
+use Shopware\Core\Framework\App\AppEvents;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\Plugin\PluginEvents;
 use Shopware\Core\Framework\Store\Services\StoreClient;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use Symfony\Contracts\Cache\CacheInterface;
@@ -21,8 +23,8 @@ readonly class ExtensionChangedSubscriber implements EventSubscriberInterface
     public static function getSubscribedEvents(): array
     {
         return [
-            'plugin.written' => 'onExtensionChanged',
-            'app.written' => 'onExtensionChanged',
+            PluginEvents::PLUGIN_WRITTEN_EVENT => 'onExtensionChanged',
+            AppEvents::APP_WRITTEN_EVENT => 'onExtensionChanged',
         ];
     }
 

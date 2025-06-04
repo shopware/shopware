@@ -8,7 +8,10 @@ use Shopware\Core\Checkout\Customer\Event\CustomerLoginEvent;
 use Shopware\Core\Checkout\Customer\Event\CustomerLogoutEvent;
 use Shopware\Core\Framework\Adapter\Cache\CacheStateSubscriber;
 use Shopware\Core\Framework\Adapter\Cache\Event\HttpCacheCookieEvent;
+use Shopware\Core\Framework\Adapter\Cache\Http\Extension;
+use Shopware\Core\Framework\Adapter\Cache\Http\Extension\ResolveRuleIdsExtension;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\RuleAreas;
+use Shopware\Core\Framework\Extensions\ExtensionDispatcher;
 use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Routing\MaintenanceModeResolver;
@@ -46,7 +49,8 @@ class CacheResponseSubscriber implements EventSubscriberInterface
         private readonly RequestStack $requestStack,
         private readonly ?string $staleWhileRevalidate,
         private readonly ?string $staleIfError,
-        private readonly EventDispatcherInterface $dispatcher
+        private readonly EventDispatcherInterface $dispatcher,
+        private readonly ExtensionDispatcher $extensions,
     ) {
     }
 
@@ -212,11 +216,19 @@ class CacheResponseSubscriber implements EventSubscriberInterface
 
     private function buildCacheHash(Request $request, SalesChannelContext $context): string
     {
-        if (Feature::isActive('v6.8.0.0') || Feature::isActive('PERFORMANCE_TWEAKS') || Feature::isActive('CACHE_CONTEXT_HASH_RULES_OPTIMIZATION')) {
-            $ruleIds = $context->getRuleIdsByAreas([RuleAreas::PRODUCT_AREA]);
-        } else {
-            $ruleIds = $context->getRuleIds();
-        }
+        $ruleIdsExtension = new ResolveRuleIdsExtension($request, $context);
+
+        $ruleIds = $this->extensions->publish(
+            name: ResolveRuleIdsExtension::NAME,
+            extension: $ruleIdsExtension,
+            function: function (Request $request, SalesChannelContext $salesChannelContext): array {
+                if (Feature::isActive('v6.8.0.0') || Feature::isActive('PERFORMANCE_TWEAKS') || Feature::isActive('CACHE_CONTEXT_HASH_RULES_OPTIMIZATION')) {
+                    return $salesChannelContext->getRuleIdsByAreas([RuleAreas::PRODUCT_AREA]);
+                }
+
+                return $salesChannelContext->getRuleIds();
+            },
+        );
 
         $parts = [
             HttpCacheCookieEvent::RULE_IDS => $ruleIds,

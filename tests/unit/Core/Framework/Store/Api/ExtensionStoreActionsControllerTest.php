@@ -18,7 +18,6 @@ use Symfony\Component\Filesystem\Filesystem;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
-use Symfony\Contracts\Cache\CacheInterface;
 
 /**
  * @internal
@@ -35,8 +34,7 @@ class ExtensionStoreActionsControllerTest extends TestCase
             $pluginService = $this->createMock(PluginService::class),
             $this->createMock(PluginManagementService::class),
             $this->createFileSystemMock(),
-            true,
-            $this->createMock(CacheInterface::class)
+            true
         );
 
         $pluginService->expects($this->once())->method('refreshPlugins');
@@ -52,8 +50,7 @@ class ExtensionStoreActionsControllerTest extends TestCase
             $this->createMock(PluginService::class),
             $this->createMock(PluginManagementService::class),
             $this->createFileSystemMock(true),
-            true,
-            $this->createMock(CacheInterface::class)
+            true
         );
 
         $request = new Request();
@@ -83,8 +80,7 @@ class ExtensionStoreActionsControllerTest extends TestCase
             $this->createMock(PluginService::class),
             $this->createMock(PluginManagementService::class),
             $fileSystemMock,
-            true,
-            $this->createMock(CacheInterface::class)
+            true
         );
 
         $request = new Request();
@@ -105,8 +101,7 @@ class ExtensionStoreActionsControllerTest extends TestCase
             $this->createMock(PluginService::class),
             $pluginManagement = $this->createMock(PluginManagementService::class),
             $this->createFileSystemMock(true),
-            true,
-            $this->createMock(CacheInterface::class)
+            true
         );
 
         $pluginManagement->method('uploadPlugin')->willThrowException(new \RuntimeException('Error'));
@@ -129,8 +124,7 @@ class ExtensionStoreActionsControllerTest extends TestCase
             $this->createMock(PluginService::class),
             $this->createMock(PluginManagementService::class),
             $this->createFileSystemMock(),
-            true,
-            $this->createMock(CacheInterface::class)
+            true
         );
 
         $request = new Request();
@@ -152,8 +146,7 @@ class ExtensionStoreActionsControllerTest extends TestCase
             $this->createMock(PluginService::class),
             $this->createMock(PluginManagementService::class),
             $this->createFileSystemMock(),
-            true,
-            $this->createMock(CacheInterface::class)
+            true
         );
 
         $request = new Request();
@@ -173,8 +166,7 @@ class ExtensionStoreActionsControllerTest extends TestCase
             $this->createMock(PluginService::class),
             $this->createMock(PluginManagementService::class),
             $this->createFileSystemMock(),
-            true,
-            $this->createMock(CacheInterface::class)
+            true
         );
 
         $downloader->expects($this->once())->method('download');
@@ -193,8 +185,7 @@ class ExtensionStoreActionsControllerTest extends TestCase
             $this->createMock(PluginService::class),
             $this->createMock(PluginManagementService::class),
             $this->createFileSystemMock(),
-            true,
-            $this->createMock(CacheInterface::class)
+            true
         );
 
         $lifecycle->expects($this->once())->method('install');
@@ -213,8 +204,7 @@ class ExtensionStoreActionsControllerTest extends TestCase
             $this->createMock(PluginService::class),
             $this->createMock(PluginManagementService::class),
             $this->createFileSystemMock(),
-            true,
-            $this->createMock(CacheInterface::class)
+            true
         );
 
         $lifecycle->expects($this->once())->method('uninstall');
@@ -233,8 +223,7 @@ class ExtensionStoreActionsControllerTest extends TestCase
             $this->createMock(PluginService::class),
             $this->createMock(PluginManagementService::class),
             $this->createFileSystemMock(),
-            true,
-            $this->createMock(CacheInterface::class)
+            true
         );
 
         $lifecycle->expects($this->once())->method('remove');
@@ -253,8 +242,7 @@ class ExtensionStoreActionsControllerTest extends TestCase
             $this->createMock(PluginService::class),
             $this->createMock(PluginManagementService::class),
             $this->createFileSystemMock(),
-            true,
-            $this->createMock(CacheInterface::class)
+            true
         );
 
         $lifecycle->expects($this->once())->method('activate');
@@ -273,8 +261,7 @@ class ExtensionStoreActionsControllerTest extends TestCase
             $this->createMock(PluginService::class),
             $this->createMock(PluginManagementService::class),
             $this->createFileSystemMock(),
-            true,
-            $this->createMock(CacheInterface::class)
+            true
         );
 
         $lifecycle->expects($this->once())->method('deactivate');
@@ -293,8 +280,7 @@ class ExtensionStoreActionsControllerTest extends TestCase
             $this->createMock(PluginService::class),
             $this->createMock(PluginManagementService::class),
             $this->createFileSystemMock(),
-            true,
-            $this->createMock(CacheInterface::class)
+            true
         );
 
         $lifecycle->expects($this->once())->method('update');
@@ -315,8 +301,7 @@ class ExtensionStoreActionsControllerTest extends TestCase
             $this->createMock(PluginService::class),
             $this->createMock(PluginManagementService::class),
             $this->createFileSystemMock(),
-            true,
-            $this->createMock(CacheInterface::class)
+            true
         );
 
         $lifecycle->expects($this->once())->method('update');
@@ -337,8 +322,7 @@ class ExtensionStoreActionsControllerTest extends TestCase
             $this->createMock(PluginService::class),
             $this->createMock(PluginManagementService::class),
             $this->createFileSystemMock(),
-            false,
-            $this->createMock(CacheInterface::class)
+            false
         );
 
         $context = Context::createDefaultContext();

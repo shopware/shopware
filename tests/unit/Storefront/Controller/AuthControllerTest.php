@@ -110,7 +110,7 @@ class AuthControllerTest extends TestCase
     public function testGuestCustomerOnLoginPageShouldBeLoggedOut(): void
     {
         $context = Generator::generateSalesChannelContext();
-        $context->getCustomer()->setGuest(true);
+        $context->getCustomer()?->setGuest(true);
 
         $this->controller->loginPage(new Request(), new RequestDataBag(), $context);
 

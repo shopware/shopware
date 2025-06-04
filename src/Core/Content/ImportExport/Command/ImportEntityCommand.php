@@ -20,6 +20,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\NotFilter;
 use Shopware\Core\Framework\Feature;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\NotEqualsFilter;
 use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
@@ -202,9 +203,7 @@ class ImportEntityCommand extends Command
     private function chooseProfile(Context $context, SymfonyStyle $io): ImportExportProfileEntity
     {
         $criteria = new Criteria();
-        $criteria->addFilter(
-            new NotFilter(NotFilter::CONNECTION_AND, [new EqualsFilter('type', ImportExportProfileEntity::TYPE_EXPORT)])
-        );
+        $criteria->addFilter(new NotEqualsFilter('type', ImportExportProfileEntity::TYPE_EXPORT));
 
         $result = $this->profileRepository->search($criteria, $context)->getEntities();
 

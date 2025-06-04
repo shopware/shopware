@@ -2,15 +2,13 @@
 
 namespace Shopware\Storefront\Framework\SystemCheck;
 
-use Doctrine\DBAL\Connection;
-use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\SystemCheck\BaseCheck;
 use Shopware\Core\Framework\SystemCheck\Check\Category;
 use Shopware\Core\Framework\SystemCheck\Check\Result;
 use Shopware\Core\Framework\SystemCheck\Check\Status;
 use Shopware\Core\Framework\SystemCheck\Check\SystemCheckExecutionContext;
-use Shopware\Core\Framework\Uuid\Uuid;
+use Shopware\Storefront\Framework\SystemCheck\Util\AbstractSalesChannelDomainProvider;
 use Shopware\Storefront\Framework\SystemCheck\Util\SalesChannelDomainUtil;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -30,8 +28,8 @@ class SalesChannelsReadinessCheck extends BaseCheck
      * @internal
      */
     public function __construct(
-        private readonly Connection $connection,
         private readonly SalesChannelDomainUtil $util,
+        private readonly AbstractSalesChannelDomainProvider $domainProvider,
     ) {
     }
 
@@ -51,7 +49,7 @@ class SalesChannelsReadinessCheck extends BaseCheck
 
     public function name(): string
     {
-        return 'SaleChannelsReadiness';
+        return 'SalesChannelsReadiness';
     }
 
     protected function allowedSystemCheckExecutionContexts(): array
@@ -61,11 +59,12 @@ class SalesChannelsReadinessCheck extends BaseCheck
 
     private function doRun(): Result
     {
-        $domains = $this->fetchSalesChannelDomains();
+        $domains = $this->domainProvider->fetchSalesChannelDomains();
+
         $extra = [];
         $requestStatus = [];
         foreach ($domains as $domain) {
-            $url = $this->util->generateDomainUrl($domain, self::INDEX_PAGE);
+            $url = $this->util->generateDomainUrl($domain->url, self::INDEX_PAGE);
 
             $request = Request::create($url);
             $result = $this->util->handleRequest($request);
@@ -85,21 +84,5 @@ class SalesChannelsReadinessCheck extends BaseCheck
             $finalStatus === Status::OK,
             $extra
         );
-    }
-
-    /**
-     * @return array<string>
-     */
-    private function fetchSalesChannelDomains(): array
-    {
-        $result = $this->connection->fetchAllAssociative(
-            'SELECT `url` FROM `sales_channel_domain`
-                    INNER JOIN `sales_channel` ON `sales_channel_domain`.`sales_channel_id` = `sales_channel`.`id`
-                    WHERE `sales_channel`.`type_id` = :typeId
-                    AND `sales_channel`.`active` = :active',
-            ['typeId' => Uuid::fromHexToBytes(Defaults::SALES_CHANNEL_TYPE_STOREFRONT), 'active' => 1]
-        );
-
-        return array_map(fn (array $row): string => $row['url'], $result);
     }
 }

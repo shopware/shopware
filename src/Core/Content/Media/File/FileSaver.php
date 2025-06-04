@@ -24,7 +24,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\MultiFilter;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\NotFilter;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\NotEqualsFilter;
 use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\Messenger\MessageBusInterface;
@@ -423,10 +423,7 @@ class FileSaver
             [
                 new EqualsFilter('fileName', $destination),
                 new EqualsFilter('fileExtension', $fileExtension),
-                new NotFilter(
-                    NotFilter::CONNECTION_AND,
-                    [new EqualsFilter('id', $media->getId())]
-                ),
+                new NotEqualsFilter('id', $media->getId()),
             ]
         ));
 

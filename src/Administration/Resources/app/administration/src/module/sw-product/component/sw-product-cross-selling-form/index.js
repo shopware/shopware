@@ -109,9 +109,11 @@ export default {
         },
 
         crossSellingTitle() {
-            return this.crossSelling.name
-                || this.crossSelling.translated?.name
-                || this.$tc('sw-product.crossselling.newCrossSellingTitle');
+            return (
+                this.crossSelling.name ||
+                this.crossSelling.translated?.name ||
+                this.$tc('sw-product.crossselling.newCrossSellingTitle')
+            );
         },
 
         sortingTypes() {

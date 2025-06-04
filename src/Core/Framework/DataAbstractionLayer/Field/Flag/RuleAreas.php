@@ -20,7 +20,7 @@ class RuleAreas extends Flag
     final public const CATEGORY_AREA = 'category';
 
     /**
-     * @deprecated tag:v6.8.0 - Unused constant RuleAreas::CATEGORY_AREA will be removed
+     * @deprecated tag:v6.8.0 - Unused constant RuleAreas::LANDING_PAGE_AREA will be removed
      */
     final public const LANDING_PAGE_AREA = 'landing-page';
 

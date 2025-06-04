@@ -38,5 +38,7 @@ return [
 
         // No break as mixed is the top type and every other type is a subtype of mixed
         'The parameter \$value of Shopware\\\\Storefront\\\\Event\\\\StorefrontRenderEvent#setParameter\(\) changed from no type to mixed',
+
+        'ADDED: Parameter visibility was added to Method __construct\(\) of class Shopware\\\\Core\\\\Framework\\\\Adapter\\\\Filesystem\\\\Plugin\\\\CopyBatchInput'
     ],
 ];

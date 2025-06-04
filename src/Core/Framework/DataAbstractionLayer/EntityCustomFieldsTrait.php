@@ -65,14 +65,16 @@ trait EntityCustomFieldsTrait
      * ```php
      * $entity->getCustomFieldsValue('my_custom_field') === 'value';
      * ```
+     *
+     * @param bool $translated tag:v6.8.0 Make this a native parameter @phpstan-ignore parameter.notFound
      */
-    public function getCustomFieldsValue(string $field, bool $translated = false): mixed
+    public function getCustomFieldsValue(string $field/* , bool $translated = false */): mixed
     {
-        if (!$translated) {
-            return $this->customFields[$field] ?? null;
+        $translated = false;
+        if (\func_num_args() > 1) {
+            $translated = (bool) \func_get_arg(1);
         }
-
-        if (isset($this->translated['customFields'][$field])) {
+        if ($translated && \array_key_exists($field, $this->translated['customFields'] ?? [])) {
             return $this->translated['customFields'][$field];
         }
 

@@ -68,8 +68,8 @@ class EntityCustomFieldsTraitTest extends TestCase
     {
         $entity = new MyTraitEntity(
             'id',
-            ['foo' => 'bar', 'baz' => 'orig'],
-            ['customFields' => ['foo' => 'translated-bar', 'baz' => 'translated-baz']]
+            ['foo' => 'bar', 'baz' => 'orig', 'null-value' => 'should-be-overwritten'],
+            ['customFields' => ['foo' => 'translated-bar', 'baz' => 'translated-baz', 'null-value' => null]]
         );
 
         static::assertSame('bar', $entity->getCustomFieldsValue('foo'));
@@ -78,6 +78,7 @@ class EntityCustomFieldsTraitTest extends TestCase
 
         static::assertSame('translated-bar', $entity->getCustomFieldsValue('foo', true));
         static::assertSame('translated-baz', $entity->getCustomFieldsValue('baz', true));
+        static::assertNull($entity->getCustomFieldsValue('null-value', true));
         static::assertNull($entity->getCustomFieldsValue('not-exists', true));
 
         $entity = new MyTraitEntity(
@@ -99,6 +100,7 @@ class MyTraitEntity extends Entity
 
     /**
      * @param array<string, mixed>|null $customFields
+     * @param array<string, mixed> $translated
      */
     public function __construct(
         string $_uniqueIdentifier,

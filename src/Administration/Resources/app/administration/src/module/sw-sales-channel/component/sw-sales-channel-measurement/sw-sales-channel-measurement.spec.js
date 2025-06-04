@@ -92,7 +92,7 @@ async function createWrapper() {
         props: {
             salesChannel: {
                 measurementUnits: {
-                    name: 'metric',
+                    system: 'metric',
                     units: {
                         length: 'mm',
                         weight: 'kg',
@@ -158,7 +158,7 @@ describe('src/module/sw-sales-channel/component/sw-sales-channel-measurement', (
     it('should initialize with correct default values', async () => {
         const wrapper = await createWrapper();
         expect(wrapper.vm.measurementUnits).toEqual({
-            name: 'metric',
+            system: 'metric',
             units: {
                 length: 'mm',
                 weight: 'kg',
@@ -208,7 +208,7 @@ describe('src/module/sw-sales-channel/component/sw-sales-channel-measurement', (
         await typeElement.at(1).trigger('click');
         await flushPromises();
 
-        expect(wrapper.vm.measurementUnits.name).toBe('imperial');
+        expect(wrapper.vm.measurementUnits.system).toBe('imperial');
         expect(wrapper.vm.measurementUnits.units).toEqual({
             length: 'in',
             weight: 'lb',

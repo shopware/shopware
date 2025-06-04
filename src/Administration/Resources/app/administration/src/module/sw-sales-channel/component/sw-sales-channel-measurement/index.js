@@ -125,7 +125,7 @@ export default Shopware.Component.wrapComponentConfig({
                 return;
             }
 
-            this.measurementUnits.name = measurementSystem.technicalName;
+            this.measurementUnits.system = measurementSystem.technicalName;
             const units = measurementSystem.units;
 
             this.defaultMeasurementSystem = measurementSystem;
@@ -162,8 +162,8 @@ export default Shopware.Component.wrapComponentConfig({
             const criteria = cloneDeep(this.measurementSystemCriteria);
             criteria.setLimit(1);
 
-            if (this.measurementUnits.name) {
-                criteria.addFilter(Criteria.equals('technicalName', this.measurementUnits.name));
+            if (this.measurementUnits.system) {
+                criteria.addFilter(Criteria.equals('technicalName', this.measurementUnits.system));
             }
 
             const measurement = await this.measurementSystemRepository.search(criteria);

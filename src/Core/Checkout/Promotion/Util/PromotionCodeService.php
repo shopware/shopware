@@ -11,7 +11,7 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\NotFilter;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\NotEqualsFilter;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Util\Random;
 use Shopware\Core\Framework\Uuid\Uuid;
@@ -164,7 +164,7 @@ class PromotionCodeService
     public function isCodePatternAlreadyInUse(string $pattern, string $promotionId, Context $context): bool
     {
         $criteria = (new Criteria())
-            ->addFilter(new NotFilter('AND', [new EqualsFilter('id', $promotionId)]))
+            ->addFilter(new NotEqualsFilter('id', $promotionId))
             ->addFilter(new EqualsFilter('individualCodePattern', $pattern));
 
         return $this->promotionRepository->searchIds($criteria, $context)->getTotal() > 0;
@@ -216,7 +216,6 @@ class PromotionCodeService
             'd' => 10,
             's' => 26,
         ];
-        /** @var array<int, int> $counts */
         $counts = count_chars($pattern, 1);
 
         $result = 1;

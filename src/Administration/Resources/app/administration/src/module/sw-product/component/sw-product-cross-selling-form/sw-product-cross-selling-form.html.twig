@@ -2,13 +2,10 @@
 <div class="product-detail-cross-selling-form">
     {% block sw_prduct_cross_selling_form_card %}
     <mt-card
-        :title="crossSelling.name"
+        :title="crossSellingTitle"
         position-identifier="sw-product-cross-selling-form"
     >
-        <div
-            v-if="!isLoading && crossSelling"
-            class="product-detail-cross-selling-form__card-container"
-        >
+        <template #headerRight>
             {% block sw_prduct_cross_selling_form_context_menu %}
             <div class="sw-product-detail-cross-selling__context-button">
                 <sw-context-button>
@@ -25,7 +22,12 @@
                 </sw-context-button>
             </div>
             {% endblock %}
+        </template>
 
+        <div
+            v-if="!isLoading && crossSelling"
+            class="product-detail-cross-selling-form__card-container"
+        >
             <sw-container
                 columns="2fr 1fr"
                 gap="0px 30px"
@@ -51,6 +53,7 @@
                     :label="$tc('sw-product.crossselling.inputCrossSellingActive')"
                     :disabled="!allowEdit"
                     name="sw-field--crossSelling-active"
+                    bordered
                 />
                 {% endblock %}
             </sw-container>

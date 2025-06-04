@@ -76,6 +76,8 @@ jobs:
       - name: Execute acceptance tests
         if: ${{ steps.changed-files.outputs.any_changed == 'true' }}
         uses: ./.github/actions/ats
+        #env:
+        #  ATS_SKIP_CLEANUP: true
         with:
           project: "Platform"
           install: true

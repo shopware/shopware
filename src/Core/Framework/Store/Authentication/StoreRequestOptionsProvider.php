@@ -8,12 +8,11 @@ use Shopware\Core\Framework\Api\Context\SystemSource;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\NotFilter;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\NotEqualsFilter;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Store\Services\InstanceService;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
-use Shopware\Core\System\User\UserEntity;
+use Shopware\Core\System\User\UserCollection;
 
 /**
  * @internal
@@ -27,6 +26,9 @@ class StoreRequestOptionsProvider extends AbstractStoreRequestOptionsProvider
     private const SHOPWARE_PLATFORM_TOKEN_HEADER = 'X-Shopware-Platform-Token';
     private const SHOPWARE_SHOP_SECRET_HEADER = 'X-Shopware-Shop-Secret';
 
+    /**
+     * @param EntityRepository<UserCollection> $userRepository
+     */
     public function __construct(
         private readonly EntityRepository $userRepository,
         private readonly SystemConfigService $systemConfigService,
@@ -86,30 +88,18 @@ class StoreRequestOptionsProvider extends AbstractStoreRequestOptionsProvider
         }
 
         $criteria = new Criteria();
-        $criteria->addFilter(
-            new NotFilter(NotFilter::CONNECTION_OR, [new EqualsFilter('storeToken', null)])
-        );
+        $criteria->addFilter(new NotEqualsFilter('storeToken', null));
 
         return $this->fetchUserStoreToken($criteria, $context);
     }
 
     private function fetchUserStoreToken(Criteria $criteria, Context $context): ?string
     {
-        /** @var UserEntity|null $user */
-        $user = $this->userRepository->search($criteria, $context)->first();
-
-        if ($user === null) {
-            return null;
-        }
-
-        return $user->getStoreToken();
+        return $this->userRepository->search($criteria, $context)->first()?->getStoreToken();
     }
 
     private function getLicenseDomain(): string
     {
-        /** @var string $domain */
-        $domain = $this->systemConfigService->get(self::CONFIG_KEY_STORE_LICENSE_DOMAIN) ?? '';
-
-        return $domain;
+        return $this->systemConfigService->getString(self::CONFIG_KEY_STORE_LICENSE_DOMAIN);
     }
 }

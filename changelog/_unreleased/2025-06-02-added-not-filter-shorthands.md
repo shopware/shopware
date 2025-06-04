@@ -1,11 +1,9 @@
 ---
-title: Added not filter shorthands
-issue: 
+title: Added shorthands for not equals filter
 author: Oliver Skroblin
 author_email: oliver@goblin-coders.de
 author_github: Oliver Skroblin
 ---
 
 # Core
-
-* Added `not` filter shorthands for equals and equals any filter. (`NotEqualsFilter`, `NotEqualsAnyFilter`)
+* Added new `not` filter shorthands for equals filters. (`NotEqualsFilter`, `NotEqualsAnyFilter`)

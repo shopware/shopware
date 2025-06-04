@@ -71,8 +71,8 @@ class AdministrationController extends AbstractController
         ParameterBagInterface $params,
         private readonly SystemConfigService $systemConfigService,
         private readonly FilesystemOperator $fileSystem,
-        private readonly string $refreshTokenTtl = 'P1W',
         private readonly string $serviceRegistryUrl,
+        private readonly string $refreshTokenTtl = 'P1W',
     ) {
         // param is only available if the elasticsearch bundle is enabled
         $this->esAdministrationEnabled = $params->has('elasticsearch.administration.enabled')

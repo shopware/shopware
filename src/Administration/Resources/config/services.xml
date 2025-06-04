@@ -48,6 +48,7 @@
             <argument type="service" id="Shopware\Core\System\SystemConfig\SystemConfigService"/>
             <argument type="service" id="shopware.filesystem.asset"/>
             <argument type="string">%shopware.api.refresh_token_ttl%</argument>
+            <argument type="string">%env(SERVICE_REGISTRY_URL)%</argument>
 
             <call method="setContainer">
                 <argument type="service" id="service_container"/>

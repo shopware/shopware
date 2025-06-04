@@ -248,6 +248,7 @@
             <argument type="service" id="Shopware\Core\System\SystemConfig\SystemConfigService"/>
             <argument type="service" id="Shopware\Core\Framework\JWT\JWTDecoder"/>
             <argument type="service" id="Shopware\Core\Framework\Store\InAppPurchase\Services\KeyFetcher"/>
+            <argument type="service" id="logger" />
         </service>
 
         <service id="Shopware\Core\Framework\Store\InAppPurchase\Api\InAppPurchasesController" public="true">

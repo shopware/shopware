@@ -72,22 +72,18 @@ class EntityCustomFieldsTraitTest extends TestCase
             ['customFields' => ['foo' => 'translated-bar', 'baz' => 'translated-baz', 'null-value' => null]]
         );
 
-        static::assertSame('bar', $entity->getCustomFieldsValue('foo'));
-        static::assertSame('orig', $entity->getCustomFieldsValue('baz'));
-        static::assertNull($entity->getCustomFieldsValue('not-exists'));
-
-        static::assertSame('translated-bar', $entity->getCustomFieldsValue('foo', true));
-        static::assertSame('translated-baz', $entity->getCustomFieldsValue('baz', true));
-        static::assertNull($entity->getCustomFieldsValue('null-value', true));
-        static::assertNull($entity->getCustomFieldsValue('not-exists', true));
+        static::assertSame('translated-bar', $entity->getTranslatedCustomFieldsValue('foo'));
+        static::assertSame('translated-baz', $entity->getTranslatedCustomFieldsValue('baz'));
+        static::assertNull($entity->getTranslatedCustomFieldsValue('null-value'));
+        static::assertNull($entity->getTranslatedCustomFieldsValue('not-exists'));
 
         $entity = new MyTraitEntity(
             'id',
             ['foo' => 'bar'],
             ['customFields' => []]
         );
-        static::assertSame('bar', $entity->getCustomFieldsValue('foo', true));
-        static::assertNull($entity->getCustomFieldsValue('not-exists', true));
+        static::assertNull($entity->getTranslatedCustomFieldsValue('foo'));
+        static::assertNull($entity->getTranslatedCustomFieldsValue('not-exists'));
     }
 }
 

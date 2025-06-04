@@ -6,4 +6,4 @@ author_github: OliverSkroblin
 ---
 
 # Core
-* Added optional `translated` parameter to `\Shopware\Core\Framework\DataAbstractionLayer\EntityCustomFieldsTrait::getCustomFieldsValue` to get the translated value of the given custom field.
+* Added new method `getTranslatedCustomFieldsValue` to `\Shopware\Core\Framework\DataAbstractionLayer\EntityCustomFieldsTrait` to get the translated value of the given custom field.

@@ -46,6 +46,7 @@ class CartLoadRoute extends AbstractCartLoadRoute
         }
 
         $cart = $this->cartCalculator->calculate($cart, $context);
+        $this->persister->save($cart, $context);
 
         if ($taxed) {
             $this->taxProviderProcessor->process($cart, $context);

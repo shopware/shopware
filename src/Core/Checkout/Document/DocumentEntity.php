@@ -122,7 +122,7 @@ class DocumentEntity extends Entity
      */
     protected $documentMediaFile;
 
-    protected ?string $documentNumber;
+    protected ?string $documentNumber = null;
 
     protected ?string $documentA11yMediaFileId = null;
 

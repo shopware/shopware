@@ -11,7 +11,6 @@ use Shopware\Core\Framework\Plugin\PluginService;
 use Shopware\Core\Framework\Routing\RoutingException;
 use Shopware\Core\Framework\Store\Services\AbstractExtensionLifecycle;
 use Shopware\Core\Framework\Store\Services\ExtensionDownloader;
-use Shopware\Core\Framework\Store\Services\StoreClient;
 use Shopware\Core\Framework\Store\StoreException;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\Filesystem\Filesystem;
@@ -19,7 +18,6 @@ use Symfony\Component\HttpFoundation\File\UploadedFile;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
-use Symfony\Contracts\Cache\CacheInterface;
 
 /**
  * @internal
@@ -35,16 +33,17 @@ class ExtensionStoreActionsController extends AbstractController
         private readonly PluginManagementService $pluginManagementService,
         private readonly Filesystem $fileSystem,
         private readonly bool $runtimeExtensionManagementAllowed,
-        private readonly CacheInterface $cache,
     ) {
     }
 
     #[Route(path: '/api/_action/extension/refresh', name: 'api.extension.refresh', methods: ['POST'])]
     public function refreshExtensions(Context $context): Response
     {
-        $this->pluginService->refreshPlugins($context, new NullIO());
+        if (!$this->runtimeExtensionManagementAllowed) {
+            return new Response('', Response::HTTP_NO_CONTENT);
+        }
 
-        $this->cache->delete(StoreClient::EXTENSION_LIST_CACHE);
+        $this->pluginService->refreshPlugins($context, new NullIO());
 
         return new Response('', Response::HTTP_NO_CONTENT);
     }
@@ -86,8 +85,6 @@ class ExtensionStoreActionsController extends AbstractController
             throw $e;
         }
 
-        $this->cache->delete(StoreClient::EXTENSION_LIST_CACHE);
-
         return new Response('', Response::HTTP_NO_CONTENT);
     }
 
@@ -97,8 +94,6 @@ class ExtensionStoreActionsController extends AbstractController
         $this->checkExtensionManagementAllowed();
 
         $this->extensionDownloader->download($technicalName, $context);
-
-        $this->cache->delete(StoreClient::EXTENSION_LIST_CACHE);
 
         return new Response('', Response::HTTP_NO_CONTENT);
     }
@@ -150,8 +145,6 @@ class ExtensionStoreActionsController extends AbstractController
 
         $this->extensionLifecycleService->activate($type, $technicalName, $context);
 
-        $this->cache->delete(StoreClient::EXTENSION_LIST_CACHE);
-
         return new Response('', Response::HTTP_NO_CONTENT);
     }
 
@@ -161,8 +154,6 @@ class ExtensionStoreActionsController extends AbstractController
         $this->checkExtensionManagementAllowed();
 
         $this->extensionLifecycleService->deactivate($type, $technicalName, $context);
-
-        $this->cache->delete(StoreClient::EXTENSION_LIST_CACHE);
 
         return new Response('', Response::HTTP_NO_CONTENT);
     }

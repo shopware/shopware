@@ -114,7 +114,7 @@ class OrderConverter
             $cart,
             $context,
             $this->initialStateIdLoader->get(OrderStates::STATE_MACHINE),
-            $conversionContext->shouldIncludeOrderDate()
+            $conversionContext->shouldIncludePersistentData(),
         );
 
         if ($conversionContext->shouldIncludeCustomer()) {

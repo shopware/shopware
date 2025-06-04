@@ -46,15 +46,16 @@ export default Component.wrapComponentConfig({
             type: Object as PropType<Entity<'order'>>,
             required: true,
         },
+        /** @deprecated tag:v6.8.0 - will be removed without replacment */
         isLoading: {
             type: Boolean,
-            required: true,
+            required: false,
+            default: false,
         },
     },
 
     data(): {
         dataSource: StateMachineHistoryData[];
-        statesLoading: boolean;
         limit: number;
         page: number;
         total: number;
@@ -62,7 +63,6 @@ export default Component.wrapComponentConfig({
     } {
         return {
             dataSource: [],
-            statesLoading: true,
             limit: 10,
             page: 1,
             total: 0,
@@ -143,6 +143,15 @@ export default Component.wrapComponentConfig({
 
         hasMultipleTransactions(): boolean {
             return (this.order?.transactions?.filter((v, idx, a) => a.indexOf(v) === idx)?.length ?? 0) > 1;
+        },
+
+        statesLoading: {
+            get(): boolean {
+                return Shopware.Store.get('swOrderDetail').loading.states;
+            },
+            set(value: boolean): void {
+                Shopware.Store.get('swOrderDetail').setLoading(['states', value]);
+            },
         },
     },
 

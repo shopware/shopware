@@ -2,20 +2,20 @@
     background: none;
     color: $headings-color;
     font-weight: $font-weight-bold;
+    margin-bottom: $spacer;
 }
 
 .account-aside-item {
-    border: 0;
+    --#{$prefix}list-group-item-padding-x: 0;
+    --#{$prefix}list-group-action-active-color: #{$primary};
+    --#{$prefix}list-group-action-active-bg: #{$list-group-bg};
+    --#{$prefix}list-group-action-hover-color: #{$primary};
+    --#{$prefix}list-group-action-hover-bg: #{$list-group-bg};
+    --#{$prefix}list-group-border-width: 0;
 
     &.is-active {
         color: $primary;
-        background: $list-group-bg;
         font-weight: $font-weight-bold;
-    }
-
-    &:hover {
-        color: $primary;
-        background: $list-group-bg;
     }
 }
 

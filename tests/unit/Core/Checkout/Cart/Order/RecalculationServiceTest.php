@@ -142,7 +142,7 @@ class RecalculationServiceTest extends TestCase
                     $cart,
                     $salesChannelContext,
                     '',
-                    $conversionContext->shouldIncludeOrderDate()
+                    $conversionContext->shouldIncludePersistentData(),
                 );
 
                 // add empty delivery to trigger settings the state id
@@ -401,7 +401,7 @@ class RecalculationServiceTest extends TestCase
                     $cart,
                     $context,
                     '',
-                    $conversionContext->shouldIncludeOrderDate()
+                    $conversionContext->shouldIncludePersistentData(),
                 );
             });
 
@@ -455,7 +455,7 @@ class RecalculationServiceTest extends TestCase
                     $cart,
                     $salesChannelContext,
                     '',
-                    $conversionContext->shouldIncludeOrderDate()
+                    $conversionContext->shouldIncludePersistentData(),
                 );
             });
 

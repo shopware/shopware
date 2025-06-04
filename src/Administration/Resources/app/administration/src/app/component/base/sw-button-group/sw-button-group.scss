@@ -46,6 +46,10 @@
     .sw-context-button {
         .mt-button {
             border-radius: 0;
+
+            &:first-child:has(+ .sw-popover) {
+                margin-left: -1px;
+            }
         }
 
         &:first-child .mt-button {
@@ -69,7 +73,10 @@
             &.sw-button--critical,
             &.sw-button--contrast {
                 position: relative;
-                margin-left: 8px;
+
+                &:not(:first-child) {
+                    margin-left: 8px;
+                }
             }
         }
 

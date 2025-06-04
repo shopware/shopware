@@ -11,7 +11,13 @@ This means that when your plugins depends on a custom `webpack.config.js` file, 
 Additionally, this means that you will need to distribute a separate plugin version starting for 6.7, when you extend the administration to distribute the correct build files.
 For more information please take a look at the [docs](https://developer.shopware.com/docs/guides/plugins/plugins/administration/system-updates/vite.html).
 
-**Note:** This change can be activated separately with the `ADMIN_VITE` feature flag.
+# Making all administration components async
+We are making all administration components async by default with this PR: https://github.com/shopware/shopware/pull/9129. This means that all components will be loaded asynchronously and not synchronously.
+This can lead to some issues when accessing components directly in the template with a `ref`. If you run into this issue you need to check before accessing the component if it is available. A good pattern for this is to use the `@vue:mounted` event to check if the component is mounted.
+
+Some components are still synchronously loaded, like the `sw-alert` component. This is because they are used in a lot of places and we want to avoid loading them asynchronously everywhere. You can see the full list of components in this file:
+
+`src/Administration/Resources/app/administration/src/app/adapter/view/vue.adapter.ts` (method: `initDependencies`)
 
 # Vue.js Enhancements (full native vue 3 support)
 ## Removal of Vue 2 compatibility layer
@@ -175,6 +181,11 @@ After that you can use this data to customize the header template:
     {{ parent() }}
 {% endblock %}
 ```
+
+## StorefrontSubscriber now adds context token to the current request
+The `\Shopware\Storefront\Framework\Routing\StorefrontSubscriber::startSession()` method has been updated to provide the context token to the current request if it differs from the main request.
+This is especially necessary if a reverse proxy like Varnish or Fastly is used.
+Due to loading of the header and footer via ESI, it would otherwise cause the sub requests for those to have a different contexts than the main request.
 
 ## Remove of sw- wrapper components
 All the sw- wrapper components will be removed in the next major version. The Meteor Components will be used directly instead of the sw- wrapper components.
@@ -803,6 +814,10 @@ Merchants must review their custom created payment and shipping methods for the 
 ## Customer: Default payment method removed
 * Removed default payment method from customer entity, since it was mostly overriden by old saved contexts
 * Logic is now more consistent to always be the last used payment method
+
+## Removal of Custom Entities for Plugins
+
+Custom Entities for plugins support has been removed. It's no longer possible to create a `Resources/config/entities.xml` file in your plugin to create DAL entities. This has been removed for performance reasons. Our recommandation is to use regular EntityDefinition or an Attribute based entity.
 
 ## Bulletproofing Plugin Migrations
 ### Creation timestamp is now validated

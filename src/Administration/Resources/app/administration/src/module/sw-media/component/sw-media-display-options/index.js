@@ -1,5 +1,4 @@
 import template from './sw-media-display-options.html.twig';
-import './sw-media-display-options.scss';
 
 /**
  * @sw-package discovery

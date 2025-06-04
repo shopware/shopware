@@ -55,6 +55,7 @@ export default defineConfig(({ command }) => {
 
     // print new line
     console.log('');
+    console.log(colors.green('Building main administration...'));
 
     return {
         base,

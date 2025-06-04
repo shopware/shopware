@@ -554,6 +554,30 @@ class CriteriaParser
 
     private function parseEqualsFilter(EqualsFilter $filter, EntityDefinition $definition, Context $context): BuilderInterface
     {
+        if ($this->isCheapestPriceField($filter->getField())) {
+            $scriptContent = $this->getScript('cheapest_price_filter');
+            $parameters = [
+                'params' => array_merge(
+                    ['eq' => $filter->getValue() === null ? null : (float) $filter->getValue()],
+                    $this->getCheapestPriceParameters($context)
+                ),
+            ];
+
+            return $this->constructScriptQuery($scriptContent, $parameters);
+        }
+
+        if ($this->isCheapestPriceField($filter->getField(), true)) {
+            $scriptContent = $this->getScript('cheapest_price_percentage_filter');
+            $parameters = [
+                'params' => array_merge(
+                    ['eq' => $filter->getValue() === null ? null : (float) $filter->getValue()],
+                    ['accessors' => $this->getCheapestPriceAccessors($context, true)]
+                ),
+            ];
+
+            return $this->constructScriptQuery($scriptContent, $parameters);
+        }
+
         $fieldName = $this->buildAccessor($definition, $filter->getField(), $context);
 
         $field = $this->getField($definition, $fieldName);
@@ -563,7 +587,7 @@ class CriteriaParser
 
             if ($field instanceof TranslatedField) {
                 foreach ($context->getLanguageIdChain() as $languageId) {
-                    $query->add(new ExistsQuery(\sprintf('%s.%s', $fieldName, $languageId)), BoolQuery::MUST_NOT);
+                    $query->add(new ExistsQuery($this->getTranslatedFieldName($fieldName, $languageId)), BoolQuery::MUST_NOT);
                 }
             } else {
                 $query->add(new ExistsQuery($fieldName), BoolQuery::MUST_NOT);

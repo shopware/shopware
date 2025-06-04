@@ -24,7 +24,8 @@
     "extra": {
         "branch-alias": {
             "dev-master": "6.7.x-dev",
-            "dev-trunk": "6.7.x-dev"
+            "dev-trunk": "6.7.x-dev",
+            "dev-6.7.0.0": "6.7.x-dev"
         }
     },
     "minimum-stability": "stable",
@@ -41,6 +42,6 @@
         "symfony/messenger": "~7.2.0"
     },
     "require-dev": {
-        "phpunit/phpunit": "^11.5.11"
+        "phpunit/phpunit": "^11.5.17"
     }
 }

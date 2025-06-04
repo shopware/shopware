@@ -214,6 +214,7 @@ class PromotionCodeService
             's' => 26,
         ];
         $counts = count_chars($pattern, 1);
+        \assert(\is_array($counts));
 
         $result = 1;
         foreach ($counts as $key => $count) {

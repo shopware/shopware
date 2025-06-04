@@ -4,7 +4,6 @@ namespace Shopware\Core\Framework\Store;
 
 use GuzzleHttp\Exception\ClientException;
 use Shopware\Core\Framework\Api\Context\Exception\InvalidContextSourceUserException;
-use Shopware\Core\Framework\App\AppException;
 use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\HttpException;
 use Shopware\Core\Framework\Log\Package;

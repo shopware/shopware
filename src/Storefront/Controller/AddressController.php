@@ -140,7 +140,7 @@ class AddressController extends StorefrontController
 
         $this->addFlash(self::SUCCESS, $this->trans('account.addressDefaultChanged'));
 
-        $request->request->set('redirectTo', $data->get('redirectTo', 'frontend.account.addressmanager.get'));
+        $request->request->set('redirectTo', $request->request->get('redirectTo', 'frontend.account.addressmanager.get'));
 
         return $this->createActionResponse($request);
     }

@@ -41,6 +41,29 @@ describe('src/module/sw-extension/service/shopware-extension.service', () => {
                 route: 'test.foo',
             },
         };
+
+        if (Shopware.Store.get('context')) {
+            Shopware.Store.unregister('context');
+        }
+
+        Shopware.Store.register({
+            id: 'context',
+            state: () => ({
+                app: {
+                    config: {
+                        settings: {
+                            disableExtensionManagement: false,
+                        },
+                    },
+                },
+                api: {
+                    assetPath: 'http://localhost:8000/bundles/administration/',
+                    authToken: {
+                        token: 'testToken',
+                    },
+                },
+            }),
+        });
     });
 
     describe('it delegates lifecycle methods', () => {

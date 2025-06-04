@@ -1,28 +1,24 @@
 import type { ShopwareClass } from 'src/core/shopware';
 import extensionStore from './extensions.store';
 
+let initialLoad = false;
+
 /**
  * @sw-package checkout
  * @private
  */
 export default function initState(Shopware: ShopwareClass): void {
-    Shopware.State.registerModule('shopwareExtensions', extensionStore);
-
-    let languageId = Shopware.State.get('session').languageId;
-    Shopware.State._store.subscribe(async ({ type }, state): Promise<void> => {
+    Shopware.Vue.watch(useSession().languageId, async () => {
         if (!Shopware.Service('acl').can('system.plugin_maintain')) {
             return;
         }
 
-        if (type === 'setAdminLocale' && state.session.languageId !== '' && languageId !== state.session.languageId) {
-            // Always on page load setAdminLocale will be called once. Catch it to not load refresh extensions
-            if (languageId === '') {
-                languageId = state.session.languageId;
-                return;
-            }
-
-            languageId = state.session.languageId;
-            await Shopware.Service('shopwareExtensionService').updateExtensionData().then();
+        // Always on page load setAdminLocale will be called once. Catch it to not load refresh extensions
+        if (!initialLoad) {
+            initialLoad = true;
+            return;
         }
+
+        await Shopware.Service('shopwareExtensionService').updateExtensionData(false);
     });
 }

@@ -23,7 +23,7 @@ export default Shopware.Component.wrapComponentConfig({
     },
 
     props: {
-        optionalServices: {
+        services: {
             type: Array as PropType<ServiceDescription[]>,
         },
     },

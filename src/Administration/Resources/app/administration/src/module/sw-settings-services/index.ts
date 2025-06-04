@@ -1,7 +1,5 @@
 
-import type { SubContainer } from '../../global.types';
-import ShopwareServicesService from './service/shopware-services.service';
-
+import './service'
 /**
  * @private
  */
@@ -65,22 +63,6 @@ Shopware.Component.register(
     'sw-settings-services-grant-permissions-card',
     () => import('./component/sw-settings-services-grant-permissions-card'),
 );
-
-declare global {
-    interface ServiceContainer extends SubContainer<'service'> {
-        shopwareServicesService: ShopwareServicesService;
-    }
-}
-
-/**
- * @private
- */
-Shopware.Service().register('shopwareServicesService', () => {
-    return new ShopwareServicesService(
-        Shopware.Application.getContainer('init').httpClient,
-        Shopware.Service('loginService'),
-    );
-});
 
 /**
  * @sw-package framework

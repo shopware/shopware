@@ -15,18 +15,18 @@
         #content
     >
         <sw-settings-services-hero
-            :documentation-link="legalDocuments.documentationLink"
-            :feedback-link="legalDocuments.feedbackLink"
+            :documentation-link="currentRevision.links['docs-url']"
+            :feedback-link="currentRevision.links['feedback-url']"
         />
 
         <div style="padding: var(--scale-size-40)">
             <sw-settings-services-grant-permissions-card
                 v-if="!consentGiven"
-                :tos-link="legalDocuments.tosLink"
+                :tos-link="currentRevision.links['tos-url']"
             />
 
             <mt-banner
-                v-if="areServicesDeactivated"
+                v-if="config.disabled"
                 class="sw-settings-services-index__services-deactivated-banner"
                 variant="attention"
             >
@@ -63,7 +63,7 @@
             <div class="sw-settings-services__footer">
                 <a
                     class="mt-link--external"
-                    :href="legalDocuments.documentationLink"
+                    :href="currentRevision.links['docs-url']"
                     target="_blank"
                 >
                     {{ $t('sw-settings-services.index.label-documentation-link') }}
@@ -71,15 +71,15 @@
 
                 <a
                     class="mt-link--external"
-                    :href="legalDocuments.tosLink"
+                    :href="currentRevision.links['tos-url']"
                     target="_blank"
                 >
                     {{ $t('sw-settings-services.index.label-tos-link') }}
                 </a>
 
-                <sw-settings-services-revoke-permissions-modal :optional-services="optionalServices" />
+                <sw-settings-services-revoke-permissions-modal :services="services" />
 
-                <sw-settings-services-deactivate-modal :feedback-link="legalDocuments.feedbackLink" />
+                <sw-settings-services-deactivate-modal :feedback-link="currentRevision.links['feedback-url']" />
             </div>
         </div>
     </template>

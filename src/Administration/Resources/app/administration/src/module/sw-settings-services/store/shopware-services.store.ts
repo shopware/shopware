@@ -2,18 +2,20 @@
  * @sw-package framework
  */
 import { defineStore } from 'pinia';
+import type { RevisionData, ServicesRevision } from '../service/service-registry-client';
+
+/**
+ * @private
+ */
+export type ServiceConfiguration = {
+    'permissionsGrantedAt'?: string,
+    'disabled'?: boolean,
+}
 
 type ShopwareServicesState = {
-    consent: {
-        consentVersion: Date,
-        consentGivenAt: Date | null,
-    } | null,
-    legalDocuments: {
-        documentationLink: string,
-        feedbackLink: string,
-        tosLink: string,
-    } | null,
-    showGrantPermissionsModal: boolean
+    config: ServiceConfiguration | null,
+    revisions: RevisionData | null,
+    showGrantPermissionsModal: boolean,
 }
 
 /* eslint-disable import/prefer-default-export */
@@ -23,16 +25,35 @@ type ShopwareServicesState = {
  */
 export const useShopwareServicesStore = defineStore('shopwareServices', {
     state: (): ShopwareServicesState => ({
-        consent: null,
-        legalDocuments: null,
+        config: null,
+        revisions: null,
         showGrantPermissionsModal: false,
     }),
 
     getters: {
         consentGiven(): boolean {
-            return this.consent !== null &&
-                this.consent.consentGivenAt !== null &&
-                this.consent.consentVersion <= this.consent.consentGivenAt;
+            const isConsentGiven = this.config?.permissionsGrantedAt ?? false;
+
+            if (isConsentGiven === false) {
+                return false;
+            }
+
+            const currentRevision = this.revisions?.['latest-revision'] ?? false;
+
+            if (currentRevision === false) {
+                return false;
+            }
+
+            return new Date(currentRevision) < new Date(isConsentGiven);
+        },
+        currentRevision(): ServicesRevision | null {
+            if (!this.revisions) {
+                return null;
+            }
+
+            return this.revisions['available-revisions'].find((revision) => {
+                return revision.revision === this.revisions!['latest-revision'];
+            }) ?? null;
         },
     },
 });

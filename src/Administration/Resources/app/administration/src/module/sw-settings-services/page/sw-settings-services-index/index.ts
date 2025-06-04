@@ -1,5 +1,6 @@
 import { mapState } from 'pinia';
 import { useShopwareServicesStore } from '../../store/shopware-services.store';
+import useSession from 'src/app/composables/use-session';
 import template from './sw-settings-services-index.html.twig';
 import './sw-settings-services-index.scss';
 import grantPermissionsCardBackground from
@@ -32,26 +33,24 @@ export default Shopware.Component.wrapComponentConfig({
     },
 
     computed: {
-        ...mapState(useShopwareServicesStore, ['consent', 'consentGiven', 'legalDocuments']),
-
-        areServicesDeactivated() {
-            return this.services.some((service) => service.active === false);
-        },
+        ...mapState(useShopwareServicesStore, ['config', 'currentRevision', 'consentGiven']),
     },
 
     created() {
         const shopwareServicesService = Shopware.Service('shopwareServicesService');
+        const serviceRegistryClient = Shopware.Service('serviceRegistryClient');
         const shopwareServicesStore = useShopwareServicesStore();
+        const sessionStore = useSession();
 
         Promise.all([
             shopwareServicesService.getInstalledServices().then((services) => {
                 this.services = services;
             }),
             shopwareServicesService.getServicesContext().then((servicesConsent) => {
-                shopwareServicesStore.consent = servicesConsent;
+                shopwareServicesStore.config = servicesConsent;
             }),
-            shopwareServicesService.getLegalDocumentLinks().then((legalDocuments) => {
-                shopwareServicesStore.legalDocuments = legalDocuments;
+            serviceRegistryClient.getCurrentRevision(sessionStore.currentLocale.value).then((serviceRevisions) => {
+                shopwareServicesStore.revisions = serviceRevisions;
             }),
         ]).then(() => {
             this.suspended = false;

@@ -4,6 +4,10 @@
 
 import type { AxiosInstance } from 'axios';
 import type { LoginService } from 'src/core/service/login.service';
+import ApiService from 'src/core/service/api.service';
+import type SystemConfigApiService from 'src/core/service/api/system-config.api.service';
+
+import type { ServiceConfiguration } from '../store/shopware-services.store';
 
 import imageEditor from '../component/sw-settings-services-hero/assets/image-editor.svg?no-inline';
 import previewGenerator from '../component/sw-settings-services-hero/assets/3d-preview-generator.svg?no-inline';
@@ -22,8 +26,6 @@ export type ServiceDescription = {
     requestedPermissions: string[]
 }
 
-const ApiService = Shopware.Classes.ApiService;
-
 /**
  * API service for service handling
  * @class
@@ -31,8 +33,12 @@ const ApiService = Shopware.Classes.ApiService;
  * @private
  */
 export default class ShopwareServicesService extends ApiService {
-    constructor(httpClient: AxiosInstance, loginService: LoginService) {
-        super(httpClient, loginService, 'services');
+    constructor(
+        httpClient: AxiosInstance,
+        loginService: LoginService,
+        private readonly systemConfigService: SystemConfigApiService,
+    ) {
+        super(httpClient, loginService, 'services', 'application/json');
         this.name = 'ShopwareServices';
     }
 
@@ -64,18 +70,16 @@ export default class ShopwareServicesService extends ApiService {
         }]);
     }
 
-    getServicesContext(): Promise<{ consentVersion: Date, consentGivenAt: Date|null }> {
-        return Promise.resolve({
-            consentGivenAt: null,
-            consentVersion: new Date('2025-05-10'),
-        });
-    }
+    async getServicesContext(): Promise<ServiceConfiguration> {
+        const configValues = await this.systemConfigService.getValues('core.service') as object;
 
-    getLegalDocumentLinks() {
-        return Promise.resolve({
-            feedbackLink: 'https://www.shopware.com/en/shopware-6/feedback/',
-            documentationLink: 'https://docs.shopware.com',
-            tosLink: 'https://www.shopware.com/en/gtc/',
-        });
+        try {
+            return {
+                disabled: configValues['core.service.disabled'],
+                permissionsGrantedAt: configValues['core.service.permissionsGrantedAt'],
+            };
+        } catch {
+            return {}
+        }
     }
 }

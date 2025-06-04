@@ -3,7 +3,6 @@
 namespace Shopware\Core\Framework\Store\Authentication;
 
 use Shopware\Core\Framework\Api\Context\Exception\InvalidContextSourceException;
-use Shopware\Core\Framework\Api\Context\Exception\InvalidContextSourceUserException;
 use Shopware\Core\Framework\Api\Context\SystemSource;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
@@ -11,6 +10,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\NotEqualsFilter;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Store\Services\InstanceService;
+use Shopware\Core\Framework\Store\StoreException;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Shopware\Core\System\User\UserCollection;
 
@@ -74,7 +74,7 @@ class StoreRequestOptionsProvider extends AbstractStoreRequestOptionsProvider
         $contextSource = $this->ensureAdminApiSource($context);
         $userId = $contextSource->getUserId();
         if ($userId === null) {
-            throw new InvalidContextSourceUserException($contextSource::class);
+            throw StoreException::invalidContextSourceUser($contextSource::class);
         }
 
         return $this->fetchUserStoreToken(new Criteria([$userId]), $context);
@@ -84,7 +84,7 @@ class StoreRequestOptionsProvider extends AbstractStoreRequestOptionsProvider
     {
         $contextSource = $context->getSource();
         if (!($contextSource instanceof SystemSource)) {
-            throw new InvalidContextSourceException(SystemSource::class, $contextSource::class);
+            throw StoreException::invalidContextSource(SystemSource::class, $contextSource::class);
         }
 
         $criteria = new Criteria();

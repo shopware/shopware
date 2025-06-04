@@ -2,7 +2,7 @@
 <div class="product-detail-cross-selling-form">
     {% block sw_prduct_cross_selling_form_card %}
     <mt-card
-        :title="crossSelling.name || crossSelling.translated?.name || $tc('sw-product.crossselling.newCrossSellingTitle')"
+        :title="crossSellingTitle"
         position-identifier="sw-product-cross-selling-form"
     >
         <template #headerRight>

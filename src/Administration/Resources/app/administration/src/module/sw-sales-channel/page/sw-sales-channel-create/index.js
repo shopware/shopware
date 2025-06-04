@@ -46,7 +46,7 @@ export default {
             this.salesChannel.typeId = this.$route.params.typeId;
             this.salesChannel.active = false;
             this.salesChannel.measurementUnits = {
-                name: measurementUnits['core.measurementUnits.system'],
+                system: measurementUnits['core.measurementUnits.system'],
                 units: {
                     length: measurementUnits['core.measurementUnits.length'],
                     weight: measurementUnits['core.measurementUnits.weight'],

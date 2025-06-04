@@ -12,3 +12,11 @@
         margin-bottom: 0;
     }
 }
+
+.sw-settings-rule-detail-assignments {
+    .mt-card__toolbar {
+        display: grid;
+        grid-template-columns: 1fr auto;
+        gap: 0;
+    }
+}

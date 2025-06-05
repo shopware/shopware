@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Checkout\Document\Zugferd;
 
+use horstoeko\zugferd\codelistsenum\ZugferdPaymentMeans;
 use horstoeko\zugferd\ZugferdDocumentBuilder;
 use horstoeko\zugferd\ZugferdProfiles;
 use Shopware\Core\Checkout\Cart\LineItem\LineItem;
@@ -13,6 +14,7 @@ use Shopware\Core\Checkout\Order\Aggregate\OrderDelivery\OrderDeliveryCollection
 use Shopware\Core\Checkout\Order\Aggregate\OrderLineItem\OrderLineItemCollection;
 use Shopware\Core\Checkout\Order\Aggregate\OrderLineItem\OrderLineItemEntity;
 use Shopware\Core\Checkout\Order\OrderEntity;
+use Shopware\Core\Checkout\Payment\PaymentMethodEntity;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
@@ -62,6 +64,18 @@ class ZugferdBuilder
 
         $this->addLineItems($document, $order->getLineItems());
 
+        $transaction = $order->getTransactions()?->last();
+        if ($transaction !== null) {
+            if ($transaction->getStateMachineState()?->getTechnicalName() === 'paid') {
+                $document->withPaidAmount($order->getAmountTotal());
+            }
+
+            $paymentMethod = $transaction->getPaymentMethod();
+            if ($paymentMethod !== null) {
+                $this->addPaymentInfo($document, $config, $paymentMethod);
+            }
+        }
+
         $this->eventDispatcher->dispatch(new ZugferdInvoiceGeneratedEvent($document, $order, $config, $context));
 
         return $document->getContent($order, $this->calculator);
@@ -90,5 +104,29 @@ class ZugferdBuilder
         };
 
         $this->eventDispatcher->dispatch(new ZugferdInvoiceItemAddedEvent($document, $lineItem, $parentPosition), 'zugferd-item-added.' . $lineItem->getType());
+    }
+
+    protected function addPaymentInfo(ZugferdDocument $document, DocumentConfiguration $config, PaymentMethodEntity $paymentMethod): void
+    {
+        if ($paymentMethod->getTechnicalName() === 'payment_cashpayment') {
+            $document->getBuilder()->addDocumentPaymentMean(
+                typeCode: (string) ZugferdPaymentMeans::UNTDID_4461_10->value,
+                information: $paymentMethod->getName()
+            );
+        } elseif ($paymentMethod->getTechnicalName() === 'payment_invoicepayment' || $paymentMethod->getTechnicalName() === 'payment_prepayment') {
+            $document->getBuilder()->addDocumentPaymentMean(
+                typeCode: (string) ZugferdPaymentMeans::UNTDID_4461_30->value,
+                information: $paymentMethod->getName(),
+                payeeIban: $config->getBankIban(),
+                payeeBic: $config->getBankBic()
+            );
+        } elseif ($paymentMethod->getTechnicalName() === 'payment_debitpayment') {
+            $document->getBuilder()->addDocumentPaymentMean(
+                typeCode: (string) ZugferdPaymentMeans::UNTDID_4461_49->value,
+                information: $paymentMethod->getName(),
+                payeeIban: $config->getBankIban(),
+                payeeBic: $config->getBankBic()
+            );
+        }
     }
 }

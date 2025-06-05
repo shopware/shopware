@@ -104,7 +104,7 @@ class ZugferdDocumentTest extends TestCase
             ->withProductLineItem($this->createOrderLineItem($lineItemGross[6], 19.0, $isGross, ++$position), '')
             ->withProductLineItem($this->createOrderLineItem($lineItemGross[7], 7.0, $isGross, ++$position), '');
 
-        $discountGross = [1.4, 1.34, 5.2, 2.4, 0.7, 0.2];
+        $discountGross = [-1.4, -1.34, 5.2, 2.4, -0.7, -0.2];
         $document
             ->withDiscountItem($this->createOrderLineItem($discountGross[0], 19.0, $isGross))
             ->withDiscountItem($this->createOrderLineItem($discountGross[1], 19.0, $isGross))
@@ -122,6 +122,7 @@ class ZugferdDocumentTest extends TestCase
         ]));
 
         $order->setAmountTotal(round(array_sum($lineItemGross) + array_sum($discountGross) + array_sum($deliveryGross), 2));
+        $document->withPaidAmount((float) $expected[6]);
 
         $calculator = new AmountCalculator(
             new CashRounding(),
@@ -141,22 +142,22 @@ class ZugferdDocumentTest extends TestCase
             'Gross horizontal' => [
                 SalesChannelDefinition::CALCULATION_TYPE_HORIZONTAL,
                 true,
-                ['28.70', '43.36', '9.48', '62.58', '32.68', '95.26', '95.26'],
+                ['28.70', '43.36', '3.30', '68.76', '19.22', '87.98', '45.26', '42.72'],
             ],
             'Gross vertical' => [
                 SalesChannelDefinition::CALCULATION_TYPE_VERTICAL,
                 true,
-                ['28.71', '43.37', '9.47', '62.61', '32.65', '95.26', '95.26'],
+                ['28.71', '43.37', '3.31', '68.77', '19.21', '87.98', '45.26', '42.72'],
             ],
             'Net horizontal' => [
                 SalesChannelDefinition::CALCULATION_TYPE_HORIZONTAL,
                 false,
-                ['27.98', '41.96', '9.13', '60.81', '34.45', '95.26', '95.26'],
+                ['32.97', '51.05', '3.96', '80.06', '7.92', '87.98', '45.26', '42.72'],
             ],
             'Net vertical' => [
                 SalesChannelDefinition::CALCULATION_TYPE_VERTICAL,
                 false,
-                ['27.99', '41.95', '9.13', '60.81', '34.45', '95.26', '95.26'],
+                ['32.97', '51.05', '3.96', '80.06', '7.92', '87.98', '45.26', '42.72'],
             ],
         ];
     }
@@ -175,7 +176,9 @@ class ZugferdDocumentTest extends TestCase
         $allowanceTotalAmount = $summary->getElementsByTagName('AllowanceTotalAmount');
         $taxBasisTotalAmount = $summary->getElementsByTagName('TaxBasisTotalAmount');
         $taxTotalAmount = $summary->getElementsByTagName('TaxTotalAmount');
+        $roundingAmount = $summary->getElementsByTagName('RoundingAmount');
         $grandTotalAmount = $summary->getElementsByTagName('GrandTotalAmount');
+        $totalPrepaidAmount = $summary->getElementsByTagName('TotalPrepaidAmount');
         $duePayableAmount = $summary->getElementsByTagName('DuePayableAmount');
 
         static::assertSame(1, $lineTotalAmount->length);
@@ -183,7 +186,9 @@ class ZugferdDocumentTest extends TestCase
         static::assertSame(1, $allowanceTotalAmount->length);
         static::assertSame(1, $taxBasisTotalAmount->length);
         static::assertSame(1, $taxTotalAmount->length);
+        static::assertSame(1, $roundingAmount->length);
         static::assertSame(1, $grandTotalAmount->length);
+        static::assertSame(1, $totalPrepaidAmount->length);
         static::assertSame(1, $duePayableAmount->length);
 
         static::assertSame($expected[0], $lineTotalAmount->item(0)?->nodeValue);
@@ -191,14 +196,18 @@ class ZugferdDocumentTest extends TestCase
         static::assertSame($expected[2], $allowanceTotalAmount->item(0)?->nodeValue);
         static::assertSame($expected[3], $taxBasisTotalAmount->item(0)?->nodeValue);
         static::assertSame($expected[4], $taxTotalAmount->item(0)?->nodeValue);
+        static::assertSame('0.00', $roundingAmount->item(0)?->nodeValue);
         static::assertSame($expected[5], $grandTotalAmount->item(0)?->nodeValue);
-        static::assertSame($expected[6], $duePayableAmount->item(0)?->nodeValue);
+        static::assertSame($expected[6], $totalPrepaidAmount->item(0)?->nodeValue);
+        static::assertSame($expected[7], $duePayableAmount->item(0)?->nodeValue);
 
         $totalNet = (float) $lineTotalAmount->item(0)->nodeValue + (float) $chargeTotalAmount->item(0)->nodeValue - (float) $allowanceTotalAmount->item(0)->nodeValue;
         $totalGross = (float) $taxBasisTotalAmount->item(0)->nodeValue + (float) $taxTotalAmount->item(0)->nodeValue;
+        $paidWithDuePayableAmount = (float) $totalPrepaidAmount->item(0)->nodeValue + (float) $duePayableAmount->item(0)->nodeValue;
 
         static::assertSame((float) $taxBasisTotalAmount->item(0)->nodeValue, round($totalNet, 2));
         static::assertSame((float) $grandTotalAmount->item(0)->nodeValue, round($totalGross, 2));
+        static::assertSame((float) $grandTotalAmount->item(0)->nodeValue, round($paidWithDuePayableAmount, 2));
     }
 
     private function createOrderLineItem(float $price, float $taxRate, bool $isGross, ?int $position = null): OrderLineItemEntity

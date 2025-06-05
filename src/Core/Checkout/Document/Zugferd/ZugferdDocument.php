@@ -52,6 +52,8 @@ class ZugferdDocument
      */
     protected float $allowanceAmount = 0.0;
 
+    protected float $paidAmount = 0.0;
+
     /**
      * @var array{chargeAmount: CalculatedPrice[], lineTotalAmount: CalculatedPrice[], allowanceAmount: CalculatedPrice[]}
      */
@@ -83,16 +85,7 @@ class ZugferdDocument
             );
         }
 
-        $this->zugferdBuilder->setDocumentSummation(
-            $order->getAmountTotal(),
-            $order->getAmountTotal(),
-            abs($this->calculateTaxes(self::LINE_TOTAL_AMOUNT, $order, $calculator)),
-            abs($this->calculateTaxes(self::CHARGE_AMOUNT, $order, $calculator)),
-            abs($this->calculateTaxes(self::ALLOWANCE_AMOUNT, $order, $calculator)),
-            $order->getAmountNet(),
-            $order->getAmountTotal() - $order->getAmountNet()
-        );
-
+        $this->summary($order, $calculator);
         $validation = (new ZugferdDocumentValidator($this->zugferdBuilder))->validateDocument();
         if ($validation->count()) {
             $errors = [];
@@ -280,6 +273,16 @@ class ZugferdDocument
         return $this;
     }
 
+    public function withPaidAmount(float $amount): void
+    {
+        $this->paidAmount = $amount;
+    }
+
+    public function getBuilder(): ZugferdDocumentBuilder
+    {
+        return $this->zugferdBuilder;
+    }
+
     /**
      * @deprecated tag:v6.8.0 - Will be removed. Use addMappedPrice instead
      */
@@ -352,9 +355,32 @@ class ZugferdDocument
 
         $netTotal = 0.0;
         foreach ($calculatedTaxes as $tax) {
-            $netTotal += $tax->getPrice() - $tax->getTax();
+            $netTotal += $this->getPrice($tax);
         }
 
         return $netTotal;
+    }
+
+    protected function summary(OrderEntity $order, AmountCalculator $calculator): void
+    {
+        if ($this->paidAmount > $order->getAmountTotal()) {
+            throw DocumentException::generationError('Paid amount is greater than order total amount.');
+        }
+
+        $lineTotal = abs($this->calculateTaxes(self::LINE_TOTAL_AMOUNT, $order, $calculator));
+        $chargeAmount = abs($this->calculateTaxes(self::CHARGE_AMOUNT, $order, $calculator));
+        $allowanceAmount = abs($this->calculateTaxes(self::ALLOWANCE_AMOUNT, $order, $calculator));
+
+        $this->zugferdBuilder->setDocumentSummation(
+            $order->getAmountTotal(),
+            $order->getAmountTotal() - $this->paidAmount,
+            $lineTotal,
+            $chargeAmount,
+            $allowanceAmount,
+            $order->getAmountNet(),
+            $order->getAmountTotal() - $order->getAmountNet(),
+            $order->getAmountNet() - $lineTotal - $chargeAmount + $allowanceAmount,
+            $this->paidAmount
+        );
     }
 }

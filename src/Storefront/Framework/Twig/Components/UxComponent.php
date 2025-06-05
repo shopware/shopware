@@ -5,16 +5,17 @@ namespace Shopware\Storefront\Framework\Twig\Components;
 use Shopware\Core\Framework\Struct\Struct;
 use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\Filesystem\Path;
+use Symfony\UX\TwigComponent\ComponentMetadata;
 
 #[Package('framework')]
 class UxComponent extends Struct
 {
     private const MAIN_NAMESPACE = 'Storefront';
-
     protected string $name;
     protected string $path; 
     protected string $namespace;
-
+    protected ComponentMetadata | null $metadata = null;
+    protected array $properties = [];
     public function __construct(
         string $name,
         string $path,
@@ -28,6 +29,11 @@ class UxComponent extends Struct
     public function getName(): string
     {
         return $this->name;
+    }
+
+    public function getNamespace(): string
+    {
+        return $this->namespace;
     }
 
     public function getBaseName(): string
@@ -96,11 +102,6 @@ class UxComponent extends Struct
         return Path::getDirectory($this->path);
     }
 
-    public function getNamespace(): string
-    {
-        return $this->namespace;
-    }
-
     public function setName(string $name): void
     {
         $this->name = $name;
@@ -114,5 +115,24 @@ class UxComponent extends Struct
     public function setNamespace(string $namespace): void
     {
         $this->namespace = $namespace;
+    }
+
+    public function getMetadata(): ?ComponentMetadata
+    {
+        return $this->metadata;
+    }
+
+    public function setMetadata(ComponentMetadata $metadata): void
+    {
+        $this->metadata = $metadata;
+    }   
+    public function getProperties(): array
+    {
+        return $this->properties;
+    }
+
+    public function setProperties(array $properties): void
+    {
+        $this->properties = $properties;
     }
 }

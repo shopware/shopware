@@ -1,0 +1,29 @@
+.component-doc {
+    .component-doc-content-example {
+        padding: 1rem;
+        margin-bottom: 2rem;
+        border-radius: 4px;
+        box-shadow: rgba(0, 0, 0, 0.1) 0px 1px 3px 0px;
+        border: 1px solid rgba(38, 85, 115, 0.15);
+    }
+
+    .component-doc-content-code {
+        padding: 1rem;
+        margin-bottom: 2rem;
+        background: rgb(240,242,245);
+        border-radius: 8px;
+
+        code {
+            color: #6F42C1;
+        }
+    }
+
+    .component-doc-content-properties {
+        margin-bottom: 2rem;
+
+        .table {
+            width: 100%;
+            font-size: 14px;
+        }
+    }
+}

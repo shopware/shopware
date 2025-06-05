@@ -32,10 +32,23 @@ class UxComponentHelper
         $this->componentDirectory = $componentDirectory ?? 'Resources/views/components';
     }
 
-    public function getComponents(): UxComponentCollection
+    public function getComponents($includeMetadata = false, $includeProperties = false): UxComponentCollection
     {
         $components = new UxComponentCollection();
         foreach ($this->findAnonymousComponents() as $component) {
+
+            if ($includeMetadata || $includeProperties) {
+                $componentMetadata = $this->componentFactory->metadataFor($component->getName());
+
+                if ($includeMetadata) {
+                    $component->setMetadata($componentMetadata);
+                }
+    
+                if ($includeProperties) {
+                    $component->setProperties($this->getAnonymousComponentProperties($componentMetadata));
+                }
+            }
+
             $components->add($component);
         }
 

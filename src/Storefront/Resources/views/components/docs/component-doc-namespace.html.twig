@@ -1,0 +1,22 @@
+{% props
+    namespace = null,
+    level = 1
+%}
+
+<div class="component-doc-namespace">
+    <h{{ level }} id="{{ namespace.name }}">{{ namespace.name }}</h{{ level }}>
+
+    {% if namespace.components is defined %}
+        {% for component in namespace.components %}
+            <twig:docs:component-doc :component="component"></twig:docs:component-doc>
+        {% endfor %}
+    {% endif %}
+
+    {% if namespace.subNamespaces is defined %}
+        {% for subNamespace in namespace.subNamespaces %}
+            {% if subNamespace.name !== 'Docs' %}
+                <twig:docs:component-doc-namespace :namespace="subNamespace" :level="level + 1"></twig:docs:component-doc-namespace>
+            {% endif %}
+        {% endfor %}
+    {% endif %}
+</div>

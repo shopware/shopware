@@ -1,0 +1,10 @@
+{% sw_extends '@Storefront/storefront/base.html.twig' %}
+
+{% block base_esi_header %}{% endblock %}
+
+{% block base_main %}
+    <twig:docs:component-library :namespaces="componentsByNamespace"></twig:docs:component-library>
+{% endblock %}
+
+{% block base_esi_footer %}{% endblock %}
+

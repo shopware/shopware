@@ -41,6 +41,11 @@ class Migration1745319883AddDefaultConfigForMeasurementSystemTest extends TestCa
         $this->migration = new Migration1745319883AddDefaultConfigForMeasurementSystem();
     }
 
+    public function testGetCreationTimestamp(): void
+    {
+        static::assertSame(1745319883, $this->migration->getCreationTimestamp());
+    }
+
     public function testUpdate(): void
     {
         $this->migrationMeasurementSystem->update($this->connection);

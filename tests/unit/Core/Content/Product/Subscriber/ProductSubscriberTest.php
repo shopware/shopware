@@ -4,8 +4,8 @@ namespace Shopware\Tests\Unit\Core\Content\Product\Subscriber;
 
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
-use PHPUnit\Framework\MockObject\Exception;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Content\Category\CategoryEntity;
 use Shopware\Core\Content\MeasurementSystem\MeasurementUnits;
 use Shopware\Core\Content\MeasurementSystem\ProductMeasurement\ProductMeasurementUnitBuilder;
 use Shopware\Core\Content\MeasurementSystem\UnitConverter\AbstractMeasurementUnitConverter;
@@ -103,6 +103,12 @@ class ProductSubscriberTest extends TestCase
 
     public static function resolveCmsPageIdProviderWithLoadedEventProvider(): \Generator
     {
+        yield 'It does not set cms page id if no product entity given' => [
+            (new CategoryEntity())->assign(['id' => Uuid::randomHex(), 'cmsPageId' => 'own-id']),
+            new StaticSystemConfigService([self::CONFIG => 'config-id']),
+            'own-id',
+        ];
+
         yield 'It does not set cms page id if already given' => [
             (new ProductEntity())->assign(['id' => Uuid::randomHex(), 'cmsPageId' => 'own-id']),
             new StaticSystemConfigService([self::CONFIG => 'config-id']),

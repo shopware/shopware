@@ -29,6 +29,13 @@ class ConvertedUnitSetTest extends TestCase
         static::assertSame([], $result);
     }
 
+    public function testGetApiAlias(): void
+    {
+        $result = $this->unitSet->getApiAlias();
+
+        static::assertSame('converted_unit_set', $result);
+    }
+
     public function testJsonSerializeWithSingleUnit(): void
     {
         $unit = new ConvertedUnit(10.5, 'kg');

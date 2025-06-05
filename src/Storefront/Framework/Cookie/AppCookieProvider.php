@@ -7,7 +7,7 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\NotFilter;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\NotEqualsFilter;
 use Shopware\Core\Framework\Log\Package;
 
 #[Package('discovery')]
@@ -32,12 +32,7 @@ class AppCookieProvider implements CookieProviderInterface
         $criteria = new Criteria();
         $criteria->addFilter(
             new EqualsFilter('active', true),
-            new NotFilter(
-                NotFilter::CONNECTION_AND,
-                [
-                    new EqualsFilter('app.cookies', null),
-                ]
-            )
+            new NotEqualsFilter('app.cookies', null)
         );
 
         $result = $this->appRepository->search($criteria, Context::createDefaultContext())->getEntities();

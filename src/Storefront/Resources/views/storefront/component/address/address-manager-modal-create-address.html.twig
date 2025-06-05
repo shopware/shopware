@@ -25,7 +25,7 @@
         {% block address_manager_modal_address_form_create %}
             <form
                 method="post"
-                action="{{ url('frontend.account.addressmanager', { addressId: postedAddress.id, type }) }}"
+                action="{% block address_manager_modal_address_form_create_action %}{{ path('frontend.account.addressmanager', { addressId: postedAddress.id, type }) }}{% endblock %}"
                 id="address-manager-modal-address-form"
                 data-form-handler="true"
             >

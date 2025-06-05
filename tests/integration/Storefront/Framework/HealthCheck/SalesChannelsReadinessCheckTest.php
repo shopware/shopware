@@ -13,6 +13,7 @@ use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\SalesChannelApiTestBehaviour;
 use Shopware\Core\Test\Stub\Framework\IdsCollection;
 use Shopware\Storefront\Framework\SystemCheck\SalesChannelsReadinessCheck;
+use Shopware\Storefront\Framework\SystemCheck\Util\SalesChannelDomainProvider;
 use Shopware\Storefront\Framework\SystemCheck\Util\SalesChannelDomainUtil;
 use Shopware\Storefront\Framework\SystemCheck\Util\StorefrontHealthCheckResult;
 use Symfony\Component\HttpFoundation\Request;
@@ -117,8 +118,8 @@ class SalesChannelsReadinessCheckTest extends TestCase
     private function createCheck((SalesChannelDomainUtil&MockObject)|null $util = null): SalesChannelsReadinessCheck
     {
         return new SalesChannelsReadinessCheck(
-            $this->connection,
             $util ?? static::getContainer()->get(SalesChannelDomainUtil::class),
+            static::getContainer()->get(SalesChannelDomainProvider::class)
         );
     }
 

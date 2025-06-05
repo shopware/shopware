@@ -306,7 +306,7 @@ class BaseSalesChannelContextFactory extends AbstractBaseSalesChannelContextFact
      */
     private function getMeasurementSystemInfo(SalesChannelEntity $salesChannelEntity, ?string $domainId): MeasurementUnits
     {
-        if ($domainId && $salesChannelEntity->getDomains()->get($domainId) instanceof SalesChannelDomainEntity) {
+        if ($domainId && $salesChannelEntity->getDomains()?->get($domainId) instanceof SalesChannelDomainEntity) {
             return $salesChannelEntity->getDomains()->get($domainId)->getMeasurementUnits();
         }
 

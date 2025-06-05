@@ -5,6 +5,7 @@ namespace Shopware\Tests\Unit\Core\System\SalesChannel;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\AbstractCartPersister;
+use Shopware\Core\Content\MeasurementSystem\MeasurementUnits;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
@@ -47,6 +48,23 @@ class SalesChannelContextTest extends TestCase
             'units' => [
                 'length' => 'mm',
                 'weight' => 'kg',
+            ],
+        ], $salesChannelContext->getMeasurementSystem()->jsonSerialize());
+
+        $newMeasurementSystem = new MeasurementUnits(
+            'imperial',
+            [
+                'length' => 'in',
+                'weight' => 'lb',
+            ]
+        );
+
+        $salesChannelContext->setMeasurementSystem($newMeasurementSystem);
+        static::assertSame([
+            'system' => 'imperial',
+            'units' => [
+                'length' => 'in',
+                'weight' => 'lb',
             ],
         ], $salesChannelContext->getMeasurementSystem()->jsonSerialize());
     }

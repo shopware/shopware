@@ -422,4 +422,70 @@ return (new Config())
             }
         }
     })
+    // check for the testsuite name containing "core" as we have split the core integration tests into multiple suites
+    ->useRule(function (Context $context): void {
+        $pullRequestFiles = $context->platform->pullRequest->getFiles();
+
+        $addedTests = $pullRequestFiles
+            ->filter(fn (File $file) => in_array($file->status, [File::STATUS_ADDED, File::STATUS_MODIFIED, File::STATUS_RENAMED], true))
+            ->matches('tests/integration/Core/Framework/**Test.php');
+
+        if (\count($addedTests) === 0) {
+            return;
+        }
+
+        $dom = new DOMDocument();
+        $phpUnitConfigFromPullRequest = $pullRequestFiles
+            ->matches('phpunit.xml.dist')
+            ->first();
+
+        if (!$phpUnitConfigFromPullRequest) {
+            $phpUnitConfig = __DIR__ . '/phpunit.xml.dist';
+            $domLoad = $dom->load($phpUnitConfig);
+        } else {
+            $phpUnitConfig = $phpUnitConfigFromPullRequest->name;
+            $domLoad = $dom->loadXML($phpUnitConfigFromPullRequest->getContent());
+        }
+
+        if ($domLoad === false) {
+            $context->failure(sprintf('Was not able to load phpunit config file %s. Please check configuration.', $phpUnitConfig));
+            return;
+        }
+
+        $nodes = $missing = [];
+        $root = 'tests/integration/Core/Framework';
+
+        $xpath = new DOMXPath($dom);
+        foreach ($xpath->query('//testsuite[contains(@name, "core-framework")]/directory | //testsuite[contains(@name, "core")]/file') as $dirDomElement) {
+            $nodes[] = $dirDomElement->nodeValue;
+        }
+
+        foreach ($addedTests as $file) {
+            $filePath = dirname($file->name);
+
+            if ($filePath === $root) {
+                $nodeType = 'file';
+                $filePath = $file->name;
+            } else {
+                $nodeType = 'directory';
+                $filePath = str_replace($root .'/', '', $filePath);
+                $filePath = explode('/', $filePath);
+                $filePath = $root .'/'. current($filePath);
+            }
+
+            $matches = array_filter($nodes, function ($item) use ($filePath) {
+                return str_contains($filePath, $item);
+            });
+            if (empty($matches)) {
+                $missing[] = htmlentities('<' . $nodeType . '>'. $filePath .'</' . $nodeType . '>');
+            }
+        }
+
+        if (\count($missing) > 0) {
+            $context->failure(
+                'Please add the integration test(s) within one of the core-batch testsuite of phpunit.xml.dist: <br/><br/>'
+                . implode('<br/>', array_unique($missing))
+            );
+        }
+    })
 ;

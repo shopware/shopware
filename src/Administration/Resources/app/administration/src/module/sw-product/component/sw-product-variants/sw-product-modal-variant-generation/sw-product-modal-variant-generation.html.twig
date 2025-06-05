@@ -301,7 +301,8 @@
             >
                 <mt-progress-bar
                     class="generate-variant-progress-bar"
-                    :model-value="progressInPercentage"
+                    :model-value="actualProgress"
+                    :max-value="maxProgress"
                 />
 
                 <span class="generate-variant-progress-bar__description">

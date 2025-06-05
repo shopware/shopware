@@ -172,7 +172,7 @@ Module.register('sw-order', {
             children: orderDetailChildren(),
             props: {
                 default: ($route) => {
-                    return { orderId: $route.params.id };
+                    return { orderId: $route.params.id.toLowerCase() };
                 },
             },
         },

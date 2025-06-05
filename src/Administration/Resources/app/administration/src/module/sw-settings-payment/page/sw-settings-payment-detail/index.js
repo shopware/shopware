@@ -162,7 +162,7 @@ export default {
 
     methods: {
         createdComponent() {
-            this.paymentMethodId = this.$route.params.id;
+            this.paymentMethodId = this.$route.params.id.toLowerCase();
             this.loadEntityData();
             this.loadCustomFieldSets();
         },

@@ -204,7 +204,7 @@ const swOrderStore = Shopware.Store.register({
 
             return Service('cartStoreService')
                 .cancelCart(salesChannelId, contextToken)
-                .then(() => this.setCustomer(null));
+                .then(() => this.$reset());
         },
 
         updateCustomerContext({

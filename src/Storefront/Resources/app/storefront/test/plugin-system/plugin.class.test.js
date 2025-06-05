@@ -61,14 +61,23 @@ describe('Plugin class', () => {
             get: jest.fn().mockReturnValue({})
         };
     });
-    
+
     describe('constructor', () => {
-        it('should throw an error if no valid element is provided', () => {
-            expect(() => new Plugin(null)).toThrow('There is no valid element given.');
-            expect(() => new Plugin(undefined)).toThrow('There is no valid element given.');
-            expect(() => new Plugin('not-an-element')).toThrow('There is no valid element given.');
+        it('should log a warning if no valid element is provided', () => {
+            const consoleSpy = jest.spyOn(console, 'warn').mockImplementation();
+
+            new Plugin(null, {}, 'TestPlugin');
+            expect(consoleSpy).toHaveBeenCalledWith('There is no valid element given while trying to create a plugin instance for "TestPlugin".');
+
+            new Plugin(undefined, {}, 'TestPlugin');
+            expect(consoleSpy).toHaveBeenCalledWith('There is no valid element given while trying to create a plugin instance for "TestPlugin".');
+
+            new Plugin('not-an-element', {}, 'TestPlugin');
+            expect(consoleSpy).toHaveBeenCalledWith('There is no valid element given while trying to create a plugin instance for "TestPlugin".');
+ 
+            consoleSpy.mockRestore();
         });
-        
+
         it('should initialize with valid element and default options', () => {
             plugin = new TestPlugin(element);
             
@@ -132,11 +141,17 @@ describe('Plugin class', () => {
             expect(initSpy).toHaveBeenCalled();
             expect(plugin._initialized).toBe(true);
         });
-        
-        it('should throw an error if init method is not implemented', () => {
-            expect(() => new InvalidPlugin(element)).toThrow(
-                'The "init" method for the plugin "InvalidPlugin" is not defined.'
+
+        it('should log a warning if init method is not implemented', () => {
+            const consoleSpy = jest.spyOn(console, 'warn').mockImplementation();
+
+            new InvalidPlugin(element);
+
+            expect(consoleSpy).toHaveBeenCalledWith(
+                'The "init" method for the plugin "InvalidPlugin" is not defined. The plugin will not be initialized.'
             );
+
+            consoleSpy.mockRestore();
         });
         
         it('should not initialize twice', () => {

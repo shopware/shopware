@@ -470,6 +470,8 @@ describe('Plugin manager', () => {
             <div data-async-single-with-error="true"></div>
         `;
 
+        const consoleSpy = jest.spyOn(console, 'warn').mockImplementation();
+
         // Cause some trouble by returning a non-class
         const asyncImport = new Promise((resolve) => {
             resolve({ default: 'NOT_A_CLASS' });
@@ -481,8 +483,7 @@ describe('Plugin manager', () => {
 
         await new Promise(process.nextTick);
 
-        expect(console.error).toHaveBeenCalled();
-        expect(console.error.mock.calls[0][0].message).toContain('The passed plugin is not a function or a class.');
+        expect(consoleSpy).toHaveBeenCalledWith('The passed plugin is not a function or a class.');
 
         expect(PluginManager.getPluginInstances('AsyncErrorPlugin').length).toBe(0);
 

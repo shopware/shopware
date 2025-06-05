@@ -156,10 +156,13 @@ describe('form submit loader loads button if selector is edited', () => {
         expect(plugin._submitButtons[0].id).toBe('inside-form-one');
     });
 
-    test('it loads button inside the container', () => {
-        expect(() => {
-            setUpFormLoader('test-without-button');
-        }).toThrow('There is no valid element given.');
+    test('it warns when no valid element is found', () => {
+        const consoleSpy = jest.spyOn(console, 'warn').mockImplementation();
+
+        setUpFormLoader('test-without-button');
+
+        expect(consoleSpy).toHaveBeenCalledWith('There is no valid element given while trying to create a plugin instance for "FormSubmitLoader".');
+        consoleSpy.mockRestore();
     });
 });
 

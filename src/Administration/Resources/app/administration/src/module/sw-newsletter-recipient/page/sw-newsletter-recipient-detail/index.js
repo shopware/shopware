@@ -64,7 +64,7 @@ export default {
             this.isLoading = true;
             const recipientCriteria = new Criteria(1, 1);
 
-            recipientCriteria.addFilter(Criteria.equals('id', this.$route.params.id));
+            recipientCriteria.addFilter(Criteria.equals('id', this.$route.params.id.toLowerCase()));
             recipientCriteria.addAssociation('tags');
             this.newsletterRecipientStore.search(recipientCriteria).then((newsletterRecipient) => {
                 this.newsletterRecipient = newsletterRecipient.first();

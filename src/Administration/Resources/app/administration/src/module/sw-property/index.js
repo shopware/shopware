@@ -46,7 +46,7 @@ Module.register('sw-property', {
             props: {
                 default: (route) => {
                     return {
-                        groupId: route.params.id,
+                        groupId: route.params.id.toLowerCase(),
                     };
                 },
             },

@@ -567,7 +567,7 @@ export default {
             const criteria = new Criteria(1, 25);
             criteria.addAssociation('themes');
 
-            this.salesChannelRepository.get(this.$route.params.id, Context.api, criteria).then((entity) => {
+            this.salesChannelRepository.get(this.$route.params.id.toLowerCase(), Context.api, criteria).then((entity) => {
                 if (entity.extensions.themes !== undefined && entity.extensions.themes.length >= 1) {
                     return;
                 }

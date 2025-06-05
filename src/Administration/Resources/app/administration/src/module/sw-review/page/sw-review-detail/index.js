@@ -128,7 +128,7 @@ export default {
                 scope: this,
             });
             if (this.$route.params.id) {
-                this.reviewId = this.$route.params.id;
+                this.reviewId = this.$route.params.id.toLowerCase();
 
                 this.loadEntityData();
                 this.loadCustomFieldSets();

@@ -48,7 +48,7 @@ Module.register('sw-settings-state-machine', {
             props: {
                 default(route) {
                     return {
-                        stateMachineId: route.params.id,
+                        stateMachineId: route.params.id.toLowerCase(),
                     };
                 },
             },

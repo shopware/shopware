@@ -189,7 +189,6 @@
             <argument type="service" id="Shopware\Core\Framework\Plugin\PluginManagementService"/>
             <argument type="service" id="Symfony\Component\Filesystem\Filesystem"/>
             <argument>%shopware.deployment.runtime_extension_management%</argument>
-            <argument type="service" id="cache.object"/>
 
             <call method="setContainer">
                 <argument type="service" id="service_container"/>
@@ -297,5 +296,9 @@
         </service>
 
         <service id="Shopware\Core\Framework\JWT\JWTDecoder"/>
+
+        <service id="Shopware\Core\Framework\Store\Subscriber\ExtensionChangedSubscriber">
+            <argument type="service" id="cache.object"/>
+        </service>
     </services>
 </container>

@@ -53,7 +53,7 @@ Module.register('sw-manufacturer', {
             props: {
                 default(route) {
                     return {
-                        manufacturerId: route.params.id,
+                        manufacturerId: route.params.id.toLowerCase(),
                     };
                 },
             },

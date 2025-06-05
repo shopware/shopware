@@ -41,13 +41,14 @@
 
                 <template #column-createFlow="{ item }">
                     <!-- eslint-disable-next-line vuejs-accessibility/click-events-have-key-events -->
-                    <sw-internal-link
-                        :router-link="{ name: 'sw.flow.create', params: { flowTemplateId: item.id }}"
+                    <mt-link
+                        type="internal"
+                        :to="{ name: 'sw.flow.create', params: { flowTemplateId: item.id }}"
                         :disabled="!acl.can('flow.creator')"
                         class="sw-flow-list-my-flows__content__create-flow-link"
                     >
                         {{ $tc('sw-flow.template.create') }}
-                    </sw-internal-link>
+                    </mt-link>
                 </template>
             </sw-entity-listing>
 

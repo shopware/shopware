@@ -33,8 +33,7 @@ async function createWrapper(privileges = []) {
                     },
                 },
                 stubs: {
-                    'sw-internal-link': true,
-
+                    'mt-link': true,
                     'sw-media-preview-v2': true,
                 },
             },
@@ -54,7 +53,7 @@ describe('module/sw-settings-payment/component/sw-payment-card', () => {
         const wrapper = await createWrapper();
         await wrapper.vm.$nextTick();
 
-        const editLink = wrapper.find('sw-internal-link-stub');
+        const editLink = wrapper.find('mt-link-stub');
         expect(editLink.attributes().disabled).toBeTruthy();
 
         const activeToggle = wrapper.findComponent('.mt-switch');
@@ -65,7 +64,7 @@ describe('module/sw-settings-payment/component/sw-payment-card', () => {
         const wrapper = await createWrapper(['payment.editor']);
         await wrapper.vm.$nextTick();
 
-        const editLink = wrapper.find('sw-internal-link-stub');
+        const editLink = wrapper.find('mt-link-stub');
         expect(editLink.attributes().disabled).toBeFalsy();
 
         const activeToggle = wrapper.find('.mt-switch');

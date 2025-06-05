@@ -4,12 +4,15 @@
 
 import template from './sw-product-price-form.html.twig';
 import './sw-product-price-form.scss';
+import MtAvatar
+    from '../../../../../.yalc/@shopware-ag/meteor-component-library/src/components/icons-media/mt-avatar/mt-avatar.vue';
 
 const { Mixin } = Shopware;
 const { mapPropertyErrors } = Shopware.Component.getComponentHelper();
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default {
+    components: { MtAvatar },
     template,
 
     mixins: [
@@ -82,11 +85,11 @@ export default {
             return this.$tc(
                 'sw-product.priceForm.taxRateHelpText.label',
                 {
-                    link: `<sw-internal-link
-                           :router-link=${JSON.stringify(link)}
-                           :inline="true">
+                    link: `<mt-link
+                            type="internal"
+                            :to=${JSON.stringify(link)}>
                            ${this.$tc('sw-product.priceForm.taxRateHelpText.linkText')}
-                      </sw-internal-link>`,
+                      </mt-link>`,
                 },
                 0,
             );

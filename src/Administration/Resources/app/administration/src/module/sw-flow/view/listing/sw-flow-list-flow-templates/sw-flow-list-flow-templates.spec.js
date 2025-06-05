@@ -1,4 +1,5 @@
 import { mount } from '@vue/test-utils';
+import { MtLink } from '@shopware-ag/meteor-component-library';
 
 /**
  * @sw-package after-sales
@@ -39,7 +40,7 @@ async function createWrapper(privileges = [], props = {}) {
                     </div>
                 `,
                 },
-                'sw-internal-link': await wrapTestComponent('sw-internal-link'),
+                'mt-link': {template: `<router-link v-bind="$attrs"><slot/></router-link>`},
                 'router-link': {
                     props: ['to'],
                     // eslint-disable-next-line no-template-curly-in-string
@@ -103,7 +104,7 @@ describe('module/sw-flow/view/listing/sw-flow-list-flow-templates', () => {
         const createFlowLink = wrapper.find('.sw-flow-list-my-flows__content__create-flow-link');
         expect(createFlowLink.exists()).toBe(true);
 
-        expect(createFlowLink.attributes().disabled).toBeUndefined();
+        expect(createFlowLink.attributes().disabled).toBe('false');
     });
 
     it('should not be able to create a flow from template', async () => {
@@ -115,7 +116,7 @@ describe('module/sw-flow/view/listing/sw-flow-list-flow-templates', () => {
         const createFlowLink = wrapper.find('.sw-flow-list-my-flows__content__create-flow-link');
         expect(createFlowLink.exists()).toBe(true);
 
-        expect(createFlowLink.classes()).toContain('sw-internal-link--disabled');
+        expect(createFlowLink.attributes().disabled).toBe('true');
     });
 
     it('should be able to redirect to create flow page from flow template', async () => {

@@ -96,7 +96,7 @@
         }
     }
 
-    &__support-item-link.sw-external-link[target="_blank"] {
+    &__support-item-link.mt-link[target="_blank"] {
         display: grid;
         grid-auto-flow: column;
         align-items: center;
@@ -105,10 +105,6 @@
         font-size: $font-size-xs;
         font-weight: $font-weight-medium;
         text-decoration: none;
-
-        .sw-external-link__icon {
-            margin-left: -4px;
-        }
     }
 
     &__support-item-button.mt-button {

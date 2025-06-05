@@ -364,11 +364,11 @@ export default {
             return this.$tc(
                 'sw-sales-channel.detail.helpTextTaxCalculation.label',
                 {
-                    link: `<sw-internal-link
-                           :router-link=${JSON.stringify(link)}
-                           :inline="true">
+                    link: `<mt-link
+                           type="internal"
+                           :to=${JSON.stringify(link)}>
                            ${this.$tc('sw-sales-channel.detail.helpTextTaxCalculation.linkText')}
-                      </sw-internal-link>`,
+                      </mt-link>`,
                 },
                 0,
             );

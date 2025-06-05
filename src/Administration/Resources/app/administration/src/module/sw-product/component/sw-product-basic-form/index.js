@@ -88,11 +88,11 @@ export default {
             return this.$tc(
                 'sw-product.basicForm.productNumberHelpText.label',
                 {
-                    link: `<sw-internal-link
-                           :router-link=${JSON.stringify(this.productNumberRangeLink)}
-                           :inline="true">
+                    link: `<mt-link
+                           type="internal"
+                           :to=${JSON.stringify(this.productNumberRangeLink)}>
                            ${this.$tc('sw-product.basicForm.productNumberHelpText.linkText')}
-                       </sw-internal-link>`,
+                       </mt-link>`,
                 },
                 0,
             );
@@ -111,16 +111,16 @@ export default {
             return this.$tc(
                 'sw-product.basicForm.highlightHelpText.label',
                 {
-                    themesLink: `<sw-internal-link
-                                 :router-link=${JSON.stringify(themesLink)}
-                                 :inline="true">
+                    themesLink: `<mt-link
+                                 type="internal"
+                                 :to=${JSON.stringify(themesLink)}>
                                  ${this.$tc('sw-product.basicForm.highlightHelpText.themeLinkText')}
-                             </sw-internal-link>`,
-                    snippetLink: `<sw-internal-link
-                                  :router-link=${JSON.stringify(snippetLink)}
-                                  :inline="true">
+                             </mt-link>`,
+                    snippetLink: `<mt-link
+                                  type="internal"
+                                  :to=${JSON.stringify(snippetLink)}>
                                   ${this.$tc('sw-product.basicForm.highlightHelpText.snippetLinkText')}
-                              </sw-internal-link>`,
+                              </mt-link>`,
                 },
                 0,
             );

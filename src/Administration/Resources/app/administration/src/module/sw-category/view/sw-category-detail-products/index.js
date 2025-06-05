@@ -116,11 +116,11 @@ export default {
             const helpText = this.$tc(
                 'sw-category.base.products.dynamicProductGroupHelpText.label',
                 {
-                    link: `<sw-internal-link
-                           :router-link=${JSON.stringify(link)}
-                           :inline="true">
+                    link: `<mt-link
+                           type="internal"
+                           :to=${JSON.stringify(link)}>
                            ${this.$tc('sw-category.base.products.dynamicProductGroupHelpText.linkText')}
-                       </sw-internal-link>`,
+                       </mt-link>`,
                 },
                 0,
             );
@@ -134,10 +134,13 @@ export default {
 
             return `${helpText}
                     <br>
-                    <sw-external-link
-                        href="${this.$tc('sw-category.base.products.dynamicProductGroupHelpText.videoUrl')}">
+                    <mt-link
+                        as="a"
+                        type="external"
+                        to="${this.$tc('sw-category.base.products.dynamicProductGroupHelpText.videoUrl')}"
+                        target="_blank">
                         ${this.$tc('sw-category.base.products.dynamicProductGroupHelpText.videoLink')}
-                    </sw-external-link>`;
+                    </mt-link>`;
         },
 
         assetFilter() {

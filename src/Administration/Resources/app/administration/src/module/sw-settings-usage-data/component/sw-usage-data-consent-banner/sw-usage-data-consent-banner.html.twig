@@ -20,11 +20,12 @@
             <strong>{{ $tc('sw-usage-data-consent-banner.thanksForParticipation') }}</strong>
         </template>
         <template #link>
-            <sw-internal-link
+            <mt-link
+                type="internal"
                 :router-link="{ name: 'sw.settings.usage.data.index' }"
             >
                 {{ $tc('sw-usage-data-consent-banner.togglePath') }}
-            </sw-internal-link>
+            </mt-link>
         </template>
     </i18n-t>
     <button
@@ -174,9 +175,13 @@
             class="sw-usage-data-consent-banner__content-details-description"
         >
             <template #link>
-                <sw-external-link :href="$tc('sw-usage-data-consent-banner.privacyPolicyLink')">
+                <mt-link
+                    type="external"
+                    as="a"
+                    :to="$tc('sw-usage-data-consent-banner.privacyPolicyLink')"
+                    target="_blank">
                     {{ $tc('sw-usage-data-consent-banner.privacyPolicy') }}
-                </sw-external-link>
+                </mt-link>
             </template>
             <template #fullDetailsDescriptionNotAccepted>
                 {{ isAccepted ? '' : $tc('sw-usage-data-consent-banner.fullDetailsDescriptionNotAccepted') }}

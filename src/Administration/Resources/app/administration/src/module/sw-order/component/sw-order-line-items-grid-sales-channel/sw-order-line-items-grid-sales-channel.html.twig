@@ -144,6 +144,7 @@
                     class="sw-order-line-items-grid-sales-channel__item-payload-options"
                     :title="$tc('sw-order.detailBase.contextMenuShowProduct')"
                     :to="$router.resolve({ name: 'sw.product.detail', params: { id: item.identifier || item.id } }).href"
+                    target="_blank"
                 >
                     <sw-product-variant-info :variations="item.payload.options">
                         <div class="sw-order-line-items-grid__item-label">

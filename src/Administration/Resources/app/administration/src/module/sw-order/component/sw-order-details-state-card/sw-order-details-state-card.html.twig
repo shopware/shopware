@@ -54,13 +54,16 @@
             {% endblock %}
 
             {% block sw_order_detail_state_card_state_history_button %}
-            <sw-external-link
+            <mt-link
+                type="external"
+                as="a"
                 class="sw-order-detail-state-card__state-history-button"
                 icon="regular-long-arrow-right"
                 @click="onShowStatusHistory"
+                target="_blank"
             >
                 {{ $tc('sw-order.stateCard.labelShowHistoryModal') }}
-            </sw-external-link>
+            </mt-link>
             {% endblock %}
 
         </sw-container>

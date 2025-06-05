@@ -1476,11 +1476,6 @@ parameters:
 			path: src/Core/Content/Seo/SeoUrlUpdater.php
 
 		-
-			message: "#^Cannot call method map\\(\\) on Shopware\\\\Core\\\\System\\\\SalesChannel\\\\Aggregate\\\\SalesChannelDomain\\\\SalesChannelDomainCollection\\|null\\.$#"
-			count: 1
-			path: src/Core/Content/Sitemap/Commands/SitemapGenerateCommand.php
-
-		-
 			message: "#^Method Shopware\\\\Core\\\\Content\\\\Sitemap\\\\ConfigHandler\\\\ConfigHandlerInterface\\:\\:getSitemapConfig\\(\\) return type has no value type specified in iterable type array\\.$#"
 			count: 1
 			path: src/Core/Content/Sitemap/ConfigHandler/ConfigHandlerInterface.php
@@ -1756,8 +1751,12 @@ parameters:
 			path: src/Core/Framework/Api/Acl/Event/AclGetAdditionalPrivilegesEvent.php
 
 		-
-			message: '#^Method Shopware\\Core\\Content\\Sitemap\\Provider\\CustomUrlProvider\:\:isAvailableForSalesChannel\(\) has parameter \$url with no value type specified in iterable type array\.$#'
-			identifier: missingType.iterableValue
+			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Api\\\\Acl\\\\Event\\\\AclGetAdditionalPrivilegesEvent\\:\\:setPrivileges\\(\\) has parameter \\$privileges with no value type specified in iterable type array\\.$#"
+			count: 1
+			path: src/Core/Framework/Api/Acl/Event/AclGetAdditionalPrivilegesEvent.php
+
+		-
+			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Api\\\\Acl\\\\Role\\\\AclRoleEntity\\:\\:getPrivileges\\(\\) return type has no value type specified in iterable type array\\.$#"
 			count: 1
 			path: src/Core/Framework/Api/Acl/Role/AclRoleEntity.php
 

@@ -5,6 +5,7 @@ namespace Shopware\Storefront\Theme;
 use League\Flysystem\FilesystemException;
 use League\Flysystem\FilesystemOperator;
 use League\Flysystem\UnableToDeleteDirectory;
+use League\Flysystem\Visibility;
 use Psr\Log\LoggerInterface;
 use ScssPhp\ScssPhp\OutputStyle;
 use Shopware\Core\Framework\Adapter\Cache\CacheInvalidator;
@@ -36,6 +37,7 @@ class ThemeCompiler implements ThemeCompilerInterface
      *
      * @param array<string, AssetPackage> $packages
      * @param array<int, string> $customAllowedRegex
+     * @param array{visibility?: string} $themeFilesystemConfig
      */
     public function __construct(
         private readonly FilesystemOperator $filesystem,
@@ -51,7 +53,8 @@ class ThemeCompiler implements ThemeCompilerInterface
         private readonly AbstractThemePathBuilder $themePathBuilder,
         private readonly AbstractScssCompiler $scssCompiler,
         private readonly array $customAllowedRegex = [],
-        private readonly bool $validate = false
+        private readonly bool $validate = false,
+        private readonly array $themeFilesystemConfig = [],
     ) {
     }
 
@@ -191,7 +194,7 @@ class ThemeCompiler implements ThemeCompilerInterface
             $targetPath = $themePath . '/js/' . $folderName;
             foreach ($files as $file) {
                 if (file_exists($file->getRealPath())) {
-                    $copyFiles[] = new CopyBatchInput($file->getRealPath(), [$targetPath . '/' . $file->getFilename()]);
+                    $copyFiles[] = new CopyBatchInput($file->getRealPath(), [$targetPath . '/' . $file->getFilename()], $this->themeFilesystemConfig['visibility'] ?? Visibility::PUBLIC);
                 }
             }
         }
@@ -265,7 +268,7 @@ class ThemeCompiler implements ThemeCompilerInterface
                 $asset = $fs->path('Resources', $asset);
             }
 
-            $collected = [...$collected, ...$this->copyBatchInputFactory->fromDirectory($asset, $outputPath)];
+            $collected = [...$collected, ...$this->copyBatchInputFactory->fromDirectory($asset, $outputPath, $this->themeFilesystemConfig['visibility'] ?? Visibility::PUBLIC)];
         }
 
         return array_values($collected);
@@ -486,7 +489,8 @@ PHP_EOL;
                 $tempStream,
                 [
                     $compileLocation . \DIRECTORY_SEPARATOR . 'css' . \DIRECTORY_SEPARATOR . 'all.css',
-                ]
+                ],
+                $this->themeFilesystemConfig['visibility'] ?? Visibility::PUBLIC
             ),
         ];
 

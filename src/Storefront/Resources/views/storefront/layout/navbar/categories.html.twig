@@ -10,7 +10,7 @@
             {% set category = treeItem.category %}
             {% set id = category.id %}
             {% set name = category.translated.name %}
-            {% set link = category.seoLink %}
+            {% set link = category.seoUrl %}
 
             {% block layout_navbar_categories_item %}
                 <div class="{% if level == 0 %}{% if navigationMedia %}col-4 {% else %}col-3 {% endif %}{% endif %}{% if ((loop.index % 4 != 0) and (loop.index != 1)) %}navigation-flyout-col{% endif %}">

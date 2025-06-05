@@ -121,7 +121,7 @@
 
             {% block address_manager_modal_footer_form %}
                 <form
-                    action="{{ path('frontend.account.addressmanager.switch')}}"
+                    action="{% block address_manager_modal_footer_form_action %}{{ path('frontend.account.addressmanager.switch') }}{% endblock %}"
                     method="post"
                     data-form-handler="true"
                 >
@@ -137,6 +137,18 @@
                         class="address-manager-modal-currentBillingId"
                         name="billingAddressId"
                         value=""
+                    >
+
+                    <input
+                        type="hidden"
+                        name="redirectTo"
+                        value="{{ redirectTo }}"
+                    >
+
+                    <input
+                        type="hidden"
+                        name="redirectParameters"
+                        value="{{ redirectParameters }}"
                     >
 
                     {% block address_manager_modal_footer_form_submit_button %}

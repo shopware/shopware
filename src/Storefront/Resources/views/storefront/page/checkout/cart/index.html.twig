@@ -73,10 +73,8 @@
         {% block page_checkout_cart_add_product_and_shipping %}
             <div class="row">
                 {% block page_checkout_cart_add_product %}
-                    <div class="col-md-4 cart-add-product-container">
-                        <form action="{{ path('frontend.checkout.product.add-by-number') }}"
-                              class="cart-add-product"
-                              method="post">
+                    <div class="col-md-5 cart-add-product-container">
+                        <form action="{{ path('frontend.checkout.product.add-by-number') }}" method="post">
                             {% block page_checkout_cart_add_product_redirect %}
                                 <input type="hidden"
                                        name="redirectTo"
@@ -117,7 +115,7 @@
                 {% endblock %}
 
                 {% block page_checkout_cart_shipping_costs %}
-                    <div class="col-md-8 cart-shipping-costs-container">
+                    <div class="col-md-7 cart-shipping-costs-container">
                         <form name="precalc"
                               method="post"
                               action="{{ path('frontend.checkout.configure') }}"

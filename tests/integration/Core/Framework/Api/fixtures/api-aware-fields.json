@@ -1569,8 +1569,6 @@
     "measurement_system.id",
     "measurement_system.technicalName",
     "measurement_system.units",
-    "measurement_system.salesChannelDomains",
-    "measurement_system.salesChannels",
     "measurement_system.translations",
     "measurement_system.createdAt",
     "measurement_system.updatedAt",

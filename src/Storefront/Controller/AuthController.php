@@ -61,12 +61,12 @@ class AuthController extends StorefrontController
     #[Route(path: '/account/login', name: 'frontend.account.login.page', defaults: ['_noStore' => true], methods: ['GET'])]
     public function loginPage(Request $request, RequestDataBag $data, SalesChannelContext $context): Response
     {
-        /** @var string $redirect */
-        $redirect = $request->get('redirectTo', 'frontend.account.home.page');
-
         $customer = $context->getCustomer();
 
-        if ($customer !== null && $customer->getGuest() === false) {
+        /** @var string $redirect */
+        $redirect = $request->get('redirectTo', $customer?->getGuest() ? 'frontend.account.logout.page' : 'frontend.account.home.page');
+
+        if ($customer !== null) {
             $request->request->set('redirectTo', $redirect);
 
             return $this->createActionResponse($request);

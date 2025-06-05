@@ -6,7 +6,6 @@ use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\MeasurementSystem\MeasurementSystemException;
-use Shopware\Core\Content\MeasurementSystem\UnitConverter\ConvertedUnit;
 use Shopware\Core\Content\MeasurementSystem\UnitConverter\MeasurementUnitConverter;
 use Shopware\Core\Content\MeasurementSystem\UnitProvider\AbstractMeasurementUnitProvider;
 use Shopware\Core\Framework\Log\Package;

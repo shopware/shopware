@@ -6,7 +6,6 @@ use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\MeasurementSystem\MeasurementSystemException;
-use Shopware\Core\Content\MeasurementSystem\UnitConverter\ConvertedUnit;
 use Shopware\Core\Content\MeasurementSystem\UnitConverter\MeasurementUnitConverter;
 use Shopware\Core\Content\MeasurementSystem\UnitProvider\AbstractMeasurementUnitProvider;
 use Shopware\Core\Framework\Log\Package;
@@ -211,6 +210,33 @@ class MeasurementUnitConverterTest extends TestCase
 
         static::assertSame(0.0, $result->value);
         static::assertSame('cm', $result->unit);
+    }
+
+    public function testConvertZeroFactor(): void
+    {
+        $fromUnitInfo = [
+            'type' => 'length',
+            'factor' => 1.0,
+            'precision' => 2,
+        ];
+
+        $toUnitInfo = [
+            'type' => 'length',
+            'factor' => 0,
+            'precision' => 2,
+        ];
+
+        $this->unitProvider
+            ->expects($this->exactly(2))
+            ->method('getUnitInfo')
+            ->willReturnMap([
+                ['mm', $fromUnitInfo],
+                ['cm', $toUnitInfo],
+            ]);
+
+        static::expectException(MeasurementSystemException::class);
+        static::expectExceptionMessage('The measurement system unit "cm" cannot have a factor of zero.');
+        $this->converter->convert(1.0, 'mm', 'cm');
     }
 
     public function testConvertNegativeValue(): void

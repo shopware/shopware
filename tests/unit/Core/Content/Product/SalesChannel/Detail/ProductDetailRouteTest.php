@@ -10,8 +10,8 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Category\Service\CategoryBreadcrumbBuilder;
 use Shopware\Core\Content\Cms\SalesChannel\SalesChannelCmsPageLoader;
 use Shopware\Core\Content\Product\Aggregate\ProductVisibility\ProductVisibilityDefinition;
-use Shopware\Core\Content\Product\Exception\ProductNotFoundException;
 use Shopware\Core\Content\Product\ProductCollection;
+use Shopware\Core\Content\Product\ProductException;
 use Shopware\Core\Content\Product\SalesChannel\AbstractProductCloseoutFilterFactory;
 use Shopware\Core\Content\Product\SalesChannel\Detail\Event\ResolveVariantIdEvent;
 use Shopware\Core\Content\Product\SalesChannel\Detail\ProductConfiguratorLoader;
@@ -150,6 +150,43 @@ class ProductDetailRouteTest extends TestCase
         static::assertTrue($result->getProduct()->getAvailable());
     }
 
+    public function testLoadBestVariantByTerm(): void
+    {
+        $productTerm = new SalesChannelProductEntity();
+        $productTerm->setCmsPageId('term');
+        $productTerm->setId($this->idsCollection->create('term'));
+        $productTerm->setUniqueIdentifier('term');
+        $productTerm->setName('term');
+
+        $idsSearchResult = new IdSearchResult(
+            1,
+            [
+                [
+                    'primaryKey' => $this->idsCollection->get('product1'),
+                    'data' => [],
+                ],
+            ],
+            new Criteria(),
+            $this->context->getContext()
+        );
+        $this->productRepository->method('searchIds')
+            ->willReturn(
+                $idsSearchResult
+            );
+        $this->productRepository->expects($this->once())
+            ->method('search')
+            ->willReturnOnConsecutiveCalls(
+                new EntitySearchResult('product', 4, new ProductCollection([$productTerm]), null, new Criteria(), $this->context->getContext())
+            );
+        $request = new Request();
+        $request->query->set('search', 'term');
+
+        $result = $this->route->load($this->idsCollection->get('product1'), $request, $this->context, new Criteria());
+
+        static::assertSame('term', $result->getProduct()->getCmsPageId());
+        static::assertSame('term', $result->getProduct()->getUniqueIdentifier());
+    }
+
     public function testLoadVariantListingConfig(): void
     {
         $this->connection
@@ -269,7 +306,7 @@ class ProductDetailRouteTest extends TestCase
 
     public function testLoadProductNotFound(): void
     {
-        $this->expectException(ProductNotFoundException::class);
+        $this->expectException(ProductException::class);
 
         $this->route->load('1', new Request(), $this->context, new Criteria());
     }

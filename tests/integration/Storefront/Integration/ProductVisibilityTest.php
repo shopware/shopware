@@ -6,8 +6,8 @@ use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Product\Aggregate\ProductVisibility\ProductVisibilityDefinition;
 use Shopware\Core\Content\Product\DataAbstractionLayer\SearchKeywordUpdater;
-use Shopware\Core\Content\Product\Exception\ProductNotFoundException;
 use Shopware\Core\Content\Product\ProductCollection;
+use Shopware\Core\Content\Product\ProductException;
 use Shopware\Core\Content\Product\SalesChannel\Listing\ProductListingRoute;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Api\Util\AccessKeyHelper;
@@ -163,7 +163,7 @@ class ProductVisibilityTest extends TestCase
                 continue;
             }
 
-            static::assertInstanceOf(ProductNotFoundException::class, $e, 'case #' . $index);
+            static::assertInstanceOf(ProductException::class, $e, 'case #' . $index);
         }
     }
 

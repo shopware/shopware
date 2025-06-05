@@ -4,7 +4,7 @@
     <div class="search-suggest js-search-result">
         {% block layout_search_suggest_container %}
 
-            <ul class="search-suggest-container" 
+            <ul class="search-suggest-container"
                 id="search-suggest-listbox"
                 aria-label="{{ 'header.searchDropdownTitle'|trans|striptags }}"
                 role="listbox">
@@ -86,6 +86,19 @@
                                                         <small class="search-suggest-product-list-price">{{ 'general.listPricePreviously'|trans({'%price%': price.regulationPrice.price|currency }) }}</small>
                                                     {% endif %}
                                                 </div>
+                                            {% endblock %}
+
+                                            {% block layout_search_suggest_result_variation %}
+                                                {% if product.variation %}
+                                                    <div class="search-suggest-product-variation">
+                                                        {% for variation in product.variation %}
+                                                            {{ variation.group }}: {{ variation.option }}
+                                                            {% if product.variation|last != variation %}
+                                                                /
+                                                            {% endif %}
+                                                        {% endfor %}
+                                                    </div>
+                                                {% endif %}
                                             {% endblock %}
                                         </div>
                                     </a>

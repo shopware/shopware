@@ -124,4 +124,21 @@ class MeasurementUnitsTest extends TestCase
         static::assertSame('kg/cm²', $measurementUnits->getUnit('pressure'));
         static::assertSame('°', $measurementUnits->getUnit('angle'));
     }
+
+    public function testJsonSerializeReturnsCorrectArray(): void
+    {
+        $units = [
+            'length' => 'cm',
+            'weight' => 'g',
+        ];
+
+        $measurementUnits = new MeasurementUnits('metric', $units);
+
+        $expectedArray = [
+            'system' => 'metric',
+            'units' => $units,
+        ];
+
+        static::assertSame($expectedArray, $measurementUnits->jsonSerialize());
+    }
 }

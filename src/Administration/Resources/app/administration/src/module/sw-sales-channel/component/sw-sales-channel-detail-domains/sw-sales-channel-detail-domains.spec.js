@@ -111,7 +111,7 @@ function getExampleDomains() {
                 name: 'BASE de-DE',
             },
             measurementUnits: {
-                name: 'metric',
+                system: 'metric',
             },
             isNew: () => false,
         },
@@ -131,7 +131,7 @@ function getExampleDomains() {
                 name: 'BASE de-DE',
             },
             measurementUnits: {
-                name: 'metric',
+                system: 'metric',
             },
             isNew: () => false,
         },
@@ -372,7 +372,7 @@ describe('src/module/sw-sales-channel/component/sw-sales-channel-detail-domains'
                     },
                 },
                 measurementUnits: {
-                    name: 'metric',
+                    system: 'metric',
                 },
                 snippetSet: {
                     name: 'BASE de-DE',
@@ -417,7 +417,7 @@ describe('src/module/sw-sales-channel/component/sw-sales-channel-detail-domains'
                     },
                 },
                 measurementUnits: {
-                    name: 'metric',
+                    system: 'metric',
                 },
                 snippetSet: {
                     name: 'BASE de-DE',
@@ -462,7 +462,7 @@ describe('src/module/sw-sales-channel/component/sw-sales-channel-detail-domains'
                     },
                 },
                 measurementUnits: {
-                    name: 'metric',
+                    system: 'metric',
                 },
                 snippetSet: {
                     name: 'BASE de-DE',

@@ -180,8 +180,8 @@ export default {
             this.isGenerateSuccessful = false;
         },
 
-        checkPromotionMaxValue(value, property) {
-            if (value <= 0) {
+        checkPromotionMaxValue(property) {
+            if (this.promotion[property] <= 0) {
                 this.promotion[property] = null;
             }
         },

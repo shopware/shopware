@@ -215,7 +215,7 @@ export default {
             this.isLoading = true;
 
             if (this.$route.params.id && this.numberRange.isLoading !== true) {
-                this.numberRangeId = this.$route.params.id;
+                this.numberRangeId = this.$route.params.id.toLowerCase();
                 await Promise.all([
                     this.loadEntityData(),
                     this.loadCustomFieldSets(),

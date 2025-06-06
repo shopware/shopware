@@ -8,7 +8,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Exception\InconsistentCriteriaI
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\MultiFilter;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\NotFilter;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\NotEqualsFilter;
 use Shopware\Core\Framework\Log\Package;
 
 #[Package('fundamentals@framework')]
@@ -33,9 +33,7 @@ class UserValidationService
                 'AND',
                 [
                     new EqualsFilter('email', $userEmail),
-                    new NotFilter('AND', [
-                        new EqualsFilter('id', $userId),
-                    ]),
+                    new NotEqualsFilter('id', $userId),
                 ]
             )
         );
@@ -55,9 +53,7 @@ class UserValidationService
                 'AND',
                 [
                     new EqualsFilter('username', $userUsername),
-                    new NotFilter('AND', [
-                        new EqualsFilter('id', $userId),
-                    ]),
+                    new NotEqualsFilter('id', $userId),
                 ]
             )
         );

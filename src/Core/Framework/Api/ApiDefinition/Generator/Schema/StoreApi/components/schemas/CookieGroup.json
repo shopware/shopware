@@ -1,0 +1,48 @@
+{
+  "openapi": "3.1.0",
+  "info": [],
+  "paths": [],
+  "components": {
+    "schemas": {
+      "CookieGroup": {
+        "type": "object",
+        "properties": {
+          "snippetName": {
+            "type": "string",
+            "nullable": true
+          },
+          "snippetDescription": {
+            "type": "string",
+            "nullable": true
+          },
+          "cookie": {
+            "type": "string",
+            "nullable": true
+          },
+          "value": {
+            "type": "string",
+            "nullable": true
+          },
+          "expiration": {
+            "type": "string",
+            "nullable": true
+          },
+          "isRequired": {
+            "type": "boolean"
+          },
+          "entries": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/CookieEntry"
+            }
+          },
+          "apiAlias": {
+            "type": "string",
+            "enum": ["cookie_group"]
+          }
+        },
+        "required": ["isRequired", "entries", "apiAlias"]
+      }
+    }
+  }
+}

@@ -24,11 +24,11 @@
         <label
             for="cookie_{{ cookie }}"
             class="custom-control-label">
-            {{ child.snippet_name ? child.snippet_name|trans|sw_sanitize : cookie }}
+            {{ child.snippetName ? child.snippetName|trans|sw_sanitize : cookie }}
         </label>
 
-        {% if child.snippet_description %}
-            <p>{{ child.snippet_description|trans|sw_sanitize }}</p>
+        {% if child.snippetDescription %}
+            <p>{{ child.snippetDescription|trans|sw_sanitize }}</p>
         {% endif %}
     </div>
 {% endif %}

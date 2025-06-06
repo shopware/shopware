@@ -26,6 +26,7 @@ class Content extends Bundle
         $loader = new XmlFileLoader($container, new FileLocator(__DIR__ . '/DependencyInjection/'));
         $loader->load('breadcrumb.xml');
         $loader->load('category.xml');
+        $loader->load('cookie.xml');
         $loader->load('media.xml');
         $loader->load('media_path.xml');
         $loader->load('product.xml');

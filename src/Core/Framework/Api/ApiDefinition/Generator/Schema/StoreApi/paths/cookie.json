@@ -1,0 +1,46 @@
+{
+  "openapi": "3.1.0",
+  "info": [],
+  "components": {
+    "schemas": {
+      "CookieGroupCollection": {
+        "type": "array",
+        "items": {
+          "$ref": "#/components/schemas/CookieGroup"
+        }
+      }
+    }
+  },
+  "paths": {
+    "/cookie-groups": {
+      "get": {
+        "tags": [
+          "Cookie Groups"
+        ],
+        "summary": "Fetch all cookie groups",
+        "description": "Fetch all cookie groups available in the system.",
+        "operationId": "readCookieGroups",
+        "responses": {
+          "200": {
+            "description": "Successful response with a collection of cookie groups.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CookieGroupCollection"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/400"
+          }
+        },
+        "security": [
+          {
+            "ApiKey": []
+          }
+        ]
+      }
+    }
+  }
+}

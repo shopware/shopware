@@ -466,8 +466,8 @@
     "summaryTotalPrice": "Gesamtsumme",
     "summaryTotalPriceRounded": "Gesamtsumme gerundet",
     "summaryNetPrice": "Gesamtnettosumme",
-    "summaryTax": "zzgl. %rate% % MwSt.",
-    "summaryTaxLabeled": "zzgl. %rate% % %label%",
+    "summaryTax": "zzgl. %rate% % MwSt.:",
+    "summaryTaxLabeled": "zzgl. %rate% % %label%:",
     "summaryOffCanvasLabel": "Warenkorb-Zusammenfassung",
     "proceedLink": "Zur Kasse",
     "addressEqualText": "Entspricht der Lieferadresse",
@@ -708,17 +708,40 @@
     "unavailableTooltip": "Diese Option ist zurzeit nicht verfügbar."
   },
   "spatial": {
-    "scanQrCode": "QR-Code scannen",
-    "pointToQrCode": "Richten Sie das mobile Gerät auf den QR-Code, um das Produkt im Modus \"Augmented Reality\" anzuzeigen",
-    "arSupportInFollowingDevices": "Das \"Augmented-Reality-Erlebnis\" wird von den folgenden Geräten unterstützt:",
-    "arSupportDevices": "iOS11+, Android 8.0+ mit ARCore 1.9 Unterstützung",
-    "arSupportMobileHint": "Es sieht so aus, als werde Ihr Browser nicht unterstützt. Versuchen Sie es mit Safari auf iOS oder Google Chrome auf Android.",
-    "moveTheDeviceToStart": "Bewegen Sie das Gerät, um zu beginnen",
-    "tapToPlaceTheObject": "Tippen Sie, um das Objekt zu platzieren",
-    "openAugmentedRealityView": "Augmented-Reality-Ansicht öffnen",
-    "augmentedRealityView": "Augmented-Reality-Ansicht",
-    "openArView": "AR-Ansicht öffnen",
-    "openArViewDescription": "Augmented-Reality-Ansicht öffnen"
+    "ar": {
+      "scanQrCode": "QR-Code scannen",
+      "pointToQrCode": "Richten Sie die Kamera Ihres Mobilgeräts auf den QR-Code, um das Produkt in Augmented Reality anzuzeigen.",
+      "moveTheDeviceToStart": "Bewegen Sie das Gerät, um zu beginnen",
+      "tapToPlaceTheObject": "Tippen Sie, um das Objekt zu platzieren",
+      "openAugmentedRealityView": "Augmented-Reality-Ansicht öffnen",
+      "augmentedRealityView": "Augmented-Reality-Ansicht",
+      "openArView": "AR-Ansicht öffnen",
+      "launchingArView": "Starte AR-Ansicht...",
+      "openArViewDescription": "Augmented-Reality-Ansicht öffnen",
+      "whyDoISeeThis": "Warum sehe ich diese Meldung?",
+      "errors": {
+        "desktopNotSupported": {
+          "reason": "Augmented Reality wird auf Desktop-Geräten nicht unterstützt.",
+          "solution": "Bitte verwenden Sie ein Mobilgerät, um AR zu starten."
+        },
+        "notSafariOnIOS": {
+          "reason": "Augmented Reality wird nur in Safari auf iOS unterstützt.",
+          "solution": "Bitte verwenden Sie Safari auf iOS, um AR zu starten."
+        },
+        "IOSVersionMismatch": {
+          "reason": "Augmented Reality wird auf iOS-Versionen unter 12.0 nicht unterstützt.",
+          "solution": "Bitte verwenden Sie eine neuere iOS-Version, um AR zu starten."
+        },
+        "unknownIOSError": {
+          "reason": "Ein unbekannter Fehler ist während des Starts von AR auf iOS aufgetreten.",
+          "solution": "Bitte versuchen Sie es erneut oder wenden Sie sich an unseren Support."
+        },
+        "unknownARError": {
+          "reason": "Ein unbekannter Fehler ist während des Starts von AR aufgetreten.",
+          "solution": "Bitte versuchen Sie es erneut oder wenden Sie sich an unseren Support."
+        }
+      }
+    }
   },
   "wishlist": {
     "cartTitle": "Ihr Merkzettel",

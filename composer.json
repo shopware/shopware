@@ -409,11 +409,13 @@
         ],
         "post-install-cmd": [
             "@composer bin all install --ansi",
-            "ln -sf ./../../vendor-bin/roave-backward-compatibility-check/vendor/bin/roave-backward-compatibility-check vendor/bin/roave-backward-compatibility-check"
+            "ln -sf ./../../vendor-bin/roave-backward-compatibility-check/vendor/bin/roave-backward-compatibility-check vendor/bin/roave-backward-compatibility-check",
+            "ln -sf ./../../vendor-bin/danger-php/vendor/shyim/danger-php vendor/shyim/danger-php"
         ],
         "post-update-cmd": [
             "@composer bin all update --ansi",
-            "ln -sf ./../../vendor-bin/roave-backward-compatibility-check/vendor/bin/roave-backward-compatibility-check vendor/bin/roave-backward-compatibility-check"
+            "ln -sf ./../../vendor-bin/roave-backward-compatibility-check/vendor/bin/roave-backward-compatibility-check vendor/bin/roave-backward-compatibility-check",
+            "ln -sf ./../../vendor-bin/danger-php/vendor/shyim/danger-php vendor/shyim/danger-php"
         ],
         "reset": [
             "@init:db",

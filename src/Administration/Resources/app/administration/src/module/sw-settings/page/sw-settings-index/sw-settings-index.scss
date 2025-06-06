@@ -61,4 +61,14 @@
             }
         }
     }
+
+    .sw-settings-item .sw-settings-item__icon {
+        img {
+            /* Make the following with and height style important to prevent overwrites from third party styles */
+            max-width: 16px !important;
+            max-height: 16px !important;
+            width: 16px !important;
+            height: 16px !important;
+        }
+    }
 }

@@ -84,6 +84,7 @@
                 :label="$tc('sw-promotion-v2.detail.base.general.maxUsesGlobalLabel')"
                 :placeholder="$tc('sw-promotion-v2.detail.base.general.maxUsesGlobalPlaceholder')"
                 :disabled="!acl.can('promotion.editor')"
+                @blur="checkPromotionMaxValue(promotion.maxRedemptionsGlobal, 'maxRedemptionsGlobal')"
                 allow-empty
             />
             {% endblock %}
@@ -96,6 +97,7 @@
                 :label="$tc('sw-promotion-v2.detail.base.general.maxUsesPerCustomerLabel')"
                 :placeholder="$tc('sw-promotion-v2.detail.base.general.maxUsesPerCustomerPlaceholder')"
                 :disabled="!acl.can('promotion.editor')"
+                @blur="checkPromotionMaxValue(promotion.maxRedemptionsPerCustomer, 'maxRedemptionsPerCustomer')"
                 allow-empty
             />
             {% endblock %}

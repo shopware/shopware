@@ -524,7 +524,6 @@ jobs:
       - php-security
       - blue-green-66-67
       - blue-green-67-68
-      - update-66-67
 
     runs-on: Ubuntu-latest
     steps:

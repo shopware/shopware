@@ -66,6 +66,7 @@ jobs:
         with:
           shopware-version: ${{ github.ref }}
           shopware-repository: ${{ github.repository }}
+          keep-composer-tools: true
 
       - name: Generate Schema
         run: composer run framework:schema:dump

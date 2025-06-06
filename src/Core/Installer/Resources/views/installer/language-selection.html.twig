@@ -9,7 +9,7 @@
         <div class="card__body is--align-center">
 
             <div class="welcome-illustration">
-                <img src="{{ asset('bundles/installer/assets/images/welcome.svg', 'asset') }}" alt="">
+                <img src="{{ asset('bundles/installer/assets/images/welcome.svg') }}" alt="">
             </div>
 
             <div class="welcome-container">
@@ -28,7 +28,7 @@
 
                 <div class="select-wrapper language">
                     <img class="language-flag"
-                         src="{{ asset('bundles/installer/assets/images/flags/' ~ app.request.locale ~ '.png', 'asset') }}"
+                         src="{{ asset('bundles/installer/assets/images/flags/' ~ app.request.locale ~ '.png') }}"
                          alt="{{ app.request.locale }}">
                     <select id="language" name="language" class="language-selection" onchange="this.form.submit();">
                         {% for language in supportedLanguages %}

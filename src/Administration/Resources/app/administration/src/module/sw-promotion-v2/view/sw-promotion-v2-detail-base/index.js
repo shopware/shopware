@@ -184,6 +184,6 @@ export default {
             if (value <= 0) {
                 this.promotion[property] = null;
             }
-        }
+        },
     },
 };

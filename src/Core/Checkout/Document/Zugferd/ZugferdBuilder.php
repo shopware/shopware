@@ -60,7 +60,8 @@ class ZugferdBuilder
             ->withSellerInformation($config)
             ->withDelivery($order->getDeliveries() ?? new OrderDeliveryCollection())
             ->withTaxes($order->getPrice())
-            ->withGeneralOrderData($deliveryDate, $config->getDocumentDate() ?? 'now', $config->getDocumentNumber() ?? '', $order->getCurrency()?->getIsoCode() ?? '');
+            ->withGeneralOrderData($deliveryDate, $config->getDocumentDate() ?? 'now', $config->getDocumentNumber() ?? '', $order->getCurrency()?->getIsoCode() ?? '')
+            ->withBuyerReference($order->getOrderNumber());
 
         $this->addLineItems($document, $order->getLineItems());
 
@@ -116,13 +117,6 @@ class ZugferdBuilder
         } elseif ($paymentMethod->getTechnicalName() === 'payment_invoicepayment' || $paymentMethod->getTechnicalName() === 'payment_prepayment') {
             $document->getBuilder()->addDocumentPaymentMean(
                 typeCode: (string) ZugferdPaymentMeans::UNTDID_4461_30->value,
-                information: $paymentMethod->getName(),
-                payeeIban: $config->getBankIban(),
-                payeeBic: $config->getBankBic()
-            );
-        } elseif ($paymentMethod->getTechnicalName() === 'payment_debitpayment') {
-            $document->getBuilder()->addDocumentPaymentMean(
-                typeCode: (string) ZugferdPaymentMeans::UNTDID_4461_49->value,
                 information: $paymentMethod->getName(),
                 payeeIban: $config->getBankIban(),
                 payeeBic: $config->getBankBic()

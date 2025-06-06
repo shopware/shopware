@@ -88,7 +88,6 @@ class ZugferdDocumentTest extends TestCase
         $order->setTaxCalculationType($calculationType);
         $order->setItemRounding(new CashRoundingConfig(2, .01, false));
         $order->setTotalRounding(new CashRoundingConfig(2, .01, false));
-        $order->setAmountNet((float) $expected[3]);
         $order->setTaxStatus($isGross ? CartPrice::TAX_STATE_GROSS : CartPrice::TAX_STATE_NET);
 
         $document = new ZugferdDocumentMock(ZugferdDocumentBuilder::createNew(ZugferdProfiles::PROFILE_XRECHNUNG_3), $isGross);
@@ -121,7 +120,14 @@ class ZugferdDocumentTest extends TestCase
             $this->createOrderDeliveryItem($deliveryGross[3], 7.0, $isGross),
         ]));
 
-        $order->setAmountTotal(round(array_sum($lineItemGross) + array_sum($discountGross) + array_sum($deliveryGross), 2));
+        if ($isGross) {
+            $order->setAmountTotal(round(array_sum($lineItemGross) + array_sum($discountGross) + array_sum($deliveryGross), 2));
+            $order->setAmountNet((float) $expected[3]);
+        } else {
+            $order->setAmountTotal((float) $expected[5]);
+            $order->setAmountNet(round(array_sum($lineItemGross) + array_sum($discountGross) + array_sum($deliveryGross), 2));
+        }
+
         $document->withPaidAmount((float) $expected[6]);
 
         $calculator = new AmountCalculator(
@@ -142,22 +148,22 @@ class ZugferdDocumentTest extends TestCase
             'Gross horizontal' => [
                 SalesChannelDefinition::CALCULATION_TYPE_HORIZONTAL,
                 true,
-                ['28.70', '43.36', '3.30', '68.76', '19.22', '87.98', '45.26', '42.72'],
+                ['28.70', '49.75', '3.09', '75.36', '12.62', '87.98', '45.26', '42.72'],
             ],
             'Gross vertical' => [
                 SalesChannelDefinition::CALCULATION_TYPE_VERTICAL,
                 true,
-                ['28.71', '43.37', '3.31', '68.77', '19.21', '87.98', '45.26', '42.72'],
+                ['28.71', '49.75', '3.08', '75.38', '12.60', '87.98', '45.26', '42.72'],
             ],
             'Net horizontal' => [
                 SalesChannelDefinition::CALCULATION_TYPE_HORIZONTAL,
                 false,
-                ['32.97', '51.05', '3.96', '80.06', '7.92', '87.98', '45.26', '42.72'],
+                ['32.97', '58.65', '3.64', '87.98', '14.87', '102.85', '45.26', '57.59'],
             ],
             'Net vertical' => [
                 SalesChannelDefinition::CALCULATION_TYPE_VERTICAL,
                 false,
-                ['32.97', '51.05', '3.96', '80.06', '7.92', '87.98', '45.26', '42.72'],
+                ['32.97', '58.65', '3.64', '87.98', '14.87', '102.85', '45.26', '57.59'],
             ],
         ];
     }

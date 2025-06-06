@@ -128,6 +128,13 @@ class ZugferdDocument
         return $this;
     }
 
+    public function withBuyerReference(string $reference): self
+    {
+        $this->zugferdBuilder->setDocumentBuyerReference($reference);
+
+        return $this;
+    }
+
     public function withSellerInformation(DocumentConfiguration $documentConfig): self
     {
         $sellerAddress = [
@@ -197,13 +204,14 @@ class ZugferdDocument
         $isPercentage = (($lineItem->getPayload()['discountType'] ?? null) === PromotionDiscountEntity::TYPE_PERCENTAGE)
             && (abs($lineItem->getTotalPrice()) !== (float) ($lineItem->getPayload()['maxValue'] ?? null));
 
-        $this->addMappedPrice(self::ALLOWANCE_AMOUNT, $lineItem->getPrice());
+        $type = $lineItem->getPrice()->getUnitPrice() >= 0 ? self::CHARGE_AMOUNT : self::ALLOWANCE_AMOUNT;
+        $this->addMappedPrice($type, $lineItem->getPrice());
 
         foreach ($lineItem->getPrice()->getCalculatedTaxes() as $calculatedTax) {
             $actualAmount = $this->getPrice($calculatedTax);
 
             if (!Feature::isActive('v6.8.0.0')) {
-                $this->addAllowanceAmount($actualAmount);
+                $actualAmount >= 0 ? $this->addChargeAmount($actualAmount) : $this->addAllowanceAmount($actualAmount);
             }
             $this->zugferdBuilder->addDocumentAllowanceCharge(
                 ...[
@@ -350,17 +358,18 @@ class ZugferdDocument
         $chargeAmount = abs($this->calculateTaxes(self::CHARGE_AMOUNT, $order, $calculator));
         $allowanceAmount = abs($this->calculateTaxes(self::ALLOWANCE_AMOUNT, $order, $calculator));
 
-        $this->zugferdBuilder->setDocumentSummation(
-            $order->getAmountTotal(),
-            $order->getAmountTotal() - $this->paidAmount,
-            $lineTotal,
-            $chargeAmount,
-            $allowanceAmount,
-            $order->getAmountNet(),
-            $order->getAmountTotal() - $order->getAmountNet(),
-            $order->getAmountNet() - $lineTotal - $chargeAmount + $allowanceAmount,
-            $this->paidAmount
-        );
+        $this->zugferdBuilder
+            ->setDocumentSummation(
+                $order->getAmountTotal(),
+                $order->getAmountTotal() - $this->paidAmount,
+                $lineTotal,
+                $chargeAmount,
+                $allowanceAmount,
+                $order->getAmountNet(),
+                $order->getAmountTotal() - $order->getAmountNet(),
+                $order->getAmountNet() - $lineTotal - $chargeAmount + $allowanceAmount,
+                $this->paidAmount
+            );
     }
 
     private function calculateTaxes(string $type, OrderEntity $order, AmountCalculator $calculator): float

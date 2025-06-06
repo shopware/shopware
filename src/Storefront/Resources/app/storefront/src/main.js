@@ -173,6 +173,24 @@ document.addEventListener('DOMContentLoaded', () => {
 
 }, false);
 
+
+import ButtonLoadingIndicator from "./utility/loading-indicator/button-loading-indicator.util";
+
+const primary = document.querySelector('.test-buttons .btn-primary');
+primary.addEventListener('click', () => new ButtonLoadingIndicator(primary).create());
+
+const secondary = document.querySelector('.test-buttons .btn-secondary');
+secondary.addEventListener('click', () => new ButtonLoadingIndicator(secondary).create());
+
+const light = document.querySelector('.test-buttons .btn-light');
+light.addEventListener('click', () => new ButtonLoadingIndicator(light, 'after').create());
+
+const danger = document.querySelector('.test-buttons .btn-danger');
+danger.addEventListener('click', () => new ButtonLoadingIndicator(danger, 'after').create());
+
+const success = document.querySelector('.test-buttons .btn-success');
+success.addEventListener('click', () => new ButtonLoadingIndicator(success, 'after').create());
+
 // Set webpack publicPath at runtime because we don't know the theme seed hash when running webpack
 // https://webpack-v3.jsx.app/guides/public-path/#on-the-fly
 window.__webpack_public_path__ = window.themeJsPublicPath;

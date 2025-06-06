@@ -9,6 +9,42 @@ Defines the loader icon
     @extend .text-primary;
 }
 
+.btn {
+    > .loader {
+        --bs-spinner-width: 18px;
+        --bs-spinner-height: 18px;
+        --bs-spinner-vertical-align: -0.25em;
+        --bs-spinner-border-width: 3px;
+        color: currentColor;
+    }
+
+    &.is-loading-indicator-before,
+    &.is-loading-indicator-after {
+        position: relative;
+
+        .loader {
+            position: absolute;
+            top: 0.45rem;
+        }
+    }
+
+    &.is-loading-indicator-before {
+        padding-left: 2.8rem;
+
+        .loader {
+            left: var(--bs-btn-padding-x);
+        }
+    }
+
+    &.is-loading-indicator-after {
+        padding-right: 2.8rem;
+
+        .loader {
+            right: var(--bs-btn-padding-x);
+        }
+    }
+}
+
 /*
 Element loader
 ==============================================

@@ -26,8 +26,9 @@ export default class ButtonLoadingIndicatorUtil extends LoadingIndicatorUtil {
 
         if (this._isButtonElement()) {
             this.parent.disabled = true;
+            this.parent.classList.add(`is-loading-indicator-${this.position}`);
         } else if (this._isAnchorElement()) {
-            this.parent.classList.add('disabled');
+            this.parent.classList.add('disabled', `is-loading-indicator-${this.position}`);
         }
     }
 
@@ -39,8 +40,9 @@ export default class ButtonLoadingIndicatorUtil extends LoadingIndicatorUtil {
 
         if (this._isButtonElement()) {
             this.parent.disabled = false;
+            this.parent.classList.remove(`is-loading-indicator-${this.position}`);
         } else if (this._isAnchorElement()) {
-            this.parent.classList.remove('disabled');
+            this.parent.classList.remove('disabled', `is-loading-indicator-${this.position}`);
         }
     }
 

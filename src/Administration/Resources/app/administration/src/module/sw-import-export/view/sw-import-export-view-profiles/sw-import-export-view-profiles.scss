@@ -2,12 +2,12 @@
 
 .sw-import-export-view-profiles {
     .sw-import-export-view-profiles__grid-card {
-        .mt-card__content {
-            height: 600px;
-        }
-
         .sw-data-grid.sw-data-grid--full-page {
             padding-top: 83px;
+        }
+
+        .mt-card__content {
+            padding: 0;
         }
     }
 

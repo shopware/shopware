@@ -467,7 +467,7 @@
     "summaryTotalPriceRounded": "Gesamtsumme gerundet",
     "summaryNetPrice": "Gesamtnettosumme",
     "summaryTax": "zzgl. %rate% % MwSt.:",
-    "summaryTaxLabeled": "zzgl. %rate% % %label%",
+    "summaryTaxLabeled": "zzgl. %rate% % %label%:",
     "summaryOffCanvasLabel": "Warenkorb-Zusammenfassung",
     "proceedLink": "Zur Kasse",
     "addressEqualText": "Entspricht der Lieferadresse",

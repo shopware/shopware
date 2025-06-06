@@ -214,7 +214,7 @@
                     {% endblock %}
 
                     <mt-banner
-                        v-if="customerGroup.registrationSalesChannels.length > 0"
+                        v-if="customerGroup.registrationSalesChannels?.length > 0"
                         variant="info"
                     >
                         {{ $t('sw-settings-customer-group.registration.domainBanner') }}

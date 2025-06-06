@@ -82,16 +82,16 @@ export default {
         customerGroupCriteria() {
             const criteria = new Criteria(1, 1);
 
-            criteria.addAssociation('registrationSalesChannels')
+            criteria
+                .addAssociation('registrationSalesChannels')
                 .getAssociation('registrationSalesChannels')
-                    .addAssociation('domains')
-                    .addAssociation('seoUrls');
+                .addAssociation('domains')
+                .addAssociation('seoUrls');
 
-            criteria.getAssociation('registrationSalesChannels').getAssociation('seoUrls')
-                .addFilter(Criteria.equals(
-                    'pathInfo',
-                    `/customer-group-registration/${this.customerGroupId}`,
-                ))
+            criteria
+                .getAssociation('registrationSalesChannels')
+                .getAssociation('seoUrls')
+                .addFilter(Criteria.equals('pathInfo', `/customer-group-registration/${this.customerGroupId}`))
                 .addFilter(Criteria.equals('isCanonical', true))
                 .addAssociation('language');
 
@@ -105,9 +105,9 @@ export default {
                 .addAssociation('domains')
                 .addAssociation('seoUrls')
                 .getAssociation('seoUrls')
-                    .addFilter(Criteria.equals('pathInfo', `/customer-group-registration/${this.customerGroupId}`))
-                    .addFilter(Criteria.equals('isCanonical', true))
-                    .addAssociation('language');
+                .addFilter(Criteria.equals('pathInfo', `/customer-group-registration/${this.customerGroupId}`))
+                .addFilter(Criteria.equals('isCanonical', true))
+                .addAssociation('language');
 
             return criteria;
         },
@@ -118,7 +118,7 @@ export default {
         seoUrlCriteria() {
             const criteria = new Criteria(1, 25);
 
-            if (this.customerGroup?.registrationSalesChannels.length) {
+            if (this.customerGroup?.registrationSalesChannels?.length) {
                 const salesChannelIds = this.customerGroup.registrationSalesChannels?.getIds();
 
                 criteria.addFilter(Criteria.equalsAny('salesChannelId', salesChannelIds));

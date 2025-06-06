@@ -179,11 +179,5 @@ export default {
         generateFinish() {
             this.isGenerateSuccessful = false;
         },
-
-        checkPromotionMaxValue(property) {
-            if (this.promotion[property] <= 0) {
-                this.promotion[property] = null;
-            }
-        },
     },
 };

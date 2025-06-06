@@ -361,7 +361,7 @@ class ZugferdDocument
         return $netTotal;
     }
 
-    protected function summary(OrderEntity $order, AmountCalculator $calculator): void
+    private function summary(OrderEntity $order, AmountCalculator $calculator): void
     {
         if ($this->paidAmount > $order->getAmountTotal()) {
             throw DocumentException::generationError('Paid amount is greater than order total amount.');

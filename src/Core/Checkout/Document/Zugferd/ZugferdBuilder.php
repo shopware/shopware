@@ -106,7 +106,7 @@ class ZugferdBuilder
         $this->eventDispatcher->dispatch(new ZugferdInvoiceItemAddedEvent($document, $lineItem, $parentPosition), 'zugferd-item-added.' . $lineItem->getType());
     }
 
-    protected function addPaymentInfo(ZugferdDocument $document, DocumentConfiguration $config, PaymentMethodEntity $paymentMethod): void
+    private function addPaymentInfo(ZugferdDocument $document, DocumentConfiguration $config, PaymentMethodEntity $paymentMethod): void
     {
         if ($paymentMethod->getTechnicalName() === 'payment_cashpayment') {
             $document->getBuilder()->addDocumentPaymentMean(

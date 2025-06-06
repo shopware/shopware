@@ -6,7 +6,7 @@ use Danger\Rule\Condition;
 use Danger\Struct\File;
 use Shopware\Core\DevOps\StaticAnalyze\Danger\Rules\MissingIntegrationTestInSplitSuite;
 
-require_once __DIR__ . '/vendor/autoload.php';
+require_once __DIR__ . '/src/Core/DevOps/StaticAnalyze/Danger/Rules/MissingIntegrationTestInSplitSuite.php';
 
 const COMPOSER_PACKAGE_EXCEPTIONS = [
     '~' => [

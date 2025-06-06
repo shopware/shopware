@@ -11,11 +11,11 @@ Defines the loader icon
 
 .btn {
     > .loader {
-        --bs-spinner-width: 18px;
-        --bs-spinner-height: 18px;
-        --bs-spinner-vertical-align: -0.25em;
-        --bs-spinner-border-width: 3px;
-        color: currentColor;
+        --#{$prefix}spinner-width: 18px;
+        --#{$prefix}spinner-height: 18px;
+        --#{$prefix}spinner-vertical-align: -0.25em;
+        --#{$prefix}spinner-border-width: 3px;
+        color: var(--#{$prefix}btn-color);
     }
 
     &.is-loading-indicator-before,
@@ -24,23 +24,24 @@ Defines the loader icon
 
         .loader {
             position: absolute;
-            top: 0.45rem;
+            top: 50%;
+            margin-top: calc((var(--#{$prefix}spinner-height) / 2) * -1);
         }
     }
 
     &.is-loading-indicator-before {
-        padding-left: 2.8rem;
+        padding-left: 2.6rem;
 
         .loader {
-            left: var(--bs-btn-padding-x);
+            left: var(--#{$prefix}btn-padding-x);
         }
     }
 
     &.is-loading-indicator-after {
-        padding-right: 2.8rem;
+        padding-right: 2.6rem;
 
         .loader {
-            right: var(--bs-btn-padding-x);
+            right: var(--#{$prefix}btn-padding-x);
         }
     }
 }

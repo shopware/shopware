@@ -13,8 +13,8 @@ export default class ButtonLoadingIndicatorUtil extends LoadingIndicatorUtil {
     constructor(parent, position = 'before') {
         super(parent, position);
 
-        if (!this._isButtonElement() && !this._isAnchorElement()) {
-            throw Error('Parent element is not of type <button> or <a>');
+        if (!this._isValidElement()) {
+            console.warn(`[ButtonLoadingIndicatorUtil] Parent element is not of type <button> or <a>. Given element: ${this.parent}`);
         }
     }
 
@@ -22,13 +22,24 @@ export default class ButtonLoadingIndicatorUtil extends LoadingIndicatorUtil {
      * Call parent method and set the parent element disabled
      */
     create() {
+        if (!this._isValidElement()) {
+            console.warn(`[ButtonLoadingIndicatorUtil] Unable to create loading indicator. Parent element is not of type <button> or <a>. Given element: ${this.parent}`);
+            return;
+        }
+
+        if (this.position === 'inner') {
+            const currentWith = this.parent.offsetWidth;
+            this.parent.style.width = `${currentWith}px`;
+        }
+
         super.create();
+
+        this.parent.classList.add(`is-loading-indicator-${this.position}`);
 
         if (this._isButtonElement()) {
             this.parent.disabled = true;
-            this.parent.classList.add(`is-loading-indicator-${this.position}`);
         } else if (this._isAnchorElement()) {
-            this.parent.classList.add('disabled', `is-loading-indicator-${this.position}`);
+            this.parent.classList.add('disabled');
         }
     }
 
@@ -36,14 +47,27 @@ export default class ButtonLoadingIndicatorUtil extends LoadingIndicatorUtil {
      * Call parent method and re-enable parent element
      */
     remove() {
+        if (!this.exists()) {
+            return;
+        }
+
+        if (this.position === 'inner') {
+            this.parent.style.width = 'auto';
+        }
+
         super.remove();
+
+        this.parent.classList.remove(`is-loading-indicator-${this.position}`);
 
         if (this._isButtonElement()) {
             this.parent.disabled = false;
-            this.parent.classList.remove(`is-loading-indicator-${this.position}`);
         } else if (this._isAnchorElement()) {
-            this.parent.classList.remove('disabled', `is-loading-indicator-${this.position}`);
+            this.parent.classList.remove('disabled');
         }
+    }
+
+    _isValidElement() {
+        return (this._isButtonElement() || this._isAnchorElement());
     }
 
     /**
@@ -52,7 +76,7 @@ export default class ButtonLoadingIndicatorUtil extends LoadingIndicatorUtil {
      * @private
      */
     _isButtonElement() {
-        return (this.parent.tagName.toLowerCase() === 'button');
+        return (this.parent?.tagName.toLowerCase() === 'button');
     }
 
     /**
@@ -61,6 +85,6 @@ export default class ButtonLoadingIndicatorUtil extends LoadingIndicatorUtil {
      * @private
      */
     _isAnchorElement() {
-        return (this.parent.tagName.toLowerCase() === 'a');
+        return (this.parent?.tagName.toLowerCase() === 'a');
     }
 }

@@ -8,24 +8,19 @@
         "type": "object",
         "properties": {
           "snippetName": {
-            "type": "string",
-            "nullable": true
+            "type": "string"
           },
           "snippetDescription": {
-            "type": "string",
-            "nullable": true
+            "type": "string"
           },
           "cookie": {
-            "type": "string",
-            "nullable": true
+            "type": "string"
           },
           "value": {
-            "type": "string",
-            "nullable": true
+            "type": "string"
           },
           "expiration": {
-            "type": "string",
-            "nullable": true
+            "type": "string"
           },
           "isRequired": {
             "type": "boolean"

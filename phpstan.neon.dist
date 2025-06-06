@@ -8,7 +8,8 @@ parameters:
     paths:
         - src
         - tests
-
+    scanDirectories:
+        - vendor-bin/danger-php/
     bootstrapFiles:
         - src/Core/DevOps/StaticAnalyze/phpstan-bootstrap.php
     # run `php src/Core/DevOps/StaticAnalyze/phpstan-bootstrap.php` to create the container

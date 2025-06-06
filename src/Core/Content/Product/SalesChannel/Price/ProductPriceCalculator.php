@@ -10,11 +10,13 @@ use Shopware\Core\Checkout\Cart\Price\Struct\ReferencePriceDefinition;
 use Shopware\Core\Content\Product\Aggregate\ProductPrice\ProductPriceCollection;
 use Shopware\Core\Content\Product\DataAbstractionLayer\CheapestPrice\CalculatedCheapestPrice;
 use Shopware\Core\Content\Product\DataAbstractionLayer\CheapestPrice\CheapestPrice;
+use Shopware\Core\Content\Product\Extension\ProductPriceCalculationExtension;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Pricing\Price;
 use Shopware\Core\Framework\DataAbstractionLayer\Pricing\PriceCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\Extensions\ExtensionDispatcher;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
@@ -30,7 +32,8 @@ class ProductPriceCalculator extends AbstractProductPriceCalculator
      */
     public function __construct(
         private readonly EntityRepository $unitRepository,
-        private readonly QuantityPriceCalculator $calculator
+        private readonly QuantityPriceCalculator $calculator,
+        private readonly ExtensionDispatcher $extensions
     ) {
     }
 
@@ -43,6 +46,19 @@ class ProductPriceCalculator extends AbstractProductPriceCalculator
      * @param Entity[] $products
      */
     public function calculate(iterable $products, SalesChannelContext $context): void
+    {
+        // allows full service decoration
+        $this->extensions->publish(
+            name: ProductPriceCalculationExtension::NAME,
+            extension: new ProductPriceCalculationExtension($products, $context),
+            function: $this->_calculate(...)
+        );
+    }
+
+    /**
+     * @param Entity[] $products
+     */
+    private function _calculate(iterable $products, SalesChannelContext $context): void
     {
         $units = $this->getUnits($context);
 
@@ -297,4 +313,5 @@ class ProductPriceCalculator extends AbstractProductPriceCalculator
 
         return $this->units = $units;
     }
+
 }

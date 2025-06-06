@@ -15,10 +15,12 @@ use Shopware\Core\Checkout\Cart\Price\Struct\PriceCollection as CalculatedPriceC
 use Shopware\Core\Checkout\Cart\Tax\Struct\TaxRule;
 use Shopware\Core\Checkout\Cart\Tax\Struct\TaxRuleCollection;
 use Shopware\Core\Checkout\Cart\Tax\TaxCalculator;
+use Shopware\Core\Checkout\Document\Extension\HtmlRendererExtension;
 use Shopware\Core\Content\Product\Aggregate\ProductPrice\ProductPriceCollection;
 use Shopware\Core\Content\Product\Aggregate\ProductPrice\ProductPriceEntity;
 use Shopware\Core\Content\Product\DataAbstractionLayer\CheapestPrice\CalculatedCheapestPrice;
 use Shopware\Core\Content\Product\DataAbstractionLayer\CheapestPrice\CheapestPrice;
+use Shopware\Core\Content\Product\Extension\ProductPriceCalculationExtension;
 use Shopware\Core\Content\Product\SalesChannel\Price\ProductPriceCalculator;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
@@ -29,13 +31,16 @@ use Shopware\Core\Framework\DataAbstractionLayer\PartialEntity;
 use Shopware\Core\Framework\DataAbstractionLayer\Pricing\CashRoundingConfig;
 use Shopware\Core\Framework\DataAbstractionLayer\Pricing\Price;
 use Shopware\Core\Framework\DataAbstractionLayer\Pricing\PriceCollection;
+use Shopware\Core\Framework\Extensions\ExtensionDispatcher;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
+use Shopware\Core\Framework\Test\TestCaseHelper\CallableClass;
 use Shopware\Core\Framework\Test\TestCaseHelper\ReflectionHelper;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\System\Unit\UnitCollection;
 use Shopware\Core\System\Unit\UnitEntity;
 use Shopware\Core\Test\Stub\DataAbstractionLayer\StaticEntityRepository;
+use Symfony\Component\EventDispatcher\EventDispatcher;
 
 /**
  * @internal
@@ -55,8 +60,31 @@ class ProductPriceCalculatorTest extends TestCase
             new QuantityPriceCalculator(
                 new GrossPriceCalculator(new TaxCalculator(), new CashRounding()),
                 new NetPriceCalculator(new TaxCalculator(), new CashRounding())
-            )
+            ),
+            new ExtensionDispatcher(new EventDispatcher())
         );
+    }
+
+    public function testExtensionIsDispatched(): void
+    {
+        $dispatcher = new EventDispatcher();
+        $extensions = new ExtensionDispatcher($dispatcher);
+
+        $calculator = new ProductPriceCalculator(
+            $this->createMock(EntityRepository::class),
+            $this->createMock(QuantityPriceCalculator::class),
+            $extensions
+        );
+
+        $pre = $this->createMock(CallableClass::class);
+        $pre->expects($this->once())->method('__invoke');
+        $dispatcher->addListener(ProductPriceCalculationExtension::NAME . '.pre', $pre);
+
+        $post = $this->createMock(CallableClass::class);
+        $post->expects($this->once())->method('__invoke');
+        $dispatcher->addListener(ProductPriceCalculationExtension::NAME . '.post', $post);
+
+        $calculator->calculate([], $this->createMock(SalesChannelContext::class));
     }
 
     #[DataProvider('priceWillBeCalculated')]
@@ -149,7 +177,8 @@ class ProductPriceCalculatorTest extends TestCase
             new QuantityPriceCalculator(
                 new GrossPriceCalculator(new TaxCalculator(), new CashRounding()),
                 new NetPriceCalculator(new TaxCalculator(), new CashRounding())
-            )
+            ),
+            new ExtensionDispatcher(new EventDispatcher())
         ))->getDecorated();
     }
 

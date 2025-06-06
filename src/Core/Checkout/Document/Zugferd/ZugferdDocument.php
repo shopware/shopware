@@ -340,27 +340,6 @@ class ZugferdDocument
         };
     }
 
-    protected function calculateTaxes(string $type, OrderEntity $order, AmountCalculator $calculator): float
-    {
-        if (!\array_key_exists($type, $this->mappedPrices)) {
-            throw DocumentException::generationError(\sprintf('Type "%s" not supported', $type));
-        }
-
-        $calculatedTaxes = $calculator->calculateTaxes(
-            new PriceCollection($this->mappedPrices[$type]),
-            $order->getTaxCalculationType() ?? SalesChannelDefinition::CALCULATION_TYPE_HORIZONTAL,
-            $order->getTaxStatus() ?? CartPrice::TAX_STATE_NET,
-            $order->getItemRounding() ?? new CashRoundingConfig(2, 0.01, true)
-        );
-
-        $netTotal = 0.0;
-        foreach ($calculatedTaxes as $tax) {
-            $netTotal += $this->getPrice($tax);
-        }
-
-        return $netTotal;
-    }
-
     private function summary(OrderEntity $order, AmountCalculator $calculator): void
     {
         if ($this->paidAmount > $order->getAmountTotal()) {
@@ -382,5 +361,26 @@ class ZugferdDocument
             $order->getAmountNet() - $lineTotal - $chargeAmount + $allowanceAmount,
             $this->paidAmount
         );
+    }
+
+    private function calculateTaxes(string $type, OrderEntity $order, AmountCalculator $calculator): float
+    {
+        if (!\array_key_exists($type, $this->mappedPrices)) {
+            throw DocumentException::generationError(\sprintf('Type "%s" not supported', $type));
+        }
+
+        $calculatedTaxes = $calculator->calculateTaxes(
+            new PriceCollection($this->mappedPrices[$type]),
+            $order->getTaxCalculationType() ?? SalesChannelDefinition::CALCULATION_TYPE_HORIZONTAL,
+            $order->getTaxStatus() ?? CartPrice::TAX_STATE_NET,
+            $order->getItemRounding() ?? new CashRoundingConfig(2, 0.01, true)
+        );
+
+        $netTotal = 0.0;
+        foreach ($calculatedTaxes as $tax) {
+            $netTotal += $this->getPrice($tax);
+        }
+
+        return $netTotal;
     }
 }

@@ -204,19 +204,24 @@ class ZugferdDocument
         $isPercentage = (($lineItem->getPayload()['discountType'] ?? null) === PromotionDiscountEntity::TYPE_PERCENTAGE)
             && (abs($lineItem->getTotalPrice()) !== (float) ($lineItem->getPayload()['maxValue'] ?? null));
 
-        $type = $lineItem->getPrice()->getUnitPrice() >= 0 ? self::CHARGE_AMOUNT : self::ALLOWANCE_AMOUNT;
+        $isCharge = $lineItem->getPrice()->getUnitPrice() >= 0;
+        $type = $isCharge ? self::CHARGE_AMOUNT : self::ALLOWANCE_AMOUNT;
         $this->addMappedPrice($type, $lineItem->getPrice());
 
         foreach ($lineItem->getPrice()->getCalculatedTaxes() as $calculatedTax) {
             $actualAmount = $this->getPrice($calculatedTax);
 
             if (!Feature::isActive('v6.8.0.0')) {
-                $actualAmount >= 0 ? $this->addChargeAmount($actualAmount) : $this->addAllowanceAmount($actualAmount);
+                if ($isCharge) {
+                    $this->addChargeAmount($actualAmount);
+                } else {
+                    $this->addAllowanceAmount($actualAmount);
+                }
             }
             $this->zugferdBuilder->addDocumentAllowanceCharge(
                 ...[
                     'actualAmount' => abs($actualAmount),
-                    'isCharge' => $actualAmount >= 0,
+                    'isCharge' => $isCharge,
                     'taxCategoryCode' => $this->getTaxCode($calculatedTax),
                     'taxTypeCode' => 'VAT',
                     'rateApplicablePercent' => $calculatedTax->getTaxRate(),

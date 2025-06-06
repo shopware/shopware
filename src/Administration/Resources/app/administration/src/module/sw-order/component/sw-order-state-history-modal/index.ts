@@ -270,7 +270,7 @@ export default Component.wrapComponentConfig({
 
         createEntry(
             states: CombinedStates,
-            entry: Entity<'state_machine_history'> | Entity<'order'> | Entity<'order_transaction'>
+            entry: Entity<'state_machine_history'> | Entity<'order'> | Entity<'order_transaction'>,
         ): StateMachineHistoryData {
             return {
                 order: states.order,

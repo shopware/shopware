@@ -9,7 +9,7 @@ parameters:
         - src
         - tests
     scanDirectories:
-        - vendor/shyim/danger-php/
+        - vendor-bin/danger-php/
     bootstrapFiles:
         - src/Core/DevOps/StaticAnalyze/phpstan-bootstrap.php
     # run `php src/Core/DevOps/StaticAnalyze/phpstan-bootstrap.php` to create the container

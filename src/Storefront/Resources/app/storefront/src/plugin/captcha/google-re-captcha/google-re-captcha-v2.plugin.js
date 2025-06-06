@@ -30,6 +30,7 @@ export default class GoogleReCaptchaV2Plugin extends GoogleReCaptchaBasePlugin
     }
 
     onFormSubmit() {
+        debugger;
         if (this.options.invisible) {
             if (this.grecaptchaWidgetId === null) {
                 return;

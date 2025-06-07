@@ -29,7 +29,7 @@ class SalesChannelContext extends Struct
      */
     protected array $permissions = [];
 
-    protected bool $permisionsLocked = false;
+    protected bool $permissionsLocked = false;
 
     protected ?string $imitatingUserId = null;
 
@@ -194,7 +194,7 @@ class SalesChannelContext extends Struct
 
     public function lockPermissions(): void
     {
-        $this->permisionsLocked = true;
+        $this->permissionsLocked = true;
     }
 
     public function getToken(): string
@@ -230,7 +230,7 @@ class SalesChannelContext extends Struct
      */
     public function setPermissions(array $permissions): void
     {
-        if ($this->permisionsLocked) {
+        if ($this->permissionsLocked) {
             throw SalesChannelException::contextPermissionsLocked();
         }
 
@@ -392,7 +392,7 @@ class SalesChannelContext extends Struct
      */
     public function withPermissions(array $permissions, callable $callback): mixed
     {
-        if ($this->permisionsLocked) {
+        if ($this->permissionsLocked) {
             return $callback($this);
         }
 

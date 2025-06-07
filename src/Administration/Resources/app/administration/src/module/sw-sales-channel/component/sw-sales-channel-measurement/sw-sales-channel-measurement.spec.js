@@ -5,7 +5,7 @@
 import { mount } from '@vue/test-utils';
 import EntityCollection from '../../../../core/data/entity-collection.data';
 
-async function createWrapper() {
+async function createWrapper(repositoryMock, measurementUnits = {}) {
     const mockDefaultUnits = new EntityCollection(
         '/measurement-system',
         'measurement_system',
@@ -22,8 +22,22 @@ async function createWrapper() {
                     null,
                     {},
                     [
-                        { id: 'mm', type: 'length', measurementSystemId: 'metric', shortName: 'mm', default: true },
-                        { id: 'kg', type: 'weight', measurementSystemId: 'metric', shortName: 'kg', default: true },
+                        {
+                            id: 'mm',
+                            type: 'length',
+                            measurementSystemId: 'metric',
+                            shortName: 'mm',
+                            name: 'Milimeter',
+                            default: true,
+                        },
+                        {
+                            id: 'kg',
+                            type: 'weight',
+                            measurementSystemId: 'metric',
+                            shortName: 'kg',
+                            name: 'Kilogram',
+                            default: true,
+                        },
                     ],
                     2,
                     null,
@@ -82,10 +96,11 @@ async function createWrapper() {
     );
 
     const repositoryFactory = {
-        create: () => ({
-            search: jest.fn().mockResolvedValue(mockDefaultUnits),
-            get: jest.fn().mockResolvedValue(),
-        }),
+        create: () =>
+            repositoryMock || {
+                search: jest.fn().mockResolvedValue(mockDefaultUnits),
+                get: jest.fn().mockResolvedValue(),
+            },
     };
 
     return mount(await wrapTestComponent('sw-sales-channel-measurement', { sync: true }), {
@@ -97,6 +112,7 @@ async function createWrapper() {
                         length: 'mm',
                         weight: 'kg',
                     },
+                    ...measurementUnits,
                 },
             },
         },
@@ -105,33 +121,28 @@ async function createWrapper() {
                 'sw-container': await wrapTestComponent('sw-container', {
                     sync: true,
                 }),
-                'sw-entity-single-select': await wrapTestComponent('sw-entity-single-select', {
-                    sync: true,
-                }),
-                'sw-select-base': await wrapTestComponent('sw-select-base', { sync: true }),
-                'sw-select-result-list': await wrapTestComponent('sw-select-result-list', { sync: true }),
-                'sw-select-result': await wrapTestComponent('sw-select-result', { sync: true }),
-                'sw-block-field': await wrapTestComponent('sw-block-field', { sync: true }),
-                'sw-base-field': await wrapTestComponent('sw-base-field', { sync: true }),
-                'sw-popover': await wrapTestComponent('sw-popover', { sync: true }),
-                'sw-popover-deprecated': await wrapTestComponent('sw-popover-deprecated', { sync: true }),
-                'sw-help-text': true,
-                'sw-inheritance-switch': true,
-                'sw-ai-copilot-badge': true,
                 'sw-field-error': true,
                 'sw-loader': true,
                 'sw-product-variant-info': true,
-                'sw-single-select': {
-                    props: [
-                        'value',
-                    ],
+                'mt-select': {
                     template: `
-                            <input
-                                class="sw-single-select__input"
-                                :value="value"
-                                @input="$emit('update:value', $event.target.value)"
-                            />
-                        `,
+                        <select
+                            class="mt-select__input"
+                            :value="modelValue"
+                            @change="$emit('update:modelValue', $event.target.value)"
+                        >
+                            <option
+                                v-for="option in options"
+                                :key="option.value"
+                                :value="option.value"
+                            >
+                                {{ option.label }}
+                            </option>
+                        </select>`,
+                    props: [
+                        'modelValue',
+                        'options',
+                    ],
                 },
                 'sw-highlight-text': true,
             },
@@ -197,49 +208,99 @@ describe('src/module/sw-sales-channel/component/sw-sales-channel-measurement', (
     it('should correctly update units on onMeasurementSystemChange', async () => {
         const wrapper = await createWrapper();
 
-        const selects = wrapper.findAll('.sw-entity-single-select');
-
-        const selection = selects.at(0).find('.sw-entity-single-select__selection');
-
-        await selection.trigger('click');
+        const systemInput = wrapper.findAll('.mt-select__input').at(0);
+        await systemInput.setValue('imperial');
         await flushPromises();
 
-        const typeElement = wrapper.findAll('.sw-select-result');
-        await typeElement.at(1).trigger('click');
-        await flushPromises();
-
-        expect(wrapper.vm.measurementUnits.system).toBe('imperial');
         expect(wrapper.vm.measurementUnits.units).toEqual({
             length: 'in',
             weight: 'lb',
         });
     });
 
-    it('should update lengthUnit prop on salesChannel when sw-single-select for length changes', async () => {
-        const wrapper = await createWrapper();
-        wrapper.vm.measurementSystemRepository.search = jest.fn(() => {
-            return Promise.resolve(
-                new EntityCollection('/measurement-system', 'measurement_system', null, {}, [
-                    {
-                        id: 'metric',
-                        name: 'Metric system',
-                        technicalName: 'metric',
-                        units: new EntityCollection('/measurement-display-unit', 'measurement_display_unit', null, {}, [
-                            { id: 'm', type: 'length', measurementSystemId: 'metric', shortName: 'm', default: false },
-                            { id: 'cm', type: 'length', measurementSystemId: 'metric', shortName: 'cm', default: true },
-                            { id: 'mm', type: 'length', measurementSystemId: 'metric', shortName: 'mm', default: false },
-                        ]),
-                    },
-                ]),
-            );
+    it('should update measurement units when measurement system changes', async () => {
+        const wrapper = await createWrapper(null, {
+            system: 'imperial',
+            units: {
+                length: 'in',
+                weight: 'lb',
+            },
         });
 
+        expect(wrapper.vm.measurementUnits.system).toBe('imperial');
+        expect(wrapper.vm.measurementUnits.units).toEqual({
+            length: 'in',
+            weight: 'lb',
+        });
+
+        const weightInput = wrapper.findAll('.mt-select__input').at(0);
+        await weightInput.setValue('metric');
         await flushPromises();
 
-        expect(wrapper.vm.lengthUnits.length).toBeGreaterThan(0);
+        expect(wrapper.vm.measurementUnits.units).toEqual({
+            length: 'mm',
+            weight: 'kg',
+        });
+    });
 
-        const lengthInput = wrapper.findAll('.sw-single-select__input');
-        await lengthInput[0].setValue('cm');
+    it('should update lengthUnit prop on salesChannel when sw-single-select for length changes', async () => {
+        const measurementSystemRepository = {
+            search: jest.fn(() => {
+                return Promise.resolve(
+                    new EntityCollection('/measurement-system', 'measurement_system', null, {}, [
+                        {
+                            id: 'metric',
+                            name: 'Metric system',
+                            technicalName: 'metric',
+                            units: new EntityCollection('/measurement-display-unit', 'measurement_display_unit', null, {}, [
+                                {
+                                    id: 'm',
+                                    type: 'length',
+                                    measurementSystemId: 'metric',
+                                    shortName: 'm',
+                                    name: 'Meter',
+                                    default: false,
+                                },
+                                {
+                                    id: 'cm',
+                                    type: 'length',
+                                    measurementSystemId: 'metric',
+                                    shortName: 'cm',
+                                    name: 'Centimeter',
+                                    default: true,
+                                },
+                                {
+                                    id: 'mm',
+                                    type: 'length',
+                                    measurementSystemId: 'metric',
+                                    shortName: 'mm',
+                                    name: 'Milimeter',
+                                    default: false,
+                                },
+                                {
+                                    id: 'kg',
+                                    type: 'weight',
+                                    measurementSystemId: 'metric',
+                                    shortName: 'kg',
+                                    name: 'Kilogram',
+                                    default: true,
+                                },
+                            ]),
+                        },
+                    ]),
+                );
+            }),
+            get: jest.fn().mockResolvedValue(),
+        };
+
+        const wrapper = await createWrapper(measurementSystemRepository);
+        await flushPromises();
+
+        expect(wrapper.vm.lengthUnitOptions.length).toBeGreaterThan(0);
+
+        const lengthInput = wrapper.findAll('.mt-select__input').at(1);
+        await lengthInput.setValue('cm');
+        await flushPromises();
 
         expect(wrapper.vm.salesChannel.measurementUnits.units).toEqual({
             length: 'cm',
@@ -248,29 +309,55 @@ describe('src/module/sw-sales-channel/component/sw-sales-channel-measurement', (
     });
 
     it('should update weightUnit prop on salesChannel when sw-single-select for weight changes', async () => {
-        const wrapper = await createWrapper();
-        wrapper.vm.measurementSystemRepository.search = jest.fn(() => {
-            return Promise.resolve(
-                new EntityCollection('/measurement-system', 'measurement_system', null, {}, [
-                    {
-                        id: 'metric',
-                        name: 'Metric system',
-                        technicalName: 'metric',
-                        units: new EntityCollection('/measurement-display-unit', 'measurement_display_unit', null, {}, [
-                            { id: 'kg', type: 'weight', measurementSystemId: 'metric', shortName: 'kg', default: true },
-                            { id: 'g', type: 'weight', measurementSystemId: 'metric', shortName: 'g', default: false },
-                        ]),
-                    },
-                ]),
-            );
-        });
+        const measurementSystemRepository = {
+            search: jest.fn(() => {
+                return Promise.resolve(
+                    new EntityCollection('/measurement-system', 'measurement_system', null, {}, [
+                        {
+                            id: 'metric',
+                            name: 'Metric system',
+                            technicalName: 'metric',
+                            units: new EntityCollection('/measurement-display-unit', 'measurement_display_unit', null, {}, [
+                                {
+                                    id: 'kg',
+                                    type: 'weight',
+                                    measurementSystemId: 'metric',
+                                    shortName: 'kg',
+                                    name: 'Kilogram',
+                                    default: true,
+                                },
+                                {
+                                    id: 'g',
+                                    type: 'weight',
+                                    measurementSystemId: 'metric',
+                                    shortName: 'g',
+                                    name: 'Gram',
+                                    default: false,
+                                },
+                                {
+                                    id: 'mm',
+                                    type: 'length',
+                                    measurementSystemId: 'metric',
+                                    shortName: 'mm',
+                                    name: 'Milimeter',
+                                    default: true,
+                                },
+                            ]),
+                        },
+                    ]),
+                );
+            }),
+            get: jest.fn().mockResolvedValue(),
+        };
 
+        const wrapper = await createWrapper(measurementSystemRepository);
         await flushPromises();
 
-        expect(wrapper.vm.weightUnits.length).toBeGreaterThan(0);
+        expect(wrapper.vm.weightUnitOptions.length).toBeGreaterThan(0);
 
-        const weightInput = wrapper.findAll('.sw-single-select__input');
-        await weightInput[1].setValue('g');
+        const weightInput = wrapper.findAll('.mt-select__input').at(2);
+        await weightInput.setValue('g');
+        await flushPromises();
 
         expect(wrapper.vm.salesChannel.measurementUnits.units.weight).toBe('g');
     });

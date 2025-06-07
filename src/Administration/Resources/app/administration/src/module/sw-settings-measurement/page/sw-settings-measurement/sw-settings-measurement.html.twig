@@ -31,9 +31,9 @@
     <template #content>
         <sw-card-view>
             <sw-settings-measurement-default-units
+                :measurement-systems="measurementSystems"
                 :measurement-system="measurementSystem"
                 :measurement-units="measurementUnits"
-                :measurement-system-criteria="measurementSystemCriteria"
                 @measurement-system-change="onChangeMeasurementSystem"
             />
         </sw-card-view>

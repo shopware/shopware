@@ -2,59 +2,53 @@
     columns="1fr 1fr 1fr"
     gap="0 30px"
 >
-    <sw-entity-single-select
-        v-model:value="measurementUnitId"
-        entity="measurement_system"
+    <mt-select
+        v-model="measurementUnits.system"
+        required
+        hide-clearable-button
         :label="labelUnitSystem"
-        :criteria="measurementSystemCriteria"
-        @update:value="onMeasurementSystemChange"
+        :options="measurementSystemOptions"
+        :error="measurementUnitSystemError"
+        @update:model-value="onMeasurementSystemChange"
     />
 
-    <sw-single-select
-        v-model:value="measurementUnits.units.length"
+    <mt-select
+        v-model="measurementUnits.units.length"
         required
-        value-property="shortName"
+        hide-clearable-button
         :label="labelLengthUnit"
-        :popover-classes="['sw-sales-channel-measurement__selection-popover']"
-        :options="lengthUnits"
+        :options="lengthUnitOptions"
+        :error="measurementLengthUnitError"
     >
-        <template #selection-label-property="{ item }">
-            {{ formatUnitLabel(item) }}
-        </template>
-
         <template #result-label-property="{ item, searchTerm }">
             <sw-highlight-text
                 :text="item.translated.name || item.name"
                 :search-term="searchTerm"
             />
 
-            <span class="sw-sales-channel-measurement__length-unit-short-name">
+            <span class="mt-select-result-list-popover-wrapper__length-unit-short-name">
                 {{ item.shortName }}
             </span>
         </template>
-    </sw-single-select>
+    </mt-select>
 
-    <sw-single-select
-        v-model:value="measurementUnits.units.weight"
+    <mt-select
+        v-model="measurementUnits.units.weight"
         required
-        value-property="shortName"
         :label="labelWeightUnit"
-        :popover-classes="['sw-sales-channel-measurement__selection-popover']"
-        :options="weightUnits"
+        hide-clearable-button
+        :options="weightUnitOptions"
+        :error="measurementWeightUnitError"
     >
-        <template #selection-label-property="{ item }">
-            {{ formatUnitLabel(item) }}
-        </template>
-
         <template #result-label-property="{ item, searchTerm }">
             <sw-highlight-text
                 :text="item.translated.name || item.name"
                 :search-term="searchTerm"
             />
 
-            <span class="sw-sales-channel-measurement__mass-unit-short-name">
+            <span class="mt-select-result-list-popover-wrapper__mass-unit-short-name">
                 {{ item.shortName }}
             </span>
         </template>
-    </sw-single-select>
+    </mt-select>
 </sw-container>
